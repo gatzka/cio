@@ -14,9 +14,7 @@ typedef void (*read_handler)(void *handler_context, enum ciol_error err, uint8_t
 
 struct io_stream {
 	void *context;
-	void (*read)(void *context, size_t num, read_handler handler, void *handler_context);
-	void (*read_exactly)(void *context, size_t num, read_handler handler, void *handler_context);
-	void (*read_until)(void *context, const char *delim, read_handler handler, void *handler_context);
+	void (*read)(void *context, off_t offset, size_t count, read_handler handler, void *handler_context);
 	void (*close)(void *context);
 };
 
