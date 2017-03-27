@@ -12,7 +12,8 @@ extern "C" {
 
 /**
  * \file
- * A brief description.
+ * @brief This file contains the definition all users of a cio_io_stream
+ * need to know.
  */
 
 
@@ -20,9 +21,9 @@ extern "C" {
  * @brief The type of a callback function passed to cio_io_stream::read.
  * 
  * @param handler_context The context the functions works on.
- * @param err If err != cio_error::success, the read failed.
+ * @param err If err != ::cio_success, the read failed.
  * @param buf A pointer to the begin of the buffer where the data was read in. 
- * @param bytes_transferred The number of bytes read.
+ * @param bytes_transferred The number of bytes transferred into @p buf.
  */
 typedef void (*cio_read_handler)(void *handler_context, enum cio_error err, uint8_t *buf, size_t bytes_transferred);
 
