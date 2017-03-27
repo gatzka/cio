@@ -10,6 +10,18 @@
 extern "C" {
 #endif
 
+/**
+ * \file
+ * A brief description.
+ */
+
+
+/**
+ * @typedef void (*ciol_read_handler)(void *handler_context, enum ciol_error err, uint8_t *buf, size_t len)
+ * @brief The read handler
+ * 
+ * @param handler_context the context
+ */
 typedef void (*ciol_read_handler)(void *handler_context, enum ciol_error err, uint8_t *buf, size_t len);
 
 /**
@@ -38,7 +50,7 @@ struct ciol_io_stream {
 	 * @param handler_context A pointer to a context which might be
 	 * useful inside @p handler
 	 */
-	void (*read)(void *context, void *buf, off_t offset, size_t count, read_handler handler, void *handler_context);
+	void (*read)(void *context, void *buf, size_t offset, size_t count, ciol_read_handler handler, void *handler_context);
 
 	/**
 	 * @brief Closes the stream
