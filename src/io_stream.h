@@ -10,11 +10,11 @@
 extern "C" {
 #endif
 
-typedef void (*read_handler)(void *handler_context, enum ciol_error err, uint8_t *buf, size_t len);
+typedef void (*ciol_read_handler)(void *handler_context, enum ciol_error err, uint8_t *buf, size_t len);
 
-struct io_stream {
+struct ciol_io_stream {
 	void *context;
-	void (*read)(void *context, off_t offset, size_t count, read_handler handler, void *handler_context);
+	void (*read)(void *context, void *buf, off_t offset, size_t count, read_handler handler, void *handler_context);
 	void (*close)(void *context);
 };
 
