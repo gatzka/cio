@@ -17,11 +17,14 @@ extern "C" {
 
 
 /**
- * @brief The read handler
+ * @brief The type of a callback function passed to cio_io_stream::read.
  * 
- * @param handler_context the context
+ * @param handler_context The context the functions works on.
+ * @param err If err != cio_error::success, the read failed.
+ * @param buf A pointer to the begin of the buffer where the data was read in. 
+ * @param bytes_transferred The number of bytes read.
  */
-typedef void (*cio_read_handler)(void *handler_context, enum cio_error err, uint8_t *buf, size_t len);
+typedef void (*cio_read_handler)(void *handler_context, enum cio_error err, uint8_t *buf, size_t bytes_transferred);
 
 /**
  * @brief This structure describes the interface all implementations
