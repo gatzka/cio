@@ -1,9 +1,9 @@
-#ifndef CIOL_ERROR_CODES_H
-#define CIOL_ERROR_CODES_H
+#ifndef CIO_ERROR_CODES_H
+#define CIO_ERROR_CODES_H
 
 #include "system_error_code.h"
 
-enum ciol_error {
+enum cio_error {
 	success = 0,
 	operation_would_block = EWOULDBLOCK,
 	resource_unavailable_try_again = EAGAIN

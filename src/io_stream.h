@@ -1,5 +1,5 @@
-#ifndef CIOL_IO_STREAM_H
-#define CIOL_IO_STREAM_H
+#ifndef CIO_IO_STREAM_H
+#define CIO_IO_STREAM_H
 
 #include <stddef.h>
 #include <stdint.h>
@@ -17,21 +17,20 @@ extern "C" {
 
 
 /**
- * @typedef void (*ciol_read_handler)(void *handler_context, enum ciol_error err, uint8_t *buf, size_t len)
  * @brief The read handler
  * 
  * @param handler_context the context
  */
-typedef void (*ciol_read_handler)(void *handler_context, enum ciol_error err, uint8_t *buf, size_t len);
+typedef void (*cio_read_handler)(void *handler_context, enum cio_error err, uint8_t *buf, size_t len);
 
 /**
  * @brief This structure describes the interface all implementations
  * have to fulfill.
  */
-struct ciol_io_stream {
+struct cio_io_stream {
 	/**
 	 * @brief The context pointer which is passed to the
-	 * ciol_io_stream::read and ciol_io_stream::close functions.
+	 * cio_io_stream::read and cio_io_stream::close functions.
 	 */
 	void *context;
 
@@ -39,7 +38,7 @@ struct ciol_io_stream {
 	 * @brief Read upto @p count bytes into the buffer @p buf starting
 	 * with offset @p offset.
 	 *
-	 * @param context A pointer to the ciol_io_stream::context of the
+	 * @param context A pointer to the cio_io_stream::context of the
 	 * implementation implementing this interface.
 	 * @param buf The buffer to be filled.
 	 * @param offset The start offset in @p buf at which the data is
@@ -50,7 +49,7 @@ struct ciol_io_stream {
 	 * @param handler_context A pointer to a context which might be
 	 * useful inside @p handler
 	 */
-	void (*read)(void *context, void *buf, size_t offset, size_t count, ciol_read_handler handler, void *handler_context);
+	void (*read)(void *context, void *buf, size_t offset, size_t count, cio_read_handler handler, void *handler_context);
 
 	/**
 	 * @brief Closes the stream

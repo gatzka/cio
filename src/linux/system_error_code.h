@@ -1,5 +1,5 @@
-#ifndef CIOL_LINUX_ERROR_CODES_H
-#define CIOL_LINUX_ERROR_CODES_H
+#ifndef CIO_LINUX_ERROR_CODES_H
+#define CIO_LINUX_ERROR_CODES_H
 
 #include <errno.h>
 
