@@ -1,6 +1,10 @@
 #ifndef CIO_BUFFERED_STREAM_H
 #define CIO_BUFFERED_STREAM_H
 
+#include <stddef.h>
+
+#include "io_stream.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -20,7 +24,7 @@ extern "C" {
  *
  * A @p writev call into a buffered_stream only writes into the internal
  * write buffer. The write buffer is flushed only if the internal write
- * buffer is called or @p flush is called explicitly
+ * buffer is called or @p flush is called explicitly.
  */
 
 /**
@@ -32,13 +36,27 @@ struct cio_buffered_stream {
 	 * specified below..
 	 */
 	void *context;
+
+	void (*init)(void *context, const struct cio_io_stream *io);
+
+	/**
+	 * @brief Call @p handler if exactly @p num bytes are read.
+	 *
+	 * @param context A pointer to the cio_buffered_stream::context of the
+	 * implementation implementing this interface.
+	 * @param num The number of bytes to be read when @p handler will be called.
+	 * @param handler The callback function to be called when the read
+	 * request is (partly) fulfilled.
+	 * @param handler_context A pointer to a context which might be
+	 * useful inside @p handler
+	 */
 	void (*read_exactly)(void *context, size_t num, cio_stream_handler handler, void *handler_context);
 
 	/**
 	 * @brief Read upto @p count bytes into the buffer @p buf starting
 	 * with offset @p offset.
 	 *
-	 * @param context A pointer to the cio_io_stream::context of the
+	 * @param context A pointer to the cio_buffered_stream::context of the
 	 * implementation implementing this interface.
 	 * @param buf The buffer to be filled.
 	 * @param offset The start offset in @p buf at which the data is
@@ -50,6 +68,18 @@ struct cio_buffered_stream {
 	 * useful inside @p handler
 	 */
 	void (*read)(void *context, size_t num, cio_stream_handler handler, void *handler_context);
+
+	/**
+	 * @brief Call @p handler if delimiter @p delim is encountered.
+	 *
+	 * @param context A pointer to the cio_buffered_stream::context of the
+	 * implementation implementing this interface.
+	 * @param delim A zero terminated string containing the delimiter to be found.
+	 * @param handler The callback function to be called when the read
+	 * request is (partly) fulfilled.
+	 * @param handler_context A pointer to a context which might be
+	 * useful inside @p handler
+	 */
 	void (*read_until)(void *context, const char *delim, cio_stream_handler handler, void *handler_context);
 
 	/**
@@ -58,7 +88,7 @@ struct cio_buffered_stream {
 	 * Please note that the data written is not immediatly forwarded to
 	 * the underlying cio_io_stream. Call cio_buffered_stream::flush to do so.
 	 *
-	 * @param context A pointer to the cio_io_stream::context of the
+	 * @param context A pointer to the cio_buffered_stream::context of the
 	 * implementation implementing this interface.
 	 * @param io_vec An array of cio_io_vector buffers.
 	 * @param count Number of cio_io_vector buffers in @p io_vec.
