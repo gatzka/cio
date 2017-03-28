@@ -17,6 +17,10 @@ extern "C" {
  * Additonally, a cio_buffered_stream gives you the concept of reading
  * an exact number of bytes or reading until a delimiter string is
  * encountered. Both concepts are useful when parsing protocols.
+ *
+ * A @p writev call into a buffered_stream only writes into the internal
+ * write buffer. The write buffer is flushed only if the internal write
+ * buffer is called or @p flush is called explicitly
  */
 
 #ifdef __cplusplus
