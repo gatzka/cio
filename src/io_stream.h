@@ -84,7 +84,7 @@ struct cio_io_stream {
 	void (*writev)(void *context, struct cio_io_vector *io_vec, unsigned int count, cio_stream_handler handler, void *handler_context);
 
 	/**
-	 * @brief Closes the stream
+	 * @brief Closes the stream.
 	 *
 	 * Implementations implementing this interface are strongly
 	 * encouraged to flush any write buffers and to free other resources
