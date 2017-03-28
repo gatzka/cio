@@ -12,10 +12,9 @@ extern "C" {
 
 /**
  * \file
- * @brief This file contains the definition all users of a cio_io_stream
+ * @brief This file contains the definitions all users of a cio_io_stream
  * need to know.
  */
-
 
 /**
  * @brief The type of a callback function passed to cio_io_stream::read.
