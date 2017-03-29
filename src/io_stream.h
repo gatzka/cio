@@ -3,6 +3,7 @@
 
 #include <stddef.h>
 
+#include "cio_io_vector.h"
 #include "cio_stream_handler.h"
 
 #ifdef __cplusplus
@@ -14,21 +15,6 @@ extern "C" {
  * @brief This file contains the definitions all users of a cio_io_stream
  * need to know.
  */
-
-/**
- * @brief Type to represent an element of an I/O vector.
- */
-struct cio_io_vector {
-	/**
-	 * Start address of a buffer.
-	 */
-	const void *iov_base;
-
-	/**
-	 * Length of the buffer.
-	 */
-	size_t iov_len;
-};
 
 /**
  * @brief This structure describes the interface all implementations

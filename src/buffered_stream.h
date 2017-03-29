@@ -4,6 +4,7 @@
 #include <stddef.h>
 
 #include "buffer_allocator.h"
+#include "cio_io_vector.h"
 #include "cio_stream_handler.h"
 #include "io_stream.h"
 
