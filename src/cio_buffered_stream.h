@@ -3,10 +3,10 @@
 
 #include <stddef.h>
 
-#include "buffer_allocator.h"
+#include "cio_buffer_allocator.h"
+#include "cio_io_stream.h"
 #include "cio_io_vector.h"
 #include "cio_stream_handler.h"
-#include "io_stream.h"
 
 #ifdef __cplusplus
 extern "C" {

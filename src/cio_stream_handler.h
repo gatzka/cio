@@ -3,7 +3,7 @@
 
 #include <stdint.h>
 
-#include "error_code.h"
+#include "cio_error_code.h"
 
 #ifdef __cplusplus
 extern "C" {
