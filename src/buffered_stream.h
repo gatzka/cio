@@ -3,6 +3,7 @@
 
 #include <stddef.h>
 
+#include "buffer_allocator.h"
 #include "io_stream.h"
 
 #ifdef __cplusplus
@@ -11,8 +12,8 @@ extern "C" {
 
 /**
  * \file
- * @brief This file contains the definitions all users of a cio_buffered_stream
- * need to know.
+ * @brief This file contains the declarations all users of a
+ * cio_buffered_stream need to know.
  *
  * A cio_buffered_stream is always greedy to fill its internal read
  * buffer. Therefore, it greatly reduces the amount of read calls into
@@ -33,11 +34,23 @@ extern "C" {
 struct cio_buffered_stream {
 	/**
 	 * @brief The context pointer which is passed to the functions
-	 * specified below..
+	 * specified below.
 	 */
 	void *context;
 
-	void (*init)(void *context, const struct cio_io_stream *io);
+	/**
+	 * @brief Initializes a cio_buffered_stream.
+	 *
+	 * @param context A pointer to the cio_buffered_stream::context of the
+	 * implementation implementing this interface.
+	 * @param io A pointer to an cio_io_stream which is used to fill the
+	 * internal read buffer an to which the internal write buffer will
+	 * be flushed.
+	 * @param allocator The cio_buffer_allocator which is used to allocate the
+	 * internal read and write buffers.
+	 * @return Zero for success, -1 in case of an error.
+	 */
+	int (*init)(void *context, const struct cio_io_stream *io, const struct cio_buffer_allocator *allocator);
 
 	/**
 	 * @brief Call @p handler if exactly @p num bytes are read.
