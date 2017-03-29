@@ -2,9 +2,8 @@
 #define CIO_IO_STREAM_H
 
 #include <stddef.h>
-#include <stdint.h>
 
-#include "error_code.h"
+#include "cio_stream_handler.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -15,16 +14,6 @@ extern "C" {
  * @brief This file contains the definitions all users of a cio_io_stream
  * need to know.
  */
-
-/**
- * @brief The type of a callback function passed to cio_io_stream::read.
- * 
- * @param handler_context The context the functions works on.
- * @param err If err != ::cio_success, the read failed.
- * @param buf A pointer to the begin of the buffer where the data was read in. 
- * @param bytes_transferred The number of bytes transferred into @p buf.
- */
-typedef void (*cio_stream_handler)(void *handler_context, enum cio_error err, uint8_t *buf, size_t bytes_transferred);
 
 /**
  * @brief Type to represent an element of an I/O vector.
