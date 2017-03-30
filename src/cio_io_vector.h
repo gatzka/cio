@@ -9,7 +9,7 @@ extern "C" {
 
 /**
  * \file
- * @brief This file contains the of a scatter/gather I/O buffer element.
+ * @brief This file contains the structure of a scatter/gather I/O buffer element.
  */
 
 /**
