@@ -26,7 +26,7 @@ struct cio_buffer {
 };
 
 /**
- * Interface description for a buffer allocator
+ * Interface description for a buffer allocator.
  */
 struct cio_buffer_allocator {
 	/**
