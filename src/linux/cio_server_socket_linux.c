@@ -29,7 +29,7 @@ static enum cio_error set_fd_non_blocking(int fd)
 	return cio_success;
 }
 
-static enum cio_error init(void *context, uint16_t port, unsigned int backlog, const char *bind_address)
+static enum cio_error socket_init(void *context, uint16_t port, unsigned int backlog, const char *bind_address)
 {
 	struct addrinfo hints;
 	struct addrinfo *servinfo;
@@ -104,14 +104,24 @@ static enum cio_error init(void *context, uint16_t port, unsigned int backlog, c
 		return errno;
 	}
 
-	struct cio_server_socket_linux *ss_linux = context;
-	ss_linux->fd = listen_fd;
+	struct cio_server_socket_linux *ss = context;
+	ss->fd = listen_fd;
 
 	return cio_success;
 }
 
+static void socket_close(void *context)
+{
+	struct cio_server_socket_linux *ss = context;
+	close(ss->fd);
+	if (ss->close_hook != NULL) {
+		ss->close_hook(ss);
+	}
+}
+
 void cio_server_socket_linux_init(struct cio_server_socket_linux *ss, close_hook close_hook) {
-	ss->server_socket.init = init;
+	ss->server_socket.init = socket_init;
+	ss->server_socket.close = socket_close;
 	ss->fd = -1;
 	ss->close_hook = close_hook;
 }
