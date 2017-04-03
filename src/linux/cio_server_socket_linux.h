@@ -8,13 +8,17 @@
 extern "C" {
 #endif
 
+struct cio_server_socket_linux;
+
+typedef void (*close_hook)(struct cio_server_socket_linux *ss);
+
 struct cio_server_socket_linux {
 	struct cio_server_socket server_socket;
 	int fd;
-	void (*close_hook)(struct cio_server_socket_linux *context);
+	close_hook close_hook;
 };
 
-enum cio_error init(void *context, uint16_t port, unsigned int backlog, const char *bind_address);
+void cio_server_socket_linux_init(struct cio_server_socket_linux *ss, close_hook close_hook);
 
 #ifdef __cplusplus
 }
