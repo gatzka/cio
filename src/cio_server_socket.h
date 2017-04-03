@@ -3,6 +3,7 @@
 
 #include <stdint.h>
 
+#include "cio_error_code.h"
 #include "cio_socket.h"
 
 #ifdef __cplusplus
@@ -18,7 +19,7 @@ struct cio_server_socket {
 	 */
 	void *context;
 
-	void (*init)(void *context, uint16_t port, unsigned int backlog);
+	enum cio_error (*init)(void *context, uint16_t port, unsigned int backlog, const char *bind_address);
 
 	void (*accept)(void *context, cio_accept_handler handler, void *handler_context);
 
