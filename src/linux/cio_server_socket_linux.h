@@ -15,10 +15,10 @@ typedef void (*close_hook)(struct cio_server_socket_linux *ss);
 struct cio_server_socket_linux {
 	struct cio_server_socket server_socket;
 	int fd;
-	close_hook close_hook;
+	close_hook close;
 };
 
-void cio_server_socket_linux_init(struct cio_server_socket_linux *ss, close_hook close_hook);
+void cio_server_socket_linux_init(struct cio_server_socket_linux *ss, close_hook close);
 
 #ifdef __cplusplus
 }

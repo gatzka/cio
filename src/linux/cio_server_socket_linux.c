@@ -114,14 +114,14 @@ static void socket_close(void *context)
 {
 	struct cio_server_socket_linux *ss = context;
 	close(ss->fd);
-	if (ss->close_hook != NULL) {
-		ss->close_hook(ss);
+	if (ss->close != NULL) {
+		ss->close(ss);
 	}
 }
 
-void cio_server_socket_linux_init(struct cio_server_socket_linux *ss, close_hook close_hook) {
+void cio_server_socket_linux_init(struct cio_server_socket_linux *ss, close_hook close) {
 	ss->server_socket.init = socket_init;
 	ss->server_socket.close = socket_close;
 	ss->fd = -1;
-	ss->close_hook = close_hook;
+	ss->close = close;
 }
