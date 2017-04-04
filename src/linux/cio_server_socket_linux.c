@@ -1,6 +1,7 @@
 #include <errno.h>
 #include <fcntl.h>
 #include <netdb.h>
+#include <stddef.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <string.h>
@@ -124,6 +125,7 @@ static void socket_close(void *context)
 }
 
 const struct cio_server_socket *cio_server_socket_linux_init(struct cio_server_socket_linux *ss, close_hook close) {
+	ss->server_socket.context = ss;
 	ss->server_socket.init = socket_init;
 	ss->server_socket.close = socket_close;
 	ss->fd = -1;
