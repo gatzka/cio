@@ -25,7 +25,6 @@
  */
 
 import qbs 1.0
-//import '../qbs/versions.js' as Versions
 
 Project {
 
@@ -33,8 +32,6 @@ Project {
 
   name: "cio-libraries"
   minimumQbsVersion: "1.6.0"
-
-//  qbsSearchPaths: "../qbs/"
 
   SubProject {
     filePath: "../../qbs/hardening.qbs"
@@ -60,10 +57,7 @@ Project {
 
     cpp.warningLevel: "all"
     cpp.treatWarningsAsErrors: true
-    cpp.positionIndependentCode: false
     cpp.includePaths: [".", "..", buildDirectory]
-    cpp.visibility: "hidden"
-    cpp.useRPaths: false
 
     Group {
       name: "ANSI C conformant"
