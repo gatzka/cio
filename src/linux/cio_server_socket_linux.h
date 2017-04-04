@@ -12,13 +12,7 @@ struct cio_server_socket_linux;
 
 typedef void (*close_hook)(struct cio_server_socket_linux *ss);
 
-struct cio_server_socket_linux {
-	struct cio_server_socket server_socket;
-	int fd;
-	close_hook close;
-};
-
-void cio_server_socket_linux_init(struct cio_server_socket_linux *ss, close_hook close);
+const struct cio_server_socket *cio_server_socket_linux_init(struct cio_server_socket_linux *ss, close_hook close);
 
 #ifdef __cplusplus
 }

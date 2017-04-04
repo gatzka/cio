@@ -12,11 +12,15 @@
 #include "cio_error_code.h"
 #include "cio_server_socket_linux.h"
 
+struct cio_server_socket_linux {
+	struct cio_server_socket server_socket;
+	int fd;
+	close_hook close;
+};
+
 static enum cio_error set_fd_non_blocking(int fd)
 {
-	int fd_flags;
-
-	fd_flags = fcntl(fd, F_GETFL, 0);
+	int fd_flags = fcntl(fd, F_GETFL, 0);
 	if (unlikely(fd_flags < 0)) {
 		return errno;
 	}
@@ -32,7 +36,6 @@ static enum cio_error set_fd_non_blocking(int fd)
 static enum cio_error socket_init(void *context, uint16_t port, unsigned int backlog, const char *bind_address)
 {
 	struct addrinfo hints;
-	struct addrinfo *servinfo;
 
 	memset(&hints, 0, sizeof hints);
 	hints.ai_family = AF_UNSPEC;
@@ -46,6 +49,7 @@ static enum cio_error socket_init(void *context, uint16_t port, unsigned int bac
 		bind_address = "::";
 	}
 
+	struct addrinfo *servinfo;
 	int ret = getaddrinfo(bind_address, server_port_string, &hints, &servinfo);
 	if (ret != 0) {
 		switch (ret) {
@@ -119,9 +123,10 @@ static void socket_close(void *context)
 	}
 }
 
-void cio_server_socket_linux_init(struct cio_server_socket_linux *ss, close_hook close) {
+const struct cio_server_socket *cio_server_socket_linux_init(struct cio_server_socket_linux *ss, close_hook close) {
 	ss->server_socket.init = socket_init;
 	ss->server_socket.close = socket_close;
 	ss->fd = -1;
 	ss->close = close;
+	return &ss->server_socket;
 }
