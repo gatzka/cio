@@ -17,6 +17,8 @@ struct cio_server_socket_linux {
 	struct cio_server_socket server_socket;
 	int fd;
 	close_hook close;
+	cio_accept_handler handler;
+	void *handler_context;
 };
 
 static enum cio_error set_fd_non_blocking(int fd)
@@ -124,10 +126,18 @@ static void socket_close(void *context)
 	}
 }
 
+static void socket_accept(void *context, cio_accept_handler handler, void *handler_context)
+{
+	struct cio_server_socket_linux *ss = context;
+	ss->handler = handler;
+	ss->handler_context = handler_context;
+}
+
 const struct cio_server_socket *cio_server_socket_linux_init(struct cio_server_socket_linux *ss, close_hook close) {
 	ss->server_socket.context = ss;
 	ss->server_socket.init = socket_init;
 	ss->server_socket.close = socket_close;
+	ss->server_socket.accept = socket_accept;
 	ss->fd = -1;
 	ss->close = close;
 	return &ss->server_socket;
