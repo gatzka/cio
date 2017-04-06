@@ -11,7 +11,7 @@
 
 #include "cio_compiler.h"
 #include "cio_error_code.h"
-#include "cio_server_socket_linux.h"
+#include "cio_linux_server_socket.h"
 
 struct cio_server_socket_linux {
 	struct cio_server_socket server_socket;
