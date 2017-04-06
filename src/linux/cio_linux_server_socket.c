@@ -126,11 +126,36 @@ static void socket_close(void *context)
 	}
 }
 
+static void accept_callback(void *context)
+{
+	struct cio_server_socket_linux *ss = context;
+
+	while (1) {
+		struct sockaddr_storage addr = {0};
+		socklen_t addrlen = sizeof(addr);
+		int client_fd = accept(ss->fd, (struct sockaddr *)&addr, &addrlen);
+		if (unlikely(client_fd == -1)) {
+			if ((errno != EAGAIN) && (errno != EWOULDBLOCK)) {
+				ss->handler(ss->handler_context, errno, NULL);
+			}
+		} else {
+			if (likely(ss->handler != NULL)) {
+				//TODO: create client socket and pass it instead of NULL
+				ss->handler(ss->handler_context, cio_success, NULL);
+			} else {
+				close(client_fd);
+			}
+		}
+	}
+}
+
 static void socket_accept(void *context, cio_accept_handler handler, void *handler_context)
 {
 	struct cio_server_socket_linux *ss = context;
 	ss->handler = handler;
 	ss->handler_context = handler_context;
+	// TODO: eventloop add
+	accept_callback(context);
 }
 
 const struct cio_server_socket *cio_server_socket_linux_init(struct cio_server_socket_linux *ss, close_hook close) {
