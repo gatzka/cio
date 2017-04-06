@@ -19,6 +19,7 @@ enum cio_error {
 	cio_address_not_available = EADDRNOTAVAIL, /*!< Address not available */
 	cio_bad_address = EFAULT, /*!< Bad address. */
 	cio_bad_file_descriptor = EBADF, /*!< Bad file descriptor. */
+	cio_file_exists = EEXIST, /*!< File exists. */
 	cio_filename_too_long = ENAMETOOLONG, /*!< File name too long. */
 	cio_invalid_argument = EINVAL, /*!< Invalid argument. */
 	cio_no_buffer_space = ENOBUFS, /*!< No buffer space. */
@@ -28,6 +29,7 @@ enum cio_error {
 	cio_not_a_directory = ENOTDIR, /*!< Not a directory. */
 	cio_not_a_socket = ENOTSOCK, /*!< Not a socket. */
 	cio_not_enough_memory = ENOMEM, /*!< Not enough memory. */
+	cio_operation_not_permitted = EPERM, /*!< Operation not permitted. */
 	cio_permission_denied = EACCES, /*!< Permission denied. */
 	cio_protocol_not_supported = EPROTONOSUPPORT, /*!< Protocol not supported. */
 	cio_read_only_file_system = EROFS, /*!< Read only file system. */
