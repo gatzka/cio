@@ -11,6 +11,7 @@
 
 #include "cio_compiler.h"
 #include "cio_error_code.h"
+#include "cio_linux_epoll.h"
 #include "cio_linux_server_socket.h"
 
 struct cio_server_socket_linux {
@@ -19,6 +20,7 @@ struct cio_server_socket_linux {
 	close_hook close;
 	cio_accept_handler handler;
 	void *handler_context;
+	struct cio_linux_event_notifier ev;
 };
 
 static enum cio_error set_fd_non_blocking(int fd)
@@ -139,12 +141,8 @@ static void accept_callback(void *context)
 				ss->handler(ss->handler_context, errno, NULL);
 			}
 		} else {
-			if (likely(ss->handler != NULL)) {
-				//TODO: create client socket and pass it instead of NULL
-				ss->handler(ss->handler_context, cio_success, NULL);
-			} else {
-				close(client_fd);
-			}
+			//TODO: create client socket and pass it instead of NULL
+			ss->handler(ss->handler_context, cio_success, NULL);
 		}
 	}
 }
@@ -152,9 +150,22 @@ static void accept_callback(void *context)
 static void socket_accept(void *context, cio_accept_handler handler, void *handler_context)
 {
 	struct cio_server_socket_linux *ss = context;
+	if (unlikely(handler == NULL)) {
+		ss->handler(ss->handler_context, cio_invalid_argument, NULL);
+		return;
+	}
+
 	ss->handler = handler;
 	ss->handler_context = handler_context;
-	// TODO: eventloop add
+	ss->ev.callback = accept_callback;
+	ss->ev.context = context;
+	ss->ev.fd = ss->fd;
+	enum cio_error err = cio_linux_eventloop_add(&ss->ev);
+	if (unlikely(err != cio_success)) {
+		ss->handler(ss->handler_context, err, NULL);
+		return;
+	}
+
 	accept_callback(context);
 }
 
