@@ -35,7 +35,7 @@ enum cio_error cio_linux_eventloop_add(struct cio_linux_event_notifier *ev)
 		return errno;
 	}
 
-	return cio_success;;
+	return cio_success;
 }
 
 enum cio_error cio_linux_eventloop_run(const int *go_ahead)
