@@ -80,4 +80,18 @@ Project {
       ]
     }
   }
+
+  CppApplication {
+    name: "cio-test"
+    Depends { name: "cio-static" }
+
+    cpp.warningLevel: "all"
+    cpp.treatWarningsAsErrors: true
+    cpp.includePaths: [".", "..", "../../"]
+
+    files: [
+      "tmp/*.c",
+      "tmp/*.h"
+    ]
+  }
 }
