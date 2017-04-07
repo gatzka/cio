@@ -1,5 +1,5 @@
-#ifndef CIO_SERVER_SOCKET_LINUX_H
-#define CIO_SERVER_SOCKET_LINUX_H
+#ifndef CIO_LINUX_SERVER_SOCKET_H
+#define CIO_LINUX_SERVER_SOCKET_H
 
 #include "cio_error_code.h"
 #include "cio_server_socket.h"
