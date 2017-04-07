@@ -38,7 +38,7 @@ enum cio_error cio_linux_eventloop_add(struct cio_linux_event_notifier *ev)
 	return cio_success;;
 }
 
-enum cio_error eventloop_epoll_run(const int *go_ahead)
+enum cio_error cio_linux_eventloop_run(const int *go_ahead)
 {
 	struct epoll_event events[CONFIG_MAX_EPOLL_EVENTS];
 
