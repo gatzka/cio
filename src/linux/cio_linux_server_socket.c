@@ -14,15 +14,6 @@
 #include "cio_linux_epoll.h"
 #include "cio_linux_server_socket.h"
 
-struct cio_server_socket_linux {
-	struct cio_server_socket server_socket;
-	int fd;
-	close_hook close;
-	cio_accept_handler handler;
-	void *handler_context;
-	struct cio_linux_event_notifier ev;
-};
-
 static enum cio_error set_fd_non_blocking(int fd)
 {
 	int fd_flags = fcntl(fd, F_GETFL, 0);
@@ -40,9 +31,8 @@ static enum cio_error set_fd_non_blocking(int fd)
 
 static enum cio_error socket_init(void *context, uint16_t port, unsigned int backlog, const char *bind_address)
 {
-	struct addrinfo hints;
+	struct addrinfo hints = {0};
 
-	memset(&hints, 0, sizeof hints);
 	hints.ai_family = AF_UNSPEC;
 	hints.ai_socktype = SOCK_STREAM;
 	hints.ai_flags = AI_PASSIVE | AI_V4MAPPED | AI_NUMERICHOST;
@@ -113,7 +103,7 @@ static enum cio_error socket_init(void *context, uint16_t port, unsigned int bac
 		return errno;
 	}
 
-	struct cio_server_socket_linux *ss = context;
+	struct cio_linux_server_socket *ss = context;
 	ss->fd = listen_fd;
 
 	return cio_success;
@@ -121,7 +111,7 @@ static enum cio_error socket_init(void *context, uint16_t port, unsigned int bac
 
 static void socket_close(void *context)
 {
-	struct cio_server_socket_linux *ss = context;
+	struct cio_linux_server_socket *ss = context;
 	close(ss->fd);
 	if (ss->close != NULL) {
 		ss->close(ss);
@@ -130,7 +120,7 @@ static void socket_close(void *context)
 
 static void accept_callback(void *context)
 {
-	struct cio_server_socket_linux *ss = context;
+	struct cio_linux_server_socket *ss = context;
 
 	while (1) {
 		struct sockaddr_storage addr = {0};
@@ -139,6 +129,8 @@ static void accept_callback(void *context)
 		if (unlikely(client_fd == -1)) {
 			if ((errno != EAGAIN) && (errno != EWOULDBLOCK)) {
 				ss->handler(ss->handler_context, errno, NULL);
+			} else {
+				return;
 			}
 		} else {
 			//TODO: create client socket and pass it instead of NULL
@@ -149,7 +141,7 @@ static void accept_callback(void *context)
 
 static void socket_accept(void *context, cio_accept_handler handler, void *handler_context)
 {
-	struct cio_server_socket_linux *ss = context;
+	struct cio_linux_server_socket *ss = context;
 	if (unlikely(handler == NULL)) {
 		ss->handler(ss->handler_context, cio_invalid_argument, NULL);
 		return;
@@ -169,7 +161,7 @@ static void socket_accept(void *context, cio_accept_handler handler, void *handl
 	accept_callback(context);
 }
 
-const struct cio_server_socket *cio_server_socket_linux_init(struct cio_server_socket_linux *ss, close_hook close) {
+const struct cio_server_socket *cio_server_socket_linux_init(struct cio_linux_server_socket *ss, close_hook close) {
 	ss->server_socket.context = ss;
 	ss->server_socket.init = socket_init;
 	ss->server_socket.close = socket_close;

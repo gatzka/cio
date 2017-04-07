@@ -8,11 +8,20 @@
 extern "C" {
 #endif
 
-struct cio_server_socket_linux;
+struct cio_linux_server_socket;
 
-typedef void (*close_hook)(struct cio_server_socket_linux *ss);
+typedef void (*close_hook)(struct cio_linux_server_socket *ss);
 
-const struct cio_server_socket *cio_server_socket_linux_init(struct cio_server_socket_linux *ss, close_hook close);
+struct cio_linux_server_socket {
+	struct cio_server_socket server_socket;
+	int fd;
+	close_hook close;
+	cio_accept_handler handler;
+	void *handler_context;
+	struct cio_linux_event_notifier ev;
+};
+
+const struct cio_server_socket *cio_server_socket_linux_init(struct cio_linux_server_socket *ss, close_hook close);
 
 #ifdef __cplusplus
 }
