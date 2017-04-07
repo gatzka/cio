@@ -20,9 +20,16 @@ int main()
 
 	struct cio_linux_server_socket ss_linux;
 
-	const struct cio_server_socket *ss = cio_server_socket_linux_init(&ss_linux, NULL);
+	const struct cio_server_socket *ss = cio_linux_server_socket_init(&ss_linux, NULL);
+
+
+
+
 	ss->init(ss->context, 12345, 5, NULL);
 	ss->accept(ss->context, accept_handler, NULL);
+
+
+
 	cio_linux_eventloop_run(&go_ahead);
 	return 0;
 }

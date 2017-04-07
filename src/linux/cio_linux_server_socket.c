@@ -161,7 +161,7 @@ static void socket_accept(void *context, cio_accept_handler handler, void *handl
 	accept_callback(context);
 }
 
-const struct cio_server_socket *cio_server_socket_linux_init(struct cio_linux_server_socket *ss, close_hook close) {
+const struct cio_server_socket *cio_linux_server_socket_init(struct cio_linux_server_socket *ss, close_hook close) {
 	ss->server_socket.context = ss;
 	ss->server_socket.init = socket_init;
 	ss->server_socket.close = socket_close;

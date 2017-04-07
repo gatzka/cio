@@ -21,7 +21,7 @@ struct cio_linux_server_socket {
 	struct cio_linux_event_notifier ev;
 };
 
-const struct cio_server_socket *cio_server_socket_linux_init(struct cio_linux_server_socket *ss, close_hook close);
+const struct cio_server_socket *cio_linux_server_socket_init(struct cio_linux_server_socket *ss, close_hook close);
 
 #ifdef __cplusplus
 }
