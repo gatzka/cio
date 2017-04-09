@@ -29,6 +29,7 @@ void cio_linux_eventloop_destroy(struct cio_linux_eventloop_epoll *loop);
 
 enum cio_error cio_linux_eventloop_add(struct cio_linux_eventloop_epoll *loop, struct cio_linux_event_notifier *ev);
 enum cio_error cio_linux_eventloop_run(struct cio_linux_eventloop_epoll *loop);
+void cio_linux_eventloop_cancel(struct cio_linux_eventloop_epoll *loop);
 
 #ifdef __cplusplus
 }

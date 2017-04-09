@@ -68,3 +68,7 @@ enum cio_error cio_linux_eventloop_run(struct cio_linux_eventloop_epoll *loop)
 	return cio_success;
 }
 
+void cio_linux_eventloop_cancel(struct cio_linux_eventloop_epoll *loop)
+{
+	loop->go_ahead = false;
+}
