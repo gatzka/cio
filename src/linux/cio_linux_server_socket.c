@@ -120,13 +120,13 @@ static void accept_callback(void *context)
 		int client_fd = accept(ss->fd, (struct sockaddr *)&addr, &addrlen);
 		if (unlikely(client_fd == -1)) {
 			if ((errno != EAGAIN) && (errno != EWOULDBLOCK)) {
-				ss->handler(ss->handler_context, errno, NULL);
+				ss->handler(&ss->server_socket, ss->handler_context, errno, NULL);
 			} else {
 				return;
 			}
 		} else {
 			//TODO: create client socket and pass it instead of NULL
-			ss->handler(ss->handler_context, cio_success, NULL);
+			ss->handler(&ss->server_socket, ss->handler_context, cio_success, NULL);
 		}
 	}
 }
@@ -135,7 +135,7 @@ static void socket_accept(void *context, cio_accept_handler handler, void *handl
 {
 	struct cio_linux_server_socket *ss = context;
 	if (unlikely(handler == NULL)) {
-		ss->handler(ss->handler_context, cio_invalid_argument, NULL);
+		ss->handler(&ss->server_socket, ss->handler_context, cio_invalid_argument, NULL);
 		return;
 	}
 
@@ -146,7 +146,7 @@ static void socket_accept(void *context, cio_accept_handler handler, void *handl
 	ss->ev.fd = ss->fd;
 	enum cio_error err = cio_linux_eventloop_add(&ss->ev);
 	if (unlikely(err != cio_success)) {
-		ss->handler(ss->handler_context, err, NULL);
+		ss->handler(&ss->server_socket, ss->handler_context, err, NULL);
 		return;
 	}
 

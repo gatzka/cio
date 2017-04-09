@@ -3,10 +3,12 @@
 
 #include "../cio_linux_epoll.h"
 #include "../cio_linux_server_socket.h"
+#include "../cio_server_socket.h"
 #include "../../cio_error_code.h"
 
-static void accept_handler(void *handler_context, enum cio_error err, struct cio_socket *socket)
+static void accept_handler(struct cio_server_socket *ss, void *handler_context, enum cio_error err, struct cio_socket *socket)
 {
+	(void)ss;
 	(void)handler_context;
 	(void)socket;
 	(void)err;

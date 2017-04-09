@@ -10,7 +10,9 @@
 extern "C" {
 #endif
 
-typedef void (*cio_accept_handler)(void *handler_context, enum cio_error err, struct cio_socket *socket);
+struct cio_server_socket;
+
+typedef void (*cio_accept_handler)(struct cio_server_socket *ss, void *handler_context, enum cio_error err, struct cio_socket *socket);
 
 struct cio_server_socket {
 	/**
