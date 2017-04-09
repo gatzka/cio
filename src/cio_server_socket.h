@@ -25,6 +25,9 @@ struct cio_server_socket {
 
 	void (*accept)(void *context, cio_accept_handler handler, void *handler_context);
 
+    /**
+     *@anchor cio_server_socket_close
+     */
 	void (*close)(void *context);
 };
 
