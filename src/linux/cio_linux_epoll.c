@@ -17,7 +17,7 @@ enum cio_error cio_linux_eventloop_init(void)
 		return errno;
 	}
 
-	return cio_success;;
+	return cio_success;
 }
 
 void eventloop_epoll_destroy(void)
