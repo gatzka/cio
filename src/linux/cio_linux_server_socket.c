@@ -104,6 +104,9 @@ static enum cio_error socket_init(void *context, uint16_t port, unsigned int bac
 static void socket_close(void *context)
 {
 	struct cio_linux_server_socket *ss = context;
+
+	cio_linux_eventloop_remove(ss->loop, &ss->ev);
+
 	close(ss->fd);
 	if (ss->close != NULL) {
 		ss->close(ss);
@@ -121,6 +124,7 @@ static void accept_callback(void *context)
 		if (unlikely(client_fd == -1)) {
 			if ((errno != EAGAIN) && (errno != EWOULDBLOCK)) {
 				ss->handler(&ss->server_socket, ss->handler_context, errno, NULL);
+				return;
 			} else {
 				return;
 			}

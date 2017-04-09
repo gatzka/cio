@@ -11,10 +11,10 @@ static struct cio_linux_eventloop_epoll loop;
 
 static void accept_handler(struct cio_server_socket *ss, void *handler_context, enum cio_error err, struct cio_socket *socket)
 {
-	(void)ss;
 	(void)handler_context;
-	(void)socket;
 	(void)err;
+	(void)socket;
+	ss->close(ss);
 	printf("Angekommen!\n");
 }
 

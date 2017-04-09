@@ -18,12 +18,12 @@ enum cio_error cio_linux_eventloop_init(struct cio_linux_eventloop_epoll *loop)
 	return cio_success;
 }
 
-void cio_linux_eventloop_destroy(struct cio_linux_eventloop_epoll *loop)
+void cio_linux_eventloop_destroy(const struct cio_linux_eventloop_epoll *loop)
 {
 	close(loop->epoll_fd);
 }
 
-enum cio_error cio_linux_eventloop_add(struct cio_linux_eventloop_epoll *loop, struct cio_linux_event_notifier *ev)
+enum cio_error cio_linux_eventloop_add(const struct cio_linux_eventloop_epoll *loop, struct cio_linux_event_notifier *ev)
 {
 	struct epoll_event epoll_ev = {0};
 
@@ -34,6 +34,11 @@ enum cio_error cio_linux_eventloop_add(struct cio_linux_eventloop_epoll *loop, s
 	}
 
 	return cio_success;
+}
+
+void cio_linux_eventloop_remove(const struct cio_linux_eventloop_epoll *loop, struct cio_linux_event_notifier *ev)
+{
+	epoll_ctl(loop->epoll_fd, EPOLL_CTL_DEL, ev->fd, NULL);
 }
 
 enum cio_error cio_linux_eventloop_run(struct cio_linux_eventloop_epoll *loop)
