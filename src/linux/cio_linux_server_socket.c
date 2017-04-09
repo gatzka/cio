@@ -116,13 +116,14 @@ static void socket_close(void *context)
 static void accept_callback(void *context)
 {
 	struct cio_linux_server_socket *ss = context;
+	int fd = ss->fd;
 
 	while (1) {
 		struct sockaddr_storage addr = {0};
 		socklen_t addrlen = sizeof(addr);
-		int client_fd = accept(ss->fd, (struct sockaddr *)&addr, &addrlen);
+		int client_fd = accept(fd, (struct sockaddr *)&addr, &addrlen);
 		if (unlikely(client_fd == -1)) {
-			if ((errno != EAGAIN) && (errno != EWOULDBLOCK)) {
+			if ((errno != EAGAIN) && (errno != EWOULDBLOCK) && (errno != EBADF)) {
 				ss->handler(&ss->server_socket, ss->handler_context, errno, NULL);
 				return;
 			} else {

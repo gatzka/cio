@@ -1,4 +1,5 @@
 #include <stddef.h>
+#include <stdlib.h>
 #include <signal.h>
 #include <stdio.h>
 
@@ -43,14 +44,19 @@ static int register_signal_handler(void)
 	return 0;
 }
 
+static void on_close(struct cio_linux_server_socket *ss)
+{
+	free(ss);
+}
+
 int main()
 {
 	register_signal_handler();
 	cio_linux_eventloop_init(&loop);
 
-	struct cio_linux_server_socket ss_linux;
+	struct cio_linux_server_socket *ss_linux = malloc(sizeof(*ss_linux));
 
-	const struct cio_server_socket *ss = cio_linux_server_socket_init(&ss_linux, &loop, NULL);
+	const struct cio_server_socket *ss = cio_linux_server_socket_init(ss_linux, &loop, on_close);
 
 
 
