@@ -17,12 +17,12 @@ static void accept_handler(struct cio_server_socket *ss, void *handler_context, 
 
 int main()
 {
-	int go_ahead = 1;
-	cio_linux_eventloop_init();
+	struct cio_linux_eventloop_epoll loop;
+	cio_linux_eventloop_init(&loop);
 
 	struct cio_linux_server_socket ss_linux;
 
-	const struct cio_server_socket *ss = cio_linux_server_socket_init(&ss_linux, NULL);
+	const struct cio_server_socket *ss = cio_linux_server_socket_init(&ss_linux, &loop, NULL);
 
 
 
@@ -32,6 +32,6 @@ int main()
 
 
 
-	cio_linux_eventloop_run(&go_ahead);
+	cio_linux_eventloop_run(&loop);
 	return 0;
 }

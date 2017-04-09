@@ -3,6 +3,7 @@
 
 #include "cio_error_code.h"
 #include "cio_server_socket.h"
+#include "cio_linux_epoll.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -19,9 +20,12 @@ struct cio_linux_server_socket {
 	cio_accept_handler handler;
 	void *handler_context;
 	struct cio_linux_event_notifier ev;
+	struct cio_linux_eventloop_epoll *loop;
 };
 
-const struct cio_server_socket *cio_linux_server_socket_init(struct cio_linux_server_socket *ss, close_hook close);
+const struct cio_server_socket *cio_linux_server_socket_init(struct cio_linux_server_socket *ss,
+                                                             struct cio_linux_eventloop_epoll *loop,
+                                                             close_hook close);
 
 #ifdef __cplusplus
 }
