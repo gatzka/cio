@@ -33,5 +33,7 @@ int main()
 
 
 	cio_linux_eventloop_run(&loop);
+
+	cio_linux_eventloop_destroy(&loop);
 	return 0;
 }
