@@ -29,7 +29,7 @@ enum cio_error cio_linux_eventloop_add(struct cio_linux_event_notifier *ev)
 {
 	struct epoll_event epoll_ev = {0};
 
-	epoll_ev.data.ptr = (void *)ev;
+	epoll_ev.data.ptr = ev;
 	epoll_ev.events = EPOLLIN | EPOLLOUT | EPOLLET;
 	if (unlikely(epoll_ctl(epoll_fd, EPOLL_CTL_ADD, ev->fd, &epoll_ev) < 0)) {
 		return errno;
