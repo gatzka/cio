@@ -11,7 +11,7 @@ extern "C" {
 #endif
 
 /**
- * \file
+ * @file
  * @brief This file contains the interface of a server socket.
  *
  * A server socket can be @ref cio_server_socket_init "initialized",
