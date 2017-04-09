@@ -11,7 +11,7 @@ extern "C" {
 #endif
 
 /**
- * \file
+ * @file
  * @brief This file contains the definitions all users of a cio_io_stream
  * need to know.
  */

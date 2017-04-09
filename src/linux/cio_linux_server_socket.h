@@ -10,7 +10,7 @@ extern "C" {
 #endif
 
 /**
- * \file
+ * @file
  * @brief The linux specific implementation of a cio_server_socket.
  */
 

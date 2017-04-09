@@ -10,7 +10,7 @@ extern "C" {
 #endif
 
 /**
- * \file
+ * @file
  * @brief Definition of the stream callback function type.
  * need to know.
  */

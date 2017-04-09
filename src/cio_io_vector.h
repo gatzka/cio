@@ -8,7 +8,7 @@ extern "C" {
 #endif
 
 /**
- * \file
+ * @file
  * @brief This file contains the structure of a scatter/gather I/O buffer element.
  */
 

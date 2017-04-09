@@ -8,6 +8,14 @@
 extern "C" {
 #endif
 
+/**
+ * @file
+ * @brief Implementation of an event loop running on Linux using epoll.
+ */
+
+/**
+ * @private
+ */
 #define CONFIG_MAX_EPOLL_EVENTS 100
 
 struct cio_linux_event_notifier  {
@@ -18,6 +26,9 @@ struct cio_linux_event_notifier  {
 };
 
 struct cio_linux_eventloop_epoll {
+    /**
+     * @privatesection
+     */
 	int epoll_fd;
 	bool go_ahead;
 	unsigned int loop_count;

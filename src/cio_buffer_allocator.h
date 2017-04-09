@@ -8,7 +8,7 @@ extern "C" {
 #endif
 
 /**
- * \file
+ * @file
  * @brief This file contains the declarations all users of a buffer_allocator
  * need to know.
  */

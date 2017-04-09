@@ -13,7 +13,7 @@ extern "C" {
 #endif
 
 /**
- * \file
+ * @file
  * @brief This file contains the declarations all users of a
  * cio_buffered_stream need to know.
  *

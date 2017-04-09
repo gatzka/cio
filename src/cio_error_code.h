@@ -4,7 +4,7 @@
 #include "cio_system_error_code.h"
 
 /**
- * \file
+ * @file
  * @brief This file contains the declaration of the enumeration for all
  * error codes.
  */
