@@ -70,15 +70,6 @@ static enum cio_error socket_init(void *context, uint16_t port, unsigned int bac
 			continue;
 		}
 
-		if (rp->ai_family == AF_INET6) {
-			static const int ipv6_only = 1;
-			if (unlikely(setsockopt(listen_fd, IPPROTO_IPV6, IPV6_V6ONLY, &ipv6_only,
-			                        sizeof(ipv6_only)) < 0)) {
-				close(listen_fd);
-				continue;
-			}
-		}
-
 		enum cio_error err = set_fd_non_blocking(listen_fd);
 		if (unlikely(err != cio_success)) {
 			close(listen_fd);
