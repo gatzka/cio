@@ -20,6 +20,7 @@ struct cio_linux_event_notifier  {
 struct cio_linux_eventloop_epoll {
 	int epoll_fd;
 	bool go_ahead;
+	unsigned int loop_count;
 	struct epoll_event epoll_events[CONFIG_MAX_EPOLL_EVENTS];
 };
 
