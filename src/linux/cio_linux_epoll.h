@@ -19,18 +19,33 @@ extern "C" {
 #define CONFIG_MAX_EPOLL_EVENTS 100
 
 /**
- * @brief The cio_linux_event_notifier struct
+ * @brief The cio_linux_event_notifier struct bundles the information
+ * necessary to register I/O events.
  */
 struct cio_linux_event_notifier  {
+    /**
+     * @brief Initializes a cio_server_socket.
+     * @anchor cio_linux_event_notifier_callback
+	 * @brief The function to be called when a file descriptor becomes ready.
+	 */
 	void (*callback)(void *context);
+
+	/**
+	 * @brief The context that is given to the
+	 * @ref cio_linux_event_notifier_callback "callback function". "callback function".
+	 */
 	void *context;
+
+	/**
+	 * @brief The file descriptor that shall be monitored.
+	 */
 	int fd;
 };
 
 struct cio_linux_eventloop_epoll {
-    /**
-     * @privatesection
-     */
+	/**
+	 * @privatesection
+	 */
 	int epoll_fd;
 	bool go_ahead;
 	unsigned int event_counter;
