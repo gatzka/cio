@@ -16,7 +16,7 @@ extern "C" {
  */
 
 /**
- * @brief The type of a callback function passed to all stream functions.
+ * @brief The type of a function passed to all stream callback functions.
  * 
  * @param handler_context The context the functions works on.
  * @param err If err != ::cio_success, the read failed.
