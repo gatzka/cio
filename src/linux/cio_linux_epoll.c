@@ -57,13 +57,13 @@ enum cio_error cio_linux_eventloop_run(struct cio_linux_eventloop_epoll *loop)
 			return errno;
 		}
 
-		for (loop->loop_count = 0;  loop->loop_count < (unsigned int)num_events; loop->loop_count++) {
-			struct cio_linux_event_notifier *ev = events[loop->loop_count].data.ptr;
+		for (loop->event_counter = 0;  loop->event_counter < (unsigned int)num_events; loop->event_counter++) {
+			struct cio_linux_event_notifier *ev = events[loop->event_counter].data.ptr;
 
-			if (unlikely((events[loop->loop_count].events & ~(EPOLLIN | EPOLLOUT)) != 0)) {
+			if (unlikely((events[loop->event_counter].events & ~(EPOLLIN | EPOLLOUT)) != 0)) {
 				// TODO
 			} else {
-				if (events[loop->loop_count].events & (EPOLLIN | EPOLLOUT)) {
+				if (events[loop->event_counter].events & (EPOLLIN | EPOLLOUT)) {
 					ev->callback(ev->context);
 				}
 			}
