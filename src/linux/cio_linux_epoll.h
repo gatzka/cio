@@ -23,7 +23,7 @@ extern "C" {
  * necessary to register I/O events.
  */
 struct cio_linux_event_notifier  {
-    /**
+	/**
      * @brief Initializes a cio_server_socket.
      * @anchor cio_linux_event_notifier_callback
 	 * @brief The function to be called when a file descriptor becomes ready.
