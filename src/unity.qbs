@@ -57,7 +57,6 @@ Project {
       Depends { name: 'cpp' }
       cpp.includePaths: ["./unity/src/", product.buildDirectory]
       cpp.dynamicLibraries: ["gcov"]
-      cpp.cLanguageVersion: "c99"
       cpp.driverFlags: ["--coverage"]
       cpp.cFlags: [
         "-fprofile-arcs",
