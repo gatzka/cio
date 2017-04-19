@@ -52,7 +52,7 @@ Project {
   }
 
   CppApplication {
-    name: "test-accept"
+    name: "test_cio_linux_server_socket"
     Depends { name: "unity" }
     Depends { name: "fake-function-framework" }
     Depends { name: "gccClang" }
