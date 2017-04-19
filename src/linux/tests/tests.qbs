@@ -61,8 +61,7 @@ Project {
     cpp.treatWarningsAsErrors: true
 
     files: [
-      "*.c",
-      "*.h"
+      "test_cio_linux_server_socket.c",
     ]
   }
 }
