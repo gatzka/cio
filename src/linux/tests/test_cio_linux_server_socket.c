@@ -54,7 +54,7 @@ static int custom_accept_fake(int fd, struct sockaddr *addr, socklen_t *addrlen)
 	}
 }
 
-static void custom_accept_handler(struct cio_server_socket *ss, void *handler_context, enum cio_error err, struct cio_socket *socket)
+static void accept_handler_close_server_socket(struct cio_server_socket *ss, void *handler_context, enum cio_error err, struct cio_socket *socket)
 {
 	(void)handler_context;
 	(void)err;
@@ -64,7 +64,7 @@ static void custom_accept_handler(struct cio_server_socket *ss, void *handler_co
 
 static void test_accept_close_in_accept_handler(void) {
 	accept_fake.custom_fake = custom_accept_fake;
-	accept_handler_fake.custom_fake = custom_accept_handler;
+	accept_handler_fake.custom_fake = accept_handler_close_server_socket;
 	on_close_fake.custom_fake = close_do_nothing;
 
 	struct cio_linux_eventloop_epoll loop;
@@ -79,7 +79,7 @@ static void test_accept_close_in_accept_handler(void) {
 
 static void test_accept_close_and_free_in_accept_handler(void) {
 	accept_fake.custom_fake = custom_accept_fake;
-	accept_handler_fake.custom_fake = custom_accept_handler;
+	accept_handler_fake.custom_fake = accept_handler_close_server_socket;
 	on_close_fake.custom_fake = close_free;
 
 	struct cio_linux_eventloop_epoll loop;
