@@ -4,6 +4,8 @@
 #include <stdbool.h>
 #include <sys/epoll.h>
 
+#include "cio_error_code.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
