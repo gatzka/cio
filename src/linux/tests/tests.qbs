@@ -59,9 +59,11 @@ Project {
 
     cpp.warningLevel: "all"
     cpp.treatWarningsAsErrors: true
+    cpp.includePaths: ["..", "../.."]
 
     files: [
       "test_cio_linux_server_socket.c",
+      "../cio_linux_server_socket.c",
     ]
   }
 }

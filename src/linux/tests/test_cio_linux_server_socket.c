@@ -4,10 +4,14 @@
 #include "fff.h"
 #include "unity.h"
 
+#include "cio_linux_epoll.h"
+#include "cio_linux_server_socket.h"
+
 DEFINE_FFF_GLOBALS
 
-int accept(int sockfd, struct sockaddr *addr, socklen_t *addrlen);
 FAKE_VALUE_FUNC(int, accept, int, struct sockaddr*, socklen_t*)
+FAKE_VALUE_FUNC(enum cio_error, cio_linux_eventloop_add, const struct cio_linux_eventloop_epoll *, struct cio_linux_event_notifier *)
+FAKE_VOID_FUNC(cio_linux_eventloop_remove, const struct cio_linux_eventloop_epoll *, struct cio_linux_event_notifier *)
 
 void setUp(void)
 {
