@@ -31,34 +31,18 @@ Project {
   name: "unity"
   minimumQbsVersion: "1.6.0"
 
-  SubProject {
-    filePath: "../qbs/hardening.qbs"
-    Properties {
-      name: "hardening settings"
-    }
-  }
-
-  SubProject {
-    filePath: "../qbs/gccClang.qbs"
-    Properties {
-      name: "GCC/Clang switches"
-    }
-  }
-
   Product {
     type: "staticlibrary"
     name: "unity"
 
     Depends { name: "cpp" }
-    Depends { name: "gccClang" }
-    Depends { name: "hardening" }
 
     cpp.warningLevel: "all"
     cpp.treatWarningsAsErrors: true
     cpp.includePaths: [".", "..", buildDirectory]
 
     Group {
-      name: "ANSI C conformant"
+      name: "Unity sources"
       
       cpp.cLanguageVersion: "c99"
       
@@ -69,5 +53,16 @@ Project {
       ]
     }
 
+    Export {
+      Depends { name: 'cpp' }
+      cpp.includePaths: ["./unity/src/", product.buildDirectory]
+      cpp.dynamicLibraries: ["gcov"]
+      cpp.cLanguageVersion: "c99"
+      cpp.driverFlags: ["--coverage"]
+      cpp.cFlags: [
+        "-fprofile-arcs",
+        "-ftest-coverage"
+      ]
+    }
   }
 }
