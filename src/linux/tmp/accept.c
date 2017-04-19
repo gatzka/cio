@@ -3,10 +3,10 @@
 #include <signal.h>
 #include <stdio.h>
 
-#include "../cio_linux_epoll.h"
-#include "../cio_linux_server_socket.h"
-#include "../cio_server_socket.h"
-#include "../../cio_error_code.h"
+#include "linux/cio_linux_epoll.h"
+#include "linux/cio_linux_server_socket.h"
+#include "cio_server_socket.h"
+#include "cio_error_code.h"
 
 static struct cio_linux_eventloop_epoll loop;
 
