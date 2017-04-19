@@ -1,3 +1,4 @@
+#include "fff.h"
 #include "unity.h"
 
 void setUp(void) {

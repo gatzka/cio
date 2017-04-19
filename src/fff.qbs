@@ -1,7 +1,7 @@
 /*
  *The MIT License (MIT)
  *
- * Copyright (c) <2017> <Stephan Gatzka>
+ * Copyright (c) <2014> <Stephan Gatzka>
  *
  * Permission is hereby granted, free of charge, to any person obtaining
  * a copy of this software and associated documentation files (the
@@ -26,43 +26,12 @@
 
 import qbs 1.0
 
-Project {
-  name: "cio-linux-tests"
-  minimumQbsVersion: "1.6.0"
+Product {
+  name: "fake-function-framework"
 
-  SubProject {
-    filePath: "../../unity.qbs"
-    Properties {
-      name: "unity"
-    }
-  }
-
-  SubProject {
-    filePath: "../../fff.qbs"
-    Properties {
-      name: "fake-function-framework"
-    }
-  }
-
-  SubProject {
-    filePath: "../../../qbs/gccClang.qbs"
-    Properties {
-      name: "GCC/Clang switches"
-    }
-  }
-
-  CppApplication {
-    name: "test-accept"
-    Depends { name: "unity" }
-    Depends { name: "fake-function-framework" }
-    Depends { name: "gccClang" }
-
-    cpp.warningLevel: "all"
-    cpp.treatWarningsAsErrors: true
-
-    files: [
-      "*.c",
-      "*.h"
-    ]
+  Export {
+    Depends { name: 'cpp' }
+    cpp.includePaths: ["./fff/"]
   }
 }
+
