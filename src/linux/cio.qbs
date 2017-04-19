@@ -25,6 +25,7 @@
  */
 
 import qbs 1.0
+import qbs.TextFile
 
 Project {
 
@@ -83,7 +84,18 @@ Project {
 
   DynamicLibrary {
     name: "cio-dynamic"
-    version: "1.2.3"
+    version: versionInfo.result
+
+    Probe {
+      id: versionInfo
+      property string result
+      property path sourceDir: product.sourceDirectory
+      configure: {
+        var file = new TextFile(sourceDir + "/../version");
+        var content = file.readLine();
+        result = content;
+      }
+    }
 
     Depends { name: "cpp" }
     Depends { name: "gccClang" }
