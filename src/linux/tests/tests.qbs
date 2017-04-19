@@ -27,9 +27,6 @@
 import qbs 1.0
 
 Project {
-
-  property bool runAnalyzer: false
-
   name: "cio-linux-tests"
   minimumQbsVersion: "1.6.0"
 
@@ -37,13 +34,6 @@ Project {
     filePath: "../../unity.qbs"
     Properties {
       name: "unity"
-    }
-  }
-
-  SubProject {
-    filePath: "../../../qbs/hardening.qbs"
-    Properties {
-      name: "hardening settings"
     }
   }
 
@@ -58,7 +48,6 @@ Project {
     name: "test-accept"
     Depends { name: "unity" }
     Depends { name: "gccClang" }
-    Depends { name: "hardening" }
 
     cpp.warningLevel: "all"
     cpp.treatWarningsAsErrors: true
