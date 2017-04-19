@@ -35,6 +35,10 @@ Project {
   }
 
   SubProject {
+    filePath: "cio_doc.qbs"
+  }
+
+  SubProject {
     filePath: "test_run.qbs"
   }
 }
