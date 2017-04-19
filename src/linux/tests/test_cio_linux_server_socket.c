@@ -1,3 +1,4 @@
+#include <errno.h>
 #include <sys/socket.h>
 #include <sys/types.h>
 
@@ -10,8 +11,14 @@
 DEFINE_FFF_GLOBALS
 
 FAKE_VALUE_FUNC(int, accept, int, struct sockaddr*, socklen_t*)
+void accept_handler(struct cio_server_socket *ss, void *handler_context, enum cio_error err, struct cio_socket *socket);
+FAKE_VOID_FUNC(accept_handler, struct cio_server_socket *, void *, enum cio_error, struct cio_socket *)
+
 FAKE_VALUE_FUNC(enum cio_error, cio_linux_eventloop_add, const struct cio_linux_eventloop_epoll *, struct cio_linux_event_notifier *)
 FAKE_VOID_FUNC(cio_linux_eventloop_remove, const struct cio_linux_eventloop_epoll *, struct cio_linux_event_notifier *)
+
+void on_close(struct cio_linux_server_socket *ss);
+FAKE_VOID_FUNC(on_close, struct cio_linux_server_socket *)
 
 void setUp(void)
 {
@@ -19,14 +26,51 @@ void setUp(void)
 	RESET_FAKE(accept);
 }
 
-static void test_accept(void) {
-	accept_fake.return_val = 1;
-	int fd = accept(1, NULL, NULL);
-	TEST_ASSERT_EQUAL(1, fd);
+static void close_do_nothing(struct cio_linux_server_socket *ss)
+{
+	(void)ss;
+}
+
+static int custom_accept_fake(int fd, struct sockaddr *addr, socklen_t *addrlen)
+{
+	(void)fd;
+	(void)addr;
+	(void)addrlen;
+	if (accept_fake.call_count == 1) {
+		return 42;
+	} else {
+		errno = EBADF;
+		return -1;
+	}
+}
+
+static void custom_accept_handler(struct cio_server_socket *ss, void *handler_context, enum cio_error err, struct cio_socket *socket)
+{
+	(void)handler_context;
+	(void)err;
+	(void)socket;
+	ss->close(ss);
+}
+
+static void test_accept_close_in_accept_handler(void) {
+	accept_fake.custom_fake = custom_accept_fake;
+	accept_handler_fake.custom_fake = custom_accept_handler;
+	on_close_fake.custom_fake = close_do_nothing;
+
+	struct cio_linux_eventloop_epoll loop;
+	struct cio_linux_server_socket ss_linux;
+	const struct cio_server_socket *ss = cio_linux_server_socket_init(&ss_linux, &loop, on_close);
+	ss->init(ss->context, 12345, 5, NULL);
+	ss->accept(ss->context, accept_handler, NULL);
+
+	TEST_ASSERT_EQUAL(1, accept_handler_fake.call_count);
+	TEST_ASSERT_EQUAL(1, on_close_fake.call_count);
+	TEST_ASSERT_EQUAL(1, cio_linux_eventloop_add_fake.call_count);
+	TEST_ASSERT_EQUAL(1, cio_linux_eventloop_remove_fake.call_count);
 }
 
 int main(void) {
 	UNITY_BEGIN();
-	RUN_TEST(test_accept);
+	RUN_TEST(test_accept_close_in_accept_handler);
 	return UNITY_END();
 }
