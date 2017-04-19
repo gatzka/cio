@@ -24,8 +24,8 @@
  * SOFTWARE.
  */
 
-#ifndef CJET_COMPILER_H
-#define CJET_COMPILER_H
+#ifndef CIO_COMPILER_H
+#define CIO_COMPILER_H
 
 #ifdef __GNUC__
 
