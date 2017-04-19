@@ -27,36 +27,18 @@
 import qbs 1.0
 
 Project {
-  name: "cio-linux-tests"
-  minimumQbsVersion: "1.6.0"
+  name: "cio with tests"
+  minimumQbsVersion: "1.4.0"
 
   SubProject {
-    filePath: "../../unity.qbs"
-    Properties {
-      name: "unity"
-    }
+    filePath: "linux/cio.qbs"
   }
 
   SubProject {
-    filePath: "../../fff.qbs"
+    filePath: "test_run.qbs"
     Properties {
-      name: "fake-function-framework"
+      profile: "gcc"
     }
-  }
-
-  CppApplication {
-    name: "test_cio_linux_server_socket"
-    type: ["application", "unittest"]
-    Depends { name: "unity" }
-    Depends { name: "fake-function-framework" }
-
-    cpp.warningLevel: "all"
-    cpp.treatWarningsAsErrors: true
-    cpp.includePaths: ["..", "../.."]
-
-    files: [
-      "test_cio_linux_server_socket.c",
-      "../cio_linux_server_socket.c",
-    ]
   }
 }
+
