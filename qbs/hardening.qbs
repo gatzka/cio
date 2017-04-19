@@ -52,10 +52,7 @@ Product {
         var compilerVersion = cpp.compilerVersionMajor + "." + cpp.compilerVersionMinor + "." + cpp.compilerVersionPatch;
         if (((toolchain === "gcc") && (Versions.versionIsAtLeast(compilerVersion, "4.9"))) ||
             ((toolchain === "clang") && (Versions.versionIsAtLeast(compilerVersion, "3.5")))) {
-          flags.push("-fstack-protector-strong", "-fpie");
-        }
-        if (toolchain === "gcc") {
-          flags.push("-pie");
+         flags.push("-fstack-protector-strong", "-fpie");
         }
       }
       return flags;

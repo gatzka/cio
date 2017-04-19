@@ -80,4 +80,38 @@ Project {
       ]
     }
   }
+
+  DynamicLibrary {
+    name: "cio-dynamic"
+    version: "1.2.3"
+
+    Depends { name: "cpp" }
+    Depends { name: "gccClang" }
+    Depends { name: "hardening" }
+
+    cpp.warningLevel: "all"
+    cpp.treatWarningsAsErrors: true
+    cpp.includePaths: [".", "..", buildDirectory]
+
+    Group {
+      name: "ANSI C conformant"
+      
+      cpp.cLanguageVersion: "c99"
+      
+      prefix: "../"
+      files: [
+        "*.c",
+        "*.h"
+      ]
+    }
+
+    Group {
+      condition: qbs.targetOS.contains("linux")
+      name: "linux specific"
+      files: [
+        "*.c",
+        "*.h"
+      ]
+    }
+  }
 }
