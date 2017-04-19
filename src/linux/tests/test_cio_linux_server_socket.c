@@ -1,4 +1,5 @@
 #include <errno.h>
+#include <stdlib.h>
 #include <sys/socket.h>
 #include <sys/types.h>
 
@@ -24,11 +25,20 @@ void setUp(void)
 {
 	FFF_RESET_HISTORY();
 	RESET_FAKE(accept);
+	RESET_FAKE(accept_handler);
+	RESET_FAKE(cio_linux_eventloop_add);
+	RESET_FAKE(cio_linux_eventloop_remove);
+	RESET_FAKE(on_close);
 }
 
 static void close_do_nothing(struct cio_linux_server_socket *ss)
 {
 	(void)ss;
+}
+
+static void close_free(struct cio_linux_server_socket *ss)
+{
+	free(ss);
 }
 
 static int custom_accept_fake(int fd, struct sockaddr *addr, socklen_t *addrlen)
@@ -65,12 +75,26 @@ static void test_accept_close_in_accept_handler(void) {
 
 	TEST_ASSERT_EQUAL(1, accept_handler_fake.call_count);
 	TEST_ASSERT_EQUAL(1, on_close_fake.call_count);
-	TEST_ASSERT_EQUAL(1, cio_linux_eventloop_add_fake.call_count);
-	TEST_ASSERT_EQUAL(1, cio_linux_eventloop_remove_fake.call_count);
+}
+
+static void test_accept_close_and_free_in_accept_handler(void) {
+	accept_fake.custom_fake = custom_accept_fake;
+	accept_handler_fake.custom_fake = custom_accept_handler;
+	on_close_fake.custom_fake = close_free;
+
+	struct cio_linux_eventloop_epoll loop;
+	struct cio_linux_server_socket *ss_linux = malloc(sizeof(*ss_linux));
+	const struct cio_server_socket *ss = cio_linux_server_socket_init(ss_linux, &loop, on_close);
+	ss->init(ss->context, 12345, 5, NULL);
+	ss->accept(ss->context, accept_handler, NULL);
+
+	TEST_ASSERT_EQUAL(1, accept_handler_fake.call_count);
+	TEST_ASSERT_EQUAL(1, on_close_fake.call_count);
 }
 
 int main(void) {
 	UNITY_BEGIN();
 	RUN_TEST(test_accept_close_in_accept_handler);
+	RUN_TEST(test_accept_close_and_free_in_accept_handler);
 	return UNITY_END();
 }
