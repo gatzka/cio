@@ -28,7 +28,7 @@ import qbs 1.0
 import "../qbs/unittestRunner.qbs" as UnittestRunner
 
 Project {
-  name: "cjetUnitTestsRun"
+  name: "cioUnitTestsRun"
   minimumQbsVersion: "1.4.0"
 
   qbsSearchPaths: "../qbs/"
