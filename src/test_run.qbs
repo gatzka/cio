@@ -25,46 +25,30 @@
  */
 
 import qbs 1.0
+import "../qbs/unittestRunner.qbs" as UnittestRunner
 
 Project {
-  name: "cio-linux-tests"
-  minimumQbsVersion: "1.6.0"
+  name: "cjetUnitTestsRun"
+  minimumQbsVersion: "1.4.0"
 
-  SubProject {
-    filePath: "../../unity.qbs"
-    Properties {
-      name: "unity"
-    }
-  }
+  qbsSearchPaths: "../qbs/"
 
-  SubProject {
-    filePath: "../../fff.qbs"
-    Properties {
-      name: "fake-function-framework"
-    }
-  }
-
-  SubProject {
-    filePath: "../../../qbs/gccClang.qbs"
-    Properties {
-      name: "GCC/Clang switches"
-    }
-  }
-
-  CppApplication {
-    name: "test_cio_linux_server_socket"
-    type: ["application", "unittest"]
-    Depends { name: "unity" }
-    Depends { name: "fake-function-framework" }
-    Depends { name: "gccClang" }
-
-    cpp.warningLevel: "all"
-    cpp.treatWarningsAsErrors: true
-    cpp.includePaths: ["..", "../.."]
-
-    files: [
-      "test_cio_linux_server_socket.c",
-      "../cio_linux_server_socket.c",
+  UnittestRunner {
+    lcovRemovePatterns: [
+      "*/linux/tests/*",
+      "/usr/include/*",
+    ]
+    wrapper: [
+      "valgrind",
+      "--errors-for-leak-kinds=all",
+      "--show-leak-kinds=all",
+      "--leak-check=full",
+      "--error-exitcode=1",
     ]
   }
+
+  SubProject {
+    filePath: "linux/tests/tests.qbs"
+  }
 }
+
