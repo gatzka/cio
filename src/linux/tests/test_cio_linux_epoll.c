@@ -35,6 +35,7 @@ DEFINE_FFF_GLOBALS
 
 FAKE_VALUE_FUNC(int, epoll_create, int)
 FAKE_VALUE_FUNC(int, epoll_ctl, int, int, int, struct epoll_event *)
+FAKE_VALUE_FUNC(int, epoll_wait, int, struct epoll_event *, int, int)
 FAKE_VALUE_FUNC(int, close, int)
 
 void setUp(void)
@@ -117,6 +118,21 @@ static void test_add_event(void)
 	TEST_ASSERT_EQUAL(1, close_fake.call_count);
 }
 
+static void test_cancel(void)
+{
+	struct cio_linux_eventloop_epoll loop;
+	enum cio_error err = cio_linux_eventloop_init(&loop);
+	TEST_ASSERT_EQUAL(cio_success, err);
+	TEST_ASSERT_EQUAL(1, epoll_create_fake.call_count);
+
+	cio_linux_eventloop_cancel(&loop);
+	err = cio_linux_eventloop_run(&loop);
+	TEST_ASSERT_EQUAL(cio_success, err);
+
+	cio_linux_eventloop_destroy(&loop);
+	TEST_ASSERT_EQUAL(1, close_fake.call_count);
+}
+
 static void test_add_event_fails(void)
 {
 	epoll_ctl_fake.custom_fake = epoll_ctl_fail;
@@ -143,5 +159,6 @@ int main(void) {
 	RUN_TEST(test_create_loop_fails);
 	RUN_TEST(test_add_event);
 	RUN_TEST(test_add_event_fails);
+	RUN_TEST(test_cancel);
 	return UNITY_END();
 }
