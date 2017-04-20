@@ -34,6 +34,7 @@
 DEFINE_FFF_GLOBALS
 
 FAKE_VALUE_FUNC(int, epoll_create, int)
+FAKE_VALUE_FUNC(int, epoll_ctl, int, int, int, struct epoll_event *)
 FAKE_VALUE_FUNC(int, close, int)
 
 void setUp(void)
@@ -41,6 +42,7 @@ void setUp(void)
 	FFF_RESET_HISTORY();
 
 	RESET_FAKE(epoll_create);
+	RESET_FAKE(epoll_ctl);
 	RESET_FAKE(close);
 }
 
@@ -74,9 +76,32 @@ static void test_create_loop_fails(void)
 	TEST_ASSERT_EQUAL(1, epoll_create_fake.call_count);
 }
 
+static void test_add_event(void)
+{
+	static const int fake_fd = 42;
+	struct cio_linux_eventloop_epoll loop;
+	enum cio_error err = cio_linux_eventloop_init(&loop);
+	TEST_ASSERT_EQUAL(cio_success, err);
+	TEST_ASSERT_EQUAL(1, epoll_create_fake.call_count);
+
+	struct cio_linux_event_notifier ev;
+	ev.fd = fake_fd;
+	ev.callback = NULL;
+	ev.context = NULL;
+	err = cio_linux_eventloop_add(&loop, &ev);
+	TEST_ASSERT_EQUAL(1, epoll_ctl_fake.call_count);
+	TEST_ASSERT_EQUAL(loop.epoll_fd, epoll_ctl_fake.arg0_val);
+	TEST_ASSERT_EQUAL(EPOLL_CTL_ADD, epoll_ctl_fake.arg1_val);
+	TEST_ASSERT_EQUAL(fake_fd, epoll_ctl_fake.arg2_val);
+
+	cio_linux_eventloop_destroy(&loop);
+	TEST_ASSERT_EQUAL(1, close_fake.call_count);
+}
+
 int main(void) {
 	UNITY_BEGIN();
 	RUN_TEST(test_create_loop);
 	RUN_TEST(test_create_loop_fails);
+	RUN_TEST(test_add_event);
 	return UNITY_END();
 }
