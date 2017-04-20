@@ -107,6 +107,12 @@ static void test_add_event(void)
 	TEST_ASSERT_EQUAL(EPOLL_CTL_ADD, epoll_ctl_fake.arg1_val);
 	TEST_ASSERT_EQUAL(fake_fd, epoll_ctl_fake.arg2_val);
 
+	cio_linux_eventloop_remove(&loop, &ev);
+	TEST_ASSERT_EQUAL(2, epoll_ctl_fake.call_count);
+	TEST_ASSERT_EQUAL(loop.epoll_fd, epoll_ctl_fake.arg0_val);
+	TEST_ASSERT_EQUAL(EPOLL_CTL_DEL, epoll_ctl_fake.arg1_val);
+	TEST_ASSERT_EQUAL(fake_fd, epoll_ctl_fake.arg2_val);
+
 	cio_linux_eventloop_destroy(&loop);
 	TEST_ASSERT_EQUAL(1, close_fake.call_count);
 }
