@@ -181,6 +181,16 @@ static int accept_wouldblock(int fd, struct sockaddr *addr, socklen_t *addrlen)
 	return -1;
 }
 
+static int accept_fails(int fd, struct sockaddr *addr, socklen_t *addrlen)
+{
+	(void)fd;
+	(void)addr;
+	(void)addrlen;
+
+	errno = EINVAL;
+	return -1;
+}
+
 static void accept_handler_close_server_socket(struct cio_server_socket *ss, void *handler_context, enum cio_error err, struct cio_socket *socket)
 {
 	(void)handler_context;
@@ -234,6 +244,21 @@ static void test_accept_wouldblock(void) {
 
 	TEST_ASSERT_EQUAL(0, accept_handler_fake.call_count);
 	ss->close(ss->context);
+	TEST_ASSERT_EQUAL(1, on_close_fake.call_count);
+}
+
+static void test_accept_fails(void) {
+	accept_fake.custom_fake = accept_fails;
+	accept_handler_fake.custom_fake = accept_handler_close_server_socket;
+	on_close_fake.custom_fake = close_do_nothing;
+
+	struct cio_linux_eventloop_epoll loop;
+	struct cio_linux_server_socket ss_linux;
+	const struct cio_server_socket *ss = cio_linux_server_socket_init(&ss_linux, &loop, on_close);
+	ss->init(ss->context, 12345, 5, NULL);
+	ss->accept(ss->context, accept_handler, NULL);
+
+	TEST_ASSERT_EQUAL(1, accept_handler_fake.call_count);
 	TEST_ASSERT_EQUAL(1, on_close_fake.call_count);
 }
 
@@ -354,6 +379,7 @@ int main(void) {
 	RUN_TEST(test_accept_no_handler);
 	RUN_TEST(test_accept_eventloop_add_fails);
 	RUN_TEST(test_accept_wouldblock);
+	RUN_TEST(test_accept_fails);
 	RUN_TEST(test_init_fails_no_socket);
 	RUN_TEST(test_init_listen_fails);
 	RUN_TEST(test_init_setsockopt_fails);
