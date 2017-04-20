@@ -44,6 +44,15 @@ void setUp(void)
 	RESET_FAKE(close);
 }
 
+static int epoll_create_fail(int size)
+{
+	(void)size;
+
+	errno = EMFILE;
+
+	return -1;
+}
+
 static void test_create_loop(void)
 {
 	struct cio_linux_eventloop_epoll loop;
@@ -55,8 +64,19 @@ static void test_create_loop(void)
 	TEST_ASSERT_EQUAL(1, close_fake.call_count);
 }
 
+static void test_create_loop_fails(void)
+{
+	epoll_create_fake.custom_fake = epoll_create_fail;
+
+	struct cio_linux_eventloop_epoll loop;
+	enum cio_error err = cio_linux_eventloop_init(&loop);
+	TEST_ASSERT(err != cio_success);
+	TEST_ASSERT_EQUAL(1, epoll_create_fake.call_count);
+}
+
 int main(void) {
 	UNITY_BEGIN();
 	RUN_TEST(test_create_loop);
+	RUN_TEST(test_create_loop_fails);
 	return UNITY_END();
 }
