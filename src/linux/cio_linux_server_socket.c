@@ -162,12 +162,11 @@ static void accept_callback(void *context)
 	}
 }
 
-static void socket_accept(void *context, cio_accept_handler handler, void *handler_context)
+static enum cio_error socket_accept(void *context, cio_accept_handler handler, void *handler_context)
 {
 	struct cio_linux_server_socket *ss = context;
 	if (unlikely(handler == NULL)) {
-		ss->handler(&ss->server_socket, ss->handler_context, cio_invalid_argument, NULL);
-		return;
+		return cio_invalid_argument;
 	}
 
 	ss->handler = handler;
@@ -177,11 +176,11 @@ static void socket_accept(void *context, cio_accept_handler handler, void *handl
 	ss->ev.fd = ss->fd;
 	enum cio_error err = cio_linux_eventloop_add(ss->loop, &ss->ev);
 	if (unlikely(err != cio_success)) {
-		ss->handler(&ss->server_socket, ss->handler_context, err, NULL);
-		return;
+		return err;
 	}
 
 	accept_callback(context);
+	return cio_success;
 }
 
 const struct cio_server_socket *cio_linux_server_socket_init(struct cio_linux_server_socket *ss,

@@ -77,6 +77,8 @@ struct cio_server_socket {
 	 * @param backlog The minimal length of the listen queue.
 	 * @param bind_address The IP address a cio_server_socket shall bound to.
 	 * If @a bind_address is @p NULL, cio_server_socket will bind to any interface.
+	 *
+	 * @return ::cio_success for success.
 	 */
 	enum cio_error (*init)(void *context, uint16_t port, unsigned int backlog, const char *bind_address);
 
@@ -87,8 +89,10 @@ struct cio_server_socket {
 	 * @param context The cio_server_socket::context.
 	 * @param handler The function to be called if the accept failes or succeeds.
 	 * @param handler_context The context passed the the @a handler function.
+	 *
+	 * @return ::cio_success for success.
 	 */
-	void (*accept)(void *context, cio_accept_handler handler, void *handler_context);
+	enum cio_error (*accept)(void *context, cio_accept_handler handler, void *handler_context);
 
 	/**
 	 * @anchor cio_server_socket_close
