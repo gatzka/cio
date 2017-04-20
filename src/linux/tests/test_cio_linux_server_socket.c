@@ -57,6 +57,14 @@ void setUp(void)
 	RESET_FAKE(on_close);
 }
 
+static enum cio_error event_loop_add_failes(const struct cio_linux_eventloop_epoll *loop, struct cio_linux_event_notifier *ev)
+{
+	(void)loop;
+	(void)ev;
+
+	return cio_invalid_argument;
+}
+
 static void close_do_nothing(struct cio_linux_server_socket *ss)
 {
 	(void)ss;
@@ -121,10 +129,6 @@ static void test_accept_close_and_free_in_accept_handler(void) {
 }
 
 static void test_accept_no_handler(void) {
-	accept_fake.custom_fake = custom_accept_fake;
-	accept_handler_fake.custom_fake = accept_handler_close_server_socket;
-	on_close_fake.custom_fake = close_do_nothing;
-
 	struct cio_linux_eventloop_epoll loop;
 	struct cio_linux_server_socket ss_linux;
 	const struct cio_server_socket *ss = cio_linux_server_socket_init(&ss_linux, &loop, on_close);
@@ -132,6 +136,22 @@ static void test_accept_no_handler(void) {
 	TEST_ASSERT_EQUAL(cio_success, err);
 	err = ss->accept(ss->context, NULL, NULL);
 	TEST_ASSERT_EQUAL(cio_invalid_argument, err);
+	ss->close(ss->context);
+	TEST_ASSERT_EQUAL(1, on_close_fake.call_count);
+}
+
+static void test_accept_eventloop_add_fails(void) {
+	cio_linux_eventloop_add_fake.custom_fake = event_loop_add_failes;
+
+	struct cio_linux_eventloop_epoll loop;
+	struct cio_linux_server_socket ss_linux;
+	const struct cio_server_socket *ss = cio_linux_server_socket_init(&ss_linux, &loop, NULL);
+	enum cio_error err = ss->init(ss->context, 12345, 5, NULL);
+	TEST_ASSERT_EQUAL(cio_success, err);
+	err = ss->accept(ss->context, accept_handler, NULL);
+	TEST_ASSERT(err != cio_success);
+	TEST_ASSERT_EQUAL(0, accept_handler_fake.call_count);
+	ss->close(ss->context);
 }
 
 int main(void) {
@@ -139,5 +159,6 @@ int main(void) {
 	RUN_TEST(test_accept_close_in_accept_handler);
 	RUN_TEST(test_accept_close_and_free_in_accept_handler);
 	RUN_TEST(test_accept_no_handler);
+	RUN_TEST(test_accept_eventloop_add_fails);
 	return UNITY_END();
 }
