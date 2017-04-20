@@ -29,7 +29,7 @@ import qbs.ModUtils
 import qbs.Utilities
 
 Product {
-  name: "unittestRunner"
+  name: "unit test runner"
   type: ["unittest-result"]
 
   property stringList arguments: []
