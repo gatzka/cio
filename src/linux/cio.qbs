@@ -31,7 +31,7 @@ Project {
 
   property bool runAnalyzer: false
 
-  name: "cio-libraries"
+  name: "cio libraries"
   minimumQbsVersion: "1.6.0"
 
   SubProject {

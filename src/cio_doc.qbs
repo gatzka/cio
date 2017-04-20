@@ -28,8 +28,7 @@ import qbs 1.0
 import '../qbs/versions.js' as Versions
 
 Project {
-
-  name: "cio document creation"
+  name: "cio documentation"
 
   property bool runAnalyzer: false
   minimumQbsVersion: "1.6.0"
