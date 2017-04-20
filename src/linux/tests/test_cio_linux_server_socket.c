@@ -141,6 +141,22 @@ static void accept_handler_close_server_socket(struct cio_server_socket *ss, voi
 	ss->close(ss);
 }
 
+static void test_accept_bind_address(void) {
+	accept_fake.custom_fake = custom_accept_fake;
+	accept_handler_fake.custom_fake = accept_handler_close_server_socket;
+	on_close_fake.custom_fake = close_do_nothing;
+
+	struct cio_linux_eventloop_epoll loop;
+	struct cio_linux_server_socket ss_linux;
+	const struct cio_server_socket *ss = cio_linux_server_socket_init(&ss_linux, &loop, on_close);
+	ss->init(ss->context, 12345, 5, "127.0.0.1");
+	ss->accept(ss->context, accept_handler, NULL);
+
+	TEST_ASSERT_EQUAL(1, accept_handler_fake.call_count);
+	TEST_ASSERT_EQUAL(1, on_close_fake.call_count);
+	TEST_ASSERT_EQUAL(1, setsockopt_fake.call_count);
+}
+
 static void test_accept_close_in_accept_handler(void) {
 	accept_fake.custom_fake = custom_accept_fake;
 	accept_handler_fake.custom_fake = accept_handler_close_server_socket;
@@ -235,6 +251,7 @@ static void test_init_setsockopt_fails(void) {
 
 int main(void) {
 	UNITY_BEGIN();
+	RUN_TEST(test_accept_bind_address);
 	RUN_TEST(test_accept_close_in_accept_handler);
 	RUN_TEST(test_accept_close_and_free_in_accept_handler);
 	RUN_TEST(test_accept_no_handler);
