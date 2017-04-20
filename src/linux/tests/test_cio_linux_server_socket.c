@@ -81,6 +81,14 @@ static int socket_fails(int domain, int type, int protocol)
 	return -1;
 }
 
+static int listen_fails(int sockfd, int backlog)
+{
+	(void)sockfd;
+	(void)backlog;
+	errno = EADDRINUSE;
+	return -1;
+}
+
 static enum cio_error event_loop_add_failes(const struct cio_linux_eventloop_epoll *loop, struct cio_linux_event_notifier *ev)
 {
 	(void)loop;
@@ -190,6 +198,17 @@ static void test_init_fails_no_socket(void) {
 	TEST_ASSERT_EQUAL(0, close_fake.call_count);
 }
 
+static void test_init_listen_fails(void) {
+	listen_fake.custom_fake = listen_fails;
+
+	struct cio_linux_eventloop_epoll loop;
+	struct cio_linux_server_socket ss_linux;
+	const struct cio_server_socket *ss = cio_linux_server_socket_init(&ss_linux, &loop, NULL);
+	enum cio_error err = ss->init(ss->context, 12345, 5, NULL);
+	TEST_ASSERT(err != cio_success);
+	TEST_ASSERT_EQUAL(1, close_fake.call_count);
+}
+
 int main(void) {
 	UNITY_BEGIN();
 	RUN_TEST(test_accept_close_in_accept_handler);
@@ -197,5 +216,6 @@ int main(void) {
 	RUN_TEST(test_accept_no_handler);
 	RUN_TEST(test_accept_eventloop_add_fails);
 	RUN_TEST(test_init_fails_no_socket);
+	RUN_TEST(test_init_listen_fails);
 	return UNITY_END();
 }
