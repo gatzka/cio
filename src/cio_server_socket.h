@@ -72,6 +72,10 @@ struct cio_server_socket {
 	 * @anchor cio_server_socket_init
 	 * @brief Initializes a cio_server_socket.
 	 *
+	 * If this function succeeds, the server socket is bound an listens on the
+	 * port specified. If later on something goes wrong, it's the responsibility
+	 * of the user to call @ref cio_server_socket_close "close" on the server socket.
+	 *
 	 * @param context The cio_server_socket::context.
 	 * @param port The TCP port the cio_server_socket shall listen on.
 	 * @param backlog The minimal length of the listen queue.
