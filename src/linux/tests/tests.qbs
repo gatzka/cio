@@ -30,6 +30,8 @@ Project {
   name: "cio unit tests linux"
   minimumQbsVersion: "1.6.0"
 
+  condition: qbs.targetOS.contains("linux")
+
   SubProject {
     filePath: "../../unity.qbs"
     Properties {
