@@ -24,6 +24,8 @@
  * SOFTWARE.
  */
 
+#include <sys/epoll.h>
+
 #include "fff.h"
 #include "unity.h"
 
@@ -31,12 +33,26 @@
 
 DEFINE_FFF_GLOBALS
 
+FAKE_VALUE_FUNC(int, epoll_create, int)
+FAKE_VALUE_FUNC(int, close, int)
+
+void setUp(void)
+{
+	FFF_RESET_HISTORY();
+
+	RESET_FAKE(epoll_create);
+	RESET_FAKE(close);
+}
 
 static void test_create_loop(void)
 {
 	struct cio_linux_eventloop_epoll loop;
 	enum cio_error err = cio_linux_eventloop_init(&loop);
 	TEST_ASSERT_EQUAL(cio_success, err);
+	TEST_ASSERT_EQUAL(1, epoll_create_fake.call_count);
+
+	cio_linux_eventloop_destroy(&loop);
+	TEST_ASSERT_EQUAL(1, close_fake.call_count);
 }
 
 int main(void) {
