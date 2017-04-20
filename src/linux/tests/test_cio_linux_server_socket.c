@@ -47,14 +47,30 @@ FAKE_VOID_FUNC(cio_linux_eventloop_remove, const struct cio_linux_eventloop_epol
 void on_close(struct cio_linux_server_socket *ss);
 FAKE_VOID_FUNC(on_close, struct cio_linux_server_socket *)
 
+FAKE_VALUE_FUNC(int, socket, int, int, int)
+FAKE_VALUE_FUNC_VARARG(int, fcntl, int, int, ...)
+FAKE_VALUE_FUNC(int, setsockopt, int, int, int, const void *, socklen_t)
+FAKE_VALUE_FUNC(int, bind, int, const struct sockaddr *, socklen_t)
+FAKE_VALUE_FUNC(int, listen, int, int)
+FAKE_VALUE_FUNC(int, close, int)
+
 void setUp(void)
 {
 	FFF_RESET_HISTORY();
 	RESET_FAKE(accept);
 	RESET_FAKE(accept_handler);
+
 	RESET_FAKE(cio_linux_eventloop_add);
 	RESET_FAKE(cio_linux_eventloop_remove);
+
 	RESET_FAKE(on_close);
+
+	RESET_FAKE(socket);
+	RESET_FAKE(fcntl);
+	RESET_FAKE(setsockopt);
+	RESET_FAKE(bind);
+	RESET_FAKE(listen);
+	RESET_FAKE(close);
 }
 
 static enum cio_error event_loop_add_failes(const struct cio_linux_eventloop_epoll *loop, struct cio_linux_event_notifier *ev)
@@ -109,6 +125,7 @@ static void test_accept_close_in_accept_handler(void) {
 
 	TEST_ASSERT_EQUAL(1, accept_handler_fake.call_count);
 	TEST_ASSERT_EQUAL(1, on_close_fake.call_count);
+	TEST_ASSERT_EQUAL(1, setsockopt_fake.call_count);
 }
 
 static void test_accept_close_and_free_in_accept_handler(void) {
