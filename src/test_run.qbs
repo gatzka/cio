@@ -30,7 +30,7 @@ import "../qbs/unittestRunner.qbs" as UnittestRunner
 Project {
   name: "cio unit tests"
   minimumQbsVersion: "1.4.0"
-  condition: qbs.targetOS.contains("linux") && qbs.architecture.contains("x86")
+  condition: qbs.targetOS.contains("linux") && qbs.architecture.contains("x86") && qbs.hostOS.contains("linux")
 
   qbsSearchPaths: "../qbs/"
 
