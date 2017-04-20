@@ -25,6 +25,7 @@
  */
 
 #include <errno.h>
+#include <fcntl.h>
 #include <stdlib.h>
 #include <sys/socket.h>
 #include <sys/types.h>
@@ -73,6 +74,32 @@ void setUp(void)
 	RESET_FAKE(close);
 }
 
+static int fcntl_getfl_fails(int fildes, int cmd, va_list ap)
+{
+	(void)fildes;
+	(void)ap;
+
+	if (cmd == F_GETFL){
+		errno = EMFILE;
+		return -1;
+	} else {
+		return 0;
+	}
+}
+
+static int fcntl_setfl_fails(int fildes, int cmd, va_list ap)
+{
+	(void)fildes;
+	(void)ap;
+
+	if (cmd == F_SETFL){
+		errno = EMFILE;
+		return -1;
+	} else {
+		return 0;
+	}
+}
+
 static int socket_fails(int domain, int type, int protocol)
 {
 	(void)domain;
@@ -102,7 +129,18 @@ static int setsockopt_fails(int socket, int level, int option_name,
 	return -1;
 }
 
-static enum cio_error event_loop_add_failes(const struct cio_linux_eventloop_epoll *loop, struct cio_linux_event_notifier *ev)
+static int bind_fails(int sockfd, const struct sockaddr *addr,
+					  socklen_t addrlen)
+{
+	(void)sockfd;
+	(void)addr;
+	(void)addrlen;
+
+	errno = EADDRINUSE;
+	return -1;
+}
+
+static enum cio_error event_loop_add_fails(const struct cio_linux_eventloop_epoll *loop, struct cio_linux_event_notifier *ev)
 {
 	(void)loop;
 	(void)ev;
@@ -203,7 +241,7 @@ static void test_accept_no_handler(void) {
 }
 
 static void test_accept_eventloop_add_fails(void) {
-	cio_linux_eventloop_add_fake.custom_fake = event_loop_add_failes;
+	cio_linux_eventloop_add_fake.custom_fake = event_loop_add_fails;
 
 	struct cio_linux_eventloop_epoll loop;
 	struct cio_linux_server_socket ss_linux;
@@ -249,6 +287,39 @@ static void test_init_setsockopt_fails(void) {
 	TEST_ASSERT_EQUAL(1, close_fake.call_count);
 }
 
+static void test_init_bind_fails(void) {
+	bind_fake.custom_fake = bind_fails;
+
+	struct cio_linux_eventloop_epoll loop;
+	struct cio_linux_server_socket ss_linux;
+	const struct cio_server_socket *ss = cio_linux_server_socket_init(&ss_linux, &loop, NULL);
+	enum cio_error err = ss->init(ss->context, 12345, 5, NULL);
+	TEST_ASSERT(err != cio_success);
+	TEST_ASSERT_EQUAL(1, close_fake.call_count);
+}
+
+static void test_init_fcntl_getfl_fails(void) {
+	fcntl_fake.custom_fake = fcntl_getfl_fails;
+
+	struct cio_linux_eventloop_epoll loop;
+	struct cio_linux_server_socket ss_linux;
+	const struct cio_server_socket *ss = cio_linux_server_socket_init(&ss_linux, &loop, NULL);
+	enum cio_error err = ss->init(ss->context, 12345, 5, NULL);
+	TEST_ASSERT(err != cio_success);
+	TEST_ASSERT_EQUAL(1, close_fake.call_count);
+}
+
+static void test_init_fcntl_setfl_fails(void) {
+	fcntl_fake.custom_fake = fcntl_setfl_fails;
+
+	struct cio_linux_eventloop_epoll loop;
+	struct cio_linux_server_socket ss_linux;
+	const struct cio_server_socket *ss = cio_linux_server_socket_init(&ss_linux, &loop, NULL);
+	enum cio_error err = ss->init(ss->context, 12345, 5, NULL);
+	TEST_ASSERT(err != cio_success);
+	TEST_ASSERT_EQUAL(1, close_fake.call_count);
+}
+
 int main(void) {
 	UNITY_BEGIN();
 	RUN_TEST(test_accept_bind_address);
@@ -259,5 +330,8 @@ int main(void) {
 	RUN_TEST(test_init_fails_no_socket);
 	RUN_TEST(test_init_listen_fails);
 	RUN_TEST(test_init_setsockopt_fails);
+	RUN_TEST(test_init_bind_fails);
+	RUN_TEST(test_init_fcntl_getfl_fails);
+	RUN_TEST(test_init_fcntl_setfl_fails);
 	return UNITY_END();
 }
