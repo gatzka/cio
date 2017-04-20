@@ -37,7 +37,7 @@ extern "C" {
  * @file
  * @brief This file contains the interface of a socket.
  *
- * You can @ref cio_socket_get_input_stream "get an input stream"
+ * You can @ref cio_socket_get_io_stream "get an I/O stream"
  * from a socket or @ref cio_socket_close "close" the socket.
  */
 
@@ -49,12 +49,14 @@ struct cio_socket {
 	void *context;
 
 	/**
-	 * @anchor cio_socket_get_input_stream
-	 * @brief Closes the cio_server_socket.
+	 * @anchor cio_socket_get_io_stream
+	 * @brief Gets an I/O stream from the socket.
 	 *
 	 * @param context The cio_server_socket::context.
+	 *
+	 * @return An I/O stream for reading from and writing to this socket.
 	 */
-	struct cio_io_stream *(*get_input_stream)(void *context);
+	struct cio_io_stream *(*get_io_stream)(void *context);
 
 	/**
 	 * @anchor cio_socket_close
