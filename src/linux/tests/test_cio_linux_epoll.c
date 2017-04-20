@@ -24,57 +24,23 @@
  * SOFTWARE.
  */
 
-import qbs 1.0
+#include "fff.h"
+#include "unity.h"
 
-Project {
-  name: "cio unit tests linux"
-  minimumQbsVersion: "1.6.0"
+#include "cio_linux_epoll.h"
 
-  condition: qbs.targetOS.contains("linux")
+DEFINE_FFF_GLOBALS
 
-  SubProject {
-    filePath: "../../unity.qbs"
-    Properties {
-      name: "unity"
-    }
-  }
 
-  SubProject {
-    filePath: "../../fff.qbs"
-    Properties {
-      name: "fake-function-framework"
-    }
-  }
+static void test_create_loop(void)
+{
+	struct cio_linux_eventloop_epoll loop;
+	enum cio_error err = cio_linux_eventloop_init(&loop);
+	TEST_ASSERT_EQUAL(cio_success, err);
+}
 
-  CppApplication {
-    name: "test_cio_linux_server_socket"
-    type: ["application", "unittest"]
-    Depends { name: "unity" }
-    Depends { name: "fake-function-framework" }
-
-    cpp.warningLevel: "all"
-    cpp.treatWarningsAsErrors: true
-    cpp.includePaths: ["..", "../.."]
-
-    files: [
-      "test_cio_linux_server_socket.c",
-      "../cio_linux_server_socket.c",
-    ]
-  }
-
-  CppApplication {
-    name: "test_cio_linux_epoll"
-    type: ["application", "unittest"]
-    Depends { name: "unity" }
-    Depends { name: "fake-function-framework" }
-
-    cpp.warningLevel: "all"
-    cpp.treatWarningsAsErrors: true
-    cpp.includePaths: ["..", "../.."]
-
-    files: [
-          "test_cio_linux_epoll.c",
-          "../cio_linux_epoll.c",
-      ]
-  }
+int main(void) {
+	UNITY_BEGIN();
+	RUN_TEST(test_create_loop);
+	return UNITY_END();
 }
