@@ -86,12 +86,8 @@ enum cio_error cio_linux_eventloop_run(struct cio_linux_eventloop_epoll *loop)
 		for (loop->event_counter = 0;  loop->event_counter < (unsigned int)num_events; loop->event_counter++) {
 			struct cio_linux_event_notifier *ev = events[loop->event_counter].data.ptr;
 
-			if (unlikely((events[loop->event_counter].events & ~(EPOLLIN | EPOLLOUT)) != 0)) {
-				// TODO
-			} else {
-				if (events[loop->event_counter].events & (EPOLLIN | EPOLLOUT)) {
-					ev->callback(ev->context);
-				}
+			if (likely(events[loop->event_counter].events & (EPOLLIN | EPOLLOUT))) {
+				ev->callback(ev->context);
 			}
 		}
 	}
