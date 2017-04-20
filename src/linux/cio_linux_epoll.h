@@ -47,6 +47,14 @@ extern "C" {
 #define CONFIG_MAX_EPOLL_EVENTS 100
 
 /**
+ * @brief Definition of all event types.
+ */
+enum cio_event_type {
+	cio_ev_read= EPOLLIN, /*!< A read event occured. */
+	cio_ev_write = EPOLLOUT, /*!< A write event ocured. */
+};
+
+/**
  * @brief The cio_linux_event_notifier struct bundles the information
  * necessary to register I/O events.
  */
