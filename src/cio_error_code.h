@@ -36,7 +36,7 @@
  */
 
 /**
- * @brief All Error codes used inside the cio libary.
+ * @brief All error codes used inside the cio libary.
  */
 enum cio_error {
 	cio_success = 0, /*!< No error occured. */
