@@ -91,20 +91,14 @@ static enum cio_error socket_init(void *context, uint16_t port, unsigned int bac
 		}
 
 		static const int reuse_on = 1;
-		if (unlikely(setsockopt(listen_fd, SOL_SOCKET, SO_REUSEADDR, &reuse_on,
-		                        sizeof(reuse_on)) < 0)) {
-			close(listen_fd);
-			continue;
-		}
-
-		enum cio_error err = set_fd_non_blocking(listen_fd);
-		if (unlikely(err != cio_success)) {
-			close(listen_fd);
-			continue;
-		}
-
-		if (bind(listen_fd, rp->ai_addr, rp->ai_addrlen) == 0) {
-			break;
+		if (likely(setsockopt(listen_fd, SOL_SOCKET, SO_REUSEADDR, &reuse_on,
+								sizeof(reuse_on)) == 0)) {
+			enum cio_error err = set_fd_non_blocking(listen_fd);
+			if (likely(err == cio_success)) {
+				if (likely(bind(listen_fd, rp->ai_addr, rp->ai_addrlen) == 0)) {
+					break;
+				}
+			}
 		}
 
 		close(listen_fd);
