@@ -100,14 +100,6 @@ static int fcntl_setfl_fails(int fildes, int cmd, va_list ap)
 	}
 }
 
-static int socket_fails(int domain, int type, int protocol)
-{
-	(void)domain;
-	(void)type;
-	(void)protocol;
-	return -1;
-}
-
 static int listen_fails(int sockfd, int backlog)
 {
 	(void)sockfd;
@@ -138,14 +130,6 @@ static int bind_fails(int sockfd, const struct sockaddr *addr,
 
 	errno = EADDRINUSE;
 	return -1;
-}
-
-static enum cio_error event_loop_add_fails(const struct cio_linux_eventloop_epoll *loop, struct cio_linux_event_notifier *ev)
-{
-	(void)loop;
-	(void)ev;
-
-	return cio_invalid_argument;
 }
 
 static void close_do_nothing(struct cio_linux_server_socket *ss)
@@ -299,7 +283,7 @@ static void test_accept_no_handler(void)
 
 static void test_accept_eventloop_add_fails(void)
 {
-	cio_linux_eventloop_add_fake.custom_fake = event_loop_add_fails;
+	cio_linux_eventloop_add_fake.return_val = cio_invalid_argument;
 
 	struct cio_linux_eventloop_epoll loop;
 	struct cio_linux_server_socket ss_linux;
@@ -314,7 +298,7 @@ static void test_accept_eventloop_add_fails(void)
 
 static void test_init_fails_no_socket(void)
 {
-	socket_fake.custom_fake = socket_fails;
+	socket_fake.return_val = -1;
 
 	struct cio_linux_eventloop_epoll loop;
 	struct cio_linux_server_socket ss_linux;
