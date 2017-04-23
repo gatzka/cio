@@ -56,9 +56,9 @@ typedef void (*close_hook)(struct cio_linux_server_socket *ss);
  * and not be used by user of the cio library.
  */
 struct cio_linux_server_socket {
-    /**
-     * @privatesection
-     */
+	/**
+	 * @privatesection
+	 */
 	struct cio_server_socket server_socket;
 	int fd;
 	close_hook close;
@@ -67,7 +67,6 @@ struct cio_linux_server_socket {
 	struct cio_linux_event_notifier ev;
 	struct cio_linux_eventloop_epoll *loop;
 };
-
 
 /**
  * @brief Initializes a cio_linux_server_socket.

@@ -83,7 +83,7 @@ enum cio_error cio_linux_eventloop_run(struct cio_linux_eventloop_epoll *loop)
 			return errno;
 		}
 
-		for (loop->event_counter = 0;  loop->event_counter < (unsigned int)num_events; loop->event_counter++) {
+		for (loop->event_counter = 0; loop->event_counter < (unsigned int)num_events; loop->event_counter++) {
 			struct cio_linux_event_notifier *ev = events[loop->event_counter].data.ptr;
 
 			uint32_t events_type = events[loop->event_counter].events & (EPOLLIN | EPOLLOUT);

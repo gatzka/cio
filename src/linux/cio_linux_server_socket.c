@@ -75,10 +75,10 @@ static enum cio_error socket_init(void *context, uint16_t port, unsigned int bac
 	int ret = getaddrinfo(bind_address, server_port_string, &hints, &servinfo);
 	if (ret != 0) {
 		switch (ret) {
-			case EAI_SYSTEM:
-				return errno;
-			default:
-				return cio_invalid_argument;
+		case EAI_SYSTEM:
+			return errno;
+		default:
+			return cio_invalid_argument;
 		}
 	}
 
@@ -92,7 +92,7 @@ static enum cio_error socket_init(void *context, uint16_t port, unsigned int bac
 
 		static const int reuse_on = 1;
 		if (likely(setsockopt(listen_fd, SOL_SOCKET, SO_REUSEADDR, &reuse_on,
-								sizeof(reuse_on)) == 0)) {
+		                      sizeof(reuse_on)) == 0)) {
 			enum cio_error err = set_fd_non_blocking(listen_fd);
 			if (likely(err == cio_success)) {
 				if (likely(bind(listen_fd, rp->ai_addr, rp->ai_addrlen) == 0)) {
@@ -179,7 +179,8 @@ static enum cio_error socket_accept(void *context, cio_accept_handler handler, v
 
 const struct cio_server_socket *cio_linux_server_socket_init(struct cio_linux_server_socket *ss,
                                                              struct cio_linux_eventloop_epoll *loop,
-                                                             close_hook close) {
+                                                             close_hook close)
+{
 	ss->server_socket.context = ss;
 	ss->server_socket.init = socket_init;
 	ss->server_socket.close = socket_close;

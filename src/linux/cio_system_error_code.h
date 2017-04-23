@@ -30,5 +30,3 @@
 #include <errno.h>
 
 #endif
-
-

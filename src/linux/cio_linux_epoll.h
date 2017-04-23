@@ -50,7 +50,7 @@ extern "C" {
  * @brief Definition of all event types.
  */
 enum cio_event_type {
-	cio_ev_read= EPOLLIN, /*!< A read event occured. */
+	cio_ev_read = EPOLLIN,   /*!< A read event occured. */
 	cio_ev_write = EPOLLOUT, /*!< A write event ocured. */
 };
 
@@ -58,7 +58,7 @@ enum cio_event_type {
  * @brief The cio_linux_event_notifier struct bundles the information
  * necessary to register I/O events.
  */
-struct cio_linux_event_notifier  {
+struct cio_linux_event_notifier {
 	/**
      * @brief Initializes a cio_server_socket.
      * @anchor cio_linux_event_notifier_callback
@@ -101,4 +101,3 @@ void cio_linux_eventloop_cancel(struct cio_linux_eventloop_epoll *loop);
 #endif
 
 #endif
-
