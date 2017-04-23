@@ -26,6 +26,8 @@
 
 import qbs 1.0
 import qbs.TextFile
+import "../files.qbs" as cioSourceFiles
+import "./files.qbs" as linuxSourceFiles
 
 Project {
 
@@ -60,25 +62,12 @@ Project {
     cpp.treatWarningsAsErrors: true
     cpp.includePaths: [".", "..", buildDirectory]
 
-    Group {
-      name: "ANSI C conformant"
-      
-      cpp.cLanguageVersion: "c99"
-      
-      prefix: "../"
-      files: [
-        "*.c",
-        "*.h"
-      ]
+    cioSourceFiles {
+      prefix: product.sourceDirectory + "../"
     }
 
-    Group {
-      condition: qbs.targetOS.contains("linux")
-      name: "linux specific"
-      files: [
-        "*.c",
-        "*.h"
-      ]
+    linuxSourceFiles {
+      prefix: product.sourceDirectory + "/"
     }
   }
 
@@ -105,25 +94,12 @@ Project {
     cpp.treatWarningsAsErrors: true
     cpp.includePaths: [".", "..", buildDirectory]
 
-    Group {
-      name: "ANSI C conformant"
-      
-      cpp.cLanguageVersion: "c99"
-      
-      prefix: "../"
-      files: [
-        "*.c",
-        "*.h"
-      ]
+    cioSourceFiles {
+      prefix: product.sourceDirectory + "../"
     }
 
-    Group {
-      condition: qbs.targetOS.contains("linux")
-      name: "linux specific"
-      files: [
-        "*.c",
-        "*.h"
-      ]
+    linuxSourceFiles {
+      prefix: product.sourceDirectory + "/"
     }
   }
 }
