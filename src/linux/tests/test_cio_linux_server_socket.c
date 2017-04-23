@@ -132,11 +132,6 @@ static int bind_fails(int sockfd, const struct sockaddr *addr,
 	return -1;
 }
 
-static void close_do_nothing(struct cio_linux_server_socket *ss)
-{
-	(void)ss;
-}
-
 static void close_free(struct cio_linux_server_socket *ss)
 {
 	free(ss);
@@ -187,7 +182,6 @@ static void test_accept_bind_address(void)
 {
 	accept_fake.custom_fake = custom_accept_fake;
 	accept_handler_fake.custom_fake = accept_handler_close_server_socket;
-	on_close_fake.custom_fake = close_do_nothing;
 
 	struct cio_linux_eventloop_epoll loop;
 	struct cio_linux_server_socket ss_linux;
@@ -203,7 +197,6 @@ static void test_accept_close_in_accept_handler(void)
 {
 	accept_fake.custom_fake = custom_accept_fake;
 	accept_handler_fake.custom_fake = accept_handler_close_server_socket;
-	on_close_fake.custom_fake = close_do_nothing;
 
 	struct cio_linux_eventloop_epoll loop;
 	struct cio_linux_server_socket ss_linux;
@@ -219,7 +212,6 @@ static void test_accept_wouldblock(void)
 {
 	accept_fake.custom_fake = accept_wouldblock;
 	accept_handler_fake.custom_fake = accept_handler_close_server_socket;
-	on_close_fake.custom_fake = close_do_nothing;
 
 	struct cio_linux_eventloop_epoll loop;
 	struct cio_linux_server_socket ss_linux;
@@ -238,7 +230,6 @@ static void test_accept_fails(void)
 {
 	accept_fake.custom_fake = accept_fails;
 	accept_handler_fake.custom_fake = accept_handler_close_server_socket;
-	on_close_fake.custom_fake = close_do_nothing;
 
 	struct cio_linux_eventloop_epoll loop;
 	struct cio_linux_server_socket ss_linux;
