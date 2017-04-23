@@ -153,7 +153,8 @@ static void test_add_event_fails(void)
 	TEST_ASSERT_EQUAL(1, close_fake.call_count);
 }
 
-int main(void) {
+int main(void)
+{
 	UNITY_BEGIN();
 	RUN_TEST(test_create_loop);
 	RUN_TEST(test_create_loop_fails);

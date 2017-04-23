@@ -38,7 +38,7 @@
 
 DEFINE_FFF_GLOBALS
 
-FAKE_VALUE_FUNC(int, accept, int, struct sockaddr*, socklen_t*)
+FAKE_VALUE_FUNC(int, accept, int, struct sockaddr *, socklen_t *)
 void accept_handler(struct cio_server_socket *ss, void *handler_context, enum cio_error err, struct cio_socket *socket);
 FAKE_VOID_FUNC(accept_handler, struct cio_server_socket *, void *, enum cio_error, struct cio_socket *)
 
@@ -79,7 +79,7 @@ static int fcntl_getfl_fails(int fildes, int cmd, va_list ap)
 	(void)fildes;
 	(void)ap;
 
-	if (cmd == F_GETFL){
+	if (cmd == F_GETFL) {
 		errno = EMFILE;
 		return -1;
 	} else {
@@ -92,7 +92,7 @@ static int fcntl_setfl_fails(int fildes, int cmd, va_list ap)
 	(void)fildes;
 	(void)ap;
 
-	if (cmd == F_SETFL){
+	if (cmd == F_SETFL) {
 		errno = EMFILE;
 		return -1;
 	} else {
@@ -117,7 +117,7 @@ static int listen_fails(int sockfd, int backlog)
 }
 
 static int setsockopt_fails(int socket, int level, int option_name,
-							const void *option_value, socklen_t option_len)
+                            const void *option_value, socklen_t option_len)
 {
 	(void)socket;
 	(void)level;
@@ -130,7 +130,7 @@ static int setsockopt_fails(int socket, int level, int option_name,
 }
 
 static int bind_fails(int sockfd, const struct sockaddr *addr,
-					  socklen_t addrlen)
+                      socklen_t addrlen)
 {
 	(void)sockfd;
 	(void)addr;
@@ -199,7 +199,8 @@ static void accept_handler_close_server_socket(struct cio_server_socket *ss, voi
 	ss->close(ss);
 }
 
-static void test_accept_bind_address(void) {
+static void test_accept_bind_address(void)
+{
 	accept_fake.custom_fake = custom_accept_fake;
 	accept_handler_fake.custom_fake = accept_handler_close_server_socket;
 	on_close_fake.custom_fake = close_do_nothing;
@@ -214,7 +215,8 @@ static void test_accept_bind_address(void) {
 	TEST_ASSERT_EQUAL(1, on_close_fake.call_count);
 }
 
-static void test_accept_close_in_accept_handler(void) {
+static void test_accept_close_in_accept_handler(void)
+{
 	accept_fake.custom_fake = custom_accept_fake;
 	accept_handler_fake.custom_fake = accept_handler_close_server_socket;
 	on_close_fake.custom_fake = close_do_nothing;
@@ -229,7 +231,8 @@ static void test_accept_close_in_accept_handler(void) {
 	TEST_ASSERT_EQUAL(1, on_close_fake.call_count);
 }
 
-static void test_accept_wouldblock(void) {
+static void test_accept_wouldblock(void)
+{
 	accept_fake.custom_fake = accept_wouldblock;
 	accept_handler_fake.custom_fake = accept_handler_close_server_socket;
 	on_close_fake.custom_fake = close_do_nothing;
@@ -247,7 +250,8 @@ static void test_accept_wouldblock(void) {
 	TEST_ASSERT_EQUAL(1, on_close_fake.call_count);
 }
 
-static void test_accept_fails(void) {
+static void test_accept_fails(void)
+{
 	accept_fake.custom_fake = accept_fails;
 	accept_handler_fake.custom_fake = accept_handler_close_server_socket;
 	on_close_fake.custom_fake = close_do_nothing;
@@ -262,7 +266,8 @@ static void test_accept_fails(void) {
 	TEST_ASSERT_EQUAL(1, on_close_fake.call_count);
 }
 
-static void test_accept_close_and_free_in_accept_handler(void) {
+static void test_accept_close_and_free_in_accept_handler(void)
+{
 	accept_fake.custom_fake = custom_accept_fake;
 	accept_handler_fake.custom_fake = accept_handler_close_server_socket;
 	on_close_fake.custom_fake = close_free;
@@ -279,7 +284,8 @@ static void test_accept_close_and_free_in_accept_handler(void) {
 	TEST_ASSERT_EQUAL(1, on_close_fake.call_count);
 }
 
-static void test_accept_no_handler(void) {
+static void test_accept_no_handler(void)
+{
 	struct cio_linux_eventloop_epoll loop;
 	struct cio_linux_server_socket ss_linux;
 	const struct cio_server_socket *ss = cio_linux_server_socket_init(&ss_linux, &loop, on_close);
@@ -291,7 +297,8 @@ static void test_accept_no_handler(void) {
 	TEST_ASSERT_EQUAL(1, on_close_fake.call_count);
 }
 
-static void test_accept_eventloop_add_fails(void) {
+static void test_accept_eventloop_add_fails(void)
+{
 	cio_linux_eventloop_add_fake.custom_fake = event_loop_add_fails;
 
 	struct cio_linux_eventloop_epoll loop;
@@ -305,7 +312,8 @@ static void test_accept_eventloop_add_fails(void) {
 	ss->close(ss->context);
 }
 
-static void test_init_fails_no_socket(void) {
+static void test_init_fails_no_socket(void)
+{
 	socket_fake.custom_fake = socket_fails;
 
 	struct cio_linux_eventloop_epoll loop;
@@ -316,7 +324,8 @@ static void test_init_fails_no_socket(void) {
 	TEST_ASSERT_EQUAL(0, close_fake.call_count);
 }
 
-static void test_init_listen_fails(void) {
+static void test_init_listen_fails(void)
+{
 	listen_fake.custom_fake = listen_fails;
 
 	struct cio_linux_eventloop_epoll loop;
@@ -327,7 +336,8 @@ static void test_init_listen_fails(void) {
 	TEST_ASSERT_EQUAL(1, close_fake.call_count);
 }
 
-static void test_init_setsockopt_fails(void) {
+static void test_init_setsockopt_fails(void)
+{
 	setsockopt_fake.custom_fake = setsockopt_fails;
 
 	struct cio_linux_eventloop_epoll loop;
@@ -338,7 +348,8 @@ static void test_init_setsockopt_fails(void) {
 	TEST_ASSERT_EQUAL(1, close_fake.call_count);
 }
 
-static void test_init_bind_fails(void) {
+static void test_init_bind_fails(void)
+{
 	bind_fake.custom_fake = bind_fails;
 
 	struct cio_linux_eventloop_epoll loop;
@@ -349,7 +360,8 @@ static void test_init_bind_fails(void) {
 	TEST_ASSERT_EQUAL(1, close_fake.call_count);
 }
 
-static void test_init_fcntl_getfl_fails(void) {
+static void test_init_fcntl_getfl_fails(void)
+{
 	fcntl_fake.custom_fake = fcntl_getfl_fails;
 
 	struct cio_linux_eventloop_epoll loop;
@@ -360,7 +372,8 @@ static void test_init_fcntl_getfl_fails(void) {
 	TEST_ASSERT_EQUAL(1, close_fake.call_count);
 }
 
-static void test_init_fcntl_setfl_fails(void) {
+static void test_init_fcntl_setfl_fails(void)
+{
 	fcntl_fake.custom_fake = fcntl_setfl_fails;
 
 	struct cio_linux_eventloop_epoll loop;
@@ -371,7 +384,8 @@ static void test_init_fcntl_setfl_fails(void) {
 	TEST_ASSERT_EQUAL(1, close_fake.call_count);
 }
 
-int main(void) {
+int main(void)
+{
 	UNITY_BEGIN();
 	RUN_TEST(test_accept_bind_address);
 	RUN_TEST(test_accept_close_in_accept_handler);
