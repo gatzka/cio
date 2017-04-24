@@ -145,10 +145,9 @@ static void accept_callback(void *context)
 		if (unlikely(client_fd == -1)) {
 			if ((errno != EAGAIN) && (errno != EWOULDBLOCK) && (errno != EBADF)) {
 				ss->handler(&ss->server_socket, ss->handler_context, errno, NULL);
-				return;
-			} else {
-				return;
 			}
+
+			return;
 		} else {
 			//TODO: create client socket and pass it instead of NULL
 			ss->handler(&ss->server_socket, ss->handler_context, cio_success, NULL);
