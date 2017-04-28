@@ -76,7 +76,7 @@ enum cio_error cio_linux_eventloop_add(const struct cio_linux_eventloop_epoll *l
 	return cio_success;
 }
 
-void cio_linux_eventloop_remove(struct cio_linux_eventloop_epoll *loop, struct cio_linux_event_notifier *ev)
+void cio_linux_eventloop_remove(struct cio_linux_eventloop_epoll *loop, const struct cio_linux_event_notifier *ev)
 {
 	epoll_ctl(loop->epoll_fd, EPOLL_CTL_DEL, ev->fd, NULL);
 	erase_pending_event(loop, ev);
