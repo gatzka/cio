@@ -85,6 +85,7 @@ struct cio_linux_eventloop_epoll {
 	int epoll_fd;
 	bool go_ahead;
 	unsigned int event_counter;
+	unsigned int num_events;
 	struct epoll_event epoll_events[CONFIG_MAX_EPOLL_EVENTS];
 };
 
@@ -92,7 +93,7 @@ enum cio_error cio_linux_eventloop_init(struct cio_linux_eventloop_epoll *loop);
 void cio_linux_eventloop_destroy(const struct cio_linux_eventloop_epoll *loop);
 
 enum cio_error cio_linux_eventloop_add(const struct cio_linux_eventloop_epoll *loop, struct cio_linux_event_notifier *ev);
-void cio_linux_eventloop_remove(const struct cio_linux_eventloop_epoll *loop, struct cio_linux_event_notifier *ev);
+void cio_linux_eventloop_remove(struct cio_linux_eventloop_epoll *loop, struct cio_linux_event_notifier *ev);
 enum cio_error cio_linux_eventloop_run(struct cio_linux_eventloop_epoll *loop);
 void cio_linux_eventloop_cancel(struct cio_linux_eventloop_epoll *loop);
 
