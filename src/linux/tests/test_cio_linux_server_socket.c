@@ -43,7 +43,7 @@ void accept_handler(struct cio_server_socket *ss, void *handler_context, enum ci
 FAKE_VOID_FUNC(accept_handler, struct cio_server_socket *, void *, enum cio_error, struct cio_socket *)
 
 FAKE_VALUE_FUNC(enum cio_error, cio_linux_eventloop_add, const struct cio_linux_eventloop_epoll *, struct cio_linux_event_notifier *)
-FAKE_VOID_FUNC(cio_linux_eventloop_remove, const struct cio_linux_eventloop_epoll *, struct cio_linux_event_notifier *)
+FAKE_VOID_FUNC(cio_linux_eventloop_remove, struct cio_linux_eventloop_epoll *, struct cio_linux_event_notifier *)
 
 void on_close(struct cio_linux_server_socket *ss);
 FAKE_VOID_FUNC(on_close, struct cio_linux_server_socket *)
