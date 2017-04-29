@@ -58,8 +58,9 @@ static enum cio_error set_fd_non_blocking(int fd)
 
 static enum cio_error socket_init(void *context, uint16_t port, unsigned int backlog, const char *bind_address)
 {
-	struct addrinfo hints = {0};
+	struct addrinfo hints;
 
+	memset(&hints, 0, sizeof(hints));
 	hints.ai_family = AF_UNSPEC;
 	hints.ai_socktype = SOCK_STREAM;
 	hints.ai_flags = AI_PASSIVE | AI_V4MAPPED | AI_NUMERICHOST;
@@ -139,7 +140,9 @@ static void accept_callback(void *context)
 	int fd = ss->fd;
 
 	while (1) {
-		struct sockaddr_storage addr = {0};
+		struct sockaddr_storage addr;
+
+		memset(&addr, 0, sizeof(addr));
 		socklen_t addrlen = sizeof(addr);
 		int client_fd = accept(fd, (struct sockaddr *)&addr, &addrlen);
 		if (unlikely(client_fd == -1)) {
