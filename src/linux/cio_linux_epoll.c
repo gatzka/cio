@@ -65,7 +65,7 @@ void cio_linux_eventloop_destroy(const struct cio_linux_eventloop_epoll *loop)
 
 enum cio_error cio_linux_eventloop_add(const struct cio_linux_eventloop_epoll *loop, struct cio_linux_event_notifier *ev)
 {
-	struct epoll_event epoll_ev = {0};
+	struct epoll_event epoll_ev;
 
 	epoll_ev.data.ptr = ev;
 	epoll_ev.events = EPOLLIN | EPOLLOUT | EPOLLET;
