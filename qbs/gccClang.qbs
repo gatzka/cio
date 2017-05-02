@@ -34,9 +34,9 @@ Product {
     Depends { name: 'cpp' }
 
     cpp.cFlags: {
-      var toolchain = qbs.toolchain[0];
       var flags = [];
-      if (toolchain === "gcc" || toolchain === "clang") {
+
+      if (qbs.toolchain.indexOf("clang") >= 0 || qbs.toolchain.indexOf("gcc") >= 0) {
         flags.push("-Wshadow");
         flags.push("-Winit-self");
         flags.push("-Wstrict-overflow=5");
@@ -56,9 +56,8 @@ Product {
     }
 
     cpp.linkerFlags: {
-      var toolchain = qbs.toolchain[0];
       var flags = [];
-      if (toolchain === "gcc" || toolchain === "clang") {
+      if (qbs.toolchain.indexOf("clang") >= 0 || qbs.toolchain.indexOf("gcc") >= 0) {
         flags.push("--hash-style=gnu");
         flags.push("--as-needed");
         if (qbs.buildVariant === "release") {

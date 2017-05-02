@@ -59,16 +59,19 @@ Product {
       }
 
       var cmds = [];
-      var args = [
-        "--zerocounters",
-        "--directory", project.buildDirectory,
-        "--quiet",
-        "--rc", "lcov_branch_coverage=1",
-      ];
+      var buildVariant =  product.moduleProperty("qbs", "buildVariant")
+      if (buildVariant === "debug") {
+        var args = [
+          "--zerocounters",
+          "--directory", project.buildDirectory,
+          "--quiet",
+          "--rc", "lcov_branch_coverage=1",
+        ];
 
-      var cmd = new Command("lcov", args);
-      cmd.description = "Resetting coverage data...";
-      cmds.push(cmd);
+        var cmd = new Command("lcov", args);
+        cmd.description = "Resetting coverage data...";
+        cmds.push(cmd);
+      }
 
       for (var i = 0; i < inputs.application.length; i++) {
         var fullCommandLine = product.wrapper
@@ -80,72 +83,74 @@ Product {
         cmds.push(cmd);
       }
 
-      var coverageFile = project.buildDirectory + "/coverage.info";
-      var filteredCoverageFile = project.buildDirectory + "/filtered-coverage.info";
-      var args = [
-        "--capture",
-        "--directory", project.buildDirectory,
-        "--quiet",
-        "--output-file", coverageFile,
-        "--rc", "lcov_branch_coverage=1",
-      ];
-
-      var toolchain =  product.moduleProperty("qbs", "toolchain")
-      if (toolchain.indexOf("clang") >= 0) {
-        args.push("--gcov-tool");
-        args.push(project.sourceDirectory + "/../tools/llvm-coverage.sh");
-      }
-      var cmd = new Command("lcov", args);
-      cmd.description = "Collecting coverage data...";
-      cmds.push(cmd);
-
-      if ((product.lcovRemovePatterns.length > 0) || (product.lcovExtractPatterns.length > 0)) {
-        var args = [];
-        if (product.lcovExtractPatterns.length > 0) {
-          args.push("--extract");
-          args.push(coverageFile);
-          for (var i = 0; i < product.lcovExtractPatterns.length; i++) {
-            args.push(product.lcovExtractPatterns[i]);
-          }
-        }
-        if (product.lcovRemovePatterns.length > 0) {
-          args.push("--remove");
-          args.push(coverageFile);
-          for (var i = 0; i < product.lcovRemovePatterns.length; i++) {
-            args.push(product.lcovRemovePatterns[i]);
-          }
-        }
-        args.push("--output-file");
-        args.push(filteredCoverageFile);
-        args.push("--rc");
-        args.push("lcov_branch_coverage=1");
-        var cmd = new Command("lcov", args);
-        cmd.description = "Filtering coverage data...";
-        cmds.push(cmd);
-        coverageFile = filteredCoverageFile;
-      }
-
-      var reportDir = project.buildDirectory + "/coverage/report";
-      var args = [
-        "--quiet",
-        coverageFile,
-        "--branch-coverage",
-        "-o", reportDir,
-        "-t", project.name + " " + product.moduleProperty("qbs", "buildVariant")
-      ];
-
-      var cmd = new Command("genhtml", args);
-      cmd.description = "Creating html from coverage data...";
-      cmd.workingDirectory = project.buildDirectory;
-      cmds.push(cmd);
-
-      if (product.showCoverageData) {
+      if (buildVariant === "debug") {
+        var coverageFile = project.buildDirectory + "/coverage.info";
+        var filteredCoverageFile = project.buildDirectory + "/filtered-coverage.info";
         var args = [
-          reportDir + "/index.html"
+          "--capture",
+          "--directory", project.buildDirectory,
+          "--quiet",
+          "--output-file", coverageFile,
+          "--rc", "lcov_branch_coverage=1",
         ];
-        var cmd = new Command("xdg-open", args);
-        cmd.description = "Show coverage data...";
+
+        var toolchain =  product.moduleProperty("qbs", "toolchain")
+        if (toolchain.indexOf("clang") >= 0) {
+          args.push("--gcov-tool");
+          args.push(project.sourceDirectory + "/../tools/llvm-coverage.sh");
+        }
+        var cmd = new Command("lcov", args);
+        cmd.description = "Collecting coverage data...";
         cmds.push(cmd);
+
+        if ((product.lcovRemovePatterns.length > 0) || (product.lcovExtractPatterns.length > 0)) {
+          var args = [];
+          if (product.lcovExtractPatterns.length > 0) {
+            args.push("--extract");
+            args.push(coverageFile);
+            for (var i = 0; i < product.lcovExtractPatterns.length; i++) {
+              args.push(product.lcovExtractPatterns[i]);
+            }
+          }
+          if (product.lcovRemovePatterns.length > 0) {
+            args.push("--remove");
+            args.push(coverageFile);
+            for (var i = 0; i < product.lcovRemovePatterns.length; i++) {
+              args.push(product.lcovRemovePatterns[i]);
+            }
+          }
+          args.push("--output-file");
+          args.push(filteredCoverageFile);
+          args.push("--rc");
+          args.push("lcov_branch_coverage=1");
+          var cmd = new Command("lcov", args);
+          cmd.description = "Filtering coverage data...";
+          cmds.push(cmd);
+          coverageFile = filteredCoverageFile;
+        }
+
+        var reportDir = project.buildDirectory + "/coverage/report";
+        var args = [
+          "--quiet",
+          coverageFile,
+          "--branch-coverage",
+          "-o", reportDir,
+          "-t", project.name + " " + product.moduleProperty("qbs", "buildVariant")
+        ];
+
+        var cmd = new Command("genhtml", args);
+        cmd.description = "Creating html from coverage data...";
+        cmd.workingDirectory = project.buildDirectory;
+        cmds.push(cmd);
+
+        if (product.showCoverageData) {
+          var args = [
+            reportDir + "/index.html"
+          ];
+          var cmd = new Command("xdg-open", args);
+          cmd.description = "Show coverage data...";
+          cmds.push(cmd);
+        }
       }
       return cmds;
     }
