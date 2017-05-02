@@ -60,7 +60,7 @@ enum cio_error {
 	cio_protocol_not_supported = EPROTONOSUPPORT,    /*!< Protocol not supported. */
 	cio_read_only_file_system = EROFS,               /*!< Read only file system. */
 	cio_too_many_files_open = EMFILE,                /*!< Too many files open. */
-	cio_too_many_symbolic_link_levels = ELOOP,       /*!< Too many symbolic link levels. */
+	cio_too_many_symbolic_link_levels = ELOOP        /*!< Too many symbolic link levels. */
 };
 
 #ifdef __cplusplus

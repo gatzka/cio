@@ -50,8 +50,8 @@ extern "C" {
  * @brief Definition of all event types.
  */
 enum cio_event_type {
-	cio_ev_read = EPOLLIN,   /*!< A read event occured. */
-	cio_ev_write = EPOLLOUT, /*!< A write event ocured. */
+	cio_ev_read = EPOLLIN,  /*!< A read event occured. */
+	cio_ev_write = EPOLLOUT /*!< A write event ocured. */
 };
 
 /**
