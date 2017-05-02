@@ -37,8 +37,7 @@ Product {
     cpp.defines: {
       var defines = [];
       if (product.enableHardening) {
-        var toolchain = qbs.toolchain[0];
-        if ((toolchain === "gcc" || toolchain === "clang") && (qbs.buildVariant === "release")) {
+        if (((qbs.toolchain.indexOf("gcc") >= 0) || (qbs.toolchain.indexOf("clang") >= 0)) && (qbs.buildVariant === "release")) {
           defines.push("_FORTIFY_SOURCE=2");
         }
       }
@@ -48,10 +47,9 @@ Product {
     cpp.driverFlags: {
       var flags = [];
       if (product.enableHardening) {
-        var toolchain = qbs.toolchain[0];
         var compilerVersion = cpp.compilerVersionMajor + "." + cpp.compilerVersionMinor + "." + cpp.compilerVersionPatch;
-        if (((toolchain === "gcc") && (Versions.versionIsAtLeast(compilerVersion, "4.9"))) ||
-            ((toolchain === "clang") && (Versions.versionIsAtLeast(compilerVersion, "3.5")))) {
+        if (((qbs.toolchain.indexOf("gcc") >= 0) && (Versions.versionIsAtLeast(compilerVersion, "4.9"))) ||
+            ((qbs.toolchain.indexOf("clang") >= 0) && (Versions.versionIsAtLeast(compilerVersion, "3.5")))) {
          flags.push("-fstack-protector-strong", "-fpie");
         }
       }
@@ -61,10 +59,9 @@ Product {
     cpp.linkerFlags: {
       var flags = [];
       if (product.enableHardening) {
-        var toolchain = qbs.toolchain[0];
         var compilerVersion = cpp.compilerVersionMajor + "." + cpp.compilerVersionMinor + "." + cpp.compilerVersionPatch;
-        if (((toolchain === "gcc") && (Versions.versionIsAtLeast(compilerVersion, "4.9"))) ||
-            ((toolchain === "clang") && (Versions.versionIsAtLeast(compilerVersion, "3.5")))) {
+        if (((qbs.toolchain.indexOf("gcc") >= 0) && (Versions.versionIsAtLeast(compilerVersion, "4.9"))) ||
+            ((qbs.toolchain.indexOf("clang") >= 0) && (Versions.versionIsAtLeast(compilerVersion, "3.5")))) {
           flags.push("-z","relro");
           flags.push("-z","now");
           flags.push("-z","noexecstack");
