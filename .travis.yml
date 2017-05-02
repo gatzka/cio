@@ -12,10 +12,18 @@ env:
     - BUILD=clang
 
 script:
-  - mkdir build
-  - cd build
-  - cmake ../src/
-  - make
+  - if [ "$COVERITY_SCAN_BRANCH" != 1 ]; then
+      case ${BUILD} in
+        gcc)
+          cmaake ./src/ &&
+          make &&
+          ;;
+        clang)
+          cmake -DCMAKE_TOOLCHAIN_FILE=cmake/clang.cmake ./src/ &&
+          make &&
+          ;;
+      esac ;
+    fi
 
 addons:
   apt:
