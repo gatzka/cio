@@ -58,22 +58,27 @@ static enum cio_error set_fd_non_blocking(int fd)
 
 static enum cio_error socket_init(void *context, uint16_t port, unsigned int backlog, const char *bind_address)
 {
+	static const int reuse_on = 1;
+
 	struct addrinfo hints;
+	char server_port_string[6];
+	struct addrinfo *servinfo;
+	int ret;
+	int listen_fd = -1;
+	struct addrinfo *rp;
 
 	memset(&hints, 0, sizeof(hints));
 	hints.ai_family = AF_UNSPEC;
 	hints.ai_socktype = SOCK_STREAM;
 	hints.ai_flags = AI_PASSIVE | AI_V4MAPPED | AI_NUMERICHOST;
 
-	char server_port_string[6];
 	snprintf(server_port_string, sizeof(server_port_string), "%d", port);
 
 	if (bind_address == NULL) {
 		bind_address = "::";
 	}
 
-	struct addrinfo *servinfo;
-	int ret = getaddrinfo(bind_address, server_port_string, &hints, &servinfo);
+	ret = getaddrinfo(bind_address, server_port_string, &hints, &servinfo);
 	if (ret != 0) {
 		switch (ret) {
 		case EAI_SYSTEM:
@@ -83,15 +88,12 @@ static enum cio_error socket_init(void *context, uint16_t port, unsigned int bac
 		}
 	}
 
-	int listen_fd = -1;
-	struct addrinfo *rp;
 	for (rp = servinfo; rp != NULL; rp = rp->ai_next) {
 		listen_fd = socket(rp->ai_family, rp->ai_socktype, rp->ai_protocol);
 		if (listen_fd == -1) {
 			continue;
 		}
 
-		static const int reuse_on = 1;
 		if (likely(setsockopt(listen_fd, SOL_SOCKET, SO_REUSEADDR, &reuse_on,
 		                      sizeof(reuse_on)) == 0)) {
 			enum cio_error err = set_fd_non_blocking(listen_fd);
@@ -136,15 +138,15 @@ static void socket_close(void *context)
 
 static void accept_callback(void *context)
 {
+	int client_fd;
+	struct sockaddr_storage addr;
 	struct cio_linux_server_socket *ss = context;
 	int fd = ss->fd;
 
 	while (1) {
-		struct sockaddr_storage addr;
-
 		memset(&addr, 0, sizeof(addr));
 		socklen_t addrlen = sizeof(addr);
-		int client_fd = accept(fd, (struct sockaddr *)&addr, &addrlen);
+		client_fd = accept(fd, (struct sockaddr *)&addr, &addrlen);
 		if (unlikely(client_fd == -1)) {
 			if ((errno != EAGAIN) && (errno != EWOULDBLOCK) && (errno != EBADF)) {
 				ss->handler(&ss->server_socket, ss->handler_context, errno, NULL);
@@ -152,7 +154,7 @@ static void accept_callback(void *context)
 
 			return;
 		} else {
-			//TODO: create client socket and pass it instead of NULL
+			/* TODO: create client socket and pass it instead of NULL */
 			ss->handler(&ss->server_socket, ss->handler_context, cio_success, NULL);
 		}
 	}
@@ -160,6 +162,7 @@ static void accept_callback(void *context)
 
 static enum cio_error socket_accept(void *context, cio_accept_handler handler, void *handler_context)
 {
+	enum cio_error err;
 	struct cio_linux_server_socket *ss = context;
 	if (unlikely(handler == NULL)) {
 		return cio_invalid_argument;
@@ -170,7 +173,7 @@ static enum cio_error socket_accept(void *context, cio_accept_handler handler, v
 	ss->ev.callback = accept_callback;
 	ss->ev.context = context;
 	ss->ev.fd = ss->fd;
-	enum cio_error err = cio_linux_eventloop_add(ss->loop, &ss->ev);
+	err = cio_linux_eventloop_add(ss->loop, &ss->ev);
 	if (unlikely(err != cio_success)) {
 		return err;
 	}
