@@ -1,6 +1,6 @@
 [submodule "src/unity"]
 	path = src/unity
-	url = https://github.com:ThrowTheSwitch/Unity.git
+	url = https://github.com/ThrowTheSwitch/Unity.git
 [submodule "src/fff"]
 	path = src/fff
-	url = https://github.com:meekrosoft/fff.git
+	url = https://github.com/meekrosoft/fff.git
