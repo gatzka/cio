@@ -15,11 +15,23 @@ script:
   - if [ "$COVERITY_SCAN_BRANCH" != 1 ]; then
       case ${BUILD} in
         gcc)
-          cmake ./src/ &&
+          mkdir build_release &&
+          cd build_release &&
+          cmake -DCMAKE_BUILD_TYPE=Release ../src/ &&
+          make &&
+          mkdir ../build_debug &&
+          cd ../build_debug &&
+          cmake -DCMAKE_BUILD_TYPE=Debug ../src/ &&
           make
           ;;
         clang)
-          cmake -DCMAKE_TOOLCHAIN_FILE=cmake/clang.cmake ./src/ &&
+          mkdir build_release &&
+          cd build_release &&
+          cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE=../cmake/clang.cmake ../src/ &&
+          make &&
+          mkdir ../build_debug &&
+          cd ../build_debug &&
+          cmake -DCMAKE_BUILD_TYPE=Debug -DCMAKE_TOOLCHAIN_FILE=../cmake/clang.cmake ../src/ &&
           make
           ;;
       esac ;
