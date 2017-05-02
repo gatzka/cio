@@ -89,6 +89,12 @@ Product {
         "--output-file", coverageFile,
         "--rc", "lcov_branch_coverage=1",
       ];
+
+      var toolchain =  product.moduleProperty("qbs", "toolchain")
+      if (toolchain.indexOf("clang") >= 0) {
+        args.push("--gcov-tool");
+        args.push(project.sourceDirectory + "/../tools/llvm-coverage.sh");
+      }
       var cmd = new Command("lcov", args);
       cmd.description = "Collecting coverage data...";
       cmds.push(cmd);
