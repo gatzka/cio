@@ -15,12 +15,12 @@ script:
   - if [ "$COVERITY_SCAN_BRANCH" != 1 ]; then
       case ${BUILD} in
         gcc)
-          cmaake ./src/ &&
-          make &&
+          cmake ./src/ &&
+          make
           ;;
         clang)
           cmake -DCMAKE_TOOLCHAIN_FILE=cmake/clang.cmake ./src/ &&
-          make &&
+          make
           ;;
       esac ;
     fi
