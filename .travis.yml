@@ -22,7 +22,7 @@ script:
           mkdir ../build_debug &&
           cd ../build_debug &&
           cmake -DCMAKE_BUILD_TYPE=Debug ../src/ &&
-          make &&
+          make
           ;;
         clang)
           cmake -DCMAKE_TOOLCHAIN_FILE=cmake/clang.cmake ./src/ &&
