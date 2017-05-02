@@ -66,6 +66,7 @@ static enum cio_error socket_init(void *context, uint16_t port, unsigned int bac
 	int ret;
 	int listen_fd = -1;
 	struct addrinfo *rp;
+	struct cio_linux_server_socket *ss;
 
 	memset(&hints, 0, sizeof(hints));
 	hints.ai_family = AF_UNSPEC;
@@ -118,7 +119,7 @@ static enum cio_error socket_init(void *context, uint16_t port, unsigned int bac
 		return errno;
 	}
 
-	struct cio_linux_server_socket *ss = context;
+	ss = context;
 	ss->fd = listen_fd;
 
 	return cio_success;
@@ -142,10 +143,11 @@ static void accept_callback(void *context)
 	struct sockaddr_storage addr;
 	struct cio_linux_server_socket *ss = context;
 	int fd = ss->fd;
+	socklen_t addrlen;
 
 	while (1) {
 		memset(&addr, 0, sizeof(addr));
-		socklen_t addrlen = sizeof(addr);
+		addrlen = sizeof(addr);
 		client_fd = accept(fd, (struct sockaddr *)&addr, &addrlen);
 		if (unlikely(client_fd == -1)) {
 			if ((errno != EAGAIN) && (errno != EWOULDBLOCK) && (errno != EBADF)) {
@@ -184,7 +186,7 @@ static enum cio_error socket_accept(void *context, cio_accept_handler handler, v
 
 const struct cio_server_socket *cio_linux_server_socket_init(struct cio_linux_server_socket *ss,
                                                              struct cio_linux_eventloop_epoll *loop,
-                                                             close_hook close)
+                                                             close_hook hook)
 {
 	ss->server_socket.context = ss;
 	ss->server_socket.init = socket_init;
@@ -192,6 +194,6 @@ const struct cio_server_socket *cio_linux_server_socket_init(struct cio_linux_se
 	ss->server_socket.accept = socket_accept;
 	ss->fd = -1;
 	ss->loop = loop;
-	ss->close = close;
+	ss->close = hook;
 	return &ss->server_socket;
 }
