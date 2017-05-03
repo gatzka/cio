@@ -109,10 +109,10 @@ static int listen_fails(int sockfd, int backlog)
 	return -1;
 }
 
-static int setsockopt_fails(int socket, int level, int option_name,
+static int setsockopt_fails(int fd, int level, int option_name,
                             const void *option_value, socklen_t option_len)
 {
-	(void)socket;
+	(void)fd;
 	(void)level;
 	(void)option_name;
 	(void)option_value;
@@ -171,11 +171,11 @@ static int accept_fails(int fd, struct sockaddr *addr, socklen_t *addrlen)
 	return -1;
 }
 
-static void accept_handler_close_server_socket(struct cio_server_socket *ss, void *handler_context, enum cio_error err, struct cio_socket *socket)
+static void accept_handler_close_server_socket(struct cio_server_socket *ss, void *handler_context, enum cio_error err, struct cio_socket *sock)
 {
 	(void)handler_context;
 	(void)err;
-	(void)socket;
+	(void)sock;
 	ss->close(ss);
 }
 
