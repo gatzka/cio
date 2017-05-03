@@ -29,6 +29,7 @@
 #include <stdlib.h>
 #include <sys/socket.h>
 #include <sys/types.h>
+#include <unistd.h>
 
 #include "fff.h"
 #include "unity.h"

@@ -25,6 +25,7 @@
  */
 
 #include <sys/epoll.h>
+#include <unistd.h>
 
 #include "fff.h"
 #include "unity.h"
@@ -38,13 +39,17 @@ FAKE_VALUE_FUNC(int, epoll_ctl, int, int, int, struct epoll_event *)
 FAKE_VALUE_FUNC(int, epoll_wait, int, struct epoll_event *, int, int)
 FAKE_VALUE_FUNC(int, close, int)
 
-FAKE_VOID_FUNC(epoll_callback, void *);
-FAKE_VOID_FUNC(epoll_callback_second_fd, void *);
-FAKE_VOID_FUNC(epoll_callback_third_fd, void *);
-FAKE_VOID_FUNC(epoll_callback_remove_second_fd, void *);
+void epoll_callback(void *);
+FAKE_VOID_FUNC(epoll_callback, void *)
+void epoll_callback_second_fd(void *);
+FAKE_VOID_FUNC(epoll_callback_second_fd, void *)
+void epoll_callback_third_fd(void *);
+FAKE_VOID_FUNC(epoll_callback_third_fd, void *)
+void epoll_callback_remove_second_fd(void *);
+FAKE_VOID_FUNC(epoll_callback_remove_second_fd, void *)
 
 static unsigned int events_in_list = 0;
-static struct cio_linux_event_notifier *ev[100];
+static struct cio_linux_event_notifier *event_list[100];
 
 void setUp(void)
 {
@@ -63,7 +68,7 @@ void setUp(void)
 static void remove_second_fd(void *context)
 {
 	struct cio_linux_eventloop_epoll *loop = context;
-	cio_linux_eventloop_remove(loop, ev[1]);
+	cio_linux_eventloop_remove(loop, event_list[1]);
 }
 
 static int epoll_create_fail(int size)
@@ -93,7 +98,7 @@ static int epoll_ctl_save(int epfd, int op, int fd, struct epoll_event *event)
 	(void)fd;
 
 	if (op == EPOLL_CTL_ADD) {
-		ev[events_in_list++] = event->data.ptr;
+		event_list[events_in_list++] = event->data.ptr;
 	}
 
 	return 0;
@@ -108,7 +113,7 @@ static int notify_single_fd(int epfd, struct epoll_event *events,
 
 	if (epoll_wait_fake.call_count == 1) {
 		events[0].events = EPOLLIN;
-		events[0].data.ptr = ev[0];
+		events[0].data.ptr = event_list[0];
 		return 1;
 	} else {
 		return -1;
@@ -124,11 +129,11 @@ static int notify_three_fds(int epfd, struct epoll_event *events,
 
 	if (epoll_wait_fake.call_count == 1) {
 		events[0].events = EPOLLIN;
-		events[0].data.ptr = ev[0];
+		events[0].data.ptr = event_list[0];
 		events[1].events = EPOLLIN;
-		events[1].data.ptr = ev[1];
+		events[1].data.ptr = event_list[1];
 		events[2].events = EPOLLIN;
-		events[2].data.ptr = ev[2];
+		events[2].data.ptr = event_list[2];
 		return 3;
 	} else {
 		return -1;
