@@ -73,8 +73,8 @@ Project {
     cpp.includePaths: ["..", "../.."]
 
     files: [
-          "test_cio_linux_epoll.c",
-          "../cio_linux_epoll.c",
-      ]
+      "test_cio_linux_epoll.c",
+      "../cio_linux_epoll.c",
+    ]
   }
 }
