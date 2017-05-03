@@ -42,3 +42,8 @@ add_library(cio SHARED
 set_target_properties(cio
     PROPERTIES OUTPUT_NAME "cio"
 )
+
+add_subdirectory(linux/tests/) 
+
+enable_testing()
+
