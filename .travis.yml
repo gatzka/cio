@@ -6,10 +6,16 @@ branches:
 
 sudo: false
 
-env:
-  matrix:
-    - BUILD=gcc
-    - BUILD=clang
+matrix:
+  include:
+    - compiler: gcc
+      addons:
+        apt:
+          sources:
+            - ubuntu-toolchain-r-test
+          packages:
+            - gcc-6
+      env: COMPILER=gcc-6
 
 script:
   - if [ "$COVERITY_SCAN_BRANCH" != 1 ]; then
@@ -39,17 +45,11 @@ script:
       esac ;
     fi
 
-install:
-  - if [ "$CXX" = "gcc" ]; then export CXX="g++-6" CC="gcc-6"; fi
-  - gcc --version
-  - gcc-6 --version
-
 addons:
   apt:
     sources:
     - ubuntu-toolchain-r-test
     packages:
-    - gcc-6
     - clang
     - cmake
     - doxygen
