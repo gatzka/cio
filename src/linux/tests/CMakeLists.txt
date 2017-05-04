@@ -19,13 +19,13 @@ set(WARN_SWITCHES "-Wall -Wextra -Werror -Wshadow -Winit-self -Wcast-qual -Wcast
 set(CMAKE_C_FLAGS "-pipe -fno-common -std=gnu99 ${WARN_SWITCHES}")
 
 if(CMAKE_C_COMPILER_ID STREQUAL GNU)
-    if(NOT CMAKE_C_COMPILER_VERSION VERSION_LESS 4.9)
+    if(NOT CMAKE_C_COMPILER_VERSION VERSION_LESS 4.9.0)
         set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fsanitize=undefined -fsanitize=address -fsanitize=leak")
     endif()
 endif()
 
 if(CMAKE_C_COMPILER_ID STREQUAL Clang)
-    if(NOT CMAKE_C_COMPILER_VERSION VERSION_LESS 3.4)
+    if(NOT CMAKE_C_COMPILER_VERSION VERSION_LESS 3.4.0)
         set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fsanitize=undefined -fsanitize=address -fsanitize=leak")
     endif()
 endif()
