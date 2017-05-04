@@ -42,6 +42,7 @@ script:
 install:
   - if [ "$CXX" = "gcc" ]; then export CXX="g++-6" CC="gcc-6"; fi
   - gcc --version
+  - gcc-6 --version
 
 addons:
   apt:
