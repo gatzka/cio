@@ -14,6 +14,8 @@ env:
       CMAKE_BUILD_TYPE=Release
     - CMAKE_C_COMPILER=clang
       CMAKE_BUILD_TYPE=Release
+    - CMAKE_C_COMPILER=clang-3.9
+      CMAKE_BUILD_TYPE=Release
       
 script:
   - cmake --version
