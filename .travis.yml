@@ -9,10 +9,12 @@ sudo: false
 matrix:
   - CMAKE_C_COMPILER=clang
     CMAKE_BUILD_TYPE=Release
+
 script:
   - mkdir build_release
   - cd build_release
   - CMAKE_CMD_OPTION="-DCMAKE_C_COMPILER=${CMAKE_C_COMPILER} -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}"
+  - echo $CMAKE_CMD_OPTION
   - cmake $CMAKE_CMD_OPTION ../src/
   - make VERBOSE=1
   - make test
