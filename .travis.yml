@@ -18,6 +18,7 @@ matrix:
       env: COMPILER=gcc-6
 
 script:
+  - echo %{BUILD}
   - if [ "$COVERITY_SCAN_BRANCH" != 1 ]; then
       case ${BUILD} in
         gcc)
