@@ -18,6 +18,21 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../../unity/src/)
 set(WARN_SWITCHES "-Wall -Wextra -Werror -Wshadow -Winit-self -Wcast-qual -Wcast-align -Wformat=2 -Wwrite-strings -Wmissing-prototypes -Wstrict-overflow=5 -pedantic")
 set(CMAKE_C_FLAGS "-pipe -fno-common -std=gnu99 ${WARN_SWITCHES}")
 
+message(STATUS "CMAKE_C_COMPILER_ID: " ${CMAKE_C_COMPILER_ID})
+message(STATUS "CMAKE_C_COMPILER_VERSION: " ${CMAKE_C_COMPILER_VERSION})
+
+if(CMAKE_C_COMPILER_ID STREQUAL GNU)
+    if(NOT CMAKE_C_COMPILER_VERSION VERSION_LESS 4.9.0)
+        set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fsanitize=undefined -fsanitize=address -fsanitize=leak -fuse-ld=gold")
+    endif()
+endif()
+
+if(CMAKE_C_COMPILER_ID STREQUAL Clang)
+    if(NOT CMAKE_C_COMPILER_VERSION VERSION_LESS 3.4.0)
+        set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fsanitize=undefined -fsanitize=address -fsanitize=leak -fuse-ld=gold")
+    endif()
+endif()
+
 add_executable(test_cio_linux_epoll
     test_cio_linux_epoll.c
     ../cio_linux_epoll.c
