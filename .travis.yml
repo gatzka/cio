@@ -6,9 +6,10 @@ branches:
 
 sudo: false
 
-matrix:
-  - CMAKE_C_COMPILER=clang
-    CMAKE_BUILD_TYPE=Release
+env:
+  matrix:
+    - CMAKE_C_COMPILER=clang
+      CMAKE_BUILD_TYPE=Release
 
 script:
   - mkdir build_release
