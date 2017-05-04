@@ -29,7 +29,7 @@ endif()
 
 if(CMAKE_C_COMPILER_ID STREQUAL Clang)
     if(NOT CMAKE_C_COMPILER_VERSION VERSION_LESS 3.4.0)
-        set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fsanitize=undefined -fsanitize=address -fsanitize=leak -fuse-ld=gold")
+        set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fsanitize=undefined -fsanitize=address -fsanitize=leak")
     endif()
 endif()
 
