@@ -8,10 +8,11 @@ sudo: false
 
 env:
   matrix:
-    - CC=gcc-6
+    - CMAKE_C_COMPILER=gcc-6
       CMAKE_BUILD_TYPE=Release
-      CMAKE_C_COMPILER=gcc-6
-
+    - CMAKE_C_COMPILER=clang
+      CMAKE_BUILD_TYPE=Release
+      
 script:
   - cmake --version
   - mkdir build_release
