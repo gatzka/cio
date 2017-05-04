@@ -15,7 +15,8 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../../)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../../fff/)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../../unity/src/)
 
-SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=gnu99")
+set(WARN_SWITCHES "-Wall -Wextra -Werror -Wshadow -Winit-self -Wcast-qual -Wcast-align -Wformat=2 -Wwrite-strings -Wmissing-prototypes -Wstrict-overflow=5 -pedantic")
+set(CMAKE_C_FLAGS "-pipe -fno-common -std=gnu99 ${WARN_SWITCHES}")
 
 add_executable(test_cio_linux_epoll
     test_cio_linux_epoll.c
