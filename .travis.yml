@@ -10,12 +10,13 @@ env:
   matrix:
     - CC=gcc-6
       CMAKE_BUILD_TYPE=Release
+      CMAKE_C_COMPILER=gcc-6
 
 script:
   - cmake --version
   - mkdir build_release
   - cd build_release
-  - CMAKE_CMD_OPTION="-DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}"
+  - CMAKE_CMD_OPTION="--DCMAKEC_COMPILER= ${CMAKE_C_COMPILER} DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}"
   - echo $CMAKE_CMD_OPTION
   - cmake $CMAKE_CMD_OPTION ../src/
   - make VERBOSE=1
