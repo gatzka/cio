@@ -25,11 +25,12 @@ addons:
   apt:
     sources:
     - ubuntu-toolchain-r-test
-    - kalakris-cmake
+    - george-edison55-precise-backports
     packages:
     - clang
     - gcc-6
     - cmake
+    - cmake-data
     - doxygen
     - valgrind
 
