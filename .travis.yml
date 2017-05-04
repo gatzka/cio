@@ -12,6 +12,7 @@ env:
       CMAKE_BUILD_TYPE=Release
 
 script:
+  - cmake --version
   - mkdir build_release
   - cd build_release
   - CMAKE_CMD_OPTION="-DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}"
@@ -24,6 +25,7 @@ addons:
   apt:
     sources:
     - ubuntu-toolchain-r-test
+    - kalakris-cmake
     packages:
     - clang
     - gcc-6
