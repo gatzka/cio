@@ -18,14 +18,15 @@ matrix:
       env: COMPILER=gcc-6
 
 script:
+  - echo ${COMPILER}
   - mkdir build_release
   - cd build_release
-  - cmake -DCMAKE_CXX_COMPILER=$COMPILER -DCMAKE_BUILD_TYPE=Release ../src/
+  - cmake -DCMAKE_C_COMPILER=${COMPILER} -DCMAKE_BUILD_TYPE=Release ../src/
   - make VERBOSE=1
   - make test
   - mkdir ../build_debug
   - cd ../build_debug
-  - cmake -DCMAKE_CXX_COMPILER=$COMPILER -DCMAKE_BUILD_TYPE=Debug ../src/
+  - cmake -DCMAKE_C_COMPILER=${COMPILER} -DCMAKE_BUILD_TYPE=Debug ../src/
   - make VERBOSE=1
   - make test
 
