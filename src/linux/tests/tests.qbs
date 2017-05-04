@@ -45,17 +45,22 @@ Project {
       name: "fake-function-framework"
     }
   }
+  Product {
+      name: "common settings"
+      Export {
+          Depends { name: "cpp" }
+          Depends { name: "unity" }
+          Depends { name: "fake-function-framework" }
+          cpp.warningLevel: "all"
+          cpp.treatWarningsAsErrors: true
+          cpp.includePaths: ["..", "../.."]
+      }
+  }
 
   CppApplication {
     name: "test_cio_linux_server_socket"
     type: ["application", "unittest"]
-    Depends { name: "unity" }
-    Depends { name: "fake-function-framework" }
-
-    cpp.warningLevel: "all"
-    cpp.treatWarningsAsErrors: true
-    cpp.includePaths: ["..", "../.."]
-
+    Depends { name: "common settings" }
     files: [
       "test_cio_linux_server_socket.c",
       "../cio_linux_server_socket.c",
@@ -65,13 +70,7 @@ Project {
   CppApplication {
     name: "test_cio_linux_epoll"
     type: ["application", "unittest"]
-    Depends { name: "unity" }
-    Depends { name: "fake-function-framework" }
-
-    cpp.warningLevel: "all"
-    cpp.treatWarningsAsErrors: true
-    cpp.includePaths: ["..", "../.."]
-
+    Depends { name: "common settings" }
     files: [
       "test_cio_linux_epoll.c",
       "../cio_linux_epoll.c",
