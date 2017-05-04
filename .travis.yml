@@ -33,6 +33,7 @@ addons:
     - llvm-toolchain-precise
     packages:
     - clang
+    - clang-4.0
     - gcc-6
     - cmake
     - cmake-data
