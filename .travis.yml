@@ -18,33 +18,16 @@ matrix:
       env: COMPILER=gcc-6
 
 script:
-  - echo ${BUILD}
-  - if [ "$COVERITY_SCAN_BRANCH" != 1 ]; then
-      case ${BUILD} in
-        gcc)
-          mkdir build_release &&
-          cd build_release &&
-          cmake -DCMAKE_BUILD_TYPE=Release ../src/ &&
-          make VERBOSE=1 &&
-          mkdir ../build_debug &&
-          cd ../build_debug &&
-          cmake -DCMAKE_BUILD_TYPE=Debug ../src/ &&
-          make VERBOSE=1&&
-          make test
-          ;;
-        clang)
-          mkdir build_release &&
-          cd build_release &&
-          cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE=../cmake/clang.cmake ../src/ &&
-          make VERBOSE=1 &&
-          mkdir ../build_debug &&
-          cd ../build_debug &&
-          cmake -DCMAKE_BUILD_TYPE=Debug -DCMAKE_TOOLCHAIN_FILE=../cmake/clang.cmake ../src/ &&
-          make VERBOSE=1 &&
-          make test
-          ;;
-      esac ;
-    fi
+  - mkdir build_release
+  - cd build_release
+  - cmake -DCMAKE_CXX_COMPILER=$COMPILER -DCMAKE_BUILD_TYPE=Release ../src/
+  - make VERBOSE=1
+  - make test
+  - mkdir ../build_debug
+  - cd ../build_debug
+  - cmake -DCMAKE_CXX_COMPILER=$COMPILER -DCMAKE_BUILD_TYPE=Debug ../src/
+  - make VERBOSE=1
+  - make test
 
 addons:
   apt:
