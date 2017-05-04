@@ -8,45 +8,31 @@ sudo: false
 
 env:
   matrix:
-    - BUILD=gcc
-    - BUILD=clang
-
+    - CMAKE_C_COMPILER=gcc-6
+      CMAKE_BUILD_TYPE=Release
+    - CMAKE_C_COMPILER=clang
+      CMAKE_BUILD_TYPE=Release
+      
 script:
-  - if [ "$COVERITY_SCAN_BRANCH" != 1 ]; then
-      case ${BUILD} in
-        gcc)
-          mkdir build_release &&
-          cd build_release &&
-          cmake -DCMAKE_BUILD_TYPE=Release ../src/ &&
-          make &&
-          mkdir ../build_debug &&
-          cd ../build_debug &&
-          cmake -DCMAKE_BUILD_TYPE=Debug ../src/ &&
-          make &&
-          make test
-          ;;
-        clang)
-          mkdir build_release &&
-          cd build_release &&
-          cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE=../cmake/clang.cmake ../src/ &&
-          make &&
-          mkdir ../build_debug &&
-          cd ../build_debug &&
-          cmake -DCMAKE_BUILD_TYPE=Debug -DCMAKE_TOOLCHAIN_FILE=../cmake/clang.cmake ../src/ &&
-          make &&
-          make test
-          ;;
-      esac ;
-    fi
+  - cmake --version
+  - mkdir build_release
+  - cd build_release
+  - CMAKE_CMD_OPTION="-DCMAKE_C_COMPILER=${CMAKE_C_COMPILER} -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}"
+  - echo $CMAKE_CMD_OPTION
+  - cmake $CMAKE_CMD_OPTION ../src/
+  - make VERBOSE=1
+  - make test
 
 addons:
   apt:
     sources:
     - ubuntu-toolchain-r-test
+    - george-edison55-precise-backports
     packages:
-    - gcc-6
     - clang
+    - gcc-6
     - cmake
+    - cmake-data
     - doxygen
     - valgrind
 
