@@ -40,8 +40,8 @@ script:
     fi
 
 install:
-    - if [ "$CXX" = "gcc" ]; then export CXX="g++-6" CC="gcc-6"; fi
-	- gcc --version
+  - if [ "$CXX" = "gcc" ]; then export CXX="g++-6" CC="gcc-6"; fi
+  - gcc --version
 
 addons:
   apt:
