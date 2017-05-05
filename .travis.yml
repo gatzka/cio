@@ -24,6 +24,8 @@ env:
       CMAKE_BUILD_TYPE=Debug
     - CMAKE_C_COMPILER=clang-3.9
       CMAKE_BUILD_TYPE=Debug
+    - CMAKE_C_COMPILER=/usr/share/clang/scan-build-3.9/libexec/ccc-analyzer
+      CMAKE_BUILD_TYPE=Debug
       
 script:
   - cmake --version
