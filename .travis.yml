@@ -26,6 +26,7 @@ env:
       CMAKE_BUILD_TYPE=Debug
     - CMAKE_C_COMPILER=/usr/share/clang/scan-build-3.9/libexec/ccc-analyzer
       CMAKE_BUILD_TYPE=Debug
+      SCAN_BUILD=1
       
 script:
   - cmake --version
@@ -34,7 +35,7 @@ script:
   - CMAKE_CMD_OPTION="-DCMAKE_C_COMPILER=${CMAKE_C_COMPILER} -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}"
   - echo $CMAKE_CMD_OPTION
   - cmake $CMAKE_CMD_OPTION ../src/
-  - make VERBOSE=1
+  - if [-z ${SCAN_BUILD} ]; then /usr/lib/llvm-3.9/bin/scan-build make VERBOSE=1; else make VERBOSE=1; fi
   - make test
 
 addons:
