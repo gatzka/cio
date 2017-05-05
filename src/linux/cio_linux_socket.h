@@ -86,4 +86,4 @@ struct cio_socket *cio_linux_socket_init(struct cio_linux_socket *s,
 }
 #endif
 
-#endif // CIO_LINUX_SOCKET_H
+#endif
