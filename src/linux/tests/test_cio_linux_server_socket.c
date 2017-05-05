@@ -36,6 +36,7 @@
 
 #include "cio_linux_epoll.h"
 #include "cio_linux_server_socket.h"
+#include "cio_linux_socket.h"
 
 DEFINE_FFF_GLOBALS
 
@@ -175,7 +176,9 @@ static void accept_handler_close_server_socket(struct cio_server_socket *ss, voi
 {
 	(void)handler_context;
 	(void)err;
-	(void)sock;
+	if (err == cio_success) {
+		sock->close(sock);
+	}
 	ss->close(ss);
 }
 

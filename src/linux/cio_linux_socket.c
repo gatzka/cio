@@ -24,57 +24,31 @@
  * SOFTWARE.
  */
 
-import qbs 1.0
+#include <unistd.h>
 
-Project {
-  name: "cio unit tests linux"
-  minimumQbsVersion: "1.6.0"
+#include "cio_linux_epoll.h"
+#include "cio_linux_socket.h"
+#include "cio_util.h"
 
-  condition: qbs.targetOS.contains("linux")
+static void socket_close(void *context)
+{
+	struct cio_socket *s = context;
+	struct cio_linux_socket *ls = container_of(s, struct cio_linux_socket, socket);
 
-  SubProject {
-    filePath: "../../unity.qbs"
-    Properties {
-      name: "unity"
-    }
-  }
+//	cio_linux_eventloop_remove(s->loop, &s->ev);
 
-  SubProject {
-    filePath: "../../fff.qbs"
-    Properties {
-      name: "fake-function-framework"
-    }
-  }
-  Product {
-      name: "common settings"
-      Export {
-          Depends { name: "cpp" }
-          Depends { name: "unity" }
-          Depends { name: "fake-function-framework" }
-          cpp.warningLevel: "all"
-          cpp.treatWarningsAsErrors: true
-          cpp.includePaths: ["..", "../.."]
-      }
-  }
+	close(ls->fd);
+	if (ls->close != NULL) {
+		ls->close(ls);
+	}
+}
 
-  CppApplication {
-    name: "test_cio_linux_server_socket"
-    type: ["application", "unittest"]
-    Depends { name: "common settings" }
-    files: [
-      "test_cio_linux_server_socket.c",
-      "../cio_linux_server_socket.c",
-      "../cio_linux_socket.c",
-    ]
-  }
-
-  CppApplication {
-    name: "test_cio_linux_epoll"
-    type: ["application", "unittest"]
-    Depends { name: "common settings" }
-    files: [
-      "test_cio_linux_epoll.c",
-      "../cio_linux_epoll.c",
-    ]
-  }
+struct cio_socket *cio_linux_socket_init(struct cio_linux_socket *s,
+                                         struct cio_linux_eventloop_epoll *loop,
+                                         cio_linux_socket_close_hook hook)
+{
+	s->socket.close = socket_close;
+	s->loop = loop;
+	s->close = hook;
+	return &s->socket;
 }

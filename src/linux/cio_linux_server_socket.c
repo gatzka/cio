@@ -30,6 +30,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include <sys/socket.h>
 #include <sys/types.h>
@@ -39,7 +40,9 @@
 #include "cio_error_code.h"
 #include "cio_linux_epoll.h"
 #include "cio_linux_server_socket.h"
+#include "cio_linux_socket.h"
 #include "cio_server_socket.h"
+#include "cio_util.h"
 
 static enum cio_error set_fd_non_blocking(int fd)
 {
@@ -127,14 +130,20 @@ static enum cio_error socket_init(void *context, uint16_t port, unsigned int bac
 
 static void socket_close(void *context)
 {
-	struct cio_linux_server_socket *ss = context;
+	struct cio_server_socket *ss = context;
+	struct cio_linux_server_socket *lss = container_of(ss, struct cio_linux_server_socket, server_socket);
 
-	cio_linux_eventloop_remove(ss->loop, &ss->ev);
+	cio_linux_eventloop_remove(lss->loop, &lss->ev);
 
-	close(ss->fd);
-	if (ss->close != NULL) {
-		ss->close(ss);
+	close(lss->fd);
+	if (lss->close != NULL) {
+		lss->close(lss);
 	}
+}
+
+static void free_linux_socket(struct cio_linux_socket *s)
+{
+	free(s);
 }
 
 static void accept_callback(void *context)
@@ -156,8 +165,11 @@ static void accept_callback(void *context)
 
 			return;
 		} else {
-			/* TODO: create client socket and pass it instead of NULL */
-			ss->handler(&ss->server_socket, ss->handler_context, cio_success, NULL);
+			struct cio_linux_socket *ls = malloc(sizeof(*ls));
+			if (likely(ls != NULL)) {
+				struct cio_socket *s = cio_linux_socket_init(ls, ss->loop, free_linux_socket);
+				ss->handler(&ss->server_socket, ss->handler_context, cio_success, s);
+			}
 		}
 	}
 }
