@@ -78,7 +78,7 @@ struct cio_linux_socket {
  * the hook could be used to free the memory of the linux socket.
  * @return The cio_socket which shall be used after initializing.
  */
-struct cio_socket *cio_linux_socket_init(struct cio_linux_socket *s,
+struct cio_socket *cio_linux_socket_init(struct cio_linux_socket *s, int client_fd,
                                          struct cio_linux_eventloop_epoll *loop,
                                          cio_linux_socket_close_hook close);
 

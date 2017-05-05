@@ -167,7 +167,7 @@ static void accept_callback(void *context)
 		} else {
 			struct cio_linux_socket *ls = malloc(sizeof(*ls));
 			if (likely(ls != NULL)) {
-				struct cio_socket *s = cio_linux_socket_init(ls, ss->loop, free_linux_socket);
+				struct cio_socket *s = cio_linux_socket_init(ls, client_fd, ss->loop, free_linux_socket);
 				ss->handler(&ss->server_socket, ss->handler_context, cio_success, s);
 			}
 		}
