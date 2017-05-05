@@ -43,11 +43,11 @@ extern "C" {
 struct cio_linux_server_socket;
 
 /**
- * @brief The type  of close hook function.
+ * @brief The type of close hook function.
  *
  * @param ss The cio_linux_server_socket the close hook was called on.
  */
-typedef void (*close_hook)(struct cio_linux_server_socket *ss);
+typedef void (*cio_linux_server_socket_close_hook)(struct cio_linux_server_socket *ss);
 
 /**
  * @brief Structure describing a linux server socket.
@@ -61,7 +61,7 @@ struct cio_linux_server_socket {
 	 */
 	struct cio_server_socket server_socket;
 	int fd;
-	close_hook close;
+	cio_linux_server_socket_close_hook close;
 	cio_accept_handler handler;
 	void *handler_context;
 	struct cio_linux_event_notifier ev;
@@ -83,7 +83,7 @@ struct cio_linux_server_socket {
  */
 const struct cio_server_socket *cio_linux_server_socket_init(struct cio_linux_server_socket *ss,
                                                              struct cio_linux_eventloop_epoll *loop,
-                                                             close_hook close);
+															 cio_linux_server_socket_close_hook close);
 
 #ifdef __cplusplus
 }
