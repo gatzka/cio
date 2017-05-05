@@ -247,7 +247,7 @@ static void test_notify_event(void)
 	TEST_ASSERT_EQUAL(EPOLL_CTL_ADD, epoll_ctl_fake.arg1_val);
 	TEST_ASSERT_EQUAL(fake_fd, epoll_ctl_fake.arg2_val);
 
-	err = cio_linux_eventloop_run(&loop);
+	cio_linux_eventloop_run(&loop);
 	TEST_ASSERT_EQUAL(1, epoll_callback_fake.call_count);
 	TEST_ASSERT_EQUAL(&loop, epoll_callback_fake.arg0_val);
 
@@ -302,7 +302,7 @@ static void test_notify_three_event_and_remove(void)
 	TEST_ASSERT_EQUAL(EPOLL_CTL_ADD, epoll_ctl_fake.arg1_val);
 	TEST_ASSERT_EQUAL(fake_third_fd, epoll_ctl_fake.arg2_val);
 
-	err = cio_linux_eventloop_run(&loop);
+	cio_linux_eventloop_run(&loop);
 	TEST_ASSERT_EQUAL(1, epoll_callback_remove_second_fd_fake.call_count);
 	TEST_ASSERT_EQUAL(&loop, epoll_callback_remove_second_fd_fake.arg0_val);
 	TEST_ASSERT_EQUAL(0, epoll_callback_second_fd_fake.call_count);
