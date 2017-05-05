@@ -38,6 +38,9 @@ script:
   - if [ -n "${SCAN_BUILD}" ]; then /usr/lib/llvm-3.9/bin/scan-build --status-bugs make VERBOSE=1; else make VERBOSE=1; fi
   - make test
 
+cache:
+  apt: true
+
 addons:
   apt:
     sources:
