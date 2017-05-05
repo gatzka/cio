@@ -186,7 +186,7 @@ static enum cio_error socket_accept(void *context, cio_accept_handler handler, v
 
 const struct cio_server_socket *cio_linux_server_socket_init(struct cio_linux_server_socket *ss,
                                                              struct cio_linux_eventloop_epoll *loop,
-															 cio_linux_server_socket_close_hook hook)
+                                                             cio_linux_server_socket_close_hook hook)
 {
 	ss->server_socket.context = ss;
 	ss->server_socket.init = socket_init;

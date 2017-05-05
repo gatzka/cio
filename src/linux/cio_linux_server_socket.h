@@ -83,7 +83,7 @@ struct cio_linux_server_socket {
  */
 const struct cio_server_socket *cio_linux_server_socket_init(struct cio_linux_server_socket *ss,
                                                              struct cio_linux_eventloop_epoll *loop,
-															 cio_linux_server_socket_close_hook close);
+                                                             cio_linux_server_socket_close_hook close);
 
 #ifdef __cplusplus
 }
