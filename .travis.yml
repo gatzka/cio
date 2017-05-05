@@ -35,7 +35,7 @@ script:
   - CMAKE_CMD_OPTION="-DCMAKE_C_COMPILER=${CMAKE_C_COMPILER} -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}"
   - echo $CMAKE_CMD_OPTION
   - cmake $CMAKE_CMD_OPTION ../src/
-  - if [ -z ${SCAN_BUILD} ]; then make VERBOSE=1; else /usr/lib/llvm-3.9/bin/scan-build --status-bugs make VERBOSE=1; fi
+  - if [ -n "${SCAN_BUILD}" ]; then /usr/lib/llvm-3.9/bin/scan-build --status-bugs make VERBOSE=1; else make VERBOSE=1; fi
   - make test
 
 addons:
