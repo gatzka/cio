@@ -42,6 +42,9 @@ add_library(cio SHARED
 set_target_properties(cio
     PROPERTIES OUTPUT_NAME "cio"
 )
+set_target_properties(cio
+    PROPERTIES VERSION "${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}.${PROJECT_VERSION_PATCH}" SOVERSION ${PROJECT_VERSION_MAJOR}
+)
 
 add_subdirectory(linux/tests/) 
 
