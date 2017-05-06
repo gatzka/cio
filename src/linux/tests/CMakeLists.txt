@@ -42,6 +42,7 @@ target_link_libraries (test_cio_linux_epoll unity)
 add_executable(test_cio_linux_server_socket
     test_cio_linux_server_socket.c
     ../cio_linux_server_socket.c
+    ../cio_linux_socket.c
 )
 target_link_libraries (test_cio_linux_server_socket unity)
 
