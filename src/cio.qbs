@@ -26,8 +26,6 @@
 
 import qbs 1.0
 import qbs.TextFile
-import "./files.qbs" as cioSourceFiles
-import "./linux/files.qbs" as linuxSourceFiles
 import "./version.qbs" as cioVersionFile
 
 Project {
@@ -66,12 +64,41 @@ Project {
       prefix: product.sourceDirectory + "/"
     }
 
-    cioSourceFiles {
-      prefix: product.sourceDirectory + "/"
+    Group {
+      name: "ANSI C conformant"
+      
+      cpp.cLanguageVersion: "c99"
+      
+      files: [
+        "*.c",
+      ]
+    
+      Group {
+        name: "public headers"
+        files: ["*.h"]
+      }
     }
 
-    linuxSourceFiles {
-      prefix: product.sourceDirectory + "/linux/"
+    Group {
+      condition: qbs.targetOS.contains("linux")
+      name: "linux specific"
+      prefix: "linux/"
+
+      files: [
+        "*.c",
+      ]
+
+      Group {
+        name: "public linux headers"
+        prefix: "linux/"
+        files: ["*.h"]
+      }
+    }
+
+    Group {
+      fileTagsFilter: product.type
+      qbs.install: true
+      qbs.installDir: "lib"
     }
   }
 
@@ -111,12 +138,43 @@ Project {
       fileTags: ["versionHeaderToPatch"]
     }
 
-    cioSourceFiles {
-      prefix: product.sourceDirectory + "/"
+    Group {
+      name: "ANSI C conformant"
+      
+      cpp.cLanguageVersion: "c99"
+      
+      files: [
+        "*.c",
+      ]
+    
+      Group {
+        name: "public headers"
+        files: ["*.h"]
+        qbs.install: true
+        qbs.installDir: "include"
+      }
+    }
+    Group {
+      condition: qbs.targetOS.contains("linux")
+      name: "linux specific"
+      prefix: "linux/"
+      files: [
+        "*.c",
+      ]
+
+      Group {
+        name: "public linux headers"
+        prefix: "linux/"
+        files: ["*.h"]
+        qbs.install: true
+        qbs.installDir: "include/linux"
+      }
     }
 
-    linuxSourceFiles {
-      prefix: product.sourceDirectory + "/linux/"
+    Group {
+      fileTagsFilter: product.type
+      qbs.install: true
+      qbs.installDir: "lib"
     }
   }
 }
