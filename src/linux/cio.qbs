@@ -27,6 +27,7 @@
 import qbs 1.0
 import qbs.TextFile
 import "../files.qbs" as cioSourceFiles
+import "../version.qbs" as cioVersionFile
 import "./files.qbs" as linuxSourceFiles
 
 Project {
@@ -35,6 +36,8 @@ Project {
 
   name: "cio libraries"
   minimumQbsVersion: "1.6.0"
+
+  qbsSearchPaths: "../../qbs/"
 
   SubProject {
     filePath: "../../qbs/hardening.qbs"
@@ -62,8 +65,12 @@ Project {
     cpp.treatWarningsAsErrors: true
     cpp.includePaths: [".", "..", buildDirectory]
 
+    cioVersionFile {
+      prefix: product.sourceDirectory + "/../"
+    }
+
     cioSourceFiles {
-      prefix: product.sourceDirectory + "../"
+      prefix: product.sourceDirectory + "/../"
     }
 
     linuxSourceFiles {
@@ -89,13 +96,26 @@ Project {
     Depends { name: "cpp" }
     Depends { name: "gccClang" }
     Depends { name: "hardening" }
+    Depends { name: "generateVersion" }
 
     cpp.warningLevel: "all"
     cpp.treatWarningsAsErrors: true
     cpp.includePaths: [".", "..", buildDirectory]
 
+    cioVersionFile {
+      prefix: product.sourceDirectory + "/../"
+    }
+
+    Group {
+      name: "version header"
+      files: [
+        "../version.h.in"
+      ]
+      fileTags: ["versionHeaderToPatch"]
+    }
+
     cioSourceFiles {
-      prefix: product.sourceDirectory + "../"
+      prefix: product.sourceDirectory + "/../"
     }
 
     linuxSourceFiles {
