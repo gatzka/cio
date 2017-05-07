@@ -55,13 +55,22 @@ Project {
     Depends { name: "cpp" }
     Depends { name: "gccClang" }
     Depends { name: "hardening" }
+    Depends { name: "generateVersion" }
 
     cpp.warningLevel: "all"
     cpp.treatWarningsAsErrors: true
-    cpp.includePaths: [".", buildDirectory]
+    cpp.includePaths: [".", buildDirectory + "/generated/"]
 
     cioVersionFile {
       prefix: product.sourceDirectory + "/"
+    }
+
+    Group {
+      name: "version header"
+      files: [
+        "version.h.in"
+      ]
+      fileTags: ["versionHeaderToPatch"]
     }
 
     Group {
@@ -124,7 +133,7 @@ Project {
 
     cpp.warningLevel: "all"
     cpp.treatWarningsAsErrors: true
-    cpp.includePaths: [".", buildDirectory]
+    cpp.includePaths: [".", buildDirectory + "/generated/"]
 
     cioVersionFile {
       prefix: product.sourceDirectory + "/"
