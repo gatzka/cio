@@ -31,7 +31,7 @@ Project {
   minimumQbsVersion: "1.4.0"
 
   SubProject {
-    filePath: "linux/cio.qbs"
+    filePath: "cio.qbs"
   }
 
   SubProject {
