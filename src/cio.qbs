@@ -177,4 +177,24 @@ Project {
       qbs.installDir: "lib"
     }
   }
+
+  InstallPackage {
+    archiver.type: "tar"
+    archiver.archiveBaseName: "cio"
+    name: "cio-linux"
+    condition: qbs.targetOS.contains("linux")
+    builtByDefault: true
+    Depends { name: "cio-dynamic" }
+    Depends { name: "cio-static" }
+  }
+
+  InstallPackage {
+    archiver.type: "zip"
+    archiver.archiveBaseName: "cio"
+    name: "cio-win"
+    condition: qbs.targetOS.contains("windows")
+    builtByDefault: true
+    Depends { name: "cio-dynamic" }
+    Depends { name: "cio-static" }
+  }
 }
