@@ -47,8 +47,29 @@ add_library(cio SHARED
 set_target_properties(cio
     PROPERTIES OUTPUT_NAME "cio"
 )
+
+file(GLOB LIB_HEADERS
+   ${PROJECT_SOURCE_DIR}/*.h
+)
+file(GLOB LIB_HEADERS_LINUX
+   ${PROJECT_SOURCE_DIR}/linux/*.h
+)
+
 set_target_properties(cio
     PROPERTIES VERSION "${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}.${PROJECT_VERSION_PATCH}" SOVERSION ${PROJECT_VERSION_MAJOR}
+)
+
+install(
+    TARGETS cio_static cio
+    LIBRARY DESTINATION lib
+    ARCHIVE DESTINATION lib
+)
+
+install(
+    FILES ${LIB_HEADERS} DESTINATION include/cio
+)
+install(
+    FILES ${LIB_HEADERS_LINUX} DESTINATION include/cio/linux
 )
 
 add_subdirectory(linux/tests/) 
