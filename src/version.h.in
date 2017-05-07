@@ -1,0 +1,6 @@
+#ifndef CIO_VERSION_H
+#define CIO_VERSION_H
+
+#define CIO_VERSION "${CIO_VERSION}" "${CIO_LAST}"
+
+#endif
