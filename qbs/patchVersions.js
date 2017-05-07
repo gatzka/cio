@@ -80,7 +80,6 @@ function patchVersion(inputs, output, product)
     file.close()
     content = content.replace(/\${CIO_VERSION}/g, versionString);
     content = content.replace(/\${CIO_LAST}/g, preRelease + buildInfo);
-    content = content.replace(/\${PROJECT_NAME}/g, product.name);
     file = new TextFile(output.filePath,  TextFile.WriteOnly);
     file.truncate();
     file.write(content);
