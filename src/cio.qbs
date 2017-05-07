@@ -26,8 +26,6 @@
 
 import qbs 1.0
 import qbs.TextFile
-import "./files.qbs" as cioSourceFiles
-import "./linux/files.qbs" as linuxSourceFiles
 import "./version.qbs" as cioVersionFile
 
 Project {
@@ -60,18 +58,47 @@ Project {
 
     cpp.warningLevel: "all"
     cpp.treatWarningsAsErrors: true
-    cpp.includePaths: [".", "./linux/", buildDirectory]
+    cpp.includePaths: [".", buildDirectory]
 
     cioVersionFile {
       prefix: product.sourceDirectory + "/"
     }
 
-    cioSourceFiles {
-      prefix: product.sourceDirectory + "/"
+    Group {
+      name: "ANSI C conformant"
+      
+      cpp.cLanguageVersion: "c99"
+      
+      files: [
+        "*.c",
+      ]
+    
+      Group {
+        name: "public headers"
+        files: ["*.h"]
+      }
     }
 
-    linuxSourceFiles {
-      prefix: product.sourceDirectory + "/linux/"
+    Group {
+      condition: qbs.targetOS.contains("linux")
+      name: "linux specific"
+      prefix: "linux/"
+
+      files: [
+        "*.c",
+      ]
+
+      Group {
+        name: "public linux headers"
+        prefix: "linux/"
+        files: ["*.h"]
+      }
+    }
+
+    Group {
+      fileTagsFilter: product.type
+      qbs.install: true
+      qbs.installDir: "lib"
     }
   }
 
@@ -97,7 +124,7 @@ Project {
 
     cpp.warningLevel: "all"
     cpp.treatWarningsAsErrors: true
-    cpp.includePaths: [".", "./linux/", buildDirectory]
+    cpp.includePaths: [".", buildDirectory]
 
     cioVersionFile {
       prefix: product.sourceDirectory + "/"
@@ -111,12 +138,63 @@ Project {
       fileTags: ["versionHeaderToPatch"]
     }
 
-    cioSourceFiles {
-      prefix: product.sourceDirectory + "/"
+    Group {
+      name: "ANSI C conformant"
+      
+      cpp.cLanguageVersion: "c99"
+      
+      files: [
+        "*.c",
+      ]
+    
+      Group {
+        name: "public headers"
+        files: ["*.h"]
+        qbs.install: true
+        qbs.installDir: "include"
+      }
+    }
+    Group {
+      condition: qbs.targetOS.contains("linux")
+      name: "linux specific"
+      prefix: "linux/"
+      files: [
+        "*.c",
+      ]
+
+      Group {
+        name: "public linux headers"
+        prefix: "linux/"
+        files: ["*.h"]
+        qbs.install: true
+        qbs.installDir: "include/linux"
+      }
     }
 
-    linuxSourceFiles {
-      prefix: product.sourceDirectory + "/linux/"
+    Group {
+      fileTagsFilter: product.type
+      qbs.install: true
+      qbs.installDir: "lib"
     }
+  }
+
+  InstallPackage {
+    archiver.type: "tar"
+    archiver.archiveBaseName: "cio"
+    name: "cio-linux"
+    condition: qbs.targetOS.contains("linux")
+    builtByDefault: true
+    Depends { name: "cio-dynamic" }
+    Depends { name: "cio-static" }
+  }
+
+  InstallPackage {
+    archiver.type: "zip"
+    archiver.archiveBaseName: "cio"
+    name: "cio-win"
+    condition: qbs.targetOS.contains("windows")
+    builtByDefault: true
+    Depends { name: "cio-dynamic" }
+    Depends { name: "cio-static" }
   }
 }

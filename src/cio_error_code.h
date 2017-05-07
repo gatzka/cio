@@ -27,7 +27,9 @@
 #ifndef CIO_ERROR_CODES_H
 #define CIO_ERROR_CODES_H
 
-#include "cio_system_error_code.h"
+#ifdef __linux__
+#include "linux/cio_system_error_code.h"
+#endif
 
 /**
  * @file

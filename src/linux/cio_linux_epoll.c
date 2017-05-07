@@ -31,7 +31,7 @@
 
 #include "cio_compiler.h"
 #include "cio_error_code.h"
-#include "cio_linux_epoll.h"
+#include "linux/cio_linux_epoll.h"
 
 static void erase_pending_event(struct cio_linux_eventloop_epoll *loop, const struct cio_linux_event_notifier *ev)
 {
