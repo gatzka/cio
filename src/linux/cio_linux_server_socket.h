@@ -28,8 +28,8 @@
 #define CIO_LINUX_SERVER_SOCKET_H
 
 #include "cio_error_code.h"
-#include "cio_linux_epoll.h"
 #include "cio_server_socket.h"
+#include "linux/cio_linux_epoll.h"
 
 #ifdef __cplusplus
 extern "C" {

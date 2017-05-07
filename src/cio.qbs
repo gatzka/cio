@@ -58,7 +58,7 @@ Project {
 
     cpp.warningLevel: "all"
     cpp.treatWarningsAsErrors: true
-    cpp.includePaths: [".", "./linux/", buildDirectory]
+    cpp.includePaths: [".", buildDirectory]
 
     cioVersionFile {
       prefix: product.sourceDirectory + "/"
@@ -124,7 +124,7 @@ Project {
 
     cpp.warningLevel: "all"
     cpp.treatWarningsAsErrors: true
-    cpp.includePaths: [".", "./linux/", buildDirectory]
+    cpp.includePaths: [".", buildDirectory]
 
     cioVersionFile {
       prefix: product.sourceDirectory + "/"

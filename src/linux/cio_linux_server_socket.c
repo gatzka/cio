@@ -38,11 +38,11 @@
 
 #include "cio_compiler.h"
 #include "cio_error_code.h"
-#include "cio_linux_epoll.h"
-#include "cio_linux_server_socket.h"
-#include "cio_linux_socket.h"
 #include "cio_server_socket.h"
 #include "cio_util.h"
+#include "linux/cio_linux_epoll.h"
+#include "linux/cio_linux_server_socket.h"
+#include "linux/cio_linux_socket.h"
 
 static enum cio_error set_fd_non_blocking(int fd)
 {

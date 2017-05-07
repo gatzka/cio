@@ -11,7 +11,6 @@ endif()
 
 string(COMPARE EQUAL "${CMAKE_SYSTEM_NAME}" "Linux" is_linux)
 if(is_linux)
-    include_directories(${CMAKE_CURRENT_SOURCE_DIR}/linux/)
     set(CIO_LINUX_FILES
         linux/cio_linux_epoll.c
         linux/cio_linux_server_socket.c

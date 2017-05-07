@@ -27,8 +27,8 @@
 #ifndef CIO_LINUX_SOCKET_H
 #define CIO_LINUX_SOCKET_H
 
-#include "cio_linux_epoll.h"
 #include "cio_socket.h"
+#include "linux/cio_linux_epoll.h"
 
 #ifdef __cplusplus
 extern "C" {
