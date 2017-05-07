@@ -9,6 +9,8 @@ if(NOT CMAKE_BUILD_TYPE)
     set(CMAKE_BUILD_TYPE "Release")
 endif()
 
+configure_file(version.h.in ${PROJECT_BINARY_DIR}/generated/version.h)
+
 string(COMPARE EQUAL "${CMAKE_SYSTEM_NAME}" "Linux" is_linux)
 if(is_linux)
     set(CIO_LINUX_FILES
