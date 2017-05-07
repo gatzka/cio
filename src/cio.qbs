@@ -26,28 +26,25 @@
 
 import qbs 1.0
 import qbs.TextFile
-import "../files.qbs" as cioSourceFiles
-import "../version.qbs" as cioVersionFile
-import "./files.qbs" as linuxSourceFiles
+import "./files.qbs" as cioSourceFiles
+import "./linux/files.qbs" as linuxSourceFiles
+import "./version.qbs" as cioVersionFile
 
 Project {
-
-  property bool runAnalyzer: false
-
   name: "cio libraries"
   minimumQbsVersion: "1.6.0"
 
-  qbsSearchPaths: "../../qbs/"
+  qbsSearchPaths: "../qbs/"
 
   SubProject {
-    filePath: "../../qbs/hardening.qbs"
+    filePath: "../qbs/hardening.qbs"
     Properties {
       name: "hardening settings"
     }
   }
 
   SubProject {
-    filePath: "../../qbs/gccClang.qbs"
+    filePath: "../qbs/gccClang.qbs"
     Properties {
       name: "GCC/Clang switches"
     }
@@ -63,18 +60,18 @@ Project {
 
     cpp.warningLevel: "all"
     cpp.treatWarningsAsErrors: true
-    cpp.includePaths: [".", "..", buildDirectory]
+    cpp.includePaths: [".", "./linux/", buildDirectory]
 
     cioVersionFile {
-      prefix: product.sourceDirectory + "/../"
+      prefix: product.sourceDirectory + "/"
     }
 
     cioSourceFiles {
-      prefix: product.sourceDirectory + "/../"
+      prefix: product.sourceDirectory + "/"
     }
 
     linuxSourceFiles {
-      prefix: product.sourceDirectory + "/"
+      prefix: product.sourceDirectory + "/linux/"
     }
   }
 
@@ -87,7 +84,7 @@ Project {
       property string result
       property path sourceDir: product.sourceDirectory
       configure: {
-        var file = new TextFile(sourceDir + "/../version");
+        var file = new TextFile(sourceDir + "/version");
         var content = file.readLine();
         result = content;
       }
@@ -100,26 +97,26 @@ Project {
 
     cpp.warningLevel: "all"
     cpp.treatWarningsAsErrors: true
-    cpp.includePaths: [".", "..", buildDirectory]
+    cpp.includePaths: [".", "./linux/", buildDirectory]
 
     cioVersionFile {
-      prefix: product.sourceDirectory + "/../"
+      prefix: product.sourceDirectory + "/"
     }
 
     Group {
       name: "version header"
       files: [
-        "../version.h.in"
+        "version.h.in"
       ]
       fileTags: ["versionHeaderToPatch"]
     }
 
     cioSourceFiles {
-      prefix: product.sourceDirectory + "/../"
+      prefix: product.sourceDirectory + "/"
     }
 
     linuxSourceFiles {
-      prefix: product.sourceDirectory + "/"
+      prefix: product.sourceDirectory + "/linux/"
     }
   }
 }
