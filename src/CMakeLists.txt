@@ -1,5 +1,9 @@
 cmake_minimum_required(VERSION 3.0)
-project(cio VERSION 0.0.1 LANGUAGES C)
+project(cio C)
+
+set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/../cmake/)
+include(generateVersion)
+GenerateVersion(version)
 
 if(NOT CMAKE_BUILD_TYPE)
     set(CMAKE_BUILD_TYPE "Release")
