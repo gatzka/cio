@@ -190,8 +190,14 @@ static void test_accept_bind_address(void)
 	struct cio_linux_eventloop_epoll loop;
 	struct cio_linux_server_socket ss_linux;
 	const struct cio_server_socket *ss = cio_linux_server_socket_init(&ss_linux, &loop, on_close);
-	ss->init(ss->context, 12345, 5, "127.0.0.1");
-	ss->accept(ss->context, accept_handler, NULL);
+	enum cio_error err = ss->init(ss->context, 5);
+	TEST_ASSERT_EQUAL(cio_success, err);
+	err = ss->set_reuse_address(ss->context, true);
+	TEST_ASSERT_EQUAL(cio_success, err);
+	err = ss->bind(ss->context, "127.0.0.10", 12345);
+	TEST_ASSERT_EQUAL(cio_success, err);
+	err = ss->accept(ss->context, accept_handler, NULL);
+	TEST_ASSERT_EQUAL(cio_success, err);
 
 	TEST_ASSERT_EQUAL(1, accept_handler_fake.call_count);
 	TEST_ASSERT_EQUAL(1, on_close_fake.call_count);
@@ -205,7 +211,8 @@ static void test_accept_close_in_accept_handler(void)
 	struct cio_linux_eventloop_epoll loop;
 	struct cio_linux_server_socket ss_linux;
 	const struct cio_server_socket *ss = cio_linux_server_socket_init(&ss_linux, &loop, on_close);
-	ss->init(ss->context, 12345, 5, NULL);
+	ss->init(ss->context, 5);
+	ss->bind(ss->context, NULL, 12345);
 	ss->accept(ss->context, accept_handler, NULL);
 
 	TEST_ASSERT_EQUAL(1, accept_handler_fake.call_count);
@@ -220,7 +227,9 @@ static void test_accept_wouldblock(void)
 	struct cio_linux_eventloop_epoll loop;
 	struct cio_linux_server_socket ss_linux;
 	const struct cio_server_socket *ss = cio_linux_server_socket_init(&ss_linux, &loop, on_close);
-	enum cio_error err = ss->init(ss->context, 12345, 5, NULL);
+	enum cio_error err = ss->init(ss->context, 5);
+	TEST_ASSERT_EQUAL(cio_success, err);
+	err = ss->bind(ss->context, NULL, 12345);
 	TEST_ASSERT_EQUAL(cio_success, err);
 	err = ss->accept(ss->context, accept_handler, NULL);
 	TEST_ASSERT_EQUAL(cio_success, err);
@@ -238,7 +247,8 @@ static void test_accept_fails(void)
 	struct cio_linux_eventloop_epoll loop;
 	struct cio_linux_server_socket ss_linux;
 	const struct cio_server_socket *ss = cio_linux_server_socket_init(&ss_linux, &loop, on_close);
-	ss->init(ss->context, 12345, 5, NULL);
+	ss->init(ss->context, 5);
+	ss->bind(ss->context, NULL, 12345);
 	ss->accept(ss->context, accept_handler, NULL);
 
 	TEST_ASSERT_EQUAL(1, accept_handler_fake.call_count);
@@ -254,7 +264,9 @@ static void test_accept_close_and_free_in_accept_handler(void)
 	struct cio_linux_eventloop_epoll loop;
 	struct cio_linux_server_socket *ss_linux = malloc(sizeof(*ss_linux));
 	const struct cio_server_socket *ss = cio_linux_server_socket_init(ss_linux, &loop, on_close);
-	enum cio_error err = ss->init(ss->context, 12345, 5, NULL);
+	enum cio_error err = ss->init(ss->context, 5);
+	TEST_ASSERT_EQUAL(cio_success, err);
+	err = ss->bind(ss->context, NULL, 12345);
 	TEST_ASSERT_EQUAL(cio_success, err);
 	err = ss->accept(ss->context, accept_handler, NULL);
 	TEST_ASSERT_EQUAL(cio_success, err);
@@ -268,7 +280,9 @@ static void test_accept_no_handler(void)
 	struct cio_linux_eventloop_epoll loop;
 	struct cio_linux_server_socket ss_linux;
 	const struct cio_server_socket *ss = cio_linux_server_socket_init(&ss_linux, &loop, on_close);
-	enum cio_error err = ss->init(ss->context, 12345, 5, NULL);
+	enum cio_error err = ss->init(ss->context, 5);
+	TEST_ASSERT_EQUAL(cio_success, err);
+	err = ss->bind(ss->context, NULL, 12345);
 	TEST_ASSERT_EQUAL(cio_success, err);
 	err = ss->accept(ss->context, NULL, NULL);
 	TEST_ASSERT_EQUAL(cio_invalid_argument, err);
@@ -283,7 +297,9 @@ static void test_accept_eventloop_add_fails(void)
 	struct cio_linux_eventloop_epoll loop;
 	struct cio_linux_server_socket ss_linux;
 	const struct cio_server_socket *ss = cio_linux_server_socket_init(&ss_linux, &loop, NULL);
-	enum cio_error err = ss->init(ss->context, 12345, 5, NULL);
+	enum cio_error err = ss->init(ss->context, 5);
+	TEST_ASSERT_EQUAL(cio_success, err);
+	err = ss->bind(ss->context, NULL, 12345);
 	TEST_ASSERT_EQUAL(cio_success, err);
 	err = ss->accept(ss->context, accept_handler, NULL);
 	TEST_ASSERT(err != cio_success);
@@ -298,7 +314,7 @@ static void test_init_fails_no_socket(void)
 	struct cio_linux_eventloop_epoll loop;
 	struct cio_linux_server_socket ss_linux;
 	const struct cio_server_socket *ss = cio_linux_server_socket_init(&ss_linux, &loop, NULL);
-	enum cio_error err = ss->init(ss->context, 12345, 5, NULL);
+	enum cio_error err = ss->init(ss->context, 5);
 	TEST_ASSERT(err != cio_success);
 	TEST_ASSERT_EQUAL(0, close_fake.call_count);
 }
@@ -310,9 +326,13 @@ static void test_init_listen_fails(void)
 	struct cio_linux_eventloop_epoll loop;
 	struct cio_linux_server_socket ss_linux;
 	const struct cio_server_socket *ss = cio_linux_server_socket_init(&ss_linux, &loop, NULL);
-	enum cio_error err = ss->init(ss->context, 12345, 5, NULL);
+	enum cio_error err = ss->init(ss->context, 5);
+	TEST_ASSERT_EQUAL(cio_success, err);
+	err = ss->bind(ss->context, NULL, 12345);
+	TEST_ASSERT_EQUAL(cio_success, err);
+	err = ss->accept(ss->context, accept_handler, NULL);
 	TEST_ASSERT(err != cio_success);
-	TEST_ASSERT_EQUAL(1, close_fake.call_count);
+	ss->close(ss->context);
 }
 
 static void test_init_setsockopt_fails(void)
@@ -322,8 +342,12 @@ static void test_init_setsockopt_fails(void)
 	struct cio_linux_eventloop_epoll loop;
 	struct cio_linux_server_socket ss_linux;
 	const struct cio_server_socket *ss = cio_linux_server_socket_init(&ss_linux, &loop, NULL);
-	enum cio_error err = ss->init(ss->context, 12345, 5, NULL);
+	enum cio_error err = ss->init(ss->context, 5);
+	TEST_ASSERT(err == cio_success);
+	err = ss->set_reuse_address(ss->context, true);
 	TEST_ASSERT(err != cio_success);
+	TEST_ASSERT_EQUAL(0, close_fake.call_count);
+	ss->close(ss->context);
 	TEST_ASSERT_EQUAL(1, close_fake.call_count);
 }
 
@@ -334,8 +358,12 @@ static void test_init_bind_fails(void)
 	struct cio_linux_eventloop_epoll loop;
 	struct cio_linux_server_socket ss_linux;
 	const struct cio_server_socket *ss = cio_linux_server_socket_init(&ss_linux, &loop, NULL);
-	enum cio_error err = ss->init(ss->context, 12345, 5, NULL);
+	enum cio_error err = ss->init(ss->context, 5);
+	TEST_ASSERT(err == cio_success);
+	err = ss->bind(ss->context, NULL, 12345);
 	TEST_ASSERT(err != cio_success);
+	TEST_ASSERT_EQUAL(0, close_fake.call_count);
+	ss->close(ss->context);
 	TEST_ASSERT_EQUAL(1, close_fake.call_count);
 }
 
@@ -346,7 +374,7 @@ static void test_init_fcntl_getfl_fails(void)
 	struct cio_linux_eventloop_epoll loop;
 	struct cio_linux_server_socket ss_linux;
 	const struct cio_server_socket *ss = cio_linux_server_socket_init(&ss_linux, &loop, NULL);
-	enum cio_error err = ss->init(ss->context, 12345, 5, NULL);
+	enum cio_error err = ss->init(ss->context, 5);
 	TEST_ASSERT(err != cio_success);
 	TEST_ASSERT_EQUAL(1, close_fake.call_count);
 }
@@ -358,7 +386,7 @@ static void test_init_fcntl_setfl_fails(void)
 	struct cio_linux_eventloop_epoll loop;
 	struct cio_linux_server_socket ss_linux;
 	const struct cio_server_socket *ss = cio_linux_server_socket_init(&ss_linux, &loop, NULL);
-	enum cio_error err = ss->init(ss->context, 12345, 5, NULL);
+	enum cio_error err = ss->init(ss->context, 5);
 	TEST_ASSERT(err != cio_success);
 	TEST_ASSERT_EQUAL(1, close_fake.call_count);
 }

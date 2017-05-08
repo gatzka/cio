@@ -27,6 +27,7 @@
 #ifndef CIO_SERVER_SOCKET_H
 #define CIO_SERVER_SOCKET_H
 
+#include <stdbool.h>
 #include <stdint.h>
 
 #include "cio_error_code.h"
@@ -77,14 +78,12 @@ struct cio_server_socket {
 	 * of the user to call @ref cio_server_socket_close "close" on the server socket.
 	 *
 	 * @param context The cio_server_socket::context.
-	 * @param port The TCP port the cio_server_socket shall listen on.
 	 * @param backlog The minimal length of the listen queue.
-	 * @param bind_address The IP address a cio_server_socket shall bound to.
 	 * If @a bind_address is @p NULL, cio_server_socket will bind to any interface.
 	 *
 	 * @return ::cio_success for success.
 	 */
-	enum cio_error (*init)(void *context, uint16_t port, unsigned int backlog, const char *bind_address);
+	enum cio_error (*init)(void *context, unsigned int backlog);
 
 	/**
 	 * @anchor cio_server_socket_accept
@@ -105,6 +104,29 @@ struct cio_server_socket {
 	 * @param context The cio_server_socket::context.
 	 */
 	void (*close)(void *context);
+
+	/**
+	 * @anchor cio_server_socket_bind
+	 * @brief Binds the cio_server_socket to a specific address
+	 *
+	 * @param context The cio_server_socket::context.
+	 * @param bind_address The IP address a cio_server_socket shall bound to.
+	 * @param port The TCP port the cio_server_socket shall listen on.
+	 *
+	 * @return ::cio_success for success.
+	 */
+	enum cio_error (*bind)(void *context, const char *bind_address, uint16_t port);
+
+	/**
+	 * @anchor cio_server_socket_set_reuse_address
+	 * @brief Sets the SO_REUSEADDR socket option.
+	 *
+	 * @param context The cio_server_socket::context.
+	 * @param on Whether the socket option should be enabled or disabled.
+	 *
+	 * @return ::cio_success for success.
+	 */
+	enum cio_error (*set_reuse_address)(void *context, bool on);
 };
 
 #ifdef __cplusplus
