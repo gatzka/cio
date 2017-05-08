@@ -60,7 +60,7 @@ Module {
   }
 
   Rule {
-    id: doxy_outpath_patcher
+    id: doxy_graph_option_patcher
     inputs:  ["doxy_input"]
 
     Artifact {
@@ -90,7 +90,7 @@ Module {
   }
 
   Rule {
-    id: doxy_graph_option_patcher
+    id: doxy_outpath_patcher
     inputs:  ["doxy_graph_option_patched"]
 
     Artifact {
