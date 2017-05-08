@@ -54,14 +54,45 @@ static enum cio_error socket_tcp_no_delay(void *context, bool on)
 	struct cio_linux_socket *ls = container_of(s, struct cio_linux_socket, socket);
 
 	int tcp_no_delay;
-	if(on) {
+	if (on) {
 		tcp_no_delay = 1;
 	} else {
 		tcp_no_delay = 0;
 	}
 
 	if (setsockopt(ls->ev.fd, IPPROTO_TCP, TCP_NODELAY, &tcp_no_delay,
-					sizeof(tcp_no_delay)) < 0) {
+	               sizeof(tcp_no_delay)) < 0) {
+		return errno;
+	}
+
+	return cio_success;
+}
+
+static enum cio_error socket_keepalive(void *context, bool on, unsigned int keep_idle_s,
+                                       unsigned int keep_intvl_s, unsigned int keep_cnt)
+{
+	struct cio_socket *s = context;
+	struct cio_linux_socket *ls = container_of(s, struct cio_linux_socket, socket);
+	int keep_alive;
+
+	if (on) {
+		keep_alive = 1;
+		if (setsockopt(ls->ev.fd, SOL_TCP, TCP_KEEPIDLE, &keep_idle_s, sizeof(keep_idle_s)) == -1) {
+			return errno;
+		}
+
+		if (setsockopt(ls->ev.fd, SOL_TCP, TCP_KEEPINTVL, &keep_intvl_s, sizeof(keep_intvl_s)) == -1) {
+			return errno;
+		}
+
+		if (setsockopt(ls->ev.fd, SOL_TCP, TCP_KEEPCNT, &keep_cnt, sizeof(keep_cnt)) == -1) {
+			return errno;
+		}
+	} else {
+		keep_alive = 0;
+	}
+
+	if (setsockopt(ls->ev.fd, SOL_SOCKET, SO_KEEPALIVE, &keep_alive, sizeof(keep_alive)) == -1) {
 		return errno;
 	}
 
@@ -75,6 +106,7 @@ struct cio_socket *cio_linux_socket_init(struct cio_linux_socket *ls, int client
 	ls->ev.fd = client_fd;
 	ls->socket.close = socket_close;
 	ls->socket.set_tcp_no_delay = socket_tcp_no_delay;
+	ls->socket.set_keep_alive = socket_keepalive;
 	ls->loop = loop;
 	ls->close = hook;
 	return &ls->socket;
