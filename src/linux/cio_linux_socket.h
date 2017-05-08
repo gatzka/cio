@@ -62,6 +62,7 @@ struct cio_linux_socket {
 	cio_linux_socket_close_hook close;
 	struct cio_linux_event_notifier ev;
 	struct cio_linux_eventloop_epoll *loop;
+	struct cio_io_stream stream;
 };
 
 /**

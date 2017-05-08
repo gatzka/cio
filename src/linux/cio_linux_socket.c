@@ -31,6 +31,9 @@
 #include <sys/types.h>
 #include <unistd.h>
 
+#include "cio_error_code.h"
+#include "cio_io_stream.h"
+#include "cio_socket.h"
 #include "linux/cio_linux_epoll.h"
 #include "linux/cio_linux_socket.h"
 
@@ -95,6 +98,12 @@ static enum cio_error socket_keepalive(void *context, bool on, unsigned int keep
 	return cio_success;
 }
 
+static struct cio_io_stream *socket_get_io_stream(void *context)
+{
+	struct cio_linux_socket *ls = context;
+	return &ls->stream;
+}
+
 struct cio_socket *cio_linux_socket_init(struct cio_linux_socket *ls, int client_fd,
                                          struct cio_linux_eventloop_epoll *loop,
                                          cio_linux_socket_close_hook hook)
@@ -103,6 +112,7 @@ struct cio_socket *cio_linux_socket_init(struct cio_linux_socket *ls, int client
 	ls->socket.close = socket_close;
 	ls->socket.set_tcp_no_delay = socket_tcp_no_delay;
 	ls->socket.set_keep_alive = socket_keepalive;
+	ls->socket.get_io_stream = socket_get_io_stream;
 	ls->loop = loop;
 	ls->close = hook;
 	ls->socket.context = ls;
