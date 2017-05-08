@@ -35,21 +35,21 @@ static void socket_close(void *context)
 	struct cio_socket *s = context;
 	struct cio_linux_socket *ls = container_of(s, struct cio_linux_socket, socket);
 
-	//	cio_linux_eventloop_remove(s->loop, &s->ev);
+	cio_linux_eventloop_remove(ls->loop, &ls->ev);
 
-	close(ls->fd);
+	close(ls->ev.fd);
 	if (ls->close != NULL) {
 		ls->close(ls);
 	}
 }
 
-struct cio_socket *cio_linux_socket_init(struct cio_linux_socket *s, int client_fd,
+struct cio_socket *cio_linux_socket_init(struct cio_linux_socket *ls, int client_fd,
                                          struct cio_linux_eventloop_epoll *loop,
                                          cio_linux_socket_close_hook hook)
 {
-	s->fd = client_fd;
-	s->socket.close = socket_close;
-	s->loop = loop;
-	s->close = hook;
-	return &s->socket;
+	ls->ev.fd = client_fd;
+	ls->socket.close = socket_close;
+	ls->loop = loop;
+	ls->close = hook;
+	return &ls->socket;
 }

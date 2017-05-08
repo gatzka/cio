@@ -59,7 +59,6 @@ struct cio_linux_socket {
 	 * @privatesection
 	 */
 	struct cio_socket socket;
-	int fd;
 	cio_linux_socket_close_hook close;
 	struct cio_linux_event_notifier ev;
 	struct cio_linux_eventloop_epoll *loop;
