@@ -27,6 +27,9 @@
 #ifndef CIO_SOCKET_H
 #define CIO_SOCKET_H
 
+#include <stdbool.h>
+
+#include "cio_error_code.h"
 #include "cio_io_stream.h"
 
 #ifdef __cplusplus
@@ -68,6 +71,17 @@ struct cio_socket {
 	 * @param context The cio_server_socket::context.
 	 */
 	void (*close)(void *context);
+
+	/**
+	 * @anchor cio_socket_set_tcp_no_delay
+	 * @brief Enables/disables the Nagle algorithm
+	 *
+	 * @param context The cio_server_socket::context.
+	 * @param on Whether Nagle algorithm should be enabled or not.
+	 *
+	 * @return ::cio_success for success.
+	 */
+	enum cio_error (*set_tcp_no_delay)(void *context, bool on);
 };
 
 #ifdef __cplusplus

@@ -24,6 +24,11 @@
  * SOFTWARE.
  */
 
+#include <netinet/in.h>
+#include <netinet/tcp.h>
+#include <stdbool.h>
+#include <sys/socket.h>
+#include <sys/types.h>
 #include <unistd.h>
 
 #include "cio_util.h"
@@ -43,12 +48,33 @@ static void socket_close(void *context)
 	}
 }
 
+static enum cio_error socket_tcp_no_delay(void *context, bool on)
+{
+	struct cio_socket *s = context;
+	struct cio_linux_socket *ls = container_of(s, struct cio_linux_socket, socket);
+
+	int tcp_no_delay;
+	if(on) {
+		tcp_no_delay = 1;
+	} else {
+		tcp_no_delay = 0;
+	}
+
+	if (setsockopt(ls->ev.fd, IPPROTO_TCP, TCP_NODELAY, &tcp_no_delay,
+					sizeof(tcp_no_delay)) < 0) {
+		return errno;
+	}
+
+	return cio_success;
+}
+
 struct cio_socket *cio_linux_socket_init(struct cio_linux_socket *ls, int client_fd,
                                          struct cio_linux_eventloop_epoll *loop,
                                          cio_linux_socket_close_hook hook)
 {
 	ls->ev.fd = client_fd;
 	ls->socket.close = socket_close;
+	ls->socket.set_tcp_no_delay = socket_tcp_no_delay;
 	ls->loop = loop;
 	ls->close = hook;
 	return &ls->socket;
