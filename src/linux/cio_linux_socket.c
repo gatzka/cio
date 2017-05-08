@@ -104,17 +104,45 @@ static struct cio_io_stream *socket_get_io_stream(void *context)
 	return &ls->stream;
 }
 
+
+static void socket_read(void *context, void *buf, size_t offset, size_t count, cio_stream_handler handler, void *handler_context)
+{
+	struct cio_linux_socket *ls = context;
+	(void)ls;
+	(void)buf;
+	(void)offset;
+	(void)count;
+	(void)handler;
+	(void)handler_context;
+}
+
+static void socket_writev(void *context, struct cio_io_vector *io_vec, unsigned int count, cio_stream_handler handler, void *handler_context)
+{
+	struct cio_linux_socket *ls = context;
+	(void)ls;
+	(void)io_vec;
+	(void)count;
+	(void)handler;
+	(void)handler_context;
+}
+
 struct cio_socket *cio_linux_socket_init(struct cio_linux_socket *ls, int client_fd,
                                          struct cio_linux_eventloop_epoll *loop,
                                          cio_linux_socket_close_hook hook)
 {
 	ls->ev.fd = client_fd;
+	ls->socket.context = ls;
 	ls->socket.close = socket_close;
 	ls->socket.set_tcp_no_delay = socket_tcp_no_delay;
 	ls->socket.set_keep_alive = socket_keepalive;
 	ls->socket.get_io_stream = socket_get_io_stream;
+
+	ls->stream.context = ls;
+	ls->stream.read = socket_read;
+	ls->stream.writev = socket_writev;
+	ls->stream.close = socket_close;
+
 	ls->loop = loop;
 	ls->close = hook;
-	ls->socket.context = ls;
 	return &ls->socket;
 }
