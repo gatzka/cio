@@ -197,7 +197,7 @@ Project {
   InstallPackage {
     archiver.type: "tar"
     archiver.archiveBaseName: "cio"
-    name: "cio-linux"
+    name: "installation archive for linux"
     condition: qbs.targetOS.contains("linux")
     builtByDefault: true
     Depends { name: "cio-dynamic" }
@@ -207,7 +207,7 @@ Project {
   InstallPackage {
     archiver.type: "zip"
     archiver.archiveBaseName: "cio"
-    name: "cio-win"
+    name: "installation archive for windows"
     condition: qbs.targetOS.contains("windows")
     builtByDefault: true
     Depends { name: "cio-dynamic" }
