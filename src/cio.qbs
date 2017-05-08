@@ -163,6 +163,7 @@ Project {
         qbs.installDir: "include"
       }
     }
+
     Group {
       condition: qbs.targetOS.contains("linux")
       name: "linux specific"
@@ -184,6 +185,12 @@ Project {
       fileTagsFilter: product.type
       qbs.install: true
       qbs.installDir: "lib"
+    }
+
+    Group {
+      fileTagsFilter: "versionHeader"
+      qbs.install: true
+      qbs.installDir: "include/"
     }
   }
 
