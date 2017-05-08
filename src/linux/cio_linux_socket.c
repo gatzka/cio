@@ -37,8 +37,7 @@
 
 static void socket_close(void *context)
 {
-	struct cio_socket *s = context;
-	struct cio_linux_socket *ls = container_of(s, struct cio_linux_socket, socket);
+	struct cio_linux_socket *ls = context;
 
 	cio_linux_eventloop_remove(ls->loop, &ls->ev);
 
@@ -50,10 +49,9 @@ static void socket_close(void *context)
 
 static enum cio_error socket_tcp_no_delay(void *context, bool on)
 {
-	struct cio_socket *s = context;
-	struct cio_linux_socket *ls = container_of(s, struct cio_linux_socket, socket);
-
+	struct cio_linux_socket *ls = context;
 	int tcp_no_delay;
+
 	if (on) {
 		tcp_no_delay = 1;
 	} else {
@@ -71,8 +69,7 @@ static enum cio_error socket_tcp_no_delay(void *context, bool on)
 static enum cio_error socket_keepalive(void *context, bool on, unsigned int keep_idle_s,
                                        unsigned int keep_intvl_s, unsigned int keep_cnt)
 {
-	struct cio_socket *s = context;
-	struct cio_linux_socket *ls = container_of(s, struct cio_linux_socket, socket);
+	struct cio_linux_socket *ls = context;
 	int keep_alive;
 
 	if (on) {
@@ -109,5 +106,6 @@ struct cio_socket *cio_linux_socket_init(struct cio_linux_socket *ls, int client
 	ls->socket.set_keep_alive = socket_keepalive;
 	ls->loop = loop;
 	ls->close = hook;
+	ls->socket.context = ls;
 	return &ls->socket;
 }
