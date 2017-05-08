@@ -39,7 +39,6 @@
 #include "cio_compiler.h"
 #include "cio_error_code.h"
 #include "cio_server_socket.h"
-#include "cio_util.h"
 #include "linux/cio_linux_epoll.h"
 #include "linux/cio_linux_server_socket.h"
 #include "linux/cio_linux_socket.h"
@@ -62,7 +61,7 @@ static enum cio_error set_fd_non_blocking(int fd)
 static enum cio_error socket_init(void *context, unsigned int backlog)
 {
 	enum cio_error err;
-	struct cio_linux_server_socket *ss = context;
+	struct cio_linux_server_socket *lss = context;
 
 	int listen_fd = socket(AF_INET6, SOCK_STREAM, 0);
 	if (listen_fd == -1) {
@@ -75,16 +74,15 @@ static enum cio_error socket_init(void *context, unsigned int backlog)
 		return errno;
 	}
 
-	ss->backlog = backlog;
-	ss->ev.fd = listen_fd;
+	lss->backlog = backlog;
+	lss->ev.fd = listen_fd;
 
 	return cio_success;
 }
 
 static void socket_close(void *context)
 {
-	struct cio_server_socket *ss = context;
-	struct cio_linux_server_socket *lss = container_of(ss, struct cio_linux_server_socket, server_socket);
+	struct cio_linux_server_socket *lss = context;
 
 	cio_linux_eventloop_remove(lss->loop, &lss->ev);
 

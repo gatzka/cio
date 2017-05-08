@@ -31,7 +31,6 @@
 #include <sys/types.h>
 #include <unistd.h>
 
-#include "cio_util.h"
 #include "linux/cio_linux_epoll.h"
 #include "linux/cio_linux_socket.h"
 
