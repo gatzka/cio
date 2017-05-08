@@ -27,7 +27,7 @@
 import qbs 1.0
 
 Project {
-  name: "cio with tests"
+  name: "cio with tests and documentation"
   minimumQbsVersion: "1.4.0"
 
   SubProject {
