@@ -61,6 +61,7 @@ static enum cio_error set_fd_non_blocking(int fd)
 
 static enum cio_error socket_init(void *context, unsigned int backlog)
 {
+	enum cio_error err;
 	struct cio_linux_server_socket *ss = context;
 
 	int listen_fd = socket(AF_INET6, SOCK_STREAM, 0);
@@ -68,7 +69,7 @@ static enum cio_error socket_init(void *context, unsigned int backlog)
 		return errno;
 	}
 
-	enum cio_error err = set_fd_non_blocking(listen_fd);
+	err = set_fd_non_blocking(listen_fd);
 	if (likely(err != cio_success)) {
 		close(listen_fd);
 		return errno;
