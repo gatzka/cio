@@ -60,7 +60,7 @@ struct cio_linux_server_socket {
 	 * @privatesection
 	 */
 	struct cio_server_socket server_socket;
-	int fd;
+	int backlog;
 	cio_linux_server_socket_close_hook close;
 	cio_accept_handler handler;
 	void *handler_context;

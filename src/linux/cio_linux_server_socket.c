@@ -59,71 +59,23 @@ static enum cio_error set_fd_non_blocking(int fd)
 	return cio_success;
 }
 
-static enum cio_error socket_init(void *context, uint16_t port, unsigned int backlog, const char *bind_address)
+static enum cio_error socket_init(void *context, unsigned int backlog)
 {
-	static const int reuse_on = 1;
+	struct cio_linux_server_socket *ss = context;
 
-	struct addrinfo hints;
-	char server_port_string[6];
-	struct addrinfo *servinfo;
-	int ret;
-	int listen_fd = -1;
-	struct addrinfo *rp;
-	struct cio_linux_server_socket *ss;
-
-	memset(&hints, 0, sizeof(hints));
-	hints.ai_family = AF_UNSPEC;
-	hints.ai_socktype = SOCK_STREAM;
-	hints.ai_flags = AI_PASSIVE | AI_V4MAPPED | AI_NUMERICHOST;
-
-	snprintf(server_port_string, sizeof(server_port_string), "%d", port);
-
-	if (bind_address == NULL) {
-		bind_address = "::";
+	int listen_fd = socket(AF_INET6, SOCK_STREAM, 0);
+	if (listen_fd == -1) {
+		return errno;
 	}
 
-	ret = getaddrinfo(bind_address, server_port_string, &hints, &servinfo);
-	if (ret != 0) {
-		switch (ret) {
-		case EAI_SYSTEM:
-			return errno;
-		default:
-			return cio_invalid_argument;
-		}
-	}
-
-	for (rp = servinfo; rp != NULL; rp = rp->ai_next) {
-		listen_fd = socket(rp->ai_family, rp->ai_socktype, rp->ai_protocol);
-		if (listen_fd == -1) {
-			continue;
-		}
-
-		if (likely(setsockopt(listen_fd, SOL_SOCKET, SO_REUSEADDR, &reuse_on,
-		                      sizeof(reuse_on)) == 0)) {
-			enum cio_error err = set_fd_non_blocking(listen_fd);
-			if (likely(err == cio_success)) {
-				if (likely(bind(listen_fd, rp->ai_addr, rp->ai_addrlen) == 0)) {
-					break;
-				}
-			}
-		}
-
-		close(listen_fd);
-	}
-
-	freeaddrinfo(servinfo);
-
-	if ((listen_fd == -1) || (rp == NULL)) {
-		return cio_invalid_argument;
-	}
-
-	if (unlikely(listen(listen_fd, backlog) < 0)) {
+	enum cio_error err = set_fd_non_blocking(listen_fd);
+	if (likely(err != cio_success)) {
 		close(listen_fd);
 		return errno;
 	}
 
-	ss = context;
-	ss->fd = listen_fd;
+	ss->backlog = backlog;
+	ss->ev.fd = listen_fd;
 
 	return cio_success;
 }
@@ -135,7 +87,7 @@ static void socket_close(void *context)
 
 	cio_linux_eventloop_remove(lss->loop, &lss->ev);
 
-	close(lss->fd);
+	close(lss->ev.fd);
 	if (lss->close != NULL) {
 		lss->close(lss);
 	}
@@ -151,7 +103,7 @@ static void accept_callback(void *context)
 	int client_fd;
 	struct sockaddr_storage addr;
 	struct cio_linux_server_socket *ss = context;
-	int fd = ss->fd;
+	int fd = ss->ev.fd;
 	socklen_t addrlen;
 
 	while (1) {
@@ -186,13 +138,81 @@ static enum cio_error socket_accept(void *context, cio_accept_handler handler, v
 	ss->handler_context = handler_context;
 	ss->ev.callback = accept_callback;
 	ss->ev.context = context;
-	ss->ev.fd = ss->fd;
+
+	if (unlikely(listen(ss->ev.fd, ss->backlog) < 0)) {
+		return errno;
+	}
+
 	err = cio_linux_eventloop_add(ss->loop, &ss->ev);
 	if (unlikely(err != cio_success)) {
 		return err;
 	}
 
 	accept_callback(context);
+	return cio_success;
+}
+
+static enum cio_error socket_set_reuse_address(void *context, bool on)
+{
+	struct cio_linux_server_socket *ss = context;
+	int reuse;
+	if (on) {
+		reuse = 1;
+	} else {
+		reuse = 0;
+	}
+
+	if (unlikely(setsockopt(ss->ev.fd, SOL_SOCKET, SO_REUSEADDR, &reuse,
+	                        sizeof(reuse)) < 0)) {
+		return errno;
+	}
+
+	return cio_success;
+}
+
+static enum cio_error socket_bind(void *context, const char *bind_address, uint16_t port)
+{
+	struct cio_linux_server_socket *ss = context;
+
+	struct addrinfo hints;
+	char server_port_string[6];
+	struct addrinfo *servinfo;
+	int ret;
+	struct addrinfo *rp;
+
+	memset(&hints, 0, sizeof(hints));
+	hints.ai_family = AF_INET6;
+	hints.ai_socktype = SOCK_STREAM;
+	hints.ai_flags = AI_PASSIVE | AI_V4MAPPED | AI_NUMERICHOST;
+
+	snprintf(server_port_string, sizeof(server_port_string), "%d", port);
+
+	if (bind_address == NULL) {
+		bind_address = "::";
+	}
+
+	ret = getaddrinfo(bind_address, server_port_string, &hints, &servinfo);
+	if (ret != 0) {
+		switch (ret) {
+		case EAI_SYSTEM:
+			return errno;
+		default:
+			return cio_invalid_argument;
+		}
+	}
+
+	for (rp = servinfo; rp != NULL; rp = rp->ai_next) {
+		if (likely(bind(ss->ev.fd, rp->ai_addr, rp->ai_addrlen) == 0)) {
+			break;
+		}
+	}
+
+	freeaddrinfo(servinfo);
+
+	if (rp == NULL) {
+		return cio_invalid_argument;
+	}
+
 	return cio_success;
 }
 
@@ -204,8 +224,10 @@ const struct cio_server_socket *cio_linux_server_socket_init(struct cio_linux_se
 	ss->server_socket.init = socket_init;
 	ss->server_socket.close = socket_close;
 	ss->server_socket.accept = socket_accept;
-	ss->fd = -1;
+	ss->server_socket.set_reuse_address = socket_set_reuse_address;
+	ss->server_socket.bind = socket_bind;
 	ss->loop = loop;
 	ss->close = hook;
+	ss->backlog = 0;
 	return &ss->server_socket;
 }
