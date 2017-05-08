@@ -66,10 +66,13 @@ install(
 )
 
 install(
-    FILES ${LIB_HEADERS} DESTINATION include/cio
+    FILES ${LIB_HEADERS} DESTINATION include/cio/
 )
 install(
-    FILES ${LIB_HEADERS_LINUX} DESTINATION include/cio/linux
+    FILES ${LIB_HEADERS_LINUX} DESTINATION include/cio/linux/
+)
+install(
+    FILES ${PROJECT_BINARY_DIR}/generated/version.h DESTINATION include/cio/
 )
 
 add_subdirectory(linux/tests/) 
