@@ -70,7 +70,7 @@ Project {
       files: [
         "cio_version.h.in"
       ]
-      fileTags: ["versionHeaderToPatch"]
+      fileTags: ["versionFileToPatch"]
     }
 
     Group {
@@ -144,7 +144,7 @@ Project {
       files: [
         "cio_version.h.in"
       ]
-      fileTags: ["versionHeaderToPatch"]
+      fileTags: ["versionFileToPatch"]
     }
 
     Group {

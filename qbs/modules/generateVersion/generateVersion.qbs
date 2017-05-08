@@ -33,11 +33,11 @@ import '../../patchVersions.js' as Patch
 Module {
   Rule {
     multiplex: "true";
-    inputs:  ["version_file", "versionHeaderToPatch"]
+    inputs:  ["version_file", "versionFileToPatch"]
 
     Artifact {
       alwaysUpdated: false
-      filePath: "generated/" + inputs["versionHeaderToPatch"][0].baseName + ".h"
+      filePath: "generated/" + inputs["versionFileToPatch"][0].baseName + ".h"
       fileTags: ["hpp", "versionHeader"]
     }
 
