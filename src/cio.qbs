@@ -68,7 +68,7 @@ Project {
     Group {
       name: "version header"
       files: [
-        "version.h.in"
+        "cio_version.h.in"
       ]
       fileTags: ["versionHeaderToPatch"]
     }
@@ -142,7 +142,7 @@ Project {
     Group {
       name: "version header"
       files: [
-        "version.h.in"
+        "cio_version.h.in"
       ]
       fileTags: ["versionHeaderToPatch"]
     }

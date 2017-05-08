@@ -9,7 +9,7 @@ if(NOT CMAKE_BUILD_TYPE)
     set(CMAKE_BUILD_TYPE "Release")
 endif()
 
-configure_file(version.h.in ${PROJECT_BINARY_DIR}/generated/version.h)
+configure_file(cio_version.h.in ${PROJECT_BINARY_DIR}/generated/cio_version.h)
 
 string(COMPARE EQUAL "${CMAKE_SYSTEM_NAME}" "Linux" is_linux)
 if(is_linux)
@@ -72,7 +72,7 @@ install(
     FILES ${LIB_HEADERS_LINUX} DESTINATION include/cio/linux/
 )
 install(
-    FILES ${PROJECT_BINARY_DIR}/generated/version.h DESTINATION include/cio/
+    FILES ${PROJECT_BINARY_DIR}/generated/cio_version.h DESTINATION include/cio/
 )
 
 add_subdirectory(linux/tests/) 

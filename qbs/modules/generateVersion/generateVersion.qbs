@@ -37,7 +37,7 @@ Module {
 
     Artifact {
       alwaysUpdated: false
-      filePath: "generated/version.h"
+      filePath: "generated/" + inputs["versionHeaderToPatch"][0].baseName + ".h"
       fileTags: ["hpp"]
     }
 
