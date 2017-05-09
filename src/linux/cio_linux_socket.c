@@ -124,6 +124,13 @@ static void socket_writev(void *context, struct cio_io_vector *io_vec, unsigned 
 	(void)count;
 	(void)handler;
 	(void)handler_context;
+	// TODO: Use sendmsg instead of writev. Using sendmsg you can set MSG_NOSIGNAL and also have scatter/gather
+}
+
+static void loop_callback(void *context)
+{
+	struct cio_linux_socket *ls = context;
+	(void)ls;
 }
 
 struct cio_socket *cio_linux_socket_init(struct cio_linux_socket *ls, int client_fd,
@@ -131,6 +138,9 @@ struct cio_socket *cio_linux_socket_init(struct cio_linux_socket *ls, int client
                                          cio_linux_socket_close_hook hook)
 {
 	ls->ev.fd = client_fd;
+	ls->ev.callback = loop_callback;
+	ls->ev.context = ls;
+
 	ls->socket.context = ls;
 	ls->socket.close = socket_close;
 	ls->socket.set_tcp_no_delay = socket_tcp_no_delay;
@@ -144,5 +154,7 @@ struct cio_socket *cio_linux_socket_init(struct cio_linux_socket *ls, int client
 
 	ls->loop = loop;
 	ls->close = hook;
+
+	cio_linux_eventloop_add(ls->loop, &ls->ev);
 	return &ls->socket;
 }
