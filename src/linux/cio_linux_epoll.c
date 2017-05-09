@@ -103,9 +103,13 @@ enum cio_error cio_linux_eventloop_run(struct cio_linux_eventloop_epoll *loop)
 		for (loop->event_counter = 0; loop->event_counter < loop->num_events; loop->event_counter++) {
 			struct cio_linux_event_notifier *ev = events[loop->event_counter].data.ptr;
 
-			uint32_t events_type = events[loop->event_counter].events & (EPOLLIN | EPOLLOUT);
-			if (likely(events_type)) {
+			uint32_t events_type = events[loop->event_counter].events;
+			if ((events_type & EPOLLIN) != 0) {
 				ev->read_callback(ev->context);
+			}
+// TODO: do not access ev if read_callback already removed the ev (for instance via a close() of a socket)
+			if ((events_type & EPOLLOUT) != 0) {
+				ev->write_callback(ev->context);
 			}
 		}
 	}
