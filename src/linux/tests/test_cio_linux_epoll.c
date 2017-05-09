@@ -171,7 +171,7 @@ static void test_add_event(void)
 
 	struct cio_linux_event_notifier ev;
 	ev.fd = fake_fd;
-	ev.callback = NULL;
+	ev.read_callback = NULL;
 	ev.context = NULL;
 	err = cio_linux_eventloop_add(&loop, &ev);
 	TEST_ASSERT_EQUAL(cio_success, err);
@@ -216,7 +216,7 @@ static void test_add_event_fails(void)
 
 	struct cio_linux_event_notifier ev;
 	ev.fd = fake_fd;
-	ev.callback = NULL;
+	ev.read_callback = NULL;
 	ev.context = NULL;
 	err = cio_linux_eventloop_add(&loop, &ev);
 	TEST_ASSERT(err != cio_success);
@@ -238,7 +238,7 @@ static void test_notify_event(void)
 	static const int fake_fd = 42;
 	struct cio_linux_event_notifier ev;
 	ev.fd = fake_fd;
-	ev.callback = epoll_callback;
+	ev.read_callback = epoll_callback;
 	ev.context = &loop;
 	err = cio_linux_eventloop_add(&loop, &ev);
 	TEST_ASSERT_EQUAL(cio_success, err);
@@ -269,7 +269,7 @@ static void test_notify_three_event_and_remove(void)
 	struct cio_linux_event_notifier first_ev;
 	epoll_callback_remove_second_fd_fake.custom_fake = remove_second_fd;
 	first_ev.fd = fake_first_fd;
-	first_ev.callback = epoll_callback_remove_second_fd;
+	first_ev.read_callback = epoll_callback_remove_second_fd;
 	first_ev.context = &loop;
 	err = cio_linux_eventloop_add(&loop, &first_ev);
 	TEST_ASSERT_EQUAL(cio_success, err);
@@ -281,7 +281,7 @@ static void test_notify_three_event_and_remove(void)
 	static const int fake_second_fd = 43;
 	struct cio_linux_event_notifier second_ev;
 	second_ev.fd = fake_second_fd;
-	second_ev.callback = epoll_callback_second_fd;
+	second_ev.read_callback = epoll_callback_second_fd;
 	second_ev.context = &loop;
 	err = cio_linux_eventloop_add(&loop, &second_ev);
 	TEST_ASSERT_EQUAL(cio_success, err);
@@ -293,7 +293,7 @@ static void test_notify_three_event_and_remove(void)
 	static const int fake_third_fd = 44;
 	struct cio_linux_event_notifier third_ev;
 	third_ev.fd = fake_third_fd;
-	third_ev.callback = epoll_callback_third_fd;
+	third_ev.read_callback = epoll_callback_third_fd;
 	third_ev.context = &loop;
 	err = cio_linux_eventloop_add(&loop, &third_ev);
 	TEST_ASSERT_EQUAL(cio_success, err);

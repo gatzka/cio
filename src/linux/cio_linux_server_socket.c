@@ -135,7 +135,7 @@ static enum cio_error socket_accept(void *context, cio_accept_handler handler, v
 
 	ss->handler = handler;
 	ss->handler_context = handler_context;
-	ss->ev.callback = accept_callback;
+	ss->ev.read_callback = accept_callback;
 	ss->ev.context = context;
 
 	if (unlikely(listen(ss->ev.fd, ss->backlog) < 0)) {

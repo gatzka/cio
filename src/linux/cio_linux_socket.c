@@ -138,7 +138,7 @@ struct cio_socket *cio_linux_socket_init(struct cio_linux_socket *ls, int client
                                          cio_linux_socket_close_hook hook)
 {
 	ls->ev.fd = client_fd;
-	ls->ev.callback = loop_callback;
+	ls->ev.read_callback = loop_callback;
 	ls->ev.context = ls;
 
 	ls->socket.context = ls;

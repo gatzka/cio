@@ -60,15 +60,25 @@ enum cio_event_type {
  */
 struct cio_linux_event_notifier {
 	/**
-     * @brief Initializes a cio_server_socket.
-     * @anchor cio_linux_event_notifier_callback
-	 * @brief The function to be called when a file descriptor becomes ready.
+	 * @anchor cio_linux_event_notifier_read_callback
+	 * @brief The function to be called when a file descriptor becomes readable.
 	 */
-	void (*callback)(void *context);
+	void (*read_callback)(void *context);
 
 	/**
-	 * @brief The context that is given to the
-	 * @ref cio_linux_event_notifier_callback "callback function". "callback function".
+	 * @anchor cio_linux_event_notifier_write_callback
+	 * @brief The function to be called when a file descriptor becomes readable.
+	 */
+	void (*write_callback)(void *context);
+
+	/**
+	 * @anchor cio_linux_event_notifier_write_callback
+	 * @brief The function to be called when a file descriptor becomes readable.
+	 */
+	void (*error_callback)(void *context);
+
+	/**
+	 * @brief The context that is given to the callback functions.
 	 */
 	void *context;
 

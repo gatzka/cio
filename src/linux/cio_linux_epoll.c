@@ -105,7 +105,7 @@ enum cio_error cio_linux_eventloop_run(struct cio_linux_eventloop_epoll *loop)
 
 			uint32_t events_type = events[loop->event_counter].events & (EPOLLIN | EPOLLOUT);
 			if (likely(events_type)) {
-				ev->callback(ev->context);
+				ev->read_callback(ev->context);
 			}
 		}
 	}
