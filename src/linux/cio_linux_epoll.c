@@ -67,14 +67,52 @@ void cio_linux_eventloop_destroy(const struct cio_linux_eventloop_epoll *loop)
 enum cio_error cio_linux_eventloop_add(const struct cio_linux_eventloop_epoll *loop, struct cio_linux_event_notifier *ev)
 {
 	struct epoll_event epoll_ev;
+	ev->registered_events = EPOLLET;
 
 	epoll_ev.data.ptr = ev;
-	epoll_ev.events = EPOLLIN | EPOLLOUT | EPOLLET;
+	epoll_ev.events = ev->registered_events;
 	if (unlikely(epoll_ctl(loop->epoll_fd, EPOLL_CTL_ADD, ev->fd, &epoll_ev) < 0)) {
 		return errno;
 	}
 
 	return cio_success;
+}
+
+static enum cio_error epoll_mod(const struct cio_linux_eventloop_epoll *loop, struct cio_linux_event_notifier *ev, uint32_t events)
+{
+	struct epoll_event epoll_ev;
+
+	//epoll_ev.data.ptr = ev;
+	epoll_ev.events = events;
+	if (unlikely(epoll_ctl(loop->epoll_fd, EPOLL_CTL_MOD, ev->fd, &epoll_ev) < 0)) {
+		return errno;
+	}
+
+	return cio_success;
+}
+
+enum cio_error cio_linux_eventloop_register_read(const struct cio_linux_eventloop_epoll *loop, struct cio_linux_event_notifier *ev)
+{
+	ev->registered_events |= EPOLLIN;
+	return epoll_mod(loop, ev, ev->registered_events);
+}
+
+enum cio_error cio_linux_eventloop_unregister_read(const struct cio_linux_eventloop_epoll *loop, struct cio_linux_event_notifier *ev)
+{
+	ev->registered_events &= ~EPOLLIN;
+	return epoll_mod(loop, ev, ev->registered_events);
+}
+
+enum cio_error cio_linux_eventloop_register_write(const struct cio_linux_eventloop_epoll *loop, struct cio_linux_event_notifier *ev)
+{
+	ev->registered_events |= EPOLLOUT;
+	return epoll_mod(loop, ev, ev->registered_events);
+}
+
+enum cio_error cio_linux_eventloop_unregister_write(const struct cio_linux_eventloop_epoll *loop, struct cio_linux_event_notifier *ev)
+{
+	ev->registered_events &= ~EPOLLOUT;
+	return epoll_mod(loop, ev, ev->registered_events);
 }
 
 void cio_linux_eventloop_remove(struct cio_linux_eventloop_epoll *loop, const struct cio_linux_event_notifier *ev)

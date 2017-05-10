@@ -147,6 +147,11 @@ static enum cio_error socket_accept(void *context, cio_accept_handler handler, v
 		return err;
 	}
 
+	err = cio_linux_eventloop_register_read(ss->loop, &ss->ev);
+	if (unlikely(err != cio_success)) {
+		return err;
+	}
+
 	accept_callback(context);
 	return cio_success;
 }

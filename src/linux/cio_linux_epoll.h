@@ -67,13 +67,13 @@ struct cio_linux_event_notifier {
 
 	/**
 	 * @anchor cio_linux_event_notifier_write_callback
-	 * @brief The function to be called when a file descriptor becomes readable.
+	 * @brief The function to be called when a file descriptor becomes writeable.
 	 */
 	void (*write_callback)(void *context);
 
 	/**
-	 * @anchor cio_linux_event_notifier_write_callback
-	 * @brief The function to be called when a file descriptor becomes readable.
+	 * @anchor cio_linux_event_notifier_error_callback
+	 * @brief The function to be called when a file descriptor got an error.
 	 */
 	void (*error_callback)(void *context);
 
@@ -86,6 +86,8 @@ struct cio_linux_event_notifier {
 	 * @brief The file descriptor that shall be monitored.
 	 */
 	int fd;
+
+	uint32_t registered_events;
 };
 
 struct cio_linux_eventloop_epoll {
@@ -104,6 +106,10 @@ void cio_linux_eventloop_destroy(const struct cio_linux_eventloop_epoll *loop);
 
 enum cio_error cio_linux_eventloop_add(const struct cio_linux_eventloop_epoll *loop, struct cio_linux_event_notifier *ev);
 void cio_linux_eventloop_remove(struct cio_linux_eventloop_epoll *loop, const struct cio_linux_event_notifier *ev);
+enum cio_error cio_linux_eventloop_register_read(const struct cio_linux_eventloop_epoll *loop, struct cio_linux_event_notifier *ev);
+enum cio_error cio_linux_eventloop_unregister_read(const struct cio_linux_eventloop_epoll *loop, struct cio_linux_event_notifier *ev);
+enum cio_error cio_linux_eventloop_register_write(const struct cio_linux_eventloop_epoll *loop, struct cio_linux_event_notifier *ev);
+enum cio_error cio_linux_eventloop_unregister_write(const struct cio_linux_eventloop_epoll *loop, struct cio_linux_event_notifier *ev);
 enum cio_error cio_linux_eventloop_run(struct cio_linux_eventloop_epoll *loop);
 void cio_linux_eventloop_cancel(struct cio_linux_eventloop_epoll *loop);
 
