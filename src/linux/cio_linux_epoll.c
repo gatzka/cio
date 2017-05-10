@@ -147,15 +147,15 @@ enum cio_error cio_linux_eventloop_run(struct cio_linux_eventloop_epoll *loop)
 			uint32_t events_type = events[loop->event_counter].events;
 			loop->current_ev = ev;
 
-			if ((events_type & EPOLLIN) != 0) {
+			if ((events_type & EPOLLIN & ev->registered_events) != 0) {
 				ev->read_callback(ev->context);
 			}
 
 			/*
 			 * The current event could be remove via cio_linux_eventloop_remove
 			 */
-			if ((events_type & EPOLLOUT) != 0) {
-				if (likely(loop->current_ev != NULL)) {
+			if (likely(loop->current_ev != NULL)) {
+				if (((events_type & EPOLLOUT & ev->registered_events) != 0)) {
 					ev->write_callback(ev->context);
 				}
 			}
