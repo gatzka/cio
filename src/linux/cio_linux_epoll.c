@@ -144,9 +144,9 @@ enum cio_error cio_linux_eventloop_run(struct cio_linux_eventloop_epoll *loop)
 		loop->num_events = (unsigned int)num_events;
 		for (loop->event_counter = 0; loop->event_counter < loop->num_events; loop->event_counter++) {
 			struct cio_linux_event_notifier *ev = events[loop->event_counter].data.ptr;
+			uint32_t events_type = events[loop->event_counter].events;
 			loop->current_ev = ev;
 
-			uint32_t events_type = events[loop->event_counter].events;
 			if ((events_type & EPOLLIN) != 0) {
 				ev->read_callback(ev->context);
 			}
