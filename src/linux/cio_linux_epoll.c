@@ -147,7 +147,7 @@ enum cio_error cio_linux_eventloop_run(struct cio_linux_eventloop_epoll *loop)
 			uint32_t events_type = events[loop->event_counter].events;
 			loop->current_ev = ev;
 
-			if ((events_type & EPOLLIN) != 0) {
+			if ((events_type & EPOLLIN & ev->registered_events) != 0) {
 				ev->read_callback(ev->context);
 			}
 
