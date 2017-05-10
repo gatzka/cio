@@ -104,7 +104,6 @@ static struct cio_io_stream *socket_get_io_stream(void *context)
 	return &ls->stream;
 }
 
-
 static void socket_read(void *context, void *buf, size_t offset, size_t count, cio_stream_handler handler, void *handler_context)
 {
 	struct cio_linux_socket *ls = context;
