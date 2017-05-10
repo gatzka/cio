@@ -82,7 +82,7 @@ static enum cio_error epoll_mod(const struct cio_linux_eventloop_epoll *loop, st
 {
 	struct epoll_event epoll_ev;
 
-	//epoll_ev.data.ptr = ev;
+	epoll_ev.data.ptr = ev;
 	epoll_ev.events = events;
 	if (unlikely(epoll_ctl(loop->epoll_fd, EPOLL_CTL_MOD, ev->fd, &epoll_ev) < 0)) {
 		return errno;
