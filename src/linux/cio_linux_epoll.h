@@ -98,6 +98,7 @@ struct cio_linux_eventloop_epoll {
 	bool go_ahead;
 	unsigned int event_counter;
 	unsigned int num_events;
+	struct cio_linux_event_notifier *current_ev;
 	struct epoll_event epoll_events[CONFIG_MAX_EPOLL_EVENTS];
 };
 

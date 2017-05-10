@@ -55,6 +55,7 @@ enum cio_error cio_linux_eventloop_init(struct cio_linux_eventloop_epoll *loop)
 	loop->num_events = 0;
 	loop->event_counter = 0;
 	loop->go_ahead = true;
+	loop->current_ev = NULL;
 
 	return cio_success;
 }
@@ -119,6 +120,9 @@ void cio_linux_eventloop_remove(struct cio_linux_eventloop_epoll *loop, const st
 {
 	epoll_ctl(loop->epoll_fd, EPOLL_CTL_DEL, ev->fd, NULL);
 	erase_pending_event(loop, ev);
+	if (loop->current_ev == ev) {
+		loop->current_ev = NULL;
+	}
 }
 
 enum cio_error cio_linux_eventloop_run(struct cio_linux_eventloop_epoll *loop)
@@ -140,14 +144,20 @@ enum cio_error cio_linux_eventloop_run(struct cio_linux_eventloop_epoll *loop)
 		loop->num_events = (unsigned int)num_events;
 		for (loop->event_counter = 0; loop->event_counter < loop->num_events; loop->event_counter++) {
 			struct cio_linux_event_notifier *ev = events[loop->event_counter].data.ptr;
+			loop->current_ev = ev;
 
 			uint32_t events_type = events[loop->event_counter].events;
 			if ((events_type & EPOLLIN) != 0) {
 				ev->read_callback(ev->context);
 			}
-// TODO: do not access ev if read_callback already removed the ev (for instance via a close() of a socket)
+
+			/*
+			 * The current event could be remove via cio_linux_eventloop_remove
+			 */
 			if ((events_type & EPOLLOUT) != 0) {
-				ev->write_callback(ev->context);
+				if (likely(loop->current_ev != NULL)) {
+					ev->write_callback(ev->context);
+				}
 			}
 		}
 	}
