@@ -135,7 +135,7 @@ static enum cio_error socket_accept(void *context, cio_accept_handler handler, v
 
 	ss->handler = handler;
 	ss->handler_context = handler_context;
-	ss->ev.callback = accept_callback;
+	ss->ev.read_callback = accept_callback;
 	ss->ev.context = context;
 
 	if (unlikely(listen(ss->ev.fd, ss->backlog) < 0)) {
@@ -143,6 +143,11 @@ static enum cio_error socket_accept(void *context, cio_accept_handler handler, v
 	}
 
 	err = cio_linux_eventloop_add(ss->loop, &ss->ev);
+	if (unlikely(err != cio_success)) {
+		return err;
+	}
+
+	err = cio_linux_eventloop_register_read(ss->loop, &ss->ev);
 	if (unlikely(err != cio_success)) {
 		return err;
 	}
