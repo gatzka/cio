@@ -31,6 +31,7 @@
 #include <sys/types.h>
 #include <unistd.h>
 
+#include "cio_compiler.h"
 #include "cio_error_code.h"
 #include "cio_io_stream.h"
 #include "cio_socket.h"
@@ -107,7 +108,10 @@ static struct cio_io_stream *socket_get_io_stream(void *context)
 static void socket_read(void *context, void *buf, size_t offset, size_t count, cio_stream_handler handler, void *handler_context)
 {
 	struct cio_linux_socket *ls = context;
-	(void)ls;
+	enum cio_error err = cio_linux_eventloop_register_read(ls->loop, &ls->ev);
+	if (unlikely(err != cio_success)) {
+		return;
+	}
 	(void)buf;
 	(void)offset;
 	(void)count;
