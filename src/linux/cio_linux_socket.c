@@ -107,16 +107,17 @@ static struct cio_io_stream *socket_get_io_stream(void *context)
 
 static void socket_read(void *context, void *buf, size_t offset, size_t count, cio_stream_handler handler, void *handler_context)
 {
+	enum cio_error err;
 	struct cio_linux_socket *ls = context;
-	enum cio_error err = cio_linux_eventloop_register_read(ls->loop, &ls->ev);
+	ls->read_handler = handler;
+	ls->read_handler_context = handler_context;
+	err = cio_linux_eventloop_register_read(ls->loop, &ls->ev);
 	if (unlikely(err != cio_success)) {
+		handler(handler_context, err, buf, 0);
 		return;
 	}
-	(void)buf;
 	(void)offset;
 	(void)count;
-	(void)handler;
-	(void)handler_context;
 }
 
 static void socket_writev(void *context, struct cio_io_vector *io_vec, unsigned int count, cio_stream_handler handler, void *handler_context)
