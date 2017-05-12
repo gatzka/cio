@@ -28,6 +28,7 @@
 #define CIO_LINUX_SOCKET_H
 
 #include "cio_socket.h"
+#include "cio_stream_handler.h"
 #include "linux/cio_linux_epoll.h"
 
 #ifdef __cplusplus
@@ -62,6 +63,10 @@ struct cio_linux_socket {
 	cio_linux_socket_close_hook close;
 	struct cio_linux_event_notifier ev;
 	struct cio_linux_eventloop_epoll *loop;
+	cio_stream_handler read_handler;
+	size_t read_count;
+	void *read_buffer;
+	void *read_handler_context;
 	struct cio_io_stream stream;
 };
 

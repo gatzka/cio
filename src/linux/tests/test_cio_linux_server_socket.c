@@ -57,6 +57,8 @@ FAKE_VALUE_FUNC(int, setsockopt, int, int, int, const void *, socklen_t)
 FAKE_VALUE_FUNC(int, bind, int, const struct sockaddr *, socklen_t)
 FAKE_VALUE_FUNC(int, listen, int, int)
 FAKE_VALUE_FUNC(int, close, int)
+enum cio_error set_fd_non_blocking(int);
+FAKE_VALUE_FUNC(enum cio_error, set_fd_non_blocking, int)
 
 void setUp(void)
 {
@@ -76,32 +78,7 @@ void setUp(void)
 	RESET_FAKE(bind);
 	RESET_FAKE(listen);
 	RESET_FAKE(close);
-}
-
-static int fcntl_getfl_fails(int fildes, int cmd, va_list ap)
-{
-	(void)fildes;
-	(void)ap;
-
-	if (cmd == F_GETFL) {
-		errno = EMFILE;
-		return -1;
-	} else {
-		return 0;
-	}
-}
-
-static int fcntl_setfl_fails(int fildes, int cmd, va_list ap)
-{
-	(void)fildes;
-	(void)ap;
-
-	if (cmd == F_SETFL) {
-		errno = EMFILE;
-		return -1;
-	} else {
-		return 0;
-	}
+	RESET_FAKE(set_fd_non_blocking);
 }
 
 static int listen_fails(int sockfd, int backlog)
@@ -369,30 +346,6 @@ static void test_init_bind_fails(void)
 	TEST_ASSERT_EQUAL(1, close_fake.call_count);
 }
 
-static void test_init_fcntl_getfl_fails(void)
-{
-	fcntl_fake.custom_fake = fcntl_getfl_fails;
-
-	struct cio_linux_eventloop_epoll loop;
-	struct cio_linux_server_socket ss_linux;
-	const struct cio_server_socket *ss = cio_linux_server_socket_init(&ss_linux, &loop, NULL);
-	enum cio_error err = ss->init(ss->context, 5);
-	TEST_ASSERT(err != cio_success);
-	TEST_ASSERT_EQUAL(1, close_fake.call_count);
-}
-
-static void test_init_fcntl_setfl_fails(void)
-{
-	fcntl_fake.custom_fake = fcntl_setfl_fails;
-
-	struct cio_linux_eventloop_epoll loop;
-	struct cio_linux_server_socket ss_linux;
-	const struct cio_server_socket *ss = cio_linux_server_socket_init(&ss_linux, &loop, NULL);
-	enum cio_error err = ss->init(ss->context, 5);
-	TEST_ASSERT(err != cio_success);
-	TEST_ASSERT_EQUAL(1, close_fake.call_count);
-}
-
 int main(void)
 {
 	UNITY_BEGIN();
@@ -407,7 +360,5 @@ int main(void)
 	RUN_TEST(test_init_listen_fails);
 	RUN_TEST(test_init_setsockopt_fails);
 	RUN_TEST(test_init_bind_fails);
-	RUN_TEST(test_init_fcntl_getfl_fails);
-	RUN_TEST(test_init_fcntl_setfl_fails);
 	return UNITY_END();
 }
