@@ -25,7 +25,6 @@
  */
 
 #include <errno.h>
-#include <fcntl.h>
 #include <netdb.h>
 #include <stddef.h>
 #include <stdint.h>
@@ -42,21 +41,7 @@
 #include "linux/cio_linux_epoll.h"
 #include "linux/cio_linux_server_socket.h"
 #include "linux/cio_linux_socket.h"
-
-static enum cio_error set_fd_non_blocking(int fd)
-{
-	int fd_flags = fcntl(fd, F_GETFL, 0);
-	if (unlikely(fd_flags < 0)) {
-		return errno;
-	}
-
-	fd_flags |= O_NONBLOCK;
-	if (unlikely(fcntl(fd, F_SETFL, fd_flags) < 0)) {
-		return errno;
-	}
-
-	return cio_success;
-}
+#include "linux/cio_linux_socket_utils.h"
 
 static enum cio_error socket_init(void *context, unsigned int backlog)
 {

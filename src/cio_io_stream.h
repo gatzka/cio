@@ -60,15 +60,13 @@ struct cio_io_stream {
 	 * @param context A pointer to the cio_io_stream::context of the
 	 * implementation implementing this interface.
 	 * @param buf The buffer to be filled.
-	 * @param offset The start offset in @p buf at which the data is
-	 * written.
 	 * @param count The maximum number of bytes to read.
 	 * @param handler The callback function to be called when the read
 	 * request is (partly) fulfilled.
 	 * @param handler_context A pointer to a context which might be
 	 * useful inside @p handler
 	 */
-	void (*read)(void *context, void *buf, size_t offset, size_t count, cio_stream_handler handler, void *handler_context);
+	void (*read)(void *context, void *buf, size_t count, cio_stream_handler handler, void *handler_context);
 
 	/**
 	 * @brief Writes @p count buffers to the stream.

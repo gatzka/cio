@@ -37,6 +37,7 @@
 #include "cio_socket.h"
 #include "linux/cio_linux_epoll.h"
 #include "linux/cio_linux_socket.h"
+#include "linux/cio_linux_socket_utils.h"
 
 static void socket_close(void *context)
 {
@@ -105,10 +106,29 @@ static struct cio_io_stream *socket_get_io_stream(void *context)
 	return &ls->stream;
 }
 
-static void socket_read(void *context, void *buf, size_t offset, size_t count, cio_stream_handler handler, void *handler_context)
+static void read_callback(void *context)
+{
+	struct cio_linux_socket *ls = context;
+	ssize_t ret = read(ls->ev.fd, ls->read_buffer, ls->read_count);
+	if (ret == -1) {
+		if (likely((errno == EWOULDBLOCK) || (errno == EAGAIN))) {
+			return;
+		} else {
+			ls->read_handler(ls->read_handler_context, errno, ls->read_buffer, 0);
+		}
+	} else {
+		ls->read_handler(ls->read_handler_context, cio_success, ls->read_buffer, (size_t)ret);
+	}
+}
+
+static void socket_read(void *context, void *buf, size_t count, cio_stream_handler handler, void *handler_context)
 {
 	enum cio_error err;
 	struct cio_linux_socket *ls = context;
+	ls->ev.context = ls;
+	ls->ev.read_callback = read_callback;
+	ls->read_buffer = buf;
+	ls->read_count = count;
 	ls->read_handler = handler;
 	ls->read_handler_context = handler_context;
 	err = cio_linux_eventloop_register_read(ls->loop, &ls->ev);
@@ -116,8 +136,8 @@ static void socket_read(void *context, void *buf, size_t offset, size_t count, c
 		handler(handler_context, err, buf, 0);
 		return;
 	}
-	(void)offset;
-	(void)count;
+
+	read_callback(ls);
 }
 
 static void socket_writev(void *context, struct cio_io_vector *io_vec, unsigned int count, cio_stream_handler handler, void *handler_context)
@@ -141,6 +161,11 @@ struct cio_socket *cio_linux_socket_init(struct cio_linux_socket *ls, int client
                                          struct cio_linux_eventloop_epoll *loop,
                                          cio_linux_socket_close_hook hook)
 {
+	enum cio_error err = set_fd_non_blocking(client_fd);
+	if (unlikely(err != cio_success)) {
+		return NULL;
+	}
+
 	ls->ev.fd = client_fd;
 	ls->ev.read_callback = loop_callback;
 	ls->ev.context = ls;

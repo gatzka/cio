@@ -168,7 +168,7 @@ static int notify_single_fd(int epfd, struct epoll_event *events,
 }
 
 static int notify_no_fd_interrupt(int epfd, struct epoll_event *events,
-							int maxevents, int timeout)
+                                  int maxevents, int timeout)
 {
 	(void)epfd;
 	(void)maxevents;

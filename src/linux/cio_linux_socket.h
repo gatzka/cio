@@ -64,6 +64,8 @@ struct cio_linux_socket {
 	struct cio_linux_event_notifier ev;
 	struct cio_linux_eventloop_epoll *loop;
 	cio_stream_handler read_handler;
+	size_t read_count;
+	void *read_buffer;
 	void *read_handler_context;
 	struct cio_io_stream stream;
 };
