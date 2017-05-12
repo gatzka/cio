@@ -45,7 +45,7 @@ struct cio_io_vector {
 	/**
 	 * Start address of a buffer.
 	 */
-	const void *iov_base;
+	void *iov_base;
 
 	/**
 	 * Length of the buffer.

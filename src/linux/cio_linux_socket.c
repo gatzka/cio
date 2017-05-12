@@ -121,7 +121,7 @@ static void read_callback(void *context)
 	}
 }
 
-static void socket_read(void *context, void *buf, size_t count, cio_stream_handler handler, void *handler_context)
+static void socket_read(void *context, void *buf, size_t count, cio_stream_read_handler handler, void *handler_context)
 {
 	enum cio_error err;
 	struct cio_linux_socket *ls = context;
@@ -140,15 +140,43 @@ static void socket_read(void *context, void *buf, size_t count, cio_stream_handl
 	read_callback(ls);
 }
 
-static void socket_writev(void *context, struct cio_io_vector *io_vec, unsigned int count, cio_stream_handler handler, void *handler_context)
+static void write_callback(void *context)
 {
 	struct cio_linux_socket *ls = context;
-	(void)ls;
-	(void)io_vec;
-	(void)count;
-	(void)handler;
-	(void)handler_context;
-	// TODO: Use sendmsg instead of writev. Using sendmsg you can set MSG_NOSIGNAL and also have scatter/gather
+	ls->write_handler(ls->write_handler_context, cio_success, 0);
+}
+
+static void socket_writev(void *context, struct cio_io_vector *io_vec, unsigned int count, cio_stream_write_handler handler, void *handler_context)
+{
+	struct iovec *iov = (struct iovec *)io_vec;
+	struct cio_linux_socket *ls = context;
+	struct msghdr message = {
+	    .msg_name = NULL,
+	    .msg_namelen = 0,
+	    .msg_iov = iov,
+	    .msg_iovlen = count,
+	    .msg_control = NULL,
+	    .msg_controllen = 0,
+	    .msg_flags = 0};
+
+	ssize_t ret = sendmsg(ls->ev.fd, &message, MSG_NOSIGNAL);
+	if (likely(ret >= 0)) {
+		handler(handler_context, cio_success, (size_t)ret);
+	} else {
+		if ((errno == EWOULDBLOCK) || (errno == EAGAIN)) {
+			enum cio_error err;
+			ls->write_handler = handler;
+			ls->write_handler_context = handler_context;
+			ls->ev.context = ls;
+			ls->ev.write_callback = write_callback;
+			err = cio_linux_eventloop_register_write(ls->loop, &ls->ev);
+			if (unlikely(err != cio_success)) {
+				handler(handler_context, err, 0);
+			}
+		} else {
+			handler(handler_context, errno, 0);
+		}
+	}
 }
 
 static void loop_callback(void *context)

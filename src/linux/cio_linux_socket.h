@@ -63,10 +63,12 @@ struct cio_linux_socket {
 	cio_linux_socket_close_hook close;
 	struct cio_linux_event_notifier ev;
 	struct cio_linux_eventloop_epoll *loop;
-	cio_stream_handler read_handler;
+	cio_stream_read_handler read_handler;
+	void *read_handler_context;
 	size_t read_count;
 	void *read_buffer;
-	void *read_handler_context;
+	cio_stream_write_handler write_handler;
+	void *write_handler_context;
 	struct cio_io_stream stream;
 };
 
