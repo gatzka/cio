@@ -66,7 +66,7 @@ struct cio_io_stream {
 	 * @param handler_context A pointer to a context which might be
 	 * useful inside @p handler
 	 */
-	void (*read_some)(void *context, void *buf, size_t count, cio_stream_handler handler, void *handler_context);
+	void (*read_some)(void *context, void *buf, size_t count, cio_stream_read_handler handler, void *handler_context);
 
 	/**
 	 * @brief Writes @p count buffers to the stream.
@@ -80,7 +80,7 @@ struct cio_io_stream {
 	 * @param handler_context A pointer to a context which might be
 	 * useful inside @p handler
 	 */
-	void (*writev_some)(void *context, struct cio_io_vector *io_vec, unsigned int count, cio_stream_handler handler, void *handler_context);
+	void (*writev_some)(void *context, struct cio_io_vector *io_vec, unsigned int count, cio_stream_write_handler handler, void *handler_context);
 
 	/**
 	 * @brief Closes the stream.

@@ -49,7 +49,8 @@ extern "C" {
  * @param buf A pointer to the begin of the buffer where the data was read in. 
  * @param bytes_transferred The number of bytes transferred into @p buf.
  */
-typedef void (*cio_stream_handler)(void *handler_context, enum cio_error err, uint8_t *buf, size_t bytes_transferred);
+typedef void (*cio_stream_read_handler)(void *handler_context, enum cio_error err, uint8_t *buf, size_t bytes_transferred);
+typedef void (*cio_stream_write_handler)(void *handler_context, enum cio_error err, size_t bytes_transferred);
 
 #ifdef __cplusplus
 }

@@ -91,7 +91,7 @@ struct cio_buffered_stream {
 	 * @param handler_context A pointer to a context which might be
 	 * useful inside @p handler
 	 */
-	void (*read_exactly)(void *context, size_t num, cio_stream_handler handler, void *handler_context);
+	void (*read_exactly)(void *context, size_t num, cio_stream_read_handler handler, void *handler_context);
 
 	/**
 	 * @brief Read upto @p count bytes into the buffer @p buf starting
@@ -108,7 +108,7 @@ struct cio_buffered_stream {
 	 * @param handler_context A pointer to a context which might be
 	 * useful inside @p handler
 	 */
-	void (*read)(void *context, size_t num, cio_stream_handler handler, void *handler_context);
+	void (*read)(void *context, size_t num, cio_stream_read_handler handler, void *handler_context);
 
 	/**
 	 * @brief Call @p handler if delimiter @p delim is encountered.
@@ -121,7 +121,7 @@ struct cio_buffered_stream {
 	 * @param handler_context A pointer to a context which might be
 	 * useful inside @p handler
 	 */
-	void (*read_until)(void *context, const char *delim, cio_stream_handler handler, void *handler_context);
+	void (*read_until)(void *context, const char *delim, cio_stream_read_handler handler, void *handler_context);
 
 	/**
 	 * @brief Writes @p count buffers to the buffered stream.
@@ -138,7 +138,7 @@ struct cio_buffered_stream {
 	 * @param handler_context A pointer to a context which might be
 	 * useful inside @p handler
 	 */
-	void (*writev)(void *context, struct cio_io_vector *io_vec, unsigned int count, cio_stream_handler handler, void *handler_context);
+	void (*writev)(void *context, struct cio_io_vector *io_vec, unsigned int count, cio_stream_read_handler handler, void *handler_context);
 
 	/**
 	 * Drains the data in the write buffer out to the underlying
