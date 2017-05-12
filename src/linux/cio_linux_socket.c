@@ -177,8 +177,8 @@ struct cio_socket *cio_linux_socket_init(struct cio_linux_socket *ls, int client
 	ls->socket.get_io_stream = socket_get_io_stream;
 
 	ls->stream.context = ls;
-	ls->stream.read = socket_read;
-	ls->stream.writev = socket_writev;
+	ls->stream.read_some = socket_read;
+	ls->stream.writev_some = socket_writev;
 	ls->stream.close = socket_close;
 
 	ls->loop = loop;
