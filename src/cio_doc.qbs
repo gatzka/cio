@@ -25,7 +25,6 @@
  */
 
 import qbs 1.0
-import '../qbs/versions.js' as Versions
 
 Project {
   name: "cio documentation"

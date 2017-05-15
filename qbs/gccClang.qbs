@@ -25,7 +25,6 @@
  */
 
 import qbs 1.0
-import 'versions.js' as Versions
 
 Product {
   name: "gccClang"
