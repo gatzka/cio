@@ -29,8 +29,7 @@ function compareVersions(actualVersionParts, expectedVersionParts) {
     for (i = 0; i < expectedVersionParts.length; ++i) {
         if (actualVersionParts[i] > expectedVersionParts[i]) {
             return true;
-        }
-        if (actualVersionParts[i] < expectedVersionParts[i]) {
+        } else if (actualVersionParts[i] < expectedVersionParts[i]) {
             return false;
         }
     }
