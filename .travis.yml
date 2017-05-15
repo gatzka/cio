@@ -37,7 +37,7 @@ script:
       cmake $CMAKE_CMD_OPTION ../src/;
       if [ -n "${SCAN_BUILD}" ]; then /usr/lib/llvm-3.9/bin/scan-build --status-bugs make; else make; fi;
       make test;
-	fi
+    fi
 
 addons:
   apt:
