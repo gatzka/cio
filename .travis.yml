@@ -32,7 +32,7 @@ env:
 
       
 script:
-  - if [ "$COVERITY_SCAN_BRANCH_PATTERN" != "coverity_scan" ]; then
+  - if [ "$COVERITY_SCAN_BRANCH" != 1 ]; then
       mkdir build_release;
       cd build_release;
       CMAKE_CMD_OPTION="-DCMAKE_C_COMPILER=${CMAKE_C_COMPILER} -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}";
