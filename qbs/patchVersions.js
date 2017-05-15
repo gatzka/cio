@@ -38,7 +38,7 @@ function patchVersion(inputs, output, product)
 
     var gitDirty = new Process();
     gitDirty.setWorkingDirectory(product.sourceDirectory);
-    ret = gitDirty.exec("git", ["diff","--shortstat"], false);
+    var ret = gitDirty.exec("git", ["diff","--shortstat"], false);
     var out = gitDirty.readLine();
     var isDirty = true;
     if (out === null || out === "") {
@@ -54,7 +54,7 @@ function patchVersion(inputs, output, product)
 
     var gitDescribe = new Process();
     gitDescribe.setWorkingDirectory(product.sourceDirectory);
-    var ret = gitDescribe.exec("git", ["describe","--exact-match","--tags", "HEAD"], false);
+    ret = gitDescribe.exec("git", ["describe","--exact-match","--tags", "HEAD"], false);
     gitDescribe.close();
     var isTag = (ret === 0  && (isDirty === false));
     var preRelease;
