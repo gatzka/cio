@@ -64,7 +64,7 @@ function patchVersion(inputs, output, product)
       preRelease = "-";
       var gitCount = new Process();
       gitCount.setWorkingDirectory(product.sourceDirectory);
-      gitCount.exec("git", ["rev-list","HEAD","--count"], true)
+      gitCount.exec("git", ["rev-list","HEAD","--count"], true);
       preRelease = preRelease + gitCount.readLine();
       gitCount.close();
     }
@@ -73,18 +73,18 @@ function patchVersion(inputs, output, product)
 
     var versionFile = new TextFile(inputs["version_file"][0].filePath);
     var versionString = versionFile.readAll().trim();
-    versionFile.close()
+    versionFile.close();
 
     var file = new TextFile(inputs["versionFileToPatch"][0].filePath);
     var content = file.readAll();
-    file.close()
+    file.close();
     content = content.replace(/\${CIO_VERSION}/g, versionString);
     content = content.replace(/\${CIO_LAST}/g, preRelease + buildInfo);
     file = new TextFile(output.filePath,  TextFile.WriteOnly);
     file.truncate();
     file.write(content);
     file.close();
-  }
+  };
   return  cmd;
 }
 
