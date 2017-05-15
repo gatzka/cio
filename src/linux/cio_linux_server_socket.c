@@ -84,13 +84,13 @@ static void free_linux_socket(struct cio_linux_socket *s)
 
 static void accept_callback(void *context)
 {
-	int client_fd;
 	struct sockaddr_storage addr;
 	struct cio_linux_server_socket *ss = context;
 	int fd = ss->ev.fd;
 	socklen_t addrlen;
 
 	while (1) {
+		int client_fd;
 		memset(&addr, 0, sizeof(addr));
 		addrlen = sizeof(addr);
 		client_fd = accept(fd, (struct sockaddr *)&addr, &addrlen);
