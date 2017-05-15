@@ -24,15 +24,7 @@
  * SOFTWARE.
  */
 
-function versionIsAtLeast(actualVersion, expectedVersion)
-{
-    var actualVersionParts = actualVersion.split(".").map(function(item) {
-        return parseInt(item, 10);
-    });
-    var expectedVersionParts = expectedVersion.split(".").map(function(item) {
-        return parseInt(item, 10);
-    });
-
+function compareVersions(actualVersionParts, expectedVersionParts) {
     var i;
     for (i = 0; i < expectedVersionParts.length; ++i) {
         if (actualVersionParts[i] > expectedVersionParts[i]) {
@@ -42,6 +34,18 @@ function versionIsAtLeast(actualVersion, expectedVersion)
             return false;
         }
     }
-    return i === expectedVersionParts.length || expectedVersionParts[i] === 0;
+
+    return (i === expectedVersionParts.length) || (expectedVersionParts[i] === 0);
+}
+
+function versionIsAtLeast(actualVersion, expectedVersion) {
+    var actualVersionParts = actualVersion.split(".").map(function(item) {
+        return parseInt(item, 10);
+    });
+    var expectedVersionParts = expectedVersion.split(".").map(function(item) {
+        return parseInt(item, 10);
+    });
+
+	return compareVersions(actualVersionParts, expectedVersionParts);
 }
 
