@@ -32,6 +32,7 @@
 
 #include "cio_error_code.h"
 #include "cio_socket.h"
+#include "linux/cio_linux_epoll.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -58,6 +59,13 @@ struct cio_server_socket;
  * @param bytes_transferred The number of bytes transferred into @p buf.
  */
 typedef void (*cio_accept_handler)(struct cio_server_socket *ss, void *handler_context, enum cio_error err, struct cio_socket *socket);
+
+/**
+ * @brief The type of close hook function.
+ *
+ * @param ss The cio_linux_server_socket the close hook was called on.
+ */
+typedef void (*cio_server_socket_close_hook)(struct cio_server_socket *ss);
 
 /**
  * @brief The cio_server_socket struct describes a server socket.
@@ -127,7 +135,34 @@ struct cio_server_socket {
 	 * @return ::cio_success for success.
 	 */
 	enum cio_error (*set_reuse_address)(void *context, bool on);
+
+	/**
+	 * @privatesection
+	 */
+	struct cio_eventloop *loop;
+	int backlog;
+	cio_server_socket_close_hook close_hook;
+	struct cio_event_notifier ev;
+	cio_accept_handler handler;
+	void *handler_context;
 };
+
+/**
+ * @brief Initializes a cio_server_socket.
+ *
+ * @param ss The cio_server socket that should be initialized.
+ * @param loop The event loop the server socket shall operate on.
+ * @param close A close hook function. If this parameter is non @p NULL,
+ * the function will be called directly after
+ * @ref cio_server_socket_close "closing" the cio_server_socket.
+ * It is guaranteed the the cio library will not access any memory of
+ * cio_server_socket that is passed to the close hook. Therefore
+ * the hook could be used to free the memory of the server socket.
+ * @return The cio_server_socket which shall be used after initializing.
+ */
+void cio_server_socket_init(struct cio_server_socket *ss,
+                            struct cio_eventloop *loop,
+                            cio_server_socket_close_hook close);
 
 #ifdef __cplusplus
 }
