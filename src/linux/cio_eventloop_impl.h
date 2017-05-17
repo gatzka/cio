@@ -24,10 +24,11 @@
  * SOFTWARE.
  */
 
-#ifndef CIO_LINUX_EPOLL_H
-#define CIO_LINUX_EPOLL_H
+#ifndef CIO_EVENTLOOP_IMPL_H
+#define CIO_EVENTLOOP_IMPL_H
 
 #include <stdbool.h>
+#include <stdint.h>
 #include <sys/epoll.h>
 
 #include "cio_error_code.h"
@@ -47,18 +48,10 @@ extern "C" {
 #define CONFIG_MAX_EPOLL_EVENTS 100
 
 /**
- * @brief Definition of all event types.
- */
-enum cio_event_type {
-	cio_ev_read = EPOLLIN,  /*!< A read event occured. */
-	cio_ev_write = EPOLLOUT /*!< A write event ocured. */
-};
-
-/**
  * @brief The cio_linux_event_notifier struct bundles the information
  * necessary to register I/O events.
  */
-struct cio_linux_event_notifier {
+struct cio_event_notifier {
 	/**
 	 * @anchor cio_linux_event_notifier_read_callback
 	 * @brief The function to be called when a file descriptor becomes readable.
@@ -90,7 +83,7 @@ struct cio_linux_event_notifier {
 	uint32_t registered_events;
 };
 
-struct cio_linux_eventloop_epoll {
+struct cio_eventloop {
 	/**
 	 * @privatesection
 	 */
@@ -98,21 +91,16 @@ struct cio_linux_eventloop_epoll {
 	bool go_ahead;
 	unsigned int event_counter;
 	unsigned int num_events;
-	struct cio_linux_event_notifier *current_ev;
+	struct cio_event_notifier *current_ev;
 	struct epoll_event epoll_events[CONFIG_MAX_EPOLL_EVENTS];
 };
 
-enum cio_error cio_linux_eventloop_init(struct cio_linux_eventloop_epoll *loop);
-void cio_linux_eventloop_destroy(const struct cio_linux_eventloop_epoll *loop);
-
-enum cio_error cio_linux_eventloop_add(const struct cio_linux_eventloop_epoll *loop, struct cio_linux_event_notifier *ev);
-void cio_linux_eventloop_remove(struct cio_linux_eventloop_epoll *loop, const struct cio_linux_event_notifier *ev);
-enum cio_error cio_linux_eventloop_register_read(const struct cio_linux_eventloop_epoll *loop, struct cio_linux_event_notifier *ev);
-enum cio_error cio_linux_eventloop_unregister_read(const struct cio_linux_eventloop_epoll *loop, struct cio_linux_event_notifier *ev);
-enum cio_error cio_linux_eventloop_register_write(const struct cio_linux_eventloop_epoll *loop, struct cio_linux_event_notifier *ev);
-enum cio_error cio_linux_eventloop_unregister_write(const struct cio_linux_eventloop_epoll *loop, struct cio_linux_event_notifier *ev);
-enum cio_error cio_linux_eventloop_run(struct cio_linux_eventloop_epoll *loop);
-void cio_linux_eventloop_cancel(struct cio_linux_eventloop_epoll *loop);
+enum cio_error cio_linux_eventloop_add(const struct cio_eventloop *loop, struct cio_event_notifier *ev);
+void cio_linux_eventloop_remove(struct cio_eventloop *loop, const struct cio_event_notifier *ev);
+enum cio_error cio_linux_eventloop_register_read(const struct cio_eventloop *loop, struct cio_event_notifier *ev);
+enum cio_error cio_linux_eventloop_unregister_read(const struct cio_eventloop *loop, struct cio_event_notifier *ev);
+enum cio_error cio_linux_eventloop_register_write(const struct cio_eventloop *loop, struct cio_event_notifier *ev);
+enum cio_error cio_linux_eventloop_unregister_write(const struct cio_eventloop *loop, struct cio_event_notifier *ev);
 
 #ifdef __cplusplus
 }

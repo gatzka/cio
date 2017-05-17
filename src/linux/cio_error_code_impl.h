@@ -24,8 +24,8 @@
  * SOFTWARE.
  */
 
-#ifndef CIO_LINUX_ERROR_CODES_H
-#define CIO_LINUX_ERROR_CODES_H
+#ifndef CIO_ERROR_CODE_IMPL_H
+#define CIO_ERROR_CODE_IMPL_H
 
 #include <errno.h>
 

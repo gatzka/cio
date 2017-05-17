@@ -31,9 +31,10 @@
 
 #include "cio_compiler.h"
 #include "cio_error_code.h"
-#include "linux/cio_linux_epoll.h"
+#include "cio_eventloop.h"
+#include "linux/cio_eventloop_impl.h"
 
-static void erase_pending_event(struct cio_linux_eventloop_epoll *loop, const struct cio_linux_event_notifier *ev)
+static void erase_pending_event(struct cio_eventloop *loop, const struct cio_event_notifier *ev)
 {
 	unsigned int i;
 	for (i = loop->event_counter + 1; i < loop->num_events; i++) {
@@ -45,7 +46,7 @@ static void erase_pending_event(struct cio_linux_eventloop_epoll *loop, const st
 	}
 }
 
-enum cio_error cio_linux_eventloop_init(struct cio_linux_eventloop_epoll *loop)
+enum cio_error cio_eventloop_init(struct cio_eventloop *loop)
 {
 	loop->epoll_fd = epoll_create(1);
 	if (loop->epoll_fd < 0) {
@@ -60,12 +61,12 @@ enum cio_error cio_linux_eventloop_init(struct cio_linux_eventloop_epoll *loop)
 	return cio_success;
 }
 
-void cio_linux_eventloop_destroy(const struct cio_linux_eventloop_epoll *loop)
+void cio_eventloop_destroy(const struct cio_eventloop *loop)
 {
 	close(loop->epoll_fd);
 }
 
-enum cio_error cio_linux_eventloop_add(const struct cio_linux_eventloop_epoll *loop, struct cio_linux_event_notifier *ev)
+enum cio_error cio_linux_eventloop_add(const struct cio_eventloop *loop, struct cio_event_notifier *ev)
 {
 	struct epoll_event epoll_ev;
 	ev->registered_events = EPOLLET;
@@ -79,7 +80,7 @@ enum cio_error cio_linux_eventloop_add(const struct cio_linux_eventloop_epoll *l
 	return cio_success;
 }
 
-static enum cio_error epoll_mod(const struct cio_linux_eventloop_epoll *loop, struct cio_linux_event_notifier *ev, uint32_t events)
+static enum cio_error epoll_mod(const struct cio_eventloop *loop, struct cio_event_notifier *ev, uint32_t events)
 {
 	struct epoll_event epoll_ev;
 
@@ -92,31 +93,31 @@ static enum cio_error epoll_mod(const struct cio_linux_eventloop_epoll *loop, st
 	return cio_success;
 }
 
-enum cio_error cio_linux_eventloop_register_read(const struct cio_linux_eventloop_epoll *loop, struct cio_linux_event_notifier *ev)
+enum cio_error cio_linux_eventloop_register_read(const struct cio_eventloop *loop, struct cio_event_notifier *ev)
 {
 	ev->registered_events |= EPOLLIN;
 	return epoll_mod(loop, ev, ev->registered_events);
 }
 
-enum cio_error cio_linux_eventloop_unregister_read(const struct cio_linux_eventloop_epoll *loop, struct cio_linux_event_notifier *ev)
+enum cio_error cio_linux_eventloop_unregister_read(const struct cio_eventloop *loop, struct cio_event_notifier *ev)
 {
 	ev->registered_events &= ~EPOLLIN;
 	return epoll_mod(loop, ev, ev->registered_events);
 }
 
-enum cio_error cio_linux_eventloop_register_write(const struct cio_linux_eventloop_epoll *loop, struct cio_linux_event_notifier *ev)
+enum cio_error cio_linux_eventloop_register_write(const struct cio_eventloop *loop, struct cio_event_notifier *ev)
 {
 	ev->registered_events |= EPOLLOUT;
 	return epoll_mod(loop, ev, ev->registered_events);
 }
 
-enum cio_error cio_linux_eventloop_unregister_write(const struct cio_linux_eventloop_epoll *loop, struct cio_linux_event_notifier *ev)
+enum cio_error cio_linux_eventloop_unregister_write(const struct cio_eventloop *loop, struct cio_event_notifier *ev)
 {
 	ev->registered_events &= ~EPOLLOUT;
 	return epoll_mod(loop, ev, ev->registered_events);
 }
 
-void cio_linux_eventloop_remove(struct cio_linux_eventloop_epoll *loop, const struct cio_linux_event_notifier *ev)
+void cio_linux_eventloop_remove(struct cio_eventloop *loop, const struct cio_event_notifier *ev)
 {
 	epoll_ctl(loop->epoll_fd, EPOLL_CTL_DEL, ev->fd, NULL);
 	erase_pending_event(loop, ev);
@@ -125,7 +126,7 @@ void cio_linux_eventloop_remove(struct cio_linux_eventloop_epoll *loop, const st
 	}
 }
 
-enum cio_error cio_linux_eventloop_run(struct cio_linux_eventloop_epoll *loop)
+enum cio_error cio_eventloop_run(struct cio_eventloop *loop)
 {
 	struct epoll_event *events = loop->epoll_events;
 
@@ -143,7 +144,7 @@ enum cio_error cio_linux_eventloop_run(struct cio_linux_eventloop_epoll *loop)
 
 		loop->num_events = (unsigned int)num_events;
 		for (loop->event_counter = 0; loop->event_counter < loop->num_events; loop->event_counter++) {
-			struct cio_linux_event_notifier *ev = events[loop->event_counter].data.ptr;
+			struct cio_event_notifier *ev = events[loop->event_counter].data.ptr;
 			uint32_t events_type = events[loop->event_counter].events;
 			loop->current_ev = ev;
 
@@ -165,7 +166,7 @@ enum cio_error cio_linux_eventloop_run(struct cio_linux_eventloop_epoll *loop)
 	return cio_success;
 }
 
-void cio_linux_eventloop_cancel(struct cio_linux_eventloop_epoll *loop)
+void cio_eventloop_cancel(struct cio_eventloop *loop)
 {
 	loop->go_ahead = false;
 }

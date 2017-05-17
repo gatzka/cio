@@ -24,34 +24,22 @@
  * SOFTWARE.
  */
 
-#ifndef CIO_IO_VECTOR_H
-#define CIO_IO_VECTOR_H
+#ifndef CIO_EVENTLOOP_H
+#define CIO_EVENTLOOP_H
 
-#include <stddef.h>
+#include "cio_error_code.h"
+#include "cio_eventloop_impl.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-/**
- * @file
- * @brief This file contains the structure of a scatter/gather I/O buffer element.
- */
+struct cio_eventloop;
 
-/**
- * @brief Type to represent an element of an I/O vector.
- */
-struct cio_io_vector {
-	/**
-	 * Start address of a buffer.
-	 */
-	void *iov_base;
-
-	/**
-	 * Length of the buffer.
-	 */
-	size_t iov_len;
-};
+enum cio_error cio_eventloop_init(struct cio_eventloop *loop);
+void cio_eventloop_destroy(const struct cio_eventloop *loop);
+enum cio_error cio_eventloop_run(struct cio_eventloop *loop);
+void cio_eventloop_cancel(struct cio_eventloop *loop);
 
 #ifdef __cplusplus
 }

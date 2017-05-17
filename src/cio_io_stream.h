@@ -29,7 +29,6 @@
 
 #include <stddef.h>
 
-#include "cio_io_vector.h"
 #include "cio_stream_handler.h"
 
 #ifdef __cplusplus
@@ -73,14 +72,14 @@ struct cio_io_stream {
 	 *
 	 * @param context A pointer to the cio_io_stream::context of the
 	 * implementation implementing this interface.
-	 * @param io_vec An array of cio_io_vector buffers.
-	 * @param count Number of cio_io_vector buffers in @p io_vec.
+	 * @param buf The buffer where the data is written from.
+	 * @param count The number of to write.
 	 * @param handler The callback function to be called when the write
 	 * request is (partly) fulfilled.
 	 * @param handler_context A pointer to a context which might be
 	 * useful inside @p handler
 	 */
-	void (*writev_some)(void *context, struct cio_io_vector *io_vec, unsigned int count, cio_stream_write_handler handler, void *handler_context);
+	void (*write_some)(void *context, const void *buf, size_t count, cio_stream_write_handler handler, void *handler_context);
 
 	/**
 	 * @brief Closes the stream.
@@ -90,6 +89,16 @@ struct cio_io_stream {
 	 * associated with this stream.
 	 */
 	void (*close)(void *context);
+
+	/**
+	 * @privatesection
+	 */
+	cio_stream_read_handler read_handler;
+	void *read_handler_context;
+	size_t read_count;
+	void *read_buffer;
+	cio_stream_write_handler write_handler;
+	void *write_handler_context;
 };
 
 #ifdef __cplusplus

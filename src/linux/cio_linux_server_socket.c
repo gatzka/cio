@@ -37,16 +37,15 @@
 
 #include "cio_compiler.h"
 #include "cio_error_code.h"
+#include "cio_eventloop.h"
 #include "cio_server_socket.h"
-#include "linux/cio_linux_epoll.h"
-#include "linux/cio_linux_server_socket.h"
-#include "linux/cio_linux_socket.h"
+#include "cio_socket.h"
 #include "linux/cio_linux_socket_utils.h"
 
 static enum cio_error socket_init(void *context, unsigned int backlog)
 {
 	enum cio_error err;
-	struct cio_linux_server_socket *lss = context;
+	struct cio_server_socket *ss = context;
 
 	int listen_fd = socket(AF_INET6, SOCK_STREAM, 0);
 	if (listen_fd == -1) {
@@ -59,25 +58,25 @@ static enum cio_error socket_init(void *context, unsigned int backlog)
 		return errno;
 	}
 
-	lss->backlog = backlog;
-	lss->ev.fd = listen_fd;
+	ss->backlog = backlog;
+	ss->ev.fd = listen_fd;
 
 	return cio_success;
 }
 
 static void socket_close(void *context)
 {
-	struct cio_linux_server_socket *lss = context;
+	struct cio_server_socket *ss = context;
 
-	cio_linux_eventloop_remove(lss->loop, &lss->ev);
+	cio_linux_eventloop_remove(ss->loop, &ss->ev);
 
-	close(lss->ev.fd);
-	if (lss->close != NULL) {
-		lss->close(lss);
+	close(ss->ev.fd);
+	if (ss->close_hook != NULL) {
+		ss->close_hook(ss);
 	}
 }
 
-static void free_linux_socket(struct cio_linux_socket *s)
+static void free_linux_socket(struct cio_socket *s)
 {
 	free(s);
 }
@@ -85,7 +84,7 @@ static void free_linux_socket(struct cio_linux_socket *s)
 static void accept_callback(void *context)
 {
 	struct sockaddr_storage addr;
-	struct cio_linux_server_socket *ss = context;
+	struct cio_server_socket *ss = context;
 	int fd = ss->ev.fd;
 	socklen_t addrlen;
 
@@ -96,15 +95,15 @@ static void accept_callback(void *context)
 		client_fd = accept(fd, (struct sockaddr *)&addr, &addrlen);
 		if (unlikely(client_fd == -1)) {
 			if ((errno != EAGAIN) && (errno != EWOULDBLOCK) && (errno != EBADF)) {
-				ss->handler(&ss->server_socket, ss->handler_context, errno, NULL);
+				ss->handler(ss, ss->handler_context, errno, NULL);
 			}
 
 			return;
 		} else {
-			struct cio_linux_socket *ls = malloc(sizeof(*ls));
-			if (likely(ls != NULL)) {
-				struct cio_socket *s = cio_linux_socket_init(ls, client_fd, ss->loop, free_linux_socket);
-				ss->handler(&ss->server_socket, ss->handler_context, cio_success, s);
+			struct cio_socket *s = malloc(sizeof(*s));
+			if (likely(s != NULL)) {
+				enum cio_error err = cio_socket_init(s, client_fd, ss->loop, free_linux_socket);
+				ss->handler(ss, ss->handler_context, err, s);
 			}
 		}
 	}
@@ -113,7 +112,7 @@ static void accept_callback(void *context)
 static enum cio_error socket_accept(void *context, cio_accept_handler handler, void *handler_context)
 {
 	enum cio_error err;
-	struct cio_linux_server_socket *ss = context;
+	struct cio_server_socket *ss = context;
 	if (unlikely(handler == NULL)) {
 		return cio_invalid_argument;
 	}
@@ -143,7 +142,7 @@ static enum cio_error socket_accept(void *context, cio_accept_handler handler, v
 
 static enum cio_error socket_set_reuse_address(void *context, bool on)
 {
-	struct cio_linux_server_socket *ss = context;
+	struct cio_server_socket *ss = context;
 	int reuse;
 	if (on) {
 		reuse = 1;
@@ -161,7 +160,7 @@ static enum cio_error socket_set_reuse_address(void *context, bool on)
 
 static enum cio_error socket_bind(void *context, const char *bind_address, uint16_t port)
 {
-	struct cio_linux_server_socket *ss = context;
+	struct cio_server_socket *ss = context;
 
 	struct addrinfo hints;
 	char server_port_string[6];
@@ -205,18 +204,17 @@ static enum cio_error socket_bind(void *context, const char *bind_address, uint1
 	return cio_success;
 }
 
-const struct cio_server_socket *cio_linux_server_socket_init(struct cio_linux_server_socket *ss,
-                                                             struct cio_linux_eventloop_epoll *loop,
-                                                             cio_linux_server_socket_close_hook hook)
+void cio_server_socket_init(struct cio_server_socket *ss,
+                            struct cio_eventloop *loop,
+                            cio_server_socket_close_hook hook)
 {
-	ss->server_socket.context = ss;
-	ss->server_socket.init = socket_init;
-	ss->server_socket.close = socket_close;
-	ss->server_socket.accept = socket_accept;
-	ss->server_socket.set_reuse_address = socket_set_reuse_address;
-	ss->server_socket.bind = socket_bind;
+	ss->context = ss;
+	ss->init = socket_init;
+	ss->close = socket_close;
+	ss->accept = socket_accept;
+	ss->set_reuse_address = socket_set_reuse_address;
+	ss->bind = socket_bind;
 	ss->loop = loop;
-	ss->close = hook;
+	ss->close_hook = hook;
 	ss->backlog = 0;
-	return &ss->server_socket;
 }

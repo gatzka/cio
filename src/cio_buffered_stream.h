@@ -31,7 +31,6 @@
 
 #include "cio_buffer_allocator.h"
 #include "cio_io_stream.h"
-#include "cio_io_vector.h"
 #include "cio_stream_handler.h"
 
 #ifdef __cplusplus
@@ -124,21 +123,21 @@ struct cio_buffered_stream {
 	void (*read_until)(void *context, const char *delim, cio_stream_read_handler handler, void *handler_context);
 
 	/**
-	 * @brief Writes @p count buffers to the buffered stream.
+	 * @brief Writes @p count bytes to the buffered stream.
 	 *
 	 * Please note that the data written is not immediatly forwarded to
 	 * the underlying cio_io_stream. Call cio_buffered_stream::flush to do so.
 	 *
 	 * @param context A pointer to the cio_buffered_stream::context of the
 	 * implementation implementing this interface.
-	 * @param io_vec An array of cio_io_vector buffers.
-	 * @param count Number of cio_io_vector buffers in @p io_vec.
+	 * @param buf The buffer where the data is written from.
+	 * @param count The number of to write.
 	 * @param handler The callback function to be called when the write
 	 * request is fulfilled.
 	 * @param handler_context A pointer to a context which might be
 	 * useful inside @p handler
 	 */
-	void (*writev)(void *context, struct cio_io_vector *io_vec, unsigned int count, cio_stream_read_handler handler, void *handler_context);
+	void (*write)(void *context, const void *buf, size_t count, cio_stream_read_handler handler, void *handler_context);
 
 	/**
 	 * Drains the data in the write buffer out to the underlying
