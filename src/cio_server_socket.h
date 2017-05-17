@@ -31,8 +31,8 @@
 #include <stdint.h>
 
 #include "cio_error_code.h"
+#include "cio_eventloop.h"
 #include "cio_socket.h"
-#include "linux/cio_linux_epoll.h"
 
 #ifdef __cplusplus
 extern "C" {

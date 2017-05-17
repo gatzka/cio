@@ -37,9 +37,9 @@
 
 #include "cio_compiler.h"
 #include "cio_error_code.h"
+#include "cio_eventloop.h"
 #include "cio_server_socket.h"
 #include "cio_socket.h"
-#include "linux/cio_linux_epoll.h"
 #include "linux/cio_linux_socket_utils.h"
 
 static enum cio_error socket_init(void *context, unsigned int backlog)

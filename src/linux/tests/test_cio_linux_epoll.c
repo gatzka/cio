@@ -31,7 +31,7 @@
 #include "fff.h"
 #include "unity.h"
 
-#include "cio_linux_epoll.h"
+#include "cio_eventloop.h"
 
 DEFINE_FFF_GLOBALS
 
