@@ -64,7 +64,7 @@ struct cio_linux_server_socket {
 	cio_linux_server_socket_close_hook close;
 	cio_accept_handler handler;
 	void *handler_context;
-	struct cio_linux_event_notifier ev;
+	struct cio_event_notifier ev;
 	struct cio_eventloop *loop;
 };
 
