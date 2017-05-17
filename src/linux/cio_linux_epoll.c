@@ -125,7 +125,7 @@ void cio_linux_eventloop_remove(struct cio_eventloop *loop, const struct cio_eve
 	}
 }
 
-enum cio_error cio_linux_eventloop_run(struct cio_eventloop *loop)
+enum cio_error cio_eventloop_run(struct cio_eventloop *loop)
 {
 	struct epoll_event *events = loop->epoll_events;
 

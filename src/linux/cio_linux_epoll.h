@@ -111,7 +111,7 @@ enum cio_error cio_linux_eventloop_register_read(const struct cio_eventloop *loo
 enum cio_error cio_linux_eventloop_unregister_read(const struct cio_eventloop *loop, struct cio_event_notifier *ev);
 enum cio_error cio_linux_eventloop_register_write(const struct cio_eventloop *loop, struct cio_event_notifier *ev);
 enum cio_error cio_linux_eventloop_unregister_write(const struct cio_eventloop *loop, struct cio_event_notifier *ev);
-enum cio_error cio_linux_eventloop_run(struct cio_eventloop *loop);
+enum cio_error cio_eventloop_run(struct cio_eventloop *loop);
 void cio_eventloop_cancel(struct cio_eventloop *loop);
 
 #ifdef __cplusplus
