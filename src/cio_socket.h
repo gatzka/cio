@@ -30,8 +30,8 @@
 #include <stdbool.h>
 
 #include "cio_error_code.h"
-#include "cio_io_stream.h"
 #include "cio_eventloop.h"
+#include "cio_io_stream.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -134,8 +134,8 @@ struct cio_socket {
  * @return The cio_socket which shall be used after initializing.
  */
 enum cio_error cio_socket_init(struct cio_socket *s, int client_fd,
-										 struct cio_eventloop *loop,
-										 cio_socket_close_hook close);
+                               struct cio_eventloop *loop,
+                               cio_socket_close_hook close);
 
 #ifdef __cplusplus
 }
