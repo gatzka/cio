@@ -40,6 +40,7 @@
 #include "cio_eventloop.h"
 #include "cio_server_socket.h"
 #include "cio_socket.h"
+#include "linux/cio_linux_alloc.h"
 #include "linux/cio_linux_socket_utils.h"
 
 static enum cio_error socket_init(void *context, unsigned int backlog)
@@ -78,7 +79,7 @@ static void socket_close(void *context)
 
 static void free_linux_socket(struct cio_socket *s)
 {
-	free(s);
+	cio_free(s);
 }
 
 static void accept_callback(void *context)
@@ -100,10 +101,12 @@ static void accept_callback(void *context)
 
 			return;
 		} else {
-			struct cio_socket *s = malloc(sizeof(*s));
+			struct cio_socket *s = cio_malloc(sizeof(*s));
 			if (likely(s != NULL)) {
 				enum cio_error err = cio_socket_init(s, client_fd, ss->loop, free_linux_socket);
 				ss->handler(ss, ss->handler_context, err, s);
+			} else {
+				close(client_fd);
 			}
 		}
 	}
