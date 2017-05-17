@@ -165,7 +165,7 @@ enum cio_error cio_linux_eventloop_run(struct cio_eventloop *loop)
 	return cio_success;
 }
 
-void cio_linux_eventloop_cancel(struct cio_eventloop *loop)
+void cio_eventloop_cancel(struct cio_eventloop *loop)
 {
 	loop->go_ahead = false;
 }

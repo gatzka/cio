@@ -297,7 +297,7 @@ static void test_cancel(void)
 	TEST_ASSERT_EQUAL(cio_success, err);
 	TEST_ASSERT_EQUAL(1, epoll_create_fake.call_count);
 
-	cio_linux_eventloop_cancel(&loop);
+	cio_eventloop_cancel(&loop);
 	err = cio_linux_eventloop_run(&loop);
 	TEST_ASSERT_EQUAL(cio_success, err);
 
