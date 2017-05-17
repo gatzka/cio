@@ -185,9 +185,9 @@ static void loop_callback(void *context)
 	(void)ls;
 }
 
-struct cio_socket *cio_linux_socket_init(struct cio_linux_socket *ls, int client_fd,
+struct cio_socket *cio_socket_init(struct cio_linux_socket *ls, int client_fd,
                                          struct cio_eventloop *loop,
-                                         cio_linux_socket_close_hook hook)
+                                         cio_socket_close_hook hook)
 {
 	enum cio_error err = set_fd_non_blocking(client_fd);
 	if (unlikely(err != cio_success)) {
