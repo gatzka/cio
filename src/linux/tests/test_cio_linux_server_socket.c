@@ -90,6 +90,11 @@ static int listen_fails(int sockfd, int backlog)
 	errno = EADDRINUSE;
 	return -1;
 }
+static enum cio_error set_nonblocking_fails(int fd)
+{
+	(void)fd;
+	return cio_bad_file_descriptor;
+}
 
 static int setsockopt_fails(int fd, int level, int option_name,
                             const void *option_value, socklen_t option_len)
@@ -236,6 +241,19 @@ static void test_accept_fails(void)
 	TEST_ASSERT_EQUAL(1, on_close_fake.call_count);
 }
 
+static void test_set_nonblocking_fails(void)
+{
+	set_fd_non_blocking_fake.custom_fake = set_nonblocking_fails;
+
+	struct cio_eventloop loop;
+	struct cio_server_socket ss;
+	cio_server_socket_init(&ss, &loop, on_close);
+	enum cio_error err = ss.init(ss.context, 5);
+
+	TEST_ASSERT(err != cio_success);
+	TEST_ASSERT_EQUAL(1, close_fake.call_count);
+}
+
 static void test_accept_close_and_free_in_accept_handler(void)
 {
 	accept_fake.custom_fake = custom_accept_fake;
@@ -362,5 +380,6 @@ int main(void)
 	RUN_TEST(test_init_listen_fails);
 	RUN_TEST(test_init_setsockopt_fails);
 	RUN_TEST(test_init_bind_fails);
+	RUN_TEST(test_set_nonblocking_fails);
 	return UNITY_END();
 }
