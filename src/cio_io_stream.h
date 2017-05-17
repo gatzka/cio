@@ -90,6 +90,16 @@ struct cio_io_stream {
 	 * associated with this stream.
 	 */
 	void (*close)(void *context);
+
+	/**
+	 * @privatesection
+	 */
+	cio_stream_read_handler read_handler;
+	void *read_handler_context;
+	size_t read_count;
+	void *read_buffer;
+	cio_stream_write_handler write_handler;
+	void *write_handler_context;
 };
 
 #ifdef __cplusplus

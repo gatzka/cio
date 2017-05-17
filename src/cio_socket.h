@@ -31,6 +31,7 @@
 
 #include "cio_error_code.h"
 #include "cio_io_stream.h"
+#include "linux/cio_linux_epoll.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -43,6 +44,15 @@ extern "C" {
  * You can @ref cio_socket_get_io_stream "get an I/O stream"
  * from a socket or @ref cio_socket_close "close" the socket.
  */
+
+struct cio_socket;
+
+/**
+ * @brief The type of close hook function.
+ *
+ * @param s The cio_socket the close hook was called on.
+ */
+typedef void (*cio_socket_close_hook)(struct cio_socket *s);
 
 struct cio_socket {
 	/**
@@ -100,7 +110,32 @@ struct cio_socket {
 	 * @return ::cio_success for success.
 	 */
 	enum cio_error (*set_keep_alive)(void *context, bool on, unsigned int keep_idle_s, unsigned int keep_intvl_s, unsigned int keep_cnt);
+
+	/**
+	 * @privatesection
+	 */
+	struct cio_io_stream stream;
+	cio_socket_close_hook close_hook;
+	struct cio_event_notifier ev;
+	struct cio_eventloop *loop;
 };
+
+/**
+ * @brief Initializes a cio_socket.
+ *
+ * @param s The cio_socket that should be initialized.
+ * @param loop The event loop the socket shall operate on.
+ * @param close A close hook function. If this parameter is non @p NULL,
+ * the function will be called directly after
+ * @ref cio_socket_close "closing" the cio_socket.
+ * It is guaranteed the the cio library will not access any memory of
+ * cio_socket that is passed to the close hook. Therefore
+ * the hook could be used to free the memory of the socket.
+ * @return The cio_socket which shall be used after initializing.
+ */
+enum cio_error cio_socket_init(struct cio_socket *s, int client_fd,
+										 struct cio_eventloop *loop,
+										 cio_socket_close_hook close);
 
 #ifdef __cplusplus
 }

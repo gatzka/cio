@@ -35,8 +35,8 @@
 #include "unity.h"
 
 #include "cio_linux_epoll.h"
-#include "cio_linux_socket.h"
 #include "cio_server_socket.h"
+#include "cio_socket.h"
 
 DEFINE_FFF_GLOBALS
 
