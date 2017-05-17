@@ -145,20 +145,11 @@ static void write_callback(void *context)
 	s->stream.write_handler(s->stream.write_handler_context, cio_success, 0);
 }
 
-static void socket_writev(void *context, struct cio_io_vector *io_vec, unsigned int count, cio_stream_write_handler handler, void *handler_context)
+static void socket_write(void *context, const void *buf, size_t count, cio_stream_write_handler handler, void *handler_context)
 {
-	struct iovec *iov = (struct iovec *)io_vec;
 	struct cio_socket *s = context;
-	struct msghdr message = {
-	    .msg_name = NULL,
-	    .msg_namelen = 0,
-	    .msg_iov = iov,
-	    .msg_iovlen = count,
-	    .msg_control = NULL,
-	    .msg_controllen = 0,
-	    .msg_flags = 0};
 
-	ssize_t ret = sendmsg(s->ev.fd, &message, MSG_NOSIGNAL);
+	ssize_t ret = send(s->ev.fd, buf, count, MSG_NOSIGNAL);
 	if (likely(ret >= 0)) {
 		handler(handler_context, cio_success, (size_t)ret);
 	} else {
@@ -205,7 +196,7 @@ enum cio_error cio_socket_init(struct cio_socket *s, int client_fd,
 
 	s->stream.context = s;
 	s->stream.read_some = socket_read;
-	s->stream.writev_some = socket_writev;
+	s->stream.write_some = socket_write;
 	s->stream.close = socket_close;
 
 	s->loop = loop;
