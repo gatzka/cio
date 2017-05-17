@@ -28,6 +28,7 @@
 #define CIO_EVENTLOOP_IMPL_H
 
 #include <stdbool.h>
+#include <stdint.h>
 #include <sys/epoll.h>
 
 #include "cio_error_code.h"
