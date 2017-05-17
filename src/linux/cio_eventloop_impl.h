@@ -24,8 +24,8 @@
  * SOFTWARE.
  */
 
-#ifndef CIO_LINUX_EPOLL_H
-#define CIO_LINUX_EPOLL_H
+#ifndef CIO_EVENTLOOP_IMPL_H
+#define CIO_EVENTLOOP_IMPL_H
 
 #include <stdbool.h>
 #include <sys/epoll.h>
@@ -45,14 +45,6 @@ extern "C" {
  * @private
  */
 #define CONFIG_MAX_EPOLL_EVENTS 100
-
-/**
- * @brief Definition of all event types.
- */
-enum cio_event_type {
-	cio_ev_read = EPOLLIN,  /*!< A read event occured. */
-	cio_ev_write = EPOLLOUT /*!< A write event ocured. */
-};
 
 /**
  * @brief The cio_linux_event_notifier struct bundles the information
