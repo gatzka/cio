@@ -55,7 +55,7 @@ static enum cio_error socket_init(void *context, unsigned int backlog)
 	err = set_fd_non_blocking(listen_fd);
 	if (likely(err != cio_success)) {
 		close(listen_fd);
-		return errno;
+		return err;
 	}
 
 	ss->backlog = backlog;
