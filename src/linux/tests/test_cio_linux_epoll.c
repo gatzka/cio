@@ -247,7 +247,7 @@ static void test_create_loop(void)
 	TEST_ASSERT_EQUAL(cio_success, err);
 	TEST_ASSERT_EQUAL(1, epoll_create_fake.call_count);
 
-	cio_linux_eventloop_destroy(&loop);
+	cio_eventloop_destroy(&loop);
 	TEST_ASSERT_EQUAL(1, close_fake.call_count);
 }
 
@@ -286,7 +286,7 @@ static void test_add_event(void)
 	TEST_ASSERT_EQUAL(EPOLL_CTL_DEL, epoll_ctl_fake.arg1_val);
 	TEST_ASSERT_EQUAL(fake_fd, epoll_ctl_fake.arg2_val);
 
-	cio_linux_eventloop_destroy(&loop);
+	cio_eventloop_destroy(&loop);
 	TEST_ASSERT_EQUAL(1, close_fake.call_count);
 }
 
@@ -301,7 +301,7 @@ static void test_cancel(void)
 	err = cio_linux_eventloop_run(&loop);
 	TEST_ASSERT_EQUAL(cio_success, err);
 
-	cio_linux_eventloop_destroy(&loop);
+	cio_eventloop_destroy(&loop);
 	TEST_ASSERT_EQUAL(1, close_fake.call_count);
 }
 
@@ -321,7 +321,7 @@ static void test_add_event_fails(void)
 	err = cio_linux_eventloop_add(&loop, &ev);
 	TEST_ASSERT(err != cio_success);
 
-	cio_linux_eventloop_destroy(&loop);
+	cio_eventloop_destroy(&loop);
 	TEST_ASSERT_EQUAL(1, close_fake.call_count);
 }
 
@@ -348,7 +348,7 @@ static void test_register_event_fails(void)
 	TEST_ASSERT_EQUAL(EPOLL_CTL_MOD, epoll_ctl_fake.arg1_val);
 	TEST_ASSERT_EQUAL(fake_fd, epoll_ctl_fake.arg2_val);
 
-	cio_linux_eventloop_destroy(&loop);
+	cio_eventloop_destroy(&loop);
 	TEST_ASSERT_EQUAL(1, close_fake.call_count);
 }
 
@@ -385,7 +385,7 @@ static void test_notify_event(void)
 	TEST_ASSERT_EQUAL(1, epoll_callback_fake.call_count);
 	TEST_ASSERT_EQUAL(&loop, epoll_callback_fake.arg0_val);
 
-	cio_linux_eventloop_destroy(&loop);
+	cio_eventloop_destroy(&loop);
 	TEST_ASSERT_EQUAL(1, close_fake.call_count);
 }
 
@@ -401,7 +401,7 @@ static void test_epoll_wait_interrupted(void)
 	cio_linux_eventloop_run(&loop);
 	TEST_ASSERT_EQUAL(2, epoll_wait_fake.call_count);
 
-	cio_linux_eventloop_destroy(&loop);
+	cio_eventloop_destroy(&loop);
 	TEST_ASSERT_EQUAL(1, close_fake.call_count);
 }
 
@@ -446,7 +446,7 @@ static void test_notify_single_fd_multiple_events(void)
 	TEST_ASSERT_EQUAL(2, epoll_callback_fake.call_count);
 	TEST_ASSERT_EQUAL(&loop, epoll_callback_fake.arg0_val);
 
-	cio_linux_eventloop_destroy(&loop);
+	cio_eventloop_destroy(&loop);
 	TEST_ASSERT_EQUAL(1, close_fake.call_count);
 }
 
@@ -509,7 +509,7 @@ static void test_notify_two_fds_unregister_read(void)
 
 	TEST_ASSERT_EQUAL(0, epoll_callback_fake.call_count);
 
-	cio_linux_eventloop_destroy(&loop);
+	cio_eventloop_destroy(&loop);
 	TEST_ASSERT_EQUAL(1, close_fake.call_count);
 }
 
@@ -556,7 +556,7 @@ static void test_notify_single_fd_multiple_events_remove_from_loop(void)
 
 	TEST_ASSERT_EQUAL(0, epoll_callback_fake.call_count);
 
-	cio_linux_eventloop_destroy(&loop);
+	cio_eventloop_destroy(&loop);
 	TEST_ASSERT_EQUAL(1, close_fake.call_count);
 }
 
@@ -606,7 +606,7 @@ static void test_notify_single_fd_multiple_events_unregister_write_event(void)
 
 	TEST_ASSERT_EQUAL(0, epoll_callback_fake.call_count);
 
-	cio_linux_eventloop_destroy(&loop);
+	cio_eventloop_destroy(&loop);
 	TEST_ASSERT_EQUAL(1, close_fake.call_count);
 }
 
@@ -697,7 +697,7 @@ static void test_notify_three_event_and_remove(void)
 	TEST_ASSERT_EQUAL(0, epoll_callback_third_fd_fake.call_count);
 	TEST_ASSERT_EQUAL(1, epoll_callback_forth_fd_fake.call_count);
 
-	cio_linux_eventloop_destroy(&loop);
+	cio_eventloop_destroy(&loop);
 	TEST_ASSERT_EQUAL(1, close_fake.call_count);
 }
 

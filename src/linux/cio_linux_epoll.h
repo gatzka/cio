@@ -103,7 +103,7 @@ struct cio_eventloop {
 };
 
 enum cio_error cio_eventloop_init(struct cio_eventloop *loop);
-void cio_linux_eventloop_destroy(const struct cio_eventloop *loop);
+void cio_eventloop_destroy(const struct cio_eventloop *loop);
 
 enum cio_error cio_linux_eventloop_add(const struct cio_eventloop *loop, struct cio_event_notifier *ev);
 void cio_linux_eventloop_remove(struct cio_eventloop *loop, const struct cio_event_notifier *ev);

@@ -60,7 +60,7 @@ enum cio_error cio_eventloop_init(struct cio_eventloop *loop)
 	return cio_success;
 }
 
-void cio_linux_eventloop_destroy(const struct cio_eventloop *loop)
+void cio_eventloop_destroy(const struct cio_eventloop *loop)
 {
 	close(loop->epoll_fd);
 }
