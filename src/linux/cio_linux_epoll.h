@@ -90,7 +90,7 @@ struct cio_linux_event_notifier {
 	uint32_t registered_events;
 };
 
-struct cio_linux_eventloop_epoll {
+struct cio_eventloop {
 	/**
 	 * @privatesection
 	 */
@@ -102,17 +102,17 @@ struct cio_linux_eventloop_epoll {
 	struct epoll_event epoll_events[CONFIG_MAX_EPOLL_EVENTS];
 };
 
-enum cio_error cio_eventloop_init(struct cio_linux_eventloop_epoll *loop);
-void cio_linux_eventloop_destroy(const struct cio_linux_eventloop_epoll *loop);
+enum cio_error cio_eventloop_init(struct cio_eventloop *loop);
+void cio_linux_eventloop_destroy(const struct cio_eventloop *loop);
 
-enum cio_error cio_linux_eventloop_add(const struct cio_linux_eventloop_epoll *loop, struct cio_linux_event_notifier *ev);
-void cio_linux_eventloop_remove(struct cio_linux_eventloop_epoll *loop, const struct cio_linux_event_notifier *ev);
-enum cio_error cio_linux_eventloop_register_read(const struct cio_linux_eventloop_epoll *loop, struct cio_linux_event_notifier *ev);
-enum cio_error cio_linux_eventloop_unregister_read(const struct cio_linux_eventloop_epoll *loop, struct cio_linux_event_notifier *ev);
-enum cio_error cio_linux_eventloop_register_write(const struct cio_linux_eventloop_epoll *loop, struct cio_linux_event_notifier *ev);
-enum cio_error cio_linux_eventloop_unregister_write(const struct cio_linux_eventloop_epoll *loop, struct cio_linux_event_notifier *ev);
-enum cio_error cio_linux_eventloop_run(struct cio_linux_eventloop_epoll *loop);
-void cio_linux_eventloop_cancel(struct cio_linux_eventloop_epoll *loop);
+enum cio_error cio_linux_eventloop_add(const struct cio_eventloop *loop, struct cio_linux_event_notifier *ev);
+void cio_linux_eventloop_remove(struct cio_eventloop *loop, const struct cio_linux_event_notifier *ev);
+enum cio_error cio_linux_eventloop_register_read(const struct cio_eventloop *loop, struct cio_linux_event_notifier *ev);
+enum cio_error cio_linux_eventloop_unregister_read(const struct cio_eventloop *loop, struct cio_linux_event_notifier *ev);
+enum cio_error cio_linux_eventloop_register_write(const struct cio_eventloop *loop, struct cio_linux_event_notifier *ev);
+enum cio_error cio_linux_eventloop_unregister_write(const struct cio_eventloop *loop, struct cio_linux_event_notifier *ev);
+enum cio_error cio_linux_eventloop_run(struct cio_eventloop *loop);
+void cio_linux_eventloop_cancel(struct cio_eventloop *loop);
 
 #ifdef __cplusplus
 }

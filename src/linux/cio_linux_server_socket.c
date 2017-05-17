@@ -206,7 +206,7 @@ static enum cio_error socket_bind(void *context, const char *bind_address, uint1
 }
 
 const struct cio_server_socket *cio_linux_server_socket_init(struct cio_linux_server_socket *ss,
-                                                             struct cio_linux_eventloop_epoll *loop,
+                                                             struct cio_eventloop *loop,
                                                              cio_linux_server_socket_close_hook hook)
 {
 	ss->server_socket.context = ss;

@@ -78,13 +78,13 @@ void setUp(void)
 
 static void remove_third_fd(void *context)
 {
-	struct cio_linux_eventloop_epoll *loop = context;
+	struct cio_eventloop *loop = context;
 	cio_linux_eventloop_remove(loop, event_list[2]);
 }
 
 static void remove_from_loop(void *context)
 {
-	struct cio_linux_eventloop_epoll *loop = context;
+	struct cio_eventloop *loop = context;
 	struct cio_linux_event_notifier *ev = event_list[0];
 	cio_linux_eventloop_remove(loop, ev);
 	free(ev);
@@ -92,14 +92,14 @@ static void remove_from_loop(void *context)
 
 static void unregister_write_event(void *context)
 {
-	struct cio_linux_eventloop_epoll *loop = context;
+	struct cio_eventloop *loop = context;
 	struct cio_linux_event_notifier *ev = event_list[0];
 	cio_linux_eventloop_unregister_write(loop, ev);
 }
 
 static void unregister_read_event(void *context)
 {
-	struct cio_linux_eventloop_epoll *loop = context;
+	struct cio_eventloop *loop = context;
 	struct cio_linux_event_notifier *ev = event_list[1];
 	cio_linux_eventloop_unregister_read(loop, ev);
 }
@@ -242,7 +242,7 @@ static int notify_two_fds(int epfd, struct epoll_event *events,
 
 static void test_create_loop(void)
 {
-	struct cio_linux_eventloop_epoll loop;
+	struct cio_eventloop loop;
 	enum cio_error err = cio_eventloop_init(&loop);
 	TEST_ASSERT_EQUAL(cio_success, err);
 	TEST_ASSERT_EQUAL(1, epoll_create_fake.call_count);
@@ -255,7 +255,7 @@ static void test_create_loop_fails(void)
 {
 	epoll_create_fake.custom_fake = epoll_create_fail;
 
-	struct cio_linux_eventloop_epoll loop;
+	struct cio_eventloop loop;
 	enum cio_error err = cio_eventloop_init(&loop);
 	TEST_ASSERT(err != cio_success);
 	TEST_ASSERT_EQUAL(1, epoll_create_fake.call_count);
@@ -264,7 +264,7 @@ static void test_create_loop_fails(void)
 static void test_add_event(void)
 {
 	static const int fake_fd = 42;
-	struct cio_linux_eventloop_epoll loop;
+	struct cio_eventloop loop;
 	enum cio_error err = cio_eventloop_init(&loop);
 	TEST_ASSERT_EQUAL(cio_success, err);
 	TEST_ASSERT_EQUAL(1, epoll_create_fake.call_count);
@@ -292,7 +292,7 @@ static void test_add_event(void)
 
 static void test_cancel(void)
 {
-	struct cio_linux_eventloop_epoll loop;
+	struct cio_eventloop loop;
 	enum cio_error err = cio_eventloop_init(&loop);
 	TEST_ASSERT_EQUAL(cio_success, err);
 	TEST_ASSERT_EQUAL(1, epoll_create_fake.call_count);
@@ -309,7 +309,7 @@ static void test_add_event_fails(void)
 {
 	epoll_ctl_fake.custom_fake = epoll_ctl_fail;
 	static const int fake_fd = 42;
-	struct cio_linux_eventloop_epoll loop;
+	struct cio_eventloop loop;
 	enum cio_error err = cio_eventloop_init(&loop);
 	TEST_ASSERT_EQUAL(cio_success, err);
 	TEST_ASSERT_EQUAL(1, epoll_create_fake.call_count);
@@ -329,7 +329,7 @@ static void test_register_event_fails(void)
 {
 	epoll_ctl_fake.custom_fake = epoll_ctl_mod_fail;
 	static const int fake_fd = 42;
-	struct cio_linux_eventloop_epoll loop;
+	struct cio_eventloop loop;
 	enum cio_error err = cio_eventloop_init(&loop);
 	TEST_ASSERT_EQUAL(cio_success, err);
 	TEST_ASSERT_EQUAL(1, epoll_create_fake.call_count);
@@ -357,7 +357,7 @@ static void test_notify_event(void)
 	epoll_wait_fake.custom_fake = notify_single_fd;
 	epoll_ctl_fake.custom_fake = epoll_ctl_save;
 
-	struct cio_linux_eventloop_epoll loop;
+	struct cio_eventloop loop;
 	enum cio_error err = cio_eventloop_init(&loop);
 	TEST_ASSERT_EQUAL(cio_success, err);
 	TEST_ASSERT_EQUAL(1, epoll_create_fake.call_count);
@@ -393,7 +393,7 @@ static void test_epoll_wait_interrupted(void)
 {
 	epoll_wait_fake.custom_fake = notify_no_fd_interrupt;
 
-	struct cio_linux_eventloop_epoll loop;
+	struct cio_eventloop loop;
 	enum cio_error err = cio_eventloop_init(&loop);
 	TEST_ASSERT_EQUAL(cio_success, err);
 	TEST_ASSERT_EQUAL(1, epoll_create_fake.call_count);
@@ -410,7 +410,7 @@ static void test_notify_single_fd_multiple_events(void)
 	epoll_wait_fake.custom_fake = notify_single_fd_multiple_events;
 	epoll_ctl_fake.custom_fake = epoll_ctl_save;
 
-	struct cio_linux_eventloop_epoll loop;
+	struct cio_eventloop loop;
 	enum cio_error err = cio_eventloop_init(&loop);
 	TEST_ASSERT_EQUAL(cio_success, err);
 	TEST_ASSERT_EQUAL(1, epoll_create_fake.call_count);
@@ -461,7 +461,7 @@ static void test_notify_two_fds_unregister_read(void)
 	epoll_wait_fake.custom_fake = notify_two_fds;
 	epoll_ctl_fake.custom_fake = epoll_ctl_save;
 
-	struct cio_linux_eventloop_epoll loop;
+	struct cio_eventloop loop;
 	enum cio_error err = cio_eventloop_init(&loop);
 	TEST_ASSERT_EQUAL(cio_success, err);
 	TEST_ASSERT_EQUAL(1, epoll_create_fake.call_count);
@@ -525,7 +525,7 @@ static void test_notify_single_fd_multiple_events_remove_from_loop(void)
 
 	epoll_callback_remove_loop_fake.custom_fake = remove_from_loop;
 
-	struct cio_linux_eventloop_epoll loop;
+	struct cio_eventloop loop;
 	enum cio_error err = cio_eventloop_init(&loop);
 	TEST_ASSERT_EQUAL(cio_success, err);
 	TEST_ASSERT_EQUAL(1, epoll_create_fake.call_count);
@@ -570,7 +570,7 @@ static void test_notify_single_fd_multiple_events_unregister_write_event(void)
 	epoll_wait_fake.custom_fake = notify_single_fd_multiple_events;
 	epoll_ctl_fake.custom_fake = epoll_ctl_save;
 
-	struct cio_linux_eventloop_epoll loop;
+	struct cio_eventloop loop;
 	enum cio_error err = cio_eventloop_init(&loop);
 	TEST_ASSERT_EQUAL(cio_success, err);
 	TEST_ASSERT_EQUAL(1, epoll_create_fake.call_count);
@@ -615,7 +615,7 @@ static void test_notify_three_event_and_remove(void)
 	epoll_wait_fake.custom_fake = notify_four_fds;
 	epoll_ctl_fake.custom_fake = epoll_ctl_save;
 
-	struct cio_linux_eventloop_epoll loop;
+	struct cio_eventloop loop;
 	enum cio_error err = cio_eventloop_init(&loop);
 	TEST_ASSERT_EQUAL(cio_success, err);
 	TEST_ASSERT_EQUAL(1, epoll_create_fake.call_count);

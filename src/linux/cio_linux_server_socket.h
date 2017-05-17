@@ -65,7 +65,7 @@ struct cio_linux_server_socket {
 	cio_accept_handler handler;
 	void *handler_context;
 	struct cio_linux_event_notifier ev;
-	struct cio_linux_eventloop_epoll *loop;
+	struct cio_eventloop *loop;
 };
 
 /**
@@ -82,7 +82,7 @@ struct cio_linux_server_socket {
  * @return The cio_server_socket which shall be used after initializing.
  */
 const struct cio_server_socket *cio_linux_server_socket_init(struct cio_linux_server_socket *ss,
-                                                             struct cio_linux_eventloop_epoll *loop,
+                                                             struct cio_eventloop *loop,
                                                              cio_linux_server_socket_close_hook close);
 
 #ifdef __cplusplus

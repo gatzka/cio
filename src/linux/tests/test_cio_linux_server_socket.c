@@ -44,10 +44,10 @@ FAKE_VALUE_FUNC(int, accept, int, struct sockaddr *, socklen_t *)
 void accept_handler(struct cio_server_socket *ss, void *handler_context, enum cio_error err, struct cio_socket *socket);
 FAKE_VOID_FUNC(accept_handler, struct cio_server_socket *, void *, enum cio_error, struct cio_socket *)
 
-FAKE_VALUE_FUNC(enum cio_error, cio_linux_eventloop_add, const struct cio_linux_eventloop_epoll *, struct cio_linux_event_notifier *)
-FAKE_VALUE_FUNC(enum cio_error, cio_linux_eventloop_register_read, const struct cio_linux_eventloop_epoll *, struct cio_linux_event_notifier *)
-FAKE_VALUE_FUNC(enum cio_error, cio_linux_eventloop_register_write, const struct cio_linux_eventloop_epoll *, struct cio_linux_event_notifier *)
-FAKE_VOID_FUNC(cio_linux_eventloop_remove, struct cio_linux_eventloop_epoll *, const struct cio_linux_event_notifier *)
+FAKE_VALUE_FUNC(enum cio_error, cio_linux_eventloop_add, const struct cio_eventloop *, struct cio_linux_event_notifier *)
+FAKE_VALUE_FUNC(enum cio_error, cio_linux_eventloop_register_read, const struct cio_eventloop *, struct cio_linux_event_notifier *)
+FAKE_VALUE_FUNC(enum cio_error, cio_linux_eventloop_register_write, const struct cio_eventloop *, struct cio_linux_event_notifier *)
+FAKE_VOID_FUNC(cio_linux_eventloop_remove, struct cio_eventloop *, const struct cio_linux_event_notifier *)
 
 void on_close(struct cio_linux_server_socket *ss);
 FAKE_VOID_FUNC(on_close, struct cio_linux_server_socket *)
@@ -168,7 +168,7 @@ static void test_accept_bind_address(void)
 	accept_fake.custom_fake = custom_accept_fake;
 	accept_handler_fake.custom_fake = accept_handler_close_server_socket;
 
-	struct cio_linux_eventloop_epoll loop;
+	struct cio_eventloop loop;
 	struct cio_linux_server_socket ss_linux;
 	const struct cio_server_socket *ss = cio_linux_server_socket_init(&ss_linux, &loop, on_close);
 	enum cio_error err = ss->init(ss->context, 5);
@@ -189,7 +189,7 @@ static void test_accept_close_in_accept_handler(void)
 	accept_fake.custom_fake = custom_accept_fake;
 	accept_handler_fake.custom_fake = accept_handler_close_server_socket;
 
-	struct cio_linux_eventloop_epoll loop;
+	struct cio_eventloop loop;
 	struct cio_linux_server_socket ss_linux;
 	const struct cio_server_socket *ss = cio_linux_server_socket_init(&ss_linux, &loop, on_close);
 	ss->init(ss->context, 5);
@@ -205,7 +205,7 @@ static void test_accept_wouldblock(void)
 	accept_fake.custom_fake = accept_wouldblock;
 	accept_handler_fake.custom_fake = accept_handler_close_server_socket;
 
-	struct cio_linux_eventloop_epoll loop;
+	struct cio_eventloop loop;
 	struct cio_linux_server_socket ss_linux;
 	const struct cio_server_socket *ss = cio_linux_server_socket_init(&ss_linux, &loop, on_close);
 	enum cio_error err = ss->init(ss->context, 5);
@@ -225,7 +225,7 @@ static void test_accept_fails(void)
 	accept_fake.custom_fake = accept_fails;
 	accept_handler_fake.custom_fake = accept_handler_close_server_socket;
 
-	struct cio_linux_eventloop_epoll loop;
+	struct cio_eventloop loop;
 	struct cio_linux_server_socket ss_linux;
 	const struct cio_server_socket *ss = cio_linux_server_socket_init(&ss_linux, &loop, on_close);
 	ss->init(ss->context, 5);
@@ -242,7 +242,7 @@ static void test_accept_close_and_free_in_accept_handler(void)
 	accept_handler_fake.custom_fake = accept_handler_close_server_socket;
 	on_close_fake.custom_fake = close_free;
 
-	struct cio_linux_eventloop_epoll loop;
+	struct cio_eventloop loop;
 	struct cio_linux_server_socket *ss_linux = malloc(sizeof(*ss_linux));
 	const struct cio_server_socket *ss = cio_linux_server_socket_init(ss_linux, &loop, on_close);
 	enum cio_error err = ss->init(ss->context, 5);
@@ -258,7 +258,7 @@ static void test_accept_close_and_free_in_accept_handler(void)
 
 static void test_accept_no_handler(void)
 {
-	struct cio_linux_eventloop_epoll loop;
+	struct cio_eventloop loop;
 	struct cio_linux_server_socket ss_linux;
 	const struct cio_server_socket *ss = cio_linux_server_socket_init(&ss_linux, &loop, on_close);
 	enum cio_error err = ss->init(ss->context, 5);
@@ -275,7 +275,7 @@ static void test_accept_eventloop_add_fails(void)
 {
 	cio_linux_eventloop_add_fake.return_val = cio_invalid_argument;
 
-	struct cio_linux_eventloop_epoll loop;
+	struct cio_eventloop loop;
 	struct cio_linux_server_socket ss_linux;
 	const struct cio_server_socket *ss = cio_linux_server_socket_init(&ss_linux, &loop, NULL);
 	enum cio_error err = ss->init(ss->context, 5);
@@ -292,7 +292,7 @@ static void test_init_fails_no_socket(void)
 {
 	socket_fake.return_val = -1;
 
-	struct cio_linux_eventloop_epoll loop;
+	struct cio_eventloop loop;
 	struct cio_linux_server_socket ss_linux;
 	const struct cio_server_socket *ss = cio_linux_server_socket_init(&ss_linux, &loop, NULL);
 	enum cio_error err = ss->init(ss->context, 5);
@@ -304,7 +304,7 @@ static void test_init_listen_fails(void)
 {
 	listen_fake.custom_fake = listen_fails;
 
-	struct cio_linux_eventloop_epoll loop;
+	struct cio_eventloop loop;
 	struct cio_linux_server_socket ss_linux;
 	const struct cio_server_socket *ss = cio_linux_server_socket_init(&ss_linux, &loop, NULL);
 	enum cio_error err = ss->init(ss->context, 5);
@@ -320,7 +320,7 @@ static void test_init_setsockopt_fails(void)
 {
 	setsockopt_fake.custom_fake = setsockopt_fails;
 
-	struct cio_linux_eventloop_epoll loop;
+	struct cio_eventloop loop;
 	struct cio_linux_server_socket ss_linux;
 	const struct cio_server_socket *ss = cio_linux_server_socket_init(&ss_linux, &loop, NULL);
 	enum cio_error err = ss->init(ss->context, 5);
@@ -336,7 +336,7 @@ static void test_init_bind_fails(void)
 {
 	bind_fake.custom_fake = bind_fails;
 
-	struct cio_linux_eventloop_epoll loop;
+	struct cio_eventloop loop;
 	struct cio_linux_server_socket ss_linux;
 	const struct cio_server_socket *ss = cio_linux_server_socket_init(&ss_linux, &loop, NULL);
 	enum cio_error err = ss->init(ss->context, 5);

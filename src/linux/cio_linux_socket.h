@@ -62,7 +62,7 @@ struct cio_linux_socket {
 	struct cio_socket socket;
 	cio_linux_socket_close_hook close;
 	struct cio_linux_event_notifier ev;
-	struct cio_linux_eventloop_epoll *loop;
+	struct cio_eventloop *loop;
 	cio_stream_read_handler read_handler;
 	void *read_handler_context;
 	size_t read_count;
@@ -86,7 +86,7 @@ struct cio_linux_socket {
  * @return The cio_socket which shall be used after initializing.
  */
 struct cio_socket *cio_linux_socket_init(struct cio_linux_socket *s, int client_fd,
-                                         struct cio_linux_eventloop_epoll *loop,
+                                         struct cio_eventloop *loop,
                                          cio_linux_socket_close_hook close);
 
 #ifdef __cplusplus
