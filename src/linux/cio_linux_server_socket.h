@@ -81,7 +81,7 @@ struct cio_linux_server_socket {
  * the hook could be used to free the memory of the linux server socket.
  * @return The cio_server_socket which shall be used after initializing.
  */
-const struct cio_server_socket *cio_linux_server_socket_init(struct cio_linux_server_socket *ss,
+const struct cio_server_socket *cio_server_socket_init(struct cio_linux_server_socket *ss,
                                                              struct cio_eventloop *loop,
                                                              cio_linux_server_socket_close_hook close);
 

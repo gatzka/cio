@@ -205,7 +205,7 @@ static enum cio_error socket_bind(void *context, const char *bind_address, uint1
 	return cio_success;
 }
 
-const struct cio_server_socket *cio_linux_server_socket_init(struct cio_linux_server_socket *ss,
+const struct cio_server_socket *cio_server_socket_init(struct cio_linux_server_socket *ss,
                                                              struct cio_eventloop *loop,
                                                              cio_linux_server_socket_close_hook hook)
 {
