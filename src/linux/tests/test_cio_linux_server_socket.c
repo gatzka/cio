@@ -65,6 +65,8 @@ FAKE_VALUE_FUNC(enum cio_error, set_fd_non_blocking, int)
 FAKE_VALUE_FUNC(void *, cio_malloc, size_t)
 FAKE_VOID_FUNC(cio_free, void *)
 
+static int optval;
+
 void setUp(void)
 {
 	FFF_RESET_HISTORY();
@@ -108,6 +110,19 @@ static int setsockopt_fails(int fd, int level, int option_name,
 
 	errno = EINVAL;
 	return -1;
+}
+
+static int setsockopt_capture(int fd, int level, int option_name,
+							const void *option_value, socklen_t option_len)
+{
+	(void)fd;
+	(void)option_len;
+	if ((level == SOL_SOCKET) && (option_name == SO_REUSEADDR)) {
+		memcpy(&optval, option_value, sizeof(optval));
+	}
+
+	errno = EINVAL;
+	return 0;
 }
 
 static int bind_fails(int sockfd, const struct sockaddr *addr,
@@ -349,6 +364,42 @@ static void test_init_setsockopt_fails(void)
 	TEST_ASSERT_EQUAL(1, close_fake.call_count);
 }
 
+static void test_enable_reuse_address(void)
+{
+	setsockopt_fake.custom_fake = setsockopt_capture;
+
+	struct cio_eventloop loop;
+	struct cio_server_socket ss;
+	cio_server_socket_init(&ss, &loop, NULL);
+	enum cio_error err = ss.init(ss.context, 5);
+	TEST_ASSERT(err == cio_success);
+	err = ss.set_reuse_address(ss.context, true);
+	TEST_ASSERT_EQUAL(cio_success, err);
+	TEST_ASSERT_EQUAL(1, optval);
+	TEST_ASSERT_EQUAL(SOL_SOCKET, setsockopt_fake.arg1_val);
+	TEST_ASSERT_EQUAL(SO_REUSEADDR, setsockopt_fake.arg2_val);
+	TEST_ASSERT_EQUAL(sizeof(int), setsockopt_fake.arg4_val);
+	ss.close(ss.context);
+}
+
+static void test_disable_reuse_address(void)
+{
+	setsockopt_fake.custom_fake = setsockopt_capture;
+
+	struct cio_eventloop loop;
+	struct cio_server_socket ss;
+	cio_server_socket_init(&ss, &loop, NULL);
+	enum cio_error err = ss.init(ss.context, 5);
+	TEST_ASSERT(err == cio_success);
+	err = ss.set_reuse_address(ss.context, false);
+	TEST_ASSERT_EQUAL(cio_success, err);
+	TEST_ASSERT_EQUAL(0, optval);
+	TEST_ASSERT_EQUAL(SOL_SOCKET, setsockopt_fake.arg1_val);
+	TEST_ASSERT_EQUAL(SO_REUSEADDR, setsockopt_fake.arg2_val);
+	TEST_ASSERT_EQUAL(sizeof(int), setsockopt_fake.arg4_val);
+	ss.close(ss.context);
+}
+
 static void test_init_bind_fails(void)
 {
 	bind_fake.custom_fake = bind_fails;
@@ -395,5 +446,7 @@ int main(void)
 	RUN_TEST(test_init_bind_fails);
 	RUN_TEST(test_set_nonblocking_fails);
 	RUN_TEST(test_accept_malloc_fails);
+	RUN_TEST(test_enable_reuse_address);
+	RUN_TEST(test_disable_reuse_address);
 	return UNITY_END();
 }
