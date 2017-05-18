@@ -121,11 +121,6 @@ static int bind_fails(int sockfd, const struct sockaddr *addr,
 	return -1;
 }
 
-static void close_free(struct cio_server_socket *ss)
-{
-	free(ss);
-}
-
 static int custom_accept_fake(int fd, struct sockaddr *addr, socklen_t *addrlen)
 {
 	(void)fd;
@@ -273,31 +268,6 @@ static void test_set_nonblocking_fails(void)
 	TEST_ASSERT_EQUAL(1, close_fake.call_count);
 }
 
-static void test_accept_close_and_free_in_accept_handler(void)
-{
-	accept_fake.custom_fake = custom_accept_fake;
-	accept_handler_fake.custom_fake = accept_handler_close_server_socket;
-	on_close_fake.custom_fake = close_free;
-	cio_malloc_fake.custom_fake = malloc;
-	cio_free_fake.custom_fake = free;
-
-	struct cio_eventloop loop;
-	struct cio_server_socket *ss = malloc(sizeof(*ss));
-	cio_server_socket_init(ss, &loop, on_close);
-	enum cio_error err = ss->init(ss->context, 5);
-	TEST_ASSERT_EQUAL(cio_success, err);
-	err = ss->bind(ss->context, NULL, 12345);
-	TEST_ASSERT_EQUAL(cio_success, err);
-	err = ss->accept(ss->context, accept_handler, NULL);
-	TEST_ASSERT_EQUAL(cio_success, err);
-
-	TEST_ASSERT_EQUAL(1, accept_handler_fake.call_count);
-	TEST_ASSERT_EQUAL(1, on_close_fake.call_count);
-	if (on_close_fake.call_count == 0) {
-		free(ss);
-	}
-}
-
 static void test_accept_no_handler(void)
 {
 	struct cio_eventloop loop;
@@ -410,7 +380,6 @@ int main(void)
 	UNITY_BEGIN();
 	RUN_TEST(test_accept_bind_address);
 	RUN_TEST(test_accept_close_in_accept_handler);
-	RUN_TEST(test_accept_close_and_free_in_accept_handler);
 	RUN_TEST(test_accept_no_handler);
 	RUN_TEST(test_accept_eventloop_add_fails);
 	RUN_TEST(test_accept_wouldblock);
