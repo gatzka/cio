@@ -199,6 +199,7 @@ static void test_accept_bind_address(void)
 
 	TEST_ASSERT_EQUAL(1, accept_handler_fake.call_count);
 	TEST_ASSERT_EQUAL(1, on_close_fake.call_count);
+	TEST_ASSERT_EQUAL(&ss, on_close_fake.arg0_val);
 }
 
 static void test_accept_close_in_accept_handler(void)
@@ -217,6 +218,7 @@ static void test_accept_close_in_accept_handler(void)
 
 	TEST_ASSERT_EQUAL(1, accept_handler_fake.call_count);
 	TEST_ASSERT_EQUAL(1, on_close_fake.call_count);
+	TEST_ASSERT_EQUAL(&ss, on_close_fake.arg0_val);
 }
 
 static void test_accept_wouldblock(void)
@@ -237,6 +239,7 @@ static void test_accept_wouldblock(void)
 	TEST_ASSERT_EQUAL(0, accept_handler_fake.call_count);
 	ss.close(ss.context);
 	TEST_ASSERT_EQUAL(1, on_close_fake.call_count);
+	TEST_ASSERT_EQUAL(&ss, on_close_fake.arg0_val);
 }
 
 static void test_accept_fails(void)
@@ -253,6 +256,7 @@ static void test_accept_fails(void)
 
 	TEST_ASSERT_EQUAL(1, accept_handler_fake.call_count);
 	TEST_ASSERT_EQUAL(1, on_close_fake.call_count);
+	TEST_ASSERT_EQUAL(&ss, on_close_fake.arg0_val);
 }
 
 static void test_set_nonblocking_fails(void)
@@ -281,6 +285,7 @@ static void test_accept_no_handler(void)
 	TEST_ASSERT_EQUAL(cio_invalid_argument, err);
 	ss.close(ss.context);
 	TEST_ASSERT_EQUAL(1, on_close_fake.call_count);
+	TEST_ASSERT_EQUAL(&ss, on_close_fake.arg0_val);
 }
 
 static void test_accept_eventloop_add_fails(void)
