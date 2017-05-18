@@ -293,6 +293,9 @@ static void test_accept_close_and_free_in_accept_handler(void)
 
 	TEST_ASSERT_EQUAL(1, accept_handler_fake.call_count);
 	TEST_ASSERT_EQUAL(1, on_close_fake.call_count);
+	if (on_close_fake.call_count == 0) {
+		free(ss);
+	}
 }
 
 static void test_accept_no_handler(void)
