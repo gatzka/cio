@@ -24,14 +24,17 @@
  * SOFTWARE.
  */
 
-#ifndef CIO_ERROR_CODE_IMPL_H
-#define CIO_ERROR_CODE_IMPL_H
+#ifndef CIO_LINUX_ALLOC_H
+#define CIO_LINUX_ALLOC_H
+
+#include <stddef.h>
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-#include <errno.h>
+void *cio_malloc(size_t size);
+void cio_free(void *ptr);
 
 #ifdef __cplusplus
 }
