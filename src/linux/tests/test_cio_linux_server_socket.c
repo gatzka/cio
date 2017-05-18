@@ -113,7 +113,7 @@ static int setsockopt_fails(int fd, int level, int option_name,
 }
 
 static int setsockopt_capture(int fd, int level, int option_name,
-							const void *option_value, socklen_t option_len)
+                              const void *option_value, socklen_t option_len)
 {
 	(void)fd;
 	(void)option_len;
@@ -364,6 +364,24 @@ static void test_init_setsockopt_fails(void)
 	TEST_ASSERT_EQUAL(1, close_fake.call_count);
 }
 
+static void test_init_register_read_fails(void)
+{
+	cio_linux_eventloop_register_read_fake.return_val = cio_no_space_left_on_device;
+
+	struct cio_eventloop loop;
+	struct cio_server_socket ss;
+	cio_server_socket_init(&ss, &loop, NULL);
+	enum cio_error err = ss.init(ss.context, 5);
+	TEST_ASSERT_EQUAL(cio_success, err);
+	err = ss.bind(ss.context, NULL, 12345);
+	TEST_ASSERT_EQUAL(cio_success, err);
+	err = ss.accept(ss.context, accept_handler, NULL);
+	TEST_ASSERT(err != cio_success);
+	TEST_ASSERT_EQUAL(0, close_fake.call_count);
+	ss.close(ss.context);
+	TEST_ASSERT_EQUAL(1, close_fake.call_count);
+}
+
 static void test_enable_reuse_address(void)
 {
 	setsockopt_fake.custom_fake = setsockopt_capture;
@@ -448,5 +466,6 @@ int main(void)
 	RUN_TEST(test_accept_malloc_fails);
 	RUN_TEST(test_enable_reuse_address);
 	RUN_TEST(test_disable_reuse_address);
+	RUN_TEST(test_init_register_read_fails);
 	return UNITY_END();
 }
