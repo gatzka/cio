@@ -37,16 +37,41 @@
 extern "C" {
 #endif
 
+/**
+ * @file
+ * @brief This file contains the interface of a timer.
+ *
+ * Currently only on-shot timers are supported, no periodic timer.
+ * If you need a periotic timer, you have the rearm the timer in your
+ * timer callback.
+ */
+
 struct cio_timer;
 
 typedef void (*cio_timer_close_hook)(struct cio_timer *timer);
 
-typedef void (*timer_handler)(void *handler_context, enum cio_error err, bool cancelled);
+/**
+ * @brief The type of a timer callback function.
+ *
+ * @param handler_context The context the functions works on.
+ * @param err If err == ::cio_success, the timer expired.
+ *            If err == ::cio_operation_aborted, the timer was  @ref cio_timer_cancel "cancelled".
+ * @param buf A pointer to the begin of the buffer where the data was read in.
+ * @param bytes_transferred The number of bytes transferred into @p buf.
+ */
+typedef void (*timer_handler)(void *handler_context, enum cio_error err);
 
 struct cio_timer {
 	void *context;
 	struct cio_event_notifier ev;
-	void (*start)(void *context, uint64_t timeout_ns, timer_handler handler, void *handler_context);
+	void (*expires_from_now)(void *context, uint64_t timeout_ns, timer_handler handler, void *handler_context);
+
+	/**
+	 * @anchor cio_timer_cancel
+	 * @brief Cancels an armed timer.
+	 *
+	 * @param context The cio_timer::context.
+	 */
 	void (*cancel)(void *context);
 	void (*close)(void *context);
 
