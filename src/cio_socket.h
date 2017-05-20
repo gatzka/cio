@@ -42,7 +42,8 @@ extern "C" {
  * @brief This file contains the interface of a socket.
  *
  * You can @ref cio_socket_get_io_stream "get an I/O stream"
- * from a socket or @ref cio_socket_close "close" the socket.
+ * from a socket, @ref cio_socket_close "close" the socket or set
+ * several socket options.
  */
 
 struct cio_socket;
@@ -135,7 +136,7 @@ struct cio_socket {
  */
 enum cio_error cio_socket_init(struct cio_socket *s, int client_fd,
                                struct cio_eventloop *loop,
-                               cio_socket_close_hook close);
+                               cio_socket_close_hook close_hook);
 
 #ifdef __cplusplus
 }

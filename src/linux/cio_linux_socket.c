@@ -177,7 +177,7 @@ static void loop_callback(void *context)
 
 enum cio_error cio_socket_init(struct cio_socket *s, int client_fd,
                                struct cio_eventloop *loop,
-                               cio_socket_close_hook hook)
+                               cio_socket_close_hook close_hook)
 {
 	enum cio_error err = set_fd_non_blocking(client_fd);
 	if (unlikely(err != cio_success)) {
@@ -200,7 +200,7 @@ enum cio_error cio_socket_init(struct cio_socket *s, int client_fd,
 	s->stream.close = socket_close;
 
 	s->loop = loop;
-	s->close_hook = hook;
+	s->close_hook = close_hook;
 
 	cio_linux_eventloop_add(s->loop, &s->ev);
 	return cio_success;
