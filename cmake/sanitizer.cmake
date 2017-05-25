@@ -1,0 +1,11 @@
+if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+    if(CMAKE_C_COMPILER_ID STREQUAL "GNU")
+        if(NOT CMAKE_C_COMPILER_VERSION VERSION_LESS 4.8.0)
+            set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fsanitize=address -fuse-ld=gold")
+        endif()
+        if(NOT CMAKE_C_COMPILER_VERSION VERSION_LESS 4.9.0)
+            set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fsanitize=undefined")
+        endif()
+    endif()
+endif()
+
