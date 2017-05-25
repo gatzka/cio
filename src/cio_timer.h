@@ -63,7 +63,6 @@ typedef void (*timer_handler)(void *handler_context, enum cio_error err);
 
 struct cio_timer {
 	void *context;
-	struct cio_event_notifier ev;
 	void (*expires_from_now)(void *context, uint64_t timeout_ns, timer_handler handler, void *handler_context);
 
 	/**
@@ -81,6 +80,8 @@ struct cio_timer {
 	cio_timer_close_hook close_hook;
 	timer_handler handler;
 	void *handler_context;
+	struct cio_event_notifier ev;
+	struct cio_eventloop *loop;
 };
 
 enum cio_error cio_timer_init(struct cio_timer *timer, struct cio_eventloop *loop,
