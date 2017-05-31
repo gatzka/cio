@@ -24,15 +24,124 @@
  * SOFTWARE.
  */
 
+#include <errno.h>
+#include <fcntl.h>
+#include <string.h>
+#include <sys/timerfd.h>
+#include <unistd.h>
+
+#include "cio_compiler.h"
 #include "cio_error_code.h"
 #include "cio_eventloop.h"
 #include "cio_timer.h"
 
+static const unsigned long NSECONDS_IN_SECONDS = 1000000000;
+
+static struct itimerspec convert_timeoutns_to_itimerspec(uint64_t timeout)
+{
+	struct itimerspec ts;
+	time_t seconds = timeout / NSECONDS_IN_SECONDS;
+	long nanos = timeout - (seconds * NSECONDS_IN_SECONDS);
+
+	ts.it_interval.tv_sec = 0;
+	ts.it_interval.tv_nsec = 0;
+	ts.it_value.tv_sec = seconds;
+	ts.it_value.tv_nsec = nanos;
+	return ts;
+}
+
+static enum cio_error timer_cancel(void *context)
+{
+	struct itimerspec timeout;
+	int ret;
+	struct cio_timer *t = context;
+
+	if (t->handler == NULL) {
+		return cio_no_such_file_or_directory;
+	}
+
+	memset(&timeout, 0x0, sizeof(timeout));
+	ret = timerfd_settime(t->ev.fd, 0, &timeout, NULL);
+	if (likely(ret == 0)) {
+		t->handler(t->handler_context, cio_operation_aborted);
+	} else {
+		t->handler(t->handler_context, errno);
+	}
+
+	return cio_success;
+}
+
+static void timer_close(void *context)
+{
+	struct cio_timer *t = context;
+
+	cio_linux_eventloop_remove(t->loop, &t->ev);
+	if (t->handler != NULL) {
+		timer_cancel(t);
+	}
+
+	close(t->ev.fd);
+	if (t->close_hook != NULL) {
+		t->close_hook(t);
+	}
+}
+
+static void timer_expires_from_now(void *context, uint64_t timeout_ns, timer_handler handler, void *handler_context)
+{
+	struct cio_timer *t = context;
+	struct itimerspec timeout = convert_timeoutns_to_itimerspec(timeout_ns);
+	int ret;
+
+	t->handler = handler;
+	t->handler_context = handler_context;
+	t->ev.context = t;
+
+	ret = timerfd_settime(t->ev.fd, 0, &timeout, NULL);
+	if (unlikely(ret != 0)) {
+		t->handler(t->handler_context, errno);
+	}
+}
+
+static void timer_read(void *context)
+{
+	struct cio_timer *t = context;
+	uint64_t number_of_expirations;
+
+	ssize_t ret = read(t->ev.fd, &number_of_expirations, sizeof(number_of_expirations));
+	if (likely(ret == sizeof(number_of_expirations))) {
+		t->handler(t->handler_context, cio_success);
+	} else {
+		t->handler(t->handler_context, errno);
+	}
+}
+
 enum cio_error cio_timer_init(struct cio_timer *timer, struct cio_eventloop *loop,
                               cio_timer_close_hook close_hook)
 {
+	enum cio_error ret_val;
+	int fd = timerfd_create(CLOCK_MONOTONIC, O_NONBLOCK);
+	if (unlikely(fd == -1)) {
+		return errno;
+	}
+
 	timer->context = timer;
+	timer->cancel = timer_cancel;
+	timer->close = timer_close;
 	timer->close_hook = close_hook;
+	timer->expires_from_now = timer_expires_from_now;
+	timer->handler = NULL;
+	timer->handler_context = NULL;
 	timer->loop = loop;
-	return cio_success;
+
+	timer->ev.read_callback = timer_read;
+	timer->ev.error_callback = NULL;
+	timer->ev.write_callback = NULL;
+	timer->ev.fd = fd;
+
+	ret_val = cio_linux_eventloop_add(timer->loop, &timer->ev);
+	if (likely(ret_val == cio_success)) {
+		return cio_linux_eventloop_register_read(timer->loop, &timer->ev);
+	} else {
+		return ret_val;
+	}
 }
