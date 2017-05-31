@@ -185,6 +185,8 @@ enum cio_error cio_socket_init(struct cio_socket *s, int client_fd,
 	}
 
 	s->ev.fd = client_fd;
+	s->ev.error_callback = NULL;
+	s->ev.write_callback = NULL;
 	s->ev.read_callback = loop_callback;
 	s->ev.context = s;
 
