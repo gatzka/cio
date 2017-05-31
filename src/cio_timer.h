@@ -70,8 +70,9 @@ struct cio_timer {
 	 * @brief Cancels an armed timer.
 	 *
 	 * @param context The cio_timer::context.
+	 * @return ::cio_success for success.
 	 */
-	void (*cancel)(void *context);
+	enum cio_error (*cancel)(void *context);
 	void (*close)(void *context);
 
 	/**
