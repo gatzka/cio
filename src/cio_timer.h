@@ -41,7 +41,7 @@ extern "C" {
  * @file
  * @brief This file contains the interface of a timer.
  *
- * Currently only on-shot timers are supported, no periodic timer.
+ * Currently only one-shot timers are supported, no periodic timer.
  * If you need a periotic timer, you have the rearm the timer in your
  * timer callback.
  */
