@@ -70,6 +70,17 @@ struct cio_timer {
 	 * specified below.
 	 */
 	void *context;
+
+	/**
+	 * @anchor cio_timer_expires_from_now
+	 * @brief Set the timer's expiration time relative to now and arms the timer.
+	 *
+	 * @param context The cio_timer::context.
+	 * @param timeout_ns The expiration time relative to now in nanoseconds.
+	 * @param handler The callback function to be called when the timer expires or was cancelled.
+	 * @param handler_context A pointer to a context which might be
+	 *                        useful inside @p handler.
+	 */
 	void (*expires_from_now)(void *context, uint64_t timeout_ns, timer_handler handler, void *handler_context);
 
 	/**
