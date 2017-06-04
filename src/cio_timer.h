@@ -48,6 +48,11 @@ extern "C" {
 
 struct cio_timer;
 
+/**
+ * @brief The type of a close hook function.
+ *
+ * @param timer The cio_timer the close hook was called on.
+ */
 typedef void (*cio_timer_close_hook)(struct cio_timer *timer);
 
 /**
