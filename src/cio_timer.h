@@ -60,9 +60,7 @@ typedef void (*cio_timer_close_hook)(struct cio_timer *timer);
  *
  * @param handler_context The context the functions works on.
  * @param err If err == ::cio_success, the timer expired.
- *            If err == ::cio_operation_aborted, the timer was  @ref cio_timer_cancel "cancelled".
- * @param buf A pointer to the begin of the buffer where the data was read in.
- * @param bytes_transferred The number of bytes transferred into @p buf.
+ *            If err == ::cio_operation_aborted, the timer was @ref cio_timer_cancel "cancelled".
  */
 typedef void (*timer_handler)(void *handler_context, enum cio_error err);
 
