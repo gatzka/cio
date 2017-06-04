@@ -95,6 +95,16 @@ struct cio_timer {
 	 *         ::cio_no_such_file_or_directory if the timer wasn't armed.
 	 */
 	enum cio_error (*cancel)(void *context);
+
+	/**
+	 * @anchor cio_timer_close
+	 * @brief Closes a timer and frees underlying resources.
+	 *
+	 * If the timer is armed and has not expired yet, the timer will be canceled and the timer callback will be called.
+	 * If a close_hook was given in ::cio_timer_init, the hook is called.
+	 *
+	 * @param context The cio_timer::context.
+	 */
 	void (*close)(void *context);
 
 	/**
@@ -107,6 +117,19 @@ struct cio_timer {
 	struct cio_eventloop *loop;
 };
 
+/**
+ * @brief Initializes a cio_timer.
+ *
+ * @param timer The cio_timer that should be initialized.
+ * @param loop The event loop the timer shall operate on.
+ * @param close A close hook function. If this parameter is non @p NULL,
+ * the function will be called directly after
+ * @ref cio_timer_close "closing" the cio_timer.
+ * It is guaranteed the the cio library will not access any memory of
+ * cio_timer that is passed to the close hook. Therefore
+ * the hook could be used to free the memory of the timer.
+ * @return ::cio_success for success.
+ */
 enum cio_error cio_timer_init(struct cio_timer *timer, struct cio_eventloop *loop,
                               cio_timer_close_hook close_hook);
 
