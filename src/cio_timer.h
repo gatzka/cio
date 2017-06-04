@@ -65,6 +65,10 @@ typedef void (*cio_timer_close_hook)(struct cio_timer *timer);
 typedef void (*timer_handler)(void *handler_context, enum cio_error err);
 
 struct cio_timer {
+	/**
+	 * @brief The context pointer which is passed to the functions
+	 * specified below.
+	 */
 	void *context;
 	void (*expires_from_now)(void *context, uint64_t timeout_ns, timer_handler handler, void *handler_context);
 
