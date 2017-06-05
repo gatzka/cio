@@ -126,7 +126,7 @@ struct cio_socket {
  *
  * @param s The cio_socket that should be initialized.
  * @param loop The event loop the socket shall operate on.
- * @param close A close hook function. If this parameter is non @p NULL,
+ * @param close_hook A close hook function. If this parameter is non @p NULL,
  * the function will be called directly after
  * @ref cio_socket_close "closing" the cio_socket.
  * It is guaranteed the the cio library will not access any memory of
