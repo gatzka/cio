@@ -64,7 +64,7 @@ static enum cio_error socket_tcp_no_delay(void *context, bool on)
 
 	if (setsockopt(s->ev.fd, IPPROTO_TCP, TCP_NODELAY, &tcp_no_delay,
 	               sizeof(tcp_no_delay)) < 0) {
-		return errno;
+		return (enum cio_error)errno;
 	}
 
 	return cio_success;
@@ -79,22 +79,22 @@ static enum cio_error socket_keepalive(void *context, bool on, unsigned int keep
 	if (on) {
 		keep_alive = 1;
 		if (setsockopt(s->ev.fd, SOL_TCP, TCP_KEEPIDLE, &keep_idle_s, sizeof(keep_idle_s)) == -1) {
-			return errno;
+			return (enum cio_error)errno;
 		}
 
 		if (setsockopt(s->ev.fd, SOL_TCP, TCP_KEEPINTVL, &keep_intvl_s, sizeof(keep_intvl_s)) == -1) {
-			return errno;
+			return (enum cio_error)errno;
 		}
 
 		if (setsockopt(s->ev.fd, SOL_TCP, TCP_KEEPCNT, &keep_cnt, sizeof(keep_cnt)) == -1) {
-			return errno;
+			return (enum cio_error)errno;
 		}
 	} else {
 		keep_alive = 0;
 	}
 
 	if (setsockopt(s->ev.fd, SOL_SOCKET, SO_KEEPALIVE, &keep_alive, sizeof(keep_alive)) == -1) {
-		return errno;
+		return (enum cio_error)errno;
 	}
 
 	return cio_success;
@@ -114,7 +114,7 @@ static void read_callback(void *context)
 		if (likely((errno == EWOULDBLOCK) || (errno == EAGAIN))) {
 			return;
 		} else {
-			s->stream.read_handler(s->stream.read_handler_context, errno, s->stream.read_buffer, 0);
+			s->stream.read_handler(s->stream.read_handler_context, (enum cio_error)errno, s->stream.read_buffer, 0);
 		}
 	} else {
 		s->stream.read_handler(s->stream.read_handler_context, cio_success, s->stream.read_buffer, (size_t)ret);
@@ -165,7 +165,7 @@ static void socket_write(void *context, const void *buf, size_t count, cio_strea
 				handler(handler_context, err, 0);
 			}
 		} else {
-			handler(handler_context, errno, 0);
+			handler(handler_context, (enum cio_error)errno, 0);
 		}
 	}
 }

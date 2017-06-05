@@ -28,18 +28,19 @@
 #include <unistd.h>
 
 #include "cio_compiler.h"
+#include "cio_error_code.h"
 #include "linux/cio_linux_socket_utils.h"
 
 enum cio_error set_fd_non_blocking(int fd)
 {
 	int fd_flags = fcntl(fd, F_GETFL, 0);
 	if (unlikely(fd_flags < 0)) {
-		return errno;
+		return (enum cio_error)errno;
 	}
 
 	fd_flags |= O_NONBLOCK;
 	if (unlikely(fcntl(fd, F_SETFL, fd_flags) < 0)) {
-		return errno;
+		return (enum cio_error)errno;
 	}
 
 	return cio_success;
