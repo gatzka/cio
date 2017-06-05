@@ -40,13 +40,13 @@ static const unsigned long NSECONDS_IN_SECONDS = 1000000000;
 static struct itimerspec convert_timeoutns_to_itimerspec(uint64_t timeout)
 {
 	struct itimerspec ts;
-	time_t seconds = timeout / NSECONDS_IN_SECONDS;
-	long nanos = timeout - (seconds * NSECONDS_IN_SECONDS);
+	unsigned long seconds = timeout / NSECONDS_IN_SECONDS;
+	unsigned long nanos = timeout - (seconds * NSECONDS_IN_SECONDS);
 
 	ts.it_interval.tv_sec = 0;
 	ts.it_interval.tv_nsec = 0;
-	ts.it_value.tv_sec = seconds;
-	ts.it_value.tv_nsec = nanos;
+	ts.it_value.tv_sec = (time_t)seconds;
+	ts.it_value.tv_nsec = (long)nanos;
 	return ts;
 }
 
