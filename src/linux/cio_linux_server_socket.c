@@ -50,7 +50,7 @@ static enum cio_error socket_init(void *context, unsigned int backlog)
 
 	int listen_fd = socket(AF_INET6, SOCK_STREAM, 0);
 	if (listen_fd == -1) {
-		return errno;
+		return (enum cio_error)errno;
 	}
 
 	err = set_fd_non_blocking(listen_fd);
@@ -96,7 +96,7 @@ static void accept_callback(void *context)
 		client_fd = accept(fd, (struct sockaddr *)&addr, &addrlen);
 		if (unlikely(client_fd == -1)) {
 			if ((errno != EAGAIN) && (errno != EWOULDBLOCK) && (errno != EBADF)) {
-				ss->handler(ss, ss->handler_context, errno, NULL);
+				ss->handler(ss, ss->handler_context, (enum cio_error)errno, NULL);
 			}
 
 			return;
@@ -126,7 +126,7 @@ static enum cio_error socket_accept(void *context, cio_accept_handler handler, v
 	ss->ev.context = context;
 
 	if (unlikely(listen(ss->ev.fd, ss->backlog) < 0)) {
-		return errno;
+		return (enum cio_error)errno;
 	}
 
 	err = cio_linux_eventloop_add(ss->loop, &ss->ev);
@@ -155,7 +155,7 @@ static enum cio_error socket_set_reuse_address(void *context, bool on)
 
 	if (unlikely(setsockopt(ss->ev.fd, SOL_SOCKET, SO_REUSEADDR, &reuse,
 	                        sizeof(reuse)) < 0)) {
-		return errno;
+		return (enum cio_error)errno;
 	}
 
 	return cio_success;
@@ -186,7 +186,7 @@ static enum cio_error socket_bind(void *context, const char *bind_address, uint1
 	if (ret != 0) {
 		switch (ret) {
 		case EAI_SYSTEM:
-			return errno;
+			return (enum cio_error)errno;
 		default:
 			return cio_invalid_argument;
 		}
