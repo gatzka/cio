@@ -121,23 +121,6 @@ struct cio_socket {
 	struct cio_eventloop *loop;
 };
 
-/**
- * @brief Initializes a cio_socket.
- *
- * @param s The cio_socket that should be initialized.
- * @param loop The event loop the socket shall operate on.
- * @param close A close hook function. If this parameter is non @p NULL,
- * the function will be called directly after
- * @ref cio_socket_close "closing" the cio_socket.
- * It is guaranteed the the cio library will not access any memory of
- * cio_socket that is passed to the close hook. Therefore
- * the hook could be used to free the memory of the socket.
- * @return The cio_socket which shall be used after initializing.
- */
-enum cio_error cio_socket_init(struct cio_socket *s, int client_fd,
-                               struct cio_eventloop *loop,
-                               cio_socket_close_hook close_hook);
-
 #ifdef __cplusplus
 }
 #endif

@@ -158,9 +158,9 @@ struct cio_server_socket {
  * It is guaranteed the the cio library will not access any memory of
  * cio_server_socket that is passed to the close hook. Therefore
  * the hook could be used to free the memory of the server socket.
- * @return The cio_server_socket which shall be used after initializing.
+ * @return ::cio_success for success.
  */
-void cio_server_socket_init(struct cio_server_socket *ss,
+enum cio_error cio_server_socket_init(struct cio_server_socket *ss,
                             struct cio_eventloop *loop,
                             cio_server_socket_close_hook close);
 

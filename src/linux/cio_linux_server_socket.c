@@ -38,6 +38,7 @@
 #include "cio_compiler.h"
 #include "cio_error_code.h"
 #include "cio_eventloop.h"
+#include "cio_linux_socket.h"
 #include "cio_server_socket.h"
 #include "cio_socket.h"
 #include "linux/cio_linux_alloc.h"
@@ -207,7 +208,7 @@ static enum cio_error socket_bind(void *context, const char *bind_address, uint1
 	return cio_success;
 }
 
-void cio_server_socket_init(struct cio_server_socket *ss,
+enum cio_error cio_server_socket_init(struct cio_server_socket *ss,
                             struct cio_eventloop *loop,
                             cio_server_socket_close_hook hook)
 {
@@ -220,4 +221,5 @@ void cio_server_socket_init(struct cio_server_socket *ss,
 	ss->loop = loop;
 	ss->close_hook = hook;
 	ss->backlog = 0;
+	return cio_success;
 }
