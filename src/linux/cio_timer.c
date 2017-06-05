@@ -65,7 +65,7 @@ static enum cio_error timer_cancel(void *context)
 	if (likely(ret == 0)) {
 		t->handler(t->handler_context, cio_operation_aborted);
 	} else {
-		t->handler(t->handler_context, errno);
+		t->handler(t->handler_context, (enum cio_error)errno);
 	}
 
 	return cio_success;
@@ -98,7 +98,7 @@ static void timer_expires_from_now(void *context, uint64_t timeout_ns, timer_han
 
 	ret = timerfd_settime(t->ev.fd, 0, &timeout, NULL);
 	if (unlikely(ret != 0)) {
-		t->handler(t->handler_context, errno);
+		t->handler(t->handler_context, (enum cio_error)errno);
 	}
 }
 
@@ -111,7 +111,7 @@ static void timer_read(void *context)
 	if (likely(ret == sizeof(number_of_expirations))) {
 		t->handler(t->handler_context, cio_success);
 	} else {
-		t->handler(t->handler_context, errno);
+		t->handler(t->handler_context, (enum cio_error)errno);
 	}
 }
 
@@ -121,7 +121,7 @@ enum cio_error cio_timer_init(struct cio_timer *timer, struct cio_eventloop *loo
 	enum cio_error ret_val;
 	int fd = timerfd_create(CLOCK_MONOTONIC, O_NONBLOCK);
 	if (unlikely(fd == -1)) {
-		return errno;
+		return (enum cio_error)errno;
 	}
 
 	timer->context = timer;
