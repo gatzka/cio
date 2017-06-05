@@ -59,7 +59,7 @@ static enum cio_error socket_init(void *context, unsigned int backlog)
 		return err;
 	}
 
-	ss->backlog = backlog;
+	ss->backlog = (int)backlog;
 	ss->ev.fd = listen_fd;
 
 	return cio_success;
