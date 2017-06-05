@@ -45,6 +45,7 @@ Product {
         flags.push("-Wformat=2");
         flags.push("-Wwrite-strings");
         flags.push("-Wmissing-prototypes");
+        flags.push("-Wdouble-promotion");
         flags.push("-pedantic");
         flags.push("-fno-common");
         if (qbs.buildVariant === "release") {
