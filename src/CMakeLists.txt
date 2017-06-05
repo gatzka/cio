@@ -34,6 +34,10 @@ if(CMAKE_C_COMPILER_ID STREQUAL "GNU" OR CMAKE_C_COMPILER_ID STREQUAL "Clang")
     )
 endif()
 
+if(CMAKE_C_COMPILER_ID STREQUAL "Clang")
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wdocumentation")
+endif()
+
 add_library(cio_static
     ${CIO_FILES}
     ${CIO_LINUX_FILES}

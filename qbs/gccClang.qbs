@@ -45,6 +45,9 @@ Product {
         flags.push("-Wformat=2");
         flags.push("-Wwrite-strings");
         flags.push("-Wmissing-prototypes");
+        if (qbs.toolchain.indexOf("clang") >= 0) {
+          flags.push("-Wdocumentation");
+        }
         flags.push("-pedantic");
         flags.push("-fno-common");
         if (qbs.buildVariant === "release") {
