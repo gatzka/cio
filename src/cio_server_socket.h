@@ -53,10 +53,10 @@ struct cio_server_socket;
  * @brief The type of a function that is called when
  * @ref cio_server_socket_accept "accept task" succeeds or fails.
  *
+ * @param ss The server socket where the accept was called on.
  * @param handler_context The context the functions works on.
  * @param err If err != ::cio_success, the read failed.
- * @param buf A pointer to the begin of the buffer where the data was read in.
- * @param bytes_transferred The number of bytes transferred into @p buf.
+ * @param socket The client socket that was created from the accept.
  */
 typedef void (*cio_accept_handler)(struct cio_server_socket *ss, void *handler_context, enum cio_error err, struct cio_socket *socket);
 
