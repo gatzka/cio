@@ -78,4 +78,14 @@ Project {
       "../cio_linux_epoll.c",
     ]
   }
+
+  CppApplication {
+    name: "test_cio_linux_socket_utils"
+    type: ["application", "unittest"]
+    Depends { name: "common settings" }
+    files: [
+          "test_cio_linux_socket_utils.c",
+          "../cio_linux_socket_utils.c",
+      ]
+  }
 }
