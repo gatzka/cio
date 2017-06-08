@@ -25,9 +25,9 @@
  */
 
 #include <fcntl.h>
-#include <unistd.h>
 #include <sys/socket.h>
 #include <sys/types.h>
+#include <unistd.h>
 
 #include "cio_compiler.h"
 #include "cio_error_code.h"
