@@ -33,7 +33,6 @@
 extern "C" {
 #endif
 
-enum cio_error set_fd_non_blocking(int fd);
 int cio_linux_socket_create(int fd);
 
 #ifdef __cplusplus

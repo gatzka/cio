@@ -33,24 +33,24 @@
 #include "cio_error_code.h"
 #include "linux/cio_linux_socket_utils.h"
 
-enum cio_error set_fd_non_blocking(int fd)
+static int set_fd_non_blocking(int fd)
 {
 	int fd_flags = fcntl(fd, F_GETFL, 0);
 	if (unlikely(fd_flags < 0)) {
-		return (enum cio_error)errno;
+		return -1;
 	}
 
 	fd_flags |= O_NONBLOCK;
 	if (unlikely(fcntl(fd, F_SETFL, fd_flags) < 0)) {
-		return (enum cio_error)errno;
+		return -1;
 	}
 
-	return cio_success;
+	return 0;
 }
 
 int cio_linux_socket_create(int fd)
 {
-	enum cio_error err;
+	int ret;
 
 	if (fd == -1) {
 		fd = socket(AF_INET6, SOCK_STREAM, 0);
@@ -59,8 +59,8 @@ int cio_linux_socket_create(int fd)
 		}
 	}
 
-	err = set_fd_non_blocking(fd);
-	if (likely(err != cio_success)) {
+	ret = set_fd_non_blocking(fd);
+	if (unlikely(ret == -1)) {
 		close(fd);
 		return -1;
 	}
