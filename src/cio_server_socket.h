@@ -161,8 +161,8 @@ struct cio_server_socket {
  * @return ::cio_success for success.
  */
 enum cio_error cio_server_socket_init(struct cio_server_socket *ss,
-                            struct cio_eventloop *loop,
-                            cio_server_socket_close_hook close);
+                                      struct cio_eventloop *loop,
+                                      cio_server_socket_close_hook close);
 
 #ifdef __cplusplus
 }
