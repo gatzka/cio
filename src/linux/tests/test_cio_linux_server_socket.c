@@ -25,7 +25,6 @@
  */
 
 #include <errno.h>
-#include <fcntl.h>
 #include <stdlib.h>
 #include <sys/socket.h>
 #include <sys/types.h>
@@ -54,7 +53,6 @@ void on_close(struct cio_server_socket *ss);
 FAKE_VOID_FUNC(on_close, struct cio_server_socket *)
 
 FAKE_VALUE_FUNC(int, socket, int, int, int)
-FAKE_VALUE_FUNC_VARARG(int, fcntl, int, int, ...)
 FAKE_VALUE_FUNC(int, setsockopt, int, int, int, const void *, socklen_t)
 FAKE_VALUE_FUNC(int, bind, int, const struct sockaddr *, socklen_t)
 FAKE_VALUE_FUNC(int, listen, int, int)
@@ -63,6 +61,8 @@ FAKE_VALUE_FUNC(int, close, int)
 FAKE_VALUE_FUNC(void *, cio_malloc, size_t)
 FAKE_VOID_FUNC(cio_free, void *)
 
+FAKE_VALUE_FUNC(int, cio_linux_socket_create, int)
+
 static int optval;
 
 void setUp(void)
@@ -70,6 +70,7 @@ void setUp(void)
 	FFF_RESET_HISTORY();
 	RESET_FAKE(accept);
 	RESET_FAKE(accept_handler);
+	RESET_FAKE(cio_linux_socket_create);
 
 	RESET_FAKE(cio_linux_eventloop_add);
 	RESET_FAKE(cio_linux_eventloop_remove);
@@ -79,7 +80,6 @@ void setUp(void)
 	RESET_FAKE(on_close);
 
 	RESET_FAKE(socket);
-	RESET_FAKE(fcntl);
 	RESET_FAKE(setsockopt);
 	RESET_FAKE(bind);
 	RESET_FAKE(listen);
@@ -306,7 +306,7 @@ static void test_accept_eventloop_add_fails(void)
 
 static void test_init_fails_no_socket(void)
 {
-	socket_fake.return_val = -1;
+	cio_linux_socket_create_fake.return_val = -1;
 
 	struct cio_eventloop loop;
 	struct cio_server_socket ss;
