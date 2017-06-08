@@ -27,8 +27,6 @@
 #include <netinet/in.h>
 #include <netinet/tcp.h>
 #include <stdbool.h>
-#include <sys/socket.h>
-#include <sys/types.h>
 #include <unistd.h>
 
 #include "cio_compiler.h"
@@ -41,18 +39,11 @@
 
 static enum cio_error socket_init(void *context)
 {
-	enum cio_error err;
 	struct cio_socket *s = context;
 
-	int socket_fd = socket(AF_INET6, SOCK_STREAM, 0);
-	if (socket_fd == -1) {
+	int socket_fd = cio_linux_socket_create(s->ev.fd);
+	if (unlikely(socket_fd == -1)) {
 		return (enum cio_error)errno;
-	}
-
-	err = set_fd_non_blocking(socket_fd);
-	if (likely(err != cio_success)) {
-		close(socket_fd);
-		return err;
 	}
 
 	s->ev.fd = socket_fd;
@@ -201,11 +192,6 @@ enum cio_error cio_linux_socket_init(struct cio_socket *s, int client_fd,
                                      struct cio_eventloop *loop,
                                      cio_socket_close_hook close_hook)
 {
-	enum cio_error err = set_fd_non_blocking(client_fd);
-	if (unlikely(err != cio_success)) {
-		return err;
-	}
-
 	s->ev.fd = client_fd;
 	s->ev.error_callback = NULL;
 	s->ev.write_callback = NULL;

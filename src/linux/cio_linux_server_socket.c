@@ -31,8 +31,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <sys/socket.h>
-#include <sys/types.h>
 #include <unistd.h>
 
 #include "cio_compiler.h"
@@ -46,18 +44,11 @@
 
 static enum cio_error socket_init(void *context, unsigned int backlog)
 {
-	enum cio_error err;
 	struct cio_server_socket *ss = context;
 
-	int listen_fd = socket(AF_INET6, SOCK_STREAM, 0);
+	int listen_fd = cio_linux_socket_create(-1);
 	if (listen_fd == -1) {
 		return (enum cio_error)errno;
-	}
-
-	err = set_fd_non_blocking(listen_fd);
-	if (likely(err != cio_success)) {
-		close(listen_fd);
-		return err;
 	}
 
 	ss->backlog = (int)backlog;

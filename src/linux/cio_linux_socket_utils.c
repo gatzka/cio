@@ -26,6 +26,8 @@
 
 #include <fcntl.h>
 #include <unistd.h>
+#include <sys/socket.h>
+#include <sys/types.h>
 
 #include "cio_compiler.h"
 #include "cio_error_code.h"
@@ -44,4 +46,24 @@ enum cio_error set_fd_non_blocking(int fd)
 	}
 
 	return cio_success;
+}
+
+int cio_linux_socket_create(int fd)
+{
+	enum cio_error err;
+
+	if (fd == -1) {
+		fd = socket(AF_INET6, SOCK_STREAM, 0);
+		if (fd == -1) {
+			return -1;
+		}
+	}
+
+	err = set_fd_non_blocking(fd);
+	if (likely(err != cio_success)) {
+		close(fd);
+		return -1;
+	}
+
+	return fd;
 }
