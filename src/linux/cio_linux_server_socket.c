@@ -96,8 +96,12 @@ static void accept_callback(void *context)
 			struct cio_socket *s = cio_malloc(sizeof(*s));
 			if (likely(s != NULL)) {
 				enum cio_error err = cio_linux_socket_init(s, client_fd, ss->loop, free_linux_socket);
-				s->init(s);
-				ss->handler(ss, ss->handler_context, err, s);
+				if (likely(err == cio_success)) {
+					s->init(s);
+					ss->handler(ss, ss->handler_context, err, s);
+				} else {
+					close(client_fd);
+				}
 			} else {
 				close(client_fd);
 			}
