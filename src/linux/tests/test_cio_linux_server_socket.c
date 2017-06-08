@@ -59,8 +59,6 @@ FAKE_VALUE_FUNC(int, setsockopt, int, int, int, const void *, socklen_t)
 FAKE_VALUE_FUNC(int, bind, int, const struct sockaddr *, socklen_t)
 FAKE_VALUE_FUNC(int, listen, int, int)
 FAKE_VALUE_FUNC(int, close, int)
-enum cio_error set_fd_non_blocking(int);
-FAKE_VALUE_FUNC(enum cio_error, set_fd_non_blocking, int)
 
 FAKE_VALUE_FUNC(void *, cio_malloc, size_t)
 FAKE_VOID_FUNC(cio_free, void *)
@@ -86,7 +84,6 @@ void setUp(void)
 	RESET_FAKE(bind);
 	RESET_FAKE(listen);
 	RESET_FAKE(close);
-	RESET_FAKE(set_fd_non_blocking);
 	RESET_FAKE(cio_malloc);
 	RESET_FAKE(cio_free);
 }
@@ -274,19 +271,6 @@ static void test_accept_fails(void)
 	TEST_ASSERT_EQUAL(&ss, on_close_fake.arg0_val);
 }
 
-static void test_set_nonblocking_fails(void)
-{
-	set_fd_non_blocking_fake.return_val = cio_bad_file_descriptor;
-
-	struct cio_eventloop loop;
-	struct cio_server_socket ss;
-	cio_server_socket_init(&ss, &loop, on_close);
-	enum cio_error err = ss.init(ss.context, 5);
-
-	TEST_ASSERT_EQUAL(cio_bad_file_descriptor, err);
-	TEST_ASSERT_EQUAL(1, close_fake.call_count);
-}
-
 static void test_accept_no_handler(void)
 {
 	struct cio_eventloop loop;
@@ -462,7 +446,6 @@ int main(void)
 	RUN_TEST(test_init_listen_fails);
 	RUN_TEST(test_init_setsockopt_fails);
 	RUN_TEST(test_init_bind_fails);
-	RUN_TEST(test_set_nonblocking_fails);
 	RUN_TEST(test_accept_malloc_fails);
 	RUN_TEST(test_enable_reuse_address);
 	RUN_TEST(test_disable_reuse_address);

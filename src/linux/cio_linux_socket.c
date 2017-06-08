@@ -27,8 +27,6 @@
 #include <netinet/in.h>
 #include <netinet/tcp.h>
 #include <stdbool.h>
-#include <sys/socket.h>
-#include <sys/types.h>
 #include <unistd.h>
 
 #include "cio_compiler.h"
@@ -38,6 +36,20 @@
 #include "cio_linux_socket.h"
 #include "cio_socket.h"
 #include "linux/cio_linux_socket_utils.h"
+
+static enum cio_error socket_init(void *context)
+{
+	struct cio_socket *s = context;
+
+	int socket_fd = cio_linux_socket_create(s->ev.fd);
+	if (unlikely(socket_fd == -1)) {
+		return (enum cio_error)errno;
+	}
+
+	s->ev.fd = socket_fd;
+
+	return cio_success;
+}
 
 static void socket_close(void *context)
 {
@@ -176,15 +188,10 @@ static void loop_callback(void *context)
 	(void)ls;
 }
 
-enum cio_error cio_socket_init(struct cio_socket *s, int client_fd,
-                               struct cio_eventloop *loop,
-                               cio_socket_close_hook close_hook)
+enum cio_error cio_linux_socket_init(struct cio_socket *s, int client_fd,
+                                     struct cio_eventloop *loop,
+                                     cio_socket_close_hook close_hook)
 {
-	enum cio_error err = set_fd_non_blocking(client_fd);
-	if (unlikely(err != cio_success)) {
-		return err;
-	}
-
 	s->ev.fd = client_fd;
 	s->ev.error_callback = NULL;
 	s->ev.write_callback = NULL;
@@ -192,6 +199,7 @@ enum cio_error cio_socket_init(struct cio_socket *s, int client_fd,
 	s->ev.context = s;
 
 	s->context = s;
+	s->init = socket_init;
 	s->close = socket_close;
 	s->set_tcp_no_delay = socket_tcp_no_delay;
 	s->set_keep_alive = socket_keepalive;
@@ -207,4 +215,11 @@ enum cio_error cio_socket_init(struct cio_socket *s, int client_fd,
 
 	cio_linux_eventloop_add(s->loop, &s->ev);
 	return cio_success;
+}
+
+enum cio_error cio_socket_init(struct cio_socket *s,
+                               struct cio_eventloop *loop,
+                               cio_socket_close_hook close_hook)
+{
+	return cio_linux_socket_init(s, -1, loop, close_hook);
 }

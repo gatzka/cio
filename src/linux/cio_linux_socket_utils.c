@@ -25,23 +25,45 @@
  */
 
 #include <fcntl.h>
+#include <sys/socket.h>
+#include <sys/types.h>
 #include <unistd.h>
 
 #include "cio_compiler.h"
 #include "cio_error_code.h"
 #include "linux/cio_linux_socket_utils.h"
 
-enum cio_error set_fd_non_blocking(int fd)
+static int set_fd_non_blocking(int fd)
 {
 	int fd_flags = fcntl(fd, F_GETFL, 0);
 	if (unlikely(fd_flags < 0)) {
-		return (enum cio_error)errno;
+		return -1;
 	}
 
 	fd_flags |= O_NONBLOCK;
 	if (unlikely(fcntl(fd, F_SETFL, fd_flags) < 0)) {
-		return (enum cio_error)errno;
+		return -1;
 	}
 
-	return cio_success;
+	return 0;
+}
+
+int cio_linux_socket_create(int fd)
+{
+	int ret;
+
+	if (fd == -1) {
+		fd = socket(AF_INET6, SOCK_STREAM, 0);
+		if (fd == -1) {
+			return -1;
+		}
+	}
+
+	ret = set_fd_non_blocking(fd);
+	if (unlikely(ret == -1)) {
+		close(fd);
+		return -1;
+	}
+
+	return fd;
 }

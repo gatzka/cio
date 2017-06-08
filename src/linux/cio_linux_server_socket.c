@@ -31,8 +31,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <sys/socket.h>
-#include <sys/types.h>
 #include <unistd.h>
 
 #include "cio_compiler.h"
@@ -46,18 +44,11 @@
 
 static enum cio_error socket_init(void *context, unsigned int backlog)
 {
-	enum cio_error err;
 	struct cio_server_socket *ss = context;
 
-	int listen_fd = socket(AF_INET6, SOCK_STREAM, 0);
+	int listen_fd = cio_linux_socket_create(-1);
 	if (listen_fd == -1) {
 		return (enum cio_error)errno;
-	}
-
-	err = set_fd_non_blocking(listen_fd);
-	if (likely(err != cio_success)) {
-		close(listen_fd);
-		return err;
 	}
 
 	ss->backlog = (int)backlog;
@@ -104,8 +95,13 @@ static void accept_callback(void *context)
 		} else {
 			struct cio_socket *s = cio_malloc(sizeof(*s));
 			if (likely(s != NULL)) {
-				enum cio_error err = cio_socket_init(s, client_fd, ss->loop, free_linux_socket);
-				ss->handler(ss, ss->handler_context, err, s);
+				enum cio_error err = cio_linux_socket_init(s, client_fd, ss->loop, free_linux_socket);
+				if (likely(err == cio_success)) {
+					s->init(s);
+					ss->handler(ss, ss->handler_context, err, s);
+				} else {
+					close(client_fd);
+				}
 			} else {
 				close(client_fd);
 			}
@@ -209,8 +205,8 @@ static enum cio_error socket_bind(void *context, const char *bind_address, uint1
 }
 
 enum cio_error cio_server_socket_init(struct cio_server_socket *ss,
-                            struct cio_eventloop *loop,
-                            cio_server_socket_close_hook hook)
+                                      struct cio_eventloop *loop,
+                                      cio_server_socket_close_hook hook)
 {
 	ss->context = ss;
 	ss->init = socket_init;

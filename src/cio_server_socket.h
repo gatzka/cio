@@ -81,13 +81,10 @@ struct cio_server_socket {
 	 * @anchor cio_server_socket_init
 	 * @brief Initializes a cio_server_socket.
 	 *
-	 * If this function succeeds, the server socket is bound an listens on the
-	 * port specified. If later on something goes wrong, it's the responsibility
-	 * of the user to call @ref cio_server_socket_close "close" on the server socket.
+	 * If this function succeeds, a server socket is created.
 	 *
 	 * @param context The cio_server_socket::context.
 	 * @param backlog The minimal length of the listen queue.
-	 * If @a bind_address is @p NULL, cio_server_socket will bind to any interface.
 	 *
 	 * @return ::cio_success for success.
 	 */
@@ -118,7 +115,8 @@ struct cio_server_socket {
 	 * @brief Binds the cio_server_socket to a specific address
 	 *
 	 * @param context The cio_server_socket::context.
-	 * @param bind_address The IP address a cio_server_socket shall bound to.
+	 * @param bind_address The IP address a cio_server_socket shall bound to. If @p NULL,
+	 *        then cio_server_socket binds to all interfaces.
 	 * @param port The TCP port the cio_server_socket shall listen on.
 	 *
 	 * @return ::cio_success for success.
@@ -161,8 +159,8 @@ struct cio_server_socket {
  * @return ::cio_success for success.
  */
 enum cio_error cio_server_socket_init(struct cio_server_socket *ss,
-                            struct cio_eventloop *loop,
-                            cio_server_socket_close_hook close);
+                                      struct cio_eventloop *loop,
+                                      cio_server_socket_close_hook close);
 
 #ifdef __cplusplus
 }

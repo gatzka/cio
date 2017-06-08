@@ -63,10 +63,22 @@ struct cio_socket {
 	void *context;
 
 	/**
+	 * @anchor cio_socket_init
+	 * @brief Initializes a cio_socket.
+	 *
+	 * Creates an unconnected socket.
+	 *
+	 * @param context The cio_socket::context.
+	 *
+	 * @return ::cio_success for success.
+	 */
+	enum cio_error (*init)(void *context);
+
+	/**
 	 * @anchor cio_socket_get_io_stream
 	 * @brief Gets an I/O stream from the socket.
 	 *
-	 * @param context The cio_server_socket::context.
+	 * @param context The cio_socket::context.
 	 *
 	 * @return An I/O stream for reading from and writing to this socket.
 	 */
@@ -79,7 +91,7 @@ struct cio_socket {
 	 * Once a socket has been closed, no further communication is possible. Closing the socket
 	 * also closes the socket's cio_io_stream.
 	 *
-	 * @param context The cio_server_socket::context.
+	 * @param context The cio_socket::context.
 	 */
 	void (*close)(void *context);
 
@@ -87,7 +99,7 @@ struct cio_socket {
 	 * @anchor cio_socket_set_tcp_no_delay
 	 * @brief Enables/disables the Nagle algorithm
 	 *
-	 * @param context The cio_server_socket::context.
+	 * @param context The cio_socket::context.
 	 * @param on Whether Nagle algorithm should be enabled or not.
 	 *
 	 * @return ::cio_success for success.
@@ -98,7 +110,7 @@ struct cio_socket {
 	 * @anchor cio_socket_set_keep_alive
 	 * @brief Enables/disables TCP keepalive messages.
 	 *
-	 * @param context The cio_server_socket::context.
+	 * @param context The cio_socket::context.
 	 * @param on Whether or not to enable TCP keepalives.
 	 * @param keep_idle_s Time in seconds the connections needs to remain idle
 	 *        before start sending keepalive messages. This option might be unused
@@ -120,6 +132,10 @@ struct cio_socket {
 	struct cio_event_notifier ev;
 	struct cio_eventloop *loop;
 };
+
+enum cio_error cio_socket_init(struct cio_socket *s,
+                               struct cio_eventloop *loop,
+                               cio_socket_close_hook close_hook);
 
 #ifdef __cplusplus
 }
