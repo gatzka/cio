@@ -63,6 +63,18 @@ struct cio_socket {
 	void *context;
 
 	/**
+	 * @anchor cio_socket_init
+	 * @brief Initializes a cio_socket.
+	 *
+	 * Creates an unconnected socket.
+	 *
+	 * @param context The cio_socket::context.
+	 *
+	 * @return ::cio_success for success.
+	 */
+	enum cio_error (*init)(void *context);
+
+	/**
 	 * @anchor cio_socket_get_io_stream
 	 * @brief Gets an I/O stream from the socket.
 	 *
@@ -120,6 +132,10 @@ struct cio_socket {
 	struct cio_event_notifier ev;
 	struct cio_eventloop *loop;
 };
+
+enum cio_error cio_socket_init(struct cio_socket *s,
+                               struct cio_eventloop *loop,
+                               cio_socket_close_hook close_hook);
 
 #ifdef __cplusplus
 }
