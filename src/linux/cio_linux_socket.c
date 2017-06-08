@@ -39,6 +39,27 @@
 #include "cio_socket.h"
 #include "linux/cio_linux_socket_utils.h"
 
+static enum cio_error socket_init(void *context)
+{
+	enum cio_error err;
+	struct cio_socket *s = context;
+
+	int socket_fd = socket(AF_INET6, SOCK_STREAM, 0);
+	if (socket_fd == -1) {
+		return (enum cio_error)errno;
+	}
+
+	err = set_fd_non_blocking(socket_fd);
+	if (likely(err != cio_success)) {
+		close(socket_fd);
+		return err;
+	}
+
+	s->ev.fd = socket_fd;
+
+	return cio_success;
+}
+
 static void socket_close(void *context)
 {
 	struct cio_socket *s = context;
@@ -192,6 +213,7 @@ enum cio_error cio_linux_socket_init(struct cio_socket *s, int client_fd,
 	s->ev.context = s;
 
 	s->context = s;
+	s->init = socket_init;
 	s->close = socket_close;
 	s->set_tcp_no_delay = socket_tcp_no_delay;
 	s->set_keep_alive = socket_keepalive;
@@ -207,4 +229,11 @@ enum cio_error cio_linux_socket_init(struct cio_socket *s, int client_fd,
 
 	cio_linux_eventloop_add(s->loop, &s->ev);
 	return cio_success;
+}
+
+enum cio_error cio_socket_init(struct cio_socket *s,
+                               struct cio_eventloop *loop,
+                               cio_socket_close_hook close_hook)
+{
+	return cio_linux_socket_init(s, -1, loop, close_hook);
 }
