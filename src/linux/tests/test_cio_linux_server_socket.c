@@ -35,6 +35,7 @@
 
 #include "cio_eventloop.h"
 #include "cio_linux_alloc.h"
+#include "cio_linux_socket_utils.h"
 #include "cio_server_socket.h"
 #include "cio_socket.h"
 
