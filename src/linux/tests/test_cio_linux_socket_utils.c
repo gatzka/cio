@@ -135,7 +135,6 @@ static void test_create_socket_setfl_fails(void)
 	TEST_ASSERT(fcntl_fake.call_count > 0);
 }
 
-
 int main(void)
 {
 	UNITY_BEGIN();
@@ -146,6 +145,3 @@ int main(void)
 	RUN_TEST(test_create_socket_setfl_fails);
 	return UNITY_END();
 }
-
-
-
