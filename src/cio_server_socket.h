@@ -115,7 +115,8 @@ struct cio_server_socket {
 	 * @brief Binds the cio_server_socket to a specific address
 	 *
 	 * @param context The cio_server_socket::context.
-	 * @param bind_address The IP address a cio_server_socket shall bound to.
+	 * @param bind_address The IP address a cio_server_socket shall bound to. If @p NULL,
+	 *        then cio_server_socket binds to all interfaces.
 	 * @param port The TCP port the cio_server_socket shall listen on.
 	 *
 	 * @return ::cio_success for success.
