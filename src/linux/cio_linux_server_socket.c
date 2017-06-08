@@ -104,7 +104,7 @@ static void accept_callback(void *context)
 		} else {
 			struct cio_socket *s = cio_malloc(sizeof(*s));
 			if (likely(s != NULL)) {
-				enum cio_error err = cio_socket_init(s, client_fd, ss->loop, free_linux_socket);
+				enum cio_error err = cio_linux_socket_init(s, client_fd, ss->loop, free_linux_socket);
 				ss->handler(ss, ss->handler_context, err, s);
 			} else {
 				close(client_fd);
@@ -209,8 +209,8 @@ static enum cio_error socket_bind(void *context, const char *bind_address, uint1
 }
 
 enum cio_error cio_server_socket_init(struct cio_server_socket *ss,
-                            struct cio_eventloop *loop,
-                            cio_server_socket_close_hook hook)
+                                      struct cio_eventloop *loop,
+                                      cio_server_socket_close_hook hook)
 {
 	ss->context = ss;
 	ss->init = socket_init;
