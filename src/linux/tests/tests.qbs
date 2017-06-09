@@ -64,7 +64,6 @@ Project {
     files: [
       "test_cio_linux_server_socket.c",
       "../cio_linux_server_socket.c",
-      "../cio_linux_socket_utils.c",
       "../cio_linux_socket.c",
     ]
   }
@@ -77,5 +76,15 @@ Project {
       "test_cio_linux_epoll.c",
       "../cio_linux_epoll.c",
     ]
+  }
+
+  CppApplication {
+    name: "test_cio_linux_socket_utils"
+    type: ["application", "unittest"]
+    Depends { name: "common settings" }
+    files: [
+          "test_cio_linux_socket_utils.c",
+          "../cio_linux_socket_utils.c",
+      ]
   }
 }
