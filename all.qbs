@@ -31,15 +31,15 @@ Project {
   minimumQbsVersion: "1.4.0"
 
   SubProject {
-    filePath: "cio.qbs"
+    filePath: "src/cio.qbs"
   }
 
   SubProject {
-    filePath: "cio_doc.qbs"
+    filePath: "src/cio_doc.qbs"
   }
 
   SubProject {
-    filePath: "test_run.qbs"
+    filePath: "src/test_run.qbs"
   }
 }
 
