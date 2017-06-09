@@ -109,6 +109,11 @@ Project {
       qbs.install: true
       qbs.installDir: "lib"
     }
+
+    Export {
+      Depends { name: 'cpp' }
+      cpp.includePaths: [".", "./linux/"]
+    }
   }
 
   DynamicLibrary {
@@ -191,6 +196,11 @@ Project {
       fileTagsFilter: "versionHeader"
       qbs.install: true
       qbs.installDir: "include/"
+    }
+
+    Export {
+      Depends { name: 'cpp' }
+      cpp.includePaths: [".", "./linux/"]
     }
   }
 

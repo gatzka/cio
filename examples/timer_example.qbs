@@ -27,19 +27,22 @@
 import qbs 1.0
 
 Project {
-  name: "cio with tests and documentation"
-  minimumQbsVersion: "1.4.0"
+  name: "cio timer example"
+  minimumQbsVersion: "1.6.0"
+
 
   SubProject {
-    filePath: "cio.qbs"
+    filePath: "../src/cio.qbs"
   }
 
-  SubProject {
-    filePath: "cio_doc.qbs"
-  }
+  CppApplication {
+    name: "timer_example"
+    Depends { name:"cio-static"}
+    cpp.warningLevel: "all"
+    cpp.treatWarningsAsErrors: true
 
-  SubProject {
-    filePath: "test_run.qbs"
+    files: [
+      "timer_example.c"
+    ]
   }
 }
-
