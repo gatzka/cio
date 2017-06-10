@@ -208,7 +208,6 @@ enum cio_error cio_server_socket_init(struct cio_server_socket *ss,
                                       struct cio_eventloop *loop,
                                       cio_server_socket_close_hook hook)
 {
-	ss->context = ss;
 	ss->init = socket_init;
 	ss->close = socket_close;
 	ss->accept = socket_accept;
