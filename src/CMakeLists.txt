@@ -18,6 +18,7 @@ if(is_linux)
     set(CIO_LINUX_FILES
         linux/cio_linux_epoll.c
         linux/cio_linux_server_socket.c
+        linux/cio_linux_timer.c
     )
 endif()
 
