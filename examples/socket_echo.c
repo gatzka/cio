@@ -77,10 +77,11 @@ static void handle_read(struct cio_io_stream *stream, void *handler_context, enu
 
 static void handle_accept(struct cio_server_socket *ss, void *handler_context, enum cio_error err, struct cio_socket *socket)
 {
-	(void)ss;
 	(void)handler_context;
 	if (err != cio_success) {
 		fprintf(stderr, "accept error!\n");
+		ss->close(ss);
+		cio_eventloop_cancel(ss->loop);
 		return;
 	}
 
