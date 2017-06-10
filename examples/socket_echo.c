@@ -66,6 +66,12 @@ static void handle_read(struct cio_io_stream *stream, void *handler_context, enu
 		return;
 	}
 
+	if (bytes_transferred == 0) {
+		fprintf(stdout, "connection close by peer\n");
+		stream->close(stream);
+		return;
+	}
+
 	stream->write_some(stream, buf, bytes_transferred, handle_write, NULL);
 }
 
