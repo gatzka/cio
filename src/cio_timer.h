@@ -85,7 +85,7 @@ struct cio_timer {
 	 * @param handler_context A pointer to a context which might be
 	 *                        useful inside @p handler.
 	 */
-	void (*expires_from_now)(void *context, uint64_t timeout_ns, timer_handler handler, void *handler_context);
+	void (*expires_from_now)(struct cio_timer *context, uint64_t timeout_ns, timer_handler handler, void *handler_context);
 
 	/**
 	 * @anchor cio_timer_cancel

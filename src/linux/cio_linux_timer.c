@@ -86,9 +86,8 @@ static void timer_close(void *context)
 	}
 }
 
-static void timer_expires_from_now(void *context, uint64_t timeout_ns, timer_handler handler, void *handler_context)
+static void timer_expires_from_now(struct cio_timer *t, uint64_t timeout_ns, timer_handler handler, void *handler_context)
 {
-	struct cio_timer *t = context;
 	struct itimerspec timeout = convert_timeoutns_to_itimerspec(timeout_ns);
 	int ret;
 
