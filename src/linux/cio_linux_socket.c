@@ -35,12 +35,11 @@
 #include "cio_io_stream.h"
 #include "cio_linux_socket.h"
 #include "cio_socket.h"
+#include "cio_util.h"
 #include "linux/cio_linux_socket_utils.h"
 
-static enum cio_error socket_init(void *context)
+static enum cio_error socket_init(struct cio_socket *s)
 {
-	struct cio_socket *s = context;
-
 	int socket_fd = cio_linux_socket_create(s->ev.fd);
 	if (unlikely(socket_fd == -1)) {
 		return (enum cio_error)errno;
@@ -51,10 +50,8 @@ static enum cio_error socket_init(void *context)
 	return cio_success;
 }
 
-static void socket_close(void *context)
+static void socket_close(struct cio_socket *s)
 {
-	struct cio_socket *s = context;
-
 	cio_linux_eventloop_remove(s->loop, &s->ev);
 
 	close(s->ev.fd);
@@ -63,9 +60,8 @@ static void socket_close(void *context)
 	}
 }
 
-static enum cio_error socket_tcp_no_delay(void *context, bool on)
+static enum cio_error socket_tcp_no_delay(struct cio_socket *s, bool on)
 {
-	struct cio_socket *s = context;
 	int tcp_no_delay;
 
 	if (on) {
@@ -82,10 +78,9 @@ static enum cio_error socket_tcp_no_delay(void *context, bool on)
 	return cio_success;
 }
 
-static enum cio_error socket_keepalive(void *context, bool on, unsigned int keep_idle_s,
+static enum cio_error socket_keepalive(struct cio_socket *s, bool on, unsigned int keep_idle_s,
                                        unsigned int keep_intvl_s, unsigned int keep_cnt)
 {
-	struct cio_socket *s = context;
 	int keep_alive;
 
 	if (on) {
@@ -112,9 +107,8 @@ static enum cio_error socket_keepalive(void *context, bool on, unsigned int keep
 	return cio_success;
 }
 
-static struct cio_io_stream *socket_get_io_stream(void *context)
+static struct cio_io_stream *socket_get_io_stream(struct cio_socket *s)
 {
-	struct cio_socket *s = context;
 	return &s->stream;
 }
 
@@ -133,10 +127,10 @@ static void read_callback(void *context)
 	}
 }
 
-static void socket_read(void *context, void *buf, size_t count, cio_stream_read_handler handler, void *handler_context)
+static void stream_read(struct cio_io_stream *stream, void *buf, size_t count, cio_stream_read_handler handler, void *handler_context)
 {
 	enum cio_error err;
-	struct cio_socket *s = context;
+	struct cio_socket *s = container_of(stream, struct cio_socket, stream);
 	s->ev.context = s;
 	s->ev.read_callback = read_callback;
 	s->stream.read_buffer = buf;
@@ -158,9 +152,9 @@ static void write_callback(void *context)
 	s->stream.write_handler(s->stream.write_handler_context, cio_success, 0);
 }
 
-static void socket_write(void *context, const void *buf, size_t count, cio_stream_write_handler handler, void *handler_context)
+static void stream_write(struct cio_io_stream *stream, const void *buf, size_t count, cio_stream_write_handler handler, void *handler_context)
 {
-	struct cio_socket *s = context;
+	struct cio_socket *s = container_of(stream, struct cio_socket, stream);
 
 	ssize_t ret = send(s->ev.fd, buf, count, MSG_NOSIGNAL);
 	if (likely(ret >= 0)) {
@@ -179,6 +173,18 @@ static void socket_write(void *context, const void *buf, size_t count, cio_strea
 		} else {
 			handler(handler_context, (enum cio_error)errno, 0);
 		}
+	}
+}
+
+static void stream_close(struct cio_io_stream *stream)
+{
+
+	struct cio_socket *s = container_of(stream, struct cio_socket, stream);
+	cio_linux_eventloop_remove(s->loop, &s->ev);
+
+	close(s->ev.fd);
+	if (s->close_hook != NULL) {
+		s->close_hook(s);
 	}
 }
 
@@ -204,10 +210,9 @@ enum cio_error cio_linux_socket_init(struct cio_socket *s, int client_fd,
 	s->set_keep_alive = socket_keepalive;
 	s->get_io_stream = socket_get_io_stream;
 
-	s->stream.context = s;
-	s->stream.read_some = socket_read;
-	s->stream.write_some = socket_write;
-	s->stream.close = socket_close;
+	s->stream.read_some = stream_read;
+	s->stream.write_some = stream_write;
+	s->stream.close = stream_close;
 
 	s->loop = loop;
 	s->close_hook = close_hook;

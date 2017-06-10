@@ -67,7 +67,7 @@ struct cio_socket {
 	 *
 	 * @return ::cio_success for success.
 	 */
-	enum cio_error (*init)(void *context);
+	enum cio_error (*init)(struct cio_socket *context);
 
 	/**
 	 * @anchor cio_socket_get_io_stream
@@ -77,7 +77,7 @@ struct cio_socket {
 	 *
 	 * @return An I/O stream for reading from and writing to this socket.
 	 */
-	struct cio_io_stream *(*get_io_stream)(void *context);
+	struct cio_io_stream *(*get_io_stream)(struct cio_socket *context);
 
 	/**
 	 * @anchor cio_socket_close
@@ -88,7 +88,7 @@ struct cio_socket {
 	 *
 	 * @param context The cio_socket::context.
 	 */
-	void (*close)(void *context);
+	void (*close)(struct cio_socket *context);
 
 	/**
 	 * @anchor cio_socket_set_tcp_no_delay
@@ -99,7 +99,7 @@ struct cio_socket {
 	 *
 	 * @return ::cio_success for success.
 	 */
-	enum cio_error (*set_tcp_no_delay)(void *context, bool on);
+	enum cio_error (*set_tcp_no_delay)(struct cio_socket *context, bool on);
 
 	/**
 	 * @anchor cio_socket_set_keep_alive
@@ -117,7 +117,7 @@ struct cio_socket {
 	 *
 	 * @return ::cio_success for success.
 	 */
-	enum cio_error (*set_keep_alive)(void *context, bool on, unsigned int keep_idle_s, unsigned int keep_intvl_s, unsigned int keep_cnt);
+	enum cio_error (*set_keep_alive)(struct cio_socket *context, bool on, unsigned int keep_idle_s, unsigned int keep_intvl_s, unsigned int keep_cnt);
 
 	/**
 	 * @privatesection

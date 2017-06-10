@@ -52,7 +52,7 @@ static void handle_accept(struct cio_server_socket *ss, void *handler_context, e
 
 	struct cio_io_stream *stream = socket->get_io_stream(socket);
 	uint8_t buffer[100];
-	stream->read_some(socket, buffer, sizeof(buffer), handle_read, stream);
+	stream->read_some(stream, buffer, sizeof(buffer), handle_read, stream);
 }
 
 int main()
