@@ -123,7 +123,6 @@ enum cio_error cio_timer_init(struct cio_timer *timer, struct cio_eventloop *loo
 		return (enum cio_error)errno;
 	}
 
-	timer->context = timer;
 	timer->cancel = timer_cancel;
 	timer->close = timer_close;
 	timer->close_hook = close_hook;
