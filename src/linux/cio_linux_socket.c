@@ -198,7 +198,6 @@ enum cio_error cio_linux_socket_init(struct cio_socket *s, int client_fd,
 	s->ev.read_callback = loop_callback;
 	s->ev.context = s;
 
-	s->context = s;
 	s->init = socket_init;
 	s->close = socket_close;
 	s->set_tcp_no_delay = socket_tcp_no_delay;

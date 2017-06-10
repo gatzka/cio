@@ -56,11 +56,6 @@ struct cio_socket;
 typedef void (*cio_socket_close_hook)(struct cio_socket *s);
 
 struct cio_socket {
-	/**
-	 * @brief The context pointer which is passed to the functions
-	 * specified below.
-	 */
-	void *context;
 
 	/**
 	 * @anchor cio_socket_init
