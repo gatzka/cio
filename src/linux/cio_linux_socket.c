@@ -114,24 +114,25 @@ static struct cio_io_stream *socket_get_io_stream(struct cio_socket *s)
 
 static void read_callback(void *context)
 {
-	struct cio_socket *s = context;
-	ssize_t ret = read(s->ev.fd, s->stream.read_buffer, s->stream.read_count);
+	struct cio_io_stream *stream = context;
+	struct cio_socket *s = container_of(stream, struct cio_socket, stream);
+	ssize_t ret = read(s->ev.fd, stream->read_buffer, stream->read_count);
 	if (ret == -1) {
 		if (likely((errno == EWOULDBLOCK) || (errno == EAGAIN))) {
 			return;
 		} else {
-			s->stream.read_handler(s->stream.read_handler_context, (enum cio_error)errno, s->stream.read_buffer, 0);
+			stream->read_handler(stream, stream->read_handler_context, (enum cio_error)errno, stream->read_buffer, 0);
 		}
 	} else {
-		s->stream.read_handler(s->stream.read_handler_context, cio_success, s->stream.read_buffer, (size_t)ret);
+		stream->read_handler(stream, stream->read_handler_context, cio_success, stream->read_buffer, (size_t)ret);
 	}
 }
 
-static void stream_read(struct cio_io_stream *stream, void *buf, size_t count, cio_stream_read_handler handler, void *handler_context)
+static void stream_read(struct cio_io_stream *stream, void *buf, size_t count, cio_io_stream_read_handler handler, void *handler_context)
 {
 	enum cio_error err;
 	struct cio_socket *s = container_of(stream, struct cio_socket, stream);
-	s->ev.context = s;
+	s->ev.context = stream;
 	s->ev.read_callback = read_callback;
 	s->stream.read_buffer = buf;
 	s->stream.read_count = count;
@@ -139,39 +140,39 @@ static void stream_read(struct cio_io_stream *stream, void *buf, size_t count, c
 	s->stream.read_handler_context = handler_context;
 	err = cio_linux_eventloop_register_read(s->loop, &s->ev);
 	if (unlikely(err != cio_success)) {
-		handler(handler_context, err, buf, 0);
+		handler(stream, handler_context, err, buf, 0);
 		return;
 	}
 
-	read_callback(s);
+	read_callback(stream);
 }
 
 static void write_callback(void *context)
 {
-	struct cio_socket *s = context;
-	s->stream.write_handler(s->stream.write_handler_context, cio_success, 0);
+	struct cio_io_stream *stream = context;
+	stream->write_handler(stream, stream->write_handler_context, cio_success, 0);
 }
 
-static void stream_write(struct cio_io_stream *stream, const void *buf, size_t count, cio_stream_write_handler handler, void *handler_context)
+static void stream_write(struct cio_io_stream *stream, const void *buf, size_t count, cio_io_stream_write_handler handler, void *handler_context)
 {
 	struct cio_socket *s = container_of(stream, struct cio_socket, stream);
 
 	ssize_t ret = send(s->ev.fd, buf, count, MSG_NOSIGNAL);
 	if (likely(ret >= 0)) {
-		handler(handler_context, cio_success, (size_t)ret);
+		handler(stream, handler_context, cio_success, (size_t)ret);
 	} else {
 		if ((errno == EWOULDBLOCK) || (errno == EAGAIN)) {
 			enum cio_error err;
 			s->stream.write_handler = handler;
 			s->stream.write_handler_context = handler_context;
-			s->ev.context = s;
+			s->ev.context = stream;
 			s->ev.write_callback = write_callback;
 			err = cio_linux_eventloop_register_write(s->loop, &s->ev);
 			if (unlikely(err != cio_success)) {
-				handler(handler_context, err, 0);
+				handler(stream, handler_context, err, 0);
 			}
 		} else {
-			handler(handler_context, (enum cio_error)errno, 0);
+			handler(stream, handler_context, (enum cio_error)errno, 0);
 		}
 	}
 }

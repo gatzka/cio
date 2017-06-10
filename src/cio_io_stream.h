@@ -29,8 +29,6 @@
 
 #include <stddef.h>
 
-#include "cio_stream_handler.h"
-
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -40,6 +38,29 @@ extern "C" {
  * @brief This file contains the definitions all users of a cio_io_stream
  * need to know.
  */
+
+struct cio_io_stream;
+
+/**
+ * @brief The type of a function passed to all cio_io_stream read callback functions.
+ * 
+ * @param context The cio_io_stream the read operation was called on.
+ * @param handler_context The context the functions works on.
+ * @param err If err != ::cio_success, the read operation failed.
+ * @param buf A pointer to the begin of the buffer where the data was read in. 
+ * @param bytes_transferred The number of bytes transferred into @p buf.
+ */
+typedef void (*cio_io_stream_read_handler)(struct cio_io_stream *context, void *handler_context, enum cio_error err, uint8_t *buf, size_t bytes_transferred);
+
+/**
+ * @brief The type of a function passed to all cio_io_stream write callback functions.
+ * 
+ * @param context The cio_io_stream the write operation was called on.
+ * @param handler_context The context the functions works on.
+ * @param err If err != ::cio_success, the write operation failed.
+ * @param bytes_transferred The number of bytes transferred.
+ */
+typedef void (*cio_io_stream_write_handler)(struct cio_io_stream *context, void *handler_context, enum cio_error err, size_t bytes_transferred);
 
 /**
  * @brief This structure describes the interface all implementations
@@ -60,7 +81,7 @@ struct cio_io_stream {
 	 * @param handler_context A pointer to a context which might be
 	 *                        useful inside @p handler.
 	 */
-	void (*read_some)(struct cio_io_stream *context, void *buf, size_t count, cio_stream_read_handler handler, void *handler_context);
+	void (*read_some)(struct cio_io_stream *context, void *buf, size_t count, cio_io_stream_read_handler handler, void *handler_context);
 
 	/**
 	 * @brief Writes @p count buffers to the stream.
@@ -74,7 +95,7 @@ struct cio_io_stream {
 	 * @param handler_context A pointer to a context which might be
 	 *                        useful inside @p handler.
 	 */
-	void (*write_some)(struct cio_io_stream *context, const void *buf, size_t count, cio_stream_write_handler handler, void *handler_context);
+	void (*write_some)(struct cio_io_stream *context, const void *buf, size_t count, cio_io_stream_write_handler handler, void *handler_context);
 
 	/**
 	 * @brief Closes the stream.
@@ -88,11 +109,11 @@ struct cio_io_stream {
 	/**
 	 * @privatesection
 	 */
-	cio_stream_read_handler read_handler;
+	cio_io_stream_read_handler read_handler;
 	void *read_handler_context;
 	size_t read_count;
 	void *read_buffer;
-	cio_stream_write_handler write_handler;
+	cio_io_stream_write_handler write_handler;
 	void *write_handler_context;
 };
 
