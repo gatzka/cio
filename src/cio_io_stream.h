@@ -51,7 +51,7 @@ struct cio_io_stream;
  * @param handler_context The context the functions works on.
  * @param err If err != ::cio_success, the read operation failed.
  * @param buf A pointer to the begin of the buffer where the data was read in. 
- * @param bytes_transferred The number of bytes transferred into @p buf.
+ * @param bytes_transferred The number of bytes transferred into @p buf, 0 if the end of the stream is reached.
  */
 typedef void (*cio_io_stream_read_handler)(struct cio_io_stream *context, void *handler_context, enum cio_error err, uint8_t *buf, size_t bytes_transferred);
 
