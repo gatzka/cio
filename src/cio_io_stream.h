@@ -28,6 +28,9 @@
 #define CIO_IO_STREAM_H
 
 #include <stddef.h>
+#include <stdint.h>
+
+#include "cio_error_code.h"
 
 #ifdef __cplusplus
 extern "C" {
