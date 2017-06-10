@@ -71,11 +71,6 @@ typedef void (*cio_server_socket_close_hook)(struct cio_server_socket *ss);
  * @brief The cio_server_socket struct describes a server socket.
  */
 struct cio_server_socket {
-	/**
-	 * @brief The context pointer which is passed to the functions
-	 * specified below.
-	 */
-	void *context;
 
 	/**
 	 * @anchor cio_server_socket_init
