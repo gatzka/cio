@@ -1,10 +1,13 @@
 #include <signal.h>
+#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 
 #include "cio_error_code.h"
 #include "cio_eventloop.h"
 #include "cio_timer.h"
+
+static const uint64_t FIVE_S = 5000000000;
 
 static struct cio_eventloop loop;
 
@@ -16,10 +19,10 @@ static void sighandler(int signum)
 
 static void handle_timeout(struct cio_timer *timer, void *handler_context, enum cio_error err)
 {
-	(void)timer;
 	(void)handler_context;
 	if (err == cio_success) {
 		fprintf(stdout, "timer expired!\n");
+		timer->expires_from_now(timer, FIVE_S, handle_timeout, NULL);
 	} else {
 		fprintf(stdout, "timer error!\n");
 	}
@@ -50,7 +53,7 @@ int main()
 		goto destroy_loop;
 	}
 
-	timer.expires_from_now(&timer, 5000000000, handle_timeout, NULL);
+	timer.expires_from_now(&timer, FIVE_S, handle_timeout, NULL);
 
 	err = cio_eventloop_run(&loop);
 	if (err != cio_success) {
