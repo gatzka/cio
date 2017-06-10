@@ -14,8 +14,9 @@ static void sighandler(int signum)
 	cio_eventloop_cancel(&loop);
 }
 
-static void handle_timeout(void *handler_context, enum cio_error err)
+static void handle_timeout(struct cio_timer *timer, void *handler_context, enum cio_error err)
 {
+	(void)timer;
 	(void)handler_context;
 	if (err == cio_success) {
 		fprintf(stdout, "timer expired!\n");

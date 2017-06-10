@@ -58,13 +58,14 @@ typedef void (*cio_timer_close_hook)(struct cio_timer *timer);
 /**
  * @brief The type of a timer callback function.
  *
+ * @param context The timer which called the callback.
  * @param handler_context The context the functions works on.
  *                        This parameter is fed from @ref cio_timer_expires_from_now_handler_context
  *                        "parameter handler_contex" of @ref cio_timer_expires_from_now "expires_from_now()".
  * @param err If err == ::cio_success, the timer expired.
  *            If err == ::cio_operation_aborted, the timer was @ref cio_timer_cancel "cancelled".
  */
-typedef void (*timer_handler)(void *handler_context, enum cio_error err);
+typedef void (*timer_handler)(struct cio_timer *context, void *handler_context, enum cio_error err);
 
 struct cio_timer {
 	/**
