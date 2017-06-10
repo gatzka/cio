@@ -83,7 +83,7 @@ struct cio_server_socket {
 	 *
 	 * @return ::cio_success for success.
 	 */
-	enum cio_error (*init)(void *context, unsigned int backlog);
+	enum cio_error (*init)(struct cio_server_socket *context, unsigned int backlog);
 
 	/**
 	 * @anchor cio_server_socket_accept
@@ -95,7 +95,7 @@ struct cio_server_socket {
 	 *
 	 * @return ::cio_success for success.
 	 */
-	enum cio_error (*accept)(void *context, cio_accept_handler handler, void *handler_context);
+	enum cio_error (*accept)(struct cio_server_socket *context, cio_accept_handler handler, void *handler_context);
 
 	/**
 	 * @anchor cio_server_socket_close
@@ -103,7 +103,7 @@ struct cio_server_socket {
 	 *
 	 * @param context The cio_server_socket::context.
 	 */
-	void (*close)(void *context);
+	void (*close)(struct cio_server_socket *context);
 
 	/**
 	 * @anchor cio_server_socket_bind
@@ -116,7 +116,7 @@ struct cio_server_socket {
 	 *
 	 * @return ::cio_success for success.
 	 */
-	enum cio_error (*bind)(void *context, const char *bind_address, uint16_t port);
+	enum cio_error (*bind)(struct cio_server_socket *context, const char *bind_address, uint16_t port);
 
 	/**
 	 * @anchor cio_server_socket_set_reuse_address
@@ -127,7 +127,7 @@ struct cio_server_socket {
 	 *
 	 * @return ::cio_success for success.
 	 */
-	enum cio_error (*set_reuse_address)(void *context, bool on);
+	enum cio_error (*set_reuse_address)(struct cio_server_socket *context, bool on);
 
 	/**
 	 * @privatesection

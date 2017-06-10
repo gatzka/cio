@@ -42,10 +42,8 @@
 #include "linux/cio_linux_alloc.h"
 #include "linux/cio_linux_socket_utils.h"
 
-static enum cio_error socket_init(void *context, unsigned int backlog)
+static enum cio_error socket_init(struct cio_server_socket *ss, unsigned int backlog)
 {
-	struct cio_server_socket *ss = context;
-
 	int listen_fd = cio_linux_socket_create(-1);
 	if (listen_fd == -1) {
 		return (enum cio_error)errno;
@@ -57,10 +55,8 @@ static enum cio_error socket_init(void *context, unsigned int backlog)
 	return cio_success;
 }
 
-static void socket_close(void *context)
+static void socket_close(struct cio_server_socket *ss)
 {
-	struct cio_server_socket *ss = context;
-
 	cio_linux_eventloop_remove(ss->loop, &ss->ev);
 
 	close(ss->ev.fd);
@@ -109,10 +105,9 @@ static void accept_callback(void *context)
 	}
 }
 
-static enum cio_error socket_accept(void *context, cio_accept_handler handler, void *handler_context)
+static enum cio_error socket_accept(struct cio_server_socket *ss, cio_accept_handler handler, void *handler_context)
 {
 	enum cio_error err;
-	struct cio_server_socket *ss = context;
 	if (unlikely(handler == NULL)) {
 		return cio_invalid_argument;
 	}
@@ -120,7 +115,7 @@ static enum cio_error socket_accept(void *context, cio_accept_handler handler, v
 	ss->handler = handler;
 	ss->handler_context = handler_context;
 	ss->ev.read_callback = accept_callback;
-	ss->ev.context = context;
+	ss->ev.context = ss;
 
 	if (unlikely(listen(ss->ev.fd, ss->backlog) < 0)) {
 		return (enum cio_error)errno;
@@ -136,13 +131,12 @@ static enum cio_error socket_accept(void *context, cio_accept_handler handler, v
 		return err;
 	}
 
-	accept_callback(context);
+	accept_callback(ss);
 	return cio_success;
 }
 
-static enum cio_error socket_set_reuse_address(void *context, bool on)
+static enum cio_error socket_set_reuse_address(struct cio_server_socket *ss, bool on)
 {
-	struct cio_server_socket *ss = context;
 	int reuse;
 	if (on) {
 		reuse = 1;
@@ -158,10 +152,8 @@ static enum cio_error socket_set_reuse_address(void *context, bool on)
 	return cio_success;
 }
 
-static enum cio_error socket_bind(void *context, const char *bind_address, uint16_t port)
+static enum cio_error socket_bind(struct cio_server_socket *ss, const char *bind_address, uint16_t port)
 {
-	struct cio_server_socket *ss = context;
-
 	struct addrinfo hints;
 	char server_port_string[6];
 	struct addrinfo *servinfo;
