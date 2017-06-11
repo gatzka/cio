@@ -30,8 +30,13 @@ Project {
   name: "cio examples"
   minimumQbsVersion: "1.6.0"
 
+  qbsSearchPaths: "../qbs/"
 
-  SubProject {
-    filePath: "timer_example.qbs"
-  }
+  references: [
+    "../qbs/gccClang.qbs",
+    "../qbs/hardening.qbs",
+    "../src/cio-staticlib.qbs",
+    "timer_example.qbs",
+    "socket_echo.qbs"
+  ]
 }
