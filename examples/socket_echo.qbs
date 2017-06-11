@@ -26,23 +26,11 @@
 
 import qbs 1.0
 
-Project {
-  name: "cio timer example"
-  minimumQbsVersion: "1.6.0"
+CppApplication {
+  name: "socket_echo"
+  Depends { name:"cio-static"}
 
-
-  SubProject {
-    filePath: "../src/cio.qbs"
-  }
-
-  CppApplication {
-    name: "socket_echo"
-    Depends { name:"cio-static"}
-    cpp.warningLevel: "all"
-    cpp.treatWarningsAsErrors: true
-
-    files: [
-      "socket_echo.c"
-    ]
-  }
+  files: [
+    "socket_echo.c"
+  ]
 }
