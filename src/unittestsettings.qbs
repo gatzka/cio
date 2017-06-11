@@ -26,21 +26,17 @@
 
 import qbs 1.0
 
-Project {
-  name: "cio linux unit tests"
-  minimumQbsVersion: "1.6.0"
-
-  condition: qbs.targetOS.contains("linux")
-
-  references: [
-    "../../unity.qbs",
-    "../../fff.qbs",
-    "../../unittestsettings.qbs",
-    "../../../qbs/gccClang.qbs",
-    "../../../qbs/hardening.qbs",
-   
-    "test_cio_linux_epoll.qbs",
-    "test_cio_linux_server_socket.qbs",
-    "test_cio_linux_socket_utils.qbs"
-  ]
+Product {
+  name: "unit test settings"
+  Export {
+    Depends { name: "cpp" }
+    Depends { name: "unity" }
+    Depends { name: "fake-function-framework" }
+    Depends { name: "gccClang" }
+    Depends { name: "hardening" }
+    cpp.warningLevel: "all"
+    cpp.treatWarningsAsErrors: true
+    cpp.includePaths: [".", "./linux/"]
+  }
 }
+
