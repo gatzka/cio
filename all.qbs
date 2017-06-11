@@ -26,20 +26,47 @@
 
 import qbs 1.0
 
+import "qbs/unittestRunner.qbs" as UnittestRunner
+
 Project {
   name: "cio with tests and documentation"
   minimumQbsVersion: "1.4.0"
 
-  SubProject {
-    filePath: "src/cio.qbs"
-  }
+  qbsSearchPaths: "qbs/"
+
+  references : [
+    "qbs/gccClang.qbs",
+    "qbs/hardening.qbs",
+    "src/cio-staticlib.qbs",
+    "src/cio-dynamiclib.qbs",
+
+    "src/unity.qbs",
+    "src/fff.qbs",
+    "src/unittestsettings.qbs",
+    "src/linux/tests/test_cio_linux_epoll.qbs",
+    "src/linux/tests/test_cio_linux_server_socket.qbs",
+    "src/linux/tests/test_cio_linux_socket_utils.qbs",
+
+    "examples/timer_example.qbs",
+    "examples/socket_echo.qbs"
+  ] 
 
   SubProject {
     filePath: "src/cio_doc.qbs"
   }
 
-  SubProject {
-    filePath: "src/test_run.qbs"
+  UnittestRunner {
+    lcovRemovePatterns: [
+      "*/linux/tests/*",
+      "/usr/include/*",
+    ]
+    wrapper: [
+      "valgrind",
+      "--errors-for-leak-kinds=all",
+      "--show-leak-kinds=all",
+      "--leak-check=full",
+      "--error-exitcode=1",
+    ]
   }
 }
 
