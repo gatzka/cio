@@ -212,12 +212,13 @@ enum cio_error cio_socket_init(struct cio_socket *s,
                                struct cio_eventloop *loop,
                                cio_socket_close_hook close_hook)
 {
+	enum cio_error err;
 	int socket_fd = cio_linux_socket_create(s->ev.fd);
 	if (unlikely(socket_fd == -1)) {
 		return (enum cio_error)errno;
 	}
 
-	enum cio_error err = cio_linux_socket_init(s, socket_fd, loop, close_hook);
+	err = cio_linux_socket_init(s, socket_fd, loop, close_hook);
 	if (unlikely(err != cio_success)) {
 		close(socket_fd);
 	}
