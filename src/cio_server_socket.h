@@ -73,19 +73,6 @@ typedef void (*cio_server_socket_close_hook)(struct cio_server_socket *ss);
 struct cio_server_socket {
 
 	/**
-	 * @anchor cio_server_socket_init
-	 * @brief Initializes a cio_server_socket.
-	 *
-	 * If this function succeeds, a server socket is created.
-	 *
-	 * @param context The cio_server_socket::context.
-	 * @param backlog The minimal length of the listen queue.
-	 *
-	 * @return ::cio_success for success.
-	 */
-	enum cio_error (*init)(struct cio_server_socket *context, unsigned int backlog);
-
-	/**
 	 * @anchor cio_server_socket_accept
 	 * @brief Accepts an incoming socket connection.
 	 *
@@ -145,6 +132,7 @@ struct cio_server_socket {
  *
  * @param ss The cio_server socket that should be initialized.
  * @param loop The event loop the server socket shall operate on.
+ * @param backlog The minimal length of the listen queue.
  * @param close A close hook function. If this parameter is non @p NULL,
  * the function will be called directly after
  * @ref cio_server_socket_close "closing" the cio_server_socket.
@@ -155,6 +143,7 @@ struct cio_server_socket {
  */
 enum cio_error cio_server_socket_init(struct cio_server_socket *ss,
                                       struct cio_eventloop *loop,
+                                      unsigned int backlog,
                                       cio_server_socket_close_hook close);
 
 #ifdef __cplusplus
