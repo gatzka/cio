@@ -80,7 +80,6 @@ static void accept_callback(void *context)
 			if (likely(s != NULL)) {
 				enum cio_error err = cio_linux_socket_init(s, client_fd, ss->loop, free_linux_socket);
 				if (likely(err == cio_success)) {
-					s->init(s);
 					ss->handler(ss, ss->handler_context, err, s);
 				} else {
 					close(client_fd);
