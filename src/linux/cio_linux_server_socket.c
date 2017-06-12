@@ -42,19 +42,6 @@
 #include "linux/cio_linux_alloc.h"
 #include "linux/cio_linux_socket_utils.h"
 
-static enum cio_error socket_init(struct cio_server_socket *ss, unsigned int backlog)
-{
-	int listen_fd = cio_linux_socket_create(-1);
-	if (listen_fd == -1) {
-		return (enum cio_error)errno;
-	}
-
-	ss->backlog = (int)backlog;
-	ss->ev.fd = listen_fd;
-
-	return cio_success;
-}
-
 static void socket_close(struct cio_server_socket *ss)
 {
 	cio_linux_eventloop_remove(ss->loop, &ss->ev);
@@ -198,15 +185,22 @@ static enum cio_error socket_bind(struct cio_server_socket *ss, const char *bind
 
 enum cio_error cio_server_socket_init(struct cio_server_socket *ss,
                                       struct cio_eventloop *loop,
+                                      unsigned int backlog,
                                       cio_server_socket_close_hook hook)
 {
-	ss->init = socket_init;
+	int listen_fd = cio_linux_socket_create(-1);
+	if (listen_fd == -1) {
+		return (enum cio_error)errno;
+	}
+
+	ss->ev.fd = listen_fd;
+
 	ss->close = socket_close;
 	ss->accept = socket_accept;
 	ss->set_reuse_address = socket_set_reuse_address;
 	ss->bind = socket_bind;
 	ss->loop = loop;
 	ss->close_hook = hook;
-	ss->backlog = 0;
+	ss->backlog = (int)backlog;
 	return cio_success;
 }

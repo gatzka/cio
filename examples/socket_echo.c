@@ -106,8 +106,7 @@ int main()
 	}
 
 	struct cio_server_socket ss;
-	cio_server_socket_init(&ss, &loop, NULL);
-	ss.init(&ss, 5);
+	cio_server_socket_init(&ss, &loop, 5, NULL);
 	ss.set_reuse_address(&ss, true);
 	ss.bind(&ss, NULL, 12345);
 	ss.accept(&ss, handle_accept, NULL);

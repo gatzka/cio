@@ -198,8 +198,7 @@ static void test_accept_bind_address(void)
 
 	struct cio_eventloop loop;
 	struct cio_server_socket ss;
-	cio_server_socket_init(&ss, &loop, on_close);
-	enum cio_error err = ss.init(&ss, 5);
+	enum cio_error err = cio_server_socket_init(&ss, &loop, 5, on_close);
 	TEST_ASSERT_EQUAL(cio_success, err);
 	err = ss.set_reuse_address(&ss, true);
 	TEST_ASSERT_EQUAL(cio_success, err);
@@ -222,8 +221,7 @@ static void test_accept_close_in_accept_handler(void)
 
 	struct cio_eventloop loop;
 	struct cio_server_socket ss;
-	cio_server_socket_init(&ss, &loop, on_close);
-	ss.init(&ss, 5);
+	cio_server_socket_init(&ss, &loop, 5, on_close);
 	ss.bind(&ss, NULL, 12345);
 	ss.accept(&ss, accept_handler, NULL);
 
@@ -239,8 +237,7 @@ static void test_accept_wouldblock(void)
 
 	struct cio_eventloop loop;
 	struct cio_server_socket ss;
-	cio_server_socket_init(&ss, &loop, on_close);
-	enum cio_error err = ss.init(&ss, 5);
+	enum cio_error err = cio_server_socket_init(&ss, &loop, 5, on_close);
 	TEST_ASSERT_EQUAL(cio_success, err);
 	err = ss.bind(&ss, NULL, 12345);
 	TEST_ASSERT_EQUAL(cio_success, err);
@@ -260,8 +257,7 @@ static void test_accept_fails(void)
 
 	struct cio_eventloop loop;
 	struct cio_server_socket ss;
-	cio_server_socket_init(&ss, &loop, on_close);
-	ss.init(&ss, 5);
+	cio_server_socket_init(&ss, &loop, 5, on_close);
 	ss.bind(&ss, NULL, 12345);
 	ss.accept(&ss, accept_handler, NULL);
 
@@ -274,8 +270,7 @@ static void test_accept_no_handler(void)
 {
 	struct cio_eventloop loop;
 	struct cio_server_socket ss;
-	cio_server_socket_init(&ss, &loop, on_close);
-	enum cio_error err = ss.init(&ss, 5);
+	enum cio_error err = cio_server_socket_init(&ss, &loop, 5, on_close);
 	TEST_ASSERT_EQUAL(cio_success, err);
 	err = ss.bind(&ss, NULL, 12345);
 	TEST_ASSERT_EQUAL(cio_success, err);
@@ -292,8 +287,7 @@ static void test_accept_eventloop_add_fails(void)
 
 	struct cio_eventloop loop;
 	struct cio_server_socket ss;
-	cio_server_socket_init(&ss, &loop, NULL);
-	enum cio_error err = ss.init(&ss, 5);
+	enum cio_error err = cio_server_socket_init(&ss, &loop, 5, NULL);
 	TEST_ASSERT_EQUAL(cio_success, err);
 	err = ss.bind(&ss, NULL, 12345);
 	TEST_ASSERT_EQUAL(cio_success, err);
@@ -309,8 +303,7 @@ static void test_init_fails_no_socket(void)
 
 	struct cio_eventloop loop;
 	struct cio_server_socket ss;
-	cio_server_socket_init(&ss, &loop, NULL);
-	enum cio_error err = ss.init(&ss, 5);
+	enum cio_error err = cio_server_socket_init(&ss, &loop, 5, NULL);
 	TEST_ASSERT(err != cio_success);
 	TEST_ASSERT_EQUAL(0, close_fake.call_count);
 }
@@ -321,8 +314,7 @@ static void test_init_listen_fails(void)
 
 	struct cio_eventloop loop;
 	struct cio_server_socket ss;
-	cio_server_socket_init(&ss, &loop, NULL);
-	enum cio_error err = ss.init(&ss, 5);
+	enum cio_error err = cio_server_socket_init(&ss, &loop, 5, NULL);
 	TEST_ASSERT_EQUAL(cio_success, err);
 	err = ss.bind(&ss, NULL, 12345);
 	TEST_ASSERT_EQUAL(cio_success, err);
@@ -337,8 +329,7 @@ static void test_init_setsockopt_fails(void)
 
 	struct cio_eventloop loop;
 	struct cio_server_socket ss;
-	cio_server_socket_init(&ss, &loop, NULL);
-	enum cio_error err = ss.init(&ss, 5);
+	enum cio_error err = cio_server_socket_init(&ss, &loop, 5, NULL);
 	TEST_ASSERT(err == cio_success);
 	err = ss.set_reuse_address(&ss, true);
 	TEST_ASSERT(err != cio_success);
@@ -353,8 +344,7 @@ static void test_init_register_read_fails(void)
 
 	struct cio_eventloop loop;
 	struct cio_server_socket ss;
-	cio_server_socket_init(&ss, &loop, NULL);
-	enum cio_error err = ss.init(&ss, 5);
+	enum cio_error err = cio_server_socket_init(&ss, &loop, 5, NULL);
 	TEST_ASSERT_EQUAL(cio_success, err);
 	err = ss.bind(&ss, NULL, 12345);
 	TEST_ASSERT_EQUAL(cio_success, err);
@@ -371,8 +361,7 @@ static void test_enable_reuse_address(void)
 
 	struct cio_eventloop loop;
 	struct cio_server_socket ss;
-	cio_server_socket_init(&ss, &loop, NULL);
-	enum cio_error err = ss.init(&ss, 5);
+	enum cio_error err = cio_server_socket_init(&ss, &loop, 5, NULL);
 	TEST_ASSERT(err == cio_success);
 	err = ss.set_reuse_address(&ss, true);
 	TEST_ASSERT_EQUAL(cio_success, err);
@@ -389,8 +378,7 @@ static void test_disable_reuse_address(void)
 
 	struct cio_eventloop loop;
 	struct cio_server_socket ss;
-	cio_server_socket_init(&ss, &loop, NULL);
-	enum cio_error err = ss.init(&ss, 5);
+	enum cio_error err = cio_server_socket_init(&ss, &loop, 5, NULL);
 	TEST_ASSERT(err == cio_success);
 	err = ss.set_reuse_address(&ss, false);
 	TEST_ASSERT_EQUAL(cio_success, err);
@@ -407,8 +395,7 @@ static void test_init_bind_fails(void)
 
 	struct cio_eventloop loop;
 	struct cio_server_socket ss;
-	cio_server_socket_init(&ss, &loop, NULL);
-	enum cio_error err = ss.init(&ss, 5);
+	enum cio_error err = cio_server_socket_init(&ss, &loop, 5, NULL);
 	TEST_ASSERT(err == cio_success);
 	err = ss.bind(&ss, NULL, 12345);
 	TEST_ASSERT(err != cio_success);
@@ -423,8 +410,7 @@ static void test_accept_malloc_fails(void)
 
 	struct cio_eventloop loop;
 	struct cio_server_socket ss;
-	cio_server_socket_init(&ss, &loop, on_close);
-	ss.init(&ss, 5);
+	cio_server_socket_init(&ss, &loop, 5, on_close);
 	ss.bind(&ss, NULL, 12345);
 	ss.accept(&ss, accept_handler, NULL);
 
