@@ -47,7 +47,7 @@ Project {
     "src/linux/tests/test_cio_linux_server_socket.qbs",
     "src/linux/tests/test_cio_linux_socket_utils.qbs",
 
-    "examples/timer_example.qbs",
+    "examples/periodic_timer.qbs",
     "examples/socket_echo.qbs"
   ] 
 

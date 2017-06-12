@@ -19,8 +19,8 @@ add_executable(socket_echo
 )
 target_link_libraries (socket_echo cio_static)
 
-add_executable(timer_example
-    timer_example.c
+add_executable(periodic_timer
+    periodic_timer.c
 )
-target_link_libraries (timer_example cio_static)
+target_link_libraries (periodic_timer cio_static)
 

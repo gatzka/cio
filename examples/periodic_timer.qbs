@@ -27,10 +27,10 @@
 import qbs 1.0
 
 CppApplication {
-  name: "timer_example"
+  name: "periodic_timer"
   Depends { name:"cio-static"}
 
   files: [
-    "timer_example.c"
+    "periodic_timer.c"
   ]
 }

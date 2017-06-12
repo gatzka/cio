@@ -36,7 +36,7 @@ Project {
     "../qbs/gccClang.qbs",
     "../qbs/hardening.qbs",
     "../src/cio-staticlib.qbs",
-    "timer_example.qbs",
+    "periodic_timer.qbs",
     "socket_echo.qbs"
   ]
 }
