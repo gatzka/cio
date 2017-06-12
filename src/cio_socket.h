@@ -58,18 +58,6 @@ typedef void (*cio_socket_close_hook)(struct cio_socket *s);
 struct cio_socket {
 
 	/**
-	 * @anchor cio_socket_init
-	 * @brief Initializes a cio_socket.
-	 *
-	 * Creates an unconnected socket.
-	 *
-	 * @param context The cio_socket::context.
-	 *
-	 * @return ::cio_success for success.
-	 */
-	enum cio_error (*init)(struct cio_socket *context);
-
-	/**
 	 * @anchor cio_socket_get_io_stream
 	 * @brief Gets an I/O stream from the socket.
 	 *

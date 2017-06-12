@@ -38,18 +38,6 @@
 #include "cio_util.h"
 #include "linux/cio_linux_socket_utils.h"
 
-static enum cio_error socket_init(struct cio_socket *s)
-{
-	int socket_fd = cio_linux_socket_create(s->ev.fd);
-	if (unlikely(socket_fd == -1)) {
-		return (enum cio_error)errno;
-	}
-
-	s->ev.fd = socket_fd;
-
-	return cio_success;
-}
-
 static void socket_close(struct cio_socket *s)
 {
 	cio_linux_eventloop_remove(s->loop, &s->ev);
@@ -205,7 +193,6 @@ enum cio_error cio_linux_socket_init(struct cio_socket *s, int client_fd,
 	s->ev.read_callback = loop_callback;
 	s->ev.context = s;
 
-	s->init = socket_init;
 	s->close = socket_close;
 	s->set_tcp_no_delay = socket_tcp_no_delay;
 	s->set_keep_alive = socket_keepalive;
@@ -218,13 +205,22 @@ enum cio_error cio_linux_socket_init(struct cio_socket *s, int client_fd,
 	s->loop = loop;
 	s->close_hook = close_hook;
 
-	cio_linux_eventloop_add(s->loop, &s->ev);
-	return cio_success;
+	return cio_linux_eventloop_add(s->loop, &s->ev);
 }
 
 enum cio_error cio_socket_init(struct cio_socket *s,
                                struct cio_eventloop *loop,
                                cio_socket_close_hook close_hook)
 {
-	return cio_linux_socket_init(s, -1, loop, close_hook);
+	int socket_fd = cio_linux_socket_create(s->ev.fd);
+	if (unlikely(socket_fd == -1)) {
+		return (enum cio_error)errno;
+	}
+
+	enum cio_error err = cio_linux_socket_init(s, socket_fd, loop, close_hook);
+	if (unlikely(err != cio_success)) {
+		close(socket_fd);
+	}
+
+	return err;
 }
