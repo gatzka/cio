@@ -91,6 +91,7 @@ static void handle_accept(struct cio_server_socket *ss, void *handler_context, e
 
 int main()
 {
+	int ret = EXIT_SUCCESS;
 	if (signal(SIGTERM, sighandler) == SIG_ERR) {
 		return -1;
 	}
@@ -106,12 +107,35 @@ int main()
 	}
 
 	struct cio_server_socket ss;
-	cio_server_socket_init(&ss, &loop, 5, NULL);
-	ss.set_reuse_address(&ss, true);
-	ss.bind(&ss, NULL, 12345);
-	ss.accept(&ss, handle_accept, NULL);
+	err = cio_server_socket_init(&ss, &loop, 5, NULL);
+	if (err != cio_success) {
+		ret = EXIT_FAILURE;
+		goto destroy_loop;
+	}
+
+	err = ss.set_reuse_address(&ss, true);
+	if (err != cio_success) {
+		ret = EXIT_FAILURE;
+		goto close_socket;
+	}
+
+	err = ss.bind(&ss, NULL, 12345);
+	if (err != cio_success) {
+		ret = EXIT_FAILURE;
+		goto close_socket;
+	}
+
+	err = ss.accept(&ss, handle_accept, NULL);
+	if (err != cio_success) {
+		ret = EXIT_FAILURE;
+		goto close_socket;
+	}
 
 	err = cio_eventloop_run(&loop);
+
+close_socket:
+	ss.close(&ss);
+destroy_loop:
 	cio_eventloop_destroy(&loop);
-	return EXIT_SUCCESS;
+	return ret;
 }
