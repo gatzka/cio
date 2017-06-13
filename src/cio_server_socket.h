@@ -78,7 +78,7 @@ struct cio_server_socket {
 	 *
 	 * @param context The cio_server_socket::context.
 	 * @param handler The function to be called if the accept failes or succeeds.
-	 * @param handler_context The context passed the the @a handler function.
+	 * @param handler_context The context passed to the @a handler function.
 	 *
 	 * @return ::cio_success for success.
 	 */
