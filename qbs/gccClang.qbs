@@ -25,6 +25,7 @@
  */
 
 import qbs 1.0
+import 'versions.js' as Versions
 
 Product {
   name: "gccClang"
@@ -39,7 +40,12 @@ Product {
         flags.push("-Wshadow");
         flags.push("-Winit-self");
         flags.push("-Wstrict-overflow=5");
-        flags.push("-Wunused-result");
+
+        var compilerVersion = cpp.compilerVersionMajor + "." + cpp.compilerVersionMinor + "." + cpp.compilerVersionPatch;
+        if (((qbs.toolchain.indexOf("gcc") >= 0) && (Versions.versionIsAtLeast(compilerVersion, "4.5"))) ||
+            (qbs.toolchain.indexOf("clang") >= 0)) {
+          flags.push("-Wunused-result");
+        }
         flags.push("-Wcast-qual");
         flags.push("-Wcast-align");
         flags.push("-Wformat=2");
