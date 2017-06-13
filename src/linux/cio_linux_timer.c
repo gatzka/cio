@@ -50,11 +50,10 @@ static struct itimerspec convert_timeoutns_to_itimerspec(uint64_t timeout)
 	return ts;
 }
 
-static enum cio_error timer_cancel(void *context)
+static enum cio_error timer_cancel(struct cio_timer *t)
 {
 	struct itimerspec timeout;
 	int ret;
-	struct cio_timer *t = context;
 
 	if (t->handler == NULL) {
 		return cio_no_such_file_or_directory;
@@ -71,10 +70,8 @@ static enum cio_error timer_cancel(void *context)
 	return cio_success;
 }
 
-static void timer_close(void *context)
+static void timer_close(struct cio_timer *t)
 {
-	struct cio_timer *t = context;
-
 	cio_linux_eventloop_remove(t->loop, &t->ev);
 	if (t->handler != NULL) {
 		timer_cancel(t);
