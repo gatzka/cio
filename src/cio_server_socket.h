@@ -76,7 +76,7 @@ struct cio_server_socket {
 	 * @anchor cio_server_socket_accept
 	 * @brief Accepts an incoming socket connection.
 	 *
-	 * @param context The cio_server_socket::context.
+	 * @param context A pointer to a cio_server_socket on which the accept should be performed.
 	 * @param handler The function to be called if the accept failes or succeeds.
 	 * @param handler_context The context passed to the @a handler function.
 	 *
@@ -88,7 +88,7 @@ struct cio_server_socket {
 	 * @anchor cio_server_socket_close
 	 * @brief Closes the cio_server_socket.
 	 *
-	 * @param context The cio_server_socket::context.
+	 * @param context A pointer to a cio_server_socket on which the close should be performed.
 	 */
 	void (*close)(struct cio_server_socket *context);
 
@@ -96,7 +96,7 @@ struct cio_server_socket {
 	 * @anchor cio_server_socket_bind
 	 * @brief Binds the cio_server_socket to a specific address
 	 *
-	 * @param context The cio_server_socket::context.
+	 * @param context A pointer to a cio_server_socket on which the bind should be performed.
 	 * @param bind_address The IP address a cio_server_socket shall bound to. If @p NULL,
 	 *        then cio_server_socket binds to all interfaces.
 	 * @param port The TCP port the cio_server_socket shall listen on.
@@ -109,7 +109,7 @@ struct cio_server_socket {
 	 * @anchor cio_server_socket_set_reuse_address
 	 * @brief Sets the SO_REUSEADDR socket option.
 	 *
-	 * @param context The cio_server_socket::context.
+	 * @param context A pointer to a cio_server_socket for which the socket option should be set.
 	 * @param on Whether the socket option should be enabled or disabled.
 	 *
 	 * @return ::cio_success for success.

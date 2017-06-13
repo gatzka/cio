@@ -75,8 +75,7 @@ struct cio_io_stream {
 	 * @brief Read upto @p count bytes into the buffer @p buf starting
 	 * with offset @p offset.
 	 *
-	 * @param context A pointer to the cio_io_stream::context of the
-	 *                implementation implementing this interface.
+	 * @param context A pointer to the cio_io_stream of the on which the operation should be performed.
 	 * @param buf The buffer to be filled.
 	 * @param count The maximum number of bytes to read.
 	 * @param handler The callback function to be called when the read
@@ -89,8 +88,7 @@ struct cio_io_stream {
 	/**
 	 * @brief Writes @p count buffers to the stream.
 	 *
-	 * @param context A pointer to the cio_io_stream::context of the
-	 *                implementation implementing this interface.
+	 * @param context A pointer to the cio_io_stream of the on which the operation should be performed.
 	 * @param buf The buffer where the data is written from.
 	 * @param count The number of to write.
 	 * @param handler The callback function to be called when the write
@@ -106,6 +104,8 @@ struct cio_io_stream {
 	 * Implementations implementing this interface are strongly
 	 * encouraged to flush any write buffers and to free other resources
 	 * associated with this stream.
+	 *
+	 * @param context A pointer to the cio_io_stream of the on which the operation should be performed.
 	 */
 	void (*close)(struct cio_io_stream *context);
 
