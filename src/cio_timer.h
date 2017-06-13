@@ -73,7 +73,7 @@ struct cio_timer {
 	 * @anchor cio_timer_expires_from_now
 	 * @brief Set the timer's expiration time relative to now and arms the timer.
 	 *
-	 * @param context The cio_timer::context.
+	 * @param context A pointer to a struct cio_timer which shall expire.
 	 * @param timeout_ns The expiration time relative to now in nanoseconds.
 	 * @param handler The callback function to be called when the timer expires or was cancelled.
 	 * @anchor cio_timer_expires_from_now_handler_context
@@ -86,7 +86,7 @@ struct cio_timer {
 	 * @anchor cio_timer_cancel
 	 * @brief Cancels an armed timer.
 	 *
-	 * @param context The cio_timer::context.
+	 * @param context A pointer to a struct cio_timer which shall be canceled.
 	 * @return ::cio_success for success,
 	 *         ::cio_no_such_file_or_directory if the timer wasn't armed.
 	 */
@@ -99,7 +99,7 @@ struct cio_timer {
 	 * If the timer is armed and has not expired yet, the timer will be canceled and the timer callback will be called.
 	 * If a close_hook was given in ::cio_timer_init, the hook is called.
 	 *
-	 * @param context The cio_timer::context.
+	 * @param context A pointer to a struct cio_timer which shall be closed.
 	 */
 	void (*close)(struct cio_timer *context);
 
