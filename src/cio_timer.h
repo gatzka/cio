@@ -90,7 +90,7 @@ struct cio_timer {
 	 * @return ::cio_success for success,
 	 *         ::cio_no_such_file_or_directory if the timer wasn't armed.
 	 */
-	enum cio_error (*cancel)(void *context);
+	enum cio_error (*cancel)(struct cio_timer *context);
 
 	/**
 	 * @anchor cio_timer_close
@@ -101,7 +101,7 @@ struct cio_timer {
 	 *
 	 * @param context The cio_timer::context.
 	 */
-	void (*close)(void *context);
+	void (*close)(struct cio_timer *context);
 
 	/**
 	 * @privatesection
