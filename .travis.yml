@@ -38,7 +38,7 @@ script:
       CMAKE_CMD_OPTION="-DCMAKE_C_COMPILER=${CMAKE_C_COMPILER} -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}";
       echo $CMAKE_CMD_OPTION;
       cmake $CMAKE_CMD_OPTION ../;
-      if [ -n "${SCAN_BUILD}" ]; then /usr/lib/llvm-3.9/bin/scan-build --status-bugs make; else make; fi;
+      if [ -n "${SCAN_BUILD}" ]; then /usr/lib/llvm-3.9/bin/scan-build --status-bugs make -j; else make -j; fi;
       ASAN_OPTIONS=check_initialization_order=true:detect_stack_use_after_return=true:strict_init_order=true:detect_invalid_pointer_pairs=10:strict_string_checks=true ctest . ;
     fi
 
@@ -64,6 +64,6 @@ addons:
     notification_email: stephan.gatzka@gmail.com
     build_script_url: https://raw.githubusercontent.com/gatzka/cio/coverity_scan/.travisci_build_coverity_scan.sh
     build_command_prepend: "cmake ./"
-    build_command: "make"
+    build_command: "make -j"
     branch_pattern: coverity_scan
 
