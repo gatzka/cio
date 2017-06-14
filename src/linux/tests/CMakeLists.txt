@@ -20,7 +20,8 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../../fff/)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../../unity/src/)
 
 set(WARN_SWITCHES "-Wall -Wextra -Werror -Wshadow -Winit-self -Wcast-qual -Wcast-align -Wformat=2 -Wwrite-strings -Wmissing-prototypes -Wstrict-overflow=5 -pedantic")
-set(CMAKE_C_FLAGS "-pipe -fno-common -std=gnu99 ${WARN_SWITCHES} ${CMAKE_C_FLAGS}")
+set(COVERAGE_FLAGS "-fprofile-arcs -ftest-coverage")
+set(CMAKE_C_FLAGS "-pipe -fno-common -std=gnu99 ${WARN_SWITCHES} ${CMAKE_C_FLAGS} ${COVERAGE_FLAGS}")
 
 message(STATUS "CMAKE_C_COMPILER_ID: " ${CMAKE_C_COMPILER_ID})
 message(STATUS "CMAKE_C_COMPILER_VERSION: " ${CMAKE_C_COMPILER_VERSION})
