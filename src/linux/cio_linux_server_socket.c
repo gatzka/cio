@@ -83,6 +83,7 @@ static void accept_callback(void *context)
 					ss->handler(ss, ss->handler_context, err, s);
 				} else {
 					close(client_fd);
+					cio_free(s);
 				}
 			} else {
 				close(client_fd);
