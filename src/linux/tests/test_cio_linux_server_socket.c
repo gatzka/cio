@@ -35,6 +35,7 @@
 
 #include "cio_eventloop.h"
 #include "cio_linux_alloc.h"
+#include "cio_linux_socket.h"
 #include "cio_linux_socket_utils.h"
 #include "cio_server_socket.h"
 #include "cio_socket.h"
@@ -62,6 +63,10 @@ FAKE_VALUE_FUNC(void *, cio_malloc, size_t)
 FAKE_VOID_FUNC(cio_free, void *)
 
 FAKE_VALUE_FUNC(int, cio_linux_socket_create, int)
+
+FAKE_VALUE_FUNC(enum cio_error, cio_linux_socket_init, struct cio_socket *, int,
+                struct cio_eventloop *,
+                cio_socket_close_hook)
 
 static int optval;
 
@@ -184,7 +189,7 @@ static void accept_handler_close_server_socket(struct cio_server_socket *ss, voi
 	(void)handler_context;
 	(void)err;
 	if (err == cio_success) {
-		sock->close(sock);
+		cio_free(sock);
 	}
 	ss->close(ss);
 }
@@ -418,6 +423,25 @@ static void test_accept_malloc_fails(void)
 	TEST_ASSERT_EQUAL(1, close_fake.call_count);
 }
 
+static void test_accept_socket_init_fails(void)
+{
+	accept_fake.custom_fake = accept_wouldblock_second;
+
+	cio_linux_socket_init_fake.return_val = cio_not_enough_memory;
+	cio_malloc_fake.return_val = (void *)0x1;
+
+	struct cio_eventloop loop;
+	struct cio_server_socket ss;
+	cio_server_socket_init(&ss, &loop, 5, on_close);
+	ss.bind(&ss, NULL, 12345);
+	ss.accept(&ss, accept_handler, NULL);
+
+	TEST_ASSERT_EQUAL(0, accept_handler_fake.call_count);
+	TEST_ASSERT_EQUAL(1, close_fake.call_count);
+	TEST_ASSERT_EQUAL(1, cio_free_fake.call_count);
+	TEST_ASSERT_EQUAL(0x1, cio_free_fake.arg0_val);
+}
+
 int main(void)
 {
 	UNITY_BEGIN();
@@ -435,5 +459,6 @@ int main(void)
 	RUN_TEST(test_enable_reuse_address);
 	RUN_TEST(test_disable_reuse_address);
 	RUN_TEST(test_init_register_read_fails);
+	RUN_TEST(test_accept_socket_init_fails);
 	return UNITY_END();
 }
