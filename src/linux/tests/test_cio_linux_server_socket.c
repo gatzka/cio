@@ -428,7 +428,8 @@ static void test_accept_socket_init_fails(void)
 	accept_fake.custom_fake = accept_wouldblock_second;
 
 	cio_linux_socket_init_fake.return_val = cio_not_enough_memory;
-	cio_malloc_fake.return_val = (void *)0x1;
+	cio_malloc_fake.custom_fake = malloc;
+	cio_free_fake.custom_fake = free;
 
 	struct cio_eventloop loop;
 	struct cio_server_socket ss;
@@ -439,7 +440,6 @@ static void test_accept_socket_init_fails(void)
 	TEST_ASSERT_EQUAL(0, accept_handler_fake.call_count);
 	TEST_ASSERT_EQUAL(1, close_fake.call_count);
 	TEST_ASSERT_EQUAL(1, cio_free_fake.call_count);
-	TEST_ASSERT_EQUAL(0x1, cio_free_fake.arg0_val);
 }
 
 int main(void)
