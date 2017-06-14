@@ -194,6 +194,35 @@ static void accept_handler_close_server_socket(struct cio_server_socket *ss, voi
 	ss->close(ss);
 }
 
+static void socket_close(struct cio_socket *s)
+{
+	close(s->ev.fd);
+	if (s->close_hook != NULL) {
+		s->close_hook(s);
+	}
+}
+
+static enum cio_error custom_cio_linux_socket_init(struct cio_socket *s, int fd, struct cio_eventloop *loop, cio_socket_close_hook hook)
+{
+	s->ev.fd = fd;
+
+	s->close = socket_close;
+
+	s->loop = loop;
+	s->close_hook = hook;
+	return cio_success;
+}
+
+static void accept_handler_close_socket(struct cio_server_socket *ss, void *handler_context, enum cio_error err, struct cio_socket *sock)
+{
+	(void)handler_context;
+	(void)err;
+	(void)ss;
+	if (err == cio_success) {
+		sock->close(sock);
+	}
+}
+
 static void test_accept_bind_address(void)
 {
 	accept_fake.custom_fake = custom_accept_fake;
@@ -442,6 +471,26 @@ static void test_accept_socket_init_fails(void)
 	TEST_ASSERT_EQUAL(1, cio_free_fake.call_count);
 }
 
+static void test_accept_socket_close_socket(void)
+{
+	accept_fake.custom_fake = accept_wouldblock_second;
+	accept_handler_fake.custom_fake = accept_handler_close_socket;
+	cio_linux_socket_init_fake.custom_fake = custom_cio_linux_socket_init;
+	cio_malloc_fake.custom_fake = malloc;
+	cio_free_fake.custom_fake = free;
+
+	struct cio_eventloop loop;
+	struct cio_server_socket ss;
+	cio_server_socket_init(&ss, &loop, 5, on_close);
+	ss.bind(&ss, NULL, 12345);
+	ss.accept(&ss, accept_handler, NULL);
+
+	TEST_ASSERT_EQUAL(1, accept_handler_fake.call_count);
+	TEST_ASSERT_EQUAL(1, close_fake.call_count);
+	TEST_ASSERT_EQUAL(1, cio_malloc_fake.call_count);
+	TEST_ASSERT_EQUAL(1, cio_free_fake.call_count);
+}
+
 int main(void)
 {
 	UNITY_BEGIN();
@@ -460,5 +509,6 @@ int main(void)
 	RUN_TEST(test_disable_reuse_address);
 	RUN_TEST(test_init_register_read_fails);
 	RUN_TEST(test_accept_socket_init_fails);
+	RUN_TEST(test_accept_socket_close_socket);
 	return UNITY_END();
 }
