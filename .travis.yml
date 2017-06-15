@@ -49,6 +49,7 @@ after_success:
       lcov --capture --directory . --output-file coverage.info --rc lcov_branch_coverage=1;
       lcov --remove coverage.info '/usr/*' --output-file coverage.info --rc lcov_branch_coverage=1;
       lcov --list coverage.info --rc lcov_branch_coverage=1;
+      lcov --version;
     fi
 
 addons:
