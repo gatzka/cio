@@ -48,7 +48,7 @@ after_success:
       cd ${TRAVIS_BUILD_DIR};
       lcov --version;
       lcov --capture --directory . --output-file coverage.info;
-      lcov --remove coverage.info '*/linux/tests/*' '/usr/include/*' --output-file coverage.info;
+      lcov --remove coverage.info '*/linux/tests/*' '/usr/include/*' '*/unity/*' --output-file coverage.info;
       lcov --list coverage.info;
     fi
 
