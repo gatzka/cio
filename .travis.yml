@@ -3,6 +3,7 @@ language: c
 branches:
   except:
     - /^feature.*$/
+    - /^fix.*$/
 
 sudo: false
 
