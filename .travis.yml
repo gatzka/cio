@@ -51,6 +51,7 @@ after_success:
       lcov --capture --directory . --output-file coverage.info;
       lcov --remove coverage.info '*/linux/tests/*' '/usr/include/*' '*/unity/*' --output-file coverage.info;
       lcov --list coverage.info;
+      bash <(curl -s https://codecov.io/bash) || echo "Codecov did not collect coverage reports";
     fi
 
 addons:
