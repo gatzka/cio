@@ -12,6 +12,7 @@ env:
       CMAKE_BUILD_TYPE=Debug
     - CMAKE_C_COMPILER=gcc-6
       CMAKE_BUILD_TYPE=Debug
+      COVERAGE_INFO=1
     - CMAKE_C_COMPILER=clang
       CMAKE_BUILD_TYPE=Debug
     - CMAKE_C_COMPILER=clang-3.9
@@ -40,6 +41,14 @@ script:
       cmake $CMAKE_CMD_OPTION ../;
       if [ -n "${SCAN_BUILD}" ]; then /usr/lib/llvm-3.9/bin/scan-build --status-bugs make -j; else make -j; fi;
       ASAN_OPTIONS=check_initialization_order=true:detect_stack_use_after_return=true:strict_init_order=true:detect_invalid_pointer_pairs=10:strict_string_checks=true ctest . ;
+    fi
+
+after_success:
+  - if [ -n "${COVERAGE_INFO}" ]; then
+      cd ${TRAVIS_BUILD_DIR};
+      lcov --capture --directory . --output-file coverage.info --rc lcov_branch_coverage=1;
+      lcov --remove coverage.info '/usr/*' --output-file coverage.info --rc lcov_branch_coverage=1
+      lcov --list coverage.info --rc lcov_branch_coverage=1
     fi
 
 addons:
