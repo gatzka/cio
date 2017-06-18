@@ -48,22 +48,20 @@ static int set_fd_non_blocking(int fd)
 	return 0;
 }
 
-int cio_linux_socket_create(int fd)
+int cio_linux_socket_create(void)
 {
 	int ret;
 
+	int fd = socket(AF_INET6, SOCK_STREAM, 0);
 	if (fd == -1) {
-		fd = socket(AF_INET6, SOCK_STREAM, 0);
-		if (fd == -1) {
-			return -1;
-		}
-	}
-
-	ret = set_fd_non_blocking(fd);
-	if (unlikely(ret == -1)) {
-		close(fd);
 		return -1;
 	}
 
-	return fd;
+	ret = set_fd_non_blocking(fd);
+	if (likely(ret != -1)) {
+		return fd;
+	}
+
+	close(fd);
+	return -1;
 }

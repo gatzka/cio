@@ -188,7 +188,7 @@ enum cio_error cio_server_socket_init(struct cio_server_socket *ss,
                                       unsigned int backlog,
                                       cio_server_socket_close_hook hook)
 {
-	int listen_fd = cio_linux_socket_create(-1);
+	int listen_fd = cio_linux_socket_create();
 	if (listen_fd == -1) {
 		return (enum cio_error)errno;
 	}

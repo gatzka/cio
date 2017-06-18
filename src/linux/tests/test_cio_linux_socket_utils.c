@@ -72,24 +72,11 @@ static int fcntl_setfl_fails(int fd, int cmd, va_list ap)
 	return 0;
 }
 
-static void test_create_socket_from_existing_fd(void)
-{
-	int socket_fd = 5;
-	int ret = cio_linux_socket_create(socket_fd);
-
-	TEST_ASSERT_EQUAL(ret, socket_fd);
-	TEST_ASSERT_EQUAL(0, socket_fake.call_count);
-	TEST_ASSERT_EQUAL(0, close_fake.call_count);
-	TEST_ASSERT_EQUAL(2, fcntl_fake.call_count);
-	TEST_ASSERT_EQUAL(socket_fd, fcntl_fake.arg0_history[0]);
-	TEST_ASSERT_EQUAL(socket_fd, fcntl_fake.arg0_history[1]);
-}
-
 static void test_create_socket_no_fd(void)
 {
 	int socket_fd = 5;
 	socket_fake.return_val = socket_fd;
-	int ret = cio_linux_socket_create(-1);
+	int ret = cio_linux_socket_create();
 
 	TEST_ASSERT_EQUAL(ret, socket_fd);
 	TEST_ASSERT_EQUAL(1, socket_fake.call_count);
@@ -102,7 +89,7 @@ static void test_create_socket_no_fd(void)
 static void test_create_socket_fails(void)
 {
 	socket_fake.return_val = -1;
-	int ret = cio_linux_socket_create(-1);
+	int ret = cio_linux_socket_create();
 
 	TEST_ASSERT_EQUAL(-1, ret);
 	TEST_ASSERT_EQUAL(1, socket_fake.call_count);
@@ -116,7 +103,7 @@ static void test_create_socket_getfl_fails(void)
 	socket_fake.return_val = socket_fd;
 	fcntl_fake.custom_fake = fcntl_getfl_fails;
 
-	int ret = cio_linux_socket_create(-1);
+	int ret = cio_linux_socket_create();
 
 	TEST_ASSERT_EQUAL(ret, -1);
 	TEST_ASSERT_EQUAL(1, socket_fake.call_count);
@@ -130,7 +117,7 @@ static void test_create_socket_setfl_fails(void)
 	socket_fake.return_val = socket_fd;
 	fcntl_fake.custom_fake = fcntl_setfl_fails;
 
-	int ret = cio_linux_socket_create(-1);
+	int ret = cio_linux_socket_create();
 
 	TEST_ASSERT_EQUAL(ret, -1);
 	TEST_ASSERT_EQUAL(1, socket_fake.call_count);
@@ -141,7 +128,6 @@ static void test_create_socket_setfl_fails(void)
 int main(void)
 {
 	UNITY_BEGIN();
-	RUN_TEST(test_create_socket_from_existing_fd);
 	RUN_TEST(test_create_socket_no_fd);
 	RUN_TEST(test_create_socket_fails);
 	RUN_TEST(test_create_socket_getfl_fails);
