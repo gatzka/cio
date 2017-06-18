@@ -50,9 +50,16 @@ add_executable(test_cio_linux_timer
 )
 target_link_libraries (test_cio_linux_timer unity)
 
+add_executable(test_cio_linux_socket
+    test_cio_linux_socket.c
+    ../cio_linux_socket.c
+)
+target_link_libraries (test_cio_linux_socket unity)
+
 enable_testing()
-add_test(NAME test_cio_linux_server_socket COMMAND test_cio_linux_server_socket)
 add_test(NAME test_cio_linux_epoll COMMAND test_cio_linux_epoll)
+add_test(NAME test_cio_linux_server_socket COMMAND test_cio_linux_server_socket)
+add_test(NAME test_cio_linux_socket COMMAND test_cio_linux_socket)
 add_test(NAME test_cio_linux_socket_utils COMMAND test_cio_linux_socket_utils)
 add_test(NAME test_cio_linux_timer COMMAND test_cio_linux_timer)
 
