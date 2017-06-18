@@ -44,6 +44,7 @@ FAKE_VOID_FUNC(cio_linux_eventloop_remove, struct cio_eventloop *, const struct 
 
 FAKE_VALUE_FUNC(int, timerfd_create, int, int)
 FAKE_VALUE_FUNC(int, timerfd_settime, int, int, const struct itimerspec *, struct itimerspec *)
+FAKE_VALUE_FUNC(ssize_t, read, int, void *, size_t)
 FAKE_VALUE_FUNC(int, close, int)
 
 void on_close(struct cio_timer *timer);
@@ -86,6 +87,16 @@ static int settime_fails(int fd, int flags, const struct itimerspec *new_value, 
 	return -1;
 }
 
+static ssize_t read_blocks(int fd, void *buf, size_t count)
+{
+	(void)fd;
+	(void)buf;
+	(void)count;
+
+	errno = EWOULDBLOCK;
+	return -1;
+}
+
 void setUp(void)
 {
 	FFF_RESET_HISTORY();
@@ -97,6 +108,7 @@ void setUp(void)
 
 	RESET_FAKE(timerfd_create);
 	RESET_FAKE(timerfd_settime);
+	RESET_FAKE(read);
 	RESET_FAKE(close);
 
 	RESET_FAKE(on_close);
@@ -195,6 +207,7 @@ static void test_close_while_armed(void)
 {
 	static const int timerfd = 5;
 	timerfd_create_fake.return_val = timerfd;
+	read_fake.custom_fake = read_blocks;
 
 	struct cio_timer timer;
 	enum cio_error err = cio_timer_init(&timer, NULL, NULL);
@@ -228,6 +241,7 @@ static void test_cancel_settime_in_cancel_fails(void)
 {
 	static const int timerfd = 5;
 	timerfd_create_fake.return_val = timerfd;
+	read_fake.custom_fake = read_blocks;
 
 	int (*custom_fakes[])(int, int, const struct itimerspec *, struct itimerspec *) =
 	    {settime_ok,
@@ -252,6 +266,7 @@ static void test_arming_settime_fails(void)
 	static const int timerfd = 5;
 	timerfd_create_fake.return_val = timerfd;
 	timerfd_settime_fake.custom_fake = settime_fails;
+	read_fake.custom_fake = read_blocks;
 
 	struct cio_timer timer;
 	enum cio_error err = cio_timer_init(&timer, NULL, NULL);
