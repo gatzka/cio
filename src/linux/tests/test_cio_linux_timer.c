@@ -107,6 +107,15 @@ static ssize_t read_fails(int fd, void *buf, size_t count)
 	return -1;
 }
 
+static ssize_t read_not_enough(int fd, void *buf, size_t count)
+{
+	(void)fd;
+	(void)buf;
+	(void)count;
+
+	return 3;
+}
+
 void setUp(void)
 {
 	FFF_RESET_HISTORY();
@@ -306,6 +315,23 @@ static void test_arming_read_fails(void)
 	TEST_ASSERT_EQUAL(&timer, handle_timeout_fake.arg0_val);
 }
 
+static void test_arming_read_not_enough(void)
+{
+	static const int timerfd = 5;
+	timerfd_create_fake.return_val = timerfd;
+	read_fake.custom_fake = read_not_enough;
+
+	struct cio_timer timer;
+	enum cio_error err = cio_timer_init(&timer, NULL, NULL);
+	TEST_ASSERT_EQUAL(cio_success, err);
+
+	timer.expires_from_now(&timer, 2000, handle_timeout, NULL);
+
+	TEST_ASSERT_EQUAL(1, handle_timeout_fake.call_count);
+	TEST_ASSERT(handle_timeout_fake.arg2_val != cio_success);
+	TEST_ASSERT_EQUAL(&timer, handle_timeout_fake.arg0_val);
+}
+
 static void test_arming_success(void)
 {
 	static const int timerfd = 5;
@@ -337,6 +363,7 @@ int main(void)
 	RUN_TEST(test_cancel_settime_in_cancel_fails);
 	RUN_TEST(test_arming_settime_fails);
 	RUN_TEST(test_arming_read_fails);
+	RUN_TEST(test_arming_read_not_enough);
 	RUN_TEST(test_arming_success);
 	return UNITY_END();
 }
