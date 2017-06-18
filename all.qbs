@@ -45,6 +45,7 @@ Project {
     "src/unittestsettings.qbs",
     "src/linux/tests/test_cio_linux_epoll.qbs",
     "src/linux/tests/test_cio_linux_server_socket.qbs",
+    "src/linux/tests/test_cio_linux_socket.qbs",
     "src/linux/tests/test_cio_linux_socket_utils.qbs",
     "src/linux/tests/test_cio_linux_timer.qbs",
 
