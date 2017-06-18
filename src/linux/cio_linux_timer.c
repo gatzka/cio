@@ -83,6 +83,27 @@ static void timer_close(struct cio_timer *t)
 	}
 }
 
+static void timer_read(void *context)
+{
+	struct cio_timer *t = context;
+	uint64_t number_of_expirations;
+
+	ssize_t ret = read(t->ev.fd, &number_of_expirations, sizeof(number_of_expirations));
+	if (ret == -1) {
+		if ((errno == EWOULDBLOCK) || (errno == EAGAIN)) {
+			return;
+		}
+
+		t->handler(t, t->handler_context, (enum cio_error)errno);
+	}
+
+	if (likely(ret == sizeof(number_of_expirations))) {
+		t->handler(t, t->handler_context, cio_success);
+	} else {
+		t->handler(t, t->handler_context, cio_not_enough_memory);
+	}
+}
+
 static void timer_expires_from_now(struct cio_timer *t, uint64_t timeout_ns, timer_handler handler, void *handler_context)
 {
 	struct itimerspec timeout = convert_timeoutns_to_itimerspec(timeout_ns);
@@ -96,19 +117,8 @@ static void timer_expires_from_now(struct cio_timer *t, uint64_t timeout_ns, tim
 	if (unlikely(ret != 0)) {
 		t->handler(t, t->handler_context, (enum cio_error)errno);
 	}
-}
 
-static void timer_read(void *context)
-{
-	struct cio_timer *t = context;
-	uint64_t number_of_expirations;
-
-	ssize_t ret = read(t->ev.fd, &number_of_expirations, sizeof(number_of_expirations));
-	if (likely(ret == sizeof(number_of_expirations))) {
-		t->handler(t, t->handler_context, cio_success);
-	} else {
-		t->handler(t, t->handler_context, (enum cio_error)errno);
-	}
+	timer_read(t);
 }
 
 enum cio_error cio_timer_init(struct cio_timer *timer, struct cio_eventloop *loop,
