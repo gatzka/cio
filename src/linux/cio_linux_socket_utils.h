@@ -33,7 +33,7 @@
 extern "C" {
 #endif
 
-int cio_linux_socket_create(int fd);
+int cio_linux_socket_create(void);
 
 #ifdef __cplusplus
 }

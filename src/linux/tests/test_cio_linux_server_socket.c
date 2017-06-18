@@ -62,7 +62,7 @@ FAKE_VALUE_FUNC(int, close, int)
 FAKE_VALUE_FUNC(void *, cio_malloc, size_t)
 FAKE_VOID_FUNC(cio_free, void *)
 
-FAKE_VALUE_FUNC(int, cio_linux_socket_create, int)
+FAKE_VALUE_FUNC0(int, cio_linux_socket_create)
 
 FAKE_VALUE_FUNC(enum cio_error, cio_linux_socket_init, struct cio_socket *, int,
                 struct cio_eventloop *,

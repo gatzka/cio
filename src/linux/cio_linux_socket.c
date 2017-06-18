@@ -213,7 +213,7 @@ enum cio_error cio_socket_init(struct cio_socket *s,
                                cio_socket_close_hook close_hook)
 {
 	enum cio_error err;
-	int socket_fd = cio_linux_socket_create(s->ev.fd);
+	int socket_fd = cio_linux_socket_create();
 	if (unlikely(socket_fd == -1)) {
 		return (enum cio_error)errno;
 	}
