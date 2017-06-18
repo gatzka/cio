@@ -93,10 +93,44 @@ static void test_create_timer_timerfd_create_fails(void)
 	TEST_ASSERT_EQUAL(0, cio_linux_eventloop_remove_fake.call_count);
 }
 
+static void test_create_timer_eventloop_add_fails(void)
+{
+	static const int timerfd = 5;
+	timerfd_create_fake.return_val = timerfd;
+	cio_linux_eventloop_add_fake.return_val = cio_invalid_argument;
+
+	struct cio_timer timer;
+	enum cio_error err = cio_timer_init(&timer, NULL, NULL);
+	TEST_ASSERT(err != cio_success);
+	TEST_ASSERT_EQUAL(1, cio_linux_eventloop_add_fake.call_count);
+	TEST_ASSERT_EQUAL(0, cio_linux_eventloop_register_read_fake.call_count);
+	TEST_ASSERT_EQUAL(1, close_fake.call_count);
+	TEST_ASSERT_EQUAL(timerfd, close_fake.arg0_val);
+	TEST_ASSERT_EQUAL(0, cio_linux_eventloop_remove_fake.call_count);
+}
+
+static void test_create_timer_eventloop_register_read_fails(void)
+{
+	static const int timerfd = 5;
+	timerfd_create_fake.return_val = timerfd;
+	cio_linux_eventloop_register_read_fake.return_val = cio_invalid_argument;
+
+	struct cio_timer timer;
+	enum cio_error err = cio_timer_init(&timer, NULL, NULL);
+	TEST_ASSERT(err != cio_success);
+	TEST_ASSERT_EQUAL(1, cio_linux_eventloop_add_fake.call_count);
+	TEST_ASSERT_EQUAL(1, cio_linux_eventloop_register_read_fake.call_count);
+	TEST_ASSERT_EQUAL(1, close_fake.call_count);
+	TEST_ASSERT_EQUAL(timerfd, close_fake.arg0_val);
+	TEST_ASSERT_EQUAL(1, cio_linux_eventloop_remove_fake.call_count);
+}
+
 int main(void)
 {
 	UNITY_BEGIN();
 	RUN_TEST(test_create_timer);
 	RUN_TEST(test_create_timer_timerfd_create_fails);
+	RUN_TEST(test_create_timer_eventloop_add_fails);
+	RUN_TEST(test_create_timer_eventloop_register_read_fails);
 	return UNITY_END();
 }

@@ -134,9 +134,20 @@ enum cio_error cio_timer_init(struct cio_timer *timer, struct cio_eventloop *loo
 	timer->ev.fd = fd;
 
 	ret_val = cio_linux_eventloop_add(timer->loop, &timer->ev);
-	if (likely(ret_val == cio_success)) {
-		return cio_linux_eventloop_register_read(timer->loop, &timer->ev);
-	} else {
-		return ret_val;
+	if (unlikely(ret_val != cio_success)) {
+		goto eventloop_add_failed;
 	}
+
+	ret_val = cio_linux_eventloop_register_read(timer->loop, &timer->ev);
+	if (unlikely(ret_val != cio_success)) {
+		goto register_read_failed;
+	}
+
+	return ret_val;
+
+register_read_failed:
+	cio_linux_eventloop_remove(timer->loop, &timer->ev);
+eventloop_add_failed:
+	close(fd);
+	return ret_val;
 }
