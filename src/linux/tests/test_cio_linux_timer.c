@@ -43,7 +43,14 @@ FAKE_VALUE_FUNC(enum cio_error, cio_linux_eventloop_register_write, const struct
 FAKE_VOID_FUNC(cio_linux_eventloop_remove, struct cio_eventloop *, const struct cio_event_notifier *)
 
 FAKE_VALUE_FUNC(int, timerfd_create, int, int)
+FAKE_VALUE_FUNC(int, timerfd_settime, int, int, const struct itimerspec*, struct itimerspec*)
 FAKE_VALUE_FUNC(int, close, int)
+
+void on_close(struct cio_timer *timer);
+FAKE_VOID_FUNC(on_close, struct cio_timer *)
+
+void handle_timeout(struct cio_timer *context, void *handler_context, enum cio_error err);
+FAKE_VOID_FUNC(handle_timeout, struct cio_timer *, void*, enum cio_error)
 
 static int timerfd_create_fails(int clockid, int flags)
 {
@@ -64,7 +71,11 @@ void setUp(void)
 	RESET_FAKE(cio_linux_eventloop_register_write);
 
 	RESET_FAKE(timerfd_create);
+	RESET_FAKE(timerfd_settime);
 	RESET_FAKE(close);
+
+	RESET_FAKE(on_close);
+	RESET_FAKE(handle_timeout);
 }
 
 static void test_create_timer(void)
@@ -125,6 +136,69 @@ static void test_create_timer_eventloop_register_read_fails(void)
 	TEST_ASSERT_EQUAL(1, cio_linux_eventloop_remove_fake.call_count);
 }
 
+static void test_close_without_hook(void)
+{
+	static const int timerfd = 5;
+	timerfd_create_fake.return_val = timerfd;
+
+	struct cio_timer timer;
+	enum cio_error err = cio_timer_init(&timer, NULL, NULL);
+	TEST_ASSERT_EQUAL(cio_success, err);
+
+	timer.close(&timer);
+	TEST_ASSERT_EQUAL(1, close_fake.call_count);
+	TEST_ASSERT_EQUAL(timerfd, close_fake.arg0_val);
+}
+
+static void test_close_with_hook(void)
+{
+	static const int timerfd = 5;
+	timerfd_create_fake.return_val = timerfd;
+
+	struct cio_timer timer;
+	enum cio_error err = cio_timer_init(&timer, NULL, on_close);
+	TEST_ASSERT_EQUAL(cio_success, err);
+
+	timer.close(&timer);
+	TEST_ASSERT_EQUAL(1, close_fake.call_count);
+	TEST_ASSERT_EQUAL(timerfd, close_fake.arg0_val);
+	TEST_ASSERT_EQUAL(1, on_close_fake.call_count);
+	TEST_ASSERT_EQUAL(&timer, on_close_fake.arg0_val);
+}
+
+static void test_close_while_armed(void)
+{
+	static const int timerfd = 5;
+	timerfd_create_fake.return_val = timerfd;
+
+	struct cio_timer timer;
+	enum cio_error err = cio_timer_init(&timer, NULL, NULL);
+	TEST_ASSERT_EQUAL(cio_success, err);
+
+	timer.expires_from_now(&timer, 2000, handle_timeout, NULL);
+
+	timer.close(&timer);
+	TEST_ASSERT_EQUAL(1, close_fake.call_count);
+	TEST_ASSERT_EQUAL(timerfd, close_fake.arg0_val);
+
+	TEST_ASSERT_EQUAL(1, handle_timeout_fake.call_count);
+	TEST_ASSERT_EQUAL(cio_operation_aborted, handle_timeout_fake.arg2_val);
+	TEST_ASSERT_EQUAL(&timer, handle_timeout_fake.arg0_val);
+}
+
+static void test_cancel_without_arming(void)
+{
+	static const int timerfd = 5;
+	timerfd_create_fake.return_val = timerfd;
+
+	struct cio_timer timer;
+	enum cio_error err = cio_timer_init(&timer, NULL, NULL);
+	TEST_ASSERT_EQUAL(cio_success, err);
+
+	err = timer.cancel(&timer);
+	TEST_ASSERT(err != cio_success);
+}
+
 int main(void)
 {
 	UNITY_BEGIN();
@@ -132,5 +206,9 @@ int main(void)
 	RUN_TEST(test_create_timer_timerfd_create_fails);
 	RUN_TEST(test_create_timer_eventloop_add_fails);
 	RUN_TEST(test_create_timer_eventloop_register_read_fails);
+	RUN_TEST(test_close_without_hook);
+	RUN_TEST(test_close_with_hook);
+	RUN_TEST(test_close_while_armed);
+	RUN_TEST(test_cancel_without_arming);
 	return UNITY_END();
 }
