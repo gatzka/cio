@@ -90,17 +90,15 @@ static void timer_read(void *context)
 
 	ssize_t ret = read(t->ev.fd, &number_of_expirations, sizeof(number_of_expirations));
 	if (ret == -1) {
-		if ((errno == EWOULDBLOCK) || (errno == EAGAIN)) {
-			return;
+		if ((errno != EAGAIN) && (errno != EWOULDBLOCK)) {
+			t->handler(t, t->handler_context, (enum cio_error)errno);
 		}
-
-		t->handler(t, t->handler_context, (enum cio_error)errno);
-	}
-
-	if (likely(ret == sizeof(number_of_expirations))) {
-		t->handler(t, t->handler_context, cio_success);
 	} else {
-		t->handler(t, t->handler_context, cio_not_enough_memory);
+		if (likely(ret == sizeof(number_of_expirations))) {
+			t->handler(t, t->handler_context, cio_success);
+		} else {
+			t->handler(t, t->handler_context, cio_not_enough_memory);
+		}
 	}
 }
 
