@@ -43,19 +43,44 @@ FAKE_VALUE_FUNC(enum cio_error, cio_linux_eventloop_register_write, const struct
 FAKE_VOID_FUNC(cio_linux_eventloop_remove, struct cio_eventloop *, const struct cio_event_notifier *)
 
 FAKE_VALUE_FUNC(int, timerfd_create, int, int)
-FAKE_VALUE_FUNC(int, timerfd_settime, int, int, const struct itimerspec*, struct itimerspec*)
+FAKE_VALUE_FUNC(int, timerfd_settime, int, int, const struct itimerspec *, struct itimerspec *)
 FAKE_VALUE_FUNC(int, close, int)
 
 void on_close(struct cio_timer *timer);
 FAKE_VOID_FUNC(on_close, struct cio_timer *)
 
 void handle_timeout(struct cio_timer *context, void *handler_context, enum cio_error err);
-FAKE_VOID_FUNC(handle_timeout, struct cio_timer *, void*, enum cio_error)
+FAKE_VOID_FUNC(handle_timeout, struct cio_timer *, void *, enum cio_error)
+
+#ifndef ARRAY_SIZE
+#define ARRAY_SIZE(a) (sizeof(a) / sizeof((a)[0]))
+#endif
 
 static int timerfd_create_fails(int clockid, int flags)
 {
 	(void)clockid;
 	(void)flags;
+
+	errno = EINVAL;
+	return -1;
+}
+
+static int settime_ok(int fd, int flags, const struct itimerspec *new_value, struct itimerspec *old_value)
+{
+	(void)fd;
+	(void)flags;
+	(void)new_value;
+	(void)old_value;
+
+	return 0;
+}
+
+static int settime_fails(int fd, int flags, const struct itimerspec *new_value, struct itimerspec *old_value)
+{
+	(void)fd;
+	(void)flags;
+	(void)new_value;
+	(void)old_value;
 
 	errno = EINVAL;
 	return -1;
@@ -199,6 +224,29 @@ static void test_cancel_without_arming(void)
 	TEST_ASSERT(err != cio_success);
 }
 
+static void test_cancel_settime_in_cancel_fails(void)
+{
+	static const int timerfd = 5;
+	timerfd_create_fake.return_val = timerfd;
+
+	int (*custom_fakes[])(int, int, const struct itimerspec *, struct itimerspec *) =
+	    {settime_ok,
+	     settime_fails};
+	SET_CUSTOM_FAKE_SEQ(timerfd_settime, custom_fakes, ARRAY_SIZE(custom_fakes));
+
+	struct cio_timer timer;
+	enum cio_error err = cio_timer_init(&timer, NULL, NULL);
+	TEST_ASSERT_EQUAL(cio_success, err);
+
+	timer.expires_from_now(&timer, 2000, handle_timeout, NULL);
+
+	err = timer.cancel(&timer);
+	TEST_ASSERT(err == cio_success);
+	TEST_ASSERT_EQUAL(1, handle_timeout_fake.call_count);
+	TEST_ASSERT((handle_timeout_fake.arg2_val != cio_success) && (handle_timeout_fake.arg2_val != cio_operation_aborted));
+	TEST_ASSERT_EQUAL(&timer, handle_timeout_fake.arg0_val);
+}
+
 int main(void)
 {
 	UNITY_BEGIN();
@@ -210,5 +258,6 @@ int main(void)
 	RUN_TEST(test_close_with_hook);
 	RUN_TEST(test_close_while_armed);
 	RUN_TEST(test_cancel_without_arming);
+	RUN_TEST(test_cancel_settime_in_cancel_fails);
 	return UNITY_END();
 }
