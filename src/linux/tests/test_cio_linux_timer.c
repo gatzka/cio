@@ -306,6 +306,23 @@ static void test_arming_read_fails(void)
 	TEST_ASSERT_EQUAL(&timer, handle_timeout_fake.arg0_val);
 }
 
+static void test_arming_success(void)
+{
+	static const int timerfd = 5;
+	timerfd_create_fake.return_val = timerfd;
+	read_fake.return_val = sizeof(uint64_t);
+
+	struct cio_timer timer;
+	enum cio_error err = cio_timer_init(&timer, NULL, NULL);
+	TEST_ASSERT_EQUAL(cio_success, err);
+
+	timer.expires_from_now(&timer, 2000, handle_timeout, NULL);
+
+	TEST_ASSERT_EQUAL(1, handle_timeout_fake.call_count);
+	TEST_ASSERT(handle_timeout_fake.arg2_val == cio_success);
+	TEST_ASSERT_EQUAL(&timer, handle_timeout_fake.arg0_val);
+}
+
 int main(void)
 {
 	UNITY_BEGIN();
@@ -320,5 +337,6 @@ int main(void)
 	RUN_TEST(test_cancel_settime_in_cancel_fails);
 	RUN_TEST(test_arming_settime_fails);
 	RUN_TEST(test_arming_read_fails);
+	RUN_TEST(test_arming_success);
 	return UNITY_END();
 }
