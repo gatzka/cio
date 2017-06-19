@@ -47,7 +47,7 @@ FAKE_VALUE_FUNC(enum cio_error, cio_linux_eventloop_register_write, const struct
 FAKE_VOID_FUNC(cio_linux_eventloop_remove, struct cio_eventloop *, const struct cio_event_notifier *)
 
 FAKE_VALUE_FUNC(int, close, int)
-FAKE_VALUE_FUNC(ssize_t, read, int, void*, size_t)
+FAKE_VALUE_FUNC(ssize_t, read, int, void *, size_t)
 FAKE_VALUE_FUNC(int, setsockopt, int, int, int, const void *, socklen_t)
 
 FAKE_VALUE_FUNC0(int, cio_linux_socket_create)
@@ -56,7 +56,7 @@ void on_close(struct cio_socket *s);
 FAKE_VOID_FUNC(on_close, struct cio_socket *)
 
 void read_handler(struct cio_io_stream *context, void *handler_context, enum cio_error err, uint8_t *buf, size_t bytes_transferred);
-FAKE_VOID_FUNC(read_handler, struct cio_io_stream*, void*, enum cio_error, uint8_t*, size_t)
+FAKE_VOID_FUNC(read_handler, struct cio_io_stream *, void *, enum cio_error, uint8_t *, size_t)
 
 #ifndef ARRAY_SIZE
 #define ARRAY_SIZE(a) (sizeof(a) / sizeof((a)[0]))
@@ -66,7 +66,6 @@ static uint8_t read_buffer[100];
 static size_t available_read_data;
 
 static uint8_t readback_buffer[200];
-
 
 static int socket_create_fails(void)
 {
@@ -118,7 +117,7 @@ static int setsockopt_fails(int fd, int level, int option_name,
 }
 
 static int setsockopt_ok(int fd, int level, int option_name,
-						 const void *option_value, socklen_t option_len)
+                         const void *option_value, socklen_t option_len)
 {
 	(void)fd;
 	(void)level;
@@ -276,10 +275,10 @@ static void test_socket_disable_keepalive(void)
 static void test_socket_disable_keepalive_setsockopt_fails(void)
 {
 	struct cio_socket s;
-	int (*custom_fakes[])(int, int, int, const void*, socklen_t) =
-		{
-			setsockopt_fails,
-		};
+	int (*custom_fakes[])(int, int, int, const void *, socklen_t) =
+	    {
+	        setsockopt_fails,
+	    };
 	enum cio_error err = cio_socket_init(&s, NULL, on_close);
 	TEST_ASSERT_EQUAL(cio_success, err);
 
@@ -290,17 +289,15 @@ static void test_socket_disable_keepalive_setsockopt_fails(void)
 	TEST_ASSERT_EQUAL(1, setsockopt_fake.call_count);
 }
 
-
 static void test_socket_enable_keepalive_keep_idle_fails(void)
 {
 	struct cio_socket s;
-	int (*custom_fakes[])(int, int, int, const void*, socklen_t) =
-		{
-			setsockopt_fails,
-			setsockopt_ok,
-			setsockopt_ok,
-			setsockopt_ok
-		};
+	int (*custom_fakes[])(int, int, int, const void *, socklen_t) =
+	    {
+	        setsockopt_fails,
+	        setsockopt_ok,
+	        setsockopt_ok,
+	        setsockopt_ok};
 	enum cio_error err = cio_socket_init(&s, NULL, on_close);
 	TEST_ASSERT_EQUAL(cio_success, err);
 
@@ -314,13 +311,12 @@ static void test_socket_enable_keepalive_keep_idle_fails(void)
 static void test_socket_enable_keepalive_keep_intvl_fails(void)
 {
 	struct cio_socket s;
-	int (*custom_fakes[])(int, int, int, const void*, socklen_t) =
-		{
-			setsockopt_ok,
-			setsockopt_fails,
-			setsockopt_ok,
-			setsockopt_ok
-		};
+	int (*custom_fakes[])(int, int, int, const void *, socklen_t) =
+	    {
+	        setsockopt_ok,
+	        setsockopt_fails,
+	        setsockopt_ok,
+	        setsockopt_ok};
 	enum cio_error err = cio_socket_init(&s, NULL, on_close);
 	TEST_ASSERT_EQUAL(cio_success, err);
 
@@ -334,13 +330,12 @@ static void test_socket_enable_keepalive_keep_intvl_fails(void)
 static void test_socket_enable_keepalive_keep_cnt(void)
 {
 	struct cio_socket s;
-	int (*custom_fakes[])(int, int, int, const void*, socklen_t) =
-		{
-			setsockopt_ok,
-			setsockopt_ok,
-			setsockopt_fails,
-			setsockopt_ok
-		};
+	int (*custom_fakes[])(int, int, int, const void *, socklen_t) =
+	    {
+	        setsockopt_ok,
+	        setsockopt_ok,
+	        setsockopt_fails,
+	        setsockopt_ok};
 	enum cio_error err = cio_socket_init(&s, NULL, on_close);
 	TEST_ASSERT_EQUAL(cio_success, err);
 
