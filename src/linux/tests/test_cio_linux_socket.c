@@ -48,6 +48,7 @@ FAKE_VOID_FUNC(cio_linux_eventloop_remove, struct cio_eventloop *, const struct 
 
 FAKE_VALUE_FUNC(int, close, int)
 FAKE_VALUE_FUNC(ssize_t, read, int, void *, size_t)
+FAKE_VALUE_FUNC(ssize_t, send, int, const void *, size_t, int)
 FAKE_VALUE_FUNC(int, setsockopt, int, int, int, const void *, socklen_t)
 
 FAKE_VALUE_FUNC0(int, cio_linux_socket_create)
@@ -58,14 +59,18 @@ FAKE_VOID_FUNC(on_close, struct cio_socket *)
 void read_handler(struct cio_io_stream *context, void *handler_context, enum cio_error err, uint8_t *buf, size_t bytes_transferred);
 FAKE_VOID_FUNC(read_handler, struct cio_io_stream *, void *, enum cio_error, uint8_t *, size_t)
 
+void write_handler(struct cio_io_stream *context, void *handler_context, enum cio_error err, size_t bytes_transferred);
+FAKE_VOID_FUNC(write_handler, struct cio_io_stream *, void *, enum cio_error, size_t)
+
 #ifndef ARRAY_SIZE
 #define ARRAY_SIZE(a) (sizeof(a) / sizeof((a)[0]))
 #endif
 
 static uint8_t read_buffer[100];
 static size_t available_read_data;
-
 static uint8_t readback_buffer[200];
+static size_t bytes_to_send;
+static uint8_t send_buffer[200];
 
 static int socket_create_fails(void)
 {
@@ -101,6 +106,25 @@ static ssize_t read_fails(int fd, void *buf, size_t count)
 
 	errno = EINVAL;
 	return -1;
+}
+
+static ssize_t send_all(int fd, const void *buf, size_t len, int flags)
+{
+	(void)fd;
+	(void)buf;
+	(void)flags;
+	memcpy(send_buffer, buf, len);
+	return len;
+}
+
+static ssize_t send_parts(int fd, const void *buf, size_t len, int flags)
+{
+	(void)fd;
+	(void)buf;
+	(void)flags;
+	(void)len;
+	memcpy(send_buffer, buf, bytes_to_send);
+	return bytes_to_send;
 }
 
 static int setsockopt_fails(int fd, int level, int option_name,
@@ -139,14 +163,18 @@ void setUp(void)
 
 	RESET_FAKE(close);
 	RESET_FAKE(read);
+	RESET_FAKE(send);
 	RESET_FAKE(setsockopt);
 
 	RESET_FAKE(cio_linux_socket_create);
 	RESET_FAKE(read_handler);
+	RESET_FAKE(write_handler);
 	RESET_FAKE(on_close);
 
 	memset(read_buffer, 0xff, sizeof(read_buffer));
+	memset(send_buffer, 0xff, sizeof(send_buffer));
 	available_read_data = 0;
+	bytes_to_send = 0;
 }
 
 static void test_socket_init(void)
@@ -376,6 +404,7 @@ static void test_socket_readsome(void)
 	TEST_ASSERT_EQUAL(cio_success, read_handler_fake.arg2_val);
 	TEST_ASSERT_EQUAL(readback_buffer, read_handler_fake.arg3_val);
 	TEST_ASSERT_EQUAL(data_to_read, read_handler_fake.arg4_val);
+	TEST_ASSERT_EQUAL(0, memcmp(read_buffer, readback_buffer, data_to_read));
 }
 
 static void test_socket_readsome_register_read_fails(void)
@@ -395,7 +424,7 @@ static void test_socket_readsome_register_read_fails(void)
 	TEST_ASSERT_EQUAL(1, read_handler_fake.call_count);
 	TEST_ASSERT_EQUAL(stream, read_handler_fake.arg0_val);
 	TEST_ASSERT_EQUAL(NULL, read_handler_fake.arg1_val);
-	TEST_ASSERT(cio_success != read_handler_fake.arg2_val);
+	TEST_ASSERT_NOT_EQUAL(cio_success, read_handler_fake.arg2_val);
 	TEST_ASSERT_EQUAL(readback_buffer, read_handler_fake.arg3_val);
 	TEST_ASSERT_EQUAL(0, read_handler_fake.arg4_val);
 }
@@ -432,9 +461,50 @@ static void test_socket_readsome_read_fails(void)
 	TEST_ASSERT_EQUAL(1, read_handler_fake.call_count);
 	TEST_ASSERT_EQUAL(stream, read_handler_fake.arg0_val);
 	TEST_ASSERT_EQUAL(NULL, read_handler_fake.arg1_val);
-	TEST_ASSERT(cio_success != read_handler_fake.arg2_val);
+	TEST_ASSERT_NOT_EQUAL(cio_success, read_handler_fake.arg2_val);
 	TEST_ASSERT_EQUAL(readback_buffer, read_handler_fake.arg3_val);
 	TEST_ASSERT_EQUAL(0, read_handler_fake.arg4_val);
+}
+
+static void test_socket_writesome_all(void)
+{
+	uint8_t buffer[13];
+	memset(buffer, 0x12, sizeof(buffer));
+	send_fake.custom_fake = send_all;
+
+	struct cio_socket s;
+	enum cio_error err = cio_socket_init(&s, NULL, on_close);
+	TEST_ASSERT_EQUAL(cio_success, err);
+	struct cio_io_stream *stream = s.get_io_stream(&s);
+
+	stream->write_some(stream, buffer, sizeof(buffer), write_handler, NULL);
+	TEST_ASSERT_EQUAL_MESSAGE(1, write_handler_fake.call_count, "write_handler was not called exactly once!");
+	TEST_ASSERT_EQUAL_MESSAGE(stream, write_handler_fake.arg0_val, "write_handler was not called with correct stream!");
+	TEST_ASSERT_EQUAL_MESSAGE(NULL, write_handler_fake.arg1_val, "write_handler was not called with correct handler_context!");
+	TEST_ASSERT_EQUAL_MESSAGE(cio_success, write_handler_fake.arg2_val, "write_handler was not called with cio_success!");
+	TEST_ASSERT_EQUAL_MESSAGE(sizeof(buffer), write_handler_fake.arg3_val, "write_handler was not called with the correct number of bytes written!");
+	TEST_ASSERT_EQUAL_MESSAGE(0, memcmp(send_buffer, buffer, sizeof(buffer)), "Buffer was not sent correctly!");
+}
+
+static void test_socket_writesome_parts(void)
+{
+	uint8_t buffer[13];
+	memset(buffer, 0x12, sizeof(buffer));
+	bytes_to_send = 9;
+	send_fake.custom_fake = send_parts;
+
+	struct cio_socket s;
+	enum cio_error err = cio_socket_init(&s, NULL, on_close);
+	TEST_ASSERT_EQUAL(cio_success, err);
+	struct cio_io_stream *stream = s.get_io_stream(&s);
+
+	stream->write_some(stream, buffer, sizeof(buffer), write_handler, NULL);
+	TEST_ASSERT_EQUAL_MESSAGE(1, write_handler_fake.call_count, "write_handler was not called exactly once!");
+	TEST_ASSERT_EQUAL_MESSAGE(stream, write_handler_fake.arg0_val, "write_handler was not called with correct stream!");
+	TEST_ASSERT_EQUAL_MESSAGE(NULL, write_handler_fake.arg1_val, "write_handler was not called with correct handler_context!");
+	TEST_ASSERT_EQUAL_MESSAGE(cio_success, write_handler_fake.arg2_val, "write_handler was not called with cio_success!");
+	TEST_ASSERT_EQUAL_MESSAGE(bytes_to_send, write_handler_fake.arg3_val, "write_handler was not called with the correct number of bytes written!");
+	TEST_ASSERT_EQUAL_MESSAGE(0, memcmp(send_buffer, buffer, bytes_to_send), "Buffer was not sent correctly!");
 }
 
 int main(void)
@@ -459,5 +529,7 @@ int main(void)
 	RUN_TEST(test_socket_readsome_register_read_fails);
 	RUN_TEST(test_socket_readsome_read_blocks);
 	RUN_TEST(test_socket_readsome_read_fails);
+	RUN_TEST(test_socket_writesome_all);
+	RUN_TEST(test_socket_writesome_parts);
 	return UNITY_END();
 }
