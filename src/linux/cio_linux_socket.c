@@ -171,12 +171,6 @@ static void stream_close(struct cio_io_stream *stream)
 	socket_close(s);
 }
 
-static void loop_callback(void *context)
-{
-	struct cio_linux_socket *ls = context;
-	(void)ls;
-}
-
 enum cio_error cio_linux_socket_init(struct cio_socket *s, int client_fd,
                                      struct cio_eventloop *loop,
                                      cio_socket_close_hook close_hook)
@@ -184,7 +178,7 @@ enum cio_error cio_linux_socket_init(struct cio_socket *s, int client_fd,
 	s->ev.fd = client_fd;
 	s->ev.error_callback = NULL;
 	s->ev.write_callback = NULL;
-	s->ev.read_callback = loop_callback;
+	s->ev.read_callback = NULL;
 	s->ev.context = s;
 
 	s->close = socket_close;
