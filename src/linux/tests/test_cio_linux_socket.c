@@ -305,6 +305,17 @@ static void test_socket_enable_keepalive_keep_cnt(void)
 	TEST_ASSERT_EQUAL(3, setsockopt_fake.call_count);
 }
 
+static void test_socket_stream_close(void)
+{
+	struct cio_socket s;
+	enum cio_error err = cio_socket_init(&s, NULL, on_close);
+	TEST_ASSERT_EQUAL(cio_success, err);
+	struct cio_io_stream *stream = s.get_io_stream(&s);
+	stream->close(stream);
+	TEST_ASSERT_EQUAL(1, close_fake.call_count);
+	TEST_ASSERT_EQUAL(s.ev.fd, close_fake.arg0_val);
+}
+
 int main(void)
 {
 	UNITY_BEGIN();
@@ -322,5 +333,6 @@ int main(void)
 	RUN_TEST(test_socket_enable_keepalive_keep_idle_fails);
 	RUN_TEST(test_socket_enable_keepalive_keep_intvl_fails);
 	RUN_TEST(test_socket_enable_keepalive_keep_cnt);
+	RUN_TEST(test_socket_stream_close);
 	return UNITY_END();
 }
