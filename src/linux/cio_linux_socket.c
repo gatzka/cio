@@ -167,14 +167,8 @@ static void stream_write(struct cio_io_stream *stream, const void *buf, size_t c
 
 static void stream_close(struct cio_io_stream *stream)
 {
-
 	struct cio_socket *s = container_of(stream, struct cio_socket, stream);
-	cio_linux_eventloop_remove(s->loop, &s->ev);
-
-	close(s->ev.fd);
-	if (s->close_hook != NULL) {
-		s->close_hook(s);
-	}
+	socket_close(s);
 }
 
 static void loop_callback(void *context)
