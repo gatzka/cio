@@ -27,6 +27,7 @@
 #include <errno.h>
 #include <netinet/in.h>
 #include <netinet/tcp.h>
+#include <string.h>
 #include <sys/socket.h>
 #include <sys/types.h>
 #include <unistd.h>
@@ -46,6 +47,7 @@ FAKE_VALUE_FUNC(enum cio_error, cio_linux_eventloop_register_write, const struct
 FAKE_VOID_FUNC(cio_linux_eventloop_remove, struct cio_eventloop *, const struct cio_event_notifier *)
 
 FAKE_VALUE_FUNC(int, close, int)
+FAKE_VALUE_FUNC(ssize_t, read, int, void*, size_t)
 FAKE_VALUE_FUNC(int, setsockopt, int, int, int, const void *, socklen_t)
 
 FAKE_VALUE_FUNC0(int, cio_linux_socket_create)
@@ -53,14 +55,33 @@ FAKE_VALUE_FUNC0(int, cio_linux_socket_create)
 void on_close(struct cio_socket *s);
 FAKE_VOID_FUNC(on_close, struct cio_socket *)
 
+void read_handler(struct cio_io_stream *context, void *handler_context, enum cio_error err, uint8_t *buf, size_t bytes_transferred);
+FAKE_VOID_FUNC(read_handler, struct cio_io_stream*, void*, enum cio_error, uint8_t*, size_t)
+
 #ifndef ARRAY_SIZE
 #define ARRAY_SIZE(a) (sizeof(a) / sizeof((a)[0]))
 #endif
+
+static uint8_t read_buffer[100];
+static size_t available_read_data;
+
+static uint8_t readback_buffer[200];
+
 
 static int socket_create_fails(void)
 {
 	errno = EINVAL;
 	return -1;
+}
+
+static ssize_t read_ok(int fd, void *buf, size_t count)
+{
+	(void)fd;
+	(void)buf;
+	(void)count;
+
+	memcpy(buf, read_buffer, available_read_data);
+	return available_read_data;
 }
 
 static int setsockopt_fails(int fd, int level, int option_name,
@@ -98,10 +119,15 @@ void setUp(void)
 	RESET_FAKE(cio_linux_eventloop_register_write);
 
 	RESET_FAKE(close);
+	RESET_FAKE(read);
 	RESET_FAKE(setsockopt);
 
 	RESET_FAKE(cio_linux_socket_create);
+	RESET_FAKE(read_handler);
 	RESET_FAKE(on_close);
+
+	memset(read_buffer, 0xff, sizeof(read_buffer));
+	available_read_data = 0;
 }
 
 static void test_socket_init(void)
@@ -316,6 +342,27 @@ static void test_socket_stream_close(void)
 	TEST_ASSERT_EQUAL(s.ev.fd, close_fake.arg0_val);
 }
 
+static void test_socket_readsome(void)
+{
+	static const size_t data_to_read = 12;
+	available_read_data = data_to_read;
+	memset(read_buffer, 0x12, data_to_read);
+	read_fake.custom_fake = read_ok;
+
+	struct cio_socket s;
+	enum cio_error err = cio_socket_init(&s, NULL, on_close);
+	TEST_ASSERT_EQUAL(cio_success, err);
+	struct cio_io_stream *stream = s.get_io_stream(&s);
+
+	stream->read_some(stream, readback_buffer, sizeof(readback_buffer), read_handler, NULL);
+	TEST_ASSERT_EQUAL(1, read_handler_fake.call_count);
+	TEST_ASSERT_EQUAL(stream, read_handler_fake.arg0_val);
+	TEST_ASSERT_EQUAL(NULL, read_handler_fake.arg1_val);
+	TEST_ASSERT_EQUAL(cio_success, read_handler_fake.arg2_val);
+	TEST_ASSERT_EQUAL(readback_buffer, read_handler_fake.arg3_val);
+	TEST_ASSERT_EQUAL(data_to_read, read_handler_fake.arg4_val);
+}
+
 int main(void)
 {
 	UNITY_BEGIN();
@@ -334,5 +381,6 @@ int main(void)
 	RUN_TEST(test_socket_enable_keepalive_keep_intvl_fails);
 	RUN_TEST(test_socket_enable_keepalive_keep_cnt);
 	RUN_TEST(test_socket_stream_close);
+	RUN_TEST(test_socket_readsome);
 	return UNITY_END();
 }
