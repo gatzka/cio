@@ -25,6 +25,7 @@
  */
 
 #include <errno.h>
+#include <unistd.h>
 
 #include "fff.h"
 #include "unity.h"
@@ -39,6 +40,8 @@ FAKE_VALUE_FUNC(enum cio_error, cio_linux_eventloop_add, const struct cio_eventl
 FAKE_VALUE_FUNC(enum cio_error, cio_linux_eventloop_register_read, const struct cio_eventloop *, struct cio_event_notifier *)
 FAKE_VALUE_FUNC(enum cio_error, cio_linux_eventloop_register_write, const struct cio_eventloop *, struct cio_event_notifier *)
 FAKE_VOID_FUNC(cio_linux_eventloop_remove, struct cio_eventloop *, const struct cio_event_notifier *)
+
+FAKE_VALUE_FUNC(int, close, int)
 
 FAKE_VALUE_FUNC0(int, cio_linux_socket_create)
 
@@ -56,6 +59,8 @@ void setUp(void)
 	RESET_FAKE(cio_linux_eventloop_remove);
 	RESET_FAKE(cio_linux_eventloop_register_read);
 	RESET_FAKE(cio_linux_eventloop_register_write);
+
+	RESET_FAKE(close);
 
 	RESET_FAKE(cio_linux_socket_create);
 }
@@ -86,11 +91,24 @@ static void test_socket_init_eventloop_add_fails(void)
 	TEST_ASSERT(err != cio_success);
 }
 
+static void test_socket_close_without_hook(void)
+{
+	struct cio_socket s;
+
+	enum cio_error err = cio_socket_init(&s, NULL, NULL);
+	TEST_ASSERT_EQUAL(cio_success, err);
+
+	s.close(&s);
+	TEST_ASSERT_EQUAL(1, close_fake.call_count);
+	TEST_ASSERT_EQUAL(s.ev.fd, close_fake.arg0_val);
+}
+
 int main(void)
 {
 	UNITY_BEGIN();
 	RUN_TEST(test_socket_init);
 	RUN_TEST(test_socket_init_socket_create_fails);
 	RUN_TEST(test_socket_init_eventloop_add_fails);
+	RUN_TEST(test_socket_close_without_hook);
 	return UNITY_END();
 }
