@@ -45,6 +45,9 @@ FAKE_VALUE_FUNC(int, close, int)
 
 FAKE_VALUE_FUNC0(int, cio_linux_socket_create)
 
+void on_close(struct cio_socket *s);
+FAKE_VOID_FUNC(on_close, struct cio_socket*)
+
 static int socket_create_fails(void)
 {
 	errno = EINVAL;
@@ -63,6 +66,7 @@ void setUp(void)
 	RESET_FAKE(close);
 
 	RESET_FAKE(cio_linux_socket_create);
+	RESET_FAKE(on_close);
 }
 
 static void test_socket_init(void)
@@ -103,6 +107,20 @@ static void test_socket_close_without_hook(void)
 	TEST_ASSERT_EQUAL(s.ev.fd, close_fake.arg0_val);
 }
 
+static void test_socket_close_with_hook(void)
+{
+	struct cio_socket s;
+
+	enum cio_error err = cio_socket_init(&s, NULL, on_close);
+	TEST_ASSERT_EQUAL(cio_success, err);
+
+	s.close(&s);
+	TEST_ASSERT_EQUAL(1, close_fake.call_count);
+	TEST_ASSERT_EQUAL(s.ev.fd, close_fake.arg0_val);
+	TEST_ASSERT_EQUAL(1, on_close_fake.call_count);
+	TEST_ASSERT_EQUAL(&s, on_close_fake.arg0_val);
+}
+
 int main(void)
 {
 	UNITY_BEGIN();
@@ -110,5 +128,6 @@ int main(void)
 	RUN_TEST(test_socket_init_socket_create_fails);
 	RUN_TEST(test_socket_init_eventloop_add_fails);
 	RUN_TEST(test_socket_close_without_hook);
+	RUN_TEST(test_socket_close_with_hook);
 	return UNITY_END();
 }
