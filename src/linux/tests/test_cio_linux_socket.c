@@ -53,6 +53,10 @@ FAKE_VALUE_FUNC0(int, cio_linux_socket_create)
 void on_close(struct cio_socket *s);
 FAKE_VOID_FUNC(on_close, struct cio_socket *)
 
+#ifndef ARRAY_SIZE
+#define ARRAY_SIZE(a) (sizeof(a) / sizeof((a)[0]))
+#endif
+
 static int socket_create_fails(void)
 {
 	errno = EINVAL;
@@ -70,6 +74,18 @@ static int setsockopt_fails(int fd, int level, int option_name,
 
 	errno = EINVAL;
 	return -1;
+}
+
+static int setsockopt_ok(int fd, int level, int option_name,
+						 const void *option_value, socklen_t option_len)
+{
+	(void)fd;
+	(void)level;
+	(void)option_name;
+	(void)option_value;
+	(void)option_len;
+
+	return 0;
 }
 
 void setUp(void)
@@ -187,6 +203,108 @@ static void test_socket_nodelay_setsockopt_fails(void)
 	TEST_ASSERT_EQUAL(TCP_NODELAY, setsockopt_fake.arg2_val);
 }
 
+static void test_socket_enable_keepalive(void)
+{
+	struct cio_socket s;
+
+	enum cio_error err = cio_socket_init(&s, NULL, on_close);
+	TEST_ASSERT_EQUAL(cio_success, err);
+
+	err = s.set_keep_alive(&s, true, 10, 9, 8);
+	TEST_ASSERT_EQUAL(cio_success, err);
+	TEST_ASSERT_EQUAL(4, setsockopt_fake.call_count);
+}
+
+static void test_socket_disable_keepalive(void)
+{
+	struct cio_socket s;
+
+	enum cio_error err = cio_socket_init(&s, NULL, on_close);
+	TEST_ASSERT_EQUAL(cio_success, err);
+
+	err = s.set_keep_alive(&s, false, 10, 9, 8);
+	TEST_ASSERT_EQUAL(cio_success, err);
+	TEST_ASSERT_EQUAL(1, setsockopt_fake.call_count);
+}
+
+static void test_socket_disable_keepalive_setsockopt_fails(void)
+{
+	struct cio_socket s;
+	int (*custom_fakes[])(int, int, int, const void*, socklen_t) =
+		{
+			setsockopt_fails,
+		};
+	enum cio_error err = cio_socket_init(&s, NULL, on_close);
+	TEST_ASSERT_EQUAL(cio_success, err);
+
+	SET_CUSTOM_FAKE_SEQ(setsockopt, custom_fakes, ARRAY_SIZE(custom_fakes));
+
+	err = s.set_keep_alive(&s, false, 10, 9, 8);
+	TEST_ASSERT(cio_success != err);
+	TEST_ASSERT_EQUAL(1, setsockopt_fake.call_count);
+}
+
+
+static void test_socket_enable_keepalive_keep_idle_fails(void)
+{
+	struct cio_socket s;
+	int (*custom_fakes[])(int, int, int, const void*, socklen_t) =
+		{
+			setsockopt_fails,
+			setsockopt_ok,
+			setsockopt_ok,
+			setsockopt_ok
+		};
+	enum cio_error err = cio_socket_init(&s, NULL, on_close);
+	TEST_ASSERT_EQUAL(cio_success, err);
+
+	SET_CUSTOM_FAKE_SEQ(setsockopt, custom_fakes, ARRAY_SIZE(custom_fakes));
+
+	err = s.set_keep_alive(&s, true, 10, 9, 8);
+	TEST_ASSERT(cio_success != err);
+	TEST_ASSERT_EQUAL(1, setsockopt_fake.call_count);
+}
+
+static void test_socket_enable_keepalive_keep_intvl_fails(void)
+{
+	struct cio_socket s;
+	int (*custom_fakes[])(int, int, int, const void*, socklen_t) =
+		{
+			setsockopt_ok,
+			setsockopt_fails,
+			setsockopt_ok,
+			setsockopt_ok
+		};
+	enum cio_error err = cio_socket_init(&s, NULL, on_close);
+	TEST_ASSERT_EQUAL(cio_success, err);
+
+	SET_CUSTOM_FAKE_SEQ(setsockopt, custom_fakes, ARRAY_SIZE(custom_fakes));
+
+	err = s.set_keep_alive(&s, true, 10, 9, 8);
+	TEST_ASSERT(cio_success != err);
+	TEST_ASSERT_EQUAL(2, setsockopt_fake.call_count);
+}
+
+static void test_socket_enable_keepalive_keep_cnt(void)
+{
+	struct cio_socket s;
+	int (*custom_fakes[])(int, int, int, const void*, socklen_t) =
+		{
+			setsockopt_ok,
+			setsockopt_ok,
+			setsockopt_fails,
+			setsockopt_ok
+		};
+	enum cio_error err = cio_socket_init(&s, NULL, on_close);
+	TEST_ASSERT_EQUAL(cio_success, err);
+
+	SET_CUSTOM_FAKE_SEQ(setsockopt, custom_fakes, ARRAY_SIZE(custom_fakes));
+
+	err = s.set_keep_alive(&s, true, 10, 9, 8);
+	TEST_ASSERT(cio_success != err);
+	TEST_ASSERT_EQUAL(3, setsockopt_fake.call_count);
+}
+
 int main(void)
 {
 	UNITY_BEGIN();
@@ -198,5 +316,11 @@ int main(void)
 	RUN_TEST(test_socket_enable_nodelay);
 	RUN_TEST(test_socket_disable_nodelay);
 	RUN_TEST(test_socket_nodelay_setsockopt_fails);
+	RUN_TEST(test_socket_enable_keepalive);
+	RUN_TEST(test_socket_disable_keepalive);
+	RUN_TEST(test_socket_disable_keepalive_setsockopt_fails);
+	RUN_TEST(test_socket_enable_keepalive_keep_idle_fails);
+	RUN_TEST(test_socket_enable_keepalive_keep_intvl_fails);
+	RUN_TEST(test_socket_enable_keepalive_keep_cnt);
 	return UNITY_END();
 }
