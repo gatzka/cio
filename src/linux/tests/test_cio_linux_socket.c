@@ -363,6 +363,28 @@ static void test_socket_readsome(void)
 	TEST_ASSERT_EQUAL(data_to_read, read_handler_fake.arg4_val);
 }
 
+static void test_socket_readsome_register_read_fails(void)
+{
+	static const size_t data_to_read = 12;
+	available_read_data = data_to_read;
+	memset(read_buffer, 0x12, data_to_read);
+	read_fake.custom_fake = read_ok;
+	cio_linux_eventloop_register_read_fake.return_val = cio_invalid_argument;
+
+	struct cio_socket s;
+	enum cio_error err = cio_socket_init(&s, NULL, on_close);
+	TEST_ASSERT_EQUAL(cio_success, err);
+	struct cio_io_stream *stream = s.get_io_stream(&s);
+
+	stream->read_some(stream, readback_buffer, sizeof(readback_buffer), read_handler, NULL);
+	TEST_ASSERT_EQUAL(1, read_handler_fake.call_count);
+	TEST_ASSERT_EQUAL(stream, read_handler_fake.arg0_val);
+	TEST_ASSERT_EQUAL(NULL, read_handler_fake.arg1_val);
+	TEST_ASSERT(cio_success != read_handler_fake.arg2_val);
+	TEST_ASSERT_EQUAL(readback_buffer, read_handler_fake.arg3_val);
+	TEST_ASSERT_EQUAL(0, read_handler_fake.arg4_val);
+}
+
 int main(void)
 {
 	UNITY_BEGIN();
@@ -382,5 +404,6 @@ int main(void)
 	RUN_TEST(test_socket_enable_keepalive_keep_cnt);
 	RUN_TEST(test_socket_stream_close);
 	RUN_TEST(test_socket_readsome);
+	RUN_TEST(test_socket_readsome_register_read_fails);
 	return UNITY_END();
 }
