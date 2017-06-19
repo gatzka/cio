@@ -117,6 +117,16 @@ static ssize_t send_all(int fd, const void *buf, size_t len, int flags)
 	return len;
 }
 
+static ssize_t send_blocks(int fd, const void *buf, size_t len, int flags)
+{
+	(void)fd;
+	(void)buf;
+	(void)flags;
+	(void)len;
+	errno = EWOULDBLOCK;
+	return -1;
+}
+
 static ssize_t send_parts(int fd, const void *buf, size_t len, int flags)
 {
 	(void)fd;
@@ -521,7 +531,6 @@ static void test_socket_writesome_fails(void)
 {
 	uint8_t buffer[13];
 	memset(buffer, 0x12, sizeof(buffer));
-	bytes_to_send = 9;
 	send_fake.custom_fake = send_fails;
 
 	struct cio_socket s;
@@ -530,6 +539,58 @@ static void test_socket_writesome_fails(void)
 	struct cio_io_stream *stream = s.get_io_stream(&s);
 
 	stream->write_some(stream, buffer, sizeof(buffer), write_handler, NULL);
+	TEST_ASSERT_EQUAL_MESSAGE(1, write_handler_fake.call_count, "write_handler was not called exactly once!");
+	TEST_ASSERT_EQUAL_MESSAGE(stream, write_handler_fake.arg0_val, "write_handler was not called with correct stream!");
+	TEST_ASSERT_EQUAL_MESSAGE(NULL, write_handler_fake.arg1_val, "write_handler was not called with correct handler_context!");
+	TEST_ASSERT_NOT_EQUAL_MESSAGE(cio_success, write_handler_fake.arg2_val, "write_handler was called with cio_success!");
+	TEST_ASSERT_EQUAL_MESSAGE(0, write_handler_fake.arg3_val, "write_handler was not called with 0 bytes written!");
+}
+
+static void test_socket_writesome_blocks(void)
+{
+	uint8_t buffer[13];
+	memset(buffer, 0x12, sizeof(buffer));
+
+	ssize_t (*custom_fakes[])(int, const void *, size_t, int) =
+	    {
+	        send_blocks,
+	        send_all};
+	SET_CUSTOM_FAKE_SEQ(send, custom_fakes, ARRAY_SIZE(custom_fakes));
+
+	struct cio_socket s;
+	enum cio_error err = cio_socket_init(&s, NULL, on_close);
+	TEST_ASSERT_EQUAL(cio_success, err);
+	struct cio_io_stream *stream = s.get_io_stream(&s);
+
+	stream->write_some(stream, buffer, sizeof(buffer), write_handler, NULL);
+	TEST_ASSERT_EQUAL_MESSAGE(0, write_handler_fake.call_count, "write_handler was called!");
+	s.ev.write_callback(s.ev.context);
+	TEST_ASSERT_EQUAL_MESSAGE(1, write_handler_fake.call_count, "write_handler was not called exactly once!");
+	TEST_ASSERT_EQUAL_MESSAGE(stream, write_handler_fake.arg0_val, "write_handler was not called with correct stream!");
+	TEST_ASSERT_EQUAL_MESSAGE(NULL, write_handler_fake.arg1_val, "write_handler was not called with correct handler_context!");
+	TEST_ASSERT_EQUAL_MESSAGE(cio_success, write_handler_fake.arg2_val, "write_handler was not called with cio_success!");
+	TEST_ASSERT_EQUAL_MESSAGE(0, write_handler_fake.arg3_val, "write_handler was not called with 0 bytes written!");
+}
+
+static void test_socket_writesome_blocks_fails(void)
+{
+	uint8_t buffer[13];
+	memset(buffer, 0x12, sizeof(buffer));
+
+	ssize_t (*custom_fakes[])(int, const void *, size_t, int) =
+	    {
+	        send_blocks,
+	        send_all};
+	SET_CUSTOM_FAKE_SEQ(send, custom_fakes, ARRAY_SIZE(custom_fakes));
+	cio_linux_eventloop_register_write_fake.return_val = cio_invalid_argument;
+
+	struct cio_socket s;
+	enum cio_error err = cio_socket_init(&s, NULL, on_close);
+	TEST_ASSERT_EQUAL(cio_success, err);
+	struct cio_io_stream *stream = s.get_io_stream(&s);
+
+	stream->write_some(stream, buffer, sizeof(buffer), write_handler, NULL);
+
 	TEST_ASSERT_EQUAL_MESSAGE(1, write_handler_fake.call_count, "write_handler was not called exactly once!");
 	TEST_ASSERT_EQUAL_MESSAGE(stream, write_handler_fake.arg0_val, "write_handler was not called with correct stream!");
 	TEST_ASSERT_EQUAL_MESSAGE(NULL, write_handler_fake.arg1_val, "write_handler was not called with correct handler_context!");
@@ -562,5 +623,7 @@ int main(void)
 	RUN_TEST(test_socket_writesome_all);
 	RUN_TEST(test_socket_writesome_parts);
 	RUN_TEST(test_socket_writesome_fails);
+	RUN_TEST(test_socket_writesome_blocks);
+	RUN_TEST(test_socket_writesome_blocks_fails);
 	return UNITY_END();
 }
