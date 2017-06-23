@@ -42,7 +42,7 @@ extern "C" {
  * @brief This file contains the interface of a timer.
  *
  * Currently only one-shot timers are supported, no periodic timer.
- * If you need a periotic timer, you have the rearm the timer in your
+ * If you need a periodic timer, you have the rearm the timer in your
  * timer callback.
  */
 
@@ -74,7 +74,7 @@ struct cio_timer {
 	 * @brief Set the timer's expiration time relative to now and arms the timer.
 	 *
 	 * @param context A pointer to a struct cio_timer which shall expire.
-	 * @param timeout_ns The expiration time relative to now in nanoseconds.
+	 * @param timeout_ns The expiration time relative to "now" in nanoseconds.
 	 * @param handler The callback function to be called when the timer expires or was cancelled.
 	 * @anchor cio_timer_expires_from_now_handler_context
 	 * @param handler_context A pointer to a context which might be
@@ -121,9 +121,9 @@ struct cio_timer {
  * @param close_hook A close hook function. If this parameter is non @p NULL,
  * the function will be called directly after
  * @ref cio_timer_close "closing" the cio_timer.
- * It is guaranteed the the cio library will not access any memory of
- * cio_timer that is passed to the close hook. Therefore
- * the hook could be used to free the memory of the timer.
+ * It is guaranteed that the cio library will not access any memory of
+ * cio_timer that is passed to the close hook. Therefore,
+ * the hook could be used to free the memory of the timer struct.
  * @return ::cio_success for success.
  */
 enum cio_error cio_timer_init(struct cio_timer *timer, struct cio_eventloop *loop,
