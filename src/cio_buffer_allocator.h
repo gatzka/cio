@@ -55,11 +55,6 @@ struct cio_buffer {
  * Interface description for a buffer allocator.
  */
 struct cio_buffer_allocator {
-	/**
-	 * @brief The context pointer which is passed to the functions
-	 * specified below.
-	 */
-	void *context;
 
 	/**
 	 * @brief Allocates a buffer.
@@ -72,7 +67,7 @@ struct cio_buffer_allocator {
 	 * real size of the buffer. If the request can't be fulfilled,
 	 * cio_buffer::address is @p NULL.
 	 */
-	struct cio_buffer (*alloc)(void *context, size_t size);
+	struct cio_buffer (*alloc)(struct cio_buffer_allocator *context, size_t size);
 
 	/**
 	 * @brief Frees a buffer.
@@ -81,8 +76,10 @@ struct cio_buffer_allocator {
 	 * implementation implementing this interface.
 	 * @param ptr Address of the buffer to be freed.
 	 */
-	void (*free)(void *context, void *ptr);
+	void (*free)(struct cio_buffer_allocator *context, void *ptr);
 };
+
+struct cio_buffer_allocator *get_system_allocator(void);
 
 #ifdef __cplusplus
 }
