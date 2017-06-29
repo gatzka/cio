@@ -30,6 +30,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 
+#include "cio_buffer_allocator.h"
 #include "cio_error_code.h"
 #include "cio_eventloop.h"
 #include "cio_socket.h"
@@ -125,6 +126,7 @@ struct cio_server_socket {
 	struct cio_event_notifier ev;
 	cio_accept_handler handler;
 	void *handler_context;
+	struct cio_buffer_allocator *allocator;
 };
 
 /**
@@ -144,6 +146,7 @@ struct cio_server_socket {
 enum cio_error cio_server_socket_init(struct cio_server_socket *ss,
                                       struct cio_eventloop *loop,
                                       unsigned int backlog,
+                                      struct cio_buffer_allocator *allocator,
                                       cio_server_socket_close_hook close);
 
 #ifdef __cplusplus

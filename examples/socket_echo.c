@@ -28,6 +28,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#include "cio_buffer_allocator.h"
 #include "cio_error_code.h"
 #include "cio_eventloop.h"
 #include "cio_io_stream.h"
@@ -107,7 +108,7 @@ int main()
 	}
 
 	struct cio_server_socket ss;
-	err = cio_server_socket_init(&ss, &loop, 5, NULL);
+	err = cio_server_socket_init(&ss, &loop, 5, get_system_allocator(), NULL);
 	if (err != cio_success) {
 		ret = EXIT_FAILURE;
 		goto destroy_loop;
