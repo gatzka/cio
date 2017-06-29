@@ -44,10 +44,8 @@ static void free_mem(struct cio_buffer_allocator *context, void *ptr)
 }
 
 static struct cio_buffer_allocator linux_system_allocator = {
-	.alloc = allocate,
-	.free = free_mem
-};
-
+    .alloc = allocate,
+    .free = free_mem};
 
 struct cio_buffer_allocator *get_system_allocator(void)
 {
