@@ -33,6 +33,7 @@
 #include "fff.h"
 #include "unity.h"
 
+#include "cio_buffer_allocator.h"
 #include "cio_eventloop.h"
 #include "cio_linux_alloc.h"
 #include "cio_linux_socket.h"
@@ -59,8 +60,11 @@ FAKE_VALUE_FUNC(int, bind, int, const struct sockaddr *, socklen_t)
 FAKE_VALUE_FUNC(int, listen, int, int)
 FAKE_VALUE_FUNC(int, close, int)
 
-FAKE_VALUE_FUNC(void *, cio_malloc, size_t)
-FAKE_VOID_FUNC(cio_free, void *)
+
+struct cio_buffer test_malloc(struct cio_buffer_allocator *context, size_t size);
+FAKE_VALUE_FUNC(struct cio_buffer, test_malloc, struct cio_buffer_allocator*, size_t)
+void test_free(struct cio_buffer_allocator *context, void *address);
+FAKE_VOID_FUNC(test_free, struct cio_buffer_allocator*, void *)
 
 FAKE_VALUE_FUNC0(int, cio_linux_socket_create)
 
@@ -69,6 +73,31 @@ FAKE_VALUE_FUNC(enum cio_error, cio_linux_socket_init, struct cio_socket *, int,
                 cio_socket_close_hook)
 
 static int optval;
+
+struct cio_buffer_allocator allocator = {
+	.alloc = test_malloc,
+	.free = test_free
+};
+
+static struct cio_buffer malloc_success(struct cio_buffer_allocator *context, size_t size)
+{
+	(void)context;
+	struct cio_buffer buffer;
+	buffer.address = malloc(size);
+	buffer.size = size;
+	return buffer;
+}
+
+static void free_success(struct cio_buffer_allocator *context, void *address)
+{
+	(void)context;
+	free(address);
+}
+
+struct cio_buffer_allocator *get_system_allocator(void)
+{
+	return &allocator;
+}
 
 void setUp(void)
 {
@@ -88,8 +117,8 @@ void setUp(void)
 	RESET_FAKE(bind);
 	RESET_FAKE(listen);
 	RESET_FAKE(close);
-	RESET_FAKE(cio_malloc);
-	RESET_FAKE(cio_free);
+	RESET_FAKE(test_malloc);
+	RESET_FAKE(test_free);
 }
 
 static int listen_fails(int sockfd, int backlog)
@@ -189,7 +218,8 @@ static void accept_handler_close_server_socket(struct cio_server_socket *ss, voi
 	(void)handler_context;
 	(void)err;
 	if (err == cio_success) {
-		cio_free(sock);
+		struct cio_buffer_allocator *alloc = get_system_allocator();
+		alloc->free(alloc, sock);
 	}
 	ss->close(ss);
 }
@@ -227,8 +257,8 @@ static void test_accept_bind_address(void)
 {
 	accept_fake.custom_fake = custom_accept_fake;
 	accept_handler_fake.custom_fake = accept_handler_close_server_socket;
-	cio_malloc_fake.custom_fake = malloc;
-	cio_free_fake.custom_fake = free;
+	test_malloc_fake.custom_fake = malloc_success;
+	test_free_fake.custom_fake = free_success;
 
 	struct cio_eventloop loop;
 	struct cio_server_socket ss;
@@ -250,8 +280,8 @@ static void test_accept_close_in_accept_handler(void)
 {
 	accept_fake.custom_fake = custom_accept_fake;
 	accept_handler_fake.custom_fake = accept_handler_close_server_socket;
-	cio_malloc_fake.custom_fake = malloc;
-	cio_free_fake.custom_fake = free;
+	test_malloc_fake.custom_fake = malloc_success;
+	test_free_fake.custom_fake = free_success;
 
 	struct cio_eventloop loop;
 	struct cio_server_socket ss;
@@ -457,8 +487,8 @@ static void test_accept_socket_init_fails(void)
 	accept_fake.custom_fake = accept_wouldblock_second;
 
 	cio_linux_socket_init_fake.return_val = cio_not_enough_memory;
-	cio_malloc_fake.custom_fake = malloc;
-	cio_free_fake.custom_fake = free;
+	test_malloc_fake.custom_fake = malloc_success;
+	test_free_fake.custom_fake = free_success;
 
 	struct cio_eventloop loop;
 	struct cio_server_socket ss;
@@ -468,7 +498,7 @@ static void test_accept_socket_init_fails(void)
 
 	TEST_ASSERT_EQUAL(0, accept_handler_fake.call_count);
 	TEST_ASSERT_EQUAL(1, close_fake.call_count);
-	TEST_ASSERT_EQUAL(1, cio_free_fake.call_count);
+	TEST_ASSERT_EQUAL(1, test_free_fake.call_count);
 }
 
 static void test_accept_socket_close_socket(void)
@@ -476,8 +506,8 @@ static void test_accept_socket_close_socket(void)
 	accept_fake.custom_fake = accept_wouldblock_second;
 	accept_handler_fake.custom_fake = accept_handler_close_socket;
 	cio_linux_socket_init_fake.custom_fake = custom_cio_linux_socket_init;
-	cio_malloc_fake.custom_fake = malloc;
-	cio_free_fake.custom_fake = free;
+	test_malloc_fake.custom_fake = malloc_success;
+	test_free_fake.custom_fake = free_success;
 
 	struct cio_eventloop loop;
 	struct cio_server_socket ss;
@@ -487,8 +517,8 @@ static void test_accept_socket_close_socket(void)
 
 	TEST_ASSERT_EQUAL(1, accept_handler_fake.call_count);
 	TEST_ASSERT_EQUAL(1, close_fake.call_count);
-	TEST_ASSERT_EQUAL(1, cio_malloc_fake.call_count);
-	TEST_ASSERT_EQUAL(1, cio_free_fake.call_count);
+	TEST_ASSERT_EQUAL(1, test_malloc_fake.call_count);
+	TEST_ASSERT_EQUAL(1, test_free_fake.call_count);
 }
 
 int main(void)
