@@ -27,17 +27,6 @@
 #include <stdlib.h>
 
 #include "cio_buffer_allocator.h"
-#include "cio_linux_alloc.h"
-
-void *cio_malloc(size_t size)
-{
-	return malloc(size);
-}
-
-void cio_free(void *ptr)
-{
-	free(ptr);
-}
 
 static struct cio_buffer allocate(struct cio_buffer_allocator *context, size_t size)
 {
