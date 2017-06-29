@@ -69,7 +69,7 @@ struct cio_buffer_allocator {
 	 * @param size The requested size of the buffer. The allocated
 	 * buffer might be greater than requested.
 	 * @return A cio_buffer containing the address of the buffer and the
-	 * real size of the buffer.If the request can't be fulfilled,
+	 * real size of the buffer. If the request can't be fulfilled,
 	 * cio_buffer::address is @p NULL.
 	 */
 	struct cio_buffer (*alloc)(void *context, size_t size);
