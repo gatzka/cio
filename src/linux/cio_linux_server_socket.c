@@ -33,7 +33,6 @@
 #include <string.h>
 #include <unistd.h>
 
-#include "cio_buffer_allocator.h"
 #include "cio_compiler.h"
 #include "cio_error_code.h"
 #include "cio_eventloop.h"
@@ -54,8 +53,7 @@ static void socket_close(struct cio_server_socket *ss)
 
 static void free_linux_socket(struct cio_socket *s)
 {
-	struct cio_buffer_allocator *allocator = get_system_allocator();
-	allocator->free(allocator, s);
+	s->allocator->free(s->allocator, s);
 }
 
 static void accept_callback(void *context)
@@ -78,16 +76,15 @@ static void accept_callback(void *context)
 			return;
 		} else {
 			struct cio_socket *s;
-			struct cio_buffer_allocator *allocator = get_system_allocator();
-			struct cio_buffer buffer = allocator->alloc(allocator, sizeof(*s));
+			struct cio_buffer buffer = ss->allocator->alloc(ss->allocator, sizeof(*s));
 			s = buffer.address;
 			if (likely(s != NULL)) {
-				enum cio_error err = cio_linux_socket_init(s, client_fd, ss->loop, free_linux_socket);
+				enum cio_error err = cio_linux_socket_init(s, client_fd, ss->loop, ss->allocator, free_linux_socket);
 				if (likely(err == cio_success)) {
 					ss->handler(ss, ss->handler_context, err, s);
 				} else {
 					close(client_fd);
-					allocator->free(allocator, s);
+					ss->allocator->free(ss->allocator, s);
 				}
 			} else {
 				close(client_fd);

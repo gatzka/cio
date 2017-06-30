@@ -173,9 +173,11 @@ static void stream_close(struct cio_io_stream *stream)
 
 enum cio_error cio_linux_socket_init(struct cio_socket *s, int client_fd,
                                      struct cio_eventloop *loop,
+                                     struct cio_buffer_allocator *allocator,
                                      cio_socket_close_hook close_hook)
 {
 	s->ev.fd = client_fd;
+	s->allocator = allocator;
 	s->ev.error_callback = NULL;
 	s->ev.write_callback = NULL;
 	s->ev.read_callback = NULL;
@@ -198,6 +200,7 @@ enum cio_error cio_linux_socket_init(struct cio_socket *s, int client_fd,
 
 enum cio_error cio_socket_init(struct cio_socket *s,
                                struct cio_eventloop *loop,
+                               struct cio_buffer_allocator *allocator,
                                cio_socket_close_hook close_hook)
 {
 	enum cio_error err;
@@ -206,7 +209,7 @@ enum cio_error cio_socket_init(struct cio_socket *s,
 		return (enum cio_error)errno;
 	}
 
-	err = cio_linux_socket_init(s, socket_fd, loop, close_hook);
+	err = cio_linux_socket_init(s, socket_fd, loop, allocator, close_hook);
 	if (unlikely(err != cio_success)) {
 		close(socket_fd);
 	}

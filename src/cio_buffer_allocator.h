@@ -79,7 +79,7 @@ struct cio_buffer_allocator {
 	void (*free)(struct cio_buffer_allocator *context, void *ptr);
 };
 
-struct cio_buffer_allocator *get_system_allocator(void);
+struct cio_buffer_allocator *cio_get_system_allocator(void);
 
 #ifdef __cplusplus
 }
