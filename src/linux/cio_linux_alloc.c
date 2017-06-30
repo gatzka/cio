@@ -30,8 +30,8 @@
 
 static struct cio_buffer allocate(struct cio_allocator *context, size_t size)
 {
-	(void)context;
 	struct cio_buffer buffer;
+	(void)context;
 	buffer.address = malloc(size);
 	buffer.size = size;
 	return buffer;
@@ -44,8 +44,8 @@ static void free_mem(struct cio_allocator *context, void *ptr)
 }
 
 static struct cio_allocator linux_system_allocator = {
-    .alloc = allocate,
-    .free = free_mem};
+    allocate,
+    free_mem};
 
 struct cio_allocator *cio_get_system_allocator(void)
 {
