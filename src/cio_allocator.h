@@ -24,8 +24,8 @@
  * SOFTWARE.
  */
 
-#ifndef CIO_BUFFER_ALLOCATOR_H
-#define CIO_BUFFER_ALLOCATOR_H
+#ifndef CIO_ALLOCATOR_H
+#define CIO_ALLOCATOR_H
 
 #include <stddef.h>
 

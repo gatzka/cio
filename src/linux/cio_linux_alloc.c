@@ -26,7 +26,7 @@
 
 #include <stdlib.h>
 
-#include "cio_buffer_allocator.h"
+#include "cio_allocator.h"
 
 static struct cio_buffer allocate(struct cio_buffer_allocator *context, size_t size)
 {
