@@ -29,7 +29,7 @@
 
 #include <stdbool.h>
 
-#include "cio_buffer_allocator.h"
+#include "cio_allocator.h"
 #include "cio_error_code.h"
 #include "cio_eventloop.h"
 #include "cio_io_stream.h"
