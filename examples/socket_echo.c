@@ -108,7 +108,7 @@ int main()
 	}
 
 	struct cio_server_socket ss;
-	err = cio_server_socket_init(&ss, &loop, 5, get_system_allocator(), NULL);
+	err = cio_server_socket_init(&ss, &loop, 5, cio_get_system_allocator(), NULL);
 	if (err != cio_success) {
 		ret = EXIT_FAILURE;
 		goto destroy_loop;

@@ -201,7 +201,7 @@ static void test_socket_init(void)
 {
 	struct cio_socket s;
 
-	enum cio_error err = cio_socket_init(&s, NULL, NULL);
+	enum cio_error err = cio_socket_init(&s, NULL, NULL, NULL);
 	TEST_ASSERT_EQUAL(cio_success, err);
 }
 
@@ -210,7 +210,7 @@ static void test_socket_init_socket_create_fails(void)
 	struct cio_socket s;
 	cio_linux_socket_create_fake.custom_fake = socket_create_fails;
 
-	enum cio_error err = cio_socket_init(&s, NULL, NULL);
+	enum cio_error err = cio_socket_init(&s, NULL, NULL, NULL);
 	TEST_ASSERT(err != cio_success);
 }
 
@@ -219,7 +219,7 @@ static void test_socket_init_eventloop_add_fails(void)
 	struct cio_socket s;
 	cio_linux_eventloop_add_fake.return_val = cio_invalid_argument;
 
-	enum cio_error err = cio_socket_init(&s, NULL, NULL);
+	enum cio_error err = cio_socket_init(&s, NULL, NULL, NULL);
 	TEST_ASSERT(err != cio_success);
 }
 
@@ -227,7 +227,7 @@ static void test_socket_close_without_hook(void)
 {
 	struct cio_socket s;
 
-	enum cio_error err = cio_socket_init(&s, NULL, NULL);
+	enum cio_error err = cio_socket_init(&s, NULL, NULL, NULL);
 	TEST_ASSERT_EQUAL(cio_success, err);
 
 	s.close(&s);
@@ -239,7 +239,7 @@ static void test_socket_close_with_hook(void)
 {
 	struct cio_socket s;
 
-	enum cio_error err = cio_socket_init(&s, NULL, on_close);
+	enum cio_error err = cio_socket_init(&s, NULL, NULL, on_close);
 	TEST_ASSERT_EQUAL(cio_success, err);
 
 	s.close(&s);
@@ -253,7 +253,7 @@ static void test_socket_enable_nodelay(void)
 {
 	struct cio_socket s;
 
-	enum cio_error err = cio_socket_init(&s, NULL, on_close);
+	enum cio_error err = cio_socket_init(&s, NULL, NULL, on_close);
 	TEST_ASSERT_EQUAL(cio_success, err);
 
 	err = s.set_tcp_no_delay(&s, true);
@@ -268,7 +268,7 @@ static void test_socket_disable_nodelay(void)
 {
 	struct cio_socket s;
 
-	enum cio_error err = cio_socket_init(&s, NULL, on_close);
+	enum cio_error err = cio_socket_init(&s, NULL, NULL, on_close);
 	TEST_ASSERT_EQUAL(cio_success, err);
 
 	err = s.set_tcp_no_delay(&s, false);
@@ -285,7 +285,7 @@ static void test_socket_nodelay_setsockopt_fails(void)
 
 	setsockopt_fake.custom_fake = setsockopt_fails;
 
-	enum cio_error err = cio_socket_init(&s, NULL, on_close);
+	enum cio_error err = cio_socket_init(&s, NULL, NULL, on_close);
 	TEST_ASSERT_EQUAL(cio_success, err);
 
 	err = s.set_tcp_no_delay(&s, false);
@@ -300,7 +300,7 @@ static void test_socket_enable_keepalive(void)
 {
 	struct cio_socket s;
 
-	enum cio_error err = cio_socket_init(&s, NULL, on_close);
+	enum cio_error err = cio_socket_init(&s, NULL, NULL, on_close);
 	TEST_ASSERT_EQUAL(cio_success, err);
 
 	err = s.set_keep_alive(&s, true, 10, 9, 8);
@@ -312,7 +312,7 @@ static void test_socket_disable_keepalive(void)
 {
 	struct cio_socket s;
 
-	enum cio_error err = cio_socket_init(&s, NULL, on_close);
+	enum cio_error err = cio_socket_init(&s, NULL, NULL, on_close);
 	TEST_ASSERT_EQUAL(cio_success, err);
 
 	err = s.set_keep_alive(&s, false, 10, 9, 8);
@@ -327,7 +327,7 @@ static void test_socket_disable_keepalive_setsockopt_fails(void)
 	    {
 	        setsockopt_fails,
 	    };
-	enum cio_error err = cio_socket_init(&s, NULL, on_close);
+	enum cio_error err = cio_socket_init(&s, NULL, NULL, on_close);
 	TEST_ASSERT_EQUAL(cio_success, err);
 
 	SET_CUSTOM_FAKE_SEQ(setsockopt, custom_fakes, ARRAY_SIZE(custom_fakes));
@@ -346,7 +346,7 @@ static void test_socket_enable_keepalive_keep_idle_fails(void)
 	        setsockopt_ok,
 	        setsockopt_ok,
 	        setsockopt_ok};
-	enum cio_error err = cio_socket_init(&s, NULL, on_close);
+	enum cio_error err = cio_socket_init(&s, NULL, NULL, on_close);
 	TEST_ASSERT_EQUAL(cio_success, err);
 
 	SET_CUSTOM_FAKE_SEQ(setsockopt, custom_fakes, ARRAY_SIZE(custom_fakes));
@@ -365,7 +365,7 @@ static void test_socket_enable_keepalive_keep_intvl_fails(void)
 	        setsockopt_fails,
 	        setsockopt_ok,
 	        setsockopt_ok};
-	enum cio_error err = cio_socket_init(&s, NULL, on_close);
+	enum cio_error err = cio_socket_init(&s, NULL, NULL, on_close);
 	TEST_ASSERT_EQUAL(cio_success, err);
 
 	SET_CUSTOM_FAKE_SEQ(setsockopt, custom_fakes, ARRAY_SIZE(custom_fakes));
@@ -384,7 +384,7 @@ static void test_socket_enable_keepalive_keep_cnt(void)
 	        setsockopt_ok,
 	        setsockopt_fails,
 	        setsockopt_ok};
-	enum cio_error err = cio_socket_init(&s, NULL, on_close);
+	enum cio_error err = cio_socket_init(&s, NULL, NULL, on_close);
 	TEST_ASSERT_EQUAL(cio_success, err);
 
 	SET_CUSTOM_FAKE_SEQ(setsockopt, custom_fakes, ARRAY_SIZE(custom_fakes));
@@ -397,7 +397,7 @@ static void test_socket_enable_keepalive_keep_cnt(void)
 static void test_socket_stream_close(void)
 {
 	struct cio_socket s;
-	enum cio_error err = cio_socket_init(&s, NULL, on_close);
+	enum cio_error err = cio_socket_init(&s, NULL, NULL, on_close);
 	TEST_ASSERT_EQUAL(cio_success, err);
 	struct cio_io_stream *stream = s.get_io_stream(&s);
 	stream->close(stream);
@@ -413,7 +413,7 @@ static void test_socket_readsome(void)
 	read_fake.custom_fake = read_ok;
 
 	struct cio_socket s;
-	enum cio_error err = cio_socket_init(&s, NULL, on_close);
+	enum cio_error err = cio_socket_init(&s, NULL, NULL, on_close);
 	TEST_ASSERT_EQUAL(cio_success, err);
 	struct cio_io_stream *stream = s.get_io_stream(&s);
 
@@ -436,7 +436,7 @@ static void test_socket_readsome_register_read_fails(void)
 	cio_linux_eventloop_register_read_fake.return_val = cio_invalid_argument;
 
 	struct cio_socket s;
-	enum cio_error err = cio_socket_init(&s, NULL, on_close);
+	enum cio_error err = cio_socket_init(&s, NULL, NULL, on_close);
 	TEST_ASSERT_EQUAL(cio_success, err);
 	struct cio_io_stream *stream = s.get_io_stream(&s);
 
@@ -457,7 +457,7 @@ static void test_socket_readsome_read_blocks(void)
 	read_fake.custom_fake = read_blocks;
 
 	struct cio_socket s;
-	enum cio_error err = cio_socket_init(&s, NULL, on_close);
+	enum cio_error err = cio_socket_init(&s, NULL, NULL, on_close);
 	TEST_ASSERT_EQUAL(cio_success, err);
 	struct cio_io_stream *stream = s.get_io_stream(&s);
 
@@ -473,7 +473,7 @@ static void test_socket_readsome_read_fails(void)
 	read_fake.custom_fake = read_fails;
 
 	struct cio_socket s;
-	enum cio_error err = cio_socket_init(&s, NULL, on_close);
+	enum cio_error err = cio_socket_init(&s, NULL, NULL, on_close);
 	TEST_ASSERT_EQUAL(cio_success, err);
 	struct cio_io_stream *stream = s.get_io_stream(&s);
 
@@ -493,7 +493,7 @@ static void test_socket_writesome_all(void)
 	send_fake.custom_fake = send_all;
 
 	struct cio_socket s;
-	enum cio_error err = cio_socket_init(&s, NULL, on_close);
+	enum cio_error err = cio_socket_init(&s, NULL, NULL, on_close);
 	TEST_ASSERT_EQUAL(cio_success, err);
 	struct cio_io_stream *stream = s.get_io_stream(&s);
 
@@ -514,7 +514,7 @@ static void test_socket_writesome_parts(void)
 	send_fake.custom_fake = send_parts;
 
 	struct cio_socket s;
-	enum cio_error err = cio_socket_init(&s, NULL, on_close);
+	enum cio_error err = cio_socket_init(&s, NULL, NULL, on_close);
 	TEST_ASSERT_EQUAL(cio_success, err);
 	struct cio_io_stream *stream = s.get_io_stream(&s);
 
@@ -534,7 +534,7 @@ static void test_socket_writesome_fails(void)
 	send_fake.custom_fake = send_fails;
 
 	struct cio_socket s;
-	enum cio_error err = cio_socket_init(&s, NULL, on_close);
+	enum cio_error err = cio_socket_init(&s, NULL, NULL, on_close);
 	TEST_ASSERT_EQUAL(cio_success, err);
 	struct cio_io_stream *stream = s.get_io_stream(&s);
 
@@ -558,7 +558,7 @@ static void test_socket_writesome_blocks(void)
 	SET_CUSTOM_FAKE_SEQ(send, custom_fakes, ARRAY_SIZE(custom_fakes));
 
 	struct cio_socket s;
-	enum cio_error err = cio_socket_init(&s, NULL, on_close);
+	enum cio_error err = cio_socket_init(&s, NULL, NULL, on_close);
 	TEST_ASSERT_EQUAL(cio_success, err);
 	struct cio_io_stream *stream = s.get_io_stream(&s);
 
@@ -585,7 +585,7 @@ static void test_socket_writesome_blocks_fails(void)
 	cio_linux_eventloop_register_write_fake.return_val = cio_invalid_argument;
 
 	struct cio_socket s;
-	enum cio_error err = cio_socket_init(&s, NULL, on_close);
+	enum cio_error err = cio_socket_init(&s, NULL, NULL, on_close);
 	TEST_ASSERT_EQUAL(cio_success, err);
 	struct cio_io_stream *stream = s.get_io_stream(&s);
 
