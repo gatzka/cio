@@ -33,7 +33,7 @@
 #include "fff.h"
 #include "unity.h"
 
-#include "cio_buffer_allocator.h"
+#include "cio_allocator.h"
 #include "cio_eventloop.h"
 #include "cio_linux_socket.h"
 #include "cio_linux_socket_utils.h"
@@ -59,25 +59,25 @@ FAKE_VALUE_FUNC(int, bind, int, const struct sockaddr *, socklen_t)
 FAKE_VALUE_FUNC(int, listen, int, int)
 FAKE_VALUE_FUNC(int, close, int)
 
-struct cio_buffer test_malloc(struct cio_buffer_allocator *context, size_t size);
-FAKE_VALUE_FUNC(struct cio_buffer, test_malloc, struct cio_buffer_allocator *, size_t)
-void test_free(struct cio_buffer_allocator *context, void *address);
-FAKE_VOID_FUNC(test_free, struct cio_buffer_allocator *, void *)
+struct cio_buffer test_malloc(struct cio_allocator *context, size_t size);
+FAKE_VALUE_FUNC(struct cio_buffer, test_malloc, struct cio_allocator *, size_t)
+void test_free(struct cio_allocator *context, void *address);
+FAKE_VOID_FUNC(test_free, struct cio_allocator *, void *)
 
 FAKE_VALUE_FUNC0(int, cio_linux_socket_create)
 
 FAKE_VALUE_FUNC(enum cio_error, cio_linux_socket_init, struct cio_socket *, int,
                 struct cio_eventloop *,
-                struct cio_buffer_allocator *,
+                struct cio_allocator *,
                 cio_socket_close_hook)
 
 static int optval;
 
-struct cio_buffer_allocator allocator = {
+struct cio_allocator allocator = {
     .alloc = test_malloc,
     .free = test_free};
 
-static struct cio_buffer malloc_success(struct cio_buffer_allocator *context, size_t size)
+static struct cio_buffer malloc_success(struct cio_allocator *context, size_t size)
 {
 	(void)context;
 	struct cio_buffer buffer;
@@ -86,13 +86,13 @@ static struct cio_buffer malloc_success(struct cio_buffer_allocator *context, si
 	return buffer;
 }
 
-static void free_success(struct cio_buffer_allocator *context, void *address)
+static void free_success(struct cio_allocator *context, void *address)
 {
 	(void)context;
 	free(address);
 }
 
-struct cio_buffer_allocator *cio_get_system_allocator(void)
+struct cio_allocator *cio_get_system_allocator(void)
 {
 	return &allocator;
 }
@@ -216,7 +216,7 @@ static void accept_handler_close_server_socket(struct cio_server_socket *ss, voi
 	(void)handler_context;
 	(void)err;
 	if (err == cio_success) {
-		struct cio_buffer_allocator *alloc = cio_get_system_allocator();
+		struct cio_allocator *alloc = cio_get_system_allocator();
 		alloc->free(alloc, sock);
 	}
 	ss->close(ss);
@@ -230,7 +230,7 @@ static void socket_close(struct cio_socket *s)
 	}
 }
 
-static enum cio_error custom_cio_linux_socket_init(struct cio_socket *s, int fd, struct cio_eventloop *loop, struct cio_buffer_allocator *alloc, cio_socket_close_hook hook)
+static enum cio_error custom_cio_linux_socket_init(struct cio_socket *s, int fd, struct cio_eventloop *loop, struct cio_allocator *alloc, cio_socket_close_hook hook)
 {
 	s->ev.fd = fd;
 	s->allocator = alloc;

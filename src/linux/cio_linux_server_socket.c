@@ -187,7 +187,7 @@ static enum cio_error socket_bind(struct cio_server_socket *ss, const char *bind
 enum cio_error cio_server_socket_init(struct cio_server_socket *ss,
                                       struct cio_eventloop *loop,
                                       unsigned int backlog,
-                                      struct cio_buffer_allocator *allocator,
+                                      struct cio_allocator *allocator,
                                       cio_server_socket_close_hook hook)
 {
 	int listen_fd = cio_linux_socket_create();

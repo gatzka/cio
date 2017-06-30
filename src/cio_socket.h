@@ -115,12 +115,12 @@ struct cio_socket {
 	cio_socket_close_hook close_hook;
 	struct cio_event_notifier ev;
 	struct cio_eventloop *loop;
-	struct cio_buffer_allocator *allocator;
+	struct cio_allocator *allocator;
 };
 
 enum cio_error cio_socket_init(struct cio_socket *s,
                                struct cio_eventloop *loop,
-                               struct cio_buffer_allocator *allocator,
+                               struct cio_allocator *allocator,
                                cio_socket_close_hook close_hook);
 
 #ifdef __cplusplus

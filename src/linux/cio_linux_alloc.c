@@ -28,7 +28,7 @@
 
 #include "cio_allocator.h"
 
-static struct cio_buffer allocate(struct cio_buffer_allocator *context, size_t size)
+static struct cio_buffer allocate(struct cio_allocator *context, size_t size)
 {
 	(void)context;
 	struct cio_buffer buffer;
@@ -37,17 +37,17 @@ static struct cio_buffer allocate(struct cio_buffer_allocator *context, size_t s
 	return buffer;
 }
 
-static void free_mem(struct cio_buffer_allocator *context, void *ptr)
+static void free_mem(struct cio_allocator *context, void *ptr)
 {
 	(void)context;
 	free(ptr);
 }
 
-static struct cio_buffer_allocator linux_system_allocator = {
+static struct cio_allocator linux_system_allocator = {
     .alloc = allocate,
     .free = free_mem};
 
-struct cio_buffer_allocator *cio_get_system_allocator(void)
+struct cio_allocator *cio_get_system_allocator(void)
 {
 	return &linux_system_allocator;
 }
