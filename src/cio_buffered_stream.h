@@ -160,9 +160,27 @@ struct cio_buffered_stream {
 	void (*close)(struct cio_buffered_stream *context);
 };
 
+/**
+ * @brief Initializes a cio_buffered_stream.
+ *
+ * @param bs The cio_buffered_stream that should be initialized.
+ * @param stream The IO stream that should be used to read from
+ * and to write to.
+ * @param read_buffer_size The minimal size of the internal read buffer.
+ * @param read_buffer_allocator The allocator that will be used to allocate
+ * the memory for internal read buffer. The allocated memory will be freed
+ * automatically when calling close on the cio_buffered_stream.
+ * @param write_buffer_size The minimal size of the internal write buffer.
+ * @param write_buffer_allocator The allocator that will be used to allocate
+ * the memory for internal write buffer. The allocated memory will be freed
+ * automatically when calling close on the cio_buffered_stream.
+ * @return ::cio_success for success.
+ */
 enum cio_error cio_buffered_stream_init(struct cio_buffered_stream *bs,
                                         struct cio_io_stream *stream,
+                                        size_t read_buffer_size,
                                         struct cio_allocator *read_buffer_allocator,
+                                        size_t write_buffer_size,
                                         struct cio_allocator *write_buffer_allocator);
 
 #ifdef __cplusplus
