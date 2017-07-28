@@ -149,6 +149,7 @@ struct cio_buffered_stream {
 	void (*flush)(struct cio_buffered_stream *context);
 
 	/**
+	 * @anchor cio_buffered_stream_close
 	 * @brief Closes the stream.
 	 *
 	 * Implementations implementing this interface are strongly
@@ -158,6 +159,15 @@ struct cio_buffered_stream {
 	 * @param context A pointer to the cio_buffered_stream of the on which the operation should be performed.
 	 */
 	void (*close)(struct cio_buffered_stream *context);
+
+	/**
+	 * @privatesection
+	 */
+	 struct cio_io_stream *stream;
+	 size_t read_buffer_size;
+	 struct cio_allocator *read_buffer_allocator;
+	 size_t write_buffer_size;
+	 struct cio_allocator *write_buffer_allocator;
 };
 
 /**
@@ -169,12 +179,15 @@ struct cio_buffered_stream {
  * @param read_buffer_size The minimal size of the internal read buffer.
  * @param read_buffer_allocator The allocator that will be used to allocate
  * the memory for internal read buffer. The allocated memory will be freed
- * automatically when calling close on the cio_buffered_stream.
+ * automatically when calling @ref cio_buffered_stream_close "close" on the
+ * cio_buffered_stream.
  * @param write_buffer_size The minimal size of the internal write buffer.
  * @param write_buffer_allocator The allocator that will be used to allocate
  * the memory for internal write buffer. The allocated memory will be freed
- * automatically when calling close on the cio_buffered_stream.
- * @return ::cio_success for success.
+ * automatically when calling @ref cio_buffered_stream_close "close" on the
+ * cio_buffered_stream.
+ * @return ::cio_success for success. ::cio_invalid_argument if either
+ * @p read_buffer_allocator or @p write_buffer_allocator is @p NULL.
  */
 enum cio_error cio_buffered_stream_init(struct cio_buffered_stream *bs,
                                         struct cio_io_stream *stream,
