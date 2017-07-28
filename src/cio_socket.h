@@ -121,7 +121,7 @@ struct cio_socket {
 /**
  * @brief Initializes a cio_socket.
  *
- * @param ss The cio_socket that should be initialized.
+ * @param s The cio_socket that should be initialized.
  * @param loop The event loop the socket shall operate on.
  * @param allocator The allocator that was used to allocate the memory for
  * the struct cio_socket. Could be @p NULL. You have access to the
