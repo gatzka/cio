@@ -29,6 +29,7 @@ message(STATUS "CMAKE_C_COMPILER_VERSION: " ${CMAKE_C_COMPILER_VERSION})
 add_executable(test_cio_buffered_stream
     test_cio_buffered_stream.c
     ../cio_buffered_stream.c
+    ../linux/cio_linux_alloc.c
 )
 target_link_libraries (test_cio_buffered_stream cio_unity)
 
