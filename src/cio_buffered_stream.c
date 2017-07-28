@@ -80,7 +80,7 @@ enum cio_error cio_buffered_stream_init(struct cio_buffered_stream *bs,
                                         size_t write_buffer_size,
                                         struct cio_allocator *write_buffer_allocator)
 {
-	if (unlikely((read_buffer_allocator == NULL) || (write_buffer_allocator == NULL))) {
+	if (unlikely((read_buffer_allocator == NULL) || (write_buffer_allocator == NULL) || (stream == NULL))) {
 		return cio_invalid_argument;
 	}
 
@@ -110,5 +110,6 @@ enum cio_error cio_buffered_stream_init(struct cio_buffered_stream *bs,
 	bs->write = bs_write;
 	bs->flush = bs_flush;
 	bs->close = bs_close;
+
 	return cio_success;
 }
