@@ -118,6 +118,23 @@ struct cio_socket {
 	struct cio_allocator *allocator;
 };
 
+/**
+ * @brief Initializes a cio_socket.
+ *
+ * @param s The cio_socket that should be initialized.
+ * @param loop The event loop the socket shall operate on.
+ * @param allocator The allocator that was used to allocate the memory for
+ * the struct cio_socket. Could be @p NULL. You have access to the
+ * allocator in the close hook function. This allows you to free the memory
+ * on close.
+ * @param close_hook A close hook function. If this parameter is non @p NULL,
+ * the function will be called directly after
+ * @ref cio_socket_close "closing" the cio_socket.
+ * It is guaranteed the the cio library will not access any memory of
+ * cio_server_socket that is passed to the close hook. Therefore
+ * the hook could be used to free the memory of the server socket.
+ * @return ::cio_success for success.
+ */
 enum cio_error cio_socket_init(struct cio_socket *s,
                                struct cio_eventloop *loop,
                                struct cio_allocator *allocator,
