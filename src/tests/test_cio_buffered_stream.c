@@ -24,52 +24,14 @@
  * SOFTWARE.
  */
 
-import qbs 1.0
 
-import "qbs/unittestRunner.qbs" as UnittestRunner
+#include "fff.h"
+#include "unity.h"
 
-Project {
-  name: "cio with tests and documentation"
-  minimumQbsVersion: "1.4.0"
+DEFINE_FFF_GLOBALS
 
-  qbsSearchPaths: "qbs/"
-
-  references : [
-    "qbs/gccClang.qbs",
-    "qbs/hardening.qbs",
-    "src/cio-staticlib.qbs",
-    "src/cio-dynamiclib.qbs",
-
-    "src/unity.qbs",
-    "src/fff.qbs",
-    "src/unittestsettings.qbs",
-    "src/linux/tests/test_cio_linux_epoll.qbs",
-    "src/linux/tests/test_cio_linux_server_socket.qbs",
-    "src/linux/tests/test_cio_linux_socket.qbs",
-    "src/linux/tests/test_cio_linux_socket_utils.qbs",
-    "src/linux/tests/test_cio_linux_timer.qbs",
-    "src/tests/test_cio_buffered_stream.qbs",
-
-    "examples/periodic_timer.qbs",
-    "examples/socket_echo.qbs"
-  ] 
-
-  SubProject {
-    filePath: "src/cio_doc.qbs"
-  }
-
-  UnittestRunner {
-    lcovRemovePatterns: [
-      "*/linux/tests/*",
-      "/usr/include/*",
-    ]
-    wrapper: [
-      "valgrind",
-      "--errors-for-leak-kinds=all",
-      "--show-leak-kinds=all",
-      "--leak-check=full",
-      "--error-exitcode=1",
-    ]
-  }
+int main(void)
+{
+	UNITY_BEGIN();
+	return UNITY_END();
 }
-
