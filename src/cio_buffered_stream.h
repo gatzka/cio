@@ -160,6 +160,11 @@ struct cio_buffered_stream {
 	void (*close)(struct cio_buffered_stream *context);
 };
 
+enum cio_error cio_buffered_stream_init(struct cio_buffered_stream *bs,
+                                        struct cio_io_stream *stream,
+                                        struct cio_allocator *read_buffer_allocator,
+                                        struct cio_allocator *write_buffer_allocator);
+
 #ifdef __cplusplus
 }
 #endif
