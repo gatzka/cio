@@ -165,8 +165,10 @@ struct cio_buffered_stream {
 	 */
 	 struct cio_io_stream *stream;
 	 size_t read_buffer_size;
+	 void *read_buffer;
 	 struct cio_allocator *read_buffer_allocator;
 	 size_t write_buffer_size;
+	 void *write_buffer;
 	 struct cio_allocator *write_buffer_allocator;
 };
 
