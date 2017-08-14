@@ -27,8 +27,8 @@
 #include <string.h>
 
 #include <cio_allocator.h>
-#include <cio_compiler.h>
 #include <cio_buffered_stream.h>
+#include <cio_compiler.h>
 #include <cio_error_code.h>
 #include <cio_io_stream.h>
 
@@ -52,8 +52,8 @@ static void handle_read(struct cio_io_stream *context, void *handler_context, en
 		bs->unread_bytes += bytes_transferred;
 	}
 
-	if (bs->read_job != NULL) {
-		//TODO: call read_job
+	if (likely(bs->read_job != NULL)) {
+		bs->read_job(bs);
 	}
 }
 
@@ -82,12 +82,15 @@ static void bs_read_until(struct cio_buffered_stream *context, const char *delim
 	(void)handler_context;
 }
 
-#if 0
 static void internal_read_exactly(struct cio_buffered_stream *bs)
 {
-
+	if (bs->bytes_to_read <= unread_bytes(bs)) {
+		bs->read_handler(bs, bs->read_handler_context, cio_success, bs->read_from_ptr, bs->bytes_to_read);
+		bs->read_from_ptr += bs->bytes_to_read;
+	} else {
+		fill_buffer(bs);
+	}
 }
-#endif
 
 static void bs_read_exactly(struct cio_buffered_stream *bs, size_t num, cio_buffered_stream_read_handler handler, void *handler_context)
 {
@@ -95,16 +98,11 @@ static void bs_read_exactly(struct cio_buffered_stream *bs, size_t num, cio_buff
 		handler(bs, handler_context, cio_message_too_long, NULL, 0);
 	}
 
-	//bs->bytes_to_read = num;
-	//bs->reader = internal_read_exactly;
-	if (num <= unread_bytes(bs)) {
-		handler(bs, handler_context, cio_success, bs->read_from_ptr, num);
-		bs->read_from_ptr += num;
-	} else {
-		bs->read_handler = handler;
-		bs->read_handler_context = handler_context;
-		fill_buffer(bs);
-	}
+	bs->bytes_to_read = num;
+	bs->read_job = internal_read_exactly;
+	bs->read_handler = handler;
+	bs->read_handler_context = handler_context;
+	internal_read_exactly(bs);
 }
 
 static void bs_write(struct cio_buffered_stream *bs, const void *buf, size_t count, cio_buffered_stream_write_handler handler, void *handler_context)
