@@ -59,7 +59,7 @@ static void handle_read(struct cio_io_stream *context, void *handler_context, en
 
 static void fill_buffer(struct cio_buffered_stream *bs)
 {
-	if (bs->read_buffer != bs->read_from_ptr){
+	if (bs->read_buffer != bs->read_from_ptr) {
 		memmove(bs->read_buffer, bs->read_from_ptr, unread_bytes(bs));
 	}
 
@@ -82,8 +82,21 @@ static void bs_read_until(struct cio_buffered_stream *context, const char *delim
 	(void)handler_context;
 }
 
+#if 0
+static void internal_read_exactly(struct cio_buffered_stream *bs)
+{
+
+}
+#endif
+
 static void bs_read_exactly(struct cio_buffered_stream *bs, size_t num, cio_buffered_stream_read_handler handler, void *handler_context)
 {
+	if (unlikely(num > bs->read_buffer_size)) {
+		handler(bs, handler_context, cio_message_too_long, NULL, 0);
+	}
+
+	//bs->bytes_to_read = num;
+	//bs->reader = internal_read_exactly;
 	if (num <= unread_bytes(bs)) {
 		handler(bs, handler_context, cio_success, bs->read_from_ptr, num);
 		bs->read_from_ptr += num;
