@@ -123,6 +123,7 @@ static void bs_close(struct cio_buffered_stream *context)
 {
 	context->read_buffer_allocator->free(context->read_buffer_allocator, context->read_buffer);
 	context->write_buffer_allocator->free(context->write_buffer_allocator, context->write_buffer);
+	context->stream->close(context->stream);
 }
 
 enum cio_error cio_buffered_stream_init(struct cio_buffered_stream *bs,

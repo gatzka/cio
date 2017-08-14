@@ -34,6 +34,16 @@
 
 DEFINE_FFF_GLOBALS
 
+struct memory_stream {
+	struct cio_io_stream ios;
+};
+
+void read_some(struct cio_io_stream *ios, void *buf, size_t num, cio_io_stream_read_handler handler, void *context);
+FAKE_VOID_FUNC(read_some, struct cio_io_stream*, void*, size_t, cio_io_stream_read_handler, void*)
+
+void close(struct cio_io_stream *context);
+FAKE_VOID_FUNC(close, struct cio_io_stream*)
+
 static struct cio_buffer alloc_no_mem(struct cio_allocator *context, size_t size)
 {
 	(void)context;
@@ -44,13 +54,23 @@ static struct cio_buffer alloc_no_mem(struct cio_allocator *context, size_t size
 	return buffer;
 }
 
-
 static struct cio_allocator allocator_no_mem = {
 	.alloc = alloc_no_mem,
 	.free = NULL
 };
 
-static struct cio_io_stream dummy_stream;
+static struct memory_stream ms = {
+	.ios.read_some = read_some,
+	.ios.close = close
+};
+
+void setUp(void)
+{
+	FFF_RESET_HISTORY();
+
+	RESET_FAKE(read_some);
+	RESET_FAKE(close);
+}
 
 static void test_init_missing_stream(void)
 {
@@ -62,36 +82,37 @@ static void test_init_missing_stream(void)
 static void test_init_missing_read_allocator(void)
 {
 	struct cio_buffered_stream bs;
-	enum cio_error err = cio_buffered_stream_init(&bs, &dummy_stream, 40, NULL, 30, cio_get_system_allocator());
+	enum cio_error err = cio_buffered_stream_init(&bs, &ms.ios, 40, NULL, 30, cio_get_system_allocator());
 	TEST_ASSERT_EQUAL(cio_invalid_argument, err);
 }
 
 static void test_init_missing_write_allocator(void)
 {
 	struct cio_buffered_stream bs;
-	enum cio_error err = cio_buffered_stream_init(&bs, &dummy_stream, 40, cio_get_system_allocator(), 30, NULL);
+	enum cio_error err = cio_buffered_stream_init(&bs, &ms.ios, 40, cio_get_system_allocator(), 30, NULL);
 	TEST_ASSERT_EQUAL(cio_invalid_argument, err);
 }
 
 static void test_init_correctly(void)
 {
 	struct cio_buffered_stream bs;
-	enum cio_error err = cio_buffered_stream_init(&bs, &dummy_stream, 40, cio_get_system_allocator(), 30, cio_get_system_allocator());
+	enum cio_error err = cio_buffered_stream_init(&bs, &ms.ios, 40, cio_get_system_allocator(), 30, cio_get_system_allocator());
 	TEST_ASSERT_EQUAL(cio_success, err);
 	bs.close(&bs);
+	TEST_ASSERT_EQUAL_MESSAGE(1, close_fake.call_count, "Underlying cio_iostream was not closed!");
 }
 
 static void test_init_alloc_read_fails(void)
 {
 	struct cio_buffered_stream bs;
-	enum cio_error err = cio_buffered_stream_init(&bs, &dummy_stream, 40, &allocator_no_mem, 30, cio_get_system_allocator());
+	enum cio_error err = cio_buffered_stream_init(&bs, &ms.ios, 40, &allocator_no_mem, 30, cio_get_system_allocator());
 	TEST_ASSERT_EQUAL(cio_not_enough_memory, err);
 }
 
 static void test_init_alloc_write_fails(void)
 {
 	struct cio_buffered_stream bs;
-	enum cio_error err = cio_buffered_stream_init(&bs, &dummy_stream, 40, cio_get_system_allocator(), 30, &allocator_no_mem);
+	enum cio_error err = cio_buffered_stream_init(&bs, &ms.ios, 40, cio_get_system_allocator(), 30, &allocator_no_mem);
 	TEST_ASSERT_EQUAL(cio_not_enough_memory, err);
 }
 
