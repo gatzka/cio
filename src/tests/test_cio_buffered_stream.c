@@ -84,6 +84,11 @@ static void read_some_max(struct cio_io_stream *ios, void *buf, size_t num, cio_
 	handler(ios, context, cio_success, buf, len);
 }
 
+static void read_some_error(struct cio_io_stream *ios, void *buf, size_t num, cio_io_stream_read_handler handler, void *context)
+{
+	handler(ios, context, cio_invalid_argument, buf, num);
+}
+
 static void memory_stream_init(struct memory_stream *ms, const char *fill_pattern)
 {
 	ms->ios.read_some = read_some;
@@ -203,6 +208,25 @@ static void test_read_exactly_more_than_buffer_size(void)
 	memory_stream_deinit(&ms);
 }
 
+static void test_read_exactly_ios_error(void)
+{
+	size_t read_buffer_size = 40;
+	static const char *test_data = "Hello";
+	memory_stream_init(&ms, test_data);
+	read_some_fake.custom_fake = read_some_error;
+
+	struct cio_buffered_stream bs;
+	enum cio_error err = cio_buffered_stream_init(&bs, &ms.ios, read_buffer_size, cio_get_system_allocator(), 30, cio_get_system_allocator());
+	TEST_ASSERT_EQUAL_MESSAGE(cio_success, err, "Buffer was not initialized correctly!");
+	bs.read_exactly(&bs, read_buffer_size - 1, dummy_handler, NULL);
+
+	bs.close(&bs);
+	TEST_ASSERT_EQUAL_MESSAGE(1, close_fake.call_count, "Underlying cio_iostream was not closed!");
+	TEST_ASSERT_EQUAL_MESSAGE(1, dummy_handler_fake.call_count, "Handler was not called!");
+	TEST_ASSERT_EQUAL_MESSAGE(cio_invalid_argument, dummy_handler_fake.arg2_val, "Handler was not called with cio_invalid_argument!");
+	memory_stream_deinit(&ms);
+}
+
 int main(void)
 {
 	UNITY_BEGIN();
@@ -214,5 +238,6 @@ int main(void)
 	RUN_TEST(test_init_alloc_write_fails);
 	RUN_TEST(test_read_exactly);
 	RUN_TEST(test_read_exactly_more_than_buffer_size);
+	RUN_TEST(test_read_exactly_ios_error);
 	return UNITY_END();
 }

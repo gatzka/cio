@@ -48,6 +48,7 @@ static void handle_read(struct cio_io_stream *context, void *handler_context, en
 	(void)buf;
 
 	struct cio_buffered_stream *bs = handler_context;
+	bs->last_error = err;
 	if (likely(err == cio_success)) {
 		bs->unread_bytes += bytes_transferred;
 	}
@@ -84,6 +85,11 @@ static void bs_read_until(struct cio_buffered_stream *context, const char *delim
 
 static void internal_read_exactly(struct cio_buffered_stream *bs)
 {
+	if (unlikely(bs->last_error != cio_success)) {
+		bs->read_handler(bs, bs->read_handler_context, bs->last_error, NULL, 0);
+		return;
+	}
+
 	if (bs->bytes_to_read <= unread_bytes(bs)) {
 		bs->read_handler(bs, bs->read_handler_context, cio_success, bs->read_from_ptr, bs->bytes_to_read);
 		bs->read_from_ptr += bs->bytes_to_read;
@@ -96,12 +102,14 @@ static void bs_read_exactly(struct cio_buffered_stream *bs, size_t num, cio_buff
 {
 	if (unlikely(num > bs->read_buffer_size)) {
 		handler(bs, handler_context, cio_message_too_long, NULL, 0);
+		return;
 	}
 
 	bs->bytes_to_read = num;
 	bs->read_job = internal_read_exactly;
 	bs->read_handler = handler;
 	bs->read_handler_context = handler_context;
+	bs->last_error = cio_success;
 	internal_read_exactly(bs);
 }
 

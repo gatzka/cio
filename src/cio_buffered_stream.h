@@ -178,6 +178,7 @@ struct cio_buffered_stream {
 	size_t write_buffer_size;
 	void *write_buffer;
 	struct cio_allocator *write_buffer_allocator;
+	enum cio_error last_error;
 };
 
 /**
