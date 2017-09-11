@@ -23,7 +23,7 @@ set(WARN_SWITCHES "-Wall -Wextra -Werror -Wshadow -Winit-self -Wcast-qual -Wcast
 set(COVERAGE_FLAGS "-fprofile-arcs -ftest-coverage")
 set(CMAKE_C_FLAGS "-pipe -fno-common -std=gnu99 ${WARN_SWITCHES} ${CMAKE_C_FLAGS}")
 if(CMAKE_BUILD_TYPE MATCHES Debug)
-  set(CMAKE_C_FLAGS "{CMAKE_C_FLAGS} ${COVERAGE_FLAGS}")
+  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${COVERAGE_FLAGS}")
 endif(CMAKE_BUILD_TYPE MATCHES Debug)
 
 message(STATUS "CMAKE_C_COMPILER_ID: " ${CMAKE_C_COMPILER_ID})
