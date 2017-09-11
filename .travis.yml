@@ -53,7 +53,7 @@ after_success:
       lcov --list coverage.info;
       bash <(curl -s https://codecov.io/bash) || echo "Codecov did not collect coverage reports";
     fi;
-    ls -l /usr/share/clang/*
+    ls -l /usr/share/clang/scan-build-5.0/*
 
 addons:
   apt:
