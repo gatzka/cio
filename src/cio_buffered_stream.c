@@ -53,9 +53,7 @@ static void handle_read(struct cio_io_stream *context, void *handler_context, en
 		bs->unread_bytes += bytes_transferred;
 	}
 
-	if (likely(bs->read_job != NULL)) {
-		bs->read_job(bs);
-	}
+	bs->read_job(bs);
 }
 
 static void fill_buffer(struct cio_buffered_stream *bs)
