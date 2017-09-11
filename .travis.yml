@@ -58,11 +58,7 @@ addons:
   apt:
     sources:
     - ubuntu-toolchain-r-test
-    - george-edison55-precise-backports
-    - llvm-toolchain-precise-3.9
     packages:
-    - clang-3.9
-    - clang-3.4
     - gcc-6
     - cmake
     - cmake-data
