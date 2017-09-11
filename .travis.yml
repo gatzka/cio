@@ -14,7 +14,7 @@ env:
       COVERAGE_INFO=1
     - CMAKE_C_COMPILER=gcc-6
       CMAKE_BUILD_TYPE=Debug
-    - CMAKE_C_COMPILER=clang
+    - CMAKE_C_COMPILER=clang-3.4
       CMAKE_BUILD_TYPE=Debug
     - CMAKE_C_COMPILER=clang-3.9
       CMAKE_BUILD_TYPE=Debug
@@ -25,7 +25,7 @@ env:
       CMAKE_BUILD_TYPE=Release
     - CMAKE_C_COMPILER=gcc-6
       CMAKE_BUILD_TYPE=Release
-    - CMAKE_C_COMPILER=clang
+    - CMAKE_C_COMPILER=clang-3.4
       CMAKE_BUILD_TYPE=Release
     - CMAKE_C_COMPILER=clang-3.9
       CMAKE_BUILD_TYPE=Release
@@ -61,7 +61,6 @@ addons:
     - george-edison55-precise-backports
     - llvm-toolchain-precise-3.9
     packages:
-    - clang
     - clang-3.9
     - clang-3.4
     - gcc-6
