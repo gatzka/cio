@@ -25,7 +25,6 @@
  */
 
 import qbs 1.0
-import qbs.ModUtils
 import qbs.Utilities
 
 Product {
@@ -33,7 +32,6 @@ Product {
   type: ["unittest-result"]
 
   property stringList arguments: []
-  property stringList environment: ModUtils.flattenDictionary(qbs.commonRunEnvironment)
   property stringList wrapper: []
   property stringList lcovExtractPatterns: []
   property stringList lcovRemovePatterns: []
@@ -79,7 +77,6 @@ Product {
           .concat(product.arguments);
         var cmd = new Command(fullCommandLine[0], fullCommandLine.slice(1));
         cmd.description = "Running test " + inputs.application[i].fileName;
-        cmd.environment = product.environment;
         cmds.push(cmd);
       }
 
