@@ -16,9 +16,9 @@ env:
       CMAKE_BUILD_TYPE=Debug
     - CMAKE_C_COMPILER=clang-3.4
       CMAKE_BUILD_TYPE=Debug
-    - CMAKE_C_COMPILER=clang-3.9
+    - CMAKE_C_COMPILER=clang-5.0
       CMAKE_BUILD_TYPE=Debug
-    - CMAKE_C_COMPILER=/usr/share/clang/scan-build-3.9/libexec/ccc-analyzer
+    - CMAKE_C_COMPILER=/usr/share/clang/scan-build-5.0/libexec/ccc-analyzer
       CMAKE_BUILD_TYPE=Debug
       SCAN_BUILD=1
     - CMAKE_C_COMPILER=gcc
@@ -27,7 +27,7 @@ env:
       CMAKE_BUILD_TYPE=Release
     - CMAKE_C_COMPILER=clang-3.4
       CMAKE_BUILD_TYPE=Release
-    - CMAKE_C_COMPILER=clang-3.9
+    - CMAKE_C_COMPILER=clang-5.0
       CMAKE_BUILD_TYPE=Release
   global:
     - secure: "kMI8djmAytx80YQ8MRmXU2X90hV9bXHp9DEUdFplJZE1spTO6p4yl8kb57/nXUZoits70AnNVt93GlZ3FGxCBdzBFdOAhvzMXkWnqjed1JCPS9Kh9b+tlOCPIFzJ6mXn9aBYLHMxACrtqAbTSm8XEri7+aEMdy471PYWD3uf6xIo7wAqscO5tzJOTzPoGhEjvl6eZHr24jemWRBUAvL7al4NcutE7bHeHc3znzo1aQhx5jtL/ukofzXXPwrFUBOj9ujQsMb32lNAdxhNEyCDL1c73p7tf143ZuJ0nJoDEEXfvHxRIPkPQ2g8e5APiJEyIqVzcHugq9KPMjnMpMSDBMyPaY8cgXFcbbRzuWQfsw4OY+Bd3/Lud3iXUeZsVZazGDHolzZWemebz8VvEuVdPOmSei5wCUhkgSnM7rutU4Fsdb5zwG0ZNePh3YBYZy99DBfTUejKXboAHQxxvMJm63RrHb3kGM5jzxXMWL3Xfiaii0cqfctDJ4EIOLnD8HJu+6v0Xw9fZCjx4eFYD9z5uFxjLhXCBGXFEfQ0sGAxf97TJ2RR08/SrG4eRnK4oU0dqU1NKd7I7+wjCY8sOOpuWidXI9wNcqkJpcfmTEbqhr47Co/ojlUSegwxk1FMnd3qMnnKZR4jqTLtAZdsz9fYLgQAhk+Cuk5QVH5pyCGnOrw="
@@ -40,7 +40,7 @@ script:
       CMAKE_CMD_OPTION="-DCMAKE_C_COMPILER=${CMAKE_C_COMPILER} -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}";
       echo $CMAKE_CMD_OPTION;
       cmake $CMAKE_CMD_OPTION ../;
-      if [ -n "${SCAN_BUILD}" ]; then /usr/lib/llvm-3.9/bin/scan-build --status-bugs make -j; else make -j; fi;
+      if [ -n "${SCAN_BUILD}" ]; then /usr/lib/llvm-5.0/bin/scan-build --status-bugs make -j; else make -j; fi;
       ASAN_OPTIONS=check_initialization_order=true:detect_stack_use_after_return=true:strict_init_order=true:detect_invalid_pointer_pairs=10:strict_string_checks=true ctest . ;
     fi
 
@@ -58,7 +58,9 @@ addons:
   apt:
     sources:
     - ubuntu-toolchain-r-test
+    - llvm-toolchain-trusty-5.0
     packages:
+    - clang-5.0
     - gcc-6
     - cmake
     - cmake-data
