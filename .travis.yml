@@ -18,8 +18,6 @@ env:
       CMAKE_BUILD_TYPE=Debug
     - CMAKE_C_COMPILER=clang-3.9
       CMAKE_BUILD_TYPE=Debug
-    - CMAKE_C_COMPILER=clang-4.0
-      CMAKE_BUILD_TYPE=Debug
     - CMAKE_C_COMPILER=/usr/share/clang/scan-build-3.9/libexec/ccc-analyzer
       CMAKE_BUILD_TYPE=Debug
       SCAN_BUILD=1
@@ -60,7 +58,9 @@ addons:
   apt:
     sources:
     - ubuntu-toolchain-r-test
+    - llvm-toolchain-trusty-3.9
     packages:
+    - clang-3.9
     - gcc-6
     - cmake
     - cmake-data
