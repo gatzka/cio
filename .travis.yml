@@ -63,6 +63,7 @@ addons:
     packages:
     - clang
     - clang-3.9
+    - clang-3.4
     - gcc-6
     - cmake
     - cmake-data
