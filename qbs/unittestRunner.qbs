@@ -33,7 +33,7 @@ Product {
   type: ["unittest-result"]
 
   property stringList arguments: []
-  property stringList environment: ModUtils.flattenEnvironmentDictionary(qbs.commonRunEnvironment)
+  property stringList environment: ModUtils.flattenDictionary(qbs.commonRunEnvironment)
   property stringList wrapper: []
   property stringList lcovExtractPatterns: []
   property stringList lcovRemovePatterns: []
