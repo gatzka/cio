@@ -31,9 +31,9 @@ CppApplication {
   type: ["application", "unittest"]
   Depends { name: "unit test settings" }
   files: [
-    "test_cio_buffered_stream.c",
-    "../cio_buffered_stream.c",
-    "../linux/cio_linux_alloc.c"
-  ]
+        "test_cio_buffered_stream.c",
+        "../cio_buffered_stream.c",
+        "../linux/cio_linux_alloc.c",
+    ]
 }
 

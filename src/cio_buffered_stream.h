@@ -163,13 +163,22 @@ struct cio_buffered_stream {
 	/**
 	 * @privatesection
 	 */
-	 struct cio_io_stream *stream;
-	 size_t read_buffer_size;
-	 void *read_buffer;
-	 struct cio_allocator *read_buffer_allocator;
-	 size_t write_buffer_size;
-	 void *write_buffer;
-	 struct cio_allocator *write_buffer_allocator;
+	struct cio_io_stream *stream;
+	size_t read_buffer_size;
+	uint8_t *read_buffer;
+	uint8_t *read_from_ptr;
+	size_t unread_bytes;
+	cio_buffered_stream_read_handler read_handler;
+	void *read_handler_context;
+
+	void (*read_job)(struct cio_buffered_stream *bs);
+	size_t bytes_to_read;
+
+	struct cio_allocator *read_buffer_allocator;
+	size_t write_buffer_size;
+	void *write_buffer;
+	struct cio_allocator *write_buffer_allocator;
+	enum cio_error last_error;
 };
 
 /**
