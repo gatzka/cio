@@ -62,6 +62,7 @@ static void fill_buffer(struct cio_buffered_stream *bs)
 {
 	if (bs->read_buffer != bs->read_from_ptr) {
 		memmove(bs->read_buffer, bs->read_from_ptr, unread_bytes(bs));
+		bs->read_from_ptr = bs->read_buffer;
 	}
 
 	bs->stream->read_some(bs->stream, bs->read_buffer + unread_bytes(bs), space_in_buffer(bs), handle_read, bs);
@@ -93,6 +94,7 @@ static void internal_read_exactly(struct cio_buffered_stream *bs)
 	if (bs->bytes_to_read <= unread_bytes(bs)) {
 		bs->read_handler(bs, bs->read_handler_context, cio_success, bs->read_from_ptr, bs->bytes_to_read);
 		bs->read_from_ptr += bs->bytes_to_read;
+		bs->unread_bytes -= bs->bytes_to_read;
 	} else {
 		fill_buffer(bs);
 	}
