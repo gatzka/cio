@@ -85,6 +85,8 @@ DynamicLibrary {
     condition: qbs.targetOS.contains("linux")
     name: "linux specific"
     prefix: "linux/"
+    cpp.cLanguageVersion: "c99"
+    cpp.defines: "_GNU_SOURCE"
 
     files: [
       "*.c",

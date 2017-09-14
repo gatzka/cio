@@ -173,8 +173,11 @@ struct cio_buffered_stream {
 	void *read_handler_context;
 
 	void (*read_job)(struct cio_buffered_stream *bs);
+
+	//TODO make a union out of the following members
 	size_t bytes_to_read;
 	const char *delim;
+	size_t delim_length;
 
 	struct cio_allocator *read_buffer_allocator;
 	size_t write_buffer_size;
