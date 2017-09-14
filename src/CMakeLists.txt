@@ -21,13 +21,14 @@ if(is_linux)
         linux/cio_linux_server_socket.c
         linux/cio_linux_socket.c
         linux/cio_linux_socket_utils.c
+        linux/cio_linux_string.c
         linux/cio_linux_timer.c
     )
 endif()
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/ ${CMAKE_CURRENT_SOURCE_DIR}/linux/)
 set(CIO_FILES
-        cio_buffered_stream.c
+    cio_buffered_stream.c
 )
 
 if(CMAKE_C_COMPILER_ID STREQUAL "GNU" OR CMAKE_C_COMPILER_ID STREQUAL "Clang")
@@ -41,9 +42,18 @@ if(CMAKE_C_COMPILER_ID STREQUAL "GNU" OR CMAKE_C_COMPILER_ID STREQUAL "Clang")
 
     set(CMAKE_C_FLAGS "-pipe -fno-common ${WARN_SWITCHES} ${CMAKE_C_FLAGS}")
     set(CMAKE_C_FLAGS_RELEASE "-fno-asynchronous-unwind-tables ${CMAKE_C_FLAGS_RELEASE}")
-    set_source_files_properties(
-        ${CIO_FILES} PROPERTIES COMPILE_FLAGS "-std=c99"
-    )
+
+    foreach(_file ${CIO_LINUX_FILES})
+        file(SHA1 ${PROJECT_SOURCE_DIR}/${_file} checksum)
+        string(SUBSTRING ${checksum} 0 8 checksum)
+        set_property(SOURCE ${_file} APPEND_STRING PROPERTY COMPILE_FLAGS "-std=c99 -frandom-seed=0x${checksum} -D_GNU_SOURCE")
+    endforeach()
+
+    foreach(_file ${CIO_FILES})
+        file(SHA1 ${PROJECT_SOURCE_DIR}/${_file} checksum)
+        string(SUBSTRING ${checksum} 0 8 checksum)
+        set_property(SOURCE ${_file} APPEND_STRING PROPERTY COMPILE_FLAGS "-std=c99 -frandom-seed=0x${checksum}")
+    endforeach()
 endif()
 
 if(CMAKE_C_COMPILER_ID STREQUAL "Clang")
