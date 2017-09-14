@@ -116,7 +116,8 @@ struct cio_buffered_stream {
 	 * @brief Call @p handler if delimiter @p delim is encountered.
 	 *
 	 * @param context A pointer to the cio_buffered_stream of the on which the operation should be performed.
-	 * @param delim A zero terminated string containing the delimiter to be found.
+	 * @param delim A zero terminated string containing the delimiter to be found. Pay attention that the delimiter string
+	 *              is not copied and must therefore survive until @p handler is called.
 	 * @param handler The callback function to be called when the read
 	 * request is fulfilled.
 	 * @param handler_context A pointer to a context which might be
@@ -173,6 +174,7 @@ struct cio_buffered_stream {
 
 	void (*read_job)(struct cio_buffered_stream *bs);
 	size_t bytes_to_read;
+	const char *delim;
 
 	struct cio_allocator *read_buffer_allocator;
 	size_t write_buffer_size;
