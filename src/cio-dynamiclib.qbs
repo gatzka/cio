@@ -50,7 +50,14 @@ DynamicLibrary {
 
   cpp.warningLevel: "all"
   cpp.treatWarningsAsErrors: true
-  cpp.includePaths: [".", "./linux/", buildDirectory + "/generated/"]
+  cpp.includePaths: {
+    var paths = [".", buildDirectory + "/generated/"];
+    if (qbs.targetOS.contains("linux")) {
+      paths.push("./linux/");
+    }
+
+    return paths;
+  }
 
   cioVersionFile {
     prefix: product.sourceDirectory + "/"
