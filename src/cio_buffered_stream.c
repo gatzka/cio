@@ -93,6 +93,11 @@ static void internal_read_until(struct cio_buffered_stream *bs)
 
 static void bs_read_until(struct cio_buffered_stream *bs, const char *delim, cio_buffered_stream_read_handler handler, void *handler_context)
 {
+	if (unlikely(delim == NULL)) {
+		handler(bs, handler_context, cio_invalid_argument, NULL, 0);
+		return;
+	}
+
 	bs->delim = delim;
 	bs->delim_length = strlen(delim);
 	bs->read_job = internal_read_until;

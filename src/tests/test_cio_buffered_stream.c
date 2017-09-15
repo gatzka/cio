@@ -324,6 +324,51 @@ static void test_read_until(void)
 	memory_stream_deinit(&ms);
 }
 
+static void test_read_until_zero_length_delim(void)
+{
+#define PRE_DELIM "MY"
+#define DELIM "HelloWorld"
+	static const char *test_data = PRE_DELIM DELIM "Example";
+	memory_stream_init(&ms, test_data);
+	read_some_fake.custom_fake = read_some_max;
+	dummy_handler_fake.custom_fake = save_to_check_buffer;
+
+	struct cio_buffered_stream bs;
+	enum cio_error err = cio_buffered_stream_init(&bs, &ms.ios, 40, cio_get_system_allocator(), 30, cio_get_system_allocator());
+	TEST_ASSERT_EQUAL_MESSAGE(cio_success, err, "Buffer was not initialized correctly!");
+
+	bs.read_until(&bs, "", dummy_handler, check_buffer);
+
+	bs.close(&bs);
+	TEST_ASSERT_EQUAL_MESSAGE(1, close_fake.call_count, "Underlying cio_iostream was not closed!");
+	TEST_ASSERT_EQUAL_MESSAGE(1, dummy_handler_fake.call_count, "Handler was not called!");
+	TEST_ASSERT_EQUAL_MESSAGE(cio_success, dummy_handler_fake.arg2_val, "Handler was not called with cio_success!");
+	TEST_ASSERT_EQUAL_MESSAGE(0, dummy_handler_fake.arg4_val, "Handler was not called with correct data length!");
+	memory_stream_deinit(&ms);
+}
+
+static void test_read_until_NULL_delim(void)
+{
+#define PRE_DELIM "MY"
+#define DELIM "HelloWorld"
+	static const char *test_data = PRE_DELIM DELIM "Example";
+	memory_stream_init(&ms, test_data);
+	read_some_fake.custom_fake = read_some_max;
+	dummy_handler_fake.custom_fake = save_to_check_buffer;
+
+	struct cio_buffered_stream bs;
+	enum cio_error err = cio_buffered_stream_init(&bs, &ms.ios, 40, cio_get_system_allocator(), 30, cio_get_system_allocator());
+	TEST_ASSERT_EQUAL_MESSAGE(cio_success, err, "Buffer was not initialized correctly!");
+
+	bs.read_until(&bs, NULL, dummy_handler, check_buffer);
+
+	bs.close(&bs);
+	TEST_ASSERT_EQUAL_MESSAGE(1, close_fake.call_count, "Underlying cio_iostream was not closed!");
+	TEST_ASSERT_EQUAL_MESSAGE(1, dummy_handler_fake.call_count, "Handler was not called!");
+	TEST_ASSERT_EQUAL_MESSAGE(cio_invalid_argument, dummy_handler_fake.arg2_val, "Handler was not called with cio_invalid_argument!");
+	memory_stream_deinit(&ms);
+}
+
 int main(void)
 {
 	UNITY_BEGIN();
@@ -339,5 +384,7 @@ int main(void)
 	RUN_TEST(test_read_exactly_chunks);
 	RUN_TEST(test_read_exactly_zero_length);
 	RUN_TEST(test_read_until);
+	RUN_TEST(test_read_until_zero_length_delim);
+	RUN_TEST(test_read_until_NULL_delim);
 	return UNITY_END();
 }
