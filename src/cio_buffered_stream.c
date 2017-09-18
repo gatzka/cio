@@ -33,6 +33,9 @@
 #include "cio_io_stream.h"
 #include "cio_string.h"
 
+#undef MIN
+#define MIN(X, Y) (((X) < (Y)) ? (X) : (Y))
+
 static inline size_t unread_bytes(const struct cio_buffered_stream *bs)
 {
 	return bs->unread_bytes;
@@ -67,12 +70,27 @@ static void fill_buffer(struct cio_buffered_stream *bs)
 	bs->stream->read_some(bs->stream, bs->read_buffer + unread_bytes(bs), space_in_buffer(bs), handle_read, bs);
 }
 
-static void bs_read(struct cio_buffered_stream *context, size_t num, cio_buffered_stream_read_handler handler, void *handler_context)
+static void internal_read(struct cio_buffered_stream *bs)
 {
-	(void)context;
-	(void)num;
-	(void)handler;
-	(void)handler_context;
+	size_t available = unread_bytes(bs);
+	if (available > 0) {
+		size_t to_read = MIN(available, bs->bytes_to_read);
+		bs->read_handler(bs, bs->read_handler_context, cio_success, bs->read_from_ptr, to_read);
+		bs->read_from_ptr += to_read;
+		bs->unread_bytes -= to_read;
+	} else {
+		fill_buffer(bs);
+	}
+}
+
+static void bs_read(struct cio_buffered_stream *bs, size_t num, cio_buffered_stream_read_handler handler, void *handler_context)
+{
+	bs->bytes_to_read = num;
+	bs->read_job = internal_read;
+	bs->read_handler = handler;
+	bs->read_handler_context = handler_context;
+	bs->last_error = cio_success;
+	internal_read(bs);
 }
 
 static void internal_read_until(struct cio_buffered_stream *bs)
