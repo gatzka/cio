@@ -40,6 +40,7 @@ DEFINE_FFF_GLOBALS
 #define container_of(ptr, type, member) ( \
 	(void *)((char *)ptr - offsetof(type, member)))
 
+#undef MIN
 #define MIN(X, Y) (((X) < (Y)) ? (X) : (Y))
 
 struct memory_stream {
