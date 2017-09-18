@@ -74,7 +74,7 @@ static void internal_read(struct cio_buffered_stream *bs)
 {
 	size_t available = unread_bytes(bs);
 	if (available > 0) {
-		size_t to_read = MIN(available, bs->bytes_to_read);
+		size_t to_read = MIN(available, bs->read_info.bytes_to_read);
 		bs->read_handler(bs, bs->read_handler_context, cio_success, bs->read_from_ptr, to_read);
 		bs->read_from_ptr += to_read;
 		bs->unread_bytes -= to_read;
@@ -85,7 +85,7 @@ static void internal_read(struct cio_buffered_stream *bs)
 
 static void bs_read(struct cio_buffered_stream *bs, size_t num, cio_buffered_stream_read_handler handler, void *handler_context)
 {
-	bs->bytes_to_read = num;
+	bs->read_info.bytes_to_read = num;
 	bs->read_job = internal_read;
 	bs->read_handler = handler;
 	bs->read_handler_context = handler_context;
@@ -96,8 +96,8 @@ static void bs_read(struct cio_buffered_stream *bs, size_t num, cio_buffered_str
 static void internal_read_until(struct cio_buffered_stream *bs)
 {
 	const uint8_t *haystack = bs->read_from_ptr;
-	const char *needle = bs->delim;
-	size_t needle_length = bs->delim_length;
+	const char *needle = bs->read_info.until.delim;
+	size_t needle_length = bs->read_info.until.delim_length;
 	uint8_t *found = cio_memmem(haystack, unread_bytes(bs), needle, needle_length);
 	if (found != NULL) {
 		ptrdiff_t diff = (found + needle_length) - bs->read_from_ptr;
@@ -116,8 +116,8 @@ static void bs_read_until(struct cio_buffered_stream *bs, const char *delim, cio
 		return;
 	}
 
-	bs->delim = delim;
-	bs->delim_length = strlen(delim);
+	bs->read_info.until.delim = delim;
+	bs->read_info.until.delim_length = strlen(delim);
 	bs->read_job = internal_read_until;
 	bs->read_handler = handler;
 	bs->read_handler_context = handler_context;
@@ -132,10 +132,10 @@ static void internal_read_exactly(struct cio_buffered_stream *bs)
 		return;
 	}
 
-	if (bs->bytes_to_read <= unread_bytes(bs)) {
-		bs->read_handler(bs, bs->read_handler_context, cio_success, bs->read_from_ptr, bs->bytes_to_read);
-		bs->read_from_ptr += bs->bytes_to_read;
-		bs->unread_bytes -= bs->bytes_to_read;
+	if (bs->read_info.bytes_to_read <= unread_bytes(bs)) {
+		bs->read_handler(bs, bs->read_handler_context, cio_success, bs->read_from_ptr, bs->read_info.bytes_to_read);
+		bs->read_from_ptr += bs->read_info.bytes_to_read;
+		bs->unread_bytes -= bs->read_info.bytes_to_read;
 	} else {
 		fill_buffer(bs);
 	}
@@ -148,7 +148,7 @@ static void bs_read_exactly(struct cio_buffered_stream *bs, size_t num, cio_buff
 		return;
 	}
 
-	bs->bytes_to_read = num;
+	bs->read_info.bytes_to_read = num;
 	bs->read_job = internal_read_exactly;
 	bs->read_handler = handler;
 	bs->read_handler_context = handler_context;
