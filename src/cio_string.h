@@ -24,19 +24,19 @@
  * SOFTWARE.
  */
 
-import qbs 1.0
+#ifndef CIO_STRING_H
+#define CIO_STRING_H
 
-CppApplication {
-  name: "test_cio_buffered_stream"
-  type: ["application", "unittest"]
-  Depends { name: "unit test settings" }
-  cpp.cLanguageVersion: "c99"
-  cpp.defines: "_GNU_SOURCE"
-  files: [
-    "test_cio_buffered_stream.c",
-    "../cio_buffered_stream.c",
-    "../linux/cio_linux_alloc.c",
-    "../linux/cio_linux_string.c",
-  ]
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+#include <stddef.h>
+
+void *cio_memmem(const void *haystack, size_t haystacklen, const void *needle, size_t needlelen);
+
+#ifdef __cplusplus
 }
+#endif
 
+#endif

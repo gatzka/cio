@@ -19,6 +19,8 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../linux/)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../fff/)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../unity/src/)
 
+add_definitions(-D_GNU_SOURCE)
+
 set(WARN_SWITCHES "-Wall -Wextra -Werror -Wshadow -Winit-self -Wcast-qual -Wcast-align -Wformat=2 -Wwrite-strings -Wmissing-prototypes -Wstrict-overflow=5 -pedantic")
 set(COVERAGE_FLAGS "-fprofile-arcs -ftest-coverage")
 set(CMAKE_C_FLAGS "-pipe -fno-common -std=gnu99 ${WARN_SWITCHES} ${CMAKE_C_FLAGS}")
@@ -34,6 +36,7 @@ add_executable(test_cio_buffered_stream
     test_cio_buffered_stream.c
     ../cio_buffered_stream.c
     ../linux/cio_linux_alloc.c
+    ../linux/cio_linux_string.c
 )
 target_link_libraries (test_cio_buffered_stream cio_unity)
 

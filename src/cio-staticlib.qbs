@@ -38,7 +38,14 @@ Product {
 
   cpp.warningLevel: "all"
   cpp.treatWarningsAsErrors: true
-  cpp.includePaths: [".", "./linux/", buildDirectory + "/generated/"]
+  cpp.includePaths: {
+    var paths = [".", buildDirectory + "/generated/"];
+    if (qbs.targetOS.contains("linux")) {
+      paths.push("./linux/");
+    }
+
+    return paths;
+  }
 
   cioVersionFile {
     prefix: product.sourceDirectory + "/"
@@ -68,9 +75,25 @@ Product {
   }
 
   Group {
+    condition: qbs.targetOS.contains("unix")
+    name: "POSIX conformant"
+    prefix: "posix/"
+    
+    cpp.cLanguageVersion: "c99"
+    cpp.defines: "_XOPEN_SOURCE=500"
+    
+    files: [
+      "*.c",
+      "*.h"
+    ]
+  }
+
+  Group {
     condition: qbs.targetOS.contains("linux")
     name: "linux specific"
     prefix: "linux/"
+    cpp.cLanguageVersion: "c99"
+    cpp.defines: "_GNU_SOURCE"
 
     files: [
       "*.c",

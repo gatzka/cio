@@ -26,11 +26,12 @@
 
 #include <string.h>
 
-#include <cio_allocator.h>
-#include <cio_buffered_stream.h>
-#include <cio_compiler.h>
-#include <cio_error_code.h>
-#include <cio_io_stream.h>
+#include "cio_allocator.h"
+#include "cio_buffered_stream.h"
+#include "cio_compiler.h"
+#include "cio_error_code.h"
+#include "cio_io_stream.h"
+#include "cio_string.h"
 
 static inline size_t unread_bytes(const struct cio_buffered_stream *bs)
 {
@@ -74,12 +75,36 @@ static void bs_read(struct cio_buffered_stream *context, size_t num, cio_buffere
 	(void)handler_context;
 }
 
-static void bs_read_until(struct cio_buffered_stream *context, const char *delim, cio_buffered_stream_read_handler handler, void *handler_context)
+static void internal_read_until(struct cio_buffered_stream *bs)
 {
-	(void)context;
-	(void)delim;
-	(void)handler;
-	(void)handler_context;
+	const uint8_t *haystack = bs->read_from_ptr;
+	const char *needle = bs->delim;
+	size_t needle_length = bs->delim_length;
+	uint8_t *found = cio_memmem(haystack, unread_bytes(bs), needle, needle_length);
+	if (found != NULL) {
+		ptrdiff_t diff = (found + needle_length) - bs->read_from_ptr;
+		bs->read_handler(bs, bs->read_handler_context, cio_success, bs->read_from_ptr, diff);
+		bs->read_from_ptr += diff;
+		return;
+	} else {
+		fill_buffer(bs);
+	}
+}
+
+static void bs_read_until(struct cio_buffered_stream *bs, const char *delim, cio_buffered_stream_read_handler handler, void *handler_context)
+{
+	if (unlikely(delim == NULL)) {
+		handler(bs, handler_context, cio_invalid_argument, NULL, 0);
+		return;
+	}
+
+	bs->delim = delim;
+	bs->delim_length = strlen(delim);
+	bs->read_job = internal_read_until;
+	bs->read_handler = handler;
+	bs->read_handler_context = handler_context;
+	bs->last_error = cio_success;
+	internal_read_until(bs);
 }
 
 static void internal_read_exactly(struct cio_buffered_stream *bs)
