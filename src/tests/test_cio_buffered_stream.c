@@ -369,6 +369,38 @@ static void test_read_until_NULL_delim(void)
 	memory_stream_deinit(&ms);
 }
 
+static void test_read_exactly_then_until(void)
+{
+#define BUFFER_FOR_EXACTLY "hhhhhhhhhhhhh"
+#define PRE_DELIM "MY"
+#define DELIM "HelloWorld"
+#define REST "Example"
+	static const char *test_data = BUFFER_FOR_EXACTLY PRE_DELIM DELIM REST;
+	memory_stream_init(&ms, test_data);
+	read_some_fake.custom_fake = read_some_chunks;
+	dummy_handler_fake.custom_fake = save_to_check_buffer;
+
+	struct cio_buffered_stream bs;
+	enum cio_error err = cio_buffered_stream_init(&bs, &ms.ios, strlen(BUFFER_FOR_EXACTLY PRE_DELIM DELIM) - 2, cio_get_system_allocator(), 30, cio_get_system_allocator());
+	TEST_ASSERT_EQUAL_MESSAGE(cio_success, err, "Buffer was not initialized correctly!");
+
+	bs.read_exactly(&bs, strlen(BUFFER_FOR_EXACTLY), dummy_handler, check_buffer);
+	bs.read_until(&bs, DELIM, dummy_handler, check_buffer);
+
+	bs.close(&bs);
+	TEST_ASSERT_EQUAL_MESSAGE(1, close_fake.call_count, "Underlying cio_iostream was not closed!");
+	TEST_ASSERT_EQUAL_MESSAGE(2, dummy_handler_fake.call_count, "Handler was not called!");
+	TEST_ASSERT_EQUAL_MESSAGE(cio_success, dummy_handler_fake.arg2_history[0], "Handler was not called with cio_success!");
+	TEST_ASSERT_EQUAL_MESSAGE(strlen(BUFFER_FOR_EXACTLY), dummy_handler_fake.arg4_history[0], "Length in dummy handler is not correct!");
+	TEST_ASSERT_MESSAGE(strncmp((const char *)check_buffer, BUFFER_FOR_EXACTLY, strlen(BUFFER_FOR_EXACTLY)) == 0, "Handler was not called with correct data!")
+
+	TEST_ASSERT_EQUAL_MESSAGE(cio_success, dummy_handler_fake.arg2_history[1], "Handler was not called with cio_success!");
+	TEST_ASSERT_EQUAL_MESSAGE(strlen(PRE_DELIM DELIM), dummy_handler_fake.arg4_history[1], "Length in dummy handler is not correct!");
+	TEST_ASSERT_MESSAGE(strncmp((const char *)&check_buffer[strlen(BUFFER_FOR_EXACTLY)], PRE_DELIM DELIM, strlen(PRE_DELIM) + strlen(DELIM)) == 0, "Handler was not called with correct data!")
+
+	memory_stream_deinit(&ms);
+}
+
 int main(void)
 {
 	UNITY_BEGIN();
@@ -386,5 +418,6 @@ int main(void)
 	RUN_TEST(test_read_until);
 	RUN_TEST(test_read_until_zero_length_delim);
 	RUN_TEST(test_read_until_NULL_delim);
+	RUN_TEST(test_read_exactly_then_until);
 	return UNITY_END();
 }
