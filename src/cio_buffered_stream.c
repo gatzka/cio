@@ -165,9 +165,9 @@ static void bs_write(struct cio_buffered_stream *bs, const void *buf, size_t cou
 	(void)handler_context;
 }
 
-static void bs_flush(struct cio_buffered_stream *context)
+static void bs_flush(struct cio_buffered_stream *bs)
 {
-	(void)context;
+	(void)bs;
 }
 
 static void bs_close(struct cio_buffered_stream *context)
