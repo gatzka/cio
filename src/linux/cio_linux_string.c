@@ -33,4 +33,3 @@ void *cio_memmem(const void *haystack, size_t haystacklen, const void *needle, s
 {
 	return memmem(haystack, haystacklen, needle, needlelen);
 }
-
