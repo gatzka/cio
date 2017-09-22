@@ -32,6 +32,7 @@
 #include "cio_error_code.h"
 #include "cio_io_stream.h"
 #include "cio_string.h"
+#include "cio_write_buffer.h"
 
 #undef MIN
 #define MIN(X, Y) (((X) < (Y)) ? (X) : (Y))
