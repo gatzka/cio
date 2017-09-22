@@ -34,10 +34,14 @@
 #include "cio_io_stream.h"
 #include "cio_server_socket.h"
 #include "cio_socket.h"
+#include "cio_write_buffer.h"
 
 static struct cio_eventloop loop;
 
 static uint8_t buffer[100];
+
+static struct cio_write_buffer wb;
+static struct cio_write_buffer_head wbh;
 
 static void sighandler(int signum)
 {
@@ -47,10 +51,12 @@ static void sighandler(int signum)
 
 static void handle_read(struct cio_io_stream *stream, void *handler_context, enum cio_error err, uint8_t *buf, size_t bytes_transferred);
 
-static void handle_write(struct cio_io_stream *stream, void *handler_context, enum cio_error err, size_t bytes_transferred)
+
+static void handle_write(struct cio_io_stream *stream, void *handler_context, const struct cio_write_buffer_head *buf, enum cio_error err, size_t bytes_transferred)
 {
 	(void)handler_context;
 	(void)bytes_transferred;
+	(void)buf;
 	if (err != cio_success) {
 		fprintf(stderr, "write error!\n");
 		return;
@@ -73,7 +79,12 @@ static void handle_read(struct cio_io_stream *stream, void *handler_context, enu
 		return;
 	}
 
-	stream->write_some(stream, buf, bytes_transferred, handle_write, NULL);
+	cio_write_buffer_head_init(&wbh);
+	cio_write_buffer_init(&wb);
+	wb.data = buf;
+	wb.length = bytes_transferred;
+	cio_write_buffer_queue_tail(&wbh, &wb);
+	stream->write_some(stream, &wbh, handle_write, NULL);
 }
 
 static void handle_accept(struct cio_server_socket *ss, void *handler_context, enum cio_error err, struct cio_socket *socket)
