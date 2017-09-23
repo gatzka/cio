@@ -104,7 +104,6 @@ static void internal_read_until(struct cio_buffered_stream *bs)
 		ptrdiff_t diff = (found + needle_length) - bs->read_from_ptr;
 		bs->read_handler(bs, bs->read_handler_context, cio_success, bs->read_from_ptr, diff);
 		bs->read_from_ptr += diff;
-		return;
 	} else {
 		fill_buffer(bs);
 	}
