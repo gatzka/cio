@@ -64,32 +64,28 @@ static void accept_callback(void *context)
 	int fd = ss->ev.fd;
 	socklen_t addrlen;
 
-	while (1) {
-		int client_fd;
-		memset(&addr, 0, sizeof(addr));
-		addrlen = sizeof(addr);
-		client_fd = accept(fd, (struct sockaddr *)&addr, &addrlen);
-		if (unlikely(client_fd == -1)) {
-			if ((errno != EAGAIN) && (errno != EWOULDBLOCK) && (errno != EBADF)) {
-				ss->handler(ss, ss->handler_context, (enum cio_error)errno, NULL);
-			}
-
-			return;
-		} else {
-			struct cio_socket *s;
-			struct cio_buffer buffer = ss->allocator->alloc(ss->allocator, sizeof(*s));
-			s = buffer.address;
-			if (likely(s != NULL)) {
-				enum cio_error err = cio_linux_socket_init(s, client_fd, ss->loop, ss->allocator, free_linux_socket);
-				if (likely(err == cio_success)) {
-					ss->handler(ss, ss->handler_context, err, s);
-				} else {
-					close(client_fd);
-					ss->allocator->free(ss->allocator, s);
-				}
+	int client_fd;
+	memset(&addr, 0, sizeof(addr));
+	addrlen = sizeof(addr);
+	client_fd = accept(fd, (struct sockaddr *)&addr, &addrlen);
+	if (unlikely(client_fd == -1)) {
+		if ((errno != EAGAIN) && (errno != EWOULDBLOCK) && (errno != EBADF)) {
+			ss->handler(ss, ss->handler_context, (enum cio_error)errno, NULL);
+		}
+	} else {
+		struct cio_socket *s;
+		struct cio_buffer buffer = ss->allocator->alloc(ss->allocator, sizeof(*s));
+		s = buffer.address;
+		if (likely(s != NULL)) {
+			enum cio_error err = cio_linux_socket_init(s, client_fd, ss->loop, ss->allocator, free_linux_socket);
+			if (likely(err == cio_success)) {
+				ss->handler(ss, ss->handler_context, err, s);
 			} else {
 				close(client_fd);
+				ss->allocator->free(ss->allocator, s);
 			}
+		} else {
+			close(client_fd);
 		}
 	}
 }
