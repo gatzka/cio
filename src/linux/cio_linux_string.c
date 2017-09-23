@@ -24,6 +24,7 @@
  * SOFTWARE.
  */
 
+#define _GNU_SOURCE
 #include <stddef.h>
 #include <string.h>
 
@@ -33,4 +34,3 @@ void *cio_memmem(const void *haystack, size_t haystacklen, const void *needle, s
 {
 	return memmem(haystack, haystacklen, needle, needlelen);
 }
-

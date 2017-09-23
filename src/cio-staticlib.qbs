@@ -93,7 +93,7 @@ Product {
     name: "linux specific"
     prefix: "linux/"
     cpp.cLanguageVersion: "c99"
-    cpp.defines: "_GNU_SOURCE"
+//    cpp.defines: "_GNU_SOURCE"
 
     files: [
       "*.c",

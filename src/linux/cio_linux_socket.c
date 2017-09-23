@@ -24,9 +24,11 @@
  * SOFTWARE.
  */
 
+#define _GNU_SOURCE
 #include <netinet/in.h>
 #include <netinet/tcp.h>
 #include <stdbool.h>
+#include <sys/socket.h>
 #include <unistd.h>
 
 #include "cio_compiler.h"
@@ -36,6 +38,7 @@
 #include "cio_linux_socket.h"
 #include "cio_socket.h"
 #include "cio_util.h"
+#include "cio_write_buffer.h"
 #include "linux/cio_linux_socket_utils.h"
 
 static void socket_close(struct cio_socket *s)
@@ -138,29 +141,49 @@ static void stream_read(struct cio_io_stream *stream, void *buf, size_t count, c
 static void write_callback(void *context)
 {
 	struct cio_io_stream *stream = context;
-	stream->write_handler(stream, stream->write_handler_context, cio_success, 0);
+	stream->write_handler(stream, stream->write_handler_context, stream->write_buffer, cio_success, 0);
 }
 
-static void stream_write(struct cio_io_stream *stream, const void *buf, size_t count, cio_io_stream_write_handler handler, void *handler_context)
+static void stream_write(struct cio_io_stream *stream, const struct cio_write_buffer_head *buffer, cio_io_stream_write_handler handler, void *handler_context)
 {
 	struct cio_socket *s = container_of(stream, struct cio_socket, stream);
+	struct iovec msg_iov[buffer->q_len];
+	struct msghdr msg;
+	msg.msg_name = NULL;
+	msg.msg_namelen = 0;
+	msg.msg_control = NULL;
+	msg.msg_controllen = 0;
+	msg.msg_flags = 0;
+	msg.msg_iov = msg_iov;
+	msg.msg_iovlen = buffer->q_len;
 
-	ssize_t ret = send(s->ev.fd, buf, count, MSG_NOSIGNAL);
+	struct cio_write_buffer *wb = buffer->next;
+	for (unsigned int i = 0; i < buffer->q_len; i++) {
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wcast-qual"
+		msg_iov[i].iov_base = (void *)wb->data;
+#pragma GCC diagnostic pop
+		msg_iov[i].iov_len = wb->length;
+		wb = wb->next;
+	}
+
+	ssize_t ret = sendmsg(s->ev.fd, &msg, MSG_NOSIGNAL);
 	if (likely(ret >= 0)) {
-		handler(stream, handler_context, cio_success, (size_t)ret);
+		handler(stream, handler_context, buffer, cio_success, (size_t)ret);
 	} else {
 		if ((errno == EWOULDBLOCK) || (errno == EAGAIN)) {
 			enum cio_error err;
 			s->stream.write_handler = handler;
 			s->stream.write_handler_context = handler_context;
+			s->stream.write_buffer = buffer;
 			s->ev.context = stream;
 			s->ev.write_callback = write_callback;
 			err = cio_linux_eventloop_register_write(s->loop, &s->ev);
 			if (unlikely(err != cio_success)) {
-				handler(stream, handler_context, err, 0);
+				handler(stream, handler_context, buffer, err, 0);
 			}
 		} else {
-			handler(stream, handler_context, (enum cio_error)errno, 0);
+			handler(stream, handler_context, buffer, (enum cio_error)errno, 0);
 		}
 	}
 }

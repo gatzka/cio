@@ -24,6 +24,7 @@
  * SOFTWARE.
  */
 
+#define _GNU_SOURCE
 #include <errno.h>
 #include <netdb.h>
 #include <stddef.h>
