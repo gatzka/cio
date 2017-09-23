@@ -160,8 +160,8 @@ static void stream_write(struct cio_io_stream *stream, const struct cio_write_bu
 	struct cio_write_buffer *wb = buffer->next;
 	for (unsigned int i = 0; i < buffer->q_len; i++) {
 #pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wdiscarded-qualifiers"
-		msg_iov[i].iov_base = wb->data;
+#pragma GCC diagnostic ignored "-Wcast-qual"
+		msg_iov[i].iov_base = (void *)wb->data;
 #pragma GCC diagnostic pop
 		msg_iov[i].iov_len = wb->length;
 		wb = wb->next;
