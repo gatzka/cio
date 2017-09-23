@@ -433,6 +433,9 @@ static void test_socket_readsome(void)
 	struct cio_io_stream *stream = s.get_io_stream(&s);
 
 	stream->read_some(stream, readback_buffer, sizeof(readback_buffer), read_handler, NULL);
+
+	s.ev.read_callback(s.ev.context);
+
 	TEST_ASSERT_EQUAL(1, read_handler_fake.call_count);
 	TEST_ASSERT_EQUAL(stream, read_handler_fake.arg0_val);
 	TEST_ASSERT_EQUAL(NULL, read_handler_fake.arg1_val);
@@ -493,6 +496,9 @@ static void test_socket_readsome_read_fails(void)
 	struct cio_io_stream *stream = s.get_io_stream(&s);
 
 	stream->read_some(stream, readback_buffer, sizeof(readback_buffer), read_handler, NULL);
+
+	s.ev.read_callback(s.ev.context);
+
 	TEST_ASSERT_EQUAL(1, read_handler_fake.call_count);
 	TEST_ASSERT_EQUAL(stream, read_handler_fake.arg0_val);
 	TEST_ASSERT_EQUAL(NULL, read_handler_fake.arg1_val);

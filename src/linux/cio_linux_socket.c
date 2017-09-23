@@ -109,7 +109,7 @@ static void read_callback(void *context)
 	struct cio_socket *s = container_of(stream, struct cio_socket, stream);
 	ssize_t ret = read(s->ev.fd, stream->read_buffer, stream->read_count);
 	if (ret == -1) {
-		if (likely((errno != EWOULDBLOCK) && (errno != EAGAIN))) {
+		if (unlikely((errno != EWOULDBLOCK) && (errno != EAGAIN))) {
 			stream->read_handler(stream, stream->read_handler_context, (enum cio_error)errno, stream->read_buffer, 0);
 		}
 	} else {
@@ -132,8 +132,6 @@ static void stream_read(struct cio_io_stream *stream, void *buf, size_t count, c
 		handler(stream, handler_context, err, buf, 0);
 		return;
 	}
-
-	read_callback(stream);
 }
 
 static void write_callback(void *context)
@@ -169,7 +167,7 @@ static void stream_write(struct cio_io_stream *stream, const struct cio_write_bu
 	if (likely(ret >= 0)) {
 		handler(stream, handler_context, buffer, cio_success, (size_t)ret);
 	} else {
-		if ((errno == EWOULDBLOCK) || (errno == EAGAIN)) {
+		if (likely((errno == EWOULDBLOCK) || (errno == EAGAIN))) {
 			enum cio_error err;
 			s->stream.write_handler = handler;
 			s->stream.write_handler_context = handler_context;
