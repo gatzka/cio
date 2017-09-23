@@ -36,6 +36,7 @@ Project {
 
   UnittestRunner {
     lcovRemovePatterns: [
+      "*/tests/*",
       "*/linux/tests/*",
       "/usr/include/*",
     ]
