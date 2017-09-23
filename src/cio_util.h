@@ -30,9 +30,9 @@
 #include <stddef.h>
 
 #define container_of(ptr, type, member) ( \
-    (void *)((char *)ptr - offsetof(type, member)))
+    (void *)((char *)(ptr) - offsetof(type, member)))
 
 #define const_container_of(ptr, type, member) ( \
-    (const void *)((const char *)ptr - offsetof(type, member)))
+    (const void *)((const char *)(ptr) - offsetof(type, member)))
 
 #endif
