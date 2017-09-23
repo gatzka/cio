@@ -116,7 +116,6 @@ static enum cio_error socket_accept(struct cio_server_socket *ss, cio_accept_han
 		return err;
 	}
 
-	accept_callback(ss);
 	return cio_success;
 }
 
