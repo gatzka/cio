@@ -91,7 +91,8 @@ struct cio_io_stream {
 	 * @brief Writes @p count buffers to the stream.
 	 *
 	 * @param io_stream A pointer to the cio_io_stream of the on which the operation should be performed.
-	 * @param buf The buffer where the data is written from.
+	 * @param buf The buffer where the data is written from. Please note that the memory \p buf points to
+	 *            must be retained until \p handler was called.
 	 * @param count The number of to write.
 	 * @param handler The callback function to be called when the write
 	 *                request is (partly) fulfilled.
