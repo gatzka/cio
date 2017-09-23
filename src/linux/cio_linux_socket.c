@@ -132,8 +132,6 @@ static void stream_read(struct cio_io_stream *stream, void *buf, size_t count, c
 		handler(stream, handler_context, err, buf, 0);
 		return;
 	}
-
-	read_callback(stream);
 }
 
 static void write_callback(void *context)
