@@ -632,7 +632,7 @@ static void test_socket_writesome_blocks_fails(void)
 	uint8_t buffer[13];
 	memset(buffer, 0x12, sizeof(buffer));
 
-	ssize_t (*custom_fakes[])(int, const struct msghdr*, int) =
+	ssize_t (*custom_fakes[])(int, const struct msghdr *, int) =
 	    {
 	        send_blocks,
 	        send_all};
