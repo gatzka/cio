@@ -69,7 +69,7 @@ void cio_eventloop_destroy(const struct cio_eventloop *loop)
 enum cio_error cio_linux_eventloop_add(const struct cio_eventloop *loop, struct cio_event_notifier *ev)
 {
 	struct epoll_event epoll_ev;
-	ev->registered_events = EPOLLET;
+	ev->registered_events = EPOLLONESHOT;
 
 	epoll_ev.data.ptr = ev;
 	epoll_ev.events = ev->registered_events;
@@ -101,8 +101,9 @@ enum cio_error cio_linux_eventloop_register_read(const struct cio_eventloop *loo
 
 enum cio_error cio_linux_eventloop_unregister_read(const struct cio_eventloop *loop, struct cio_event_notifier *ev)
 {
+	(void)loop;
 	ev->registered_events &= ~(uint32_t)EPOLLIN;
-	return epoll_mod(loop, ev, ev->registered_events);
+	return cio_success;
 }
 
 enum cio_error cio_linux_eventloop_register_write(const struct cio_eventloop *loop, struct cio_event_notifier *ev)
@@ -113,8 +114,9 @@ enum cio_error cio_linux_eventloop_register_write(const struct cio_eventloop *lo
 
 enum cio_error cio_linux_eventloop_unregister_write(const struct cio_eventloop *loop, struct cio_event_notifier *ev)
 {
+	(void)loop;
 	ev->registered_events &= ~(uint32_t)EPOLLOUT;
-	return epoll_mod(loop, ev, ev->registered_events);
+	return cio_success;
 }
 
 void cio_linux_eventloop_remove(struct cio_eventloop *loop, const struct cio_event_notifier *ev)
