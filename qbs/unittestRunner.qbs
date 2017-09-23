@@ -94,7 +94,7 @@ Product {
         var toolchain =  product.moduleProperty("qbs", "toolchain")
         if (toolchain.indexOf("clang") >= 0) {
           args.push("--gcov-tool");
-          args.push(project.sourceDirectory + "/../tools/llvm-coverage.sh");
+          args.push(project.sourceDirectory + "/tools/llvm-coverage.sh");
         }
         var cmd = new Command("lcov", args);
         cmd.description = "Collecting coverage data...";
