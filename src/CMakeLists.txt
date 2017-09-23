@@ -46,7 +46,7 @@ if(CMAKE_C_COMPILER_ID STREQUAL "GNU" OR CMAKE_C_COMPILER_ID STREQUAL "Clang")
     foreach(_file ${CIO_LINUX_FILES})
         file(SHA1 ${PROJECT_SOURCE_DIR}/${_file} checksum)
         string(SUBSTRING ${checksum} 0 8 checksum)
-        set_property(SOURCE ${_file} APPEND_STRING PROPERTY COMPILE_FLAGS "-std=c99 -frandom-seed=0x${checksum} -D_GNU_SOURCE")
+        set_property(SOURCE ${_file} APPEND_STRING PROPERTY COMPILE_FLAGS "-std=c99 -frandom-seed=0x${checksum}")
     endforeach()
 
     foreach(_file ${CIO_FILES})
