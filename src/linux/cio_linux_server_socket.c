@@ -189,7 +189,7 @@ enum cio_error cio_server_socket_init(struct cio_server_socket *ss,
                                       struct cio_eventloop *loop,
                                       unsigned int backlog,
                                       struct cio_allocator *allocator,
-                                      cio_server_socket_close_hook hook)
+                                      cio_server_socket_close_hook close_hook)
 {
 	int listen_fd = cio_linux_socket_create();
 	if (listen_fd == -1) {
@@ -204,7 +204,7 @@ enum cio_error cio_server_socket_init(struct cio_server_socket *ss,
 	ss->set_reuse_address = socket_set_reuse_address;
 	ss->bind = socket_bind;
 	ss->loop = loop;
-	ss->close_hook = hook;
+	ss->close_hook = close_hook;
 	ss->backlog = (int)backlog;
 	return cio_success;
 }

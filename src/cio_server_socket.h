@@ -139,7 +139,7 @@ struct cio_server_socket {
  * the struct cio_server_socket. Could be @p NULL. You have access to the
  * allocator in the close hook function. This allows you to free the memory
  * on close.
- * @param close A close hook function. If this parameter is non @p NULL,
+ * @param close_hook A close hook function. If this parameter is non @p NULL,
  * the function will be called directly after
  * @ref cio_server_socket_close "closing" the cio_server_socket.
  * It is guaranteed the the cio library will not access any memory of
@@ -151,7 +151,7 @@ enum cio_error cio_server_socket_init(struct cio_server_socket *ss,
                                       struct cio_eventloop *loop,
                                       unsigned int backlog,
                                       struct cio_allocator *allocator,
-                                      cio_server_socket_close_hook close);
+                                      cio_server_socket_close_hook close_hook);
 
 #ifdef __cplusplus
 }
