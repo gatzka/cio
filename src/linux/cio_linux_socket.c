@@ -109,9 +109,7 @@ static void read_callback(void *context)
 	struct cio_socket *s = container_of(stream, struct cio_socket, stream);
 	ssize_t ret = read(s->ev.fd, stream->read_buffer, stream->read_count);
 	if (ret == -1) {
-		if (likely((errno == EWOULDBLOCK) || (errno == EAGAIN))) {
-			return;
-		} else {
+		if (likely((errno != EWOULDBLOCK) && (errno != EAGAIN))) {
 			stream->read_handler(stream, stream->read_handler_context, (enum cio_error)errno, stream->read_buffer, 0);
 		}
 	} else {
