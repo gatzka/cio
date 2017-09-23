@@ -63,7 +63,7 @@ FAKE_VOID_FUNC(on_close, struct cio_socket *)
 void read_handler(struct cio_io_stream *context, void *handler_context, enum cio_error err, uint8_t *buf, size_t bytes_transferred);
 FAKE_VOID_FUNC(read_handler, struct cio_io_stream *, void *, enum cio_error, uint8_t *, size_t)
 
-void write_handler(struct cio_io_stream *context, void *handler_context, const struct cio_write_buffer_head *, enum cio_error err, size_t bytes_transferred);
+void write_handler(struct cio_io_stream *stream, void *handler_context, const struct cio_write_buffer_head *, enum cio_error err, size_t bytes_transferred);
 FAKE_VOID_FUNC(write_handler, struct cio_io_stream *, void *, const struct cio_write_buffer_head *, enum cio_error, size_t)
 
 #ifndef ARRAY_SIZE
@@ -118,7 +118,7 @@ static ssize_t send_all(int fd, const struct msghdr *msg, int flags)
 	(void)flags;
 	ssize_t len = 0;
 	for (unsigned int i = 0; i < msg->msg_iovlen; i++) {
-		memcpy(&send_buffer[len], msg->msg_iov[i].iov_base, len);
+		memcpy(&send_buffer[len], msg->msg_iov[i].iov_base, msg->msg_iov[i].iov_len);
 		len += msg->msg_iov[i].iov_len;
 	}
 
@@ -525,8 +525,9 @@ static void test_socket_writesome_all(void)
 	TEST_ASSERT_EQUAL_MESSAGE(1, write_handler_fake.call_count, "write_handler was not called exactly once!");
 	TEST_ASSERT_EQUAL_MESSAGE(stream, write_handler_fake.arg0_val, "write_handler was not called with correct stream!");
 	TEST_ASSERT_EQUAL_MESSAGE(NULL, write_handler_fake.arg1_val, "write_handler was not called with correct handler_context!");
-	TEST_ASSERT_EQUAL_MESSAGE(cio_success, write_handler_fake.arg2_val, "write_handler was not called with cio_success!");
-	TEST_ASSERT_EQUAL_MESSAGE(sizeof(buffer), write_handler_fake.arg3_val, "write_handler was not called with the correct number of bytes written!");
+	TEST_ASSERT_EQUAL_MESSAGE(&wbh, write_handler_fake.arg2_val, "write_handler was not called with original buffer!");
+	TEST_ASSERT_EQUAL_MESSAGE(cio_success, write_handler_fake.arg3_val, "write_handler was not called with cio_success!");
+	TEST_ASSERT_EQUAL_MESSAGE(sizeof(buffer), write_handler_fake.arg4_val, "write_handler was not called with the correct number of bytes written!");
 	TEST_ASSERT_EQUAL_MESSAGE(0, memcmp(send_buffer, buffer, sizeof(buffer)), "Buffer was not sent correctly!");
 }
 
@@ -555,8 +556,9 @@ static void test_socket_writesome_parts(void)
 	TEST_ASSERT_EQUAL_MESSAGE(1, write_handler_fake.call_count, "write_handler was not called exactly once!");
 	TEST_ASSERT_EQUAL_MESSAGE(stream, write_handler_fake.arg0_val, "write_handler was not called with correct stream!");
 	TEST_ASSERT_EQUAL_MESSAGE(NULL, write_handler_fake.arg1_val, "write_handler was not called with correct handler_context!");
-	TEST_ASSERT_EQUAL_MESSAGE(cio_success, write_handler_fake.arg2_val, "write_handler was not called with cio_success!");
-	TEST_ASSERT_EQUAL_MESSAGE(bytes_to_send, write_handler_fake.arg3_val, "write_handler was not called with the correct number of bytes written!");
+	TEST_ASSERT_EQUAL_MESSAGE(&wbh, write_handler_fake.arg2_val, "write_handler was not called with original buffer!");
+	TEST_ASSERT_EQUAL_MESSAGE(cio_success, write_handler_fake.arg3_val, "write_handler was not called with cio_success!");
+	TEST_ASSERT_EQUAL_MESSAGE(bytes_to_send, write_handler_fake.arg4_val, "write_handler was not called with the correct number of bytes written!");
 	TEST_ASSERT_EQUAL_MESSAGE(0, memcmp(send_buffer, buffer, bytes_to_send), "Buffer was not sent correctly!");
 }
 
@@ -584,8 +586,9 @@ static void test_socket_writesome_fails(void)
 	TEST_ASSERT_EQUAL_MESSAGE(1, write_handler_fake.call_count, "write_handler was not called exactly once!");
 	TEST_ASSERT_EQUAL_MESSAGE(stream, write_handler_fake.arg0_val, "write_handler was not called with correct stream!");
 	TEST_ASSERT_EQUAL_MESSAGE(NULL, write_handler_fake.arg1_val, "write_handler was not called with correct handler_context!");
-	TEST_ASSERT_NOT_EQUAL_MESSAGE(cio_success, write_handler_fake.arg2_val, "write_handler was called with cio_success!");
-	TEST_ASSERT_EQUAL_MESSAGE(0, write_handler_fake.arg3_val, "write_handler was not called with 0 bytes written!");
+	TEST_ASSERT_EQUAL_MESSAGE(&wbh, write_handler_fake.arg2_val, "write_handler was not called with original buffer!");
+	TEST_ASSERT_NOT_EQUAL_MESSAGE(cio_success, write_handler_fake.arg3_val, "write_handler was called with cio_success!");
+	TEST_ASSERT_EQUAL_MESSAGE(0, write_handler_fake.arg4_val, "write_handler was not called with 0 bytes written!");
 }
 
 static void test_socket_writesome_blocks(void)
@@ -619,8 +622,9 @@ static void test_socket_writesome_blocks(void)
 	TEST_ASSERT_EQUAL_MESSAGE(1, write_handler_fake.call_count, "write_handler was not called exactly once!");
 	TEST_ASSERT_EQUAL_MESSAGE(stream, write_handler_fake.arg0_val, "write_handler was not called with correct stream!");
 	TEST_ASSERT_EQUAL_MESSAGE(NULL, write_handler_fake.arg1_val, "write_handler was not called with correct handler_context!");
-	TEST_ASSERT_EQUAL_MESSAGE(cio_success, write_handler_fake.arg2_val, "write_handler was not called with cio_success!");
-	TEST_ASSERT_EQUAL_MESSAGE(0, write_handler_fake.arg3_val, "write_handler was not called with 0 bytes written!");
+	TEST_ASSERT_EQUAL_MESSAGE(&wbh, write_handler_fake.arg2_val, "write_handler was not called with original buffer!");
+	TEST_ASSERT_EQUAL_MESSAGE(cio_success, write_handler_fake.arg3_val, "write_handler was not called with cio_success!");
+	TEST_ASSERT_EQUAL_MESSAGE(0, write_handler_fake.arg4_val, "write_handler was not called with 0 bytes written!");
 }
 
 static void test_socket_writesome_blocks_fails(void)
@@ -654,8 +658,9 @@ static void test_socket_writesome_blocks_fails(void)
 	TEST_ASSERT_EQUAL_MESSAGE(1, write_handler_fake.call_count, "write_handler was not called exactly once!");
 	TEST_ASSERT_EQUAL_MESSAGE(stream, write_handler_fake.arg0_val, "write_handler was not called with correct stream!");
 	TEST_ASSERT_EQUAL_MESSAGE(NULL, write_handler_fake.arg1_val, "write_handler was not called with correct handler_context!");
-	TEST_ASSERT_NOT_EQUAL_MESSAGE(cio_success, write_handler_fake.arg2_val, "write_handler was called with cio_success!");
-	TEST_ASSERT_EQUAL_MESSAGE(0, write_handler_fake.arg3_val, "write_handler was not called with 0 bytes written!");
+	TEST_ASSERT_EQUAL_MESSAGE(&wbh, write_handler_fake.arg2_val, "write_handler was not called with original buffer!");
+	TEST_ASSERT_NOT_EQUAL_MESSAGE(cio_success, write_handler_fake.arg3_val, "write_handler was called with cio_success!");
+	TEST_ASSERT_EQUAL_MESSAGE(0, write_handler_fake.arg4_val, "write_handler was not called with 0 bytes written!");
 }
 
 int main(void)
