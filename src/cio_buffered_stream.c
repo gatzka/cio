@@ -164,11 +164,6 @@ static void bs_write(struct cio_buffered_stream *bs, const struct cio_write_buff
 	(void)handler_context;
 }
 
-static void bs_flush(struct cio_buffered_stream *bs)
-{
-	(void)bs;
-}
-
 static void bs_close(struct cio_buffered_stream *context)
 {
 	context->read_buffer_allocator->free(context->read_buffer_allocator, context->read_buffer);
@@ -213,7 +208,6 @@ enum cio_error cio_buffered_stream_init(struct cio_buffered_stream *bs,
 	bs->read_exactly = bs_read_exactly;
 	bs->read_until = bs_read_until;
 	bs->write = bs_write;
-	bs->flush = bs_flush;
 	bs->close = bs_close;
 
 	return cio_success;

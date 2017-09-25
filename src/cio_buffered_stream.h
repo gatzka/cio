@@ -52,9 +52,8 @@ extern "C" {
  * an exact number of bytes or reading until a delimiter string is
  * encountered. Both concepts are useful when parsing protocols.
  *
- * A @p writev call into a buffered_stream only writes into the internal
- * write buffer. The write buffer is flushed only if the internal write
- * buffer is called or @p flush is called explicitly.
+ * The callback of a @p write call into a buffered_stream is only called
+ * if either the provided buffer was completely written or an error occured.
  */
 
 struct cio_buffered_stream;
@@ -143,20 +142,8 @@ struct cio_buffered_stream {
 	void (*write)(struct cio_buffered_stream *bs, const struct cio_write_buffer_head *buffer, cio_buffered_stream_write_handler handler, void *handler_context);
 
 	/**
-	 * Drains the data in the write buffer out to the underlying
-	 * cio_io_stream.
-	 *
-	 * @param bs A pointer to the cio_buffered_stream of the on which the operation should be performed.
-	 */
-	void (*flush)(struct cio_buffered_stream *bs);
-
-	/**
 	 * @anchor cio_buffered_stream_close
 	 * @brief Closes the stream.
-	 *
-	 * Implementations implementing this interface are strongly
-	 * encouraged to flush any write buffers and to free other resources
-	 * associated with this stream.
 	 *
 	 * @param bs A pointer to the cio_buffered_stream of the on which the operation should be performed.
 	 */
