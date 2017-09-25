@@ -33,6 +33,7 @@
 #include "cio_allocator.h"
 #include "cio_error_code.h"
 #include "cio_io_stream.h"
+#include "cio_write_buffer.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -74,10 +75,11 @@ typedef void (*cio_buffered_stream_read_handler)(struct cio_buffered_stream *bs,
  * 
  * @param bs The cio_buffered_stream the write operation was called on.
  * @param handler_context The context the functions works on.
+ * @param buffer The buffer which should have been written.
  * @param err If err != ::cio_success, the write operation failed.
  * @param bytes_transferred The number of bytes transferred.
  */
-typedef void (*cio_buffered_stream_write_handler)(struct cio_buffered_stream *bs, void *handler_context, enum cio_error err, size_t bytes_transferred);
+typedef void (*cio_buffered_stream_write_handler)(struct cio_buffered_stream *bs, void *handler_context, const struct cio_write_buffer_head *buffer, enum cio_error err, size_t bytes_transferred);
 
 /**
  * Interface description for implementing buffered I/O.
@@ -132,14 +134,14 @@ struct cio_buffered_stream {
 	 * the underlying cio_io_stream. Call cio_buffered_stream::flush to do so.
 	 *
 	 * @param bs A pointer to the cio_buffered_stream of the on which the operation should be performed.
-	 * @param buf The buffer where the data is written from.
+	 * @param buffer The buffer where the data is written from.
 	 * @param count The number of to write.
 	 * @param handler The callback function to be called when the write
 	 * request is fulfilled.
 	 * @param handler_context A pointer to a context which might be
 	 * useful inside @p handler
 	 */
-	void (*write)(struct cio_buffered_stream *bs, const void *buf, size_t count, cio_buffered_stream_write_handler handler, void *handler_context);
+	void (*write)(struct cio_buffered_stream *bs, const struct cio_write_buffer_head *buffer, cio_buffered_stream_write_handler handler, void *handler_context);
 
 	/**
 	 * Drains the data in the write buffer out to the underlying

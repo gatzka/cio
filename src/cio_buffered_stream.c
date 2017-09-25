@@ -156,11 +156,10 @@ static void bs_read_exactly(struct cio_buffered_stream *bs, size_t num, cio_buff
 	internal_read_exactly(bs);
 }
 
-static void bs_write(struct cio_buffered_stream *bs, const void *buf, size_t count, cio_buffered_stream_write_handler handler, void *handler_context)
+static void bs_write(struct cio_buffered_stream *bs, const struct cio_write_buffer_head *buffer, cio_buffered_stream_write_handler handler, void *handler_context)
 {
 	(void)bs;
-	(void)buf;
-	(void)count;
+	(void)buffer;
 	(void)handler;
 	(void)handler_context;
 }
