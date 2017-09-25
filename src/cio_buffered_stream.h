@@ -171,6 +171,11 @@ struct cio_buffered_stream {
 	} read_info;
 
 	struct cio_allocator *read_buffer_allocator;
+
+	cio_buffered_stream_write_handler write_handler;
+	void *write_handler_context;
+	const struct cio_write_buffer_head *wbh;
+
 	enum cio_error last_error;
 };
 
