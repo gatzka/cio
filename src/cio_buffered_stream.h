@@ -130,8 +130,7 @@ struct cio_buffered_stream {
 	/**
 	 * @brief Writes @p count bytes to the buffered stream.
 	 *
-	 * Please note that the data written is not immediatly forwarded to
-	 * the underlying cio_io_stream. Call cio_buffered_stream::flush to do so.
+	 * @p handler is called when either the buffer was completely written or an error occured.
 	 *
 	 * @param bs A pointer to the cio_buffered_stream of the on which the operation should be performed.
 	 * @param buffer The buffer where the data is written from.

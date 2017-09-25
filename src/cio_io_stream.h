@@ -88,11 +88,13 @@ struct cio_io_stream {
 	void (*read_some)(struct cio_io_stream *io_stream, void *buf, size_t count, cio_io_stream_read_handler handler, void *handler_context);
 
 	/**
-	 * @brief Writes @p count buffers to the stream.
+	 * @brief Writes upto @p count buffers to the stream.
+	 *
+	 * @p handler might be called if only parts of @p buffer had been written.
 	 *
 	 * @param io_stream A pointer to the cio_io_stream of the on which the operation should be performed.
-	 * @param buf The buffer where the data is written from. Please note that the memory \p buf points to
-	 *            must be retained until \p handler was called.
+	 * @param buf The buffer where the data is written from. Please note that the memory @p buf points to
+	 *            must be retained until @p handler was called.
 	 * @param count The number of to write.
 	 * @param handler The callback function to be called when the write
 	 *                request is (partly) fulfilled.
