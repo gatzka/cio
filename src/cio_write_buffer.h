@@ -27,6 +27,7 @@
 #ifndef CIO_WRITE_BUFFER_H
 #define CIO_WRITE_BUFFER_H
 
+#include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
 
@@ -83,6 +84,11 @@ static inline void cio_write_buffer_queue_tail(struct cio_write_buffer_head *wbh
 	cio_write_buffer_queue_before(wbh, (struct cio_write_buffer *)wbh, new_wb);
 }
 
+static inline bool cio_write_buffer_queue_empty(const struct cio_write_buffer_head *wbh)
+{
+	return (const struct cio_write_buffer_head *) wbh->next == (const struct cio_write_buffer_head *) wbh;
+}
+
 static inline void cio_write_buffer_head_init(struct cio_write_buffer_head *wbh)
 {
 	wbh->prev = (struct cio_write_buffer *)wbh;
@@ -90,11 +96,12 @@ static inline void cio_write_buffer_head_init(struct cio_write_buffer_head *wbh)
 	wbh->q_len = 0;
 }
 
-static inline void cio_write_buffer_init(struct cio_write_buffer *wb)
+static inline void cio_write_buffer_init(struct cio_write_buffer *wb, const void *data, size_t length)
 {
-	wb->data = NULL;
-	wb->length = 0;
+	wb->data = data;
+	wb->length = length;
 	wb->next = NULL;
+	wb->prev = NULL;
 }
 
 #ifdef __cplusplus

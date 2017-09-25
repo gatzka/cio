@@ -80,9 +80,7 @@ static void handle_read(struct cio_io_stream *stream, void *handler_context, enu
 	}
 
 	cio_write_buffer_head_init(&wbh);
-	cio_write_buffer_init(&wb);
-	wb.data = buf;
-	wb.length = bytes_transferred;
+	cio_write_buffer_init(&wb, buf, bytes_transferred);
 	cio_write_buffer_queue_tail(&wbh, &wb);
 	stream->write_some(stream, &wbh, handle_write, NULL);
 }

@@ -518,9 +518,7 @@ static void test_socket_writesome_all(void)
 	struct cio_write_buffer wb;
 
 	cio_write_buffer_head_init(&wbh);
-	cio_write_buffer_init(&wb);
-	wb.data = buffer;
-	wb.length = sizeof(buffer);
+	cio_write_buffer_init(&wb, buffer, sizeof(buffer));
 	cio_write_buffer_queue_tail(&wbh, &wb);
 
 	enum cio_error err = cio_socket_init(&s, NULL, NULL, on_close);
@@ -549,7 +547,7 @@ static void test_socket_writesome_parts(void)
 	struct cio_write_buffer wb;
 
 	cio_write_buffer_head_init(&wbh);
-	cio_write_buffer_init(&wb);
+	cio_write_buffer_init(&wb, buffer, sizeof(buffer));
 	wb.data = buffer;
 	wb.length = sizeof(buffer);
 	cio_write_buffer_queue_tail(&wbh, &wb);
@@ -579,9 +577,7 @@ static void test_socket_writesome_fails(void)
 	struct cio_write_buffer wb;
 
 	cio_write_buffer_head_init(&wbh);
-	cio_write_buffer_init(&wb);
-	wb.data = buffer;
-	wb.length = sizeof(buffer);
+	cio_write_buffer_init(&wb, buffer, sizeof(buffer));
 	cio_write_buffer_queue_tail(&wbh, &wb);
 
 	enum cio_error err = cio_socket_init(&s, NULL, NULL, on_close);
@@ -613,9 +609,7 @@ static void test_socket_writesome_blocks(void)
 	struct cio_write_buffer wb;
 
 	cio_write_buffer_head_init(&wbh);
-	cio_write_buffer_init(&wb);
-	wb.data = buffer;
-	wb.length = sizeof(buffer);
+	cio_write_buffer_init(&wb, buffer, sizeof(buffer));
 	cio_write_buffer_queue_tail(&wbh, &wb);
 
 	enum cio_error err = cio_socket_init(&s, NULL, NULL, on_close);
@@ -650,9 +644,7 @@ static void test_socket_writesome_blocks_fails(void)
 	struct cio_write_buffer wb;
 
 	cio_write_buffer_head_init(&wbh);
-	cio_write_buffer_init(&wb);
-	wb.data = buffer;
-	wb.length = sizeof(buffer);
+	cio_write_buffer_init(&wb, buffer, sizeof(buffer));
 	cio_write_buffer_queue_tail(&wbh, &wb);
 
 	enum cio_error err = cio_socket_init(&s, NULL, NULL, on_close);
