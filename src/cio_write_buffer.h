@@ -89,6 +89,37 @@ static inline bool cio_write_buffer_queue_empty(const struct cio_write_buffer_he
 	return (const struct cio_write_buffer_head *) wbh->next == (const struct cio_write_buffer_head *) wbh;
 }
 
+static inline struct cio_write_buffer *cio_write_buffer_queue_peek(const struct cio_write_buffer_head *wbh)
+{
+	struct cio_write_buffer *wb = wbh->next;
+
+	if (wb == (const struct cio_write_buffer *) wbh)
+		wb = NULL;
+	return wb;
+}
+
+static inline void cio_write_buffer_unlink(struct cio_write_buffer *wb, struct cio_write_buffer_head *wbh)
+{
+	struct cio_write_buffer *next;
+	struct cio_write_buffer *prev;
+
+	wbh->q_len--;
+	next = wb->next;
+	prev = wb->prev;
+	next->prev = prev;
+	prev->next = next;
+}
+
+static inline struct cio_write_buffer *cio_write_buffer_queue_dequeue(struct cio_write_buffer_head *wbh)
+{
+	struct cio_write_buffer *wb = cio_write_buffer_queue_peek(wbh);
+	if (wb) {
+		cio_write_buffer_unlink(wb, wbh);
+	}
+
+	return wb;
+}
+
 static inline void cio_write_buffer_head_init(struct cio_write_buffer_head *wbh)
 {
 	wbh->prev = (struct cio_write_buffer *)wbh;

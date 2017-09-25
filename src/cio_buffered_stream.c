@@ -156,11 +156,29 @@ static void bs_read_exactly(struct cio_buffered_stream *bs, size_t num, cio_buff
 	internal_read_exactly(bs);
 }
 
-static void bs_write(struct cio_buffered_stream *bs, const struct cio_write_buffer_head *buffer, cio_buffered_stream_write_handler handler, void *handler_context)
+static void handle_write(struct cio_io_stream *io_stream, void *handler_context, const struct cio_write_buffer_head *buffer, enum cio_error err, size_t bytes_transferred)
+{
+	(void)io_stream;
+	(void)bytes_transferred;
+
+	struct cio_buffered_stream *bs = handler_context;
+	if (unlikely(err != cio_success)) {
+		bs->write_handler(bs, bs->write_handler_context, buffer, err, 0);
+	}
+}
+
+static void bs_write(struct cio_buffered_stream *bs, struct cio_write_buffer_head *buffer, cio_buffered_stream_write_handler handler, void *handler_context)
 {
 	bs->write_handler = handler;
 	bs->write_handler_context = handler_context;
-	bs->wbh = buffer;
+	bs->original_wbh = buffer;
+
+	while (!cio_write_buffer_queue_empty(buffer)) {
+		struct cio_write_buffer *wb = cio_write_buffer_queue_dequeue(buffer);
+		cio_write_buffer_queue_head(&bs->wbh, wb);
+	}
+
+	bs->stream->write_some(bs->stream, &bs->wbh, handle_write, bs);
 }
 
 static void bs_close(struct cio_buffered_stream *context)
@@ -172,7 +190,7 @@ static void bs_close(struct cio_buffered_stream *context)
 enum cio_error cio_buffered_stream_init(struct cio_buffered_stream *bs,
                                         struct cio_io_stream *stream,
                                         size_t read_buffer_size,
-										struct cio_allocator *read_buffer_allocator)
+                                        struct cio_allocator *read_buffer_allocator)
 {
 	if (unlikely((read_buffer_allocator == NULL) || (stream == NULL))) {
 		return cio_invalid_argument;
@@ -189,6 +207,8 @@ enum cio_error cio_buffered_stream_init(struct cio_buffered_stream *bs,
 	bs->read_buffer_allocator = read_buffer_allocator;
 	bs->read_from_ptr = read_buffer.address;
 	bs->unread_bytes = 0;
+
+	cio_write_buffer_head_init(&bs->wbh);
 
 	bs->read = bs_read;
 	bs->read_exactly = bs_read_exactly;

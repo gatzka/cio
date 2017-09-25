@@ -139,7 +139,7 @@ struct cio_buffered_stream {
 	 * @param handler_context A pointer to a context which might be
 	 * useful inside @p handler
 	 */
-	void (*write)(struct cio_buffered_stream *bs, const struct cio_write_buffer_head *buffer, cio_buffered_stream_write_handler handler, void *handler_context);
+	void (*write)(struct cio_buffered_stream *bs, struct cio_write_buffer_head *buffer, cio_buffered_stream_write_handler handler, void *handler_context);
 
 	/**
 	 * @anchor cio_buffered_stream_close
@@ -174,7 +174,10 @@ struct cio_buffered_stream {
 
 	cio_buffered_stream_write_handler write_handler;
 	void *write_handler_context;
-	const struct cio_write_buffer_head *wbh;
+
+	struct cio_write_buffer_head *original_wbh;
+	struct cio_write_buffer_head wbh;
+	struct cio_write_buffer wb;
 
 	enum cio_error last_error;
 };
@@ -196,7 +199,7 @@ struct cio_buffered_stream {
 enum cio_error cio_buffered_stream_init(struct cio_buffered_stream *bs,
                                         struct cio_io_stream *stream,
                                         size_t read_buffer_size,
-										struct cio_allocator *read_buffer_allocator);
+                                        struct cio_allocator *read_buffer_allocator);
 
 #ifdef __cplusplus
 }
