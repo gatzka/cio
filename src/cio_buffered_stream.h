@@ -27,6 +27,7 @@
 #ifndef CIO_BUFFERED_STREAM_H
 #define CIO_BUFFERED_STREAM_H
 
+#include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
 
@@ -76,9 +77,8 @@ typedef void (*cio_buffered_stream_read_handler)(struct cio_buffered_stream *bs,
  * @param handler_context The context the functions works on.
  * @param buffer The buffer which should have been written.
  * @param err If err != ::cio_success, the write operation failed.
- * @param bytes_transferred The number of bytes transferred.
  */
-typedef void (*cio_buffered_stream_write_handler)(struct cio_buffered_stream *bs, void *handler_context, const struct cio_write_buffer_head *buffer, enum cio_error err, size_t bytes_transferred);
+typedef void (*cio_buffered_stream_write_handler)(struct cio_buffered_stream *bs, void *handler_context, const struct cio_write_buffer_head *buffer, enum cio_error err);
 
 /**
  * Interface description for implementing buffered I/O.
@@ -178,6 +178,7 @@ struct cio_buffered_stream {
 	struct cio_write_buffer_head *original_wbh;
 	struct cio_write_buffer_head wbh;
 	struct cio_write_buffer wb;
+	bool first_wb_is_partial;
 
 	enum cio_error last_error;
 };
