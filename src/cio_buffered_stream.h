@@ -171,9 +171,6 @@ struct cio_buffered_stream {
 	} read_info;
 
 	struct cio_allocator *read_buffer_allocator;
-	size_t write_buffer_size;
-	void *write_buffer;
-	struct cio_allocator *write_buffer_allocator;
 	enum cio_error last_error;
 };
 
@@ -188,20 +185,13 @@ struct cio_buffered_stream {
  * the memory for internal read buffer. The allocated memory will be freed
  * automatically when calling @ref cio_buffered_stream_close "close" on the
  * cio_buffered_stream.
- * @param write_buffer_size The minimal size of the internal write buffer.
- * @param write_buffer_allocator The allocator that will be used to allocate
- * the memory for internal write buffer. The allocated memory will be freed
- * automatically when calling @ref cio_buffered_stream_close "close" on the
- * cio_buffered_stream.
  * @return ::cio_success for success. ::cio_invalid_argument if either
  * @p read_buffer_allocator or @p write_buffer_allocator is @p NULL.
  */
 enum cio_error cio_buffered_stream_init(struct cio_buffered_stream *bs,
                                         struct cio_io_stream *stream,
                                         size_t read_buffer_size,
-                                        struct cio_allocator *read_buffer_allocator,
-                                        size_t write_buffer_size,
-                                        struct cio_allocator *write_buffer_allocator);
+										struct cio_allocator *read_buffer_allocator);
 
 #ifdef __cplusplus
 }

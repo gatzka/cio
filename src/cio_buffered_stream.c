@@ -167,18 +167,15 @@ static void bs_write(struct cio_buffered_stream *bs, const struct cio_write_buff
 static void bs_close(struct cio_buffered_stream *context)
 {
 	context->read_buffer_allocator->free(context->read_buffer_allocator, context->read_buffer);
-	context->write_buffer_allocator->free(context->write_buffer_allocator, context->write_buffer);
 	context->stream->close(context->stream);
 }
 
 enum cio_error cio_buffered_stream_init(struct cio_buffered_stream *bs,
                                         struct cio_io_stream *stream,
                                         size_t read_buffer_size,
-                                        struct cio_allocator *read_buffer_allocator,
-                                        size_t write_buffer_size,
-                                        struct cio_allocator *write_buffer_allocator)
+										struct cio_allocator *read_buffer_allocator)
 {
-	if (unlikely((read_buffer_allocator == NULL) || (write_buffer_allocator == NULL) || (stream == NULL))) {
+	if (unlikely((read_buffer_allocator == NULL) || (stream == NULL))) {
 		return cio_invalid_argument;
 	}
 
@@ -193,16 +190,6 @@ enum cio_error cio_buffered_stream_init(struct cio_buffered_stream *bs,
 	bs->read_buffer_allocator = read_buffer_allocator;
 	bs->read_from_ptr = read_buffer.address;
 	bs->unread_bytes = 0;
-
-	struct cio_buffer write_buffer = write_buffer_allocator->alloc(write_buffer_allocator, write_buffer_size);
-	if (unlikely(write_buffer.address == NULL)) {
-		read_buffer_allocator->free(read_buffer_allocator, read_buffer.address);
-		return cio_not_enough_memory;
-	}
-
-	bs->write_buffer = write_buffer.address;
-	bs->write_buffer_size = write_buffer.size;
-	bs->write_buffer_allocator = write_buffer_allocator;
 
 	bs->read = bs_read;
 	bs->read_exactly = bs_read_exactly;

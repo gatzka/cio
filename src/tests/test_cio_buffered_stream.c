@@ -146,7 +146,7 @@ void setUp(void)
 static void test_init_missing_stream(void)
 {
 	struct cio_buffered_stream bs;
-	enum cio_error err = cio_buffered_stream_init(&bs, NULL, 40, cio_get_system_allocator(), 30, cio_get_system_allocator());
+	enum cio_error err = cio_buffered_stream_init(&bs, NULL, 40, cio_get_system_allocator());
 	TEST_ASSERT_EQUAL(cio_invalid_argument, err);
 }
 
@@ -154,15 +154,7 @@ static void test_init_missing_read_allocator(void)
 {
 	struct cio_io_stream ios;
 	struct cio_buffered_stream bs;
-	enum cio_error err = cio_buffered_stream_init(&bs, &ios, 40, NULL, 30, cio_get_system_allocator());
-	TEST_ASSERT_EQUAL(cio_invalid_argument, err);
-}
-
-static void test_init_missing_write_allocator(void)
-{
-	struct cio_io_stream ios;
-	struct cio_buffered_stream bs;
-	enum cio_error err = cio_buffered_stream_init(&bs, &ios, 40, cio_get_system_allocator(), 30, NULL);
+	enum cio_error err = cio_buffered_stream_init(&bs, &ios, 40, NULL);
 	TEST_ASSERT_EQUAL(cio_invalid_argument, err);
 }
 
@@ -170,7 +162,7 @@ static void test_init_correctly(void)
 {
 	memory_stream_init(&ms, "hello");
 	struct cio_buffered_stream bs;
-	enum cio_error err = cio_buffered_stream_init(&bs, &ms.ios, 40, cio_get_system_allocator(), 30, cio_get_system_allocator());
+	enum cio_error err = cio_buffered_stream_init(&bs, &ms.ios, 40, cio_get_system_allocator());
 	TEST_ASSERT_EQUAL(cio_success, err);
 	bs.close(&bs);
 	TEST_ASSERT_EQUAL_MESSAGE(1, close_fake.call_count, "Underlying cio_iostream was not closed!");
@@ -181,15 +173,7 @@ static void test_init_alloc_read_fails(void)
 {
 	struct cio_io_stream ios;
 	struct cio_buffered_stream bs;
-	enum cio_error err = cio_buffered_stream_init(&bs, &ios, 40, &allocator_no_mem, 30, cio_get_system_allocator());
-	TEST_ASSERT_EQUAL(cio_not_enough_memory, err);
-}
-
-static void test_init_alloc_write_fails(void)
-{
-	struct cio_io_stream ios;
-	struct cio_buffered_stream bs;
-	enum cio_error err = cio_buffered_stream_init(&bs, &ios, 40, cio_get_system_allocator(), 30, &allocator_no_mem);
+	enum cio_error err = cio_buffered_stream_init(&bs, &ios, 40, &allocator_no_mem);
 	TEST_ASSERT_EQUAL(cio_not_enough_memory, err);
 }
 
@@ -201,7 +185,7 @@ static void test_read_exactly(void)
 	dummy_handler_fake.custom_fake = save_to_check_buffer;
 
 	struct cio_buffered_stream bs;
-	enum cio_error err = cio_buffered_stream_init(&bs, &ms.ios, 40, cio_get_system_allocator(), 30, cio_get_system_allocator());
+	enum cio_error err = cio_buffered_stream_init(&bs, &ms.ios, 40, cio_get_system_allocator());
 	TEST_ASSERT_EQUAL_MESSAGE(cio_success, err, "Buffer was not initialized correctly!");
 	bs.read_exactly(&bs, strlen(test_data), dummy_handler, check_buffer);
 
@@ -222,7 +206,7 @@ static void test_read_exactly_zero_length(void)
 	dummy_handler_fake.custom_fake = save_to_check_buffer;
 
 	struct cio_buffered_stream bs;
-	enum cio_error err = cio_buffered_stream_init(&bs, &ms.ios, 40, cio_get_system_allocator(), 30, cio_get_system_allocator());
+	enum cio_error err = cio_buffered_stream_init(&bs, &ms.ios, 40, cio_get_system_allocator());
 	TEST_ASSERT_EQUAL_MESSAGE(cio_success, err, "Buffer was not initialized correctly!");
 	bs.read_exactly(&bs, 0, dummy_handler, check_buffer);
 
@@ -241,7 +225,7 @@ static void test_read_exactly_more_than_buffer_size(void)
 	memory_stream_init(&ms, test_data);
 
 	struct cio_buffered_stream bs;
-	enum cio_error err = cio_buffered_stream_init(&bs, &ms.ios, read_buffer_size, cio_get_system_allocator(), 30, cio_get_system_allocator());
+	enum cio_error err = cio_buffered_stream_init(&bs, &ms.ios, read_buffer_size, cio_get_system_allocator());
 	TEST_ASSERT_EQUAL_MESSAGE(cio_success, err, "Buffer was not initialized correctly!");
 	bs.read_exactly(&bs, read_buffer_size + 1, dummy_handler, NULL);
 
@@ -260,7 +244,7 @@ static void test_read_exactly_ios_error(void)
 	read_some_fake.custom_fake = read_some_error;
 
 	struct cio_buffered_stream bs;
-	enum cio_error err = cio_buffered_stream_init(&bs, &ms.ios, read_buffer_size, cio_get_system_allocator(), 30, cio_get_system_allocator());
+	enum cio_error err = cio_buffered_stream_init(&bs, &ms.ios, read_buffer_size, cio_get_system_allocator());
 	TEST_ASSERT_EQUAL_MESSAGE(cio_success, err, "Buffer was not initialized correctly!");
 	bs.read_exactly(&bs, read_buffer_size - 1, dummy_handler, NULL);
 
@@ -281,7 +265,7 @@ static void test_read_exactly_chunks(void)
 
 	size_t first_chunk = 2;
 	struct cio_buffered_stream bs;
-	enum cio_error err = cio_buffered_stream_init(&bs, &ms.ios, read_buffer_size, cio_get_system_allocator(), 30, cio_get_system_allocator());
+	enum cio_error err = cio_buffered_stream_init(&bs, &ms.ios, read_buffer_size, cio_get_system_allocator());
 	TEST_ASSERT_EQUAL_MESSAGE(cio_success, err, "Buffer was not initialized correctly!");
 	bs.read_exactly(&bs, first_chunk, dummy_handler, NULL);
 	TEST_ASSERT_EQUAL_MESSAGE(1, dummy_handler_fake.call_count, "Handler was not called!");
@@ -311,7 +295,7 @@ static void test_read_until(void)
 	dummy_handler_fake.custom_fake = save_to_check_buffer;
 
 	struct cio_buffered_stream bs;
-	enum cio_error err = cio_buffered_stream_init(&bs, &ms.ios, 40, cio_get_system_allocator(), 30, cio_get_system_allocator());
+	enum cio_error err = cio_buffered_stream_init(&bs, &ms.ios, 40, cio_get_system_allocator());
 	TEST_ASSERT_EQUAL_MESSAGE(cio_success, err, "Buffer was not initialized correctly!");
 
 	bs.read_until(&bs, DELIM, dummy_handler, check_buffer);
@@ -335,7 +319,7 @@ static void test_read_until_zero_length_delim(void)
 	dummy_handler_fake.custom_fake = save_to_check_buffer;
 
 	struct cio_buffered_stream bs;
-	enum cio_error err = cio_buffered_stream_init(&bs, &ms.ios, 40, cio_get_system_allocator(), 30, cio_get_system_allocator());
+	enum cio_error err = cio_buffered_stream_init(&bs, &ms.ios, 40, cio_get_system_allocator());
 	TEST_ASSERT_EQUAL_MESSAGE(cio_success, err, "Buffer was not initialized correctly!");
 
 	bs.read_until(&bs, "", dummy_handler, check_buffer);
@@ -358,7 +342,7 @@ static void test_read_until_NULL_delim(void)
 	dummy_handler_fake.custom_fake = save_to_check_buffer;
 
 	struct cio_buffered_stream bs;
-	enum cio_error err = cio_buffered_stream_init(&bs, &ms.ios, 40, cio_get_system_allocator(), 30, cio_get_system_allocator());
+	enum cio_error err = cio_buffered_stream_init(&bs, &ms.ios, 40, cio_get_system_allocator());
 	TEST_ASSERT_EQUAL_MESSAGE(cio_success, err, "Buffer was not initialized correctly!");
 
 	bs.read_until(&bs, NULL, dummy_handler, check_buffer);
@@ -382,7 +366,7 @@ static void test_read_exactly_then_until(void)
 	dummy_handler_fake.custom_fake = save_to_check_buffer;
 
 	struct cio_buffered_stream bs;
-	enum cio_error err = cio_buffered_stream_init(&bs, &ms.ios, strlen(BUFFER_FOR_EXACTLY PRE_DELIM DELIM) - 2, cio_get_system_allocator(), 30, cio_get_system_allocator());
+	enum cio_error err = cio_buffered_stream_init(&bs, &ms.ios, strlen(BUFFER_FOR_EXACTLY PRE_DELIM DELIM) - 2, cio_get_system_allocator());
 	TEST_ASSERT_EQUAL_MESSAGE(cio_success, err, "Buffer was not initialized correctly!");
 
 	bs.read_exactly(&bs, strlen(BUFFER_FOR_EXACTLY), dummy_handler, check_buffer);
@@ -410,7 +394,7 @@ static void test_read_request_less_than_available(void)
 	dummy_handler_fake.custom_fake = save_to_check_buffer;
 
 	struct cio_buffered_stream bs;
-	enum cio_error err = cio_buffered_stream_init(&bs, &ms.ios, 40, cio_get_system_allocator(), 30, cio_get_system_allocator());
+	enum cio_error err = cio_buffered_stream_init(&bs, &ms.ios, 40, cio_get_system_allocator());
 	TEST_ASSERT_EQUAL_MESSAGE(cio_success, err, "Buffer was not initialized correctly!");
 
 	bs.read(&bs, strlen(test_data) - 1, dummy_handler, check_buffer);
@@ -432,7 +416,7 @@ static void test_read_request_more_than_available(void)
 	dummy_handler_fake.custom_fake = save_to_check_buffer;
 
 	struct cio_buffered_stream bs;
-	enum cio_error err = cio_buffered_stream_init(&bs, &ms.ios, 40, cio_get_system_allocator(), 30, cio_get_system_allocator());
+	enum cio_error err = cio_buffered_stream_init(&bs, &ms.ios, 40, cio_get_system_allocator());
 	TEST_ASSERT_EQUAL_MESSAGE(cio_success, err, "Buffer was not initialized correctly!");
 
 	bs.read(&bs, strlen(test_data) +10, dummy_handler, check_buffer);
@@ -451,10 +435,8 @@ int main(void)
 	UNITY_BEGIN();
 	RUN_TEST(test_init_missing_stream);
 	RUN_TEST(test_init_missing_read_allocator);
-	RUN_TEST(test_init_missing_write_allocator);
 	RUN_TEST(test_init_correctly);
 	RUN_TEST(test_init_alloc_read_fails);
-	RUN_TEST(test_init_alloc_write_fails);
 	RUN_TEST(test_read_exactly);
 	RUN_TEST(test_read_exactly_more_than_buffer_size);
 	RUN_TEST(test_read_exactly_ios_error);
