@@ -599,7 +599,8 @@ static void test_read_request_less_than_available(void)
 	enum cio_error err = cio_buffered_stream_init(&bs, &ms.ios, 40, cio_get_system_allocator());
 	TEST_ASSERT_EQUAL_MESSAGE(cio_success, err, "Buffer was not initialized correctly!");
 
-	bs.read(&bs, strlen(test_data) - 1, dummy_read_handler, check_buffer);
+	err = bs.read(&bs, strlen(test_data) - 1, dummy_read_handler, check_buffer);
+	TEST_ASSERT_EQUAL_MESSAGE(cio_success, err, "Return value not correct!");
 
 	err = bs.close(&bs);
 	TEST_ASSERT_EQUAL_MESSAGE(cio_success, err, "Return value not correct!");
@@ -622,7 +623,8 @@ static void test_read_request_more_than_available(void)
 	enum cio_error err = cio_buffered_stream_init(&bs, &ms.ios, 40, cio_get_system_allocator());
 	TEST_ASSERT_EQUAL_MESSAGE(cio_success, err, "Buffer was not initialized correctly!");
 
-	bs.read(&bs, strlen(test_data) +10, dummy_read_handler, check_buffer);
+	err = bs.read(&bs, strlen(test_data) +10, dummy_read_handler, check_buffer);
+	TEST_ASSERT_EQUAL_MESSAGE(cio_success, err, "Return value not correct!");
 
 	err = bs.close(&bs);
 	TEST_ASSERT_EQUAL_MESSAGE(cio_success, err, "Return value not correct!");
