@@ -139,7 +139,7 @@ struct cio_buffered_stream {
 	 * @param handler_context A pointer to a context which might be
 	 * useful inside @p handler
 	 */
-	void (*write)(struct cio_buffered_stream *bs, struct cio_write_buffer_head *buffer, cio_buffered_stream_write_handler handler, void *handler_context);
+	enum cio_error (*write)(struct cio_buffered_stream *bs, struct cio_write_buffer_head *buffer, cio_buffered_stream_write_handler handler, void *handler_context);
 
 	/**
 	 * @anchor cio_buffered_stream_close

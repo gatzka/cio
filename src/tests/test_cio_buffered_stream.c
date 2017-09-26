@@ -561,6 +561,85 @@ static void test_write_one_buffer_one_chunk(void)
 	memory_stream_deinit(&ms);
 }
 
+static void test_write_no_buffered_stream_for_write(void)
+{
+	static const char *test_data = "Hello";
+
+	struct cio_write_buffer_head wbh;
+	cio_write_buffer_head_init(&wbh);
+	struct cio_write_buffer wb;
+	cio_write_buffer_init(&wb, test_data, strlen(test_data));
+	cio_write_buffer_queue_tail(&wbh, &wb);
+
+	memory_stream_init(&ms, "");
+	write_some_fake.custom_fake = write_some_all;
+
+	struct cio_buffered_stream bs;
+	enum cio_error err = cio_buffered_stream_init(&bs, &ms.ios, 40, cio_get_system_allocator());
+	TEST_ASSERT_EQUAL_MESSAGE(cio_success, err, "Buffer was not initialized correctly!");
+	err = bs.write(NULL, &wbh, dummy_write_handler, NULL);
+	TEST_ASSERT_EQUAL_MESSAGE(cio_invalid_argument, err, "return value not correct!");
+	TEST_ASSERT_EQUAL_MESSAGE(0, dummy_write_handler_fake.call_count, "Handler was called!");
+
+	bs.close(&bs);
+	TEST_ASSERT_EQUAL_MESSAGE(1, close_fake.call_count, "Underlying cio_iostream was not closed!");
+
+	memory_stream_deinit(&ms);
+}
+
+static void test_write_no_buffer_for_write(void)
+{
+	static const char *test_data = "Hello";
+
+	struct cio_write_buffer_head wbh;
+	cio_write_buffer_head_init(&wbh);
+	struct cio_write_buffer wb;
+	cio_write_buffer_init(&wb, test_data, strlen(test_data));
+	cio_write_buffer_queue_tail(&wbh, &wb);
+
+	memory_stream_init(&ms, "");
+	write_some_fake.custom_fake = write_some_all;
+
+	struct cio_buffered_stream bs;
+	enum cio_error err = cio_buffered_stream_init(&bs, &ms.ios, 40, cio_get_system_allocator());
+	TEST_ASSERT_EQUAL_MESSAGE(cio_success, err, "Buffer was not initialized correctly!");
+	err = bs.write(&bs, NULL, dummy_write_handler, NULL);
+	TEST_ASSERT_EQUAL_MESSAGE(cio_invalid_argument, err, "return value not correct!");
+	TEST_ASSERT_EQUAL_MESSAGE(0, dummy_write_handler_fake.call_count, "Handler was called!");
+
+	bs.close(&bs);
+	TEST_ASSERT_EQUAL_MESSAGE(1, close_fake.call_count, "Underlying cio_iostream was not closed!");
+
+	memory_stream_deinit(&ms);
+}
+
+static void test_write_no_handler_for_write(void)
+{
+	static const char *test_data = "Hello";
+
+	struct cio_write_buffer_head wbh;
+	cio_write_buffer_head_init(&wbh);
+	struct cio_write_buffer wb;
+	cio_write_buffer_init(&wb, test_data, strlen(test_data));
+	cio_write_buffer_queue_tail(&wbh, &wb);
+
+	memory_stream_init(&ms, "");
+	write_some_fake.custom_fake = write_some_all;
+
+	struct cio_buffered_stream bs;
+	enum cio_error err = cio_buffered_stream_init(&bs, &ms.ios, 40, cio_get_system_allocator());
+	TEST_ASSERT_EQUAL_MESSAGE(cio_success, err, "Buffer was not initialized correctly!");
+	err = bs.write(&bs, &wbh, NULL, NULL);
+	TEST_ASSERT_EQUAL_MESSAGE(cio_invalid_argument, err, "return value not correct!");
+	TEST_ASSERT_EQUAL_MESSAGE(0, dummy_write_handler_fake.call_count, "Handler was called!");
+
+	bs.close(&bs);
+	TEST_ASSERT_EQUAL_MESSAGE(1, close_fake.call_count, "Underlying cio_iostream was not closed!");
+
+	memory_stream_deinit(&ms);
+}
+
+
 static void test_write_two_buffers_one_chunk(void)
 {
 	static const char *test_data = "HelloWorld";
@@ -810,5 +889,9 @@ int main(void)
 	RUN_TEST(test_write_two_buffers_partial_write_at_buffer_boundary);
 	RUN_TEST(test_write_one_buffer_one_chunk_error);
 	RUN_TEST(test_write_one_buffer_partial_write_error);
+	RUN_TEST(test_write_no_buffered_stream_for_write);
+	RUN_TEST(test_write_no_buffer_for_write);
+	RUN_TEST(test_write_no_handler_for_write);
+
 	return UNITY_END();
 }
