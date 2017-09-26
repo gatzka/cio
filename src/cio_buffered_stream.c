@@ -157,34 +157,48 @@ static void bs_read_exactly(struct cio_buffered_stream *bs, size_t num, cio_buff
 	internal_read_exactly(bs);
 }
 
+static inline bool buffer_partially_written(const struct cio_write_buffer *wb, size_t bytes_transferred)
+{
+	return wb->length > bytes_transferred;
+}
+
+static inline bool buffer_is_temp_buffer(const struct cio_buffered_stream *bs, const struct cio_write_buffer *wb)
+{
+	return &bs->wb == wb;
+}
+
 static void handle_write(struct cio_io_stream *io_stream, void *handler_context, const struct cio_write_buffer_head *buffer, enum cio_error err, size_t bytes_transferred)
 {
 	struct cio_buffered_stream *bs = handler_context;
 	if (unlikely(err != cio_success)) {
+
 		while (!cio_write_buffer_queue_empty(&bs->wbh)) {
 			struct cio_write_buffer *wb = cio_write_buffer_queue_dequeue(&bs->wbh);
-			if (!bs->first_wb_is_partial) {
+			if (!buffer_is_temp_buffer(bs, wb)) {
 				cio_write_buffer_queue_tail(bs->original_wbh, wb);
-			} else {
-				bs->first_wb_is_partial = false;
 			}
 		}
+
 		bs->write_handler(bs, bs->write_handler_context, buffer, err);
 	}
 
 	while (bytes_transferred != 0) {
 		struct cio_write_buffer *wb = cio_write_buffer_queue_dequeue(&bs->wbh);
-		if (wb->length > bytes_transferred) {
-			cio_write_buffer_init(&bs->wb, &((const uint8_t *)wb->data)[bytes_transferred], wb->length - bytes_transferred);
+		if (buffer_partially_written(wb, bytes_transferred)) {
+			if (!buffer_is_temp_buffer(bs, wb)) {
+				cio_write_buffer_queue_tail(bs->original_wbh, wb);
+			}
+
+			const void *new_data = &((const uint8_t *)wb->data)[bytes_transferred];
+			size_t new_length = wb->length - bytes_transferred;
+			cio_write_buffer_init(&bs->wb, new_data, new_length);
 			cio_write_buffer_queue_head(&bs->wbh, &bs->wb);
-			bs->first_wb_is_partial = true;
 			bytes_transferred = 0;
 		} else {
 			bytes_transferred -= wb->length;
-		}
-
-		if (!bs->first_wb_is_partial) {
-			cio_write_buffer_queue_tail(bs->original_wbh, wb);
+			if (!buffer_is_temp_buffer(bs, wb)) {
+				cio_write_buffer_queue_tail(bs->original_wbh, wb);
+			}
 		}
 	}
 
@@ -205,8 +219,6 @@ static void bs_write(struct cio_buffered_stream *bs, struct cio_write_buffer_hea
 		struct cio_write_buffer *wb = cio_write_buffer_queue_dequeue(buffer);
 		cio_write_buffer_queue_tail(&bs->wbh, wb);
 	}
-
-	bs->first_wb_is_partial = false;
 
 	bs->stream->write_some(bs->stream, &bs->wbh, handle_write, bs);
 }

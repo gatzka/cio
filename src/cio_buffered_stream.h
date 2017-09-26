@@ -178,7 +178,6 @@ struct cio_buffered_stream {
 	struct cio_write_buffer_head *original_wbh;
 	struct cio_write_buffer_head wbh;
 	struct cio_write_buffer wb;
-	bool first_wb_is_partial;
 
 	enum cio_error last_error;
 };
