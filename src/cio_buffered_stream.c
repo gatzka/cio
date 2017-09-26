@@ -179,6 +179,8 @@ static inline bool buffer_is_temp_buffer(const struct cio_buffered_stream *bs, c
 
 static void handle_write(struct cio_io_stream *io_stream, void *handler_context, const struct cio_write_buffer_head *buffer, enum cio_error err, size_t bytes_transferred)
 {
+	(void)buffer;
+
 	struct cio_buffered_stream *bs = handler_context;
 	if (unlikely(err != cio_success)) {
 
@@ -189,7 +191,8 @@ static void handle_write(struct cio_io_stream *io_stream, void *handler_context,
 			}
 		}
 
-		bs->write_handler(bs, bs->write_handler_context, buffer, err);
+		bs->write_handler(bs, bs->write_handler_context, bs->original_wbh, err);
+		return;
 	}
 
 	while (bytes_transferred != 0) {
