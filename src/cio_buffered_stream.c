@@ -221,6 +221,11 @@ static void handle_write(struct cio_io_stream *io_stream, void *handler_context,
 
 static void bs_write(struct cio_buffered_stream *bs, struct cio_write_buffer_head *buffer, cio_buffered_stream_write_handler handler, void *handler_context)
 {
+	if (unlikely((bs == NULL) || (buffer == NULL) || (handler == NULL))) {
+		handler(bs, handler_context, buffer, cio_invalid_argument);
+		return;
+	}
+
 	bs->write_handler = handler;
 	bs->write_handler_context = handler_context;
 	bs->original_wbh = buffer;
