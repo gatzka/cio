@@ -113,6 +113,8 @@ static inline void cio_write_buffer_unlink(struct cio_write_buffer *wb, struct c
 	wbh->q_len--;
 	next = wb->next;
 	prev = wb->prev;
+	wb->next = NULL;
+	wb->prev = NULL;
 	next->prev = prev;
 	prev->next = next;
 }
