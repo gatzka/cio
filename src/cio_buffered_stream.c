@@ -112,6 +112,11 @@ static void internal_read_until(struct cio_buffered_stream *bs)
 
 static void bs_read_until(struct cio_buffered_stream *bs, const char *delim, cio_buffered_stream_read_handler handler, void *handler_context)
 {
+	if (unlikely((bs == NULL) || (handler == NULL))) {
+		handler(bs, handler_context, cio_invalid_argument, NULL, 0);
+		return;
+	}
+
 	if (unlikely(delim == NULL)) {
 		handler(bs, handler_context, cio_invalid_argument, NULL, 0);
 		return;
@@ -144,6 +149,11 @@ static void internal_read_exactly(struct cio_buffered_stream *bs)
 
 static void bs_read_exactly(struct cio_buffered_stream *bs, size_t num, cio_buffered_stream_read_handler handler, void *handler_context)
 {
+	if (unlikely((bs == NULL) || (handler == NULL))) {
+		handler(bs, handler_context, cio_invalid_argument, NULL, 0);
+		return;
+	}
+
 	if (unlikely(num > bs->read_buffer_size)) {
 		handler(bs, handler_context, cio_message_too_long, NULL, 0);
 		return;
@@ -234,7 +244,7 @@ enum cio_error cio_buffered_stream_init(struct cio_buffered_stream *bs,
                                         size_t read_buffer_size,
                                         struct cio_allocator *read_buffer_allocator)
 {
-	if (unlikely((read_buffer_allocator == NULL) || (stream == NULL))) {
+	if (unlikely((bs == NULL) || (read_buffer_allocator == NULL) || (stream == NULL))) {
 		return cio_invalid_argument;
 	}
 
