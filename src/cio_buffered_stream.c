@@ -189,7 +189,6 @@ static void handle_write(struct cio_io_stream *io_stream, void *handler_context,
 
 	struct cio_buffered_stream *bs = handler_context;
 	if (unlikely(err != cio_success)) {
-
 		while (!cio_write_buffer_queue_empty(&bs->wbh)) {
 			struct cio_write_buffer *wb = cio_write_buffer_queue_dequeue(&bs->wbh);
 			if (!buffer_is_temp_buffer(bs, wb)) {
