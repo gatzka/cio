@@ -100,7 +100,7 @@ static inline struct cio_write_buffer *cio_write_buffer_queue_peek(const struct 
 
 static inline bool cio_write_buffer_queue_is_last(const struct cio_write_buffer_head *wbh, const struct cio_write_buffer *wb)
 {
-	return wb->next == (const struct cio_write_buffer *) wbh;
+	return wb->next == (const struct cio_write_buffer *)wbh;
 }
 
 static inline void cio_write_buffer_unlink(struct cio_write_buffer *wb, struct cio_write_buffer_head *wbh)
