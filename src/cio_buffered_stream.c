@@ -85,14 +85,24 @@ static void internal_read(struct cio_buffered_stream *bs)
 	}
 }
 
-static void bs_read(struct cio_buffered_stream *bs, size_t num, cio_buffered_stream_read_handler handler, void *handler_context)
+static enum cio_error bs_read(struct cio_buffered_stream *bs, size_t num, cio_buffered_stream_read_handler handler, void *handler_context)
 {
+	if (unlikely((bs == NULL) || (handler == NULL))) {
+		return cio_invalid_argument;
+	}
+
+	if (unlikely(num > bs->read_buffer_size)) {
+		return cio_message_too_long;
+	}
+
 	bs->read_info.bytes_to_read = num;
 	bs->read_job = internal_read;
 	bs->read_handler = handler;
 	bs->read_handler_context = handler_context;
 	bs->last_error = cio_success;
 	internal_read(bs);
+
+	return cio_success;
 }
 
 static void internal_read_until(struct cio_buffered_stream *bs)
@@ -110,16 +120,10 @@ static void internal_read_until(struct cio_buffered_stream *bs)
 	}
 }
 
-static void bs_read_until(struct cio_buffered_stream *bs, const char *delim, cio_buffered_stream_read_handler handler, void *handler_context)
+static enum cio_error bs_read_until(struct cio_buffered_stream *bs, const char *delim, cio_buffered_stream_read_handler handler, void *handler_context)
 {
-	if (unlikely((bs == NULL) || (handler == NULL))) {
-		handler(bs, handler_context, cio_invalid_argument, NULL, 0);
-		return;
-	}
-
-	if (unlikely(delim == NULL)) {
-		handler(bs, handler_context, cio_invalid_argument, NULL, 0);
-		return;
+	if (unlikely((bs == NULL) || (handler == NULL) || (delim == NULL))) {
+		return cio_invalid_argument;
 	}
 
 	bs->read_info.until.delim = delim;
@@ -129,6 +133,8 @@ static void bs_read_until(struct cio_buffered_stream *bs, const char *delim, cio
 	bs->read_handler_context = handler_context;
 	bs->last_error = cio_success;
 	internal_read_until(bs);
+
+	return cio_success;
 }
 
 static void internal_read_exactly(struct cio_buffered_stream *bs)
@@ -147,16 +153,14 @@ static void internal_read_exactly(struct cio_buffered_stream *bs)
 	}
 }
 
-static void bs_read_exactly(struct cio_buffered_stream *bs, size_t num, cio_buffered_stream_read_handler handler, void *handler_context)
+static enum cio_error bs_read_exactly(struct cio_buffered_stream *bs, size_t num, cio_buffered_stream_read_handler handler, void *handler_context)
 {
 	if (unlikely((bs == NULL) || (handler == NULL))) {
-		handler(bs, handler_context, cio_invalid_argument, NULL, 0);
-		return;
+		return cio_invalid_argument;
 	}
 
 	if (unlikely(num > bs->read_buffer_size)) {
-		handler(bs, handler_context, cio_message_too_long, NULL, 0);
-		return;
+		return cio_message_too_long;
 	}
 
 	bs->read_info.bytes_to_read = num;
@@ -165,6 +169,8 @@ static void bs_read_exactly(struct cio_buffered_stream *bs, size_t num, cio_buff
 	bs->read_handler_context = handler_context;
 	bs->last_error = cio_success;
 	internal_read_exactly(bs);
+
+	return cio_success;
 }
 
 static inline bool buffer_partially_written(const struct cio_write_buffer *wb, size_t bytes_transferred)
@@ -242,10 +248,16 @@ static enum cio_error bs_write(struct cio_buffered_stream *bs, struct cio_write_
 	return cio_success;
 }
 
-static void bs_close(struct cio_buffered_stream *context)
+static enum cio_error bs_close(struct cio_buffered_stream *bs)
 {
-	context->read_buffer_allocator->free(context->read_buffer_allocator, context->read_buffer);
-	context->stream->close(context->stream);
+	if (unlikely(bs == NULL)) {
+		return cio_invalid_argument;
+	}
+
+	bs->read_buffer_allocator->free(bs->read_buffer_allocator, bs->read_buffer);
+	bs->stream->close(bs->stream);
+
+	return cio_success;
 }
 
 enum cio_error cio_buffered_stream_init(struct cio_buffered_stream *bs,

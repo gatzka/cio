@@ -94,8 +94,10 @@ struct cio_buffered_stream {
 	 * request is fulfilled.
 	 * @param handler_context A pointer to a context which might be
 	 * useful inside @p handler
+	 *
+	 * @return ::cio_success for success.
 	 */
-	void (*read_exactly)(struct cio_buffered_stream *bs, size_t num, cio_buffered_stream_read_handler handler, void *handler_context);
+	enum cio_error (*read_exactly)(struct cio_buffered_stream *bs, size_t num, cio_buffered_stream_read_handler handler, void *handler_context);
 
 	/**
 	 * @brief Read upto @p count bytes into the buffer @p buf starting
@@ -110,8 +112,10 @@ struct cio_buffered_stream {
 	 * request is (partly) fulfilled.
 	 * @param handler_context A pointer to a context which might be
 	 * useful inside @p handler
+	 *
+	 * @return ::cio_success for success.
 	 */
-	void (*read)(struct cio_buffered_stream *bs, size_t num, cio_buffered_stream_read_handler handler, void *handler_context);
+	enum cio_error (*read)(struct cio_buffered_stream *bs, size_t num, cio_buffered_stream_read_handler handler, void *handler_context);
 
 	/**
 	 * @brief Call @p handler if delimiter @p delim is encountered.
@@ -123,8 +127,10 @@ struct cio_buffered_stream {
 	 * request is fulfilled.
 	 * @param handler_context A pointer to a context which might be
 	 * useful inside @p handler
+	 *
+	 * @return ::cio_success for success.
 	 */
-	void (*read_until)(struct cio_buffered_stream *bs, const char *delim, cio_buffered_stream_read_handler handler, void *handler_context);
+	enum cio_error (*read_until)(struct cio_buffered_stream *bs, const char *delim, cio_buffered_stream_read_handler handler, void *handler_context);
 
 	/**
 	 * @brief Writes @p count bytes to the buffered stream.
@@ -138,6 +144,8 @@ struct cio_buffered_stream {
 	 * request is fulfilled.
 	 * @param handler_context A pointer to a context which might be
 	 * useful inside @p handler
+	 *
+	 * @return ::cio_success for success.
 	 */
 	enum cio_error (*write)(struct cio_buffered_stream *bs, struct cio_write_buffer_head *buffer, cio_buffered_stream_write_handler handler, void *handler_context);
 
@@ -146,8 +154,10 @@ struct cio_buffered_stream {
 	 * @brief Closes the stream.
 	 *
 	 * @param bs A pointer to the cio_buffered_stream of the on which the operation should be performed.
+	 *
+	 * @return ::cio_success for success.
 	 */
-	void (*close)(struct cio_buffered_stream *bs);
+	enum cio_error (*close)(struct cio_buffered_stream *bs);
 
 	/**
 	 * @privatesection
