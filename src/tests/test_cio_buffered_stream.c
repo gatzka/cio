@@ -198,6 +198,13 @@ void setUp(void)
 	check_buffer_pos = 0;
 }
 
+static void test_init_missing_bs_pointer(void)
+{
+	struct cio_io_stream ios;
+	enum cio_error err = cio_buffered_stream_init(NULL, &ios, 40, cio_get_system_allocator());
+	TEST_ASSERT_EQUAL(cio_invalid_argument, err);
+}
+
 static void test_init_missing_stream(void)
 {
 	struct cio_buffered_stream bs;
@@ -641,6 +648,7 @@ static void test_write_two_buffers_partial_write_at_buffer_boundary(void)
 int main(void)
 {
 	UNITY_BEGIN();
+	RUN_TEST(test_init_missing_bs_pointer);
 	RUN_TEST(test_init_missing_stream);
 	RUN_TEST(test_init_missing_read_allocator);
 	RUN_TEST(test_init_correctly);
