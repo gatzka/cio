@@ -203,7 +203,7 @@ static void bs_write(struct cio_buffered_stream *bs, struct cio_write_buffer_hea
 
 	while (!cio_write_buffer_queue_empty(buffer)) {
 		struct cio_write_buffer *wb = cio_write_buffer_queue_dequeue(buffer);
-		cio_write_buffer_queue_head(&bs->wbh, wb);
+		cio_write_buffer_queue_tail(&bs->wbh, wb);
 	}
 
 	bs->first_wb_is_partial = false;

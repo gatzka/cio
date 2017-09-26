@@ -120,12 +120,12 @@ static void read_some_chunks(struct cio_io_stream *ios, void *buf, size_t num, c
 static void write_some_all(struct cio_io_stream *io_stream, const struct cio_write_buffer_head *buf, cio_io_stream_write_handler handler, void *handler_context)
 {
 	size_t total_length = 0;
-	struct cio_write_buffer *wb = cio_write_buffer_queue_peek(buf);
-	if (wb != NULL) {
-		do {
-			memcpy(&check_buffer[total_length], wb->data, wb->length);
-			total_length += wb->length;
-		} while (!cio_write_buffer_queue_is_last(buf, wb));
+
+	struct cio_write_buffer *wb = (struct cio_write_buffer *) buf->next;
+	for (size_t i = 0; i < buf->q_len; i++) {
+		memcpy(&check_buffer[total_length], wb->data, wb->length);
+		total_length += wb->length;
+		wb = wb->next;
 	}
 
 	handler(io_stream, handler_context, buf, cio_success, total_length);
@@ -161,6 +161,7 @@ void setUp(void)
 	RESET_FAKE(write_some);
 	RESET_FAKE(close);
 	RESET_FAKE(dummy_read_handler);
+	RESET_FAKE(dummy_write_handler);
 
 	memset(check_buffer, 0xaf, sizeof(check_buffer));
 	check_buffer_pos = 0;
@@ -480,6 +481,36 @@ static void test_write_one_buffer_one_chunk(void)
 	memory_stream_deinit(&ms);
 }
 
+static void test_write_two_buffers_one_chunk(void)
+{
+	static const char *test_data = "HelloWorld";
+
+	struct cio_write_buffer_head wbh;
+	cio_write_buffer_head_init(&wbh);
+	struct cio_write_buffer wb1;
+	cio_write_buffer_init(&wb1, test_data, strlen(test_data) / 2);
+	cio_write_buffer_queue_tail(&wbh, &wb1);
+	struct cio_write_buffer wb2;
+	cio_write_buffer_init(&wb2, test_data + (strlen(test_data) / 2), strlen(test_data) - strlen(test_data) / 2);
+	cio_write_buffer_queue_tail(&wbh, &wb2);
+
+	memory_stream_init(&ms, "");
+	write_some_fake.custom_fake = write_some_all;
+
+	struct cio_buffered_stream bs;
+	enum cio_error err = cio_buffered_stream_init(&bs, &ms.ios, 40, cio_get_system_allocator());
+	TEST_ASSERT_EQUAL_MESSAGE(cio_success, err, "Buffer was not initialized correctly!");
+	bs.write(&bs, &wbh, dummy_write_handler, NULL);
+
+	bs.close(&bs);
+	TEST_ASSERT_EQUAL_MESSAGE(1, close_fake.call_count, "Underlying cio_iostream was not closed!");
+	TEST_ASSERT_EQUAL_MESSAGE(1, dummy_write_handler_fake.call_count, "Handler was not called!");
+	TEST_ASSERT_EQUAL_MESSAGE(cio_success, dummy_write_handler_fake.arg3_val, "Handler was not called with cio_success!");
+	TEST_ASSERT_MESSAGE(strncmp((const char *)check_buffer, test_data, strlen(test_data)) == 0, "Data was not written correctly!");
+
+	memory_stream_deinit(&ms);
+}
+
 int main(void)
 {
 	UNITY_BEGIN();
@@ -499,5 +530,6 @@ int main(void)
 	RUN_TEST(test_read_request_less_than_available);
 	RUN_TEST(test_read_request_more_than_available);
 	RUN_TEST(test_write_one_buffer_one_chunk);
+	RUN_TEST(test_write_two_buffers_one_chunk);
 	return UNITY_END();
 }
