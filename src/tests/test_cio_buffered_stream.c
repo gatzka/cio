@@ -566,7 +566,8 @@ static void test_write_one_buffer_one_chunk(void)
 	struct cio_buffered_stream bs;
 	enum cio_error err = cio_buffered_stream_init(&bs, &ms.ios, 40, cio_get_system_allocator());
 	TEST_ASSERT_EQUAL_MESSAGE(cio_success, err, "Buffer was not initialized correctly!");
-	bs.write(&bs, &wbh, dummy_write_handler, NULL);
+	err = bs.write(&bs, &wbh, dummy_write_handler, NULL);
+	TEST_ASSERT_EQUAL_MESSAGE(cio_success, err, "Return value not correct!");
 
 	err = bs.close(&bs);
 	TEST_ASSERT_EQUAL_MESSAGE(cio_success, err, "Return value not correct!");
@@ -684,7 +685,8 @@ static void test_write_two_buffers_one_chunk(void)
 	struct cio_buffered_stream bs;
 	enum cio_error err = cio_buffered_stream_init(&bs, &ms.ios, 40, cio_get_system_allocator());
 	TEST_ASSERT_EQUAL_MESSAGE(cio_success, err, "Buffer was not initialized correctly!");
-	bs.write(&bs, &wbh, dummy_write_handler, NULL);
+	err = bs.write(&bs, &wbh, dummy_write_handler, NULL);
+	TEST_ASSERT_EQUAL_MESSAGE(cio_success, err, "Return value not correct!");
 
 	err = bs.close(&bs);
 	TEST_ASSERT_EQUAL_MESSAGE(cio_success, err, "Return value not correct!");
@@ -724,7 +726,8 @@ static void test_write_two_buffers_partial_write(void)
 	struct cio_buffered_stream bs;
 	enum cio_error err = cio_buffered_stream_init(&bs, &ms.ios, 40, cio_get_system_allocator());
 	TEST_ASSERT_EQUAL_MESSAGE(cio_success, err, "Buffer was not initialized correctly!");
-	bs.write(&bs, &wbh, dummy_write_handler, &dummy_context);
+	err = bs.write(&bs, &wbh, dummy_write_handler, &dummy_context);
+	TEST_ASSERT_EQUAL_MESSAGE(cio_success, err, "Return value not correct!");
 
 	err = bs.close(&bs);
 	TEST_ASSERT_EQUAL_MESSAGE(cio_success, err, "Return value not correct!");
@@ -766,7 +769,8 @@ static void test_write_two_buffers_double_partial_write(void)
 	struct cio_buffered_stream bs;
 	enum cio_error err = cio_buffered_stream_init(&bs, &ms.ios, 40, cio_get_system_allocator());
 	TEST_ASSERT_EQUAL_MESSAGE(cio_success, err, "Buffer was not initialized correctly!");
-	bs.write(&bs, &wbh, dummy_write_handler, &dummy_context);
+	err = bs.write(&bs, &wbh, dummy_write_handler, &dummy_context);
+	TEST_ASSERT_EQUAL_MESSAGE(cio_success, err, "Return value not correct!");
 
 	err = bs.close(&bs);
 	TEST_ASSERT_EQUAL_MESSAGE(cio_success, err, "Return value not correct!");
@@ -808,7 +812,8 @@ static void test_write_two_buffers_partial_write_at_buffer_boundary(void)
 	struct cio_buffered_stream bs;
 	enum cio_error err = cio_buffered_stream_init(&bs, &ms.ios, 40, cio_get_system_allocator());
 	TEST_ASSERT_EQUAL_MESSAGE(cio_success, err, "Buffer was not initialized correctly!");
-	bs.write(&bs, &wbh, dummy_write_handler, &dummy_context);
+	err = bs.write(&bs, &wbh, dummy_write_handler, &dummy_context);
+	TEST_ASSERT_EQUAL_MESSAGE(cio_success, err, "Return value not correct!");
 
 	err = bs.close(&bs);
 	TEST_ASSERT_EQUAL_MESSAGE(cio_success, err, "Return value not correct!");
@@ -846,7 +851,8 @@ static void test_write_one_buffer_one_chunk_error(void)
 	struct cio_buffered_stream bs;
 	enum cio_error err = cio_buffered_stream_init(&bs, &ms.ios, 40, cio_get_system_allocator());
 	TEST_ASSERT_EQUAL_MESSAGE(cio_success, err, "Buffer was not initialized correctly!");
-	bs.write(&bs, &wbh, dummy_write_handler, NULL);
+	err = bs.write(&bs, &wbh, dummy_write_handler, NULL);
+	TEST_ASSERT_EQUAL_MESSAGE(cio_success, err, "Return value not correct!");
 
 	err = bs.close(&bs);
 	TEST_ASSERT_EQUAL_MESSAGE(cio_success, err, "Return value not correct!");
@@ -897,7 +903,8 @@ static void test_write_one_buffer_partial_write_error(void)
 	struct cio_buffered_stream bs;
 	enum cio_error err = cio_buffered_stream_init(&bs, &ms.ios, 40, cio_get_system_allocator());
 	TEST_ASSERT_EQUAL_MESSAGE(cio_success, err, "Buffer was not initialized correctly!");
-	bs.write(&bs, &wbh, dummy_write_handler, NULL);
+	err = bs.write(&bs, &wbh, dummy_write_handler, NULL);
+	TEST_ASSERT_EQUAL_MESSAGE(cio_success, err, "Return value not correct!");
 
 	err = bs.close(&bs);
 	TEST_ASSERT_EQUAL_MESSAGE(cio_success, err, "Return value not correct!");
