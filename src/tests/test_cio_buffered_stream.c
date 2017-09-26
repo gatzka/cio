@@ -341,6 +341,44 @@ static void test_read_exactly_more_than_buffer_size(void)
 	memory_stream_deinit(&ms);
 }
 
+static void test_read_exactly_no_buffered_stream(void)
+{
+	size_t read_buffer_size = 40;
+	static const char *test_data = "Hello";
+	memory_stream_init(&ms, test_data);
+
+	struct cio_buffered_stream bs;
+	enum cio_error err = cio_buffered_stream_init(&bs, &ms.ios, read_buffer_size, cio_get_system_allocator());
+	TEST_ASSERT_EQUAL_MESSAGE(cio_success, err, "Buffer was not initialized correctly!");
+	err = bs.read_exactly(NULL, read_buffer_size, dummy_read_handler, NULL);
+	TEST_ASSERT_EQUAL_MESSAGE(cio_invalid_argument, err, "Return value not correct!");
+	TEST_ASSERT_EQUAL_MESSAGE(0, dummy_read_handler_fake.call_count, "Handler was not called!");
+
+	err = bs.close(&bs);
+	TEST_ASSERT_EQUAL_MESSAGE(cio_success, err, "Return value not correct!");
+	TEST_ASSERT_EQUAL_MESSAGE(1, close_fake.call_count, "Underlying cio_iostream was not closed!");
+	memory_stream_deinit(&ms);
+}
+
+static void test_read_exactly_no_handler(void)
+{
+	size_t read_buffer_size = 40;
+	static const char *test_data = "Hello";
+	memory_stream_init(&ms, test_data);
+
+	struct cio_buffered_stream bs;
+	enum cio_error err = cio_buffered_stream_init(&bs, &ms.ios, read_buffer_size, cio_get_system_allocator());
+	TEST_ASSERT_EQUAL_MESSAGE(cio_success, err, "Buffer was not initialized correctly!");
+	err = bs.read_exactly(&bs, read_buffer_size, NULL, NULL);
+	TEST_ASSERT_EQUAL_MESSAGE(cio_invalid_argument, err, "Return value not correct!");
+	TEST_ASSERT_EQUAL_MESSAGE(0, dummy_read_handler_fake.call_count, "Handler was not called!");
+
+	err = bs.close(&bs);
+	TEST_ASSERT_EQUAL_MESSAGE(cio_success, err, "Return value not correct!");
+	TEST_ASSERT_EQUAL_MESSAGE(1, close_fake.call_count, "Underlying cio_iostream was not closed!");
+	memory_stream_deinit(&ms);
+}
+
 static void test_read_exactly_ios_error(void)
 {
 	size_t read_buffer_size = 40;
@@ -665,7 +703,6 @@ static void test_write_no_handler_for_write(void)
 	memory_stream_deinit(&ms);
 }
 
-
 static void test_write_two_buffers_one_chunk(void)
 {
 	static const char *test_data = "HelloWorld";
@@ -930,6 +967,8 @@ int main(void)
 	RUN_TEST(test_init_alloc_read_fails);
 	RUN_TEST(test_read_exactly);
 	RUN_TEST(test_read_exactly_more_than_buffer_size);
+	RUN_TEST(test_read_exactly_no_buffered_stream);
+	RUN_TEST(test_read_exactly_no_handler);
 	RUN_TEST(test_read_exactly_ios_error);
 	RUN_TEST(test_read_exactly_chunks);
 	RUN_TEST(test_read_exactly_zero_length);
