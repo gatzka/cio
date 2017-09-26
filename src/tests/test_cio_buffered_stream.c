@@ -54,11 +54,18 @@ static size_t check_buffer_pos = 0;
 void read_some(struct cio_io_stream *ios, void *buf, size_t num, cio_io_stream_read_handler handler, void *context);
 FAKE_VOID_FUNC(read_some, struct cio_io_stream*, void*, size_t, cio_io_stream_read_handler, void*)
 
+void write_some(struct cio_io_stream *io_stream, const struct cio_write_buffer_head *buf, cio_io_stream_write_handler handler, void *handler_context);
+FAKE_VOID_FUNC(write_some, struct cio_io_stream*, const struct cio_write_buffer_head *, cio_io_stream_write_handler, void*)
+
 void close(struct cio_io_stream *context);
 FAKE_VOID_FUNC(close, struct cio_io_stream*)
 
-void dummy_handler(struct cio_buffered_stream*, void*, enum cio_error, uint8_t*, size_t);
-FAKE_VOID_FUNC(dummy_handler, struct cio_buffered_stream*, void*, enum cio_error, uint8_t*, size_t)
+void dummy_read_handler(struct cio_buffered_stream*, void*, enum cio_error, uint8_t*, size_t);
+FAKE_VOID_FUNC(dummy_read_handler, struct cio_buffered_stream*, void*, enum cio_error, uint8_t*, size_t)
+
+
+void dummy_write_handler(struct cio_buffered_stream*, void*, const struct cio_write_buffer_head*, enum cio_error);
+FAKE_VOID_FUNC(dummy_write_handler, struct cio_buffered_stream*, void*, const struct cio_write_buffer_head*, enum cio_error)
 
 static void save_to_check_buffer(struct cio_buffered_stream *bs, void *context, enum cio_error err, uint8_t *buffer, size_t num) {
 	(void)bs;
@@ -110,9 +117,24 @@ static void read_some_chunks(struct cio_io_stream *ios, void *buf, size_t num, c
 	}
 }
 
+static void write_some_all(struct cio_io_stream *io_stream, const struct cio_write_buffer_head *buf, cio_io_stream_write_handler handler, void *handler_context)
+{
+	size_t total_length = 0;
+	struct cio_write_buffer *wb = cio_write_buffer_queue_peek(buf);
+	if (wb != NULL) {
+		do {
+			memcpy(&check_buffer[total_length], wb->data, wb->length);
+			total_length += wb->length;
+		} while (!cio_write_buffer_queue_is_last(buf, wb));
+	}
+
+	handler(io_stream, handler_context, buf, cio_success, total_length);
+}
+
 static void memory_stream_init(struct memory_stream *ms, const char *fill_pattern)
 {
 	ms->ios.read_some = read_some;
+	ms->ios.write_some = write_some;
 	ms->ios.close = close;
 	ms->mem = malloc(strlen(fill_pattern) + 1);
 	memset(ms->mem, 0x00, strlen(fill_pattern) + 1);
@@ -136,8 +158,9 @@ void setUp(void)
 	FFF_RESET_HISTORY();
 
 	RESET_FAKE(read_some);
+	RESET_FAKE(write_some);
 	RESET_FAKE(close);
-	RESET_FAKE(dummy_handler);
+	RESET_FAKE(dummy_read_handler);
 
 	memset(check_buffer, 0xaf, sizeof(check_buffer));
 	check_buffer_pos = 0;
@@ -182,18 +205,18 @@ static void test_read_exactly(void)
 	static const char *test_data = "Hello";
 	memory_stream_init(&ms, test_data);
 	read_some_fake.custom_fake = read_some_max;
-	dummy_handler_fake.custom_fake = save_to_check_buffer;
+	dummy_read_handler_fake.custom_fake = save_to_check_buffer;
 
 	struct cio_buffered_stream bs;
 	enum cio_error err = cio_buffered_stream_init(&bs, &ms.ios, 40, cio_get_system_allocator());
 	TEST_ASSERT_EQUAL_MESSAGE(cio_success, err, "Buffer was not initialized correctly!");
-	bs.read_exactly(&bs, strlen(test_data), dummy_handler, check_buffer);
+	bs.read_exactly(&bs, strlen(test_data), dummy_read_handler, check_buffer);
 
 	bs.close(&bs);
 	TEST_ASSERT_EQUAL_MESSAGE(1, close_fake.call_count, "Underlying cio_iostream was not closed!");
-	TEST_ASSERT_EQUAL_MESSAGE(1, dummy_handler_fake.call_count, "Handler was not called!");
-	TEST_ASSERT_EQUAL_MESSAGE(cio_success, dummy_handler_fake.arg2_val, "Handler was not called with cio_success!");
-	TEST_ASSERT_EQUAL_MESSAGE(strlen(test_data), dummy_handler_fake.arg4_val, "Handler was not called with correct data length!");
+	TEST_ASSERT_EQUAL_MESSAGE(1, dummy_read_handler_fake.call_count, "Handler was not called!");
+	TEST_ASSERT_EQUAL_MESSAGE(cio_success, dummy_read_handler_fake.arg2_val, "Handler was not called with cio_success!");
+	TEST_ASSERT_EQUAL_MESSAGE(strlen(test_data), dummy_read_handler_fake.arg4_val, "Handler was not called with correct data length!");
 	TEST_ASSERT_MESSAGE(strncmp((const char *)check_buffer, test_data, strlen(test_data)) == 0, "Handler was not called with correct data!")
 	memory_stream_deinit(&ms);
 }
@@ -203,18 +226,18 @@ static void test_read_exactly_zero_length(void)
 	static const char *test_data = "Hello";
 	memory_stream_init(&ms, test_data);
 	read_some_fake.custom_fake = read_some_max;
-	dummy_handler_fake.custom_fake = save_to_check_buffer;
+	dummy_read_handler_fake.custom_fake = save_to_check_buffer;
 
 	struct cio_buffered_stream bs;
 	enum cio_error err = cio_buffered_stream_init(&bs, &ms.ios, 40, cio_get_system_allocator());
 	TEST_ASSERT_EQUAL_MESSAGE(cio_success, err, "Buffer was not initialized correctly!");
-	bs.read_exactly(&bs, 0, dummy_handler, check_buffer);
+	bs.read_exactly(&bs, 0, dummy_read_handler, check_buffer);
 
 	bs.close(&bs);
 	TEST_ASSERT_EQUAL_MESSAGE(1, close_fake.call_count, "Underlying cio_iostream was not closed!");
-	TEST_ASSERT_EQUAL_MESSAGE(1, dummy_handler_fake.call_count, "Handler was not called!");
-	TEST_ASSERT_EQUAL_MESSAGE(cio_success, dummy_handler_fake.arg2_val, "Handler was not called with cio_success!");
-	TEST_ASSERT_EQUAL_MESSAGE(0, dummy_handler_fake.arg4_val, "Handler was not called with correct data length!");
+	TEST_ASSERT_EQUAL_MESSAGE(1, dummy_read_handler_fake.call_count, "Handler was not called!");
+	TEST_ASSERT_EQUAL_MESSAGE(cio_success, dummy_read_handler_fake.arg2_val, "Handler was not called with cio_success!");
+	TEST_ASSERT_EQUAL_MESSAGE(0, dummy_read_handler_fake.arg4_val, "Handler was not called with correct data length!");
 	memory_stream_deinit(&ms);
 }
 
@@ -227,12 +250,12 @@ static void test_read_exactly_more_than_buffer_size(void)
 	struct cio_buffered_stream bs;
 	enum cio_error err = cio_buffered_stream_init(&bs, &ms.ios, read_buffer_size, cio_get_system_allocator());
 	TEST_ASSERT_EQUAL_MESSAGE(cio_success, err, "Buffer was not initialized correctly!");
-	bs.read_exactly(&bs, read_buffer_size + 1, dummy_handler, NULL);
+	bs.read_exactly(&bs, read_buffer_size + 1, dummy_read_handler, NULL);
 
 	bs.close(&bs);
 	TEST_ASSERT_EQUAL_MESSAGE(1, close_fake.call_count, "Underlying cio_iostream was not closed!");
-	TEST_ASSERT_EQUAL_MESSAGE(1, dummy_handler_fake.call_count, "Handler was not called!");
-	TEST_ASSERT_EQUAL_MESSAGE(cio_message_too_long, dummy_handler_fake.arg2_val, "Handler was not called with cio_success!");
+	TEST_ASSERT_EQUAL_MESSAGE(1, dummy_read_handler_fake.call_count, "Handler was not called!");
+	TEST_ASSERT_EQUAL_MESSAGE(cio_message_too_long, dummy_read_handler_fake.arg2_val, "Handler was not called with cio_success!");
 	memory_stream_deinit(&ms);
 }
 
@@ -246,12 +269,12 @@ static void test_read_exactly_ios_error(void)
 	struct cio_buffered_stream bs;
 	enum cio_error err = cio_buffered_stream_init(&bs, &ms.ios, read_buffer_size, cio_get_system_allocator());
 	TEST_ASSERT_EQUAL_MESSAGE(cio_success, err, "Buffer was not initialized correctly!");
-	bs.read_exactly(&bs, read_buffer_size - 1, dummy_handler, NULL);
+	bs.read_exactly(&bs, read_buffer_size - 1, dummy_read_handler, NULL);
 
 	bs.close(&bs);
 	TEST_ASSERT_EQUAL_MESSAGE(1, close_fake.call_count, "Underlying cio_iostream was not closed!");
-	TEST_ASSERT_EQUAL_MESSAGE(1, dummy_handler_fake.call_count, "Handler was not called!");
-	TEST_ASSERT_EQUAL_MESSAGE(cio_invalid_argument, dummy_handler_fake.arg2_val, "Handler was not called with cio_invalid_argument!");
+	TEST_ASSERT_EQUAL_MESSAGE(1, dummy_read_handler_fake.call_count, "Handler was not called!");
+	TEST_ASSERT_EQUAL_MESSAGE(cio_invalid_argument, dummy_read_handler_fake.arg2_val, "Handler was not called with cio_invalid_argument!");
 	memory_stream_deinit(&ms);
 }
 
@@ -261,22 +284,22 @@ static void test_read_exactly_chunks(void)
 	static const char *test_data = "HelloWorld!";
 	memory_stream_init(&ms, test_data);
 	read_some_fake.custom_fake = read_some_chunks;
-	dummy_handler_fake.custom_fake = save_to_check_buffer;
+	dummy_read_handler_fake.custom_fake = save_to_check_buffer;
 
 	size_t first_chunk = 2;
 	struct cio_buffered_stream bs;
 	enum cio_error err = cio_buffered_stream_init(&bs, &ms.ios, read_buffer_size, cio_get_system_allocator());
 	TEST_ASSERT_EQUAL_MESSAGE(cio_success, err, "Buffer was not initialized correctly!");
-	bs.read_exactly(&bs, first_chunk, dummy_handler, NULL);
-	TEST_ASSERT_EQUAL_MESSAGE(1, dummy_handler_fake.call_count, "Handler was not called!");
-	TEST_ASSERT_EQUAL_MESSAGE(cio_success, dummy_handler_fake.arg2_history[0], "Handler was not called with cio_success!");
-	TEST_ASSERT_EQUAL_MESSAGE(first_chunk, dummy_handler_fake.arg4_history[0], "Length in dummy handler is not correct!");
+	bs.read_exactly(&bs, first_chunk, dummy_read_handler, NULL);
+	TEST_ASSERT_EQUAL_MESSAGE(1, dummy_read_handler_fake.call_count, "Handler was not called!");
+	TEST_ASSERT_EQUAL_MESSAGE(cio_success, dummy_read_handler_fake.arg2_history[0], "Handler was not called with cio_success!");
+	TEST_ASSERT_EQUAL_MESSAGE(first_chunk, dummy_read_handler_fake.arg4_history[0], "Length in dummy handler is not correct!");
 
 	size_t second_chunk = strlen(test_data) - first_chunk;
-	bs.read_exactly(&bs, second_chunk, dummy_handler, NULL);
-	TEST_ASSERT_EQUAL_MESSAGE(2, dummy_handler_fake.call_count, "Handler was not called!");
-	TEST_ASSERT_EQUAL_MESSAGE(cio_success, dummy_handler_fake.arg2_history[1], "Handler was not called with cio_success!");
-	TEST_ASSERT_EQUAL_MESSAGE(second_chunk, dummy_handler_fake.arg4_history[1], "Length in dummy handler is not correct!");
+	bs.read_exactly(&bs, second_chunk, dummy_read_handler, NULL);
+	TEST_ASSERT_EQUAL_MESSAGE(2, dummy_read_handler_fake.call_count, "Handler was not called!");
+	TEST_ASSERT_EQUAL_MESSAGE(cio_success, dummy_read_handler_fake.arg2_history[1], "Handler was not called with cio_success!");
+	TEST_ASSERT_EQUAL_MESSAGE(second_chunk, dummy_read_handler_fake.arg4_history[1], "Length in dummy handler is not correct!");
 
 	TEST_ASSERT_MESSAGE(strncmp((const char *)check_buffer, test_data, strlen(test_data)) == 0, "Handler was not called with correct data!")
 
@@ -292,19 +315,19 @@ static void test_read_until(void)
 	static const char *test_data = PRE_DELIM DELIM "Example";
 	memory_stream_init(&ms, test_data);
 	read_some_fake.custom_fake = read_some_max;
-	dummy_handler_fake.custom_fake = save_to_check_buffer;
+	dummy_read_handler_fake.custom_fake = save_to_check_buffer;
 
 	struct cio_buffered_stream bs;
 	enum cio_error err = cio_buffered_stream_init(&bs, &ms.ios, 40, cio_get_system_allocator());
 	TEST_ASSERT_EQUAL_MESSAGE(cio_success, err, "Buffer was not initialized correctly!");
 
-	bs.read_until(&bs, DELIM, dummy_handler, check_buffer);
+	bs.read_until(&bs, DELIM, dummy_read_handler, check_buffer);
 
 	bs.close(&bs);
 	TEST_ASSERT_EQUAL_MESSAGE(1, close_fake.call_count, "Underlying cio_iostream was not closed!");
-	TEST_ASSERT_EQUAL_MESSAGE(1, dummy_handler_fake.call_count, "Handler was not called!");
-	TEST_ASSERT_EQUAL_MESSAGE(cio_success, dummy_handler_fake.arg2_val, "Handler was not called with cio_success!");
-	TEST_ASSERT_EQUAL_MESSAGE(strlen(PRE_DELIM) + strlen(DELIM), dummy_handler_fake.arg4_val, "Handler was not called with correct data length!");
+	TEST_ASSERT_EQUAL_MESSAGE(1, dummy_read_handler_fake.call_count, "Handler was not called!");
+	TEST_ASSERT_EQUAL_MESSAGE(cio_success, dummy_read_handler_fake.arg2_val, "Handler was not called with cio_success!");
+	TEST_ASSERT_EQUAL_MESSAGE(strlen(PRE_DELIM) + strlen(DELIM), dummy_read_handler_fake.arg4_val, "Handler was not called with correct data length!");
 	TEST_ASSERT_MESSAGE(strncmp((const char *)check_buffer, PRE_DELIM DELIM, strlen(PRE_DELIM) + strlen(DELIM)) == 0, "Handler was not called with correct data!")
 	memory_stream_deinit(&ms);
 }
@@ -316,19 +339,19 @@ static void test_read_until_zero_length_delim(void)
 	static const char *test_data = PRE_DELIM DELIM "Example";
 	memory_stream_init(&ms, test_data);
 	read_some_fake.custom_fake = read_some_max;
-	dummy_handler_fake.custom_fake = save_to_check_buffer;
+	dummy_read_handler_fake.custom_fake = save_to_check_buffer;
 
 	struct cio_buffered_stream bs;
 	enum cio_error err = cio_buffered_stream_init(&bs, &ms.ios, 40, cio_get_system_allocator());
 	TEST_ASSERT_EQUAL_MESSAGE(cio_success, err, "Buffer was not initialized correctly!");
 
-	bs.read_until(&bs, "", dummy_handler, check_buffer);
+	bs.read_until(&bs, "", dummy_read_handler, check_buffer);
 
 	bs.close(&bs);
 	TEST_ASSERT_EQUAL_MESSAGE(1, close_fake.call_count, "Underlying cio_iostream was not closed!");
-	TEST_ASSERT_EQUAL_MESSAGE(1, dummy_handler_fake.call_count, "Handler was not called!");
-	TEST_ASSERT_EQUAL_MESSAGE(cio_success, dummy_handler_fake.arg2_val, "Handler was not called with cio_success!");
-	TEST_ASSERT_EQUAL_MESSAGE(0, dummy_handler_fake.arg4_val, "Handler was not called with correct data length!");
+	TEST_ASSERT_EQUAL_MESSAGE(1, dummy_read_handler_fake.call_count, "Handler was not called!");
+	TEST_ASSERT_EQUAL_MESSAGE(cio_success, dummy_read_handler_fake.arg2_val, "Handler was not called with cio_success!");
+	TEST_ASSERT_EQUAL_MESSAGE(0, dummy_read_handler_fake.arg4_val, "Handler was not called with correct data length!");
 	memory_stream_deinit(&ms);
 }
 
@@ -339,18 +362,18 @@ static void test_read_until_NULL_delim(void)
 	static const char *test_data = PRE_DELIM DELIM "Example";
 	memory_stream_init(&ms, test_data);
 	read_some_fake.custom_fake = read_some_max;
-	dummy_handler_fake.custom_fake = save_to_check_buffer;
+	dummy_read_handler_fake.custom_fake = save_to_check_buffer;
 
 	struct cio_buffered_stream bs;
 	enum cio_error err = cio_buffered_stream_init(&bs, &ms.ios, 40, cio_get_system_allocator());
 	TEST_ASSERT_EQUAL_MESSAGE(cio_success, err, "Buffer was not initialized correctly!");
 
-	bs.read_until(&bs, NULL, dummy_handler, check_buffer);
+	bs.read_until(&bs, NULL, dummy_read_handler, check_buffer);
 
 	bs.close(&bs);
 	TEST_ASSERT_EQUAL_MESSAGE(1, close_fake.call_count, "Underlying cio_iostream was not closed!");
-	TEST_ASSERT_EQUAL_MESSAGE(1, dummy_handler_fake.call_count, "Handler was not called!");
-	TEST_ASSERT_EQUAL_MESSAGE(cio_invalid_argument, dummy_handler_fake.arg2_val, "Handler was not called with cio_invalid_argument!");
+	TEST_ASSERT_EQUAL_MESSAGE(1, dummy_read_handler_fake.call_count, "Handler was not called!");
+	TEST_ASSERT_EQUAL_MESSAGE(cio_invalid_argument, dummy_read_handler_fake.arg2_val, "Handler was not called with cio_invalid_argument!");
 	memory_stream_deinit(&ms);
 }
 
@@ -363,24 +386,24 @@ static void test_read_exactly_then_until(void)
 	static const char *test_data = BUFFER_FOR_EXACTLY PRE_DELIM DELIM REST;
 	memory_stream_init(&ms, test_data);
 	read_some_fake.custom_fake = read_some_chunks;
-	dummy_handler_fake.custom_fake = save_to_check_buffer;
+	dummy_read_handler_fake.custom_fake = save_to_check_buffer;
 
 	struct cio_buffered_stream bs;
 	enum cio_error err = cio_buffered_stream_init(&bs, &ms.ios, strlen(BUFFER_FOR_EXACTLY PRE_DELIM DELIM) - 2, cio_get_system_allocator());
 	TEST_ASSERT_EQUAL_MESSAGE(cio_success, err, "Buffer was not initialized correctly!");
 
-	bs.read_exactly(&bs, strlen(BUFFER_FOR_EXACTLY), dummy_handler, check_buffer);
-	bs.read_until(&bs, DELIM, dummy_handler, check_buffer);
+	bs.read_exactly(&bs, strlen(BUFFER_FOR_EXACTLY), dummy_read_handler, check_buffer);
+	bs.read_until(&bs, DELIM, dummy_read_handler, check_buffer);
 
 	bs.close(&bs);
 	TEST_ASSERT_EQUAL_MESSAGE(1, close_fake.call_count, "Underlying cio_iostream was not closed!");
-	TEST_ASSERT_EQUAL_MESSAGE(2, dummy_handler_fake.call_count, "Handler was not called!");
-	TEST_ASSERT_EQUAL_MESSAGE(cio_success, dummy_handler_fake.arg2_history[0], "Handler was not called with cio_success!");
-	TEST_ASSERT_EQUAL_MESSAGE(strlen(BUFFER_FOR_EXACTLY), dummy_handler_fake.arg4_history[0], "Length in dummy handler is not correct!");
+	TEST_ASSERT_EQUAL_MESSAGE(2, dummy_read_handler_fake.call_count, "Handler was not called!");
+	TEST_ASSERT_EQUAL_MESSAGE(cio_success, dummy_read_handler_fake.arg2_history[0], "Handler was not called with cio_success!");
+	TEST_ASSERT_EQUAL_MESSAGE(strlen(BUFFER_FOR_EXACTLY), dummy_read_handler_fake.arg4_history[0], "Length in dummy handler is not correct!");
 	TEST_ASSERT_MESSAGE(strncmp((const char *)check_buffer, BUFFER_FOR_EXACTLY, strlen(BUFFER_FOR_EXACTLY)) == 0, "Handler was not called with correct data!")
 
-	TEST_ASSERT_EQUAL_MESSAGE(cio_success, dummy_handler_fake.arg2_history[1], "Handler was not called with cio_success!");
-	TEST_ASSERT_EQUAL_MESSAGE(strlen(PRE_DELIM DELIM), dummy_handler_fake.arg4_history[1], "Length in dummy handler is not correct!");
+	TEST_ASSERT_EQUAL_MESSAGE(cio_success, dummy_read_handler_fake.arg2_history[1], "Handler was not called with cio_success!");
+	TEST_ASSERT_EQUAL_MESSAGE(strlen(PRE_DELIM DELIM), dummy_read_handler_fake.arg4_history[1], "Length in dummy handler is not correct!");
 	TEST_ASSERT_MESSAGE(strncmp((const char *)&check_buffer[strlen(BUFFER_FOR_EXACTLY)], PRE_DELIM DELIM, strlen(PRE_DELIM) + strlen(DELIM)) == 0, "Handler was not called with correct data!")
 
 	memory_stream_deinit(&ms);
@@ -391,19 +414,19 @@ static void test_read_request_less_than_available(void)
 	static const char *test_data = "Hello";
 	memory_stream_init(&ms, test_data);
 	read_some_fake.custom_fake = read_some_max;
-	dummy_handler_fake.custom_fake = save_to_check_buffer;
+	dummy_read_handler_fake.custom_fake = save_to_check_buffer;
 
 	struct cio_buffered_stream bs;
 	enum cio_error err = cio_buffered_stream_init(&bs, &ms.ios, 40, cio_get_system_allocator());
 	TEST_ASSERT_EQUAL_MESSAGE(cio_success, err, "Buffer was not initialized correctly!");
 
-	bs.read(&bs, strlen(test_data) - 1, dummy_handler, check_buffer);
+	bs.read(&bs, strlen(test_data) - 1, dummy_read_handler, check_buffer);
 
 	bs.close(&bs);
 	TEST_ASSERT_EQUAL_MESSAGE(1, close_fake.call_count, "Underlying cio_iostream was not closed!");
-	TEST_ASSERT_EQUAL_MESSAGE(1, dummy_handler_fake.call_count, "Handler was not called!");
-	TEST_ASSERT_EQUAL_MESSAGE(cio_success, dummy_handler_fake.arg2_val, "Handler was not called with cio_success!");
-	TEST_ASSERT_EQUAL_MESSAGE(strlen(test_data) - 1, dummy_handler_fake.arg4_val, "Handler was not called with correct data length!");
+	TEST_ASSERT_EQUAL_MESSAGE(1, dummy_read_handler_fake.call_count, "Handler was not called!");
+	TEST_ASSERT_EQUAL_MESSAGE(cio_success, dummy_read_handler_fake.arg2_val, "Handler was not called with cio_success!");
+	TEST_ASSERT_EQUAL_MESSAGE(strlen(test_data) - 1, dummy_read_handler_fake.arg4_val, "Handler was not called with correct data length!");
 	TEST_ASSERT_MESSAGE(strncmp((const char *)check_buffer, test_data, strlen(test_data) - 1) == 0, "Handler was not called with correct data!")
 	memory_stream_deinit(&ms);
 }
@@ -413,20 +436,47 @@ static void test_read_request_more_than_available(void)
 	static const char *test_data = "Hello";
 	memory_stream_init(&ms, test_data);
 	read_some_fake.custom_fake = read_some_max;
-	dummy_handler_fake.custom_fake = save_to_check_buffer;
+	dummy_read_handler_fake.custom_fake = save_to_check_buffer;
 
 	struct cio_buffered_stream bs;
 	enum cio_error err = cio_buffered_stream_init(&bs, &ms.ios, 40, cio_get_system_allocator());
 	TEST_ASSERT_EQUAL_MESSAGE(cio_success, err, "Buffer was not initialized correctly!");
 
-	bs.read(&bs, strlen(test_data) +10, dummy_handler, check_buffer);
+	bs.read(&bs, strlen(test_data) +10, dummy_read_handler, check_buffer);
 
 	bs.close(&bs);
 	TEST_ASSERT_EQUAL_MESSAGE(1, close_fake.call_count, "Underlying cio_iostream was not closed!");
-	TEST_ASSERT_EQUAL_MESSAGE(1, dummy_handler_fake.call_count, "Handler was not called!");
-	TEST_ASSERT_EQUAL_MESSAGE(cio_success, dummy_handler_fake.arg2_val, "Handler was not called with cio_success!");
-	TEST_ASSERT_EQUAL_MESSAGE(strlen(test_data) + 1, dummy_handler_fake.arg4_val, "Handler was not called with correct data length!");
+	TEST_ASSERT_EQUAL_MESSAGE(1, dummy_read_handler_fake.call_count, "Handler was not called!");
+	TEST_ASSERT_EQUAL_MESSAGE(cio_success, dummy_read_handler_fake.arg2_val, "Handler was not called with cio_success!");
+	TEST_ASSERT_EQUAL_MESSAGE(strlen(test_data) + 1, dummy_read_handler_fake.arg4_val, "Handler was not called with correct data length!");
 	TEST_ASSERT_MESSAGE(strncmp((const char *)check_buffer, test_data, strlen(test_data)) == 0, "Handler was not called with correct data!")
+	memory_stream_deinit(&ms);
+}
+
+static void test_write_one_buffer_one_chunk(void)
+{
+	static const char *test_data = "Hello";
+
+	struct cio_write_buffer_head wbh;
+	cio_write_buffer_head_init(&wbh);
+	struct cio_write_buffer wb;
+	cio_write_buffer_init(&wb, test_data, strlen(test_data));
+	cio_write_buffer_queue_tail(&wbh, &wb);
+
+	memory_stream_init(&ms, "");
+	write_some_fake.custom_fake = write_some_all;
+
+	struct cio_buffered_stream bs;
+	enum cio_error err = cio_buffered_stream_init(&bs, &ms.ios, 40, cio_get_system_allocator());
+	TEST_ASSERT_EQUAL_MESSAGE(cio_success, err, "Buffer was not initialized correctly!");
+	bs.write(&bs, &wbh, dummy_write_handler, NULL);
+
+	bs.close(&bs);
+	TEST_ASSERT_EQUAL_MESSAGE(1, close_fake.call_count, "Underlying cio_iostream was not closed!");
+	TEST_ASSERT_EQUAL_MESSAGE(1, dummy_write_handler_fake.call_count, "Handler was not called!");
+	TEST_ASSERT_EQUAL_MESSAGE(cio_success, dummy_write_handler_fake.arg3_val, "Handler was not called with cio_success!");
+	TEST_ASSERT_MESSAGE(strncmp((const char *)check_buffer, test_data, strlen(test_data)) == 0, "Data was not written correctly!");
+
 	memory_stream_deinit(&ms);
 }
 
@@ -448,5 +498,6 @@ int main(void)
 	RUN_TEST(test_read_exactly_then_until);
 	RUN_TEST(test_read_request_less_than_available);
 	RUN_TEST(test_read_request_more_than_available);
+	RUN_TEST(test_write_one_buffer_one_chunk);
 	return UNITY_END();
 }
