@@ -86,15 +86,17 @@ static inline void cio_write_buffer_queue_tail(struct cio_write_buffer_head *wbh
 
 static inline bool cio_write_buffer_queue_empty(const struct cio_write_buffer_head *wbh)
 {
-	return (const struct cio_write_buffer_head *)wbh->next == (const struct cio_write_buffer_head *)wbh;
+	return (const struct cio_write_buffer_head *)wbh->next == wbh;
 }
 
 static inline struct cio_write_buffer *cio_write_buffer_queue_peek(const struct cio_write_buffer_head *wbh)
 {
 	struct cio_write_buffer *wb = wbh->next;
 
-	if (wb == (const struct cio_write_buffer *)wbh)
+	if (wb == (const struct cio_write_buffer *)wbh) {
 		wb = NULL;
+	}
+
 	return wb;
 }
 
