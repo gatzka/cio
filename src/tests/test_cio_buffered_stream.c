@@ -147,6 +147,21 @@ static void write_some_first_write_partial(struct cio_io_stream *io_stream, cons
 	}
 }
 
+static void write_some_first_write_partial_at_buffer_boundary(struct cio_io_stream *io_stream, const struct cio_write_buffer_head *buf, cio_io_stream_write_handler handler, void *handler_context)
+{
+	if (write_some_fake.call_count == 1) {
+		struct cio_write_buffer *wb = (struct cio_write_buffer *) buf->next;
+		if (buf->q_len >= 1) {
+			memcpy(&check_buffer[check_buffer_pos], wb->data, wb->length);
+			check_buffer_pos += wb->length;
+		}
+
+		handler(io_stream, handler_context, buf, cio_success, check_buffer_pos);
+	} else {
+		write_some_all(io_stream, buf, handler, handler_context);
+	}
+}
+
 static void memory_stream_init(struct memory_stream *ms, const char *fill_pattern)
 {
 	ms->ios.read_some = read_some;
@@ -581,7 +596,47 @@ static void test_write_two_buffers_partial_write(void)
 	memory_stream_deinit(&ms);
 }
 
-// TODO: test partial write at buffer boundary.
+static void test_write_two_buffers_partial_write_at_buffer_boundary(void)
+{
+	static const char *test_data = "HelloWorld";
+	int dummy_context;
+
+	struct cio_write_buffer_head wbh;
+	cio_write_buffer_head_init(&wbh);
+	struct cio_write_buffer wb1;
+	cio_write_buffer_init(&wb1, test_data, strlen(test_data) / 2);
+	cio_write_buffer_queue_tail(&wbh, &wb1);
+	struct cio_write_buffer wb2;
+	cio_write_buffer_init(&wb2, test_data + (strlen(test_data) / 2), strlen(test_data) - strlen(test_data) / 2);
+	cio_write_buffer_queue_tail(&wbh, &wb2);
+
+	memory_stream_init(&ms, "");
+	write_some_fake.custom_fake = write_some_first_write_partial_at_buffer_boundary;
+
+	struct cio_buffered_stream bs;
+	enum cio_error err = cio_buffered_stream_init(&bs, &ms.ios, 40, cio_get_system_allocator());
+	TEST_ASSERT_EQUAL_MESSAGE(cio_success, err, "Buffer was not initialized correctly!");
+	bs.write(&bs, &wbh, dummy_write_handler, &dummy_context);
+
+	bs.close(&bs);
+	TEST_ASSERT_EQUAL_MESSAGE(1, close_fake.call_count, "Underlying cio_iostream was not closed!");
+	TEST_ASSERT_EQUAL_MESSAGE(1, dummy_write_handler_fake.call_count, "Handler was not called!");
+	TEST_ASSERT_EQUAL_MESSAGE(&bs, dummy_write_handler_fake.arg0_val, "Handler was not called with original buffered_stream!");
+	TEST_ASSERT_EQUAL_MESSAGE(&dummy_context, dummy_write_handler_fake.arg1_val, "Handler was not called with correct context!");
+	TEST_ASSERT_EQUAL_MESSAGE(&wbh, dummy_write_handler_fake.arg2_val, "Handler was not called with original write_buffer!");
+	struct cio_write_buffer *test_buffer = wbh.next;
+	TEST_ASSERT_EQUAL_MESSAGE(test_buffer, &wb1, "First write buffer not the original one!");
+	test_buffer = test_buffer->next;
+	TEST_ASSERT_EQUAL_MESSAGE(test_buffer, &wb2, "Second write buffer not the original one!");
+	test_buffer = test_buffer->next;
+	TEST_ASSERT_EQUAL_MESSAGE(test_buffer, &wbh, "Second write buffer does not point to original head!");
+
+	TEST_ASSERT_EQUAL_MESSAGE(cio_success, dummy_write_handler_fake.arg3_val, "Handler was not called with cio_success!");
+	TEST_ASSERT_MESSAGE(strncmp((const char *)check_buffer, test_data, strlen(test_data)) == 0, "Data was not written correctly!");
+
+	memory_stream_deinit(&ms);
+}
+
 
 int main(void)
 {
@@ -604,5 +659,6 @@ int main(void)
 	RUN_TEST(test_write_one_buffer_one_chunk);
 	RUN_TEST(test_write_two_buffers_one_chunk);
 	RUN_TEST(test_write_two_buffers_partial_write);
+	RUN_TEST(test_write_two_buffers_partial_write_at_buffer_boundary);
 	return UNITY_END();
 }
