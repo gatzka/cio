@@ -78,7 +78,7 @@ typedef void (*cio_buffered_stream_read_handler)(struct cio_buffered_stream *bs,
  * @param buffer The buffer which should have been written.
  * @param err If err != ::cio_success, the write operation failed.
  */
-typedef void (*cio_buffered_stream_write_handler)(struct cio_buffered_stream *bs, void *handler_context, const struct cio_write_buffer_head *buffer, enum cio_error err);
+typedef void (*cio_buffered_stream_write_handler)(struct cio_buffered_stream *bs, void *handler_context, const struct cio_write_buffer *buffer, enum cio_error err);
 
 /**
  * Interface description for implementing buffered I/O.
@@ -147,7 +147,7 @@ struct cio_buffered_stream {
 	 *
 	 * @return ::cio_success for success.
 	 */
-	enum cio_error (*write)(struct cio_buffered_stream *bs, struct cio_write_buffer_head *buffer, cio_buffered_stream_write_handler handler, void *handler_context);
+	enum cio_error (*write)(struct cio_buffered_stream *bs, struct cio_write_buffer *buffer, cio_buffered_stream_write_handler handler, void *handler_context);
 
 	/**
 	 * @anchor cio_buffered_stream_close
@@ -185,8 +185,8 @@ struct cio_buffered_stream {
 	cio_buffered_stream_write_handler write_handler;
 	void *write_handler_context;
 
-	struct cio_write_buffer_head *original_wbh;
-	struct cio_write_buffer_head wbh;
+	struct cio_write_buffer *original_wbh;
+	struct cio_write_buffer wbh;
 	struct cio_write_buffer wb;
 
 	enum cio_error last_error;

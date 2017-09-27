@@ -175,7 +175,7 @@ static enum cio_error bs_read_exactly(struct cio_buffered_stream *bs, size_t num
 
 static inline bool buffer_partially_written(const struct cio_write_buffer *wb, size_t bytes_transferred)
 {
-	return wb->length > bytes_transferred;
+	return wb->data.element.length > bytes_transferred;
 }
 
 static inline bool buffer_is_temp_buffer(const struct cio_buffered_stream *bs, const struct cio_write_buffer *wb)
@@ -183,7 +183,7 @@ static inline bool buffer_is_temp_buffer(const struct cio_buffered_stream *bs, c
 	return &bs->wb == wb;
 }
 
-static void handle_write(struct cio_io_stream *io_stream, void *handler_context, const struct cio_write_buffer_head *buffer, enum cio_error err, size_t bytes_transferred)
+static void handle_write(struct cio_io_stream *io_stream, void *handler_context, const struct cio_write_buffer *buffer, enum cio_error err, size_t bytes_transferred)
 {
 	(void)buffer;
 
@@ -207,13 +207,13 @@ static void handle_write(struct cio_io_stream *io_stream, void *handler_context,
 				cio_write_buffer_queue_tail(bs->original_wbh, wb);
 			}
 
-			const void *new_data = &((const uint8_t *)wb->data)[bytes_transferred];
-			size_t new_length = wb->length - bytes_transferred;
+			const void *new_data = &((const uint8_t *)wb->data.element.data)[bytes_transferred];
+			size_t new_length = wb->data.element.length - bytes_transferred;
 			cio_write_buffer_init(&bs->wb, new_data, new_length);
 			cio_write_buffer_queue_head(&bs->wbh, &bs->wb);
 			bytes_transferred = 0;
 		} else {
-			bytes_transferred -= wb->length;
+			bytes_transferred -= wb->data.element.length;
 			if (!buffer_is_temp_buffer(bs, wb)) {
 				cio_write_buffer_queue_tail(bs->original_wbh, wb);
 			}
@@ -227,7 +227,7 @@ static void handle_write(struct cio_io_stream *io_stream, void *handler_context,
 	}
 }
 
-static enum cio_error bs_write(struct cio_buffered_stream *bs, struct cio_write_buffer_head *buffer, cio_buffered_stream_write_handler handler, void *handler_context)
+static enum cio_error bs_write(struct cio_buffered_stream *bs, struct cio_write_buffer *buffer, cio_buffered_stream_write_handler handler, void *handler_context)
 {
 	if (unlikely((bs == NULL) || (buffer == NULL) || (handler == NULL))) {
 		return cio_invalid_argument;

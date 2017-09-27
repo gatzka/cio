@@ -65,7 +65,7 @@ typedef void (*cio_io_stream_read_handler)(struct cio_io_stream *io_stream, void
  * @param err If err != ::cio_success, the write operation failed.
  * @param bytes_transferred The number of bytes transferred.
  */
-typedef void (*cio_io_stream_write_handler)(struct cio_io_stream *io_stream, void *handler_context, const struct cio_write_buffer_head *buffer, enum cio_error err, size_t bytes_transferred);
+typedef void (*cio_io_stream_write_handler)(struct cio_io_stream *io_stream, void *handler_context, const struct cio_write_buffer *buffer, enum cio_error err, size_t bytes_transferred);
 
 /**
  * @brief This structure describes the interface all implementations
@@ -101,7 +101,7 @@ struct cio_io_stream {
 	 * @param handler_context A pointer to a context which might be
 	 *                        useful inside @p handler.
 	 */
-	void (*write_some)(struct cio_io_stream *io_stream, const struct cio_write_buffer_head *buf, cio_io_stream_write_handler handler, void *handler_context);
+	void (*write_some)(struct cio_io_stream *io_stream, const struct cio_write_buffer *buf, cio_io_stream_write_handler handler, void *handler_context);
 
 	/**
 	 * @brief Closes the stream.
@@ -121,7 +121,7 @@ struct cio_io_stream {
 	void *read_handler_context;
 	size_t read_count;
 	void *read_buffer;
-	const struct cio_write_buffer_head *write_buffer;
+	const struct cio_write_buffer *write_buffer;
 	cio_io_stream_write_handler write_handler;
 	void *write_handler_context;
 };

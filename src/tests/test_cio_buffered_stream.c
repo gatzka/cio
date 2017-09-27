@@ -54,8 +54,8 @@ static size_t check_buffer_pos = 0;
 void read_some(struct cio_io_stream *ios, void *buf, size_t num, cio_io_stream_read_handler handler, void *context);
 FAKE_VOID_FUNC(read_some, struct cio_io_stream*, void*, size_t, cio_io_stream_read_handler, void*)
 
-void write_some(struct cio_io_stream *io_stream, const struct cio_write_buffer_head *buf, cio_io_stream_write_handler handler, void *handler_context);
-FAKE_VOID_FUNC(write_some, struct cio_io_stream*, const struct cio_write_buffer_head *, cio_io_stream_write_handler, void*)
+void write_some(struct cio_io_stream *io_stream, const struct cio_write_buffer *buf, cio_io_stream_write_handler handler, void *handler_context);
+FAKE_VOID_FUNC(write_some, struct cio_io_stream*, const struct cio_write_buffer *, cio_io_stream_write_handler, void*)
 
 void close(struct cio_io_stream *context);
 FAKE_VOID_FUNC(close, struct cio_io_stream*)
@@ -64,8 +64,8 @@ void dummy_read_handler(struct cio_buffered_stream*, void*, enum cio_error, uint
 FAKE_VOID_FUNC(dummy_read_handler, struct cio_buffered_stream*, void*, enum cio_error, uint8_t*, size_t)
 
 
-void dummy_write_handler(struct cio_buffered_stream*, void*, const struct cio_write_buffer_head*, enum cio_error);
-FAKE_VOID_FUNC(dummy_write_handler, struct cio_buffered_stream*, void*, const struct cio_write_buffer_head*, enum cio_error)
+void dummy_write_handler(struct cio_buffered_stream*, void*, const struct cio_write_buffer*, enum cio_error);
+FAKE_VOID_FUNC(dummy_write_handler, struct cio_buffered_stream*, void*, const struct cio_write_buffer*, enum cio_error)
 
 static void memory_stream_init(struct memory_stream *ms, const char *fill_pattern)
 {
@@ -98,31 +98,31 @@ void setUp(void)
 	check_buffer_pos = 0;
 }
 
-static void write_some_all(struct cio_io_stream *io_stream, const struct cio_write_buffer_head *buf, cio_io_stream_write_handler handler, void *handler_context)
+static void write_some_all(struct cio_io_stream *io_stream, const struct cio_write_buffer *buf, cio_io_stream_write_handler handler, void *handler_context)
 {
-	struct cio_write_buffer *wb = (struct cio_write_buffer *) buf->next;
+	struct cio_write_buffer *wb = buf->next;
 	size_t total_length = 0;
 
-	for (size_t i = 0; i < buf->q_len; i++) {
-		memcpy(&check_buffer[check_buffer_pos], wb->data, wb->length);
-		check_buffer_pos += wb->length;
-		total_length += wb->length;
+	for (size_t i = 0; i < buf->data.q_len; i++) {
+		memcpy(&check_buffer[check_buffer_pos], wb->data.element.data, wb->data.element.length);
+		check_buffer_pos += wb->data.element.length;
+		total_length += wb->data.element.length;
 		wb = wb->next;
 	}
 
 	handler(io_stream, handler_context, buf, cio_success, total_length);
 }
 
-static void write_some_first_write_partial_second_error(struct cio_io_stream *io_stream, const struct cio_write_buffer_head *buf, cio_io_stream_write_handler handler, void *handler_context)
+static void write_some_first_write_partial_second_error(struct cio_io_stream *io_stream, const struct cio_write_buffer *buf, cio_io_stream_write_handler handler, void *handler_context)
 {
 	if (write_some_fake.call_count == 1) {
-		struct cio_write_buffer *wb = (struct cio_write_buffer *) buf->next;
-		if (buf->q_len >= 1) {
-			memcpy(&check_buffer[check_buffer_pos], wb->data, wb->length / 2);
-			check_buffer_pos += wb->length / 2;
+		struct cio_write_buffer *wb = buf->next;
+		if (buf->data.q_len >= 1) {
+			memcpy(&check_buffer[check_buffer_pos], wb->data.element.data, wb->data.element.length / 2);
+			check_buffer_pos += wb->data.element.length / 2;
 		}
 
-		handler(io_stream, handler_context, buf, cio_success, wb->length / 2);
+		handler(io_stream, handler_context, buf, cio_success, wb->data.element.length / 2);
 	} else if (write_some_fake.call_count == 2) {
 		handler(io_stream, handler_context, buf, cio_message_too_long, 0);
 	} else {
@@ -130,36 +130,36 @@ static void write_some_first_write_partial_second_error(struct cio_io_stream *io
 	}
 }
 
-static void write_some_error(struct cio_io_stream *io_stream, const struct cio_write_buffer_head *buf, cio_io_stream_write_handler handler, void *handler_context)
+static void write_some_error(struct cio_io_stream *io_stream, const struct cio_write_buffer *buf, cio_io_stream_write_handler handler, void *handler_context)
 {
 	handler(io_stream, handler_context, buf, cio_message_too_long, 0);
 }
 
-static void write_some_double_write_partial(struct cio_io_stream *io_stream, const struct cio_write_buffer_head *buf, cio_io_stream_write_handler handler, void *handler_context)
+static void write_some_double_write_partial(struct cio_io_stream *io_stream, const struct cio_write_buffer *buf, cio_io_stream_write_handler handler, void *handler_context)
 {
 	if (write_some_fake.call_count <= 2) {
-		struct cio_write_buffer *wb = (struct cio_write_buffer *) buf->next;
-		if (buf->q_len >= 1) {
-			memcpy(&check_buffer[check_buffer_pos], wb->data, wb->length / 2);
-			check_buffer_pos += wb->length / 2;
+		struct cio_write_buffer *wb = buf->next;
+		if (buf->data.q_len >= 1) {
+			memcpy(&check_buffer[check_buffer_pos], wb->data.element.data, wb->data.element.length / 2);
+			check_buffer_pos += wb->data.element.length / 2;
 		}
 
-		handler(io_stream, handler_context, buf, cio_success, wb->length / 2);
+		handler(io_stream, handler_context, buf, cio_success, wb->data.element.length / 2);
 	} else {
 		write_some_all(io_stream, buf, handler, handler_context);
 	}
 }
 
-static void write_some_first_write_partial_at_buffer_boundary(struct cio_io_stream *io_stream, const struct cio_write_buffer_head *buf, cio_io_stream_write_handler handler, void *handler_context)
+static void write_some_first_write_partial_at_buffer_boundary(struct cio_io_stream *io_stream, const struct cio_write_buffer *buf, cio_io_stream_write_handler handler, void *handler_context)
 {
 	if (write_some_fake.call_count == 1) {
-		struct cio_write_buffer *wb = (struct cio_write_buffer *) buf->next;
-		if (buf->q_len >= 1) {
-			memcpy(&check_buffer[check_buffer_pos], wb->data, wb->length);
-			check_buffer_pos += wb->length;
+		struct cio_write_buffer *wb = buf->next;
+		if (buf->data.q_len >= 1) {
+			memcpy(&check_buffer[check_buffer_pos], wb->data.element.data, wb->data.element.length);
+			check_buffer_pos += wb->data.element.length;
 		}
 
-		handler(io_stream, handler_context, buf, cio_success, wb->length);
+		handler(io_stream, handler_context, buf, cio_success, wb->data.element.length);
 	} else {
 		write_some_all(io_stream, buf, handler, handler_context);
 	}
@@ -201,16 +201,16 @@ static void read_some_chunks(struct cio_io_stream *ios, void *buf, size_t num, c
 }
 
 
-static void write_some_first_write_partial(struct cio_io_stream *io_stream, const struct cio_write_buffer_head *buf, cio_io_stream_write_handler handler, void *handler_context)
+static void write_some_first_write_partial(struct cio_io_stream *io_stream, const struct cio_write_buffer *buf, cio_io_stream_write_handler handler, void *handler_context)
 {
 	if (write_some_fake.call_count == 1) {
-		struct cio_write_buffer *wb = (struct cio_write_buffer *) buf->next;
-		if (buf->q_len >= 1) {
-			memcpy(&check_buffer[check_buffer_pos], wb->data, wb->length / 2);
-			check_buffer_pos += wb->length / 2;
+		struct cio_write_buffer *wb = buf->next;
+		if (buf->data.q_len >= 1) {
+			memcpy(&check_buffer[check_buffer_pos], wb->data.element.data, wb->data.element.length / 2);
+			check_buffer_pos += wb->data.element.length / 2;
 		}
 
-		handler(io_stream, handler_context, buf, cio_success, wb->length / 2);
+		handler(io_stream, handler_context, buf, cio_success, wb->data.element.length / 2);
 	} else {
 		write_some_all(io_stream, buf, handler, handler_context);
 	}
@@ -559,7 +559,7 @@ static void test_write_two_buffers_partial_write(void)
 	static const char *test_data = "HelloWorld";
 	int dummy_context;
 
-	struct cio_write_buffer_head wbh;
+	struct cio_write_buffer wbh;
 	cio_write_buffer_head_init(&wbh);
 	struct cio_write_buffer wb1;
 	cio_write_buffer_init(&wb1, test_data, strlen(test_data) / 2);
@@ -748,7 +748,7 @@ static void test_write_one_buffer_one_chunk(void)
 {
 	static const char *test_data = "Hello";
 
-	struct cio_write_buffer_head wbh;
+	struct cio_write_buffer wbh;
 	cio_write_buffer_head_init(&wbh);
 	struct cio_write_buffer wb;
 	cio_write_buffer_init(&wb, test_data, strlen(test_data));
@@ -783,7 +783,7 @@ static void test_write_two_buffers_double_partial_write(void)
 	static const char *test_data = "HelloWorld";
 	int dummy_context;
 
-	struct cio_write_buffer_head wbh;
+	struct cio_write_buffer wbh;
 	cio_write_buffer_head_init(&wbh);
 	struct cio_write_buffer wb1;
 	cio_write_buffer_init(&wb1, test_data, strlen(test_data) / 2);
@@ -826,7 +826,7 @@ static void test_write_two_buffers_partial_write_at_buffer_boundary(void)
 	static const char *test_data = "HelloWorld";
 	int dummy_context;
 
-	struct cio_write_buffer_head wbh;
+	struct cio_write_buffer wbh;
 	cio_write_buffer_head_init(&wbh);
 	struct cio_write_buffer wb1;
 	cio_write_buffer_init(&wb1, test_data, strlen(test_data) / 2);
@@ -868,7 +868,7 @@ static void test_write_one_buffer_one_chunk_error(void)
 {
 	static const char *test_data = "Hello";
 
-	struct cio_write_buffer_head wbh;
+	struct cio_write_buffer wbh;
 	cio_write_buffer_head_init(&wbh);
 	struct cio_write_buffer wb;
 	cio_write_buffer_init(&wb, test_data, strlen(test_data));
@@ -901,7 +901,7 @@ static void test_write_no_buffered_stream_for_write(void)
 {
 	static const char *test_data = "Hello";
 
-	struct cio_write_buffer_head wbh;
+	struct cio_write_buffer wbh;
 	cio_write_buffer_head_init(&wbh);
 	struct cio_write_buffer wb;
 	cio_write_buffer_init(&wb, test_data, strlen(test_data));
@@ -928,7 +928,7 @@ static void test_write_no_buffer_for_write(void)
 {
 	static const char *test_data = "Hello";
 
-	struct cio_write_buffer_head wbh;
+	struct cio_write_buffer wbh;
 	cio_write_buffer_head_init(&wbh);
 	struct cio_write_buffer wb;
 	cio_write_buffer_init(&wb, test_data, strlen(test_data));
@@ -955,7 +955,7 @@ static void test_write_no_handler_for_write(void)
 {
 	static const char *test_data = "Hello";
 
-	struct cio_write_buffer_head wbh;
+	struct cio_write_buffer wbh;
 	cio_write_buffer_head_init(&wbh);
 	struct cio_write_buffer wb;
 	cio_write_buffer_init(&wb, test_data, strlen(test_data));
@@ -1001,7 +1001,7 @@ static void test_write_one_buffer_partial_write_error(void)
 {
 	static const char *test_data = "Hello";
 
-	struct cio_write_buffer_head wbh;
+	struct cio_write_buffer wbh;
 	cio_write_buffer_head_init(&wbh);
 	struct cio_write_buffer wb;
 	cio_write_buffer_init(&wb, test_data, strlen(test_data));
@@ -1034,7 +1034,7 @@ static void test_write_two_buffers_one_chunk(void)
 {
 	static const char *test_data = "HelloWorld";
 
-	struct cio_write_buffer_head wbh;
+	struct cio_write_buffer wbh;
 	cio_write_buffer_head_init(&wbh);
 	struct cio_write_buffer wb1;
 	cio_write_buffer_init(&wb1, test_data, strlen(test_data) / 2);

@@ -140,10 +140,10 @@ static void write_callback(void *context)
 	stream->write_handler(stream, stream->write_handler_context, stream->write_buffer, cio_success, 0);
 }
 
-static void stream_write(struct cio_io_stream *stream, const struct cio_write_buffer_head *buffer, cio_io_stream_write_handler handler, void *handler_context)
+static void stream_write(struct cio_io_stream *stream, const struct cio_write_buffer *buffer, cio_io_stream_write_handler handler, void *handler_context)
 {
 	struct cio_socket *s = container_of(stream, struct cio_socket, stream);
-	struct iovec msg_iov[buffer->q_len];
+	struct iovec msg_iov[buffer->data.q_len];
 	struct msghdr msg;
 	msg.msg_name = NULL;
 	msg.msg_namelen = 0;
@@ -151,15 +151,15 @@ static void stream_write(struct cio_io_stream *stream, const struct cio_write_bu
 	msg.msg_controllen = 0;
 	msg.msg_flags = 0;
 	msg.msg_iov = msg_iov;
-	msg.msg_iovlen = buffer->q_len;
+	msg.msg_iovlen = buffer->data.q_len;
 
 	struct cio_write_buffer *wb = buffer->next;
-	for (unsigned int i = 0; i < buffer->q_len; i++) {
+	for (unsigned int i = 0; i < buffer->data.q_len; i++) {
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wcast-qual"
-		msg_iov[i].iov_base = (void *)wb->data;
+		msg_iov[i].iov_base = (void *)wb->data.element.data;
 #pragma GCC diagnostic pop
-		msg_iov[i].iov_len = wb->length;
+		msg_iov[i].iov_len = wb->data.element.length;
 		wb = wb->next;
 	}
 
