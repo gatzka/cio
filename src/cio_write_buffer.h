@@ -48,14 +48,6 @@ struct cio_write_buffer {
 	} data;
 };
 
-#if 0
-struct cio_write_buffer_head {
-	struct cio_write_buffer *next;
-	struct cio_write_buffer *prev;
-	size_t q_len;
-};
-#endif
-
 static inline void cio_write_buffer_insert(struct cio_write_buffer *new_wb,
                                            struct cio_write_buffer *prev_wb, struct cio_write_buffer *next_wb,
                                            struct cio_write_buffer *wbh)
