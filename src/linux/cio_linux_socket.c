@@ -117,9 +117,12 @@ static void read_callback(void *context)
 	}
 }
 
-static void stream_read(struct cio_io_stream *stream, void *buf, size_t count, cio_io_stream_read_handler handler, void *handler_context)
+static enum cio_error stream_read(struct cio_io_stream *stream, void *buf, size_t count, cio_io_stream_read_handler handler, void *handler_context)
 {
-	enum cio_error err;
+	if (unlikely((stream == NULL) || (buf == NULL) || (handler == NULL))) {
+		return cio_invalid_argument;
+	}
+
 	struct cio_socket *s = container_of(stream, struct cio_socket, stream);
 	s->ev.context = stream;
 	s->ev.read_callback = read_callback;
@@ -127,11 +130,7 @@ static void stream_read(struct cio_io_stream *stream, void *buf, size_t count, c
 	s->stream.read_count = count;
 	s->stream.read_handler = handler;
 	s->stream.read_handler_context = handler_context;
-	err = cio_linux_eventloop_register_read(s->loop, &s->ev);
-	if (unlikely(err != cio_success)) {
-		handler(stream, handler_context, err, buf, 0);
-		return;
-	}
+	return cio_linux_eventloop_register_read(s->loop, &s->ev);
 }
 
 static void write_callback(void *context)
@@ -140,8 +139,12 @@ static void write_callback(void *context)
 	stream->write_handler(stream, stream->write_handler_context, stream->write_buffer, cio_success, 0);
 }
 
-static void stream_write(struct cio_io_stream *stream, const struct cio_write_buffer *buffer, cio_io_stream_write_handler handler, void *handler_context)
+static enum cio_error stream_write(struct cio_io_stream *stream, const struct cio_write_buffer *buffer, cio_io_stream_write_handler handler, void *handler_context)
 {
+	if (unlikely((stream == NULL) || (buffer == NULL) || (handler == NULL))) {
+		return cio_invalid_argument;
+	}
+
 	struct cio_socket *s = container_of(stream, struct cio_socket, stream);
 	struct iovec msg_iov[buffer->data.q_len];
 	struct msghdr msg;
@@ -182,12 +185,20 @@ static void stream_write(struct cio_io_stream *stream, const struct cio_write_bu
 			handler(stream, handler_context, buffer, (enum cio_error)errno, 0);
 		}
 	}
+
+	return cio_success;
 }
 
-static void stream_close(struct cio_io_stream *stream)
+static enum cio_error stream_close(struct cio_io_stream *stream)
 {
+	if (unlikely(stream == NULL)) {
+		return cio_invalid_argument;
+	}
+
 	struct cio_socket *s = container_of(stream, struct cio_socket, stream);
 	socket_close(s);
+
+	return cio_success;
 }
 
 enum cio_error cio_linux_socket_init(struct cio_socket *s, int client_fd,

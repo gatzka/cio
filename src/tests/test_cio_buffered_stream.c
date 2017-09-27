@@ -51,14 +51,14 @@ struct memory_stream {
 static uint8_t check_buffer[100];
 static size_t check_buffer_pos = 0;
 
-void read_some(struct cio_io_stream *ios, void *buf, size_t num, cio_io_stream_read_handler handler, void *context);
-FAKE_VOID_FUNC(read_some, struct cio_io_stream*, void*, size_t, cio_io_stream_read_handler, void*)
+enum cio_error read_some(struct cio_io_stream *ios, void *buf, size_t num, cio_io_stream_read_handler handler, void *context);
+FAKE_VALUE_FUNC(enum cio_error, read_some, struct cio_io_stream*, void*, size_t, cio_io_stream_read_handler, void*)
 
-void write_some(struct cio_io_stream *io_stream, const struct cio_write_buffer *buf, cio_io_stream_write_handler handler, void *handler_context);
-FAKE_VOID_FUNC(write_some, struct cio_io_stream*, const struct cio_write_buffer *, cio_io_stream_write_handler, void*)
+enum cio_error write_some(struct cio_io_stream *io_stream, const struct cio_write_buffer *buf, cio_io_stream_write_handler handler, void *handler_context);
+FAKE_VALUE_FUNC(enum cio_error, write_some, struct cio_io_stream*, const struct cio_write_buffer *, cio_io_stream_write_handler, void*)
 
-void close(struct cio_io_stream *context);
-FAKE_VOID_FUNC(close, struct cio_io_stream*)
+enum cio_error close(struct cio_io_stream *context);
+FAKE_VALUE_FUNC(enum cio_error, close, struct cio_io_stream*)
 
 void dummy_read_handler(struct cio_buffered_stream*, void*, enum cio_error, uint8_t*, size_t);
 FAKE_VOID_FUNC(dummy_read_handler, struct cio_buffered_stream*, void*, enum cio_error, uint8_t*, size_t)
@@ -98,7 +98,7 @@ void setUp(void)
 	check_buffer_pos = 0;
 }
 
-static void write_some_all(struct cio_io_stream *io_stream, const struct cio_write_buffer *buf, cio_io_stream_write_handler handler, void *handler_context)
+static enum cio_error write_some_all(struct cio_io_stream *io_stream, const struct cio_write_buffer *buf, cio_io_stream_write_handler handler, void *handler_context)
 {
 	struct cio_write_buffer *wb = buf->next;
 	size_t total_length = 0;
@@ -111,9 +111,11 @@ static void write_some_all(struct cio_io_stream *io_stream, const struct cio_wri
 	}
 
 	handler(io_stream, handler_context, buf, cio_success, total_length);
+
+	return cio_success;
 }
 
-static void write_some_first_write_partial_second_error(struct cio_io_stream *io_stream, const struct cio_write_buffer *buf, cio_io_stream_write_handler handler, void *handler_context)
+static enum cio_error write_some_first_write_partial_second_error(struct cio_io_stream *io_stream, const struct cio_write_buffer *buf, cio_io_stream_write_handler handler, void *handler_context)
 {
 	if (write_some_fake.call_count == 1) {
 		struct cio_write_buffer *wb = buf->next;
@@ -128,14 +130,17 @@ static void write_some_first_write_partial_second_error(struct cio_io_stream *io
 	} else {
 		write_some_all(io_stream, buf, handler, handler_context);
 	}
+
+	return cio_success;
 }
 
-static void write_some_error(struct cio_io_stream *io_stream, const struct cio_write_buffer *buf, cio_io_stream_write_handler handler, void *handler_context)
+static enum cio_error write_some_error(struct cio_io_stream *io_stream, const struct cio_write_buffer *buf, cio_io_stream_write_handler handler, void *handler_context)
 {
 	handler(io_stream, handler_context, buf, cio_message_too_long, 0);
+	return cio_success;
 }
 
-static void write_some_double_write_partial(struct cio_io_stream *io_stream, const struct cio_write_buffer *buf, cio_io_stream_write_handler handler, void *handler_context)
+static enum cio_error write_some_double_write_partial(struct cio_io_stream *io_stream, const struct cio_write_buffer *buf, cio_io_stream_write_handler handler, void *handler_context)
 {
 	if (write_some_fake.call_count <= 2) {
 		struct cio_write_buffer *wb = buf->next;
@@ -148,9 +153,11 @@ static void write_some_double_write_partial(struct cio_io_stream *io_stream, con
 	} else {
 		write_some_all(io_stream, buf, handler, handler_context);
 	}
+
+	return cio_success;
 }
 
-static void write_some_first_write_partial_at_buffer_boundary(struct cio_io_stream *io_stream, const struct cio_write_buffer *buf, cio_io_stream_write_handler handler, void *handler_context)
+static enum cio_error write_some_first_write_partial_at_buffer_boundary(struct cio_io_stream *io_stream, const struct cio_write_buffer *buf, cio_io_stream_write_handler handler, void *handler_context)
 {
 	if (write_some_fake.call_count == 1) {
 		struct cio_write_buffer *wb = buf->next;
@@ -163,26 +170,30 @@ static void write_some_first_write_partial_at_buffer_boundary(struct cio_io_stre
 	} else {
 		write_some_all(io_stream, buf, handler, handler_context);
 	}
+
+	return cio_success;
 }
 
 static void save_to_check_buffer(struct cio_buffered_stream *bs, void *context, enum cio_error err, uint8_t *buffer, size_t num) {
 	(void)bs;
 	(void)context;
+
 	if (err == cio_success) {
 		memcpy(&check_buffer[check_buffer_pos], buffer, num);
 		check_buffer_pos += num;
 	}
 }
 
-static void read_some_max(struct cio_io_stream *ios, void *buf, size_t num, cio_io_stream_read_handler handler, void *context)
+static enum cio_error read_some_max(struct cio_io_stream *ios, void *buf, size_t num, cio_io_stream_read_handler handler, void *context)
 {
 	struct memory_stream *memory_stream = container_of(ios, struct memory_stream, ios);
 	size_t len = MIN(num, strlen(memory_stream->mem) + 1);
 	memcpy(buf, memory_stream->mem, len);
 	handler(ios, context, cio_success, buf, len);
+	return cio_success;
 }
 
-static void read_some_chunks(struct cio_io_stream *ios, void *buf, size_t num, cio_io_stream_read_handler handler, void *context)
+static enum cio_error read_some_chunks(struct cio_io_stream *ios, void *buf, size_t num, cio_io_stream_read_handler handler, void *context)
 {
 	struct memory_stream *memory_stream = container_of(ios, struct memory_stream, ios);
 	size_t string_len = strlen(memory_stream->mem);
@@ -198,10 +209,11 @@ static void read_some_chunks(struct cio_io_stream *ios, void *buf, size_t num, c
 		memcpy(buf, (uint8_t *)memory_stream->mem + pos, len);
 		handler(ios, context, cio_success, buf, len);
 	}
+
+	return cio_success;
 }
 
-
-static void write_some_first_write_partial(struct cio_io_stream *io_stream, const struct cio_write_buffer *buf, cio_io_stream_write_handler handler, void *handler_context)
+static enum cio_error write_some_first_write_partial(struct cio_io_stream *io_stream, const struct cio_write_buffer *buf, cio_io_stream_write_handler handler, void *handler_context)
 {
 	if (write_some_fake.call_count == 1) {
 		struct cio_write_buffer *wb = buf->next;
@@ -214,6 +226,8 @@ static void write_some_first_write_partial(struct cio_io_stream *io_stream, cons
 	} else {
 		write_some_all(io_stream, buf, handler, handler_context);
 	}
+
+	return cio_success;
 }
 
 static struct cio_buffer alloc_no_mem(struct cio_allocator *context, size_t size)
@@ -226,9 +240,10 @@ static struct cio_buffer alloc_no_mem(struct cio_allocator *context, size_t size
 	return buffer;
 }
 
-static void read_some_error(struct cio_io_stream *ios, void *buf, size_t num, cio_io_stream_read_handler handler, void *context)
+static enum cio_error read_some_error(struct cio_io_stream *ios, void *buf, size_t num, cio_io_stream_read_handler handler, void *context)
 {
 	handler(ios, context, cio_invalid_argument, buf, num);
+	return cio_success;
 }
 
 static struct cio_allocator allocator_no_mem = {
