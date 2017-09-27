@@ -84,8 +84,9 @@ struct cio_io_stream {
 	 *                request is (partly) fulfilled.
 	 * @param handler_context A pointer to a context which might be
 	 *                        useful inside @p handler.
+	 * @return ::cio_success for success.
 	 */
-	void (*read_some)(struct cio_io_stream *io_stream, void *buf, size_t count, cio_io_stream_read_handler handler, void *handler_context);
+	enum cio_error (*read_some)(struct cio_io_stream *io_stream, void *buf, size_t count, cio_io_stream_read_handler handler, void *handler_context);
 
 	/**
 	 * @brief Writes upto @p count buffers to the stream.
@@ -100,8 +101,9 @@ struct cio_io_stream {
 	 *                request is (partly) fulfilled.
 	 * @param handler_context A pointer to a context which might be
 	 *                        useful inside @p handler.
+	 * @return ::cio_success for success.
 	 */
-	void (*write_some)(struct cio_io_stream *io_stream, const struct cio_write_buffer *buf, cio_io_stream_write_handler handler, void *handler_context);
+	enum cio_error (*write_some)(struct cio_io_stream *io_stream, const struct cio_write_buffer *buf, cio_io_stream_write_handler handler, void *handler_context);
 
 	/**
 	 * @brief Closes the stream.
@@ -111,8 +113,10 @@ struct cio_io_stream {
 	 * associated with this stream.
 	 *
 	 * @param io_stream A pointer to the cio_io_stream of the on which the operation should be performed.
+	 *
+	 * @return ::cio_success for success.
 	 */
-	void (*close)(struct cio_io_stream *io_stream);
+	enum cio_error (*close)(struct cio_io_stream *io_stream);
 
 	/**
 	 * @privatesection

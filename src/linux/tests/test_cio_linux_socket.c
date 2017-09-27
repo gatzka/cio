@@ -432,7 +432,8 @@ static void test_socket_readsome(void)
 	TEST_ASSERT_EQUAL(cio_success, err);
 	struct cio_io_stream *stream = s.get_io_stream(&s);
 
-	stream->read_some(stream, readback_buffer, sizeof(readback_buffer), read_handler, NULL);
+	err = stream->read_some(stream, readback_buffer, sizeof(readback_buffer), read_handler, NULL);
+	TEST_ASSERT_EQUAL_MESSAGE(cio_success, err, "Return value not correct!");
 
 	s.ev.read_callback(s.ev.context);
 
@@ -458,13 +459,9 @@ static void test_socket_readsome_register_read_fails(void)
 	TEST_ASSERT_EQUAL(cio_success, err);
 	struct cio_io_stream *stream = s.get_io_stream(&s);
 
-	stream->read_some(stream, readback_buffer, sizeof(readback_buffer), read_handler, NULL);
-	TEST_ASSERT_EQUAL(1, read_handler_fake.call_count);
-	TEST_ASSERT_EQUAL(stream, read_handler_fake.arg0_val);
-	TEST_ASSERT_EQUAL(NULL, read_handler_fake.arg1_val);
-	TEST_ASSERT_NOT_EQUAL(cio_success, read_handler_fake.arg2_val);
-	TEST_ASSERT_EQUAL(readback_buffer, read_handler_fake.arg3_val);
-	TEST_ASSERT_EQUAL(0, read_handler_fake.arg4_val);
+	err = stream->read_some(stream, readback_buffer, sizeof(readback_buffer), read_handler, NULL);
+	TEST_ASSERT_EQUAL_MESSAGE(cio_invalid_argument, err, "Return value not correct!");
+	TEST_ASSERT_EQUAL_MESSAGE(0, read_handler_fake.call_count, "Handler was called!");
 }
 
 static void test_socket_readsome_read_blocks(void)
@@ -479,7 +476,8 @@ static void test_socket_readsome_read_blocks(void)
 	TEST_ASSERT_EQUAL(cio_success, err);
 	struct cio_io_stream *stream = s.get_io_stream(&s);
 
-	stream->read_some(stream, readback_buffer, sizeof(readback_buffer), read_handler, NULL);
+	err = stream->read_some(stream, readback_buffer, sizeof(readback_buffer), read_handler, NULL);
+	TEST_ASSERT_EQUAL_MESSAGE(cio_success, err, "Return value not correct!");
 	TEST_ASSERT_EQUAL(0, read_handler_fake.call_count);
 }
 
@@ -495,7 +493,8 @@ static void test_socket_readsome_read_fails(void)
 	TEST_ASSERT_EQUAL(cio_success, err);
 	struct cio_io_stream *stream = s.get_io_stream(&s);
 
-	stream->read_some(stream, readback_buffer, sizeof(readback_buffer), read_handler, NULL);
+	err = stream->read_some(stream, readback_buffer, sizeof(readback_buffer), read_handler, NULL);
+	TEST_ASSERT_EQUAL_MESSAGE(cio_success, err, "Return value not correct!");
 
 	s.ev.read_callback(s.ev.context);
 
