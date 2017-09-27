@@ -27,12 +27,14 @@
 #ifndef CIO_BUFFERED_STREAM_H
 #define CIO_BUFFERED_STREAM_H
 
+#include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
 
 #include "cio_allocator.h"
 #include "cio_error_code.h"
 #include "cio_io_stream.h"
+#include "cio_write_buffer.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -51,9 +53,8 @@ extern "C" {
  * an exact number of bytes or reading until a delimiter string is
  * encountered. Both concepts are useful when parsing protocols.
  *
- * A @p writev call into a buffered_stream only writes into the internal
- * write buffer. The write buffer is flushed only if the internal write
- * buffer is called or @p flush is called explicitly.
+ * The callback of a @p write call into a buffered_stream is only called
+ * if either the provided buffer was completely written or an error occured.
  */
 
 struct cio_buffered_stream;
@@ -74,10 +75,10 @@ typedef void (*cio_buffered_stream_read_handler)(struct cio_buffered_stream *bs,
  * 
  * @param bs The cio_buffered_stream the write operation was called on.
  * @param handler_context The context the functions works on.
+ * @param buffer The buffer which should have been written.
  * @param err If err != ::cio_success, the write operation failed.
- * @param bytes_transferred The number of bytes transferred.
  */
-typedef void (*cio_buffered_stream_write_handler)(struct cio_buffered_stream *bs, void *handler_context, enum cio_error err, size_t bytes_transferred);
+typedef void (*cio_buffered_stream_write_handler)(struct cio_buffered_stream *bs, void *handler_context, const struct cio_write_buffer *buffer, enum cio_error err);
 
 /**
  * Interface description for implementing buffered I/O.
@@ -93,8 +94,10 @@ struct cio_buffered_stream {
 	 * request is fulfilled.
 	 * @param handler_context A pointer to a context which might be
 	 * useful inside @p handler
+	 *
+	 * @return ::cio_success for success.
 	 */
-	void (*read_exactly)(struct cio_buffered_stream *bs, size_t num, cio_buffered_stream_read_handler handler, void *handler_context);
+	enum cio_error (*read_exactly)(struct cio_buffered_stream *bs, size_t num, cio_buffered_stream_read_handler handler, void *handler_context);
 
 	/**
 	 * @brief Read upto @p count bytes into the buffer @p buf starting
@@ -109,8 +112,10 @@ struct cio_buffered_stream {
 	 * request is (partly) fulfilled.
 	 * @param handler_context A pointer to a context which might be
 	 * useful inside @p handler
+	 *
+	 * @return ::cio_success for success.
 	 */
-	void (*read)(struct cio_buffered_stream *bs, size_t num, cio_buffered_stream_read_handler handler, void *handler_context);
+	enum cio_error (*read)(struct cio_buffered_stream *bs, size_t num, cio_buffered_stream_read_handler handler, void *handler_context);
 
 	/**
 	 * @brief Call @p handler if delimiter @p delim is encountered.
@@ -122,44 +127,37 @@ struct cio_buffered_stream {
 	 * request is fulfilled.
 	 * @param handler_context A pointer to a context which might be
 	 * useful inside @p handler
+	 *
+	 * @return ::cio_success for success.
 	 */
-	void (*read_until)(struct cio_buffered_stream *bs, const char *delim, cio_buffered_stream_read_handler handler, void *handler_context);
+	enum cio_error (*read_until)(struct cio_buffered_stream *bs, const char *delim, cio_buffered_stream_read_handler handler, void *handler_context);
 
 	/**
 	 * @brief Writes @p count bytes to the buffered stream.
 	 *
-	 * Please note that the data written is not immediatly forwarded to
-	 * the underlying cio_io_stream. Call cio_buffered_stream::flush to do so.
+	 * @p handler is called when either the buffer was completely written or an error occured.
 	 *
 	 * @param bs A pointer to the cio_buffered_stream of the on which the operation should be performed.
-	 * @param buf The buffer where the data is written from.
+	 * @param buffer The buffer where the data is written from.
 	 * @param count The number of to write.
 	 * @param handler The callback function to be called when the write
 	 * request is fulfilled.
 	 * @param handler_context A pointer to a context which might be
 	 * useful inside @p handler
-	 */
-	void (*write)(struct cio_buffered_stream *bs, const void *buf, size_t count, cio_buffered_stream_write_handler handler, void *handler_context);
-
-	/**
-	 * Drains the data in the write buffer out to the underlying
-	 * cio_io_stream.
 	 *
-	 * @param bs A pointer to the cio_buffered_stream of the on which the operation should be performed.
+	 * @return ::cio_success for success.
 	 */
-	void (*flush)(struct cio_buffered_stream *bs);
+	enum cio_error (*write)(struct cio_buffered_stream *bs, struct cio_write_buffer *buffer, cio_buffered_stream_write_handler handler, void *handler_context);
 
 	/**
 	 * @anchor cio_buffered_stream_close
 	 * @brief Closes the stream.
 	 *
-	 * Implementations implementing this interface are strongly
-	 * encouraged to flush any write buffers and to free other resources
-	 * associated with this stream.
-	 *
 	 * @param bs A pointer to the cio_buffered_stream of the on which the operation should be performed.
+	 *
+	 * @return ::cio_success for success.
 	 */
-	void (*close)(struct cio_buffered_stream *bs);
+	enum cio_error (*close)(struct cio_buffered_stream *bs);
 
 	/**
 	 * @privatesection
@@ -183,9 +181,14 @@ struct cio_buffered_stream {
 	} read_info;
 
 	struct cio_allocator *read_buffer_allocator;
-	size_t write_buffer_size;
-	void *write_buffer;
-	struct cio_allocator *write_buffer_allocator;
+
+	cio_buffered_stream_write_handler write_handler;
+	void *write_handler_context;
+
+	struct cio_write_buffer *original_wbh;
+	struct cio_write_buffer wbh;
+	struct cio_write_buffer wb;
+
 	enum cio_error last_error;
 };
 
@@ -200,20 +203,13 @@ struct cio_buffered_stream {
  * the memory for internal read buffer. The allocated memory will be freed
  * automatically when calling @ref cio_buffered_stream_close "close" on the
  * cio_buffered_stream.
- * @param write_buffer_size The minimal size of the internal write buffer.
- * @param write_buffer_allocator The allocator that will be used to allocate
- * the memory for internal write buffer. The allocated memory will be freed
- * automatically when calling @ref cio_buffered_stream_close "close" on the
- * cio_buffered_stream.
  * @return ::cio_success for success. ::cio_invalid_argument if either
  * @p read_buffer_allocator or @p write_buffer_allocator is @p NULL.
  */
 enum cio_error cio_buffered_stream_init(struct cio_buffered_stream *bs,
                                         struct cio_io_stream *stream,
                                         size_t read_buffer_size,
-                                        struct cio_allocator *read_buffer_allocator,
-                                        size_t write_buffer_size,
-                                        struct cio_allocator *write_buffer_allocator);
+                                        struct cio_allocator *read_buffer_allocator);
 
 #ifdef __cplusplus
 }

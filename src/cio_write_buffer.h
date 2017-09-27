@@ -27,6 +27,7 @@
 #ifndef CIO_WRITE_BUFFER_H
 #define CIO_WRITE_BUFFER_H
 
+#include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
 
@@ -37,64 +38,108 @@ extern "C" {
 struct cio_write_buffer {
 	struct cio_write_buffer *next;
 	struct cio_write_buffer *prev;
-	const void *data;
-	size_t length;
-};
+	union {
+		struct {
+			const void *data;
+			size_t length;
+		} element;
 
-struct cio_write_buffer_head {
-	struct cio_write_buffer *next;
-	struct cio_write_buffer *prev;
-	size_t q_len;
+		size_t q_len;
+	} data;
 };
 
 static inline void cio_write_buffer_insert(struct cio_write_buffer *new_wb,
                                            struct cio_write_buffer *prev_wb, struct cio_write_buffer *next_wb,
-                                           struct cio_write_buffer_head *wbh)
+                                           struct cio_write_buffer *wbh)
 {
 	new_wb->next = next_wb;
 	new_wb->prev = prev_wb;
 	next_wb->prev = prev_wb->next = new_wb;
-	wbh->q_len++;
+	wbh->data.q_len++;
 }
 
-static inline void cio_write_buffer_queue_before(struct cio_write_buffer_head *wbh,
+static inline void cio_write_buffer_queue_before(struct cio_write_buffer *wbh,
                                                  struct cio_write_buffer *next_wb,
                                                  struct cio_write_buffer *new_wb)
 {
 	cio_write_buffer_insert(new_wb, next_wb->prev, next_wb, wbh);
 }
 
-static inline void cio_write_buffer_queue_after(struct cio_write_buffer_head *wbh,
+static inline void cio_write_buffer_queue_after(struct cio_write_buffer *wbh,
                                                 struct cio_write_buffer *prev_wb,
                                                 struct cio_write_buffer *new_wb)
 {
 	cio_write_buffer_insert(new_wb, prev_wb, prev_wb->next, wbh);
 }
 
-static inline void cio_write_buffer_queue_head(struct cio_write_buffer_head *wbh,
+static inline void cio_write_buffer_queue_head(struct cio_write_buffer *wbh,
                                                struct cio_write_buffer *new_wb)
 {
 	cio_write_buffer_queue_after(wbh, (struct cio_write_buffer *)wbh, new_wb);
 }
 
-static inline void cio_write_buffer_queue_tail(struct cio_write_buffer_head *wbh,
+static inline void cio_write_buffer_queue_tail(struct cio_write_buffer *wbh,
                                                struct cio_write_buffer *new_wb)
 {
-	cio_write_buffer_queue_before(wbh, (struct cio_write_buffer *)wbh, new_wb);
+	cio_write_buffer_queue_before(wbh, wbh, new_wb);
 }
 
-static inline void cio_write_buffer_head_init(struct cio_write_buffer_head *wbh)
+static inline bool cio_write_buffer_queue_empty(const struct cio_write_buffer *wbh)
 {
-	wbh->prev = (struct cio_write_buffer *)wbh;
-	wbh->next = (struct cio_write_buffer *)wbh;
-	wbh->q_len = 0;
+	return wbh->next == wbh;
 }
 
-static inline void cio_write_buffer_init(struct cio_write_buffer *wb)
+static inline struct cio_write_buffer *cio_write_buffer_queue_peek(const struct cio_write_buffer *wbh)
 {
-	wb->data = NULL;
-	wb->length = 0;
+	struct cio_write_buffer *wb = wbh->next;
+
+	if (wb == wbh) {
+		wb = NULL;
+	}
+
+	return wb;
+}
+
+static inline bool cio_write_buffer_queue_is_last(const struct cio_write_buffer *wbh, const struct cio_write_buffer *wb)
+{
+	return wb->next == wbh;
+}
+
+static inline void cio_write_buffer_unlink(struct cio_write_buffer *wb, struct cio_write_buffer *wbh)
+{
+	struct cio_write_buffer *next;
+	struct cio_write_buffer *prev;
+
+	wbh->data.q_len--;
+	next = wb->next;
+	prev = wb->prev;
+	next->prev = prev;
+	prev->next = next;
+}
+
+static inline struct cio_write_buffer *cio_write_buffer_queue_dequeue(struct cio_write_buffer *wbh)
+{
+	struct cio_write_buffer *wb = cio_write_buffer_queue_peek(wbh);
+	if (wb) {
+		cio_write_buffer_unlink(wb, wbh);
+	}
+
+	return wb;
+}
+
+static inline void cio_write_buffer_head_init(struct cio_write_buffer *wbh)
+{
+	wbh->prev = wbh;
+	wbh->next = wbh;
+	wbh->data.q_len = 0;
+}
+
+static inline void cio_write_buffer_init(struct cio_write_buffer *wb, const void *data, size_t length)
+{
+	wb->data.element.data = data;
+	wb->data.element.length = length;
 	wb->next = NULL;
+	wb->prev = NULL;
 }
 
 #ifdef __cplusplus
