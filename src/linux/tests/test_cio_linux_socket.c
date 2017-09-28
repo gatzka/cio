@@ -711,6 +711,75 @@ static void test_socket_writesome_blocks_fails(void)
 	TEST_ASSERT_EQUAL_MESSAGE(0, write_handler_fake.arg4_val, "write_handler was not called with 0 bytes written!");
 }
 
+static void test_socket_writesome_no_stream(void)
+{
+	uint8_t buffer[13];
+	memset(buffer, 0x12, sizeof(buffer));
+	sendmsg_fake.custom_fake = send_all;
+
+	struct cio_socket s;
+	struct cio_write_buffer wbh;
+	struct cio_write_buffer wb;
+
+	cio_write_buffer_head_init(&wbh);
+	cio_write_buffer_init(&wb, buffer, sizeof(buffer));
+	cio_write_buffer_queue_tail(&wbh, &wb);
+
+	enum cio_error err = cio_socket_init(&s, NULL, NULL, on_close);
+	TEST_ASSERT_EQUAL(cio_success, err);
+	struct cio_io_stream *stream = s.get_io_stream(&s);
+
+	err = stream->write_some(NULL, &wbh, write_handler, NULL);
+	TEST_ASSERT_EQUAL_MESSAGE(cio_invalid_argument, err, "Return value not correct!");
+	TEST_ASSERT_EQUAL_MESSAGE(0, write_handler_fake.call_count, "write_handler was not called exactly once!");
+}
+
+static void test_socket_writesome_no_buffer(void)
+{
+	uint8_t buffer[13];
+	memset(buffer, 0x12, sizeof(buffer));
+	sendmsg_fake.custom_fake = send_all;
+
+	struct cio_socket s;
+	struct cio_write_buffer wbh;
+	struct cio_write_buffer wb;
+
+	cio_write_buffer_head_init(&wbh);
+	cio_write_buffer_init(&wb, buffer, sizeof(buffer));
+	cio_write_buffer_queue_tail(&wbh, &wb);
+
+	enum cio_error err = cio_socket_init(&s, NULL, NULL, on_close);
+	TEST_ASSERT_EQUAL(cio_success, err);
+	struct cio_io_stream *stream = s.get_io_stream(&s);
+
+	err = stream->write_some(stream, NULL, write_handler, NULL);
+	TEST_ASSERT_EQUAL_MESSAGE(cio_invalid_argument, err, "Return value not correct!");
+	TEST_ASSERT_EQUAL_MESSAGE(0, write_handler_fake.call_count, "write_handler was not called exactly once!");
+}
+
+static void test_socket_writesome_no_handler(void)
+{
+	uint8_t buffer[13];
+	memset(buffer, 0x12, sizeof(buffer));
+	sendmsg_fake.custom_fake = send_all;
+
+	struct cio_socket s;
+	struct cio_write_buffer wbh;
+	struct cio_write_buffer wb;
+
+	cio_write_buffer_head_init(&wbh);
+	cio_write_buffer_init(&wb, buffer, sizeof(buffer));
+	cio_write_buffer_queue_tail(&wbh, &wb);
+
+	enum cio_error err = cio_socket_init(&s, NULL, NULL, on_close);
+	TEST_ASSERT_EQUAL(cio_success, err);
+	struct cio_io_stream *stream = s.get_io_stream(&s);
+
+	err = stream->write_some(stream, &wbh, NULL, NULL);
+	TEST_ASSERT_EQUAL_MESSAGE(cio_invalid_argument, err, "Return value not correct!");
+	TEST_ASSERT_EQUAL_MESSAGE(0, write_handler_fake.call_count, "write_handler was not called exactly once!");
+}
+
 int main(void)
 {
 	UNITY_BEGIN();
@@ -741,5 +810,8 @@ int main(void)
 	RUN_TEST(test_socket_writesome_fails);
 	RUN_TEST(test_socket_writesome_blocks);
 	RUN_TEST(test_socket_writesome_blocks_fails);
+	RUN_TEST(test_socket_writesome_no_stream);
+	RUN_TEST(test_socket_writesome_no_buffer);
+	RUN_TEST(test_socket_writesome_no_handler);
 	return UNITY_END();
 }
