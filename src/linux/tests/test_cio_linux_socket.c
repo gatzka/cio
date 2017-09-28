@@ -575,7 +575,8 @@ static void test_socket_writesome_all(void)
 	TEST_ASSERT_EQUAL(cio_success, err);
 	struct cio_io_stream *stream = s.get_io_stream(&s);
 
-	stream->write_some(stream, &wbh, write_handler, NULL);
+	err = stream->write_some(stream, &wbh, write_handler, NULL);
+	TEST_ASSERT_EQUAL_MESSAGE(cio_success, err, "Return value not correct!");
 	TEST_ASSERT_EQUAL_MESSAGE(1, write_handler_fake.call_count, "write_handler was not called exactly once!");
 	TEST_ASSERT_EQUAL_MESSAGE(stream, write_handler_fake.arg0_val, "write_handler was not called with correct stream!");
 	TEST_ASSERT_EQUAL_MESSAGE(NULL, write_handler_fake.arg1_val, "write_handler was not called with correct handler_context!");
@@ -606,7 +607,8 @@ static void test_socket_writesome_parts(void)
 	TEST_ASSERT_EQUAL(cio_success, err);
 	struct cio_io_stream *stream = s.get_io_stream(&s);
 
-	stream->write_some(stream, &wbh, write_handler, NULL);
+	err = stream->write_some(stream, &wbh, write_handler, NULL);
+	TEST_ASSERT_EQUAL_MESSAGE(cio_success, err, "Return value not correct!");
 	TEST_ASSERT_EQUAL_MESSAGE(1, write_handler_fake.call_count, "write_handler was not called exactly once!");
 	TEST_ASSERT_EQUAL_MESSAGE(stream, write_handler_fake.arg0_val, "write_handler was not called with correct stream!");
 	TEST_ASSERT_EQUAL_MESSAGE(NULL, write_handler_fake.arg1_val, "write_handler was not called with correct handler_context!");
@@ -634,7 +636,8 @@ static void test_socket_writesome_fails(void)
 	TEST_ASSERT_EQUAL(cio_success, err);
 	struct cio_io_stream *stream = s.get_io_stream(&s);
 
-	stream->write_some(stream, &wbh, write_handler, NULL);
+	err = stream->write_some(stream, &wbh, write_handler, NULL);
+	TEST_ASSERT_EQUAL_MESSAGE(cio_success, err, "Return value not correct!");
 	TEST_ASSERT_EQUAL_MESSAGE(1, write_handler_fake.call_count, "write_handler was not called exactly once!");
 	TEST_ASSERT_EQUAL_MESSAGE(stream, write_handler_fake.arg0_val, "write_handler was not called with correct stream!");
 	TEST_ASSERT_EQUAL_MESSAGE(NULL, write_handler_fake.arg1_val, "write_handler was not called with correct handler_context!");
@@ -666,7 +669,8 @@ static void test_socket_writesome_blocks(void)
 	TEST_ASSERT_EQUAL(cio_success, err);
 	struct cio_io_stream *stream = s.get_io_stream(&s);
 
-	stream->write_some(stream, &wbh, write_handler, NULL);
+	err = stream->write_some(stream, &wbh, write_handler, NULL);
+	TEST_ASSERT_EQUAL_MESSAGE(cio_success, err, "Return value not correct!");
 	TEST_ASSERT_EQUAL_MESSAGE(0, write_handler_fake.call_count, "write_handler was called!");
 	s.ev.write_callback(s.ev.context);
 	TEST_ASSERT_EQUAL_MESSAGE(1, write_handler_fake.call_count, "write_handler was not called exactly once!");
@@ -701,7 +705,8 @@ static void test_socket_writesome_blocks_fails(void)
 	TEST_ASSERT_EQUAL(cio_success, err);
 	struct cio_io_stream *stream = s.get_io_stream(&s);
 
-	stream->write_some(stream, &wbh, write_handler, NULL);
+	err = stream->write_some(stream, &wbh, write_handler, NULL);
+	TEST_ASSERT_EQUAL_MESSAGE(cio_success, err, "Return value not correct!");
 
 	TEST_ASSERT_EQUAL_MESSAGE(1, write_handler_fake.call_count, "write_handler was not called exactly once!");
 	TEST_ASSERT_EQUAL_MESSAGE(stream, write_handler_fake.arg0_val, "write_handler was not called with correct stream!");
