@@ -506,6 +506,57 @@ static void test_socket_readsome_read_fails(void)
 	TEST_ASSERT_EQUAL(0, read_handler_fake.arg4_val);
 }
 
+static void test_socket_readsome_no_stream(void)
+{
+	static const size_t data_to_read = 12;
+	available_read_data = data_to_read;
+	memset(read_buffer, 0x12, data_to_read);
+	read_fake.custom_fake = read_fails;
+
+	struct cio_socket s;
+	enum cio_error err = cio_socket_init(&s, NULL, NULL, on_close);
+	TEST_ASSERT_EQUAL(cio_success, err);
+	struct cio_io_stream *stream = s.get_io_stream(&s);
+
+	err = stream->read_some(NULL, readback_buffer, sizeof(readback_buffer), read_handler, NULL);
+	TEST_ASSERT_EQUAL_MESSAGE(cio_invalid_argument, err, "Return value not correct!");
+	TEST_ASSERT_EQUAL_MESSAGE(0, read_handler_fake.call_count, "Handler was called!");
+}
+
+static void test_socket_readsome_no_buffer(void)
+{
+	static const size_t data_to_read = 12;
+	available_read_data = data_to_read;
+	memset(read_buffer, 0x12, data_to_read);
+	read_fake.custom_fake = read_fails;
+
+	struct cio_socket s;
+	enum cio_error err = cio_socket_init(&s, NULL, NULL, on_close);
+	TEST_ASSERT_EQUAL(cio_success, err);
+	struct cio_io_stream *stream = s.get_io_stream(&s);
+
+	err = stream->read_some(stream, NULL, sizeof(readback_buffer), read_handler, NULL);
+	TEST_ASSERT_EQUAL_MESSAGE(cio_invalid_argument, err, "Return value not correct!");
+	TEST_ASSERT_EQUAL_MESSAGE(0, read_handler_fake.call_count, "Handler was called!");
+}
+
+static void test_socket_readsome_no_handler(void)
+{
+	static const size_t data_to_read = 12;
+	available_read_data = data_to_read;
+	memset(read_buffer, 0x12, data_to_read);
+	read_fake.custom_fake = read_fails;
+
+	struct cio_socket s;
+	enum cio_error err = cio_socket_init(&s, NULL, NULL, on_close);
+	TEST_ASSERT_EQUAL(cio_success, err);
+	struct cio_io_stream *stream = s.get_io_stream(&s);
+
+	err = stream->read_some(stream, readback_buffer, sizeof(readback_buffer), NULL, NULL);
+	TEST_ASSERT_EQUAL_MESSAGE(cio_invalid_argument, err, "Return value not correct!");
+	TEST_ASSERT_EQUAL_MESSAGE(0, read_handler_fake.call_count, "Handler was called!");
+}
+
 static void test_socket_writesome_all(void)
 {
 	uint8_t buffer[13];
@@ -682,6 +733,9 @@ int main(void)
 	RUN_TEST(test_socket_readsome_register_read_fails);
 	RUN_TEST(test_socket_readsome_read_blocks);
 	RUN_TEST(test_socket_readsome_read_fails);
+	RUN_TEST(test_socket_readsome_no_stream);
+	RUN_TEST(test_socket_readsome_no_buffer);
+	RUN_TEST(test_socket_readsome_no_handler);
 	RUN_TEST(test_socket_writesome_all);
 	RUN_TEST(test_socket_writesome_parts);
 	RUN_TEST(test_socket_writesome_fails);
