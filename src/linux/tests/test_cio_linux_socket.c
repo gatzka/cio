@@ -264,6 +264,18 @@ static void test_socket_close_with_hook(void)
 	TEST_ASSERT_EQUAL(&s, on_close_fake.arg0_val);
 }
 
+static void test_socket_close_no_stream(void)
+{
+	struct cio_socket s;
+
+	enum cio_error err = cio_socket_init(&s, NULL, NULL, on_close);
+	TEST_ASSERT_EQUAL(cio_success, err);
+
+	err = s.close(NULL);
+	TEST_ASSERT_EQUAL_MESSAGE(cio_invalid_argument, err, "Return value not correct!");
+	TEST_ASSERT_EQUAL_MESSAGE(0, close_fake.call_count, "Handler was called!");
+}
+
 static void test_socket_enable_nodelay(void)
 {
 	struct cio_socket s;
@@ -793,6 +805,7 @@ int main(void)
 	RUN_TEST(test_socket_init_eventloop_add_fails);
 	RUN_TEST(test_socket_close_without_hook);
 	RUN_TEST(test_socket_close_with_hook);
+	RUN_TEST(test_socket_close_no_stream);
 	RUN_TEST(test_socket_enable_nodelay);
 	RUN_TEST(test_socket_disable_nodelay);
 	RUN_TEST(test_socket_nodelay_setsockopt_fails);

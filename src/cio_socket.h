@@ -77,7 +77,7 @@ struct cio_socket {
 	 *
 	 * @param context A pointer to a cio_socket which shall be closed.
 	 */
-	void (*close)(struct cio_socket *context);
+	enum cio_error (*close)(struct cio_socket *context);
 
 	/**
 	 * @anchor cio_socket_set_tcp_no_delay
