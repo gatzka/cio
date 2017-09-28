@@ -222,12 +222,14 @@ static void accept_handler_close_server_socket(struct cio_server_socket *ss, voi
 	ss->close(ss);
 }
 
-static void socket_close(struct cio_socket *s)
+static enum cio_error socket_close(struct cio_socket *s)
 {
 	close(s->ev.fd);
 	if (s->close_hook != NULL) {
 		s->close_hook(s);
 	}
+
+	return cio_success;
 }
 
 static enum cio_error custom_cio_linux_socket_init(struct cio_socket *s, int fd, struct cio_eventloop *loop, struct cio_allocator *alloc, cio_socket_close_hook hook)
