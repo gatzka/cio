@@ -75,7 +75,7 @@ static inline void cio_write_buffer_queue_after(struct cio_write_buffer *wbh,
 static inline void cio_write_buffer_queue_head(struct cio_write_buffer *wbh,
                                                struct cio_write_buffer *new_wb)
 {
-	cio_write_buffer_queue_after(wbh, (struct cio_write_buffer *)wbh, new_wb);
+	cio_write_buffer_queue_after(wbh, wbh, new_wb);
 }
 
 static inline void cio_write_buffer_queue_tail(struct cio_write_buffer *wbh,
