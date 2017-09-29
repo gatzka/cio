@@ -37,6 +37,7 @@ Project {
     "../../qbs/gccClang.qbs",
     "../../qbs/hardening.qbs",
    
-    "test_cio_buffered_stream.qbs"
+    "test_cio_buffered_stream.qbs",
+    "test_cio_read_buffer.qbs"
   ]
 }

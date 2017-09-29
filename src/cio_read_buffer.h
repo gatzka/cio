@@ -24,18 +24,55 @@
  * SOFTWARE.
  */
 
-import qbs 1.0
+#ifndef CIO_READ_BUFFER_H
+#define CIO_READ_BUFFER_H
 
-CppApplication {
-  name: "test_cio_buffered_stream"
-  type: ["application", "unittest"]
-  Depends { name: "unit test settings" }
-  cpp.cLanguageVersion: "c99"
-  files: [
-    "test_cio_buffered_stream.c",
-    "../cio_buffered_stream.c",
-    "../linux/cio_linux_alloc.c",
-    "../linux/cio_linux_string.c",
-  ]
+#include <stddef.h>
+#include <stdint.h>
+
+#include "cio_compiler.h"
+#include "cio_error_code.h"
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+struct cio_read_buffer {
+	/**
+	 * @privatesection
+	 */
+	uint8_t *data;
+	size_t size;
+	size_t unread_bytes;
+	uint8_t *read_from_ptr;
+};
+
+static inline size_t cio_read_buffer_unread_bytes(const struct cio_read_buffer *rb)
+{
+	return rb->unread_bytes;
 }
 
+static inline size_t cio_read_buffer_space_available(const struct cio_read_buffer *rb)
+{
+	return rb->size - cio_read_buffer_unread_bytes(rb);
+}
+
+static inline enum cio_error cio_read_buffer_init(struct cio_read_buffer *rb, void *data, size_t size)
+{
+	if (unlikely((rb == NULL) || (data == NULL))) {
+		return cio_invalid_argument;
+	}
+
+	rb->data = data;
+	rb->size = size;
+	rb->unread_bytes = 0;
+	rb->read_from_ptr = data;
+
+	return cio_success;
+}
+
+#ifdef __cplusplus
+}
+#endif
+
+#endif

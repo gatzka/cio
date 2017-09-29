@@ -27,15 +27,12 @@
 import qbs 1.0
 
 CppApplication {
-  name: "test_cio_buffered_stream"
+  name: "test_cio_read_buffer"
   type: ["application", "unittest"]
   Depends { name: "unit test settings" }
   cpp.cLanguageVersion: "c99"
   files: [
-    "test_cio_buffered_stream.c",
-    "../cio_buffered_stream.c",
-    "../linux/cio_linux_alloc.c",
-    "../linux/cio_linux_string.c",
+    "test_cio_read_buffer.c",
   ]
 }
 

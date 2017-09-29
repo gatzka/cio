@@ -49,6 +49,7 @@ Project {
     "src/linux/tests/test_cio_linux_socket_utils.qbs",
     "src/linux/tests/test_cio_linux_timer.qbs",
     "src/tests/test_cio_buffered_stream.qbs",
+    "src/tests/test_cio_read_buffer.qbs",
 
     "examples/periodic_timer.qbs",
     "examples/socket_echo.qbs"

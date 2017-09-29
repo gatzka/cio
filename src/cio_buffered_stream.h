@@ -31,9 +31,9 @@
 #include <stddef.h>
 #include <stdint.h>
 
-#include "cio_allocator.h"
 #include "cio_error_code.h"
 #include "cio_io_stream.h"
+#include "cio_read_buffer.h"
 #include "cio_write_buffer.h"
 
 #ifdef __cplusplus
@@ -97,7 +97,7 @@ struct cio_buffered_stream {
 	 *
 	 * @return ::cio_success for success.
 	 */
-	enum cio_error (*read_exactly)(struct cio_buffered_stream *bs, size_t num, cio_buffered_stream_read_handler handler, void *handler_context);
+	enum cio_error (*read_exactly)(struct cio_buffered_stream *bs, struct cio_read_buffer *buffer, size_t num, cio_buffered_stream_read_handler handler, void *handler_context);
 
 	/**
 	 * @brief Read upto @p count bytes into the buffer @p buf starting
@@ -115,7 +115,7 @@ struct cio_buffered_stream {
 	 *
 	 * @return ::cio_success for success.
 	 */
-	enum cio_error (*read)(struct cio_buffered_stream *bs, size_t num, cio_buffered_stream_read_handler handler, void *handler_context);
+	enum cio_error (*read)(struct cio_buffered_stream *bs, struct cio_read_buffer *buffer, size_t num, cio_buffered_stream_read_handler handler, void *handler_context);
 
 	/**
 	 * @brief Call @p handler if delimiter @p delim is encountered.
@@ -130,7 +130,7 @@ struct cio_buffered_stream {
 	 *
 	 * @return ::cio_success for success.
 	 */
-	enum cio_error (*read_until)(struct cio_buffered_stream *bs, const char *delim, cio_buffered_stream_read_handler handler, void *handler_context);
+	enum cio_error (*read_until)(struct cio_buffered_stream *bs, struct cio_read_buffer *buffer, const char *delim, cio_buffered_stream_read_handler handler, void *handler_context);
 
 	/**
 	 * @brief Writes @p count bytes to the buffered stream.
@@ -163,10 +163,8 @@ struct cio_buffered_stream {
 	 * @privatesection
 	 */
 	struct cio_io_stream *stream;
-	size_t read_buffer_size;
-	uint8_t *read_buffer;
-	uint8_t *read_from_ptr;
-	size_t unread_bytes;
+
+	struct cio_read_buffer *new_read_buffer;
 	cio_buffered_stream_read_handler read_handler;
 	void *read_handler_context;
 
@@ -179,8 +177,6 @@ struct cio_buffered_stream {
 			size_t delim_length;
 		} until;
 	} read_info;
-
-	struct cio_allocator *read_buffer_allocator;
 
 	cio_buffered_stream_write_handler write_handler;
 	void *write_handler_context;
@@ -198,18 +194,11 @@ struct cio_buffered_stream {
  * @param bs The cio_buffered_stream that should be initialized.
  * @param stream The IO stream that should be used to read from
  * and to write to.
- * @param read_buffer_size The minimal size of the internal read buffer.
- * @param read_buffer_allocator The allocator that will be used to allocate
- * the memory for internal read buffer. The allocated memory will be freed
- * automatically when calling @ref cio_buffered_stream_close "close" on the
- * cio_buffered_stream.
- * @return ::cio_success for success. ::cio_invalid_argument if either
- * @p read_buffer_allocator or @p write_buffer_allocator is @p NULL.
+ *
+ * @return ::cio_success for success.
  */
 enum cio_error cio_buffered_stream_init(struct cio_buffered_stream *bs,
-                                        struct cio_io_stream *stream,
-                                        size_t read_buffer_size,
-                                        struct cio_allocator *read_buffer_allocator);
+                                        struct cio_io_stream *stream);
 
 #ifdef __cplusplus
 }
