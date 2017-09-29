@@ -26,19 +26,13 @@
 
 import qbs 1.0
 
-Project {
-  name: "cio linux unit tests"
-  minimumQbsVersion: "1.6.0"
-
-  references: [
-    "../unity.qbs",
-    "../fff.qbs",
-    "../unittestsettings.qbs",
-    "../../qbs/gccClang.qbs",
-    "../../qbs/hardening.qbs",
-   
-    "test_cio_buffered_stream.qbs",
-    "test_cio_read_buffer.qbs",
-    "test_cio_write_buffer.qbs"
+CppApplication {
+  name: "test_cio_write_buffer"
+  type: ["application", "unittest"]
+  Depends { name: "unit test settings" }
+  cpp.cLanguageVersion: "c99"
+  files: [
+    "test_cio_write_buffer.c",
   ]
 }
+

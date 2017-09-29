@@ -24,21 +24,32 @@
  * SOFTWARE.
  */
 
-import qbs 1.0
+#include <stdint.h>
 
-Project {
-  name: "cio linux unit tests"
-  minimumQbsVersion: "1.6.0"
+#include "fff.h"
+#include "unity.h"
+#include "cio_error_code.h"
+#include "cio_write_buffer.h"
 
-  references: [
-    "../unity.qbs",
-    "../fff.qbs",
-    "../unittestsettings.qbs",
-    "../../qbs/gccClang.qbs",
-    "../../qbs/hardening.qbs",
-   
-    "test_cio_buffered_stream.qbs",
-    "test_cio_read_buffer.qbs",
-    "test_cio_write_buffer.qbs"
-  ]
+DEFINE_FFF_GLOBALS
+
+void setUp(void)
+{
+	FFF_RESET_HISTORY();
+}
+
+static void test_peek_from_empty_queue(void)
+{
+	struct cio_write_buffer wb;
+	cio_write_buffer_head_init(&wb);
+
+	struct cio_write_buffer *element = cio_write_buffer_queue_dequeue(&wb);
+	TEST_ASSERT_EQUAL_MESSAGE(NULL, element, "Dequeueing from empty queue did not return NULL!");
+}
+
+int main(void)
+{
+	UNITY_BEGIN();
+	RUN_TEST(test_peek_from_empty_queue);
+	return UNITY_END();
 }

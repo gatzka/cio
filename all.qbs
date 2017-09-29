@@ -50,6 +50,7 @@ Project {
     "src/linux/tests/test_cio_linux_timer.qbs",
     "src/tests/test_cio_buffered_stream.qbs",
     "src/tests/test_cio_read_buffer.qbs",
+    "src/tests/test_cio_write_buffer.qbs",
 
     "examples/periodic_timer.qbs",
     "examples/socket_echo.qbs"
