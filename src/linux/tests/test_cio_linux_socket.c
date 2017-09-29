@@ -35,6 +35,7 @@
 #include "fff.h"
 #include "unity.h"
 
+#include "cio_allocator.h"
 #include "cio_error_code.h"
 #include "cio_linux_socket.h"
 #include "cio_linux_socket_utils.h"
