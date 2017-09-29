@@ -253,7 +253,7 @@ static enum cio_error bs_close(struct cio_buffered_stream *bs)
 }
 
 enum cio_error cio_buffered_stream_init(struct cio_buffered_stream *bs,
-										struct cio_io_stream *stream)
+                                        struct cio_io_stream *stream)
 {
 	if (unlikely((bs == NULL) || (stream == NULL))) {
 		return cio_invalid_argument;
