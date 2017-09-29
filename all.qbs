@@ -43,11 +43,14 @@ Project {
     "src/unity.qbs",
     "src/fff.qbs",
     "src/unittestsettings.qbs",
+
+    "src/linux/tests/test_cio_linux_alloc.qbs",
     "src/linux/tests/test_cio_linux_epoll.qbs",
     "src/linux/tests/test_cio_linux_server_socket.qbs",
     "src/linux/tests/test_cio_linux_socket.qbs",
     "src/linux/tests/test_cio_linux_socket_utils.qbs",
     "src/linux/tests/test_cio_linux_timer.qbs",
+
     "src/tests/test_cio_buffered_stream.qbs",
     "src/tests/test_cio_read_buffer.qbs",
     "src/tests/test_cio_write_buffer.qbs",

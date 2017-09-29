@@ -24,26 +24,34 @@
  * SOFTWARE.
  */
 
-import qbs 1.0
+#include "fff.h"
+#include "unity.h"
 
-Project {
-  name: "cio linux unit tests"
-  minimumQbsVersion: "1.6.0"
+#include "cio_allocator.h"
 
-  condition: qbs.targetOS.contains("linux")
+DEFINE_FFF_GLOBALS
 
-  references: [
-    "../../unity.qbs",
-    "../../fff.qbs",
-    "../../unittestsettings.qbs",
-    "../../../qbs/gccClang.qbs",
-    "../../../qbs/hardening.qbs",
-   
-    "test_cio_linux_alloc.qbs",
-    "test_cio_linux_epoll.qbs",
-    "test_cio_linux_server_socket.qbs",
-    "test_cio_linux_socket.qbs",
-    "test_cio_linux_socket_utils.qbs",
-    "test_cio_linux_timer.qbs"
-  ]
+
+void setUp(void)
+{
+	FFF_RESET_HISTORY();
+
+}
+
+static void test_allocator(void)
+{
+	struct cio_allocator *a = cio_get_system_allocator();
+	TEST_ASSERT_NOT_EQUAL_MESSAGE(NULL, a, "cio_get_system_allocator did not deliver a valid allocator!");
+
+	static const size_t buffer_size = 13;
+	struct cio_buffer b = a->alloc(NULL, buffer_size);
+	TEST_ASSERT_MESSAGE(b.size >= buffer_size, "Allocated buffer too small!");
+	a->free(NULL, b.address);
+}
+
+int main(void)
+{
+	UNITY_BEGIN();
+	RUN_TEST(test_allocator);
+	return UNITY_END();
 }
