@@ -194,7 +194,6 @@ struct cio_buffered_stream {
  * @param bs The cio_buffered_stream that should be initialized.
  * @param stream The IO stream that should be used to read from
  * and to write to.
- * @param read_buffer The read buffer to be used.
  *
  * @return ::cio_success for success.
  */
