@@ -76,6 +76,9 @@ static uint8_t readback_buffer[200];
 static size_t bytes_to_send;
 static uint8_t send_buffer[200];
 
+static struct cio_eventloop loop;
+static struct cio_allocator allocator;
+
 static int socket_create_fails(void)
 {
 	errno = EINVAL;
@@ -216,8 +219,8 @@ static void test_socket_init(void)
 {
 	struct cio_socket s;
 
-	enum cio_error err = cio_socket_init(&s, NULL, NULL, NULL);
-	TEST_ASSERT_EQUAL(cio_success, err);
+	enum cio_error err = cio_socket_init(&s, &loop, &allocator, NULL);
+	TEST_ASSERT_EQUAL_MESSAGE(cio_success, err, "Return value if cio_socket_init() not correct!");
 }
 
 static void test_socket_init_socket_create_fails(void)
@@ -225,8 +228,16 @@ static void test_socket_init_socket_create_fails(void)
 	struct cio_socket s;
 	cio_linux_socket_create_fake.custom_fake = socket_create_fails;
 
-	enum cio_error err = cio_socket_init(&s, NULL, NULL, NULL);
-	TEST_ASSERT(err != cio_success);
+	enum cio_error err = cio_socket_init(&s, &loop, &allocator, NULL);
+	TEST_ASSERT_NOT_EQUAL_MESSAGE(cio_success, err, "Return value of cio_socket_init() not correct!");
+}
+
+static void test_socket_init_socket_create_no_socket(void)
+{
+	cio_linux_socket_create_fake.custom_fake = socket_create_fails;
+
+	enum cio_error err = cio_socket_init(NULL, NULL, NULL, NULL);
+	TEST_ASSERT_EQUAL_MESSAGE(cio_invalid_argument, err, "Return value of cio_socket_init() not correct!");
 }
 
 static void test_socket_init_eventloop_add_fails(void)
@@ -234,30 +245,32 @@ static void test_socket_init_eventloop_add_fails(void)
 	struct cio_socket s;
 	cio_linux_eventloop_add_fake.return_val = cio_invalid_argument;
 
-	enum cio_error err = cio_socket_init(&s, NULL, NULL, NULL);
-	TEST_ASSERT(err != cio_success);
+	enum cio_error err = cio_socket_init(&s, &loop, &allocator, NULL);
+	TEST_ASSERT_NOT_EQUAL_MESSAGE(cio_success, err, "Return value of cio_socket_init() not correct!");
 }
 
 static void test_socket_close_without_hook(void)
 {
 	struct cio_socket s;
 
-	enum cio_error err = cio_socket_init(&s, NULL, NULL, NULL);
-	TEST_ASSERT_EQUAL(cio_success, err);
+	enum cio_error err = cio_socket_init(&s, &loop, &allocator, NULL);
+	TEST_ASSERT_EQUAL_MESSAGE(cio_success, err, "Return value of cio_socket_init() not correct!");
 
-	s.close(&s);
-	TEST_ASSERT_EQUAL(1, close_fake.call_count);
-	TEST_ASSERT_EQUAL(s.ev.fd, close_fake.arg0_val);
+	err = s.close(&s);
+	TEST_ASSERT_EQUAL_MESSAGE(cio_success, err, "Return value of close() not correct!");
+	TEST_ASSERT_EQUAL_MESSAGE(1, close_fake.call_count, "Socket close was not called!");
+	TEST_ASSERT_EQUAL_MESSAGE(s.ev.fd, close_fake.arg0_val, "Socket close was not called with correct parameter!");
 }
 
 static void test_socket_close_with_hook(void)
 {
 	struct cio_socket s;
 
-	enum cio_error err = cio_socket_init(&s, NULL, NULL, on_close);
-	TEST_ASSERT_EQUAL(cio_success, err);
+	enum cio_error err = cio_socket_init(&s, &loop, &allocator, on_close);
+	TEST_ASSERT_EQUAL_MESSAGE(cio_success, err, "Return value of cio_socket_init() not correct!");
 
-	s.close(&s);
+	err = s.close(&s);
+	TEST_ASSERT_EQUAL_MESSAGE(cio_success, err, "Return value if close() not correct!");
 	TEST_ASSERT_EQUAL(1, close_fake.call_count);
 	TEST_ASSERT_EQUAL(s.ev.fd, close_fake.arg0_val);
 	TEST_ASSERT_EQUAL(1, on_close_fake.call_count);
@@ -268,42 +281,42 @@ static void test_socket_close_no_stream(void)
 {
 	struct cio_socket s;
 
-	enum cio_error err = cio_socket_init(&s, NULL, NULL, on_close);
-	TEST_ASSERT_EQUAL(cio_success, err);
+	enum cio_error err = cio_socket_init(&s, &loop, &allocator, NULL);
+	TEST_ASSERT_EQUAL_MESSAGE(cio_success, err, "Return value of cio_socket_init not correct!");
 
 	err = s.close(NULL);
-	TEST_ASSERT_EQUAL_MESSAGE(cio_invalid_argument, err, "Return value not correct!");
-	TEST_ASSERT_EQUAL_MESSAGE(0, close_fake.call_count, "Handler was called!");
+	TEST_ASSERT_EQUAL_MESSAGE(cio_invalid_argument, err, "Return value of close() not correct!");
+	TEST_ASSERT_EQUAL_MESSAGE(0, close_fake.call_count, "Close handler was called!");
 }
 
 static void test_socket_enable_nodelay(void)
 {
 	struct cio_socket s;
 
-	enum cio_error err = cio_socket_init(&s, NULL, NULL, on_close);
-	TEST_ASSERT_EQUAL(cio_success, err);
+	enum cio_error err = cio_socket_init(&s, &loop, &allocator, NULL);
+	TEST_ASSERT_EQUAL_MESSAGE(cio_success, err, "Return value of cio_socket_init not correct!");
 
 	err = s.set_tcp_no_delay(&s, true);
-	TEST_ASSERT_EQUAL(cio_success, err);
-	TEST_ASSERT_EQUAL(1, setsockopt_fake.call_count);
-	TEST_ASSERT_EQUAL(s.ev.fd, setsockopt_fake.arg0_val);
-	TEST_ASSERT_EQUAL(IPPROTO_TCP, setsockopt_fake.arg1_val);
-	TEST_ASSERT_EQUAL(TCP_NODELAY, setsockopt_fake.arg2_val);
+	TEST_ASSERT_EQUAL_MESSAGE(cio_success, err, "Return value of set_tcp_no_delay not correct!");
+	TEST_ASSERT_EQUAL_MESSAGE(1, setsockopt_fake.call_count, "setsockopt was not called!");
+	TEST_ASSERT_EQUAL_MESSAGE(s.ev.fd, setsockopt_fake.arg0_val, "fd for setsockopt not correct!");
+	TEST_ASSERT_EQUAL_MESSAGE(IPPROTO_TCP, setsockopt_fake.arg1_val, "level for setsockopt not correct!");
+	TEST_ASSERT_EQUAL_MESSAGE(TCP_NODELAY, setsockopt_fake.arg2_val, "option name for setsockopt not correct!");
 }
 
 static void test_socket_disable_nodelay(void)
 {
 	struct cio_socket s;
 
-	enum cio_error err = cio_socket_init(&s, NULL, NULL, on_close);
-	TEST_ASSERT_EQUAL(cio_success, err);
+	enum cio_error err = cio_socket_init(&s, &loop, &allocator, NULL);
+	TEST_ASSERT_EQUAL_MESSAGE(cio_success, err, "Return value of cio_socket_init not correct!");
 
 	err = s.set_tcp_no_delay(&s, false);
-	TEST_ASSERT_EQUAL(cio_success, err);
-	TEST_ASSERT_EQUAL(1, setsockopt_fake.call_count);
-	TEST_ASSERT_EQUAL(s.ev.fd, setsockopt_fake.arg0_val);
-	TEST_ASSERT_EQUAL(IPPROTO_TCP, setsockopt_fake.arg1_val);
-	TEST_ASSERT_EQUAL(TCP_NODELAY, setsockopt_fake.arg2_val);
+	TEST_ASSERT_EQUAL_MESSAGE(cio_success, err, "Return value of set_tcp_no_delay not correct!");
+	TEST_ASSERT_EQUAL_MESSAGE(1, setsockopt_fake.call_count, "setsockopt was not called!");
+	TEST_ASSERT_EQUAL_MESSAGE(s.ev.fd, setsockopt_fake.arg0_val, "fd for setsockopt not correct!");
+	TEST_ASSERT_EQUAL_MESSAGE(IPPROTO_TCP, setsockopt_fake.arg1_val, "level for setsockopt not correct!");
+	TEST_ASSERT_EQUAL_MESSAGE(TCP_NODELAY, setsockopt_fake.arg2_val, "option name for setsockopt not correct!");
 }
 
 static void test_socket_nodelay_setsockopt_fails(void)
@@ -312,39 +325,39 @@ static void test_socket_nodelay_setsockopt_fails(void)
 
 	setsockopt_fake.custom_fake = setsockopt_fails;
 
-	enum cio_error err = cio_socket_init(&s, NULL, NULL, on_close);
-	TEST_ASSERT_EQUAL(cio_success, err);
+	enum cio_error err = cio_socket_init(&s, &loop, &allocator, NULL);
+	TEST_ASSERT_EQUAL_MESSAGE(cio_success, err, "Return value of cio_socket_init not correct!");
 
 	err = s.set_tcp_no_delay(&s, false);
-	TEST_ASSERT(cio_success != err);
-	TEST_ASSERT_EQUAL(1, setsockopt_fake.call_count);
-	TEST_ASSERT_EQUAL(s.ev.fd, setsockopt_fake.arg0_val);
-	TEST_ASSERT_EQUAL(IPPROTO_TCP, setsockopt_fake.arg1_val);
-	TEST_ASSERT_EQUAL(TCP_NODELAY, setsockopt_fake.arg2_val);
+	TEST_ASSERT_NOT_EQUAL_MESSAGE(cio_success, err, "Return value of set_tcp_no_delay not correct!");
+	TEST_ASSERT_EQUAL_MESSAGE(1, setsockopt_fake.call_count, "setsockopt was not called!");
+	TEST_ASSERT_EQUAL_MESSAGE(s.ev.fd, setsockopt_fake.arg0_val, "fd for setsockopt not correct!");
+	TEST_ASSERT_EQUAL_MESSAGE(IPPROTO_TCP, setsockopt_fake.arg1_val, "level for setsockopt not correct!");
+	TEST_ASSERT_EQUAL_MESSAGE(TCP_NODELAY, setsockopt_fake.arg2_val, "option name for setsockopt not correct!");
 }
 
 static void test_socket_enable_keepalive(void)
 {
 	struct cio_socket s;
 
-	enum cio_error err = cio_socket_init(&s, NULL, NULL, on_close);
-	TEST_ASSERT_EQUAL(cio_success, err);
+	enum cio_error err = cio_socket_init(&s, &loop, &allocator, NULL);
+	TEST_ASSERT_EQUAL_MESSAGE(cio_success, err, "Return value of cio_socket_init not correct!");
 
 	err = s.set_keep_alive(&s, true, 10, 9, 8);
-	TEST_ASSERT_EQUAL(cio_success, err);
-	TEST_ASSERT_EQUAL(4, setsockopt_fake.call_count);
+	TEST_ASSERT_EQUAL_MESSAGE(cio_success, err, "Return value of set_keep_alive not correct!");
+	TEST_ASSERT_EQUAL_MESSAGE(4, setsockopt_fake.call_count, "setsockopt was not called 4 times!");
 }
 
 static void test_socket_disable_keepalive(void)
 {
 	struct cio_socket s;
 
-	enum cio_error err = cio_socket_init(&s, NULL, NULL, on_close);
-	TEST_ASSERT_EQUAL(cio_success, err);
+	enum cio_error err = cio_socket_init(&s, &loop, &allocator, NULL);
+	TEST_ASSERT_EQUAL_MESSAGE(cio_success, err, "Return value of cio_socket_init not correct!");
 
 	err = s.set_keep_alive(&s, false, 10, 9, 8);
-	TEST_ASSERT_EQUAL(cio_success, err);
-	TEST_ASSERT_EQUAL(1, setsockopt_fake.call_count);
+	TEST_ASSERT_EQUAL_MESSAGE(cio_success, err, "Return value of set_keep_alive not correct!");
+	TEST_ASSERT_EQUAL_MESSAGE(1, setsockopt_fake.call_count, "setsockopt was not called 1 time!");
 }
 
 static void test_socket_disable_keepalive_setsockopt_fails(void)
@@ -354,14 +367,15 @@ static void test_socket_disable_keepalive_setsockopt_fails(void)
 	    {
 	        setsockopt_fails,
 	    };
-	enum cio_error err = cio_socket_init(&s, NULL, NULL, on_close);
-	TEST_ASSERT_EQUAL(cio_success, err);
+
+	enum cio_error err = cio_socket_init(&s, &loop, &allocator, NULL);
+	TEST_ASSERT_EQUAL_MESSAGE(cio_success, err, "Return value of cio_socket_init not correct!");
 
 	SET_CUSTOM_FAKE_SEQ(setsockopt, custom_fakes, ARRAY_SIZE(custom_fakes));
 
 	err = s.set_keep_alive(&s, false, 10, 9, 8);
-	TEST_ASSERT(cio_success != err);
-	TEST_ASSERT_EQUAL(1, setsockopt_fake.call_count);
+	TEST_ASSERT_NOT_EQUAL_MESSAGE(cio_success, err, "Return value for failing set_keep_alive not correct!");
+	TEST_ASSERT_EQUAL_MESSAGE(1, setsockopt_fake.call_count, "setsockopt was not called 1 time!");
 }
 
 static void test_socket_enable_keepalive_keep_idle_fails(void)
@@ -373,14 +387,15 @@ static void test_socket_enable_keepalive_keep_idle_fails(void)
 	        setsockopt_ok,
 	        setsockopt_ok,
 	        setsockopt_ok};
-	enum cio_error err = cio_socket_init(&s, NULL, NULL, on_close);
-	TEST_ASSERT_EQUAL(cio_success, err);
+
+	enum cio_error err = cio_socket_init(&s, &loop, &allocator, NULL);
+	TEST_ASSERT_EQUAL_MESSAGE(cio_success, err, "Return value of cio_socket_init not correct!");
 
 	SET_CUSTOM_FAKE_SEQ(setsockopt, custom_fakes, ARRAY_SIZE(custom_fakes));
 
 	err = s.set_keep_alive(&s, true, 10, 9, 8);
-	TEST_ASSERT(cio_success != err);
-	TEST_ASSERT_EQUAL(1, setsockopt_fake.call_count);
+	TEST_ASSERT_NOT_EQUAL_MESSAGE(cio_success, err, "Return value for failing set_keep_alive not correct!");
+	TEST_ASSERT_EQUAL_MESSAGE(1, setsockopt_fake.call_count, "setsockopt was not called 1 time!");
 }
 
 static void test_socket_enable_keepalive_keep_intvl_fails(void)
@@ -392,14 +407,15 @@ static void test_socket_enable_keepalive_keep_intvl_fails(void)
 	        setsockopt_fails,
 	        setsockopt_ok,
 	        setsockopt_ok};
-	enum cio_error err = cio_socket_init(&s, NULL, NULL, on_close);
-	TEST_ASSERT_EQUAL(cio_success, err);
+
+	enum cio_error err = cio_socket_init(&s, &loop, &allocator, NULL);
+	TEST_ASSERT_EQUAL_MESSAGE(cio_success, err, "Return value of cio_socket_init not correct!");
 
 	SET_CUSTOM_FAKE_SEQ(setsockopt, custom_fakes, ARRAY_SIZE(custom_fakes));
 
 	err = s.set_keep_alive(&s, true, 10, 9, 8);
-	TEST_ASSERT(cio_success != err);
-	TEST_ASSERT_EQUAL(2, setsockopt_fake.call_count);
+	TEST_ASSERT_NOT_EQUAL_MESSAGE(cio_success, err, "Return value for failing set_keep_alive not correct!");
+	TEST_ASSERT_EQUAL_MESSAGE(2, setsockopt_fake.call_count, "setsockopt was not called 2 times!");
 }
 
 static void test_socket_enable_keepalive_keep_cnt(void)
@@ -411,25 +427,28 @@ static void test_socket_enable_keepalive_keep_cnt(void)
 	        setsockopt_ok,
 	        setsockopt_fails,
 	        setsockopt_ok};
-	enum cio_error err = cio_socket_init(&s, NULL, NULL, on_close);
-	TEST_ASSERT_EQUAL(cio_success, err);
+
+	enum cio_error err = cio_socket_init(&s, &loop, &allocator, NULL);
+	TEST_ASSERT_EQUAL_MESSAGE(cio_success, err, "Return value of cio_socket_init not correct!");
 
 	SET_CUSTOM_FAKE_SEQ(setsockopt, custom_fakes, ARRAY_SIZE(custom_fakes));
 
 	err = s.set_keep_alive(&s, true, 10, 9, 8);
-	TEST_ASSERT(cio_success != err);
-	TEST_ASSERT_EQUAL(3, setsockopt_fake.call_count);
+	TEST_ASSERT_NOT_EQUAL_MESSAGE(cio_success, err, "Return value for failing set_keep_alive not correct!");
+	TEST_ASSERT_EQUAL_MESSAGE(3, setsockopt_fake.call_count, "setsockopt was not called 3 times!");
 }
 
 static void test_socket_stream_close(void)
 {
 	struct cio_socket s;
-	enum cio_error err = cio_socket_init(&s, NULL, NULL, on_close);
-	TEST_ASSERT_EQUAL(cio_success, err);
+	enum cio_error err = cio_socket_init(&s, &loop, &allocator, on_close);
+	TEST_ASSERT_EQUAL_MESSAGE(cio_success, err, "Return value of cio_socket_init not correct!");
+
 	struct cio_io_stream *stream = s.get_io_stream(&s);
-	stream->close(stream);
-	TEST_ASSERT_EQUAL(1, close_fake.call_count);
-	TEST_ASSERT_EQUAL(s.ev.fd, close_fake.arg0_val);
+	err = stream->close(stream);
+	TEST_ASSERT_EQUAL_MESSAGE(cio_success, err, "Return value of stream close() not correct!");
+	TEST_ASSERT_EQUAL_MESSAGE(1, close_fake.call_count, "Close was not called!");
+	TEST_ASSERT_EQUAL_MESSAGE(s.ev.fd, close_fake.arg0_val, "file descriptor fo close() not correct!");
 }
 
 static void test_socket_readsome(void)
@@ -440,22 +459,22 @@ static void test_socket_readsome(void)
 	read_fake.custom_fake = read_ok;
 
 	struct cio_socket s;
-	enum cio_error err = cio_socket_init(&s, NULL, NULL, on_close);
-	TEST_ASSERT_EQUAL(cio_success, err);
-	struct cio_io_stream *stream = s.get_io_stream(&s);
+	enum cio_error err = cio_socket_init(&s, &loop, &allocator, on_close);
+	TEST_ASSERT_EQUAL_MESSAGE(cio_success, err, "Return value of cio_socket_init not correct!");
 
+	struct cio_io_stream *stream = s.get_io_stream(&s);
 	err = stream->read_some(stream, readback_buffer, sizeof(readback_buffer), read_handler, NULL);
 	TEST_ASSERT_EQUAL_MESSAGE(cio_success, err, "Return value not correct!");
 
 	s.ev.read_callback(s.ev.context);
 
-	TEST_ASSERT_EQUAL(1, read_handler_fake.call_count);
-	TEST_ASSERT_EQUAL(stream, read_handler_fake.arg0_val);
-	TEST_ASSERT_EQUAL(NULL, read_handler_fake.arg1_val);
-	TEST_ASSERT_EQUAL(cio_success, read_handler_fake.arg2_val);
-	TEST_ASSERT_EQUAL(readback_buffer, read_handler_fake.arg3_val);
-	TEST_ASSERT_EQUAL(data_to_read, read_handler_fake.arg4_val);
-	TEST_ASSERT_EQUAL(0, memcmp(read_buffer, readback_buffer, data_to_read));
+	TEST_ASSERT_EQUAL_MESSAGE(1, read_handler_fake.call_count, "read handler was not called!");
+	TEST_ASSERT_EQUAL_MESSAGE(stream, read_handler_fake.arg0_val, "First parameter for read handler is not the stream!");
+	TEST_ASSERT_EQUAL_MESSAGE(NULL, read_handler_fake.arg1_val, "Context parameter for read handler is not correct!");
+	TEST_ASSERT_EQUAL_MESSAGE(cio_success, read_handler_fake.arg2_val, "Read handler was not called with cio_success!");
+	TEST_ASSERT_EQUAL_MESSAGE(readback_buffer, read_handler_fake.arg3_val, "Original buffer was not passed to read handler!");
+	TEST_ASSERT_EQUAL_MESSAGE(data_to_read, read_handler_fake.arg4_val, "Size of data to read was not correctly passwd to read handler!");
+	TEST_ASSERT_EQUAL_MESSAGE(0, memcmp(read_buffer, readback_buffer, data_to_read), "Content of data passed to read handler is not correct!");
 }
 
 static void test_socket_readsome_register_read_fails(void)
@@ -467,8 +486,8 @@ static void test_socket_readsome_register_read_fails(void)
 	cio_linux_eventloop_register_read_fake.return_val = cio_invalid_argument;
 
 	struct cio_socket s;
-	enum cio_error err = cio_socket_init(&s, NULL, NULL, on_close);
-	TEST_ASSERT_EQUAL(cio_success, err);
+	enum cio_error err = cio_socket_init(&s, &loop, &allocator, on_close);
+	TEST_ASSERT_EQUAL_MESSAGE(cio_success, err, "Return value of cio_socket_init not correct!");
 	struct cio_io_stream *stream = s.get_io_stream(&s);
 
 	err = stream->read_some(stream, readback_buffer, sizeof(readback_buffer), read_handler, NULL);
@@ -484,13 +503,13 @@ static void test_socket_readsome_read_blocks(void)
 	read_fake.custom_fake = read_blocks;
 
 	struct cio_socket s;
-	enum cio_error err = cio_socket_init(&s, NULL, NULL, on_close);
-	TEST_ASSERT_EQUAL(cio_success, err);
+	enum cio_error err = cio_socket_init(&s, &loop, &allocator, on_close);
+	TEST_ASSERT_EQUAL_MESSAGE(cio_success, err, "Return value of cio_socket_init not correct!");
 	struct cio_io_stream *stream = s.get_io_stream(&s);
 
 	err = stream->read_some(stream, readback_buffer, sizeof(readback_buffer), read_handler, NULL);
 	TEST_ASSERT_EQUAL_MESSAGE(cio_success, err, "Return value not correct!");
-	TEST_ASSERT_EQUAL(0, read_handler_fake.call_count);
+	TEST_ASSERT_EQUAL_MESSAGE(0, read_handler_fake.call_count, "Handler was called!");
 }
 
 static void test_socket_readsome_read_fails(void)
@@ -501,8 +520,8 @@ static void test_socket_readsome_read_fails(void)
 	read_fake.custom_fake = read_fails;
 
 	struct cio_socket s;
-	enum cio_error err = cio_socket_init(&s, NULL, NULL, on_close);
-	TEST_ASSERT_EQUAL(cio_success, err);
+	enum cio_error err = cio_socket_init(&s, &loop, &allocator, on_close);
+	TEST_ASSERT_EQUAL_MESSAGE(cio_success, err, "Return value of cio_socket_init not correct!");
 	struct cio_io_stream *stream = s.get_io_stream(&s);
 
 	err = stream->read_some(stream, readback_buffer, sizeof(readback_buffer), read_handler, NULL);
@@ -510,12 +529,12 @@ static void test_socket_readsome_read_fails(void)
 
 	s.ev.read_callback(s.ev.context);
 
-	TEST_ASSERT_EQUAL(1, read_handler_fake.call_count);
-	TEST_ASSERT_EQUAL(stream, read_handler_fake.arg0_val);
-	TEST_ASSERT_EQUAL(NULL, read_handler_fake.arg1_val);
-	TEST_ASSERT_NOT_EQUAL(cio_success, read_handler_fake.arg2_val);
-	TEST_ASSERT_EQUAL(readback_buffer, read_handler_fake.arg3_val);
-	TEST_ASSERT_EQUAL(0, read_handler_fake.arg4_val);
+	TEST_ASSERT_EQUAL_MESSAGE(1, read_handler_fake.call_count, "Read handler was not called!");
+	TEST_ASSERT_EQUAL_MESSAGE(stream, read_handler_fake.arg0_val, "Original stream was not passed to read handler!");
+	TEST_ASSERT_EQUAL_MESSAGE(NULL, read_handler_fake.arg1_val, "Context parameter for read handler is not correct!");
+	TEST_ASSERT_NOT_EQUAL_MESSAGE(cio_success, read_handler_fake.arg2_val, "Read handler was called with cio_success for a failing read!");
+	TEST_ASSERT_EQUAL_MESSAGE(readback_buffer, read_handler_fake.arg3_val, "Original buffer was not passed to read handler!");
+	TEST_ASSERT_EQUAL_MESSAGE(0, read_handler_fake.arg4_val, "Size of data to read was not correctly passwd to read handler!");
 }
 
 static void test_socket_readsome_no_stream(void)
@@ -526,8 +545,8 @@ static void test_socket_readsome_no_stream(void)
 	read_fake.custom_fake = read_fails;
 
 	struct cio_socket s;
-	enum cio_error err = cio_socket_init(&s, NULL, NULL, on_close);
-	TEST_ASSERT_EQUAL(cio_success, err);
+	enum cio_error err = cio_socket_init(&s, &loop, &allocator, on_close);
+	TEST_ASSERT_EQUAL_MESSAGE(cio_success, err, "Return value of cio_socket_init not correct!");
 	struct cio_io_stream *stream = s.get_io_stream(&s);
 
 	err = stream->read_some(NULL, readback_buffer, sizeof(readback_buffer), read_handler, NULL);
@@ -543,8 +562,8 @@ static void test_socket_readsome_no_buffer(void)
 	read_fake.custom_fake = read_fails;
 
 	struct cio_socket s;
-	enum cio_error err = cio_socket_init(&s, NULL, NULL, on_close);
-	TEST_ASSERT_EQUAL(cio_success, err);
+	enum cio_error err = cio_socket_init(&s, &loop, &allocator, on_close);
+	TEST_ASSERT_EQUAL_MESSAGE(cio_success, err, "Return value of cio_socket_init not correct!");
 	struct cio_io_stream *stream = s.get_io_stream(&s);
 
 	err = stream->read_some(stream, NULL, sizeof(readback_buffer), read_handler, NULL);
@@ -560,8 +579,8 @@ static void test_socket_readsome_no_handler(void)
 	read_fake.custom_fake = read_fails;
 
 	struct cio_socket s;
-	enum cio_error err = cio_socket_init(&s, NULL, NULL, on_close);
-	TEST_ASSERT_EQUAL(cio_success, err);
+	enum cio_error err = cio_socket_init(&s, &loop, &allocator, on_close);
+	TEST_ASSERT_EQUAL_MESSAGE(cio_success, err, "Return value of cio_socket_init not correct!");
 	struct cio_io_stream *stream = s.get_io_stream(&s);
 
 	err = stream->read_some(stream, readback_buffer, sizeof(readback_buffer), NULL, NULL);
@@ -583,8 +602,8 @@ static void test_socket_writesome_all(void)
 	cio_write_buffer_init(&wb, buffer, sizeof(buffer));
 	cio_write_buffer_queue_tail(&wbh, &wb);
 
-	enum cio_error err = cio_socket_init(&s, NULL, NULL, on_close);
-	TEST_ASSERT_EQUAL(cio_success, err);
+	enum cio_error err = cio_socket_init(&s, &loop, &allocator, on_close);
+	TEST_ASSERT_EQUAL_MESSAGE(cio_success, err, "Return value of cio_socket_init not correct!");
 	struct cio_io_stream *stream = s.get_io_stream(&s);
 
 	err = stream->write_some(stream, &wbh, write_handler, NULL);
@@ -615,8 +634,8 @@ static void test_socket_writesome_parts(void)
 	wb.data.element.length = sizeof(buffer);
 	cio_write_buffer_queue_tail(&wbh, &wb);
 
-	enum cio_error err = cio_socket_init(&s, NULL, NULL, on_close);
-	TEST_ASSERT_EQUAL(cio_success, err);
+	enum cio_error err = cio_socket_init(&s, &loop, &allocator, on_close);
+	TEST_ASSERT_EQUAL_MESSAGE(cio_success, err, "Return value of cio_socket_init not correct!");
 	struct cio_io_stream *stream = s.get_io_stream(&s);
 
 	err = stream->write_some(stream, &wbh, write_handler, NULL);
@@ -644,8 +663,8 @@ static void test_socket_writesome_fails(void)
 	cio_write_buffer_init(&wb, buffer, sizeof(buffer));
 	cio_write_buffer_queue_tail(&wbh, &wb);
 
-	enum cio_error err = cio_socket_init(&s, NULL, NULL, on_close);
-	TEST_ASSERT_EQUAL(cio_success, err);
+	enum cio_error err = cio_socket_init(&s, &loop, &allocator, on_close);
+	TEST_ASSERT_EQUAL_MESSAGE(cio_success, err, "Return value of cio_socket_init not correct!");
 	struct cio_io_stream *stream = s.get_io_stream(&s);
 
 	err = stream->write_some(stream, &wbh, write_handler, NULL);
@@ -677,8 +696,8 @@ static void test_socket_writesome_blocks(void)
 	cio_write_buffer_init(&wb, buffer, sizeof(buffer));
 	cio_write_buffer_queue_tail(&wbh, &wb);
 
-	enum cio_error err = cio_socket_init(&s, NULL, NULL, on_close);
-	TEST_ASSERT_EQUAL(cio_success, err);
+	enum cio_error err = cio_socket_init(&s, &loop, &allocator, on_close);
+	TEST_ASSERT_EQUAL_MESSAGE(cio_success, err, "Return value of cio_socket_init not correct!");
 	struct cio_io_stream *stream = s.get_io_stream(&s);
 
 	err = stream->write_some(stream, &wbh, write_handler, NULL);
@@ -713,8 +732,8 @@ static void test_socket_writesome_blocks_fails(void)
 	cio_write_buffer_init(&wb, buffer, sizeof(buffer));
 	cio_write_buffer_queue_tail(&wbh, &wb);
 
-	enum cio_error err = cio_socket_init(&s, NULL, NULL, on_close);
-	TEST_ASSERT_EQUAL(cio_success, err);
+	enum cio_error err = cio_socket_init(&s, &loop, &allocator, on_close);
+	TEST_ASSERT_EQUAL_MESSAGE(cio_success, err, "Return value of cio_socket_init not correct!");
 	struct cio_io_stream *stream = s.get_io_stream(&s);
 
 	err = stream->write_some(stream, &wbh, write_handler, NULL);
@@ -742,8 +761,8 @@ static void test_socket_writesome_no_stream(void)
 	cio_write_buffer_init(&wb, buffer, sizeof(buffer));
 	cio_write_buffer_queue_tail(&wbh, &wb);
 
-	enum cio_error err = cio_socket_init(&s, NULL, NULL, on_close);
-	TEST_ASSERT_EQUAL(cio_success, err);
+	enum cio_error err = cio_socket_init(&s, &loop, &allocator, on_close);
+	TEST_ASSERT_EQUAL_MESSAGE(cio_success, err, "Return value of cio_socket_init not correct!");
 	struct cio_io_stream *stream = s.get_io_stream(&s);
 
 	err = stream->write_some(NULL, &wbh, write_handler, NULL);
@@ -765,8 +784,8 @@ static void test_socket_writesome_no_buffer(void)
 	cio_write_buffer_init(&wb, buffer, sizeof(buffer));
 	cio_write_buffer_queue_tail(&wbh, &wb);
 
-	enum cio_error err = cio_socket_init(&s, NULL, NULL, on_close);
-	TEST_ASSERT_EQUAL(cio_success, err);
+	enum cio_error err = cio_socket_init(&s, &loop, &allocator, on_close);
+	TEST_ASSERT_EQUAL_MESSAGE(cio_success, err, "Return value of cio_socket_init not correct!");
 	struct cio_io_stream *stream = s.get_io_stream(&s);
 
 	err = stream->write_some(stream, NULL, write_handler, NULL);
@@ -788,8 +807,8 @@ static void test_socket_writesome_no_handler(void)
 	cio_write_buffer_init(&wb, buffer, sizeof(buffer));
 	cio_write_buffer_queue_tail(&wbh, &wb);
 
-	enum cio_error err = cio_socket_init(&s, NULL, NULL, on_close);
-	TEST_ASSERT_EQUAL(cio_success, err);
+	enum cio_error err = cio_socket_init(&s, &loop, &allocator, on_close);
+	TEST_ASSERT_EQUAL_MESSAGE(cio_success, err, "Return value of cio_socket_init not correct!");
 	struct cio_io_stream *stream = s.get_io_stream(&s);
 
 	err = stream->write_some(stream, &wbh, NULL, NULL);
@@ -801,6 +820,7 @@ int main(void)
 {
 	UNITY_BEGIN();
 	RUN_TEST(test_socket_init);
+	RUN_TEST(test_socket_init_socket_create_no_socket);
 	RUN_TEST(test_socket_init_socket_create_fails);
 	RUN_TEST(test_socket_init_eventloop_add_fails);
 	RUN_TEST(test_socket_close_without_hook);
