@@ -30,6 +30,9 @@
 #include <stddef.h>
 #include <stdint.h>
 
+#include "cio_compiler.h"
+#include "cio_error_code.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -54,12 +57,18 @@ static inline size_t cio_read_buffer_space_available(const struct cio_read_buffe
 	return rb->size - cio_read_buffer_unread_bytes(rb);
 }
 
-static inline void cio_read_buffer_init(struct cio_read_buffer *rb, void *data, size_t size)
+static inline enum cio_error cio_read_buffer_init(struct cio_read_buffer *rb, void *data, size_t size)
 {
+	if (unlikely((rb == NULL) || (data == NULL))) {
+		return cio_invalid_argument;
+	}
+
 	rb->data = data;
 	rb->size = size;
 	rb->unread_bytes = 0;
 	rb->read_from_ptr = data;
+
+	return cio_success;
 }
 
 #ifdef __cplusplus

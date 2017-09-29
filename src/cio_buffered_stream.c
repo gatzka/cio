@@ -76,18 +76,19 @@ static void internal_read(struct cio_buffered_stream *bs)
 	}
 }
 
-static enum cio_error bs_read(struct cio_buffered_stream *bs, size_t num, cio_buffered_stream_read_handler handler, void *handler_context)
+static enum cio_error bs_read(struct cio_buffered_stream *bs, struct cio_read_buffer *buffer, size_t num, cio_buffered_stream_read_handler handler, void *handler_context)
 {
-	if (unlikely((bs == NULL) || (handler == NULL))) {
+	if (unlikely((bs == NULL) || (buffer == NULL) || (handler == NULL))) {
 		return cio_invalid_argument;
 	}
 
-	if (unlikely(num > bs->new_read_buffer->size)) {
+	if (unlikely(num > buffer->size)) {
 		return cio_message_too_long;
 	}
 
 	bs->read_info.bytes_to_read = num;
 	bs->read_job = internal_read;
+	bs->new_read_buffer = buffer;
 	bs->read_handler = handler;
 	bs->read_handler_context = handler_context;
 	bs->last_error = cio_success;
@@ -111,15 +112,16 @@ static void internal_read_until(struct cio_buffered_stream *bs)
 	}
 }
 
-static enum cio_error bs_read_until(struct cio_buffered_stream *bs, const char *delim, cio_buffered_stream_read_handler handler, void *handler_context)
+static enum cio_error bs_read_until(struct cio_buffered_stream *bs, struct cio_read_buffer *buffer, const char *delim, cio_buffered_stream_read_handler handler, void *handler_context)
 {
-	if (unlikely((bs == NULL) || (handler == NULL) || (delim == NULL))) {
+	if (unlikely((bs == NULL) || (buffer == NULL) || (handler == NULL) || (delim == NULL))) {
 		return cio_invalid_argument;
 	}
 
 	bs->read_info.until.delim = delim;
 	bs->read_info.until.delim_length = strlen(delim);
 	bs->read_job = internal_read_until;
+	bs->new_read_buffer = buffer;
 	bs->read_handler = handler;
 	bs->read_handler_context = handler_context;
 	bs->last_error = cio_success;
@@ -144,18 +146,19 @@ static void internal_read_exactly(struct cio_buffered_stream *bs)
 	}
 }
 
-static enum cio_error bs_read_exactly(struct cio_buffered_stream *bs, size_t num, cio_buffered_stream_read_handler handler, void *handler_context)
+static enum cio_error bs_read_exactly(struct cio_buffered_stream *bs, struct cio_read_buffer *buffer, size_t num, cio_buffered_stream_read_handler handler, void *handler_context)
 {
-	if (unlikely((bs == NULL) || (handler == NULL))) {
+	if (unlikely((bs == NULL) || (handler == NULL) || (buffer == NULL))) {
 		return cio_invalid_argument;
 	}
 
-	if (unlikely(num > bs->new_read_buffer->size)) {
+	if (unlikely(num > buffer->size)) {
 		return cio_message_too_long;
 	}
 
 	bs->read_info.bytes_to_read = num;
 	bs->read_job = internal_read_exactly;
+	bs->new_read_buffer = buffer;
 	bs->read_handler = handler;
 	bs->read_handler_context = handler_context;
 	bs->last_error = cio_success;
@@ -250,16 +253,14 @@ static enum cio_error bs_close(struct cio_buffered_stream *bs)
 }
 
 enum cio_error cio_buffered_stream_init(struct cio_buffered_stream *bs,
-                                        struct cio_io_stream *stream,
-                                        struct cio_read_buffer *read_buffer)
+										struct cio_io_stream *stream)
 {
-	if (unlikely((bs == NULL) || (stream == NULL) || (read_buffer == NULL))) {
+	if (unlikely((bs == NULL) || (stream == NULL))) {
 		return cio_invalid_argument;
 	}
 
 	bs->stream = stream;
 
-	bs->new_read_buffer = read_buffer;
 	bs->read = bs_read;
 	bs->read_exactly = bs_read_exactly;
 	bs->read_until = bs_read_until;

@@ -97,7 +97,7 @@ struct cio_buffered_stream {
 	 *
 	 * @return ::cio_success for success.
 	 */
-	enum cio_error (*read_exactly)(struct cio_buffered_stream *bs, size_t num, cio_buffered_stream_read_handler handler, void *handler_context);
+	enum cio_error (*read_exactly)(struct cio_buffered_stream *bs, struct cio_read_buffer *buffer, size_t num, cio_buffered_stream_read_handler handler, void *handler_context);
 
 	/**
 	 * @brief Read upto @p count bytes into the buffer @p buf starting
@@ -115,7 +115,7 @@ struct cio_buffered_stream {
 	 *
 	 * @return ::cio_success for success.
 	 */
-	enum cio_error (*read)(struct cio_buffered_stream *bs, size_t num, cio_buffered_stream_read_handler handler, void *handler_context);
+	enum cio_error (*read)(struct cio_buffered_stream *bs, struct cio_read_buffer *buffer, size_t num, cio_buffered_stream_read_handler handler, void *handler_context);
 
 	/**
 	 * @brief Call @p handler if delimiter @p delim is encountered.
@@ -130,7 +130,7 @@ struct cio_buffered_stream {
 	 *
 	 * @return ::cio_success for success.
 	 */
-	enum cio_error (*read_until)(struct cio_buffered_stream *bs, const char *delim, cio_buffered_stream_read_handler handler, void *handler_context);
+	enum cio_error (*read_until)(struct cio_buffered_stream *bs, struct cio_read_buffer *buffer, const char *delim, cio_buffered_stream_read_handler handler, void *handler_context);
 
 	/**
 	 * @brief Writes @p count bytes to the buffered stream.
@@ -199,8 +199,7 @@ struct cio_buffered_stream {
  * @return ::cio_success for success.
  */
 enum cio_error cio_buffered_stream_init(struct cio_buffered_stream *bs,
-                                        struct cio_io_stream *stream,
-                                        struct cio_read_buffer *read_buffer);
+                                        struct cio_io_stream *stream);
 
 #ifdef __cplusplus
 }
