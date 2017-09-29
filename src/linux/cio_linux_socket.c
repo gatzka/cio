@@ -206,6 +206,10 @@ enum cio_error cio_linux_socket_init(struct cio_socket *s, int client_fd,
                                      struct cio_allocator *allocator,
                                      cio_socket_close_hook close_hook)
 {
+	if (unlikely((s == NULL) || (loop == NULL) || (allocator == NULL))) {
+		return cio_invalid_argument;
+	}
+
 	s->ev.fd = client_fd;
 	s->allocator = allocator;
 	s->ev.error_callback = NULL;
