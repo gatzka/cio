@@ -136,9 +136,7 @@ struct cio_server_socket {
  * @param loop The event loop the server socket shall operate on.
  * @param backlog The minimal length of the listen queue.
  * @param allocator The allocator that was used to allocate the memory for
- * the struct cio_server_socket. Could be @p NULL. You have access to the
- * allocator in the close hook function. This allows you to free the memory
- * on close.
+ * the struct cio_socket after a successful accept.
  * @param close_hook A close hook function. If this parameter is non @p NULL,
  * the function will be called directly after
  * @ref cio_server_socket_close "closing" the cio_server_socket.
