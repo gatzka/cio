@@ -31,7 +31,6 @@ CppApplication {
   type: ["application", "unittest"]
   Depends { name: "unit test settings" }
   cpp.cLanguageVersion: "c99"
-//  cpp.defines: "_GNU_SOURCE"
   files: [
     "test_cio_buffered_stream.c",
     "../cio_buffered_stream.c",
