@@ -407,6 +407,25 @@ static void test_read_exactly_no_handler(void)
 	memory_stream_deinit(&ms);
 }
 
+static void test_read_exactly_no_buffer(void)
+{
+	size_t read_buffer_size = 40;
+	static const char *test_data = "Hello";
+	memory_stream_init(&ms, test_data);
+
+	struct cio_buffered_stream bs;
+	enum cio_error err = cio_buffered_stream_init(&bs, &ms.ios);
+	TEST_ASSERT_EQUAL_MESSAGE(cio_success, err, "Buffer was not initialized correctly!");
+	err = bs.read_exactly(&bs, NULL, read_buffer_size, dummy_read_handler, NULL);
+	TEST_ASSERT_EQUAL_MESSAGE(cio_invalid_argument, err, "Return value not correct!");
+	TEST_ASSERT_EQUAL_MESSAGE(0, dummy_read_handler_fake.call_count, "Handler was not called!");
+
+	err = bs.close(&bs);
+	TEST_ASSERT_EQUAL_MESSAGE(cio_success, err, "Return value not correct!");
+	TEST_ASSERT_EQUAL_MESSAGE(1, close_fake.call_count, "Underlying cio_iostream was not closed!");
+	memory_stream_deinit(&ms);
+}
+
 static void test_read_exactly_ios_error(void)
 {
 	size_t read_buffer_size = 40;
@@ -583,6 +602,29 @@ static void test_read_until_no_buffered_stream(void)
 	TEST_ASSERT_EQUAL_MESSAGE(cio_success, err, "Buffer was not initialized correctly!");
 
 	err = bs.read_until(NULL, &rb, DELIM, dummy_read_handler, check_buffer);
+	TEST_ASSERT_EQUAL_MESSAGE(cio_invalid_argument, err, "Return value not correct!");
+	TEST_ASSERT_EQUAL_MESSAGE(0, dummy_read_handler_fake.call_count, "Handler was not called!");
+
+	err = bs.close(&bs);
+	TEST_ASSERT_EQUAL_MESSAGE(cio_success, err, "Return value not correct!");
+	TEST_ASSERT_EQUAL_MESSAGE(1, close_fake.call_count, "Underlying cio_iostream was not closed!");
+	memory_stream_deinit(&ms);
+}
+
+static void test_read_until_no_buffer(void)
+{
+#define PRE_DELIM "MY"
+#define DELIM "HelloWorld"
+	static const char *test_data = PRE_DELIM DELIM "Example";
+	memory_stream_init(&ms, test_data);
+	read_some_fake.custom_fake = read_some_max;
+	dummy_read_handler_fake.custom_fake = save_to_check_buffer;
+
+	struct cio_buffered_stream bs;
+	enum cio_error  err = cio_buffered_stream_init(&bs, &ms.ios);
+	TEST_ASSERT_EQUAL_MESSAGE(cio_success, err, "Buffer was not initialized correctly!");
+
+	err = bs.read_until(&bs, NULL, DELIM, dummy_read_handler, check_buffer);
 	TEST_ASSERT_EQUAL_MESSAGE(cio_invalid_argument, err, "Return value not correct!");
 	TEST_ASSERT_EQUAL_MESSAGE(0, dummy_read_handler_fake.call_count, "Handler was not called!");
 
@@ -825,6 +867,34 @@ static void test_read_request_no_handler(void)
 	TEST_ASSERT_EQUAL_MESSAGE(1, close_fake.call_count, "Underlying cio_iostream was not closed!");
 	memory_stream_deinit(&ms);
 }
+
+static void test_read_request_no_buffer(void)
+{
+	static const char *test_data = "Hello";
+	memory_stream_init(&ms, test_data);
+	read_some_fake.custom_fake = read_some_max;
+	dummy_read_handler_fake.custom_fake = save_to_check_buffer;
+
+	size_t read_buffer_size = 40;
+	uint8_t buffer[read_buffer_size];
+	struct cio_read_buffer rb;
+	enum cio_error err = cio_read_buffer_init(&rb, &buffer, sizeof(buffer));
+	TEST_ASSERT_EQUAL_MESSAGE(cio_success, err, "Read buffer was not initialized correctly!");
+
+	struct cio_buffered_stream bs;
+	err = cio_buffered_stream_init(&bs, &ms.ios);
+	TEST_ASSERT_EQUAL_MESSAGE(cio_success, err, "Buffer was not initialized correctly!");
+
+	err = bs.read(&bs, NULL, strlen(test_data) - 1, dummy_read_handler, check_buffer);
+	TEST_ASSERT_EQUAL_MESSAGE(cio_invalid_argument, err, "Return value not correct!");
+	TEST_ASSERT_EQUAL_MESSAGE(0, dummy_read_handler_fake.call_count, "Handler was called!");
+
+	err = bs.close(&bs);
+	TEST_ASSERT_EQUAL_MESSAGE(cio_success, err, "Return value not correct!");
+	TEST_ASSERT_EQUAL_MESSAGE(1, close_fake.call_count, "Underlying cio_iostream was not closed!");
+	memory_stream_deinit(&ms);
+}
+
 
 static void test_read_request_more_than_buffer_size(void)
 {
@@ -1189,18 +1259,21 @@ int main(void)
 	RUN_TEST(test_read_exactly_more_than_buffer_size);
 	RUN_TEST(test_read_exactly_no_buffered_stream);
 	RUN_TEST(test_read_exactly_no_handler);
+	RUN_TEST(test_read_exactly_no_buffer);
 	RUN_TEST(test_read_exactly_ios_error);
 	RUN_TEST(test_read_exactly_chunks);
 	RUN_TEST(test_read_exactly_zero_length);
 	RUN_TEST(test_read_until);
 	RUN_TEST(test_read_until_zero_length_delim);
 	RUN_TEST(test_read_until_NULL_delim);
+	RUN_TEST(test_read_until_no_buffer);
 	RUN_TEST(test_read_until_no_buffered_stream);
 	RUN_TEST(test_read_until_no_handler);
 	RUN_TEST(test_read_exactly_then_until);
 	RUN_TEST(test_read_request_less_than_available);
 	RUN_TEST(test_read_request_no_buffered_stream);
 	RUN_TEST(test_read_request_no_handler);
+	RUN_TEST(test_read_request_no_buffer);
 	RUN_TEST(test_read_request_more_than_buffer_size);
 	RUN_TEST(test_read_request_more_than_available);
 	RUN_TEST(test_write_one_buffer_one_chunk);
