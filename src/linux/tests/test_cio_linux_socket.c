@@ -234,9 +234,21 @@ static void test_socket_init_socket_create_fails(void)
 
 static void test_socket_init_socket_create_no_socket(void)
 {
-	cio_linux_socket_create_fake.custom_fake = socket_create_fails;
+	enum cio_error err = cio_socket_init(NULL,  &loop, &allocator, NULL);
+	TEST_ASSERT_EQUAL_MESSAGE(cio_invalid_argument, err, "Return value of cio_socket_init() not correct!");
+}
 
-	enum cio_error err = cio_socket_init(NULL, NULL, NULL, NULL);
+static void test_socket_init_socket_create_no_loop(void)
+{
+	struct cio_socket s;
+	enum cio_error err = cio_socket_init(&s, NULL, &allocator, NULL);
+	TEST_ASSERT_EQUAL_MESSAGE(cio_invalid_argument, err, "Return value of cio_socket_init() not correct!");
+}
+
+static void test_socket_init_socket_create_no_allocator(void)
+{
+	struct cio_socket s;
+	enum cio_error err = cio_socket_init(&s, &loop, NULL, NULL);
 	TEST_ASSERT_EQUAL_MESSAGE(cio_invalid_argument, err, "Return value of cio_socket_init() not correct!");
 }
 
@@ -821,6 +833,8 @@ int main(void)
 	UNITY_BEGIN();
 	RUN_TEST(test_socket_init);
 	RUN_TEST(test_socket_init_socket_create_no_socket);
+	RUN_TEST(test_socket_init_socket_create_no_loop);
+	RUN_TEST(test_socket_init_socket_create_no_allocator);
 	RUN_TEST(test_socket_init_socket_create_fails);
 	RUN_TEST(test_socket_init_eventloop_add_fails);
 	RUN_TEST(test_socket_close_without_hook);
