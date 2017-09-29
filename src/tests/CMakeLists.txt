@@ -38,7 +38,12 @@ add_executable(test_cio_buffered_stream
 )
 target_link_libraries (test_cio_buffered_stream cio_unity)
 
+add_executable(test_cio_read_buffer
+    test_cio_read_buffer.c
+)
+target_link_libraries (test_cio_read_buffer cio_unity)
 
 enable_testing()
 add_test(NAME test_cio_buffered_stream COMMAND test_cio_buffered_stream)
+add_test(NAME test_cio_read_buffer COMMAND test_cio_read_buffer)
 

@@ -26,52 +26,13 @@
 
 import qbs 1.0
 
-import "qbs/unittestRunner.qbs" as UnittestRunner
-
-Project {
-  name: "cio with tests and documentation"
-  minimumQbsVersion: "1.4.0"
-
-  qbsSearchPaths: "qbs/"
-
-  references : [
-    "qbs/gccClang.qbs",
-    "qbs/hardening.qbs",
-    "src/cio-staticlib.qbs",
-    "src/cio-dynamiclib.qbs",
-
-    "src/unity.qbs",
-    "src/fff.qbs",
-    "src/unittestsettings.qbs",
-    "src/linux/tests/test_cio_linux_epoll.qbs",
-    "src/linux/tests/test_cio_linux_server_socket.qbs",
-    "src/linux/tests/test_cio_linux_socket.qbs",
-    "src/linux/tests/test_cio_linux_socket_utils.qbs",
-    "src/linux/tests/test_cio_linux_timer.qbs",
-    "src/tests/test_cio_buffered_stream.qbs",
-    "src/tests/test_cio_read_buffer.qbs",
-
-    "examples/periodic_timer.qbs",
-    "examples/socket_echo.qbs"
-  ] 
-
-  SubProject {
-    filePath: "src/cio_doc.qbs"
-  }
-
-  UnittestRunner {
-    lcovRemovePatterns: [
-      "*/tests/*",
-      "*/linux/tests/*",
-      "/usr/include/*",
-    ]
-    wrapper: [
-      "valgrind",
-      "--errors-for-leak-kinds=all",
-      "--show-leak-kinds=all",
-      "--leak-check=full",
-      "--error-exitcode=1",
-    ]
-  }
+CppApplication {
+  name: "test_cio_read_buffer"
+  type: ["application", "unittest"]
+  Depends { name: "unit test settings" }
+  cpp.cLanguageVersion: "c99"
+  files: [
+    "test_cio_read_buffer.c",
+  ]
 }
 
