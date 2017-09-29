@@ -234,7 +234,7 @@ static void test_socket_init_socket_create_fails(void)
 
 static void test_socket_init_socket_create_no_socket(void)
 {
-	enum cio_error err = cio_socket_init(NULL,  &loop, &allocator, NULL);
+	enum cio_error err = cio_socket_init(NULL, &loop, &allocator, NULL);
 	TEST_ASSERT_EQUAL_MESSAGE(cio_invalid_argument, err, "Return value of cio_socket_init() not correct!");
 }
 

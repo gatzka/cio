@@ -27,26 +27,16 @@
 #include <stdint.h>
 #include <string.h>
 
-#include "cio_allocator.h"
 #include "cio_buffered_stream.h"
 #include "cio_compiler.h"
 #include "cio_error_code.h"
 #include "cio_io_stream.h"
+#include "cio_read_buffer.h"
 #include "cio_string.h"
 #include "cio_write_buffer.h"
 
 #undef MIN
 #define MIN(X, Y) (((X) < (Y)) ? (X) : (Y))
-
-static inline size_t bs_unread_bytes(const struct cio_buffered_stream *bs)
-{
-	return bs->unread_bytes;
-}
-
-static inline size_t bs_space_in_buffer(const struct cio_buffered_stream *bs)
-{
-	return bs->read_buffer_size - bs_unread_bytes(bs);
-}
 
 static void handle_read(struct cio_io_stream *context, void *handler_context, enum cio_error err, uint8_t *buf, size_t bytes_transferred)
 {
@@ -56,7 +46,7 @@ static void handle_read(struct cio_io_stream *context, void *handler_context, en
 	struct cio_buffered_stream *bs = handler_context;
 	bs->last_error = err;
 	if (likely(err == cio_success)) {
-		bs->unread_bytes += bytes_transferred;
+		bs->new_read_buffer->unread_bytes += bytes_transferred;
 	}
 
 	bs->read_job(bs);
@@ -64,22 +54,23 @@ static void handle_read(struct cio_io_stream *context, void *handler_context, en
 
 static void fill_buffer(struct cio_buffered_stream *bs)
 {
-	if (bs->read_buffer != bs->read_from_ptr) {
-		memmove(bs->read_buffer, bs->read_from_ptr, bs_unread_bytes(bs));
-		bs->read_from_ptr = bs->read_buffer;
+	if (bs->new_read_buffer->data != bs->new_read_buffer->read_from_ptr) {
+		memmove(bs->new_read_buffer->data, bs->new_read_buffer->read_from_ptr, cio_read_buffer_unread_bytes(bs->new_read_buffer));
+		bs->new_read_buffer->read_from_ptr = bs->new_read_buffer->data;
 	}
 
-	bs->stream->read_some(bs->stream, bs->read_buffer + bs_unread_bytes(bs), bs_space_in_buffer(bs), handle_read, bs);
+	bs->stream->read_some(bs->stream, bs->new_read_buffer->data + cio_read_buffer_unread_bytes(bs->new_read_buffer),
+	                      cio_read_buffer_space_available(bs->new_read_buffer), handle_read, bs);
 }
 
 static void internal_read(struct cio_buffered_stream *bs)
 {
-	size_t available = bs_unread_bytes(bs);
+	size_t available = cio_read_buffer_unread_bytes(bs->new_read_buffer);
 	if (available > 0) {
 		size_t to_read = MIN(available, bs->read_info.bytes_to_read);
-		bs->read_handler(bs, bs->read_handler_context, cio_success, bs->read_from_ptr, to_read);
-		bs->read_from_ptr += to_read;
-		bs->unread_bytes -= to_read;
+		bs->read_handler(bs, bs->read_handler_context, cio_success, bs->new_read_buffer->read_from_ptr, to_read);
+		bs->new_read_buffer->read_from_ptr += to_read;
+		bs->new_read_buffer->unread_bytes -= to_read;
 	} else {
 		fill_buffer(bs);
 	}
@@ -91,7 +82,7 @@ static enum cio_error bs_read(struct cio_buffered_stream *bs, size_t num, cio_bu
 		return cio_invalid_argument;
 	}
 
-	if (unlikely(num > bs->read_buffer_size)) {
+	if (unlikely(num > bs->new_read_buffer->size)) {
 		return cio_message_too_long;
 	}
 
@@ -107,14 +98,14 @@ static enum cio_error bs_read(struct cio_buffered_stream *bs, size_t num, cio_bu
 
 static void internal_read_until(struct cio_buffered_stream *bs)
 {
-	const uint8_t *haystack = bs->read_from_ptr;
+	const uint8_t *haystack = bs->new_read_buffer->read_from_ptr;
 	const char *needle = bs->read_info.until.delim;
 	size_t needle_length = bs->read_info.until.delim_length;
-	uint8_t *found = cio_memmem(haystack, bs_unread_bytes(bs), needle, needle_length);
+	uint8_t *found = cio_memmem(haystack, cio_read_buffer_unread_bytes(bs->new_read_buffer), needle, needle_length);
 	if (found != NULL) {
-		ptrdiff_t diff = (found + needle_length) - bs->read_from_ptr;
-		bs->read_handler(bs, bs->read_handler_context, cio_success, bs->read_from_ptr, diff);
-		bs->read_from_ptr += diff;
+		ptrdiff_t diff = (found + needle_length) - bs->new_read_buffer->read_from_ptr;
+		bs->read_handler(bs, bs->read_handler_context, cio_success, bs->new_read_buffer->read_from_ptr, diff);
+		bs->new_read_buffer->read_from_ptr += diff;
 	} else {
 		fill_buffer(bs);
 	}
@@ -144,10 +135,10 @@ static void internal_read_exactly(struct cio_buffered_stream *bs)
 		return;
 	}
 
-	if (bs->read_info.bytes_to_read <= bs_unread_bytes(bs)) {
-		bs->read_handler(bs, bs->read_handler_context, cio_success, bs->read_from_ptr, bs->read_info.bytes_to_read);
-		bs->read_from_ptr += bs->read_info.bytes_to_read;
-		bs->unread_bytes -= bs->read_info.bytes_to_read;
+	if (bs->read_info.bytes_to_read <= cio_read_buffer_unread_bytes(bs->new_read_buffer)) {
+		bs->read_handler(bs, bs->read_handler_context, cio_success, bs->new_read_buffer->read_from_ptr, bs->read_info.bytes_to_read);
+		bs->new_read_buffer->read_from_ptr += bs->read_info.bytes_to_read;
+		bs->new_read_buffer->unread_bytes -= bs->read_info.bytes_to_read;
 	} else {
 		fill_buffer(bs);
 	}
@@ -159,7 +150,7 @@ static enum cio_error bs_read_exactly(struct cio_buffered_stream *bs, size_t num
 		return cio_invalid_argument;
 	}
 
-	if (unlikely(num > bs->read_buffer_size)) {
+	if (unlikely(num > bs->new_read_buffer->size)) {
 		return cio_message_too_long;
 	}
 
@@ -253,7 +244,6 @@ static enum cio_error bs_close(struct cio_buffered_stream *bs)
 		return cio_invalid_argument;
 	}
 
-	bs->read_buffer_allocator->free(bs->read_buffer_allocator, bs->read_buffer);
 	bs->stream->close(bs->stream);
 
 	return cio_success;
@@ -261,31 +251,22 @@ static enum cio_error bs_close(struct cio_buffered_stream *bs)
 
 enum cio_error cio_buffered_stream_init(struct cio_buffered_stream *bs,
                                         struct cio_io_stream *stream,
-                                        size_t read_buffer_size,
-                                        struct cio_allocator *read_buffer_allocator)
+                                        struct cio_read_buffer *read_buffer)
 {
-	if (unlikely((bs == NULL) || (read_buffer_allocator == NULL) || (stream == NULL))) {
+	if (unlikely((bs == NULL) || (stream == NULL) || (read_buffer == NULL))) {
 		return cio_invalid_argument;
 	}
 
 	bs->stream = stream;
-	struct cio_buffer read_buffer = read_buffer_allocator->alloc(read_buffer_allocator, read_buffer_size);
-	if (unlikely(read_buffer.address == NULL)) {
-		return cio_not_enough_memory;
-	}
 
-	bs->read_buffer = read_buffer.address;
-	bs->read_buffer_size = read_buffer.size;
-	bs->read_buffer_allocator = read_buffer_allocator;
-	bs->read_from_ptr = read_buffer.address;
-	bs->unread_bytes = 0;
-
-	cio_write_buffer_head_init(&bs->wbh);
-
+	bs->new_read_buffer = read_buffer;
 	bs->read = bs_read;
 	bs->read_exactly = bs_read_exactly;
 	bs->read_until = bs_read_until;
+
+	cio_write_buffer_head_init(&bs->wbh);
 	bs->write = bs_write;
+
 	bs->close = bs_close;
 
 	return cio_success;
