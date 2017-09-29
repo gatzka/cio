@@ -31,11 +31,9 @@
 
 DEFINE_FFF_GLOBALS
 
-
 void setUp(void)
 {
 	FFF_RESET_HISTORY();
-
 }
 
 static void test_allocator(void)
