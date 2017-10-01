@@ -27,7 +27,7 @@
 import qbs 1.0
 
 Project {
-  name: "cio linux unit tests"
+  name: "cio unit tests"
   minimumQbsVersion: "1.6.0"
 
   references: [
