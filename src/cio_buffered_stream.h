@@ -164,7 +164,7 @@ struct cio_buffered_stream {
 	 */
 	struct cio_io_stream *stream;
 
-	struct cio_read_buffer *new_read_buffer;
+	struct cio_read_buffer *read_buffer;
 	cio_buffered_stream_read_handler read_handler;
 	void *read_handler_context;
 
