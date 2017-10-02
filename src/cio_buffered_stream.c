@@ -66,10 +66,9 @@ static void internal_read(struct cio_buffered_stream *bs)
 {
 	size_t available = cio_read_buffer_unread_bytes(bs->read_buffer);
 	if (available > 0) {
-		size_t to_read = MIN(available, bs->read_info.bytes_to_read);
-		bs->read_buffer->bytes_transferred = to_read;
-		bs->read_buffer->read_from_ptr += to_read;
-		bs->read_buffer->unread_bytes -= to_read;
+		bs->read_buffer->bytes_transferred = available;
+		bs->read_buffer->read_from_ptr += available;
+		bs->read_buffer->unread_bytes -= available;
 		bs->read_handler(bs, bs->read_handler_context, cio_success, bs->read_buffer);
 	} else {
 		fill_buffer(bs);
@@ -82,7 +81,6 @@ static enum cio_error bs_read(struct cio_buffered_stream *bs, struct cio_read_bu
 		return cio_invalid_argument;
 	}
 
-	bs->read_info.bytes_to_read = buffer->size;
 	bs->read_job = internal_read;
 	bs->read_buffer = buffer;
 	bs->read_handler = handler;
