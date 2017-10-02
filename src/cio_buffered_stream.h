@@ -99,14 +99,10 @@ struct cio_buffered_stream {
 	enum cio_error (*read_exactly)(struct cio_buffered_stream *bs, struct cio_read_buffer *buffer, size_t num, cio_buffered_stream_read_handler handler, void *handler_context);
 
 	/**
-	 * @brief Read upto @p count bytes into the buffer @p buf starting
-	 * with offset @p offset.
+	 * @brief Read upto the size of @p buffer.
 	 *
 	 * @param bs A pointer to the cio_buffered_stream of the on which the operation should be performed.
-	 * @param buf The buffer to be filled.
-	 * @param offset The start offset in @p buf at which the data is
-	 * written.
-	 * @param count The maximum number of bytes to read.
+	 * @param buffer The buffer to be filled.
 	 * @param handler The callback function to be called when the read
 	 * request is (partly) fulfilled.
 	 * @param handler_context A pointer to a context which might be
@@ -114,7 +110,7 @@ struct cio_buffered_stream {
 	 *
 	 * @return ::cio_success for success.
 	 */
-	enum cio_error (*read)(struct cio_buffered_stream *bs, struct cio_read_buffer *buffer, size_t num, cio_buffered_stream_read_handler handler, void *handler_context);
+	enum cio_error (*read)(struct cio_buffered_stream *bs, struct cio_read_buffer *buffer, cio_buffered_stream_read_handler handler, void *handler_context);
 
 	/**
 	 * @brief Call @p handler if delimiter @p delim is encountered.

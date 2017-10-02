@@ -44,9 +44,14 @@ DEFINE_FFF_GLOBALS
 #undef MIN
 #define MIN(X, Y) (((X) < (Y)) ? (X) : (Y))
 
+#undef MAX
+#define MAX(X, Y) (((X) > (Y)) ? (X) : (Y))
+
 struct memory_stream {
 	struct cio_io_stream ios;
 	void *mem;
+	size_t read_pos;
+	size_t size;
 };
 
 static uint8_t first_check_buffer[100];
@@ -75,12 +80,14 @@ FAKE_VOID_FUNC(dummy_write_handler, struct cio_buffered_stream*, void*, const st
 
 static void memory_stream_init(struct memory_stream *ms, const char *fill_pattern)
 {
+	ms->read_pos = 0;
+	ms->size = strlen(fill_pattern);
 	ms->ios.read_some = read_some;
 	ms->ios.write_some = write_some;
 	ms->ios.close = close;
-	ms->mem = malloc(strlen(fill_pattern) + 1);
-	memset(ms->mem, 0x00, strlen(fill_pattern) + 1);
-	strncpy(ms->mem, fill_pattern, strlen(fill_pattern));
+	ms->mem = malloc(ms->size + 1);
+	memset(ms->mem, 0x00, ms->size + 1);
+	strncpy(ms->mem, fill_pattern, ms->size);
 }
 
 static void memory_stream_deinit(struct memory_stream *ms)
@@ -227,11 +234,21 @@ static void save_to_check_buffer_and_read_until_again(struct cio_buffered_stream
 	TEST_ASSERT_EQUAL_MESSAGE(cio_success, err, "Call to read_exactly did not succeed!");
 }
 
+static void save_to_check_buffer_and_read_again(struct cio_buffered_stream *bs, void *context, enum cio_error err, struct cio_read_buffer *buffer)
+{
+	(void)context;
+
+	save_to_check_buffer(bs, context, err, buffer);
+	err = bs->read(bs, buffer, second_dummy_read_handler, NULL);
+	TEST_ASSERT_EQUAL_MESSAGE(cio_success, err, "Call to read_exactly did not succeed!");
+}
+
 static enum cio_error read_some_max(struct cio_io_stream *ios, void *buf, size_t num, cio_io_stream_read_handler handler, void *context)
 {
 	struct memory_stream *memory_stream = container_of(ios, struct memory_stream, ios);
-	size_t len = MIN(num, strlen(memory_stream->mem) + 1);
-	memcpy(buf, memory_stream->mem, len);
+	size_t len = MIN(num, memory_stream->size - memory_stream->read_pos);
+	memcpy(buf, &((uint8_t *)memory_stream->mem)[memory_stream->read_pos], len);
+	memory_stream->read_pos += len;
 	handler(ios, context, cio_success, buf, len);
 	return cio_success;
 }
@@ -895,7 +912,7 @@ static void test_read_request_less_than_available(void)
 	err = cio_buffered_stream_init(&bs, &ms.ios);
 	TEST_ASSERT_EQUAL_MESSAGE(cio_success, err, "Buffer was not initialized correctly!");
 
-	err = bs.read(&bs, &rb, strlen(test_data) - 1, dummy_read_handler, first_check_buffer);
+	err = bs.read(&bs, &rb, dummy_read_handler, first_check_buffer);
 	TEST_ASSERT_EQUAL_MESSAGE(cio_success, err, "Return value not correct!");
 	TEST_ASSERT_EQUAL_MESSAGE(1, dummy_read_handler_fake.call_count, "Handler was not called!");
 	TEST_ASSERT_EQUAL_MESSAGE(cio_success, dummy_read_handler_fake.arg2_val, "Handler was not called with cio_success!");
@@ -925,7 +942,7 @@ static void test_read_request_more_than_available(void)
 	err = cio_buffered_stream_init(&bs, &ms.ios);
 	TEST_ASSERT_EQUAL_MESSAGE(cio_success, err, "Buffer was not initialized correctly!");
 
-	err = bs.read(&bs, &rb, strlen(test_data) +10, dummy_read_handler, first_check_buffer);
+	err = bs.read(&bs, &rb, dummy_read_handler, first_check_buffer);
 	TEST_ASSERT_EQUAL_MESSAGE(cio_success, err, "Return value not correct!");
 	TEST_ASSERT_EQUAL_MESSAGE(1, dummy_read_handler_fake.call_count, "Handler was not called!");
 	TEST_ASSERT_EQUAL_MESSAGE(cio_success, dummy_read_handler_fake.arg2_val, "Handler was not called with cio_success!");
@@ -955,7 +972,7 @@ static void test_read_request_no_buffered_stream(void)
 	err = cio_buffered_stream_init(&bs, &ms.ios);
 	TEST_ASSERT_EQUAL_MESSAGE(cio_success, err, "Buffer was not initialized correctly!");
 
-	err = bs.read(NULL, &rb, strlen(test_data) - 1, dummy_read_handler, first_check_buffer);
+	err = bs.read(NULL, &rb, dummy_read_handler, first_check_buffer);
 	TEST_ASSERT_EQUAL_MESSAGE(cio_invalid_argument, err, "Return value not correct!");
 	TEST_ASSERT_EQUAL_MESSAGE(0, dummy_read_handler_fake.call_count, "Handler was called!");
 
@@ -982,7 +999,7 @@ static void test_read_request_no_handler(void)
 	err = cio_buffered_stream_init(&bs, &ms.ios);
 	TEST_ASSERT_EQUAL_MESSAGE(cio_success, err, "Buffer was not initialized correctly!");
 
-	err = bs.read(&bs, &rb, strlen(test_data) - 1, NULL, first_check_buffer);
+	err = bs.read(&bs, &rb, NULL, first_check_buffer);
 	TEST_ASSERT_EQUAL_MESSAGE(cio_invalid_argument, err, "Return value not correct!");
 	TEST_ASSERT_EQUAL_MESSAGE(0, dummy_read_handler_fake.call_count, "Handler was called!");
 
@@ -1009,7 +1026,7 @@ static void test_read_request_no_buffer(void)
 	err = cio_buffered_stream_init(&bs, &ms.ios);
 	TEST_ASSERT_EQUAL_MESSAGE(cio_success, err, "Buffer was not initialized correctly!");
 
-	err = bs.read(&bs, NULL, strlen(test_data) - 1, dummy_read_handler, first_check_buffer);
+	err = bs.read(&bs, NULL, dummy_read_handler, first_check_buffer);
 	TEST_ASSERT_EQUAL_MESSAGE(cio_invalid_argument, err, "Return value not correct!");
 	TEST_ASSERT_EQUAL_MESSAGE(0, dummy_read_handler_fake.call_count, "Handler was called!");
 
@@ -1019,15 +1036,17 @@ static void test_read_request_no_buffer(void)
 	memory_stream_deinit(&ms);
 }
 
-
-static void test_read_request_more_than_buffer_size(void)
+static void test_read_request_read_in_callback(void)
 {
-	static const char *test_data = "Hello";
+#define CHUNK1 "Hello"
+#define CHUNK2 "World"
+	static const char *test_data = CHUNK1 CHUNK2;
 	memory_stream_init(&ms, test_data);
 	read_some_fake.custom_fake = read_some_max;
-	dummy_read_handler_fake.custom_fake = save_to_check_buffer;
+	dummy_read_handler_fake.custom_fake = save_to_check_buffer_and_read_again;
+	second_dummy_read_handler_fake.custom_fake = save_to_second_check_buffer;
 
-	size_t read_buffer_size = 40;
+	size_t read_buffer_size = MAX(strlen(CHUNK1), strlen(CHUNK2));
 	uint8_t buffer[read_buffer_size];
 	struct cio_read_buffer rb;
 	enum cio_error err = cio_read_buffer_init(&rb, &buffer, sizeof(buffer));
@@ -1037,9 +1056,23 @@ static void test_read_request_more_than_buffer_size(void)
 	err = cio_buffered_stream_init(&bs, &ms.ios);
 	TEST_ASSERT_EQUAL_MESSAGE(cio_success, err, "Buffer was not initialized correctly!");
 
-	err = bs.read(&bs, &rb, read_buffer_size + 1, dummy_read_handler, first_check_buffer);
-	TEST_ASSERT_EQUAL_MESSAGE(cio_message_too_long, err, "Return value not correct!");
-	TEST_ASSERT_EQUAL_MESSAGE(0, dummy_read_handler_fake.call_count, "Handler was called!");
+	err = bs.read(&bs, &rb, dummy_read_handler, first_check_buffer);
+	TEST_ASSERT_EQUAL_MESSAGE(cio_success, err, "Return value not correct!");
+
+	TEST_ASSERT_EQUAL_MESSAGE(1, dummy_read_handler_fake.call_count, "Handler was not called!");
+	TEST_ASSERT_EQUAL_MESSAGE(cio_success, dummy_read_handler_fake.arg2_val, "Handler was not called with cio_success!");
+	TEST_ASSERT_EQUAL_MESSAGE(&rb, dummy_read_handler_fake.arg3_val, "Handler was not called with original read buffer!");
+
+	TEST_ASSERT_EQUAL_MESSAGE(1, second_dummy_read_handler_fake.call_count, "Second handler was not called!");
+	TEST_ASSERT_EQUAL_MESSAGE(cio_success, second_dummy_read_handler_fake.arg2_val, "Second handler was not called with cio_success!");
+	TEST_ASSERT_EQUAL_MESSAGE(&rb, second_dummy_read_handler_fake.arg3_val, "Second handler was not called with original read buffer!");
+
+	char *result = malloc(strlen(CHUNK1) + strlen(CHUNK2) + 1);
+	strncpy(result, (char *)first_check_buffer, read_buffer_size);
+	result[read_buffer_size] = '\0';
+	strncat(result, (char *)second_check_buffer, strlen(CHUNK1 CHUNK2) - read_buffer_size);
+	TEST_ASSERT_MESSAGE(strncmp(result, CHUNK1 CHUNK2, strlen(CHUNK1 CHUNK2)) == 0, "Handler was not called with correct data!");
+	free(result);
 
 	err = bs.close(&bs);
 	TEST_ASSERT_EQUAL_MESSAGE(cio_success, err, "Return value not correct!");
@@ -1400,8 +1433,8 @@ int main(void)
 	RUN_TEST(test_read_request_no_buffered_stream);
 	RUN_TEST(test_read_request_no_handler);
 	RUN_TEST(test_read_request_no_buffer);
-	RUN_TEST(test_read_request_more_than_buffer_size);
 	RUN_TEST(test_read_request_more_than_available);
+	RUN_TEST(test_read_request_read_in_callback);
 	RUN_TEST(test_write_one_buffer_one_chunk);
 	RUN_TEST(test_write_two_buffers_one_chunk);
 	RUN_TEST(test_write_two_buffers_partial_write);
