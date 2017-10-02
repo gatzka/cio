@@ -138,8 +138,6 @@ static inline void cio_write_buffer_init(struct cio_write_buffer *wb, const void
 {
 	wb->data.element.data = data;
 	wb->data.element.length = length;
-	wb->next = NULL;
-	wb->prev = NULL;
 }
 
 #ifdef __cplusplus
