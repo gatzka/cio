@@ -42,20 +42,20 @@ struct cio_read_buffer {
 	 * @privatesection
 	 */
 	uint8_t *data;
-	size_t size;
-	size_t unread_bytes;
-	uint8_t *read_from_ptr;
+	uint8_t *end;
+	uint8_t *add_ptr;
+	uint8_t *fetch_ptr;
 	size_t bytes_transferred;
 };
 
 static inline size_t cio_read_buffer_unread_bytes(const struct cio_read_buffer *rb)
 {
-	return rb->unread_bytes;
+	return rb->add_ptr - rb->fetch_ptr;
 }
 
 static inline size_t cio_read_buffer_space_available(const struct cio_read_buffer *rb)
 {
-	return rb->size - cio_read_buffer_unread_bytes(rb);
+	return rb->end - rb->add_ptr;
 }
 
 static inline enum cio_error cio_read_buffer_init(struct cio_read_buffer *rb, void *data, size_t size)
@@ -65,21 +65,26 @@ static inline enum cio_error cio_read_buffer_init(struct cio_read_buffer *rb, vo
 	}
 
 	rb->data = data;
-	rb->size = size;
-	rb->unread_bytes = 0;
-	rb->read_from_ptr = data;
+	rb->end = (uint8_t *)data + size;
+	rb->fetch_ptr = data;
+	rb->add_ptr = data;
 
 	return cio_success;
 }
 
-static inline uint8_t * cio_read_buffer_get_read_ptr(const struct cio_read_buffer *rb)
+static inline uint8_t *cio_read_buffer_get_read_ptr(const struct cio_read_buffer *rb)
 {
-	return rb->read_from_ptr - rb->bytes_transferred;
+	return rb->fetch_ptr - rb->bytes_transferred;
 }
 
 static inline size_t cio_read_buffer_get_transferred_bytes(const struct cio_read_buffer *rb)
 {
 	return rb->bytes_transferred;
+}
+
+static inline size_t cio_read_buffer_size(const struct cio_read_buffer *rb)
+{
+	return rb->end - rb->data;
 }
 
 #ifdef __cplusplus

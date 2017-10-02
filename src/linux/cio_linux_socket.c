@@ -112,16 +112,18 @@ static struct cio_io_stream *socket_get_io_stream(struct cio_socket *s)
 static void read_callback(void *context)
 {
 	struct cio_io_stream *stream = context;
+	struct cio_read_buffer *rb = stream->read_buffer;
 	struct cio_socket *s = container_of(stream, struct cio_socket, stream);
-	ssize_t ret = read(s->ev.fd, stream->read_buffer->data, stream->read_buffer->size);
+	ssize_t ret = read(s->ev.fd, rb->add_ptr, cio_read_buffer_space_available(rb));
 	if (ret == -1) {
 		if (unlikely((errno != EWOULDBLOCK) && (errno != EAGAIN))) {
-			stream->read_buffer->bytes_transferred = 0;
-			stream->read_handler(stream, stream->read_handler_context, (enum cio_error)errno, stream->read_buffer);
+			rb->bytes_transferred = 0;
+			stream->read_handler(stream, stream->read_handler_context, (enum cio_error)errno, rb);
 		}
 	} else {
-		stream->read_buffer->bytes_transferred = (size_t)ret;
-		stream->read_handler(stream, stream->read_handler_context, cio_success, stream->read_buffer);
+		rb->bytes_transferred = (size_t)ret;
+		rb->add_ptr += (size_t)ret;
+		stream->read_handler(stream, stream->read_handler_context, cio_success, rb);
 	}
 }
 
