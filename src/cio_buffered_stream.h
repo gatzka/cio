@@ -65,7 +65,7 @@ struct cio_buffered_stream;
  * @param bs The cio_buffered_stream the read operation was called on.
  * @param handler_context The context the functions works on.
  * @param err If err != ::cio_success, the read operation failed.
- * @param buf A pointer to the begin of the buffer where the data was read in. 
+ * @param buffer The buffer where the data read is stored.
  */
 typedef void (*cio_buffered_stream_read_handler)(struct cio_buffered_stream *bs, void *handler_context, enum cio_error err, struct cio_read_buffer *buffer);
 
