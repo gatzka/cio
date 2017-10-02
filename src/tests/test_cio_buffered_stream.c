@@ -61,8 +61,8 @@ FAKE_VALUE_FUNC(enum cio_error, write_some, struct cio_io_stream*, const struct 
 enum cio_error close(struct cio_io_stream *context);
 FAKE_VALUE_FUNC(enum cio_error, close, struct cio_io_stream*)
 
-void dummy_read_handler(struct cio_buffered_stream*, void*, enum cio_error, uint8_t*, size_t);
-FAKE_VOID_FUNC(dummy_read_handler, struct cio_buffered_stream*, void*, enum cio_error, uint8_t*, size_t)
+void dummy_read_handler(struct cio_buffered_stream *, void *, enum cio_error, struct cio_read_buffer *);
+FAKE_VOID_FUNC(dummy_read_handler, struct cio_buffered_stream *, void *, enum cio_error, struct cio_read_buffer *)
 
 
 void dummy_write_handler(struct cio_buffered_stream*, void*, const struct cio_write_buffer*, enum cio_error);
@@ -175,12 +175,14 @@ static enum cio_error write_some_first_write_partial_at_buffer_boundary(struct c
 	return cio_success;
 }
 
-static void save_to_check_buffer(struct cio_buffered_stream *bs, void *context, enum cio_error err, uint8_t *buffer, size_t num) {
+static void save_to_check_buffer(struct cio_buffered_stream *bs, void *context, enum cio_error err, struct cio_read_buffer *buffer) {
 	(void)bs;
 	(void)context;
 
 	if (err == cio_success) {
-		memcpy(&check_buffer[check_buffer_pos], buffer, num);
+		uint8_t * read_ptr = cio_read_buffer_get_read_ptr(buffer);
+		size_t num = cio_read_buffer_get_transferred_bytes(buffer);
+		memcpy(&check_buffer[check_buffer_pos], read_ptr, num);
 		check_buffer_pos += num;
 	}
 }
@@ -303,7 +305,7 @@ static void test_read_exactly(void)
 	TEST_ASSERT_EQUAL_MESSAGE(1, close_fake.call_count, "Underlying cio_iostream was not closed!");
 	TEST_ASSERT_EQUAL_MESSAGE(1, dummy_read_handler_fake.call_count, "Handler was not called!");
 	TEST_ASSERT_EQUAL_MESSAGE(cio_success, dummy_read_handler_fake.arg2_val, "Handler was not called with cio_success!");
-	TEST_ASSERT_EQUAL_MESSAGE(strlen(test_data), dummy_read_handler_fake.arg4_val, "Handler was not called with correct data length!");
+	TEST_ASSERT_EQUAL_MESSAGE(&rb, dummy_read_handler_fake.arg3_val, "Handler was not called with original read buffer!");
 	TEST_ASSERT_MESSAGE(strncmp((const char *)check_buffer, test_data, strlen(test_data)) == 0, "Handler was not called with correct data!")
 	memory_stream_deinit(&ms);
 }
@@ -331,7 +333,7 @@ static void test_read_exactly_zero_length(void)
 	TEST_ASSERT_EQUAL_MESSAGE(1, close_fake.call_count, "Underlying cio_iostream was not closed!");
 	TEST_ASSERT_EQUAL_MESSAGE(1, dummy_read_handler_fake.call_count, "Handler was not called!");
 	TEST_ASSERT_EQUAL_MESSAGE(cio_success, dummy_read_handler_fake.arg2_val, "Handler was not called with cio_success!");
-	TEST_ASSERT_EQUAL_MESSAGE(0, dummy_read_handler_fake.arg4_val, "Handler was not called with correct data length!");
+	TEST_ASSERT_EQUAL_MESSAGE(&rb, dummy_read_handler_fake.arg3_val, "Handler was not called with original read buffer!");
 	memory_stream_deinit(&ms);
 }
 
@@ -473,14 +475,14 @@ static void test_read_exactly_chunks(void)
 	TEST_ASSERT_EQUAL_MESSAGE(cio_success, err, "Return value not correct!");
 	TEST_ASSERT_EQUAL_MESSAGE(1, dummy_read_handler_fake.call_count, "Handler was not called!");
 	TEST_ASSERT_EQUAL_MESSAGE(cio_success, dummy_read_handler_fake.arg2_history[0], "Handler was not called with cio_success!");
-	TEST_ASSERT_EQUAL_MESSAGE(first_chunk, dummy_read_handler_fake.arg4_history[0], "Length in dummy handler is not correct!");
+	TEST_ASSERT_EQUAL_MESSAGE(&rb, dummy_read_handler_fake.arg3_history[0], "Handler was not called with original read buffer!");
 
 	size_t second_chunk = strlen(test_data) - first_chunk;
 	err = bs.read_exactly(&bs, &rb, second_chunk, dummy_read_handler, NULL);
 	TEST_ASSERT_EQUAL_MESSAGE(cio_success, err, "Return value not correct!");
 	TEST_ASSERT_EQUAL_MESSAGE(2, dummy_read_handler_fake.call_count, "Handler was not called!");
 	TEST_ASSERT_EQUAL_MESSAGE(cio_success, dummy_read_handler_fake.arg2_history[1], "Handler was not called with cio_success!");
-	TEST_ASSERT_EQUAL_MESSAGE(second_chunk, dummy_read_handler_fake.arg4_history[1], "Length in dummy handler is not correct!");
+	TEST_ASSERT_EQUAL_MESSAGE(&rb, dummy_read_handler_fake.arg3_history[1], "Handler was not called with original read buffer!");
 
 	TEST_ASSERT_MESSAGE(strncmp((const char *)check_buffer, test_data, strlen(test_data)) == 0, "Handler was not called with correct data!")
 
@@ -517,7 +519,7 @@ static void test_read_until(void)
 	TEST_ASSERT_EQUAL_MESSAGE(1, close_fake.call_count, "Underlying cio_iostream was not closed!");
 	TEST_ASSERT_EQUAL_MESSAGE(1, dummy_read_handler_fake.call_count, "Handler was not called!");
 	TEST_ASSERT_EQUAL_MESSAGE(cio_success, dummy_read_handler_fake.arg2_val, "Handler was not called with cio_success!");
-	TEST_ASSERT_EQUAL_MESSAGE(strlen(PRE_DELIM) + strlen(DELIM), dummy_read_handler_fake.arg4_val, "Handler was not called with correct data length!");
+	TEST_ASSERT_EQUAL_MESSAGE(&rb, dummy_read_handler_fake.arg3_val, "Handler was not called with original read buffer!");
 	TEST_ASSERT_MESSAGE(strncmp((const char *)check_buffer, PRE_DELIM DELIM, strlen(PRE_DELIM) + strlen(DELIM)) == 0, "Handler was not called with correct data!")
 	memory_stream_deinit(&ms);
 }
@@ -549,7 +551,7 @@ static void test_read_until_zero_length_delim(void)
 	TEST_ASSERT_EQUAL_MESSAGE(1, close_fake.call_count, "Underlying cio_iostream was not closed!");
 	TEST_ASSERT_EQUAL_MESSAGE(1, dummy_read_handler_fake.call_count, "Handler was not called!");
 	TEST_ASSERT_EQUAL_MESSAGE(cio_success, dummy_read_handler_fake.arg2_val, "Handler was not called with cio_success!");
-	TEST_ASSERT_EQUAL_MESSAGE(0, dummy_read_handler_fake.arg4_val, "Handler was not called with correct data length!");
+	TEST_ASSERT_EQUAL_MESSAGE(&rb, dummy_read_handler_fake.arg3_val, "Handler was not called with original read buffer!");
 	memory_stream_deinit(&ms);
 }
 
@@ -743,11 +745,11 @@ static void test_read_exactly_then_until(void)
 	TEST_ASSERT_EQUAL_MESSAGE(1, close_fake.call_count, "Underlying cio_iostream was not closed!");
 	TEST_ASSERT_EQUAL_MESSAGE(2, dummy_read_handler_fake.call_count, "Handler was not called!");
 	TEST_ASSERT_EQUAL_MESSAGE(cio_success, dummy_read_handler_fake.arg2_history[0], "Handler was not called with cio_success!");
-	TEST_ASSERT_EQUAL_MESSAGE(strlen(BUFFER_FOR_EXACTLY), dummy_read_handler_fake.arg4_history[0], "Length in dummy handler is not correct!");
+	TEST_ASSERT_EQUAL_MESSAGE(&rb, dummy_read_handler_fake.arg3_history[0], "Handler was not called with original read buffer!");
 	TEST_ASSERT_MESSAGE(strncmp((const char *)check_buffer, BUFFER_FOR_EXACTLY, strlen(BUFFER_FOR_EXACTLY)) == 0, "Handler was not called with correct data!")
 
 	TEST_ASSERT_EQUAL_MESSAGE(cio_success, dummy_read_handler_fake.arg2_history[1], "Handler was not called with cio_success!");
-	TEST_ASSERT_EQUAL_MESSAGE(strlen(PRE_DELIM DELIM), dummy_read_handler_fake.arg4_history[1], "Length in dummy handler is not correct!");
+	TEST_ASSERT_EQUAL_MESSAGE(&rb, dummy_read_handler_fake.arg3_history[1], "Handler was not called with original read buffer!");
 	TEST_ASSERT_MESSAGE(strncmp((const char *)&check_buffer[strlen(BUFFER_FOR_EXACTLY)], PRE_DELIM DELIM, strlen(PRE_DELIM) + strlen(DELIM)) == 0, "Handler was not called with correct data!")
 
 	free(buffer);
@@ -775,7 +777,7 @@ static void test_read_request_less_than_available(void)
 	TEST_ASSERT_EQUAL_MESSAGE(cio_success, err, "Return value not correct!");
 	TEST_ASSERT_EQUAL_MESSAGE(1, dummy_read_handler_fake.call_count, "Handler was not called!");
 	TEST_ASSERT_EQUAL_MESSAGE(cio_success, dummy_read_handler_fake.arg2_val, "Handler was not called with cio_success!");
-	TEST_ASSERT_EQUAL_MESSAGE(strlen(test_data) - 1, dummy_read_handler_fake.arg4_val, "Handler was not called with correct data length!");
+	TEST_ASSERT_EQUAL_MESSAGE(&rb, dummy_read_handler_fake.arg3_val, "Handler was not called with original read buffer!");
 	TEST_ASSERT_MESSAGE(strncmp((const char *)check_buffer, test_data, strlen(test_data) - 1) == 0, "Handler was not called with correct data!")
 
 	err = bs.close(&bs);
@@ -805,7 +807,7 @@ static void test_read_request_more_than_available(void)
 	TEST_ASSERT_EQUAL_MESSAGE(cio_success, err, "Return value not correct!");
 	TEST_ASSERT_EQUAL_MESSAGE(1, dummy_read_handler_fake.call_count, "Handler was not called!");
 	TEST_ASSERT_EQUAL_MESSAGE(cio_success, dummy_read_handler_fake.arg2_val, "Handler was not called with cio_success!");
-	TEST_ASSERT_EQUAL_MESSAGE(strlen(test_data) + 1, dummy_read_handler_fake.arg4_val, "Handler was not called with correct data length!");
+	TEST_ASSERT_EQUAL_MESSAGE(&rb, dummy_read_handler_fake.arg3_val, "Handler was not called with original read buffer!");
 	TEST_ASSERT_MESSAGE(strncmp((const char *)check_buffer, test_data, strlen(test_data)) == 0, "Handler was not called with correct data!")
 
 	err = bs.close(&bs);
