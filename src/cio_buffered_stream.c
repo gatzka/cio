@@ -38,15 +38,14 @@
 #undef MIN
 #define MIN(X, Y) (((X) < (Y)) ? (X) : (Y))
 
-static void handle_read(struct cio_io_stream *context, void *handler_context, enum cio_error err, uint8_t *buf, size_t bytes_transferred)
+static void handle_read(struct cio_io_stream *stream, void *handler_context, enum cio_error err, struct cio_read_buffer *buffer)
 {
-	(void)context;
-	(void)buf;
+	(void)stream;
 
 	struct cio_buffered_stream *bs = handler_context;
 	bs->last_error = err;
 	if (likely(err == cio_success)) {
-		bs->read_buffer->unread_bytes += bytes_transferred;
+		bs->read_buffer->unread_bytes += buffer->bytes_transferred;
 	}
 
 	bs->read_job(bs);
@@ -59,8 +58,8 @@ static void fill_buffer(struct cio_buffered_stream *bs)
 		bs->read_buffer->read_from_ptr = bs->read_buffer->data;
 	}
 
-	bs->stream->read_some(bs->stream, bs->read_buffer->data + cio_read_buffer_unread_bytes(bs->read_buffer),
-	                      cio_read_buffer_space_available(bs->read_buffer), handle_read, bs);
+	cio_read_buffer_init(&bs->read_some_buffer, bs->read_buffer->data + cio_read_buffer_unread_bytes(bs->read_buffer), cio_read_buffer_space_available(bs->read_buffer));
+	bs->stream->read_some(bs->stream, &bs->read_some_buffer, handle_read, bs);
 }
 
 static void internal_read(struct cio_buffered_stream *bs)

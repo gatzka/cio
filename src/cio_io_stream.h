@@ -31,6 +31,7 @@
 #include <stdint.h>
 
 #include "cio_error_code.h"
+#include "cio_read_buffer.h"
 #include "cio_write_buffer.h"
 
 #ifdef __cplusplus
@@ -51,10 +52,9 @@ struct cio_io_stream;
  * @param io_stream The cio_io_stream the read operation was called on.
  * @param handler_context The context the functions works on.
  * @param err If err != ::cio_success, the read operation failed.
- * @param buf A pointer to the begin of the buffer where the data was read in. 
- * @param bytes_transferred The number of bytes transferred into @p buf, 0 if the end of the stream is reached.
+ * @param buffer The buffer that was filled.
  */
-typedef void (*cio_io_stream_read_handler)(struct cio_io_stream *io_stream, void *handler_context, enum cio_error err, uint8_t *buf, size_t bytes_transferred);
+typedef void (*cio_io_stream_read_handler)(struct cio_io_stream *io_stream, void *handler_context, enum cio_error err, struct cio_read_buffer *buffer);
 
 /**
  * @brief The type of a function passed to all cio_io_stream write callback functions.
@@ -78,15 +78,14 @@ struct cio_io_stream {
 	 * with offset @p offset.
 	 *
 	 * @param io_stream A pointer to the cio_io_stream of the on which the operation should be performed.
-	 * @param buf The buffer to be filled.
-	 * @param count The maximum number of bytes to read.
+	 * @param buffer The buffer to be filled.
 	 * @param handler The callback function to be called when the read
 	 *                request is (partly) fulfilled.
 	 * @param handler_context A pointer to a context which might be
 	 *                        useful inside @p handler.
 	 * @return ::cio_success for success.
 	 */
-	enum cio_error (*read_some)(struct cio_io_stream *io_stream, void *buf, size_t count, cio_io_stream_read_handler handler, void *handler_context);
+	enum cio_error (*read_some)(struct cio_io_stream *io_stream, struct cio_read_buffer *buffer, cio_io_stream_read_handler handler, void *handler_context);
 
 	/**
 	 * @brief Writes upto @p count buffers to the stream.
@@ -123,8 +122,7 @@ struct cio_io_stream {
 	 */
 	cio_io_stream_read_handler read_handler;
 	void *read_handler_context;
-	size_t read_count;
-	void *read_buffer;
+	struct cio_read_buffer *read_buffer;
 	const struct cio_write_buffer *write_buffer;
 	cio_io_stream_write_handler write_handler;
 	void *write_handler_context;

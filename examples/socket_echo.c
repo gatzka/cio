@@ -32,6 +32,7 @@
 #include "cio_error_code.h"
 #include "cio_eventloop.h"
 #include "cio_io_stream.h"
+#include "cio_read_buffer.h"
 #include "cio_server_socket.h"
 #include "cio_socket.h"
 #include "cio_write_buffer.h"
@@ -42,6 +43,7 @@ static uint8_t buffer[100];
 
 static struct cio_write_buffer wb;
 static struct cio_write_buffer wbh;
+static struct cio_read_buffer rb;
 
 static void sighandler(int signum)
 {
@@ -49,7 +51,7 @@ static void sighandler(int signum)
 	cio_eventloop_cancel(&loop);
 }
 
-static void handle_read(struct cio_io_stream *stream, void *handler_context, enum cio_error err, uint8_t *buf, size_t bytes_transferred);
+static void handle_read(struct cio_io_stream *stream, void *handler_context, enum cio_error err, struct cio_read_buffer *read_buffer);
 
 
 static void handle_write(struct cio_io_stream *stream, void *handler_context, const struct cio_write_buffer *buf, enum cio_error err, size_t bytes_transferred)
@@ -63,10 +65,10 @@ static void handle_write(struct cio_io_stream *stream, void *handler_context, co
 		return;
 	}
 
-	stream->read_some(stream, buffer, sizeof(buffer), handle_read, NULL);
+	stream->read_some(stream, &rb, handle_read, NULL);
 }
 
-static void handle_read(struct cio_io_stream *stream, void *handler_context, enum cio_error err, uint8_t *buf, size_t bytes_transferred)
+static void handle_read(struct cio_io_stream *stream, void *handler_context, enum cio_error err, struct cio_read_buffer *read_buffer)
 {
 	(void)handler_context;
 	if (err != cio_success) {
@@ -74,14 +76,14 @@ static void handle_read(struct cio_io_stream *stream, void *handler_context, enu
 		return;
 	}
 
-	if (bytes_transferred == 0) {
+	if (read_buffer->bytes_transferred == 0) {
 		fprintf(stdout, "connection close by peer\n");
 		stream->close(stream);
 		return;
 	}
 
 	cio_write_buffer_head_init(&wbh);
-	cio_write_buffer_init(&wb, buf, bytes_transferred);
+	cio_write_buffer_init(&wb, read_buffer->data, read_buffer->bytes_transferred);
 	cio_write_buffer_queue_tail(&wbh, &wb);
 	stream->write_some(stream, &wbh, handle_write, NULL);
 }
@@ -96,8 +98,9 @@ static void handle_accept(struct cio_server_socket *ss, void *handler_context, e
 		return;
 	}
 
+	cio_read_buffer_init(&rb, buffer, sizeof(buffer));
 	struct cio_io_stream *stream = socket->get_io_stream(socket);
-	stream->read_some(stream, buffer, sizeof(buffer), handle_read, NULL);
+	stream->read_some(stream, &rb, handle_read, NULL);
 }
 
 int main()
