@@ -246,9 +246,10 @@ static void save_to_check_buffer_and_read_again(struct cio_buffered_stream *bs, 
 static enum cio_error read_some_max(struct cio_io_stream *ios, struct cio_read_buffer *buffer, cio_io_stream_read_handler handler, void *context)
 {
 	struct memory_stream *memory_stream = container_of(ios, struct memory_stream, ios);
-	size_t len = MIN(buffer->size, memory_stream->size - memory_stream->read_pos);
+	size_t len = MIN(cio_read_buffer_size(buffer), memory_stream->size - memory_stream->read_pos);
 	memcpy(buffer->data, &((uint8_t *)memory_stream->mem)[memory_stream->read_pos], len);
 	memory_stream->read_pos += len;
+	buffer->add_ptr += len;
 	buffer->bytes_transferred = len;
 	handler(ios, context, cio_success, buffer);
 	return cio_success;
@@ -260,16 +261,18 @@ static enum cio_error read_some_chunks(struct cio_io_stream *ios, struct cio_rea
 	size_t string_len = strlen(memory_stream->mem);
 	if (read_some_fake.call_count == 1) {
 		string_len = string_len / 2;
-		size_t len = MIN(buffer->size, string_len);
-		memcpy(buffer->data, memory_stream->mem, len);
+		size_t len = MIN(cio_read_buffer_size(buffer), string_len);
+		memcpy(buffer->add_ptr, memory_stream->mem, len);
 		buffer->bytes_transferred = len;
+		buffer->add_ptr += len;
 		handler(ios, context, cio_success, buffer);
 	} else {
 		size_t pos = string_len / 2;
 		string_len = string_len - pos;
-		size_t len = MIN(buffer->size, string_len);
-		memcpy(buffer->data, (uint8_t *)memory_stream->mem + pos, len);
+		size_t len = MIN(cio_read_buffer_size(buffer), string_len);
+		memcpy(buffer->add_ptr, (uint8_t *)memory_stream->mem + pos, len);
 		buffer->bytes_transferred = len;
+		buffer->add_ptr += len;
 		handler(ios, context, cio_success, buffer);
 	}
 
