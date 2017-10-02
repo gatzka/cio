@@ -52,6 +52,9 @@ struct memory_stream {
 static uint8_t first_check_buffer[100];
 static size_t first_check_buffer_pos = 0;
 
+static uint8_t second_check_buffer[100];
+static size_t second_check_buffer_pos = 0;
+
 enum cio_error read_some(struct cio_io_stream *ios, void *buf, size_t num, cio_io_stream_read_handler handler, void *context);
 FAKE_VALUE_FUNC(enum cio_error, read_some, struct cio_io_stream*, void*, size_t, cio_io_stream_read_handler, void*)
 
@@ -64,6 +67,8 @@ FAKE_VALUE_FUNC(enum cio_error, close, struct cio_io_stream*)
 void dummy_read_handler(struct cio_buffered_stream *, void *, enum cio_error, struct cio_read_buffer *);
 FAKE_VOID_FUNC(dummy_read_handler, struct cio_buffered_stream *, void *, enum cio_error, struct cio_read_buffer *)
 
+void second_dummy_read_handler(struct cio_buffered_stream *, void *, enum cio_error, struct cio_read_buffer *);
+FAKE_VOID_FUNC(second_dummy_read_handler, struct cio_buffered_stream *, void *, enum cio_error, struct cio_read_buffer *)
 
 void dummy_write_handler(struct cio_buffered_stream*, void*, const struct cio_write_buffer*, enum cio_error);
 FAKE_VOID_FUNC(dummy_write_handler, struct cio_buffered_stream*, void*, const struct cio_write_buffer*, enum cio_error)
@@ -97,6 +102,8 @@ void setUp(void)
 
 	memset(first_check_buffer, 0xaf, sizeof(first_check_buffer));
 	first_check_buffer_pos = 0;
+	memset(second_check_buffer, 0xaf, sizeof(second_check_buffer));
+	second_check_buffer_pos = 0;
 }
 
 static enum cio_error write_some_all(struct cio_io_stream *io_stream, const struct cio_write_buffer *buf, cio_io_stream_write_handler handler, void *handler_context)
@@ -175,7 +182,8 @@ static enum cio_error write_some_first_write_partial_at_buffer_boundary(struct c
 	return cio_success;
 }
 
-static void save_to_check_buffer(struct cio_buffered_stream *bs, void *context, enum cio_error err, struct cio_read_buffer *buffer) {
+static void save_to_check_buffer(struct cio_buffered_stream *bs, void *context, enum cio_error err, struct cio_read_buffer *buffer)
+{
 	(void)bs;
 	(void)context;
 
@@ -185,6 +193,28 @@ static void save_to_check_buffer(struct cio_buffered_stream *bs, void *context, 
 		memcpy(&first_check_buffer[first_check_buffer_pos], read_ptr, num);
 		first_check_buffer_pos += num;
 	}
+}
+
+static void save_to_second_check_buffer(struct cio_buffered_stream *bs, void *context, enum cio_error err, struct cio_read_buffer *buffer)
+{
+	(void)bs;
+	(void)context;
+
+	if (err == cio_success) {
+		uint8_t * read_ptr = cio_read_buffer_get_read_ptr(buffer);
+		size_t num = cio_read_buffer_get_transferred_bytes(buffer);
+		memcpy(&second_check_buffer[second_check_buffer_pos], read_ptr, num);
+		second_check_buffer_pos += num;
+	}
+}
+
+static void save_to_check_buffer_and_read_again(struct cio_buffered_stream *bs, void *context, enum cio_error err, struct cio_read_buffer *buffer)
+{
+	char *second_chunk = context;
+
+	save_to_check_buffer(bs, context, err, buffer);
+	err = bs->read_exactly(bs, buffer, strlen(second_chunk), second_dummy_read_handler, NULL);
+	TEST_ASSERT_EQUAL_MESSAGE(cio_success, err, "Call to read_exactly did not succeed!");
 }
 
 static enum cio_error read_some_max(struct cio_io_stream *ios, void *buf, size_t num, cio_io_stream_read_handler handler, void *context)
@@ -488,6 +518,44 @@ static void test_read_exactly_chunks(void)
 
 	err = bs.close(&bs);
 	TEST_ASSERT_EQUAL_MESSAGE(cio_success, err, "Return value not correct!");
+	TEST_ASSERT_EQUAL_MESSAGE(1, close_fake.call_count, "Underlying cio_iostream was not closed!");
+	memory_stream_deinit(&ms);
+}
+
+static void test_read_exactly_second_read_in_callback(void)
+{
+#define CHUNK1 "Hello"
+#define CHUNK2 "World"
+	char chunk2_buf[] = CHUNK2;
+	static const char *test_data = CHUNK1 CHUNK2;
+	memory_stream_init(&ms, test_data);
+	read_some_fake.custom_fake = read_some_max;
+	dummy_read_handler_fake.custom_fake = save_to_check_buffer_and_read_again;
+	second_dummy_read_handler_fake.custom_fake = save_to_second_check_buffer;
+
+	uint8_t buffer[100];
+	struct cio_read_buffer rb;
+	enum cio_error err = cio_read_buffer_init(&rb, &buffer, sizeof(buffer));
+	TEST_ASSERT_EQUAL_MESSAGE(cio_success, err, "Read buffer was not initialized correctly!");
+
+	struct cio_buffered_stream bs;
+	err = cio_buffered_stream_init(&bs, &ms.ios);
+	TEST_ASSERT_EQUAL_MESSAGE(cio_success, err, "Buffer was not initialized correctly!");
+	err = bs.read_exactly(&bs, &rb, strlen(CHUNK1), dummy_read_handler, chunk2_buf);
+	TEST_ASSERT_EQUAL_MESSAGE(cio_success, err, "Return value not correct!");
+
+	TEST_ASSERT_EQUAL_MESSAGE(1, dummy_read_handler_fake.call_count, "Handler was not called!");
+	TEST_ASSERT_EQUAL_MESSAGE(cio_success, dummy_read_handler_fake.arg2_val, "Handler was not called with cio_success!");
+	TEST_ASSERT_EQUAL_MESSAGE(&rb, dummy_read_handler_fake.arg3_val, "Handler was not called with original read buffer!");
+	TEST_ASSERT_MESSAGE(strncmp((const char *)first_check_buffer, CHUNK1, strlen(CHUNK1)) == 0, "Handler was not called with correct data!")
+
+	TEST_ASSERT_EQUAL_MESSAGE(1, second_dummy_read_handler_fake.call_count, "Handler was not called!");
+	TEST_ASSERT_EQUAL_MESSAGE(cio_success, second_dummy_read_handler_fake.arg2_val, "Handler was not called with cio_success!");
+	TEST_ASSERT_EQUAL_MESSAGE(&rb, second_dummy_read_handler_fake.arg3_val, "Handler was not called with original read buffer!");
+	TEST_ASSERT_MESSAGE(strncmp((const char *)second_check_buffer, CHUNK2, strlen(CHUNK2)) == 0, "Handler was not called with correct data!")
+
+	err = bs.close(&bs);
+	TEST_ASSERT_EQUAL_MESSAGE(cio_success, err, "Return value of close not correct!");
 	TEST_ASSERT_EQUAL_MESSAGE(1, close_fake.call_count, "Underlying cio_iostream was not closed!");
 	memory_stream_deinit(&ms);
 }
@@ -1265,6 +1333,7 @@ int main(void)
 	RUN_TEST(test_read_exactly_ios_error);
 	RUN_TEST(test_read_exactly_chunks);
 	RUN_TEST(test_read_exactly_zero_length);
+	RUN_TEST(test_read_exactly_second_read_in_callback);
 	RUN_TEST(test_read_until);
 	RUN_TEST(test_read_until_zero_length_delim);
 	RUN_TEST(test_read_until_NULL_delim);
