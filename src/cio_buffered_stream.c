@@ -77,17 +77,13 @@ static void internal_read(struct cio_buffered_stream *bs)
 	}
 }
 
-static enum cio_error bs_read(struct cio_buffered_stream *bs, struct cio_read_buffer *buffer, size_t num, cio_buffered_stream_read_handler handler, void *handler_context)
+static enum cio_error bs_read(struct cio_buffered_stream *bs, struct cio_read_buffer *buffer, cio_buffered_stream_read_handler handler, void *handler_context)
 {
 	if (unlikely((bs == NULL) || (buffer == NULL) || (handler == NULL))) {
 		return cio_invalid_argument;
 	}
 
-	if (unlikely(num > buffer->size)) {
-		return cio_message_too_long;
-	}
-
-	bs->read_info.bytes_to_read = num;
+	bs->read_info.bytes_to_read = buffer->size;
 	bs->read_job = internal_read;
 	bs->read_buffer = buffer;
 	bs->read_handler = handler;
