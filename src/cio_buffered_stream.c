@@ -68,9 +68,10 @@ static void internal_read(struct cio_buffered_stream *bs)
 	size_t available = cio_read_buffer_unread_bytes(bs->read_buffer);
 	if (available > 0) {
 		size_t to_read = MIN(available, bs->read_info.bytes_to_read);
-		bs->read_handler(bs, bs->read_handler_context, cio_success, bs->read_buffer->read_from_ptr, to_read);
+		bs->read_buffer->bytes_transferred = to_read;
 		bs->read_buffer->read_from_ptr += to_read;
 		bs->read_buffer->unread_bytes -= to_read;
+		bs->read_handler(bs, bs->read_handler_context, cio_success, bs->read_buffer);
 	} else {
 		fill_buffer(bs);
 	}
@@ -105,8 +106,10 @@ static void internal_read_until(struct cio_buffered_stream *bs)
 	uint8_t *found = cio_memmem(haystack, cio_read_buffer_unread_bytes(bs->read_buffer), needle, needle_length);
 	if (found != NULL) {
 		ptrdiff_t diff = (found + needle_length) - bs->read_buffer->read_from_ptr;
-		bs->read_handler(bs, bs->read_handler_context, cio_success, bs->read_buffer->read_from_ptr, diff);
+		bs->read_buffer->bytes_transferred = diff;
 		bs->read_buffer->read_from_ptr += diff;
+		bs->read_buffer->unread_bytes -= diff;
+		bs->read_handler(bs, bs->read_handler_context, cio_success, bs->read_buffer);
 	} else {
 		fill_buffer(bs);
 	}
@@ -133,14 +136,15 @@ static enum cio_error bs_read_until(struct cio_buffered_stream *bs, struct cio_r
 static void internal_read_exactly(struct cio_buffered_stream *bs)
 {
 	if (unlikely(bs->last_error != cio_success)) {
-		bs->read_handler(bs, bs->read_handler_context, bs->last_error, NULL, 0);
+		bs->read_handler(bs, bs->read_handler_context, bs->last_error, NULL);
 		return;
 	}
 
 	if (bs->read_info.bytes_to_read <= cio_read_buffer_unread_bytes(bs->read_buffer)) {
-		bs->read_handler(bs, bs->read_handler_context, cio_success, bs->read_buffer->read_from_ptr, bs->read_info.bytes_to_read);
+		bs->read_buffer->bytes_transferred = bs->read_info.bytes_to_read;
 		bs->read_buffer->read_from_ptr += bs->read_info.bytes_to_read;
 		bs->read_buffer->unread_bytes -= bs->read_info.bytes_to_read;
+		bs->read_handler(bs, bs->read_handler_context, cio_success, bs->read_buffer);
 	} else {
 		fill_buffer(bs);
 	}

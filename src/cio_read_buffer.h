@@ -45,6 +45,7 @@ struct cio_read_buffer {
 	size_t size;
 	size_t unread_bytes;
 	uint8_t *read_from_ptr;
+	size_t bytes_transferred;
 };
 
 static inline size_t cio_read_buffer_unread_bytes(const struct cio_read_buffer *rb)
@@ -69,6 +70,16 @@ static inline enum cio_error cio_read_buffer_init(struct cio_read_buffer *rb, vo
 	rb->read_from_ptr = data;
 
 	return cio_success;
+}
+
+static inline uint8_t * cio_read_buffer_get_read_ptr(const struct cio_read_buffer *rb)
+{
+	return rb->read_from_ptr - rb->bytes_transferred;
+}
+
+static inline size_t cio_read_buffer_get_transferred_bytes(const struct cio_read_buffer *rb)
+{
+	return rb->bytes_transferred;
 }
 
 #ifdef __cplusplus
