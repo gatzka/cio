@@ -66,9 +66,8 @@ struct cio_buffered_stream;
  * @param handler_context The context the functions works on.
  * @param err If err != ::cio_success, the read operation failed.
  * @param buf A pointer to the begin of the buffer where the data was read in. 
- * @param bytes_transferred The number of bytes transferred into @p buf.
  */
-typedef void (*cio_buffered_stream_read_handler)(struct cio_buffered_stream *bs, void *handler_context, enum cio_error err, uint8_t *buf, size_t bytes_transferred);
+typedef void (*cio_buffered_stream_read_handler)(struct cio_buffered_stream *bs, void *handler_context, enum cio_error err, struct cio_read_buffer *buffer);
 
 /**
  * @brief The type of a function passed to all cio_buffered_stream write callback functions.
