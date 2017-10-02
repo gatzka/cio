@@ -39,6 +39,7 @@
 #include "cio_error_code.h"
 #include "cio_linux_socket.h"
 #include "cio_linux_socket_utils.h"
+#include "cio_read_buffer.h"
 #include "cio_write_buffer.h"
 
 #undef MIN
@@ -61,8 +62,8 @@ FAKE_VALUE_FUNC0(int, cio_linux_socket_create)
 void on_close(struct cio_socket *s);
 FAKE_VOID_FUNC(on_close, struct cio_socket *)
 
-void read_handler(struct cio_io_stream *context, void *handler_context, enum cio_error err, uint8_t *buf, size_t bytes_transferred);
-FAKE_VOID_FUNC(read_handler, struct cio_io_stream *, void *, enum cio_error, uint8_t *, size_t)
+void read_handler(struct cio_io_stream *context, void *handler_context, enum cio_error err, struct cio_read_buffer *buffer);
+FAKE_VOID_FUNC(read_handler, struct cio_io_stream *, void *, enum cio_error, struct cio_read_buffer *)
 
 void write_handler(struct cio_io_stream *stream, void *handler_context, const struct cio_write_buffer *, enum cio_error err, size_t bytes_transferred);
 FAKE_VOID_FUNC(write_handler, struct cio_io_stream *, void *, const struct cio_write_buffer *, enum cio_error, size_t)
@@ -475,8 +476,10 @@ static void test_socket_readsome(void)
 	enum cio_error err = cio_socket_init(&s, &loop, &allocator, on_close);
 	TEST_ASSERT_EQUAL_MESSAGE(cio_success, err, "Return value of cio_socket_init not correct!");
 
+	struct cio_read_buffer rb;
+	cio_read_buffer_init(&rb, readback_buffer, sizeof(readback_buffer));
 	struct cio_io_stream *stream = s.get_io_stream(&s);
-	err = stream->read_some(stream, readback_buffer, sizeof(readback_buffer), read_handler, NULL);
+	err = stream->read_some(stream, &rb, read_handler, NULL);
 	TEST_ASSERT_EQUAL_MESSAGE(cio_success, err, "Return value not correct!");
 
 	s.ev.read_callback(s.ev.context);
@@ -485,8 +488,7 @@ static void test_socket_readsome(void)
 	TEST_ASSERT_EQUAL_MESSAGE(stream, read_handler_fake.arg0_val, "First parameter for read handler is not the stream!");
 	TEST_ASSERT_EQUAL_MESSAGE(NULL, read_handler_fake.arg1_val, "Context parameter for read handler is not correct!");
 	TEST_ASSERT_EQUAL_MESSAGE(cio_success, read_handler_fake.arg2_val, "Read handler was not called with cio_success!");
-	TEST_ASSERT_EQUAL_MESSAGE(readback_buffer, read_handler_fake.arg3_val, "Original buffer was not passed to read handler!");
-	TEST_ASSERT_EQUAL_MESSAGE(data_to_read, read_handler_fake.arg4_val, "Size of data to read was not correctly passwd to read handler!");
+	TEST_ASSERT_EQUAL_MESSAGE(&rb, read_handler_fake.arg3_val, "Original buffer was not passed to read handler!");
 	TEST_ASSERT_EQUAL_MESSAGE(0, memcmp(read_buffer, readback_buffer, data_to_read), "Content of data passed to read handler is not correct!");
 }
 
@@ -501,9 +503,11 @@ static void test_socket_readsome_register_read_fails(void)
 	struct cio_socket s;
 	enum cio_error err = cio_socket_init(&s, &loop, &allocator, on_close);
 	TEST_ASSERT_EQUAL_MESSAGE(cio_success, err, "Return value of cio_socket_init not correct!");
-	struct cio_io_stream *stream = s.get_io_stream(&s);
 
-	err = stream->read_some(stream, readback_buffer, sizeof(readback_buffer), read_handler, NULL);
+	struct cio_read_buffer rb;
+	cio_read_buffer_init(&rb, readback_buffer, sizeof(readback_buffer));
+	struct cio_io_stream *stream = s.get_io_stream(&s);
+	err = stream->read_some(stream, &rb, read_handler, NULL);
 	TEST_ASSERT_EQUAL_MESSAGE(cio_invalid_argument, err, "Return value not correct!");
 	TEST_ASSERT_EQUAL_MESSAGE(0, read_handler_fake.call_count, "Handler was called!");
 }
@@ -518,9 +522,12 @@ static void test_socket_readsome_read_blocks(void)
 	struct cio_socket s;
 	enum cio_error err = cio_socket_init(&s, &loop, &allocator, on_close);
 	TEST_ASSERT_EQUAL_MESSAGE(cio_success, err, "Return value of cio_socket_init not correct!");
+
+	struct cio_read_buffer rb;
+	cio_read_buffer_init(&rb, readback_buffer, sizeof(readback_buffer));
 	struct cio_io_stream *stream = s.get_io_stream(&s);
 
-	err = stream->read_some(stream, readback_buffer, sizeof(readback_buffer), read_handler, NULL);
+	err = stream->read_some(stream, &rb, read_handler, NULL);
 	TEST_ASSERT_EQUAL_MESSAGE(cio_success, err, "Return value not correct!");
 	TEST_ASSERT_EQUAL_MESSAGE(0, read_handler_fake.call_count, "Handler was called!");
 }
@@ -535,9 +542,12 @@ static void test_socket_readsome_read_fails(void)
 	struct cio_socket s;
 	enum cio_error err = cio_socket_init(&s, &loop, &allocator, on_close);
 	TEST_ASSERT_EQUAL_MESSAGE(cio_success, err, "Return value of cio_socket_init not correct!");
+
+	struct cio_read_buffer rb;
+	cio_read_buffer_init(&rb, readback_buffer, sizeof(readback_buffer));
 	struct cio_io_stream *stream = s.get_io_stream(&s);
 
-	err = stream->read_some(stream, readback_buffer, sizeof(readback_buffer), read_handler, NULL);
+	err = stream->read_some(stream, &rb, read_handler, NULL);
 	TEST_ASSERT_EQUAL_MESSAGE(cio_success, err, "Return value not correct!");
 
 	s.ev.read_callback(s.ev.context);
@@ -546,8 +556,7 @@ static void test_socket_readsome_read_fails(void)
 	TEST_ASSERT_EQUAL_MESSAGE(stream, read_handler_fake.arg0_val, "Original stream was not passed to read handler!");
 	TEST_ASSERT_EQUAL_MESSAGE(NULL, read_handler_fake.arg1_val, "Context parameter for read handler is not correct!");
 	TEST_ASSERT_NOT_EQUAL_MESSAGE(cio_success, read_handler_fake.arg2_val, "Read handler was called with cio_success for a failing read!");
-	TEST_ASSERT_EQUAL_MESSAGE(readback_buffer, read_handler_fake.arg3_val, "Original buffer was not passed to read handler!");
-	TEST_ASSERT_EQUAL_MESSAGE(0, read_handler_fake.arg4_val, "Size of data to read was not correctly passwd to read handler!");
+	TEST_ASSERT_EQUAL_MESSAGE(&rb, read_handler_fake.arg3_val, "Original buffer was not passed to read handler!");
 }
 
 static void test_socket_readsome_no_stream(void)
@@ -560,9 +569,12 @@ static void test_socket_readsome_no_stream(void)
 	struct cio_socket s;
 	enum cio_error err = cio_socket_init(&s, &loop, &allocator, on_close);
 	TEST_ASSERT_EQUAL_MESSAGE(cio_success, err, "Return value of cio_socket_init not correct!");
+
+	struct cio_read_buffer rb;
+	cio_read_buffer_init(&rb, readback_buffer, sizeof(readback_buffer));
 	struct cio_io_stream *stream = s.get_io_stream(&s);
 
-	err = stream->read_some(NULL, readback_buffer, sizeof(readback_buffer), read_handler, NULL);
+	err = stream->read_some(NULL, &rb, read_handler, NULL);
 	TEST_ASSERT_EQUAL_MESSAGE(cio_invalid_argument, err, "Return value not correct!");
 	TEST_ASSERT_EQUAL_MESSAGE(0, read_handler_fake.call_count, "Handler was called!");
 }
@@ -579,7 +591,7 @@ static void test_socket_readsome_no_buffer(void)
 	TEST_ASSERT_EQUAL_MESSAGE(cio_success, err, "Return value of cio_socket_init not correct!");
 	struct cio_io_stream *stream = s.get_io_stream(&s);
 
-	err = stream->read_some(stream, NULL, sizeof(readback_buffer), read_handler, NULL);
+	err = stream->read_some(stream, NULL, read_handler, NULL);
 	TEST_ASSERT_EQUAL_MESSAGE(cio_invalid_argument, err, "Return value not correct!");
 	TEST_ASSERT_EQUAL_MESSAGE(0, read_handler_fake.call_count, "Handler was called!");
 }
@@ -594,9 +606,12 @@ static void test_socket_readsome_no_handler(void)
 	struct cio_socket s;
 	enum cio_error err = cio_socket_init(&s, &loop, &allocator, on_close);
 	TEST_ASSERT_EQUAL_MESSAGE(cio_success, err, "Return value of cio_socket_init not correct!");
+
+	struct cio_read_buffer rb;
+	cio_read_buffer_init(&rb, readback_buffer, sizeof(readback_buffer));
 	struct cio_io_stream *stream = s.get_io_stream(&s);
 
-	err = stream->read_some(stream, readback_buffer, sizeof(readback_buffer), NULL, NULL);
+	err = stream->read_some(stream, &rb, NULL, NULL);
 	TEST_ASSERT_EQUAL_MESSAGE(cio_invalid_argument, err, "Return value not correct!");
 	TEST_ASSERT_EQUAL_MESSAGE(0, read_handler_fake.call_count, "Handler was called!");
 }

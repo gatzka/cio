@@ -60,8 +60,8 @@ static size_t first_check_buffer_pos = 0;
 static uint8_t second_check_buffer[100];
 static size_t second_check_buffer_pos = 0;
 
-enum cio_error read_some(struct cio_io_stream *ios, void *buf, size_t num, cio_io_stream_read_handler handler, void *context);
-FAKE_VALUE_FUNC(enum cio_error, read_some, struct cio_io_stream*, void*, size_t, cio_io_stream_read_handler, void*)
+enum cio_error read_some(struct cio_io_stream *ios, struct cio_read_buffer *buffer, cio_io_stream_read_handler handler, void *context);
+FAKE_VALUE_FUNC(enum cio_error, read_some, struct cio_io_stream*, struct cio_read_buffer *, cio_io_stream_read_handler, void*)
 
 enum cio_error write_some(struct cio_io_stream *io_stream, const struct cio_write_buffer *buf, cio_io_stream_write_handler handler, void *handler_context);
 FAKE_VALUE_FUNC(enum cio_error, write_some, struct cio_io_stream*, const struct cio_write_buffer *, cio_io_stream_write_handler, void*)
@@ -243,31 +243,34 @@ static void save_to_check_buffer_and_read_again(struct cio_buffered_stream *bs, 
 	TEST_ASSERT_EQUAL_MESSAGE(cio_success, err, "Call to read_exactly did not succeed!");
 }
 
-static enum cio_error read_some_max(struct cio_io_stream *ios, void *buf, size_t num, cio_io_stream_read_handler handler, void *context)
+static enum cio_error read_some_max(struct cio_io_stream *ios, struct cio_read_buffer *buffer, cio_io_stream_read_handler handler, void *context)
 {
 	struct memory_stream *memory_stream = container_of(ios, struct memory_stream, ios);
-	size_t len = MIN(num, memory_stream->size - memory_stream->read_pos);
-	memcpy(buf, &((uint8_t *)memory_stream->mem)[memory_stream->read_pos], len);
+	size_t len = MIN(buffer->size, memory_stream->size - memory_stream->read_pos);
+	memcpy(buffer->data, &((uint8_t *)memory_stream->mem)[memory_stream->read_pos], len);
 	memory_stream->read_pos += len;
-	handler(ios, context, cio_success, buf, len);
+	buffer->bytes_transferred = len;
+	handler(ios, context, cio_success, buffer);
 	return cio_success;
 }
 
-static enum cio_error read_some_chunks(struct cio_io_stream *ios, void *buf, size_t num, cio_io_stream_read_handler handler, void *context)
+static enum cio_error read_some_chunks(struct cio_io_stream *ios, struct cio_read_buffer *buffer, cio_io_stream_read_handler handler, void *context)
 {
 	struct memory_stream *memory_stream = container_of(ios, struct memory_stream, ios);
 	size_t string_len = strlen(memory_stream->mem);
 	if (read_some_fake.call_count == 1) {
 		string_len = string_len / 2;
-		size_t len = MIN(num, string_len);
-		memcpy(buf, memory_stream->mem, len);
-		handler(ios, context, cio_success, buf, len);
+		size_t len = MIN(buffer->size, string_len);
+		memcpy(buffer->data, memory_stream->mem, len);
+		buffer->bytes_transferred = len;
+		handler(ios, context, cio_success, buffer);
 	} else {
 		size_t pos = string_len / 2;
 		string_len = string_len - pos;
-		size_t len = MIN(num, string_len);
-		memcpy(buf, (uint8_t *)memory_stream->mem + pos, len);
-		handler(ios, context, cio_success, buf, len);
+		size_t len = MIN(buffer->size, string_len);
+		memcpy(buffer->data, (uint8_t *)memory_stream->mem + pos, len);
+		buffer->bytes_transferred = len;
+		handler(ios, context, cio_success, buffer);
 	}
 
 	return cio_success;
@@ -290,9 +293,10 @@ static enum cio_error write_some_first_write_partial(struct cio_io_stream *io_st
 	return cio_success;
 }
 
-static enum cio_error read_some_error(struct cio_io_stream *ios, void *buf, size_t num, cio_io_stream_read_handler handler, void *context)
+static enum cio_error read_some_error(struct cio_io_stream *ios, struct cio_read_buffer *buffer, cio_io_stream_read_handler handler, void *context)
 {
-	handler(ios, context, cio_invalid_argument, buf, num);
+	buffer->bytes_transferred = 0;
+	handler(ios, context, cio_invalid_argument, buffer);
 	return cio_success;
 }
 
