@@ -30,7 +30,6 @@
 #include <stdbool.h>
 #include <stdint.h>
 
-#include "cio_allocator.h"
 #include "cio_error_code.h"
 #include "cio_eventloop.h"
 #include "cio_socket.h"
@@ -47,6 +46,9 @@ extern "C" {
  * @ref cio_server_socket_accept "accept connections" and can be
  * @ref cio_server_socket_close "closed".
  */
+
+typedef struct cio_socket *(*cio_alloc_client)(void);
+typedef void (*cio_free_client)(struct cio_socket *socket);
 
 struct cio_server_socket;
 
@@ -126,7 +128,8 @@ struct cio_server_socket {
 	struct cio_event_notifier ev;
 	cio_accept_handler handler;
 	void *handler_context;
-	struct cio_allocator *allocator;
+	cio_alloc_client alloc_client;
+	cio_free_client free_client;
 };
 
 /**
@@ -135,8 +138,10 @@ struct cio_server_socket {
  * @param ss The cio_server_socket that should be initialized.
  * @param loop The event loop the server socket shall operate on.
  * @param backlog The minimal length of the listen queue.
- * @param allocator The allocator that was used to allocate the memory for
- * the struct cio_socket after a successful accept.
+ * @param alloc_client An allocator function that is called if a client connects
+ * to the server.
+ * @param free_client This function is called after closing a @ref cio_socket.
+ * It can and should be used to free resources allocated with @p alloc_client.
  * @param close_hook A close hook function. If this parameter is non @p NULL,
  * the function will be called directly after
  * @ref cio_server_socket_close "closing" the cio_server_socket.
@@ -148,7 +153,8 @@ struct cio_server_socket {
 enum cio_error cio_server_socket_init(struct cio_server_socket *ss,
                                       struct cio_eventloop *loop,
                                       unsigned int backlog,
-                                      struct cio_allocator *allocator,
+                                      cio_alloc_client alloc_client,
+                                      cio_free_client free_client,
                                       cio_server_socket_close_hook close_hook);
 
 #ifdef __cplusplus

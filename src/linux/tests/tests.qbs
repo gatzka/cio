@@ -39,7 +39,6 @@ Project {
     "../../../qbs/gccClang.qbs",
     "../../../qbs/hardening.qbs",
    
-    "test_cio_linux_alloc.qbs",
     "test_cio_linux_epoll.qbs",
     "test_cio_linux_server_socket.qbs",
     "test_cio_linux_socket.qbs",

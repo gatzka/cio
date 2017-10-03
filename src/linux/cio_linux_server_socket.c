@@ -52,11 +52,6 @@ static void socket_close(struct cio_server_socket *ss)
 	}
 }
 
-static void free_linux_socket(struct cio_socket *s)
-{
-	s->allocator->free(s->allocator, s);
-}
-
 static void accept_callback(void *context)
 {
 	struct sockaddr_storage addr;
@@ -73,16 +68,14 @@ static void accept_callback(void *context)
 			ss->handler(ss, ss->handler_context, (enum cio_error)errno, NULL);
 		}
 	} else {
-		struct cio_socket *s;
-		struct cio_buffer buffer = ss->allocator->alloc(ss->allocator, sizeof(*s));
-		s = buffer.address;
+		struct cio_socket *s = ss->alloc_client();
 		if (likely(s != NULL)) {
-			enum cio_error err = cio_linux_socket_init(s, client_fd, ss->loop, ss->allocator, free_linux_socket);
+			enum cio_error err = cio_linux_socket_init(s, client_fd, ss->loop, ss->free_client);
 			if (likely(err == cio_success)) {
 				ss->handler(ss, ss->handler_context, err, s);
 			} else {
 				close(client_fd);
-				ss->allocator->free(ss->allocator, s);
+				ss->free_client(s);
 			}
 		} else {
 			close(client_fd);
@@ -183,7 +176,8 @@ static enum cio_error socket_bind(struct cio_server_socket *ss, const char *bind
 enum cio_error cio_server_socket_init(struct cio_server_socket *ss,
                                       struct cio_eventloop *loop,
                                       unsigned int backlog,
-                                      struct cio_allocator *allocator,
+                                      cio_alloc_client alloc_client,
+                                      cio_free_client free_client,
                                       cio_server_socket_close_hook close_hook)
 {
 	int listen_fd = cio_linux_socket_create();
@@ -193,7 +187,8 @@ enum cio_error cio_server_socket_init(struct cio_server_socket *ss,
 
 	ss->ev.fd = listen_fd;
 
-	ss->allocator = allocator;
+	ss->alloc_client = alloc_client;
+	ss->free_client = free_client;
 	ss->close = socket_close;
 	ss->accept = socket_accept;
 	ss->set_reuse_address = socket_set_reuse_address;

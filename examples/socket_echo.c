@@ -28,22 +28,40 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "cio_allocator.h"
 #include "cio_error_code.h"
 #include "cio_eventloop.h"
 #include "cio_io_stream.h"
 #include "cio_read_buffer.h"
 #include "cio_server_socket.h"
 #include "cio_socket.h"
+#include "cio_util.h"
 #include "cio_write_buffer.h"
 
 static struct cio_eventloop loop;
 
-static uint8_t buffer[100];
+struct echo_client {
+	struct cio_socket socket;
+	uint8_t buffer[100];
+	struct cio_write_buffer wb;
+	struct cio_write_buffer wbh;
+	struct cio_read_buffer rb;
+};
 
-static struct cio_write_buffer wb;
-static struct cio_write_buffer wbh;
-static struct cio_read_buffer rb;
+static struct cio_socket *alloc_echo_client(void)
+{
+	struct echo_client *client = malloc(sizeof(*client));
+	if (unlikely(client == NULL)) {
+		return NULL;
+	} else {
+		return &client->socket;
+	}
+}
+
+static void free_echo_client(struct cio_socket *socket)
+{
+	struct echo_client *client = container_of(socket, struct echo_client, socket);
+	free(client);
+}
 
 static void sighandler(int signum)
 {
@@ -56,21 +74,23 @@ static void handle_read(struct cio_io_stream *stream, void *handler_context, enu
 
 static void handle_write(struct cio_io_stream *stream, void *handler_context, const struct cio_write_buffer *buf, enum cio_error err, size_t bytes_transferred)
 {
-	(void)handler_context;
 	(void)bytes_transferred;
 	(void)buf;
+
+	struct echo_client *client = handler_context;
 
 	if (err != cio_success) {
 		fprintf(stderr, "write error!\n");
 		return;
 	}
 
-	stream->read_some(stream, &rb, handle_read, NULL);
+	cio_read_buffer_init(&client->rb, client->buffer, sizeof(client->buffer));
+	stream->read_some(stream, &client->rb, handle_read, client);
 }
 
 static void handle_read(struct cio_io_stream *stream, void *handler_context, enum cio_error err, struct cio_read_buffer *read_buffer)
 {
-	(void)handler_context;
+	struct echo_client *client = handler_context;
 	if (err != cio_success) {
 		fprintf(stderr, "read error!\n");
 		return;
@@ -82,15 +102,18 @@ static void handle_read(struct cio_io_stream *stream, void *handler_context, enu
 		return;
 	}
 
-	cio_write_buffer_head_init(&wbh);
-	cio_write_buffer_init(&wb, read_buffer->data, read_buffer->bytes_transferred);
-	cio_write_buffer_queue_tail(&wbh, &wb);
-	stream->write_some(stream, &wbh, handle_write, NULL);
+	cio_write_buffer_head_init(&client->wbh);
+	cio_write_buffer_init(&client->wb, read_buffer->data, read_buffer->bytes_transferred);
+	cio_write_buffer_queue_tail(&client->wbh, &client->wb);
+	stream->write_some(stream, &client->wbh, handle_write, client);
 }
 
 static void handle_accept(struct cio_server_socket *ss, void *handler_context, enum cio_error err, struct cio_socket *socket)
 {
 	(void)handler_context;
+
+	struct echo_client *client = container_of(socket, struct echo_client, socket);
+
 	if (err != cio_success) {
 		fprintf(stderr, "accept error!\n");
 		ss->close(ss);
@@ -98,9 +121,9 @@ static void handle_accept(struct cio_server_socket *ss, void *handler_context, e
 		return;
 	}
 
-	cio_read_buffer_init(&rb, buffer, sizeof(buffer));
+	cio_read_buffer_init(&client->rb, client->buffer, sizeof(client->buffer));
 	struct cio_io_stream *stream = socket->get_io_stream(socket);
-	stream->read_some(stream, &rb, handle_read, NULL);
+	stream->read_some(stream, &client->rb, handle_read, client);
 }
 
 int main()
@@ -121,7 +144,7 @@ int main()
 	}
 
 	struct cio_server_socket ss;
-	err = cio_server_socket_init(&ss, &loop, 5, cio_get_system_allocator(), NULL);
+	err = cio_server_socket_init(&ss, &loop, 5, alloc_echo_client, free_echo_client, NULL);
 	if (err != cio_success) {
 		ret = EXIT_FAILURE;
 		goto destroy_loop;

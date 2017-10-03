@@ -37,7 +37,6 @@ extern "C" {
 
 enum cio_error cio_linux_socket_init(struct cio_socket *s, int client_fd,
                                      struct cio_eventloop *loop,
-                                     struct cio_allocator *allocator,
                                      cio_socket_close_hook close_hook);
 
 #ifdef __cplusplus

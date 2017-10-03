@@ -34,7 +34,6 @@ CppApplication {
   files: [
     "test_cio_buffered_stream.c",
     "../cio_buffered_stream.c",
-    "../linux/cio_linux_alloc.c",
     "../linux/cio_linux_string.c",
   ]
 }
