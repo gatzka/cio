@@ -44,7 +44,6 @@ Project {
     "src/fff.qbs",
     "src/unittestsettings.qbs",
 
-    "src/linux/tests/test_cio_linux_alloc.qbs",
     "src/linux/tests/test_cio_linux_epoll.qbs",
     "src/linux/tests/test_cio_linux_server_socket.qbs",
     "src/linux/tests/test_cio_linux_socket.qbs",

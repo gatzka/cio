@@ -16,7 +16,6 @@ configure_file(cio_version.h.in ${PROJECT_BINARY_DIR}/generated/cio_version.h)
 string(COMPARE EQUAL "${CMAKE_SYSTEM_NAME}" "Linux" is_linux)
 if(is_linux)
     set(CIO_LINUX_FILES
-        linux/cio_linux_alloc.c
         linux/cio_linux_epoll.c
         linux/cio_linux_server_socket.c
         linux/cio_linux_socket.c

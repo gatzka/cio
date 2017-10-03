@@ -29,12 +29,6 @@ endif(CMAKE_BUILD_TYPE MATCHES Debug)
 message(STATUS "CMAKE_C_COMPILER_ID: " ${CMAKE_C_COMPILER_ID})
 message(STATUS "CMAKE_C_COMPILER_VERSION: " ${CMAKE_C_COMPILER_VERSION})
 
-add_executable(test_cio_linux_alloc
-    test_cio_linux_alloc.c
-    ../cio_linux_alloc.c
-)
-target_link_libraries (test_cio_linux_alloc unity)
-
 add_executable(test_cio_linux_epoll
     test_cio_linux_epoll.c
     ../cio_linux_epoll.c
@@ -66,7 +60,6 @@ add_executable(test_cio_linux_socket
 target_link_libraries (test_cio_linux_socket unity)
 
 enable_testing()
-add_test(NAME test_cio_linux_alloc COMMAND test_cio_linux_alloc)
 add_test(NAME test_cio_linux_epoll COMMAND test_cio_linux_epoll)
 add_test(NAME test_cio_linux_server_socket COMMAND test_cio_linux_server_socket)
 add_test(NAME test_cio_linux_socket COMMAND test_cio_linux_socket)

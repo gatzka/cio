@@ -29,7 +29,6 @@
 
 #include <stdbool.h>
 
-#include "cio_allocator.h"
 #include "cio_error_code.h"
 #include "cio_eventloop.h"
 #include "cio_io_stream.h"
@@ -123,10 +122,6 @@ struct cio_socket {
  *
  * @param s The cio_socket that should be initialized.
  * @param loop The event loop the socket shall operate on.
- * @param allocator The allocator that was used to allocate the memory for
- * the struct cio_socket. Could be @p NULL. You have access to the
- * allocator in the close hook function. This allows you to free the memory
- * on close.
  * @param close_hook A close hook function. If this parameter is non @p NULL,
  * the function will be called directly after
  * @ref cio_socket_close "closing" the cio_socket.
@@ -137,7 +132,6 @@ struct cio_socket {
  */
 enum cio_error cio_socket_init(struct cio_socket *s,
                                struct cio_eventloop *loop,
-                               struct cio_allocator *allocator,
                                cio_socket_close_hook close_hook);
 
 #ifdef __cplusplus
