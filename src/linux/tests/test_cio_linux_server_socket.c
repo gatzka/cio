@@ -288,6 +288,26 @@ static void test_accept_close_in_accept_handler(void)
 	TEST_ASSERT_EQUAL(&ss, on_close_fake.arg0_val);
 }
 
+static void test_accept_close_in_accept_handler_no_close_hook(void)
+{
+	accept_fake.custom_fake = custom_accept_fake;
+	accept_handler_fake.custom_fake = accept_handler_close_server_socket;
+	alloc_client_fake.custom_fake = alloc_success;
+	free_client_fake.custom_fake = free_success;
+
+	struct cio_eventloop loop;
+	struct cio_server_socket ss;
+	enum cio_error err = cio_server_socket_init(&ss, &loop, 5, alloc_client, free_client, NULL);
+	TEST_ASSERT_EQUAL_MESSAGE(cio_success, err, "Initialization of server socket failed!");
+	ss.bind(&ss, NULL, 12345);
+	ss.accept(&ss, accept_handler, NULL);
+
+	ss.ev.read_callback(ss.ev.context);
+
+	TEST_ASSERT_EQUAL(1, accept_handler_fake.call_count);
+	TEST_ASSERT_EQUAL(0, on_close_fake.call_count);
+}
+
 static void test_accept_wouldblock(void)
 {
 	accept_fake.custom_fake = accept_wouldblock;
@@ -595,6 +615,7 @@ int main(void)
 	UNITY_BEGIN();
 	RUN_TEST(test_accept_bind_address);
 	RUN_TEST(test_accept_close_in_accept_handler);
+	RUN_TEST(test_accept_close_in_accept_handler_no_close_hook);
 	RUN_TEST(test_accept_no_handler);
 	RUN_TEST(test_accept_eventloop_add_fails);
 	RUN_TEST(test_accept_wouldblock);
