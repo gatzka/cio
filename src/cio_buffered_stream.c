@@ -51,7 +51,13 @@ static void handle_read(struct cio_io_stream *stream, void *handler_context, enu
 static void fill_buffer(struct cio_buffered_stream *bs)
 {
 	struct cio_read_buffer *rb = bs->read_buffer;
-	if (rb->data != rb->fetch_ptr) {
+	if (cio_read_buffer_space_available(rb) == 0) {
+		if (unlikely(rb->data == rb->fetch_ptr)) {
+			bs->last_error = cio_message_too_long;
+			bs->read_job(bs);
+			return;
+		}
+
 		size_t unread_bytes = cio_read_buffer_unread_bytes(rb);
 		memmove(rb->data, rb->fetch_ptr, unread_bytes);
 		rb->fetch_ptr = rb->data;
@@ -64,6 +70,12 @@ static void fill_buffer(struct cio_buffered_stream *bs)
 static void internal_read(struct cio_buffered_stream *bs)
 {
 	struct cio_read_buffer *rb = bs->read_buffer;
+
+	if (unlikely(bs->last_error != cio_success)) {
+		bs->read_handler(bs, bs->read_handler_context, bs->last_error, rb);
+		return;
+	}
+
 	size_t available = cio_read_buffer_unread_bytes(rb);
 	if (available > 0) {
 		rb->bytes_transferred = available;
@@ -93,6 +105,11 @@ static enum cio_error bs_read(struct cio_buffered_stream *bs, struct cio_read_bu
 static void internal_read_until(struct cio_buffered_stream *bs)
 {
 	struct cio_read_buffer *rb = bs->read_buffer;
+
+	if (unlikely(bs->last_error != cio_success)) {
+		bs->read_handler(bs, bs->read_handler_context, bs->last_error, rb);
+		return;
+	}
 
 	const uint8_t *haystack = rb->fetch_ptr;
 	const char *needle = bs->read_info.until.delim;
@@ -128,12 +145,12 @@ static enum cio_error bs_read_until(struct cio_buffered_stream *bs, struct cio_r
 
 static void internal_read_exactly(struct cio_buffered_stream *bs)
 {
+	struct cio_read_buffer *rb = bs->read_buffer;
+
 	if (unlikely(bs->last_error != cio_success)) {
-		bs->read_handler(bs, bs->read_handler_context, bs->last_error, NULL);
+		bs->read_handler(bs, bs->read_handler_context, bs->last_error, rb);
 		return;
 	}
-
-	struct cio_read_buffer *rb = bs->read_buffer;
 
 	if (bs->read_info.bytes_to_read <= cio_read_buffer_unread_bytes(rb)) {
 		rb->bytes_transferred = bs->read_info.bytes_to_read;
