@@ -973,7 +973,7 @@ static void test_read_request_ios_error(void)
 	memory_stream_init(&ms, test_data);
 	read_some_fake.custom_fake = read_some_error;
 
-	static const size_t read_buffer_size = 40;
+	size_t read_buffer_size = 40;
 	uint8_t buffer[read_buffer_size];
 	struct cio_read_buffer rb;
 	enum cio_error err = cio_read_buffer_init(&rb, &buffer, sizeof(buffer));
