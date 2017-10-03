@@ -59,6 +59,7 @@ static size_t first_check_buffer_pos = 0;
 
 static uint8_t second_check_buffer[100];
 static size_t second_check_buffer_pos = 0;
+static size_t chunk_bytes_written = 0;
 
 enum cio_error read_some(struct cio_io_stream *ios, struct cio_read_buffer *buffer, cio_io_stream_read_handler handler, void *context);
 FAKE_VALUE_FUNC(enum cio_error, read_some, struct cio_io_stream*, struct cio_read_buffer *, cio_io_stream_read_handler, void*)
@@ -112,6 +113,7 @@ void setUp(void)
 	first_check_buffer_pos = 0;
 	memset(second_check_buffer, 0xaf, sizeof(second_check_buffer));
 	second_check_buffer_pos = 0;
+	chunk_bytes_written = 0;
 }
 
 static enum cio_error write_some_all(struct cio_io_stream *io_stream, const struct cio_write_buffer *buf, cio_io_stream_write_handler handler, void *handler_context)
@@ -261,18 +263,19 @@ static enum cio_error read_some_chunks(struct cio_io_stream *ios, struct cio_rea
 	size_t string_len = strlen(memory_stream->mem);
 	if (read_some_fake.call_count == 1) {
 		string_len = string_len / 2;
-		size_t len = MIN(cio_read_buffer_size(buffer), string_len);
+		size_t len = MIN(cio_read_buffer_space_available(buffer), string_len);
 		memcpy(buffer->add_ptr, memory_stream->mem, len);
 		buffer->bytes_transferred = len;
 		buffer->add_ptr += len;
+		chunk_bytes_written += len;
 		handler(ios, context, cio_success, buffer);
 	} else {
-		size_t pos = string_len / 2;
-		string_len = string_len - pos;
-		size_t len = MIN(cio_read_buffer_size(buffer), string_len);
-		memcpy(buffer->add_ptr, (uint8_t *)memory_stream->mem + pos, len);
+		string_len = string_len - chunk_bytes_written;
+		size_t len = MIN(cio_read_buffer_space_available(buffer), string_len);
+		memcpy(buffer->add_ptr, (uint8_t *)memory_stream->mem + chunk_bytes_written, len);
 		buffer->bytes_transferred = len;
 		buffer->add_ptr += len;
+		chunk_bytes_written += len;
 		handler(ios, context, cio_success, buffer);
 	}
 
@@ -623,6 +626,38 @@ static void test_read_until(void)
 	TEST_ASSERT_EQUAL_MESSAGE(cio_success, dummy_read_handler_fake.arg2_val, "Handler was not called with cio_success!");
 	TEST_ASSERT_EQUAL_MESSAGE(&rb, dummy_read_handler_fake.arg3_val, "Handler was not called with original read buffer!");
 	TEST_ASSERT_MESSAGE(strncmp((const char *)first_check_buffer, PRE_DELIM DELIM, strlen(PRE_DELIM) + strlen(DELIM)) == 0, "Handler was not called with correct data!")
+	memory_stream_deinit(&ms);
+}
+
+static void test_read_until_not_found(void)
+{
+#define PRE_DELIM "MY"
+#define DELIM "HelloWorld"
+	static const char *test_data = PRE_DELIM DELIM "Example";
+	memory_stream_init(&ms, test_data);
+	read_some_fake.custom_fake = read_some_max;
+	dummy_read_handler_fake.custom_fake = save_to_check_buffer;
+
+	size_t read_buffer_size = strlen(test_data) - 1;
+	uint8_t buffer[read_buffer_size];
+	struct cio_read_buffer rb;
+	enum cio_error err = cio_read_buffer_init(&rb, &buffer, sizeof(buffer));
+	TEST_ASSERT_EQUAL_MESSAGE(cio_success, err, "Read buffer was not initialized correctly!");
+
+	struct cio_buffered_stream bs;
+	err = cio_buffered_stream_init(&bs, &ms.ios);
+	TEST_ASSERT_EQUAL_MESSAGE(cio_success, err, "Buffer was not initialized correctly!");
+
+	err = bs.read_until(&bs, &rb, "Morning", dummy_read_handler, first_check_buffer);
+	TEST_ASSERT_EQUAL_MESSAGE(cio_success, err, "Return value not correct!");
+
+	TEST_ASSERT_EQUAL_MESSAGE(1, dummy_read_handler_fake.call_count, "Handler was not called!");
+	TEST_ASSERT_EQUAL_MESSAGE(cio_message_too_long, dummy_read_handler_fake.arg2_val, "Handler was not called with cio_success!");
+	TEST_ASSERT_EQUAL_MESSAGE(&rb, dummy_read_handler_fake.arg3_val, "Handler was not called with original read buffer!");
+
+	err = bs.close(&bs);
+	TEST_ASSERT_EQUAL_MESSAGE(cio_success, err, "Return value not correct!");
+	TEST_ASSERT_EQUAL_MESSAGE(1, close_fake.call_count, "Underlying cio_iostream was not closed!");
 	memory_stream_deinit(&ms);
 }
 
@@ -1429,6 +1464,7 @@ int main(void)
 	RUN_TEST(test_read_exactly_zero_length);
 	RUN_TEST(test_read_exactly_second_read_in_callback);
 	RUN_TEST(test_read_until);
+	RUN_TEST(test_read_until_not_found);
 	RUN_TEST(test_read_until_zero_length_delim);
 	RUN_TEST(test_read_until_NULL_delim);
 	RUN_TEST(test_read_until_no_buffer);
