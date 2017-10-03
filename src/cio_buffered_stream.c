@@ -52,7 +52,7 @@ static void fill_buffer(struct cio_buffered_stream *bs)
 {
 	struct cio_read_buffer *rb = bs->read_buffer;
 	if (cio_read_buffer_space_available(rb) == 0) {
-		if (rb->data == rb->fetch_ptr) {
+		if (unlikely(rb->data == rb->fetch_ptr)) {
 			bs->last_error = cio_message_too_long;
 			bs->read_job(bs);
 			return;
