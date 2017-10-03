@@ -84,6 +84,7 @@ static void handle_write(struct cio_io_stream *stream, void *handler_context, co
 		return;
 	}
 
+	cio_read_buffer_init(&client->rb, client->buffer, sizeof(client->buffer));
 	stream->read_some(stream, &client->rb, handle_read, client);
 }
 
