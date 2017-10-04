@@ -30,6 +30,10 @@
 #include <stddef.h>
 #include <stdint.h>
 
+#include "cio_error_code.h"
+#include "cio_eventloop.h"
+#include "cio_server_socket.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -42,7 +46,15 @@ struct cio_http_server {
 	uint16_t port;
 	const struct cio_request_target_hander *handler;
 	size_t num_handlers;
+	struct cio_eventloop *loop;
+
+	/**
+	 * @privatesection
+	 */
+	struct cio_server_socket server_socket;
 };
+
+enum cio_error cio_http_server_serve(struct cio_http_server *server);
 
 #ifdef __cplusplus
 }

@@ -24,68 +24,15 @@
  * SOFTWARE.
  */
 
-#include <signal.h>
-#include <stdio.h>
-#include <stdlib.h>
+#include <stddef.h>
+#include <stdint.h>
 
 #include "cio_error_code.h"
-#include "cio_eventloop.h"
 #include "cio_http_server.h"
 
-#ifndef ARRAY_SIZE
-#define ARRAY_SIZE(a) (sizeof(a) / sizeof((a)[0]))
-#endif
-
-static struct cio_eventloop loop;
-
-static const struct cio_request_target_hander handler[] = {
-	{
-		.request_target = "/bla"
-	},
-	{
-		.request_target = "/"
-	}
-};
-
-static struct cio_http_server server = {
-	.port = 8080,
-	.handler = handler,
-	.num_handlers = ARRAY_SIZE(handler),
-	.loop = &loop
-};
-
-static void sighandler(int signum)
+enum cio_error cio_http_server_serve(struct cio_http_server *server)
 {
-	(void)signum;
-	cio_eventloop_cancel(&loop);
-}
+	(void)server;
 
-int main()
-{
-	int ret = EXIT_SUCCESS;
-	if (signal(SIGTERM, sighandler) == SIG_ERR) {
-		return -1;
-	}
-
-	if (signal(SIGINT, sighandler) == SIG_ERR) {
-		signal(SIGTERM, SIG_DFL);
-		return -1;
-	}
-
-	enum cio_error err = cio_eventloop_init(&loop);
-	if (err != cio_success) {
-		return EXIT_FAILURE;
-	}
-
-	err = cio_http_server_serve(&server);
-	if (err != cio_success) {
-		ret = EXIT_FAILURE;
-		goto destroy_loop;
-	}
-
-	cio_eventloop_run(&loop);
-
-destroy_loop:
-	cio_eventloop_destroy(&loop);
-	return ret;
+	return cio_success;
 }
