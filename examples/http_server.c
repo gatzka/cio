@@ -24,20 +24,60 @@
  * SOFTWARE.
  */
 
-import qbs 1.0
+#include <signal.h>
+#include <stdio.h>
+#include <stdlib.h>
 
-Project {
-  name: "cio examples"
-  minimumQbsVersion: "1.6.0"
+#include "cio_error_code.h"
+#include "cio_eventloop.h"
+#include "cio_http_server.h"
 
-  qbsSearchPaths: "../qbs/"
+#ifndef ARRAY_SIZE
+#define ARRAY_SIZE(a) (sizeof(a) / sizeof((a)[0]))
+#endif
 
-  references: [
-    "../qbs/gccClang.qbs",
-    "../qbs/hardening.qbs",
-    "../src/cio-staticlib.qbs",
-    "periodic_timer.qbs",
-    "socket_echo.qbs"
-    "http_server.qbs"
-  ]
+static struct cio_eventloop loop;
+
+static const struct cio_request_target_hander handler[] = {
+	{
+		.request_target = "/bla"
+	},
+	{
+		.request_target = "/"
+	}
+};
+
+static const struct cio_http_server server = {
+	.port = 8080,
+	.handler = handler,
+	.num_handlers = ARRAY_SIZE(handler)
+};
+
+static void sighandler(int signum)
+{
+	(void)signum;
+	cio_eventloop_cancel(&loop);
+}
+
+int main()
+{
+	int ret = EXIT_SUCCESS;
+	if (signal(SIGTERM, sighandler) == SIG_ERR) {
+		return -1;
+	}
+
+	if (signal(SIGINT, sighandler) == SIG_ERR) {
+		signal(SIGTERM, SIG_DFL);
+		return -1;
+	}
+
+	enum cio_error err = cio_eventloop_init(&loop);
+	if (err != cio_success) {
+		return EXIT_FAILURE;
+	}
+
+	(void)server;
+
+	cio_eventloop_destroy(&loop);
+	return ret;
 }

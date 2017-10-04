@@ -24,20 +24,28 @@
  * SOFTWARE.
  */
 
-import qbs 1.0
+#ifndef CIO_HTTP_SERVER_H
+#define CIO_HTTP_SERVER_H
 
-Project {
-  name: "cio examples"
-  minimumQbsVersion: "1.6.0"
+#include <stddef.h>
+#include <stdint.h>
 
-  qbsSearchPaths: "../qbs/"
+#ifdef __cplusplus
+extern "C" {
+#endif
 
-  references: [
-    "../qbs/gccClang.qbs",
-    "../qbs/hardening.qbs",
-    "../src/cio-staticlib.qbs",
-    "periodic_timer.qbs",
-    "socket_echo.qbs"
-    "http_server.qbs"
-  ]
+struct cio_request_target_hander {
+	const char *request_target;
+};
+
+struct cio_http_server {
+	uint16_t port;
+	const struct cio_request_target_hander *handler;
+	size_t num_handlers;
+};
+
+#ifdef __cplusplus
 }
+#endif
+
+#endif
