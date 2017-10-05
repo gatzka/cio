@@ -31,12 +31,29 @@
 #include "cio_error_code.h"
 #include "cio_eventloop.h"
 #include "cio_http_server.h"
+#include "cio_util.h"
 
 #ifndef ARRAY_SIZE
 #define ARRAY_SIZE(a) (sizeof(a) / sizeof((a)[0]))
 #endif
 
 static struct cio_eventloop loop;
+
+static struct cio_socket *alloc_http_client(void)
+{
+	struct cio_http_client *client = malloc(sizeof(*client) + 2000);
+	if (unlikely(client == NULL)) {
+		return NULL;
+	} else {
+		return &client->socket;
+	}
+}
+
+static void free_http_client(struct cio_socket *socket)
+{
+	struct cio_http_client *client = container_of(socket, struct cio_http_client, socket);
+	free(client);
+}
 
 static const struct cio_request_target_hander handler[] = {
 	{
@@ -51,7 +68,9 @@ static struct cio_http_server server = {
 	.port = 8080,
 	.handler = handler,
 	.num_handlers = ARRAY_SIZE(handler),
-	.loop = &loop
+	.loop = &loop,
+	.alloc_client = alloc_http_client,
+	.free_client = free_http_client
 };
 
 static void sighandler(int signum)

@@ -30,6 +30,7 @@
 #include <stddef.h>
 #include <stdint.h>
 
+#include "cio_buffered_stream.h"
 #include "cio_error_code.h"
 #include "cio_eventloop.h"
 #include "cio_server_socket.h"
@@ -47,6 +48,8 @@ struct cio_http_server {
 	const struct cio_request_target_hander *handler;
 	size_t num_handlers;
 	struct cio_eventloop *loop;
+	cio_alloc_client alloc_client;
+	cio_free_client free_client;
 
 	/**
 	 * @privatesection
@@ -55,6 +58,16 @@ struct cio_http_server {
 };
 
 enum cio_error cio_http_server_serve(struct cio_http_server *server);
+
+struct cio_http_client {
+	struct cio_http_server *server;
+	struct cio_socket socket;
+	struct cio_read_buffer rb;
+	struct cio_buffered_stream bs;
+	size_t buffer_size;
+	uint8_t buffer[];
+
+};
 
 #ifdef __cplusplus
 }
