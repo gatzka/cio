@@ -39,12 +39,15 @@
 
 static struct cio_eventloop loop;
 
+static const size_t read_buffer_size = 2000;
+
 static struct cio_socket *alloc_http_client(void)
 {
-	struct cio_http_client *client = malloc(sizeof(*client) + 2000);
+	struct cio_http_client *client = malloc(sizeof(*client) + read_buffer_size);
 	if (unlikely(client == NULL)) {
 		return NULL;
 	} else {
+		client->buffer_size = read_buffer_size;
 		return &client->socket;
 	}
 }

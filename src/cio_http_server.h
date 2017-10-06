@@ -33,7 +33,10 @@
 #include "cio_buffered_stream.h"
 #include "cio_error_code.h"
 #include "cio_eventloop.h"
+#include "cio_read_buffer.h"
+#include "cio_write_buffer.h"
 #include "cio_server_socket.h"
+#include "http-parser/http_parser.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -64,10 +67,21 @@ struct cio_http_client {
 	struct cio_socket socket;
 	struct cio_read_buffer rb;
 	struct cio_buffered_stream bs;
+	struct cio_write_buffer wbh;
+	struct cio_write_buffer wb;
+
+	http_parser parser;
+	http_parser_settings parser_settings;
+
 	size_t buffer_size;
 	uint8_t buffer[];
 
 };
+
+#define HTTP_OK 200
+#define HTTP_BAD_REQUEST 400
+#define HTTP_NOT_FOUND 404
+#define HTTP_INTERNAL_SERVER_ERROR 500
 
 #ifdef __cplusplus
 }
