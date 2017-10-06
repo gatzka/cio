@@ -28,6 +28,8 @@ endif()
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/ ${CMAKE_CURRENT_SOURCE_DIR}/linux/)
 set(CIO_FILES
     cio_buffered_stream.c
+	cio_http_server.c
+	http-parser/http_parser.c
 )
 
 if(CMAKE_C_COMPILER_ID STREQUAL "GNU" OR CMAKE_C_COMPILER_ID STREQUAL "Clang")

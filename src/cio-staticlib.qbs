@@ -75,6 +75,15 @@ Product {
   }
 
   Group {
+    name: "third party"
+    cpp.cLanguageVersion: "c99"
+    files: [
+      "http-parser/http_parser.c",
+      "http-parser/http_parser.h"
+    ]
+  }
+
+  Group {
     condition: qbs.targetOS.contains("unix")
     name: "POSIX conformant"
     prefix: "posix/"
@@ -93,7 +102,6 @@ Product {
     name: "linux specific"
     prefix: "linux/"
     cpp.cLanguageVersion: "c99"
-//    cpp.defines: "_GNU_SOURCE"
 
     files: [
       "*.c",
