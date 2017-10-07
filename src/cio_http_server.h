@@ -57,6 +57,10 @@ enum cio_http_method {
 	cio_http_head = HTTP_HEAD,
 };
 
+struct cio_http_request_handler {
+	int foo;
+};
+
 struct cio_http_request_target {
 	const char *request_target;
 };
@@ -84,6 +88,8 @@ struct cio_http_client {
 	struct cio_buffered_stream bs;
 	struct cio_write_buffer wbh;
 	struct cio_write_buffer wb;
+
+	void (*close)(struct cio_http_client *client);
 
 	http_parser parser;
 	http_parser_settings parser_settings;

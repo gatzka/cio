@@ -41,6 +41,18 @@ static struct cio_eventloop loop;
 
 static const size_t read_buffer_size = 2000;
 
+static void free_http_client(struct cio_socket *socket)
+{
+	struct cio_http_client *client = container_of(socket, struct cio_http_client, socket);
+	free(client);
+}
+
+static inline void close_client(struct cio_http_client *client)
+{
+	client->bs.close(&client->bs);
+	free_http_client(&client->socket);
+}
+
 static struct cio_socket *alloc_http_client(void)
 {
 	struct cio_http_client *client = malloc(sizeof(*client) + read_buffer_size);
@@ -48,14 +60,9 @@ static struct cio_socket *alloc_http_client(void)
 		return NULL;
 	} else {
 		client->buffer_size = read_buffer_size;
+		client->close = close_client;
 		return &client->socket;
 	}
-}
-
-static void free_http_client(struct cio_socket *socket)
-{
-	struct cio_http_client *client = container_of(socket, struct cio_http_client, socket);
-	free(client);
 }
 
 static const struct cio_http_request_target handler[] = {

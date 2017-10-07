@@ -40,13 +40,14 @@
 #undef CRLF
 #define CRLF "\r\n"
 
-
 static void response_written(struct cio_buffered_stream *bs, void *handler_context, const struct cio_write_buffer *buffer, enum cio_error err)
 {
-	(void)handler_context;
+	(void)bs;
 	(void)buffer;
 	(void)err;
-	bs->close(bs);
+
+	struct cio_http_client *client = (struct cio_http_client *)handler_context;
+	client->close(client);
 }
 
 static const char *get_response(enum cio_http_status_code status_code)
