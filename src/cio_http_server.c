@@ -153,6 +153,11 @@ static void handle_request_line(struct cio_buffered_stream *stream, void *handle
 		send_http_error_response(client, cio_http_bad_request);
 		return;
 	}
+
+
+	client->http_major = client->parser.http_major;
+	client->http_minor = client->parser.http_minor;
+	client->http_method = client->parser.method;
 }
 
 static void handle_accept(struct cio_server_socket *ss, void *handler_context, enum cio_error err, struct cio_socket *socket)

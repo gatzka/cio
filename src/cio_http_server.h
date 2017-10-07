@@ -42,6 +42,21 @@
 extern "C" {
 #endif
 
+enum cio_http_status_code {
+	cio_http_ok = 200,
+	cio_http_bad_request = 400,
+	cio_http_not_found = 404,
+	cio_http_internal_server_error = 500,
+};
+
+enum cio_http_method {
+	cio_http_delete = HTTP_DELETE,
+	cio_http_get = HTTP_GET,
+	cio_http_post = HTTP_POST,
+	cio_http_put = HTTP_PUT,
+	cio_http_head = HTTP_HEAD,
+};
+
 struct cio_http_request_target {
 	const char *request_target;
 };
@@ -72,25 +87,13 @@ struct cio_http_client {
 
 	http_parser parser;
 	http_parser_settings parser_settings;
+	uint16_t http_major;
+	uint16_t http_minor;
+	enum cio_http_method http_method;
 
 	size_t buffer_size;
 	uint8_t buffer[];
 
-};
-
-enum cio_http_status_code {
-	cio_http_ok = 200,
-	cio_http_bad_request = 400,
-	cio_http_not_found = 404,
-	cio_http_internal_server_error = 500,
-};
-
-enum cio_http_method {
-	cio_http_delete = HTTP_DELETE,
-	cio_http_get = HTTP_GET,
-	cio_http_post = HTTP_POST,
-	cio_http_put = HTTP_PUT,
-	cio_http_head = HTTP_HEAD,
 };
 
 #ifdef __cplusplus
