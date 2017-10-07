@@ -42,13 +42,13 @@
 extern "C" {
 #endif
 
-struct cio_request_target_hander {
+struct cio_request_target_handler {
 	const char *request_target;
 };
 
 struct cio_http_server {
 	uint16_t port;
-	const struct cio_request_target_hander *handler;
+	const struct cio_request_target_handler *handler;
 	size_t num_handlers;
 	struct cio_eventloop *loop;
 	cio_alloc_client alloc_client;

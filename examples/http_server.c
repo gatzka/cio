@@ -58,7 +58,7 @@ static void free_http_client(struct cio_socket *socket)
 	free(client);
 }
 
-static const struct cio_request_target_hander handler[] = {
+static const struct cio_request_target_handler handler[] = {
 	{
 		.request_target = "/"
 	},

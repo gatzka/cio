@@ -72,12 +72,12 @@ static void send_http_error_response(struct cio_http_client *client, unsigned in
 	client->bs.write(&client->bs, &client->wbh, response_written, client);
 }
 
-static const struct cio_request_target_hander *find_handler(const struct cio_http_server *server, const char *request_target, size_t url_length)
+static const struct cio_request_target_handler *find_handler(const struct cio_http_server *server, const char *request_target, size_t url_length)
 {
 	int best_match_index = -1;
 	size_t best_match_length = 0;
 	for (size_t i = 0; i < server->num_handlers; i++) {
-		const struct cio_request_target_hander *handler = &server->handler[i];
+		const struct cio_request_target_handler *handler = &server->handler[i];
 		size_t length = strlen(handler->request_target);
 		if (length <= url_length) {
 			if (strncmp(handler->request_target, request_target, length) == 0) {
@@ -114,7 +114,7 @@ static int on_url(http_parser *parser, const char *at, size_t length)
 		send_http_error_response(client, HTTP_BAD_REQUEST);
 		return -1;
 	} else {
-		const struct cio_request_target_hander *handler = find_handler(client->server, at + u.field_data[UF_PATH].off, u.field_data[UF_PATH].len);
+		const struct cio_request_target_handler *handler = find_handler(client->server, at + u.field_data[UF_PATH].off, u.field_data[UF_PATH].len);
 		if (handler == NULL) {
 			send_http_error_response(client, HTTP_NOT_FOUND);
 			return -1;
