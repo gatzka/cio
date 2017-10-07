@@ -74,12 +74,13 @@ static void send_http_error_response(struct cio_http_client *client, unsigned in
 
 static void handle_request_line(struct cio_buffered_stream *stream, void *handler_context, enum cio_error err, struct cio_read_buffer *read_buffer)
 {
+	(void)stream;
+	struct cio_http_client *client = (struct cio_http_client *)handler_context;
+
 	if (unlikely(err != cio_success)) {
-		stream->close(stream);
+		send_http_error_response(client, HTTP_INTERNAL_SERVER_ERROR);
 		return;
 	}
-
-	struct cio_http_client *client = (struct cio_http_client *)handler_context;
 
 	size_t bytes_transfered = cio_read_buffer_get_transferred_bytes(read_buffer);
 	size_t nparsed = http_parser_execute(&client->parser, &client->parser_settings, (const char *)cio_read_buffer_get_read_ptr(read_buffer), bytes_transfered);
