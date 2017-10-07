@@ -49,21 +49,21 @@ static void response_written(struct cio_buffered_stream *bs, void *handler_conte
 	bs->close(bs);
 }
 
-static const char *get_response(unsigned int status_code)
+static const char *get_response(enum cio_http_status_code status_code)
 {
 	switch (status_code) {
-	case HTTP_BAD_REQUEST:
+	case cio_http_bad_request:
 		return "HTTP/1.0 400 Bad Request" CRLF CRLF;
-	case HTTP_NOT_FOUND:
+	case cio_http_not_found:
 		return "HTTP/1.0 404 Not Found" CRLF CRLF;
 
-	case HTTP_INTERNAL_SERVER_ERROR:
+	case cio_http_internal_server_error:
 	default:
 		return "HTTP/1.0 500 Internal Server Error" CRLF CRLF;
 	}
 }
 
-static void send_http_error_response(struct cio_http_client *client, unsigned int status_code)
+static void send_http_error_response(struct cio_http_client *client, enum cio_http_status_code status_code)
 {
 	const char *response = get_response(status_code);
 	cio_write_buffer_head_init(&client->wbh);
@@ -72,12 +72,12 @@ static void send_http_error_response(struct cio_http_client *client, unsigned in
 	client->bs.write(&client->bs, &client->wbh, response_written, client);
 }
 
-static const struct cio_request_target_handler *find_handler(const struct cio_http_server *server, const char *request_target, size_t url_length)
+static const struct cio_http_request_target *find_handler(const struct cio_http_server *server, const char *request_target, size_t url_length)
 {
 	int best_match_index = -1;
 	size_t best_match_length = 0;
 	for (size_t i = 0; i < server->num_handlers; i++) {
-		const struct cio_request_target_handler *handler = &server->handler[i];
+		const struct cio_http_request_target *handler = &server->handler[i];
 		size_t length = strlen(handler->request_target);
 		if (length <= url_length) {
 			if (strncmp(handler->request_target, request_target, length) == 0) {
@@ -111,12 +111,12 @@ static int on_url(http_parser *parser, const char *at, size_t length)
 	http_parser_url_init(&u);
 	int ret = http_parser_parse_url(at, length, is_connect, &u);
 	if (unlikely((ret != 0) && !((u.field_set & (1 << UF_PATH)) == (1 << UF_PATH)))) {
-		send_http_error_response(client, HTTP_BAD_REQUEST);
+		send_http_error_response(client, cio_http_bad_request);
 		return -1;
 	} else {
-		const struct cio_request_target_handler *handler = find_handler(client->server, at + u.field_data[UF_PATH].off, u.field_data[UF_PATH].len);
+		const struct cio_http_request_target *handler = find_handler(client->server, at + u.field_data[UF_PATH].off, u.field_data[UF_PATH].len);
 		if (handler == NULL) {
-			send_http_error_response(client, HTTP_NOT_FOUND);
+			send_http_error_response(client, cio_http_not_found);
 			return -1;
 		}
 #if 0
@@ -142,7 +142,7 @@ static void handle_request_line(struct cio_buffered_stream *stream, void *handle
 	struct cio_http_client *client = (struct cio_http_client *)handler_context;
 
 	if (unlikely(err != cio_success)) {
-		send_http_error_response(client, HTTP_INTERNAL_SERVER_ERROR);
+		send_http_error_response(client, cio_http_internal_server_error);
 		return;
 	}
 
@@ -150,7 +150,7 @@ static void handle_request_line(struct cio_buffered_stream *stream, void *handle
 	size_t nparsed = http_parser_execute(&client->parser, &client->parser_settings, (const char *)cio_read_buffer_get_read_ptr(read_buffer), bytes_transfered);
 
 	if (unlikely(nparsed != bytes_transfered)) {
-		send_http_error_response(client, HTTP_BAD_REQUEST);
+		send_http_error_response(client, cio_http_bad_request);
 		return;
 	}
 }

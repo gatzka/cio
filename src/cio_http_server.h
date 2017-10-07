@@ -42,13 +42,13 @@
 extern "C" {
 #endif
 
-struct cio_request_target_handler {
+struct cio_http_request_target {
 	const char *request_target;
 };
 
 struct cio_http_server {
 	uint16_t port;
-	const struct cio_request_target_handler *handler;
+	const struct cio_http_request_target *handler;
 	size_t num_handlers;
 	struct cio_eventloop *loop;
 	cio_alloc_client alloc_client;
@@ -78,10 +78,20 @@ struct cio_http_client {
 
 };
 
-#define HTTP_OK 200
-#define HTTP_BAD_REQUEST 400
-#define HTTP_NOT_FOUND 404
-#define HTTP_INTERNAL_SERVER_ERROR 500
+enum cio_http_status_code {
+	cio_http_ok = 200,
+	cio_http_bad_request = 400,
+	cio_http_not_found = 404,
+	cio_http_internal_server_error = 500,
+};
+
+enum cio_http_method {
+	cio_http_delete = HTTP_DELETE,
+	cio_http_get = HTTP_GET,
+	cio_http_post = HTTP_POST,
+	cio_http_put = HTTP_PUT,
+	cio_http_head = HTTP_HEAD,
+};
 
 #ifdef __cplusplus
 }
