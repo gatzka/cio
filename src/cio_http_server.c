@@ -72,6 +72,70 @@ static void send_http_error_response(struct cio_http_client *client, unsigned in
 	client->bs.write(&client->bs, &client->wbh, response_written, client);
 }
 
+static const struct cio_request_target_hander *find_handler(const struct cio_http_server *server, const char *request_target, size_t url_length)
+{
+	int best_match_index = -1;
+	size_t best_match_length = 0;
+	for (size_t i = 0; i < server->num_handlers; i++) {
+		const struct cio_request_target_hander *handler = &server->handler[i];
+		size_t length = strlen(handler->request_target);
+		if (length <= url_length) {
+			if (strncmp(handler->request_target, request_target, length) == 0) {
+				if (length > best_match_length) {
+					best_match_length = length;
+					best_match_index = i;
+				}
+			}
+		}
+	}
+
+	if (best_match_index >= 0) {
+		return &server->handler[best_match_index];
+	} else {
+		return NULL;
+	}
+}
+
+static int on_url(http_parser *parser, const char *at, size_t length)
+{
+	struct cio_http_client *client = container_of(parser, struct cio_http_client, parser);
+
+	int is_connect;
+	if (unlikely(parser->method == HTTP_CONNECT)) {
+		is_connect = 1;
+	} else {
+		is_connect = 0;
+	}
+
+	struct http_parser_url u;
+	http_parser_url_init(&u);
+	int ret = http_parser_parse_url(at, length, is_connect, &u);
+	if (unlikely((ret != 0) && !((u.field_set & (1 << UF_PATH)) == (1 << UF_PATH)))) {
+		send_http_error_response(client, HTTP_BAD_REQUEST);
+		return -1;
+	} else {
+		const struct cio_request_target_hander *handler = find_handler(client->server, at + u.field_data[UF_PATH].off, u.field_data[UF_PATH].len);
+		if (handler == NULL) {
+			send_http_error_response(client, HTTP_NOT_FOUND);
+			return -1;
+		}
+#if 0
+		if (handler->create != NULL) {
+			(handler->create(connection));
+		}
+
+		connection->parser_settings.on_header_field = handler->on_header_field;
+		connection->parser_settings.on_header_value = handler->on_header_value;
+		connection->parser_settings.on_headers_complete = handler->on_headers_complete;
+		connection->parser_settings.on_body = handler->on_body;
+		connection->parser_settings.on_message_complete = handler->on_message_complete;
+#endif
+
+	}
+
+	return 0;
+}
+
 static void handle_request_line(struct cio_buffered_stream *stream, void *handler_context, enum cio_error err, struct cio_read_buffer *read_buffer)
 {
 	(void)stream;
@@ -89,12 +153,6 @@ static void handle_request_line(struct cio_buffered_stream *stream, void *handle
 		send_http_error_response(client, HTTP_BAD_REQUEST);
 		return;
 	}
-
-#if 0
-1.	struct cio_request_target_hander handler = suche;
-	client->parser_settings.on_header_field = handler.on_header_field;
-	client->parser_settings.on_header_value = handler.on_header_value;
-#endif
 }
 
 static void handle_accept(struct cio_server_socket *ss, void *handler_context, enum cio_error err, struct cio_socket *socket)
@@ -111,6 +169,7 @@ static void handle_accept(struct cio_server_socket *ss, void *handler_context, e
 	struct cio_io_stream *stream = socket->get_io_stream(socket);
 
 	http_parser_settings_init(&client->parser_settings);
+	client->parser_settings.on_url = on_url;
 	http_parser_init(&client->parser, HTTP_REQUEST);
 
 	cio_read_buffer_init(&client->rb, client->buffer, client->buffer_size);

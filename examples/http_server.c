@@ -60,10 +60,10 @@ static void free_http_client(struct cio_socket *socket)
 
 static const struct cio_request_target_hander handler[] = {
 	{
-		.request_target = "/bla"
+		.request_target = "/"
 	},
 	{
-		.request_target = "/"
+		.request_target = "/bla"
 	}
 };
 
