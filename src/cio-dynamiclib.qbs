@@ -91,6 +91,7 @@ DynamicLibrary {
   Group {
     name: "third party"
     cpp.cLanguageVersion: "c99"
+    cpp.warningLevel: "none"
     files: [
       "http-parser/http_parser.c",
       "http-parser/http_parser.h"
