@@ -74,26 +74,25 @@ static void send_http_error_response(struct cio_http_client *client, enum cio_ht
 
 static const struct cio_http_request_target *find_handler(const struct cio_http_server *server, const char *request_target, size_t url_length)
 {
-	int best_match_index = -1;
+	const struct cio_http_request_target *best_match = NULL;
 	size_t best_match_length = 0;
+
+	const struct cio_http_request_target *handler = server->handler;
 	for (size_t i = 0; i < server->num_handlers; i++) {
-		const struct cio_http_request_target *handler = &server->handler[i];
 		size_t length = strlen(handler->request_target);
 		if (length <= url_length) {
 			if (strncmp(handler->request_target, request_target, length) == 0) {
 				if (length > best_match_length) {
 					best_match_length = length;
-					best_match_index = i;
+					best_match = handler;
 				}
 			}
 		}
+
+		handler++;
 	}
 
-	if (best_match_index >= 0) {
-		return &server->handler[best_match_index];
-	} else {
-		return NULL;
-	}
+	return best_match;
 }
 
 static int on_url(http_parser *parser, const char *at, size_t length)
