@@ -42,13 +42,6 @@
 extern "C" {
 #endif
 
-enum cio_http_status_code {
-	cio_http_ok = 200,
-	cio_http_bad_request = 400,
-	cio_http_not_found = 404,
-	cio_http_internal_server_error = 500,
-};
-
 enum cio_http_method {
 	cio_http_delete = HTTP_DELETE,
 	cio_http_get = HTTP_GET,
@@ -57,12 +50,62 @@ enum cio_http_method {
 	cio_http_head = HTTP_HEAD,
 };
 
+struct cio_http_client {
+
+	void (*close)(struct cio_http_client *client);
+
+	struct cio_buffered_stream bs;
+	struct cio_read_buffer rb;
+	struct cio_write_buffer wbh;
+	struct cio_write_buffer wb;
+
+	uint16_t http_major;
+	uint16_t http_minor;
+	enum cio_http_method http_method;
+
+	/**
+	 * @privatesection
+	 */
+	struct cio_http_server *server;
+	struct cio_socket socket;
+
+	http_parser parser;
+	http_parser_settings parser_settings;
+
+	size_t buffer_size;
+	uint8_t buffer[];
+
+};
+enum cio_http_cb_return {
+	cio_http_cb_success = 0,
+	cio_http_cb_error = -1
+};
+
+enum cio_http_status_code {
+	cio_http_ok = 200,
+	cio_http_bad_request = 400,
+	cio_http_not_found = 404,
+	cio_http_internal_server_error = 500,
+};
+
+typedef enum cio_http_cb_return (*cio_http_cb) (struct cio_http_client *);
+typedef enum cio_http_cb_return (*cio_http_data_cb) (struct cio_http_client *, const char *at, size_t length);
+
 struct cio_http_request_handler {
-	int foo;
+	cio_http_cb      on_message_begin;
+	cio_http_data_cb on_url;
+	cio_http_data_cb on_status;
+	cio_http_data_cb on_header_field;
+	cio_http_data_cb on_header_value;
+	cio_http_cb      on_headers_complete;
+	cio_http_data_cb on_body;
+	cio_http_cb      on_message_complete;
+	void (*free)(struct cio_http_request_handler *handler);
 };
 
 struct cio_http_request_target {
 	const char *request_target;
+	struct cio_http_request_handler *(*alloc_handler)(void);
 };
 
 struct cio_http_server {
@@ -81,26 +124,6 @@ struct cio_http_server {
 
 enum cio_error cio_http_server_serve(struct cio_http_server *server);
 
-struct cio_http_client {
-	struct cio_http_server *server;
-	struct cio_socket socket;
-	struct cio_read_buffer rb;
-	struct cio_buffered_stream bs;
-	struct cio_write_buffer wbh;
-	struct cio_write_buffer wb;
-
-	void (*close)(struct cio_http_client *client);
-
-	http_parser parser;
-	http_parser_settings parser_settings;
-	uint16_t http_major;
-	uint16_t http_minor;
-	enum cio_http_method http_method;
-
-	size_t buffer_size;
-	uint8_t buffer[];
-
-};
 
 #ifdef __cplusplus
 }

@@ -40,6 +40,12 @@
 #undef CRLF
 #define CRLF "\r\n"
 
+static void close_client(struct cio_http_client *client)
+{
+	client->bs.close(&client->bs);
+	client->server->free_client(&client->socket);
+}
+
 static void response_written(struct cio_buffered_stream *bs, void *handler_context, const struct cio_write_buffer *buffer, enum cio_error err)
 {
 	(void)bs;
@@ -173,6 +179,7 @@ static void handle_accept(struct cio_server_socket *ss, void *handler_context, e
 
 	struct cio_io_stream *stream = socket->get_io_stream(socket);
 
+	client->close = close_client;
 	http_parser_settings_init(&client->parser_settings);
 	client->parser_settings.on_url = on_url;
 	http_parser_init(&client->parser, HTTP_REQUEST);

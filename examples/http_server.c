@@ -41,16 +41,53 @@ static struct cio_eventloop loop;
 
 static const size_t read_buffer_size = 2000;
 
+struct dummy_handler {
+	struct cio_http_request_handler handler;
+	uint32_t dummy_val;
+};
+
 static void free_http_client(struct cio_socket *socket)
 {
 	struct cio_http_client *client = container_of(socket, struct cio_http_client, socket);
 	free(client);
 }
 
-static inline void close_client(struct cio_http_client *client)
+static void free_dummy_handler(struct cio_http_request_handler *handler)
 {
-	client->bs.close(&client->bs);
-	free_http_client(&client->socket);
+	struct dummy_handler *dh = container_of(handler, struct dummy_handler, handler);
+	free(dh);
+}
+
+static enum cio_http_cb_return dummy_on_headers_complete(struct cio_http_client *client)
+{
+	(void)client;
+	return cio_http_cb_success;
+}
+
+static enum cio_http_cb_return dummy_on_message_complete(struct cio_http_client *client)
+{
+	(void)client;
+	return cio_http_cb_success;
+}
+
+static struct cio_http_request_handler *alloc_dummy_handler(void)
+{
+	struct dummy_handler *handler = malloc(sizeof(*handler));
+	if (unlikely(handler == NULL)) {
+		return NULL;
+	} else {
+		handler->dummy_val = 0xdeadbeef;
+		handler->handler.free = free_dummy_handler;
+		handler->handler.on_body = NULL;
+		handler->handler.on_header_field = NULL;
+		handler->handler.on_header_value = NULL;
+		handler->handler.on_message_begin = NULL;
+		handler->handler.on_status = NULL;
+		handler->handler.on_url = NULL;
+		handler->handler.on_message_complete = dummy_on_message_complete;
+		handler->handler.on_headers_complete = dummy_on_headers_complete;
+		return &handler->handler;
+	}
 }
 
 static struct cio_socket *alloc_http_client(void)
@@ -60,17 +97,18 @@ static struct cio_socket *alloc_http_client(void)
 		return NULL;
 	} else {
 		client->buffer_size = read_buffer_size;
-		client->close = close_client;
 		return &client->socket;
 	}
 }
 
 static const struct cio_http_request_target handler[] = {
 	{
-		.request_target = "/"
+		.request_target = "/",
+		.alloc_handler = NULL
 	},
 	{
-		.request_target = "/bla"
+		.request_target = "/bla",
+		.alloc_handler = alloc_dummy_handler
 	}
 };
 
