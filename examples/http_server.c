@@ -60,13 +60,18 @@ static void free_dummy_handler(struct cio_http_request_handler *handler)
 
 static enum cio_http_cb_return dummy_on_headers_complete(struct cio_http_client *client)
 {
-	(void)client;
+	struct cio_http_request_handler *handler = client->handler;
+	struct dummy_handler *dh = container_of(handler, struct dummy_handler, handler);
+	printf("In dummy_on_headers_complete, dummy_val: %x", dh->dummy_val);
 	return cio_http_cb_success;
 }
 
 static enum cio_http_cb_return dummy_on_message_complete(struct cio_http_client *client)
 {
-	(void)client;
+	struct cio_http_request_handler *handler = client->handler;
+	struct dummy_handler *dh = container_of(handler, struct dummy_handler, handler);
+	printf("In dummy_on_message_complete, dummy_val: %x", dh->dummy_val);
+	cio_http_send_response(client, cio_http_ok);
 	return cio_http_cb_success;
 }
 

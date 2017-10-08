@@ -42,6 +42,13 @@
 extern "C" {
 #endif
 
+enum cio_http_status_code {
+	cio_http_ok = 200,
+	cio_http_bad_request = 400,
+	cio_http_not_found = 404,
+	cio_http_internal_server_error = 500,
+};
+
 enum cio_http_method {
 	cio_http_delete = HTTP_DELETE,
 	cio_http_get = HTTP_GET,
@@ -50,18 +57,27 @@ enum cio_http_method {
 	cio_http_head = HTTP_HEAD,
 };
 
+enum cio_http_cb_return {
+	cio_http_cb_success = 0,
+	cio_http_cb_error = -1
+};
+
 struct cio_http_client {
 
 	void (*close)(struct cio_http_client *client);
+    void (*send_response)(struct cio_http_client *client, struct cio_write_buffer *wbh);
+    void (*write_header)(struct cio_http_client *client, enum cio_http_status_code status);
 
 	struct cio_buffered_stream bs;
 	struct cio_read_buffer rb;
 	struct cio_write_buffer wbh;
-	struct cio_write_buffer wb;
+	struct cio_write_buffer wb_http_header;
 
 	uint16_t http_major;
 	uint16_t http_minor;
 	enum cio_http_method http_method;
+
+	struct cio_http_request_handler *handler;
 
 	/**
 	 * @privatesection
@@ -74,18 +90,6 @@ struct cio_http_client {
 
 	size_t buffer_size;
 	uint8_t buffer[];
-
-};
-enum cio_http_cb_return {
-	cio_http_cb_success = 0,
-	cio_http_cb_error = -1
-};
-
-enum cio_http_status_code {
-	cio_http_ok = 200,
-	cio_http_bad_request = 400,
-	cio_http_not_found = 404,
-	cio_http_internal_server_error = 500,
 };
 
 typedef enum cio_http_cb_return (*cio_http_cb) (struct cio_http_client *);
@@ -122,8 +126,10 @@ struct cio_http_server {
 	struct cio_server_socket server_socket;
 };
 
+//TODO: make following function a member of cio_http_server
 enum cio_error cio_http_server_serve(struct cio_http_server *server);
-
+// TODO eleminate next prototype
+void cio_http_send_response(struct cio_http_client *client, enum cio_http_status_code status_code);
 
 #ifdef __cplusplus
 }
