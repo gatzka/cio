@@ -18,7 +18,12 @@ matrix:
           COVERAGE_INFO=1
       addons:
         apt:
-          packages: ['cmake' 'cmake-data' 'doxygen' 'valgrind' 'lcov']
+          packages:
+            cmake
+            cmake-data
+            doxygen
+            valgrind
+            lcov
 
 env:
 #  matrix:
