@@ -49,6 +49,11 @@ static void close_client(struct cio_http_client *client)
 	client->bs.close(&client->bs);
 }
 
+static void mark_to_be_closed(struct cio_http_client *client)
+{
+	client->to_be_closed = true;
+}
+
 static void response_written(struct cio_buffered_stream *bs, void *handler_context, const struct cio_write_buffer *buffer, enum cio_error err)
 {
 	(void)bs;
@@ -119,16 +124,10 @@ static const struct cio_http_request_target *find_handler(const struct cio_http_
 	return best_match;
 }
 
-static int on_body(http_parser *parser, const char *at, size_t length)
-{
-	struct cio_http_client *client = container_of(parser, struct cio_http_client, parser);
-	return client->handler->on_body(client, at, length);
-}
-
 static int on_headers_complete(http_parser *parser)
 {
-	// TODO: After reading the header don't read lines but bytes (with bs->read())
 	struct cio_http_client *client = container_of(parser, struct cio_http_client, parser);
+	client->headers_complete = true;
 	if (client->handler->on_headers_complete != NULL) {
 		return client->handler->on_headers_complete(client);
 	} else {
@@ -146,24 +145,6 @@ static int on_header_value(http_parser *parser, const char *at, size_t length)
 {
 	struct cio_http_client *client = container_of(parser, struct cio_http_client, parser);
 	return client->handler->on_header_value(client, at, length);
-}
-
-static int on_message_begin(http_parser *parser)
-{
-	struct cio_http_client *client = container_of(parser, struct cio_http_client, parser);
-	return client->handler->on_message_begin(client);
-}
-
-static int on_message_complete(http_parser *parser)
-{
-	struct cio_http_client *client = container_of(parser, struct cio_http_client, parser);
-	return client->handler->on_message_complete(client);
-}
-
-static int on_status(http_parser *parser, const char *at, size_t length)
-{
-	struct cio_http_client *client = container_of(parser, struct cio_http_client, parser);
-	return client->handler->on_status(client, at, length);
 }
 
 static int on_url(http_parser *parser, const char *at, size_t length)
@@ -199,9 +180,6 @@ static int on_url(http_parser *parser, const char *at, size_t length)
 		}
 
 		client->handler = handler;
-		if (handler->on_body != NULL) {
-			client->parser_settings.on_body = on_body;
-		}
 
 		client->parser_settings.on_headers_complete = on_headers_complete;
 
@@ -211,18 +189,6 @@ static int on_url(http_parser *parser, const char *at, size_t length)
 
 		if (handler->on_header_value != NULL) {
 			client->parser_settings.on_header_value = on_header_value;
-		}
-
-		if (handler->on_message_begin != NULL) {
-			client->parser_settings.on_message_begin = on_message_begin;
-		}
-
-		if (handler->on_message_complete != NULL) {
-			client->parser_settings.on_message_complete = on_message_complete;
-		}
-
-		if (handler->on_status != NULL) {
-			client->parser_settings.on_status = on_status;
 		}
 
 		if (handler->on_url != NULL) {
@@ -244,14 +210,21 @@ static void handle_line(struct cio_buffered_stream *stream, void *handler_contex
 	}
 
 	size_t bytes_transfered = cio_read_buffer_get_transferred_bytes(read_buffer);
-	size_t nparsed = http_parser_execute(&client->parser, &client->parser_settings, (const char *)cio_read_buffer_get_read_ptr(read_buffer), bytes_transfered);
+	const char *read_ptr = (const char *)cio_read_buffer_get_read_ptr(read_buffer);
+	size_t nparsed = http_parser_execute(&client->parser, &client->parser_settings, read_ptr, bytes_transfered);
 
 	if (unlikely(nparsed != bytes_transfered)) {
 		client->write_header(client, cio_http_status_bad_request);
 		return;
 	}
 
-	client->bs.read_until(&client->bs, &client->rb, CRLF, handle_line, client);
+	if (!client->headers_complete) {
+		client->bs.read_until(&client->bs, &client->rb, CRLF, handle_line, client);
+	}
+
+	if (client->to_be_closed) {
+		close_client(client);
+	}
 }
 
 static void handle_request_line(struct cio_buffered_stream *stream, void *handler_context, enum cio_error err, struct cio_read_buffer *read_buffer)
@@ -291,7 +264,10 @@ static void handle_accept(struct cio_server_socket *ss, void *handler_context, e
 
 	struct cio_io_stream *stream = socket->get_io_stream(socket);
 
-	client->close = close_client;
+	client->headers_complete = false;
+	client->to_be_closed = false;
+	//client->close = close_client;
+	client->close = mark_to_be_closed;
 	client->write_header = write_header;
 	client->write_response = write_response;
 

@@ -85,6 +85,9 @@ struct cio_http_client {
 	struct cio_http_server *server;
 	struct cio_socket socket;
 
+	bool headers_complete;
+	bool to_be_closed;
+
 	http_parser parser;
 	http_parser_settings parser_settings;
 
@@ -96,14 +99,10 @@ typedef enum cio_http_cb_return (*cio_http_cb) (struct cio_http_client *);
 typedef enum cio_http_cb_return (*cio_http_data_cb) (struct cio_http_client *, const char *at, size_t length);
 
 struct cio_http_request_handler {
-	cio_http_cb      on_message_begin;
 	cio_http_data_cb on_url;
-	cio_http_data_cb on_status;
 	cio_http_data_cb on_header_field;
 	cio_http_data_cb on_header_value;
 	cio_http_cb      on_headers_complete;
-	cio_http_data_cb on_body;
-	cio_http_cb      on_message_complete;
 	void (*free)(struct cio_http_request_handler *handler);
 };
 
