@@ -128,8 +128,8 @@ static inline struct cio_write_buffer *cio_write_buffer_queue_dequeue(struct cio
 }
 
 static inline void __skb_queue_splice(const struct cio_write_buffer *wbh,
-					  struct cio_write_buffer *prev,
-					  struct cio_write_buffer *next)
+                                      struct cio_write_buffer *prev,
+                                      struct cio_write_buffer *next)
 {
 
 	struct cio_write_buffer *first = wbh->next;
@@ -145,7 +145,7 @@ static inline void __skb_queue_splice(const struct cio_write_buffer *wbh,
 static inline void cio_write_buffer_splice(const struct cio_write_buffer *list, struct cio_write_buffer *head)
 {
 	if (!cio_write_buffer_queue_empty(list)) {
-//		__skb_queue_splice(list, head, head->next);
+		//		__skb_queue_splice(list, head, head->next);
 
 		struct cio_write_buffer *new_last = list->prev;
 		struct cio_write_buffer *new_first = list->next;
@@ -170,7 +170,6 @@ static inline void cio_write_buffer_splice(const struct cio_write_buffer *list, 
 #endif
 	}
 }
-
 
 static inline void cio_write_buffer_head_init(struct cio_write_buffer *wbh)
 {
