@@ -28,8 +28,8 @@
 #include <stdint.h>
 #include <string.h>
 
-#include "cio_compiler.h"
 #include "cio_buffered_stream.h"
+#include "cio_compiler.h"
 #include "cio_error_code.h"
 #include "cio_http_server.h"
 #include "cio_read_buffer.h"
