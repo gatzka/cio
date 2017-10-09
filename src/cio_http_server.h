@@ -34,8 +34,8 @@
 #include "cio_error_code.h"
 #include "cio_eventloop.h"
 #include "cio_read_buffer.h"
-#include "cio_write_buffer.h"
 #include "cio_server_socket.h"
+#include "cio_write_buffer.h"
 #include "http-parser/http_parser.h"
 
 #ifdef __cplusplus
@@ -95,14 +95,14 @@ struct cio_http_client {
 	uint8_t buffer[];
 };
 
-typedef enum cio_http_cb_return (*cio_http_cb) (struct cio_http_client *);
-typedef enum cio_http_cb_return (*cio_http_data_cb) (struct cio_http_client *, const char *at, size_t length);
+typedef enum cio_http_cb_return (*cio_http_cb)(struct cio_http_client *);
+typedef enum cio_http_cb_return (*cio_http_data_cb)(struct cio_http_client *, const char *at, size_t length);
 
 struct cio_http_request_handler {
 	cio_http_data_cb on_url;
 	cio_http_data_cb on_header_field;
 	cio_http_data_cb on_header_value;
-	cio_http_cb      on_headers_complete;
+	cio_http_cb on_headers_complete;
 	void (*free)(struct cio_http_request_handler *handler);
 };
 
