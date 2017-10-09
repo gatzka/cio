@@ -43,10 +43,10 @@ extern "C" {
 #endif
 
 enum cio_http_status_code {
-	cio_http_ok = 200,
-	cio_http_bad_request = 400,
-	cio_http_not_found = 404,
-	cio_http_internal_server_error = 500,
+	cio_http_status_ok = 200,
+	cio_http_status_bad_request = 400,
+	cio_http_status_not_found = 404,
+	cio_http_status_internal_server_error = 500,
 };
 
 enum cio_http_method {
@@ -65,8 +65,8 @@ enum cio_http_cb_return {
 struct cio_http_client {
 
 	void (*close)(struct cio_http_client *client);
-    void (*send_response)(struct cio_http_client *client, struct cio_write_buffer *wbh);
-    void (*write_header)(struct cio_http_client *client, enum cio_http_status_code status);
+	void (*write_response)(struct cio_http_client *client, struct cio_write_buffer *wbh);
+	void (*write_header)(struct cio_http_client *client, enum cio_http_status_code status);
 
 	struct cio_buffered_stream bs;
 	struct cio_read_buffer rb;
@@ -128,8 +128,6 @@ struct cio_http_server {
 
 //TODO: make following function a member of cio_http_server
 enum cio_error cio_http_server_serve(struct cio_http_server *server);
-// TODO eleminate next prototype
-void cio_http_send_response(struct cio_http_client *client, enum cio_http_status_code status_code);
 
 #ifdef __cplusplus
 }

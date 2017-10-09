@@ -62,25 +62,37 @@ static void response_written(struct cio_buffered_stream *bs, void *handler_conte
 static const char *get_response(enum cio_http_status_code status_code)
 {
 	switch (status_code) {
-	case cio_http_ok:
+	case cio_http_status_ok:
 		return "HTTP/1.0 200 OK" CRLF CRLF;
-	case cio_http_bad_request:
+	case cio_http_status_bad_request:
 		return "HTTP/1.0 400 Bad Request" CRLF CRLF;
-	case cio_http_not_found:
+	case cio_http_status_not_found:
 		return "HTTP/1.0 404 Not Found" CRLF CRLF;
 
-	case cio_http_internal_server_error:
+	case cio_http_status_internal_server_error:
 	default:
 		return "HTTP/1.0 500 Internal Server Error" CRLF CRLF;
 	}
 }
 
-void cio_http_send_response(struct cio_http_client *client, enum cio_http_status_code status_code)
+static void queue_header(struct cio_http_client *client, enum cio_http_status_code status_code)
 {
 	const char *response = get_response(status_code);
 	cio_write_buffer_head_init(&client->wbh);
 	cio_write_buffer_init(&client->wb_http_header, response, strlen(response));
 	cio_write_buffer_queue_tail(&client->wbh, &client->wb_http_header);
+}
+
+static void write_header(struct cio_http_client *client, enum cio_http_status_code status_code)
+{
+	queue_header(client, status_code);
+	client->bs.write(&client->bs, &client->wbh, response_written, client);
+}
+
+static void write_response(struct cio_http_client *client, struct cio_write_buffer *wbh)
+{
+	queue_header(client, cio_http_status_ok);
+	cio_write_buffer_splice(wbh, &client->wbh);
 	client->bs.write(&client->bs, &client->wbh, response_written, client);
 }
 
@@ -171,18 +183,18 @@ static int on_url(http_parser *parser, const char *at, size_t length)
 	http_parser_url_init(&u);
 	int ret = http_parser_parse_url(at, length, is_connect, &u);
 	if (unlikely((ret != 0) && !((u.field_set & (1 << UF_PATH)) == (1 << UF_PATH)))) {
-		cio_http_send_response(client, cio_http_bad_request);
+		client->write_header(client, cio_http_status_bad_request);
 		return -1;
 	} else {
 		const struct cio_http_request_target *target = find_handler(client->server, at + u.field_data[UF_PATH].off, u.field_data[UF_PATH].len);
-		if (target == NULL) {
-			cio_http_send_response(client, cio_http_not_found);
+		if ((target == NULL) || (target->alloc_handler == NULL)) {
+			client->write_header(client, cio_http_status_not_found);
 			return -1;
 		}
 
 		struct cio_http_request_handler *handler = target->alloc_handler();
 		if (unlikely(handler == NULL)) {
-			cio_http_send_response(client, cio_http_internal_server_error);
+			client->write_header(client, cio_http_status_internal_server_error);
 			return -1;
 		}
 
@@ -227,7 +239,7 @@ static void handle_line(struct cio_buffered_stream *stream, void *handler_contex
 	struct cio_http_client *client = (struct cio_http_client *)handler_context;
 
 	if (unlikely(err != cio_success)) {
-		cio_http_send_response(client, cio_http_internal_server_error);
+		client->write_header(client, cio_http_status_internal_server_error);
 		return;
 	}
 
@@ -235,7 +247,7 @@ static void handle_line(struct cio_buffered_stream *stream, void *handler_contex
 	size_t nparsed = http_parser_execute(&client->parser, &client->parser_settings, (const char *)cio_read_buffer_get_read_ptr(read_buffer), bytes_transfered);
 
 	if (unlikely(nparsed != bytes_transfered)) {
-		cio_http_send_response(client, cio_http_bad_request);
+		client->write_header(client, cio_http_status_bad_request);
 		return;
 	}
 
@@ -248,7 +260,7 @@ static void handle_request_line(struct cio_buffered_stream *stream, void *handle
 	struct cio_http_client *client = (struct cio_http_client *)handler_context;
 
 	if (unlikely(err != cio_success)) {
-		cio_http_send_response(client, cio_http_internal_server_error);
+		client->write_header(client, cio_http_status_internal_server_error);
 		return;
 	}
 
@@ -256,7 +268,7 @@ static void handle_request_line(struct cio_buffered_stream *stream, void *handle
 	size_t nparsed = http_parser_execute(&client->parser, &client->parser_settings, (const char *)cio_read_buffer_get_read_ptr(read_buffer), bytes_transfered);
 
 	if (unlikely(nparsed != bytes_transfered)) {
-		cio_http_send_response(client, cio_http_bad_request);
+		client->write_header(client, cio_http_status_bad_request);
 		return;
 	}
 
@@ -280,6 +292,9 @@ static void handle_accept(struct cio_server_socket *ss, void *handler_context, e
 	struct cio_io_stream *stream = socket->get_io_stream(socket);
 
 	client->close = close_client;
+	client->write_header = write_header;
+	client->write_response = write_response;
+
 	client->handler = NULL;
 	http_parser_settings_init(&client->parser_settings);
 	client->parser_settings.on_url = on_url;

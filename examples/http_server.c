@@ -41,9 +41,12 @@ static struct cio_eventloop loop;
 
 static const size_t read_buffer_size = 2000;
 
+static const char data[] = "<html><body><h1>Hello, World!</h1></body></html>";
+
 struct dummy_handler {
 	struct cio_http_request_handler handler;
-	uint32_t dummy_val;
+	struct cio_write_buffer wbh;
+	struct cio_write_buffer wb;
 };
 
 static void free_http_client(struct cio_socket *socket)
@@ -62,7 +65,7 @@ static enum cio_http_cb_return dummy_on_headers_complete(struct cio_http_client 
 {
 	struct cio_http_request_handler *handler = client->handler;
 	struct dummy_handler *dh = container_of(handler, struct dummy_handler, handler);
-	printf("In dummy_on_headers_complete, dummy_val: %x", dh->dummy_val);
+	(void)dh;
 	return cio_http_cb_success;
 }
 
@@ -70,8 +73,9 @@ static enum cio_http_cb_return dummy_on_message_complete(struct cio_http_client 
 {
 	struct cio_http_request_handler *handler = client->handler;
 	struct dummy_handler *dh = container_of(handler, struct dummy_handler, handler);
-	printf("In dummy_on_message_complete, dummy_val: %x", dh->dummy_val);
-	cio_http_send_response(client, cio_http_ok);
+	cio_write_buffer_init(&dh->wb, data, sizeof(data));
+	cio_write_buffer_queue_tail(&dh->wbh, &dh->wb);
+	client->write_response(client, &dh->wbh);
 	return cio_http_cb_success;
 }
 
@@ -81,7 +85,7 @@ static struct cio_http_request_handler *alloc_dummy_handler(void)
 	if (unlikely(handler == NULL)) {
 		return NULL;
 	} else {
-		handler->dummy_val = 0xdeadbeef;
+		cio_write_buffer_head_init(&handler->wbh);
 		handler->handler.free = free_dummy_handler;
 		handler->handler.on_body = NULL;
 		handler->handler.on_header_field = NULL;

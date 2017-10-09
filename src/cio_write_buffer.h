@@ -127,6 +127,51 @@ static inline struct cio_write_buffer *cio_write_buffer_queue_dequeue(struct cio
 	return wb;
 }
 
+static inline void __skb_queue_splice(const struct cio_write_buffer *wbh,
+					  struct cio_write_buffer *prev,
+					  struct cio_write_buffer *next)
+{
+
+	struct cio_write_buffer *first = wbh->next;
+	struct cio_write_buffer *last = wbh->prev;
+
+	first->prev = prev;
+	prev->next = first;
+
+	last->next = next;
+	next->prev = last;
+}
+
+static inline void cio_write_buffer_splice(const struct cio_write_buffer *list, struct cio_write_buffer *head)
+{
+	if (!cio_write_buffer_queue_empty(list)) {
+//		__skb_queue_splice(list, head, head->next);
+
+		struct cio_write_buffer *new_last = list->prev;
+		struct cio_write_buffer *new_first = list->next;
+		struct cio_write_buffer *last = head->prev;
+
+		last->next = list->next;
+		new_first->prev = last;
+		new_last->next = head;
+		head->prev = new_last;
+
+		head->data.q_len += list->data.q_len;
+#if 0
+		struct cio_write_buffer *first = list->next;
+		struct cio_write_buffer *last = list->prev;
+		first->prev = head;
+		head->next = first;
+
+		last->next = head->next;
+		head->next->prev = last;
+
+		head->data.q_len += list->data.q_len;
+#endif
+	}
+}
+
+
 static inline void cio_write_buffer_head_init(struct cio_write_buffer *wbh)
 {
 	wbh->prev = wbh;
