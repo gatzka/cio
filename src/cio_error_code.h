@@ -51,6 +51,7 @@ enum cio_error {
 	cio_no_buffer_space = ENOBUFS,                   /*!< No buffer space. */
 	cio_no_protocol_option = ENOPROTOOPT,            /*!< No protocol option. */
 	cio_no_space_left_on_device = ENOSPC,            /*!< No space left on device. */
+	cio_again = EAGAIN,                              /*!< Try again. */
 	cio_no_such_file_or_directory = ENOENT,          /*!< No such file or directory. */
 	cio_not_a_directory = ENOTDIR,                   /*!< Not a directory. */
 	cio_not_a_socket = ENOTSOCK,                     /*!< Not a socket. */
