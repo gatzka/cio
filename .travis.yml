@@ -19,11 +19,11 @@ matrix:
       addons:
         apt:
           packages:
-            cmake
-            cmake-data
-            doxygen
-            valgrind
-            lcov
+            - cmake
+            - cmake-data
+            - doxygen
+            - valgrind
+            - lcov
 
 env:
 #  matrix:
