@@ -16,7 +16,9 @@ matrix:
         - CMAKE_C_COMPILER=gcc
           CMAKE_BUILD_TYPE=Debug
           COVERAGE_INFO=1
-
+      addons:
+        apt:
+          packages: ['cmake' 'cmake-data' 'doxygen' 'valgrind' 'lcov']
 
 env:
 #  matrix:
@@ -65,19 +67,19 @@ after_success:
       bash <(curl -s https://codecov.io/bash) -f filtered-coverage.info || echo "Codecov did not collect coverage reports";
     fi
 
-addons:
-  apt:
-    sources:
-    - ubuntu-toolchain-r-test
-    - llvm-toolchain-trusty-5.0
-    packages:
-    - clang-5.0
-    - gcc-6
-    - cmake
-    - cmake-data
-    - doxygen
-    - valgrind
-    - lcov
+#addons:
+#  apt:
+#    sources:
+#    - ubuntu-toolchain-r-test
+#    - llvm-toolchain-trusty-5.0
+#    packages:
+#    - clang-5.0
+#    - gcc-6
+#    - cmake
+#    - cmake-data
+#    - doxygen
+#    - valgrind
+#    - lcov
 
   coverity_scan:
     project:
