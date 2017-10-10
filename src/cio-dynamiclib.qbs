@@ -89,11 +89,20 @@ DynamicLibrary {
   }
 
   Group {
+    name: "third party"
+    cpp.cLanguageVersion: "c99"
+    cpp.warningLevel: "none"
+    files: [
+      "http-parser/http_parser.c",
+      "http-parser/http_parser.h"
+    ]
+  }
+
+  Group {
     condition: qbs.targetOS.contains("linux")
     name: "linux specific"
     prefix: "linux/"
     cpp.cLanguageVersion: "c99"
-//    cpp.defines: "_GNU_SOURCE"
 
     files: [
       "*.c",

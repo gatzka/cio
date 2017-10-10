@@ -26,18 +26,11 @@
 
 import qbs 1.0
 
-Project {
-  name: "cio examples"
-  minimumQbsVersion: "1.6.0"
+CppApplication {
+  name: "http_server"
+  Depends { name:"cio-static"}
 
-  qbsSearchPaths: "../qbs/"
-
-  references: [
-    "../qbs/gccClang.qbs",
-    "../qbs/hardening.qbs",
-    "../src/cio-staticlib.qbs",
-    "periodic_timer.qbs",
-    "socket_echo.qbs"
-    "http_server.qbs"
+  files: [
+    "http_server.c"
   ]
 }

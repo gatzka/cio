@@ -19,6 +19,11 @@ add_executable(socket_echo
 )
 target_link_libraries (socket_echo cio_static)
 
+add_executable(http_server
+    http_server.c
+)
+target_link_libraries (http_server cio_static)
+
 add_executable(periodic_timer
     periodic_timer.c
 )

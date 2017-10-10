@@ -163,7 +163,7 @@ struct cio_buffered_stream {
 	cio_buffered_stream_read_handler read_handler;
 	void *read_handler_context;
 
-	void (*read_job)(struct cio_buffered_stream *bs);
+	enum cio_error (*read_job)(struct cio_buffered_stream *bs);
 
 	union {
 		size_t bytes_to_read;
@@ -181,6 +181,9 @@ struct cio_buffered_stream {
 	struct cio_write_buffer wb;
 
 	enum cio_error last_error;
+	bool more_jobs;
+	bool read_is_running;
+	bool shall_close;
 };
 
 /**

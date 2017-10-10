@@ -55,6 +55,7 @@ Project {
     "src/tests/test_cio_write_buffer.qbs",
 
     "examples/periodic_timer.qbs",
+    "examples/http_server.qbs",
     "examples/socket_echo.qbs"
   ] 
 
