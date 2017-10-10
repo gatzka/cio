@@ -170,7 +170,7 @@ static int on_url(http_parser *parser, const char *at, size_t length)
 		const struct cio_http_request_target *target = find_handler(client->server, at + u.field_data[UF_PATH].off, u.field_data[UF_PATH].len);
 		if ((target == NULL) || (target->alloc_handler == NULL)) {
 			client->write_header(client, cio_http_status_not_found);
-			return -1;
+			return 0;
 		}
 
 		struct cio_http_request_handler *handler = target->alloc_handler();
@@ -266,7 +266,6 @@ static void handle_accept(struct cio_server_socket *ss, void *handler_context, e
 
 	client->headers_complete = false;
 	client->to_be_closed = false;
-	//client->close = close_client;
 	client->close = mark_to_be_closed;
 	client->write_header = write_header;
 	client->write_response = write_response;
