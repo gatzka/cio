@@ -129,32 +129,10 @@ matrix:
 
 before_install:
     - eval "${MATRIX_EVAL}"
-#env:
-#  matrix:
-#    - CMAKE_C_COMPILER=gcc
-#      CMAKE_BUILD_TYPE=Debug
-#      COVERAGE_INFO=1
-#    - CMAKE_C_COMPILER=gcc-6
-#      CMAKE_BUILD_TYPE=Debug
-#    - CMAKE_C_COMPILER=clang-3.4
-#      CMAKE_BUILD_TYPE=Debug
-#    - CMAKE_C_COMPILER=clang-5.0
-#      CMAKE_BUILD_TYPE=Debug
-#    - CMAKE_C_COMPILER=/usr/share/clang/scan-build-5.0/libexec/ccc-analyzer
-#      CMAKE_BUILD_TYPE=Debug
-#      SCAN_BUILD=1
-#    - CMAKE_C_COMPILER=gcc
-#      CMAKE_BUILD_TYPE=Release
-#    - CMAKE_C_COMPILER=gcc-6
-#      CMAKE_BUILD_TYPE=Release
-#    - CMAKE_C_COMPILER=clang-3.4
-#      CMAKE_BUILD_TYPE=Release
-#    - CMAKE_C_COMPILER=clang-5.0
-#      CMAKE_BUILD_TYPE=Release
-#  global:
-#    - secure: "kMI8djmAytx80YQ8MRmXU2X90hV9bXHp9DEUdFplJZE1spTO6p4yl8kb57/nXUZoits70AnNVt93GlZ3FGxCBdzBFdOAhvzMXkWnqjed1JCPS9Kh9b+tlOCPIFzJ6mXn9aBYLHMxACrtqAbTSm8XEri7+aEMdy471PYWD3uf6xIo7wAqscO5tzJOTzPoGhEjvl6eZHr24jemWRBUAvL7al4NcutE7bHeHc3znzo1aQhx5jtL/ukofzXXPwrFUBOj9ujQsMb32lNAdxhNEyCDL1c73p7tf143ZuJ0nJoDEEXfvHxRIPkPQ2g8e5APiJEyIqVzcHugq9KPMjnMpMSDBMyPaY8cgXFcbbRzuWQfsw4OY+Bd3/Lud3iXUeZsVZazGDHolzZWemebz8VvEuVdPOmSei5wCUhkgSnM7rutU4Fsdb5zwG0ZNePh3YBYZy99DBfTUejKXboAHQxxvMJm63RrHb3kGM5jzxXMWL3Xfiaii0cqfctDJ4EIOLnD8HJu+6v0Xw9fZCjx4eFYD9z5uFxjLhXCBGXFEfQ0sGAxf97TJ2RR08/SrG4eRnK4oU0dqU1NKd7I7+wjCY8sOOpuWidXI9wNcqkJpcfmTEbqhr47Co/ojlUSegwxk1FMnd3qMnnKZR4jqTLtAZdsz9fYLgQAhk+Cuk5QVH5pyCGnOrw="
-#
-      
+env:
+  global:
+    - secure: "kMI8djmAytx80YQ8MRmXU2X90hV9bXHp9DEUdFplJZE1spTO6p4yl8kb57/nXUZoits70AnNVt93GlZ3FGxCBdzBFdOAhvzMXkWnqjed1JCPS9Kh9b+tlOCPIFzJ6mXn9aBYLHMxACrtqAbTSm8XEri7+aEMdy471PYWD3uf6xIo7wAqscO5tzJOTzPoGhEjvl6eZHr24jemWRBUAvL7al4NcutE7bHeHc3znzo1aQhx5jtL/ukofzXXPwrFUBOj9ujQsMb32lNAdxhNEyCDL1c73p7tf143ZuJ0nJoDEEXfvHxRIPkPQ2g8e5APiJEyIqVzcHugq9KPMjnMpMSDBMyPaY8cgXFcbbRzuWQfsw4OY+Bd3/Lud3iXUeZsVZazGDHolzZWemebz8VvEuVdPOmSei5wCUhkgSnM7rutU4Fsdb5zwG0ZNePh3YBYZy99DBfTUejKXboAHQxxvMJm63RrHb3kGM5jzxXMWL3Xfiaii0cqfctDJ4EIOLnD8HJu+6v0Xw9fZCjx4eFYD9z5uFxjLhXCBGXFEfQ0sGAxf97TJ2RR08/SrG4eRnK4oU0dqU1NKd7I7+wjCY8sOOpuWidXI9wNcqkJpcfmTEbqhr47Co/ojlUSegwxk1FMnd3qMnnKZR4jqTLtAZdsz9fYLgQAhk+Cuk5QVH5pyCGnOrw="
+
 script:
   - if [ "$COVERITY_SCAN_BRANCH" != 1 ]; then
       mkdir build_release;
@@ -177,19 +155,6 @@ after_success:
     fi
 
 addons:
-#  apt:
-#    sources:
-#    - ubuntu-toolchain-r-test
-#    - llvm-toolchain-trusty-5.0
-#    packages:
-#    - clang-5.0
-#    - gcc-6
-#    - cmake
-#    - cmake-data
-#    - doxygen
-#    - valgrind
-#    - lcov
-
   coverity_scan:
     project:
       name: "gatzka/cio"
