@@ -25,13 +25,13 @@ matrix:
 
     - compiler: gcc
       env:
-        - MATRIX_EVAL="CMAKE_C_COMPILER=gcc-6 && CMAKE_BUILD_TYPE=Debug && COVERAGE_INFO=1"
+        - MATRIX_EVAL="CMAKE_C_COMPILER=gcc-7 && CMAKE_BUILD_TYPE=Debug && COVERAGE_INFO=1"
       addons:
         apt:
           sources:
             - ubuntu-toolchain-r-test
           packages:
-            - gcc-6
+            - gcc-7
             - cmake
             - cmake-data
             - doxygen
