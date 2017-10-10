@@ -75,7 +75,7 @@ script:
       cmake $CMAKE_CMD_OPTION ../;
       if [ -n "${SCAN_BUILD}" ]; then /usr/lib/llvm-5.0/bin/scan-build --status-bugs make -j; else make -j; fi;
 	  ./src/tests/test_cio_buffered_stream ;
-      ASAN_OPTIONS=check_initialization_order=true:detect_stack_use_after_return=true:strict_init_order=true:detect_invalid_pointer_pairs=10:strict_string_checks=true ctest . ;
+      ASAN_OPTIONS=check_initialization_order=true:detect_stack_use_after_return=true:strict_init_order=true:detect_invalid_pointer_pairs=10:strict_string_checks=true ctest -V . ;
     fi
 
 after_success:
