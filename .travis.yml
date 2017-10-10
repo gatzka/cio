@@ -25,7 +25,7 @@ matrix:
 
     - compiler: gcc
       env:
-        - MATRIX_EVAL="CMAKE_C_COMPILER=gcc-7 && CMAKE_BUILD_TYPE=Debug && COVERAGE_INFO=1"
+        - MATRIX_EVAL="CMAKE_C_COMPILER=gcc-7 && CMAKE_BUILD_TYPE=Debug"
       addons:
         apt:
           sources:
@@ -40,7 +40,7 @@ matrix:
 
     - compiler: gcc
       env:
-        - MATRIX_EVAL="CMAKE_C_COMPILER=gcc && CMAKE_BUILD_TYPE=Release && COVERAGE_INFO=1"
+        - MATRIX_EVAL="CMAKE_C_COMPILER=gcc && CMAKE_BUILD_TYPE=Release"
       addons:
         apt:
           packages:
@@ -52,13 +52,37 @@ matrix:
 
     - compiler: gcc
       env:
-        - MATRIX_EVAL="CMAKE_C_COMPILER=gcc-7 && CMAKE_BUILD_TYPE=Release && COVERAGE_INFO=1"
+        - MATRIX_EVAL="CMAKE_C_COMPILER=gcc-7 && CMAKE_BUILD_TYPE=Release"
       addons:
         apt:
           sources:
             - ubuntu-toolchain-r-test
           packages:
             - gcc-7
+            - cmake
+            - cmake-data
+            - doxygen
+            - valgrind
+            - lcov
+
+    - compiler: clang
+      env:
+        - MATRIX_EVAL="CMAKE_C_COMPILER=clang && CMAKE_BUILD_TYPE=Debug"
+      addons:
+        apt:
+          packages:
+            - cmake
+            - cmake-data
+            - doxygen
+            - valgrind
+            - lcov
+
+    - compiler: clang
+      env:
+        - MATRIX_EVAL="CMAKE_C_COMPILER=clang && CMAKE_BUILD_TYPE=Release"
+      addons:
+        apt:
+          packages:
             - cmake
             - cmake-data
             - doxygen
