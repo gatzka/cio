@@ -128,6 +128,7 @@ static int on_headers_complete(http_parser *parser)
 {
 	struct cio_http_client *client = container_of(parser, struct cio_http_client, parser);
 	client->headers_complete = true;
+	client->content_length = parser->content_length;
 	if (client->handler->on_headers_complete != NULL) {
 		return client->handler->on_headers_complete(client);
 	} else {
@@ -265,6 +266,7 @@ static void handle_accept(struct cio_server_socket *ss, void *handler_context, e
 	struct cio_io_stream *stream = socket->get_io_stream(socket);
 
 	client->headers_complete = false;
+	client->content_length = 0;
 	client->to_be_closed = false;
 	client->close = mark_to_be_closed;
 	client->write_header = write_header;
