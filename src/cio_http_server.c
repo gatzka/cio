@@ -106,7 +106,7 @@ static const struct cio_http_request_target *find_handler(const struct cio_http_
 	const struct cio_http_request_target *best_match = NULL;
 	size_t best_match_length = 0;
 
-	const struct cio_http_request_target *handler = server->handler;
+	const struct cio_http_request_target *handler = server->first_handler;
 	for (size_t i = 0; i < server->num_handlers; i++) {
 		size_t length = strlen(handler->request_target);
 		if (length <= url_length) {
@@ -118,7 +118,7 @@ static const struct cio_http_request_target *find_handler(const struct cio_http_
 			}
 		}
 
-		handler++;
+		handler= handler->next;
 	}
 
 	return best_match;
@@ -310,12 +310,44 @@ close_socket:
 	return err;
 }
 
+static enum cio_error register_handler(struct cio_http_server *server, struct cio_http_request_target *target)
+{
+	if (unlikely(server == NULL) || (target == NULL)) {
+		return cio_invalid_argument;
+	}
+
+	target->next = server->first_handler;
+	server->first_handler = target;
+	server->num_handlers++;
+	return cio_success;
+}
+
 enum cio_error cio_http_server_init(struct cio_http_server *server, uint16_t port, struct cio_eventloop *loop, cio_alloc_client alloc_client, cio_free_client free_client)
 {
+	if (unlikely((server == NULL) || (loop == NULL) || (alloc_client == NULL) || (free_client == NULL))) {
+		return cio_invalid_argument;
+	}
+
 	server->loop = loop;
 	server->port = port;
 	server->alloc_client = alloc_client;
 	server->free_client = free_client;
 	server->serve = serve;
+	server->register_handler = register_handler;
+	server->first_handler = NULL;
+	server->num_handlers = 0;
+	return cio_success;
+}
+
+enum cio_error cio_http_request_target_init(struct cio_http_request_target *target, const char *request_target, cio_alloc_handler handler)
+{
+	if (unlikely((target == NULL) || (request_target == NULL) || (handler == NULL))) {
+		return cio_invalid_argument;
+	}
+
+	target->next = NULL;
+	target->alloc_handler = handler;
+	target->request_target = request_target;
+
 	return cio_success;
 }
