@@ -103,6 +103,7 @@ struct cio_http_client {
 
 	uint16_t http_major;
 	uint16_t http_minor;
+	uint64_t content_length;
 	enum cio_http_method http_method;
 
 	struct cio_http_request_handler *handler;
