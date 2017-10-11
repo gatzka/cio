@@ -34,13 +34,10 @@ matrix:
 
     - compiler: gcc
       env:
-        - MATRIX_EVAL="CMAKE_C_COMPILER=gcc-7 && CMAKE_BUILD_TYPE=Debug"
+        - MATRIX_EVAL="CMAKE_C_COMPILER=gcc && CMAKE_BUILD_TYPE=Release"
       addons:
         apt:
-          sources:
-            - ubuntu-toolchain-r-test
           packages:
-            - gcc-7
             - cmake
             - cmake-data
             - doxygen
@@ -48,10 +45,13 @@ matrix:
 
     - compiler: gcc
       env:
-        - MATRIX_EVAL="CMAKE_C_COMPILER=gcc && CMAKE_BUILD_TYPE=Release"
+        - MATRIX_EVAL="CMAKE_C_COMPILER=gcc-7 && CMAKE_BUILD_TYPE=Debug"
       addons:
         apt:
+          sources:
+            - ubuntu-toolchain-r-test
           packages:
+            - gcc-7
             - cmake
             - cmake-data
             - doxygen
