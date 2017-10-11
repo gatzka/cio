@@ -141,7 +141,13 @@ int main()
 		return EXIT_FAILURE;
 	}
 
-	err = cio_http_server_serve(&server);
+	err = cio_http_server_init(&server, 8080, &loop, alloc_http_client, free_http_client);
+	if (err != cio_success) {
+		ret = EXIT_FAILURE;
+		goto destroy_loop;
+	}
+
+	err = server.serve(&server);
 	if (err != cio_success) {
 		ret = EXIT_FAILURE;
 		goto destroy_loop;

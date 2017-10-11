@@ -280,7 +280,7 @@ static void handle_accept(struct cio_server_socket *ss, void *handler_context, e
 	client->bs.read_until(&client->bs, &client->rb, CRLF, handle_request_line, client);
 }
 
-enum cio_error cio_http_server_serve(struct cio_http_server *server)
+static enum cio_error serve(struct cio_http_server *server)
 {
 
 	enum cio_error err = cio_server_socket_init(&server->server_socket, server->loop, 5, server->alloc_client, server->free_client, NULL);
@@ -308,4 +308,14 @@ enum cio_error cio_http_server_serve(struct cio_http_server *server)
 close_socket:
 	server->server_socket.close(&server->server_socket);
 	return err;
+}
+
+enum cio_error cio_http_server_init(struct cio_http_server *server, uint16_t port, struct cio_eventloop *loop, cio_alloc_client alloc_client, cio_free_client free_client)
+{
+	server->loop = loop;
+	server->port = port;
+	server->alloc_client = alloc_client;
+	server->free_client = free_client;
+	server->serve = serve;
+	return cio_success;
 }

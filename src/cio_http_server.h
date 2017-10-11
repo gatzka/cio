@@ -147,14 +147,15 @@ struct cio_http_server {
 	cio_alloc_client alloc_client;
 	cio_free_client free_client;
 
+	enum cio_error (*serve)(struct cio_http_server *server);
+
 	/**
 	 * @privatesection
 	 */
 	struct cio_server_socket server_socket;
 };
 
-//TODO: make following function a member of cio_http_server
-enum cio_error cio_http_server_serve(struct cio_http_server *server);
+enum cio_error cio_http_server_init(struct cio_http_server *server, uint16_t port, struct cio_eventloop *loop, cio_alloc_client alloc_client, cio_free_client free_client);
 
 #ifdef __cplusplus
 }
