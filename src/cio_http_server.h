@@ -125,6 +125,7 @@ struct cio_http_client {
 
 typedef enum cio_http_cb_return (*cio_http_cb)(struct cio_http_client *);
 typedef enum cio_http_cb_return (*cio_http_data_cb)(struct cio_http_client *, const char *at, size_t length);
+typedef struct cio_http_request_handler *(*cio_alloc_handler)(void);
 
 struct cio_http_request_handler {
 	cio_http_data_cb on_url;
@@ -135,24 +136,31 @@ struct cio_http_request_handler {
 };
 
 struct cio_http_request_target {
+	/**
+	 * @privatesection
+	 */
 	const char *request_target;
-	struct cio_http_request_handler *(*alloc_handler)(void);
+	cio_alloc_handler alloc_handler;
+	struct cio_http_request_target *next;
 };
+
+enum cio_error cio_http_request_target_init(struct cio_http_request_target *target, const char *request_target, cio_alloc_handler handler);
 
 struct cio_http_server {
 	uint16_t port;
-	const struct cio_http_request_target *handler;
-	size_t num_handlers;
 	struct cio_eventloop *loop;
 	cio_alloc_client alloc_client;
 	cio_free_client free_client;
 
 	enum cio_error (*serve)(struct cio_http_server *server);
+	enum cio_error (*register_handler)(struct cio_http_server *server, struct cio_http_request_target *target);
 
 	/**
 	 * @privatesection
 	 */
 	struct cio_server_socket server_socket;
+	struct cio_http_request_target *first_handler;
+	size_t num_handlers;
 };
 
 enum cio_error cio_http_server_init(struct cio_http_server *server, uint16_t port, struct cio_eventloop *loop, cio_alloc_client alloc_client, cio_free_client free_client);

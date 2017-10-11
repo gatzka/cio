@@ -49,12 +49,6 @@ struct dummy_handler {
 	struct cio_write_buffer wb;
 };
 
-static void free_http_client(struct cio_socket *socket)
-{
-	struct cio_http_client *client = container_of(socket, struct cio_http_client, socket);
-	free(client);
-}
-
 static void free_dummy_handler(struct cio_http_request_handler *handler)
 {
 	struct dummy_handler *dh = container_of(handler, struct dummy_handler, handler);
@@ -98,25 +92,11 @@ static struct cio_socket *alloc_http_client(void)
 	}
 }
 
-static const struct cio_http_request_target handler[] = {
-	{
-		.request_target = "/",
-		.alloc_handler = NULL
-	},
-	{
-		.request_target = "/bla",
-		.alloc_handler = alloc_dummy_handler
-	}
-};
-
-static struct cio_http_server server = {
-	.port = 8080,
-	.handler = handler,
-	.num_handlers = ARRAY_SIZE(handler),
-	.loop = &loop,
-	.alloc_client = alloc_http_client,
-	.free_client = free_http_client
-};
+static void free_http_client(struct cio_socket *socket)
+{
+	struct cio_http_client *client = container_of(socket, struct cio_http_client, socket);
+	free(client);
+}
 
 static void sighandler(int signum)
 {
@@ -141,11 +121,16 @@ int main()
 		return EXIT_FAILURE;
 	}
 
+	struct cio_http_server server;
 	err = cio_http_server_init(&server, 8080, &loop, alloc_http_client, free_http_client);
 	if (err != cio_success) {
 		ret = EXIT_FAILURE;
 		goto destroy_loop;
 	}
+
+	struct cio_http_request_target target_bla;
+	cio_http_request_target_init(&target_bla, "/bla", alloc_dummy_handler);
+	server.register_handler(&server, &target_bla);
 
 	err = server.serve(&server);
 	if (err != cio_success) {
