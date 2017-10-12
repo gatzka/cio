@@ -65,8 +65,9 @@ static enum cio_http_cb_return dummy_on_headers_complete(struct cio_http_client 
 	return cio_http_cb_success;
 }
 
-static struct cio_http_request_handler *alloc_dummy_handler(void)
+static struct cio_http_request_handler *alloc_dummy_handler(const void *config)
 {
+	(void)config;
 	struct dummy_handler *handler = malloc(sizeof(*handler));
 	if (unlikely(handler == NULL)) {
 		return NULL;
@@ -129,7 +130,7 @@ int main()
 	}
 
 	struct cio_http_request_target target_bla;
-	cio_http_request_target_init(&target_bla, "/bla", alloc_dummy_handler);
+	cio_http_request_target_init(&target_bla, "/bla", NULL, alloc_dummy_handler);
 	server.register_handler(&server, &target_bla);
 
 	err = server.serve(&server);
