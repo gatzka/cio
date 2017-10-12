@@ -126,7 +126,7 @@ struct cio_http_client {
 
 typedef enum cio_http_cb_return (*cio_http_cb)(struct cio_http_client *);
 typedef enum cio_http_cb_return (*cio_http_data_cb)(struct cio_http_client *, const char *at, size_t length);
-typedef struct cio_http_request_handler *(*cio_alloc_handler)(void);
+typedef struct cio_http_request_handler *(*cio_alloc_handler)(const void *config);
 
 struct cio_http_request_handler {
 	cio_http_data_cb on_url;
@@ -143,9 +143,10 @@ struct cio_http_request_target {
 	const char *request_target;
 	cio_alloc_handler alloc_handler;
 	struct cio_http_request_target *next;
+	const void *config;
 };
 
-enum cio_error cio_http_request_target_init(struct cio_http_request_target *target, const char *request_target, cio_alloc_handler handler);
+enum cio_error cio_http_request_target_init(struct cio_http_request_target *target, const char *request_target, const void*config, cio_alloc_handler handler);
 
 struct cio_http_server {
 	uint16_t port;

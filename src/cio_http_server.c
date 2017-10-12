@@ -174,7 +174,7 @@ static int on_url(http_parser *parser, const char *at, size_t length)
 			return 0;
 		}
 
-		struct cio_http_request_handler *handler = target->alloc_handler();
+		struct cio_http_request_handler *handler = target->alloc_handler(target->config);
 		if (unlikely(handler == NULL)) {
 			client->write_header(client, cio_http_status_internal_server_error);
 			return -1;
@@ -341,12 +341,13 @@ enum cio_error cio_http_server_init(struct cio_http_server *server, uint16_t por
 	return cio_success;
 }
 
-enum cio_error cio_http_request_target_init(struct cio_http_request_target *target, const char *request_target, cio_alloc_handler handler)
+enum cio_error cio_http_request_target_init(struct cio_http_request_target *target, const char *request_target, const void*config, cio_alloc_handler handler)
 {
 	if (unlikely((target == NULL) || (request_target == NULL) || (handler == NULL))) {
 		return cio_invalid_argument;
 	}
 
+	target->config = config;
 	target->next = NULL;
 	target->alloc_handler = handler;
 	target->request_target = request_target;
