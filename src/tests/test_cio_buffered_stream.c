@@ -134,6 +134,16 @@ void setUp(void)
 	chunk_bytes_written = 0;
 }
 
+static void write_then_read(struct cio_buffered_stream *bs, void *handler_context, const struct cio_write_buffer *wb, enum cio_error err)
+{
+	(void)wb;
+
+	struct cio_read_buffer *rb = handler_context;
+
+	err = bs->read(bs, rb, dummy_read_handler, first_check_buffer);
+	TEST_ASSERT_EQUAL_MESSAGE(cio_success, err, "Return value not correct!");
+}
+
 static enum cio_error write_some_all(struct cio_io_stream *io_stream, const struct cio_write_buffer *buf, cio_io_stream_write_handler handler, void *handler_context)
 {
 	struct cio_write_buffer *wb = buf->next;
@@ -1306,7 +1316,7 @@ static void test_write_one_buffer_one_chunk(void)
 	TEST_ASSERT_EQUAL_MESSAGE(cio_success, dummy_write_handler_fake.arg3_val, "Handler was not called with cio_success!");
 	TEST_ASSERT_MESSAGE(memcmp((const char *)write_check_buffer, test_data, strlen(test_data)) == 0, "Data was not written correctly!");
 }
-#if 0
+
 static void test_write_one_buffer_one_chunk_read_in_callbacks_then_close(void)
 {
 	static const char *test_data = "Hello";
@@ -1332,15 +1342,13 @@ static void test_write_one_buffer_one_chunk_read_in_callbacks_then_close(void)
 	enum cio_error err = cio_read_buffer_init(&rb, &buffer, sizeof(buffer));
 	TEST_ASSERT_EQUAL_MESSAGE(cio_success, err, "Read buffer was not initialized correctly!");
 
-	dummy_write_handler_fake.custom_fake =
+	dummy_write_handler_fake.custom_fake = write_then_read;
 
 	err = cio_buffered_stream_init(&client->bs, &client->ms.ios);
 	TEST_ASSERT_EQUAL_MESSAGE(cio_success, err, "Buffer was not initialized correctly!");
-	err = client->bs.write(&client->bs, &wbh, dummy_write_handler, NULL);
+	err = client->bs.write(&client->bs, &wbh, dummy_write_handler, &rb);
 	TEST_ASSERT_EQUAL_MESSAGE(cio_success, err, "Return value not correct!");
 
-	err = client->bs.close(&client->bs);
-	TEST_ASSERT_EQUAL_MESSAGE(cio_success, err, "Return value not correct!");
 	TEST_ASSERT_EQUAL_MESSAGE(1, close_fake.call_count, "Underlying cio_iostream was not closed!");
 	TEST_ASSERT_EQUAL_MESSAGE(1, dummy_write_handler_fake.call_count, "Handler was not called!");
 	TEST_ASSERT_EQUAL_MESSAGE(&wbh, dummy_write_handler_fake.arg2_val, "Handler was not called with original write_buffer!");
@@ -1350,8 +1358,25 @@ static void test_write_one_buffer_one_chunk_read_in_callbacks_then_close(void)
 	TEST_ASSERT_EQUAL_MESSAGE(test_buffer, &wbh, "First write buffer does not point to original head!");
 	TEST_ASSERT_EQUAL_MESSAGE(cio_success, dummy_write_handler_fake.arg3_val, "Handler was not called with cio_success!");
 	TEST_ASSERT_MESSAGE(memcmp((const char *)write_check_buffer, test_data, strlen(test_data)) == 0, "Data was not written correctly!");
+
+	TEST_ASSERT_EQUAL_MESSAGE(1, dummy_read_handler_fake.call_count, "Handler was not called!");
+	TEST_ASSERT_EQUAL_MESSAGE(cio_success, dummy_read_handler_fake.arg2_val, "Handler was not called with cio_success!");
+	TEST_ASSERT_EQUAL_MESSAGE(&rb, dummy_read_handler_fake.arg3_val, "Handler was not called with original read buffer!");
+
+	TEST_ASSERT_EQUAL_MESSAGE(1, second_dummy_read_handler_fake.call_count, "Second handler was not called!");
+	TEST_ASSERT_EQUAL_MESSAGE(cio_success, second_dummy_read_handler_fake.arg2_val, "Second handler was not called with cio_success!");
+	TEST_ASSERT_EQUAL_MESSAGE(&rb, second_dummy_read_handler_fake.arg3_val, "Second handler was not called with original read buffer!");
+
+	char *result = malloc(strlen(CHUNK1) + strlen(CHUNK2) + 1);
+	strncpy(result, (char *)first_check_buffer, read_buffer_size);
+	result[read_buffer_size] = '\0';
+	strncat(result, (char *)second_check_buffer, strlen(CHUNK1 CHUNK2) - read_buffer_size);
+	TEST_ASSERT_MESSAGE(memcmp(result, CHUNK1 CHUNK2, strlen(CHUNK1 CHUNK2)) == 0, "Handler was not called with correct data!");
+	free(result);
+
+	TEST_ASSERT_EQUAL_MESSAGE(cio_success, err, "Return value not correct!");
+	TEST_ASSERT_EQUAL_MESSAGE(1, close_fake.call_count, "Underlying cio_iostream was not closed!");
 }
-#endif
 
 static void test_write_two_buffers_double_partial_write(void)
 {
@@ -1670,7 +1695,7 @@ int main(void)
 	RUN_TEST(test_read_request_read_in_callback_close_in_second_callback);
 	RUN_TEST(test_read_request_ios_error);
 	RUN_TEST(test_write_one_buffer_one_chunk);
-//	RUN_TEST(test_write_one_buffer_one_chunk_read_in_callbacks_then_close);
+	RUN_TEST(test_write_one_buffer_one_chunk_read_in_callbacks_then_close);
 	RUN_TEST(test_write_two_buffers_one_chunk);
 	RUN_TEST(test_write_two_buffers_partial_write);
 	RUN_TEST(test_write_two_buffers_double_partial_write);
