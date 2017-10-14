@@ -93,11 +93,12 @@ static void memory_stream_deinit(struct memory_stream *ms)
 
 static enum cio_error client_close(struct cio_io_stream *ios)
 {
-	close(ios);
 	struct memory_stream *memory_stream = container_of(ios, struct memory_stream, ios);
 	memory_stream_deinit(memory_stream);
 
 	struct client *client = container_of(memory_stream, struct client, ms);
+
+	close(ios);
 	free(client);
 	return cio_success;
 }
