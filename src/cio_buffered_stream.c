@@ -38,7 +38,7 @@
 #undef MIN
 #define MIN(X, Y) (((X) < (Y)) ? (X) : (Y))
 
-static void run_read(struct cio_buffered_stream *bs);
+static int run_read(struct cio_buffered_stream *bs);
 
 static void handle_read(struct cio_io_stream *stream, void *handler_context, enum cio_error err, struct cio_read_buffer *buffer)
 {
@@ -77,36 +77,54 @@ static enum cio_error bs_close(struct cio_buffered_stream *bs)
 
 	if (bs->read_is_running == true) {
 		bs->shall_close = true;
+		bs->read_is_running = false;
 	} else {
-		bs->stream->close(bs->stream);
+		bs->more_jobs = false;
+		if (bs->read_ref_count == 0) {
+			bs->stream->close(bs->stream);
+		}
 	}
 
 	return cio_success;
 }
 
-static void run_read(struct cio_buffered_stream *bs)
+static int run_read(struct cio_buffered_stream *bs)
 {
+	bs->read_ref_count++;
+
 	while (bs->more_jobs) {
 		enum cio_error err = bs->read_job(bs);
 		if (err == cio_again) {
 			fill_buffer(bs);
-			return;
+			if (bs->shall_close) {
+				bs->read_ref_count--;
+				bs_close(bs);
+				return -1;
+			} else {
+				bs->read_ref_count--;
+				return 0;
+			}
+
 		}
 
 		if (bs->shall_close) {
-			bs->more_jobs = false;
+			bs->read_ref_count--;
 			bs_close(bs);
-			return;
+			return -1;
 		}
 	}
+
+	bs->read_ref_count--;
+	return 0;
 }
 
 static void start_read(struct cio_buffered_stream *bs)
 {
 	if (!bs->read_is_running) {
 		bs->read_is_running = true;
-		run_read(bs);
-		bs->read_is_running = false;
+		if (run_read(bs) != -1) {
+			bs->read_is_running = false;
+		}
 	}
 }
 
@@ -334,6 +352,7 @@ enum cio_error cio_buffered_stream_init(struct cio_buffered_stream *bs,
 	bs->write = bs_write;
 
 	bs->close = bs_close;
+	bs->read_ref_count = 0;
 
 	return cio_success;
 }

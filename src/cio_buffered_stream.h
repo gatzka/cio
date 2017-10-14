@@ -184,6 +184,7 @@ struct cio_buffered_stream {
 	bool more_jobs;
 	bool read_is_running;
 	bool shall_close;
+	unsigned int read_ref_count;
 };
 
 /**
