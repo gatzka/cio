@@ -674,6 +674,36 @@ static void test_read_until(void)
 	TEST_ASSERT_MESSAGE(memcmp((const char *)first_check_buffer, PRE_DELIM DELIM, strlen(PRE_DELIM) + strlen(DELIM)) == 0, "Handler was not called with correct data!")
 }
 
+static void test_read_until_and_close(void)
+{
+#define PRE_DELIM "MY"
+#define DELIM "HelloWorld"
+	struct client *client = malloc(sizeof(*client));
+
+	static const char *test_data = PRE_DELIM DELIM "Example";
+	memory_stream_init(&client->ms, test_data);
+	read_some_fake.custom_fake = read_some_max;
+	dummy_read_handler_fake.custom_fake = save_to_check_buffer_and_close;
+
+	size_t read_buffer_size = 40;
+	uint8_t buffer[read_buffer_size];
+	struct cio_read_buffer rb;
+	enum cio_error err = cio_read_buffer_init(&rb, &buffer, sizeof(buffer));
+	TEST_ASSERT_EQUAL_MESSAGE(cio_success, err, "Read buffer was not initialized correctly!");
+
+	err = cio_buffered_stream_init(&client->bs, &client->ms.ios);
+	TEST_ASSERT_EQUAL_MESSAGE(cio_success, err, "Buffer was not initialized correctly!");
+
+	err = client->bs.read_until(&client->bs, &rb, DELIM, dummy_read_handler, first_check_buffer);
+	TEST_ASSERT_EQUAL_MESSAGE(cio_success, err, "Return value not correct!");
+
+	TEST_ASSERT_EQUAL_MESSAGE(1, close_fake.call_count, "Underlying cio_iostream was not closed!");
+	TEST_ASSERT_EQUAL_MESSAGE(1, dummy_read_handler_fake.call_count, "Handler was not called!");
+	TEST_ASSERT_EQUAL_MESSAGE(cio_success, dummy_read_handler_fake.arg2_val, "Handler was not called with cio_success!");
+	TEST_ASSERT_EQUAL_MESSAGE(&rb, dummy_read_handler_fake.arg3_val, "Handler was not called with original read buffer!");
+	TEST_ASSERT_MESSAGE(memcmp((const char *)first_check_buffer, PRE_DELIM DELIM, strlen(PRE_DELIM) + strlen(DELIM)) == 0, "Handler was not called with correct data!")
+}
+
 static void test_read_until_not_found(void)
 {
 #define PRE_DELIM "MY"
@@ -1522,6 +1552,7 @@ int main(void)
 	RUN_TEST(test_read_exactly_zero_length);
 	RUN_TEST(test_read_exactly_second_read_in_callback);
 	RUN_TEST(test_read_until);
+	RUN_TEST(test_read_until_and_close);
 	RUN_TEST(test_read_until_not_found);
 	RUN_TEST(test_read_until_zero_length_delim);
 	RUN_TEST(test_read_until_NULL_delim);
