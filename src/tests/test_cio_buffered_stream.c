@@ -218,6 +218,13 @@ static void save_to_check_buffer(struct cio_buffered_stream *bs, void *context, 
 		first_check_buffer_pos += num;
 	}
 }
+
+static void save_to_check_buffer_and_close(struct cio_buffered_stream *bs, void *context, enum cio_error err, struct cio_read_buffer *buffer)
+{
+	save_to_check_buffer(bs, context, err, buffer);
+	bs->close(bs);
+}
+
 static void save_to_second_check_buffer(struct cio_buffered_stream *bs, void *context, enum cio_error err, struct cio_read_buffer *buffer)
 {
 	(void)bs;
@@ -382,6 +389,32 @@ static void test_read_exactly(void)
 
 	err = client->bs.close(&client->bs);
 	TEST_ASSERT_EQUAL_MESSAGE(cio_success, err, "Return value not correct!");
+	TEST_ASSERT_EQUAL_MESSAGE(1, close_fake.call_count, "Underlying cio_iostream was not closed!");
+	TEST_ASSERT_EQUAL_MESSAGE(1, dummy_read_handler_fake.call_count, "Handler was not called!");
+	TEST_ASSERT_EQUAL_MESSAGE(cio_success, dummy_read_handler_fake.arg2_val, "Handler was not called with cio_success!");
+	TEST_ASSERT_EQUAL_MESSAGE(&rb, dummy_read_handler_fake.arg3_val, "Handler was not called with original read buffer!");
+	TEST_ASSERT_MESSAGE(memcmp((const char *)first_check_buffer, test_data, strlen(test_data)) == 0, "Handler was not called with correct data!")
+}
+
+static void test_read_exactly_close_in_callback(void)
+{
+	struct client *client = malloc(sizeof(*client));
+
+	static const char *test_data = "Hello";
+	memory_stream_init(&client->ms, test_data);
+	read_some_fake.custom_fake = read_some_max;
+	dummy_read_handler_fake.custom_fake = save_to_check_buffer_and_close;
+
+	uint8_t buffer[100];
+	struct cio_read_buffer rb;
+	enum cio_error err = cio_read_buffer_init(&rb, &buffer, sizeof(buffer));
+	TEST_ASSERT_EQUAL_MESSAGE(cio_success, err, "Read buffer was not initialized correctly!");
+
+	err = cio_buffered_stream_init(&client->bs, &client->ms.ios);
+	TEST_ASSERT_EQUAL_MESSAGE(cio_success, err, "Buffer was not initialized correctly!");
+	err = client->bs.read_exactly(&client->bs, &rb, strlen(test_data), dummy_read_handler, first_check_buffer);
+	TEST_ASSERT_EQUAL_MESSAGE(cio_success, err, "Return value not correct!");
+
 	TEST_ASSERT_EQUAL_MESSAGE(1, close_fake.call_count, "Underlying cio_iostream was not closed!");
 	TEST_ASSERT_EQUAL_MESSAGE(1, dummy_read_handler_fake.call_count, "Handler was not called!");
 	TEST_ASSERT_EQUAL_MESSAGE(cio_success, dummy_read_handler_fake.arg2_val, "Handler was not called with cio_success!");
@@ -1479,6 +1512,7 @@ int main(void)
 	RUN_TEST(test_init_missing_stream);
 	RUN_TEST(test_init_correctly);
 	RUN_TEST(test_read_exactly);
+	RUN_TEST(test_read_exactly_close_in_callback);
 	RUN_TEST(test_read_exactly_more_than_buffer_size);
 	RUN_TEST(test_read_exactly_no_buffered_stream);
 	RUN_TEST(test_read_exactly_no_handler);
