@@ -24,22 +24,26 @@
  * SOFTWARE.
  */
 
-import qbs 1.0
+#include <stdlib.h>
+#include <string.h>
 
-Project {
-  name: "cio unit tests"
-  minimumQbsVersion: "1.6.0"
+#include "fff.h"
+#include "unity.h"
 
-  references: [
-    "../unity.qbs",
-    "../fff.qbs",
-    "../unittestsettings.qbs",
-    "../../qbs/gccClang.qbs",
-    "../../qbs/hardening.qbs",
-   
-    "test_cio_buffered_stream.qbs",
-    "test_cio_http_server.qbs",
-    "test_cio_read_buffer.qbs",
-    "test_cio_write_buffer.qbs"
-  ]
+#include "cio_server_socket.h"
+
+DEFINE_FFF_GLOBALS
+
+FAKE_VALUE_FUNC(enum cio_error, cio_server_socket_init, struct cio_server_socket *, struct cio_eventloop *, unsigned int, cio_alloc_client, cio_free_client, cio_server_socket_close_hook)
+
+
+void setUp(void)
+{
+	FFF_RESET_HISTORY();
+}
+
+int main(void)
+{
+	UNITY_BEGIN();
+	return UNITY_END();
 }
