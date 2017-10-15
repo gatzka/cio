@@ -30,7 +30,12 @@ endif(CMAKE_BUILD_TYPE MATCHES Debug)
 message(STATUS "CMAKE_C_COMPILER_ID: " ${CMAKE_C_COMPILER_ID})
 message(STATUS "CMAKE_C_COMPILER_VERSION: " ${CMAKE_C_COMPILER_VERSION})
 
-set_property(SOURCE ../http-parser/http_parser.c  APPEND_STRING PROPERTY COMPILE_FLAGS "-Wstrict-overflow=2 -Wimplicit-fallthrough=0")
+if(CMAKE_C_COMPILER_ID STREQUAL "GNU")
+  if(NOT CMAKE_C_COMPILER_VERSION VERSION_LESS 7.0.0)
+    set_property(SOURCE ../http-parser/http_parser.c  APPEND_STRING PROPERTY COMPILE_FLAGS "-Wstrict-overflow=2 -Wimplicit-fallthrough=0")
+  endif()
+endif()
+
 
 add_executable(test_cio_buffered_stream
     test_cio_buffered_stream.c
