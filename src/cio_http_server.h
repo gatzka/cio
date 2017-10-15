@@ -146,7 +146,7 @@ struct cio_http_request_target {
 	const void *config;
 };
 
-enum cio_error cio_http_request_target_init(struct cio_http_request_target *target, const char *request_target, const void*config, cio_alloc_handler handler);
+enum cio_error cio_http_request_target_init(struct cio_http_request_target *target, const char *request_target, const void *config, cio_alloc_handler handler);
 
 struct cio_http_server {
 	uint16_t port;
