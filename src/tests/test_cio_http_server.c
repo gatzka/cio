@@ -49,6 +49,7 @@ struct dummy_client {
 static struct cio_socket *alloc_dummy_client(void)
 {
 	struct dummy_client *dc = malloc(sizeof(*dc));
+	memset(dc, 0xaf, sizeof(*dc));
 	return &dc->socket;
 }
 
