@@ -169,10 +169,6 @@ static int on_url(http_parser *parser, const char *at, size_t length)
 		return -1;
 	} else {
 		const struct cio_http_request_target *target = find_handler(client->server, at + u.field_data[UF_PATH].off, u.field_data[UF_PATH].len);
-		if ((target == NULL) || (target->alloc_handler == NULL)) {
-			client->write_header(client, cio_http_status_not_found);
-			return 0;
-		}
 
 		struct cio_http_request_handler *handler = target->alloc_handler(target->config);
 		if (unlikely(handler == NULL)) {
