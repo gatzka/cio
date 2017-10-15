@@ -30,12 +30,28 @@ endif(CMAKE_BUILD_TYPE MATCHES Debug)
 message(STATUS "CMAKE_C_COMPILER_ID: " ${CMAKE_C_COMPILER_ID})
 message(STATUS "CMAKE_C_COMPILER_VERSION: " ${CMAKE_C_COMPILER_VERSION})
 
+if(CMAKE_C_COMPILER_ID STREQUAL "GNU")
+  if(NOT CMAKE_C_COMPILER_VERSION VERSION_LESS 7.0.0)
+    set_property(SOURCE ../http-parser/http_parser.c  APPEND_STRING PROPERTY COMPILE_FLAGS "-Wstrict-overflow=2 -Wimplicit-fallthrough=0")
+  endif()
+endif()
+
+
 add_executable(test_cio_buffered_stream
     test_cio_buffered_stream.c
     ../cio_buffered_stream.c
     ../linux/cio_linux_string.c
 )
 target_link_libraries (test_cio_buffered_stream cio_unity)
+
+add_executable(test_cio_http_server
+    test_cio_http_server.c
+    ../cio_http_server.c
+    ../cio_buffered_stream.c
+    ../http-parser/http_parser.c
+    ../linux/cio_linux_string.c
+)
+target_link_libraries (test_cio_http_server cio_unity)
 
 add_executable(test_cio_read_buffer
     test_cio_read_buffer.c
@@ -49,6 +65,7 @@ target_link_libraries (test_cio_write_buffer cio_unity)
 
 enable_testing()
 add_test(NAME test_cio_buffered_stream COMMAND test_cio_buffered_stream)
+add_test(NAME test_cio_http_server COMMAND test_cio_http_server)
 add_test(NAME test_cio_read_buffer COMMAND test_cio_read_buffer)
 add_test(NAME test_cio_write_buffer COMMAND test_cio_write_buffer)
 
