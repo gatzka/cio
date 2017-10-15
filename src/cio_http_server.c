@@ -118,7 +118,7 @@ static const struct cio_http_request_target *find_handler(const struct cio_http_
 			}
 		}
 
-		handler= handler->next;
+		handler = handler->next;
 	}
 
 	return best_match;
@@ -341,7 +341,7 @@ enum cio_error cio_http_server_init(struct cio_http_server *server, uint16_t por
 	return cio_success;
 }
 
-enum cio_error cio_http_request_target_init(struct cio_http_request_target *target, const char *request_target, const void*config, cio_alloc_handler handler)
+enum cio_error cio_http_request_target_init(struct cio_http_request_target *target, const char *request_target, const void *config, cio_alloc_handler handler)
 {
 	if (unlikely((target == NULL) || (request_target == NULL) || (handler == NULL))) {
 		return cio_invalid_argument;
