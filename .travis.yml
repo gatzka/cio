@@ -158,7 +158,7 @@ after_success:
       cd ${TRAVIS_BUILD_DIR};
       lcov --version;
       lcov --capture --directory . --output-file coverage.info;
-      lcov --remove coverage.info '*/linux/tests/*' '*/tests/*' '/usr/include/*' '*/unity/*' --output-file filtered-coverage.info;
+      lcov --remove coverage.info '*/linux/tests/*' '*/tests/*' '*/http-parser/*' '/usr/include/*' '*/unity/*' --output-file filtered-coverage.info;
       lcov --list filtered-coverage.info;
       bash <(curl -s https://codecov.io/bash) -f filtered-coverage.info || echo "Codecov did not collect coverage reports";
     fi

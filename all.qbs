@@ -67,6 +67,7 @@ Project {
   UnittestRunner {
     lcovRemovePatterns: [
       "*/tests/*",
+      "*/http-parser/*",
       "*/linux/tests/*",
       "/usr/include/*",
     ]
