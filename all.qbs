@@ -40,25 +40,41 @@ Project {
     "src/cio-staticlib.qbs",
     "src/cio-dynamiclib.qbs",
 
-    "src/unity.qbs",
-    "src/fff.qbs",
-    "src/unittestsettings.qbs",
-
-    "src/linux/tests/test_cio_linux_epoll.qbs",
-    "src/linux/tests/test_cio_linux_server_socket.qbs",
-    "src/linux/tests/test_cio_linux_socket.qbs",
-    "src/linux/tests/test_cio_linux_socket_utils.qbs",
-    "src/linux/tests/test_cio_linux_timer.qbs",
-
-    "src/tests/test_cio_buffered_stream.qbs",
-    "src/tests/test_cio_http_server.qbs",
-    "src/tests/test_cio_read_buffer.qbs",
-    "src/tests/test_cio_write_buffer.qbs",
-
-    "examples/periodic_timer.qbs",
-    "examples/http_server.qbs",
-    "examples/socket_echo.qbs"
   ] 
+
+  Project {
+		name: "examples"
+    references : [
+      "examples/periodic_timer.qbs",
+      "examples/http_server.qbs",
+      "examples/socket_echo.qbs"
+    ] 
+  }
+
+  Project {
+		name: "tests"
+    references : [
+      "src/unity.qbs",
+      "src/fff.qbs",
+      "src/unittestsettings.qbs",
+
+      "src/tests/test_cio_buffered_stream.qbs",
+      "src/tests/test_cio_http_server.qbs",
+      "src/tests/test_cio_read_buffer.qbs",
+      "src/tests/test_cio_write_buffer.qbs",
+    ] 
+
+    Project {
+      name: "linux"
+      references : [
+        "src/linux/tests/test_cio_linux_epoll.qbs",
+        "src/linux/tests/test_cio_linux_server_socket.qbs",
+        "src/linux/tests/test_cio_linux_socket.qbs",
+        "src/linux/tests/test_cio_linux_socket_utils.qbs",
+        "src/linux/tests/test_cio_linux_timer.qbs",
+      ] 
+    }
+  }
 
   SubProject {
     filePath: "src/cio_doc.qbs"
