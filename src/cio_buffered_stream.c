@@ -104,7 +104,6 @@ static int run_read(struct cio_buffered_stream *bs)
 				bs->read_ref_count--;
 				return 0;
 			}
-
 		}
 
 		if (bs->shall_close) {
