@@ -165,7 +165,7 @@ static void test_register_request_target_correctly(void)
 	err = cio_http_request_target_init(&target, "/foo", NULL, alloc_dummy_handler);
 	TEST_ASSERT_EQUAL_MESSAGE(cio_success, err, "Request target initialization failed!");
 
-	err = server.register_handler(&server, &target);
+	err = server.register_target(&server, &target);
 	TEST_ASSERT_EQUAL_MESSAGE(cio_success, err, "Register request target failed!");
 }
 
@@ -179,7 +179,7 @@ static void test_register_request_target_no_server(void)
 	err = cio_http_request_target_init(&target, "/foo", NULL, alloc_dummy_handler);
 	TEST_ASSERT_EQUAL_MESSAGE(cio_success, err, "Request target initialization failed!");
 
-	err = server.register_handler(NULL, &target);
+	err = server.register_target(NULL, &target);
 	TEST_ASSERT_EQUAL_MESSAGE(cio_invalid_argument, err, "Register request target did not fail!");
 }
 
@@ -189,7 +189,7 @@ static void test_register_request_target_no_target(void)
 	enum cio_error err = cio_http_server_init(&server, 8080, &loop, alloc_dummy_client, free_dummy_client);
 	TEST_ASSERT_EQUAL_MESSAGE(cio_success, err, "Server initialization failed!");
 
-	err = server.register_handler(&server, NULL);
+	err = server.register_target(&server, NULL);
 	TEST_ASSERT_EQUAL_MESSAGE(cio_invalid_argument, err, "Register request target did not fail!");
 }
 

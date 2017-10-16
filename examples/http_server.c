@@ -131,7 +131,7 @@ int main()
 
 	struct cio_http_request_target target_bla;
 	cio_http_request_target_init(&target_bla, "/bla", NULL, alloc_dummy_handler);
-	server.register_handler(&server, &target_bla);
+	server.register_target(&server, &target_bla);
 
 	err = server.serve(&server);
 	if (err != cio_success) {
