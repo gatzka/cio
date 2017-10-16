@@ -155,6 +155,44 @@ static void test_request_target_init_no_alloc_handler(void)
 	TEST_ASSERT_EQUAL_MESSAGE(cio_invalid_argument, err, "Initialization did not fail!");
 }
 
+static void test_register_request_target_correctly(void)
+{
+	struct cio_http_server server;
+	enum cio_error err = cio_http_server_init(&server, 8080, &loop, alloc_dummy_client, free_dummy_client);
+	TEST_ASSERT_EQUAL_MESSAGE(cio_success, err, "Server initialization failed!");
+
+	struct cio_http_request_target target;
+	err = cio_http_request_target_init(&target, "/foo", NULL, alloc_dummy_handler);
+	TEST_ASSERT_EQUAL_MESSAGE(cio_success, err, "Request target initialization failed!");
+
+	err = server.register_handler(&server, &target);
+	TEST_ASSERT_EQUAL_MESSAGE(cio_success, err, "Register request target failed!");
+}
+
+static void test_register_request_target_no_server(void)
+{
+	struct cio_http_server server;
+	enum cio_error err = cio_http_server_init(&server, 8080, &loop, alloc_dummy_client, free_dummy_client);
+	TEST_ASSERT_EQUAL_MESSAGE(cio_success, err, "Server initialization failed!");
+
+	struct cio_http_request_target target;
+	err = cio_http_request_target_init(&target, "/foo", NULL, alloc_dummy_handler);
+	TEST_ASSERT_EQUAL_MESSAGE(cio_success, err, "Request target initialization failed!");
+
+	err = server.register_handler(NULL, &target);
+	TEST_ASSERT_EQUAL_MESSAGE(cio_invalid_argument, err, "Register request target did not fail!");
+}
+
+static void test_register_request_target_no_target(void)
+{
+	struct cio_http_server server;
+	enum cio_error err = cio_http_server_init(&server, 8080, &loop, alloc_dummy_client, free_dummy_client);
+	TEST_ASSERT_EQUAL_MESSAGE(cio_success, err, "Server initialization failed!");
+
+	err = server.register_handler(&server, NULL);
+	TEST_ASSERT_EQUAL_MESSAGE(cio_invalid_argument, err, "Register request target did not fail!");
+}
+
 int main(void)
 {
 	UNITY_BEGIN();
@@ -167,5 +205,8 @@ int main(void)
 	RUN_TEST(test_request_target_init_no_alloc_handler);
 	RUN_TEST(test_request_target_init_no_request_target);
 	RUN_TEST(test_request_target_init_no_target);
+	RUN_TEST(test_register_request_target_correctly);
+	RUN_TEST(test_register_request_target_no_server);
+	RUN_TEST(test_register_request_target_no_target);
 	return UNITY_END();
 }
