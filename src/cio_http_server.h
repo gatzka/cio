@@ -155,7 +155,7 @@ struct cio_http_server {
 	cio_free_client free_client;
 
 	enum cio_error (*serve)(struct cio_http_server *server);
-	enum cio_error (*register_handler)(struct cio_http_server *server, struct cio_http_request_target *target);
+	enum cio_error (*register_target)(struct cio_http_server *server, struct cio_http_request_target *target);
 
 	/**
 	 * @privatesection

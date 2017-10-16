@@ -331,7 +331,7 @@ enum cio_error cio_http_server_init(struct cio_http_server *server, uint16_t por
 	server->alloc_client = alloc_client;
 	server->free_client = free_client;
 	server->serve = serve;
-	server->register_handler = register_handler;
+	server->register_target = register_handler;
 	server->first_handler = NULL;
 	server->num_handlers = 0;
 	return cio_success;
