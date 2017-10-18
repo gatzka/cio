@@ -153,7 +153,7 @@ static void free_dummy_handler(struct cio_http_request_handler *handler)
 static enum cio_http_cb_return header_complete_close(struct cio_http_client *c)
 {
 	c->close(c);
-	return cio_success;
+	return cio_http_cb_success;
 }
 
 static struct cio_http_request_handler *alloc_dummy_handler(const void *config)
