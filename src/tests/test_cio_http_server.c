@@ -35,9 +35,22 @@
 #include "cio_server_socket.h"
 #include "cio_write_buffer.h"
 
+#undef MIN
+#define MIN(X, Y) (((X) < (Y)) ? (X) : (Y))
+
 #undef container_of
 #define container_of(ptr, type, member) ( \
 	(void *)((char *)ptr - offsetof(type, member)))
+
+struct memory_stream {
+	struct cio_socket *socket;
+	struct cio_io_stream ios;
+	void *mem;
+	size_t read_pos;
+	size_t size;
+};
+
+static struct memory_stream ms;
 
 struct dummy_handler {
 	struct cio_http_request_handler handler;
@@ -106,11 +119,14 @@ static enum cio_error cio_server_socket_init_fails(struct cio_server_socket *ss,
 	return cio_not_enough_memory;
 }
 
-static struct cio_socket *alloc_dummy_client(void)
+static enum cio_http_cb_return header_complete(struct cio_http_client *c);
+FAKE_VALUE_FUNC(enum cio_http_cb_return, header_complete, struct cio_http_client *)
+
+
+static struct cio_io_stream *get_mem_io_stream(struct cio_socket *context)
 {
-	struct cio_http_client *client = malloc(sizeof(*client) + read_buffer_size);
-	memset(client, 0xaf, sizeof(*client));
-	return &client->socket;
+	(void)context;
+	return &ms.ios;
 }
 
 static void free_dummy_client(struct cio_socket *socket)
@@ -119,10 +135,25 @@ static void free_dummy_client(struct cio_socket *socket)
 	free(client);
 }
 
+static struct cio_socket *alloc_dummy_client(void)
+{
+	struct cio_http_client *client = malloc(sizeof(*client) + read_buffer_size);
+	memset(client, 0xaf, sizeof(*client));
+	client->socket.get_io_stream = get_mem_io_stream;
+	client->socket.close_hook = free_dummy_client;
+	return &client->socket;
+}
+
 static void free_dummy_handler(struct cio_http_request_handler *handler)
 {
 	struct dummy_handler *dh = container_of(handler, struct dummy_handler, handler);
 	free(dh);
+}
+
+static enum cio_http_cb_return header_complete_close(struct cio_http_client *c)
+{
+	c->close(c);
+	return cio_success;
 }
 
 static struct cio_http_request_handler *alloc_dummy_handler(const void *config)
@@ -137,12 +168,53 @@ static struct cio_http_request_handler *alloc_dummy_handler(const void *config)
 		handler->handler.on_header_field = NULL;
 		handler->handler.on_header_value = NULL;
 		handler->handler.on_url = NULL;
-		handler->handler.on_headers_complete = NULL;
+		handler->handler.on_headers_complete = header_complete;
 		return &handler->handler;
 	}
 }
 
+static enum cio_error accept_save_handler(struct cio_server_socket *ss, cio_accept_handler handler, void *handler_context)
+{
+	ss->handler = handler;
+	ss->handler_context = handler_context;
+	return cio_success;
+}
+
 static struct cio_eventloop loop;
+
+static enum cio_error read_some_max(struct cio_io_stream *ios, struct cio_read_buffer *buffer, cio_io_stream_read_handler handler, void *context)
+{
+	struct memory_stream *memory_stream = container_of(ios, struct memory_stream, ios);
+	size_t len = MIN(cio_read_buffer_size(buffer), memory_stream->size - memory_stream->read_pos);
+	memcpy(buffer->data, &((uint8_t *)memory_stream->mem)[memory_stream->read_pos], len);
+	memory_stream->read_pos += len;
+	buffer->add_ptr += len;
+	buffer->bytes_transferred = len;
+	handler(ios, context, cio_success, buffer);
+	return cio_success;
+}
+
+static enum cio_error mem_close(struct cio_io_stream *io_stream)
+{
+	(void)io_stream;
+	free_dummy_client(ms.socket);
+
+	free(ms.mem);
+	return cio_success;
+}
+
+static void memory_stream_init(struct memory_stream *stream, const char *fill_pattern, struct cio_socket *s)
+{
+	stream->socket = s;
+	stream->read_pos = 0;
+	stream->size = strlen(fill_pattern);
+	stream->ios.read_some = read_some_max;
+	stream->ios.write_some = NULL;
+	stream->ios.close = mem_close;
+	stream->mem = malloc(stream->size + 1);
+	memset(stream->mem, 0x00, stream->size + 1);
+	strncpy(ms.mem, fill_pattern, ms.size);
+}
 
 void setUp(void)
 {
@@ -152,6 +224,7 @@ void setUp(void)
 	RESET_FAKE(socket_accept);
 	RESET_FAKE(socket_bind);
 	RESET_FAKE(socket_close);
+	RESET_FAKE(header_complete);
 }
 
 static void test_server_init_correctly(void)
@@ -256,6 +329,9 @@ static void test_register_request_target_no_target(void)
 static void test_serve_correctly(void)
 {
 	cio_server_socket_init_fake.custom_fake = cio_server_socket_init_ok;
+	socket_accept_fake.custom_fake = accept_save_handler;
+
+	header_complete_fake.custom_fake = header_complete_close;
 
 	struct cio_http_server server;
 	enum cio_error err = cio_http_server_init(&server, 8080, &loop, alloc_dummy_client, free_dummy_client);
@@ -270,6 +346,13 @@ static void test_serve_correctly(void)
 
 	err = server.serve(&server);
 	TEST_ASSERT_EQUAL_MESSAGE(cio_success, err, "Serving http failed!");
+
+	struct cio_socket *s = server.alloc_client();
+	const char request[] = "GET /foo HTTP/1.1\r\n\r\n";
+	memory_stream_init(&ms, request, s);
+
+	server.server_socket.handler(&server.server_socket, server.server_socket.handler_context, cio_success, s);
+	TEST_ASSERT_EQUAL_MESSAGE(1, header_complete_fake.call_count, "header_complete was not called!");
 }
 
 static void test_serve_init_fails(void)
