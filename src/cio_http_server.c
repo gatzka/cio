@@ -110,7 +110,7 @@ static const struct cio_http_request_target *find_handler(const struct cio_http_
 	for (size_t i = 0; i < server->num_handlers; i++) {
 		size_t length = strlen(handler->request_target);
 		if (length <= url_length) {
-			if (strncmp(handler->request_target, request_target, length) == 0) {
+			if (memcmp(handler->request_target, request_target, length) == 0) {
 				if (length > best_match_length) {
 					best_match_length = length;
 					best_match = handler;
