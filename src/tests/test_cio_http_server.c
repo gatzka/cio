@@ -42,6 +42,11 @@
 #define container_of(ptr, type, member) ( \
 	(void *)((char *)ptr - offsetof(type, member)))
 
+#define HTTP_GET "GET"
+#define REQUEST_TARGET1 "/foo"
+#define HTTP_11 "HTTP/1.1"
+#define CRLF "\r\n"
+
 struct memory_stream {
 	struct cio_socket *socket;
 	struct cio_io_stream ios;
@@ -338,7 +343,7 @@ static void test_serve_correctly(void)
 	TEST_ASSERT_EQUAL_MESSAGE(cio_success, err, "Server initialization failed!");
 
 	struct cio_http_request_target target;
-	err = cio_http_request_target_init(&target, "/foo", NULL, alloc_dummy_handler);
+	err = cio_http_request_target_init(&target, REQUEST_TARGET1, NULL, alloc_dummy_handler);
 	TEST_ASSERT_EQUAL_MESSAGE(cio_success, err, "Request target initialization failed!");
 
 	err = server.register_target(&server, &target);
@@ -348,7 +353,8 @@ static void test_serve_correctly(void)
 	TEST_ASSERT_EQUAL_MESSAGE(cio_success, err, "Serving http failed!");
 
 	struct cio_socket *s = server.alloc_client();
-	const char request[] = "GET /foo HTTP/1.1\r\n\r\n";
+
+	const char request[] = HTTP_GET " " REQUEST_TARGET1 " " HTTP_11 CRLF CRLF;
 	memory_stream_init(&ms, request, s);
 
 	server.server_socket.handler(&server.server_socket, server.server_socket.handler_context, cio_success, s);
