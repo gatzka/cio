@@ -284,7 +284,6 @@ static void handle_accept(struct cio_server_socket *ss, void *handler_context, e
 
 static enum cio_error serve(struct cio_http_server *server)
 {
-
 	enum cio_error err = cio_server_socket_init(&server->server_socket, server->loop, 5, server->alloc_client, server->free_client, NULL);
 	if (unlikely(err != cio_success)) {
 		return err;
