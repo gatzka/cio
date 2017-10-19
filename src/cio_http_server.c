@@ -254,13 +254,16 @@ static void handle_request_line(struct cio_buffered_stream *stream, void *handle
 
 static void handle_accept(struct cio_server_socket *ss, void *handler_context, enum cio_error err, struct cio_socket *socket)
 {
-	if (unlikely(err != cio_success)) {
-		ss->close(ss);
+	(void)ss;
+
+	struct cio_http_server *server = (struct cio_http_server *)handler_context;
+
+	if (unlikely(err != cio_success) && (server->error_cb != NULL)) {
+		server->error_cb(server);
 		return;
 	}
 
 	struct cio_http_client *client = container_of(socket, struct cio_http_client, socket);
-	struct cio_http_server *server = (struct cio_http_server *)handler_context;
 	client->server = server;
 
 	struct cio_io_stream *stream = socket->get_io_stream(socket);
@@ -323,7 +326,12 @@ static enum cio_error register_handler(struct cio_http_server *server, struct ci
 	return cio_success;
 }
 
-enum cio_error cio_http_server_init(struct cio_http_server *server, uint16_t port, struct cio_eventloop *loop, cio_alloc_client alloc_client, cio_free_client free_client)
+enum cio_error cio_http_server_init(struct cio_http_server *server,
+									uint16_t port,
+									struct cio_eventloop *loop,
+									cio_http_serve_error_cb error_cb,
+									cio_alloc_client alloc_client,
+									cio_free_client free_client)
 {
 	if (unlikely((server == NULL) || (loop == NULL) || (alloc_client == NULL) || (free_client == NULL))) {
 		return cio_invalid_argument;
@@ -337,6 +345,7 @@ enum cio_error cio_http_server_init(struct cio_http_server *server, uint16_t por
 	server->register_target = register_handler;
 	server->first_handler = NULL;
 	server->num_handlers = 0;
+	server->error_cb = error_cb;
 	return cio_success;
 }
 
