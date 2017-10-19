@@ -169,30 +169,34 @@ static int on_url(http_parser *parser, const char *at, size_t length)
 		return -1;
 	} else {
 		const struct cio_http_request_target *target = find_handler(client->server, at + u.field_data[UF_PATH].off, u.field_data[UF_PATH].len);
+		if (unlikely(target == NULL)) {
+			client->write_header(client, cio_http_status_not_found);
+			return 0;
+		} else {
+			struct cio_http_request_handler *handler = target->alloc_handler(target->config);
+			if (unlikely(handler == NULL)) {
+				client->write_header(client, cio_http_status_internal_server_error);
+				return -1;
+			}
 
-		struct cio_http_request_handler *handler = target->alloc_handler(target->config);
-		if (unlikely(handler == NULL)) {
-			client->write_header(client, cio_http_status_internal_server_error);
-			return -1;
+			client->handler = handler;
+
+			client->parser_settings.on_headers_complete = on_headers_complete;
+
+			if (handler->on_header_field != NULL) {
+				client->parser_settings.on_header_field = on_header_field;
+			}
+
+			if (handler->on_header_value != NULL) {
+				client->parser_settings.on_header_value = on_header_value;
+			}
+
+			if (handler->on_url != NULL) {
+				return handler->on_url(client, at, length);
+			}
+
+			return 0;
 		}
-
-		client->handler = handler;
-
-		client->parser_settings.on_headers_complete = on_headers_complete;
-
-		if (handler->on_header_field != NULL) {
-			client->parser_settings.on_header_field = on_header_field;
-		}
-
-		if (handler->on_header_value != NULL) {
-			client->parser_settings.on_header_value = on_header_value;
-		}
-
-		if (handler->on_url != NULL) {
-			return handler->on_url(client, at, length);
-		}
-
-		return 0;
 	}
 }
 
