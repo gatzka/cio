@@ -522,6 +522,31 @@ static void test_serve_wrong_request_target(void)
 	check_http_response(&ms, 404);
 }
 
+static void test_serve_accept_fails(void)
+{
+	cio_server_socket_init_fake.custom_fake = cio_server_socket_init_ok;
+	socket_accept_fake.custom_fake = accept_save_handler;
+
+	header_complete_fake.custom_fake = header_complete_close;
+
+	struct cio_http_server server;
+	enum cio_error err = cio_http_server_init(&server, 8080, &loop, alloc_dummy_client, free_dummy_client);
+	TEST_ASSERT_EQUAL_MESSAGE(cio_success, err, "Server initialization failed!");
+
+	struct cio_http_request_target target;
+	err = cio_http_request_target_init(&target, REQUEST_TARGET1, NULL, alloc_dummy_handler);
+	TEST_ASSERT_EQUAL_MESSAGE(cio_success, err, "Request target initialization failed!");
+
+	err = server.register_target(&server, &target);
+	TEST_ASSERT_EQUAL_MESSAGE(cio_success, err, "Register request target failed!");
+
+	err = server.serve(&server);
+	TEST_ASSERT_EQUAL_MESSAGE(cio_success, err, "Serving http failed!");
+
+	server.server_socket.handler(&server.server_socket, server.server_socket.handler_context, cio_not_enough_memory, NULL);
+	TEST_ASSERT_EQUAL_MESSAGE(0, header_complete_fake.call_count, "header_complete was called despite accept error!");
+}
+
 int main(void)
 {
 	UNITY_BEGIN();
@@ -543,5 +568,6 @@ int main(void)
 	RUN_TEST(test_serve_init_fails_bind);
 	RUN_TEST(test_serve_init_fails_accept);
 	RUN_TEST(test_serve_wrong_request_target);
+	RUN_TEST(test_serve_accept_fails);
 	return UNITY_END();
 }
