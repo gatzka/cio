@@ -105,6 +105,11 @@ static void sighandler(int signum)
 	cio_eventloop_cancel(&loop);
 }
 
+static void serve_error(struct cio_http_server *server)
+{
+	server->server_socket.close(&server->server_socket);
+}
+
 int main()
 {
 	int ret = EXIT_SUCCESS;
@@ -123,7 +128,7 @@ int main()
 	}
 
 	struct cio_http_server server;
-	err = cio_http_server_init(&server, 8080, &loop, alloc_http_client, free_http_client);
+	err = cio_http_server_init(&server, 8080, &loop, serve_error, alloc_http_client, free_http_client);
 	if (err != cio_success) {
 		ret = EXIT_FAILURE;
 		goto destroy_loop;
