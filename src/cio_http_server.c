@@ -243,6 +243,7 @@ static void handle_request_line(struct cio_buffered_stream *stream, void *handle
 
 	if (unlikely(nparsed != bytes_transfered)) {
 		client->write_header(client, cio_http_status_bad_request);
+		close_client(client);
 		return;
 	}
 
@@ -258,8 +259,10 @@ static void handle_accept(struct cio_server_socket *ss, void *handler_context, e
 
 	struct cio_http_server *server = (struct cio_http_server *)handler_context;
 
-	if (unlikely(err != cio_success) && (server->error_cb != NULL)) {
-		server->error_cb(server);
+	if (unlikely(err != cio_success)) {
+		if (server->error_cb != NULL) {
+			server->error_cb(server);
+		}
 		return;
 	}
 
