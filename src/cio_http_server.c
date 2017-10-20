@@ -243,6 +243,7 @@ static void handle_request_line(struct cio_buffered_stream *stream, void *handle
 
 	if (unlikely(nparsed != bytes_transfered)) {
 		client->write_header(client, cio_http_status_bad_request);
+		close_client(client);
 		return;
 	}
 
