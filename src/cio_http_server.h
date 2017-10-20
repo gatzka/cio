@@ -126,7 +126,7 @@ struct cio_http_client {
 
 typedef enum cio_http_cb_return (*cio_http_cb)(struct cio_http_client *);
 typedef enum cio_http_cb_return (*cio_http_data_cb)(struct cio_http_client *, const char *at, size_t length);
-typedef struct cio_http_request_handler *(*cio_alloc_handler)(const void *config);
+typedef struct cio_http_request_handler *(*cio_http_alloc_handler)(const void *config);
 
 typedef void (*cio_http_serve_error_cb)(struct cio_http_server *server);
 
@@ -138,17 +138,17 @@ struct cio_http_request_handler {
 	void (*free)(struct cio_http_request_handler *handler);
 };
 
-struct cio_http_request_target {
+struct cio_http_uri_server_location {
 	/**
 	 * @privatesection
 	 */
-	const char *request_target;
-	cio_alloc_handler alloc_handler;
-	struct cio_http_request_target *next;
+	const char *path;
+	cio_http_alloc_handler alloc_handler;
+	struct cio_http_uri_server_location *next;
 	const void *config;
 };
 
-enum cio_error cio_http_request_target_init(struct cio_http_request_target *target, const char *request_target, const void *config, cio_alloc_handler handler);
+enum cio_error cio_http_server_location_init(struct cio_http_uri_server_location *location, const char *path, const void *config, cio_http_alloc_handler handler);
 
 struct cio_http_server {
 	uint16_t port;
@@ -157,23 +157,23 @@ struct cio_http_server {
 	cio_free_client free_client;
 
 	enum cio_error (*serve)(struct cio_http_server *server);
-	enum cio_error (*register_target)(struct cio_http_server *server, struct cio_http_request_target *target);
+	enum cio_error (*register_location)(struct cio_http_server *server, struct cio_http_uri_server_location *location);
 
 	/**
 	 * @privatesection
 	 */
 	cio_http_serve_error_cb error_cb;
 	struct cio_server_socket server_socket;
-	struct cio_http_request_target *first_handler;
+	struct cio_http_uri_server_location *first_handler;
 	size_t num_handlers;
 };
 
 enum cio_error cio_http_server_init(struct cio_http_server *server,
-									uint16_t port,
-									struct cio_eventloop *loop,
-									cio_http_serve_error_cb error_cb,
-									cio_alloc_client alloc_client,
-									cio_free_client free_client);
+                                    uint16_t port,
+                                    struct cio_eventloop *loop,
+                                    cio_http_serve_error_cb error_cb,
+                                    cio_alloc_client alloc_client,
+                                    cio_free_client free_client);
 
 #ifdef __cplusplus
 }

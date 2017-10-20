@@ -134,9 +134,9 @@ int main()
 		goto destroy_loop;
 	}
 
-	struct cio_http_request_target target_bla;
-	cio_http_request_target_init(&target_bla, "/bla", NULL, alloc_dummy_handler);
-	server.register_target(&server, &target_bla);
+	struct cio_http_uri_server_location target_bla;
+	cio_http_server_location_init(&target_bla, "/bla", NULL, alloc_dummy_handler);
+	server.register_location(&server, &target_bla);
 
 	err = server.serve(&server);
 	if (err != cio_success) {
