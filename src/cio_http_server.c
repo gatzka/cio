@@ -235,6 +235,7 @@ static void handle_request_line(struct cio_buffered_stream *stream, void *handle
 
 	if (unlikely(err != cio_success)) {
 		client->write_header(client, cio_http_status_internal_server_error);
+		close_client(client);
 		return;
 	}
 
