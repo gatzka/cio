@@ -258,8 +258,10 @@ static void handle_accept(struct cio_server_socket *ss, void *handler_context, e
 
 	struct cio_http_server *server = (struct cio_http_server *)handler_context;
 
-	if (unlikely(err != cio_success) && (server->error_cb != NULL)) {
-		server->error_cb(server);
+	if (unlikely(err != cio_success)) {
+		if (server->error_cb != NULL) {
+			server->error_cb(server);
+		}
 		return;
 	}
 
