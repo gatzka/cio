@@ -101,16 +101,16 @@ static void write_response(struct cio_http_client *client, struct cio_write_buff
 	client->bs.write(&client->bs, &client->wbh, response_written, client);
 }
 
-static const struct cio_http_request_target *find_handler(const struct cio_http_server *server, const char *request_target, size_t url_length)
+static const struct cio_http_uri_server_location *find_handler(const struct cio_http_server *server, const char *request_target, size_t url_length)
 {
-	const struct cio_http_request_target *best_match = NULL;
+	const struct cio_http_uri_server_location *best_match = NULL;
 	size_t best_match_length = 0;
 
-	const struct cio_http_request_target *handler = server->first_handler;
+	const struct cio_http_uri_server_location *handler = server->first_handler;
 	for (size_t i = 0; i < server->num_handlers; i++) {
-		size_t length = strlen(handler->request_target);
+		size_t length = strlen(handler->path);
 		if (length <= url_length) {
-			if (memcmp(handler->request_target, request_target, length) == 0) {
+			if (memcmp(handler->path, request_target, length) == 0) {
 				if (length > best_match_length) {
 					best_match_length = length;
 					best_match = handler;
@@ -168,7 +168,7 @@ static int on_url(http_parser *parser, const char *at, size_t length)
 		client->write_header(client, cio_http_status_bad_request);
 		return -1;
 	} else {
-		const struct cio_http_request_target *target = find_handler(client->server, at + u.field_data[UF_PATH].off, u.field_data[UF_PATH].len);
+		const struct cio_http_uri_server_location *target = find_handler(client->server, at + u.field_data[UF_PATH].off, u.field_data[UF_PATH].len);
 		if (unlikely(target == NULL)) {
 			client->write_header(client, cio_http_status_not_found);
 			return 0;
@@ -318,7 +318,7 @@ close_socket:
 	return err;
 }
 
-static enum cio_error register_handler(struct cio_http_server *server, struct cio_http_request_target *target)
+static enum cio_error register_handler(struct cio_http_server *server, struct cio_http_uri_server_location *target)
 {
 	if (unlikely(server == NULL) || (target == NULL)) {
 		return cio_invalid_argument;
@@ -331,11 +331,11 @@ static enum cio_error register_handler(struct cio_http_server *server, struct ci
 }
 
 enum cio_error cio_http_server_init(struct cio_http_server *server,
-									uint16_t port,
-									struct cio_eventloop *loop,
-									cio_http_serve_error_cb error_cb,
-									cio_alloc_client alloc_client,
-									cio_free_client free_client)
+                                    uint16_t port,
+                                    struct cio_eventloop *loop,
+                                    cio_http_serve_error_cb error_cb,
+                                    cio_alloc_client alloc_client,
+                                    cio_free_client free_client)
 {
 	if (unlikely((server == NULL) || (loop == NULL) || (alloc_client == NULL) || (free_client == NULL))) {
 		return cio_invalid_argument;
@@ -346,23 +346,23 @@ enum cio_error cio_http_server_init(struct cio_http_server *server,
 	server->alloc_client = alloc_client;
 	server->free_client = free_client;
 	server->serve = serve;
-	server->register_target = register_handler;
+	server->register_location = register_handler;
 	server->first_handler = NULL;
 	server->num_handlers = 0;
 	server->error_cb = error_cb;
 	return cio_success;
 }
 
-enum cio_error cio_http_request_target_init(struct cio_http_request_target *target, const char *request_target, const void *config, cio_alloc_handler handler)
+enum cio_error cio_http_server_location_init(struct cio_http_uri_server_location *location, const char *path, const void *config, cio_http_alloc_handler handler)
 {
-	if (unlikely((target == NULL) || (request_target == NULL) || (handler == NULL))) {
+	if (unlikely((location == NULL) || (path == NULL) || (handler == NULL))) {
 		return cio_invalid_argument;
 	}
 
-	target->config = config;
-	target->next = NULL;
-	target->alloc_handler = handler;
-	target->request_target = request_target;
+	location->config = config;
+	location->next = NULL;
+	location->alloc_handler = handler;
+	location->path = path;
 
 	return cio_success;
 }
