@@ -164,7 +164,7 @@ static int on_url(http_parser *parser, const char *at, size_t length)
 	struct http_parser_url u;
 	http_parser_url_init(&u);
 	int ret = http_parser_parse_url(at, length, is_connect, &u);
-	if (unlikely((ret != 0) && !((u.field_set & (1 << UF_PATH)) == (1 << UF_PATH)))) {
+	if ((unlikely(ret != 0)) || !((u.field_set & (1 << UF_PATH)) == (1 << UF_PATH))) {
 		client->write_header(client, cio_http_status_bad_request);
 		return -1;
 	} else {
