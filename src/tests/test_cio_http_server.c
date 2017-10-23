@@ -143,6 +143,9 @@ static enum cio_http_cb_return header_complete(struct cio_http_client *c);
 FAKE_VALUE_FUNC(enum cio_http_cb_return, header_complete, struct cio_http_client *)
 
 
+static enum cio_http_cb_return on_url(struct cio_http_client *c, const char *at, size_t length);
+FAKE_VALUE_FUNC(enum cio_http_cb_return, on_url, struct cio_http_client *, const char *, size_t)
+
 static struct cio_io_stream *get_mem_io_stream(struct cio_socket *context)
 {
 	(void)context;
@@ -176,6 +179,14 @@ static enum cio_http_cb_return header_complete_close(struct cio_http_client *c)
 	return cio_http_cb_success;
 }
 
+static enum cio_http_cb_return on_url_close(struct cio_http_client *c, const char *at, size_t length)
+{
+	(void)at;
+	(void)length;
+	c->close(c);
+	return cio_http_cb_success;
+}
+
 static struct cio_http_request_handler *alloc_dummy_handler(const void *config)
 {
 	(void)config;
@@ -187,7 +198,7 @@ static struct cio_http_request_handler *alloc_dummy_handler(const void *config)
 		handler->handler.free = free_dummy_handler;
 		handler->handler.on_header_field = NULL;
 		handler->handler.on_header_value = NULL;
-		handler->handler.on_url = NULL;
+		handler->handler.on_url = on_url;
 		handler->handler.on_headers_complete = header_complete;
 		return &handler->handler;
 	}
@@ -283,6 +294,7 @@ void setUp(void)
 	RESET_FAKE(serve_error);
 	RESET_FAKE(socket_close);
 	RESET_FAKE(header_complete);
+	RESET_FAKE(on_url);
 	RESET_FAKE(client_socket_close);
 
 	http_parser_settings_init(&parser_settings);
@@ -723,6 +735,38 @@ static void test_serve_illegal_url(void)
 	check_http_response(&ms, 400);
 }
 
+static void test_serve_correctly_on_url_close(void)
+{
+	cio_server_socket_init_fake.custom_fake = cio_server_socket_init_ok;
+	socket_accept_fake.custom_fake = accept_save_handler;
+
+	on_url_fake.custom_fake = on_url_close;
+
+	struct cio_http_server server;
+	enum cio_error err = cio_http_server_init(&server, 8080, &loop, serve_error, alloc_dummy_client, free_dummy_client);
+	TEST_ASSERT_EQUAL_MESSAGE(cio_success, err, "Server initialization failed!");
+
+	struct cio_http_uri_server_location target;
+	err = cio_http_server_location_init(&target, REQUEST_TARGET1, NULL, alloc_dummy_handler);
+	TEST_ASSERT_EQUAL_MESSAGE(cio_success, err, "Request target initialization failed!");
+
+	err = server.register_location(&server, &target);
+	TEST_ASSERT_EQUAL_MESSAGE(cio_success, err, "Register request target failed!");
+
+	err = server.serve(&server);
+	TEST_ASSERT_EQUAL_MESSAGE(cio_success, err, "Serving http failed!");
+
+	struct cio_socket *s = server.alloc_client();
+
+	const char request[] = HTTP_GET " " REQUEST_TARGET1 " " HTTP_11 CRLF CRLF;
+	memory_stream_init(&ms, request, s);
+
+	server.server_socket.handler(&server.server_socket, server.server_socket.handler_context, cio_success, s);
+	TEST_ASSERT_EQUAL_MESSAGE(1, on_url_fake.call_count, "on_url was not called!");
+	TEST_ASSERT_EQUAL_MESSAGE(1, client_socket_close_fake.call_count, "Client socket was not closed!");
+	TEST_ASSERT_EQUAL_MESSAGE(0, serve_error_fake.call_count, "Serve error callback was called!");
+}
+
 int main(void)
 {
 	UNITY_BEGIN();
@@ -750,5 +794,6 @@ int main(void)
 	RUN_TEST(test_serve_read_fails);
 	RUN_TEST(test_serve_connect_method);
 	RUN_TEST(test_serve_illegal_url);
+	RUN_TEST(test_serve_correctly_on_url_close);
 	return UNITY_END();
 }
