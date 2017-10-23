@@ -219,12 +219,13 @@ static void handle_line(struct cio_buffered_stream *stream, void *handler_contex
 		return;
 	}
 
-	if (!client->headers_complete) {
-		client->bs.read_until(&client->bs, &client->rb, CRLF, handle_line, client);
-	}
-
 	if (client->to_be_closed) {
 		close_client(client);
+		return;
+	}
+
+	if (!client->headers_complete) {
+		client->bs.read_until(&client->bs, &client->rb, CRLF, handle_line, client);
 	}
 }
 
@@ -250,6 +251,11 @@ static void handle_request_line(struct cio_buffered_stream *stream, void *handle
 
 	client->http_major = client->parser.http_major;
 	client->http_minor = client->parser.http_minor;
+
+	if (client->to_be_closed) {
+		close_client(client);
+		return;
+	}
 
 	client->bs.read_until(&client->bs, &client->rb, CRLF, handle_line, client);
 }
