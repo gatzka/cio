@@ -35,24 +35,29 @@ Project {
   qbsSearchPaths: "qbs/"
 
   references : [
-    "qbs/gccClang.qbs",
-    "qbs/hardening.qbs",
-    "src/cio-staticlib.qbs",
-    "src/cio-dynamiclib.qbs",
+    //"qbs/gccClang.qbs",
+    //"qbs/hardening.qbs",
 
   ] 
 
   Project {
-		name: "examples"
+    name: "library"
+    references: [
+      "src/cio.qbs"
+    ]
+  }
+
+  Project {
+    name: "examples"
     references : [
       "examples/periodic_timer.qbs",
       "examples/http_server.qbs",
       "examples/socket_echo.qbs"
-    ] 
+    ]
   }
 
   Project {
-		name: "tests"
+    name: "tests"
     references : [
       "src/unity.qbs",
       "src/fff.qbs",

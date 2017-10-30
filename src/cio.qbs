@@ -26,7 +26,7 @@
 
 import qbs 1.0
 import qbs.TextFile
-import "./version.qbs" as cioVersionFile
+import "cioFiles.qbs" as CioFiles
 
 Project {
   name: "cio libraries"
@@ -37,9 +37,57 @@ Project {
   references: [
     "../qbs/gccClang.qbs",
     "../qbs/hardening.qbs",
-    "cio-staticlib.qbs",
-    "cio-dynamiclib.qbs",
   ]
+
+  Product {
+    type: "staticlibrary"
+    name: "cio-static"
+
+    Depends { name: "cpp" }
+    Depends { name: "gccClang" }
+    Depends { name: "hardening" }
+    Depends { name: "generateVersion" }
+
+    CioFiles {}
+
+    Export {
+      Depends { name: "cpp" }
+
+      cpp.includePaths: {
+        var paths = [".", buildDirectory + "/generated/"];
+        if (qbs.targetOS.contains("linux")) {
+          paths.push("./linux/");
+        }
+
+        return paths;
+      }
+    }
+  }
+
+  Product {
+    type: "dynamiclibrary"
+    name: "cio-dynamic"
+
+    Depends { name: "cpp" }
+    Depends { name: "gccClang" }
+    Depends { name: "hardening" }
+    Depends { name: "generateVersion" }
+
+    CioFiles {}
+
+    Export {
+      Depends { name: "cpp" }
+
+      cpp.includePaths: {
+        var paths = [".", buildDirectory + "/generated/"];
+        if (qbs.targetOS.contains("linux")) {
+          paths.push("./linux/");
+        }
+
+        return paths;
+      }
+    }
+  }
 
   InstallPackage {
     archiver.type: "tar"
