@@ -34,19 +34,30 @@ Project {
 
   qbsSearchPaths: "../qbs/"
 
-  references: [
-    "../qbs/gccClang.qbs",
-    "../qbs/hardening.qbs",
-  ]
+  property bool hardening: true
+
+  Properties {
+    condition: hardening
+    references: [
+      "../qbs/gccClang.qbs",
+      "../qbs/hardening.qbs",
+    ]
+  }
 
   Product {
     type: "staticlibrary"
     name: "cio-static"
 
     Depends { name: "cpp" }
-    Depends { name: "gccClang" }
-    Depends { name: "hardening" }
     Depends { name: "generateVersion" }
+    Depends {
+      name: "gccClang"
+      condition: project.hardening
+    }
+    Depends {
+      name: "hardening"
+      condition: project.hardening
+    }
 
     CioFiles {}
 
@@ -69,9 +80,15 @@ Project {
     name: "cio-dynamic"
 
     Depends { name: "cpp" }
-    Depends { name: "gccClang" }
-    Depends { name: "hardening" }
     Depends { name: "generateVersion" }
+    Depends {
+      name: "gccClang"
+      condition: project.hardening
+    }
+    Depends {
+      name: "hardening"
+      condition: project.hardening
+    }
 
     CioFiles {}
 

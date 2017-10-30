@@ -35,16 +35,15 @@ Project {
   qbsSearchPaths: "qbs/"
 
   references : [
-    //"qbs/gccClang.qbs",
-    //"qbs/hardening.qbs",
-
+    "qbs/gccClang.qbs",
+    "qbs/hardening.qbs",
   ] 
 
-  Project {
-    name: "library"
-    references: [
-      "src/cio.qbs"
-    ]
+  SubProject {
+    filePath: "src/cio.qbs"
+    Properties {
+      hardening: false
+    }
   }
 
   Project {
