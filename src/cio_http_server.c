@@ -165,7 +165,6 @@ static int on_url(http_parser *parser, const char *at, size_t length)
 	http_parser_url_init(&u);
 	int ret = http_parser_parse_url(at, length, is_connect, &u);
 	if ((unlikely(ret != 0)) || !((u.field_set & (1 << UF_PATH)) == (1 << UF_PATH))) {
-		client->write_header(client, cio_http_status_bad_request);
 		return -1;
 	} else {
 		const struct cio_http_uri_server_location *target = find_handler(client->server, at + u.field_data[UF_PATH].off, u.field_data[UF_PATH].len);
@@ -176,7 +175,7 @@ static int on_url(http_parser *parser, const char *at, size_t length)
 			struct cio_http_request_handler *handler = target->alloc_handler(target->config);
 			if (unlikely(handler == NULL)) {
 				client->write_header(client, cio_http_status_internal_server_error);
-				return -1;
+				return 0;
 			}
 
 			client->handler = handler;
