@@ -75,8 +75,9 @@ static enum cio_error bs_close(struct cio_buffered_stream *bs)
 		return cio_invalid_argument;
 	}
 
+	bs->shall_close = true;
+
 	if (bs->read_is_running == true) {
-		bs->shall_close = true;
 		bs->read_is_running = false;
 	} else {
 		bs->more_jobs = false;
