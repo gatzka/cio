@@ -39,11 +39,11 @@ Project {
     "qbs/hardening.qbs",
   ] 
 
-  SubProject {
-    filePath: "src/cio.qbs"
-    Properties {
-      hardening: false
-    }
+  Project {
+    name: "library"
+    references : [
+      "src/cio.qbs"
+    ]
   }
 
   Project {

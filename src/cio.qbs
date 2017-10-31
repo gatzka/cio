@@ -25,8 +25,8 @@
  */
 
 import qbs 1.0
-import qbs.TextFile
 import "cioFiles.qbs" as CioFiles
+import "../qbs/hardenedProduct.qbs" as HardenedProduct
 
 Project {
   name: "cio libraries"
@@ -34,30 +34,14 @@ Project {
 
   qbsSearchPaths: "../qbs/"
 
-  property bool hardening: true
+  property bool enableHardening: true
 
-  Properties {
-    condition: hardening
-    references: [
-      "../qbs/gccClang.qbs",
-      "../qbs/hardening.qbs",
-    ]
-  }
-
-  Product {
+  HardenedProduct {
     type: "staticlibrary"
     name: "cio-static"
+    enableHardening: project.enableHardening
 
-    Depends { name: "cpp" }
     Depends { name: "generateVersion" }
-    Depends {
-      name: "gccClang"
-      condition: project.hardening
-    }
-    Depends {
-      name: "hardening"
-      condition: project.hardening
-    }
 
     CioFiles {}
 
@@ -75,20 +59,12 @@ Project {
     }
   }
 
-  Product {
+  HardenedProduct {
     type: "dynamiclibrary"
     name: "cio-dynamic"
+    enableHardening: project.enableHardening
 
-    Depends { name: "cpp" }
     Depends { name: "generateVersion" }
-    Depends {
-      name: "gccClang"
-      condition: project.hardening
-    }
-    Depends {
-      name: "hardening"
-      condition: project.hardening
-    }
 
     CioFiles {}
 
