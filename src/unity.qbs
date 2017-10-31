@@ -39,7 +39,6 @@ Project {
 
     cpp.warningLevel: "all"
     cpp.treatWarningsAsErrors: true
-    cpp.includePaths: [".", "..", buildDirectory]
 
     Group {
       name: "Unity sources"
