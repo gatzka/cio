@@ -25,38 +25,16 @@
  */
 
 import qbs 1.0
+import "tests.qbs" as TestProducts
 
-CppApplication {
-  name: "test_cio_http_server"
-  type: ["application", "unittest"]
-  Depends { name: "unit test settings" }
-  cpp.cLanguageVersion: "c99"
-  cpp.driverFlags: ["-Wno-error"]
-  files: [
-    "test_cio_http_server.c",
-    "../cio_http_server.c",
-    "../cio_buffered_stream.c",
+Project {
+  name: "cio linux unit tests"
+  minimumQbsVersion: "1.6.0"
+
+  references: [
+    "../../unity.qbs",
+    "../../fff.qbs",
   ]
 
-  Group {
-    name: "third party"
-    cpp.cLanguageVersion: "c99"
-    cpp.warningLevel: "none"
-    files: [
-      "../http-parser/http_parser.c",
-      "../http-parser/http_parser.h"
-    ]
-  }
-
-  Group {
-    condition: qbs.targetOS.contains("linux")
-    name: "linux specific"
-    prefix: "../linux/"
-    cpp.cLanguageVersion: "c99"
-
-    files: [
-      "cio_linux_string.c",
-    ]
-  }
+  TestProducts { }
 }
-

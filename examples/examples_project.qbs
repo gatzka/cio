@@ -25,14 +25,15 @@
  */
 
 import qbs 1.0
+import "examples.qbs" as Examples
 
-CppApplication {
-  name: "test_cio_read_buffer"
-  type: ["application", "unittest"]
-  Depends { name: "unit test settings" }
-  cpp.cLanguageVersion: "c99"
-  files: [
-    "test_cio_read_buffer.c",
+Project {
+  name: "cio examples"
+  minimumQbsVersion: "1.6.0"
+
+  references: [
+    "../src/cio_project.qbs",
   ]
-}
 
+  Examples {}
+}

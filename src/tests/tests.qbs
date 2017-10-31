@@ -25,21 +25,78 @@
  */
 
 import qbs 1.0
+import "../../qbs/unittestProduct.qbs" as UnittestProduct
 
 Project {
   name: "cio unit tests"
-  minimumQbsVersion: "1.6.0"
 
-  references: [
-    "../unity.qbs",
-    "../fff.qbs",
-    "../unittestsettings.qbs",
-    "../../qbs/gccClang.qbs",
-    "../../qbs/hardening.qbs",
-   
-    "test_cio_buffered_stream.qbs",
-    "test_cio_http_server.qbs",
-    "test_cio_read_buffer.qbs",
-    "test_cio_write_buffer.qbs"
-  ]
+  UnittestProduct {
+    name: "test_cio_buffered_stream"
+    type: ["application", "unittest"]
+    
+    cpp.includePaths: ["..", "../linux/"]
+
+    files: [
+      "test_cio_buffered_stream.c",
+      "../cio_buffered_stream.c",
+      "../linux/cio_linux_string.c",
+    ]
+  }
+
+  UnittestProduct {
+    name: "test_cio_http_server"
+    type: ["application", "unittest"]
+    
+    cpp.includePaths: ["..", "../linux/"]
+    cpp.driverFlags: ["-Wno-error"]
+    
+    files: [
+      "test_cio_http_server.c",
+      "../cio_http_server.c",
+      "../cio_buffered_stream.c",
+    ]
+  
+    Group {
+      name: "third party"
+      cpp.cLanguageVersion: "c99"
+      cpp.warningLevel: "none"
+      files: [
+        "../http-parser/http_parser.c",
+        "../http-parser/http_parser.h"
+      ]
+    }
+  
+    Group {
+      condition: qbs.targetOS.contains("linux")
+      name: "linux specific"
+      prefix: "../linux/"
+      cpp.cLanguageVersion: "c99"
+  
+      files: [
+        "cio_linux_string.c",
+      ]
+    }
+  }
+
+  UnittestProduct {
+    name: "test_cio_read_buffer"
+    type: ["application", "unittest"]
+    
+    cpp.includePaths: ["..", "../linux/"]
+    
+    files: [
+      "test_cio_read_buffer.c",
+    ]
+  }
+
+  UnittestProduct {
+    name: "test_cio_write_buffer"
+    type: ["application", "unittest"]
+    
+    cpp.includePaths: ["..", "../linux/"]
+
+    files: [
+      "test_cio_write_buffer.c",
+    ]
+  }
 }

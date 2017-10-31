@@ -25,14 +25,16 @@
  */
 
 import qbs 1.0
+import "tests.qbs" as TestProducts
 
-CppApplication {
-  name: "test_cio_write_buffer"
-  type: ["application", "unittest"]
-  Depends { name: "unit test settings" }
-  cpp.cLanguageVersion: "c99"
-  files: [
-    "test_cio_write_buffer.c",
+Project {
+  name: "cio unit tests"
+  minimumQbsVersion: "1.6.0"
+
+  references: [
+    "../unity.qbs",
+    "../fff.qbs",
   ]
-}
 
+  TestProducts { }
+}

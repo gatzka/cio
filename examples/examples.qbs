@@ -33,9 +33,6 @@ Project {
   qbsSearchPaths: "../qbs/"
 
   references: [
-    "../qbs/gccClang.qbs",
-    "../qbs/hardening.qbs",
-    "../src/cio.qbs",
     "periodic_timer.qbs",
     "socket_echo.qbs",
     "http_server.qbs"
