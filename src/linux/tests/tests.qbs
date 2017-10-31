@@ -25,6 +25,7 @@
  */
 
 import qbs 1.0
+import "../../../qbs/unittestProduct.qbs" as UnittestProduct
 
 Project {
   name: "cio linux unit tests"
@@ -32,17 +33,63 @@ Project {
 
   condition: qbs.targetOS.contains("linux")
 
-  references: [
-    "../../unity.qbs",
-    "../../fff.qbs",
-    "../../unittestsettings.qbs",
-    "../../../qbs/gccClang.qbs",
-    "../../../qbs/hardening.qbs",
-   
-    "test_cio_linux_epoll.qbs",
-    "test_cio_linux_server_socket.qbs",
-    "test_cio_linux_socket.qbs",
-    "test_cio_linux_socket_utils.qbs",
-    "test_cio_linux_timer.qbs"
-  ]
+  UnittestProduct {
+    name: "test_cio_linux_epoll"
+    type: ["application", "unittest"]
+
+    cpp.includePaths: ["../", "../../"]
+
+    files: [
+      "test_cio_linux_epoll.c",
+      "../cio_linux_epoll.c",
+    ]
+  }
+
+  UnittestProduct {
+    name: "test_cio_linux_server_socket"
+    type: ["application", "unittest"]
+
+    cpp.includePaths: ["../", "../../"]
+  
+    files: [
+      "test_cio_linux_server_socket.c",
+      "../cio_linux_server_socket.c"
+    ]
+  }
+
+  UnittestProduct {
+    name: "test_cio_linux_socket"
+    type: ["application", "unittest"]
+
+    cpp.includePaths: ["../", "../../"]
+
+    files: [
+      "test_cio_linux_socket.c",
+      "../cio_linux_socket.c",
+    ]
+  }
+
+  UnittestProduct {
+    name: "test_cio_linux_socket_utils"
+    type: ["application", "unittest"]
+
+    cpp.includePaths: ["../", "../../"]
+
+    files: [
+      "test_cio_linux_socket_utils.c",
+      "../cio_linux_socket_utils.c",
+    ]
+  }
+
+  UnittestProduct {
+    name: "test_cio_linux_timer"
+    type: ["application", "unittest"]
+
+    cpp.includePaths: ["../", "../../"]
+
+    files: [
+      "test_cio_linux_timer.c",
+      "../cio_linux_timer.c",
+    ]
+  }
 }

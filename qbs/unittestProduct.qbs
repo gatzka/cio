@@ -25,16 +25,12 @@
  */
 
 import qbs 1.0
+import "hardenedProduct.qbs" as HardenedProduct
 
-CppApplication {
-  name: "test_cio_buffered_stream"
-  type: ["application", "unittest"]
-  Depends { name: "unit test settings" }
+HardenedProduct {
+  name: "unit test product"
+  Depends { name: "unity" }
+  Depends { name: "fake-function-framework" }
   cpp.cLanguageVersion: "c99"
-  files: [
-    "test_cio_buffered_stream.c",
-    "../cio_buffered_stream.c",
-    "../linux/cio_linux_string.c",
-  ]
 }
 

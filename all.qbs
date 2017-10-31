@@ -27,6 +27,9 @@
 import qbs 1.0
 
 import "qbs/unittestRunner.qbs" as UnittestRunner
+import "src/tests/tests.qbs" as TestProducts
+import "src/linux/tests/tests.qbs" as LinuxTestProducts
+import "examples/examples.qbs" as Examples
 
 Project {
   name: "cio with tests and documentation"
@@ -34,47 +37,15 @@ Project {
 
   qbsSearchPaths: "qbs/"
 
-  references : [
-    "qbs/gccClang.qbs",
-    "qbs/hardening.qbs",
-    "src/cio-staticlib.qbs",
-    "src/cio-dynamiclib.qbs",
+  references: [
+    "src/unity.qbs",
+    "src/fff.qbs",
+    "src/cio_project.qbs"
+  ]
 
-  ] 
-
-  Project {
-		name: "examples"
-    references : [
-      "examples/periodic_timer.qbs",
-      "examples/http_server.qbs",
-      "examples/socket_echo.qbs"
-    ] 
-  }
-
-  Project {
-		name: "tests"
-    references : [
-      "src/unity.qbs",
-      "src/fff.qbs",
-      "src/unittestsettings.qbs",
-
-      "src/tests/test_cio_buffered_stream.qbs",
-      "src/tests/test_cio_http_server.qbs",
-      "src/tests/test_cio_read_buffer.qbs",
-      "src/tests/test_cio_write_buffer.qbs",
-    ] 
-
-    Project {
-      name: "linux"
-      references : [
-        "src/linux/tests/test_cio_linux_epoll.qbs",
-        "src/linux/tests/test_cio_linux_server_socket.qbs",
-        "src/linux/tests/test_cio_linux_socket.qbs",
-        "src/linux/tests/test_cio_linux_socket_utils.qbs",
-        "src/linux/tests/test_cio_linux_timer.qbs",
-      ] 
-    }
-  }
+  TestProducts { }
+  LinuxTestProducts { }
+  Examples { }
 
   SubProject {
     filePath: "src/cio_doc.qbs"
