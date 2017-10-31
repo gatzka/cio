@@ -40,14 +40,8 @@ Project {
   references: [
     "src/unity.qbs",
     "src/fff.qbs",
+    "src/cio_project.qbs"
   ]
-
-  Project {
-    name: "library"
-    references : [
-      "src/cio_project.qbs"
-    ]
-  }
 
   TestProducts { }
   LinuxTestProducts { }
