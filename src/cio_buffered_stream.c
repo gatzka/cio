@@ -78,7 +78,6 @@ static enum cio_error bs_close(struct cio_buffered_stream *bs)
 	bs->shall_close = true;
 
 	if (!bs->read_is_running) {
-		bs->read_job = NULL;
 		if (bs->read_ref_count == 0) {
 			bs->stream->close(bs->stream);
 		}
