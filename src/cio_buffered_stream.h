@@ -181,7 +181,6 @@ struct cio_buffered_stream {
 	struct cio_write_buffer wb;
 
 	enum cio_error last_error;
-	bool more_jobs;
 	bool read_is_running;
 	bool shall_close;
 	unsigned int read_ref_count;
