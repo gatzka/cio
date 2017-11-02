@@ -38,7 +38,7 @@
 #undef MIN
 #define MIN(X, Y) (((X) < (Y)) ? (X) : (Y))
 
-static int run_read(struct cio_buffered_stream *bs);
+static void run_read(struct cio_buffered_stream *bs);
 
 static void handle_read(struct cio_io_stream *stream, void *handler_context, enum cio_error err, struct cio_read_buffer *buffer)
 {
@@ -89,42 +89,39 @@ static enum cio_error bs_close(struct cio_buffered_stream *bs)
 	return cio_success;
 }
 
-static int run_read(struct cio_buffered_stream *bs)
+static void run_read(struct cio_buffered_stream *bs)
 {
 	bs->read_ref_count++;
-
+	bs->read_is_running = true;
 	while (bs->read_job != NULL) {
 		enum cio_error err = bs->read_job(bs);
 		if (err == cio_again) {
 			fill_buffer(bs);
 			if (bs->shall_close) {
-				bs->read_ref_count--;
-				bs_close(bs);
-				return -1;
+				break;
 			} else {
-				bs->read_ref_count--;
-				return 0;
+				break;
 			}
 		}
 
 		if (bs->shall_close) {
-			bs->read_ref_count--;
-			bs_close(bs);
-			return -1;
+			break;
 		}
 	}
 
+	bs->read_is_running = false;
+
 	bs->read_ref_count--;
-	return 0;
+
+	if (bs->shall_close) {
+		bs_close(bs);
+	}
 }
 
 static void start_read(struct cio_buffered_stream *bs)
 {
 	if (!bs->read_is_running) {
-		bs->read_is_running = true;
-		if (run_read(bs) != -1) {
-			bs->read_is_running = false;
-		}
+		run_read(bs);
 	}
 }
 
