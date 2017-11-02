@@ -94,11 +94,7 @@ static void run_read(struct cio_buffered_stream *bs)
 		enum cio_error err = bs->read_job(bs);
 		if (err == cio_again) {
 			fill_buffer(bs);
-			if (bs->shall_close) {
-				break;
-			} else {
-				break;
-			}
+			break;
 		}
 
 		if (bs->shall_close) {
