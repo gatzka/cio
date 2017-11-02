@@ -181,11 +181,10 @@ static enum cio_error internal_read_until(struct cio_buffered_stream *bs)
 		rb->fetch_ptr += diff;
 		bs->read_job = NULL;
 		bs->read_handler(bs, bs->read_handler_context, cio_success, rb);
+		return cio_success;
 	} else {
 		return cio_again;
 	}
-
-	return cio_success;
 }
 
 static enum cio_error bs_read_until(struct cio_buffered_stream *bs, struct cio_read_buffer *buffer, const char *delim, cio_buffered_stream_read_handler handler, void *handler_context)
@@ -221,11 +220,10 @@ static enum cio_error internal_read_exactly(struct cio_buffered_stream *bs)
 		rb->fetch_ptr += bs->read_info.bytes_to_read;
 		bs->read_job = NULL;
 		bs->read_handler(bs, bs->read_handler_context, cio_success, rb);
+		return cio_success;
 	} else {
 		return cio_again;
 	}
-
-	return cio_success;
 }
 
 static enum cio_error bs_read_exactly(struct cio_buffered_stream *bs, struct cio_read_buffer *buffer, size_t num, cio_buffered_stream_read_handler handler, void *handler_context)
