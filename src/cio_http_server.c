@@ -35,6 +35,7 @@
 #include "cio_read_buffer.h"
 #include "cio_server_socket.h"
 #include "cio_socket.h"
+#include "cio_timer.h"
 #include "cio_util.h"
 
 #undef CRLF
@@ -46,7 +47,18 @@ static void close_client(struct cio_http_client *client)
 		client->handler->free(client->handler);
 	}
 
+	client->read_timer.close(&client->read_timer);
 	client->bs.close(&client->bs);
+}
+
+static void client_timeout_handler(struct cio_timer *timer, void *handler_context, enum cio_error err)
+{
+	(void)timer;
+
+	if (err == cio_success) {
+		struct cio_http_client *client = handler_context;
+		close_client(client);
+	}
 }
 
 static void mark_to_be_closed(struct cio_http_client *client)
@@ -129,6 +141,7 @@ static int on_headers_complete(http_parser *parser)
 	struct cio_http_client *client = container_of(parser, struct cio_http_client, parser);
 	client->headers_complete = true;
 	client->content_length = parser->content_length;
+	client->read_timer.cancel(&client->read_timer);
 	if (client->handler->on_headers_complete != NULL) {
 		return client->handler->on_headers_complete(client);
 	} else {
@@ -269,10 +282,21 @@ static void handle_accept(struct cio_server_socket *ss, void *handler_context, e
 		if (server->error_cb != NULL) {
 			server->error_cb(server);
 		}
+
 		return;
 	}
 
 	struct cio_http_client *client = container_of(socket, struct cio_http_client, socket);
+
+	err = cio_timer_init(&client->read_timer, server->loop, NULL);
+	if (unlikely(err != cio_success)) {
+		if (server->error_cb != NULL) {
+			server->error_cb(server);
+		}
+
+		return;
+	}
+
 	client->server = server;
 
 	struct cio_io_stream *stream = socket->get_io_stream(socket);
@@ -291,6 +315,7 @@ static void handle_accept(struct cio_server_socket *ss, void *handler_context, e
 
 	cio_read_buffer_init(&client->rb, client->buffer, client->buffer_size);
 	cio_buffered_stream_init(&client->bs, stream);
+	client->read_timer.expires_from_now(&client->read_timer, server->read_timeout, client_timeout_handler, client);
 	client->bs.read_until(&client->bs, &client->rb, CRLF, handle_request_line, client);
 }
 
@@ -339,6 +364,7 @@ enum cio_error cio_http_server_init(struct cio_http_server *server,
                                     uint16_t port,
                                     struct cio_eventloop *loop,
                                     cio_http_serve_error_cb error_cb,
+                                    uint64_t read_timeout,
                                     cio_alloc_client alloc_client,
                                     cio_free_client free_client)
 {
@@ -355,6 +381,7 @@ enum cio_error cio_http_server_init(struct cio_http_server *server,
 	server->first_handler = NULL;
 	server->num_handlers = 0;
 	server->error_cb = error_cb;
+	server->read_timeout = read_timeout;
 	return cio_success;
 }
 
