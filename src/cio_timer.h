@@ -58,14 +58,14 @@ typedef void (*cio_timer_close_hook)(struct cio_timer *timer);
 /**
  * @brief The type of a timer callback function.
  *
- * @param context The timer which called the callback.
+ * @param timer The timer which called the callback.
  * @param handler_context The context the functions works on.
  *                        This parameter is fed from @ref cio_timer_expires_from_now_handler_context
  *                        "parameter handler_contex" of @ref cio_timer_expires_from_now "expires_from_now()".
  * @param err If err == ::cio_success, the timer expired.
  *            If err == ::cio_operation_aborted, the timer was @ref cio_timer_cancel "cancelled".
  */
-typedef void (*timer_handler)(struct cio_timer *context, void *handler_context, enum cio_error err);
+typedef void (*timer_handler)(struct cio_timer *timer, void *handler_context, enum cio_error err);
 
 struct cio_timer {
 
@@ -73,24 +73,24 @@ struct cio_timer {
 	 * @anchor cio_timer_expires_from_now
 	 * @brief Set the timer's expiration time relative to now and arms the timer.
 	 *
-	 * @param context A pointer to a struct cio_timer which shall expire.
+	 * @param timer A pointer to a struct cio_timer which shall expire.
 	 * @param timeout_ns The expiration time relative to "now" in nanoseconds.
 	 * @param handler The callback function to be called when the timer expires or was cancelled.
 	 * @anchor cio_timer_expires_from_now_handler_context
 	 * @param handler_context A pointer to a context which might be
 	 *                        useful inside @p handler.
 	 */
-	void (*expires_from_now)(struct cio_timer *context, uint64_t timeout_ns, timer_handler handler, void *handler_context);
+	void (*expires_from_now)(struct cio_timer *timer, uint64_t timeout_ns, timer_handler handler, void *handler_context);
 
 	/**
 	 * @anchor cio_timer_cancel
 	 * @brief Cancels an armed timer.
 	 *
-	 * @param context A pointer to a struct cio_timer which shall be canceled.
+	 * @param timer A pointer to a struct cio_timer which shall be canceled.
 	 * @return ::cio_success for success,
 	 *         ::cio_no_such_file_or_directory if the timer wasn't armed.
 	 */
-	enum cio_error (*cancel)(struct cio_timer *context);
+	enum cio_error (*cancel)(struct cio_timer *timer);
 
 	/**
 	 * @anchor cio_timer_close
@@ -99,9 +99,9 @@ struct cio_timer {
 	 * If the timer is armed and has not expired yet, the timer will be canceled and the timer callback will be called.
 	 * If a close_hook was given in ::cio_timer_init, the hook is called.
 	 *
-	 * @param context A pointer to a struct cio_timer which shall be closed.
+	 * @param timer A pointer to a struct cio_timer which shall be closed.
 	 */
-	void (*close)(struct cio_timer *context);
+	void (*close)(struct cio_timer *timer);
 
 	/**
 	 * @privatesection
