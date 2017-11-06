@@ -368,7 +368,7 @@ enum cio_error cio_http_server_init(struct cio_http_server *server,
                                     cio_alloc_client alloc_client,
                                     cio_free_client free_client)
 {
-	if (unlikely((server == NULL) || (loop == NULL) || (alloc_client == NULL) || (free_client == NULL))) {
+	if (unlikely((server == NULL) || (loop == NULL) || (alloc_client == NULL) || (free_client == NULL) || (read_timeout == 0))) {
 		return cio_invalid_argument;
 	}
 
