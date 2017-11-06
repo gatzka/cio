@@ -41,6 +41,8 @@ static struct cio_eventloop loop;
 
 static const size_t read_buffer_size = 2000;
 
+static const uint64_t read_timeout = UINT64_C(5) * UINT64_C(1000) * UINT64_C(1000) * UINT64_C(1000);
+
 static const char data[] = "<html><body><h1>Hello, World!</h1></body></html>";
 
 struct dummy_handler {
@@ -128,7 +130,7 @@ int main()
 	}
 
 	struct cio_http_server server;
-	err = cio_http_server_init(&server, 8080, &loop, serve_error, alloc_http_client, free_http_client);
+	err = cio_http_server_init(&server, 8080, &loop, serve_error, read_timeout, alloc_http_client, free_http_client);
 	if (err != cio_success) {
 		ret = EXIT_FAILURE;
 		goto destroy_loop;
