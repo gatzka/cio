@@ -38,7 +38,7 @@
 #undef MIN
 #define MIN(X, Y) (((X) < (Y)) ? (X) : (Y))
 
-static void run_read(struct cio_buffered_stream *bs);
+static enum cio_bs_state run_read(struct cio_buffered_stream *bs);
 
 static void handle_read(struct cio_io_stream *stream, void *handler_context, enum cio_error err, struct cio_read_buffer *buffer)
 {
@@ -50,14 +50,13 @@ static void handle_read(struct cio_io_stream *stream, void *handler_context, enu
 	run_read(bs);
 }
 
-static void fill_buffer(struct cio_buffered_stream *bs)
+static enum cio_bs_state fill_buffer(struct cio_buffered_stream *bs)
 {
 	struct cio_read_buffer *rb = bs->read_buffer;
 	if (cio_read_buffer_space_available(rb) == 0) {
 		if (unlikely(rb->data == rb->fetch_ptr)) {
 			bs->last_error = cio_message_too_long;
-			bs->read_job(bs);
-			return;
+			return bs->read_job(bs);
 		}
 
 		size_t unread_bytes = cio_read_buffer_unread_bytes(rb);
@@ -67,6 +66,7 @@ static void fill_buffer(struct cio_buffered_stream *bs)
 	}
 
 	bs->stream->read_some(bs->stream, rb, handle_read, bs);
+	return cio_bs_open;
 }
 
 static enum cio_error bs_close(struct cio_buffered_stream *bs)
@@ -75,40 +75,31 @@ static enum cio_error bs_close(struct cio_buffered_stream *bs)
 		return cio_invalid_argument;
 	}
 
-	bs->shall_close = true;
-
 	if (!bs->read_is_running) {
-		if (bs->read_ref_count == 0) {
-			bs->stream->close(bs->stream);
-		}
+		bs->stream->close(bs->stream);
+	} else {
+		bs->shall_close = true;
 	}
 
 	return cio_success;
 }
 
-static void run_read(struct cio_buffered_stream *bs)
+static enum cio_bs_state run_read(struct cio_buffered_stream *bs)
 {
-	bs->read_ref_count++;
 	bs->read_is_running = true;
 	while (bs->read_job != NULL) {
-		enum cio_error err = bs->read_job(bs);
-		if (err == cio_again) {
-			fill_buffer(bs);
-			break;
-		}
-
-		if (bs->shall_close) {
-			break;
+		enum cio_bs_state err = bs->read_job(bs);
+		if (err == cio_bs_again) {
+			bs->read_is_running = false;
+			return fill_buffer(bs);
+		} else if (err == cio_bs_closed) {
+			return cio_bs_closed;
 		}
 	}
 
 	bs->read_is_running = false;
 
-	bs->read_ref_count--;
-
-	if (bs->shall_close) {
-		bs_close(bs);
-	}
+	return cio_bs_open;
 }
 
 static void start_read(struct cio_buffered_stream *bs)
@@ -118,14 +109,25 @@ static void start_read(struct cio_buffered_stream *bs)
 	}
 }
 
-static enum cio_error internal_read(struct cio_buffered_stream *bs)
+static enum cio_bs_state call_handler(struct cio_buffered_stream *bs, enum cio_error err, struct cio_read_buffer *rb)
+{
+	bs->read_handler(bs, bs->read_handler_context, err, rb);
+
+	if (bs->shall_close) {
+		bs->stream->close(bs->stream);
+		return cio_bs_closed;
+	} else {
+		return cio_bs_open;
+	}
+}
+
+static enum cio_bs_state internal_read(struct cio_buffered_stream *bs)
 {
 	struct cio_read_buffer *rb = bs->read_buffer;
 
 	if (unlikely(bs->last_error != cio_success)) {
 		bs->read_job = NULL;
-		bs->read_handler(bs, bs->read_handler_context, bs->last_error, rb);
-		return cio_success;
+		return call_handler(bs, bs->last_error, rb);
 	}
 
 	size_t available = cio_read_buffer_unread_bytes(rb);
@@ -133,12 +135,12 @@ static enum cio_error internal_read(struct cio_buffered_stream *bs)
 		rb->bytes_transferred = available;
 		rb->fetch_ptr += available;
 		bs->read_job = NULL;
-		bs->read_handler(bs, bs->read_handler_context, cio_success, rb);
+		return call_handler(bs, cio_success, rb);
 	} else {
-		return cio_again;
+		return cio_bs_again;
 	}
 
-	return cio_success;
+	return cio_bs_open;
 }
 
 static enum cio_error bs_read(struct cio_buffered_stream *bs, struct cio_read_buffer *buffer, cio_buffered_stream_read_handler handler, void *handler_context)
@@ -157,14 +159,13 @@ static enum cio_error bs_read(struct cio_buffered_stream *bs, struct cio_read_bu
 	return cio_success;
 }
 
-static enum cio_error internal_read_until(struct cio_buffered_stream *bs)
+static enum cio_bs_state internal_read_until(struct cio_buffered_stream *bs)
 {
 	struct cio_read_buffer *rb = bs->read_buffer;
 
 	if (unlikely(bs->last_error != cio_success)) {
 		bs->read_job = NULL;
-		bs->read_handler(bs, bs->read_handler_context, bs->last_error, rb);
-		return cio_success;
+		return call_handler(bs, bs->last_error, rb);
 	}
 
 	const uint8_t *haystack = rb->fetch_ptr;
@@ -176,10 +177,9 @@ static enum cio_error internal_read_until(struct cio_buffered_stream *bs)
 		rb->bytes_transferred = diff;
 		rb->fetch_ptr += diff;
 		bs->read_job = NULL;
-		bs->read_handler(bs, bs->read_handler_context, cio_success, rb);
-		return cio_success;
+		return call_handler(bs, cio_success, rb);
 	} else {
-		return cio_again;
+		return cio_bs_again;
 	}
 }
 
@@ -201,24 +201,22 @@ static enum cio_error bs_read_until(struct cio_buffered_stream *bs, struct cio_r
 	return cio_success;
 }
 
-static enum cio_error internal_read_exactly(struct cio_buffered_stream *bs)
+static enum cio_bs_state internal_read_exactly(struct cio_buffered_stream *bs)
 {
 	struct cio_read_buffer *rb = bs->read_buffer;
 
 	if (unlikely(bs->last_error != cio_success)) {
 		bs->read_job = NULL;
-		bs->read_handler(bs, bs->read_handler_context, bs->last_error, rb);
-		return cio_success;
+		return call_handler(bs, bs->last_error, rb);
 	}
 
 	if (bs->read_info.bytes_to_read <= cio_read_buffer_unread_bytes(rb)) {
 		rb->bytes_transferred = bs->read_info.bytes_to_read;
 		rb->fetch_ptr += bs->read_info.bytes_to_read;
 		bs->read_job = NULL;
-		bs->read_handler(bs, bs->read_handler_context, cio_success, rb);
-		return cio_success;
+		return call_handler(bs, cio_success, rb);
 	} else {
-		return cio_again;
+		return cio_bs_again;
 	}
 }
 
@@ -336,7 +334,6 @@ enum cio_error cio_buffered_stream_init(struct cio_buffered_stream *bs,
 	bs->write = bs_write;
 
 	bs->close = bs_close;
-	bs->read_ref_count = 0;
 
 	return cio_success;
 }
