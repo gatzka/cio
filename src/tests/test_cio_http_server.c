@@ -497,6 +497,30 @@ static void test_serve_timer_init_fails(void)
 	TEST_ASSERT_EQUAL_MESSAGE(1, client_socket_close_fake.call_count, "Client socket was not closed!");
 }
 
+static void test_serve_timer_init_fails_no_serve_error_cb(void)
+{
+	cio_server_socket_init_fake.custom_fake = cio_server_socket_init_ok;
+	socket_accept_fake.custom_fake = accept_save_handler;
+	cio_timer_init_fake.custom_fake = cio_timer_init_fails;
+
+	struct cio_http_server server;
+	enum cio_error err = cio_http_server_init(&server, 8080, &loop, NULL, read_timeout, alloc_dummy_client, free_dummy_client);
+	TEST_ASSERT_EQUAL_MESSAGE(cio_success, err, "Server initialization failed!");
+
+	err = server.serve(&server);
+	TEST_ASSERT_EQUAL_MESSAGE(cio_success, err, "Serving http failed!");
+
+	struct cio_socket *s = server.alloc_client();
+
+	const char request[] = HTTP_GET " " REQUEST_TARGET1 " " HTTP_11 CRLF CRLF;
+	memory_stream_init(&ms, request, s);
+
+	server.server_socket.handler(&server.server_socket, server.server_socket.handler_context, cio_success, s);
+	TEST_ASSERT_EQUAL_MESSAGE(0, serve_error_fake.call_count, "Serve error callback was called despite not given in initialization!");
+	TEST_ASSERT_EQUAL_MESSAGE(1, client_socket_close_fake.call_count, "Client socket was not closed!");
+}
+
+
 static void test_serve_init_fails(void)
 {
 	cio_server_socket_init_fake.custom_fake = cio_server_socket_init_fails;
@@ -852,6 +876,7 @@ int main(void)
 	RUN_TEST(test_register_request_target_no_target);
 	RUN_TEST(test_serve_correctly);
 	RUN_TEST(test_serve_timer_init_fails);
+	RUN_TEST(test_serve_timer_init_fails_no_serve_error_cb);
 	RUN_TEST(test_serve_init_fails);
 	RUN_TEST(test_serve_init_fails_reuse_address);
 	RUN_TEST(test_serve_init_fails_bind);
