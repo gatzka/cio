@@ -113,7 +113,9 @@ FAKE_VOID_FUNC(timer_close, struct cio_timer *)
 static void timer_expires_from_now(struct cio_timer *t, uint64_t timeout_ns, timer_handler handler, void *handler_context);
 FAKE_VOID_FUNC(timer_expires_from_now, struct cio_timer *, uint64_t, timer_handler, void *)
 
-enum cio_error cio_timer_init(struct cio_timer *timer, struct cio_eventloop *loop, cio_timer_close_hook hook)
+FAKE_VALUE_FUNC(enum cio_error, cio_timer_init, struct cio_timer *, struct cio_eventloop *, cio_timer_close_hook)
+
+static enum cio_error cio_timer_init_ok(struct cio_timer *timer, struct cio_eventloop *loop, cio_timer_close_hook hook)
 {
 	(void)loop;
 	timer->cancel = timer_cancel;
@@ -121,6 +123,14 @@ enum cio_error cio_timer_init(struct cio_timer *timer, struct cio_eventloop *loo
 	timer->close_hook = hook;
 	timer->expires_from_now = timer_expires_from_now;
 	return cio_success;
+}
+
+static enum cio_error cio_timer_init_fails(struct cio_timer *timer, struct cio_eventloop *loop, cio_timer_close_hook hook)
+{
+	(void)loop;
+	(void)timer;
+	(void)hook;
+	return cio_invalid_argument;
 }
 
 static enum cio_error cio_server_socket_init_ok(struct cio_server_socket *ss,
@@ -322,6 +332,8 @@ void setUp(void)
 
 	http_parser_settings_init(&parser_settings);
 	http_parser_init(&parser, HTTP_RESPONSE);
+
+	cio_timer_init_fake.custom_fake = cio_timer_init_ok;
 }
 
 static void test_server_init_correctly(void)
@@ -460,6 +472,29 @@ static void test_serve_correctly(void)
 	TEST_ASSERT_EQUAL_MESSAGE(1, header_complete_fake.call_count, "header_complete was not called!");
 	TEST_ASSERT_EQUAL_MESSAGE(1, client_socket_close_fake.call_count, "Client socket was not closed!");
 	TEST_ASSERT_EQUAL_MESSAGE(0, serve_error_fake.call_count, "Serve error callback was called!");
+}
+
+static void test_serve_timer_init_fails(void)
+{
+	cio_server_socket_init_fake.custom_fake = cio_server_socket_init_ok;
+	socket_accept_fake.custom_fake = accept_save_handler;
+	cio_timer_init_fake.custom_fake = cio_timer_init_fails;
+
+	struct cio_http_server server;
+	enum cio_error err = cio_http_server_init(&server, 8080, &loop, serve_error, read_timeout, alloc_dummy_client, free_dummy_client);
+	TEST_ASSERT_EQUAL_MESSAGE(cio_success, err, "Server initialization failed!");
+
+	err = server.serve(&server);
+	TEST_ASSERT_EQUAL_MESSAGE(cio_success, err, "Serving http failed!");
+
+	struct cio_socket *s = server.alloc_client();
+
+	const char request[] = HTTP_GET " " REQUEST_TARGET1 " " HTTP_11 CRLF CRLF;
+	memory_stream_init(&ms, request, s);
+
+	server.server_socket.handler(&server.server_socket, server.server_socket.handler_context, cio_success, s);
+	TEST_ASSERT_EQUAL_MESSAGE(1, serve_error_fake.call_count, "Serve error callback was not called despite timer initialization failed!");
+	TEST_ASSERT_EQUAL_MESSAGE(1, client_socket_close_fake.call_count, "Client socket was not closed!");
 }
 
 static void test_serve_init_fails(void)
@@ -816,6 +851,7 @@ int main(void)
 	RUN_TEST(test_register_request_target_no_server);
 	RUN_TEST(test_register_request_target_no_target);
 	RUN_TEST(test_serve_correctly);
+	RUN_TEST(test_serve_timer_init_fails);
 	RUN_TEST(test_serve_init_fails);
 	RUN_TEST(test_serve_init_fails_reuse_address);
 	RUN_TEST(test_serve_init_fails_bind);

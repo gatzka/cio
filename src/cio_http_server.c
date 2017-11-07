@@ -288,18 +288,8 @@ static void handle_accept(struct cio_server_socket *ss, void *handler_context, e
 
 	struct cio_http_client *client = container_of(socket, struct cio_http_client, socket);
 
-	err = cio_timer_init(&client->read_timer, server->loop, NULL);
-	if (unlikely(err != cio_success)) {
-		if (server->error_cb != NULL) {
-			server->error_cb(server);
-		}
-
-		return;
-	}
 
 	client->server = server;
-
-	struct cio_io_stream *stream = socket->get_io_stream(socket);
 
 	client->headers_complete = false;
 	client->content_length = 0;
@@ -314,7 +304,19 @@ static void handle_accept(struct cio_server_socket *ss, void *handler_context, e
 	http_parser_init(&client->parser, HTTP_REQUEST);
 
 	cio_read_buffer_init(&client->rb, client->buffer, client->buffer_size);
-	cio_buffered_stream_init(&client->bs, stream);
+	cio_buffered_stream_init(&client->bs, socket->get_io_stream(socket));
+
+	err = cio_timer_init(&client->read_timer, server->loop, NULL);
+	if (unlikely(err != cio_success)) {
+		if (server->error_cb != NULL) {
+			server->error_cb(server);
+		}
+
+		client->bs.close(&client->bs);
+//		ss->free_client(socket);
+		return;
+	}
+
 	client->read_timer.expires_from_now(&client->read_timer, server->read_timeout, client_timeout_handler, client);
 	client->bs.read_until(&client->bs, &client->rb, CRLF, handle_request_line, client);
 }
