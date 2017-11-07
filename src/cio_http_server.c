@@ -313,7 +313,6 @@ static void handle_accept(struct cio_server_socket *ss, void *handler_context, e
 		}
 
 		client->bs.close(&client->bs);
-//		ss->free_client(socket);
 		return;
 	}
 
