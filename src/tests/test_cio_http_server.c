@@ -33,6 +33,7 @@
 #include "cio_error_code.h"
 #include "cio_http_server.h"
 #include "cio_server_socket.h"
+#include "cio_timer.h"
 #include "cio_write_buffer.h"
 
 #include "http-parser/http_parser.h"
@@ -102,7 +103,25 @@ enum cio_error cio_server_socket_init(struct cio_server_socket *ss,
 
 FAKE_VALUE_FUNC(enum cio_error, cio_server_socket_init, struct cio_server_socket *, struct cio_eventloop *, unsigned int, cio_alloc_client, cio_free_client, cio_server_socket_close_hook)
 
-FAKE_VALUE_FUNC(enum cio_error, cio_timer_init, struct cio_timer *, struct cio_eventloop *, cio_timer_close_hook)
+
+static enum cio_error timer_cancel(struct cio_timer *t);
+FAKE_VALUE_FUNC(enum cio_error, timer_cancel, struct cio_timer *)
+
+static void timer_close(struct cio_timer *t);
+FAKE_VOID_FUNC(timer_close, struct cio_timer *)
+
+static void timer_expires_from_now(struct cio_timer *t, uint64_t timeout_ns, timer_handler handler, void *handler_context);
+FAKE_VOID_FUNC(timer_expires_from_now, struct cio_timer *, uint64_t, timer_handler, void *)
+
+enum cio_error cio_timer_init(struct cio_timer *timer, struct cio_eventloop *loop, cio_timer_close_hook hook)
+{
+	(void)loop;
+	timer->cancel = timer_cancel;
+	timer->close = timer_close;
+	timer->close_hook = hook;
+	timer->expires_from_now = timer_expires_from_now;
+	return cio_success;
+}
 
 static enum cio_error cio_server_socket_init_ok(struct cio_server_socket *ss,
 									  struct cio_eventloop *loop,
@@ -300,7 +319,6 @@ void setUp(void)
 	RESET_FAKE(header_complete);
 	RESET_FAKE(on_url);
 	RESET_FAKE(client_socket_close);
-	RESET_FAKE(cio_timer_init);
 
 	http_parser_settings_init(&parser_settings);
 	http_parser_init(&parser, HTTP_RESPONSE);
