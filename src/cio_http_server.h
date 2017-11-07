@@ -35,6 +35,7 @@
 #include "cio_eventloop.h"
 #include "cio_read_buffer.h"
 #include "cio_server_socket.h"
+#include "cio_timer.h"
 #include "cio_write_buffer.h"
 #include "http-parser/http_parser.h"
 
@@ -113,6 +114,7 @@ struct cio_http_client {
 	 */
 	struct cio_http_server *server;
 	struct cio_socket socket;
+	struct cio_timer read_timer;
 
 	bool headers_complete;
 	bool to_be_closed;
@@ -167,6 +169,7 @@ struct cio_http_server {
 	/**
 	 * @privatesection
 	 */
+	uint64_t read_timeout;
 	cio_http_serve_error_cb error_cb;
 	struct cio_server_socket server_socket;
 	struct cio_http_uri_server_location *first_handler;
@@ -177,6 +180,7 @@ enum cio_error cio_http_server_init(struct cio_http_server *server,
                                     uint16_t port,
                                     struct cio_eventloop *loop,
                                     cio_http_serve_error_cb error_cb,
+                                    uint64_t read_timeout,
                                     cio_alloc_client alloc_client,
                                     cio_free_client free_client);
 
