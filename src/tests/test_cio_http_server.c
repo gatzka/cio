@@ -358,6 +358,13 @@ static void test_server_init_no_free(void)
 	TEST_ASSERT_EQUAL_MESSAGE(cio_invalid_argument, err, "Initialization did not fail!");
 }
 
+static void test_server_init_no_timeout(void)
+{
+	struct cio_http_server server;
+	enum cio_error err = cio_http_server_init(&server, 8080, &loop, serve_error, 0, alloc_dummy_client, free_dummy_client);
+	TEST_ASSERT_EQUAL_MESSAGE(cio_invalid_argument, err, "Initialization with 0 timeout did not fail!");
+}
+
 static void test_request_target_init_correctly(void)
 {
 	struct cio_http_uri_server_location target;
@@ -800,6 +807,7 @@ int main(void)
 	RUN_TEST(test_server_init_no_loop);
 	RUN_TEST(test_server_init_no_alloc);
 	RUN_TEST(test_server_init_no_free);
+	RUN_TEST(test_server_init_no_timeout);
 	RUN_TEST(test_request_target_init_correctly);
 	RUN_TEST(test_request_target_init_no_alloc_handler);
 	RUN_TEST(test_request_target_init_no_request_target);
