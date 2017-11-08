@@ -335,6 +335,15 @@ static enum cio_error read_some_error(struct cio_io_stream *ios, struct cio_read
 	return cio_success;
 }
 
+static enum cio_error read_blocks(struct cio_io_stream *ios, struct cio_read_buffer *buffer, cio_io_stream_read_handler handler, void *context)
+{
+	(void)ios;
+	(void)buffer;
+	(void)handler;
+	(void)context;
+	return cio_success;
+}
+
 static enum cio_error mem_close(struct cio_io_stream *io_stream)
 {
 	(void)io_stream;
@@ -399,6 +408,8 @@ void setUp(void)
 	RESET_FAKE(client_socket_close);
 	RESET_FAKE(on_header_field);
 	RESET_FAKE(on_header_value);
+	RESET_FAKE(timer_expires_from_now);
+	RESET_FAKE(timer_cancel);
 
 	http_parser_settings_init(&parser_settings);
 	http_parser_init(&parser, HTTP_RESPONSE);
@@ -510,6 +521,43 @@ static void test_register_request_target_no_target(void)
 
 	err = server.register_location(&server, NULL);
 	TEST_ASSERT_EQUAL_MESSAGE(cio_invalid_argument, err, "Register request target did not fail!");
+}
+
+static void test_serve_timeout(void)
+{
+	cio_server_socket_init_fake.custom_fake = cio_server_socket_init_ok;
+	socket_accept_fake.custom_fake = accept_save_handler;
+
+	header_complete_fake.custom_fake = header_complete_write_response;
+
+	struct cio_http_server server;
+	enum cio_error err = cio_http_server_init(&server, 8080, &loop, serve_error, read_timeout, alloc_dummy_client, free_dummy_client);
+	TEST_ASSERT_EQUAL_MESSAGE(cio_success, err, "Server initialization failed!");
+
+	struct cio_http_uri_server_location target;
+	err = cio_http_server_location_init(&target, REQUEST_TARGET1, NULL, alloc_dummy_handler);
+	TEST_ASSERT_EQUAL_MESSAGE(cio_success, err, "Request target initialization failed!");
+
+	err = server.register_location(&server, &target);
+	TEST_ASSERT_EQUAL_MESSAGE(cio_success, err, "Register request target failed!");
+
+	err = server.serve(&server);
+	TEST_ASSERT_EQUAL_MESSAGE(cio_success, err, "Serving http failed!");
+
+	struct cio_socket *s = server.alloc_client();
+
+	const char request[] = HTTP_GET " " REQUEST_TARGET1 " " HTTP_11 CRLF CRLF;
+	memory_stream_init(&ms, request, s);
+	ms.ios.read_some = read_blocks;
+
+	server.server_socket.handler(&server.server_socket, server.server_socket.handler_context, cio_success, s);
+	struct cio_timer *timer = timer_expires_from_now_fake.arg0_val;
+	timer_handler handler = timer_expires_from_now_fake.arg2_val;
+	void *context = timer_expires_from_now_fake.arg3_val;
+	handler(timer, context, cio_success);
+	TEST_ASSERT_EQUAL_MESSAGE(0, header_complete_fake.call_count, "header_complete was not called!");
+	TEST_ASSERT_EQUAL_MESSAGE(1, client_socket_close_fake.call_count, "Client socket was not closed!");
+	TEST_ASSERT_EQUAL_MESSAGE(0, serve_error_fake.call_count, "Serve error callback was called!");
 }
 
 static void test_serve_correctly(void)
@@ -1135,6 +1183,7 @@ int main(void)
 	RUN_TEST(test_request_target_init_no_alloc_handler);
 	RUN_TEST(test_request_target_init_no_request_target);
 	RUN_TEST(test_request_target_init_no_target);
+	RUN_TEST(test_serve_timeout);
 	RUN_TEST(test_register_request_target_correctly);
 	RUN_TEST(test_register_request_target_no_server);
 	RUN_TEST(test_register_request_target_no_target);
