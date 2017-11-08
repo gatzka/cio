@@ -179,37 +179,37 @@ static int on_url(http_parser *parser, const char *at, size_t length)
 	int ret = http_parser_parse_url(at, length, is_connect, &u);
 	if ((unlikely(ret != 0)) || !((u.field_set & (1 << UF_PATH)) == (1 << UF_PATH))) {
 		return -1;
-	} else {
-		const struct cio_http_uri_server_location *target = find_handler(client->server, at + u.field_data[UF_PATH].off, u.field_data[UF_PATH].len);
-		if (unlikely(target == NULL)) {
-			client->write_header(client, cio_http_status_not_found);
-			return 0;
-		} else {
-			struct cio_http_request_handler *handler = target->alloc_handler(target->config);
-			if (unlikely(handler == NULL)) {
-				client->write_header(client, cio_http_status_internal_server_error);
-				return 0;
-			}
-
-			client->handler = handler;
-
-			client->parser_settings.on_headers_complete = on_headers_complete;
-
-			if (handler->on_header_field != NULL) {
-				client->parser_settings.on_header_field = on_header_field;
-			}
-
-			if (handler->on_header_value != NULL) {
-				client->parser_settings.on_header_value = on_header_value;
-			}
-
-			if (handler->on_url != NULL) {
-				return handler->on_url(client, at, length);
-			}
-
-			return 0;
-		}
 	}
+
+	const struct cio_http_uri_server_location *target = find_handler(client->server, at + u.field_data[UF_PATH].off, u.field_data[UF_PATH].len);
+	if (unlikely(target == NULL)) {
+		client->write_header(client, cio_http_status_not_found);
+		return 0;
+	}
+
+	struct cio_http_request_handler *handler = target->alloc_handler(target->config);
+	if (unlikely(handler == NULL)) {
+		client->write_header(client, cio_http_status_internal_server_error);
+		return 0;
+	}
+
+	client->handler = handler;
+
+	client->parser_settings.on_headers_complete = on_headers_complete;
+
+	if (handler->on_header_field != NULL) {
+		client->parser_settings.on_header_field = on_header_field;
+	}
+
+	if (handler->on_header_value != NULL) {
+		client->parser_settings.on_header_value = on_header_value;
+	}
+
+	if (handler->on_url != NULL) {
+		return handler->on_url(client, at, length);
+	}
+
+	return 0;
 }
 
 static void handle_line(struct cio_buffered_stream *stream, void *handler_context, enum cio_error err, struct cio_read_buffer *read_buffer)
