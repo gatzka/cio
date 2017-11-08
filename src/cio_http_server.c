@@ -38,8 +38,8 @@
 #include "cio_timer.h"
 #include "cio_util.h"
 
-#undef CRLF
-#define CRLF "\r\n"
+#undef CIO_CRLF
+#define CIO_CRLF "\r\n"
 
 #undef CIO_HTTP_VERSION
 #define CIO_HTTP_VERSION "HTTP/1.0"
@@ -83,15 +83,15 @@ static const char *get_response(enum cio_http_status_code status_code)
 {
 	switch (status_code) {
 	case cio_http_status_ok:
-		return CIO_HTTP_VERSION " 200 OK" CRLF CRLF;
+		return CIO_HTTP_VERSION " 200 OK" CIO_CRLF CIO_CRLF;
 	case cio_http_status_bad_request:
-		return CIO_HTTP_VERSION " 400 Bad Request" CRLF CRLF;
+		return CIO_HTTP_VERSION " 400 Bad Request" CIO_CRLF CIO_CRLF;
 	case cio_http_status_not_found:
-		return CIO_HTTP_VERSION " 404 Not Found" CRLF CRLF;
+		return CIO_HTTP_VERSION " 404 Not Found" CIO_CRLF CIO_CRLF;
 
 	case cio_http_status_internal_server_error:
 	default:
-		return CIO_HTTP_VERSION " 500 Internal Server Error" CRLF CRLF;
+		return CIO_HTTP_VERSION " 500 Internal Server Error" CIO_CRLF CIO_CRLF;
 	}
 }
 
@@ -239,7 +239,7 @@ static void handle_line(struct cio_buffered_stream *stream, void *handler_contex
 	}
 
 	if (!client->headers_complete) {
-		stream->read_until(stream, &client->rb, CRLF, handle_line, client);
+		stream->read_until(stream, &client->rb, CIO_CRLF, handle_line, client);
 	}
 }
 
@@ -270,7 +270,7 @@ static void handle_request_line(struct cio_buffered_stream *stream, void *handle
 		return;
 	}
 
-	stream->read_until(stream, &client->rb, CRLF, handle_line, client);
+	stream->read_until(stream, &client->rb, CIO_CRLF, handle_line, client);
 }
 
 static void handle_accept(struct cio_server_socket *ss, void *handler_context, enum cio_error err, struct cio_socket *socket)
@@ -318,7 +318,7 @@ static void handle_accept(struct cio_server_socket *ss, void *handler_context, e
 	}
 
 	client->read_timer.expires_from_now(&client->read_timer, server->read_timeout, client_timeout_handler, client);
-	client->bs.read_until(&client->bs, &client->rb, CRLF, handle_request_line, client);
+	client->bs.read_until(&client->bs, &client->rb, CIO_CRLF, handle_request_line, client);
 }
 
 static enum cio_error serve(struct cio_http_server *server)
