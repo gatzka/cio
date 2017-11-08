@@ -214,7 +214,6 @@ static int on_url(http_parser *parser, const char *at, size_t length)
 
 static void handle_line(struct cio_buffered_stream *stream, void *handler_context, enum cio_error err, struct cio_read_buffer *read_buffer)
 {
-	(void)stream;
 	struct cio_http_client *client = (struct cio_http_client *)handler_context;
 
 	if (unlikely(err != cio_success)) {
@@ -237,13 +236,12 @@ static void handle_line(struct cio_buffered_stream *stream, void *handler_contex
 	}
 
 	if (!client->headers_complete) {
-		client->bs.read_until(&client->bs, &client->rb, CRLF, handle_line, client);
+		stream->read_until(stream, &client->rb, CRLF, handle_line, client);
 	}
 }
 
 static void handle_request_line(struct cio_buffered_stream *stream, void *handler_context, enum cio_error err, struct cio_read_buffer *read_buffer)
 {
-	(void)stream;
 	struct cio_http_client *client = (struct cio_http_client *)handler_context;
 
 	if (unlikely(err != cio_success)) {
@@ -269,7 +267,7 @@ static void handle_request_line(struct cio_buffered_stream *stream, void *handle
 		return;
 	}
 
-	client->bs.read_until(&client->bs, &client->rb, CRLF, handle_line, client);
+	stream->read_until(stream, &client->rb, CRLF, handle_line, client);
 }
 
 static void handle_accept(struct cio_server_socket *ss, void *handler_context, enum cio_error err, struct cio_socket *socket)
