@@ -233,6 +233,17 @@ static enum cio_http_cb_return header_complete_close(struct cio_http_client *c)
 	return cio_http_cb_success;
 }
 
+static enum cio_http_cb_return header_complete_write_response(struct cio_http_client *c)
+{
+	static const char *data = "Hello World!";
+	struct cio_http_request_handler *handler = c->handler;
+	struct dummy_handler *dh = container_of(handler, struct dummy_handler, handler);
+	cio_write_buffer_init(&dh->wb, data, sizeof(data));
+	cio_write_buffer_queue_tail(&dh->wbh, &dh->wb);
+	c->write_response(c, &dh->wbh);
+	return cio_http_cb_success;
+}
+
 static enum cio_http_cb_return header_complete_no_close(struct cio_http_client *c)
 {
 	(void)c;
@@ -482,7 +493,7 @@ static void test_serve_correctly(void)
 	cio_server_socket_init_fake.custom_fake = cio_server_socket_init_ok;
 	socket_accept_fake.custom_fake = accept_save_handler;
 
-	header_complete_fake.custom_fake = header_complete_close;
+	header_complete_fake.custom_fake = header_complete_write_response;
 
 	struct cio_http_server server;
 	enum cio_error err = cio_http_server_init(&server, 8080, &loop, serve_error, read_timeout, alloc_dummy_client, free_dummy_client);
@@ -507,6 +518,8 @@ static void test_serve_correctly(void)
 	TEST_ASSERT_EQUAL_MESSAGE(1, header_complete_fake.call_count, "header_complete was not called!");
 	TEST_ASSERT_EQUAL_MESSAGE(1, client_socket_close_fake.call_count, "Client socket was not closed!");
 	TEST_ASSERT_EQUAL_MESSAGE(0, serve_error_fake.call_count, "Serve error callback was called!");
+
+	check_http_response(&ms, 200);
 }
 
 static void test_serve_alloc_handler_fails(void)
