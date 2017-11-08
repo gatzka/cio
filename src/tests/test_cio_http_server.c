@@ -49,6 +49,7 @@
 #define HTTP_CONNECT "CONNECT"
 #define REQUEST_TARGET_CONNECT "www.google.de:80"
 #define REQUEST_TARGET1 "/foo"
+#define REQUEST_TARGET1_LONGER "/foobar"
 #define REQUEST_TARGET2 "/bar"
 #define ILLEGAL_REQUEST_TARGET "http://ww%.google.de/"
 #define HTTP_11 "HTTP/1.1"
@@ -520,6 +521,40 @@ static void test_serve_correctly(void)
 	TEST_ASSERT_EQUAL_MESSAGE(0, serve_error_fake.call_count, "Serve error callback was called!");
 
 	check_http_response(&ms, 200);
+}
+
+static void test_serve_correctly_request_location_short(void)
+{
+	cio_server_socket_init_fake.custom_fake = cio_server_socket_init_ok;
+	socket_accept_fake.custom_fake = accept_save_handler;
+
+	header_complete_fake.custom_fake = header_complete_write_response;
+
+	struct cio_http_server server;
+	enum cio_error err = cio_http_server_init(&server, 8080, &loop, serve_error, read_timeout, alloc_dummy_client, free_dummy_client);
+	TEST_ASSERT_EQUAL_MESSAGE(cio_success, err, "Server initialization failed!");
+
+	struct cio_http_uri_server_location target;
+	err = cio_http_server_location_init(&target, REQUEST_TARGET1_LONGER, NULL, alloc_dummy_handler);
+	TEST_ASSERT_EQUAL_MESSAGE(cio_success, err, "Request target initialization failed!");
+
+	err = server.register_location(&server, &target);
+	TEST_ASSERT_EQUAL_MESSAGE(cio_success, err, "Register request target failed!");
+
+	err = server.serve(&server);
+	TEST_ASSERT_EQUAL_MESSAGE(cio_success, err, "Serving http failed!");
+
+	struct cio_socket *s = server.alloc_client();
+
+	const char request[] = HTTP_GET " " REQUEST_TARGET1 " " HTTP_11 CRLF CRLF;
+	memory_stream_init(&ms, request, s);
+
+	server.server_socket.handler(&server.server_socket, server.server_socket.handler_context, cio_success, s);
+	TEST_ASSERT_EQUAL_MESSAGE(0, header_complete_fake.call_count, "header_complete was not called!");
+	TEST_ASSERT_EQUAL_MESSAGE(1, client_socket_close_fake.call_count, "Client socket was not closed!");
+	TEST_ASSERT_EQUAL_MESSAGE(0, serve_error_fake.call_count, "Serve error callback was called!");
+
+	check_http_response(&ms, 404);
 }
 
 static void test_serve_alloc_handler_fails(void)
@@ -1047,6 +1082,7 @@ int main(void)
 	RUN_TEST(test_register_request_target_no_server);
 	RUN_TEST(test_register_request_target_no_target);
 	RUN_TEST(test_serve_correctly);
+	RUN_TEST(test_serve_correctly_request_location_short);
 	RUN_TEST(test_serve_alloc_handler_fails);
 	RUN_TEST(test_serve_correctly_with_header_fields);
 	RUN_TEST(test_serve_with_wrong_header_fields);
