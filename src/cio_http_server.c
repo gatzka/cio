@@ -41,6 +41,9 @@
 #undef CRLF
 #define CRLF "\r\n"
 
+#undef CIO_HTTP_VERSION
+#define CIO_HTTP_VERSION "HTTP/1.0"
+
 static void close_client(struct cio_http_client *client)
 {
 	if (likely(client->handler != NULL)) {
@@ -80,15 +83,15 @@ static const char *get_response(enum cio_http_status_code status_code)
 {
 	switch (status_code) {
 	case cio_http_status_ok:
-		return "HTTP/1.0 200 OK" CRLF CRLF;
+		return CIO_HTTP_VERSION " 200 OK" CRLF CRLF;
 	case cio_http_status_bad_request:
-		return "HTTP/1.0 400 Bad Request" CRLF CRLF;
+		return CIO_HTTP_VERSION " 400 Bad Request" CRLF CRLF;
 	case cio_http_status_not_found:
-		return "HTTP/1.0 404 Not Found" CRLF CRLF;
+		return CIO_HTTP_VERSION " 404 Not Found" CRLF CRLF;
 
 	case cio_http_status_internal_server_error:
 	default:
-		return "HTTP/1.0 500 Internal Server Error" CRLF CRLF;
+		return CIO_HTTP_VERSION " 500 Internal Server Error" CRLF CRLF;
 	}
 }
 
