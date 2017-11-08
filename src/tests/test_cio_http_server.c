@@ -130,6 +130,19 @@ static void close_client(struct cio_http_client *client)
 	client->bs.close(&client->bs);
 }
 
+static enum cio_error cancel_timer(struct cio_timer *t)
+{
+	t->handler(t, t->handler_context, cio_operation_aborted);
+	return cio_success;
+}
+
+static void expires(struct cio_timer *t, uint64_t timeout_ns, timer_handler handler, void *handler_context)
+{
+	(void)timeout_ns;
+	t->handler = handler;
+	t->handler_context = handler_context;
+}
+
 static enum cio_error cio_timer_init_ok(struct cio_timer *timer, struct cio_eventloop *loop, cio_timer_close_hook hook)
 {
 	(void)loop;
@@ -415,6 +428,8 @@ void setUp(void)
 	http_parser_init(&parser, HTTP_RESPONSE);
 
 	cio_timer_init_fake.custom_fake = cio_timer_init_ok;
+	timer_cancel_fake.custom_fake = cancel_timer;
+	timer_expires_from_now_fake.custom_fake = expires;
 }
 
 static void test_server_init_correctly(void)
