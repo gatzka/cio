@@ -53,6 +53,10 @@
 #define ILLEGAL_REQUEST_TARGET "http://ww%.google.de/"
 #define HTTP_11 "HTTP/1.1"
 #define WRONG_HTTP_11 "HTTP}1.1"
+#define KEEP_ALIVE_FIELD "Connection"
+#define KEEP_ALIVE_VALUE "keep-alive"
+#define DNT_FIELD "DNT"
+#define DNT_VALUE "1"
 #define CRLF "\r\n"
 
 static const uint64_t read_timeout = UINT64_C(5) * UINT64_C(1000) * UINT64_C(1000) * UINT64_C(1000);
@@ -115,6 +119,16 @@ FAKE_VOID_FUNC(timer_expires_from_now, struct cio_timer *, uint64_t, timer_handl
 
 FAKE_VALUE_FUNC(enum cio_error, cio_timer_init, struct cio_timer *, struct cio_eventloop *, cio_timer_close_hook)
 
+static void close_client(struct cio_http_client *client)
+{
+	if (likely(client->handler != NULL)) {
+		client->handler->free(client->handler);
+	}
+
+	client->read_timer.close(&client->read_timer);
+	client->bs.close(&client->bs);
+}
+
 static enum cio_error cio_timer_init_ok(struct cio_timer *timer, struct cio_eventloop *loop, cio_timer_close_hook hook)
 {
 	(void)loop;
@@ -176,6 +190,13 @@ static enum cio_http_cb_return header_complete(struct cio_http_client *c);
 FAKE_VALUE_FUNC(enum cio_http_cb_return, header_complete, struct cio_http_client *)
 
 
+static enum cio_http_cb_return on_header_field(struct cio_http_client *, const char *, size_t);
+FAKE_VALUE_FUNC(enum cio_http_cb_return, on_header_field, struct cio_http_client *, const char *, size_t)
+
+static enum cio_http_cb_return on_header_value(struct cio_http_client *c, const char *, size_t);
+FAKE_VALUE_FUNC(enum cio_http_cb_return, on_header_value, struct cio_http_client *, const char *, size_t)
+
+
 static enum cio_http_cb_return on_url(struct cio_http_client *c, const char *at, size_t length);
 FAKE_VALUE_FUNC(enum cio_http_cb_return, on_url, struct cio_http_client *, const char *, size_t)
 
@@ -212,6 +233,12 @@ static enum cio_http_cb_return header_complete_close(struct cio_http_client *c)
 	return cio_http_cb_success;
 }
 
+static enum cio_http_cb_return header_complete_no_close(struct cio_http_client *c)
+{
+	(void)c;
+	return cio_http_cb_success;
+}
+
 static enum cio_http_cb_return on_url_close(struct cio_http_client *c, const char *at, size_t length)
 {
 	(void)at;
@@ -229,8 +256,8 @@ static struct cio_http_request_handler *alloc_dummy_handler(const void *config)
 	} else {
 		cio_write_buffer_head_init(&handler->wbh);
 		handler->handler.free = free_dummy_handler;
-		handler->handler.on_header_field = NULL;
-		handler->handler.on_header_value = NULL;
+		handler->handler.on_header_field = on_header_field;
+		handler->handler.on_header_value = on_header_value;
 		handler->handler.on_url = on_url;
 		handler->handler.on_headers_complete = header_complete;
 		return &handler->handler;
@@ -470,6 +497,51 @@ static void test_serve_correctly(void)
 
 	server.server_socket.handler(&server.server_socket, server.server_socket.handler_context, cio_success, s);
 	TEST_ASSERT_EQUAL_MESSAGE(1, header_complete_fake.call_count, "header_complete was not called!");
+	TEST_ASSERT_EQUAL_MESSAGE(1, client_socket_close_fake.call_count, "Client socket was not closed!");
+	TEST_ASSERT_EQUAL_MESSAGE(0, serve_error_fake.call_count, "Serve error callback was called!");
+}
+
+static void test_serve_correctly_with_header_fields(void)
+{
+	cio_server_socket_init_fake.custom_fake = cio_server_socket_init_ok;
+	socket_accept_fake.custom_fake = accept_save_handler;
+
+	header_complete_fake.custom_fake = header_complete_no_close;
+
+	struct cio_http_server server;
+	enum cio_error err = cio_http_server_init(&server, 8080, &loop, serve_error, read_timeout, alloc_dummy_client, free_dummy_client);
+	TEST_ASSERT_EQUAL_MESSAGE(cio_success, err, "Server initialization failed!");
+
+	struct cio_http_uri_server_location target;
+	err = cio_http_server_location_init(&target, REQUEST_TARGET1, NULL, alloc_dummy_handler);
+	TEST_ASSERT_EQUAL_MESSAGE(cio_success, err, "Request target initialization failed!");
+
+	err = server.register_location(&server, &target);
+	TEST_ASSERT_EQUAL_MESSAGE(cio_success, err, "Register request target failed!");
+
+	err = server.serve(&server);
+	TEST_ASSERT_EQUAL_MESSAGE(cio_success, err, "Serving http failed!");
+
+	struct cio_socket *s = server.alloc_client();
+
+	const char request[] =
+		HTTP_GET " " REQUEST_TARGET1 " " HTTP_11 CRLF
+		KEEP_ALIVE_FIELD ": " KEEP_ALIVE_VALUE CRLF
+		DNT_FIELD ": " DNT_VALUE CRLF
+		CRLF;
+	memory_stream_init(&ms, request, s);
+
+	server.server_socket.handler(&server.server_socket, server.server_socket.handler_context, cio_success, s);
+	TEST_ASSERT_EQUAL_MESSAGE(1, header_complete_fake.call_count, "header_complete was not called!");
+	TEST_ASSERT_EQUAL_MESSAGE(2, on_header_field_fake.call_count, "on_header_field was not called twice!");
+	TEST_ASSERT_MESSAGE(memcmp(on_header_field_fake.arg1_history[0], KEEP_ALIVE_FIELD, strlen(KEEP_ALIVE_FIELD)) == 0, "Header field is not correct!");
+	TEST_ASSERT_MESSAGE(memcmp(on_header_value_fake.arg1_history[0], KEEP_ALIVE_VALUE, strlen(KEEP_ALIVE_VALUE)) == 0, "Header value is not correct!");
+	TEST_ASSERT_MESSAGE(memcmp(on_header_field_fake.arg1_history[1], DNT_FIELD, strlen(DNT_FIELD)) == 0, "Header field is not correct!");
+	TEST_ASSERT_MESSAGE(memcmp(on_header_value_fake.arg1_history[1], DNT_VALUE, strlen(DNT_VALUE)) == 0, "Header value is not correct!");
+
+	struct cio_http_client *client = container_of(s, struct cio_http_client, socket);
+	close_client(client);
+	TEST_ASSERT_EQUAL_MESSAGE(2, on_header_value_fake.call_count, "on_header_value was not called twice!");
 	TEST_ASSERT_EQUAL_MESSAGE(1, client_socket_close_fake.call_count, "Client socket was not closed!");
 	TEST_ASSERT_EQUAL_MESSAGE(0, serve_error_fake.call_count, "Serve error callback was called!");
 }
@@ -875,6 +947,7 @@ int main(void)
 	RUN_TEST(test_register_request_target_no_server);
 	RUN_TEST(test_register_request_target_no_target);
 	RUN_TEST(test_serve_correctly);
+	RUN_TEST(test_serve_correctly_with_header_fields);
 	RUN_TEST(test_serve_timer_init_fails);
 	RUN_TEST(test_serve_timer_init_fails_no_serve_error_cb);
 	RUN_TEST(test_serve_init_fails);
