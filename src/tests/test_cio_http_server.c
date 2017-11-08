@@ -356,6 +356,8 @@ void setUp(void)
 	RESET_FAKE(header_complete);
 	RESET_FAKE(on_url);
 	RESET_FAKE(client_socket_close);
+	RESET_FAKE(on_header_field);
+	RESET_FAKE(on_header_value);
 
 	http_parser_settings_init(&parser_settings);
 	http_parser_init(&parser, HTTP_RESPONSE);
@@ -534,6 +536,7 @@ static void test_serve_correctly_with_header_fields(void)
 	server.server_socket.handler(&server.server_socket, server.server_socket.handler_context, cio_success, s);
 	TEST_ASSERT_EQUAL_MESSAGE(1, header_complete_fake.call_count, "header_complete was not called!");
 	TEST_ASSERT_EQUAL_MESSAGE(2, on_header_field_fake.call_count, "on_header_field was not called twice!");
+	TEST_ASSERT_EQUAL_MESSAGE(2, on_header_value_fake.call_count, "on_header_value was not called twice!");
 	TEST_ASSERT_MESSAGE(memcmp(on_header_field_fake.arg1_history[0], KEEP_ALIVE_FIELD, strlen(KEEP_ALIVE_FIELD)) == 0, "Header field is not correct!");
 	TEST_ASSERT_MESSAGE(memcmp(on_header_value_fake.arg1_history[0], KEEP_ALIVE_VALUE, strlen(KEEP_ALIVE_VALUE)) == 0, "Header value is not correct!");
 	TEST_ASSERT_MESSAGE(memcmp(on_header_field_fake.arg1_history[1], DNT_FIELD, strlen(DNT_FIELD)) == 0, "Header field is not correct!");
@@ -541,7 +544,51 @@ static void test_serve_correctly_with_header_fields(void)
 
 	struct cio_http_client *client = container_of(s, struct cio_http_client, socket);
 	close_client(client);
-	TEST_ASSERT_EQUAL_MESSAGE(2, on_header_value_fake.call_count, "on_header_value was not called twice!");
+	TEST_ASSERT_EQUAL_MESSAGE(1, client_socket_close_fake.call_count, "Client socket was not closed!");
+	TEST_ASSERT_EQUAL_MESSAGE(0, serve_error_fake.call_count, "Serve error callback was called!");
+}
+
+static void test_serve_correctly_with_wrong_header_fields(void)
+{
+	cio_server_socket_init_fake.custom_fake = cio_server_socket_init_ok;
+	socket_accept_fake.custom_fake = accept_save_handler;
+
+	header_complete_fake.custom_fake = header_complete_no_close;
+
+	struct cio_http_server server;
+	enum cio_error err = cio_http_server_init(&server, 8080, &loop, serve_error, read_timeout, alloc_dummy_client, free_dummy_client);
+	TEST_ASSERT_EQUAL_MESSAGE(cio_success, err, "Server initialization failed!");
+
+	struct cio_http_uri_server_location target;
+	err = cio_http_server_location_init(&target, REQUEST_TARGET1, NULL, alloc_dummy_handler);
+	TEST_ASSERT_EQUAL_MESSAGE(cio_success, err, "Request target initialization failed!");
+
+	err = server.register_location(&server, &target);
+	TEST_ASSERT_EQUAL_MESSAGE(cio_success, err, "Register request target failed!");
+
+	err = server.serve(&server);
+	TEST_ASSERT_EQUAL_MESSAGE(cio_success, err, "Serving http failed!");
+
+	struct cio_socket *s = server.alloc_client();
+
+	const char request[] =
+		HTTP_GET " " REQUEST_TARGET1 " " HTTP_11 CRLF
+		KEEP_ALIVE_FIELD ": " KEEP_ALIVE_VALUE CRLF
+		DNT_FIELD " " DNT_VALUE CRLF
+		CRLF;
+	memory_stream_init(&ms, request, s);
+
+	server.server_socket.handler(&server.server_socket, server.server_socket.handler_context, cio_success, s);
+	TEST_ASSERT_EQUAL_MESSAGE(0, header_complete_fake.call_count, "header_complete was called!");
+	TEST_ASSERT_EQUAL_MESSAGE(1, on_header_field_fake.call_count, "on_header_field was not called twice!");
+	TEST_ASSERT_EQUAL_MESSAGE(1, on_header_value_fake.call_count, "on_header_field was not called twice!");
+	TEST_ASSERT_MESSAGE(memcmp(on_header_field_fake.arg1_history[0], KEEP_ALIVE_FIELD, strlen(KEEP_ALIVE_FIELD)) == 0, "Header field is not correct!");
+	TEST_ASSERT_MESSAGE(memcmp(on_header_value_fake.arg1_history[0], KEEP_ALIVE_VALUE, strlen(KEEP_ALIVE_VALUE)) == 0, "Header value is not correct!");
+
+	check_http_response(&ms, 400);
+
+	struct cio_http_client *client = container_of(s, struct cio_http_client, socket);
+	close_client(client);
 	TEST_ASSERT_EQUAL_MESSAGE(1, client_socket_close_fake.call_count, "Client socket was not closed!");
 	TEST_ASSERT_EQUAL_MESSAGE(0, serve_error_fake.call_count, "Serve error callback was called!");
 }
@@ -948,6 +995,7 @@ int main(void)
 	RUN_TEST(test_register_request_target_no_target);
 	RUN_TEST(test_serve_correctly);
 	RUN_TEST(test_serve_correctly_with_header_fields);
+	RUN_TEST(test_serve_correctly_with_wrong_header_fields);
 	RUN_TEST(test_serve_timer_init_fails);
 	RUN_TEST(test_serve_timer_init_fails_no_serve_error_cb);
 	RUN_TEST(test_serve_init_fails);
