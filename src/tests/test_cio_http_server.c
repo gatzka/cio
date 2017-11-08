@@ -276,6 +276,29 @@ static struct cio_http_request_handler *alloc_dummy_handler(const void *config)
 	}
 }
 
+static struct cio_http_request_handler *alloc_handler_no_callbacks(const void *config)
+{
+	(void)config;
+	struct dummy_handler *handler = malloc(sizeof(*handler));
+	if (unlikely(handler == NULL)) {
+		return NULL;
+	} else {
+		cio_write_buffer_head_init(&handler->wbh);
+		handler->handler.free = free_dummy_handler;
+		handler->handler.on_header_field = NULL;
+		handler->handler.on_header_value = NULL;
+		handler->handler.on_url = NULL;
+		handler->handler.on_headers_complete = NULL;
+		handler->handler.on_schema = NULL;
+		handler->handler.on_host = NULL;
+		handler->handler.on_path = NULL;
+		handler->handler.on_query = NULL;
+		handler->handler.on_fragment = NULL;
+
+		return &handler->handler;
+	}
+}
+
 static struct cio_http_request_handler *alloc_failing_handler(const void *config)
 {
 	(void)config;
@@ -555,6 +578,40 @@ static void test_serve_correctly_request_location_short(void)
 	TEST_ASSERT_EQUAL_MESSAGE(0, serve_error_fake.call_count, "Serve error callback was called!");
 
 	check_http_response(&ms, 404);
+}
+
+static void test_serve_alloc_handler_with_no_callbacks(void)
+{
+	cio_server_socket_init_fake.custom_fake = cio_server_socket_init_ok;
+	socket_accept_fake.custom_fake = accept_save_handler;
+
+	header_complete_fake.custom_fake = header_complete_close;
+
+	struct cio_http_server server;
+	enum cio_error err = cio_http_server_init(&server, 8080, &loop, serve_error, read_timeout, alloc_dummy_client, free_dummy_client);
+	TEST_ASSERT_EQUAL_MESSAGE(cio_success, err, "Server initialization failed!");
+
+	struct cio_http_uri_server_location target;
+	err = cio_http_server_location_init(&target, REQUEST_TARGET1, NULL, alloc_handler_no_callbacks);
+	TEST_ASSERT_EQUAL_MESSAGE(cio_success, err, "Request target initialization failed!");
+
+	err = server.register_location(&server, &target);
+	TEST_ASSERT_EQUAL_MESSAGE(cio_success, err, "Register request target failed!");
+
+	err = server.serve(&server);
+	TEST_ASSERT_EQUAL_MESSAGE(cio_success, err, "Serving http failed!");
+
+	struct cio_socket *s = server.alloc_client();
+
+	const char request[] = HTTP_GET " " REQUEST_TARGET1 " " HTTP_11 CRLF CRLF;
+	memory_stream_init(&ms, request, s);
+
+	server.server_socket.handler(&server.server_socket, server.server_socket.handler_context, cio_success, s);
+	TEST_ASSERT_EQUAL_MESSAGE(0, header_complete_fake.call_count, "header_complete was not called!");
+	TEST_ASSERT_EQUAL_MESSAGE(1, client_socket_close_fake.call_count, "Client socket was not closed!");
+	TEST_ASSERT_EQUAL_MESSAGE(0, serve_error_fake.call_count, "Serve error callback was called!");
+
+	check_http_response(&ms, 500);
 }
 
 static void test_serve_alloc_handler_fails(void)
@@ -1083,6 +1140,7 @@ int main(void)
 	RUN_TEST(test_register_request_target_no_target);
 	RUN_TEST(test_serve_correctly);
 	RUN_TEST(test_serve_correctly_request_location_short);
+	RUN_TEST(test_serve_alloc_handler_with_no_callbacks);
 	RUN_TEST(test_serve_alloc_handler_fails);
 	RUN_TEST(test_serve_correctly_with_header_fields);
 	RUN_TEST(test_serve_with_wrong_header_fields);
