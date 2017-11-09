@@ -43,7 +43,7 @@
 
 #undef container_of
 #define container_of(ptr, type, member) ( \
-	(void *)((char *)ptr - offsetof(type, member)))
+    (void *)((char *)ptr - offsetof(type, member)))
 
 #define HTTP_GET "GET"
 #define HTTP_CONNECT "CONNECT"
@@ -100,14 +100,13 @@ static enum cio_error socket_bind(struct cio_server_socket *context, const char 
 FAKE_VALUE_FUNC(enum cio_error, socket_bind, struct cio_server_socket *, const char *, uint16_t)
 
 enum cio_error cio_server_socket_init(struct cio_server_socket *ss,
-									  struct cio_eventloop *loop,
-									  unsigned int backlog,
-									  cio_alloc_client alloc_client,
-									  cio_free_client free_client,
-									  cio_server_socket_close_hook close_hook);
+                                      struct cio_eventloop *loop,
+                                      unsigned int backlog,
+                                      cio_alloc_client alloc_client,
+                                      cio_free_client free_client,
+                                      cio_server_socket_close_hook close_hook);
 
 FAKE_VALUE_FUNC(enum cio_error, cio_server_socket_init, struct cio_server_socket *, struct cio_eventloop *, unsigned int, cio_alloc_client, cio_free_client, cio_server_socket_close_hook)
-
 
 static enum cio_error timer_cancel(struct cio_timer *t);
 FAKE_VALUE_FUNC(enum cio_error, timer_cancel, struct cio_timer *)
@@ -162,11 +161,11 @@ static enum cio_error cio_timer_init_fails(struct cio_timer *timer, struct cio_e
 }
 
 static enum cio_error cio_server_socket_init_ok(struct cio_server_socket *ss,
-									  struct cio_eventloop *loop,
-									  unsigned int backlog,
-									  cio_alloc_client alloc_client,
-									  cio_free_client free_client,
-									  cio_server_socket_close_hook close_hook)
+                                                struct cio_eventloop *loop,
+                                                unsigned int backlog,
+                                                cio_alloc_client alloc_client,
+                                                cio_free_client free_client,
+                                                cio_server_socket_close_hook close_hook)
 {
 	ss->alloc_client = alloc_client;
 	ss->free_client = free_client;
@@ -184,11 +183,11 @@ static void client_socket_close(void);
 FAKE_VOID_FUNC0(client_socket_close)
 
 static enum cio_error cio_server_socket_init_fails(struct cio_server_socket *ss,
-									  struct cio_eventloop *loop,
-									  unsigned int backlog,
-									  cio_alloc_client alloc_client,
-									  cio_free_client free_client,
-									  cio_server_socket_close_hook close_hook)
+                                                   struct cio_eventloop *loop,
+                                                   unsigned int backlog,
+                                                   cio_alloc_client alloc_client,
+                                                   cio_free_client free_client,
+                                                   cio_server_socket_close_hook close_hook)
 {
 	(void)ss;
 	(void)loop;
@@ -203,13 +202,11 @@ static enum cio_error cio_server_socket_init_fails(struct cio_server_socket *ss,
 static enum cio_http_cb_return header_complete(struct cio_http_client *c);
 FAKE_VALUE_FUNC(enum cio_http_cb_return, header_complete, struct cio_http_client *)
 
-
 static enum cio_http_cb_return on_header_field(struct cio_http_client *, const char *, size_t);
 FAKE_VALUE_FUNC(enum cio_http_cb_return, on_header_field, struct cio_http_client *, const char *, size_t)
 
 static enum cio_http_cb_return on_header_value(struct cio_http_client *c, const char *, size_t);
 FAKE_VALUE_FUNC(enum cio_http_cb_return, on_header_value, struct cio_http_client *, const char *, size_t)
-
 
 static enum cio_http_cb_return on_url(struct cio_http_client *c, const char *at, size_t length);
 FAKE_VALUE_FUNC(enum cio_http_cb_return, on_url, struct cio_http_client *, const char *, size_t)
@@ -735,10 +732,10 @@ static void test_serve_correctly_with_header_fields(void)
 	struct cio_socket *s = server.alloc_client();
 
 	const char request[] =
-		HTTP_GET " " REQUEST_TARGET1 " " HTTP_11 CRLF
-		KEEP_ALIVE_FIELD ": " KEEP_ALIVE_VALUE CRLF
-		DNT_FIELD ": " DNT_VALUE CRLF
-		CRLF;
+	    HTTP_GET " " REQUEST_TARGET1 " " HTTP_11 CRLF
+	        KEEP_ALIVE_FIELD ": " KEEP_ALIVE_VALUE CRLF
+	            DNT_FIELD ": " DNT_VALUE CRLF
+	                CRLF;
 	memory_stream_init(&ms, request, s);
 
 	server.server_socket.handler(&server.server_socket, server.server_socket.handler_context, cio_success, s);
@@ -780,10 +777,10 @@ static void test_serve_with_wrong_header_fields(void)
 	struct cio_socket *s = server.alloc_client();
 
 	const char request[] =
-		HTTP_GET " " REQUEST_TARGET1 " " HTTP_11 CRLF
-		KEEP_ALIVE_FIELD ": " KEEP_ALIVE_VALUE CRLF
-		DNT_FIELD " " DNT_VALUE CRLF
-		CRLF;
+	    HTTP_GET " " REQUEST_TARGET1 " " HTTP_11 CRLF
+	        KEEP_ALIVE_FIELD ": " KEEP_ALIVE_VALUE CRLF
+	            DNT_FIELD " " DNT_VALUE CRLF
+	                CRLF;
 	memory_stream_init(&ms, request, s);
 
 	server.server_socket.handler(&server.server_socket, server.server_socket.handler_context, cio_success, s);
@@ -846,7 +843,6 @@ static void test_serve_timer_init_fails_no_serve_error_cb(void)
 	TEST_ASSERT_EQUAL_MESSAGE(0, serve_error_fake.call_count, "Serve error callback was called despite not given in initialization!");
 	TEST_ASSERT_EQUAL_MESSAGE(1, client_socket_close_fake.call_count, "Client socket was not closed!");
 }
-
 
 static void test_serve_init_fails(void)
 {

@@ -26,10 +26,10 @@
 
 #include <stdint.h>
 
-#include "fff.h"
-#include "unity.h"
 #include "cio_error_code.h"
 #include "cio_write_buffer.h"
+#include "fff.h"
+#include "unity.h"
 
 DEFINE_FFF_GLOBALS
 
