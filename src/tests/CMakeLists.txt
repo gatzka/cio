@@ -44,14 +44,14 @@ add_executable(test_cio_buffered_stream
 )
 target_link_libraries (test_cio_buffered_stream cio_unity)
 
-add_executable(test_cio_http_server
-    test_cio_http_server.c
+add_executable(test_cio_http_server_iostream
+    test_cio_http_server_iostream.c
     ../cio_http_server.c
     ../cio_buffered_stream.c
     ../http-parser/http_parser.c
     ../linux/cio_linux_string.c
 )
-target_link_libraries (test_cio_http_server cio_unity)
+target_link_libraries (test_cio_http_server_iostream cio_unity)
 
 add_executable(test_cio_read_buffer
     test_cio_read_buffer.c
@@ -65,7 +65,7 @@ target_link_libraries (test_cio_write_buffer cio_unity)
 
 enable_testing()
 add_test(NAME test_cio_buffered_stream COMMAND test_cio_buffered_stream)
-add_test(NAME test_cio_http_server COMMAND test_cio_http_server)
+add_test(NAME test_cio_http_server_iostream COMMAND test_cio_http_server_iostream)
 add_test(NAME test_cio_read_buffer COMMAND test_cio_read_buffer)
 add_test(NAME test_cio_write_buffer COMMAND test_cio_write_buffer)
 

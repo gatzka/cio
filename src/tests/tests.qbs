@@ -44,14 +44,14 @@ Project {
   }
 
   UnittestProduct {
-    name: "test_cio_http_server"
+    name: "test_cio_http_server_iostream"
     type: ["application", "unittest"]
     
     cpp.includePaths: ["..", "../linux/"]
     cpp.driverFlags: ["-Wno-error"]
     
     files: [
-      "test_cio_http_server.c",
+      "test_cio_http_server_iostream.c",
       "../cio_http_server.c",
       "../cio_buffered_stream.c",
     ]
