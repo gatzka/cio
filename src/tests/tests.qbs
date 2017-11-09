@@ -79,6 +79,29 @@ Project {
   }
 
   UnittestProduct {
+    name: "test_cio_http_server"
+    type: ["application", "unittest"]
+    
+    cpp.includePaths: ["..", "../linux/"]
+    cpp.driverFlags: ["-Wno-error"]
+    
+    files: [
+      "test_cio_http_server.c",
+      "../cio_http_server.c",
+    ]
+  
+    Group {
+      name: "third party"
+      cpp.cLanguageVersion: "c99"
+      cpp.warningLevel: "none"
+      files: [
+        "../http-parser/http_parser.c",
+        "../http-parser/http_parser.h"
+      ]
+    }
+  }
+
+  UnittestProduct {
     name: "test_cio_read_buffer"
     type: ["application", "unittest"]
     
