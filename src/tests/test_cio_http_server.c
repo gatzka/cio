@@ -322,6 +322,7 @@ void setUp(void)
 	RESET_FAKE(on_header_value);
 	RESET_FAKE(timer_expires_from_now);
 	RESET_FAKE(timer_cancel);
+	RESET_FAKE(bs_read_until)
 
 	http_parser_settings_init(&parser_settings);
 	http_parser_init(&parser, HTTP_RESPONSE);
