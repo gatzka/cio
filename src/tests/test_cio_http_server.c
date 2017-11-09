@@ -425,10 +425,65 @@ static void test_serve_second_line_fails(void)
 	check_http_response(500);
 }
 
+struct location_test {
+	const char *location;
+	const char *request_target;
+	int expected_response;
+};
+
+static void test_serve_locations(void)
+{
+	static struct location_test location_tests[] = {
+		{.location = "/foo", .request_target = "/foo", .expected_response = 200},
+		{.location = "/foo", .request_target = "/foo/bar", .expected_response = 200},
+		{.location = "/foo/bar", .request_target = "/foo/", .expected_response = 404},
+	};
+
+	for (unsigned int i = 0; i < ARRAY_SIZE(location_tests); i++) {
+		struct location_test location_test = location_tests[i];
+
+		cio_server_socket_init_fake.custom_fake = cio_server_socket_init_ok;
+		socket_accept_fake.custom_fake = accept_save_handler;
+
+		header_complete_fake.custom_fake = header_complete_write_response;
+
+		struct cio_http_server server;
+		enum cio_error err = cio_http_server_init(&server, 8080, &loop, serve_error, read_timeout, alloc_dummy_client, free_dummy_client);
+		TEST_ASSERT_EQUAL_MESSAGE(cio_success, err, "Server initialization failed!");
+
+		struct cio_http_uri_server_location target;
+		err = cio_http_server_location_init(&target, location_test.location, NULL, alloc_dummy_handler);
+		TEST_ASSERT_EQUAL_MESSAGE(cio_success, err, "Request target initialization failed!");
+
+		err = server.register_location(&server, &target);
+		TEST_ASSERT_EQUAL_MESSAGE(cio_success, err, "Register request target failed!");
+
+		err = server.serve(&server);
+		TEST_ASSERT_EQUAL_MESSAGE(cio_success, err, "Serving http failed!");
+
+		struct cio_socket *s = server.alloc_client();
+
+		char start_line[100];
+		snprintf(start_line, sizeof(start_line) - 1, "GET %s HTTP/1.1\r\n", location_test.request_target);
+
+		const char *request[] = {
+			start_line,
+			CRLF};
+
+		init_request(request, ARRAY_SIZE(request));
+		server.server_socket.handler(&server.server_socket, server.server_socket.handler_context, cio_success, s);
+		TEST_ASSERT_EQUAL_MESSAGE(0, serve_error_fake.call_count, "Serve error callback was called!");
+		check_http_response(location_test.expected_response);
+
+		setUp();
+	}
+}
+
 int main(void)
 {
 	UNITY_BEGIN();
 	RUN_TEST(test_serve_first_line_fails);
 	RUN_TEST(test_serve_second_line_fails);
+	RUN_TEST(test_serve_locations);
 	return UNITY_END();
 }
