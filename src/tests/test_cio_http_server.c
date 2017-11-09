@@ -349,7 +349,7 @@ static void test_serve_first_line_fails(void)
 	};
 
 	bs_read_until_fake.custom_fake = NULL;
-	SET_CUSTOM_FAKE_SEQ(bs_read_until, read_until_fakes, 2);
+	SET_CUSTOM_FAKE_SEQ(bs_read_until, read_until_fakes, ARRAY_SIZE(read_until_fakes));
 
 	struct cio_http_server server;
 	enum cio_error err = cio_http_server_init(&server, 8080, &loop, serve_error, read_timeout, alloc_dummy_client, free_dummy_client);
@@ -393,7 +393,7 @@ static void test_serve_second_line_fails(void)
 	};
 
 	bs_read_until_fake.custom_fake = NULL;
-	SET_CUSTOM_FAKE_SEQ(bs_read_until, read_until_fakes, 2);
+	SET_CUSTOM_FAKE_SEQ(bs_read_until, read_until_fakes, ARRAY_SIZE(read_until_fakes));
 
 	struct cio_http_server server;
 	enum cio_error err = cio_http_server_init(&server, 8080, &loop, serve_error, read_timeout, alloc_dummy_client, free_dummy_client);
