@@ -195,13 +195,13 @@ static int on_url(http_parser *parser, const char *at, size_t length)
 	client->handler = handler;
 
 	if ((handler->on_url == NULL) &&
-		(handler->on_host == NULL) &&
-		(handler->on_path == NULL) &&
-		(handler->on_query == NULL) &&
-		(handler->on_fragment == NULL) &&
-		(handler->on_header_field == NULL) &&
-		(handler->on_header_value == NULL) &&
-		(handler->on_headers_complete == NULL)) {
+	    (handler->on_host == NULL) &&
+	    (handler->on_path == NULL) &&
+	    (handler->on_query == NULL) &&
+	    (handler->on_fragment == NULL) &&
+	    (handler->on_header_field == NULL) &&
+	    (handler->on_header_value == NULL) &&
+	    (handler->on_headers_complete == NULL)) {
 		client->write_header(client, cio_http_status_internal_server_error);
 		return 0;
 	}
@@ -296,7 +296,6 @@ static void handle_accept(struct cio_server_socket *ss, void *handler_context, e
 	}
 
 	struct cio_http_client *client = container_of(socket, struct cio_http_client, socket);
-
 
 	client->server = server;
 
