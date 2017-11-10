@@ -27,19 +27,19 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "fff.h"
-#include "unity.h"
 #include "cio_buffered_stream.h"
 #include "cio_error_code.h"
 #include "cio_io_stream.h"
 #include "cio_read_buffer.h"
 #include "cio_write_buffer.h"
+#include "fff.h"
+#include "unity.h"
 
 DEFINE_FFF_GLOBALS
 
 #undef container_of
 #define container_of(ptr, type, member) ( \
-	(void *)((char *)ptr - offsetof(type, member)))
+    (void *)((char *)ptr - offsetof(type, member)))
 
 #undef MIN
 #define MIN(X, Y) (((X) < (Y)) ? (X) : (Y))
@@ -64,13 +64,13 @@ static size_t second_check_buffer_pos = 0;
 static size_t chunk_bytes_written = 0;
 
 enum cio_error read_some(struct cio_io_stream *ios, struct cio_read_buffer *buffer, cio_io_stream_read_handler handler, void *context);
-FAKE_VALUE_FUNC(enum cio_error, read_some, struct cio_io_stream*, struct cio_read_buffer *, cio_io_stream_read_handler, void*)
+FAKE_VALUE_FUNC(enum cio_error, read_some, struct cio_io_stream *, struct cio_read_buffer *, cio_io_stream_read_handler, void *)
 
 enum cio_error write_some(struct cio_io_stream *io_stream, const struct cio_write_buffer *buf, cio_io_stream_write_handler handler, void *handler_context);
-FAKE_VALUE_FUNC(enum cio_error, write_some, struct cio_io_stream*, const struct cio_write_buffer *, cio_io_stream_write_handler, void*)
+FAKE_VALUE_FUNC(enum cio_error, write_some, struct cio_io_stream *, const struct cio_write_buffer *, cio_io_stream_write_handler, void *)
 
 enum cio_error close(struct cio_io_stream *context);
-FAKE_VALUE_FUNC(enum cio_error, close, struct cio_io_stream*)
+FAKE_VALUE_FUNC(enum cio_error, close, struct cio_io_stream *)
 
 void dummy_read_handler(struct cio_buffered_stream *, void *, enum cio_error, struct cio_read_buffer *);
 FAKE_VOID_FUNC(dummy_read_handler, struct cio_buffered_stream *, void *, enum cio_error, struct cio_read_buffer *)
@@ -78,8 +78,8 @@ FAKE_VOID_FUNC(dummy_read_handler, struct cio_buffered_stream *, void *, enum ci
 void second_dummy_read_handler(struct cio_buffered_stream *, void *, enum cio_error, struct cio_read_buffer *);
 FAKE_VOID_FUNC(second_dummy_read_handler, struct cio_buffered_stream *, void *, enum cio_error, struct cio_read_buffer *)
 
-void dummy_write_handler(struct cio_buffered_stream*, void*, const struct cio_write_buffer*, enum cio_error);
-FAKE_VOID_FUNC(dummy_write_handler, struct cio_buffered_stream*, void*, const struct cio_write_buffer*, enum cio_error)
+void dummy_write_handler(struct cio_buffered_stream *, void *, const struct cio_write_buffer *, enum cio_error);
+FAKE_VOID_FUNC(dummy_write_handler, struct cio_buffered_stream *, void *, const struct cio_write_buffer *, enum cio_error)
 
 struct client {
 	struct memory_stream ms;
@@ -227,7 +227,7 @@ static void save_to_check_buffer(struct cio_buffered_stream *bs, void *context, 
 	(void)context;
 
 	if (err == cio_success) {
-		uint8_t * read_ptr = cio_read_buffer_get_read_ptr(buffer);
+		uint8_t *read_ptr = cio_read_buffer_get_read_ptr(buffer);
 		size_t num = cio_read_buffer_get_transferred_bytes(buffer);
 		memcpy(&first_check_buffer[first_check_buffer_pos], read_ptr, num);
 		first_check_buffer_pos += num;
@@ -246,7 +246,7 @@ static void save_to_second_check_buffer(struct cio_buffered_stream *bs, void *co
 	(void)context;
 
 	if (err == cio_success) {
-		uint8_t * read_ptr = cio_read_buffer_get_read_ptr(buffer);
+		uint8_t *read_ptr = cio_read_buffer_get_read_ptr(buffer);
 		size_t num = cio_read_buffer_get_transferred_bytes(buffer);
 		memcpy(&second_check_buffer[second_check_buffer_pos], read_ptr, num);
 		second_check_buffer_pos += num;
@@ -857,7 +857,7 @@ static void test_read_until_no_buffer(void)
 	read_some_fake.custom_fake = read_some_max;
 	dummy_read_handler_fake.custom_fake = save_to_check_buffer;
 
-	enum cio_error  err = cio_buffered_stream_init(&client->bs, &client->ms.ios);
+	enum cio_error err = cio_buffered_stream_init(&client->bs, &client->ms.ios);
 	TEST_ASSERT_EQUAL_MESSAGE(cio_success, err, "Buffer was not initialized correctly!");
 
 	err = client->bs.read_until(&client->bs, NULL, DELIM, dummy_read_handler, first_check_buffer);
@@ -1237,7 +1237,6 @@ static void test_read_request_read_in_callback_close_in_second_callback(void)
 	TEST_ASSERT_EQUAL_MESSAGE(cio_success, err, "Return value not correct!");
 	TEST_ASSERT_EQUAL_MESSAGE(1, close_fake.call_count, "Underlying cio_iostream was not closed!");
 }
-
 
 static void test_write_two_buffers_partial_write(void)
 {

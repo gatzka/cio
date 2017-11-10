@@ -42,6 +42,11 @@ Product {
 
     Group {
       files: ["*.h", "*.c"];
+      prefix: "tests/"
+    }
+
+    Group {
+      files: ["*.h", "*.c"];
       prefix: "linux/tests/"
     }
   }

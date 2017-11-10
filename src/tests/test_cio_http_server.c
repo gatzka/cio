@@ -38,22 +38,17 @@
 
 #include "http-parser/http_parser.h"
 
-#undef MIN
-#define MIN(X, Y) (((X) < (Y)) ? (X) : (Y))
+#undef ARRAY_SIZE
+#define ARRAY_SIZE(a) (sizeof(a) / sizeof((a)[0]))
 
 #undef container_of
 #define container_of(ptr, type, member) ( \
-	(void *)((char *)ptr - offsetof(type, member)))
+    (void *)((char *)ptr - offsetof(type, member)))
 
 #define HTTP_GET "GET"
-#define HTTP_CONNECT "CONNECT"
-#define REQUEST_TARGET_CONNECT "www.google.de:80"
-#define REQUEST_TARGET1 "/foo"
-#define REQUEST_TARGET1_LONGER "/foobar"
-#define REQUEST_TARGET2 "/bar"
-#define ILLEGAL_REQUEST_TARGET "http://ww%.google.de/"
+#define REQUEST_TARGET "/foo/"
+#define REQUEST_TARGET_SUB "/foo/bar"
 #define HTTP_11 "HTTP/1.1"
-#define WRONG_HTTP_11 "HTTP}1.1"
 #define KEEP_ALIVE_FIELD "Connection"
 #define KEEP_ALIVE_VALUE "keep-alive"
 #define DNT_FIELD "DNT"
@@ -61,18 +56,6 @@
 #define CRLF "\r\n"
 
 static const uint64_t read_timeout = UINT64_C(5) * UINT64_C(1000) * UINT64_C(1000) * UINT64_C(1000);
-
-struct memory_stream {
-	struct cio_socket *socket;
-	struct cio_io_stream ios;
-	void *mem;
-	size_t read_pos;
-	size_t size;
-	uint8_t write_buffer[1000];
-	size_t write_pos;
-};
-
-static struct memory_stream ms;
 
 struct dummy_handler {
 	struct cio_http_request_handler handler;
@@ -100,14 +83,13 @@ static enum cio_error socket_bind(struct cio_server_socket *context, const char 
 FAKE_VALUE_FUNC(enum cio_error, socket_bind, struct cio_server_socket *, const char *, uint16_t)
 
 enum cio_error cio_server_socket_init(struct cio_server_socket *ss,
-									  struct cio_eventloop *loop,
-									  unsigned int backlog,
-									  cio_alloc_client alloc_client,
-									  cio_free_client free_client,
-									  cio_server_socket_close_hook close_hook);
+                                      struct cio_eventloop *loop,
+                                      unsigned int backlog,
+                                      cio_alloc_client alloc_client,
+                                      cio_free_client free_client,
+                                      cio_server_socket_close_hook close_hook);
 
 FAKE_VALUE_FUNC(enum cio_error, cio_server_socket_init, struct cio_server_socket *, struct cio_eventloop *, unsigned int, cio_alloc_client, cio_free_client, cio_server_socket_close_hook)
-
 
 static enum cio_error timer_cancel(struct cio_timer *t);
 FAKE_VALUE_FUNC(enum cio_error, timer_cancel, struct cio_timer *)
@@ -119,16 +101,6 @@ static void timer_expires_from_now(struct cio_timer *t, uint64_t timeout_ns, tim
 FAKE_VOID_FUNC(timer_expires_from_now, struct cio_timer *, uint64_t, timer_handler, void *)
 
 FAKE_VALUE_FUNC(enum cio_error, cio_timer_init, struct cio_timer *, struct cio_eventloop *, cio_timer_close_hook)
-
-static void close_client(struct cio_http_client *client)
-{
-	if (likely(client->handler != NULL)) {
-		client->handler->free(client->handler);
-	}
-
-	client->read_timer.close(&client->read_timer);
-	client->bs.close(&client->bs);
-}
 
 static enum cio_error cancel_timer(struct cio_timer *t)
 {
@@ -153,20 +125,12 @@ static enum cio_error cio_timer_init_ok(struct cio_timer *timer, struct cio_even
 	return cio_success;
 }
 
-static enum cio_error cio_timer_init_fails(struct cio_timer *timer, struct cio_eventloop *loop, cio_timer_close_hook hook)
-{
-	(void)loop;
-	(void)timer;
-	(void)hook;
-	return cio_invalid_argument;
-}
-
 static enum cio_error cio_server_socket_init_ok(struct cio_server_socket *ss,
-									  struct cio_eventloop *loop,
-									  unsigned int backlog,
-									  cio_alloc_client alloc_client,
-									  cio_free_client free_client,
-									  cio_server_socket_close_hook close_hook)
+                                                struct cio_eventloop *loop,
+                                                unsigned int backlog,
+                                                cio_alloc_client alloc_client,
+                                                cio_free_client free_client,
+                                                cio_server_socket_close_hook close_hook)
 {
 	ss->alloc_client = alloc_client;
 	ss->free_client = free_client;
@@ -180,29 +144,11 @@ static enum cio_error cio_server_socket_init_ok(struct cio_server_socket *ss,
 	return cio_success;
 }
 
-static void client_socket_close(void);
-FAKE_VOID_FUNC0(client_socket_close)
-
-static enum cio_error cio_server_socket_init_fails(struct cio_server_socket *ss,
-									  struct cio_eventloop *loop,
-									  unsigned int backlog,
-									  cio_alloc_client alloc_client,
-									  cio_free_client free_client,
-									  cio_server_socket_close_hook close_hook)
-{
-	(void)ss;
-	(void)loop;
-	(void)backlog;
-	(void)alloc_client;
-	(void)free_client;
-	(void)close_hook;
-
-	return cio_not_enough_memory;
-}
-
 static enum cio_http_cb_return header_complete(struct cio_http_client *c);
 FAKE_VALUE_FUNC(enum cio_http_cb_return, header_complete, struct cio_http_client *)
 
+static enum cio_http_cb_return header_complete_sub(struct cio_http_client *c);
+FAKE_VALUE_FUNC(enum cio_http_cb_return, header_complete_sub, struct cio_http_client *)
 
 static enum cio_http_cb_return on_header_field(struct cio_http_client *, const char *, size_t);
 FAKE_VALUE_FUNC(enum cio_http_cb_return, on_header_field, struct cio_http_client *, const char *, size_t)
@@ -210,15 +156,14 @@ FAKE_VALUE_FUNC(enum cio_http_cb_return, on_header_field, struct cio_http_client
 static enum cio_http_cb_return on_header_value(struct cio_http_client *c, const char *, size_t);
 FAKE_VALUE_FUNC(enum cio_http_cb_return, on_header_value, struct cio_http_client *, const char *, size_t)
 
-
 static enum cio_http_cb_return on_url(struct cio_http_client *c, const char *at, size_t length);
 FAKE_VALUE_FUNC(enum cio_http_cb_return, on_url, struct cio_http_client *, const char *, size_t)
 
-static struct cio_io_stream *get_mem_io_stream(struct cio_socket *context)
-{
-	(void)context;
-	return &ms.ios;
-}
+static struct cio_io_stream *get_io_stream(struct cio_socket *context);
+FAKE_VALUE_FUNC(struct cio_io_stream *, get_io_stream, struct cio_socket *)
+
+static enum cio_error bs_read_until(struct cio_buffered_stream *bs, struct cio_read_buffer *buffer, const char *delim, cio_buffered_stream_read_handler handler, void *handler_context);
+FAKE_VALUE_FUNC(enum cio_error, bs_read_until, struct cio_buffered_stream *, struct cio_read_buffer *, const char *, cio_buffered_stream_read_handler, void *)
 
 static void free_dummy_client(struct cio_socket *socket)
 {
@@ -230,7 +175,7 @@ static struct cio_socket *alloc_dummy_client(void)
 {
 	struct cio_http_client *client = malloc(sizeof(*client) + read_buffer_size);
 	memset(client, 0xaf, sizeof(*client));
-	client->socket.get_io_stream = get_mem_io_stream;
+	client->socket.get_io_stream = get_io_stream;
 	client->socket.close_hook = free_dummy_client;
 	return &client->socket;
 }
@@ -241,34 +186,14 @@ static void free_dummy_handler(struct cio_http_request_handler *handler)
 	free(dh);
 }
 
-static enum cio_http_cb_return header_complete_close(struct cio_http_client *c)
-{
-	c->close(c);
-	return cio_http_cb_success;
-}
-
 static enum cio_http_cb_return header_complete_write_response(struct cio_http_client *c)
 {
-	static const char *data = "Hello World!";
+	static const char data[] = "Hello World!";
 	struct cio_http_request_handler *handler = c->handler;
 	struct dummy_handler *dh = container_of(handler, struct dummy_handler, handler);
 	cio_write_buffer_init(&dh->wb, data, sizeof(data));
 	cio_write_buffer_queue_tail(&dh->wbh, &dh->wb);
 	c->write_response(c, &dh->wbh);
-	return cio_http_cb_success;
-}
-
-static enum cio_http_cb_return header_complete_no_close(struct cio_http_client *c)
-{
-	(void)c;
-	return cio_http_cb_success;
-}
-
-static enum cio_http_cb_return on_url_close(struct cio_http_client *c, const char *at, size_t length)
-{
-	(void)at;
-	(void)length;
-	c->close(c);
 	return cio_http_cb_success;
 }
 
@@ -289,7 +214,7 @@ static struct cio_http_request_handler *alloc_dummy_handler(const void *config)
 	}
 }
 
-static struct cio_http_request_handler *alloc_handler_no_callbacks(const void *config)
+static struct cio_http_request_handler *alloc_dummy_handler_sub(const void *config)
 {
 	(void)config;
 	struct dummy_handler *handler = malloc(sizeof(*handler));
@@ -298,24 +223,12 @@ static struct cio_http_request_handler *alloc_handler_no_callbacks(const void *c
 	} else {
 		cio_write_buffer_head_init(&handler->wbh);
 		handler->handler.free = free_dummy_handler;
-		handler->handler.on_header_field = NULL;
-		handler->handler.on_header_value = NULL;
-		handler->handler.on_url = NULL;
-		handler->handler.on_headers_complete = NULL;
-		handler->handler.on_schema = NULL;
-		handler->handler.on_host = NULL;
-		handler->handler.on_path = NULL;
-		handler->handler.on_query = NULL;
-		handler->handler.on_fragment = NULL;
-
+		handler->handler.on_header_field = on_header_field;
+		handler->handler.on_header_value = on_header_value;
+		handler->handler.on_url = on_url;
+		handler->handler.on_headers_complete = header_complete_sub;
 		return &handler->handler;
 	}
-}
-
-static struct cio_http_request_handler *alloc_failing_handler(const void *config)
-{
-	(void)config;
-	return NULL;
 }
 
 static enum cio_error accept_save_handler(struct cio_server_socket *ss, cio_accept_handler handler, void *handler_context)
@@ -325,85 +238,87 @@ static enum cio_error accept_save_handler(struct cio_server_socket *ss, cio_acce
 	return cio_success;
 }
 
-static struct cio_eventloop loop;
+static const char **request_lines;
+static size_t num_of_request_lines;
+static unsigned int current_line;
 
-static http_parser parser;
-static http_parser_settings parser_settings;
-
-static enum cio_error read_some_max(struct cio_io_stream *ios, struct cio_read_buffer *buffer, cio_io_stream_read_handler handler, void *context)
+static void init_request(const char **request, size_t lines)
 {
-	struct memory_stream *memory_stream = container_of(ios, struct memory_stream, ios);
-	size_t len = MIN(cio_read_buffer_size(buffer), memory_stream->size - memory_stream->read_pos);
-	memcpy(buffer->data, &((uint8_t *)memory_stream->mem)[memory_stream->read_pos], len);
-	memory_stream->read_pos += len;
-	buffer->add_ptr += len;
-	buffer->bytes_transferred = len;
-	handler(ios, context, cio_success, buffer);
+	request_lines = request;
+	num_of_request_lines = lines;
+}
+
+static enum cio_error bs_read_until_ok(struct cio_buffered_stream *bs, struct cio_read_buffer *buffer, const char *delim, cio_buffered_stream_read_handler handler, void *handler_context)
+{
+	(void)delim;
+
+	const char *line = request_lines[current_line];
+	size_t length = strlen(line);
+	memcpy(buffer->add_ptr, line, length);
+	buffer->bytes_transferred = length;
+	buffer->fetch_ptr = buffer->add_ptr + length;
+	current_line++;
+	handler(bs, handler_context, cio_success, buffer);
 	return cio_success;
 }
 
-static enum cio_error read_some_error(struct cio_io_stream *ios, struct cio_read_buffer *buffer, cio_io_stream_read_handler handler, void *context)
+static enum cio_error bs_read_until_error(struct cio_buffered_stream *bs, struct cio_read_buffer *buffer, const char *delim, cio_buffered_stream_read_handler handler, void *handler_context)
 {
-	handler(ios, context, cio_bad_address, buffer);
+	(void)delim;
+
+	handler(bs, handler_context, cio_invalid_argument, buffer);
 	return cio_success;
 }
 
-static enum cio_error read_blocks(struct cio_io_stream *ios, struct cio_read_buffer *buffer, cio_io_stream_read_handler handler, void *context)
+static void close_client(struct cio_http_client *client)
 {
-	(void)ios;
-	(void)buffer;
-	(void)handler;
-	(void)context;
+	free_dummy_client(&client->socket);
+}
+
+static enum cio_error bs_close(struct cio_buffered_stream *bs)
+{
+	struct cio_http_client *client = container_of(bs, struct cio_http_client, bs);
+	close_client(client);
 	return cio_success;
 }
 
-static enum cio_error mem_close(struct cio_io_stream *io_stream)
+static uint8_t write_buffer[1000];
+static size_t write_pos;
+
+static enum cio_error bs_write(struct cio_buffered_stream *bs, struct cio_write_buffer *buf, cio_buffered_stream_write_handler handler, void *handler_context)
 {
-	(void)io_stream;
-	free_dummy_client(ms.socket);
-
-	free(ms.mem);
-	client_socket_close();
-	return cio_success;
-}
-
-static enum cio_error write_all(struct cio_io_stream *ios, const struct cio_write_buffer *buf, cio_io_stream_write_handler handler, void *handler_context)
-{
-	struct memory_stream *memory_stream = container_of(ios, struct memory_stream, ios);
-
-	size_t bytes_transferred = 0;
 	size_t buffer_len = buf->data.q_len;
 	const struct cio_write_buffer *data_buf = buf;
 
 	for (unsigned int i = 0; i < buffer_len; i++) {
 		data_buf = data_buf->next;
-		memcpy(&memory_stream->write_buffer[memory_stream->write_pos], data_buf->data.element.data, data_buf->data.element.length);
-		memory_stream->write_pos += data_buf->data.element.length;
-		bytes_transferred += data_buf->data.element.length;
+		memcpy(&write_buffer[write_pos], data_buf->data.element.data, data_buf->data.element.length);
+		write_pos += data_buf->data.element.length;
 	}
 
-	handler(ios, handler_context, buf, cio_success, bytes_transferred);
+	handler(bs, handler_context, buf, cio_success);
 	return cio_success;
 }
 
-static void memory_stream_init(struct memory_stream *stream, const char *fill_pattern, struct cio_socket *s)
+enum cio_error cio_buffered_stream_init(struct cio_buffered_stream *bs,
+                                        struct cio_io_stream *stream)
 {
-	stream->socket = s;
-	stream->write_pos = 0;
-	stream->read_pos = 0;
-	stream->size = strlen(fill_pattern);
-	stream->ios.read_some = read_some_max;
-	stream->ios.write_some = write_all;
-	stream->ios.close = mem_close;
-	stream->mem = malloc(stream->size + 1);
-	memset(stream->mem, 0x00, stream->size + 1);
-	strncpy(ms.mem, fill_pattern, ms.size);
+	(void)stream;
+	bs->read_until = bs_read_until;
+	bs->write = bs_write;
+	bs->close = bs_close;
+	return cio_success;
 }
 
-static void check_http_response(struct memory_stream *stream, int status_code)
+static struct cio_eventloop loop;
+
+static http_parser parser;
+static http_parser_settings parser_settings;
+
+static void check_http_response(int status_code)
 {
-	size_t nparsed = http_parser_execute(&parser, &parser_settings, (const char *)stream->write_buffer, stream->write_pos);
-	TEST_ASSERT_EQUAL_MESSAGE(stream->write_pos, nparsed, "Not a valid http response!");
+	size_t nparsed = http_parser_execute(&parser, &parser_settings, (const char *)write_buffer, write_pos);
+	TEST_ASSERT_EQUAL_MESSAGE(write_pos, nparsed, "Not a valid http response!");
 	TEST_ASSERT_EQUAL_MESSAGE(status_code, parser.status_code, "http response status code not correct!");
 }
 
@@ -417,12 +332,13 @@ void setUp(void)
 	RESET_FAKE(serve_error);
 	RESET_FAKE(socket_close);
 	RESET_FAKE(header_complete);
+	RESET_FAKE(header_complete_sub);
 	RESET_FAKE(on_url);
-	RESET_FAKE(client_socket_close);
 	RESET_FAKE(on_header_field);
 	RESET_FAKE(on_header_value);
 	RESET_FAKE(timer_expires_from_now);
 	RESET_FAKE(timer_cancel);
+	RESET_FAKE(bs_read_until)
 
 	http_parser_settings_init(&parser_settings);
 	http_parser_init(&parser, HTTP_RESPONSE);
@@ -430,127 +346,34 @@ void setUp(void)
 	cio_timer_init_fake.custom_fake = cio_timer_init_ok;
 	timer_cancel_fake.custom_fake = cancel_timer;
 	timer_expires_from_now_fake.custom_fake = expires;
+
+	bs_read_until_fake.custom_fake = bs_read_until_ok;
+	current_line = 0;
+	memset(write_buffer, 0xaf, sizeof(write_buffer));
+	write_pos = 0;
 }
 
-static void test_server_init_correctly(void)
-{
-	struct cio_http_server server;
-	enum cio_error err = cio_http_server_init(&server, 8080, &loop, serve_error, read_timeout, alloc_dummy_client, free_dummy_client);
-	TEST_ASSERT_EQUAL_MESSAGE(cio_success, err, "Initialization failed!");
-}
-
-static void test_server_init_no_server(void)
-{
-	enum cio_error err = cio_http_server_init(NULL, 8080, &loop, serve_error, read_timeout, alloc_dummy_client, free_dummy_client);
-	TEST_ASSERT_EQUAL_MESSAGE(cio_invalid_argument, err, "Initialization did not fail!");
-}
-
-static void test_server_init_no_loop(void)
-{
-	struct cio_http_server server;
-	enum cio_error err = cio_http_server_init(&server, 8080, NULL, serve_error, read_timeout, alloc_dummy_client, free_dummy_client);
-	TEST_ASSERT_EQUAL_MESSAGE(cio_invalid_argument, err, "Initialization did not fail!");
-}
-
-static void test_server_init_no_alloc(void)
-{
-	struct cio_http_server server;
-	enum cio_error err = cio_http_server_init(&server, 8080, &loop, serve_error, read_timeout, NULL, free_dummy_client);
-	TEST_ASSERT_EQUAL_MESSAGE(cio_invalid_argument, err, "Initialization did not fail!");
-}
-
-static void test_server_init_no_free(void)
-{
-	struct cio_http_server server;
-	enum cio_error err = cio_http_server_init(&server, 8080, &loop, serve_error, read_timeout, alloc_dummy_client, NULL);
-	TEST_ASSERT_EQUAL_MESSAGE(cio_invalid_argument, err, "Initialization did not fail!");
-}
-
-static void test_server_init_no_timeout(void)
-{
-	struct cio_http_server server;
-	enum cio_error err = cio_http_server_init(&server, 8080, &loop, serve_error, 0, alloc_dummy_client, free_dummy_client);
-	TEST_ASSERT_EQUAL_MESSAGE(cio_invalid_argument, err, "Initialization with 0 timeout did not fail!");
-}
-
-static void test_request_target_init_correctly(void)
-{
-	struct cio_http_uri_server_location target;
-	enum cio_error err = cio_http_server_location_init(&target, "/foo", NULL, alloc_dummy_handler);
-	TEST_ASSERT_EQUAL_MESSAGE(cio_success, err, "Initialization failed!");
-}
-
-static void test_request_target_init_no_target(void)
-{
-	enum cio_error err = cio_http_server_location_init(NULL, "/foo", NULL, alloc_dummy_handler);
-	TEST_ASSERT_EQUAL_MESSAGE(cio_invalid_argument, err, "Initialization did not fail!");
-}
-
-static void test_request_target_init_no_request_target(void)
-{
-	struct cio_http_uri_server_location target;
-	enum cio_error err = cio_http_server_location_init(&target, NULL, NULL, alloc_dummy_handler);
-	TEST_ASSERT_EQUAL_MESSAGE(cio_invalid_argument, err, "Initialization did not fail!");
-}
-
-static void test_request_target_init_no_alloc_handler(void)
-{
-	struct cio_http_uri_server_location target;
-	enum cio_error err = cio_http_server_location_init(&target, "/foo", NULL, NULL);
-	TEST_ASSERT_EQUAL_MESSAGE(cio_invalid_argument, err, "Initialization did not fail!");
-}
-
-static void test_register_request_target_correctly(void)
-{
-	struct cio_http_server server;
-	enum cio_error err = cio_http_server_init(&server, 8080, &loop, serve_error, read_timeout, alloc_dummy_client, free_dummy_client);
-	TEST_ASSERT_EQUAL_MESSAGE(cio_success, err, "Server initialization failed!");
-
-	struct cio_http_uri_server_location target;
-	err = cio_http_server_location_init(&target, "/foo", NULL, alloc_dummy_handler);
-	TEST_ASSERT_EQUAL_MESSAGE(cio_success, err, "Request target initialization failed!");
-
-	err = server.register_location(&server, &target);
-	TEST_ASSERT_EQUAL_MESSAGE(cio_success, err, "Register request target failed!");
-}
-
-static void test_register_request_target_no_server(void)
-{
-	struct cio_http_server server;
-	enum cio_error err = cio_http_server_init(&server, 8080, &loop, serve_error, read_timeout, alloc_dummy_client, free_dummy_client);
-	TEST_ASSERT_EQUAL_MESSAGE(cio_success, err, "Server initialization failed!");
-
-	struct cio_http_uri_server_location target;
-	err = cio_http_server_location_init(&target, "/foo", NULL, alloc_dummy_handler);
-	TEST_ASSERT_EQUAL_MESSAGE(cio_success, err, "Request target initialization failed!");
-
-	err = server.register_location(NULL, &target);
-	TEST_ASSERT_EQUAL_MESSAGE(cio_invalid_argument, err, "Register request target did not fail!");
-}
-
-static void test_register_request_target_no_target(void)
-{
-	struct cio_http_server server;
-	enum cio_error err = cio_http_server_init(&server, 8080, &loop, serve_error, read_timeout, alloc_dummy_client, free_dummy_client);
-	TEST_ASSERT_EQUAL_MESSAGE(cio_success, err, "Server initialization failed!");
-
-	err = server.register_location(&server, NULL);
-	TEST_ASSERT_EQUAL_MESSAGE(cio_invalid_argument, err, "Register request target did not fail!");
-}
-
-static void test_serve_timeout(void)
+static void test_serve_first_line_fails(void)
 {
 	cio_server_socket_init_fake.custom_fake = cio_server_socket_init_ok;
 	socket_accept_fake.custom_fake = accept_save_handler;
 
 	header_complete_fake.custom_fake = header_complete_write_response;
 
+	enum cio_error (*read_until_fakes[])(struct cio_buffered_stream *, struct cio_read_buffer *, const char *, cio_buffered_stream_read_handler, void *) = {
+	    bs_read_until_error,
+	    bs_read_until_ok,
+	};
+
+	bs_read_until_fake.custom_fake = NULL;
+	SET_CUSTOM_FAKE_SEQ(bs_read_until, read_until_fakes, ARRAY_SIZE(read_until_fakes));
+
 	struct cio_http_server server;
 	enum cio_error err = cio_http_server_init(&server, 8080, &loop, serve_error, read_timeout, alloc_dummy_client, free_dummy_client);
 	TEST_ASSERT_EQUAL_MESSAGE(cio_success, err, "Server initialization failed!");
 
 	struct cio_http_uri_server_location target;
-	err = cio_http_server_location_init(&target, REQUEST_TARGET1, NULL, alloc_dummy_handler);
+	err = cio_http_server_location_init(&target, REQUEST_TARGET, NULL, alloc_dummy_handler);
 	TEST_ASSERT_EQUAL_MESSAGE(cio_success, err, "Request target initialization failed!");
 
 	err = server.register_location(&server, &target);
@@ -561,33 +384,39 @@ static void test_serve_timeout(void)
 
 	struct cio_socket *s = server.alloc_client();
 
-	const char request[] = HTTP_GET " " REQUEST_TARGET1 " " HTTP_11 CRLF CRLF;
-	memory_stream_init(&ms, request, s);
-	ms.ios.read_some = read_blocks;
+	const char *request[] = {
+	    HTTP_GET " " REQUEST_TARGET " " HTTP_11 CRLF,
+	    KEEP_ALIVE_FIELD ": " KEEP_ALIVE_VALUE CRLF,
+	    DNT_FIELD ": " DNT_VALUE CRLF,
+	    CRLF};
 
+	init_request(request, ARRAY_SIZE(request));
 	server.server_socket.handler(&server.server_socket, server.server_socket.handler_context, cio_success, s);
-	struct cio_timer *timer = timer_expires_from_now_fake.arg0_val;
-	timer_handler handler = timer_expires_from_now_fake.arg2_val;
-	void *context = timer_expires_from_now_fake.arg3_val;
-	handler(timer, context, cio_success);
 	TEST_ASSERT_EQUAL_MESSAGE(0, header_complete_fake.call_count, "header_complete was not called!");
-	TEST_ASSERT_EQUAL_MESSAGE(1, client_socket_close_fake.call_count, "Client socket was not closed!");
 	TEST_ASSERT_EQUAL_MESSAGE(0, serve_error_fake.call_count, "Serve error callback was called!");
+	check_http_response(500);
 }
 
-static void test_serve_correctly(void)
+static void test_serve_second_line_fails(void)
 {
 	cio_server_socket_init_fake.custom_fake = cio_server_socket_init_ok;
 	socket_accept_fake.custom_fake = accept_save_handler;
 
 	header_complete_fake.custom_fake = header_complete_write_response;
 
+	enum cio_error (*read_until_fakes[])(struct cio_buffered_stream *, struct cio_read_buffer *, const char *, cio_buffered_stream_read_handler, void *) = {
+	    bs_read_until_ok,
+	    bs_read_until_error};
+
+	bs_read_until_fake.custom_fake = NULL;
+	SET_CUSTOM_FAKE_SEQ(bs_read_until, read_until_fakes, ARRAY_SIZE(read_until_fakes));
+
 	struct cio_http_server server;
 	enum cio_error err = cio_http_server_init(&server, 8080, &loop, serve_error, read_timeout, alloc_dummy_client, free_dummy_client);
 	TEST_ASSERT_EQUAL_MESSAGE(cio_success, err, "Server initialization failed!");
 
 	struct cio_http_uri_server_location target;
-	err = cio_http_server_location_init(&target, REQUEST_TARGET1, NULL, alloc_dummy_handler);
+	err = cio_http_server_location_init(&target, REQUEST_TARGET, NULL, alloc_dummy_handler);
 	TEST_ASSERT_EQUAL_MESSAGE(cio_success, err, "Request target initialization failed!");
 
 	err = server.register_location(&server, &target);
@@ -598,629 +427,149 @@ static void test_serve_correctly(void)
 
 	struct cio_socket *s = server.alloc_client();
 
-	const char request[] = HTTP_GET " " REQUEST_TARGET1 " " HTTP_11 CRLF CRLF;
-	memory_stream_init(&ms, request, s);
+	const char *request[] = {
+	    HTTP_GET " " REQUEST_TARGET " " HTTP_11 CRLF,
+	    KEEP_ALIVE_FIELD ": " KEEP_ALIVE_VALUE CRLF,
+	    DNT_FIELD ": " DNT_VALUE CRLF,
+	    CRLF};
 
-	server.server_socket.handler(&server.server_socket, server.server_socket.handler_context, cio_success, s);
-	TEST_ASSERT_EQUAL_MESSAGE(1, header_complete_fake.call_count, "header_complete was not called!");
-	TEST_ASSERT_EQUAL_MESSAGE(1, client_socket_close_fake.call_count, "Client socket was not closed!");
-	TEST_ASSERT_EQUAL_MESSAGE(0, serve_error_fake.call_count, "Serve error callback was called!");
-
-	check_http_response(&ms, 200);
-}
-
-static void test_serve_correctly_request_location_short(void)
-{
-	cio_server_socket_init_fake.custom_fake = cio_server_socket_init_ok;
-	socket_accept_fake.custom_fake = accept_save_handler;
-
-	header_complete_fake.custom_fake = header_complete_write_response;
-
-	struct cio_http_server server;
-	enum cio_error err = cio_http_server_init(&server, 8080, &loop, serve_error, read_timeout, alloc_dummy_client, free_dummy_client);
-	TEST_ASSERT_EQUAL_MESSAGE(cio_success, err, "Server initialization failed!");
-
-	struct cio_http_uri_server_location target;
-	err = cio_http_server_location_init(&target, REQUEST_TARGET1_LONGER, NULL, alloc_dummy_handler);
-	TEST_ASSERT_EQUAL_MESSAGE(cio_success, err, "Request target initialization failed!");
-
-	err = server.register_location(&server, &target);
-	TEST_ASSERT_EQUAL_MESSAGE(cio_success, err, "Register request target failed!");
-
-	err = server.serve(&server);
-	TEST_ASSERT_EQUAL_MESSAGE(cio_success, err, "Serving http failed!");
-
-	struct cio_socket *s = server.alloc_client();
-
-	const char request[] = HTTP_GET " " REQUEST_TARGET1 " " HTTP_11 CRLF CRLF;
-	memory_stream_init(&ms, request, s);
-
+	init_request(request, ARRAY_SIZE(request));
 	server.server_socket.handler(&server.server_socket, server.server_socket.handler_context, cio_success, s);
 	TEST_ASSERT_EQUAL_MESSAGE(0, header_complete_fake.call_count, "header_complete was not called!");
-	TEST_ASSERT_EQUAL_MESSAGE(1, client_socket_close_fake.call_count, "Client socket was not closed!");
 	TEST_ASSERT_EQUAL_MESSAGE(0, serve_error_fake.call_count, "Serve error callback was called!");
-
-	check_http_response(&ms, 404);
+	check_http_response(500);
 }
 
-static void test_serve_alloc_handler_with_no_callbacks(void)
+struct location_test {
+	const char *location;
+	const char *request_target;
+	int expected_response;
+};
+
+static void test_serve_locations(void)
 {
-	cio_server_socket_init_fake.custom_fake = cio_server_socket_init_ok;
-	socket_accept_fake.custom_fake = accept_save_handler;
+	static struct location_test location_tests[] = {
+	    {.location = "/foo", .request_target = "/foo", .expected_response = 200},
+	    {.location = "/foo", .request_target = "/foo/", .expected_response = 200},
+	    {.location = "/foo", .request_target = "/foo/bar", .expected_response = 200},
+	    {.location = "/foo", .request_target = "/foo2", .expected_response = 404},
+	    {.location = "/foo/", .request_target = "/foo", .expected_response = 404},
+	    {.location = "/foo/", .request_target = "/foo/", .expected_response = 200},
+	    {.location = "/foo/", .request_target = "/foo/bar", .expected_response = 200},
+	    {.location = "/foo/", .request_target = "/foo2", .expected_response = 404},
+	};
 
-	header_complete_fake.custom_fake = header_complete_close;
+	for (unsigned int i = 0; i < ARRAY_SIZE(location_tests); i++) {
+		struct location_test location_test = location_tests[i];
 
-	struct cio_http_server server;
-	enum cio_error err = cio_http_server_init(&server, 8080, &loop, serve_error, read_timeout, alloc_dummy_client, free_dummy_client);
-	TEST_ASSERT_EQUAL_MESSAGE(cio_success, err, "Server initialization failed!");
+		cio_server_socket_init_fake.custom_fake = cio_server_socket_init_ok;
+		socket_accept_fake.custom_fake = accept_save_handler;
 
-	struct cio_http_uri_server_location target;
-	err = cio_http_server_location_init(&target, REQUEST_TARGET1, NULL, alloc_handler_no_callbacks);
-	TEST_ASSERT_EQUAL_MESSAGE(cio_success, err, "Request target initialization failed!");
+		header_complete_fake.custom_fake = header_complete_write_response;
 
-	err = server.register_location(&server, &target);
-	TEST_ASSERT_EQUAL_MESSAGE(cio_success, err, "Register request target failed!");
+		struct cio_http_server server;
+		enum cio_error err = cio_http_server_init(&server, 8080, &loop, serve_error, read_timeout, alloc_dummy_client, free_dummy_client);
+		TEST_ASSERT_EQUAL_MESSAGE(cio_success, err, "Server initialization failed!");
 
-	err = server.serve(&server);
-	TEST_ASSERT_EQUAL_MESSAGE(cio_success, err, "Serving http failed!");
+		struct cio_http_uri_server_location target;
+		err = cio_http_server_location_init(&target, location_test.location, NULL, alloc_dummy_handler);
+		TEST_ASSERT_EQUAL_MESSAGE(cio_success, err, "Request target initialization failed!");
 
-	struct cio_socket *s = server.alloc_client();
+		err = server.register_location(&server, &target);
+		TEST_ASSERT_EQUAL_MESSAGE(cio_success, err, "Register request target failed!");
 
-	const char request[] = HTTP_GET " " REQUEST_TARGET1 " " HTTP_11 CRLF CRLF;
-	memory_stream_init(&ms, request, s);
+		err = server.serve(&server);
+		TEST_ASSERT_EQUAL_MESSAGE(cio_success, err, "Serving http failed!");
 
-	server.server_socket.handler(&server.server_socket, server.server_socket.handler_context, cio_success, s);
-	TEST_ASSERT_EQUAL_MESSAGE(0, header_complete_fake.call_count, "header_complete was not called!");
-	TEST_ASSERT_EQUAL_MESSAGE(1, client_socket_close_fake.call_count, "Client socket was not closed!");
-	TEST_ASSERT_EQUAL_MESSAGE(0, serve_error_fake.call_count, "Serve error callback was called!");
+		struct cio_socket *s = server.alloc_client();
 
-	check_http_response(&ms, 500);
+		char start_line[100];
+		snprintf(start_line, sizeof(start_line) - 1, "GET %s HTTP/1.1\r\n", location_test.request_target);
+
+		const char *request[] = {
+		    start_line,
+		    CRLF};
+
+		init_request(request, ARRAY_SIZE(request));
+		server.server_socket.handler(&server.server_socket, server.server_socket.handler_context, cio_success, s);
+		TEST_ASSERT_EQUAL_MESSAGE(0, serve_error_fake.call_count, "Serve error callback was called!");
+		check_http_response(location_test.expected_response);
+
+		setUp();
+	}
 }
 
-static void test_serve_alloc_handler_fails(void)
+struct best_match_test {
+	const char *location1;
+	cio_http_alloc_handler location1_handler;
+	const char *location2;
+	cio_http_alloc_handler location2_handler;
+	const char *request;
+};
+
+static void test_serve_locations_best_match(void)
 {
-	cio_server_socket_init_fake.custom_fake = cio_server_socket_init_ok;
-	socket_accept_fake.custom_fake = accept_save_handler;
+	static struct best_match_test best_match_tests[] = {
+	    {.location1 = REQUEST_TARGET, .location1_handler = alloc_dummy_handler, .location2 = REQUEST_TARGET_SUB, .location2_handler = alloc_dummy_handler_sub, .request = REQUEST_TARGET_SUB},
+	    {.location1 = REQUEST_TARGET_SUB, .location1_handler = alloc_dummy_handler_sub, .location2 = REQUEST_TARGET, .location2_handler = alloc_dummy_handler, .request = REQUEST_TARGET_SUB},
+	};
 
-	header_complete_fake.custom_fake = header_complete_close;
+	for (unsigned int i = 0; i < ARRAY_SIZE(best_match_tests); i++) {
+		struct best_match_test best_match_test = best_match_tests[i];
 
-	struct cio_http_server server;
-	enum cio_error err = cio_http_server_init(&server, 8080, &loop, serve_error, read_timeout, alloc_dummy_client, free_dummy_client);
-	TEST_ASSERT_EQUAL_MESSAGE(cio_success, err, "Server initialization failed!");
+		cio_server_socket_init_fake.custom_fake = cio_server_socket_init_ok;
+		socket_accept_fake.custom_fake = accept_save_handler;
 
-	struct cio_http_uri_server_location target;
-	err = cio_http_server_location_init(&target, REQUEST_TARGET1, NULL, alloc_failing_handler);
-	TEST_ASSERT_EQUAL_MESSAGE(cio_success, err, "Request target initialization failed!");
+		header_complete_fake.custom_fake = header_complete_write_response;
+		header_complete_sub_fake.custom_fake = header_complete_write_response;
 
-	err = server.register_location(&server, &target);
-	TEST_ASSERT_EQUAL_MESSAGE(cio_success, err, "Register request target failed!");
+		struct cio_http_server server;
+		enum cio_error err = cio_http_server_init(&server, 8080, &loop, serve_error, read_timeout, alloc_dummy_client, free_dummy_client);
+		TEST_ASSERT_EQUAL_MESSAGE(cio_success, err, "Server initialization failed!");
 
-	err = server.serve(&server);
-	TEST_ASSERT_EQUAL_MESSAGE(cio_success, err, "Serving http failed!");
+		struct cio_http_uri_server_location target;
+		err = cio_http_server_location_init(&target, best_match_test.location1, NULL, best_match_test.location1_handler);
+		TEST_ASSERT_EQUAL_MESSAGE(cio_success, err, "Request target initialization failed!");
 
-	struct cio_socket *s = server.alloc_client();
+		err = server.register_location(&server, &target);
+		TEST_ASSERT_EQUAL_MESSAGE(cio_success, err, "Register request target failed!");
 
-	const char request[] = HTTP_GET " " REQUEST_TARGET1 " " HTTP_11 CRLF CRLF;
-	memory_stream_init(&ms, request, s);
+		struct cio_http_uri_server_location target_sub;
+		err = cio_http_server_location_init(&target_sub, best_match_test.location2, NULL, best_match_test.location2_handler);
+		TEST_ASSERT_EQUAL_MESSAGE(cio_success, err, "Request sub target initialization failed!");
 
-	server.server_socket.handler(&server.server_socket, server.server_socket.handler_context, cio_success, s);
-	TEST_ASSERT_EQUAL_MESSAGE(0, header_complete_fake.call_count, "header_complete was not called!");
-	TEST_ASSERT_EQUAL_MESSAGE(1, client_socket_close_fake.call_count, "Client socket was not closed!");
-	TEST_ASSERT_EQUAL_MESSAGE(0, serve_error_fake.call_count, "Serve error callback was called!");
+		err = server.register_location(&server, &target_sub);
+		TEST_ASSERT_EQUAL_MESSAGE(cio_success, err, "Register request sub target failed!");
 
-	check_http_response(&ms, 500);
-}
+		err = server.serve(&server);
+		TEST_ASSERT_EQUAL_MESSAGE(cio_success, err, "Serving http failed!");
 
-static void test_serve_correctly_with_header_fields(void)
-{
-	cio_server_socket_init_fake.custom_fake = cio_server_socket_init_ok;
-	socket_accept_fake.custom_fake = accept_save_handler;
+		struct cio_socket *s = server.alloc_client();
 
-	header_complete_fake.custom_fake = header_complete_no_close;
+		char start_line[100];
+		snprintf(start_line, sizeof(start_line) - 1, "GET %s HTTP/1.1\r\n", best_match_test.request);
 
-	struct cio_http_server server;
-	enum cio_error err = cio_http_server_init(&server, 8080, &loop, serve_error, read_timeout, alloc_dummy_client, free_dummy_client);
-	TEST_ASSERT_EQUAL_MESSAGE(cio_success, err, "Server initialization failed!");
+		const char *request[] = {
+		    start_line,
+		    CRLF};
 
-	struct cio_http_uri_server_location target;
-	err = cio_http_server_location_init(&target, REQUEST_TARGET1, NULL, alloc_dummy_handler);
-	TEST_ASSERT_EQUAL_MESSAGE(cio_success, err, "Request target initialization failed!");
+		init_request(request, ARRAY_SIZE(request));
+		server.server_socket.handler(&server.server_socket, server.server_socket.handler_context, cio_success, s);
+		TEST_ASSERT_EQUAL_MESSAGE(0, header_complete_fake.call_count, "header_complete was called!");
+		TEST_ASSERT_EQUAL_MESSAGE(1, header_complete_sub_fake.call_count, "header_complete_sub was not called!");
+		TEST_ASSERT_EQUAL_MESSAGE(0, serve_error_fake.call_count, "Serve error callback was called!");
+		check_http_response(200);
 
-	err = server.register_location(&server, &target);
-	TEST_ASSERT_EQUAL_MESSAGE(cio_success, err, "Register request target failed!");
-
-	err = server.serve(&server);
-	TEST_ASSERT_EQUAL_MESSAGE(cio_success, err, "Serving http failed!");
-
-	struct cio_socket *s = server.alloc_client();
-
-	const char request[] =
-		HTTP_GET " " REQUEST_TARGET1 " " HTTP_11 CRLF
-		KEEP_ALIVE_FIELD ": " KEEP_ALIVE_VALUE CRLF
-		DNT_FIELD ": " DNT_VALUE CRLF
-		CRLF;
-	memory_stream_init(&ms, request, s);
-
-	server.server_socket.handler(&server.server_socket, server.server_socket.handler_context, cio_success, s);
-	TEST_ASSERT_EQUAL_MESSAGE(1, header_complete_fake.call_count, "header_complete was not called!");
-	TEST_ASSERT_EQUAL_MESSAGE(2, on_header_field_fake.call_count, "on_header_field was not called twice!");
-	TEST_ASSERT_EQUAL_MESSAGE(2, on_header_value_fake.call_count, "on_header_value was not called twice!");
-	TEST_ASSERT_MESSAGE(memcmp(on_header_field_fake.arg1_history[0], KEEP_ALIVE_FIELD, strlen(KEEP_ALIVE_FIELD)) == 0, "Header field is not correct!");
-	TEST_ASSERT_MESSAGE(memcmp(on_header_value_fake.arg1_history[0], KEEP_ALIVE_VALUE, strlen(KEEP_ALIVE_VALUE)) == 0, "Header value is not correct!");
-	TEST_ASSERT_MESSAGE(memcmp(on_header_field_fake.arg1_history[1], DNT_FIELD, strlen(DNT_FIELD)) == 0, "Header field is not correct!");
-	TEST_ASSERT_MESSAGE(memcmp(on_header_value_fake.arg1_history[1], DNT_VALUE, strlen(DNT_VALUE)) == 0, "Header value is not correct!");
-
-	struct cio_http_client *client = container_of(s, struct cio_http_client, socket);
-	close_client(client);
-	TEST_ASSERT_EQUAL_MESSAGE(1, client_socket_close_fake.call_count, "Client socket was not closed!");
-	TEST_ASSERT_EQUAL_MESSAGE(0, serve_error_fake.call_count, "Serve error callback was called!");
-}
-
-static void test_serve_with_wrong_header_fields(void)
-{
-	cio_server_socket_init_fake.custom_fake = cio_server_socket_init_ok;
-	socket_accept_fake.custom_fake = accept_save_handler;
-
-	header_complete_fake.custom_fake = header_complete_no_close;
-
-	struct cio_http_server server;
-	enum cio_error err = cio_http_server_init(&server, 8080, &loop, serve_error, read_timeout, alloc_dummy_client, free_dummy_client);
-	TEST_ASSERT_EQUAL_MESSAGE(cio_success, err, "Server initialization failed!");
-
-	struct cio_http_uri_server_location target;
-	err = cio_http_server_location_init(&target, REQUEST_TARGET1, NULL, alloc_dummy_handler);
-	TEST_ASSERT_EQUAL_MESSAGE(cio_success, err, "Request target initialization failed!");
-
-	err = server.register_location(&server, &target);
-	TEST_ASSERT_EQUAL_MESSAGE(cio_success, err, "Register request target failed!");
-
-	err = server.serve(&server);
-	TEST_ASSERT_EQUAL_MESSAGE(cio_success, err, "Serving http failed!");
-
-	struct cio_socket *s = server.alloc_client();
-
-	const char request[] =
-		HTTP_GET " " REQUEST_TARGET1 " " HTTP_11 CRLF
-		KEEP_ALIVE_FIELD ": " KEEP_ALIVE_VALUE CRLF
-		DNT_FIELD " " DNT_VALUE CRLF
-		CRLF;
-	memory_stream_init(&ms, request, s);
-
-	server.server_socket.handler(&server.server_socket, server.server_socket.handler_context, cio_success, s);
-	TEST_ASSERT_EQUAL_MESSAGE(0, header_complete_fake.call_count, "header_complete was called!");
-	TEST_ASSERT_EQUAL_MESSAGE(1, on_header_field_fake.call_count, "on_header_field was not called twice!");
-	TEST_ASSERT_EQUAL_MESSAGE(1, on_header_value_fake.call_count, "on_header_field was not called twice!");
-	TEST_ASSERT_MESSAGE(memcmp(on_header_field_fake.arg1_history[0], KEEP_ALIVE_FIELD, strlen(KEEP_ALIVE_FIELD)) == 0, "Header field is not correct!");
-	TEST_ASSERT_MESSAGE(memcmp(on_header_value_fake.arg1_history[0], KEEP_ALIVE_VALUE, strlen(KEEP_ALIVE_VALUE)) == 0, "Header value is not correct!");
-
-	check_http_response(&ms, 400);
-
-	struct cio_http_client *client = container_of(s, struct cio_http_client, socket);
-	close_client(client);
-	TEST_ASSERT_EQUAL_MESSAGE(1, client_socket_close_fake.call_count, "Client socket was not closed!");
-	TEST_ASSERT_EQUAL_MESSAGE(0, serve_error_fake.call_count, "Serve error callback was called!");
-}
-
-static void test_serve_timer_init_fails(void)
-{
-	cio_server_socket_init_fake.custom_fake = cio_server_socket_init_ok;
-	socket_accept_fake.custom_fake = accept_save_handler;
-	cio_timer_init_fake.custom_fake = cio_timer_init_fails;
-
-	struct cio_http_server server;
-	enum cio_error err = cio_http_server_init(&server, 8080, &loop, serve_error, read_timeout, alloc_dummy_client, free_dummy_client);
-	TEST_ASSERT_EQUAL_MESSAGE(cio_success, err, "Server initialization failed!");
-
-	err = server.serve(&server);
-	TEST_ASSERT_EQUAL_MESSAGE(cio_success, err, "Serving http failed!");
-
-	struct cio_socket *s = server.alloc_client();
-
-	const char request[] = HTTP_GET " " REQUEST_TARGET1 " " HTTP_11 CRLF CRLF;
-	memory_stream_init(&ms, request, s);
-
-	server.server_socket.handler(&server.server_socket, server.server_socket.handler_context, cio_success, s);
-	TEST_ASSERT_EQUAL_MESSAGE(1, serve_error_fake.call_count, "Serve error callback was not called despite timer initialization failed!");
-	TEST_ASSERT_EQUAL_MESSAGE(1, client_socket_close_fake.call_count, "Client socket was not closed!");
-}
-
-static void test_serve_timer_init_fails_no_serve_error_cb(void)
-{
-	cio_server_socket_init_fake.custom_fake = cio_server_socket_init_ok;
-	socket_accept_fake.custom_fake = accept_save_handler;
-	cio_timer_init_fake.custom_fake = cio_timer_init_fails;
-
-	struct cio_http_server server;
-	enum cio_error err = cio_http_server_init(&server, 8080, &loop, NULL, read_timeout, alloc_dummy_client, free_dummy_client);
-	TEST_ASSERT_EQUAL_MESSAGE(cio_success, err, "Server initialization failed!");
-
-	err = server.serve(&server);
-	TEST_ASSERT_EQUAL_MESSAGE(cio_success, err, "Serving http failed!");
-
-	struct cio_socket *s = server.alloc_client();
-
-	const char request[] = HTTP_GET " " REQUEST_TARGET1 " " HTTP_11 CRLF CRLF;
-	memory_stream_init(&ms, request, s);
-
-	server.server_socket.handler(&server.server_socket, server.server_socket.handler_context, cio_success, s);
-	TEST_ASSERT_EQUAL_MESSAGE(0, serve_error_fake.call_count, "Serve error callback was called despite not given in initialization!");
-	TEST_ASSERT_EQUAL_MESSAGE(1, client_socket_close_fake.call_count, "Client socket was not closed!");
-}
-
-
-static void test_serve_init_fails(void)
-{
-	cio_server_socket_init_fake.custom_fake = cio_server_socket_init_fails;
-
-	struct cio_http_server server;
-	enum cio_error err = cio_http_server_init(&server, 8080, &loop, serve_error, read_timeout, alloc_dummy_client, free_dummy_client);
-	TEST_ASSERT_EQUAL_MESSAGE(cio_success, err, "Server initialization failed!");
-
-	struct cio_http_uri_server_location target;
-	err = cio_http_server_location_init(&target, "/foo", NULL, alloc_dummy_handler);
-	TEST_ASSERT_EQUAL_MESSAGE(cio_success, err, "Request target initialization failed!");
-
-	err = server.register_location(&server, &target);
-	TEST_ASSERT_EQUAL_MESSAGE(cio_success, err, "Register request target failed!");
-
-	err = server.serve(&server);
-	TEST_ASSERT_NOT_EQUAL_MESSAGE(cio_success, err, "Serving http did not fail!");
-}
-
-static void test_serve_init_fails_reuse_address(void)
-{
-	cio_server_socket_init_fake.custom_fake = cio_server_socket_init_ok;
-	socket_set_reuse_address_fake.return_val = cio_invalid_argument;
-
-	struct cio_http_server server;
-	enum cio_error err = cio_http_server_init(&server, 8080, &loop, serve_error, read_timeout, alloc_dummy_client, free_dummy_client);
-	TEST_ASSERT_EQUAL_MESSAGE(cio_success, err, "Server initialization failed!");
-
-	struct cio_http_uri_server_location target;
-	err = cio_http_server_location_init(&target, "/foo", NULL, alloc_dummy_handler);
-	TEST_ASSERT_EQUAL_MESSAGE(cio_success, err, "Request target initialization failed!");
-
-	err = server.register_location(&server, &target);
-	TEST_ASSERT_EQUAL_MESSAGE(cio_success, err, "Register request target failed!");
-
-	err = server.serve(&server);
-	TEST_ASSERT_NOT_EQUAL_MESSAGE(cio_success, err, "Serving http did not fail!");
-
-	TEST_ASSERT_EQUAL_MESSAGE(1, socket_close_fake.call_count, "Close was not called!");
-}
-
-static void test_serve_init_fails_bind(void)
-{
-	cio_server_socket_init_fake.custom_fake = cio_server_socket_init_ok;
-	socket_bind_fake.return_val = cio_invalid_argument;
-
-	struct cio_http_server server;
-	enum cio_error err = cio_http_server_init(&server, 8080, &loop, serve_error, read_timeout, alloc_dummy_client, free_dummy_client);
-	TEST_ASSERT_EQUAL_MESSAGE(cio_success, err, "Server initialization failed!");
-
-	struct cio_http_uri_server_location target;
-	err = cio_http_server_location_init(&target, "/foo", NULL, alloc_dummy_handler);
-	TEST_ASSERT_EQUAL_MESSAGE(cio_success, err, "Request target initialization failed!");
-
-	err = server.register_location(&server, &target);
-	TEST_ASSERT_EQUAL_MESSAGE(cio_success, err, "Register request target failed!");
-
-	err = server.serve(&server);
-	TEST_ASSERT_NOT_EQUAL_MESSAGE(cio_success, err, "Serving http did not fail!");
-
-	TEST_ASSERT_EQUAL_MESSAGE(1, socket_close_fake.call_count, "Close was not called!");
-}
-
-static void test_serve_init_fails_accept(void)
-{
-	cio_server_socket_init_fake.custom_fake = cio_server_socket_init_ok;
-	socket_accept_fake.return_val = cio_invalid_argument;
-
-	struct cio_http_server server;
-	enum cio_error err = cio_http_server_init(&server, 8080, &loop, serve_error, read_timeout, alloc_dummy_client, free_dummy_client);
-	TEST_ASSERT_EQUAL_MESSAGE(cio_success, err, "Server initialization failed!");
-
-	struct cio_http_uri_server_location target;
-	err = cio_http_server_location_init(&target, "/foo", NULL, alloc_dummy_handler);
-	TEST_ASSERT_EQUAL_MESSAGE(cio_success, err, "Request target initialization failed!");
-
-	err = server.register_location(&server, &target);
-	TEST_ASSERT_EQUAL_MESSAGE(cio_success, err, "Register request target failed!");
-
-	err = server.serve(&server);
-	TEST_ASSERT_NOT_EQUAL_MESSAGE(cio_success, err, "Serving http did not fail!");
-
-	TEST_ASSERT_EQUAL_MESSAGE(0, serve_error_fake.call_count, "Serve error callback was called!");
-}
-
-static void test_serve_wrong_request_target(void)
-{
-	cio_server_socket_init_fake.custom_fake = cio_server_socket_init_ok;
-	socket_accept_fake.custom_fake = accept_save_handler;
-
-	header_complete_fake.custom_fake = header_complete_close;
-
-	struct cio_http_server server;
-	enum cio_error err = cio_http_server_init(&server, 8080, &loop, serve_error, read_timeout, alloc_dummy_client, free_dummy_client);
-	TEST_ASSERT_EQUAL_MESSAGE(cio_success, err, "Server initialization failed!");
-
-	struct cio_http_uri_server_location target;
-	err = cio_http_server_location_init(&target, REQUEST_TARGET2, NULL, alloc_dummy_handler);
-	TEST_ASSERT_EQUAL_MESSAGE(cio_success, err, "Request target initialization failed!");
-
-	err = server.register_location(&server, &target);
-	TEST_ASSERT_EQUAL_MESSAGE(cio_success, err, "Register request target failed!");
-
-	err = server.serve(&server);
-	TEST_ASSERT_EQUAL_MESSAGE(cio_success, err, "Serving http failed!");
-
-	struct cio_socket *s = server.alloc_client();
-
-	const char request[] = HTTP_GET " " REQUEST_TARGET1 " " HTTP_11 CRLF CRLF;
-	memory_stream_init(&ms, request, s);
-
-	server.server_socket.handler(&server.server_socket, server.server_socket.handler_context, cio_success, s);
-	TEST_ASSERT_EQUAL_MESSAGE(0, header_complete_fake.call_count, "header_complete was called!");
-	TEST_ASSERT_EQUAL_MESSAGE(1, client_socket_close_fake.call_count, "Client socket was not closed!");
-	check_http_response(&ms, 404);
-	TEST_ASSERT_EQUAL_MESSAGE(0, header_complete_fake.call_count, "header_complete was called!");
-	TEST_ASSERT_EQUAL_MESSAGE(1, client_socket_close_fake.call_count, "Client socket was not closed!");
-	TEST_ASSERT_EQUAL_MESSAGE(0, serve_error_fake.call_count, "Serve error callback was called!");
-}
-
-static void test_serve_accept_fails(void)
-{
-	cio_server_socket_init_fake.custom_fake = cio_server_socket_init_ok;
-	socket_accept_fake.custom_fake = accept_save_handler;
-
-	header_complete_fake.custom_fake = header_complete_close;
-
-	struct cio_http_server server;
-	enum cio_error err = cio_http_server_init(&server, 8080, &loop, serve_error, read_timeout, alloc_dummy_client, free_dummy_client);
-	TEST_ASSERT_EQUAL_MESSAGE(cio_success, err, "Server initialization failed!");
-
-	struct cio_http_uri_server_location target;
-	err = cio_http_server_location_init(&target, REQUEST_TARGET1, NULL, alloc_dummy_handler);
-	TEST_ASSERT_EQUAL_MESSAGE(cio_success, err, "Request target initialization failed!");
-
-	err = server.register_location(&server, &target);
-	TEST_ASSERT_EQUAL_MESSAGE(cio_success, err, "Register request target failed!");
-
-	err = server.serve(&server);
-	TEST_ASSERT_EQUAL_MESSAGE(cio_success, err, "Serving http failed!");
-
-	server.server_socket.handler(&server.server_socket, server.server_socket.handler_context, cio_not_enough_memory, NULL);
-	TEST_ASSERT_EQUAL_MESSAGE(0, header_complete_fake.call_count, "header_complete was called despite accept error!");
-	TEST_ASSERT_EQUAL_MESSAGE(1, serve_error_fake.call_count, "Serve error callback was not called!");
-}
-
-static void test_serve_accept_fails_no_error_callback(void)
-{
-	cio_server_socket_init_fake.custom_fake = cio_server_socket_init_ok;
-	socket_accept_fake.custom_fake = accept_save_handler;
-
-	header_complete_fake.custom_fake = header_complete_close;
-
-	struct cio_http_server server;
-	enum cio_error err = cio_http_server_init(&server, 8080, &loop, NULL, read_timeout, alloc_dummy_client, free_dummy_client);
-	TEST_ASSERT_EQUAL_MESSAGE(cio_success, err, "Server initialization failed!");
-
-	struct cio_http_uri_server_location target;
-	err = cio_http_server_location_init(&target, REQUEST_TARGET1, NULL, alloc_dummy_handler);
-	TEST_ASSERT_EQUAL_MESSAGE(cio_success, err, "Request target initialization failed!");
-
-	err = server.register_location(&server, &target);
-	TEST_ASSERT_EQUAL_MESSAGE(cio_success, err, "Register request target failed!");
-
-	err = server.serve(&server);
-	TEST_ASSERT_EQUAL_MESSAGE(cio_success, err, "Serving http failed!");
-
-	server.server_socket.handler(&server.server_socket, server.server_socket.handler_context, cio_not_enough_memory, NULL);
-	TEST_ASSERT_EQUAL_MESSAGE(0, header_complete_fake.call_count, "header_complete was called despite accept error!");
-	TEST_ASSERT_EQUAL_MESSAGE(0, serve_error_fake.call_count, "Serve error callback was called!");
-}
-
-static void test_serve_illegal_start_line(void)
-{
-	cio_server_socket_init_fake.custom_fake = cio_server_socket_init_ok;
-	socket_accept_fake.custom_fake = accept_save_handler;
-
-	header_complete_fake.custom_fake = header_complete_close;
-
-	struct cio_http_server server;
-	enum cio_error err = cio_http_server_init(&server, 8080, &loop, serve_error, read_timeout, alloc_dummy_client, free_dummy_client);
-	TEST_ASSERT_EQUAL_MESSAGE(cio_success, err, "Server initialization failed!");
-
-	struct cio_http_uri_server_location target;
-	err = cio_http_server_location_init(&target, REQUEST_TARGET1, NULL, alloc_dummy_handler);
-	TEST_ASSERT_EQUAL_MESSAGE(cio_success, err, "Request target initialization failed!");
-
-	err = server.register_location(&server, &target);
-	TEST_ASSERT_EQUAL_MESSAGE(cio_success, err, "Register request target failed!");
-
-	err = server.serve(&server);
-	TEST_ASSERT_EQUAL_MESSAGE(cio_success, err, "Serving http failed!");
-
-	struct cio_socket *s = server.alloc_client();
-
-	const char request[] = HTTP_GET " " REQUEST_TARGET1 " " WRONG_HTTP_11 CRLF CRLF;
-	memory_stream_init(&ms, request, s);
-
-	server.server_socket.handler(&server.server_socket, server.server_socket.handler_context, cio_success, s);
-	TEST_ASSERT_EQUAL_MESSAGE(0, header_complete_fake.call_count, "header_complete was called!");
-	TEST_ASSERT_EQUAL_MESSAGE(1, client_socket_close_fake.call_count, "Client socket was not closed!");
-	TEST_ASSERT_EQUAL_MESSAGE(0, serve_error_fake.call_count, "Serve error callback was called!");
-	check_http_response(&ms, 400);
-}
-
-static void test_serve_read_fails(void)
-{
-	cio_server_socket_init_fake.custom_fake = cio_server_socket_init_ok;
-	socket_accept_fake.custom_fake = accept_save_handler;
-
-	header_complete_fake.custom_fake = header_complete_close;
-
-	struct cio_http_server server;
-	enum cio_error err = cio_http_server_init(&server, 8080, &loop, serve_error, read_timeout, alloc_dummy_client, free_dummy_client);
-	TEST_ASSERT_EQUAL_MESSAGE(cio_success, err, "Server initialization failed!");
-
-	struct cio_http_uri_server_location target;
-	err = cio_http_server_location_init(&target, REQUEST_TARGET1, NULL, alloc_dummy_handler);
-	TEST_ASSERT_EQUAL_MESSAGE(cio_success, err, "Request target initialization failed!");
-
-	err = server.register_location(&server, &target);
-	TEST_ASSERT_EQUAL_MESSAGE(cio_success, err, "Register request target failed!");
-
-	err = server.serve(&server);
-	TEST_ASSERT_EQUAL_MESSAGE(cio_success, err, "Serving http failed!");
-
-	struct cio_socket *s = server.alloc_client();
-
-	const char request[] = HTTP_GET " " REQUEST_TARGET1 " " HTTP_11 CRLF CRLF;
-	memory_stream_init(&ms, request, s);
-	ms.ios.read_some = read_some_error;
-
-	server.server_socket.handler(&server.server_socket, server.server_socket.handler_context, cio_success, s);
-	TEST_ASSERT_EQUAL_MESSAGE(0, header_complete_fake.call_count, "header_complete was not called!");
-	TEST_ASSERT_EQUAL_MESSAGE(1, client_socket_close_fake.call_count, "Client socket was not closed!");
-	TEST_ASSERT_EQUAL_MESSAGE(0, serve_error_fake.call_count, "Serve error callback was called!");
-	check_http_response(&ms, 500);
-}
-
-static void test_serve_connect_method(void)
-{
-	cio_server_socket_init_fake.custom_fake = cio_server_socket_init_ok;
-	socket_accept_fake.custom_fake = accept_save_handler;
-
-	header_complete_fake.custom_fake = header_complete_close;
-
-	struct cio_http_server server;
-	enum cio_error err = cio_http_server_init(&server, 8080, &loop, serve_error, read_timeout, alloc_dummy_client, free_dummy_client);
-	TEST_ASSERT_EQUAL_MESSAGE(cio_success, err, "Server initialization failed!");
-
-	struct cio_http_uri_server_location target;
-	err = cio_http_server_location_init(&target, REQUEST_TARGET1, NULL, alloc_dummy_handler);
-	TEST_ASSERT_EQUAL_MESSAGE(cio_success, err, "Request target initialization failed!");
-
-	err = server.register_location(&server, &target);
-	TEST_ASSERT_EQUAL_MESSAGE(cio_success, err, "Register request target failed!");
-
-	err = server.serve(&server);
-	TEST_ASSERT_EQUAL_MESSAGE(cio_success, err, "Serving http failed!");
-
-	struct cio_socket *s = server.alloc_client();
-
-	const char request[] = HTTP_CONNECT " " REQUEST_TARGET_CONNECT " " HTTP_11 CRLF CRLF;
-	memory_stream_init(&ms, request, s);
-
-	server.server_socket.handler(&server.server_socket, server.server_socket.handler_context, cio_success, s);
-	TEST_ASSERT_EQUAL_MESSAGE(0, header_complete_fake.call_count, "header_complete was not called!");
-	TEST_ASSERT_EQUAL_MESSAGE(1, client_socket_close_fake.call_count, "Client socket was not closed!");
-	TEST_ASSERT_EQUAL_MESSAGE(0, serve_error_fake.call_count, "Serve error callback was called!");
-	check_http_response(&ms, 400);
-}
-
-static void test_serve_illegal_url(void)
-{
-	cio_server_socket_init_fake.custom_fake = cio_server_socket_init_ok;
-	socket_accept_fake.custom_fake = accept_save_handler;
-
-	header_complete_fake.custom_fake = header_complete_close;
-
-	struct cio_http_server server;
-	enum cio_error err = cio_http_server_init(&server, 8080, &loop, serve_error, read_timeout, alloc_dummy_client, free_dummy_client);
-	TEST_ASSERT_EQUAL_MESSAGE(cio_success, err, "Server initialization failed!");
-
-	struct cio_http_uri_server_location target;
-	err = cio_http_server_location_init(&target, REQUEST_TARGET1, NULL, alloc_dummy_handler);
-	TEST_ASSERT_EQUAL_MESSAGE(cio_success, err, "Request target initialization failed!");
-
-	err = server.register_location(&server, &target);
-	TEST_ASSERT_EQUAL_MESSAGE(cio_success, err, "Register request target failed!");
-
-	err = server.serve(&server);
-	TEST_ASSERT_EQUAL_MESSAGE(cio_success, err, "Serving http failed!");
-
-	struct cio_socket *s = server.alloc_client();
-
-	const char request[] = HTTP_GET " " ILLEGAL_REQUEST_TARGET " " HTTP_11 CRLF CRLF;
-	memory_stream_init(&ms, request, s);
-
-	server.server_socket.handler(&server.server_socket, server.server_socket.handler_context, cio_success, s);
-	TEST_ASSERT_EQUAL_MESSAGE(0, header_complete_fake.call_count, "header_complete was not called!");
-	TEST_ASSERT_EQUAL_MESSAGE(1, client_socket_close_fake.call_count, "Client socket was not closed!");
-	TEST_ASSERT_EQUAL_MESSAGE(0, serve_error_fake.call_count, "Serve error callback was called!");
-	check_http_response(&ms, 400);
-}
-
-static void test_serve_correctly_on_url_close(void)
-{
-	cio_server_socket_init_fake.custom_fake = cio_server_socket_init_ok;
-	socket_accept_fake.custom_fake = accept_save_handler;
-
-	on_url_fake.custom_fake = on_url_close;
-
-	struct cio_http_server server;
-	enum cio_error err = cio_http_server_init(&server, 8080, &loop, serve_error, read_timeout, alloc_dummy_client, free_dummy_client);
-	TEST_ASSERT_EQUAL_MESSAGE(cio_success, err, "Server initialization failed!");
-
-	struct cio_http_uri_server_location target;
-	err = cio_http_server_location_init(&target, REQUEST_TARGET1, NULL, alloc_dummy_handler);
-	TEST_ASSERT_EQUAL_MESSAGE(cio_success, err, "Request target initialization failed!");
-
-	err = server.register_location(&server, &target);
-	TEST_ASSERT_EQUAL_MESSAGE(cio_success, err, "Register request target failed!");
-
-	err = server.serve(&server);
-	TEST_ASSERT_EQUAL_MESSAGE(cio_success, err, "Serving http failed!");
-
-	struct cio_socket *s = server.alloc_client();
-
-	const char request[] = HTTP_GET " " REQUEST_TARGET1 " " HTTP_11 CRLF CRLF;
-	memory_stream_init(&ms, request, s);
-
-	server.server_socket.handler(&server.server_socket, server.server_socket.handler_context, cio_success, s);
-	TEST_ASSERT_EQUAL_MESSAGE(1, on_url_fake.call_count, "on_url was not called!");
-	TEST_ASSERT_EQUAL_MESSAGE(1, client_socket_close_fake.call_count, "Client socket was not closed!");
-	TEST_ASSERT_EQUAL_MESSAGE(0, serve_error_fake.call_count, "Serve error callback was called!");
+		setUp();
+	}
 }
 
 int main(void)
 {
 	UNITY_BEGIN();
-	RUN_TEST(test_server_init_correctly);
-	RUN_TEST(test_server_init_no_server);
-	RUN_TEST(test_server_init_no_loop);
-	RUN_TEST(test_server_init_no_alloc);
-	RUN_TEST(test_server_init_no_free);
-	RUN_TEST(test_server_init_no_timeout);
-	RUN_TEST(test_request_target_init_correctly);
-	RUN_TEST(test_request_target_init_no_alloc_handler);
-	RUN_TEST(test_request_target_init_no_request_target);
-	RUN_TEST(test_request_target_init_no_target);
-	RUN_TEST(test_serve_timeout);
-	RUN_TEST(test_register_request_target_correctly);
-	RUN_TEST(test_register_request_target_no_server);
-	RUN_TEST(test_register_request_target_no_target);
-	RUN_TEST(test_serve_correctly);
-	RUN_TEST(test_serve_correctly_request_location_short);
-	RUN_TEST(test_serve_alloc_handler_with_no_callbacks);
-	RUN_TEST(test_serve_alloc_handler_fails);
-	RUN_TEST(test_serve_correctly_with_header_fields);
-	RUN_TEST(test_serve_with_wrong_header_fields);
-	RUN_TEST(test_serve_timer_init_fails);
-	RUN_TEST(test_serve_timer_init_fails_no_serve_error_cb);
-	RUN_TEST(test_serve_init_fails);
-	RUN_TEST(test_serve_init_fails_reuse_address);
-	RUN_TEST(test_serve_init_fails_bind);
-	RUN_TEST(test_serve_init_fails_accept);
-	RUN_TEST(test_serve_wrong_request_target);
-	RUN_TEST(test_serve_accept_fails);
-	RUN_TEST(test_serve_accept_fails_no_error_callback);
-	RUN_TEST(test_serve_illegal_start_line);
-	RUN_TEST(test_serve_read_fails);
-	RUN_TEST(test_serve_connect_method);
-	RUN_TEST(test_serve_illegal_url);
-	RUN_TEST(test_serve_correctly_on_url_close);
+	RUN_TEST(test_serve_first_line_fails);
+	RUN_TEST(test_serve_second_line_fails);
+	RUN_TEST(test_serve_locations);
+	RUN_TEST(test_serve_locations_best_match);
 	return UNITY_END();
 }

@@ -116,6 +116,29 @@ static void write_response(struct cio_http_client *client, struct cio_write_buff
 	client->bs.write(&client->bs, &client->wbh, response_written, client);
 }
 
+static bool location_match(const char *location, size_t location_length, const char *request_target, size_t request_target_length)
+{
+	if (request_target_length < location_length) {
+		return false;
+	}
+
+	if (memcmp(request_target, location, location_length) == 0) {
+		if (location_length == request_target_length) {
+			return true;
+		}
+
+		if (location[location_length - 1] == '/') {
+			return true;
+		}
+
+		if (request_target[location_length] == '/') {
+			return true;
+		}
+	}
+
+	return false;
+}
+
 static const struct cio_http_uri_server_location *find_handler(const struct cio_http_server *server, const char *request_target, size_t url_length)
 {
 	const struct cio_http_uri_server_location *best_match = NULL;
@@ -123,13 +146,11 @@ static const struct cio_http_uri_server_location *find_handler(const struct cio_
 
 	const struct cio_http_uri_server_location *handler = server->first_handler;
 	for (size_t i = 0; i < server->num_handlers; i++) {
-		size_t length = strlen(handler->path);
-		if (length <= url_length) {
-			if (memcmp(handler->path, request_target, length) == 0) {
-				if (length > best_match_length) {
-					best_match_length = length;
-					best_match = handler;
-				}
+		size_t location_length = strlen(handler->path);
+		if (location_match(handler->path, location_length, request_target, url_length)) {
+			if (location_length > best_match_length) {
+				best_match_length = location_length;
+				best_match = handler;
 			}
 		}
 
@@ -195,13 +216,13 @@ static int on_url(http_parser *parser, const char *at, size_t length)
 	client->handler = handler;
 
 	if ((handler->on_url == NULL) &&
-		(handler->on_host == NULL) &&
-		(handler->on_path == NULL) &&
-		(handler->on_query == NULL) &&
-		(handler->on_fragment == NULL) &&
-		(handler->on_header_field == NULL) &&
-		(handler->on_header_value == NULL) &&
-		(handler->on_headers_complete == NULL)) {
+	    (handler->on_host == NULL) &&
+	    (handler->on_path == NULL) &&
+	    (handler->on_query == NULL) &&
+	    (handler->on_fragment == NULL) &&
+	    (handler->on_header_field == NULL) &&
+	    (handler->on_header_value == NULL) &&
+	    (handler->on_headers_complete == NULL)) {
 		client->write_header(client, cio_http_status_internal_server_error);
 		return 0;
 	}
@@ -229,6 +250,7 @@ static void handle_line(struct cio_buffered_stream *stream, void *handler_contex
 
 	if (unlikely(err != cio_success)) {
 		client->write_header(client, cio_http_status_internal_server_error);
+		close_client(client);
 		return;
 	}
 
@@ -296,7 +318,6 @@ static void handle_accept(struct cio_server_socket *ss, void *handler_context, e
 	}
 
 	struct cio_http_client *client = container_of(socket, struct cio_http_client, socket);
-
 
 	client->server = server;
 
