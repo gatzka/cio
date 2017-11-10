@@ -435,8 +435,13 @@ static void test_serve_locations(void)
 {
 	static struct location_test location_tests[] = {
 		{.location = "/foo", .request_target = "/foo", .expected_response = 200},
+		{.location = "/foo", .request_target = "/foo/", .expected_response = 200},
 		{.location = "/foo", .request_target = "/foo/bar", .expected_response = 200},
-		{.location = "/foo/bar", .request_target = "/foo/", .expected_response = 404},
+		{.location = "/foo", .request_target = "/foo2", .expected_response = 404},
+		{.location = "/foo/", .request_target = "/foo", .expected_response = 404},
+		{.location = "/foo/", .request_target = "/foo/", .expected_response = 200},
+		{.location = "/foo/", .request_target = "/foo/bar", .expected_response = 200},
+		{.location = "/foo/", .request_target = "/foo2", .expected_response = 404},
 	};
 
 	for (unsigned int i = 0; i < ARRAY_SIZE(location_tests); i++) {
