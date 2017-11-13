@@ -121,9 +121,16 @@ static void read_callback(void *context)
 			stream->read_handler(stream, stream->read_handler_context, (enum cio_error)errno, rb);
 		}
 	} else {
+		enum cio_error error;
 		rb->bytes_transferred = (size_t)ret;
-		rb->add_ptr += (size_t)ret;
-		stream->read_handler(stream, stream->read_handler_context, cio_success, rb);
+		if (ret == 0) {
+			error = cio_eof;
+		} else {
+			rb->add_ptr += (size_t)ret;
+			error = cio_success;
+		}
+
+		stream->read_handler(stream, stream->read_handler_context, error, rb);
 	}
 }
 
