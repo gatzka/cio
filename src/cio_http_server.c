@@ -441,7 +441,7 @@ void cio_http_request_handler_init(struct cio_http_request_handler *handler)
 	handler->on_header_field = NULL;
 	handler->on_header_value = NULL;
 	handler->on_headers_complete = NULL;
-	//handler->on_body = NULL;
-	//handler->on_message_complete = NULL;
+	handler->on_body = NULL;
+	handler->on_message_complete = NULL;
 	handler->free = NULL;
 }

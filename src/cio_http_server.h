@@ -142,6 +142,8 @@ struct cio_http_request_handler {
 	cio_http_data_cb on_header_field;
 	cio_http_data_cb on_header_value;
 	cio_http_cb on_headers_complete;
+	cio_http_data_cb on_body;
+	cio_http_cb on_message_complete;
 	void (*free)(struct cio_http_request_handler *handler);
 };
 
