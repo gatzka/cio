@@ -184,6 +184,8 @@ enum cio_error cio_http_server_init(struct cio_http_server *server,
                                     cio_alloc_client alloc_client,
                                     cio_free_client free_client);
 
+void cio_http_request_handler_init(struct cio_http_request_handler *handler);
+
 #ifdef __cplusplus
 }
 #endif

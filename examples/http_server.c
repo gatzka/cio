@@ -74,6 +74,7 @@ static struct cio_http_request_handler *alloc_dummy_handler(const void *config)
 	if (unlikely(handler == NULL)) {
 		return NULL;
 	} else {
+		cio_http_request_handler_init(&handler->handler);
 		cio_write_buffer_head_init(&handler->wbh);
 		handler->handler.free = free_dummy_handler;
 		handler->handler.on_header_field = NULL;
