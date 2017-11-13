@@ -57,13 +57,21 @@ static void free_dummy_handler(struct cio_http_request_handler *handler)
 	free(dh);
 }
 
-static enum cio_http_cb_return dummy_on_headers_complete(struct cio_http_client *client)
+static enum cio_http_cb_return dummy_on_message_complete(struct cio_http_client *client)
 {
 	struct cio_http_request_handler *handler = client->handler;
 	struct dummy_handler *dh = container_of(handler, struct dummy_handler, handler);
 	cio_write_buffer_init(&dh->wb, data, sizeof(data));
 	cio_write_buffer_queue_tail(&dh->wbh, &dh->wb);
 	client->write_response(client, &dh->wbh);
+	return cio_http_cb_success;
+}
+
+static enum cio_http_cb_return dummy_on_body(struct cio_http_client *client, const char *at, size_t length)
+{
+	(void)client;
+	(void)at;
+	(void)length;
 	return cio_http_cb_success;
 }
 
@@ -77,10 +85,8 @@ static struct cio_http_request_handler *alloc_dummy_handler(const void *config)
 		cio_http_request_handler_init(&handler->handler);
 		cio_write_buffer_head_init(&handler->wbh);
 		handler->handler.free = free_dummy_handler;
-		handler->handler.on_header_field = NULL;
-		handler->handler.on_header_value = NULL;
-		handler->handler.on_url = NULL;
-		handler->handler.on_headers_complete = dummy_on_headers_complete;
+		handler->handler.on_body = dummy_on_body;
+		handler->handler.on_message_complete = dummy_on_message_complete;
 		return &handler->handler;
 	}
 }

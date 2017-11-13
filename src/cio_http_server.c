@@ -166,7 +166,11 @@ static int on_headers_complete(http_parser *parser)
 	client->headers_complete = true;
 	client->content_length = parser->content_length;
 	client->read_timer.cancel(&client->read_timer);
-	return client->handler->on_headers_complete(client);
+	if (client->handler->on_headers_complete != NULL) {
+		return client->handler->on_headers_complete(client);
+	} else {
+		return 0;
+	}
 }
 
 static int on_header_field(http_parser *parser, const char *at, size_t length)
@@ -184,7 +188,11 @@ static int on_header_value(http_parser *parser, const char *at, size_t length)
 static int on_message_complete(http_parser *parser)
 {
 	struct cio_http_client *client = container_of(parser, struct cio_http_client, parser);
-	return client->handler->on_message_complete(client);
+	if (client->handler->on_message_complete != NULL) {
+		return client->handler->on_message_complete(client);
+	} else {
+		return 0;
+	}
 }
 
 static int on_body(http_parser *parser, const char *at, size_t length)
@@ -234,7 +242,9 @@ static int on_url(http_parser *parser, const char *at, size_t length)
 	    (handler->on_fragment == NULL) &&
 	    (handler->on_header_field == NULL) &&
 	    (handler->on_header_value == NULL) &&
-	    (handler->on_headers_complete == NULL)) {
+		(handler->on_body == NULL) &&
+		(handler->on_message_complete == NULL) &&
+		(handler->on_headers_complete == NULL)) {
 		client->write_header(client, cio_http_status_internal_server_error);
 		return 0;
 	}
