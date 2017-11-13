@@ -142,6 +142,8 @@ struct cio_http_request_handler {
 	cio_http_data_cb on_header_field;
 	cio_http_data_cb on_header_value;
 	cio_http_cb on_headers_complete;
+	cio_http_data_cb on_body;
+	cio_http_cb on_message_complete;
 	void (*free)(struct cio_http_request_handler *handler);
 };
 
@@ -183,6 +185,8 @@ enum cio_error cio_http_server_init(struct cio_http_server *server,
                                     uint64_t read_timeout,
                                     cio_alloc_client alloc_client,
                                     cio_free_client free_client);
+
+void cio_http_request_handler_init(struct cio_http_request_handler *handler);
 
 #ifdef __cplusplus
 }
