@@ -111,6 +111,7 @@ static struct cio_io_stream *socket_get_io_stream(struct cio_socket *s)
 
 static void read_callback(void *context)
 {
+	enum cio_error error;
 	struct cio_io_stream *stream = context;
 	struct cio_read_buffer *rb = stream->read_buffer;
 	struct cio_socket *s = container_of(stream, struct cio_socket, stream);
@@ -118,13 +119,19 @@ static void read_callback(void *context)
 	if (ret == -1) {
 		if (unlikely((errno != EWOULDBLOCK) && (errno != EAGAIN))) {
 			rb->bytes_transferred = 0;
-			stream->read_handler(stream, stream->read_handler_context, (enum cio_error)errno, rb);
+			error = (enum cio_error)errno;
 		}
 	} else {
 		rb->bytes_transferred = (size_t)ret;
-		rb->add_ptr += (size_t)ret;
-		stream->read_handler(stream, stream->read_handler_context, cio_success, rb);
+		if (ret == 0) {
+			error = cio_eof;
+		} else {
+			rb->add_ptr += (size_t)ret;
+			error = cio_success;
+		}
 	}
+
+	stream->read_handler(stream, stream->read_handler_context, error, rb);
 }
 
 static enum cio_error stream_read(struct cio_io_stream *stream, struct cio_read_buffer *buffer, cio_io_stream_read_handler handler, void *handler_context)

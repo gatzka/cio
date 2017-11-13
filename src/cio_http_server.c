@@ -268,7 +268,7 @@ static void handle_line(struct cio_buffered_stream *stream, void *handler_contex
 {
 	struct cio_http_client *client = (struct cio_http_client *)handler_context;
 
-	if (unlikely(err != cio_success)) {
+	if (unlikely(cio_is_error(err))) {
 		client->write_header(client, cio_http_status_internal_server_error);
 		close_client(client);
 		return;
@@ -297,7 +297,7 @@ static void handle_request_line(struct cio_buffered_stream *stream, void *handle
 {
 	struct cio_http_client *client = (struct cio_http_client *)handler_context;
 
-	if (unlikely(err != cio_success)) {
+	if (unlikely(cio_is_error(err))) {
 		client->write_header(client, cio_http_status_internal_server_error);
 		close_client(client);
 		return;
