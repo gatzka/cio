@@ -181,6 +181,18 @@ static int on_header_value(http_parser *parser, const char *at, size_t length)
 	return client->handler->on_header_value(client, at, length);
 }
 
+static int on_message_complete(http_parser *parser)
+{
+	struct cio_http_client *client = container_of(parser, struct cio_http_client, parser);
+	return client->handler->on_message_complete(client);
+}
+
+static int on_body(http_parser *parser, const char *at, size_t length)
+{
+	struct cio_http_client *client = container_of(parser, struct cio_http_client, parser);
+	return client->handler->on_body(client, at, length);
+}
+
 static int on_url(http_parser *parser, const char *at, size_t length)
 {
 	struct cio_http_client *client = container_of(parser, struct cio_http_client, parser);
@@ -235,6 +247,14 @@ static int on_url(http_parser *parser, const char *at, size_t length)
 
 	if (handler->on_header_value != NULL) {
 		client->parser_settings.on_header_value = on_header_value;
+	}
+
+	if (handler->on_body != NULL) {
+		client->parser_settings.on_body = on_body;
+	}
+
+	if (handler->on_message_complete != NULL) {
+		client->parser_settings.on_message_complete = on_message_complete;
 	}
 
 	if (handler->on_url != NULL) {
