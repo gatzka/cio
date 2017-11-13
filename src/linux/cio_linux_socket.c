@@ -120,7 +120,6 @@ static void read_callback(void *context)
 			rb->bytes_transferred = 0;
 			stream->read_handler(stream, stream->read_handler_context, (enum cio_error)errno, rb);
 		}
-
 	} else {
 		enum cio_error error;
 		rb->bytes_transferred = (size_t)ret;
