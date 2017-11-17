@@ -165,7 +165,6 @@ static int on_headers_complete(http_parser *parser)
 	struct cio_http_client *client = container_of(parser, struct cio_http_client, parser);
 	client->headers_complete = true;
 	client->content_length = parser->content_length;
-	client->read_timer.cancel(&client->read_timer);
 	if (client->handler->on_headers_complete != NULL) {
 		return client->handler->on_headers_complete(client);
 	} else {
@@ -188,6 +187,7 @@ static int on_header_value(http_parser *parser, const char *at, size_t length)
 static int on_message_complete(http_parser *parser)
 {
 	struct cio_http_client *client = container_of(parser, struct cio_http_client, parser);
+	client->read_timer.cancel(&client->read_timer);
 	if (client->handler->on_message_complete != NULL) {
 		return client->handler->on_message_complete(client);
 	} else {
@@ -327,8 +327,7 @@ static void handle_line(struct cio_buffered_stream *stream, void *handler_contex
 	}
 
 	size_t bytes_transfered = cio_read_buffer_get_transferred_bytes(read_buffer);
-	const char *read_ptr = (const char *)cio_read_buffer_get_read_ptr(read_buffer);
-	size_t nparsed = http_parser_execute(&client->parser, &client->parser_settings, read_ptr, bytes_transfered);
+	size_t nparsed = http_parser_execute(&client->parser, &client->parser_settings, (const char *)cio_read_buffer_get_read_ptr(read_buffer), bytes_transfered);
 
 	if (unlikely(nparsed != bytes_transfered)) {
 		client->write_header(client, cio_http_status_bad_request);
@@ -368,15 +367,14 @@ static void handle_request_line(struct cio_buffered_stream *stream, void *handle
 		return;
 	}
 
-	client->http_major = client->parser.http_major;
-	client->http_minor = client->parser.http_minor;
-
 	if (client->to_be_closed) {
 		close_client(client);
 		return;
 	}
 
 	if (bytes_transfered > 0) {
+		client->http_major = client->parser.http_major;
+		client->http_minor = client->parser.http_minor;
 		stream->read_until(stream, &client->rb, CIO_CRLF, handle_line, client);
 	}
 }
