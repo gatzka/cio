@@ -242,9 +242,9 @@ static int on_url(http_parser *parser, const char *at, size_t length)
 	    (handler->on_fragment == NULL) &&
 	    (handler->on_header_field == NULL) &&
 	    (handler->on_header_value == NULL) &&
-		(handler->on_body == NULL) &&
-		(handler->on_message_complete == NULL) &&
-		(handler->on_headers_complete == NULL)) {
+	    (handler->on_body == NULL) &&
+	    (handler->on_message_complete == NULL) &&
+	    (handler->on_headers_complete == NULL)) {
 		client->write_header(client, cio_http_status_internal_server_error);
 		return 0;
 	}
