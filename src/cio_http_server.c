@@ -165,6 +165,14 @@ static int on_headers_complete(http_parser *parser)
 	struct cio_http_client *client = container_of(parser, struct cio_http_client, parser);
 	client->headers_complete = true;
 	client->content_length = parser->content_length;
+	if (parser->upgrade) {
+		client->read_timer.cancel(&client->read_timer);
+		if (unlikely(client->handler->on_headers_complete == NULL)) {
+			client->write_header(client, cio_http_status_internal_server_error);
+			return 0;
+		}
+	}
+
 	if (client->handler->on_headers_complete != NULL) {
 		return client->handler->on_headers_complete(client);
 	} else {
