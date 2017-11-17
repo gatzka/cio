@@ -93,6 +93,7 @@ enum cio_http_cb_return {
 
 struct cio_http_client {
 
+	// TODO: is close really necessary for users of the library?
 	void (*close)(struct cio_http_client *client);
 	void (*write_response)(struct cio_http_client *client, struct cio_write_buffer *wbh);
 	void (*write_header)(struct cio_http_client *client, enum cio_http_status_code status);

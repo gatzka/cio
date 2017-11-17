@@ -201,6 +201,13 @@ static int on_body(http_parser *parser, const char *at, size_t length)
 	return client->handler->on_body(client, at, length);
 }
 
+static void call_url_parts_callback(const struct http_parser_url *u, enum http_parser_url_fields url_field, cio_http_data_cb callback, struct cio_http_client *client, const char *at)
+{
+	if (((u->field_set & (1 << url_field)) == (1 << url_field)) && (callback != NULL)) {
+		callback(client, at + u->field_data[url_field].off, u->field_data[url_field].len);
+	}
+}
+
 static int on_url(http_parser *parser, const char *at, size_t length)
 {
 	struct cio_http_client *client = container_of(parser, struct cio_http_client, parser);
@@ -248,6 +255,12 @@ static int on_url(http_parser *parser, const char *at, size_t length)
 		client->write_header(client, cio_http_status_internal_server_error);
 		return 0;
 	}
+
+	call_url_parts_callback(&u, UF_SCHEMA, handler->on_schema, client, at);
+	call_url_parts_callback(&u, UF_HOST, handler->on_host, client, at);
+	call_url_parts_callback(&u, UF_PATH, handler->on_path, client, at);
+	call_url_parts_callback(&u, UF_QUERY, handler->on_query, client, at);
+	call_url_parts_callback(&u, UF_FRAGMENT, handler->on_fragment, client, at);
 
 	client->parser_settings.on_headers_complete = on_headers_complete;
 
