@@ -319,13 +319,20 @@ static http_parser_settings parser_settings;
 
 static enum cio_error read_some_max(struct cio_io_stream *ios, struct cio_read_buffer *buffer, cio_io_stream_read_handler handler, void *context)
 {
+	enum cio_error error;
 	struct memory_stream *memory_stream = container_of(ios, struct memory_stream, ios);
 	size_t len = MIN(cio_read_buffer_size(buffer), memory_stream->size - memory_stream->read_pos);
 	memcpy(buffer->data, &((uint8_t *)memory_stream->mem)[memory_stream->read_pos], len);
 	memory_stream->read_pos += len;
 	buffer->add_ptr += len;
 	buffer->bytes_transferred = len;
-	handler(ios, context, cio_success, buffer);
+	if (len == 0) {
+		error = cio_eof;
+	} else {
+		error = cio_success;
+	}
+
+	handler(ios, context, error, buffer);
 	return cio_success;
 }
 

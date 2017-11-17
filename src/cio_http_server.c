@@ -166,7 +166,11 @@ static int on_headers_complete(http_parser *parser)
 	client->headers_complete = true;
 	client->content_length = parser->content_length;
 	client->read_timer.cancel(&client->read_timer);
-	return client->handler->on_headers_complete(client);
+	if (client->handler->on_headers_complete != NULL) {
+		return client->handler->on_headers_complete(client);
+	} else {
+		return 0;
+	}
 }
 
 static int on_header_field(http_parser *parser, const char *at, size_t length)
@@ -184,7 +188,11 @@ static int on_header_value(http_parser *parser, const char *at, size_t length)
 static int on_message_complete(http_parser *parser)
 {
 	struct cio_http_client *client = container_of(parser, struct cio_http_client, parser);
-	return client->handler->on_message_complete(client);
+	if (client->handler->on_message_complete != NULL) {
+		return client->handler->on_message_complete(client);
+	} else {
+		return 0;
+	}
 }
 
 static int on_body(http_parser *parser, const char *at, size_t length)
@@ -234,7 +242,9 @@ static int on_url(http_parser *parser, const char *at, size_t length)
 	    (handler->on_fragment == NULL) &&
 	    (handler->on_header_field == NULL) &&
 	    (handler->on_header_value == NULL) &&
-	    (handler->on_headers_complete == NULL)) {
+		(handler->on_body == NULL) &&
+		(handler->on_message_complete == NULL) &&
+		(handler->on_headers_complete == NULL)) {
 		client->write_header(client, cio_http_status_internal_server_error);
 		return 0;
 	}
@@ -264,6 +274,35 @@ static int on_url(http_parser *parser, const char *at, size_t length)
 	return 0;
 }
 
+static void handle_bytes(struct cio_buffered_stream *stream, void *handler_context, enum cio_error err, struct cio_read_buffer *read_buffer)
+{
+	struct cio_http_client *client = (struct cio_http_client *)handler_context;
+
+	if (unlikely(cio_is_error(err))) {
+		client->write_header(client, cio_http_status_internal_server_error);
+		close_client(client);
+		return;
+	}
+
+	size_t bytes_transfered = cio_read_buffer_get_transferred_bytes(read_buffer);
+	const char *read_ptr = (const char *)cio_read_buffer_get_read_ptr(read_buffer);
+	size_t nparsed = http_parser_execute(&client->parser, &client->parser_settings, read_ptr, bytes_transfered);
+
+	if (unlikely(nparsed != bytes_transfered)) {
+		client->write_header(client, cio_http_status_bad_request);
+		return;
+	}
+
+	if (client->to_be_closed) {
+		close_client(client);
+		return;
+	}
+
+	if (bytes_transfered > 0) {
+		stream->read(stream, &client->rb, handle_bytes, client);
+	}
+}
+
 static void handle_line(struct cio_buffered_stream *stream, void *handler_context, enum cio_error err, struct cio_read_buffer *read_buffer)
 {
 	struct cio_http_client *client = (struct cio_http_client *)handler_context;
@@ -288,8 +327,12 @@ static void handle_line(struct cio_buffered_stream *stream, void *handler_contex
 		return;
 	}
 
-	if (!client->headers_complete) {
-		stream->read_until(stream, &client->rb, CIO_CRLF, handle_line, client);
+	if (bytes_transfered > 0) {
+		if (!client->headers_complete) {
+			stream->read_until(stream, &client->rb, CIO_CRLF, handle_line, client);
+		} else {
+			stream->read(stream, &client->rb, handle_bytes, client);
+		}
 	}
 }
 
@@ -320,7 +363,9 @@ static void handle_request_line(struct cio_buffered_stream *stream, void *handle
 		return;
 	}
 
-	stream->read_until(stream, &client->rb, CIO_CRLF, handle_line, client);
+	if (bytes_transfered > 0) {
+		stream->read_until(stream, &client->rb, CIO_CRLF, handle_line, client);
+	}
 }
 
 static void handle_accept(struct cio_server_socket *ss, void *handler_context, enum cio_error err, struct cio_socket *socket)

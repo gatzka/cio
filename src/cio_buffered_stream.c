@@ -111,6 +111,7 @@ static void start_read(struct cio_buffered_stream *bs)
 
 static enum cio_bs_state call_handler(struct cio_buffered_stream *bs, enum cio_error err, struct cio_read_buffer *rb)
 {
+	bs->read_job = NULL;
 	bs->read_handler(bs, bs->read_handler_context, err, rb);
 
 	if (bs->shall_close) {
@@ -126,7 +127,6 @@ static enum cio_bs_state internal_read(struct cio_buffered_stream *bs)
 	struct cio_read_buffer *rb = bs->read_buffer;
 
 	if (unlikely(bs->last_error != cio_success)) {
-		bs->read_job = NULL;
 		return call_handler(bs, bs->last_error, rb);
 	}
 
@@ -134,7 +134,6 @@ static enum cio_bs_state internal_read(struct cio_buffered_stream *bs)
 	if (available > 0) {
 		rb->bytes_transferred = available;
 		rb->fetch_ptr += available;
-		bs->read_job = NULL;
 		return call_handler(bs, cio_success, rb);
 	} else {
 		return cio_bs_again;
@@ -164,7 +163,6 @@ static enum cio_bs_state internal_read_until(struct cio_buffered_stream *bs)
 	struct cio_read_buffer *rb = bs->read_buffer;
 
 	if (unlikely(bs->last_error != cio_success)) {
-		bs->read_job = NULL;
 		return call_handler(bs, bs->last_error, rb);
 	}
 
@@ -176,7 +174,6 @@ static enum cio_bs_state internal_read_until(struct cio_buffered_stream *bs)
 		ptrdiff_t diff = (found + needle_length) - rb->fetch_ptr;
 		rb->bytes_transferred = diff;
 		rb->fetch_ptr += diff;
-		bs->read_job = NULL;
 		return call_handler(bs, cio_success, rb);
 	} else {
 		return cio_bs_again;
@@ -206,14 +203,12 @@ static enum cio_bs_state internal_read_exactly(struct cio_buffered_stream *bs)
 	struct cio_read_buffer *rb = bs->read_buffer;
 
 	if (unlikely(bs->last_error != cio_success)) {
-		bs->read_job = NULL;
 		return call_handler(bs, bs->last_error, rb);
 	}
 
 	if (bs->read_info.bytes_to_read <= cio_read_buffer_unread_bytes(rb)) {
 		rb->bytes_transferred = bs->read_info.bytes_to_read;
 		rb->fetch_ptr += bs->read_info.bytes_to_read;
-		bs->read_job = NULL;
 		return call_handler(bs, cio_success, rb);
 	} else {
 		return cio_bs_again;
