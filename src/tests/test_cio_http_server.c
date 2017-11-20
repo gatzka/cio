@@ -150,6 +150,9 @@ static enum cio_error cio_server_socket_init_ok(struct cio_server_socket *ss,
 static enum cio_http_cb_return header_complete(struct cio_http_client *c);
 FAKE_VALUE_FUNC(enum cio_http_cb_return, header_complete, struct cio_http_client *)
 
+static enum cio_http_cb_return message_complete(struct cio_http_client *c);
+FAKE_VALUE_FUNC(enum cio_http_cb_return, message_complete, struct cio_http_client *)
+
 static enum cio_http_cb_return header_complete_sub(struct cio_http_client *c);
 FAKE_VALUE_FUNC(enum cio_http_cb_return, header_complete_sub, struct cio_http_client *)
 
@@ -214,6 +217,7 @@ static struct cio_http_request_handler *alloc_dummy_handler(const void *config)
 		handler->handler.on_header_value = on_header_value;
 		handler->handler.on_url = on_url;
 		handler->handler.on_headers_complete = header_complete;
+		handler->handler.on_message_complete = message_complete;
 		return &handler->handler;
 	}
 }
@@ -352,6 +356,7 @@ void setUp(void)
 	RESET_FAKE(serve_error);
 	RESET_FAKE(socket_close);
 	RESET_FAKE(header_complete);
+	RESET_FAKE(message_complete);
 	RESET_FAKE(header_complete_sub);
 	RESET_FAKE(on_url);
 	RESET_FAKE(on_header_field);
@@ -414,7 +419,9 @@ static void test_serve_first_line_fails(void)
 
 	init_request(request, ARRAY_SIZE(request));
 	server.server_socket.handler(&server.server_socket, server.server_socket.handler_context, cio_success, s);
-	TEST_ASSERT_EQUAL_MESSAGE(0, header_complete_fake.call_count, "header_complete was not called!");
+	TEST_ASSERT_EQUAL_MESSAGE(0, header_complete_fake.call_count, "header_complete was called!");
+	TEST_ASSERT_EQUAL_MESSAGE(0, message_complete_fake.call_count, "message_complete was called!");
+	TEST_ASSERT_EQUAL_MESSAGE(0, message_complete_fake.call_count, "message_complete was called!");
 	TEST_ASSERT_EQUAL_MESSAGE(0, serve_error_fake.call_count, "Serve error callback was called!");
 	check_http_response(500);
 }
@@ -463,6 +470,7 @@ static void test_serve_first_line_fails_write_blocks(void)
 	bs_write_all(write_later_bs, write_later_buf, write_later_handler, write_later_handler_context);
 
 	TEST_ASSERT_EQUAL_MESSAGE(0, header_complete_fake.call_count, "header_complete was not called!");
+	TEST_ASSERT_EQUAL_MESSAGE(0, message_complete_fake.call_count, "message_complete was called!");
 	TEST_ASSERT_EQUAL_MESSAGE(0, serve_error_fake.call_count, "Serve error callback was called!");
 	check_http_response(500);
 }
@@ -506,6 +514,7 @@ static void test_serve_second_line_fails(void)
 	init_request(request, ARRAY_SIZE(request));
 	server.server_socket.handler(&server.server_socket, server.server_socket.handler_context, cio_success, s);
 	TEST_ASSERT_EQUAL_MESSAGE(0, header_complete_fake.call_count, "header_complete was not called!");
+	TEST_ASSERT_EQUAL_MESSAGE(0, message_complete_fake.call_count, "message_complete was called!");
 	TEST_ASSERT_EQUAL_MESSAGE(0, serve_error_fake.call_count, "Serve error callback was called!");
 	check_http_response(500);
 }
@@ -564,6 +573,10 @@ static void test_serve_locations(void)
 		server.server_socket.handler(&server.server_socket, server.server_socket.handler_context, cio_success, s);
 		TEST_ASSERT_EQUAL_MESSAGE(0, serve_error_fake.call_count, "Serve error callback was called!");
 		check_http_response(location_test.expected_response);
+		if (location_test.expected_response == 200) {
+			TEST_ASSERT_EQUAL_MESSAGE(1, header_complete_fake.call_count, "header_complete was not called!");
+			TEST_ASSERT_EQUAL_MESSAGE(1, message_complete_fake.call_count, "message_complete was not called!");
+		}
 
 		setUp();
 	}
