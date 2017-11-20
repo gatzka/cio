@@ -123,6 +123,8 @@ struct cio_http_client {
 	http_parser parser;
 	http_parser_settings parser_settings;
 
+	void (*finish_func)(struct cio_http_client *client);
+
 	size_t buffer_size;
 	uint8_t buffer[];
 };

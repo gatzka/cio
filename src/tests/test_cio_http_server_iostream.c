@@ -209,6 +209,25 @@ FAKE_VALUE_FUNC(enum cio_http_cb_return, on_header_value, struct cio_http_client
 static enum cio_http_cb_return on_url(struct cio_http_client *c, const char *at, size_t length);
 FAKE_VALUE_FUNC(enum cio_http_cb_return, on_url, struct cio_http_client *, const char *, size_t)
 
+#define HISTORY_LENGTH 10
+#define HISTORY_FIELD_LENGTH 10
+static uint8_t header_field_history[HISTORY_LENGTH][HISTORY_FIELD_LENGTH];
+static uint8_t header_value_history[HISTORY_LENGTH][HISTORY_FIELD_LENGTH];
+
+static enum cio_http_cb_return on_header_field_capture(struct cio_http_client *client, const char *at, size_t length)
+{
+	(void)client;
+	memcpy(header_field_history[on_header_field_fake.call_count - 1], at, length);
+	return cio_http_cb_success;
+}
+
+static enum cio_http_cb_return on_header_value_capture(struct cio_http_client *client, const char *at, size_t length)
+{
+	(void)client;
+	memcpy(header_value_history[on_header_value_fake.call_count - 1], at, length);
+	return cio_http_cb_success;
+}
+
 static struct cio_io_stream *get_mem_io_stream(struct cio_socket *context)
 {
 	(void)context;
@@ -418,6 +437,11 @@ void setUp(void)
 	cio_timer_init_fake.custom_fake = cio_timer_init_ok;
 	timer_cancel_fake.custom_fake = cancel_timer;
 	timer_expires_from_now_fake.custom_fake = expires;
+
+	on_header_field_fake.custom_fake = on_header_field_capture;
+	on_header_value_fake.custom_fake = on_header_value_capture;
+	memset(header_field_history, 0xaf, sizeof(header_field_history[0][0]) * HISTORY_FIELD_LENGTH * HISTORY_LENGTH);
+	memset(header_value_history, 0xaf, sizeof(header_value_history[0][0]) * HISTORY_FIELD_LENGTH * HISTORY_LENGTH);
 }
 
 static void test_server_init_correctly(void)
@@ -699,10 +723,10 @@ static void test_serve_correctly_with_header_fields(void)
 	TEST_ASSERT_EQUAL_MESSAGE(1, header_complete_fake.call_count, "header_complete was not called!");
 	TEST_ASSERT_EQUAL_MESSAGE(2, on_header_field_fake.call_count, "on_header_field was not called twice!");
 	TEST_ASSERT_EQUAL_MESSAGE(2, on_header_value_fake.call_count, "on_header_value was not called twice!");
-	TEST_ASSERT_MESSAGE(memcmp(on_header_field_fake.arg1_history[0], KEEP_ALIVE_FIELD, strlen(KEEP_ALIVE_FIELD)) == 0, "Header field is not correct!");
-	TEST_ASSERT_MESSAGE(memcmp(on_header_value_fake.arg1_history[0], KEEP_ALIVE_VALUE, strlen(KEEP_ALIVE_VALUE)) == 0, "Header value is not correct!");
-	TEST_ASSERT_MESSAGE(memcmp(on_header_field_fake.arg1_history[1], DNT_FIELD, strlen(DNT_FIELD)) == 0, "Header field is not correct!");
-	TEST_ASSERT_MESSAGE(memcmp(on_header_value_fake.arg1_history[1], DNT_VALUE, strlen(DNT_VALUE)) == 0, "Header value is not correct!");
+	TEST_ASSERT_MESSAGE(memcmp(header_field_history[0], KEEP_ALIVE_FIELD, strlen(KEEP_ALIVE_FIELD)) == 0, "Header field is not correct!");
+	TEST_ASSERT_MESSAGE(memcmp(header_value_history[0], KEEP_ALIVE_VALUE, strlen(KEEP_ALIVE_VALUE)) == 0, "Header value is not correct!");
+	TEST_ASSERT_MESSAGE(memcmp(header_field_history[1], DNT_FIELD, strlen(DNT_FIELD)) == 0, "Header field is not correct!");
+	TEST_ASSERT_MESSAGE(memcmp(header_value_history[1], DNT_VALUE, strlen(DNT_VALUE)) == 0, "Header value is not correct!");
 
 	struct cio_http_client *client = container_of(s, struct cio_http_client, socket);
 	close_client(client);
@@ -744,13 +768,11 @@ static void test_serve_with_wrong_header_fields(void)
 	TEST_ASSERT_EQUAL_MESSAGE(0, header_complete_fake.call_count, "header_complete was called!");
 	TEST_ASSERT_EQUAL_MESSAGE(1, on_header_field_fake.call_count, "on_header_field was not called twice!");
 	TEST_ASSERT_EQUAL_MESSAGE(1, on_header_value_fake.call_count, "on_header_field was not called twice!");
-	TEST_ASSERT_MESSAGE(memcmp(on_header_field_fake.arg1_history[0], KEEP_ALIVE_FIELD, strlen(KEEP_ALIVE_FIELD)) == 0, "Header field is not correct!");
-	TEST_ASSERT_MESSAGE(memcmp(on_header_value_fake.arg1_history[0], KEEP_ALIVE_VALUE, strlen(KEEP_ALIVE_VALUE)) == 0, "Header value is not correct!");
+	TEST_ASSERT_MESSAGE(memcmp(header_field_history[0], KEEP_ALIVE_FIELD, strlen(KEEP_ALIVE_FIELD)) == 0, "Header field is not correct!");
+	TEST_ASSERT_MESSAGE(memcmp(header_value_history[0], KEEP_ALIVE_VALUE, strlen(KEEP_ALIVE_VALUE)) == 0, "Header value is not correct!");
 
 	check_http_response(&ms, 400);
 
-	struct cio_http_client *client = container_of(s, struct cio_http_client, socket);
-	close_client(client);
 	TEST_ASSERT_EQUAL_MESSAGE(1, client_socket_close_fake.call_count, "Client socket was not closed!");
 	TEST_ASSERT_EQUAL_MESSAGE(0, serve_error_fake.call_count, "Serve error callback was called!");
 }
