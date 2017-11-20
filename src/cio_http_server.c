@@ -311,6 +311,7 @@ static void handle_bytes(struct cio_buffered_stream *stream, void *handler_conte
 
 	if (unlikely(nparsed != bytes_transfered)) {
 		client->write_header(client, cio_http_status_bad_request);
+		close_client(client);
 		return;
 	}
 
@@ -339,6 +340,7 @@ static void handle_line(struct cio_buffered_stream *stream, void *handler_contex
 
 	if (unlikely(nparsed != bytes_transfered)) {
 		client->write_header(client, cio_http_status_bad_request);
+		close_client(client);
 		return;
 	}
 
