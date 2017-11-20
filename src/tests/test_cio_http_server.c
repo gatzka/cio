@@ -102,6 +102,9 @@ FAKE_VOID_FUNC(timer_expires_from_now, struct cio_timer *, uint64_t, timer_handl
 
 FAKE_VALUE_FUNC(enum cio_error, cio_timer_init, struct cio_timer *, struct cio_eventloop *, cio_timer_close_hook)
 
+static enum cio_error bs_write(struct cio_buffered_stream *bs, struct cio_write_buffer *buf, cio_buffered_stream_write_handler handler, void *handler_context);
+FAKE_VALUE_FUNC(enum cio_error, bs_write, struct cio_buffered_stream *, struct cio_write_buffer *, cio_buffered_stream_write_handler, void *)
+
 static enum cio_error cancel_timer(struct cio_timer *t)
 {
 	t->handler(t, t->handler_context, cio_operation_aborted);
@@ -287,7 +290,7 @@ static enum cio_error bs_close(struct cio_buffered_stream *bs)
 static uint8_t write_buffer[1000];
 static size_t write_pos;
 
-static enum cio_error bs_write(struct cio_buffered_stream *bs, struct cio_write_buffer *buf, cio_buffered_stream_write_handler handler, void *handler_context)
+static enum cio_error bs_write_all(struct cio_buffered_stream *bs, struct cio_write_buffer *buf, cio_buffered_stream_write_handler handler, void *handler_context)
 {
 	size_t buffer_len = buf->data.q_len;
 	const struct cio_write_buffer *data_buf = buf;
@@ -299,6 +302,21 @@ static enum cio_error bs_write(struct cio_buffered_stream *bs, struct cio_write_
 	}
 
 	handler(bs, handler_context, buf, cio_success);
+	return cio_success;
+}
+
+static struct cio_buffered_stream *write_later_bs;
+static struct cio_write_buffer *write_later_buf;
+static cio_buffered_stream_write_handler write_later_handler;
+static void *write_later_handler_context;
+
+static enum cio_error bs_write_later(struct cio_buffered_stream *bs, struct cio_write_buffer *buf, cio_buffered_stream_write_handler handler, void *handler_context)
+{
+	write_later_bs = bs;
+	write_later_buf = buf;
+	write_later_handler = handler;
+	write_later_handler_context = handler_context;
+
 	return cio_success;
 }
 
@@ -353,6 +371,8 @@ void setUp(void)
 	current_line = 0;
 	memset(write_buffer, 0xaf, sizeof(write_buffer));
 	write_pos = 0;
+
+	bs_write_fake.custom_fake = bs_write_all;
 }
 
 static void test_serve_first_line_fails(void)
@@ -394,6 +414,54 @@ static void test_serve_first_line_fails(void)
 
 	init_request(request, ARRAY_SIZE(request));
 	server.server_socket.handler(&server.server_socket, server.server_socket.handler_context, cio_success, s);
+	TEST_ASSERT_EQUAL_MESSAGE(0, header_complete_fake.call_count, "header_complete was not called!");
+	TEST_ASSERT_EQUAL_MESSAGE(0, serve_error_fake.call_count, "Serve error callback was called!");
+	check_http_response(500);
+}
+
+static void test_serve_first_line_fails_write_blocks(void)
+{
+	cio_server_socket_init_fake.custom_fake = cio_server_socket_init_ok;
+	socket_accept_fake.custom_fake = accept_save_handler;
+
+	header_complete_fake.custom_fake = header_complete_write_response;
+	bs_write_fake.custom_fake = bs_write_later;
+
+	enum cio_error (*read_until_fakes[])(struct cio_buffered_stream *, struct cio_read_buffer *, const char *, cio_buffered_stream_read_handler, void *) = {
+		bs_read_until_error,
+		bs_read_until_ok,
+	};
+
+	bs_read_until_fake.custom_fake = NULL;
+	SET_CUSTOM_FAKE_SEQ(bs_read_until, read_until_fakes, ARRAY_SIZE(read_until_fakes));
+
+	struct cio_http_server server;
+	enum cio_error err = cio_http_server_init(&server, 8080, &loop, serve_error, read_timeout, alloc_dummy_client, free_dummy_client);
+	TEST_ASSERT_EQUAL_MESSAGE(cio_success, err, "Server initialization failed!");
+
+	struct cio_http_uri_server_location target;
+	err = cio_http_server_location_init(&target, REQUEST_TARGET, NULL, alloc_dummy_handler);
+	TEST_ASSERT_EQUAL_MESSAGE(cio_success, err, "Request target initialization failed!");
+
+	err = server.register_location(&server, &target);
+	TEST_ASSERT_EQUAL_MESSAGE(cio_success, err, "Register request target failed!");
+
+	err = server.serve(&server);
+	TEST_ASSERT_EQUAL_MESSAGE(cio_success, err, "Serving http failed!");
+
+	struct cio_socket *s = server.alloc_client();
+
+	const char *request[] = {
+		HTTP_GET " " REQUEST_TARGET " " HTTP_11 CRLF,
+		KEEP_ALIVE_FIELD ": " KEEP_ALIVE_VALUE CRLF,
+		DNT_FIELD ": " DNT_VALUE CRLF,
+		CRLF};
+
+	init_request(request, ARRAY_SIZE(request));
+	server.server_socket.handler(&server.server_socket, server.server_socket.handler_context, cio_success, s);
+
+	bs_write_all(write_later_bs, write_later_buf, write_later_handler, write_later_handler_context);
+
 	TEST_ASSERT_EQUAL_MESSAGE(0, header_complete_fake.call_count, "header_complete was not called!");
 	TEST_ASSERT_EQUAL_MESSAGE(0, serve_error_fake.call_count, "Serve error callback was called!");
 	check_http_response(500);
@@ -570,6 +638,7 @@ int main(void)
 {
 	UNITY_BEGIN();
 	RUN_TEST(test_serve_first_line_fails);
+	RUN_TEST(test_serve_first_line_fails_write_blocks);
 	RUN_TEST(test_serve_second_line_fails);
 	RUN_TEST(test_serve_locations);
 	RUN_TEST(test_serve_locations_best_match);

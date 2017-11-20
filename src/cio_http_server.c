@@ -66,7 +66,11 @@ static void client_timeout_handler(struct cio_timer *timer, void *handler_contex
 
 static void mark_to_be_closed(struct cio_http_client *client)
 {
-	client->to_be_closed = true;
+	if (client->parsing == 0) {
+		close_client(client);
+	} else {
+		client->to_be_closed = true;
+	}
 }
 
 static void response_written(struct cio_buffered_stream *bs, void *handler_context, const struct cio_write_buffer *buffer, enum cio_error err)
@@ -303,17 +307,16 @@ static void parse(struct cio_buffered_stream *stream, void *handler_context, enu
 
 	if (unlikely(cio_is_error(err))) {
 		client->write_header(client, cio_http_status_internal_server_error);
-		close_client(client);
 		return;
 	}
 
 	size_t bytes_transfered = cio_read_buffer_get_transferred_bytes(read_buffer);
+	client->parsing++;
 	size_t nparsed = http_parser_execute(&client->parser, &client->parser_settings, (const char *)cio_read_buffer_get_read_ptr(read_buffer), bytes_transfered);
+	client->parsing--;
 
 	if (unlikely(nparsed != bytes_transfered)) {
 		client->write_header(client, cio_http_status_bad_request);
-		close_client(client);
-		return;
 	}
 
 	if (client->to_be_closed) {
@@ -370,6 +373,7 @@ static void handle_accept(struct cio_server_socket *ss, void *handler_context, e
 	client->headers_complete = false;
 	client->content_length = 0;
 	client->to_be_closed = false;
+	client->parsing = 0;
 	client->close = mark_to_be_closed;
 	client->write_header = write_header;
 	client->write_response = write_response;
