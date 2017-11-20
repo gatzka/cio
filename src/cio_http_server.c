@@ -200,11 +200,7 @@ static int on_message_complete(http_parser *parser)
 {
 	struct cio_http_client *client = container_of(parser, struct cio_http_client, parser);
 	client->read_timer.cancel(&client->read_timer);
-	if (client->handler->on_message_complete != NULL) {
-		return client->handler->on_message_complete(client);
-	} else {
-		return 0;
-	}
+	return client->handler->on_message_complete(client);
 }
 
 static int on_body(http_parser *parser, const char *at, size_t length)
