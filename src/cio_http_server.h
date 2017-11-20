@@ -119,6 +119,7 @@ struct cio_http_client {
 
 	bool headers_complete;
 	bool to_be_closed;
+	unsigned int parsing;
 
 	http_parser parser;
 	http_parser_settings parser_settings;
