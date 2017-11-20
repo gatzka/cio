@@ -295,38 +295,10 @@ static int on_url(http_parser *parser, const char *at, size_t length)
 	return 0;
 }
 
-static void handle_bytes(struct cio_buffered_stream *stream, void *handler_context, enum cio_error err, struct cio_read_buffer *read_buffer)
+static void parse(struct cio_buffered_stream *stream, void *handler_context, enum cio_error err, struct cio_read_buffer *read_buffer)
 {
-	struct cio_http_client *client = (struct cio_http_client *)handler_context;
+	(void)stream;
 
-	if (unlikely(cio_is_error(err))) {
-		client->write_header(client, cio_http_status_internal_server_error);
-		close_client(client);
-		return;
-	}
-
-	size_t bytes_transfered = cio_read_buffer_get_transferred_bytes(read_buffer);
-	const char *read_ptr = (const char *)cio_read_buffer_get_read_ptr(read_buffer);
-	size_t nparsed = http_parser_execute(&client->parser, &client->parser_settings, read_ptr, bytes_transfered);
-
-	if (unlikely(nparsed != bytes_transfered)) {
-		client->write_header(client, cio_http_status_bad_request);
-		close_client(client);
-		return;
-	}
-
-	if (client->to_be_closed) {
-		close_client(client);
-		return;
-	}
-
-	if (bytes_transfered > 0) {
-		stream->read(stream, &client->rb, handle_bytes, client);
-	}
-}
-
-static void handle_line(struct cio_buffered_stream *stream, void *handler_context, enum cio_error err, struct cio_read_buffer *read_buffer)
-{
 	struct cio_http_client *client = (struct cio_http_client *)handler_context;
 
 	if (unlikely(cio_is_error(err))) {
@@ -350,43 +322,31 @@ static void handle_line(struct cio_buffered_stream *stream, void *handler_contex
 	}
 
 	if (bytes_transfered > 0) {
-		if (!client->headers_complete) {
-			stream->read_until(stream, &client->rb, CIO_CRLF, handle_line, client);
-		} else {
-			stream->read(stream, &client->rb, handle_bytes, client);
-		}
+		client->finish_func(client);
 	}
 }
 
-static void handle_request_line(struct cio_buffered_stream *stream, void *handler_context, enum cio_error err, struct cio_read_buffer *read_buffer)
+static void finish_bytes(struct cio_http_client *client)
 {
-	struct cio_http_client *client = (struct cio_http_client *)handler_context;
+	client->bs.read(&client->bs, &client->rb, parse, client);
+}
 
-	if (unlikely(cio_is_error(err))) {
-		client->write_header(client, cio_http_status_internal_server_error);
-		close_client(client);
-		return;
+static void finish_header_line(struct cio_http_client *client)
+{
+	if (!client->headers_complete) {
+		client->bs.read_until(&client->bs, &client->rb, CIO_CRLF, parse, client);
+	} else {
+		client->finish_func = finish_bytes;
+		client->bs.read(&client->bs, &client->rb, parse, client);
 	}
+}
 
-	size_t bytes_transfered = cio_read_buffer_get_transferred_bytes(read_buffer);
-	size_t nparsed = http_parser_execute(&client->parser, &client->parser_settings, (const char *)cio_read_buffer_get_read_ptr(read_buffer), bytes_transfered);
-
-	if (unlikely(nparsed != bytes_transfered)) {
-		client->write_header(client, cio_http_status_bad_request);
-		close_client(client);
-		return;
-	}
-
-	if (client->to_be_closed) {
-		close_client(client);
-		return;
-	}
-
-	if (bytes_transfered > 0) {
-		client->http_major = client->parser.http_major;
-		client->http_minor = client->parser.http_minor;
-		stream->read_until(stream, &client->rb, CIO_CRLF, handle_line, client);
-	}
+static void finish_request_line(struct cio_http_client *client)
+{
+	client->http_major = client->parser.http_major;
+	client->http_minor = client->parser.http_minor;
+	client->finish_func = finish_header_line;
+	client->bs.read_until(&client->bs, &client->rb, CIO_CRLF, parse, client);
 }
 
 static void handle_accept(struct cio_server_socket *ss, void *handler_context, enum cio_error err, struct cio_socket *socket)
@@ -433,7 +393,8 @@ static void handle_accept(struct cio_server_socket *ss, void *handler_context, e
 	}
 
 	client->read_timer.expires_from_now(&client->read_timer, server->read_timeout, client_timeout_handler, client);
-	client->bs.read_until(&client->bs, &client->rb, CIO_CRLF, handle_request_line, client);
+	client->finish_func = finish_request_line;
+	client->bs.read_until(&client->bs, &client->rb, CIO_CRLF, parse, client);
 }
 
 static enum cio_error serve(struct cio_http_server *server)
