@@ -48,6 +48,7 @@
 #define HTTP_GET "GET"
 #define HTTP_POST "POST"
 #define BODY "HelloWorld!"
+#define BODY1 "foobar!"
 #define REQUEST_TARGET "/foo/"
 #define REQUEST_TARGET_SUB "/foo/bar"
 #define HTTP_11 "HTTP/1.1"
@@ -702,13 +703,14 @@ static void test_serve_post_with_body(void)
 	struct cio_socket *s = server.alloc_client();
 
 	char line[100];
-	snprintf(line, sizeof(line) - 1, "Content-Length: %zu\r\n", strlen(BODY));
+	snprintf(line, sizeof(line) - 1, "Content-Length: %zu\r\n", strlen(BODY BODY1));
 
 	const char *request[] = {
 		HTTP_POST " " REQUEST_TARGET " " HTTP_11 CRLF,
 		line,
 		CRLF,
-		BODY};
+		BODY,
+		BODY1};
 
 	init_request(request, ARRAY_SIZE(request));
 	server.server_socket.handler(&server.server_socket, server.server_socket.handler_context, cio_success, s);
