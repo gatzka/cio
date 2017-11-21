@@ -313,6 +313,7 @@ static void parse(struct cio_buffered_stream *stream, void *handler_context, enu
 
 	if (unlikely(nparsed != bytes_transfered)) {
 		client->write_header(client, cio_http_status_bad_request);
+		return;
 	}
 
 	if (client->to_be_closed) {
