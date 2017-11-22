@@ -199,7 +199,12 @@ static int on_header_value(http_parser *parser, const char *at, size_t length)
 static int on_message_complete(http_parser *parser)
 {
 	struct cio_http_client *client = container_of(parser, struct cio_http_client, parser);
-	client->read_timer.cancel(&client->read_timer);
+	if (parser->upgrade == 0) {
+		// In case of an upgraded connection, the read timeout timer was
+		// already cancelled in on_headers_complete.
+		client->read_timer.cancel(&client->read_timer);
+	}
+
 	return client->handler->on_message_complete(client);
 }
 
@@ -307,7 +312,9 @@ static void parse(struct cio_buffered_stream *stream, void *handler_context, enu
 
 	size_t bytes_transfered = cio_read_buffer_get_transferred_bytes(read_buffer);
 	client->parsing++;
-	size_t nparsed = http_parser_execute(&client->parser, &client->parser_settings, (const char *)cio_read_buffer_get_read_ptr(read_buffer), bytes_transfered);
+
+	http_parser *parser = &client->parser;
+	size_t nparsed = http_parser_execute(parser, &client->parser_settings, (const char *)cio_read_buffer_get_read_ptr(read_buffer), bytes_transfered);
 	client->parsing--;
 
 	if (unlikely(nparsed != bytes_transfered)) {
