@@ -263,7 +263,7 @@ static enum cio_http_cb_return header_complete_close(struct cio_http_client *c)
 
 static enum cio_http_cb_return header_complete_write_response(struct cio_http_client *c)
 {
-	static const char *data = "Hello World!";
+	static const char data[] = "Hello World!";
 	struct cio_http_request_handler *handler = c->handler;
 	struct dummy_handler *dh = container_of(handler, struct dummy_handler, handler);
 	cio_write_buffer_init(&dh->wb, data, sizeof(data));
