@@ -256,6 +256,7 @@ static int on_url(http_parser *parser, const char *at, size_t length)
 	int user_handler = 0;
 	user_handler |= call_url_parts_callback(&u, UF_SCHEMA, handler->on_schema, client, at);
 	user_handler |= call_url_parts_callback(&u, UF_HOST, handler->on_host, client, at);
+	user_handler |= call_url_parts_callback(&u, UF_PORT, handler->on_port, client, at);
 	user_handler |= call_url_parts_callback(&u, UF_PATH, handler->on_path, client, at);
 	user_handler |= call_url_parts_callback(&u, UF_QUERY, handler->on_query, client, at);
 	user_handler |= call_url_parts_callback(&u, UF_FRAGMENT, handler->on_fragment, client, at);

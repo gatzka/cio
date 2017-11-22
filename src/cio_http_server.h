@@ -140,6 +140,7 @@ struct cio_http_request_handler {
 	cio_http_data_cb on_url;
 	cio_http_data_cb on_schema;
 	cio_http_data_cb on_host;
+	cio_http_data_cb on_port;
 	cio_http_data_cb on_path;
 	cio_http_data_cb on_query;
 	cio_http_data_cb on_fragment;

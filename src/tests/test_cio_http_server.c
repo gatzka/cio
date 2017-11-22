@@ -179,6 +179,9 @@ FAKE_VALUE_FUNC(enum cio_http_cb_return, on_schema, struct cio_http_client *, co
 static enum cio_http_cb_return on_host(struct cio_http_client *c, const char *, size_t);
 FAKE_VALUE_FUNC(enum cio_http_cb_return, on_host, struct cio_http_client *, const char *, size_t)
 
+static enum cio_http_cb_return on_port(struct cio_http_client *c, const char *, size_t);
+FAKE_VALUE_FUNC(enum cio_http_cb_return, on_port, struct cio_http_client *, const char *, size_t)
+
 static enum cio_http_cb_return on_path(struct cio_http_client *c, const char *, size_t);
 FAKE_VALUE_FUNC(enum cio_http_cb_return, on_path, struct cio_http_client *, const char *, size_t)
 
@@ -273,6 +276,7 @@ static struct cio_http_request_handler *alloc_dummy_handler_url_callbacks(const 
 		handler->handler.on_message_complete = message_complete;
 		handler->handler.on_schema = on_schema;
 		handler->handler.on_host = on_host;
+		handler->handler.on_port = on_port;
 		handler->handler.on_path = on_path;
 		handler->handler.on_query = on_query;
 		handler->handler.on_fragment = on_fragment;
@@ -796,6 +800,7 @@ static void test_serve_complete_url(void)
 	TEST_ASSERT_EQUAL_MESSAGE(1, message_complete_fake.call_count, "message_complete was called!");
 	TEST_ASSERT_EQUAL_MESSAGE(1, on_schema_fake.call_count, "on_schema was not called!");
 	TEST_ASSERT_EQUAL_MESSAGE(1, on_host_fake.call_count, "on_host was not called!");
+	TEST_ASSERT_EQUAL_MESSAGE(1, on_port_fake.call_count, "on_port was not called!");
 	TEST_ASSERT_EQUAL_MESSAGE(1, on_path_fake.call_count, "on_path was not called!");
 	TEST_ASSERT_EQUAL_MESSAGE(1, on_query_fake.call_count, "on_query was not called!");
 	TEST_ASSERT_EQUAL_MESSAGE(1, on_fragment_fake.call_count, "on_fragment was not called!");
