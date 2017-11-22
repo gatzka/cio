@@ -209,10 +209,13 @@ static int on_body(http_parser *parser, const char *at, size_t length)
 	return client->handler->on_body(client, at, length);
 }
 
-static void call_url_parts_callback(const struct http_parser_url *u, enum http_parser_url_fields url_field, cio_http_data_cb callback, struct cio_http_client *client, const char *at)
+static int call_url_parts_callback(const struct http_parser_url *u, enum http_parser_url_fields url_field, cio_http_data_cb callback, struct cio_http_client *client, const char *at)
 {
 	if (((u->field_set & (1 << url_field)) == (1 << url_field)) && (callback != NULL)) {
 		callback(client, at + u->field_data[url_field].off, u->field_data[url_field].len);
+		return 1;
+	} else {
+		return 0;
 	}
 }
 
@@ -250,46 +253,41 @@ static int on_url(http_parser *parser, const char *at, size_t length)
 
 	client->handler = handler;
 
-	if ((handler->on_url == NULL) &&
-	    (handler->on_host == NULL) &&
-	    (handler->on_path == NULL) &&
-	    (handler->on_query == NULL) &&
-	    (handler->on_fragment == NULL) &&
-	    (handler->on_header_field == NULL) &&
-	    (handler->on_header_value == NULL) &&
-	    (handler->on_body == NULL) &&
-	    (handler->on_message_complete == NULL) &&
-	    (handler->on_headers_complete == NULL)) {
-		client->write_header(client, cio_http_status_internal_server_error);
-		return 0;
-	}
-
-	call_url_parts_callback(&u, UF_SCHEMA, handler->on_schema, client, at);
-	call_url_parts_callback(&u, UF_HOST, handler->on_host, client, at);
-	call_url_parts_callback(&u, UF_PATH, handler->on_path, client, at);
-	call_url_parts_callback(&u, UF_QUERY, handler->on_query, client, at);
-	call_url_parts_callback(&u, UF_FRAGMENT, handler->on_fragment, client, at);
+	int user_handler = 0;
+	user_handler |= call_url_parts_callback(&u, UF_SCHEMA, handler->on_schema, client, at);
+	user_handler |= call_url_parts_callback(&u, UF_HOST, handler->on_host, client, at);
+	user_handler |= call_url_parts_callback(&u, UF_PATH, handler->on_path, client, at);
+	user_handler |= call_url_parts_callback(&u, UF_QUERY, handler->on_query, client, at);
+	user_handler |= call_url_parts_callback(&u, UF_FRAGMENT, handler->on_fragment, client, at);
 
 	client->parser_settings.on_headers_complete = on_headers_complete;
 
 	if (handler->on_header_field != NULL) {
 		client->parser_settings.on_header_field = on_header_field;
+		user_handler = 1;
 	}
 
 	if (handler->on_header_value != NULL) {
 		client->parser_settings.on_header_value = on_header_value;
+		user_handler = 1;
 	}
 
 	if (handler->on_body != NULL) {
 		client->parser_settings.on_body = on_body;
+		user_handler = 1;
 	}
 
 	if (handler->on_message_complete != NULL) {
 		client->parser_settings.on_message_complete = on_message_complete;
+		user_handler = 1;
 	}
 
 	if (handler->on_url != NULL) {
 		return handler->on_url(client, at, length);
+	}
+
+	if (user_handler == 0) {
+		client->write_header(client, cio_http_status_internal_server_error);
 	}
 
 	return 0;
