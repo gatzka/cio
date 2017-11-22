@@ -235,6 +235,12 @@ static enum cio_http_cb_return header_complete_write_response(struct cio_http_cl
 	return cio_http_cb_success;
 }
 
+static enum cio_http_cb_return header_complete_close_client(struct cio_http_client *c)
+{
+	c->close(c);
+	return cio_http_cb_success;
+}
+
 static enum cio_http_cb_return message_complete_write_header(struct cio_http_client *c)
 {
 	c->write_header(c, cio_http_status_ok);
@@ -861,7 +867,7 @@ static void test_serve_upgrade(void)
 {
 	cio_server_socket_init_fake.custom_fake = cio_server_socket_init_ok;
 	socket_accept_fake.custom_fake = accept_save_handler;
-	header_complete_fake.custom_fake = header_complete_write_response;
+	header_complete_fake.custom_fake = header_complete_close_client;
 
 	struct cio_http_server server;
 	enum cio_error err = cio_http_server_init(&server, 8080, &loop, serve_error, read_timeout, alloc_dummy_client, free_dummy_client);
@@ -891,7 +897,6 @@ static void test_serve_upgrade(void)
 	TEST_ASSERT_EQUAL_MESSAGE(1, header_complete_fake.call_count, "header_complete was not called!");
 	TEST_ASSERT_EQUAL_MESSAGE(1, timer_cancel_fake.call_count, "timer_cancel for read timeout was not called!");
 	TEST_ASSERT_EQUAL_MESSAGE(0, serve_error_fake.call_count, "Serve error callback was called!");
-	check_http_response(200);
 }
 
 int main(void)
