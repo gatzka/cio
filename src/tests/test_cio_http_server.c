@@ -899,6 +899,43 @@ static void test_serve_upgrade(void)
 	TEST_ASSERT_EQUAL_MESSAGE(0, serve_error_fake.call_count, "Serve error callback was called!");
 }
 
+static void test_serve_upgrade_without_on_headers_complete(void)
+{
+	cio_server_socket_init_fake.custom_fake = cio_server_socket_init_ok;
+	socket_accept_fake.custom_fake = accept_save_handler;
+	header_complete_fake.custom_fake = header_complete_close_client;
+
+	struct cio_http_server server;
+	enum cio_error err = cio_http_server_init(&server, 8080, &loop, serve_error, read_timeout, alloc_dummy_client, free_dummy_client);
+	TEST_ASSERT_EQUAL_MESSAGE(cio_success, err, "Server initialization failed!");
+
+	struct cio_http_uri_server_location target;
+	err = cio_http_server_location_init(&target, REQUEST_TARGET, NULL, alloc_dummy_handler_msg_complete_only);
+	TEST_ASSERT_EQUAL_MESSAGE(cio_success, err, "Request target initialization failed!");
+
+	err = server.register_location(&server, &target);
+	TEST_ASSERT_EQUAL_MESSAGE(cio_success, err, "Register request target failed!");
+
+	err = server.serve(&server);
+	TEST_ASSERT_EQUAL_MESSAGE(cio_success, err, "Serving http failed!");
+
+	struct cio_socket *s = server.alloc_client();
+
+	const char *request[] = {
+		HTTP_GET " " REQUEST_TARGET " " HTTP_11 CRLF,
+		"Upgrade: websocket" CRLF,
+		"Connection: Upgrade" CRLF,
+		KEEP_ALIVE_FIELD ": " KEEP_ALIVE_VALUE CRLF,
+		CRLF};
+
+	init_request(request, ARRAY_SIZE(request));
+	server.server_socket.handler(&server.server_socket, server.server_socket.handler_context, cio_success, s);
+	TEST_ASSERT_EQUAL_MESSAGE(0, header_complete_fake.call_count, "header_complete was called!");
+	TEST_ASSERT_EQUAL_MESSAGE(1, timer_cancel_fake.call_count, "timer_cancel for read timeout was not called!");
+	TEST_ASSERT_EQUAL_MESSAGE(0, serve_error_fake.call_count, "Serve error callback was called!");
+	check_http_response(500);
+}
+
 int main(void)
 {
 	UNITY_BEGIN();
@@ -911,5 +948,6 @@ int main(void)
 	RUN_TEST(test_serve_complete_url);
 	RUN_TEST(test_serve_msg_complete_only);
 	RUN_TEST(test_serve_upgrade);
+	RUN_TEST(test_serve_upgrade_without_on_headers_complete);
 	return UNITY_END();
 }
