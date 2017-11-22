@@ -51,6 +51,11 @@
 #define BODY1 "foobar!"
 #define REQUEST_TARGET "/foo/"
 #define REQUEST_TARGET_SUB "/foo/bar"
+#define SCHEME "https"
+#define HOST "www.example.com"
+#define PORT "8080"
+#define QUERY "p1=A&p2=B"
+#define FRAGMENT "ressource"
 #define HTTP_11 "HTTP/1.1"
 #define KEEP_ALIVE_FIELD "Connection"
 #define KEEP_ALIVE_VALUE "keep-alive"
@@ -168,6 +173,21 @@ FAKE_VALUE_FUNC(enum cio_http_cb_return, on_header_value, struct cio_http_client
 static enum cio_http_cb_return on_body(struct cio_http_client *c, const char *, size_t);
 FAKE_VALUE_FUNC(enum cio_http_cb_return, on_body, struct cio_http_client *, const char *, size_t)
 
+static enum cio_http_cb_return on_schema(struct cio_http_client *c, const char *, size_t);
+FAKE_VALUE_FUNC(enum cio_http_cb_return, on_schema, struct cio_http_client *, const char *, size_t)
+
+static enum cio_http_cb_return on_host(struct cio_http_client *c, const char *, size_t);
+FAKE_VALUE_FUNC(enum cio_http_cb_return, on_host, struct cio_http_client *, const char *, size_t)
+
+static enum cio_http_cb_return on_path(struct cio_http_client *c, const char *, size_t);
+FAKE_VALUE_FUNC(enum cio_http_cb_return, on_path, struct cio_http_client *, const char *, size_t)
+
+static enum cio_http_cb_return on_query(struct cio_http_client *c, const char *, size_t);
+FAKE_VALUE_FUNC(enum cio_http_cb_return, on_query, struct cio_http_client *, const char *, size_t)
+
+static enum cio_http_cb_return on_fragment(struct cio_http_client *c, const char *, size_t);
+FAKE_VALUE_FUNC(enum cio_http_cb_return, on_fragment, struct cio_http_client *, const char *, size_t)
+
 static enum cio_http_cb_return on_url(struct cio_http_client *c, const char *at, size_t length);
 FAKE_VALUE_FUNC(enum cio_http_cb_return, on_url, struct cio_http_client *, const char *, size_t)
 
@@ -234,6 +254,28 @@ static struct cio_http_request_handler *alloc_dummy_handler(const void *config)
 		handler->handler.on_headers_complete = header_complete;
 		handler->handler.on_message_complete = message_complete;
 		handler->handler.on_body = on_body;
+		return &handler->handler;
+	}
+
+}
+
+static struct cio_http_request_handler *alloc_dummy_handler_url_callbacks(const void *config)
+{
+	(void)config;
+	struct dummy_handler *handler = malloc(sizeof(*handler));
+	if (unlikely(handler == NULL)) {
+		return NULL;
+	} else {
+		cio_http_request_handler_init(&handler->handler);
+		cio_write_buffer_head_init(&handler->wbh);
+		handler->handler.free = free_dummy_handler;
+		handler->handler.on_headers_complete = header_complete;
+		handler->handler.on_message_complete = message_complete;
+		handler->handler.on_schema = on_schema;
+		handler->handler.on_host = on_host;
+		handler->handler.on_path = on_path;
+		handler->handler.on_query = on_query;
+		handler->handler.on_fragment = on_fragment;
 		return &handler->handler;
 	}
 }
@@ -721,6 +763,46 @@ static void test_serve_post_with_body(void)
 	check_http_response(200);
 }
 
+static void test_serve_complete_url(void)
+{
+	cio_server_socket_init_fake.custom_fake = cio_server_socket_init_ok;
+	socket_accept_fake.custom_fake = accept_save_handler;
+	message_complete_fake.custom_fake = message_complete_write_header;
+
+	struct cio_http_server server;
+	enum cio_error err = cio_http_server_init(&server, 8080, &loop, serve_error, read_timeout, alloc_dummy_client, free_dummy_client);
+	TEST_ASSERT_EQUAL_MESSAGE(cio_success, err, "Server initialization failed!");
+
+	struct cio_http_uri_server_location target;
+	err = cio_http_server_location_init(&target, REQUEST_TARGET, NULL, alloc_dummy_handler_url_callbacks);
+	TEST_ASSERT_EQUAL_MESSAGE(cio_success, err, "Request target initialization failed!");
+
+	err = server.register_location(&server, &target);
+	TEST_ASSERT_EQUAL_MESSAGE(cio_success, err, "Register request target failed!");
+
+	err = server.serve(&server);
+	TEST_ASSERT_EQUAL_MESSAGE(cio_success, err, "Serving http failed!");
+
+	struct cio_socket *s = server.alloc_client();
+
+	const char *request[] = {
+		HTTP_GET " " SCHEME "://" HOST ":" PORT REQUEST_TARGET "?" QUERY "#" FRAGMENT " " HTTP_11 CRLF,
+		CRLF
+		};
+
+	init_request(request, ARRAY_SIZE(request));
+	server.server_socket.handler(&server.server_socket, server.server_socket.handler_context, cio_success, s);
+	TEST_ASSERT_EQUAL_MESSAGE(1, header_complete_fake.call_count, "header_complete was called!");
+	TEST_ASSERT_EQUAL_MESSAGE(1, message_complete_fake.call_count, "message_complete was called!");
+	TEST_ASSERT_EQUAL_MESSAGE(1, on_schema_fake.call_count, "on_schema was not called!");
+	TEST_ASSERT_EQUAL_MESSAGE(1, on_host_fake.call_count, "on_host was not called!");
+	TEST_ASSERT_EQUAL_MESSAGE(1, on_path_fake.call_count, "on_path was not called!");
+	TEST_ASSERT_EQUAL_MESSAGE(1, on_query_fake.call_count, "on_query was not called!");
+	TEST_ASSERT_EQUAL_MESSAGE(1, on_fragment_fake.call_count, "on_fragment was not called!");
+	TEST_ASSERT_EQUAL_MESSAGE(0, serve_error_fake.call_count, "Serve error callback was called!");
+	check_http_response(200);
+}
+
 int main(void)
 {
 	UNITY_BEGIN();
@@ -730,5 +812,6 @@ int main(void)
 	RUN_TEST(test_serve_locations);
 	RUN_TEST(test_serve_locations_best_match);
 	RUN_TEST(test_serve_post_with_body);
+	RUN_TEST(test_serve_complete_url);
 	return UNITY_END();
 }
