@@ -241,6 +241,22 @@ static enum cio_http_cb_return message_complete_write_header(struct cio_http_cli
 	return cio_http_cb_success;
 }
 
+static struct cio_http_request_handler *alloc_dummy_handler_msg_complete_only(const void *config)
+{
+	(void)config;
+	struct dummy_handler *handler = malloc(sizeof(*handler));
+	if (unlikely(handler == NULL)) {
+		return NULL;
+	} else {
+		cio_http_request_handler_init(&handler->handler);
+		cio_write_buffer_head_init(&handler->wbh);
+		handler->handler.free = free_dummy_handler;
+		handler->handler.on_message_complete = message_complete;
+		return &handler->handler;
+	}
+
+}
+
 static struct cio_http_request_handler *alloc_dummy_handler(const void *config)
 {
 	(void)config;
@@ -808,6 +824,39 @@ static void test_serve_complete_url(void)
 	check_http_response(200);
 }
 
+static void test_serve_msg_complete_only(void)
+{
+	cio_server_socket_init_fake.custom_fake = cio_server_socket_init_ok;
+	socket_accept_fake.custom_fake = accept_save_handler;
+	message_complete_fake.custom_fake = message_complete_write_header;
+
+	struct cio_http_server server;
+	enum cio_error err = cio_http_server_init(&server, 8080, &loop, serve_error, read_timeout, alloc_dummy_client, free_dummy_client);
+	TEST_ASSERT_EQUAL_MESSAGE(cio_success, err, "Server initialization failed!");
+
+	struct cio_http_uri_server_location target;
+	err = cio_http_server_location_init(&target, REQUEST_TARGET, NULL, alloc_dummy_handler_msg_complete_only);
+	TEST_ASSERT_EQUAL_MESSAGE(cio_success, err, "Request target initialization failed!");
+
+	err = server.register_location(&server, &target);
+	TEST_ASSERT_EQUAL_MESSAGE(cio_success, err, "Register request target failed!");
+
+	err = server.serve(&server);
+	TEST_ASSERT_EQUAL_MESSAGE(cio_success, err, "Serving http failed!");
+
+	struct cio_socket *s = server.alloc_client();
+
+	const char *request[] = {
+		HTTP_GET " " REQUEST_TARGET " " HTTP_11 CRLF,
+		CRLF};
+
+	init_request(request, ARRAY_SIZE(request));
+	server.server_socket.handler(&server.server_socket, server.server_socket.handler_context, cio_success, s);
+	TEST_ASSERT_EQUAL_MESSAGE(1, message_complete_fake.call_count, "message_complete was called!");
+	TEST_ASSERT_EQUAL_MESSAGE(0, serve_error_fake.call_count, "Serve error callback was called!");
+	check_http_response(200);
+}
+
 int main(void)
 {
 	UNITY_BEGIN();
@@ -818,5 +867,6 @@ int main(void)
 	RUN_TEST(test_serve_locations_best_match);
 	RUN_TEST(test_serve_post_with_body);
 	RUN_TEST(test_serve_complete_url);
+	RUN_TEST(test_serve_msg_complete_only);
 	return UNITY_END();
 }
