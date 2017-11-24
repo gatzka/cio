@@ -43,47 +43,70 @@
 extern "C" {
 #endif
 
+/**
+ * @file
+ * @brief This file contains the declarations you need to know if you
+ * want to implement an http server.
+ *
+ * A cio_http_server gives you the ability to register multiple
+ * location handlers which will be instantianted automatically
+ * if an HTTP request matches a location.
+ *
+ * Inside a handler you can specify lots of callback functions like
+ * @ref req_handler_on_header_field "on_header_field" or
+ * @ref req_handler_on_body "on_body" which will be called automatically
+ * when an HTTP request is processed by the http server.
+ */
+
+/**
+ * @brief The cio_http_status_code enum lists all HTTP status codes that
+ * can be emmited by the cio_http_server.
+ */
 enum cio_http_status_code {
-	cio_http_status_ok = 200,
-	cio_http_status_bad_request = 400,
-	cio_http_status_not_found = 404,
-	cio_http_status_internal_server_error = 500,
+	cio_http_status_ok = 200,                    /*!< Standard response for a successful HTTP request. */
+	cio_http_status_bad_request = 400,           /*!< Request not processed due to a client error. */
+	cio_http_status_not_found = 404,             /*!< The requested resource was not found. */
+	cio_http_status_internal_server_error = 500, /*!< An internal server error occured. */
 };
 
+/**
+ * @brief The cio_http_method enum lists all HTTP methods currently understood
+ * by the HTTP parser.
+ */
 enum cio_http_method {
-	cio_http_delete = HTTP_DELETE,
-	cio_http_get = HTTP_GET,
-	cio_http_head = HTTP_HEAD,
-	cio_http_post = HTTP_POST,
-	cio_http_put = HTTP_PUT,
-	cio_http_connect = HTTP_CONNECT,
-	cio_http_options = HTTP_OPTIONS,
-	cio_http_trace = HTTP_TRACE,
-	cio_http_copy = HTTP_COPY,
-	cio_http_lock = HTTP_LOCK,
-	cio_http_mkcol = HTTP_MKCOL,
-	cio_http_move = HTTP_MOVE,
-	cio_http_propfind = HTTP_PROPFIND,
-	cio_http_proppatch = HTTP_PROPPATCH,
-	cio_http_search = HTTP_SEARCH,
-	cio_http_unlock = HTTP_UNLOCK,
-	cio_http_bind = HTTP_BIND,
-	cio_http_rebind = HTTP_REBIND,
-	cio_http_unbind = HTTP_UNBIND,
-	cio_http_acl = HTTP_ACL,
-	cio_http_report = HTTP_REPORT,
-	cio_http_mkactivity = HTTP_MKACTIVITY,
-	cio_http_checkout = HTTP_CHECKOUT,
-	cio_http_merge = HTTP_MERGE,
-	cio_http_msearch = HTTP_MSEARCH,
-	cio_http_notify = HTTP_NOTIFY,
-	cio_http_subscribe = HTTP_SUBSCRIBE,
-	cio_http_unsubscribe = HTTP_UNSUBSCRIBE,
-	cio_http_patch = HTTP_PATCH,
-	cio_http_purge = HTTP_PURGE,
-	cio_http_mkcalendar = HTTP_MKCALENDAR,
-	cio_http_link = HTTP_LINK,
-	cio_http_unlink = HTTP_UNLINK
+	cio_http_delete = HTTP_DELETE,           /*!< The DELETE method deletes the specified resource. */
+	cio_http_get = HTTP_GET,                 /*!< The GET method requests a representation of the specified resource. */
+	cio_http_head = HTTP_HEAD,               /*!< The HEAD method asks for a response identical to that of a GET request, but without the response body. */
+	cio_http_post = HTTP_POST,               /*!< The POST method is used to submit an entity to the specified resource. */
+	cio_http_put = HTTP_PUT,                 /*!< The PUT method replaces all current representations of the target resource with the request payload. */
+	cio_http_connect = HTTP_CONNECT,         /*!< The CONNECT method establishes a tunnel to the server identified by the target resource. */
+	cio_http_options = HTTP_OPTIONS,         /*!< The OPTIONS method is used to describe the communication options for the target resource. */
+	cio_http_trace = HTTP_TRACE,             /*!< The TRACE method performs a message loop-back test along the path to the target resource. */
+	cio_http_copy = HTTP_COPY,               /*!< WebDAV: Copy a resource from one URI to another. */
+	cio_http_lock = HTTP_LOCK,               /*!< WebDAV: Put a lock on a resource. */
+	cio_http_mkcol = HTTP_MKCOL,             /*!< WebDAV: Create collections (a.k.a. a directory). */
+	cio_http_move = HTTP_MOVE,               /*!< WebDAV: Move a resource from one URI to another. */
+	cio_http_propfind = HTTP_PROPFIND,       /*!< WebDAV: Retrieve properties, stored as XML, from a web resource. */
+	cio_http_proppatch = HTTP_PROPPATCH,     /*!< WebDAV: Change and delete multiple properties on a resource in a single atomic act. */
+	cio_http_search = HTTP_SEARCH,           /*!< WebDAV: Search for DAV resources based on client-supported criteria. */
+	cio_http_unlock = HTTP_UNLOCK,           /*!< WebDAV: Unlock on a resource. */
+	cio_http_bind = HTTP_BIND,               /*!< WebDAV: Mechanism for allowing clients to create alternative access paths to existing WebDAV resources. */
+	cio_http_rebind = HTTP_REBIND,           /*!< WebDAV: Move a binding to another collection. */
+	cio_http_unbind = HTTP_UNBIND,           /*!< WebDAV: Remove a binding to a resource. */
+	cio_http_acl = HTTP_ACL,                 /*!< WebDAV: Modifies the access control list of a resource. */
+	cio_http_report = HTTP_REPORT,           /*!< WebDAV: Obtain information about a resource. */
+	cio_http_mkactivity = HTTP_MKACTIVITY,   /*!< WebDAV: Create a new activity resource. */
+	cio_http_checkout = HTTP_CHECKOUT,       /*!< WebDAV: Create a new working resource from an applied version. */
+	cio_http_merge = HTTP_MERGE,             /*!< WebDAV: Part of the versioning extension. */
+	cio_http_msearch = HTTP_MSEARCH,         /*!< Used for upnp. */
+	cio_http_notify = HTTP_NOTIFY,           /*!< Used for upnp. */
+	cio_http_subscribe = HTTP_SUBSCRIBE,     /*!< Used for upnp. */
+	cio_http_unsubscribe = HTTP_UNSUBSCRIBE, /*!< Used for upnp. */
+	cio_http_patch = HTTP_PATCH,             /*!< The PATCH method is used to apply partial modifications to a resource. */
+	cio_http_purge = HTTP_PURGE,             /*!< Used for cache invalidation. */
+	cio_http_mkcalendar = HTTP_MKCALENDAR,   /*!< CalDAV: Create a calendar. */
+	cio_http_link = HTTP_LINK,               /*!< Used to establish one or more relationships between an existing resource. */
+	cio_http_unlink = HTTP_UNLINK            /*!< Used to remove one or more relationships between the existing resource. */
 };
 
 enum cio_http_cb_return {
@@ -144,9 +167,20 @@ struct cio_http_request_handler {
 	cio_http_data_cb on_path;
 	cio_http_data_cb on_query;
 	cio_http_data_cb on_fragment;
+
+	/**
+	 * @anchor req_handler_on_header_field
+	 * @brief Called for every header field inside an http header.
+	 */
 	cio_http_data_cb on_header_field;
+
 	cio_http_data_cb on_header_value;
 	cio_http_cb on_headers_complete;
+
+	/**
+	 * @anchor req_handler_on_body
+	 * @brief Called for processed chunks of an http body.
+	 */
 	cio_http_data_cb on_body;
 	cio_http_cb on_message_complete;
 	void (*free)(struct cio_http_request_handler *handler);
@@ -165,17 +199,17 @@ struct cio_http_uri_server_location {
 enum cio_error cio_http_server_location_init(struct cio_http_uri_server_location *location, const char *path, const void *config, cio_http_alloc_handler handler);
 
 struct cio_http_server {
-	uint16_t port;
-	struct cio_eventloop *loop;
-	cio_alloc_client alloc_client;
-	cio_free_client free_client;
-
 	enum cio_error (*serve)(struct cio_http_server *server);
 	enum cio_error (*register_location)(struct cio_http_server *server, struct cio_http_uri_server_location *location);
 
 	/**
 	 * @privatesection
 	 */
+	uint16_t port;
+	struct cio_eventloop *loop;
+	cio_alloc_client alloc_client;
+	cio_free_client free_client;
+
 	uint64_t read_timeout;
 	cio_http_serve_error_cb error_cb;
 	struct cio_server_socket server_socket;
