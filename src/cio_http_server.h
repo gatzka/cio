@@ -48,7 +48,7 @@ extern "C" {
  * @brief This file contains the declarations you need to know if you
  * want to implement an http server.
  *
- * A cio_http_server gives you the ability to register multiple
+ * A cio_http_server gives you the ability to @ref cio_http_server_register "register" multiple
  * location handlers which will be instantianted automatically
  * if an HTTP request matches a location.
  *
@@ -183,6 +183,10 @@ enum cio_error cio_http_server_location_init(struct cio_http_uri_server_location
 
 struct cio_http_server {
 	enum cio_error (*serve)(struct cio_http_server *server);
+
+	/**
+	 * @anchor cio_http_server_register
+	 */
 	enum cio_error (*register_location)(struct cio_http_server *server, struct cio_http_uri_server_location *location);
 
 	/**
