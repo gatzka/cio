@@ -57,17 +57,17 @@ typedef void (*cio_http_serve_error_cb)(struct cio_http_server *server);
 
 typedef struct cio_http_request_handler *(*cio_http_alloc_handler)(const void *config);
 
-struct cio_http_uri_server_location {
+struct cio_http_server_location {
 	/**
 	 * @privatesection
 	 */
 	const char *path;
 	cio_http_alloc_handler alloc_handler;
-	struct cio_http_uri_server_location *next;
+	struct cio_http_server_location *next;
 	const void *config;
 };
 
-enum cio_error cio_http_server_location_init(struct cio_http_uri_server_location *location, const char *path, const void *config, cio_http_alloc_handler handler);
+enum cio_error cio_http_server_location_init(struct cio_http_server_location *location, const char *path, const void *config, cio_http_alloc_handler handler);
 
 struct cio_http_server {
 	enum cio_error (*serve)(struct cio_http_server *server);
@@ -75,7 +75,7 @@ struct cio_http_server {
 	/**
 	 * @anchor cio_http_server_register
 	 */
-	enum cio_error (*register_location)(struct cio_http_server *server, struct cio_http_uri_server_location *location);
+	enum cio_error (*register_location)(struct cio_http_server *server, struct cio_http_server_location *location);
 
 	/**
 	 * @privatesection
@@ -88,7 +88,7 @@ struct cio_http_server {
 	uint64_t read_timeout_ns;
 	cio_http_serve_error_cb error_cb;
 	struct cio_server_socket server_socket;
-	struct cio_http_uri_server_location *first_handler;
+	struct cio_http_server_location *first_handler;
 	size_t num_handlers;
 };
 
