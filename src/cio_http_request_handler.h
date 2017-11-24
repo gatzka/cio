@@ -44,7 +44,6 @@ enum cio_http_cb_return {
 	cio_http_cb_error = -1   /*!< The callback function encountered an error. */
 };
 
-
 typedef enum cio_http_cb_return (*cio_http_cb)(struct cio_http_client *);
 typedef enum cio_http_cb_return (*cio_http_data_cb)(struct cio_http_client *, const char *at, size_t length);
 

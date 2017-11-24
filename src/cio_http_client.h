@@ -91,8 +91,6 @@ struct cio_http_client {
 	uint8_t buffer[];
 };
 
-
-
 #ifdef __cplusplus
 }
 #endif
