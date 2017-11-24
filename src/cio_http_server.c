@@ -399,7 +399,7 @@ static void handle_accept(struct cio_server_socket *ss, void *handler_context, e
 		return;
 	}
 
-	client->read_timer.expires_from_now(&client->read_timer, server->read_timeout, client_timeout_handler, client);
+	client->read_timer.expires_from_now(&client->read_timer, server->read_timeout_ns, client_timeout_handler, client);
 	client->finish_func = finish_request_line;
 	client->bs.read_until(&client->bs, &client->rb, CIO_CRLF, parse, client);
 }
@@ -449,11 +449,11 @@ enum cio_error cio_http_server_init(struct cio_http_server *server,
                                     uint16_t port,
                                     struct cio_eventloop *loop,
                                     cio_http_serve_error_cb error_cb,
-                                    uint64_t read_timeout,
+                                    uint64_t read_timeout_ns,
                                     cio_alloc_client alloc_client,
                                     cio_free_client free_client)
 {
-	if (unlikely((server == NULL) || (loop == NULL) || (alloc_client == NULL) || (free_client == NULL) || (read_timeout == 0))) {
+	if (unlikely((server == NULL) || (loop == NULL) || (alloc_client == NULL) || (free_client == NULL) || (read_timeout_ns == 0))) {
 		return cio_invalid_argument;
 	}
 
@@ -466,7 +466,7 @@ enum cio_error cio_http_server_init(struct cio_http_server *server,
 	server->first_handler = NULL;
 	server->num_handlers = 0;
 	server->error_cb = error_cb;
-	server->read_timeout = read_timeout;
+	server->read_timeout_ns = read_timeout_ns;
 	return cio_success;
 }
 

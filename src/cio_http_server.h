@@ -118,6 +118,14 @@ enum cio_http_cb_return {
 	cio_http_cb_error = -1   /*!< The callback function encountered an error. */
 };
 
+/**
+ * @brief A cio_http_client struct represents an HTTP client connection.
+ *
+ * A cio_http_client is automatically created by the cio_http_server
+ * after a successfully established TCP connection. The memory allocation is
+ * done by the @ref cio_http_server_init_alloc_client "alloc_client" function provided during
+ * @ref cio_http_server_init "initialization" of a cio_http_server.
+ */
 struct cio_http_client {
 
 	// TODO: is close really necessary for users of the library?
@@ -214,18 +222,33 @@ struct cio_http_server {
 	cio_alloc_client alloc_client;
 	cio_free_client free_client;
 
-	uint64_t read_timeout;
+	uint64_t read_timeout_ns;
 	cio_http_serve_error_cb error_cb;
 	struct cio_server_socket server_socket;
 	struct cio_http_uri_server_location *first_handler;
 	size_t num_handlers;
 };
 
+/**
+ * @brief Initializes an HTTP server.
+ * @param server The cio_http_server that should be initialized.
+ * @param port The TCP port the HTTP server listens on.
+ * @param loop The @ref cio_eventloop "eventloop" the HTTP server uses.
+ * @param error_cb This callback function will be called if something goes wrong while the HTTP client connection is established.
+ * @param read_timeout_ns The read timeout in nanoseconds.
+ * The timeout is started after the HTTP connection is established and canceled after the complete HTTP message was received or after
+ * the complete HTTP header was received in case of an upgraded HTTP connection. In case of a timeout the client connection is
+ * closed automatically.
+ * @anchor cio_http_server_init_alloc_client
+ * @param alloc_client A user provided function responsible to allocate a cio_http_client structure.
+ * @param free_client A user provided function to free the client memory @ref cio_http_server_init_alloc_client "allocated".
+ * @return
+ */
 enum cio_error cio_http_server_init(struct cio_http_server *server,
                                     uint16_t port,
                                     struct cio_eventloop *loop,
                                     cio_http_serve_error_cb error_cb,
-                                    uint64_t read_timeout,
+                                    uint64_t read_timeout_ns,
                                     cio_alloc_client alloc_client,
                                     cio_free_client free_client);
 
