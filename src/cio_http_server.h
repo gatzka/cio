@@ -54,6 +54,11 @@ extern "C" {
  * when an HTTP request is processed by the HTTP server.
  */
 
+/**
+ * @brief The type of an server error function passed to the @ref cio_http_server_init "initialization" of an HTTP server.
+ *
+ * @param server The cio_http_server that caused the error.
+ */
 typedef void (*cio_http_serve_error_cb)(struct cio_http_server *server);
 
 struct cio_http_server {
