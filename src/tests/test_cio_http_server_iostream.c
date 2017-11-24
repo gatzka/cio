@@ -31,6 +31,7 @@
 #include "unity.h"
 
 #include "cio_error_code.h"
+#include "cio_http_request_handler.h"
 #include "cio_http_server.h"
 #include "cio_server_socket.h"
 #include "cio_timer.h"
