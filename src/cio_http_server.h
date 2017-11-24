@@ -109,9 +109,14 @@ enum cio_http_method {
 	cio_http_unlink = HTTP_UNLINK            /*!< Used to remove one or more relationships between the existing resource. */
 };
 
+
+/**
+ * @brief The cio_http_cb_return enum lists the allowed return values of user specified
+ * callback functions like @ref req_handler_on_header_field "on_header_field".
+ */
 enum cio_http_cb_return {
-	cio_http_cb_success = 0,
-	cio_http_cb_error = -1
+	cio_http_cb_success = 0, /*!< The callback functions did not encounter any errors. */
+	cio_http_cb_error = -1   /*!< The callback function encountered an error. */
 };
 
 struct cio_http_client {
