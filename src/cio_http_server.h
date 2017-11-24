@@ -41,7 +41,7 @@ extern "C" {
 /**
  * @file
  * @brief This file contains the declarations you need to know if you
- * want to implement an http server.
+ * want to implement an HTTP server.
  *
  * A cio_http_server gives you the ability to @ref cio_http_server_register "register" multiple
  * location handlers which will be instantianted automatically
@@ -50,7 +50,7 @@ extern "C" {
  * Inside a handler you can specify lots of callback functions like
  * @ref req_handler_on_header_field "on_header_field" or
  * @ref req_handler_on_body "on_body" which will be called automatically
- * when an HTTP request is processed by the http server.
+ * when an HTTP request is processed by the HTTP server.
  */
 
 typedef void (*cio_http_serve_error_cb)(struct cio_http_server *server);
