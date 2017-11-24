@@ -47,6 +47,7 @@ target_link_libraries (test_cio_buffered_stream cio_unity)
 add_executable(test_cio_http_server_iostream
     test_cio_http_server_iostream.c
 	../cio_http_request_handler.c
+	../cio_http_server_location.c
     ../cio_http_server.c
     ../cio_buffered_stream.c
     ../http-parser/http_parser.c
@@ -57,6 +58,7 @@ target_link_libraries (test_cio_http_server_iostream cio_unity)
 add_executable(test_cio_http_server
     test_cio_http_server.c
 	../cio_http_request_handler.c
+	../cio_http_server_location.c
     ../cio_http_server.c
     ../http-parser/http_parser.c
 )

@@ -54,6 +54,7 @@ Project {
       "test_cio_http_server_iostream.c",
       "../cio_http_request_handler.c",
       "../cio_http_server.c",
+      "../cio_http_server_location.c",
       "../cio_buffered_stream.c",
     ]
   
@@ -90,6 +91,7 @@ Project {
       "test_cio_http_server.c",
       "../cio_http_request_handler.c",
       "../cio_http_server.c",
+      "../cio_http_server_location.c",
     ]
   
     Group {
