@@ -31,6 +31,7 @@
 #include "cio_buffered_stream.h"
 #include "cio_compiler.h"
 #include "cio_error_code.h"
+#include "cio_http_request_handler.h"
 #include "cio_http_server.h"
 #include "cio_read_buffer.h"
 #include "cio_server_socket.h"
@@ -482,20 +483,4 @@ enum cio_error cio_http_server_location_init(struct cio_http_uri_server_location
 	location->path = path;
 
 	return cio_success;
-}
-
-void cio_http_request_handler_init(struct cio_http_request_handler *handler)
-{
-	handler->on_url = NULL;
-	handler->on_schema = NULL;
-	handler->on_host = NULL;
-	handler->on_path = NULL;
-	handler->on_query = NULL;
-	handler->on_fragment = NULL;
-	handler->on_header_field = NULL;
-	handler->on_header_value = NULL;
-	handler->on_headers_complete = NULL;
-	handler->on_body = NULL;
-	handler->on_message_complete = NULL;
-	handler->free = NULL;
 }

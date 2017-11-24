@@ -30,6 +30,7 @@
 
 #include "cio_error_code.h"
 #include "cio_eventloop.h"
+#include "cio_http_request_handler.h"
 #include "cio_http_server.h"
 #include "cio_util.h"
 

@@ -165,38 +165,9 @@ struct cio_http_client {
 	uint8_t buffer[];
 };
 
-typedef enum cio_http_cb_return (*cio_http_cb)(struct cio_http_client *);
-typedef enum cio_http_cb_return (*cio_http_data_cb)(struct cio_http_client *, const char *at, size_t length);
-typedef struct cio_http_request_handler *(*cio_http_alloc_handler)(const void *config);
-
 typedef void (*cio_http_serve_error_cb)(struct cio_http_server *server);
 
-struct cio_http_request_handler {
-	cio_http_data_cb on_url;
-	cio_http_data_cb on_schema;
-	cio_http_data_cb on_host;
-	cio_http_data_cb on_port;
-	cio_http_data_cb on_path;
-	cio_http_data_cb on_query;
-	cio_http_data_cb on_fragment;
-
-	/**
-	 * @anchor req_handler_on_header_field
-	 * @brief Called for every header field inside an http header.
-	 */
-	cio_http_data_cb on_header_field;
-
-	cio_http_data_cb on_header_value;
-	cio_http_cb on_headers_complete;
-
-	/**
-	 * @anchor req_handler_on_body
-	 * @brief Called for processed chunks of an http body.
-	 */
-	cio_http_data_cb on_body;
-	cio_http_cb on_message_complete;
-	void (*free)(struct cio_http_request_handler *handler);
-};
+typedef struct cio_http_request_handler *(*cio_http_alloc_handler)(const void *config);
 
 struct cio_http_uri_server_location {
 	/**
@@ -242,7 +213,7 @@ struct cio_http_server {
  * @anchor cio_http_server_init_alloc_client
  * @param alloc_client A user provided function responsible to allocate a cio_http_client structure.
  * @param free_client A user provided function to free the client memory @ref cio_http_server_init_alloc_client "allocated".
- * @return
+ * @return ::cio_success for success.
  */
 enum cio_error cio_http_server_init(struct cio_http_server *server,
                                     uint16_t port,
@@ -251,8 +222,6 @@ enum cio_error cio_http_server_init(struct cio_http_server *server,
                                     uint64_t read_timeout_ns,
                                     cio_alloc_client alloc_client,
                                     cio_free_client free_client);
-
-void cio_http_request_handler_init(struct cio_http_request_handler *handler);
 
 #ifdef __cplusplus
 }
