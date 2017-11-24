@@ -260,7 +260,6 @@ static struct cio_http_request_handler *alloc_dummy_handler_msg_complete_only(co
 		handler->handler.on_message_complete = message_complete;
 		return &handler->handler;
 	}
-
 }
 
 static struct cio_http_request_handler *alloc_dummy_handler(const void *config)
@@ -281,7 +280,6 @@ static struct cio_http_request_handler *alloc_dummy_handler(const void *config)
 		handler->handler.on_body = on_body;
 		return &handler->handler;
 	}
-
 }
 
 static struct cio_http_request_handler *alloc_dummy_handler_url_callbacks(const void *config)
@@ -536,8 +534,8 @@ static void test_serve_first_line_fails_write_blocks(void)
 	bs_write_fake.custom_fake = bs_write_later;
 
 	enum cio_error (*read_until_fakes[])(struct cio_buffered_stream *, struct cio_read_buffer *, const char *, cio_buffered_stream_read_handler, void *) = {
-		bs_read_until_error,
-		bs_read_until_ok,
+	    bs_read_until_error,
+	    bs_read_until_ok,
 	};
 
 	bs_read_until_fake.custom_fake = NULL;
@@ -560,10 +558,10 @@ static void test_serve_first_line_fails_write_blocks(void)
 	struct cio_socket *s = server.alloc_client();
 
 	const char *request[] = {
-		HTTP_GET " " REQUEST_TARGET " " HTTP_11 CRLF,
-		KEEP_ALIVE_FIELD ": " KEEP_ALIVE_VALUE CRLF,
-		DNT_FIELD ": " DNT_VALUE CRLF,
-		CRLF};
+	    HTTP_GET " " REQUEST_TARGET " " HTTP_11 CRLF,
+	    KEEP_ALIVE_FIELD ": " KEEP_ALIVE_VALUE CRLF,
+	    DNT_FIELD ": " DNT_VALUE CRLF,
+	    CRLF};
 
 	init_request(request, ARRAY_SIZE(request));
 	server.server_socket.handler(&server.server_socket, server.server_socket.handler_context, cio_success, s);
@@ -774,17 +772,17 @@ static void test_serve_post_with_body(void)
 	snprintf(line, sizeof(line) - 1, "Content-Length: %zu\r\n", strlen(BODY BODY1));
 
 	const char *request[] = {
-		HTTP_POST " " REQUEST_TARGET " " HTTP_11 CRLF,
-		line,
-		CRLF,
-		BODY,
-		BODY1};
+	    HTTP_POST " " REQUEST_TARGET " " HTTP_11 CRLF,
+	    line,
+	    CRLF,
+	    BODY,
+	    BODY1};
 
 	init_request(request, ARRAY_SIZE(request));
 	server.server_socket.handler(&server.server_socket, server.server_socket.handler_context, cio_success, s);
 	TEST_ASSERT_EQUAL_MESSAGE(1, header_complete_fake.call_count, "header_complete was called!");
 	TEST_ASSERT_EQUAL_MESSAGE(1, message_complete_fake.call_count, "message_complete was called!");
-	TEST_ASSERT_MESSAGE(on_body_fake.call_count > 0 , "on_body was not called!");
+	TEST_ASSERT_MESSAGE(on_body_fake.call_count > 0, "on_body was not called!");
 	TEST_ASSERT_EQUAL_MESSAGE(0, serve_error_fake.call_count, "Serve error callback was called!");
 	check_http_response(200);
 }
@@ -812,9 +810,8 @@ static void test_serve_complete_url(void)
 	struct cio_socket *s = server.alloc_client();
 
 	const char *request[] = {
-		HTTP_GET " " SCHEME "://" HOST ":" PORT REQUEST_TARGET "?" QUERY "#" FRAGMENT " " HTTP_11 CRLF,
-		CRLF
-		};
+	    HTTP_GET " " SCHEME "://" HOST ":" PORT REQUEST_TARGET "?" QUERY "#" FRAGMENT " " HTTP_11 CRLF,
+	    CRLF};
 
 	init_request(request, ARRAY_SIZE(request));
 	server.server_socket.handler(&server.server_socket, server.server_socket.handler_context, cio_success, s);
@@ -853,8 +850,8 @@ static void test_serve_msg_complete_only(void)
 	struct cio_socket *s = server.alloc_client();
 
 	const char *request[] = {
-		HTTP_GET " " REQUEST_TARGET " " HTTP_11 CRLF,
-		CRLF};
+	    HTTP_GET " " REQUEST_TARGET " " HTTP_11 CRLF,
+	    CRLF};
 
 	init_request(request, ARRAY_SIZE(request));
 	server.server_socket.handler(&server.server_socket, server.server_socket.handler_context, cio_success, s);
@@ -886,11 +883,11 @@ static void test_serve_upgrade(void)
 	struct cio_socket *s = server.alloc_client();
 
 	const char *request[] = {
-		HTTP_GET " " REQUEST_TARGET " " HTTP_11 CRLF,
-		"Upgrade: websocket" CRLF,
-		"Connection: Upgrade" CRLF,
-		KEEP_ALIVE_FIELD ": " KEEP_ALIVE_VALUE CRLF,
-		CRLF};
+	    HTTP_GET " " REQUEST_TARGET " " HTTP_11 CRLF,
+	    "Upgrade: websocket" CRLF,
+	    "Connection: Upgrade" CRLF,
+	    KEEP_ALIVE_FIELD ": " KEEP_ALIVE_VALUE CRLF,
+	    CRLF};
 
 	init_request(request, ARRAY_SIZE(request));
 	server.server_socket.handler(&server.server_socket, server.server_socket.handler_context, cio_success, s);
@@ -922,11 +919,11 @@ static void test_serve_upgrade_without_on_headers_complete(void)
 	struct cio_socket *s = server.alloc_client();
 
 	const char *request[] = {
-		HTTP_GET " " REQUEST_TARGET " " HTTP_11 CRLF,
-		"Upgrade: websocket" CRLF,
-		"Connection: Upgrade" CRLF,
-		KEEP_ALIVE_FIELD ": " KEEP_ALIVE_VALUE CRLF,
-		CRLF};
+	    HTTP_GET " " REQUEST_TARGET " " HTTP_11 CRLF,
+	    "Upgrade: websocket" CRLF,
+	    "Connection: Upgrade" CRLF,
+	    KEEP_ALIVE_FIELD ": " KEEP_ALIVE_VALUE CRLF,
+	    CRLF};
 
 	init_request(request, ARRAY_SIZE(request));
 	server.server_socket.handler(&server.server_socket, server.server_socket.handler_context, cio_success, s);
