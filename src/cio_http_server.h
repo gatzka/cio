@@ -61,11 +61,26 @@ extern "C" {
  */
 typedef void (*cio_http_serve_error_cb)(struct cio_http_server *server);
 
+/**
+ * @brief The cio_http_server structure provides the implementation of a simple HTTP server.
+ */
 struct cio_http_server {
+
+	/**
+	 * @brief Start serving HTTP client requests.
+	 *
+	 * @param server The HTTP server instance that shall serve the requests.
+	 * @return ::cio_success if serving runs correctly.
+	 */
 	enum cio_error (*serve)(struct cio_http_server *server);
 
 	/**
 	 * @anchor cio_http_server_register
+	 * @brief Register a @p location to the HTTP server.
+	 *
+	 * @param server The HTTP server instance which shall serve the new location.
+	 * @param location The location that should be served by the HTTP server.
+	 * @return ::cio_success if the @p location was registered correctly.
 	 */
 	enum cio_error (*register_location)(struct cio_http_server *server, struct cio_http_server_location *location);
 
