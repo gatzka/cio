@@ -33,8 +33,17 @@ extern "C" {
 
 #include <stddef.h>
 
-// TODO: include cio_http_client.h
-#include "cio_http_server.h"
+#include "cio_http_client.h"
+
+/**
+ * @brief The cio_http_cb_return enum lists the allowed return values of user specified
+ * callback functions like @ref req_handler_on_header_field "on_header_field".
+ */
+enum cio_http_cb_return {
+	cio_http_cb_success = 0, /*!< The callback functions did not encounter any errors. */
+	cio_http_cb_error = -1   /*!< The callback function encountered an error. */
+};
+
 
 typedef enum cio_http_cb_return (*cio_http_cb)(struct cio_http_client *);
 typedef enum cio_http_cb_return (*cio_http_data_cb)(struct cio_http_client *, const char *at, size_t length);
