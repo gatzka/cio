@@ -24,9 +24,9 @@
  * SOFTWARE.
  */
 
-#include "cio_http_request_handler.h"
+#include "cio_http_location_handler.h"
 
-void cio_http_request_handler_init(struct cio_http_request_handler *handler)
+void cio_http_location_handler_init(struct cio_http_location_handler *handler)
 {
 	handler->on_url = NULL;
 	handler->on_schema = NULL;

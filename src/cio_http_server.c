@@ -31,7 +31,7 @@
 #include "cio_buffered_stream.h"
 #include "cio_compiler.h"
 #include "cio_error_code.h"
-#include "cio_http_request_handler.h"
+#include "cio_http_location_handler.h"
 #include "cio_http_server.h"
 #include "cio_read_buffer.h"
 #include "cio_server_socket.h"
@@ -251,7 +251,7 @@ static int on_url(http_parser *parser, const char *at, size_t length)
 		return 0;
 	}
 
-	struct cio_http_request_handler *handler = target->alloc_handler(target->config);
+	struct cio_http_location_handler *handler = target->alloc_handler(target->config);
 	if (unlikely(handler == NULL)) {
 		client->write_header(client, cio_http_status_internal_server_error);
 		return 0;
