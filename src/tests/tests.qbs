@@ -52,10 +52,10 @@ Project {
     
     files: [
       "test_cio_http_server_iostream.c",
-      "../cio_http_location_handler.c",
-      "../cio_http_server.c",
-      "../cio_http_server_location.c",
       "../cio_buffered_stream.c",
+      "../cio_http_location_handler.c",
+      "../cio_http_location.c",
+      "../cio_http_server.c",
     ]
   
     Group {
@@ -89,9 +89,9 @@ Project {
     
     files: [
       "test_cio_http_server.c",
+      "../cio_http_location.c",
       "../cio_http_location_handler.c",
       "../cio_http_server.c",
-      "../cio_http_server_location.c",
     ]
   
     Group {

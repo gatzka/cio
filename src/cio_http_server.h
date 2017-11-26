@@ -32,7 +32,7 @@
 
 #include "cio_error_code.h"
 #include "cio_eventloop.h"
-#include "cio_http_server_location.h"
+#include "cio_http_location.h"
 #include "cio_server_socket.h"
 
 #ifdef __cplusplus
@@ -45,7 +45,7 @@ extern "C" {
  * want to implement an HTTP server.
  *
  * A cio_http_server gives you the ability to @ref cio_http_server_register "register" multiple
- * @ref cio_http_server_location "locations" which will be instantianted automatically
+ * @ref cio_http_location "locations" which will be instantianted automatically
  * if an HTTP request matches a location.
  *
  * Inside a @ref cio_http_location_handler "request handler" you can specify lots of callback functions like
@@ -82,7 +82,7 @@ struct cio_http_server {
 	 * @param location The location that should be served by the HTTP server.
 	 * @return ::cio_success if the @p location was registered correctly.
 	 */
-	enum cio_error (*register_location)(struct cio_http_server *server, struct cio_http_server_location *location);
+	enum cio_error (*register_location)(struct cio_http_server *server, struct cio_http_location *location);
 
 	/**
 	 * @privatesection
@@ -95,7 +95,7 @@ struct cio_http_server {
 	uint64_t read_timeout_ns;
 	cio_http_serve_error_cb error_cb;
 	struct cio_server_socket server_socket;
-	struct cio_http_server_location *first_handler;
+	struct cio_http_location *first_handler;
 	size_t num_handlers;
 };
 

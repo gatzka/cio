@@ -31,6 +31,7 @@
 #include "cio_buffered_stream.h"
 #include "cio_compiler.h"
 #include "cio_error_code.h"
+#include "cio_http_location.h"
 #include "cio_http_location_handler.h"
 #include "cio_http_server.h"
 #include "cio_read_buffer.h"
@@ -144,12 +145,12 @@ static bool location_match(const char *location, size_t location_length, const c
 	return false;
 }
 
-static const struct cio_http_server_location *find_handler(const struct cio_http_server *server, const char *request_target, size_t url_length)
+static const struct cio_http_location *find_handler(const struct cio_http_server *server, const char *request_target, size_t url_length)
 {
-	const struct cio_http_server_location *best_match = NULL;
+	const struct cio_http_location *best_match = NULL;
 	size_t best_match_length = 0;
 
-	const struct cio_http_server_location *handler = server->first_handler;
+	const struct cio_http_location *handler = server->first_handler;
 	for (size_t i = 0; i < server->num_handlers; i++) {
 		size_t location_length = strlen(handler->path);
 		if (location_match(handler->path, location_length, request_target, url_length)) {
@@ -245,7 +246,7 @@ static int on_url(http_parser *parser, const char *at, size_t length)
 		return -1;
 	}
 
-	const struct cio_http_server_location *target = find_handler(client->server, at + u.field_data[UF_PATH].off, u.field_data[UF_PATH].len);
+	const struct cio_http_location *target = find_handler(client->server, at + u.field_data[UF_PATH].off, u.field_data[UF_PATH].len);
 	if (unlikely(target == NULL)) {
 		client->write_header(client, cio_http_status_not_found);
 		return 0;
@@ -434,7 +435,7 @@ close_socket:
 	return err;
 }
 
-static enum cio_error register_handler(struct cio_http_server *server, struct cio_http_server_location *target)
+static enum cio_error register_handler(struct cio_http_server *server, struct cio_http_location *target)
 {
 	if (unlikely(server == NULL) || (target == NULL)) {
 		return cio_invalid_argument;
