@@ -31,7 +31,7 @@
 #include "unity.h"
 
 #include "cio_error_code.h"
-#include "cio_http_request_handler.h"
+#include "cio_http_location_handler.h"
 #include "cio_http_server.h"
 #include "cio_server_socket.h"
 #include "cio_timer.h"
@@ -74,7 +74,7 @@ struct memory_stream {
 static struct memory_stream ms;
 
 struct dummy_handler {
-	struct cio_http_request_handler handler;
+	struct cio_http_location_handler handler;
 	struct cio_write_buffer wbh;
 	struct cio_write_buffer wb;
 };
@@ -250,7 +250,7 @@ static struct cio_socket *alloc_dummy_client(void)
 	return &client->socket;
 }
 
-static void free_dummy_handler(struct cio_http_request_handler *handler)
+static void free_dummy_handler(struct cio_http_location_handler *handler)
 {
 	struct dummy_handler *dh = container_of(handler, struct dummy_handler, handler);
 	free(dh);
@@ -265,7 +265,7 @@ static enum cio_http_cb_return header_complete_close(struct cio_http_client *c)
 static enum cio_http_cb_return header_complete_write_response(struct cio_http_client *c)
 {
 	static const char data[] = "Hello World!";
-	struct cio_http_request_handler *handler = c->handler;
+	struct cio_http_location_handler *handler = c->handler;
 	struct dummy_handler *dh = container_of(handler, struct dummy_handler, handler);
 	cio_write_buffer_init(&dh->wb, data, sizeof(data));
 	cio_write_buffer_queue_tail(&dh->wbh, &dh->wb);
@@ -287,14 +287,14 @@ static enum cio_http_cb_return on_url_close(struct cio_http_client *c, const cha
 	return cio_http_cb_success;
 }
 
-static struct cio_http_request_handler *alloc_dummy_handler(const void *config)
+static struct cio_http_location_handler *alloc_dummy_handler(const void *config)
 {
 	(void)config;
 	struct dummy_handler *handler = malloc(sizeof(*handler));
 	if (unlikely(handler == NULL)) {
 		return NULL;
 	} else {
-		cio_http_request_handler_init(&handler->handler);
+		cio_http_location_handler_init(&handler->handler);
 		cio_write_buffer_head_init(&handler->wbh);
 		handler->handler.free = free_dummy_handler;
 		handler->handler.on_header_field = on_header_field;
@@ -305,21 +305,21 @@ static struct cio_http_request_handler *alloc_dummy_handler(const void *config)
 	}
 }
 
-static struct cio_http_request_handler *alloc_handler_no_callbacks(const void *config)
+static struct cio_http_location_handler *alloc_handler_no_callbacks(const void *config)
 {
 	(void)config;
 	struct dummy_handler *handler = malloc(sizeof(*handler));
 	if (unlikely(handler == NULL)) {
 		return NULL;
 	} else {
-		cio_http_request_handler_init(&handler->handler);
+		cio_http_location_handler_init(&handler->handler);
 		cio_write_buffer_head_init(&handler->wbh);
 		handler->handler.free = free_dummy_handler;
 		return &handler->handler;
 	}
 }
 
-static struct cio_http_request_handler *alloc_failing_handler(const void *config)
+static struct cio_http_location_handler *alloc_failing_handler(const void *config)
 {
 	(void)config;
 	return NULL;

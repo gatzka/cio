@@ -69,7 +69,7 @@ struct cio_http_client {
 	uint64_t content_length;
 	enum cio_http_method http_method;
 
-	struct cio_http_request_handler *handler;
+	struct cio_http_location_handler *handler;
 
 	/**
 	 * @privatesection

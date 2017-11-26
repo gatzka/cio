@@ -32,9 +32,9 @@ extern "C" {
 #endif
 
 #include "cio_error_code.h"
-#include "cio_http_request_handler.h"
+#include "cio_http_location_handler.h"
 
-typedef struct cio_http_request_handler *(*cio_http_alloc_handler)(const void *config);
+typedef struct cio_http_location_handler *(*cio_http_alloc_handler)(const void *config);
 
 struct cio_http_server_location {
 	/**

@@ -24,8 +24,8 @@
  * SOFTWARE.
  */
 
-#ifndef CIO_HTTP_REQUEST_HANDLER_H
-#define CIO_HTTP_REQUEST_HANDLER_H
+#ifndef CIO_HTTP_LOCATION_HANDLER_H
+#define CIO_HTTP_LOCATION_HANDLER_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -47,7 +47,7 @@ enum cio_http_cb_return {
 typedef enum cio_http_cb_return (*cio_http_cb)(struct cio_http_client *);
 typedef enum cio_http_cb_return (*cio_http_data_cb)(struct cio_http_client *, const char *at, size_t length);
 
-struct cio_http_request_handler {
+struct cio_http_location_handler {
 	cio_http_data_cb on_url;
 	cio_http_data_cb on_schema;
 	cio_http_data_cb on_host;
@@ -71,10 +71,10 @@ struct cio_http_request_handler {
 	 */
 	cio_http_data_cb on_body;
 	cio_http_cb on_message_complete;
-	void (*free)(struct cio_http_request_handler *handler);
+	void (*free)(struct cio_http_location_handler *handler);
 };
 
-void cio_http_request_handler_init(struct cio_http_request_handler *handler);
+void cio_http_location_handler_init(struct cio_http_location_handler *handler);
 
 #ifdef __cplusplus
 }

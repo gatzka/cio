@@ -30,7 +30,7 @@
 
 #include "cio_error_code.h"
 #include "cio_eventloop.h"
-#include "cio_http_request_handler.h"
+#include "cio_http_location_handler.h"
 #include "cio_http_server.h"
 #include "cio_util.h"
 
@@ -47,12 +47,12 @@ static const uint64_t read_timeout = UINT64_C(5) * UINT64_C(1000) * UINT64_C(100
 static const char data[] = "<html><body><h1>Hello, World!</h1></body></html>";
 
 struct dummy_handler {
-	struct cio_http_request_handler handler;
+	struct cio_http_location_handler handler;
 	struct cio_write_buffer wbh;
 	struct cio_write_buffer wb;
 };
 
-static void free_dummy_handler(struct cio_http_request_handler *handler)
+static void free_dummy_handler(struct cio_http_location_handler *handler)
 {
 	struct dummy_handler *dh = container_of(handler, struct dummy_handler, handler);
 	free(dh);
@@ -60,7 +60,7 @@ static void free_dummy_handler(struct cio_http_request_handler *handler)
 
 static enum cio_http_cb_return dummy_on_message_complete(struct cio_http_client *client)
 {
-	struct cio_http_request_handler *handler = client->handler;
+	struct cio_http_location_handler *handler = client->handler;
 	struct dummy_handler *dh = container_of(handler, struct dummy_handler, handler);
 	cio_write_buffer_init(&dh->wb, data, sizeof(data));
 	cio_write_buffer_queue_tail(&dh->wbh, &dh->wb);
@@ -76,14 +76,14 @@ static enum cio_http_cb_return dummy_on_body(struct cio_http_client *client, con
 	return cio_http_cb_success;
 }
 
-static struct cio_http_request_handler *alloc_dummy_handler(const void *config)
+static struct cio_http_location_handler *alloc_dummy_handler(const void *config)
 {
 	(void)config;
 	struct dummy_handler *handler = malloc(sizeof(*handler));
 	if (unlikely(handler == NULL)) {
 		return NULL;
 	} else {
-		cio_http_request_handler_init(&handler->handler);
+		cio_http_location_handler_init(&handler->handler);
 		cio_write_buffer_head_init(&handler->wbh);
 		handler->handler.free = free_dummy_handler;
 		handler->handler.on_body = dummy_on_body;
