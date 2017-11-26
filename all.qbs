@@ -48,7 +48,7 @@ Project {
   Examples { }
 
   SubProject {
-    filePath: "src/cio_doc.qbs"
+    filePath: "src/docs/cio_doc.qbs"
   }
 
   UnittestRunner {
