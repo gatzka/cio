@@ -20,7 +20,6 @@ if (DOXYGEN_FOUND)
     set(CIO_DOXY_STRIP_FROM_PATH "${PROJECT_BINARY_DIR}/generated/ ${CMAKE_CURRENT_SOURCE_DIR}/../")
     set(CIO_BUILD_DIR ${CMAKE_CURRENT_BINARY_DIR})
     configure_file(${DOXYGEN_IN} ${DOXYGEN_OUT})
-    message("Doxygen build started")
 
     # note the option ALL which allows to build the docs together with the application
     add_custom_target( doc_doxygen ALL
