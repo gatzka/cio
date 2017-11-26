@@ -29,10 +29,9 @@ import qbs 1.0
 Project {
   name: "cio documentation"
 
-  property bool runAnalyzer: false
   minimumQbsVersion: "1.6.0"
 
-  qbsSearchPaths: "../qbs/"
+  qbsSearchPaths: "../../qbs/"
 
   Product {
 
@@ -40,6 +39,7 @@ Project {
     type: "docs";
 
     Depends { name: "generateDoxygen" }
+    generateDoxygen.sourceDirectory: product.sourceDirectory + "/../"
 
     Group {
       name: "Doxygen config"
@@ -52,14 +52,14 @@ Project {
     Group {
       name: "version file"
       files: [
-        "version"
+        "../version"
       ]
       fileTags: ["version_file"]
     }
 
     Group {
       name: "Doxygen C inputs";
-      prefix: "**/"
+      prefix: "../**/"
       files: ["*.h", "*.c"];
       fileTags: "source";
     }

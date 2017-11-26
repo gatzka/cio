@@ -31,6 +31,7 @@ import '../../patchVersions.js' as Patch
 
 Module {
   property bool createGraphs: false
+  property string sourceDirectory
 
   Rule {
     inputs: ["doxy_version_patched", "source"];
@@ -43,9 +44,7 @@ Module {
         for (var idx = 0; idx < inputs["doxy_version_patched"].length; idx++) {
           var file = inputs["doxy_version_patched"][idx].filePath;
           var proc = new Process();
-          proc.setWorkingDirectory(product.sourceDirectory);
-          print(file)
-          print(product.sourceDirectory)
+          proc.setWorkingDirectory(product.generateDoxygen.sourceDirectory);
           proc.exec("doxygen", [file], true);
           proc.close();
         }
@@ -80,12 +79,12 @@ Module {
         content = content.replace("\${CIO_HAVE_DOT}", createGraphs);
         content = content.replace("\${CIO_SET_CALL_GRAPH}", createGraphs);
         content = content.replace("\${CIO_SET_CALLER_GRAPH}", createGraphs);
-        file = new TextFile(output.filePath,  TextFile.WriteOnly);
+        file = new TextFile(output.filePath, TextFile.WriteOnly);
         file.truncate();
         file.write(content);
         file.close();
       }
-      return  cmd;
+      return cmd;
     }
   }
 
@@ -107,12 +106,12 @@ Module {
         var content = file.readAll();
         file.close()
         content = content.replace(/\${CIO_BUILD_DIR}/g, product.buildDirectory);
-        file = new TextFile(output.filePath,  TextFile.WriteOnly);
+        file = new TextFile(output.filePath, TextFile.WriteOnly);
         file.truncate();
         file.write(content);
         file.close();
       }
-      return  cmd;
+      return cmd;
     }
   }
 
