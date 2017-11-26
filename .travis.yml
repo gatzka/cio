@@ -137,6 +137,7 @@ script:
   then /usr/lib/llvm-5.0/bin/scan-build --status-bugs make -j; else make -j; fi; ASAN_OPTIONS=check_initialization_order=true:detect_stack_use_after_return=true:strict_init_order=true:detect_invalid_pointer_pairs=10:strict_string_checks=true
   ctest -V . ; fi
 after_success:
+- scripts/push-doxygen-to-gh-pages.sh
 - if [ -n "${COVERAGE_INFO}" ]; then cd ${TRAVIS_BUILD_DIR}; lcov --version; lcov
   --capture --directory . --output-file coverage.info; lcov --remove coverage.info
   '*/linux/tests/*' '*/tests/*' '*/http-parser/*' '/usr/include/*' '*/unity/*' --output-file
