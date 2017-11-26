@@ -106,6 +106,8 @@ Module {
         var content = file.readAll();
         file.close()
         content = content.replace(/\${CIO_BUILD_DIR}/g, product.buildDirectory);
+        content = content.replace(/\${CIO_DOXY_INPUT}/g, product.generateDoxygen.sourceDirectory + " " + product.buildDirectory + "/generated/");
+        content = content.replace(/\${CIO_DOXY_STRIP_FROM_PATH}/g, product.generateDoxygen.sourceDirectory + " " + product.buildDirectory + "/generated/");
         file = new TextFile(output.filePath, TextFile.WriteOnly);
         file.truncate();
         file.write(content);
