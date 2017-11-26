@@ -144,8 +144,8 @@ int main()
 		goto destroy_loop;
 	}
 
-	struct cio_http_server_location target_foo;
-	cio_http_server_location_init(&target_foo, "/foo", NULL, alloc_dummy_handler);
+	struct cio_http_location target_foo;
+	cio_http_location_init(&target_foo, "/foo", NULL, alloc_dummy_handler);
 	server.register_location(&server, &target_foo);
 
 	err = server.serve(&server);

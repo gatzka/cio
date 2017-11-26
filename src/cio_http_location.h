@@ -24,19 +24,32 @@
  * SOFTWARE.
  */
 
-#include "cio_http_server_location.h"
+#ifndef CIO_HTTP_LOCATION_H
+#define CIO_HTTP_LOCATION_H
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include "cio_error_code.h"
+#include "cio_http_location_handler.h"
 
-enum cio_error cio_http_server_location_init(struct cio_http_server_location *location, const char *path, const void *config, cio_http_alloc_handler handler)
-{
-	if (unlikely((location == NULL) || (path == NULL) || (handler == NULL))) {
-		return cio_invalid_argument;
-	}
+typedef struct cio_http_location_handler *(*cio_http_alloc_handler)(const void *config);
 
-	location->config = config;
-	location->next = NULL;
-	location->alloc_handler = handler;
-	location->path = path;
+struct cio_http_location {
+	/**
+	 * @privatesection
+	 */
+	const char *path;
+	cio_http_alloc_handler alloc_handler;
+	struct cio_http_location *next;
+	const void *config;
+};
 
-	return cio_success;
+enum cio_error cio_http_location_init(struct cio_http_location *location, const char *path, const void *config, cio_http_alloc_handler handler);
+
+#ifdef __cplusplus
 }
+#endif
+
+#endif

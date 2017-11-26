@@ -27,9 +27,9 @@ endif()
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/ ${CMAKE_CURRENT_SOURCE_DIR}/linux/)
 set(CIO_FILES
+	cio_http_location.c
 	cio_http_location_handler.c
 	cio_http_server.c
-	cio_http_server_location.c
 	http-parser/http_parser.c
     cio_buffered_stream.c
 )
