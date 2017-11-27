@@ -21,6 +21,8 @@ matrix:
     - build-wrapper-linux-x86-64 --out-dir bw-output make
     - ctest .
     - sonar-scanner
+    - lcov --capture --directory . --output-file coverage.info
+    - lcov --remove coverage.info '*/linux/tests/*' '*/tests/*' '*/http-parser/*' '/usr/include/*' '*/unity/*' --output-file filtered-coverage.info
     addons:
       sonarcloud:
         organization: "gatzka-github"
@@ -35,6 +37,7 @@ matrix:
         packages:
         - cmake
         - cmake-data
+        - lcov
 
   - compiler: gcc
     env:
