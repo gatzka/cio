@@ -171,7 +171,6 @@ int main()
 	err = cio_eventloop_run(&loop);
 	if (err != cio_success) {
 		ret = EXIT_FAILURE;
-		goto close_socket;
 	}
 
 close_socket:
