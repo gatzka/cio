@@ -35,9 +35,6 @@
 #include "cio_string.h"
 #include "cio_write_buffer.h"
 
-#undef MIN
-#define MIN(X, Y) (((X) < (Y)) ? (X) : (Y))
-
 static enum cio_bs_state run_read(struct cio_buffered_stream *bs);
 
 static void handle_read(struct cio_io_stream *stream, void *handler_context, enum cio_error err, struct cio_read_buffer *buffer)
