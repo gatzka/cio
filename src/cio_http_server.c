@@ -40,10 +40,8 @@
 #include "cio_timer.h"
 #include "cio_util.h"
 
-#undef CIO_CRLF
 #define CIO_CRLF "\r\n"
 
-#undef CIO_HTTP_VERSION
 #define CIO_HTTP_VERSION "HTTP/1.0"
 
 static void close_client(struct cio_http_client *client)
