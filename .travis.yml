@@ -21,8 +21,10 @@ matrix:
     - build-wrapper-linux-x86-64 --out-dir bw-output make
     - ctest .
     - sonar-scanner
-    - lcov --capture --directory . --output-file coverage.info
-    - lcov --remove coverage.info '*/linux/tests/*' '*/tests/*' '*/http-parser/*' '/usr/include/*' '*/unity/*' --output-file filtered-coverage.info
+    - mkdir gcov
+    - cd gcov
+    - find .. -name *.gcno |xargs gcov -abcfu
+    - cd ..
     addons:
       sonarcloud:
         organization: "gatzka-github"
