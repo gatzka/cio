@@ -6,6 +6,8 @@ branches:
   - "/^feature.*$/"
   - "/^fix.*$/"
 sudo: false
+git:
+  depth: 9999999
 matrix:
   include:
   - compiler: gcc
