@@ -18,7 +18,7 @@ matrix:
     - MATRIX_EVAL="CMAKE_C_COMPILER=gcc && CMAKE_BUILD_TYPE=Debug"
     script:
     - cmake ./
-    - build-wrapper-linux-x86-64 --out-dir bw-output make -j2
+    - build-wrapper-linux-x86-64 --out-dir bw-output make
     - sonar-scanner
     addons:
       sonarcloud:
