@@ -1,7 +1,6 @@
 var searchData=
 [
   ['cio_5fbuffered_5fstream',['cio_buffered_stream',['../structcio__buffered__stream.html',1,'']]],
-  ['cio_5feventloop',['cio_eventloop',['../structcio__eventloop.html',1,'']]],
   ['cio_5fhttp_5fclient',['cio_http_client',['../structcio__http__client.html',1,'']]],
   ['cio_5fhttp_5flocation',['cio_http_location',['../structcio__http__location.html',1,'']]],
   ['cio_5fhttp_5flocation_5fhandler',['cio_http_location_handler',['../structcio__http__location__handler.html',1,'']]],

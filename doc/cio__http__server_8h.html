@@ -23,7 +23,7 @@
  <tr style="height: 56px;">
   <td style="padding-left: 0.5em;">
    <div id="projectname">ANSI C I/O Library
-   &#160;<span id="projectnumber">0.0.1-695+4ae872f</span>
+   &#160;<span id="projectnumber">0.0.1-704+a2988ea</span>
    </div>
   </td>
  </tr>
@@ -114,7 +114,7 @@ Typedefs</h2></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="func-members"></a>
 Functions</h2></td></tr>
-<tr class="memitem:a32ff793c6a13a5a05a5e3d0b1da05f53"><td class="memItemLeft" align="right" valign="top">enum <a class="el" href="cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afe">cio_error</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="cio__http__server_8h.html#a32ff793c6a13a5a05a5e3d0b1da05f53">cio_http_server_init</a> (struct <a class="el" href="structcio__http__server.html">cio_http_server</a> *server, uint16_t port, struct <a class="el" href="structcio__eventloop.html">cio_eventloop</a> *loop, <a class="el" href="cio__http__server_8h.html#a87414ef2c21d82fae186b7f21f5f7178">cio_http_serve_error_cb</a> error_cb, uint64_t read_timeout_ns, <a class="el" href="cio__server__socket_8h.html#a6365344c7e5e854b40ff9a3b01e4176f">cio_alloc_client</a> alloc_client, <a class="el" href="cio__server__socket_8h.html#ad1fdf04763eef9c0a1883c9ebe833964">cio_free_client</a> free_client)</td></tr>
+<tr class="memitem:a32ff793c6a13a5a05a5e3d0b1da05f53"><td class="memItemLeft" align="right" valign="top">enum <a class="el" href="cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afe">cio_error</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="cio__http__server_8h.html#a32ff793c6a13a5a05a5e3d0b1da05f53">cio_http_server_init</a> (struct <a class="el" href="structcio__http__server.html">cio_http_server</a> *server, uint16_t port, struct cio_eventloop *loop, <a class="el" href="cio__http__server_8h.html#a87414ef2c21d82fae186b7f21f5f7178">cio_http_serve_error_cb</a> error_cb, uint64_t read_timeout_ns, <a class="el" href="cio__server__socket_8h.html#a6365344c7e5e854b40ff9a3b01e4176f">cio_alloc_client</a> alloc_client, <a class="el" href="cio__server__socket_8h.html#ad1fdf04763eef9c0a1883c9ebe833964">cio_free_client</a> free_client)</td></tr>
 <tr class="memdesc:a32ff793c6a13a5a05a5e3d0b1da05f53"><td class="mdescLeft">&#160;</td><td class="mdescRight">Initializes an HTTP server.  <a href="#a32ff793c6a13a5a05a5e3d0b1da05f53">More...</a><br/></td></tr>
 <tr class="separator:a32ff793c6a13a5a05a5e3d0b1da05f53"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
@@ -163,7 +163,7 @@ Functions</h2></td></tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">struct <a class="el" href="structcio__eventloop.html">cio_eventloop</a> *&#160;</td>
+          <td class="paramtype">struct cio_eventloop *&#160;</td>
           <td class="paramname"><em>loop</em>, </td>
         </tr>
         <tr>
@@ -203,7 +203,7 @@ Functions</h2></td></tr>
   <table class="params">
     <tr><td class="paramname">server</td><td>The <a class="el" href="structcio__http__server.html" title="The cio_http_server structure provides the implementation of a simple HTTP server. ">cio_http_server</a> that should be initialized. </td></tr>
     <tr><td class="paramname">port</td><td>The TCP port the HTTP server listens on. </td></tr>
-    <tr><td class="paramname">loop</td><td>The <a class="el" href="structcio__eventloop.html">eventloop</a> the HTTP server uses. </td></tr>
+    <tr><td class="paramname">loop</td><td>The eventloop the HTTP server uses. </td></tr>
     <tr><td class="paramname">error_cb</td><td>This callback function will be called if something goes wrong while the HTTP client connection is established. </td></tr>
     <tr><td class="paramname">read_timeout_ns</td><td>The read timeout in nanoseconds. The timeout is started after the HTTP connection is established and canceled after the complete HTTP message was received or after the complete HTTP header was received in case of an upgraded HTTP connection. In case of a timeout the client connection is closed automatically. <a class="anchor" id="cio_http_server_init_alloc_client"></a></td></tr>
     <tr><td class="paramname">alloc_client</td><td>A user provided function responsible to allocate a <a class="el" href="structcio__http__client.html" title="A cio_http_client struct represents an HTTP client connection. ">cio_http_client</a> structure. </td></tr>

@@ -23,7 +23,7 @@
  <tr style="height: 56px;">
   <td style="padding-left: 0.5em;">
    <div id="projectname">ANSI C I/O Library
-   &#160;<span id="projectnumber">0.0.1-695+4ae872f</span>
+   &#160;<span id="projectnumber">0.0.1-704+a2988ea</span>
    </div>
   </td>
  </tr>
@@ -140,12 +140,12 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="line"><a name="l00113"></a><span class="lineno">  113</span>&#160;    <span class="keyword">struct </span><a class="code" href="structcio__io__stream.html">cio_io_stream</a> stream;</div>
 <div class="line"><a name="l00114"></a><span class="lineno">  114</span>&#160;    <a class="code" href="cio__socket_8h.html#a8641f6ac0091a6a5545e42337aad5d34">cio_socket_close_hook</a> close_hook;</div>
 <div class="line"><a name="l00115"></a><span class="lineno">  115</span>&#160;    <span class="keyword">struct </span>cio_event_notifier ev;</div>
-<div class="line"><a name="l00116"></a><span class="lineno">  116</span>&#160;    <span class="keyword">struct </span><a class="code" href="structcio__eventloop.html">cio_eventloop</a> *loop;</div>
+<div class="line"><a name="l00116"></a><span class="lineno">  116</span>&#160;    <span class="keyword">struct </span>cio_eventloop *loop;</div>
 <div class="line"><a name="l00117"></a><span class="lineno">  117</span>&#160;    <span class="keyword">struct </span>cio_allocator *allocator;</div>
 <div class="line"><a name="l00118"></a><span class="lineno">  118</span>&#160;};</div>
 <div class="line"><a name="l00119"></a><span class="lineno">  119</span>&#160;</div>
 <div class="line"><a name="l00133"></a><span class="lineno">  133</span>&#160;<span class="keyword">enum</span> <a class="code" href="cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afe">cio_error</a> <a class="code" href="cio__socket_8h.html#a5cb1e27d2d026bd2adfe8231a6e6a9ae">cio_socket_init</a>(<span class="keyword">struct</span> <a class="code" href="structcio__socket.html">cio_socket</a> *s,</div>
-<div class="line"><a name="l00134"></a><span class="lineno">  134</span>&#160;                               <span class="keyword">struct</span> <a class="code" href="structcio__eventloop.html">cio_eventloop</a> *loop,</div>
+<div class="line"><a name="l00134"></a><span class="lineno">  134</span>&#160;                               <span class="keyword">struct</span> cio_eventloop *loop,</div>
 <div class="line"><a name="l00135"></a><span class="lineno">  135</span>&#160;                               <a class="code" href="cio__socket_8h.html#a8641f6ac0091a6a5545e42337aad5d34">cio_socket_close_hook</a> close_hook);</div>
 <div class="line"><a name="l00136"></a><span class="lineno">  136</span>&#160;</div>
 <div class="line"><a name="l00137"></a><span class="lineno">  137</span>&#160;<span class="preprocessor">#ifdef __cplusplus</span></div>
@@ -162,7 +162,6 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="ttc" id="structcio__io__stream_html"><div class="ttname"><a href="structcio__io__stream.html">cio_io_stream</a></div><div class="ttdoc">This structure describes the interface all implementations have to fulfill. </div><div class="ttdef"><b>Definition:</b> cio_io_stream.h:74</div></div>
 <div class="ttc" id="structcio__socket_html_a411e8e65890595385a3e96cc34f01171"><div class="ttname"><a href="structcio__socket.html#a411e8e65890595385a3e96cc34f01171">cio_socket::close</a></div><div class="ttdeci">enum cio_error(* close)(struct cio_socket *context)</div><div class="ttdoc">Closes the cio_socket. </div><div class="ttdef"><b>Definition:</b> cio_socket.h:79</div></div>
 <div class="ttc" id="cio__eventloop_8h_html"><div class="ttname"><a href="cio__eventloop_8h.html">cio_eventloop.h</a></div><div class="ttdoc">This file describes the interface to an eventloop. </div></div>
-<div class="ttc" id="structcio__eventloop_html"><div class="ttname"><a href="structcio__eventloop.html">cio_eventloop</a></div><div class="ttdoc">A structure describing an eventloop. </div></div>
 <div class="ttc" id="structcio__socket_html_aeee92d0cf2f5718fed36908065b81e96"><div class="ttname"><a href="structcio__socket.html#aeee92d0cf2f5718fed36908065b81e96">cio_socket::set_keep_alive</a></div><div class="ttdeci">enum cio_error(* set_keep_alive)(struct cio_socket *context, bool on, unsigned int keep_idle_s, unsigned int keep_intvl_s, unsigned int keep_cnt)</div><div class="ttdoc">Enables/disables TCP keepalive messages. </div><div class="ttdef"><b>Definition:</b> cio_socket.h:108</div></div>
 <div class="ttc" id="cio__socket_8h_html_a8641f6ac0091a6a5545e42337aad5d34"><div class="ttname"><a href="cio__socket_8h.html#a8641f6ac0091a6a5545e42337aad5d34">cio_socket_close_hook</a></div><div class="ttdeci">void(* cio_socket_close_hook)(struct cio_socket *s)</div><div class="ttdoc">The type of close hook function. </div><div class="ttdef"><b>Definition:</b> cio_socket.h:56</div></div>
 </div><!-- fragment --></div><!-- contents -->

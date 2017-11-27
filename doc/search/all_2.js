@@ -22,7 +22,6 @@ var searchData=
   ['cio_5feof',['cio_eof',['../cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afea3bb1e79e0d689ba8fd50ea3bf58d80a8',1,'cio_error_code.h']]],
   ['cio_5ferror',['cio_error',['../cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afe',1,'cio_error_code.h']]],
   ['cio_5ferror_5fcode_2eh',['cio_error_code.h',['../cio__error__code_8h.html',1,'']]],
-  ['cio_5feventloop',['cio_eventloop',['../structcio__eventloop.html',1,'']]],
   ['cio_5feventloop_2eh',['cio_eventloop.h',['../cio__eventloop_8h.html',1,'']]],
   ['cio_5feventloop_5fcancel',['cio_eventloop_cancel',['../cio__eventloop_8h.html#a5f7892b6393477a8d022b50057f4d1d1',1,'cio_eventloop.h']]],
   ['cio_5feventloop_5fdestroy',['cio_eventloop_destroy',['../cio__eventloop_8h.html#a32bfdd29575247961d39ad73b6623b76',1,'cio_eventloop.h']]],

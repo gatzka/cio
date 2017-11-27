@@ -23,7 +23,7 @@
  <tr style="height: 56px;">
   <td style="padding-left: 0.5em;">
    <div id="projectname">ANSI C I/O Library
-   &#160;<span id="projectnumber">0.0.1-695+4ae872f</span>
+   &#160;<span id="projectnumber">0.0.1-704+a2988ea</span>
    </div>
   </td>
  </tr>
@@ -120,22 +120,19 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="line"><a name="l00034"></a><span class="lineno">   34</span>&#160;<span class="preprocessor"></span><span class="keyword">extern</span> <span class="stringliteral">&quot;C&quot;</span> {</div>
 <div class="line"><a name="l00035"></a><span class="lineno">   35</span>&#160;<span class="preprocessor">#endif</span></div>
 <div class="line"><a name="l00036"></a><span class="lineno">   36</span>&#160;<span class="preprocessor"></span></div>
-<div class="line"><a name="l00048"></a><span class="lineno">   48</span>&#160;<span class="keyword">struct </span><a class="code" href="structcio__eventloop.html">cio_eventloop</a>;</div>
-<div class="line"><a name="l00049"></a><span class="lineno">   49</span>&#160;</div>
-<div class="line"><a name="l00050"></a><span class="lineno">   50</span>&#160;<span class="keyword">enum</span> <a class="code" href="cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afe">cio_error</a> <a class="code" href="cio__eventloop_8h.html#ab079e2f8f0fc66e1fb54ffc3fe43793d">cio_eventloop_init</a>(<span class="keyword">struct</span> <a class="code" href="structcio__eventloop.html">cio_eventloop</a> *loop);</div>
-<div class="line"><a name="l00051"></a><span class="lineno">   51</span>&#160;<span class="keywordtype">void</span> <a class="code" href="cio__eventloop_8h.html#a32bfdd29575247961d39ad73b6623b76">cio_eventloop_destroy</a>(<span class="keyword">const</span> <span class="keyword">struct</span> <a class="code" href="structcio__eventloop.html">cio_eventloop</a> *loop);</div>
-<div class="line"><a name="l00052"></a><span class="lineno">   52</span>&#160;<span class="keyword">enum</span> <a class="code" href="cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afe">cio_error</a> <a class="code" href="cio__eventloop_8h.html#a493688086c6b1442288d2c2cebc30c7e">cio_eventloop_run</a>(<span class="keyword">struct</span> <a class="code" href="structcio__eventloop.html">cio_eventloop</a> *loop);</div>
-<div class="line"><a name="l00053"></a><span class="lineno">   53</span>&#160;<span class="keywordtype">void</span> <a class="code" href="cio__eventloop_8h.html#a5f7892b6393477a8d022b50057f4d1d1">cio_eventloop_cancel</a>(<span class="keyword">struct</span> <a class="code" href="structcio__eventloop.html">cio_eventloop</a> *loop);</div>
-<div class="line"><a name="l00054"></a><span class="lineno">   54</span>&#160;</div>
-<div class="line"><a name="l00055"></a><span class="lineno">   55</span>&#160;<span class="preprocessor">#ifdef __cplusplus</span></div>
-<div class="line"><a name="l00056"></a><span class="lineno">   56</span>&#160;<span class="preprocessor"></span>}</div>
-<div class="line"><a name="l00057"></a><span class="lineno">   57</span>&#160;<span class="preprocessor">#endif</span></div>
-<div class="line"><a name="l00058"></a><span class="lineno">   58</span>&#160;<span class="preprocessor"></span></div>
-<div class="line"><a name="l00059"></a><span class="lineno">   59</span>&#160;<span class="preprocessor">#endif</span></div>
+<div class="line"><a name="l00042"></a><span class="lineno">   42</span>&#160;<span class="keyword">enum</span> <a class="code" href="cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afe">cio_error</a> <a class="code" href="cio__eventloop_8h.html#ab079e2f8f0fc66e1fb54ffc3fe43793d">cio_eventloop_init</a>(<span class="keyword">struct</span> cio_eventloop *loop);</div>
+<div class="line"><a name="l00043"></a><span class="lineno">   43</span>&#160;<span class="keywordtype">void</span> <a class="code" href="cio__eventloop_8h.html#a32bfdd29575247961d39ad73b6623b76">cio_eventloop_destroy</a>(<span class="keyword">const</span> <span class="keyword">struct</span> cio_eventloop *loop);</div>
+<div class="line"><a name="l00044"></a><span class="lineno">   44</span>&#160;<span class="keyword">enum</span> <a class="code" href="cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afe">cio_error</a> <a class="code" href="cio__eventloop_8h.html#a493688086c6b1442288d2c2cebc30c7e">cio_eventloop_run</a>(<span class="keyword">struct</span> cio_eventloop *loop);</div>
+<div class="line"><a name="l00045"></a><span class="lineno">   45</span>&#160;<span class="keywordtype">void</span> <a class="code" href="cio__eventloop_8h.html#a5f7892b6393477a8d022b50057f4d1d1">cio_eventloop_cancel</a>(<span class="keyword">struct</span> cio_eventloop *loop);</div>
+<div class="line"><a name="l00046"></a><span class="lineno">   46</span>&#160;</div>
+<div class="line"><a name="l00047"></a><span class="lineno">   47</span>&#160;<span class="preprocessor">#ifdef __cplusplus</span></div>
+<div class="line"><a name="l00048"></a><span class="lineno">   48</span>&#160;<span class="preprocessor"></span>}</div>
+<div class="line"><a name="l00049"></a><span class="lineno">   49</span>&#160;<span class="preprocessor">#endif</span></div>
+<div class="line"><a name="l00050"></a><span class="lineno">   50</span>&#160;<span class="preprocessor"></span></div>
+<div class="line"><a name="l00051"></a><span class="lineno">   51</span>&#160;<span class="preprocessor">#endif</span></div>
 <div class="ttc" id="cio__eventloop_8h_html_a493688086c6b1442288d2c2cebc30c7e"><div class="ttname"><a href="cio__eventloop_8h.html#a493688086c6b1442288d2c2cebc30c7e">cio_eventloop_run</a></div><div class="ttdeci">enum cio_error cio_eventloop_run(struct cio_eventloop *loop)</div></div>
 <div class="ttc" id="cio__error__code_8h_html_ac512c4abcb0c1e747cdaaf3b917d4afe"><div class="ttname"><a href="cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afe">cio_error</a></div><div class="ttdeci">cio_error</div><div class="ttdoc">All error codes used inside the cio libary. </div><div class="ttdef"><b>Definition:</b> cio_error_code.h:43</div></div>
 <div class="ttc" id="cio__error__code_8h_html"><div class="ttname"><a href="cio__error__code_8h.html">cio_error_code.h</a></div><div class="ttdoc">This file contains the declaration of the enumeration for all error codes. </div></div>
-<div class="ttc" id="structcio__eventloop_html"><div class="ttname"><a href="structcio__eventloop.html">cio_eventloop</a></div><div class="ttdoc">A structure describing an eventloop. </div></div>
 <div class="ttc" id="cio__eventloop_8h_html_a5f7892b6393477a8d022b50057f4d1d1"><div class="ttname"><a href="cio__eventloop_8h.html#a5f7892b6393477a8d022b50057f4d1d1">cio_eventloop_cancel</a></div><div class="ttdeci">void cio_eventloop_cancel(struct cio_eventloop *loop)</div></div>
 <div class="ttc" id="cio__eventloop_8h_html_a32bfdd29575247961d39ad73b6623b76"><div class="ttname"><a href="cio__eventloop_8h.html#a32bfdd29575247961d39ad73b6623b76">cio_eventloop_destroy</a></div><div class="ttdeci">void cio_eventloop_destroy(const struct cio_eventloop *loop)</div></div>
 <div class="ttc" id="cio__eventloop_8h_html_ab079e2f8f0fc66e1fb54ffc3fe43793d"><div class="ttname"><a href="cio__eventloop_8h.html#ab079e2f8f0fc66e1fb54ffc3fe43793d">cio_eventloop_init</a></div><div class="ttdeci">enum cio_error cio_eventloop_init(struct cio_eventloop *loop)</div></div>

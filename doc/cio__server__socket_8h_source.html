@@ -23,7 +23,7 @@
  <tr style="height: 56px;">
   <td style="padding-left: 0.5em;">
    <div id="projectname">ANSI C I/O Library
-   &#160;<span id="projectnumber">0.0.1-695+4ae872f</span>
+   &#160;<span id="projectnumber">0.0.1-704+a2988ea</span>
    </div>
   </td>
  </tr>
@@ -143,7 +143,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="line"><a name="l00110"></a><span class="lineno">  110</span>&#160;</div>
 <div class="line"><a name="l00120"></a><span class="lineno"><a class="line" href="structcio__server__socket.html#aed89990810a207e4b9821942581c13bd">  120</a></span>&#160;    <span class="keyword">enum</span> <a class="code" href="cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afe">cio_error</a> (*<a class="code" href="structcio__server__socket.html#aed89990810a207e4b9821942581c13bd">set_reuse_address</a>)(<span class="keyword">struct </span><a class="code" href="structcio__server__socket.html">cio_server_socket</a> *context, <span class="keywordtype">bool</span> on);</div>
 <div class="line"><a name="l00121"></a><span class="lineno">  121</span>&#160;</div>
-<div class="line"><a name="l00125"></a><span class="lineno">  125</span>&#160;    <span class="keyword">struct </span><a class="code" href="structcio__eventloop.html">cio_eventloop</a> *loop;</div>
+<div class="line"><a name="l00125"></a><span class="lineno">  125</span>&#160;    <span class="keyword">struct </span>cio_eventloop *loop;</div>
 <div class="line"><a name="l00126"></a><span class="lineno">  126</span>&#160;    <span class="keywordtype">int</span> backlog;</div>
 <div class="line"><a name="l00127"></a><span class="lineno">  127</span>&#160;    <a class="code" href="cio__server__socket_8h.html#af0698e491abc9441583116ec7023d868">cio_server_socket_close_hook</a> close_hook;</div>
 <div class="line"><a name="l00128"></a><span class="lineno">  128</span>&#160;    <span class="keyword">struct </span>cio_event_notifier ev;</div>
@@ -154,7 +154,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="line"><a name="l00133"></a><span class="lineno">  133</span>&#160;};</div>
 <div class="line"><a name="l00134"></a><span class="lineno">  134</span>&#160;</div>
 <div class="line"><a name="l00153"></a><span class="lineno">  153</span>&#160;<span class="keyword">enum</span> <a class="code" href="cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afe">cio_error</a> <a class="code" href="cio__server__socket_8h.html#a4f99185f36b9b6f81eddb5866310144a">cio_server_socket_init</a>(<span class="keyword">struct</span> <a class="code" href="structcio__server__socket.html">cio_server_socket</a> *ss,</div>
-<div class="line"><a name="l00154"></a><span class="lineno">  154</span>&#160;                                      <span class="keyword">struct</span> <a class="code" href="structcio__eventloop.html">cio_eventloop</a> *loop,</div>
+<div class="line"><a name="l00154"></a><span class="lineno">  154</span>&#160;                                      <span class="keyword">struct</span> cio_eventloop *loop,</div>
 <div class="line"><a name="l00155"></a><span class="lineno">  155</span>&#160;                                      <span class="keywordtype">unsigned</span> <span class="keywordtype">int</span> backlog,</div>
 <div class="line"><a name="l00156"></a><span class="lineno">  156</span>&#160;                                      <a class="code" href="cio__server__socket_8h.html#a6365344c7e5e854b40ff9a3b01e4176f">cio_alloc_client</a> alloc_client,</div>
 <div class="line"><a name="l00157"></a><span class="lineno">  157</span>&#160;                                      <a class="code" href="cio__server__socket_8h.html#ad1fdf04763eef9c0a1883c9ebe833964">cio_free_client</a> free_client,</div>
@@ -175,7 +175,6 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="ttc" id="cio__eventloop_8h_html"><div class="ttname"><a href="cio__eventloop_8h.html">cio_eventloop.h</a></div><div class="ttdoc">This file describes the interface to an eventloop. </div></div>
 <div class="ttc" id="structcio__server__socket_html_afc6d6322fecf1b0bd931ed397d2016a6"><div class="ttname"><a href="structcio__server__socket.html#afc6d6322fecf1b0bd931ed397d2016a6">cio_server_socket::close</a></div><div class="ttdeci">void(* close)(struct cio_server_socket *context)</div><div class="ttdoc">Closes the cio_server_socket. </div><div class="ttdef"><b>Definition:</b> cio_server_socket.h:96</div></div>
 <div class="ttc" id="cio__server__socket_8h_html_a10906148e56952d4013273ea34b3d2f7"><div class="ttname"><a href="cio__server__socket_8h.html#a10906148e56952d4013273ea34b3d2f7">cio_accept_handler</a></div><div class="ttdeci">void(* cio_accept_handler)(struct cio_server_socket *ss, void *handler_context, enum cio_error err, struct cio_socket *socket)</div><div class="ttdoc">The type of a function that is called when accept task succeeds or fails. </div><div class="ttdef"><b>Definition:</b> cio_server_socket.h:64</div></div>
-<div class="ttc" id="structcio__eventloop_html"><div class="ttname"><a href="structcio__eventloop.html">cio_eventloop</a></div><div class="ttdoc">A structure describing an eventloop. </div></div>
 <div class="ttc" id="cio__server__socket_8h_html_a4f99185f36b9b6f81eddb5866310144a"><div class="ttname"><a href="cio__server__socket_8h.html#a4f99185f36b9b6f81eddb5866310144a">cio_server_socket_init</a></div><div class="ttdeci">enum cio_error cio_server_socket_init(struct cio_server_socket *ss, struct cio_eventloop *loop, unsigned int backlog, cio_alloc_client alloc_client, cio_free_client free_client, cio_server_socket_close_hook close_hook)</div><div class="ttdoc">Initializes a cio_server_socket. </div></div>
 <div class="ttc" id="structcio__server__socket_html"><div class="ttname"><a href="structcio__server__socket.html">cio_server_socket</a></div><div class="ttdoc">The cio_server_socket struct describes a server socket. </div><div class="ttdef"><b>Definition:</b> cio_server_socket.h:76</div></div>
 <div class="ttc" id="cio__server__socket_8h_html_ad1fdf04763eef9c0a1883c9ebe833964"><div class="ttname"><a href="cio__server__socket_8h.html#ad1fdf04763eef9c0a1883c9ebe833964">cio_free_client</a></div><div class="ttdeci">void(* cio_free_client)(struct cio_socket *socket)</div><div class="ttdef"><b>Definition:</b> cio_server_socket.h:51</div></div>
