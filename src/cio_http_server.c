@@ -150,11 +150,9 @@ static const struct cio_http_location *find_handler(const struct cio_http_server
 	const struct cio_http_location *handler = server->first_handler;
 	for (size_t i = 0; i < server->num_handlers; i++) {
 		size_t location_length = strlen(handler->path);
-		if (location_match(handler->path, location_length, request_target, url_length)) {
-			if (location_length > best_match_length) {
-				best_match_length = location_length;
-				best_match = handler;
-			}
+		if ((location_match(handler->path, location_length, request_target, url_length)) && (location_length > best_match_length)) {
+			best_match_length = location_length;
+			best_match = handler;
 		}
 
 		handler = handler->next;
