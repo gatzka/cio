@@ -103,7 +103,7 @@ struct cio_http_server {
  * @brief Initializes an HTTP server.
  * @param server The cio_http_server that should be initialized.
  * @param port The TCP port the HTTP server listens on.
- * @param loop The @ref cio_eventloop "eventloop" the HTTP server uses.
+ * @param loop The eventloop the HTTP server uses.
  * @param error_cb This callback function will be called if something goes wrong while the HTTP client connection is established.
  * @param read_timeout_ns The read timeout in nanoseconds.
  * The timeout is started after the HTTP connection is established and canceled after the complete HTTP message was received or after

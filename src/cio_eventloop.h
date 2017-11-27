@@ -39,14 +39,6 @@ extern "C" {
  * @brief This file describes the interface to an eventloop.
  */
 
-/**
- * @struct cio_eventloop
- * @brief A structure describing an eventloop.
- *
- * This structure is defined platform specific, so no members are defined here.
- */
-struct cio_eventloop;
-
 enum cio_error cio_eventloop_init(struct cio_eventloop *loop);
 void cio_eventloop_destroy(const struct cio_eventloop *loop);
 enum cio_error cio_eventloop_run(struct cio_eventloop *loop);
