@@ -150,10 +150,9 @@ static enum cio_error socket_bind(struct cio_server_socket *ss, const char *bind
 
 	ret = getaddrinfo(bind_address, server_port_string, &hints, &servinfo);
 	if (ret != 0) {
-		switch (ret) {
-		case EAI_SYSTEM:
+		if (ret == EAI_SYSTEM) {
 			return (enum cio_error)errno;
-		default:
+		} else {
 			return cio_invalid_argument;
 		}
 	}
