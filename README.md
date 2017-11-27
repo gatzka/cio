@@ -18,4 +18,4 @@ git submodule update --init
 ## Documentation
 
 The generated [doxygen](https://www.stack.nl/~dimitri/doxygen/) documentation can be found
-[here](https://gatzka.github.io/cio/doc/)
+[here](https://gatzka.github.io/cio/doc/).
