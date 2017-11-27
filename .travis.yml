@@ -31,6 +31,7 @@ matrix:
   - compiler: gcc
     env:
     - MATRIX_EVAL="CMAKE_C_COMPILER=gcc && CMAKE_BUILD_TYPE=Release"
+    - CREATE_DOXY=true
     addons:
       apt:
         packages:

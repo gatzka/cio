@@ -1,7 +1,7 @@
 #!/bin/bash
 
 #if [ "$TRAVIS_REPO_SLUG" == "gatzka/cio" ] && [ "$CMAKE_C_COMPILER" == "gcc" ] && [ "$CMAKE_BUILD_TYPE" == "Release" ] && [ "$TRAVIS_PULL_REQUEST" == "false" ] && [ "$TRAVIS_BRANCH" == "master" ]; then
-if [ "$TRAVIS_REPO_SLUG" == "gatzka/cio" ] && [ "$CMAKE_C_COMPILER" == "gcc" ] && [ "$TRAVIS_PULL_REQUEST" == "false" ] && [ "$TRAVIS_BRANCH" == "master" ]; then
+if [ "$TRAVIS_REPO_SLUG" == "gatzka/cio" ] && [ "$CREATE_DOXY" = "true" ] && [ "$TRAVIS_PULL_REQUEST" == "false" ] && [ "$TRAVIS_BRANCH" == "master" ]; then
 #if [ "$TRAVIS_REPO_SLUG" == "gatzka/cio" ] && [ "$TRAVIS_PULL_REQUEST" == "false" ] && [ "$TRAVIS_BRANCH" == "master" ]; then
 
   echo -e "Publishing doxygen...\n"
