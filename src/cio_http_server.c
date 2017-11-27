@@ -93,7 +93,6 @@ static const char *get_response(enum cio_http_status_code status_code)
 	case cio_http_status_not_found:
 		return CIO_HTTP_VERSION " 404 Not Found" CIO_CRLF CIO_CRLF;
 
-	case cio_http_status_internal_server_error:
 	default:
 		return CIO_HTTP_VERSION " 500 Internal Server Error" CIO_CRLF CIO_CRLF;
 	}
