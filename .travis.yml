@@ -19,6 +19,7 @@ matrix:
     script:
     - cmake ./
     - build-wrapper-linux-x86-64 --out-dir bw-output make
+    - ctest .
     - sonar-scanner
     addons:
       sonarcloud:
