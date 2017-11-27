@@ -20,11 +20,11 @@ matrix:
     - cmake ./
     - build-wrapper-linux-x86-64 --out-dir bw-output make
     - ctest .
-    - sonar-scanner
     - mkdir gcov
     - cd gcov
     - find .. -name *.gcno |xargs gcov -abcfu
     - cd ..
+    - sonar-scanner
     addons:
       sonarcloud:
         organization: "gatzka-github"
