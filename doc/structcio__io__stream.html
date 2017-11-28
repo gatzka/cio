@@ -23,7 +23,7 @@
  <tr style="height: 56px;">
   <td style="padding-left: 0.5em;">
    <div id="projectname">ANSI C I/O Library
-   &#160;<span id="projectnumber">0.0.1-721+7d0e6eb</span>
+   &#160;<span id="projectnumber">0.0.1-723+2556e1c</span>
    </div>
   </td>
  </tr>
@@ -108,28 +108,6 @@ Data Fields</h2></td></tr>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>This structure describes the interface all implementations have to fulfill. </p>
 </div><h2 class="groupheader">Field Documentation</h2>
-<a class="anchor" id="ab742a17e8d2cee073ea31f1f09e8dd08"></a>
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">enum <a class="el" href="cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afe">cio_error</a>(* cio_io_stream::close)(struct <a class="el" href="structcio__io__stream.html">cio_io_stream</a> *io_stream)</td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Closes the stream. </p>
-<p>Implementations implementing this interface are strongly encouraged to flush any write buffers and to free other resources associated with this stream.</p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">io_stream</td><td>A pointer to the <a class="el" href="structcio__io__stream.html" title="This structure describes the interface all implementations have to fulfill. ">cio_io_stream</a> of the on which the operation should be performed.</td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Returns</dt><dd><a class="el" href="cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afea67c18fefde0ae84d9023cc9f963cd25e">cio_success</a> for success. </dd></dl>
-
-</div>
-</div>
 <a class="anchor" id="aa24c47612ee31a0aa9d12dfecb9f6567"></a>
 <div class="memitem">
 <div class="memproto">
@@ -180,8 +158,30 @@ Data Fields</h2></td></tr>
 
 </div>
 </div>
+<a class="anchor" id="ab742a17e8d2cee073ea31f1f09e8dd08"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">enum <a class="el" href="cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afe">cio_error</a>(* cio_io_stream::close)(struct <a class="el" href="structcio__io__stream.html">cio_io_stream</a> *io_stream)</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Closes the stream. </p>
+<p>Implementations implementing this interface are strongly encouraged to flush any write buffers and to free other resources associated with this stream.</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">io_stream</td><td>A pointer to the <a class="el" href="structcio__io__stream.html" title="This structure describes the interface all implementations have to fulfill. ">cio_io_stream</a> of the on which the operation should be performed.</td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd><a class="el" href="cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afea67c18fefde0ae84d9023cc9f963cd25e">cio_success</a> for success. </dd></dl>
+
+</div>
+</div>
 <hr/>The documentation for this struct was generated from the following file:<ul>
-<li>/home/travis/build/gatzka/cio/src/<a class="el" href="cio__io__stream_8h_source.html">cio_io_stream.h</a></li>
+<li><a class="el" href="cio__io__stream_8h_source.html">cio_io_stream.h</a></li>
 </ul>
 </div><!-- contents -->
 <!-- start footer part -->

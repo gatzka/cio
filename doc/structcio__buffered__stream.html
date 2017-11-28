@@ -23,7 +23,7 @@
  <tr style="height: 56px;">
   <td style="padding-left: 0.5em;">
    <div id="projectname">ANSI C I/O Library
-   &#160;<span id="projectnumber">0.0.1-721+7d0e6eb</span>
+   &#160;<span id="projectnumber">0.0.1-723+2556e1c</span>
    </div>
   </td>
  </tr>
@@ -124,61 +124,27 @@ Data Fields</h2></td></tr>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Interface description for implementing buffered I/O. </p>
 </div><h2 class="groupheader">Field Documentation</h2>
-<a class="anchor" id="a785737a330f07c91b38b7578f99fbde7"></a>
+<a class="anchor" id="a5ebdc3f60e64bc911ebaaeebeaa88cf3"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">size_t cio_buffered_stream::bytes_to_read</td>
+          <td class="memname">enum <a class="el" href="cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afe">cio_error</a>(* cio_buffered_stream::read_exactly)(struct <a class="el" href="structcio__buffered__stream.html">cio_buffered_stream</a> *bs, struct <a class="el" href="structcio__read__buffer.html">cio_read_buffer</a> *buffer, size_t num, <a class="el" href="cio__buffered__stream_8h.html#a4c2bea7c602d4cab70c2c4500ae6e438">cio_buffered_stream_read_handler</a> handler, void *handler_context)</td>
         </tr>
       </table>
 </div><div class="memdoc">
 
-</div>
-</div>
-<a class="anchor" id="a4b72d0030538512d2e6d39e3a023bcd6"></a>
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">enum <a class="el" href="cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afe">cio_error</a>(* cio_buffered_stream::close)(struct <a class="el" href="structcio__buffered__stream.html">cio_buffered_stream</a> *bs)</td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Closes the stream. </p>
-<p><a class="anchor" id="cio_buffered_stream_close"></a></p>
+<p>Call <code>handler</code> if exactly <code>num</code> bytes are read. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">bs</td><td>A pointer to the <a class="el" href="structcio__buffered__stream.html">cio_buffered_stream</a> of the on which the operation should be performed.</td></tr>
+    <tr><td class="paramname">bs</td><td>A pointer to the <a class="el" href="structcio__buffered__stream.html">cio_buffered_stream</a> of the on which the operation should be performed. </td></tr>
+    <tr><td class="paramname">num</td><td>The number of bytes to be read when <code>handler</code> will be called. </td></tr>
+    <tr><td class="paramname">handler</td><td>The callback function to be called when the read request is fulfilled. </td></tr>
+    <tr><td class="paramname">handler_context</td><td>A pointer to a context which might be useful inside <code>handler</code> </td></tr>
   </table>
   </dd>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd><a class="el" href="cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afea67c18fefde0ae84d9023cc9f963cd25e">cio_success</a> for success. </dd></dl>
-
-</div>
-</div>
-<a class="anchor" id="a1899c11e354603e541750124f5820ff6"></a>
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">const char* cio_buffered_stream::delim</td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-</div>
-</div>
-<a class="anchor" id="a1113a309358bda0a44b275582fefda31"></a>
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">size_t cio_buffered_stream::delim_length</td>
-        </tr>
-      </table>
-</div><div class="memdoc">
 
 </div>
 </div>
@@ -198,30 +164,6 @@ Data Fields</h2></td></tr>
     <tr><td class="paramname">bs</td><td>A pointer to the <a class="el" href="structcio__buffered__stream.html">cio_buffered_stream</a> of the on which the operation should be performed. </td></tr>
     <tr><td class="paramname">buffer</td><td>The buffer to be filled. </td></tr>
     <tr><td class="paramname">handler</td><td>The callback function to be called when the read request is (partly) fulfilled. </td></tr>
-    <tr><td class="paramname">handler_context</td><td>A pointer to a context which might be useful inside <code>handler</code> </td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Returns</dt><dd><a class="el" href="cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afea67c18fefde0ae84d9023cc9f963cd25e">cio_success</a> for success. </dd></dl>
-
-</div>
-</div>
-<a class="anchor" id="a5ebdc3f60e64bc911ebaaeebeaa88cf3"></a>
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">enum <a class="el" href="cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afe">cio_error</a>(* cio_buffered_stream::read_exactly)(struct <a class="el" href="structcio__buffered__stream.html">cio_buffered_stream</a> *bs, struct <a class="el" href="structcio__read__buffer.html">cio_read_buffer</a> *buffer, size_t num, <a class="el" href="cio__buffered__stream_8h.html#a4c2bea7c602d4cab70c2c4500ae6e438">cio_buffered_stream_read_handler</a> handler, void *handler_context)</td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Call <code>handler</code> if exactly <code>num</code> bytes are read. </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">bs</td><td>A pointer to the <a class="el" href="structcio__buffered__stream.html">cio_buffered_stream</a> of the on which the operation should be performed. </td></tr>
-    <tr><td class="paramname">num</td><td>The number of bytes to be read when <code>handler</code> will be called. </td></tr>
-    <tr><td class="paramname">handler</td><td>The callback function to be called when the read request is fulfilled. </td></tr>
     <tr><td class="paramname">handler_context</td><td>A pointer to a context which might be useful inside <code>handler</code> </td></tr>
   </table>
   </dd>
@@ -254,18 +196,6 @@ Data Fields</h2></td></tr>
 
 </div>
 </div>
-<a class="anchor" id="a4c0ab09668a2d67922dc067dab0af39e"></a>
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">struct { ... }   cio_buffered_stream::until</td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-</div>
-</div>
 <a class="anchor" id="a6659275439b9c9508e6ad10eced2ff62"></a>
 <div class="memitem">
 <div class="memproto">
@@ -292,8 +222,78 @@ Data Fields</h2></td></tr>
 
 </div>
 </div>
+<a class="anchor" id="a4b72d0030538512d2e6d39e3a023bcd6"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">enum <a class="el" href="cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afe">cio_error</a>(* cio_buffered_stream::close)(struct <a class="el" href="structcio__buffered__stream.html">cio_buffered_stream</a> *bs)</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Closes the stream. </p>
+<p><a class="anchor" id="cio_buffered_stream_close"></a></p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">bs</td><td>A pointer to the <a class="el" href="structcio__buffered__stream.html">cio_buffered_stream</a> of the on which the operation should be performed.</td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd><a class="el" href="cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afea67c18fefde0ae84d9023cc9f963cd25e">cio_success</a> for success. </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="a785737a330f07c91b38b7578f99fbde7"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">size_t cio_buffered_stream::bytes_to_read</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="a1899c11e354603e541750124f5820ff6"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">const char* cio_buffered_stream::delim</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="a1113a309358bda0a44b275582fefda31"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">size_t cio_buffered_stream::delim_length</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="a4c0ab09668a2d67922dc067dab0af39e"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">struct { ... }   cio_buffered_stream::until</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
 <hr/>The documentation for this struct was generated from the following file:<ul>
-<li>/home/travis/build/gatzka/cio/src/<a class="el" href="cio__buffered__stream_8h_source.html">cio_buffered_stream.h</a></li>
+<li><a class="el" href="cio__buffered__stream_8h_source.html">cio_buffered_stream.h</a></li>
 </ul>
 </div><!-- contents -->
 <!-- start footer part -->

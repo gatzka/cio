@@ -4,7 +4,7 @@
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
 <meta http-equiv="X-UA-Compatible" content="IE=9"/>
 <meta name="generator" content="Doxygen 1.8.6"/>
-<title>ANSI C I/O Library: /home/travis/build/gatzka/cio/src/cio_server_socket.h File Reference</title>
+<title>ANSI C I/O Library: cio_server_socket.h File Reference</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
@@ -23,7 +23,7 @@
  <tr style="height: 56px;">
   <td style="padding-left: 0.5em;">
    <div id="projectname">ANSI C I/O Library
-   &#160;<span id="projectnumber">0.0.1-721+7d0e6eb</span>
+   &#160;<span id="projectnumber">0.0.1-723+2556e1c</span>
    </div>
   </td>
  </tr>
@@ -85,7 +85,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <a href="#typedef-members">Typedefs</a> &#124;
 <a href="#func-members">Functions</a>  </div>
   <div class="headertitle">
-<div class="title">/home/travis/build/gatzka/cio/src/cio_server_socket.h File Reference</div>  </div>
+<div class="title">cio_server_socket.h File Reference</div>  </div>
 </div><!--header-->
 <div class="contents">
 
@@ -128,29 +128,6 @@ Functions</h2></td></tr>
 <div class="textblock"><p>This file contains the interface of a server socket. </p>
 <p>A server socket can be <a class="el" href="cio__server__socket_8h.html#a4f99185f36b9b6f81eddb5866310144a">initialized</a>, <a class="el" href="structcio__server__socket.html#cio_server_socket_accept">accept connections</a> and can be <a class="el" href="structcio__server__socket.html#cio_server_socket_close">closed</a>. </p>
 </div><h2 class="groupheader">Typedef Documentation</h2>
-<a class="anchor" id="a10906148e56952d4013273ea34b3d2f7"></a>
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">typedef void(* cio_accept_handler)(struct <a class="el" href="structcio__server__socket.html">cio_server_socket</a> *ss, void *handler_context, enum <a class="el" href="cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afe">cio_error</a> err, struct <a class="el" href="structcio__socket.html">cio_socket</a> *socket)</td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>The type of a function that is called when <a class="el" href="structcio__server__socket.html#cio_server_socket_accept">accept task</a> succeeds or fails. </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">ss</td><td>The server socket where the accept was called on. </td></tr>
-    <tr><td class="paramname">handler_context</td><td>The context the functions works on. </td></tr>
-    <tr><td class="paramname">err</td><td>If err != <a class="el" href="cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afea67c18fefde0ae84d9023cc9f963cd25e">cio_success</a>, the read failed. </td></tr>
-    <tr><td class="paramname">socket</td><td>The client socket that was created from the accept. </td></tr>
-  </table>
-  </dd>
-</dl>
-
-</div>
-</div>
 <a class="anchor" id="a6365344c7e5e854b40ff9a3b01e4176f"></a>
 <div class="memitem">
 <div class="memproto">
@@ -172,6 +149,29 @@ Functions</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="a10906148e56952d4013273ea34b3d2f7"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">typedef void(* cio_accept_handler)(struct <a class="el" href="structcio__server__socket.html">cio_server_socket</a> *ss, void *handler_context, enum <a class="el" href="cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afe">cio_error</a> err, struct <a class="el" href="structcio__socket.html">cio_socket</a> *socket)</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>The type of a function that is called when <a class="el" href="structcio__server__socket.html#cio_server_socket_accept">accept task</a> succeeds or fails. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">ss</td><td>The server socket where the accept was called on. </td></tr>
+    <tr><td class="paramname">handler_context</td><td>The context the functions works on. </td></tr>
+    <tr><td class="paramname">err</td><td>If err != <a class="el" href="cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afea67c18fefde0ae84d9023cc9f963cd25e">cio_success</a>, the read failed. </td></tr>
+    <tr><td class="paramname">socket</td><td>The client socket that was created from the accept. </td></tr>
+  </table>
+  </dd>
+</dl>
 
 </div>
 </div>

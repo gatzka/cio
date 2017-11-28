@@ -4,7 +4,7 @@
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
 <meta http-equiv="X-UA-Compatible" content="IE=9"/>
 <meta name="generator" content="Doxygen 1.8.6"/>
-<title>ANSI C I/O Library: /home/travis/build/gatzka/cio/src/cio_http_location_handler.h File Reference</title>
+<title>ANSI C I/O Library: cio_http_location_handler.h File Reference</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
@@ -23,7 +23,7 @@
  <tr style="height: 56px;">
   <td style="padding-left: 0.5em;">
    <div id="projectname">ANSI C I/O Library
-   &#160;<span id="projectnumber">0.0.1-721+7d0e6eb</span>
+   &#160;<span id="projectnumber">0.0.1-723+2556e1c</span>
    </div>
   </td>
  </tr>
@@ -86,9 +86,12 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <a href="#enum-members">Enumerations</a> &#124;
 <a href="#func-members">Functions</a>  </div>
   <div class="headertitle">
-<div class="title">/home/travis/build/gatzka/cio/src/cio_http_location_handler.h File Reference</div>  </div>
+<div class="title">cio_http_location_handler.h File Reference</div>  </div>
 </div><!--header-->
 <div class="contents">
+
+<p>Generic interface to write user specific HTTP handlers.  
+<a href="#details">More...</a></p>
 <div class="textblock"><code>#include &lt;stddef.h&gt;</code><br/>
 <code>#include &quot;<a class="el" href="cio__http__client_8h_source.html">cio_http_client.h</a>&quot;</code><br/>
 </div>
@@ -101,46 +104,72 @@ Data Structures</h2></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="typedef-members"></a>
 Typedefs</h2></td></tr>
-<tr class="memitem:ab1ef4f356183ab624e1ad9953384b154"><td class="memItemLeft" align="right" valign="top">typedef enum <a class="el" href="cio__http__location__handler_8h.html#a6b90057db20102dfa1e40cafc014fbde">cio_http_cb_return</a>(*&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="cio__http__location__handler_8h.html#ab1ef4f356183ab624e1ad9953384b154">cio_http_cb</a> )(struct <a class="el" href="structcio__http__client.html">cio_http_client</a> *)</td></tr>
-<tr class="separator:ab1ef4f356183ab624e1ad9953384b154"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:afe6e8d862c4aa270fb5217425873a8ed"><td class="memItemLeft" align="right" valign="top">typedef enum <a class="el" href="cio__http__location__handler_8h.html#a6b90057db20102dfa1e40cafc014fbde">cio_http_cb_return</a>(*&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="cio__http__location__handler_8h.html#afe6e8d862c4aa270fb5217425873a8ed">cio_http_data_cb</a> )(struct <a class="el" href="structcio__http__client.html">cio_http_client</a> *, const char *at, size_t length)</td></tr>
-<tr class="separator:afe6e8d862c4aa270fb5217425873a8ed"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aba4eea5aa784451e5f910b8b4478a518"><td class="memItemLeft" align="right" valign="top">typedef enum <a class="el" href="cio__http__location__handler_8h.html#a6b90057db20102dfa1e40cafc014fbde">cio_http_cb_return</a>(*&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="cio__http__location__handler_8h.html#aba4eea5aa784451e5f910b8b4478a518">cio_http_cb</a> )(struct <a class="el" href="structcio__http__client.html">cio_http_client</a> *client)</td></tr>
+<tr class="memdesc:aba4eea5aa784451e5f910b8b4478a518"><td class="mdescLeft">&#160;</td><td class="mdescRight">The type of an HTTP callback function which will not get any data.  <a href="#aba4eea5aa784451e5f910b8b4478a518">More...</a><br/></td></tr>
+<tr class="separator:aba4eea5aa784451e5f910b8b4478a518"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a1b574d89b2af37b5bee074468861a554"><td class="memItemLeft" align="right" valign="top">typedef enum <a class="el" href="cio__http__location__handler_8h.html#a6b90057db20102dfa1e40cafc014fbde">cio_http_cb_return</a>(*&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="cio__http__location__handler_8h.html#a1b574d89b2af37b5bee074468861a554">cio_http_data_cb</a> )(struct <a class="el" href="structcio__http__client.html">cio_http_client</a> *client, const char *at, size_t length)</td></tr>
+<tr class="memdesc:a1b574d89b2af37b5bee074468861a554"><td class="mdescLeft">&#160;</td><td class="mdescRight">The type of an HTTP callback function which will get data.  <a href="#a1b574d89b2af37b5bee074468861a554">More...</a><br/></td></tr>
+<tr class="separator:a1b574d89b2af37b5bee074468861a554"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="enum-members"></a>
 Enumerations</h2></td></tr>
 <tr class="memitem:a6b90057db20102dfa1e40cafc014fbde"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="cio__http__location__handler_8h.html#a6b90057db20102dfa1e40cafc014fbde">cio_http_cb_return</a> { <a class="el" href="cio__http__location__handler_8h.html#a6b90057db20102dfa1e40cafc014fbdea20cd424776863489054559780d2620d7">cio_http_cb_success</a> = 0, 
 <a class="el" href="cio__http__location__handler_8h.html#a6b90057db20102dfa1e40cafc014fbdea2c35e3372feb8e181054e6fadb25fc8a">cio_http_cb_error</a> = -1
  }</td></tr>
-<tr class="memdesc:a6b90057db20102dfa1e40cafc014fbde"><td class="mdescLeft">&#160;</td><td class="mdescRight">The cio_http_cb_return enum lists the allowed return values of user specified callback functions like <a class="el" href="structcio__http__location__handler.html#req_handler_on_header_field">on_header_field</a>.  <a href="cio__http__location__handler_8h.html#a6b90057db20102dfa1e40cafc014fbde">More...</a><br/></td></tr>
+<tr class="memdesc:a6b90057db20102dfa1e40cafc014fbde"><td class="mdescLeft">&#160;</td><td class="mdescRight">The cio_http_cb_return enum lists the allowed return values of user specified callback functions like <a class="el" href="structcio__http__location__handler.html#cio_http_location_handler_on_header_field">on_header_field</a>. If the data provided via the callbacks doesn't match to the protocol the <a class="el" href="structcio__http__location__handler.html">HTTP handler</a> handles, return <a class="el" href="cio__http__location__handler_8h.html#a6b90057db20102dfa1e40cafc014fbdea2c35e3372feb8e181054e6fadb25fc8a">cio_http_cb_error</a>, <a class="el" href="cio__http__location__handler_8h.html#a6b90057db20102dfa1e40cafc014fbdea20cd424776863489054559780d2620d7">cio_http_cb_success</a> otherwise.  <a href="cio__http__location__handler_8h.html#a6b90057db20102dfa1e40cafc014fbde">More...</a><br/></td></tr>
 <tr class="separator:a6b90057db20102dfa1e40cafc014fbde"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="func-members"></a>
 Functions</h2></td></tr>
 <tr class="memitem:ab35cfff4a299f8af85c545452d3035d8"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="cio__http__location__handler_8h.html#ab35cfff4a299f8af85c545452d3035d8">cio_http_location_handler_init</a> (struct <a class="el" href="structcio__http__location__handler.html">cio_http_location_handler</a> *handler)</td></tr>
+<tr class="memdesc:ab35cfff4a299f8af85c545452d3035d8"><td class="mdescLeft">&#160;</td><td class="mdescRight">Initializes a location handler with default values.  <a href="#ab35cfff4a299f8af85c545452d3035d8">More...</a><br/></td></tr>
 <tr class="separator:ab35cfff4a299f8af85c545452d3035d8"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
-<h2 class="groupheader">Typedef Documentation</h2>
-<a class="anchor" id="ab1ef4f356183ab624e1ad9953384b154"></a>
+<a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
+<div class="textblock"><p>Generic interface to write user specific HTTP handlers. </p>
+<p>You have to set the callback functions with respect to the HTTP data (header information and/or body) you are interested in. If you don't set any callback, the <a class="el" href="structcio__http__server.html">HTTP server</a> will return <a class="el" href="cio__http__status__code_8h.html#ac968a65c0166575561fdd18b89ea580ca1771c951a72d1203978032d0ba08139d">"500 Internal server error"</a> to the requesting client.</p>
+<p>Inside the callback functions you have access to the <a class="el" href="structcio__http__client.html">HTTP client</a> which performed the request. You have to use the client functions <a class="el" href="structcio__http__client.html#cio_http_client_write_response">write_response</a> and <a class="el" href="structcio__http__client.html#cio_http_client_write_header">write_header</a> to write HTTP responses (including a body) or just a simple response header, respectively.</p>
+<p>In case of an upgraded HTTP connection, callback have access to the <a class="el" href="structcio__http__client.html#cio_http_client_bs">buffered stream</a> used by the <a class="el" href="structcio__http__client.html">HTTP client</a> and the companion <a class="el" href="structcio__http__client.html#cio_http_client_rb">read buffer</a>. This provides a convenient way to take over a complete HTTP connection. Please note that for upgraded connections this handler is responsible to <a class="el" href="structcio__http__client.html#cio_http_client_close">close</a> the client connection! </p>
+</div><h2 class="groupheader">Typedef Documentation</h2>
+<a class="anchor" id="aba4eea5aa784451e5f910b8b4478a518"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">typedef enum <a class="el" href="cio__http__location__handler_8h.html#a6b90057db20102dfa1e40cafc014fbde">cio_http_cb_return</a>(* cio_http_cb)(struct <a class="el" href="structcio__http__client.html">cio_http_client</a> *)</td>
+          <td class="memname">typedef enum <a class="el" href="cio__http__location__handler_8h.html#a6b90057db20102dfa1e40cafc014fbde">cio_http_cb_return</a>(* cio_http_cb)(struct <a class="el" href="structcio__http__client.html">cio_http_client</a> *client)</td>
         </tr>
       </table>
 </div><div class="memdoc">
 
+<p>The type of an HTTP callback function which will not get any data. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">client</td><td>The client which made the HTTP request. </td></tr>
+  </table>
+  </dd>
+</dl>
+
 </div>
 </div>
-<a class="anchor" id="afe6e8d862c4aa270fb5217425873a8ed"></a>
+<a class="anchor" id="a1b574d89b2af37b5bee074468861a554"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">typedef enum <a class="el" href="cio__http__location__handler_8h.html#a6b90057db20102dfa1e40cafc014fbde">cio_http_cb_return</a>(* cio_http_data_cb)(struct <a class="el" href="structcio__http__client.html">cio_http_client</a> *, const char *at, size_t length)</td>
+          <td class="memname">typedef enum <a class="el" href="cio__http__location__handler_8h.html#a6b90057db20102dfa1e40cafc014fbde">cio_http_cb_return</a>(* cio_http_data_cb)(struct <a class="el" href="structcio__http__client.html">cio_http_client</a> *client, const char *at, size_t length)</td>
         </tr>
       </table>
 </div><div class="memdoc">
+
+<p>The type of an HTTP callback function which will get data. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">client</td><td>The client which made the HTTP request. </td></tr>
+    <tr><td class="paramname">at</td><td>The pointer from where to read. </td></tr>
+    <tr><td class="paramname">length</td><td>The maximum number of bytes the callback function is allowed to read. </td></tr>
+  </table>
+  </dd>
+</dl>
 
 </div>
 </div>
@@ -155,7 +184,7 @@ Functions</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>The cio_http_cb_return enum lists the allowed return values of user specified callback functions like <a class="el" href="structcio__http__location__handler.html#req_handler_on_header_field">on_header_field</a>. </p>
+<p>The cio_http_cb_return enum lists the allowed return values of user specified callback functions like <a class="el" href="structcio__http__location__handler.html#cio_http_location_handler_on_header_field">on_header_field</a>. If the data provided via the callbacks doesn't match to the protocol the <a class="el" href="structcio__http__location__handler.html">HTTP handler</a> handles, return <a class="el" href="cio__http__location__handler_8h.html#a6b90057db20102dfa1e40cafc014fbdea2c35e3372feb8e181054e6fadb25fc8a">cio_http_cb_error</a>, <a class="el" href="cio__http__location__handler_8h.html#a6b90057db20102dfa1e40cafc014fbdea20cd424776863489054559780d2620d7">cio_http_cb_success</a> otherwise. </p>
 <table class="fieldtable">
 <tr><th colspan="2">Enumerator</th></tr><tr><td class="fieldname"><em><a class="anchor" id="a6b90057db20102dfa1e40cafc014fbdea20cd424776863489054559780d2620d7"></a>cio_http_cb_success</em>&#160;</td><td class="fielddoc">
 <p>The callback functions did not encounter any errors. </p>
@@ -181,6 +210,15 @@ Functions</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
+
+<p>Initializes a location handler with default values. </p>
+<p>After the initialization, you are allowed to set any member of <a class="el" href="structcio__http__location__handler.html">cio_http_location_handler</a>. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">handler</td><td>The handler to be initialized. </td></tr>
+  </table>
+  </dd>
+</dl>
 
 </div>
 </div>

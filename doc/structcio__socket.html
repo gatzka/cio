@@ -23,7 +23,7 @@
  <tr style="height: 56px;">
   <td style="padding-left: 0.5em;">
    <div id="projectname">ANSI C I/O Library
-   &#160;<span id="projectnumber">0.0.1-721+7d0e6eb</span>
+   &#160;<span id="projectnumber">0.0.1-723+2556e1c</span>
    </div>
   </td>
  </tr>
@@ -106,6 +106,28 @@ Data Fields</h2></td></tr>
 <tr class="separator:aeee92d0cf2f5718fed36908065b81e96"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <h2 class="groupheader">Field Documentation</h2>
+<a class="anchor" id="ac882e7284066501e26d9f85d3cc9b638"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">struct <a class="el" href="structcio__io__stream.html">cio_io_stream</a>*(* cio_socket::get_io_stream)(struct <a class="el" href="structcio__socket.html">cio_socket</a> *context)</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Gets an I/O stream from the socket. </p>
+<p><a class="anchor" id="cio_socket_get_io_stream"></a></p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">context</td><td>A pointer to a <a class="el" href="structcio__socket.html">cio_socket</a> from which the <a class="el" href="structcio__io__stream.html" title="This structure describes the interface all implementations have to fulfill. ">cio_io_stream</a> is retrieved.</td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>An I/O stream for reading from and writing to this socket. </dd></dl>
+
+</div>
+</div>
 <a class="anchor" id="a411e8e65890595385a3e96cc34f01171"></a>
 <div class="memitem">
 <div class="memproto">
@@ -127,25 +149,26 @@ Data Fields</h2></td></tr>
 
 </div>
 </div>
-<a class="anchor" id="ac882e7284066501e26d9f85d3cc9b638"></a>
+<a class="anchor" id="a9cd4160418b2300bedd508197329636e"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">struct <a class="el" href="structcio__io__stream.html">cio_io_stream</a>*(* cio_socket::get_io_stream)(struct <a class="el" href="structcio__socket.html">cio_socket</a> *context)</td>
+          <td class="memname">enum <a class="el" href="cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afe">cio_error</a>(* cio_socket::set_tcp_no_delay)(struct <a class="el" href="structcio__socket.html">cio_socket</a> *context, bool on)</td>
         </tr>
       </table>
 </div><div class="memdoc">
 
-<p>Gets an I/O stream from the socket. </p>
-<p><a class="anchor" id="cio_socket_get_io_stream"></a></p>
+<p>Enables/disables the Nagle algorithm. </p>
+<p><a class="anchor" id="cio_socket_set_tcp_no_delay"></a></p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">context</td><td>A pointer to a <a class="el" href="structcio__socket.html">cio_socket</a> from which the <a class="el" href="structcio__io__stream.html" title="This structure describes the interface all implementations have to fulfill. ">cio_io_stream</a> is retrieved.</td></tr>
+    <tr><td class="paramname">context</td><td>A pointer to a <a class="el" href="structcio__socket.html">cio_socket</a> for which the Nagle algorithm should be changed. </td></tr>
+    <tr><td class="paramname">on</td><td>Whether Nagle algorithm should be enabled or not.</td></tr>
   </table>
   </dd>
 </dl>
-<dl class="section return"><dt>Returns</dt><dd>An I/O stream for reading from and writing to this socket. </dd></dl>
+<dl class="section return"><dt>Returns</dt><dd><a class="el" href="cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afea67c18fefde0ae84d9023cc9f963cd25e">cio_success</a> for success. </dd></dl>
 
 </div>
 </div>
@@ -175,31 +198,8 @@ Data Fields</h2></td></tr>
 
 </div>
 </div>
-<a class="anchor" id="a9cd4160418b2300bedd508197329636e"></a>
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">enum <a class="el" href="cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afe">cio_error</a>(* cio_socket::set_tcp_no_delay)(struct <a class="el" href="structcio__socket.html">cio_socket</a> *context, bool on)</td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Enables/disables the Nagle algorithm. </p>
-<p><a class="anchor" id="cio_socket_set_tcp_no_delay"></a></p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">context</td><td>A pointer to a <a class="el" href="structcio__socket.html">cio_socket</a> for which the Nagle algorithm should be changed. </td></tr>
-    <tr><td class="paramname">on</td><td>Whether Nagle algorithm should be enabled or not.</td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Returns</dt><dd><a class="el" href="cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afea67c18fefde0ae84d9023cc9f963cd25e">cio_success</a> for success. </dd></dl>
-
-</div>
-</div>
 <hr/>The documentation for this struct was generated from the following file:<ul>
-<li>/home/travis/build/gatzka/cio/src/<a class="el" href="cio__socket_8h_source.html">cio_socket.h</a></li>
+<li><a class="el" href="cio__socket_8h_source.html">cio_socket.h</a></li>
 </ul>
 </div><!-- contents -->
 <!-- start footer part -->

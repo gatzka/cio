@@ -23,7 +23,7 @@
  <tr style="height: 56px;">
   <td style="padding-left: 0.5em;">
    <div id="projectname">ANSI C I/O Library
-   &#160;<span id="projectnumber">0.0.1-721+7d0e6eb</span>
+   &#160;<span id="projectnumber">0.0.1-723+2556e1c</span>
    </div>
   </td>
  </tr>
@@ -103,6 +103,30 @@ Data Fields</h2></td></tr>
 <tr class="separator:a9415fa7ec48bc6edaf1baa144ad479e2"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <h2 class="groupheader">Field Documentation</h2>
+<a class="anchor" id="a4644f9f01b41fb3dbce27f5c019a07a5"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void(* cio_timer::expires_from_now)(struct <a class="el" href="structcio__timer.html">cio_timer</a> *timer, uint64_t timeout_ns, <a class="el" href="cio__timer_8h.html#a5f39123edfcb6b2b61b55a4444b26978">timer_handler</a> handler, void *handler_context)</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Set the timer's expiration time relative to now and arms the timer. </p>
+<p><a class="anchor" id="cio_timer_expires_from_now"></a></p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">timer</td><td>A pointer to a struct <a class="el" href="structcio__timer.html">cio_timer</a> which shall expire. </td></tr>
+    <tr><td class="paramname">timeout_ns</td><td>The expiration time relative to "now" in nanoseconds. </td></tr>
+    <tr><td class="paramname">handler</td><td>The callback function to be called when the timer expires or was cancelled. <a class="anchor" id="cio_timer_expires_from_now_handler_context"></a></td></tr>
+    <tr><td class="paramname">handler_context</td><td>A pointer to a context which might be useful inside <code>handler</code>. </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
 <a class="anchor" id="a8e83f28b2eb60b637d517c7f1dd8f347"></a>
 <div class="memitem">
 <div class="memproto">
@@ -146,32 +170,8 @@ Data Fields</h2></td></tr>
 
 </div>
 </div>
-<a class="anchor" id="a4644f9f01b41fb3dbce27f5c019a07a5"></a>
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">void(* cio_timer::expires_from_now)(struct <a class="el" href="structcio__timer.html">cio_timer</a> *timer, uint64_t timeout_ns, <a class="el" href="cio__timer_8h.html#a5f39123edfcb6b2b61b55a4444b26978">timer_handler</a> handler, void *handler_context)</td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Set the timer's expiration time relative to now and arms the timer. </p>
-<p><a class="anchor" id="cio_timer_expires_from_now"></a></p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">timer</td><td>A pointer to a struct <a class="el" href="structcio__timer.html">cio_timer</a> which shall expire. </td></tr>
-    <tr><td class="paramname">timeout_ns</td><td>The expiration time relative to "now" in nanoseconds. </td></tr>
-    <tr><td class="paramname">handler</td><td>The callback function to be called when the timer expires or was cancelled. <a class="anchor" id="cio_timer_expires_from_now_handler_context"></a></td></tr>
-    <tr><td class="paramname">handler_context</td><td>A pointer to a context which might be useful inside <code>handler</code>. </td></tr>
-  </table>
-  </dd>
-</dl>
-
-</div>
-</div>
 <hr/>The documentation for this struct was generated from the following file:<ul>
-<li>/home/travis/build/gatzka/cio/src/<a class="el" href="cio__timer_8h_source.html">cio_timer.h</a></li>
+<li><a class="el" href="cio__timer_8h_source.html">cio_timer.h</a></li>
 </ul>
 </div><!-- contents -->
 <!-- start footer part -->
