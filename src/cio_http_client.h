@@ -74,7 +74,6 @@ struct cio_http_client {
 	/**
 	 * @privatesection
 	 */
-	struct cio_http_server *server;
 	struct cio_socket socket;
 	struct cio_timer read_timer;
 

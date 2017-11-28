@@ -241,7 +241,7 @@ static int on_url(http_parser *parser, const char *at, size_t length)
 		return -1;
 	}
 
-	const struct cio_http_location *target = find_handler(client->server, at + u.field_data[UF_PATH].off, u.field_data[UF_PATH].len);
+	const struct cio_http_location *target = find_handler(parser->data, at + u.field_data[UF_PATH].off, u.field_data[UF_PATH].len);
 	if (unlikely(target == NULL)) {
 		client->write_header(client, cio_http_status_not_found);
 		return 0;
@@ -368,8 +368,6 @@ static void handle_accept(struct cio_server_socket *ss, void *handler_context, e
 
 	struct cio_http_client *client = container_of(socket, struct cio_http_client, socket);
 
-	client->server = server;
-
 	client->headers_complete = false;
 	client->content_length = 0;
 	client->to_be_closed = false;
@@ -381,6 +379,7 @@ static void handle_accept(struct cio_server_socket *ss, void *handler_context, e
 	client->handler = NULL;
 	http_parser_settings_init(&client->parser_settings);
 	client->parser_settings.on_url = on_url;
+	client->parser.data = server;
 	http_parser_init(&client->parser, HTTP_REQUEST);
 
 	cio_read_buffer_init(&client->rb, client->buffer, client->buffer_size);
