@@ -78,7 +78,10 @@ struct cio_http_server {
 
 	/**
 	 * @anchor cio_http_server_register
-	 * @brief Register a @p location to the HTTP server.
+	 * @brief Register a @ref cio_http_location "location" to the HTTP server.
+	 *
+	 * If you register overlapping locations like "/foo" and "/foo/bar", the HTTP server
+	 * looks for the best match with respect to the path in the HTTP request.
 	 *
 	 * @param server The HTTP server instance which shall serve the new location.
 	 * @param location The location that should be served by the HTTP server.

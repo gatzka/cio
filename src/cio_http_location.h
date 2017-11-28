@@ -34,8 +34,27 @@ extern "C" {
 #include "cio_error_code.h"
 #include "cio_http_location_handler.h"
 
+/**
+ * @file
+ * @brief This file contains the declarations for initializing an location in an HTTP server.
+ *
+ * A location is some kind of web space container a @ref cio_http_location_handler "location handler" is responsible for serving.
+ * After initialization, a cio_http_location can be @ref cio_http_server_register "registered" to the \ref cio_http_server "HTTP server".
+ */
+
+/**
+ * @brief The type of a function which allocates a cio_http_location_handler.
+ *
+ * @param config A configuration which is interpreted specifically in the allocated handler. See also the documentation of
+ * the @ref cio_http_location_init_config "config" parameter in ::cio_http_location_init.
+ *
+ * @return The pointer to the allocated handler, \p NULL if the memory could not be allocated.
+ */
 typedef struct cio_http_location_handler *(*cio_http_alloc_handler)(const void *config);
 
+/**
+ * @brief An opaque structure encapsulating the information of an HTTP location.
+ */
 struct cio_http_location {
 	/**
 	 * @privatesection
@@ -46,6 +65,17 @@ struct cio_http_location {
 	const void *config;
 };
 
+/**
+ * @brief Initializes a cio_http_location.
+ * @param location The location to be initialized.
+ * @param path The path this location is responsible for.
+ * @anchor cio_http_location_init_config
+ * @param config A configuration which is specific for the location. Consider you want to install a file handler in two different locations,
+ * for instance to /html/files/ and css/files. Both file handlers shall have different document roots (where to start looking in a file system).
+ * This document root information could be passed to the handler using the \p config parameter.
+ * @param handler The allocation handler which is called an HTTP request matches the location.
+ * @return ::cio_success if no error occured
+ */
 enum cio_error cio_http_location_init(struct cio_http_location *location, const char *path, const void *config, cio_http_alloc_handler handler);
 
 #ifdef __cplusplus
