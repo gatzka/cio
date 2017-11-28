@@ -23,7 +23,7 @@
  <tr style="height: 56px;">
   <td style="padding-left: 0.5em;">
    <div id="projectname">ANSI C I/O Library
-   &#160;<span id="projectnumber">0.0.1-717+6b50f4c</span>
+   &#160;<span id="projectnumber">0.0.1-718+45a72e9</span>
    </div>
   </td>
  </tr>
@@ -149,32 +149,30 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="line"><a name="l00071"></a><span class="lineno">   71</span>&#160;</div>
 <div class="line"><a name="l00072"></a><span class="lineno"><a class="line" href="structcio__http__client.html#a90844e5f9e1490cb15eb051c9ed11715">   72</a></span>&#160;    <span class="keyword">struct </span><a class="code" href="structcio__http__location__handler.html">cio_http_location_handler</a> *<a class="code" href="structcio__http__client.html#a90844e5f9e1490cb15eb051c9ed11715">handler</a>;</div>
 <div class="line"><a name="l00073"></a><span class="lineno">   73</span>&#160;</div>
-<div class="line"><a name="l00077"></a><span class="lineno">   77</span>&#160;    <span class="keyword">struct </span><a class="code" href="structcio__http__server.html">cio_http_server</a> *server;</div>
-<div class="line"><a name="l00078"></a><span class="lineno">   78</span>&#160;    <span class="keyword">struct </span><a class="code" href="structcio__socket.html">cio_socket</a> socket;</div>
-<div class="line"><a name="l00079"></a><span class="lineno">   79</span>&#160;    <span class="keyword">struct </span><a class="code" href="structcio__timer.html">cio_timer</a> read_timer;</div>
-<div class="line"><a name="l00080"></a><span class="lineno">   80</span>&#160;</div>
-<div class="line"><a name="l00081"></a><span class="lineno">   81</span>&#160;    <span class="keywordtype">bool</span> headers_complete;</div>
-<div class="line"><a name="l00082"></a><span class="lineno">   82</span>&#160;    <span class="keywordtype">bool</span> to_be_closed;</div>
-<div class="line"><a name="l00083"></a><span class="lineno">   83</span>&#160;    <span class="keywordtype">unsigned</span> <span class="keywordtype">int</span> parsing;</div>
-<div class="line"><a name="l00084"></a><span class="lineno">   84</span>&#160;</div>
-<div class="line"><a name="l00085"></a><span class="lineno">   85</span>&#160;    http_parser parser;</div>
-<div class="line"><a name="l00086"></a><span class="lineno">   86</span>&#160;    http_parser_settings parser_settings;</div>
-<div class="line"><a name="l00087"></a><span class="lineno">   87</span>&#160;</div>
-<div class="line"><a name="l00088"></a><span class="lineno">   88</span>&#160;    void (*finish_func)(<span class="keyword">struct </span><a class="code" href="structcio__http__client.html">cio_http_client</a> *client);</div>
-<div class="line"><a name="l00089"></a><span class="lineno">   89</span>&#160;</div>
-<div class="line"><a name="l00090"></a><span class="lineno">   90</span>&#160;    <span class="keywordtype">size_t</span> buffer_size;</div>
-<div class="line"><a name="l00091"></a><span class="lineno">   91</span>&#160;    uint8_t buffer[];</div>
-<div class="line"><a name="l00092"></a><span class="lineno">   92</span>&#160;};</div>
-<div class="line"><a name="l00093"></a><span class="lineno">   93</span>&#160;</div>
-<div class="line"><a name="l00094"></a><span class="lineno">   94</span>&#160;<span class="preprocessor">#ifdef __cplusplus</span></div>
-<div class="line"><a name="l00095"></a><span class="lineno">   95</span>&#160;<span class="preprocessor"></span>}</div>
-<div class="line"><a name="l00096"></a><span class="lineno">   96</span>&#160;<span class="preprocessor">#endif</span></div>
-<div class="line"><a name="l00097"></a><span class="lineno">   97</span>&#160;<span class="preprocessor"></span></div>
-<div class="line"><a name="l00098"></a><span class="lineno">   98</span>&#160;<span class="preprocessor">#endif</span></div>
+<div class="line"><a name="l00077"></a><span class="lineno">   77</span>&#160;    <span class="keyword">struct </span><a class="code" href="structcio__socket.html">cio_socket</a> socket;</div>
+<div class="line"><a name="l00078"></a><span class="lineno">   78</span>&#160;    <span class="keyword">struct </span><a class="code" href="structcio__timer.html">cio_timer</a> read_timer;</div>
+<div class="line"><a name="l00079"></a><span class="lineno">   79</span>&#160;</div>
+<div class="line"><a name="l00080"></a><span class="lineno">   80</span>&#160;    <span class="keywordtype">bool</span> headers_complete;</div>
+<div class="line"><a name="l00081"></a><span class="lineno">   81</span>&#160;    <span class="keywordtype">bool</span> to_be_closed;</div>
+<div class="line"><a name="l00082"></a><span class="lineno">   82</span>&#160;    <span class="keywordtype">unsigned</span> <span class="keywordtype">int</span> parsing;</div>
+<div class="line"><a name="l00083"></a><span class="lineno">   83</span>&#160;</div>
+<div class="line"><a name="l00084"></a><span class="lineno">   84</span>&#160;    http_parser parser;</div>
+<div class="line"><a name="l00085"></a><span class="lineno">   85</span>&#160;    http_parser_settings parser_settings;</div>
+<div class="line"><a name="l00086"></a><span class="lineno">   86</span>&#160;</div>
+<div class="line"><a name="l00087"></a><span class="lineno">   87</span>&#160;    void (*finish_func)(<span class="keyword">struct </span><a class="code" href="structcio__http__client.html">cio_http_client</a> *client);</div>
+<div class="line"><a name="l00088"></a><span class="lineno">   88</span>&#160;</div>
+<div class="line"><a name="l00089"></a><span class="lineno">   89</span>&#160;    <span class="keywordtype">size_t</span> buffer_size;</div>
+<div class="line"><a name="l00090"></a><span class="lineno">   90</span>&#160;    uint8_t buffer[];</div>
+<div class="line"><a name="l00091"></a><span class="lineno">   91</span>&#160;};</div>
+<div class="line"><a name="l00092"></a><span class="lineno">   92</span>&#160;</div>
+<div class="line"><a name="l00093"></a><span class="lineno">   93</span>&#160;<span class="preprocessor">#ifdef __cplusplus</span></div>
+<div class="line"><a name="l00094"></a><span class="lineno">   94</span>&#160;<span class="preprocessor"></span>}</div>
+<div class="line"><a name="l00095"></a><span class="lineno">   95</span>&#160;<span class="preprocessor">#endif</span></div>
+<div class="line"><a name="l00096"></a><span class="lineno">   96</span>&#160;<span class="preprocessor"></span></div>
+<div class="line"><a name="l00097"></a><span class="lineno">   97</span>&#160;<span class="preprocessor">#endif</span></div>
 <div class="ttc" id="structcio__buffered__stream_html"><div class="ttname"><a href="structcio__buffered__stream.html">cio_buffered_stream</a></div><div class="ttdef"><b>Definition:</b> cio_buffered_stream.h:91</div></div>
 <div class="ttc" id="structcio__http__client_html_a90844e5f9e1490cb15eb051c9ed11715"><div class="ttname"><a href="structcio__http__client.html#a90844e5f9e1490cb15eb051c9ed11715">cio_http_client::handler</a></div><div class="ttdeci">struct cio_http_location_handler * handler</div><div class="ttdef"><b>Definition:</b> cio_http_client.h:72</div></div>
 <div class="ttc" id="structcio__socket_html"><div class="ttname"><a href="structcio__socket.html">cio_socket</a></div><div class="ttdef"><b>Definition:</b> cio_socket.h:58</div></div>
-<div class="ttc" id="structcio__http__server_html"><div class="ttname"><a href="structcio__http__server.html">cio_http_server</a></div><div class="ttdoc">The cio_http_server structure provides the implementation of a simple HTTP server. </div><div class="ttdef"><b>Definition:</b> cio_http_server.h:67</div></div>
 <div class="ttc" id="structcio__http__client_html_aaebd126fae4cd5aeaf9b94e65e11548c"><div class="ttname"><a href="structcio__http__client.html#aaebd126fae4cd5aeaf9b94e65e11548c">cio_http_client::http_minor</a></div><div class="ttdeci">uint16_t http_minor</div><div class="ttdef"><b>Definition:</b> cio_http_client.h:68</div></div>
 <div class="ttc" id="cio__http__status__code_8h_html_ac968a65c0166575561fdd18b89ea580c"><div class="ttname"><a href="cio__http__status__code_8h.html#ac968a65c0166575561fdd18b89ea580c">cio_http_status_code</a></div><div class="ttdeci">cio_http_status_code</div><div class="ttdoc">The cio_http_status_code enum lists all HTTP status codes that can be emmited by the cio_http_server...</div><div class="ttdef"><b>Definition:</b> cio_http_status_code.h:38</div></div>
 <div class="ttc" id="structcio__http__client_html_adc1a5a87e3e01609dc4feaba730d860b"><div class="ttname"><a href="structcio__http__client.html#adc1a5a87e3e01609dc4feaba730d860b">cio_http_client::write_header</a></div><div class="ttdeci">void(* write_header)(struct cio_http_client *client, enum cio_http_status_code status)</div><div class="ttdef"><b>Definition:</b> cio_http_client.h:60</div></div>
