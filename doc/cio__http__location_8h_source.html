@@ -23,7 +23,7 @@
  <tr style="height: 56px;">
   <td style="padding-left: 0.5em;">
    <div id="projectname">ANSI C I/O Library
-   &#160;<span id="projectnumber">0.0.1-720+9cc95d6</span>
+   &#160;<span id="projectnumber">0.0.1-721+7d0e6eb</span>
    </div>
   </td>
  </tr>
@@ -120,29 +120,29 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="line"><a name="l00034"></a><span class="lineno">   34</span>&#160;<span class="preprocessor">#include &quot;<a class="code" href="cio__error__code_8h.html">cio_error_code.h</a>&quot;</span></div>
 <div class="line"><a name="l00035"></a><span class="lineno">   35</span>&#160;<span class="preprocessor">#include &quot;<a class="code" href="cio__http__location__handler_8h.html">cio_http_location_handler.h</a>&quot;</span></div>
 <div class="line"><a name="l00036"></a><span class="lineno">   36</span>&#160;</div>
-<div class="line"><a name="l00037"></a><span class="lineno"><a class="line" href="cio__http__location_8h.html#a74814830449f39d9b203bf1b8a0422d1">   37</a></span>&#160;<span class="keyword">typedef</span> <span class="keyword">struct </span><a class="code" href="structcio__http__location__handler.html">cio_http_location_handler</a> *(*cio_http_alloc_handler)(<span class="keyword">const</span> <span class="keywordtype">void</span> *config);</div>
-<div class="line"><a name="l00038"></a><span class="lineno">   38</span>&#160;</div>
-<div class="line"><a name="l00039"></a><span class="lineno"><a class="line" href="structcio__http__location.html">   39</a></span>&#160;<span class="keyword">struct </span><a class="code" href="structcio__http__location.html">cio_http_location</a> {</div>
-<div class="line"><a name="l00043"></a><span class="lineno">   43</span>&#160;    <span class="keyword">const</span> <span class="keywordtype">char</span> *path;</div>
-<div class="line"><a name="l00044"></a><span class="lineno">   44</span>&#160;    <a class="code" href="cio__http__location_8h.html#a74814830449f39d9b203bf1b8a0422d1">cio_http_alloc_handler</a> alloc_handler;</div>
-<div class="line"><a name="l00045"></a><span class="lineno">   45</span>&#160;    <span class="keyword">struct </span><a class="code" href="structcio__http__location.html">cio_http_location</a> *next;</div>
-<div class="line"><a name="l00046"></a><span class="lineno">   46</span>&#160;    <span class="keyword">const</span> <span class="keywordtype">void</span> *config;</div>
-<div class="line"><a name="l00047"></a><span class="lineno">   47</span>&#160;};</div>
-<div class="line"><a name="l00048"></a><span class="lineno">   48</span>&#160;</div>
-<div class="line"><a name="l00049"></a><span class="lineno">   49</span>&#160;<span class="keyword">enum</span> <a class="code" href="cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afe">cio_error</a> <a class="code" href="cio__http__location_8h.html#ab96d6fc337da1b603266f240ecb98c62">cio_http_location_init</a>(<span class="keyword">struct</span> <a class="code" href="structcio__http__location.html">cio_http_location</a> *location, <span class="keyword">const</span> <span class="keywordtype">char</span> *path, <span class="keyword">const</span> <span class="keywordtype">void</span> *config, <a class="code" href="cio__http__location_8h.html#a74814830449f39d9b203bf1b8a0422d1">cio_http_alloc_handler</a> handler);</div>
-<div class="line"><a name="l00050"></a><span class="lineno">   50</span>&#160;</div>
-<div class="line"><a name="l00051"></a><span class="lineno">   51</span>&#160;<span class="preprocessor">#ifdef __cplusplus</span></div>
-<div class="line"><a name="l00052"></a><span class="lineno">   52</span>&#160;<span class="preprocessor"></span>}</div>
-<div class="line"><a name="l00053"></a><span class="lineno">   53</span>&#160;<span class="preprocessor">#endif</span></div>
-<div class="line"><a name="l00054"></a><span class="lineno">   54</span>&#160;<span class="preprocessor"></span></div>
-<div class="line"><a name="l00055"></a><span class="lineno">   55</span>&#160;<span class="preprocessor">#endif</span></div>
+<div class="line"><a name="l00053"></a><span class="lineno"><a class="line" href="cio__http__location_8h.html#a74814830449f39d9b203bf1b8a0422d1">   53</a></span>&#160;<span class="keyword">typedef</span> <span class="keyword">struct </span><a class="code" href="structcio__http__location__handler.html">cio_http_location_handler</a> *(*cio_http_alloc_handler)(<span class="keyword">const</span> <span class="keywordtype">void</span> *config);</div>
+<div class="line"><a name="l00054"></a><span class="lineno">   54</span>&#160;</div>
+<div class="line"><a name="l00058"></a><span class="lineno"><a class="line" href="structcio__http__location.html">   58</a></span>&#160;<span class="keyword">struct </span><a class="code" href="structcio__http__location.html">cio_http_location</a> {</div>
+<div class="line"><a name="l00062"></a><span class="lineno">   62</span>&#160;    <span class="keyword">const</span> <span class="keywordtype">char</span> *path;</div>
+<div class="line"><a name="l00063"></a><span class="lineno">   63</span>&#160;    <a class="code" href="cio__http__location_8h.html#a74814830449f39d9b203bf1b8a0422d1">cio_http_alloc_handler</a> alloc_handler;</div>
+<div class="line"><a name="l00064"></a><span class="lineno">   64</span>&#160;    <span class="keyword">struct </span><a class="code" href="structcio__http__location.html">cio_http_location</a> *next;</div>
+<div class="line"><a name="l00065"></a><span class="lineno">   65</span>&#160;    <span class="keyword">const</span> <span class="keywordtype">void</span> *config;</div>
+<div class="line"><a name="l00066"></a><span class="lineno">   66</span>&#160;};</div>
+<div class="line"><a name="l00067"></a><span class="lineno">   67</span>&#160;</div>
+<div class="line"><a name="l00079"></a><span class="lineno">   79</span>&#160;<span class="keyword">enum</span> <a class="code" href="cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afe">cio_error</a> <a class="code" href="cio__http__location_8h.html#ab96d6fc337da1b603266f240ecb98c62">cio_http_location_init</a>(<span class="keyword">struct</span> <a class="code" href="structcio__http__location.html">cio_http_location</a> *location, <span class="keyword">const</span> <span class="keywordtype">char</span> *path, <span class="keyword">const</span> <span class="keywordtype">void</span> *config, <a class="code" href="cio__http__location_8h.html#a74814830449f39d9b203bf1b8a0422d1">cio_http_alloc_handler</a> handler);</div>
+<div class="line"><a name="l00080"></a><span class="lineno">   80</span>&#160;</div>
+<div class="line"><a name="l00081"></a><span class="lineno">   81</span>&#160;<span class="preprocessor">#ifdef __cplusplus</span></div>
+<div class="line"><a name="l00082"></a><span class="lineno">   82</span>&#160;<span class="preprocessor"></span>}</div>
+<div class="line"><a name="l00083"></a><span class="lineno">   83</span>&#160;<span class="preprocessor">#endif</span></div>
+<div class="line"><a name="l00084"></a><span class="lineno">   84</span>&#160;<span class="preprocessor"></span></div>
+<div class="line"><a name="l00085"></a><span class="lineno">   85</span>&#160;<span class="preprocessor">#endif</span></div>
 <div class="ttc" id="cio__http__location__handler_8h_html"><div class="ttname"><a href="cio__http__location__handler_8h.html">cio_http_location_handler.h</a></div></div>
 <div class="ttc" id="structcio__http__location__handler_html"><div class="ttname"><a href="structcio__http__location__handler.html">cio_http_location_handler</a></div><div class="ttdef"><b>Definition:</b> cio_http_location_handler.h:50</div></div>
 <div class="ttc" id="cio__error__code_8h_html_ac512c4abcb0c1e747cdaaf3b917d4afe"><div class="ttname"><a href="cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afe">cio_error</a></div><div class="ttdeci">cio_error</div><div class="ttdoc">All error codes used inside the cio libary. </div><div class="ttdef"><b>Definition:</b> cio_error_code.h:43</div></div>
 <div class="ttc" id="cio__error__code_8h_html"><div class="ttname"><a href="cio__error__code_8h.html">cio_error_code.h</a></div><div class="ttdoc">This file contains the declaration of the enumeration for all error codes. </div></div>
-<div class="ttc" id="cio__http__location_8h_html_ab96d6fc337da1b603266f240ecb98c62"><div class="ttname"><a href="cio__http__location_8h.html#ab96d6fc337da1b603266f240ecb98c62">cio_http_location_init</a></div><div class="ttdeci">enum cio_error cio_http_location_init(struct cio_http_location *location, const char *path, const void *config, cio_http_alloc_handler handler)</div></div>
-<div class="ttc" id="cio__http__location_8h_html_a74814830449f39d9b203bf1b8a0422d1"><div class="ttname"><a href="cio__http__location_8h.html#a74814830449f39d9b203bf1b8a0422d1">cio_http_alloc_handler</a></div><div class="ttdeci">struct cio_http_location_handler *(* cio_http_alloc_handler)(const void *config)</div><div class="ttdef"><b>Definition:</b> cio_http_location.h:37</div></div>
-<div class="ttc" id="structcio__http__location_html"><div class="ttname"><a href="structcio__http__location.html">cio_http_location</a></div><div class="ttdef"><b>Definition:</b> cio_http_location.h:39</div></div>
+<div class="ttc" id="cio__http__location_8h_html_ab96d6fc337da1b603266f240ecb98c62"><div class="ttname"><a href="cio__http__location_8h.html#ab96d6fc337da1b603266f240ecb98c62">cio_http_location_init</a></div><div class="ttdeci">enum cio_error cio_http_location_init(struct cio_http_location *location, const char *path, const void *config, cio_http_alloc_handler handler)</div><div class="ttdoc">Initializes a cio_http_location. </div></div>
+<div class="ttc" id="cio__http__location_8h_html_a74814830449f39d9b203bf1b8a0422d1"><div class="ttname"><a href="cio__http__location_8h.html#a74814830449f39d9b203bf1b8a0422d1">cio_http_alloc_handler</a></div><div class="ttdeci">struct cio_http_location_handler *(* cio_http_alloc_handler)(const void *config)</div><div class="ttdoc">The type of a function which allocates a cio_http_location_handler. </div><div class="ttdef"><b>Definition:</b> cio_http_location.h:53</div></div>
+<div class="ttc" id="structcio__http__location_html"><div class="ttname"><a href="structcio__http__location.html">cio_http_location</a></div><div class="ttdoc">An opaque structure encapsulating the information of an HTTP location. </div><div class="ttdef"><b>Definition:</b> cio_http_location.h:58</div></div>
 </div><!-- fragment --></div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>

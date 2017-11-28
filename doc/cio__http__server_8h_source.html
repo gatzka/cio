@@ -23,7 +23,7 @@
  <tr style="height: 56px;">
   <td style="padding-left: 0.5em;">
    <div id="projectname">ANSI C I/O Library
-   &#160;<span id="projectnumber">0.0.1-720+9cc95d6</span>
+   &#160;<span id="projectnumber">0.0.1-721+7d0e6eb</span>
    </div>
   </td>
  </tr>
@@ -133,35 +133,35 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="line"><a name="l00070"></a><span class="lineno">   70</span>&#160;</div>
 <div class="line"><a name="l00077"></a><span class="lineno"><a class="line" href="structcio__http__server.html#a11bc709795ea6922bc94f6090a651ecb">   77</a></span>&#160;    <span class="keyword">enum</span> <a class="code" href="cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afe">cio_error</a> (*<a class="code" href="structcio__http__server.html#a11bc709795ea6922bc94f6090a651ecb">serve</a>)(<span class="keyword">struct </span><a class="code" href="structcio__http__server.html">cio_http_server</a> *server);</div>
 <div class="line"><a name="l00078"></a><span class="lineno">   78</span>&#160;</div>
-<div class="line"><a name="l00087"></a><span class="lineno"><a class="line" href="structcio__http__server.html#ae4f8a7e10057f59c881f264b205e68ba">   87</a></span>&#160;    <span class="keyword">enum</span> <a class="code" href="cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afe">cio_error</a> (*<a class="code" href="structcio__http__server.html#ae4f8a7e10057f59c881f264b205e68ba">register_location</a>)(<span class="keyword">struct </span><a class="code" href="structcio__http__server.html">cio_http_server</a> *server, <span class="keyword">struct </span><a class="code" href="structcio__http__location.html">cio_http_location</a> *location);</div>
-<div class="line"><a name="l00088"></a><span class="lineno">   88</span>&#160;</div>
-<div class="line"><a name="l00092"></a><span class="lineno">   92</span>&#160;    uint16_t port;</div>
-<div class="line"><a name="l00093"></a><span class="lineno">   93</span>&#160;    <span class="keyword">struct </span>cio_eventloop *loop;</div>
-<div class="line"><a name="l00094"></a><span class="lineno">   94</span>&#160;    <a class="code" href="cio__server__socket_8h.html#a6365344c7e5e854b40ff9a3b01e4176f">cio_alloc_client</a> alloc_client;</div>
-<div class="line"><a name="l00095"></a><span class="lineno">   95</span>&#160;    <a class="code" href="cio__server__socket_8h.html#ad1fdf04763eef9c0a1883c9ebe833964">cio_free_client</a> free_client;</div>
-<div class="line"><a name="l00096"></a><span class="lineno">   96</span>&#160;</div>
-<div class="line"><a name="l00097"></a><span class="lineno">   97</span>&#160;    uint64_t read_timeout_ns;</div>
-<div class="line"><a name="l00098"></a><span class="lineno">   98</span>&#160;    <a class="code" href="cio__http__server_8h.html#a87414ef2c21d82fae186b7f21f5f7178">cio_http_serve_error_cb</a> error_cb;</div>
-<div class="line"><a name="l00099"></a><span class="lineno">   99</span>&#160;    <span class="keyword">struct </span><a class="code" href="structcio__server__socket.html">cio_server_socket</a> server_socket;</div>
-<div class="line"><a name="l00100"></a><span class="lineno">  100</span>&#160;    <span class="keyword">struct </span><a class="code" href="structcio__http__location.html">cio_http_location</a> *first_handler;</div>
-<div class="line"><a name="l00101"></a><span class="lineno">  101</span>&#160;    <span class="keywordtype">size_t</span> num_handlers;</div>
-<div class="line"><a name="l00102"></a><span class="lineno">  102</span>&#160;};</div>
-<div class="line"><a name="l00103"></a><span class="lineno">  103</span>&#160;</div>
-<div class="line"><a name="l00119"></a><span class="lineno">  119</span>&#160;<span class="keyword">enum</span> <a class="code" href="cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afe">cio_error</a> <a class="code" href="cio__http__server_8h.html#a32ff793c6a13a5a05a5e3d0b1da05f53">cio_http_server_init</a>(<span class="keyword">struct</span> <a class="code" href="structcio__http__server.html">cio_http_server</a> *server,</div>
-<div class="line"><a name="l00120"></a><span class="lineno">  120</span>&#160;                                    uint16_t port,</div>
-<div class="line"><a name="l00121"></a><span class="lineno">  121</span>&#160;                                    <span class="keyword">struct</span> cio_eventloop *loop,</div>
-<div class="line"><a name="l00122"></a><span class="lineno">  122</span>&#160;                                    <a class="code" href="cio__http__server_8h.html#a87414ef2c21d82fae186b7f21f5f7178">cio_http_serve_error_cb</a> error_cb,</div>
-<div class="line"><a name="l00123"></a><span class="lineno">  123</span>&#160;                                    uint64_t read_timeout_ns,</div>
-<div class="line"><a name="l00124"></a><span class="lineno">  124</span>&#160;                                    <a class="code" href="cio__server__socket_8h.html#a6365344c7e5e854b40ff9a3b01e4176f">cio_alloc_client</a> alloc_client,</div>
-<div class="line"><a name="l00125"></a><span class="lineno">  125</span>&#160;                                    <a class="code" href="cio__server__socket_8h.html#ad1fdf04763eef9c0a1883c9ebe833964">cio_free_client</a> free_client);</div>
-<div class="line"><a name="l00126"></a><span class="lineno">  126</span>&#160;</div>
-<div class="line"><a name="l00127"></a><span class="lineno">  127</span>&#160;<span class="preprocessor">#ifdef __cplusplus</span></div>
-<div class="line"><a name="l00128"></a><span class="lineno">  128</span>&#160;<span class="preprocessor"></span>}</div>
-<div class="line"><a name="l00129"></a><span class="lineno">  129</span>&#160;<span class="preprocessor">#endif</span></div>
-<div class="line"><a name="l00130"></a><span class="lineno">  130</span>&#160;<span class="preprocessor"></span></div>
-<div class="line"><a name="l00131"></a><span class="lineno">  131</span>&#160;<span class="preprocessor">#endif</span></div>
+<div class="line"><a name="l00090"></a><span class="lineno"><a class="line" href="structcio__http__server.html#ae4f8a7e10057f59c881f264b205e68ba">   90</a></span>&#160;    <span class="keyword">enum</span> <a class="code" href="cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afe">cio_error</a> (*<a class="code" href="structcio__http__server.html#ae4f8a7e10057f59c881f264b205e68ba">register_location</a>)(<span class="keyword">struct </span><a class="code" href="structcio__http__server.html">cio_http_server</a> *server, <span class="keyword">struct </span><a class="code" href="structcio__http__location.html">cio_http_location</a> *location);</div>
+<div class="line"><a name="l00091"></a><span class="lineno">   91</span>&#160;</div>
+<div class="line"><a name="l00095"></a><span class="lineno">   95</span>&#160;    uint16_t port;</div>
+<div class="line"><a name="l00096"></a><span class="lineno">   96</span>&#160;    <span class="keyword">struct </span>cio_eventloop *loop;</div>
+<div class="line"><a name="l00097"></a><span class="lineno">   97</span>&#160;    <a class="code" href="cio__server__socket_8h.html#a6365344c7e5e854b40ff9a3b01e4176f">cio_alloc_client</a> alloc_client;</div>
+<div class="line"><a name="l00098"></a><span class="lineno">   98</span>&#160;    <a class="code" href="cio__server__socket_8h.html#ad1fdf04763eef9c0a1883c9ebe833964">cio_free_client</a> free_client;</div>
+<div class="line"><a name="l00099"></a><span class="lineno">   99</span>&#160;</div>
+<div class="line"><a name="l00100"></a><span class="lineno">  100</span>&#160;    uint64_t read_timeout_ns;</div>
+<div class="line"><a name="l00101"></a><span class="lineno">  101</span>&#160;    <a class="code" href="cio__http__server_8h.html#a87414ef2c21d82fae186b7f21f5f7178">cio_http_serve_error_cb</a> error_cb;</div>
+<div class="line"><a name="l00102"></a><span class="lineno">  102</span>&#160;    <span class="keyword">struct </span><a class="code" href="structcio__server__socket.html">cio_server_socket</a> server_socket;</div>
+<div class="line"><a name="l00103"></a><span class="lineno">  103</span>&#160;    <span class="keyword">struct </span><a class="code" href="structcio__http__location.html">cio_http_location</a> *first_handler;</div>
+<div class="line"><a name="l00104"></a><span class="lineno">  104</span>&#160;    <span class="keywordtype">size_t</span> num_handlers;</div>
+<div class="line"><a name="l00105"></a><span class="lineno">  105</span>&#160;};</div>
+<div class="line"><a name="l00106"></a><span class="lineno">  106</span>&#160;</div>
+<div class="line"><a name="l00122"></a><span class="lineno">  122</span>&#160;<span class="keyword">enum</span> <a class="code" href="cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afe">cio_error</a> <a class="code" href="cio__http__server_8h.html#a32ff793c6a13a5a05a5e3d0b1da05f53">cio_http_server_init</a>(<span class="keyword">struct</span> <a class="code" href="structcio__http__server.html">cio_http_server</a> *server,</div>
+<div class="line"><a name="l00123"></a><span class="lineno">  123</span>&#160;                                    uint16_t port,</div>
+<div class="line"><a name="l00124"></a><span class="lineno">  124</span>&#160;                                    <span class="keyword">struct</span> cio_eventloop *loop,</div>
+<div class="line"><a name="l00125"></a><span class="lineno">  125</span>&#160;                                    <a class="code" href="cio__http__server_8h.html#a87414ef2c21d82fae186b7f21f5f7178">cio_http_serve_error_cb</a> error_cb,</div>
+<div class="line"><a name="l00126"></a><span class="lineno">  126</span>&#160;                                    uint64_t read_timeout_ns,</div>
+<div class="line"><a name="l00127"></a><span class="lineno">  127</span>&#160;                                    <a class="code" href="cio__server__socket_8h.html#a6365344c7e5e854b40ff9a3b01e4176f">cio_alloc_client</a> alloc_client,</div>
+<div class="line"><a name="l00128"></a><span class="lineno">  128</span>&#160;                                    <a class="code" href="cio__server__socket_8h.html#ad1fdf04763eef9c0a1883c9ebe833964">cio_free_client</a> free_client);</div>
+<div class="line"><a name="l00129"></a><span class="lineno">  129</span>&#160;</div>
+<div class="line"><a name="l00130"></a><span class="lineno">  130</span>&#160;<span class="preprocessor">#ifdef __cplusplus</span></div>
+<div class="line"><a name="l00131"></a><span class="lineno">  131</span>&#160;<span class="preprocessor"></span>}</div>
+<div class="line"><a name="l00132"></a><span class="lineno">  132</span>&#160;<span class="preprocessor">#endif</span></div>
+<div class="line"><a name="l00133"></a><span class="lineno">  133</span>&#160;<span class="preprocessor"></span></div>
+<div class="line"><a name="l00134"></a><span class="lineno">  134</span>&#160;<span class="preprocessor">#endif</span></div>
 <div class="ttc" id="structcio__http__server_html_a11bc709795ea6922bc94f6090a651ecb"><div class="ttname"><a href="structcio__http__server.html#a11bc709795ea6922bc94f6090a651ecb">cio_http_server::serve</a></div><div class="ttdeci">enum cio_error(* serve)(struct cio_http_server *server)</div><div class="ttdoc">Start serving HTTP client requests. </div><div class="ttdef"><b>Definition:</b> cio_http_server.h:77</div></div>
-<div class="ttc" id="cio__http__location_8h_html"><div class="ttname"><a href="cio__http__location_8h.html">cio_http_location.h</a></div></div>
+<div class="ttc" id="cio__http__location_8h_html"><div class="ttname"><a href="cio__http__location_8h.html">cio_http_location.h</a></div><div class="ttdoc">This file contains the declarations for initializing an location in an HTTP server. </div></div>
 <div class="ttc" id="structcio__http__server_html"><div class="ttname"><a href="structcio__http__server.html">cio_http_server</a></div><div class="ttdoc">The cio_http_server structure provides the implementation of a simple HTTP server. </div><div class="ttdef"><b>Definition:</b> cio_http_server.h:69</div></div>
 <div class="ttc" id="cio__http__server_8h_html_a32ff793c6a13a5a05a5e3d0b1da05f53"><div class="ttname"><a href="cio__http__server_8h.html#a32ff793c6a13a5a05a5e3d0b1da05f53">cio_http_server_init</a></div><div class="ttdeci">enum cio_error cio_http_server_init(struct cio_http_server *server, uint16_t port, struct cio_eventloop *loop, cio_http_serve_error_cb error_cb, uint64_t read_timeout_ns, cio_alloc_client alloc_client, cio_free_client free_client)</div><div class="ttdoc">Initializes an HTTP server. </div></div>
 <div class="ttc" id="cio__error__code_8h_html_ac512c4abcb0c1e747cdaaf3b917d4afe"><div class="ttname"><a href="cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afe">cio_error</a></div><div class="ttdeci">cio_error</div><div class="ttdoc">All error codes used inside the cio libary. </div><div class="ttdef"><b>Definition:</b> cio_error_code.h:43</div></div>
@@ -170,9 +170,9 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="ttc" id="cio__eventloop_8h_html"><div class="ttname"><a href="cio__eventloop_8h.html">cio_eventloop.h</a></div><div class="ttdoc">This file describes the interface to an eventloop. </div></div>
 <div class="ttc" id="cio__http__server_8h_html_a87414ef2c21d82fae186b7f21f5f7178"><div class="ttname"><a href="cio__http__server_8h.html#a87414ef2c21d82fae186b7f21f5f7178">cio_http_serve_error_cb</a></div><div class="ttdeci">void(* cio_http_serve_error_cb)(struct cio_http_server *server)</div><div class="ttdoc">The type of an server error function passed to the initialization of an HTTP server. </div><div class="ttdef"><b>Definition:</b> cio_http_server.h:64</div></div>
 <div class="ttc" id="structcio__server__socket_html"><div class="ttname"><a href="structcio__server__socket.html">cio_server_socket</a></div><div class="ttdoc">The cio_server_socket struct describes a server socket. </div><div class="ttdef"><b>Definition:</b> cio_server_socket.h:76</div></div>
-<div class="ttc" id="structcio__http__location_html"><div class="ttname"><a href="structcio__http__location.html">cio_http_location</a></div><div class="ttdef"><b>Definition:</b> cio_http_location.h:39</div></div>
+<div class="ttc" id="structcio__http__location_html"><div class="ttname"><a href="structcio__http__location.html">cio_http_location</a></div><div class="ttdoc">An opaque structure encapsulating the information of an HTTP location. </div><div class="ttdef"><b>Definition:</b> cio_http_location.h:58</div></div>
 <div class="ttc" id="cio__server__socket_8h_html_ad1fdf04763eef9c0a1883c9ebe833964"><div class="ttname"><a href="cio__server__socket_8h.html#ad1fdf04763eef9c0a1883c9ebe833964">cio_free_client</a></div><div class="ttdeci">void(* cio_free_client)(struct cio_socket *socket)</div><div class="ttdef"><b>Definition:</b> cio_server_socket.h:51</div></div>
-<div class="ttc" id="structcio__http__server_html_ae4f8a7e10057f59c881f264b205e68ba"><div class="ttname"><a href="structcio__http__server.html#ae4f8a7e10057f59c881f264b205e68ba">cio_http_server::register_location</a></div><div class="ttdeci">enum cio_error(* register_location)(struct cio_http_server *server, struct cio_http_location *location)</div><div class="ttdoc">Register a location to the HTTP server. </div><div class="ttdef"><b>Definition:</b> cio_http_server.h:87</div></div>
+<div class="ttc" id="structcio__http__server_html_ae4f8a7e10057f59c881f264b205e68ba"><div class="ttname"><a href="structcio__http__server.html#ae4f8a7e10057f59c881f264b205e68ba">cio_http_server::register_location</a></div><div class="ttdeci">enum cio_error(* register_location)(struct cio_http_server *server, struct cio_http_location *location)</div><div class="ttdoc">Register a location to the HTTP server. </div><div class="ttdef"><b>Definition:</b> cio_http_server.h:90</div></div>
 <div class="ttc" id="cio__server__socket_8h_html"><div class="ttname"><a href="cio__server__socket_8h.html">cio_server_socket.h</a></div><div class="ttdoc">This file contains the interface of a server socket. </div></div>
 </div><!-- fragment --></div><!-- contents -->
 <!-- start footer part -->

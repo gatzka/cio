@@ -23,7 +23,7 @@
  <tr style="height: 56px;">
   <td style="padding-left: 0.5em;">
    <div id="projectname">ANSI C I/O Library
-   &#160;<span id="projectnumber">0.0.1-720+9cc95d6</span>
+   &#160;<span id="projectnumber">0.0.1-721+7d0e6eb</span>
    </div>
   </td>
  </tr>
@@ -99,7 +99,7 @@ Data Fields</h2></td></tr>
 <tr class="memdesc:a11bc709795ea6922bc94f6090a651ecb"><td class="mdescLeft">&#160;</td><td class="mdescRight">Start serving HTTP client requests.  <a href="#a11bc709795ea6922bc94f6090a651ecb">More...</a><br/></td></tr>
 <tr class="separator:a11bc709795ea6922bc94f6090a651ecb"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ae4f8a7e10057f59c881f264b205e68ba"><td class="memItemLeft" align="right" valign="top">enum <a class="el" href="cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afe">cio_error</a>(*&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structcio__http__server.html#ae4f8a7e10057f59c881f264b205e68ba">register_location</a> )(struct <a class="el" href="structcio__http__server.html">cio_http_server</a> *server, struct <a class="el" href="structcio__http__location.html">cio_http_location</a> *location)</td></tr>
-<tr class="memdesc:ae4f8a7e10057f59c881f264b205e68ba"><td class="mdescLeft">&#160;</td><td class="mdescRight">Register a <code>location</code> to the HTTP server.  <a href="#ae4f8a7e10057f59c881f264b205e68ba">More...</a><br/></td></tr>
+<tr class="memdesc:ae4f8a7e10057f59c881f264b205e68ba"><td class="mdescLeft">&#160;</td><td class="mdescRight">Register a <a class="el" href="structcio__http__location.html">location</a> to the HTTP server.  <a href="#ae4f8a7e10057f59c881f264b205e68ba">More...</a><br/></td></tr>
 <tr class="separator:ae4f8a7e10057f59c881f264b205e68ba"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
@@ -115,8 +115,8 @@ Data Fields</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>Register a <code>location</code> to the HTTP server. </p>
-<p><a class="anchor" id="cio_http_server_register"></a></p>
+<p>Register a <a class="el" href="structcio__http__location.html">location</a> to the HTTP server. </p>
+<p><a class="anchor" id="cio_http_server_register"></a>If you register overlapping locations like "/foo" and "/foo/bar", the HTTP server looks for the best match with respect to the path in the HTTP request.</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">server</td><td>The HTTP server instance which shall serve the new location. </td></tr>
