@@ -22,7 +22,7 @@ matrix:
     - ctest .
     - mkdir gcov
     - cd gcov
-    - find .. -name *.gcda |xargs gcov -abcfu
+    - find .. -type f \( -iname \*.gcno -or -iname \*.gcda \) | paste -s -d ' ' |xargs gcov -abcfu
     - cd ..
     - sonar-scanner
     addons:
