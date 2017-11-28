@@ -54,6 +54,8 @@ extern "C" {
  * when an HTTP request is processed by the HTTP server.
  */
 
+struct cio_http_server;
+
 /**
  * @brief The type of an server error function passed to the @ref cio_http_server_init "initialization" of an HTTP server.
  *
