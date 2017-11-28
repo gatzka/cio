@@ -19,11 +19,6 @@ matrix:
     script:
     - cmake ./
     - build-wrapper-linux-x86-64 --out-dir bw-output make
-    - ctest .
-    - mkdir gcov
-    - cd gcov
-    - find .. -type f \( -iname \*.gcno -or -iname \*.gcda \) | paste -s -d ' ' |xargs gcov -abcfu
-    - cd ..
     - sonar-scanner
     addons:
       sonarcloud:
@@ -42,7 +37,6 @@ matrix:
         packages:
         - cmake
         - cmake-data
-        - lcov
 
   - compiler: gcc
     env:
