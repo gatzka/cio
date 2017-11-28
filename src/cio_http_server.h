@@ -49,8 +49,8 @@ extern "C" {
  * if an HTTP request matches a location.
  *
  * Inside a @ref cio_http_location_handler "request handler" you can specify lots of callback functions like
- * @ref req_handler_on_header_field "on_header_field" or
- * @ref req_handler_on_body "on_body" which will be called automatically
+ * @ref cio_http_location_handler_on_header_field "on_header_field" or
+ * @ref cio_http_location_handler_on_body "on_body" which will be called automatically
  * when an HTTP request is processed by the HTTP server.
  */
 

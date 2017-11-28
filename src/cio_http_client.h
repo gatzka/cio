@@ -54,12 +54,48 @@ extern "C" {
  */
 struct cio_http_client {
 
-	// TODO: is close really necessary for users of the library?
+	/**
+	 * @anchor cio_http_client_close
+	 * @brief Closes the HTTP client connection.
+	 *
+	 * @param client The client which shall be close
+	 */
 	void (*close)(struct cio_http_client *client);
+
+	/**
+	 * @anchor cio_http_client_write_response
+	 * @brief Writes a success response (200) to the requesting client.
+	 *
+	 * The HTTP connection is closed after the response was written.
+	 *
+	 * @param client The client which shall get the response.
+	 * @param wbh The write buffer head containing the data which should be written after
+	 * the HTTP response header to the client.
+	 */
 	void (*write_response)(struct cio_http_client *client, struct cio_write_buffer *wbh);
+
+	/**
+	 * @anchor cio_http_client_write_header
+	 * @brief Writes a response header to the requesting client.
+	 *
+	 * The HTTP connection is closed after the header was written.
+	 *
+	 * @param client The client which shall get the header.
+	 * @param status The status code (like 404, or 400) of the response header.
+	 */
 	void (*write_header)(struct cio_http_client *client, enum cio_http_status_code status);
 
+	/**
+	 * @anchor cio_http_client_bs
+	 * @brief bs The buffered stream which is used to read data from and write data to the client.
+	 *
+	 */
 	struct cio_buffered_stream bs;
+
+	/**
+	 * @brief rb The companion read buffer which is used by the @ref cio_http_client_bs "buffered stream".
+	 * @anchor cio_http_client_rb
+	 */
 	struct cio_read_buffer rb;
 	struct cio_write_buffer wbh;
 	struct cio_write_buffer wb_http_header;
