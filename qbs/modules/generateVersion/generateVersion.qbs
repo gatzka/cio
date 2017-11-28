@@ -38,9 +38,9 @@ Module {
     Artifact {
       alwaysUpdated: false
       filePath: "generated/" + inputs["versionFileToPatch"][0].baseName + ".h"
-      fileTags: ["hpp", "versionHeader"]
+      fileTags: ["hpp", "versionHeader", "source"]
     }
 
-    prepare: Patch.patchVersion(inputs, output, product)
+    prepare: Patch.patchVersion(inputs["versionFileToPatch"][0], inputs["version_file"][0], output, product)
   }
 }

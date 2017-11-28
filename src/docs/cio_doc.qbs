@@ -39,6 +39,7 @@ Project {
     type: "docs";
 
     Depends { name: "generateDoxygen" }
+    Depends { name: "generateVersion" }
     generateDoxygen.sourceDirectory: product.sourceDirectory + "/../"
 
     Group {
@@ -55,6 +56,14 @@ Project {
         "../version"
       ]
       fileTags: ["version_file"]
+    }
+
+    Group {
+      name: "version header"
+      files: [
+        "../cio_version.h.in"
+      ]
+      fileTags: ["versionFileToPatch"]
     }
 
     Group {

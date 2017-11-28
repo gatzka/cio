@@ -24,11 +24,13 @@
  * SOFTWARE.
  */
 
-function patchVersion(inputs, output, product)
+function patchVersion(inputFile, versionFile, output, product)
 {
   var cmd = new JavaScriptCommand();
-  cmd.description = "Processing '" + inputs["versionFileToPatch"][0].fileName + "'";
+  cmd.description = "Processing '" + inputFile.fileName + "' to '" + output.filePath + "'";
   cmd.highlight = "codegen";
+  cmd.inputFile = inputFile;
+  cmd.version = versionFile;
   cmd.sourceCode = function() {
     var gitRevParse = new Process();
     gitRevParse.setWorkingDirectory(product.sourceDirectory);
@@ -71,11 +73,11 @@ function patchVersion(inputs, output, product)
 
 	var buildInfo = "+" + hash + dirty;
 
-    var versionFile = new TextFile(inputs["version_file"][0].filePath);
+    var versionFile = new TextFile(version.filePath);
     var versionString = versionFile.readAll().trim();
     versionFile.close();
 
-    var file = new TextFile(inputs["versionFileToPatch"][0].filePath);
+    var file = new TextFile(inputFile.filePath);
     var content = file.readAll();
     file.close();
     content = content.replace(/\${CIO_VERSION}/g, versionString);
