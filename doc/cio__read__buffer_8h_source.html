@@ -23,7 +23,7 @@
  <tr style="height: 56px;">
   <td style="padding-left: 0.5em;">
    <div id="projectname">ANSI C I/O Library
-   &#160;<span id="projectnumber">0.0.1-727+1766771</span>
+   &#160;<span id="projectnumber">0.0.1-728+2318d99</span>
    </div>
   </td>
  </tr>
@@ -143,7 +143,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="line"><a name="l00060"></a><span class="lineno">   60</span>&#160;</div>
 <div class="line"><a name="l00061"></a><span class="lineno">   61</span>&#160;<span class="keyword">static</span> <span class="keyword">inline</span> <span class="keyword">enum</span> <a class="code" href="cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afe">cio_error</a> cio_read_buffer_init(<span class="keyword">struct</span> <a class="code" href="structcio__read__buffer.html">cio_read_buffer</a> *rb, <span class="keywordtype">void</span> *data, <span class="keywordtype">size_t</span> size)</div>
 <div class="line"><a name="l00062"></a><span class="lineno">   62</span>&#160;{</div>
-<div class="line"><a name="l00063"></a><span class="lineno">   63</span>&#160;    <span class="keywordflow">if</span> (unlikely((rb == NULL) || (data == NULL))) {</div>
+<div class="line"><a name="l00063"></a><span class="lineno">   63</span>&#160;    <span class="keywordflow">if</span> (<a class="code" href="cio__compiler_8h.html#ac6c45889010c1bd68631771b64f18101">unlikely</a>((rb == NULL) || (data == NULL))) {</div>
 <div class="line"><a name="l00064"></a><span class="lineno">   64</span>&#160;        <span class="keywordflow">return</span> <a class="code" href="cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afea552b230cd6a8fc4592aa097445c14cba">cio_invalid_argument</a>;</div>
 <div class="line"><a name="l00065"></a><span class="lineno">   65</span>&#160;    }</div>
 <div class="line"><a name="l00066"></a><span class="lineno">   66</span>&#160;</div>
@@ -175,11 +175,12 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="line"><a name="l00092"></a><span class="lineno">   92</span>&#160;<span class="preprocessor">#endif</span></div>
 <div class="line"><a name="l00093"></a><span class="lineno">   93</span>&#160;<span class="preprocessor"></span></div>
 <div class="line"><a name="l00094"></a><span class="lineno">   94</span>&#160;<span class="preprocessor">#endif</span></div>
-<div class="ttc" id="cio__compiler_8h_html"><div class="ttname"><a href="cio__compiler_8h.html">cio_compiler.h</a></div></div>
+<div class="ttc" id="cio__compiler_8h_html"><div class="ttname"><a href="cio__compiler_8h.html">cio_compiler.h</a></div><div class="ttdoc">Some macros wrapping compiler specific intrinsics. </div></div>
 <div class="ttc" id="cio__error__code_8h_html_ac512c4abcb0c1e747cdaaf3b917d4afea67c18fefde0ae84d9023cc9f963cd25e"><div class="ttname"><a href="cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afea67c18fefde0ae84d9023cc9f963cd25e">cio_success</a></div><div class="ttdef"><b>Definition:</b> cio_error_code.h:45</div></div>
 <div class="ttc" id="cio__error__code_8h_html_ac512c4abcb0c1e747cdaaf3b917d4afe"><div class="ttname"><a href="cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afe">cio_error</a></div><div class="ttdeci">cio_error</div><div class="ttdoc">All error codes used inside the cio libary. </div><div class="ttdef"><b>Definition:</b> cio_error_code.h:43</div></div>
 <div class="ttc" id="cio__error__code_8h_html"><div class="ttname"><a href="cio__error__code_8h.html">cio_error_code.h</a></div><div class="ttdoc">This file contains the declaration of the enumeration for all error codes. </div></div>
 <div class="ttc" id="structcio__read__buffer_html"><div class="ttname"><a href="structcio__read__buffer.html">cio_read_buffer</a></div><div class="ttdef"><b>Definition:</b> cio_read_buffer.h:40</div></div>
+<div class="ttc" id="cio__compiler_8h_html_ac6c45889010c1bd68631771b64f18101"><div class="ttname"><a href="cio__compiler_8h.html#ac6c45889010c1bd68631771b64f18101">unlikely</a></div><div class="ttdeci">#define unlikely(x)</div><div class="ttdef"><b>Definition:</b> cio_compiler.h:48</div></div>
 <div class="ttc" id="cio__error__code_8h_html_ac512c4abcb0c1e747cdaaf3b917d4afea552b230cd6a8fc4592aa097445c14cba"><div class="ttname"><a href="cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afea552b230cd6a8fc4592aa097445c14cba">cio_invalid_argument</a></div><div class="ttdef"><b>Definition:</b> cio_error_code.h:53</div></div>
 </div><!-- fragment --></div><!-- contents -->
 <!-- start footer part -->

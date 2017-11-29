@@ -23,7 +23,7 @@
  <tr style="height: 56px;">
   <td style="padding-left: 0.5em;">
    <div id="projectname">ANSI C I/O Library
-   &#160;<span id="projectnumber">0.0.1-727+1766771</span>
+   &#160;<span id="projectnumber">0.0.1-728+2318d99</span>
    </div>
   </td>
  </tr>
@@ -80,12 +80,80 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 
 </div><!-- top -->
 <div class="header">
+  <div class="summary">
+<a href="#define-members">Macros</a>  </div>
   <div class="headertitle">
 <div class="title">cio_compiler.h File Reference</div>  </div>
 </div><!--header-->
 <div class="contents">
 
+<p>Some macros wrapping compiler specific intrinsics.  
+<a href="#details">More...</a></p>
+
 <p><a href="cio__compiler_8h_source.html">Go to the source code of this file.</a></p>
+<table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="define-members"></a>
+Macros</h2></td></tr>
+<tr class="memitem:a217a0bd562b98ae8c2ffce44935351e1"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="cio__compiler_8h.html#a217a0bd562b98ae8c2ffce44935351e1">likely</a>(x)</td></tr>
+<tr class="separator:a217a0bd562b98ae8c2ffce44935351e1"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac6c45889010c1bd68631771b64f18101"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="cio__compiler_8h.html#ac6c45889010c1bd68631771b64f18101">unlikely</a>(x)</td></tr>
+<tr class="separator:ac6c45889010c1bd68631771b64f18101"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6cec6ad808589891b39e150d6a18152c"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="cio__compiler_8h.html#a6cec6ad808589891b39e150d6a18152c">wmb</a>()</td></tr>
+<tr class="separator:a6cec6ad808589891b39e150d6a18152c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table>
+<a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
+<div class="textblock"><p>Some macros wrapping compiler specific intrinsics. </p>
+</div><h2 class="groupheader">Macro Definition Documentation</h2>
+<a class="anchor" id="a217a0bd562b98ae8c2ffce44935351e1"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define likely</td>
+          <td>(</td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname">x</td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Use this macro in to mark branches that are likely to be taken </p>
+
+</div>
+</div>
+<a class="anchor" id="ac6c45889010c1bd68631771b64f18101"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define unlikely</td>
+          <td>(</td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname">x</td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Use this macro in to mark branches that are unlikely to be taken </p>
+
+</div>
+</div>
+<a class="anchor" id="a6cec6ad808589891b39e150d6a18152c"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define wmb</td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Guarantee ordering of writes. </p>
+
+</div>
+</div>
 </div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
