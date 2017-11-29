@@ -32,6 +32,12 @@ extern "C" {
 #endif
 
 #include "http-parser/http_parser.h"
+
+/**
+ * @file
+ * @brief List of all supported HTTP methods.
+ */
+
 /**
  * @brief The cio_http_method enum lists all HTTP methods currently understood
  * by the HTTP parser.
