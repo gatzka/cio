@@ -33,6 +33,19 @@ extern "C" {
 
 #include <stddef.h>
 
+/**
+ * @file
+ * @brief Wrapper functions for non-ANSI-C conformant string functions.
+ */
+
+/**
+ * @brief Finds the start of the first occurence of @p needle in @p haystack.
+ * @param haystack The memory to be searched.
+ * @param haystacklen The length of memory to be searched.
+ * @param needle The substring that should be searched for.
+ * @param needlelen The length of the substring to be searched for.
+ * @return Pointer to the beginning of the substring, @p NULL otherwise.
+ */
 void *cio_memmem(const void *haystack, size_t haystacklen, const void *needle, size_t needlelen);
 
 #ifdef __cplusplus
