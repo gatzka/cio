@@ -107,51 +107,51 @@ struct cio_http_client {
 	 */
 	struct cio_read_buffer rb;
 
-    /**
-     * @brief A write buffer head to write data to an HTTP client.
-     *
-     * Typically you will not need direct access to the write buffer,
-     * use @ref cio_http_client_write_header "write_header" and
-     * @ref cio_http_client_write_response "write_response" to send "normal"
-     * HTTP responses to a client.
-     *
-     * If you have an upgraded HTTP connection (i.e. web sockets), you are encouraged
-     * to use this write buffer.
-     */
+	/**
+	 * @brief A write buffer head to write data to an HTTP client.
+	 *
+	 * Typically you will not need direct access to the write buffer,
+	 * use @ref cio_http_client_write_header "write_header" and
+	 * @ref cio_http_client_write_response "write_response" to send "normal"
+	 * HTTP responses to a client.
+	 *
+	 * If you have an upgraded HTTP connection (i.e. web sockets), you are encouraged
+	 * to use this write buffer.
+	 */
 	struct cio_write_buffer wbh;
 
-    /**
-     * @brief The HTTP major version of the client request.
-     *
-     * Reading the HTTP major version is only valid after the HTTP start line is read,
-     * which means that the @ref cio_http_location_handler_on_url "on_url callback" was performed.
-     */
+	/**
+	 * @brief The HTTP major version of the client request.
+	 *
+	 * Reading the HTTP major version is only valid after the HTTP start line is read,
+	 * which means that the @ref cio_http_location_handler_on_url "on_url callback" was performed.
+	 */
 	uint16_t http_major;
 
-    /**
-     * @brief The HTTP minor version of the client request.
-     *
-     * Reading the HTTP minor version is only valid after the HTTP start line is read,
-     * which means that the @ref cio_http_location_handler_on_url "on_url callback" was performed.
-     */
+	/**
+	 * @brief The HTTP minor version of the client request.
+	 *
+	 * Reading the HTTP minor version is only valid after the HTTP start line is read,
+	 * which means that the @ref cio_http_location_handler_on_url "on_url callback" was performed.
+	 */
 	uint16_t http_minor;
 
-    /**
-     * @brief The <a href="https://tools.ietf.org/html/rfc7230#section-3.3.2">content length</a> of the client request.
-     *
-     * Reading the content length is only possible after the corresponding header fields
-     * were read by the HTTP parser. After you got the
-     * @ref cio_http_location_handler_on_headers_complete "on_headers_complete callback" you can rely
-     * on the field being set.
-     */
+	/**
+	 * @brief The <a href="https://tools.ietf.org/html/rfc7230#section-3.3.2">content length</a> of the client request.
+	 *
+	 * Reading the content length is only possible after the corresponding header fields
+	 * were read by the HTTP parser. After you got the
+	 * @ref cio_http_location_handler_on_headers_complete "on_headers_complete callback" you can rely
+	 * on the field being set.
+	 */
 	uint64_t content_length;
 
-    /**
-     * @brief The HTTP method (i.e. GET, POST, PUT, ...) of the HTTP client request.
-     *
-     * Reading the HTTP method is only valid after the HTTP start line is read,
-     * which means that the @ref cio_http_location_handler_on_url "on_url callback" was performed.
-     */
+	/**
+	 * @brief The HTTP method (i.e. GET, POST, PUT, ...) of the HTTP client request.
+	 *
+	 * Reading the HTTP method is only valid after the HTTP start line is read,
+	 * which means that the @ref cio_http_location_handler_on_url "on_url callback" was performed.
+	 */
 	enum cio_http_method http_method;
 
 	/**
