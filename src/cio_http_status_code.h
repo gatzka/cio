@@ -32,10 +32,16 @@ extern "C" {
 #endif
 
 /**
+ * @file
+ * @brief List the currently supported <a href="https://tools.ietf.org/html/rfc7231#section-6">HTTP status codes</a>.
+ */
+
+/**
  * @brief The cio_http_status_code enum lists all HTTP status codes that
  * can be emmited by the cio_http_server.
  */
 enum cio_http_status_code {
+	cio_http_switching_protocols = 101,          /*!< The requester has asked the server to switch protocols and the server has agreed to do so. */
 	cio_http_status_ok = 200,                    /*!< Standard response for a successful HTTP request. */
 	cio_http_status_bad_request = 400,           /*!< Request not processed due to a client error. */
 	cio_http_status_not_found = 404,             /*!< The requested resource was not found. */
