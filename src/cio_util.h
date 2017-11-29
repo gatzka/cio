@@ -30,7 +30,8 @@
 #include <stddef.h>
 
 /**
- * Utility functions.
+ * @file
+ * @brief Utility functions.
  */
 
 /**
