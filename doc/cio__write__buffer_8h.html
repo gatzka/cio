@@ -23,7 +23,7 @@
  <tr style="height: 56px;">
   <td style="padding-left: 0.5em;">
    <div id="projectname">ANSI C I/O Library
-   &#160;<span id="projectnumber">0.0.1-731+208a366</span>
+   &#160;<span id="projectnumber">0.0.1-732+fd969a2</span>
    </div>
   </td>
  </tr>
@@ -81,7 +81,8 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 </div><!-- top -->
 <div class="header">
   <div class="summary">
-<a href="#nested-classes">Data Structures</a>  </div>
+<a href="#nested-classes">Data Structures</a> &#124;
+<a href="#func-members">Functions</a>  </div>
   <div class="headertitle">
 <div class="title">cio_write_buffer.h File Reference</div>  </div>
 </div><!--header-->
@@ -96,7 +97,511 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 Data Structures</h2></td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structcio__write__buffer.html">cio_write_buffer</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="func-members"></a>
+Functions</h2></td></tr>
+<tr class="memitem:a3b77da2966388304d726048e1c4d1c30"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="cio__write__buffer_8h.html#a3b77da2966388304d726048e1c4d1c30">cio_write_buffer_insert</a> (struct <a class="el" href="structcio__write__buffer.html">cio_write_buffer</a> *new_wb, struct <a class="el" href="structcio__write__buffer.html">cio_write_buffer</a> *prev_wb, struct <a class="el" href="structcio__write__buffer.html">cio_write_buffer</a> *next_wb, struct <a class="el" href="structcio__write__buffer.html">cio_write_buffer</a> *wbh)</td></tr>
+<tr class="separator:a3b77da2966388304d726048e1c4d1c30"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a62e0ddafa799361680eb8b476267024f"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="cio__write__buffer_8h.html#a62e0ddafa799361680eb8b476267024f">cio_write_buffer_queue_before</a> (struct <a class="el" href="structcio__write__buffer.html">cio_write_buffer</a> *wbh, struct <a class="el" href="structcio__write__buffer.html">cio_write_buffer</a> *next_wb, struct <a class="el" href="structcio__write__buffer.html">cio_write_buffer</a> *new_wb)</td></tr>
+<tr class="separator:a62e0ddafa799361680eb8b476267024f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a59dc0f153af52ccb329723a0e6698e3b"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="cio__write__buffer_8h.html#a59dc0f153af52ccb329723a0e6698e3b">cio_write_buffer_queue_after</a> (struct <a class="el" href="structcio__write__buffer.html">cio_write_buffer</a> *wbh, struct <a class="el" href="structcio__write__buffer.html">cio_write_buffer</a> *prev_wb, struct <a class="el" href="structcio__write__buffer.html">cio_write_buffer</a> *new_wb)</td></tr>
+<tr class="separator:a59dc0f153af52ccb329723a0e6698e3b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a743ce7f7b3ad774dd7be81f01893cad5"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="cio__write__buffer_8h.html#a743ce7f7b3ad774dd7be81f01893cad5">cio_write_buffer_queue_head</a> (struct <a class="el" href="structcio__write__buffer.html">cio_write_buffer</a> *wbh, struct <a class="el" href="structcio__write__buffer.html">cio_write_buffer</a> *new_wb)</td></tr>
+<tr class="separator:a743ce7f7b3ad774dd7be81f01893cad5"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:abce9f4fce0d37fd084b76c66acdcd3ba"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="cio__write__buffer_8h.html#abce9f4fce0d37fd084b76c66acdcd3ba">cio_write_buffer_queue_tail</a> (struct <a class="el" href="structcio__write__buffer.html">cio_write_buffer</a> *wbh, struct <a class="el" href="structcio__write__buffer.html">cio_write_buffer</a> *new_wb)</td></tr>
+<tr class="separator:abce9f4fce0d37fd084b76c66acdcd3ba"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:afd5f5930223e8b3ea17a291283689887"><td class="memItemLeft" align="right" valign="top">static bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="cio__write__buffer_8h.html#afd5f5930223e8b3ea17a291283689887">cio_write_buffer_queue_empty</a> (const struct <a class="el" href="structcio__write__buffer.html">cio_write_buffer</a> *wbh)</td></tr>
+<tr class="separator:afd5f5930223e8b3ea17a291283689887"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:adb045a192be8efeacff4cce5d05cf011"><td class="memItemLeft" align="right" valign="top">static struct <a class="el" href="structcio__write__buffer.html">cio_write_buffer</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="cio__write__buffer_8h.html#adb045a192be8efeacff4cce5d05cf011">cio_write_buffer_queue_peek</a> (const struct <a class="el" href="structcio__write__buffer.html">cio_write_buffer</a> *wbh)</td></tr>
+<tr class="separator:adb045a192be8efeacff4cce5d05cf011"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a759c115cea95cc939caeb88c48057bc3"><td class="memItemLeft" align="right" valign="top">static bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="cio__write__buffer_8h.html#a759c115cea95cc939caeb88c48057bc3">cio_write_buffer_queue_is_last</a> (const struct <a class="el" href="structcio__write__buffer.html">cio_write_buffer</a> *wbh, const struct <a class="el" href="structcio__write__buffer.html">cio_write_buffer</a> *wb)</td></tr>
+<tr class="separator:a759c115cea95cc939caeb88c48057bc3"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a4348b68aed8ce480f436fc06a2f6b482"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="cio__write__buffer_8h.html#a4348b68aed8ce480f436fc06a2f6b482">cio_write_buffer_unlink</a> (struct <a class="el" href="structcio__write__buffer.html">cio_write_buffer</a> *wb, struct <a class="el" href="structcio__write__buffer.html">cio_write_buffer</a> *wbh)</td></tr>
+<tr class="separator:a4348b68aed8ce480f436fc06a2f6b482"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad37228856b0ba01a5d7adc63661c9d94"><td class="memItemLeft" align="right" valign="top">static struct <a class="el" href="structcio__write__buffer.html">cio_write_buffer</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="cio__write__buffer_8h.html#ad37228856b0ba01a5d7adc63661c9d94">cio_write_buffer_queue_dequeue</a> (struct <a class="el" href="structcio__write__buffer.html">cio_write_buffer</a> *wbh)</td></tr>
+<tr class="separator:ad37228856b0ba01a5d7adc63661c9d94"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a599030fc2c612be60b90ea99d18c1b49"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="cio__write__buffer_8h.html#a599030fc2c612be60b90ea99d18c1b49">__skb_queue_splice</a> (const struct <a class="el" href="structcio__write__buffer.html">cio_write_buffer</a> *wbh, struct <a class="el" href="structcio__write__buffer.html">cio_write_buffer</a> *prev, struct <a class="el" href="structcio__write__buffer.html">cio_write_buffer</a> *next)</td></tr>
+<tr class="separator:a599030fc2c612be60b90ea99d18c1b49"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae38fe7a05b5e144dca985a2bcf280fdc"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="cio__write__buffer_8h.html#ae38fe7a05b5e144dca985a2bcf280fdc">cio_write_buffer_splice</a> (const struct <a class="el" href="structcio__write__buffer.html">cio_write_buffer</a> *list, struct <a class="el" href="structcio__write__buffer.html">cio_write_buffer</a> *head)</td></tr>
+<tr class="separator:ae38fe7a05b5e144dca985a2bcf280fdc"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6ffc05a5f989795e866347fe06b34afb"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="cio__write__buffer_8h.html#a6ffc05a5f989795e866347fe06b34afb">cio_write_buffer_head_init</a> (struct <a class="el" href="structcio__write__buffer.html">cio_write_buffer</a> *wbh)</td></tr>
+<tr class="separator:a6ffc05a5f989795e866347fe06b34afb"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6afcbfff04d1610ae9b5f824261de9b9"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="cio__write__buffer_8h.html#a6afcbfff04d1610ae9b5f824261de9b9">cio_write_buffer_init</a> (struct <a class="el" href="structcio__write__buffer.html">cio_write_buffer</a> *wb, const void *data, size_t length)</td></tr>
+<tr class="separator:a6afcbfff04d1610ae9b5f824261de9b9"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
+<h2 class="groupheader">Function Documentation</h2>
+<a class="anchor" id="a3b77da2966388304d726048e1c4d1c30"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static void cio_write_buffer_insert </td>
+          <td>(</td>
+          <td class="paramtype">struct <a class="el" href="structcio__write__buffer.html">cio_write_buffer</a> *&#160;</td>
+          <td class="paramname"><em>new_wb</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">struct <a class="el" href="structcio__write__buffer.html">cio_write_buffer</a> *&#160;</td>
+          <td class="paramname"><em>prev_wb</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">struct <a class="el" href="structcio__write__buffer.html">cio_write_buffer</a> *&#160;</td>
+          <td class="paramname"><em>next_wb</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">struct <a class="el" href="structcio__write__buffer.html">cio_write_buffer</a> *&#160;</td>
+          <td class="paramname"><em>wbh</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="a62e0ddafa799361680eb8b476267024f"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static void cio_write_buffer_queue_before </td>
+          <td>(</td>
+          <td class="paramtype">struct <a class="el" href="structcio__write__buffer.html">cio_write_buffer</a> *&#160;</td>
+          <td class="paramname"><em>wbh</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">struct <a class="el" href="structcio__write__buffer.html">cio_write_buffer</a> *&#160;</td>
+          <td class="paramname"><em>next_wb</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">struct <a class="el" href="structcio__write__buffer.html">cio_write_buffer</a> *&#160;</td>
+          <td class="paramname"><em>new_wb</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="a59dc0f153af52ccb329723a0e6698e3b"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static void cio_write_buffer_queue_after </td>
+          <td>(</td>
+          <td class="paramtype">struct <a class="el" href="structcio__write__buffer.html">cio_write_buffer</a> *&#160;</td>
+          <td class="paramname"><em>wbh</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">struct <a class="el" href="structcio__write__buffer.html">cio_write_buffer</a> *&#160;</td>
+          <td class="paramname"><em>prev_wb</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">struct <a class="el" href="structcio__write__buffer.html">cio_write_buffer</a> *&#160;</td>
+          <td class="paramname"><em>new_wb</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="a743ce7f7b3ad774dd7be81f01893cad5"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static void cio_write_buffer_queue_head </td>
+          <td>(</td>
+          <td class="paramtype">struct <a class="el" href="structcio__write__buffer.html">cio_write_buffer</a> *&#160;</td>
+          <td class="paramname"><em>wbh</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">struct <a class="el" href="structcio__write__buffer.html">cio_write_buffer</a> *&#160;</td>
+          <td class="paramname"><em>new_wb</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="abce9f4fce0d37fd084b76c66acdcd3ba"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static void cio_write_buffer_queue_tail </td>
+          <td>(</td>
+          <td class="paramtype">struct <a class="el" href="structcio__write__buffer.html">cio_write_buffer</a> *&#160;</td>
+          <td class="paramname"><em>wbh</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">struct <a class="el" href="structcio__write__buffer.html">cio_write_buffer</a> *&#160;</td>
+          <td class="paramname"><em>new_wb</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="afd5f5930223e8b3ea17a291283689887"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static bool cio_write_buffer_queue_empty </td>
+          <td>(</td>
+          <td class="paramtype">const struct <a class="el" href="structcio__write__buffer.html">cio_write_buffer</a> *&#160;</td>
+          <td class="paramname"><em>wbh</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="adb045a192be8efeacff4cce5d05cf011"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static struct <a class="el" href="structcio__write__buffer.html">cio_write_buffer</a>* cio_write_buffer_queue_peek </td>
+          <td>(</td>
+          <td class="paramtype">const struct <a class="el" href="structcio__write__buffer.html">cio_write_buffer</a> *&#160;</td>
+          <td class="paramname"><em>wbh</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="a759c115cea95cc939caeb88c48057bc3"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static bool cio_write_buffer_queue_is_last </td>
+          <td>(</td>
+          <td class="paramtype">const struct <a class="el" href="structcio__write__buffer.html">cio_write_buffer</a> *&#160;</td>
+          <td class="paramname"><em>wbh</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const struct <a class="el" href="structcio__write__buffer.html">cio_write_buffer</a> *&#160;</td>
+          <td class="paramname"><em>wb</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="a4348b68aed8ce480f436fc06a2f6b482"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static void cio_write_buffer_unlink </td>
+          <td>(</td>
+          <td class="paramtype">struct <a class="el" href="structcio__write__buffer.html">cio_write_buffer</a> *&#160;</td>
+          <td class="paramname"><em>wb</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">struct <a class="el" href="structcio__write__buffer.html">cio_write_buffer</a> *&#160;</td>
+          <td class="paramname"><em>wbh</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="ad37228856b0ba01a5d7adc63661c9d94"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static struct <a class="el" href="structcio__write__buffer.html">cio_write_buffer</a>* cio_write_buffer_queue_dequeue </td>
+          <td>(</td>
+          <td class="paramtype">struct <a class="el" href="structcio__write__buffer.html">cio_write_buffer</a> *&#160;</td>
+          <td class="paramname"><em>wbh</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="a599030fc2c612be60b90ea99d18c1b49"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static void __skb_queue_splice </td>
+          <td>(</td>
+          <td class="paramtype">const struct <a class="el" href="structcio__write__buffer.html">cio_write_buffer</a> *&#160;</td>
+          <td class="paramname"><em>wbh</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">struct <a class="el" href="structcio__write__buffer.html">cio_write_buffer</a> *&#160;</td>
+          <td class="paramname"><em>prev</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">struct <a class="el" href="structcio__write__buffer.html">cio_write_buffer</a> *&#160;</td>
+          <td class="paramname"><em>next</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="ae38fe7a05b5e144dca985a2bcf280fdc"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static void cio_write_buffer_splice </td>
+          <td>(</td>
+          <td class="paramtype">const struct <a class="el" href="structcio__write__buffer.html">cio_write_buffer</a> *&#160;</td>
+          <td class="paramname"><em>list</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">struct <a class="el" href="structcio__write__buffer.html">cio_write_buffer</a> *&#160;</td>
+          <td class="paramname"><em>head</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="a6ffc05a5f989795e866347fe06b34afb"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static void cio_write_buffer_head_init </td>
+          <td>(</td>
+          <td class="paramtype">struct <a class="el" href="structcio__write__buffer.html">cio_write_buffer</a> *&#160;</td>
+          <td class="paramname"><em>wbh</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="a6afcbfff04d1610ae9b5f824261de9b9"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static void cio_write_buffer_init </td>
+          <td>(</td>
+          <td class="paramtype">struct <a class="el" href="structcio__write__buffer.html">cio_write_buffer</a> *&#160;</td>
+          <td class="paramname"><em>wb</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const void *&#160;</td>
+          <td class="paramname"><em>data</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">size_t&#160;</td>
+          <td class="paramname"><em>length</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
 </div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
