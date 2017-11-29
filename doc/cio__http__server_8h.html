@@ -23,7 +23,7 @@
  <tr style="height: 56px;">
   <td style="padding-left: 0.5em;">
    <div id="projectname">ANSI C I/O Library
-   &#160;<span id="projectnumber">0.0.1-723+2556e1c</span>
+   &#160;<span id="projectnumber">0.0.1-724+2876c67</span>
    </div>
   </td>
  </tr>
@@ -206,7 +206,7 @@ Functions</h2></td></tr>
     <tr><td class="paramname">loop</td><td>The eventloop the HTTP server uses. </td></tr>
     <tr><td class="paramname">error_cb</td><td>This callback function will be called if something goes wrong while the HTTP client connection is established. </td></tr>
     <tr><td class="paramname">read_timeout_ns</td><td>The read timeout in nanoseconds. The timeout is started after the HTTP connection is established and canceled after the complete HTTP message was received or after the complete HTTP header was received in case of an upgraded HTTP connection. In case of a timeout the client connection is closed automatically. <a class="anchor" id="cio_http_server_init_alloc_client"></a></td></tr>
-    <tr><td class="paramname">alloc_client</td><td>A user provided function responsible to allocate a <a class="el" href="structcio__http__client.html" title="A cio_http_client struct represents an HTTP client connection. ">cio_http_client</a> structure. </td></tr>
+    <tr><td class="paramname">alloc_client</td><td>A user provided function responsible to allocate a <a class="el" href="structcio__http__client.html" title="A cio_http_client struct represents an HTTP client connection. ">cio_http_client</a> structure. <a class="anchor" id="cio_http_server_init_free_client"></a></td></tr>
     <tr><td class="paramname">free_client</td><td>A user provided function to free the client memory <a class="el" href="cio__http__server_8h.html#cio_http_server_init_alloc_client">allocated</a>. </td></tr>
   </table>
   </dd>
