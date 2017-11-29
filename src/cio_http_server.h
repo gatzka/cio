@@ -116,6 +116,7 @@ struct cio_http_server {
  * closed automatically.
  * @anchor cio_http_server_init_alloc_client
  * @param alloc_client A user provided function responsible to allocate a cio_http_client structure.
+ * @anchor cio_http_server_init_free_client
  * @param free_client A user provided function to free the client memory @ref cio_http_server_init_alloc_client "allocated".
  * @return ::cio_success for success.
  */

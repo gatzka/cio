@@ -45,11 +45,20 @@ extern "C" {
 #include "http-parser/http_parser.h"
 
 /**
+ * @file
+ * @brief The interface to an HTTP client connection.
+ */
+
+/**
  * @brief A cio_http_client struct represents an HTTP client connection.
  *
  * A cio_http_client is automatically created by the cio_http_server
  * after a successfully established TCP connection. The memory allocation is
  * done by the @ref cio_http_server_init_alloc_client "alloc_client" function provided during
+ * @ref cio_http_server_init "initialization" of a cio_http_server.
+ * The resources allocated for the HTTP client are automatically freed when the client
+ * connection is @ref cio_http_client_close "closed" by using the
+ * @ref cio_http_server_init_free_client "free_client" function provided during
  * @ref cio_http_server_init "initialization" of a cio_http_server.
  */
 struct cio_http_client {
@@ -87,29 +96,69 @@ struct cio_http_client {
 
 	/**
 	 * @anchor cio_http_client_bs
-	 * @brief bs The buffered stream which is used to read data from and write data to the client.
+	 * @brief The buffered stream which is used to read data from and write data to the client.
 	 *
 	 */
 	struct cio_buffered_stream bs;
 
 	/**
-	 * @brief rb The companion read buffer which is used by the @ref cio_http_client_bs "buffered stream".
+	 * @brief The companion read buffer which is used by the @ref cio_http_client_bs "buffered stream".
 	 * @anchor cio_http_client_rb
 	 */
 	struct cio_read_buffer rb;
+
+    /**
+     * @brief A write buffer head to write data to an HTTP client.
+     *
+     * Typically you will not need direct access to the write buffer,
+     * use @ref cio_http_client_write_header "write_header" and
+     * @ref cio_http_client_write_response "write_response" to send "normal"
+     * HTTP responses to a client.
+     *
+     * If you have an upgraded HTTP connection (i.e. web sockets), you are encouraged
+     * to use this write buffer.
+     */
 	struct cio_write_buffer wbh;
-	struct cio_write_buffer wb_http_header;
 
+    /**
+     * @brief The HTTP major version of the client request.
+     *
+     * Reading the HTTP major version is only valid after the HTTP start line is read,
+     * which means that the @ref cio_http_location_handler_on_url "on_url callback" was performed.
+     */
 	uint16_t http_major;
-	uint16_t http_minor;
-	uint64_t content_length;
-	enum cio_http_method http_method;
 
-	struct cio_http_location_handler *handler;
+    /**
+     * @brief The HTTP minor version of the client request.
+     *
+     * Reading the HTTP minor version is only valid after the HTTP start line is read,
+     * which means that the @ref cio_http_location_handler_on_url "on_url callback" was performed.
+     */
+	uint16_t http_minor;
+
+    /**
+     * @brief The <a href="https://tools.ietf.org/html/rfc7230#section-3.3.2">content length</a> of the client request.
+     *
+     * Reading the content length is only possible after the corresponding header fields
+     * were read by the HTTP parser. After you got the
+     * @ref cio_http_location_handler_on_headers_complete "on_headers_complete callback" you can rely
+     * on the field being set.
+     */
+	uint64_t content_length;
+
+    /**
+     * @brief The HTTP method (i.e. GET, POST, PUT, ...) of the HTTP client request.
+     *
+     * Reading the HTTP method is only valid after the HTTP start line is read,
+     * which means that the @ref cio_http_location_handler_on_url "on_url callback" was performed.
+     */
+	enum cio_http_method http_method;
 
 	/**
 	 * @privatesection
 	 */
+	struct cio_http_location_handler *handler;
+	struct cio_write_buffer wb_http_header;
 	struct cio_socket socket;
 	struct cio_timer read_timer;
 
