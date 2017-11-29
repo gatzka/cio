@@ -27,13 +27,31 @@
 #ifndef CIO_COMPILER_H
 #define CIO_COMPILER_H
 
+/**
+ * @file
+ * @brief Some macros wrapping compiler specific intrinsics.
+ */
+
 #ifdef __GNUC__
 
+/**
+ * @hideinitializer
+ * Use this macro in to mark branches that are likely to be taken
+ */
 #define likely(x) \
 	__builtin_expect((x), 1)
+
+/**
+ * @hideinitializer
+ * Use this macro in to mark branches that are unlikely to be taken
+ */
 #define unlikely(x) \
 	__builtin_expect((x), 0)
 
+/**
+ * @hideinitializer
+ * Guarantee ordering of writes.
+ */
 #define wmb() __sync_synchronize()
 
 #elif _MSC_VER
