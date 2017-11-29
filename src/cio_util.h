@@ -29,9 +29,21 @@
 
 #include <stddef.h>
 
+/**
+ * Utility functions.
+ */
+
+/**
+ * @hideinitializer
+ * Get the pointer to a structure encapsulating a structure to which @p ptr points to.
+ */
 #define container_of(ptr, type, member) ( \
     (void *)((char *)(ptr)-offsetof(type, member)))
 
+/**
+ * @hideinitializer
+ * Get a @p const pointer to a structure encapsulating a structure to which @p ptr points to.
+ */
 #define const_container_of(ptr, type, member) ( \
     (const void *)((const char *)(ptr)-offsetof(type, member)))
 
