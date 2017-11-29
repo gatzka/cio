@@ -23,7 +23,7 @@
  <tr style="height: 56px;">
   <td style="padding-left: 0.5em;">
    <div id="projectname">ANSI C I/O Library
-   &#160;<span id="projectnumber">0.0.1-728+2318d99</span>
+   &#160;<span id="projectnumber">0.0.1-729+3711050</span>
    </div>
   </td>
  </tr>
@@ -86,6 +86,9 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="title">cio_string.h File Reference</div>  </div>
 </div><!--header-->
 <div class="contents">
+
+<p>Wrapper functions for non-ANSI-C conformant string functions.  
+<a href="#details">More...</a></p>
 <div class="textblock"><code>#include &lt;stddef.h&gt;</code><br/>
 </div>
 <p><a href="cio__string_8h_source.html">Go to the source code of this file.</a></p>
@@ -93,9 +96,12 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="func-members"></a>
 Functions</h2></td></tr>
 <tr class="memitem:aa98e3cf3ccb2a8598da835e873afea3f"><td class="memItemLeft" align="right" valign="top">void *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="cio__string_8h.html#aa98e3cf3ccb2a8598da835e873afea3f">cio_memmem</a> (const void *haystack, size_t haystacklen, const void *needle, size_t needlelen)</td></tr>
+<tr class="memdesc:aa98e3cf3ccb2a8598da835e873afea3f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Finds the start of the first occurence of <code>needle</code> in <code>haystack</code>.  <a href="#aa98e3cf3ccb2a8598da835e873afea3f">More...</a><br/></td></tr>
 <tr class="separator:aa98e3cf3ccb2a8598da835e873afea3f"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
-<h2 class="groupheader">Function Documentation</h2>
+<a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
+<div class="textblock"><p>Wrapper functions for non-ANSI-C conformant string functions. </p>
+</div><h2 class="groupheader">Function Documentation</h2>
 <a class="anchor" id="aa98e3cf3ccb2a8598da835e873afea3f"></a>
 <div class="memitem">
 <div class="memproto">
@@ -131,6 +137,18 @@ Functions</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
+
+<p>Finds the start of the first occurence of <code>needle</code> in <code>haystack</code>. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">haystack</td><td>The memory to be searched. </td></tr>
+    <tr><td class="paramname">haystacklen</td><td>The length of memory to be searched. </td></tr>
+    <tr><td class="paramname">needle</td><td>The substring that should be searched for. </td></tr>
+    <tr><td class="paramname">needlelen</td><td>The length of the substring to be searched for. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>Pointer to the beginning of the substring, <code>NULL</code> otherwise. </dd></dl>
 
 </div>
 </div>
