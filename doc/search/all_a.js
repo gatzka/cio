@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['next',['next',['../structcio__write__buffer.html#a0da61c65e3e147fe1aa914b6ef701af0',1,'cio_write_buffer']]]
+  ['q_5flen',['q_len',['../structcio__write__buffer.html#a21d9ee9a38c18e9ee82f90743524dd47',1,'cio_write_buffer']]]
 ];

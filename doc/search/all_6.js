@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['free',['free',['../structcio__http__location__handler.html#adbfcedcd1124f966a7e00a1dc8290874',1,'cio_http_location_handler']]]
+  ['get_5fio_5fstream',['get_io_stream',['../structcio__socket.html#ac882e7284066501e26d9f85d3cc9b638',1,'cio_socket']]]
 ];

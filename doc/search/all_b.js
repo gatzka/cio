@@ -1,15 +1,9 @@
 var searchData=
 [
-  ['on_5fbody',['on_body',['../structcio__http__location__handler.html#a32a7896a868d5778338e015f6610e504',1,'cio_http_location_handler']]],
-  ['on_5ffragment',['on_fragment',['../structcio__http__location__handler.html#a45d7a4048f22f2061f6497e78ac83fa2',1,'cio_http_location_handler']]],
-  ['on_5fheader_5ffield',['on_header_field',['../structcio__http__location__handler.html#a4d075f82eb121f4cf2a79aac878bea37',1,'cio_http_location_handler']]],
-  ['on_5fheader_5fvalue',['on_header_value',['../structcio__http__location__handler.html#ad8af3ab5b547e3462784e00a1e2e056c',1,'cio_http_location_handler']]],
-  ['on_5fheaders_5fcomplete',['on_headers_complete',['../structcio__http__location__handler.html#a93fe2f1efef7499635bbaaacd220b72a',1,'cio_http_location_handler']]],
-  ['on_5fhost',['on_host',['../structcio__http__location__handler.html#a93b3096f39b36deac3c252fa2009c3e9',1,'cio_http_location_handler']]],
-  ['on_5fmessage_5fcomplete',['on_message_complete',['../structcio__http__location__handler.html#aa4dc90505b6dfb04a8fba0b99dcd70cd',1,'cio_http_location_handler']]],
-  ['on_5fpath',['on_path',['../structcio__http__location__handler.html#a8aac155861d376507e3d444fb2793254',1,'cio_http_location_handler']]],
-  ['on_5fport',['on_port',['../structcio__http__location__handler.html#a73e8aec754945d52e42bc7207c361387',1,'cio_http_location_handler']]],
-  ['on_5fquery',['on_query',['../structcio__http__location__handler.html#a474e56be1ac82499b397d07a99a65746',1,'cio_http_location_handler']]],
-  ['on_5fschema',['on_schema',['../structcio__http__location__handler.html#aa1523567cb959d329891c77d7d340ce7',1,'cio_http_location_handler']]],
-  ['on_5furl',['on_url',['../structcio__http__location__handler.html#adc9eb92df5e39f7341ced4fa0a225c68',1,'cio_http_location_handler']]]
+  ['rb',['rb',['../structcio__http__client.html#a334814ff33851c173b657e37ec95ea69',1,'cio_http_client']]],
+  ['read',['read',['../structcio__buffered__stream.html#aa54e5ff21771c233678050b7ffc7d390',1,'cio_buffered_stream']]],
+  ['read_5fexactly',['read_exactly',['../structcio__buffered__stream.html#a5ebdc3f60e64bc911ebaaeebeaa88cf3',1,'cio_buffered_stream']]],
+  ['read_5fsome',['read_some',['../structcio__io__stream.html#aa24c47612ee31a0aa9d12dfecb9f6567',1,'cio_io_stream']]],
+  ['read_5funtil',['read_until',['../structcio__buffered__stream.html#aae99ca2eef74c4311c1a2b09638ef8cc',1,'cio_buffered_stream']]],
+  ['register_5flocation',['register_location',['../structcio__http__server.html#ae4f8a7e10057f59c881f264b205e68ba',1,'cio_http_server']]]
 ];

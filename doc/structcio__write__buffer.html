@@ -23,7 +23,7 @@
  <tr style="height: 56px;">
   <td style="padding-left: 0.5em;">
    <div id="projectname">ANSI C I/O Library
-   &#160;<span id="projectnumber">0.0.1-732+fd969a2</span>
+   &#160;<span id="projectnumber">0.0.1-733+6762bbd</span>
    </div>
   </td>
  </tr>
@@ -81,59 +81,19 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 
 </div><!-- top -->
 <div class="header">
-  <div class="summary">
-<a href="#pub-attribs">Data Fields</a>  </div>
   <div class="headertitle">
 <div class="title">cio_write_buffer Struct Reference</div>  </div>
 </div><!--header-->
 <div class="contents">
 
+<p>Structure to build up a write buffer chain.  
+ <a href="structcio__write__buffer.html#details">More...</a></p>
+
 <p><code>#include &lt;<a class="el" href="cio__write__buffer_8h_source.html">cio_write_buffer.h</a>&gt;</code></p>
-<table class="memberdecls">
-<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-attribs"></a>
-Data Fields</h2></td></tr>
-<tr class="memitem:a0da61c65e3e147fe1aa914b6ef701af0"><td class="memItemLeft" align="right" valign="top">struct <a class="el" href="structcio__write__buffer.html">cio_write_buffer</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structcio__write__buffer.html#a0da61c65e3e147fe1aa914b6ef701af0">next</a></td></tr>
-<tr class="separator:a0da61c65e3e147fe1aa914b6ef701af0"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a6953f47c8e08a27fb4617508f117df2e"><td class="memItemLeft" align="right" valign="top">struct <a class="el" href="structcio__write__buffer.html">cio_write_buffer</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structcio__write__buffer.html#a6953f47c8e08a27fb4617508f117df2e">prev</a></td></tr>
-<tr class="separator:a6953f47c8e08a27fb4617508f117df2e"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ae40869b284cd4f55cedad59105e97699"><td class="memItemLeft" >union {</td></tr>
-<tr class="memitem:a7dcace994ce59e0a922c300b93fbe9ce"><td class="memItemLeft" >&#160;&#160;&#160;struct {</td></tr>
-<tr class="memitem:a546febb6c86bb5f62429aca7c6c99e3d"><td class="memItemLeft" >&#160;&#160;&#160;&#160;&#160;&#160;const void *&#160;&#160;&#160;<a class="el" href="structcio__write__buffer.html#af90c637bef567b2dcf486fc21b88a6fc">data</a></td></tr>
-<tr class="separator:a546febb6c86bb5f62429aca7c6c99e3d"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a10f2e7951c3da000015c8f670d181d3d"><td class="memItemLeft" >&#160;&#160;&#160;&#160;&#160;&#160;size_t&#160;&#160;&#160;<a class="el" href="structcio__write__buffer.html#ada5b2211a3ee640baf15abdae9be2d7a">length</a></td></tr>
-<tr class="separator:a10f2e7951c3da000015c8f670d181d3d"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a7dcace994ce59e0a922c300b93fbe9ce"><td class="memItemLeft" valign="top">&#160;&#160;&#160;}&#160;&#160;&#160;<a class="el" href="structcio__write__buffer.html#a29b51a51c9ad53bc070facc33d9ce1bc">element</a></td></tr>
-<tr class="separator:a7dcace994ce59e0a922c300b93fbe9ce"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a14c2a3ec7a03cca4987f4fabe76aded0"><td class="memItemLeft" >&#160;&#160;&#160;size_t&#160;&#160;&#160;<a class="el" href="structcio__write__buffer.html#a21d9ee9a38c18e9ee82f90743524dd47">q_len</a></td></tr>
-<tr class="separator:a14c2a3ec7a03cca4987f4fabe76aded0"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ae40869b284cd4f55cedad59105e97699"><td class="memItemLeft" valign="top">}&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structcio__write__buffer.html#ae40869b284cd4f55cedad59105e97699">data</a></td></tr>
-<tr class="separator:ae40869b284cd4f55cedad59105e97699"><td class="memSeparator" colspan="2">&#160;</td></tr>
-</table>
-<h2 class="groupheader">Field Documentation</h2>
-<a class="anchor" id="a0da61c65e3e147fe1aa914b6ef701af0"></a>
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">struct <a class="el" href="structcio__write__buffer.html">cio_write_buffer</a>* cio_write_buffer::next</td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-</div>
-</div>
-<a class="anchor" id="a6953f47c8e08a27fb4617508f117df2e"></a>
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">struct <a class="el" href="structcio__write__buffer.html">cio_write_buffer</a>* cio_write_buffer::prev</td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-</div>
-</div>
+<a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
+<div class="textblock"><p>Structure to build up a write buffer chain. </p>
+<p>This structure is used for both a write buffer head and a write buffer element holding data. </p>
+</div><h2 class="groupheader">Field Documentation</h2>
 <a class="anchor" id="af90c637bef567b2dcf486fc21b88a6fc"></a>
 <div class="memitem">
 <div class="memproto">
@@ -176,18 +136,6 @@ Data Fields</h2></td></tr>
       <table class="memname">
         <tr>
           <td class="memname">size_t cio_write_buffer::q_len</td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-</div>
-</div>
-<a class="anchor" id="ae40869b284cd4f55cedad59105e97699"></a>
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">union { ... }   cio_write_buffer::data</td>
         </tr>
       </table>
 </div><div class="memdoc">
