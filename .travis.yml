@@ -56,7 +56,6 @@ matrix:
         - cmake
         - cmake-data
         - doxygen
-        - valgrind
         - lcov
   - compiler: gcc
     env:
@@ -68,7 +67,6 @@ matrix:
         - cmake
         - cmake-data
         - doxygen
-        - valgrind
   - compiler: gcc
     env:
     - MATRIX_EVAL="CMAKE_C_COMPILER=gcc-7 && CMAKE_BUILD_TYPE=Debug"
@@ -81,7 +79,6 @@ matrix:
         - cmake
         - cmake-data
         - doxygen
-        - valgrind
   - compiler: gcc
     env:
     - MATRIX_EVAL="CMAKE_C_COMPILER=gcc-7 && CMAKE_BUILD_TYPE=Release"
@@ -94,7 +91,6 @@ matrix:
         - cmake
         - cmake-data
         - doxygen
-        - valgrind
   - compiler: clang
     env:
     - MATRIX_EVAL="CMAKE_C_COMPILER=clang && CMAKE_BUILD_TYPE=Debug"
@@ -104,7 +100,6 @@ matrix:
         - cmake
         - cmake-data
         - doxygen
-        - valgrind
   - compiler: clang
     env:
     - MATRIX_EVAL="CMAKE_C_COMPILER=clang && CMAKE_BUILD_TYPE=Release"
@@ -114,7 +109,6 @@ matrix:
         - cmake
         - cmake-data
         - doxygen
-        - valgrind
   - compiler: clang
     env:
     - MATRIX_EVAL="CMAKE_C_COMPILER=clang-5.0 && CMAKE_BUILD_TYPE=Debug"
@@ -127,7 +121,6 @@ matrix:
         - cmake
         - cmake-data
         - doxygen
-        - valgrind
   - compiler: clang
     env:
     - MATRIX_EVAL="CMAKE_C_COMPILER=clang-5.0 && CMAKE_BUILD_TYPE=Release"
@@ -140,7 +133,6 @@ matrix:
         - cmake
         - cmake-data
         - doxygen
-        - valgrind
   - compiler: clang
     env:
     - MATRIX_EVAL="CMAKE_C_COMPILER=/usr/share/clang/scan-build-5.0/libexec/ccc-analyzer
@@ -154,7 +146,6 @@ matrix:
         - cmake
         - cmake-data
         - doxygen
-        - valgrind
 before_install:
 - eval "${MATRIX_EVAL}"
 env:
@@ -165,7 +156,7 @@ script:
 - if [ "$COVERITY_SCAN_BRANCH" != 1 ]; then mkdir build_release; cd build_release;
   CMAKE_CMD_OPTION="-DCMAKE_C_COMPILER=${CMAKE_C_COMPILER} -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}";
   echo $CMAKE_CMD_OPTION; cmake $CMAKE_CMD_OPTION ../; if [ -n "${SCAN_BUILD}" ];
-  then /usr/lib/llvm-5.0/bin/scan-build --status-bugs make -j; else make -j; fi; LSAN_OPTIONS=verbosity=1:log_threads=1; ASAN_OPTIONS=check_initialization_order=true:detect_stack_use_after_return=true:strict_init_order=true:detect_invalid_pointer_pairs=10:strict_string_checks=true
+  then /usr/lib/llvm-5.0/bin/scan-build --status-bugs make -j; else make -j; fi; LSAN_OPTIONS=verbosity=1:log_threads=1 ASAN_OPTIONS=check_initialization_order=true:detect_stack_use_after_return=true:strict_init_order=true:detect_invalid_pointer_pairs=10:strict_string_checks=true
   ctest -V . ; fi
 after_success:
 - "../scripts/push-doxygen-to-gh-pages.sh"
