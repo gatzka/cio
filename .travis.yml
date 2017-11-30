@@ -5,7 +5,7 @@ branches:
   except:
   - "/^feature.*$/"
   - "/^fix.*$/"
-sudo: false
+sudo: true
 git:
   depth: 9999999
 matrix:
