@@ -76,9 +76,9 @@ struct cio_write_buffer {
  * @param next_wb The write buffer element before which the new write buffer element shall be inserted.
  */
 static inline void cio_write_buffer_insert(struct cio_write_buffer *wbh,
-										   struct cio_write_buffer *new_wb,
-										   struct cio_write_buffer *prev_wb,
-										   struct cio_write_buffer *next_wb)
+                                           struct cio_write_buffer *new_wb,
+                                           struct cio_write_buffer *prev_wb,
+                                           struct cio_write_buffer *next_wb)
 {
 	new_wb->next = next_wb;
 	new_wb->prev = prev_wb;
