@@ -100,7 +100,7 @@ struct cio_server_socket {
 	 * @brief Binds the cio_server_socket to a specific address
 	 *
 	 * @param context A pointer to a cio_server_socket on which the bind should be performed.
-	 * @param bind_address The IP address a cio_server_socket shall bound to. If @p NULL,
+	 * @param bind_address The IP address a cio_server_socket shall bound to. If @c NULL,
 	 *        then cio_server_socket binds to all interfaces.
 	 * @param port The TCP port the cio_server_socket shall listen on.
 	 *
@@ -142,7 +142,7 @@ struct cio_server_socket {
  * to the server.
  * @param free_client This function is called after closing a @ref cio_socket.
  * It can and should be used to free resources allocated with @p alloc_client.
- * @param close_hook A close hook function. If this parameter is non @p NULL,
+ * @param close_hook A close hook function. If this parameter is non @c NULL,
  * the function will be called directly after
  * @ref cio_server_socket_close "closing" the cio_server_socket.
  * It is guaranteed the the cio library will not access any memory of

@@ -102,7 +102,7 @@ static void queue_header(struct cio_http_client *client, enum cio_http_status_co
 {
 	const char *response = get_response(status_code);
 	cio_write_buffer_head_init(&client->wbh);
-	cio_write_buffer_init(&client->wb_http_header, response, strlen(response));
+	cio_write_buffer_element_init(&client->wb_http_header, response, strlen(response));
 	cio_write_buffer_queue_tail(&client->wbh, &client->wb_http_header);
 }
 

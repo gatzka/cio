@@ -35,7 +35,27 @@
 extern "C" {
 #endif
 
+/**
+ * @file
+ * @brief Functions manange a write buffer.
+ *
+ * A write buffer comprises of a chain of buffer elements. Starting with a write buffer head,
+ * multiple write buffer elements can be chained together. There are functions available like
+ * queueing a write buffer element @ref cio_write_buffer_queue_tail "to the end" of a write buffer.
+ *
+ * If availavle, platform specific write function shall utilize scatter/gather I/O
+ * functions like writev() to send a write buffer chain in a single chunk.
+ */
+
+/**
+ * @brief Structure to build up a write buffer chain.
+ *
+ * This structure is used for both a write buffer head and a write buffer element holding data.
+ */
 struct cio_write_buffer {
+	/**
+	 * @privatesection
+	 */
 	struct cio_write_buffer *next;
 	struct cio_write_buffer *prev;
 	union {
@@ -48,100 +68,134 @@ struct cio_write_buffer {
 	} data;
 };
 
-static inline void cio_write_buffer_insert(struct cio_write_buffer *new_wb,
-                                           struct cio_write_buffer *prev_wb, struct cio_write_buffer *next_wb,
-                                           struct cio_write_buffer *wbh)
+/**
+ * @brief Insert a new write buffer element into the write buffer chain.
+ * @param wbh The write buffer chain that is manipulated.
+ * @param new_wb The write buffer element that shall be inserted
+ * @param prev_wb The write buffer element after which the new write buffer element shall be inserted.
+ * @param next_wb The write buffer element before which the new write buffer element shall be inserted.
+ */
+static inline void cio_write_buffer_insert(struct cio_write_buffer *wbh,
+										   struct cio_write_buffer *new_wb,
+										   struct cio_write_buffer *prev_wb,
+										   struct cio_write_buffer *next_wb)
 {
 	new_wb->next = next_wb;
 	new_wb->prev = prev_wb;
 	next_wb->prev = prev_wb->next = new_wb;
 	wbh->data.q_len++;
 }
-
+/**
+ * @brief Queue a new write buffer element before a write buffer element in a write buffer chain.
+ * @param wbh The write buffer chain that is manipulated.
+ * @param next_wb The write buffer element before which the new write buffer element shall be inserted.
+ * @param new_wb The write buffer element that shall be inserted
+ */
 static inline void cio_write_buffer_queue_before(struct cio_write_buffer *wbh,
                                                  struct cio_write_buffer *next_wb,
                                                  struct cio_write_buffer *new_wb)
 {
-	cio_write_buffer_insert(new_wb, next_wb->prev, next_wb, wbh);
+	cio_write_buffer_insert(wbh, new_wb, next_wb->prev, next_wb);
 }
 
+/**
+ * @brief Queue a new write buffer element after a write buffer element in a write buffer chain.
+ * @param wbh The write buffer chain that is manipulated.
+ * @param prev_wb The write buffer element after which the new write buffer element shall be inserted.
+ * @param new_wb The write buffer element that shall be inserted
+ */
 static inline void cio_write_buffer_queue_after(struct cio_write_buffer *wbh,
                                                 struct cio_write_buffer *prev_wb,
                                                 struct cio_write_buffer *new_wb)
 {
-	cio_write_buffer_insert(new_wb, prev_wb, prev_wb->next, wbh);
+	cio_write_buffer_insert(wbh, new_wb, prev_wb, prev_wb->next);
 }
 
+/**
+ * @brief Queue a new write buffer element at the head of a write buffer chain.
+ * @param wbh The write buffer chain that is manipulated.
+ * @param new_wb The write buffer element that shall be inserted
+ */
 static inline void cio_write_buffer_queue_head(struct cio_write_buffer *wbh,
                                                struct cio_write_buffer *new_wb)
 {
 	cio_write_buffer_queue_after(wbh, wbh, new_wb);
 }
 
+/**
+ * @brief Queue a new write buffer element at the tail of a write buffer chain.
+ * @param wbh The write buffer chain that is manipulated.
+ * @param new_wb The write buffer element that shall be inserted
+ */
 static inline void cio_write_buffer_queue_tail(struct cio_write_buffer *wbh,
                                                struct cio_write_buffer *new_wb)
 {
 	cio_write_buffer_queue_before(wbh, wbh, new_wb);
 }
 
+/**
+ * @brief Determine if the write buffer chain is empty.
+ * @param wbh The write buffer chain that is asked.
+ * @return @c true if the chain is empty, @c false otherwise.
+ */
 static inline bool cio_write_buffer_queue_empty(const struct cio_write_buffer *wbh)
 {
 	return wbh->next == wbh;
 }
 
+/**
+ * @brief Access the first element of a write buffer chain without removing it.
+ * @param wbh The write buffer chain that is asked.
+ * @return The first write buffer element if available @c NULL otherwise.
+ */
 static inline struct cio_write_buffer *cio_write_buffer_queue_peek(const struct cio_write_buffer *wbh)
 {
-	struct cio_write_buffer *wb = wbh->next;
+	struct cio_write_buffer *wbe = wbh->next;
 
-	if (wb == wbh) {
-		wb = NULL;
+	if (wbe == wbh) {
+		wbe = NULL;
 	}
 
-	return wb;
+	return wbe;
 }
 
-static inline bool cio_write_buffer_queue_is_last(const struct cio_write_buffer *wbh, const struct cio_write_buffer *wb)
-{
-	return wb->next == wbh;
-}
-
-static inline void cio_write_buffer_unlink(struct cio_write_buffer *wb, struct cio_write_buffer *wbh)
+/**
+ * @brief Removes a write buffer element from the write buffer chain
+ * @param wbh The write buffer chain that is manipulated.
+ * @param wbe The element that shall be removed.
+ */
+static inline void cio_write_buffer_unlink(struct cio_write_buffer *wbh, struct cio_write_buffer *wbe)
 {
 	struct cio_write_buffer *next;
 	struct cio_write_buffer *prev;
 
 	wbh->data.q_len--;
-	next = wb->next;
-	prev = wb->prev;
+	next = wbe->next;
+	prev = wbe->prev;
 	next->prev = prev;
 	prev->next = next;
 }
 
+/**
+ * @brief Accesses and removes the first element of
+ * @param wbh The write buffer chain that is manipulated.
+ * @return The first element of the queue, @c NULL if empty.
+ */
 static inline struct cio_write_buffer *cio_write_buffer_queue_dequeue(struct cio_write_buffer *wbh)
 {
-	struct cio_write_buffer *wb = cio_write_buffer_queue_peek(wbh);
-	if (wb) {
-		cio_write_buffer_unlink(wb, wbh);
+	struct cio_write_buffer *wbe = cio_write_buffer_queue_peek(wbh);
+	if (wbe) {
+		cio_write_buffer_unlink(wbh, wbe);
 	}
 
-	return wb;
+	return wbe;
 }
 
-static inline void __skb_queue_splice(const struct cio_write_buffer *wbh,
-                                      struct cio_write_buffer *prev,
-                                      struct cio_write_buffer *next)
-{
-
-	struct cio_write_buffer *first = wbh->next;
-	struct cio_write_buffer *last = wbh->prev;
-
-	first->prev = prev;
-	prev->next = first;
-
-	last->next = next;
-	next->prev = last;
-}
-
+/**
+ * @brief Appends the write buffer elements of @p list to @p head.
+ * @param list The elements which shall be appended to @p head.
+ * @param head The list that shall pick up the elements of @p list.
+ */
 static inline void cio_write_buffer_splice(const struct cio_write_buffer *list, struct cio_write_buffer *head)
 {
 	if (!cio_write_buffer_queue_empty(list)) {
@@ -158,6 +212,20 @@ static inline void cio_write_buffer_splice(const struct cio_write_buffer *list, 
 	}
 }
 
+/**
+ * @brief Provides the number of elements in a write buffer chain.
+ * @param wbh The write buffer that is asked.
+ * @return The number of elements in a write buffer chain.
+ */
+static inline size_t cio_write_buffer_get_number_of_elements(const struct cio_write_buffer *wbh)
+{
+	return wbh->data.q_len;
+}
+
+/**
+ * @brief Initializes a write buffer head.
+ * @param wbh The write buffer head to be initialized.
+ */
 static inline void cio_write_buffer_head_init(struct cio_write_buffer *wbh)
 {
 	wbh->prev = wbh;
@@ -165,10 +233,16 @@ static inline void cio_write_buffer_head_init(struct cio_write_buffer *wbh)
 	wbh->data.q_len = 0;
 }
 
-static inline void cio_write_buffer_init(struct cio_write_buffer *wb, const void *data, size_t length)
+/**
+ * @brief Initializes a write buffer element.
+ * @param wbe The write buffer element to be initialized.
+ * @param data A pointer to the data the write buffer element shall be handled.
+ * @param length The length in bytes of @p data.
+ */
+static inline void cio_write_buffer_element_init(struct cio_write_buffer *wbe, const void *data, size_t length)
 {
-	wb->data.element.data = data;
-	wb->data.element.length = length;
+	wbe->data.element.data = data;
+	wbe->data.element.length = length;
 }
 
 #ifdef __cplusplus

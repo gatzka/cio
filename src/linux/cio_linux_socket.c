@@ -162,7 +162,8 @@ static enum cio_error stream_write(struct cio_io_stream *stream, const struct ci
 	}
 
 	struct cio_socket *s = container_of(stream, struct cio_socket, stream);
-	struct iovec msg_iov[buffer->data.q_len];
+	size_t chain_length = cio_write_buffer_get_number_of_elements(buffer);
+	struct iovec msg_iov[chain_length];
 	struct msghdr msg;
 	msg.msg_name = NULL;
 	msg.msg_namelen = 0;
@@ -170,10 +171,10 @@ static enum cio_error stream_write(struct cio_io_stream *stream, const struct ci
 	msg.msg_controllen = 0;
 	msg.msg_flags = 0;
 	msg.msg_iov = msg_iov;
-	msg.msg_iovlen = buffer->data.q_len;
+	msg.msg_iovlen = chain_length;
 
 	struct cio_write_buffer *wb = buffer->next;
-	for (unsigned int i = 0; i < buffer->data.q_len; i++) {
+	for (unsigned int i = 0; i < chain_length; i++) {
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wcast-qual"
 		msg_iov[i].iov_base = (void *)wb->data.element.data;

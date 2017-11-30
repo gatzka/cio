@@ -118,7 +118,7 @@ struct cio_timer {
  *
  * @param timer The cio_timer that should be initialized.
  * @param loop The event loop the timer shall operate on.
- * @param close_hook A close hook function. If this parameter is non @p NULL,
+ * @param close_hook A close hook function. If this parameter is non @c NULL,
  * the function will be called directly after
  * @ref cio_timer_close "closing" the cio_timer.
  * It is guaranteed that the cio library will not access any memory of

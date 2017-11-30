@@ -44,7 +44,7 @@ extern "C" {
  * @param haystacklen The length of memory to be searched.
  * @param needle The substring that should be searched for.
  * @param needlelen The length of the substring to be searched for.
- * @return Pointer to the beginning of the substring, @p NULL otherwise.
+ * @return Pointer to the beginning of the substring, @c NULL otherwise.
  */
 void *cio_memmem(const void *haystack, size_t haystacklen, const void *needle, size_t needlelen);
 

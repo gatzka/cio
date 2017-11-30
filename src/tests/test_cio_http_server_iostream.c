@@ -268,7 +268,7 @@ static enum cio_http_cb_return header_complete_write_response(struct cio_http_cl
 	static const char data[] = "Hello World!";
 	struct cio_http_location_handler *handler = c->handler;
 	struct dummy_handler *dh = container_of(handler, struct dummy_handler, handler);
-	cio_write_buffer_init(&dh->wb, data, sizeof(data));
+	cio_write_buffer_element_init(&dh->wb, data, sizeof(data));
 	cio_write_buffer_queue_tail(&dh->wbh, &dh->wb);
 	c->write_response(c, &dh->wbh);
 	return cio_http_cb_success;
@@ -381,7 +381,7 @@ static enum cio_error write_all(struct cio_io_stream *ios, const struct cio_writ
 	struct memory_stream *memory_stream = container_of(ios, struct memory_stream, ios);
 
 	size_t bytes_transferred = 0;
-	size_t buffer_len = buf->data.q_len;
+	size_t buffer_len = cio_write_buffer_get_number_of_elements(buf);
 	const struct cio_write_buffer *data_buf = buf;
 
 	for (unsigned int i = 0; i < buffer_len; i++) {
