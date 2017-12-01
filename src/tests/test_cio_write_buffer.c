@@ -47,9 +47,26 @@ static void test_peek_from_empty_queue(void)
 	TEST_ASSERT_EQUAL_MESSAGE(NULL, element, "Dequeueing from empty queue did not return NULL!");
 }
 
+static void test_splice_empty_list(void)
+{
+	struct cio_write_buffer wbh;
+	cio_write_buffer_head_init(&wbh);
+
+	struct cio_write_buffer wb;
+	cio_write_buffer_element_init(&wb, NULL, 0);
+	cio_write_buffer_queue_tail(&wbh, &wb);
+	TEST_ASSERT_EQUAL_MESSAGE(1, cio_write_buffer_get_number_of_elements(&wbh), "Number of elements in write buffer not correct!");
+
+	struct cio_write_buffer list_to_append;
+	cio_write_buffer_head_init(&list_to_append);
+	cio_write_buffer_splice(&list_to_append, &wbh);
+	TEST_ASSERT_EQUAL_MESSAGE(1, cio_write_buffer_get_number_of_elements(&wbh), "Number of elements in write buffer not correct!");
+}
+
 int main(void)
 {
 	UNITY_BEGIN();
 	RUN_TEST(test_peek_from_empty_queue);
+	RUN_TEST(test_splice_empty_list);
 	return UNITY_END();
 }
