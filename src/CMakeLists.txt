@@ -23,9 +23,11 @@ if(is_linux)
         linux/cio_linux_string.c
         linux/cio_linux_timer.c
     )
+
+    include_directories(${CMAKE_CURRENT_SOURCE_DIR}/linux/)
 endif()
 
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/ ${CMAKE_CURRENT_SOURCE_DIR}/linux/)
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/)
 set(CIO_FILES
 	cio_http_location.c
 	cio_http_location_handler.c
