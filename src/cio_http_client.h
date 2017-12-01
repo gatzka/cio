@@ -47,6 +47,13 @@ extern "C" {
 /**
  * @file
  * @brief The interface to an HTTP client connection.
+ * @startuml
+ * Alice -> Bob: Authentication Request
+ * Bob --> Alice: Authentication Response
+ *
+ * Alice -> Bob: Another authentication Request
+ * Alice <-- Bob: another authentication Response
+ * @enduml
  */
 
 /**
