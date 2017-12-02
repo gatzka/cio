@@ -1,0 +1,11 @@
+UTF8 validation:
+https://www.cl.cam.ac.uk/%7Emgk25/ucs/utf8_check.c
+https://github.com/websockets/utf-8-validate/blob/master/src/validation.cc
+
+Websocket example:
+https://github.com/wahengchang/nodejs-websocket-example
+https://yaler.net/nodejs-websocket-server
+https://github.com/PsichiX/simple-websocket-echo-server
+
+Client
+http://demos.kaazing.com/echo/
