@@ -17,6 +17,9 @@ if (DOXYGEN_FOUND)
 
     # request to configure the file
     set(CIO_DOXY_INPUT ". ${PROJECT_BINARY_DIR}/generated/")
+    set(CIO_HAVE_DOT "NO")
+    set(CIO_SET_CALL_GRAPH "NO")
+    set(CIO_SET_CALLER_GRAPH "NO")
     set(CIO_DOXY_STRIP_FROM_PATH "${PROJECT_BINARY_DIR}/generated/ ${CMAKE_CURRENT_SOURCE_DIR}/../")
     set(CIO_BUILD_DIR ${CMAKE_CURRENT_BINARY_DIR})
     configure_file(${DOXYGEN_IN} ${DOXYGEN_OUT})
