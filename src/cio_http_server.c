@@ -83,7 +83,7 @@ static void response_written(struct cio_buffered_stream *bs, void *handler_conte
 	client->close(client);
 }
 
-static const char *get_response(enum cio_http_status_code status_code)
+static const char *get_response_statusline(enum cio_http_status_code status_code)
 {
 	switch (status_code) {
 	case cio_http_switching_protocols:
@@ -102,7 +102,7 @@ static const char *get_response(enum cio_http_status_code status_code)
 
 static void queue_header(struct cio_http_client *client, enum cio_http_status_code status_code)
 {
-	const char *response = get_response(status_code);
+	const char *response = get_response_statusline(status_code);
 	cio_write_buffer_head_init(&client->wbh);
 	cio_write_buffer_element_init(&client->wb_http_response_statusline, response, strlen(response));
 	cio_write_buffer_queue_tail(&client->wbh, &client->wb_http_response_statusline);
