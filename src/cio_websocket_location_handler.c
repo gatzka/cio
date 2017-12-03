@@ -152,6 +152,7 @@ static enum cio_http_cb_return handle_value(struct cio_http_client *client, cons
 
 	case HEADER_SEC_WEBSOCKET_PROTOCOL:
 		ws->flags.subprotocol_requested = 1;
+		ret = cio_http_cb_success;
 		check_websocket_protocol(ws, at, length);
 		break;
 
