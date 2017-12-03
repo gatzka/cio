@@ -25,6 +25,7 @@
  */
 
 #include <ctype.h>
+#include <stdbool.h>
 #include <stdint.h>
 #include <string.h>
 
@@ -64,7 +65,7 @@ static enum cio_http_cb_return check_websocket_version(const char *at, size_t le
 	}
 }
 
-static int fill_requested_sub_protocol(struct cio_websocket_location_handler *handler, const char *name, size_t length)
+static bool find_requested_sub_protocol(struct cio_websocket_location_handler *handler, const char *name, size_t length)
 {
 	for (unsigned int i = 0; i < handler->number_sub_protocols; i++) {
 		const char *sub_protocol = handler->sub_protocols[i];
@@ -72,12 +73,12 @@ static int fill_requested_sub_protocol(struct cio_websocket_location_handler *ha
 		if (name_length == length) {
 			if (memcmp(sub_protocol, name, length) == 0) {
 				handler->chosen_sub_protocol = i;
-				return 1;
+				return true;
 			}
 		}
 	}
 
-	return 0;
+	return false;
 }
 
 static void check_websocket_protocol(struct cio_websocket_location_handler *handler, const char *at, size_t length)
@@ -90,7 +91,7 @@ static void check_websocket_protocol(struct cio_websocket_location_handler *hand
 				while (length > 0) {
 					if (*end == ',') {
 						ptrdiff_t len = end - start;
-						if (fill_requested_sub_protocol(handler, start, len) == 1) {
+						if (find_requested_sub_protocol(handler, start, len)) {
 							return;
 						}
 
@@ -102,7 +103,7 @@ static void check_websocket_protocol(struct cio_websocket_location_handler *hand
 				}
 				if (length == 0) {
 					ptrdiff_t len = end - start;
-					if (fill_requested_sub_protocol(handler, start, len) == 1) {
+					if (find_requested_sub_protocol(handler, start, len)) {
 						return;
 					}
 				}
