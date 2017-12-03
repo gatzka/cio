@@ -29,12 +29,13 @@ endif()
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/)
 set(CIO_FILES
+    cio_buffered_stream.c
 	cio_http_location.c
 	cio_http_location_handler.c
 	cio_http_server.c
 	cio_websocket_location_handler.c
 	http-parser/http_parser.c
-    cio_buffered_stream.c
+    sha1/sha1.c
 )
 
 set_property(SOURCE http-parser/http_parser.c  APPEND_STRING PROPERTY COMPILE_FLAGS "-Wstrict-overflow=2 ")
