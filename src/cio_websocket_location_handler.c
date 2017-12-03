@@ -67,8 +67,8 @@ static enum cio_http_cb_return check_websocket_version(const char *at, size_t le
 
 static bool find_requested_sub_protocol(struct cio_websocket_location_handler *handler, const char *name, size_t length)
 {
-	for (unsigned int i = 0; i < handler->number_sub_protocols; i++) {
-		const char *sub_protocol = handler->sub_protocols[i];
+	for (unsigned int i = 0; i < handler->number_subprotocols; i++) {
+		const char *sub_protocol = handler->subprotocols[i];
 		size_t name_length = strlen(sub_protocol);
 		if (name_length == length) {
 			if (memcmp(sub_protocol, name, length) == 0) {
@@ -83,7 +83,7 @@ static bool find_requested_sub_protocol(struct cio_websocket_location_handler *h
 
 static void check_websocket_protocol(struct cio_websocket_location_handler *handler, const char *at, size_t length)
 {
-	if (handler->sub_protocols != NULL) {
+	if (handler->subprotocols != NULL) {
 		const char *start = at;
 		while (length > 0) {
 			if (!isspace(*start) && (*start != ',')) {
@@ -164,14 +164,14 @@ static enum cio_http_cb_return handle_value(struct cio_http_client *client, cons
 	return ret;
 }
 
-void cio_websocket_location_handler_init(struct cio_websocket_location_handler *handler, const char *sub_protocols[], unsigned int num_sub_protocols)
+void cio_websocket_location_handler_init(struct cio_websocket_location_handler *handler, const char *subprotocols[], unsigned int num_subprotocols)
 {
 	cio_http_location_handler_init(&handler->http_location);
 	handler->flags.current_header_field = 0;
 	handler->chosen_sub_protocol = -1;
 	handler->flags.sub_protocol_requested = 0;
-	handler->sub_protocols = sub_protocols;
-	handler->number_sub_protocols = num_sub_protocols;
+	handler->subprotocols = subprotocols;
+	handler->number_subprotocols = num_subprotocols;
 	handler->http_location.on_header_field = handle_field;
 	handler->http_location.on_header_value = handle_value;
 }
