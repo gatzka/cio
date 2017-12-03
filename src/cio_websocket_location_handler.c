@@ -36,6 +36,7 @@
 #include "cio_string.h"
 #include "cio_util.h"
 #include "cio_websocket_location_handler.h"
+#include "cio_write_buffer.h"
 #include "sha1/sha1.h"
 
 #define CIO_CRLF "\r\n"
@@ -198,7 +199,10 @@ static void send_upgrade_response(struct cio_http_client *client)
 		"Connection: Upgrade" CIO_CRLF
 		"Sec-WebSocket-Accept: ";
 
-	(void)upgrade_header;
+	cio_write_buffer_element_init(&ws->wb_upgrade_header, upgrade_header, sizeof(upgrade_header) - 1);
+	cio_write_buffer_element_init(&ws->wb_accept_value, &ws->accept_value, sizeof(ws->accept_value));
+	cio_write_buffer_queue_before(&client->wbh, &client->wb_http_response_header_end, &ws->wb_upgrade_header);
+	cio_write_buffer_queue_before(&client->wbh, &client->wb_http_response_header_end, &ws->wb_accept_value);
 
 }
 

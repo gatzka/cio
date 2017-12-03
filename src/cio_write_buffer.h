@@ -146,11 +146,27 @@ static inline bool cio_write_buffer_queue_empty(const struct cio_write_buffer *w
 /**
  * @brief Access the first element of a write buffer chain without removing it.
  * @param wbh The write buffer chain that is asked.
- * @return The first write buffer element if available @c NULL otherwise.
+ * @return The first write buffer element if available, @c NULL otherwise.
  */
 static inline struct cio_write_buffer *cio_write_buffer_queue_peek(const struct cio_write_buffer *wbh)
 {
 	struct cio_write_buffer *wbe = wbh->next;
+
+	if (wbe == wbh) {
+		wbe = NULL;
+	}
+
+	return wbe;
+}
+
+/**
+ * @brief Access the last element of a wwrite buffer chain without removing it.
+ * @param wbh The write buffer chain that is asked.
+ * @return The last write buffer element if available, @c otherwise.
+ */
+static inline struct cio_write_buffer *cio_write_buffer_queue_last(const struct cio_write_buffer *wbh)
+{
+	struct cio_write_buffer *wbe = wbh->prev;
 
 	if (wbe == wbh) {
 		wbe = NULL;
