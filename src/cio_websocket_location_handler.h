@@ -55,7 +55,7 @@ struct cio_websocket_location_handler {
 	} flags;
 
 	signed int chosen_subprotocol;
-
+	char accept_value[28];
 };
 
 /**

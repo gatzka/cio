@@ -29,12 +29,14 @@
 #include <stdint.h>
 #include <string.h>
 
+#include "cio_base64.h"
 #include "cio_compiler.h"
 #include "cio_http_client.h"
 #include "cio_http_location_handler.h"
 #include "cio_string.h"
 #include "cio_util.h"
 #include "cio_websocket_location_handler.h"
+#include "sha1/sha1.h"
 
 enum header_field {
 	HEADER_UNKNOWN,
@@ -178,6 +180,18 @@ static bool check_http_version(const struct cio_http_client *client)
 	}
 }
 
+static void send_upgrade_response(struct cio_http_client *client)
+{
+	struct SHA1Context context;
+	SHA1Reset(&context);
+
+	struct cio_websocket_location_handler *ws = container_of(client->handler, struct cio_websocket_location_handler, http_location);
+	SHA1Input(&context, ws->sec_web_socket_key, SEC_WEB_SOCKET_GUID_LENGTH + SEC_WEB_SOCKET_KEY_LENGTH);
+	uint8_t sha1_buffer[SHA1HashSize];
+	SHA1Result(&context, sha1_buffer);
+	cio_b64_encode_string(sha1_buffer, SHA1HashSize, ws->accept_value);
+}
+
 static enum cio_http_cb_return handle_headers_complete(struct cio_http_client *client)
 {
 	if (unlikely(!check_http_version(client))) {
@@ -196,6 +210,8 @@ static enum cio_http_cb_return handle_headers_complete(struct cio_http_client *c
 	if (unlikely((ws->flags.subprotocol_requested == 1) && (ws->chosen_subprotocol == -1))) {
 		return cio_http_cb_error;
 	}
+
+	send_upgrade_response(client);
 
 	return cio_http_cb_skip_body;
 }
