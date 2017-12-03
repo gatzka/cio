@@ -61,7 +61,7 @@ struct cio_websocket_location_handler {
 /**
  * @brief cio_websocket_location_handler_init
  * @param handler
- * @param subprotocols Ann array of strings containing the supported subprotocols.
+ * @param subprotocols An array of strings containing the supported subprotocols.
  * Please note that the functions will not copy this array, this array must be
  * available as long as this cio_websocket_location_handler exists!
  * @param num_subprotocols
