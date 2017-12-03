@@ -24,39 +24,28 @@
  * SOFTWARE.
  */
 
-#ifndef CIO_STRING_H
-#define CIO_STRING_H
+#ifndef CIO_WEBSOCKET_LOCATION_HANDLER_H
+#define CIO_WEBSOCKET_LOCATION_HANDLER_H
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-#include <stddef.h>
+#include "cio_http_location_handler.h"
 
-/**
- * @file
- * @brief Wrapper functions for non-ANSI-C conformant string functions.
- */
+struct cio_websocket_location_handler {
 
-/**
- * @brief Finds the start of the first occurence of @p needle in @p haystack.
- * @param haystack The memory to be searched.
- * @param haystacklen The length of memory to be searched.
- * @param needle The substring that should be searched for.
- * @param needlelen The length of the substring to be searched for.
- * @return Pointer to the beginning of the substring, @c NULL otherwise.
- */
-void *cio_memmem(const void *haystack, size_t haystacklen, const void *needle, size_t needlelen);
+	/**
+	 * @privatesection
+	 */
+	struct cio_http_location_handler http_location;
 
-/**
- * @brief Compare two strings ignoring case.
- * @param s1 First string to compare.
- * @param s2 Second string to compare.
- * @param n Maximum number of bytes to be compared.
- * @return an integer less than, equal to, or greater than zero if @p s1 is, after ignoring case,
- * found to be less than, to match, or be greater than @p s2, respectively
- */
-int cio_strncasecmp(const char *s1, const char *s2, size_t n);
+	unsigned int current_header_field;
+
+};
+
+void cio_websocket_location_handler_init(struct cio_websocket_location_handler *handler);
+
 
 #ifdef __cplusplus
 }
