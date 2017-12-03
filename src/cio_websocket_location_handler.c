@@ -64,18 +64,20 @@ static enum cio_http_cb_return check_websocket_version(const char *at, size_t le
 	}
 }
 
-static void fill_requested_sub_protocol(struct cio_websocket_location_handler *handler, const char *name, size_t length)
+static int fill_requested_sub_protocol(struct cio_websocket_location_handler *handler, const char *name, size_t length)
 {
 	for (unsigned int i = 0; i < handler->number_sub_protocols; i++) {
 		const char *sub_protocol = handler->sub_protocols[i];
 		size_t name_length = strlen(sub_protocol);
 		if (name_length == length) {
 			if (memcmp(sub_protocol, name, length) == 0) {
-				handler->flags.sub_protocol_found = 1;
-				return;
+				handler->chosen_sub_protocol = i;
+				return 1;
 			}
 		}
 	}
+
+	return 0;
 }
 
 static void check_websocket_protocol(struct cio_websocket_location_handler *handler, const char *at, size_t length)
@@ -88,7 +90,10 @@ static void check_websocket_protocol(struct cio_websocket_location_handler *hand
 				while (length > 0) {
 					if (*end == ',') {
 						ptrdiff_t len = end - start;
-						fill_requested_sub_protocol(handler, start, len);
+						if (fill_requested_sub_protocol(handler, start, len) == 1) {
+							return;
+						}
+
 						start = end;
 						break;
 					}
@@ -97,7 +102,9 @@ static void check_websocket_protocol(struct cio_websocket_location_handler *hand
 				}
 				if (length == 0) {
 					ptrdiff_t len = end - start;
-					fill_requested_sub_protocol(handler, start, len);
+					if (fill_requested_sub_protocol(handler, start, len) == 1) {
+						return;
+					}
 				}
 			} else {
 				start++;
@@ -159,7 +166,7 @@ void cio_websocket_location_handler_init(struct cio_websocket_location_handler *
 {
 	cio_http_location_handler_init(&handler->http_location);
 	handler->flags.current_header_field = 0;
-	handler->flags.sub_protocol_found = 0;
+	handler->chosen_sub_protocol = -1;
 	handler->flags.sub_protocol_requested = 0;
 	handler->sub_protocols = sub_protocols;
 	handler->number_sub_protocols = num_sub_protocols;
