@@ -163,6 +163,7 @@ static enum cio_http_cb_return handle_value(struct cio_http_client *client, cons
 	ws->flags.current_header_field = HEADER_UNKNOWN;
 	return ret;
 }
+
 void cio_websocket_location_handler_init(struct cio_websocket_location_handler *handler, const char *sub_protocols[], unsigned int num_sub_protocols)
 {
 	cio_http_location_handler_init(&handler->http_location);
