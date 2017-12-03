@@ -216,7 +216,8 @@ static void send_upgrade_response(struct cio_http_client *client)
 		cio_write_buffer_element_init(&ws->wb_protocol_value, chosen_subprotocol, strlen(chosen_subprotocol));
 		cio_write_buffer_queue_before(&client->wbh, &client->wb_http_response_header_end, &ws->wb_protocol_field);
 		cio_write_buffer_queue_before(&client->wbh, &client->wb_http_response_header_end, &ws->wb_protocol_value);
-		//TODO: Add missing CRLF
+		cio_write_buffer_element_init(&ws->wb_protocol_end, CIO_CRLF, strlen(CIO_CRLF));
+		cio_write_buffer_queue_before(&client->wbh, &client->wb_http_response_header_end, &ws->wb_protocol_end);
 	}
 
 //TODO: flush the writebuffers.
