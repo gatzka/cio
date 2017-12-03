@@ -193,7 +193,10 @@ static void send_upgrade_response(struct cio_http_client *client)
 	uint8_t sha1_buffer[SHA1HashSize];
 	SHA1Result(&context, sha1_buffer);
 	cio_b64_encode_string(sha1_buffer, SHA1HashSize, ws->accept_value);
+	ws->accept_value[28] = '\r';
+	ws->accept_value[29] = '\n';
 
+	client->queue_header(client, cio_http_switching_protocols);
 
 	static const char upgrade_header[] =
 		"Upgrade: websocket" CIO_CRLF
@@ -205,6 +208,18 @@ static void send_upgrade_response(struct cio_http_client *client)
 	cio_write_buffer_queue_before(&client->wbh, &client->wb_http_response_header_end, &ws->wb_upgrade_header);
 	cio_write_buffer_queue_before(&client->wbh, &client->wb_http_response_header_end, &ws->wb_accept_value);
 
+	if (ws->chosen_subprotocol != -1) {
+		static const char ws_protocol[] =
+			"Sec-Websocket-Protocol: ";
+		cio_write_buffer_element_init(&ws->wb_protocol_field, ws_protocol, sizeof(ws_protocol) - 1);
+		const char *chosen_subprotocol = ws->subprotocols[ws->chosen_subprotocol];
+		cio_write_buffer_element_init(&ws->wb_protocol_value, chosen_subprotocol, strlen(chosen_subprotocol));
+		cio_write_buffer_queue_before(&client->wbh, &client->wb_http_response_header_end, &ws->wb_protocol_field);
+		cio_write_buffer_queue_before(&client->wbh, &client->wb_http_response_header_end, &ws->wb_protocol_value);
+		//TODO: Add missing CRLF
+	}
+
+//TODO: flush the writebuffers.
 }
 
 static enum cio_http_cb_return handle_headers_complete(struct cio_http_client *client)

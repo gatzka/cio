@@ -59,6 +59,8 @@ struct cio_websocket_location_handler {
 	char accept_value[28];
 	struct cio_write_buffer wb_upgrade_header;
 	struct cio_write_buffer wb_accept_value;
+	struct cio_write_buffer wb_protocol_field;
+	struct cio_write_buffer wb_protocol_value;
 };
 
 /**
