@@ -38,6 +38,8 @@
 #include "cio_websocket_location_handler.h"
 #include "sha1/sha1.h"
 
+#define CIO_CRLF "\r\n"
+
 enum header_field {
 	HEADER_UNKNOWN,
 	HEADER_SEC_WEBSOCKET_KEY,
@@ -190,6 +192,14 @@ static void send_upgrade_response(struct cio_http_client *client)
 	uint8_t sha1_buffer[SHA1HashSize];
 	SHA1Result(&context, sha1_buffer);
 	cio_b64_encode_string(sha1_buffer, SHA1HashSize, ws->accept_value);
+
+	static const char upgrade_header[] =
+		"Upgrade: websocket" CIO_CRLF
+		"Connection: Upgrade" CIO_CRLF
+		"Sec-WebSocket-Accept: ";
+
+	(void)upgrade_header;
+
 }
 
 static enum cio_http_cb_return handle_headers_complete(struct cio_http_client *client)
