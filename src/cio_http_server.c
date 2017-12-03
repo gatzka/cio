@@ -86,6 +86,8 @@ static void response_written(struct cio_buffered_stream *bs, void *handler_conte
 static const char *get_response(enum cio_http_status_code status_code)
 {
 	switch (status_code) {
+	case cio_http_switching_protocols:
+		return CIO_HTTP_VERSION " 101 Switching Protocols" CIO_CRLF;
 	case cio_http_status_ok:
 		return CIO_HTTP_VERSION " 200 OK" CIO_CRLF;
 	case cio_http_status_bad_request:
