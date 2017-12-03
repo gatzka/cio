@@ -87,14 +87,14 @@ static const char *get_response(enum cio_http_status_code status_code)
 {
 	switch (status_code) {
 	case cio_http_status_ok:
-		return CIO_HTTP_VERSION " 200 OK" CIO_CRLF CIO_CRLF;
+		return CIO_HTTP_VERSION " 200 OK" CIO_CRLF;
 	case cio_http_status_bad_request:
-		return CIO_HTTP_VERSION " 400 Bad Request" CIO_CRLF CIO_CRLF;
+		return CIO_HTTP_VERSION " 400 Bad Request" CIO_CRLF;
 	case cio_http_status_not_found:
-		return CIO_HTTP_VERSION " 404 Not Found" CIO_CRLF CIO_CRLF;
+		return CIO_HTTP_VERSION " 404 Not Found" CIO_CRLF;
 
 	default:
-		return CIO_HTTP_VERSION " 500 Internal Server Error" CIO_CRLF CIO_CRLF;
+		return CIO_HTTP_VERSION " 500 Internal Server Error" CIO_CRLF;
 	}
 }
 
@@ -102,8 +102,10 @@ static void queue_header(struct cio_http_client *client, enum cio_http_status_co
 {
 	const char *response = get_response(status_code);
 	cio_write_buffer_head_init(&client->wbh);
-	cio_write_buffer_element_init(&client->wb_http_header, response, strlen(response));
-	cio_write_buffer_queue_tail(&client->wbh, &client->wb_http_header);
+	cio_write_buffer_element_init(&client->wb_http_response_statusline, response, strlen(response));
+	cio_write_buffer_queue_tail(&client->wbh, &client->wb_http_response_statusline);
+	cio_write_buffer_element_init(&client->wb_http_response_header_end, CIO_CRLF, strlen(CIO_CRLF));
+	cio_write_buffer_queue_tail(&client->wbh, &client->wb_http_response_header_end);
 }
 
 static void write_header(struct cio_http_client *client, enum cio_http_status_code status_code)

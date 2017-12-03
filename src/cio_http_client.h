@@ -158,7 +158,8 @@ struct cio_http_client {
 	 * @privatesection
 	 */
 	struct cio_http_location_handler *handler;
-	struct cio_write_buffer wb_http_header;
+	struct cio_write_buffer wb_http_response_statusline;
+	struct cio_write_buffer wb_http_response_header_end;
 	struct cio_socket socket;
 	struct cio_timer read_timer;
 
