@@ -183,6 +183,16 @@ static bool check_http_version(const struct cio_http_client *client)
 	}
 }
 
+static void response_written(struct cio_buffered_stream *bs, void *handler_context, const struct cio_write_buffer *buffer, enum cio_error err)
+{
+	(void)bs;
+	(void)buffer;
+	(void)err;
+
+	struct cio_http_client *client = (struct cio_http_client *)handler_context;
+	(void)client;
+}
+
 static void send_upgrade_response(struct cio_http_client *client)
 {
 	struct SHA1Context context;
@@ -220,7 +230,7 @@ static void send_upgrade_response(struct cio_http_client *client)
 		cio_write_buffer_queue_before(&client->wbh, &client->wb_http_response_header_end, &ws->wb_protocol_end);
 	}
 
-//TODO: flush the writebuffers.
+	client->flush(client, response_written);
 }
 
 static enum cio_http_cb_return handle_headers_complete(struct cio_http_client *client)

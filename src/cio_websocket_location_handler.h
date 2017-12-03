@@ -56,7 +56,7 @@ struct cio_websocket_location_handler {
 	} flags;
 
 	signed int chosen_subprotocol;
-	char accept_value[28];
+	char accept_value[30];
 	struct cio_write_buffer wb_upgrade_header;
 	struct cio_write_buffer wb_accept_value;
 	struct cio_write_buffer wb_protocol_field;
