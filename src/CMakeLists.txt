@@ -29,6 +29,7 @@ endif()
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/)
 set(CIO_FILES
+    cio_base64.c
     cio_buffered_stream.c
 	cio_http_location.c
 	cio_http_location_handler.c
