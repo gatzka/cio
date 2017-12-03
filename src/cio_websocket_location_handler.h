@@ -31,7 +31,12 @@
 extern "C" {
 #endif
 
+#include <stdint.h>
+
 #include "cio_http_location_handler.h"
+
+#define SEC_WEB_SOCKET_KEY_LENGTH 24
+#define SEC_WEB_SOCKET_GUID_LENGTH 36
 
 struct cio_websocket_location_handler {
 
@@ -41,6 +46,7 @@ struct cio_websocket_location_handler {
 	struct cio_http_location_handler http_location;
 
 	unsigned int current_header_field;
+	uint8_t sec_web_socket_key[SEC_WEB_SOCKET_KEY_LENGTH + SEC_WEB_SOCKET_GUID_LENGTH];
 
 	const char **sub_protocols;
 	unsigned int number_sub_protocols;

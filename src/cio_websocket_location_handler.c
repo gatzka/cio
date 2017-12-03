@@ -24,6 +24,8 @@
  * SOFTWARE.
  */
 
+#include <string.h>
+
 #include "cio_http_client.h"
 #include "cio_http_location_handler.h"
 #include "cio_string.h"
@@ -37,6 +39,28 @@ enum header_field {
 	HEADER_SEC_WEBSOCKET_PROTOCOL,
 };
 
+static enum cio_http_cb_return save_websocket_key(uint8_t *dest, const char *at, size_t length)
+{
+	static const char ws_guid[SEC_WEB_SOCKET_GUID_LENGTH] = "258EAFA5-E914-47DA-95CA-C5AB0DC85B11";
+
+	if (length == SEC_WEB_SOCKET_KEY_LENGTH) {
+		memcpy(dest, at, length);
+		memcpy(&dest[length], ws_guid, sizeof(ws_guid));
+		return cio_http_cb_success;
+	} else {
+		return cio_http_cb_error;
+	}
+}
+
+static enum cio_http_cb_return check_websocket_version(const char *at, size_t length)
+{
+	static const char version[] = "13";
+	if ((length == sizeof(version) - 1) && (memcmp(at, version, length) == 0)) {
+		return cio_http_cb_success;
+	} else {
+		return cio_http_cb_error;
+	}
+}
 
 static enum cio_http_cb_return handle_field(struct cio_http_client *client, const char *at, size_t length)
 {
@@ -62,9 +86,32 @@ static enum cio_http_cb_return handle_field(struct cio_http_client *client, cons
 static enum cio_http_cb_return handle_value(struct cio_http_client *client, const char *at, size_t length)
 {
 	(void)client;
-	(void)at;
-	(void)length;
-	return cio_http_cb_success;
+	enum cio_http_cb_return ret;
+	struct cio_websocket_location_handler *ws = container_of(client, struct cio_websocket_location_handler, http_location);
+
+	switch (ws->current_header_field) {
+	case HEADER_SEC_WEBSOCKET_KEY:
+		ret = save_websocket_key(ws->sec_web_socket_key, at, length);
+		break;
+
+	case HEADER_SEC_WEBSOCKET_VERSION:
+		ret = check_websocket_version(at, length);
+		break;
+/*
+	case HEADER_SEC_WEBSOCKET_PROTOCOL:
+		s->protocol_requested = true;
+		check_websocket_protocol(s, at, length);
+		break;
+
+*/
+	case HEADER_UNKNOWN:
+	default:
+		ret = cio_http_cb_success;
+		break;
+	}
+
+	ws->current_header_field = HEADER_UNKNOWN;
+	return ret;
 }
 void cio_websocket_location_handler_init(struct cio_websocket_location_handler *handler, const char *sub_protocols[], unsigned int num_sub_protocols)
 {
