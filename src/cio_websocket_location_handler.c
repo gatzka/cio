@@ -194,6 +194,7 @@ static void send_upgrade_response(struct cio_http_client *client)
 	SHA1Result(&context, sha1_buffer);
 	cio_b64_encode_string(sha1_buffer, SHA1HashSize, ws->accept_value);
 
+
 	static const char upgrade_header[] =
 		"Upgrade: websocket" CIO_CRLF
 		"Connection: Upgrade" CIO_CRLF

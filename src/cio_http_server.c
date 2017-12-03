@@ -378,6 +378,7 @@ static void handle_accept(struct cio_server_socket *ss, void *handler_context, e
 	client->parsing = 0;
 	client->close = mark_to_be_closed;
 	client->write_header = write_header;
+	client->queue_header = queue_header;
 	client->write_response = write_response;
 
 	client->handler = NULL;
