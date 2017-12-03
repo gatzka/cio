@@ -45,11 +45,15 @@ struct cio_websocket_location_handler {
 	 */
 	struct cio_http_location_handler http_location;
 
-	unsigned int current_header_field;
 	uint8_t sec_web_socket_key[SEC_WEB_SOCKET_KEY_LENGTH + SEC_WEB_SOCKET_GUID_LENGTH];
 
 	const char **sub_protocols;
 	unsigned int number_sub_protocols;
+	struct {
+		unsigned int current_header_field : 2;
+		unsigned int sub_protocol_requested : 1;
+		unsigned int sub_protocol_found : 1;
+	} flags;
 
 };
 

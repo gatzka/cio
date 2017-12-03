@@ -63,7 +63,7 @@ static struct cio_http_location_handler *alloc_websocket_handler(const void *con
 	if (unlikely(handler == NULL)) {
 		return NULL;
 	} else {
-		const char *sub_protocols[2] = {"echo", "jet"};
+		static const char *sub_protocols[2] = {"echo", "jet"};
 		cio_websocket_location_handler_init(&handler->ws_handler, sub_protocols, ARRAY_SIZE(sub_protocols));
 		handler->ws_handler.http_location.free = free_websocket_handler;
 		return &handler->ws_handler.http_location;

@@ -24,6 +24,8 @@
  * SOFTWARE.
  */
 
+#include <ctype.h>
+#include <stdint.h>
 #include <string.h>
 
 #include "cio_http_client.h"
@@ -62,22 +64,61 @@ static enum cio_http_cb_return check_websocket_version(const char *at, size_t le
 	}
 }
 
+static void fill_requested_sub_protocol(struct cio_websocket_location_handler *handler, const char *name, size_t length)
+{
+	for (unsigned int i = 0; i < handler->number_sub_protocols; i++) {
+		const char *sub_protocol = handler->sub_protocols[i];
+		size_t name_length = strlen(sub_protocol);
+		if (name_length == length) {
+			if (memcmp(sub_protocol, name, length) == 0) {
+				handler->flags.sub_protocol_found = 1;
+				return;
+			}
+		}
+	}
+}
+
+static void check_websocket_protocol(struct cio_websocket_location_handler *handler, const char *at, size_t length)
+{
+	const char *start = at;
+	while (length > 0) {
+		if (!isspace(*start) && (*start != ',')) {
+			const char *end = start;
+			while (length > 0) {
+				if (*end == ',') {
+					ptrdiff_t len = end - start;
+					fill_requested_sub_protocol(handler, start, len);
+					start = end;
+					break;
+				}
+				end++;
+				length--;
+			}
+			if (length == 0) {
+				ptrdiff_t len = end - start;
+				fill_requested_sub_protocol(handler, start, len);
+			}
+		} else {
+			start++;
+			length--;
+		}
+	}
+}
+
 static enum cio_http_cb_return handle_field(struct cio_http_client *client, const char *at, size_t length)
 {
-	(void)client;
-
 	static const char sec_key[] = "Sec-WebSocket-Key";
 	static const char ws_version[] = "Sec-WebSocket-Version";
 	static const char ws_protocol[] = "Sec-WebSocket-Protocol";
 
-	struct cio_websocket_location_handler *ws = container_of(client, struct cio_websocket_location_handler, http_location);
+	struct cio_websocket_location_handler *ws = container_of(client->handler, struct cio_websocket_location_handler, http_location);
 
 	if ((sizeof(sec_key) - 1 == length) && (cio_strncasecmp(at, sec_key, length) == 0)) {
-		ws->current_header_field = HEADER_SEC_WEBSOCKET_KEY;
+		ws->flags.current_header_field = HEADER_SEC_WEBSOCKET_KEY;
 	} else if ((sizeof(ws_version) - 1 == length) && (cio_strncasecmp(at, ws_version, length) == 0)) {
-		ws->current_header_field = HEADER_SEC_WEBSOCKET_VERSION;
+		ws->flags.current_header_field = HEADER_SEC_WEBSOCKET_VERSION;
 	} else if ((sizeof(ws_protocol) - 1 == length) && (cio_strncasecmp(at, ws_protocol, length) == 0)) {
-		ws->current_header_field = HEADER_SEC_WEBSOCKET_PROTOCOL;
+		ws->flags.current_header_field = HEADER_SEC_WEBSOCKET_PROTOCOL;
 	}
 
 	return cio_http_cb_success;
@@ -85,11 +126,11 @@ static enum cio_http_cb_return handle_field(struct cio_http_client *client, cons
 
 static enum cio_http_cb_return handle_value(struct cio_http_client *client, const char *at, size_t length)
 {
-	(void)client;
 	enum cio_http_cb_return ret;
-	struct cio_websocket_location_handler *ws = container_of(client, struct cio_websocket_location_handler, http_location);
 
-	switch (ws->current_header_field) {
+	struct cio_websocket_location_handler *ws = container_of(client->handler, struct cio_websocket_location_handler, http_location);
+
+	switch (ws->flags.current_header_field) {
 	case HEADER_SEC_WEBSOCKET_KEY:
 		ret = save_websocket_key(ws->sec_web_socket_key, at, length);
 		break;
@@ -97,26 +138,27 @@ static enum cio_http_cb_return handle_value(struct cio_http_client *client, cons
 	case HEADER_SEC_WEBSOCKET_VERSION:
 		ret = check_websocket_version(at, length);
 		break;
-/*
+
 	case HEADER_SEC_WEBSOCKET_PROTOCOL:
-		s->protocol_requested = true;
-		check_websocket_protocol(s, at, length);
+		ws->flags.sub_protocol_requested = 1;
+		check_websocket_protocol(ws, at, length);
 		break;
 
-*/
 	case HEADER_UNKNOWN:
 	default:
 		ret = cio_http_cb_success;
 		break;
 	}
 
-	ws->current_header_field = HEADER_UNKNOWN;
+	ws->flags.current_header_field = HEADER_UNKNOWN;
 	return ret;
 }
 void cio_websocket_location_handler_init(struct cio_websocket_location_handler *handler, const char *sub_protocols[], unsigned int num_sub_protocols)
 {
 	cio_http_location_handler_init(&handler->http_location);
-	handler->current_header_field = 0;
+	handler->flags.current_header_field = 0;
+	handler->flags.sub_protocol_found = 0;
+	handler->flags.sub_protocol_requested = 0;
 	handler->sub_protocols = sub_protocols;
 	handler->number_sub_protocols = num_sub_protocols;
 	handler->http_location.on_header_field = handle_field;
