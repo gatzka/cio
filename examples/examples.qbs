@@ -33,8 +33,9 @@ Project {
   qbsSearchPaths: "../qbs/"
 
   references: [
+    "http_server.qbs",
     "periodic_timer.qbs",
     "socket_echo.qbs",
-    "http_server.qbs"
+    "websocket_server.qbs"
   ]
 }

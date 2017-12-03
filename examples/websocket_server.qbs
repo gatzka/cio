@@ -24,34 +24,13 @@
  * SOFTWARE.
  */
 
-#ifndef CIO_WEBSOCKET_LOCATION_HANDLER_H
-#define CIO_WEBSOCKET_LOCATION_HANDLER_H
+import qbs 1.0
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+CppApplication {
+  name: "websocket_server"
+  Depends { name:"cio-static"}
 
-#include "cio_http_location_handler.h"
-
-struct cio_websocket_location_handler {
-
-	/**
-	 * @privatesection
-	 */
-	struct cio_http_location_handler http_location;
-
-	unsigned int current_header_field;
-
-	const char **sub_protocols;
-	unsigned int number_sub_protocols;
-
-};
-
-void cio_websocket_location_handler_init(struct cio_websocket_location_handler *handler, const char *sub_protocols[], unsigned int num_sub_protocols);
-
-
-#ifdef __cplusplus
+  files: [
+    "websocket_server.c"
+  ]
 }
-#endif
-
-#endif

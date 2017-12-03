@@ -66,10 +66,12 @@ static enum cio_http_cb_return handle_value(struct cio_http_client *client, cons
 	(void)length;
 	return cio_http_cb_success;
 }
-void cio_websocket_location_handler_init(struct cio_websocket_location_handler *handler)
+void cio_websocket_location_handler_init(struct cio_websocket_location_handler *handler, const char *sub_protocols[], unsigned int num_sub_protocols)
 {
 	cio_http_location_handler_init(&handler->http_location);
 	handler->current_header_field = 0;
+	handler->sub_protocols = sub_protocols;
+	handler->number_sub_protocols = num_sub_protocols;
 	handler->http_location.on_header_field = handle_field;
 	handler->http_location.on_header_value = handle_value;
 }
