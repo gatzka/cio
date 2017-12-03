@@ -110,17 +110,22 @@ static void queue_header(struct cio_http_client *client, enum cio_http_status_co
 	cio_write_buffer_queue_tail(&client->wbh, &client->wb_http_response_header_end);
 }
 
+static void flush(struct cio_http_client *client, cio_buffered_stream_write_handler handler)
+{
+	client->bs.write(&client->bs, &client->wbh, handler, client);
+}
+
 static void write_header(struct cio_http_client *client, enum cio_http_status_code status_code)
 {
 	queue_header(client, status_code);
-	client->bs.write(&client->bs, &client->wbh, response_written, client);
+	flush(client, response_written);
 }
 
 static void write_response(struct cio_http_client *client, struct cio_write_buffer *wbh)
 {
 	queue_header(client, cio_http_status_ok);
 	cio_write_buffer_splice(wbh, &client->wbh);
-	client->bs.write(&client->bs, &client->wbh, response_written, client);
+	flush(client, response_written);
 }
 
 static bool location_match(const char *location, size_t location_length, const char *request_target, size_t request_target_length)
@@ -380,6 +385,7 @@ static void handle_accept(struct cio_server_socket *ss, void *handler_context, e
 	client->write_header = write_header;
 	client->queue_header = queue_header;
 	client->write_response = write_response;
+	client->flush = flush;
 
 	client->handler = NULL;
 	http_parser_settings_init(&client->parser_settings);
