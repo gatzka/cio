@@ -51,7 +51,9 @@ Group {
     cpp.warningLevel: "none"
     files: [
       "http-parser/http_parser.c",
-      "http-parser/http_parser.h"
+      "http-parser/http_parser.h",
+      "sha1/sha1.c",
+      "sha1/sha1.h",
     ]
   }
 
