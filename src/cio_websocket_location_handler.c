@@ -29,6 +29,7 @@
 #include <stdint.h>
 #include <string.h>
 
+#include "cio_compiler.h"
 #include "cio_http_client.h"
 #include "cio_http_location_handler.h"
 #include "cio_string.h"
@@ -72,7 +73,7 @@ static bool find_requested_sub_protocol(struct cio_websocket_location_handler *h
 		size_t name_length = strlen(sub_protocol);
 		if (name_length == length) {
 			if (memcmp(sub_protocol, name, length) == 0) {
-				handler->chosen_sub_protocol = i;
+				handler->chosen_subprotocol = i;
 				return true;
 			}
 		}
@@ -150,7 +151,7 @@ static enum cio_http_cb_return handle_value(struct cio_http_client *client, cons
 		break;
 
 	case HEADER_SEC_WEBSOCKET_PROTOCOL:
-		ws->flags.sub_protocol_requested = 1;
+		ws->flags.subprotocol_requested = 1;
 		check_websocket_protocol(ws, at, length);
 		break;
 
@@ -164,14 +165,49 @@ static enum cio_http_cb_return handle_value(struct cio_http_client *client, cons
 	return ret;
 }
 
+static bool check_http_version(const struct cio_http_client *client)
+{
+	if (client->http_major > 1) {
+		return true;
+	}
+	if ((client->http_major == 1) && (client->http_minor >= 1)) {
+		return true;
+	} else {
+		return false;
+	}
+}
+
+static enum cio_http_cb_return handle_headers_complete(struct cio_http_client *client)
+{
+	if (unlikely(!check_http_version(client))) {
+		return cio_http_cb_error;
+	}
+
+	if (unlikely(client->http_method != cio_http_get)) {
+		return cio_http_cb_error;
+	}
+
+	if (unlikely(!client->parser.upgrade)) {
+		return cio_http_cb_error;
+	}
+
+	struct cio_websocket_location_handler *ws = container_of(client->handler, struct cio_websocket_location_handler, http_location);
+	if (unlikely((ws->flags.subprotocol_requested == 1) && (ws->chosen_subprotocol == -1))) {
+		return cio_http_cb_error;
+	}
+
+	return cio_http_cb_skip_body;
+}
+
 void cio_websocket_location_handler_init(struct cio_websocket_location_handler *handler, const char *subprotocols[], unsigned int num_subprotocols)
 {
 	cio_http_location_handler_init(&handler->http_location);
 	handler->flags.current_header_field = 0;
-	handler->chosen_sub_protocol = -1;
-	handler->flags.sub_protocol_requested = 0;
+	handler->chosen_subprotocol = -1;
+	handler->flags.subprotocol_requested = 0;
 	handler->subprotocols = subprotocols;
 	handler->number_subprotocols = num_subprotocols;
 	handler->http_location.on_header_field = handle_field;
 	handler->http_location.on_header_value = handle_value;
+	handler->http_location.on_headers_complete = handle_headers_complete;
 }

@@ -62,6 +62,7 @@ extern "C" {
  *
  */
 enum cio_http_cb_return {
+	cio_http_cb_skip_body = 1,  /*!< The callback functions did an HTTP connection upgrade and the HTTP parser shall skip the body. */
 	cio_http_cb_success = 0, /*!< The callback functions did not encounter any errors. */
 	cio_http_cb_error = -1   /*!< The callback function encountered an error. */
 };
