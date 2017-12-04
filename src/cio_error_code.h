@@ -41,38 +41,38 @@
  * @brief All error codes used inside the cio libary.
  */
 enum cio_error {
-	cio_eof = 1,                                      /*!< End of File occured. */
-	cio_success = 0,                                  /*!< No error occured. */
-	cio_address_family_not_supported = -EAFNOSUPPORT, /*!< Address family not supported. */
-	cio_address_in_use = -EADDRINUSE,                 /*!< Address is already in use. */
-	cio_address_not_available = -EADDRNOTAVAIL,       /*!< Address not available */
-	cio_bad_address = -EFAULT,                        /*!< Bad address. */
-	cio_bad_file_descriptor = -EBADF,                 /*!< Bad file descriptor. */
-	cio_file_exists = -EEXIST,                        /*!< File exists. */
-	cio_filename_too_long = -ENAMETOOLONG,            /*!< File name too long. */
-	cio_invalid_argument = -EINVAL,                   /*!< Invalid argument. */
-	cio_no_buffer_space = -ENOBUFS,                   /*!< No buffer space. */
-	cio_no_protocol_option = -ENOPROTOOPT,            /*!< No protocol option. */
-	cio_no_space_left_on_device = -ENOSPC,            /*!< No space left on device. */
-	cio_again = -EAGAIN,                              /*!< Try again. */
-	cio_no_such_file_or_directory = -ENOENT,          /*!< No such file or directory. */
-	cio_not_a_directory = -ENOTDIR,                   /*!< Not a directory. */
-	cio_not_a_socket = -ENOTSOCK,                     /*!< Not a socket. */
-	cio_not_enough_memory = -ENOMEM,                  /*!< Not enough memory. */
-	cio_operation_not_permitted = -EPERM,             /*!< Operation not permitted. */
-	cio_permission_denied = -EACCES,                  /*!< Permission denied. */
-	cio_protocol_not_supported = -EPROTONOSUPPORT,    /*!< Protocol not supported. */
-	cio_read_only_file_system = -EROFS,               /*!< Read only file system. */
-	cio_too_many_files_open = -EMFILE,                /*!< Too many files open. */
-	cio_too_many_symbolic_link_levels = -ELOOP,       /*!< Too many symbolic link levels. */
-	cio_operation_aborted = -ECANCELED,               /*!< Operation cancelled. */
-	cio_no_such_device = -ENODEV,                     /*!< No such device. */
-	cio_message_too_long = -EMSGSIZE                  /*!< Message too long. */
+	CIO_EOF = 1,                                      /*!< End of File occured. */
+	CIO_SUCCESS = 0,                                  /*!< No error occured. */
+	CIO_ADDRESS_FAMILY_NOT_SUPPORTED = -EAFNOSUPPORT, /*!< Address family not supported. */
+	CIO_ADDRESS_IN_USE = -EADDRINUSE,                 /*!< Address is already in use. */
+	CIO_ADDRESS_NOT_AVAILABLE = -EADDRNOTAVAIL,       /*!< Address not available */
+	CIO_BAD_ADDRESS = -EFAULT,                        /*!< Bad address. */
+	CIO_BAD_FILE_DESCRIPTOR = -EBADF,                 /*!< Bad file descriptor. */
+	CIO_FILE_EXISTS = -EEXIST,                        /*!< File exists. */
+	CIO_FILENAME_TOO_LONG = -ENAMETOOLONG,            /*!< File name too long. */
+	CIO_INVALID_ARGUMENT = -EINVAL,                   /*!< Invalid argument. */
+	CIO_NO_BUFFER_SPACE = -ENOBUFS,                   /*!< No buffer space. */
+	CIO_NO_PROTOCOL_OPTION = -ENOPROTOOPT,            /*!< No protocol option. */
+	CIO_NO_SPACE_LEFT_ON_DEVICE = -ENOSPC,            /*!< No space left on device. */
+	CIO_AGAIN = -EAGAIN,                              /*!< Try again. */
+	CIO_NO_SUCH_FILE_OR_DIRECTORY = -ENOENT,          /*!< No such file or directory. */
+	CIO_NOT_A_DIRECTORY = -ENOTDIR,                   /*!< Not a directory. */
+	CIO_NOT_A_SOCKET = -ENOTSOCK,                     /*!< Not a socket. */
+	CIO_NOT_ENOUGH_MEMORY = -ENOMEM,                  /*!< Not enough memory. */
+	CIO_OPERATION_NOT_PERMITTED = -EPERM,             /*!< Operation not permitted. */
+	CIO_PERMISSION_DENIED = -EACCES,                  /*!< Permission denied. */
+	CIO_PROTOCOL_NOT_SUPPORTED = -EPROTONOSUPPORT,    /*!< Protocol not supported. */
+	CIO_READ_ONLY_FILE_SYSTEM = -EROFS,               /*!< Read only file system. */
+	CIO_TOO_MANY_FILES_OPEN = -EMFILE,                /*!< Too many files open. */
+	CIO_TOO_MANY_SYMBOLIC_LINK_LEVELS = -ELOOP,       /*!< Too many symbolic link levels. */
+	CIO_OPERATION_ABORTED = -ECANCELED,               /*!< Operation cancelled. */
+	CIO_NO_SUCH_DEVICE = -ENODEV,                     /*!< No such device. */
+	CIO_MESSAGE_TOO_LONG = -EMSGSIZE                  /*!< Message too long. */
 };
 
 static inline bool cio_is_error(enum cio_error error)
 {
-	return error < cio_success;
+	return error < CIO_SUCCESS;
 }
 
 #ifdef __cplusplus

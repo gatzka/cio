@@ -58,7 +58,7 @@ enum cio_error cio_eventloop_init(struct cio_eventloop *loop)
 	loop->go_ahead = true;
 	loop->current_ev = NULL;
 
-	return cio_success;
+	return CIO_SUCCESS;
 }
 
 void cio_eventloop_destroy(const struct cio_eventloop *loop)
@@ -77,7 +77,7 @@ enum cio_error cio_linux_eventloop_add(const struct cio_eventloop *loop, struct 
 		return (enum cio_error)errno;
 	}
 
-	return cio_success;
+	return CIO_SUCCESS;
 }
 
 static enum cio_error epoll_mod(const struct cio_eventloop *loop, struct cio_event_notifier *ev, uint32_t events)
@@ -90,7 +90,7 @@ static enum cio_error epoll_mod(const struct cio_eventloop *loop, struct cio_eve
 		return (enum cio_error)errno;
 	}
 
-	return cio_success;
+	return CIO_SUCCESS;
 }
 
 enum cio_error cio_linux_eventloop_register_read(const struct cio_eventloop *loop, struct cio_event_notifier *ev)
@@ -161,7 +161,7 @@ enum cio_error cio_eventloop_run(struct cio_eventloop *loop)
 		}
 	}
 
-	return cio_success;
+	return CIO_SUCCESS;
 }
 
 void cio_eventloop_cancel(struct cio_eventloop *loop)

@@ -62,8 +62,8 @@ typedef void (*cio_timer_close_hook)(struct cio_timer *timer);
  * @param handler_context The context the functions works on.
  *                        This parameter is fed from @ref cio_timer_expires_from_now_handler_context
  *                        "parameter handler_contex" of @ref cio_timer_expires_from_now "expires_from_now()".
- * @param err If err == ::cio_success, the timer expired.
- *            If err == ::cio_operation_aborted, the timer was @ref cio_timer_cancel "cancelled".
+ * @param err If err == ::CIO_SUCCESS, the timer expired.
+ *            If err == ::CIO_OPERATION_ABORTED, the timer was @ref cio_timer_cancel "cancelled".
  */
 typedef void (*timer_handler)(struct cio_timer *timer, void *handler_context, enum cio_error err);
 
@@ -87,7 +87,7 @@ struct cio_timer {
 	 * @brief Cancels an armed timer.
 	 *
 	 * @param timer A pointer to a struct cio_timer which shall be canceled.
-	 * @return ::cio_success for success,
+	 * @return ::CIO_SUCCESS for success,
 	 *         ::cio_no_such_file_or_directory if the timer wasn't armed.
 	 */
 	enum cio_error (*cancel)(struct cio_timer *timer);
@@ -124,7 +124,7 @@ struct cio_timer {
  * It is guaranteed that the cio library will not access any memory of
  * cio_timer that is passed to the close hook. Therefore,
  * the hook could be used to free the memory of the timer struct.
- * @return ::cio_success for success.
+ * @return ::CIO_SUCCESS for success.
  */
 enum cio_error cio_timer_init(struct cio_timer *timer, struct cio_eventloop *loop,
                               cio_timer_close_hook close_hook);

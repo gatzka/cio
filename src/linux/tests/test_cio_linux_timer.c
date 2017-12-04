@@ -142,7 +142,7 @@ static void test_create_timer(void)
 
 	struct cio_timer timer;
 	enum cio_error err = cio_timer_init(&timer, NULL, NULL);
-	TEST_ASSERT_EQUAL(cio_success, err);
+	TEST_ASSERT_EQUAL(CIO_SUCCESS, err);
 	TEST_ASSERT_EQUAL(1, cio_linux_eventloop_add_fake.call_count);
 	TEST_ASSERT_EQUAL(1, cio_linux_eventloop_register_read_fake.call_count);
 	TEST_ASSERT_EQUAL(0, close_fake.call_count);
@@ -155,7 +155,7 @@ static void test_create_timer_timerfd_create_fails(void)
 
 	struct cio_timer timer;
 	enum cio_error err = cio_timer_init(&timer, NULL, NULL);
-	TEST_ASSERT(err != cio_success);
+	TEST_ASSERT(err != CIO_SUCCESS);
 	TEST_ASSERT_EQUAL(0, cio_linux_eventloop_add_fake.call_count);
 	TEST_ASSERT_EQUAL(0, cio_linux_eventloop_register_read_fake.call_count);
 	TEST_ASSERT_EQUAL(0, close_fake.call_count);
@@ -166,11 +166,11 @@ static void test_create_timer_eventloop_add_fails(void)
 {
 	static const int timerfd = 5;
 	timerfd_create_fake.return_val = timerfd;
-	cio_linux_eventloop_add_fake.return_val = cio_invalid_argument;
+	cio_linux_eventloop_add_fake.return_val = CIO_INVALID_ARGUMENT;
 
 	struct cio_timer timer;
 	enum cio_error err = cio_timer_init(&timer, NULL, NULL);
-	TEST_ASSERT(err != cio_success);
+	TEST_ASSERT(err != CIO_SUCCESS);
 	TEST_ASSERT_EQUAL(1, cio_linux_eventloop_add_fake.call_count);
 	TEST_ASSERT_EQUAL(0, cio_linux_eventloop_register_read_fake.call_count);
 	TEST_ASSERT_EQUAL(1, close_fake.call_count);
@@ -182,11 +182,11 @@ static void test_create_timer_eventloop_register_read_fails(void)
 {
 	static const int timerfd = 5;
 	timerfd_create_fake.return_val = timerfd;
-	cio_linux_eventloop_register_read_fake.return_val = cio_invalid_argument;
+	cio_linux_eventloop_register_read_fake.return_val = CIO_INVALID_ARGUMENT;
 
 	struct cio_timer timer;
 	enum cio_error err = cio_timer_init(&timer, NULL, NULL);
-	TEST_ASSERT(err != cio_success);
+	TEST_ASSERT(err != CIO_SUCCESS);
 	TEST_ASSERT_EQUAL(1, cio_linux_eventloop_add_fake.call_count);
 	TEST_ASSERT_EQUAL(1, cio_linux_eventloop_register_read_fake.call_count);
 	TEST_ASSERT_EQUAL(1, close_fake.call_count);
@@ -201,7 +201,7 @@ static void test_close_without_hook(void)
 
 	struct cio_timer timer;
 	enum cio_error err = cio_timer_init(&timer, NULL, NULL);
-	TEST_ASSERT_EQUAL(cio_success, err);
+	TEST_ASSERT_EQUAL(CIO_SUCCESS, err);
 
 	timer.close(&timer);
 	TEST_ASSERT_EQUAL(1, close_fake.call_count);
@@ -215,7 +215,7 @@ static void test_close_with_hook(void)
 
 	struct cio_timer timer;
 	enum cio_error err = cio_timer_init(&timer, NULL, on_close);
-	TEST_ASSERT_EQUAL(cio_success, err);
+	TEST_ASSERT_EQUAL(CIO_SUCCESS, err);
 
 	timer.close(&timer);
 	TEST_ASSERT_EQUAL(1, close_fake.call_count);
@@ -232,7 +232,7 @@ static void test_close_while_armed(void)
 
 	struct cio_timer timer;
 	enum cio_error err = cio_timer_init(&timer, NULL, NULL);
-	TEST_ASSERT_EQUAL(cio_success, err);
+	TEST_ASSERT_EQUAL(CIO_SUCCESS, err);
 
 	timer.expires_from_now(&timer, 2000, handle_timeout, NULL);
 
@@ -241,7 +241,7 @@ static void test_close_while_armed(void)
 	TEST_ASSERT_EQUAL(timerfd, close_fake.arg0_val);
 
 	TEST_ASSERT_EQUAL(1, handle_timeout_fake.call_count);
-	TEST_ASSERT_EQUAL(cio_operation_aborted, handle_timeout_fake.arg2_val);
+	TEST_ASSERT_EQUAL(CIO_OPERATION_ABORTED, handle_timeout_fake.arg2_val);
 	TEST_ASSERT_EQUAL(&timer, handle_timeout_fake.arg0_val);
 }
 
@@ -252,10 +252,10 @@ static void test_cancel_without_arming(void)
 
 	struct cio_timer timer;
 	enum cio_error err = cio_timer_init(&timer, NULL, NULL);
-	TEST_ASSERT_EQUAL(cio_success, err);
+	TEST_ASSERT_EQUAL(CIO_SUCCESS, err);
 
 	err = timer.cancel(&timer);
-	TEST_ASSERT(err != cio_success);
+	TEST_ASSERT(err != CIO_SUCCESS);
 }
 
 static void test_cancel_settime_in_cancel_fails(void)
@@ -271,14 +271,14 @@ static void test_cancel_settime_in_cancel_fails(void)
 
 	struct cio_timer timer;
 	enum cio_error err = cio_timer_init(&timer, NULL, NULL);
-	TEST_ASSERT_EQUAL(cio_success, err);
+	TEST_ASSERT_EQUAL(CIO_SUCCESS, err);
 
 	timer.expires_from_now(&timer, 2000, handle_timeout, NULL);
 
 	err = timer.cancel(&timer);
-	TEST_ASSERT(err == cio_success);
+	TEST_ASSERT(err == CIO_SUCCESS);
 	TEST_ASSERT_EQUAL(1, handle_timeout_fake.call_count);
-	TEST_ASSERT((handle_timeout_fake.arg2_val != cio_success) && (handle_timeout_fake.arg2_val != cio_operation_aborted));
+	TEST_ASSERT((handle_timeout_fake.arg2_val != CIO_SUCCESS) && (handle_timeout_fake.arg2_val != CIO_OPERATION_ABORTED));
 	TEST_ASSERT_EQUAL(&timer, handle_timeout_fake.arg0_val);
 }
 
@@ -291,12 +291,12 @@ static void test_arming_settime_fails(void)
 
 	struct cio_timer timer;
 	enum cio_error err = cio_timer_init(&timer, NULL, NULL);
-	TEST_ASSERT_EQUAL(cio_success, err);
+	TEST_ASSERT_EQUAL(CIO_SUCCESS, err);
 
 	timer.expires_from_now(&timer, 2000, handle_timeout, NULL);
 
 	TEST_ASSERT_EQUAL(1, handle_timeout_fake.call_count);
-	TEST_ASSERT(handle_timeout_fake.arg2_val != cio_success);
+	TEST_ASSERT(handle_timeout_fake.arg2_val != CIO_SUCCESS);
 	TEST_ASSERT_EQUAL(&timer, handle_timeout_fake.arg0_val);
 }
 
@@ -308,12 +308,12 @@ static void test_arming_read_fails(void)
 
 	struct cio_timer timer;
 	enum cio_error err = cio_timer_init(&timer, NULL, NULL);
-	TEST_ASSERT_EQUAL(cio_success, err);
+	TEST_ASSERT_EQUAL(CIO_SUCCESS, err);
 
 	timer.expires_from_now(&timer, 2000, handle_timeout, NULL);
 
 	TEST_ASSERT_EQUAL(1, handle_timeout_fake.call_count);
-	TEST_ASSERT(handle_timeout_fake.arg2_val != cio_success);
+	TEST_ASSERT(handle_timeout_fake.arg2_val != CIO_SUCCESS);
 	TEST_ASSERT_EQUAL(&timer, handle_timeout_fake.arg0_val);
 }
 
@@ -325,12 +325,12 @@ static void test_arming_read_not_enough(void)
 
 	struct cio_timer timer;
 	enum cio_error err = cio_timer_init(&timer, NULL, NULL);
-	TEST_ASSERT_EQUAL(cio_success, err);
+	TEST_ASSERT_EQUAL(CIO_SUCCESS, err);
 
 	timer.expires_from_now(&timer, 2000, handle_timeout, NULL);
 
 	TEST_ASSERT_EQUAL(1, handle_timeout_fake.call_count);
-	TEST_ASSERT(handle_timeout_fake.arg2_val != cio_success);
+	TEST_ASSERT(handle_timeout_fake.arg2_val != CIO_SUCCESS);
 	TEST_ASSERT_EQUAL(&timer, handle_timeout_fake.arg0_val);
 }
 
@@ -342,12 +342,12 @@ static void test_arming_success(void)
 
 	struct cio_timer timer;
 	enum cio_error err = cio_timer_init(&timer, NULL, NULL);
-	TEST_ASSERT_EQUAL(cio_success, err);
+	TEST_ASSERT_EQUAL(CIO_SUCCESS, err);
 
 	timer.expires_from_now(&timer, 2000, handle_timeout, NULL);
 
 	TEST_ASSERT_EQUAL(1, handle_timeout_fake.call_count);
-	TEST_ASSERT(handle_timeout_fake.arg2_val == cio_success);
+	TEST_ASSERT(handle_timeout_fake.arg2_val == CIO_SUCCESS);
 	TEST_ASSERT_EQUAL(&timer, handle_timeout_fake.arg0_val);
 }
 

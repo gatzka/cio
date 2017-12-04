@@ -117,13 +117,13 @@ int main()
 	}
 
 	enum cio_error err = cio_eventloop_init(&loop);
-	if (err != cio_success) {
+	if (err != CIO_SUCCESS) {
 		return EXIT_FAILURE;
 	}
 
 	struct cio_http_server server;
 	err = cio_http_server_init(&server, 8080, &loop, serve_error, read_timeout, alloc_http_client, free_http_client);
-	if (err != cio_success) {
+	if (err != CIO_SUCCESS) {
 		ret = EXIT_FAILURE;
 		goto destroy_loop;
 	}
@@ -133,7 +133,7 @@ int main()
 	server.register_location(&server, &target_foo);
 
 	err = server.serve(&server);
-	if (err != cio_success) {
+	if (err != CIO_SUCCESS) {
 		ret = EXIT_FAILURE;
 		goto destroy_loop;
 	}

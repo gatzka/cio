@@ -58,7 +58,7 @@ static void client_timeout_handler(struct cio_timer *timer, void *handler_contex
 {
 	(void)timer;
 
-	if (err == cio_success) {
+	if (err == CIO_SUCCESS) {
 		struct cio_http_client *client = handler_context;
 		close_client(client);
 	}
@@ -86,13 +86,13 @@ static void response_written(struct cio_buffered_stream *bs, void *handler_conte
 static const char *get_response_statusline(enum cio_http_status_code status_code)
 {
 	switch (status_code) {
-	case cio_http_switching_protocols:
+	case CIO_HTTP_SWITCHING_PROTOCOLS:
 		return CIO_HTTP_VERSION " 101 Switching Protocols" CIO_CRLF;
-	case cio_http_status_ok:
+	case CIO_HTTP_STATUS_OK:
 		return CIO_HTTP_VERSION " 200 OK" CIO_CRLF;
-	case cio_http_status_bad_request:
+	case CIO_HTTP_STATUS_BAD_REQUEST:
 		return CIO_HTTP_VERSION " 400 Bad Request" CIO_CRLF;
-	case cio_http_status_not_found:
+	case CIO_HTTP_STATUS_NOT_FOUND:
 		return CIO_HTTP_VERSION " 404 Not Found" CIO_CRLF;
 
 	default:
@@ -123,7 +123,7 @@ static void write_header(struct cio_http_client *client, enum cio_http_status_co
 
 static void write_response(struct cio_http_client *client, struct cio_write_buffer *wbh)
 {
-	queue_header(client, cio_http_status_ok);
+	queue_header(client, CIO_HTTP_STATUS_OK);
 	cio_write_buffer_splice(wbh, &client->wbh);
 	flush(client, response_written);
 }
@@ -178,7 +178,7 @@ static int on_headers_complete(http_parser *parser)
 	if (parser->upgrade) {
 		client->read_timer.cancel(&client->read_timer);
 		if (unlikely(client->handler->on_headers_complete == NULL)) {
-			client->write_header(client, cio_http_status_internal_server_error);
+			client->write_header(client, CIO_HTTP_STATUS_INTERNAL_SERVER_ERROR);
 			return 0;
 		}
 	}
@@ -252,13 +252,13 @@ static int on_url(http_parser *parser, const char *at, size_t length)
 
 	const struct cio_http_location *target = find_handler(parser->data, at + u.field_data[UF_PATH].off, u.field_data[UF_PATH].len);
 	if (unlikely(target == NULL)) {
-		client->write_header(client, cio_http_status_not_found);
+		client->write_header(client, CIO_HTTP_STATUS_NOT_FOUND);
 		return 0;
 	}
 
 	struct cio_http_location_handler *handler = target->alloc_handler(target->config);
 	if (unlikely(handler == NULL)) {
-		client->write_header(client, cio_http_status_internal_server_error);
+		client->write_header(client, CIO_HTTP_STATUS_INTERNAL_SERVER_ERROR);
 		return 0;
 	}
 
@@ -299,7 +299,7 @@ static int on_url(http_parser *parser, const char *at, size_t length)
 	}
 
 	if (user_handler == 0) {
-		client->write_header(client, cio_http_status_internal_server_error);
+		client->write_header(client, CIO_HTTP_STATUS_INTERNAL_SERVER_ERROR);
 	}
 
 	return 0;
@@ -312,7 +312,7 @@ static void parse(struct cio_buffered_stream *stream, void *handler_context, enu
 	struct cio_http_client *client = (struct cio_http_client *)handler_context;
 
 	if (unlikely(cio_is_error(err))) {
-		client->write_header(client, cio_http_status_internal_server_error);
+		client->write_header(client, CIO_HTTP_STATUS_INTERNAL_SERVER_ERROR);
 		return;
 	}
 
@@ -324,7 +324,7 @@ static void parse(struct cio_buffered_stream *stream, void *handler_context, enu
 	client->parsing--;
 
 	if (unlikely(nparsed != bytes_transfered)) {
-		client->write_header(client, cio_http_status_bad_request);
+		client->write_header(client, CIO_HTTP_STATUS_BAD_REQUEST);
 		return;
 	}
 
@@ -371,7 +371,7 @@ static void handle_accept(struct cio_server_socket *ss, void *handler_context, e
 
 	struct cio_http_server *server = (struct cio_http_server *)handler_context;
 
-	if (unlikely(err != cio_success)) {
+	if (unlikely(err != CIO_SUCCESS)) {
 		if (server->error_cb != NULL) {
 			server->error_cb(server);
 		}
@@ -401,7 +401,7 @@ static void handle_accept(struct cio_server_socket *ss, void *handler_context, e
 	cio_buffered_stream_init(&client->bs, socket->get_io_stream(socket));
 
 	err = cio_timer_init(&client->read_timer, server->loop, NULL);
-	if (unlikely(err != cio_success)) {
+	if (unlikely(err != CIO_SUCCESS)) {
 		if (server->error_cb != NULL) {
 			server->error_cb(server);
 		}
@@ -418,22 +418,22 @@ static void handle_accept(struct cio_server_socket *ss, void *handler_context, e
 static enum cio_error serve(struct cio_http_server *server)
 {
 	enum cio_error err = cio_server_socket_init(&server->server_socket, server->loop, 5, server->alloc_client, server->free_client, NULL);
-	if (unlikely(err != cio_success)) {
+	if (unlikely(err != CIO_SUCCESS)) {
 		return err;
 	}
 
 	err = server->server_socket.set_reuse_address(&server->server_socket, true);
-	if (err != cio_success) {
+	if (err != CIO_SUCCESS) {
 		goto close_socket;
 	}
 
 	err = server->server_socket.bind(&server->server_socket, NULL, server->port);
-	if (err != cio_success) {
+	if (err != CIO_SUCCESS) {
 		goto close_socket;
 	}
 
 	err = server->server_socket.accept(&server->server_socket, handle_accept, server);
-	if (err != cio_success) {
+	if (err != CIO_SUCCESS) {
 		goto close_socket;
 	}
 
@@ -447,13 +447,13 @@ close_socket:
 static enum cio_error register_handler(struct cio_http_server *server, struct cio_http_location *target)
 {
 	if (unlikely(server == NULL) || (target == NULL)) {
-		return cio_invalid_argument;
+		return CIO_INVALID_ARGUMENT;
 	}
 
 	target->next = server->first_handler;
 	server->first_handler = target;
 	server->num_handlers++;
-	return cio_success;
+	return CIO_SUCCESS;
 }
 
 enum cio_error cio_http_server_init(struct cio_http_server *server,
@@ -465,7 +465,7 @@ enum cio_error cio_http_server_init(struct cio_http_server *server,
                                     cio_free_client free_client)
 {
 	if (unlikely((server == NULL) || (loop == NULL) || (alloc_client == NULL) || (free_client == NULL) || (read_timeout_ns == 0))) {
-		return cio_invalid_argument;
+		return CIO_INVALID_ARGUMENT;
 	}
 
 	server->loop = loop;
@@ -478,5 +478,5 @@ enum cio_error cio_http_server_init(struct cio_http_server *server,
 	server->num_handlers = 0;
 	server->error_cb = error_cb;
 	server->read_timeout_ns = read_timeout_ns;
-	return cio_success;
+	return CIO_SUCCESS;
 }

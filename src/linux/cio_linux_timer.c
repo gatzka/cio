@@ -57,18 +57,18 @@ static enum cio_error timer_cancel(struct cio_timer *t)
 	int ret;
 
 	if (t->handler == NULL) {
-		return cio_no_such_file_or_directory;
+		return CIO_NO_SUCH_FILE_OR_DIRECTORY;
 	}
 
 	memset(&timeout, 0x0, sizeof(timeout));
 	ret = timerfd_settime(t->ev.fd, 0, &timeout, NULL);
 	if (likely(ret == 0)) {
-		t->handler(t, t->handler_context, cio_operation_aborted);
+		t->handler(t, t->handler_context, CIO_OPERATION_ABORTED);
 	} else {
 		t->handler(t, t->handler_context, (enum cio_error)errno);
 	}
 
-	return cio_success;
+	return CIO_SUCCESS;
 }
 
 static void timer_close(struct cio_timer *t)
@@ -96,9 +96,9 @@ static void timer_read(void *context)
 		}
 	} else {
 		if (likely(ret == sizeof(number_of_expirations))) {
-			t->handler(t, t->handler_context, cio_success);
+			t->handler(t, t->handler_context, CIO_SUCCESS);
 		} else {
-			t->handler(t, t->handler_context, cio_not_enough_memory);
+			t->handler(t, t->handler_context, CIO_NOT_ENOUGH_MEMORY);
 		}
 	}
 }
@@ -143,12 +143,12 @@ enum cio_error cio_timer_init(struct cio_timer *timer, struct cio_eventloop *loo
 	timer->ev.fd = fd;
 
 	ret_val = cio_linux_eventloop_add(timer->loop, &timer->ev);
-	if (unlikely(ret_val != cio_success)) {
+	if (unlikely(ret_val != CIO_SUCCESS)) {
 		goto eventloop_add_failed;
 	}
 
 	ret_val = cio_linux_eventloop_register_read(timer->loop, &timer->ev);
-	if (unlikely(ret_val != cio_success)) {
+	if (unlikely(ret_val != CIO_SUCCESS)) {
 		goto register_read_failed;
 	}
 

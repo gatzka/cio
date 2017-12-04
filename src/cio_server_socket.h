@@ -58,7 +58,7 @@ struct cio_server_socket;
  *
  * @param ss The server socket where the accept was called on.
  * @param handler_context The context the functions works on.
- * @param err If err != ::cio_success, the read failed.
+ * @param err If err != ::CIO_SUCCESS, the read failed.
  * @param socket The client socket that was created from the accept.
  */
 typedef void (*cio_accept_handler)(struct cio_server_socket *ss, void *handler_context, enum cio_error err, struct cio_socket *socket);
@@ -83,7 +83,7 @@ struct cio_server_socket {
 	 * @param handler The function to be called if the accept failes or succeeds.
 	 * @param handler_context The context passed to the @a handler function.
 	 *
-	 * @return ::cio_success for success.
+	 * @return ::CIO_SUCCESS for success.
 	 */
 	enum cio_error (*accept)(struct cio_server_socket *context, cio_accept_handler handler, void *handler_context);
 
@@ -104,7 +104,7 @@ struct cio_server_socket {
 	 *        then cio_server_socket binds to all interfaces.
 	 * @param port The TCP port the cio_server_socket shall listen on.
 	 *
-	 * @return ::cio_success for success.
+	 * @return ::CIO_SUCCESS for success.
 	 */
 	enum cio_error (*bind)(struct cio_server_socket *context, const char *bind_address, uint16_t port);
 
@@ -115,7 +115,7 @@ struct cio_server_socket {
 	 * @param context A pointer to a cio_server_socket for which the socket option should be set.
 	 * @param on Whether the socket option should be enabled or disabled.
 	 *
-	 * @return ::cio_success for success.
+	 * @return ::CIO_SUCCESS for success.
 	 */
 	enum cio_error (*set_reuse_address)(struct cio_server_socket *context, bool on);
 
@@ -148,7 +148,7 @@ struct cio_server_socket {
  * It is guaranteed the the cio library will not access any memory of
  * cio_server_socket that is passed to the close hook. Therefore
  * the hook could be used to free the memory of the server socket.
- * @return ::cio_success for success.
+ * @return ::CIO_SUCCESS for success.
  */
 enum cio_error cio_server_socket_init(struct cio_server_socket *ss,
                                       struct cio_eventloop *loop,

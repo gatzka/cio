@@ -79,7 +79,7 @@ static void handle_write(struct cio_io_stream *stream, void *handler_context, co
 
 	struct echo_client *client = handler_context;
 
-	if (err != cio_success) {
+	if (err != CIO_SUCCESS) {
 		fprintf(stderr, "write error!\n");
 		return;
 	}
@@ -91,7 +91,7 @@ static void handle_write(struct cio_io_stream *stream, void *handler_context, co
 static void handle_read(struct cio_io_stream *stream, void *handler_context, enum cio_error err, struct cio_read_buffer *read_buffer)
 {
 	struct echo_client *client = handler_context;
-	if (err != cio_success) {
+	if (err != CIO_SUCCESS) {
 		fprintf(stderr, "read error!\n");
 		return;
 	}
@@ -114,7 +114,7 @@ static void handle_accept(struct cio_server_socket *ss, void *handler_context, e
 
 	struct echo_client *client = container_of(socket, struct echo_client, socket);
 
-	if (err != cio_success) {
+	if (err != CIO_SUCCESS) {
 		fprintf(stderr, "accept error!\n");
 		ss->close(ss);
 		cio_eventloop_cancel(ss->loop);
@@ -139,37 +139,37 @@ int main()
 	}
 
 	enum cio_error err = cio_eventloop_init(&loop);
-	if (err != cio_success) {
+	if (err != CIO_SUCCESS) {
 		return EXIT_FAILURE;
 	}
 
 	struct cio_server_socket ss;
 	err = cio_server_socket_init(&ss, &loop, 5, alloc_echo_client, free_echo_client, NULL);
-	if (err != cio_success) {
+	if (err != CIO_SUCCESS) {
 		ret = EXIT_FAILURE;
 		goto destroy_loop;
 	}
 
 	err = ss.set_reuse_address(&ss, true);
-	if (err != cio_success) {
+	if (err != CIO_SUCCESS) {
 		ret = EXIT_FAILURE;
 		goto close_socket;
 	}
 
 	err = ss.bind(&ss, NULL, 12345);
-	if (err != cio_success) {
+	if (err != CIO_SUCCESS) {
 		ret = EXIT_FAILURE;
 		goto close_socket;
 	}
 
 	err = ss.accept(&ss, handle_accept, NULL);
-	if (err != cio_success) {
+	if (err != CIO_SUCCESS) {
 		ret = EXIT_FAILURE;
 		goto close_socket;
 	}
 
 	err = cio_eventloop_run(&loop);
-	if (err != cio_success) {
+	if (err != CIO_SUCCESS) {
 		ret = EXIT_FAILURE;
 	}
 

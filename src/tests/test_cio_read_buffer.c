@@ -43,7 +43,7 @@ static void test_init_read_buffer(void)
 	uint32_t buffer;
 	struct cio_read_buffer rb;
 	enum cio_error err = cio_read_buffer_init(&rb, &buffer, sizeof(buffer));
-	TEST_ASSERT_EQUAL_MESSAGE(cio_success, err, "Read buffer was not initialized correctly!");
+	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Read buffer was not initialized correctly!");
 	TEST_ASSERT_EQUAL_MESSAGE(sizeof(buffer), cio_read_buffer_space_available(&rb), "Available space not initialized correctly!");
 	TEST_ASSERT_EQUAL_MESSAGE(0, cio_read_buffer_unread_bytes(&rb), "Unread bytes was not initialized correctly!");
 }
@@ -52,14 +52,14 @@ static void test_init_no_read_buffer(void)
 {
 	uint32_t buffer;
 	enum cio_error err = cio_read_buffer_init(NULL, &buffer, sizeof(buffer));
-	TEST_ASSERT_EQUAL_MESSAGE(cio_invalid_argument, err, "Return value for initialization with no read buffer not correct!");
+	TEST_ASSERT_EQUAL_MESSAGE(CIO_INVALID_ARGUMENT, err, "Return value for initialization with no read buffer not correct!");
 }
 
 static void test_init_no_buffer(void)
 {
 	struct cio_read_buffer rb;
 	enum cio_error err = cio_read_buffer_init(&rb, NULL, 4);
-	TEST_ASSERT_EQUAL_MESSAGE(cio_invalid_argument, err, "Return value for initialization with no buffer provided is not correct!");
+	TEST_ASSERT_EQUAL_MESSAGE(CIO_INVALID_ARGUMENT, err, "Return value for initialization with no buffer provided is not correct!");
 }
 
 int main(void)

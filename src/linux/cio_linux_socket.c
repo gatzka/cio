@@ -44,7 +44,7 @@
 static enum cio_error socket_close(struct cio_socket *s)
 {
 	if (unlikely(s == NULL)) {
-		return cio_invalid_argument;
+		return CIO_INVALID_ARGUMENT;
 	}
 
 	cio_linux_eventloop_remove(s->loop, &s->ev);
@@ -54,7 +54,7 @@ static enum cio_error socket_close(struct cio_socket *s)
 		s->close_hook(s);
 	}
 
-	return cio_success;
+	return CIO_SUCCESS;
 }
 
 static enum cio_error socket_tcp_no_delay(struct cio_socket *s, bool on)
@@ -72,7 +72,7 @@ static enum cio_error socket_tcp_no_delay(struct cio_socket *s, bool on)
 		return (enum cio_error)errno;
 	}
 
-	return cio_success;
+	return CIO_SUCCESS;
 }
 
 static enum cio_error socket_keepalive(struct cio_socket *s, bool on, unsigned int keep_idle_s,
@@ -101,7 +101,7 @@ static enum cio_error socket_keepalive(struct cio_socket *s, bool on, unsigned i
 		return (enum cio_error)errno;
 	}
 
-	return cio_success;
+	return CIO_SUCCESS;
 }
 
 static struct cio_io_stream *socket_get_io_stream(struct cio_socket *s)
@@ -124,10 +124,10 @@ static void read_callback(void *context)
 		enum cio_error error;
 		rb->bytes_transferred = (size_t)ret;
 		if (ret == 0) {
-			error = cio_eof;
+			error = CIO_EOF;
 		} else {
 			rb->add_ptr += (size_t)ret;
-			error = cio_success;
+			error = CIO_SUCCESS;
 		}
 
 		stream->read_handler(stream, stream->read_handler_context, error, rb);
@@ -137,7 +137,7 @@ static void read_callback(void *context)
 static enum cio_error stream_read(struct cio_io_stream *stream, struct cio_read_buffer *buffer, cio_io_stream_read_handler handler, void *handler_context)
 {
 	if (unlikely((stream == NULL) || (buffer == NULL) || (handler == NULL))) {
-		return cio_invalid_argument;
+		return CIO_INVALID_ARGUMENT;
 	}
 
 	struct cio_socket *s = container_of(stream, struct cio_socket, stream);
@@ -152,13 +152,13 @@ static enum cio_error stream_read(struct cio_io_stream *stream, struct cio_read_
 static void write_callback(void *context)
 {
 	struct cio_io_stream *stream = context;
-	stream->write_handler(stream, stream->write_handler_context, stream->write_buffer, cio_success, 0);
+	stream->write_handler(stream, stream->write_handler_context, stream->write_buffer, CIO_SUCCESS, 0);
 }
 
 static enum cio_error stream_write(struct cio_io_stream *stream, const struct cio_write_buffer *buffer, cio_io_stream_write_handler handler, void *handler_context)
 {
 	if (unlikely((stream == NULL) || (buffer == NULL) || (handler == NULL))) {
-		return cio_invalid_argument;
+		return CIO_INVALID_ARGUMENT;
 	}
 
 	struct cio_socket *s = container_of(stream, struct cio_socket, stream);
@@ -185,7 +185,7 @@ static enum cio_error stream_write(struct cio_io_stream *stream, const struct ci
 
 	ssize_t ret = sendmsg(s->ev.fd, &msg, MSG_NOSIGNAL);
 	if (likely(ret >= 0)) {
-		handler(stream, handler_context, buffer, cio_success, (size_t)ret);
+		handler(stream, handler_context, buffer, CIO_SUCCESS, (size_t)ret);
 	} else {
 		if (likely((errno == EWOULDBLOCK) || (errno == EAGAIN))) {
 			enum cio_error err;
@@ -195,7 +195,7 @@ static enum cio_error stream_write(struct cio_io_stream *stream, const struct ci
 			s->ev.context = stream;
 			s->ev.write_callback = write_callback;
 			err = cio_linux_eventloop_register_write(s->loop, &s->ev);
-			if (unlikely(err != cio_success)) {
+			if (unlikely(err != CIO_SUCCESS)) {
 				handler(stream, handler_context, buffer, err, 0);
 			}
 		} else {
@@ -203,7 +203,7 @@ static enum cio_error stream_write(struct cio_io_stream *stream, const struct ci
 		}
 	}
 
-	return cio_success;
+	return CIO_SUCCESS;
 }
 
 static enum cio_error stream_close(struct cio_io_stream *stream)
@@ -217,7 +217,7 @@ enum cio_error cio_linux_socket_init(struct cio_socket *s, int client_fd,
                                      cio_socket_close_hook close_hook)
 {
 	if (unlikely((s == NULL) || (loop == NULL))) {
-		return cio_invalid_argument;
+		return CIO_INVALID_ARGUMENT;
 	}
 
 	s->ev.fd = client_fd;
@@ -252,7 +252,7 @@ enum cio_error cio_socket_init(struct cio_socket *s,
 	}
 
 	err = cio_linux_socket_init(s, socket_fd, loop, close_hook);
-	if (unlikely(err != cio_success)) {
+	if (unlikely(err != CIO_SUCCESS)) {
 		close(socket_fd);
 	}
 

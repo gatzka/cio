@@ -85,7 +85,7 @@ struct cio_socket {
 	 * @param context A pointer to a cio_socket for which the Nagle algorithm should be changed.
 	 * @param on Whether Nagle algorithm should be enabled or not.
 	 *
-	 * @return ::cio_success for success.
+	 * @return ::CIO_SUCCESS for success.
 	 */
 	enum cio_error (*set_tcp_no_delay)(struct cio_socket *context, bool on);
 
@@ -103,7 +103,7 @@ struct cio_socket {
 	 * @param keep_cnt The maximum number of keepalive probes before dropping the connection.
 	 *        This option might be unused in some platform implementations.
 	 *
-	 * @return ::cio_success for success.
+	 * @return ::CIO_SUCCESS for success.
 	 */
 	enum cio_error (*set_keep_alive)(struct cio_socket *context, bool on, unsigned int keep_idle_s, unsigned int keep_intvl_s, unsigned int keep_cnt);
 
@@ -128,7 +128,7 @@ struct cio_socket {
  * It is guaranteed the the cio library will not access any memory of
  * cio_server_socket that is passed to the close hook. Therefore
  * the hook could be used to free the memory of the server socket.
- * @return ::cio_success for success.
+ * @return ::CIO_SUCCESS for success.
  */
 enum cio_error cio_socket_init(struct cio_socket *s,
                                struct cio_eventloop *loop,

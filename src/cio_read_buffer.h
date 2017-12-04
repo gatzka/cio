@@ -81,12 +81,12 @@ static inline size_t cio_read_buffer_space_available(const struct cio_read_buffe
  * @param rb The read buffer to be initialized.
  * @param data The memory the read buffer operates on.
  * @param size The size of the memory the read buffer operates on.
- * @return ::cio_success for success.
+ * @return ::CIO_SUCCESS for success.
  */
 static inline enum cio_error cio_read_buffer_init(struct cio_read_buffer *rb, void *data, size_t size)
 {
 	if (unlikely((rb == NULL) || (data == NULL))) {
-		return cio_invalid_argument;
+		return CIO_INVALID_ARGUMENT;
 	}
 
 	rb->data = data;
@@ -94,7 +94,7 @@ static inline enum cio_error cio_read_buffer_init(struct cio_read_buffer *rb, vo
 	rb->fetch_ptr = data;
 	rb->add_ptr = data;
 
-	return cio_success;
+	return CIO_SUCCESS;
 }
 
 /**

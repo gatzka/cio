@@ -56,9 +56,9 @@ static enum cio_http_cb_return save_websocket_key(uint8_t *dest, const char *at,
 	if (length == SEC_WEB_SOCKET_KEY_LENGTH) {
 		memcpy(dest, at, length);
 		memcpy(&dest[length], ws_guid, sizeof(ws_guid));
-		return cio_http_cb_success;
+		return CIO_HTTP_CB_SUCCESS;
 	} else {
-		return cio_http_cb_error;
+		return CIO_HTTP_CB_ERROR;
 	}
 }
 
@@ -66,9 +66,9 @@ static enum cio_http_cb_return check_websocket_version(const char *at, size_t le
 {
 	static const char version[] = "13";
 	if ((length == sizeof(version) - 1) && (memcmp(at, version, length) == 0)) {
-		return cio_http_cb_success;
+		return CIO_HTTP_CB_SUCCESS;
 	} else {
-		return cio_http_cb_error;
+		return CIO_HTTP_CB_ERROR;
 	}
 }
 
@@ -138,7 +138,7 @@ static enum cio_http_cb_return handle_field(struct cio_http_client *client, cons
 		ws->flags.current_header_field = HEADER_SEC_WEBSOCKET_PROTOCOL;
 	}
 
-	return cio_http_cb_success;
+	return CIO_HTTP_CB_SUCCESS;
 }
 
 static enum cio_http_cb_return handle_value(struct cio_http_client *client, const char *at, size_t length)
@@ -158,13 +158,13 @@ static enum cio_http_cb_return handle_value(struct cio_http_client *client, cons
 
 	case HEADER_SEC_WEBSOCKET_PROTOCOL:
 		ws->flags.subprotocol_requested = 1;
-		ret = cio_http_cb_success;
+		ret = CIO_HTTP_CB_SUCCESS;
 		check_websocket_protocol(ws, at, length);
 		break;
 
 	case HEADER_UNKNOWN:
 	default:
-		ret = cio_http_cb_success;
+		ret = CIO_HTTP_CB_SUCCESS;
 		break;
 	}
 
@@ -191,7 +191,7 @@ static void response_written(struct cio_buffered_stream *bs, void *handler_conte
 
 	struct cio_http_client *client = (struct cio_http_client *)handler_context;
 
-	if (unlikely(err != cio_success)) {
+	if (unlikely(err != CIO_SUCCESS)) {
 		client->close(client);
 		return;
 	}
@@ -220,7 +220,7 @@ static void send_upgrade_response(struct cio_http_client *client)
 	ws->accept_value[28] = '\r';
 	ws->accept_value[29] = '\n';
 
-	client->queue_header(client, cio_http_switching_protocols);
+	client->queue_header(client, CIO_HTTP_SWITCHING_PROTOCOLS);
 
 	static const char upgrade_header[] =
 		"Upgrade: websocket" CIO_CRLF
@@ -250,25 +250,25 @@ static void send_upgrade_response(struct cio_http_client *client)
 static enum cio_http_cb_return handle_headers_complete(struct cio_http_client *client)
 {
 	if (unlikely(!check_http_version(client))) {
-		return cio_http_cb_error;
+		return CIO_HTTP_CB_ERROR;
 	}
 
 	if (unlikely(client->http_method != CIO_HTTP_GET)) {
-		return cio_http_cb_error;
+		return CIO_HTTP_CB_ERROR;
 	}
 
 	if (unlikely(!client->parser.upgrade)) {
-		return cio_http_cb_error;
+		return CIO_HTTP_CB_ERROR;
 	}
 
 	struct cio_websocket_location_handler *ws = container_of(client->handler, struct cio_websocket_location_handler, http_location);
 	if (unlikely((ws->flags.subprotocol_requested == 1) && (ws->chosen_subprotocol == -1))) {
-		return cio_http_cb_error;
+		return CIO_HTTP_CB_ERROR;
 	}
 
 	send_upgrade_response(client);
 
-	return cio_http_cb_skip_body;
+	return CIO_HTTP_CB_SKIP_BODY;
 }
 
 void cio_websocket_location_handler_init(struct cio_websocket_location_handler *handler, const char *subprotocols[], unsigned int num_subprotocols)

@@ -65,7 +65,7 @@ static enum cio_http_cb_return dummy_on_message_complete(struct cio_http_client 
 	cio_write_buffer_element_init(&dh->wb, data, sizeof(data));
 	cio_write_buffer_queue_tail(&dh->wbh, &dh->wb);
 	client->write_response(client, &dh->wbh);
-	return cio_http_cb_success;
+	return CIO_HTTP_CB_SUCCESS;
 }
 
 static enum cio_http_cb_return dummy_on_body(struct cio_http_client *client, const char *at, size_t length)
@@ -73,7 +73,7 @@ static enum cio_http_cb_return dummy_on_body(struct cio_http_client *client, con
 	(void)client;
 	(void)at;
 	(void)length;
-	return cio_http_cb_success;
+	return CIO_HTTP_CB_SUCCESS;
 }
 
 static struct cio_http_location_handler *alloc_dummy_handler(const void *config)
@@ -133,13 +133,13 @@ int main()
 	}
 
 	enum cio_error err = cio_eventloop_init(&loop);
-	if (err != cio_success) {
+	if (err != CIO_SUCCESS) {
 		return EXIT_FAILURE;
 	}
 
 	struct cio_http_server server;
 	err = cio_http_server_init(&server, 8080, &loop, serve_error, read_timeout, alloc_http_client, free_http_client);
-	if (err != cio_success) {
+	if (err != CIO_SUCCESS) {
 		ret = EXIT_FAILURE;
 		goto destroy_loop;
 	}
@@ -149,7 +149,7 @@ int main()
 	server.register_location(&server, &target_foo);
 
 	err = server.serve(&server);
-	if (err != cio_success) {
+	if (err != CIO_SUCCESS) {
 		ret = EXIT_FAILURE;
 		goto destroy_loop;
 	}
