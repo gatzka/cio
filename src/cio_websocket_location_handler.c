@@ -64,8 +64,8 @@ static enum cio_http_cb_return save_websocket_key(uint8_t *dest, const char *at,
 
 static enum cio_http_cb_return check_websocket_version(const char *at, size_t length)
 {
-	static const char version[] = "13";
-	if ((length == sizeof(version) - 1) && (memcmp(at, version, length) == 0)) {
+	static const char version[2] = "13";
+	if ((length == sizeof(version)) && (memcmp(at, version, length) == 0)) {
 		return CIO_HTTP_CB_SUCCESS;
 	} else {
 		return CIO_HTTP_CB_ERROR;

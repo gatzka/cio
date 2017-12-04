@@ -41,7 +41,7 @@ extern "C" {
  *
  * You have to set the callback functions with respect to the HTTP data (header information and/or body)
  * you are interested in. If you don't set any callback, the @ref ::cio_http_server "HTTP server" will return
- * @ref ::cio_http_status_internal_server_error "\"500 Internal server error\"" to the requesting client.
+ * @ref ::CIO_HTTP_STATUS_INTERNAL_SERVER_ERROR "\"500 Internal server error\"" to the requesting client.
  *
  * Inside the callback functions you have access to the @ref cio_http_client "HTTP client" which performed
  * the request. You have to use the client functions @ref cio_http_client_write_response "write_response"
@@ -58,7 +58,7 @@ extern "C" {
  * @brief The cio_http_cb_return enum lists the allowed return values of user specified
  * callback functions like @ref cio_http_location_handler_on_header_field "on_header_field". If the data
  * provided via the callbacks doesn't match to the protocol the @ref ::cio_http_location_handler "HTTP handler" handles,
- * return ::cio_http_cb_error, ::cio_http_cb_success otherwise.
+ * return ::CIO_HTTP_CB_ERROR, ::CIO_HTTP_CB_SUCCESS otherwise.
  *
  */
 enum cio_http_cb_return {

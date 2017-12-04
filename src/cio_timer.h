@@ -88,7 +88,7 @@ struct cio_timer {
 	 *
 	 * @param timer A pointer to a struct cio_timer which shall be canceled.
 	 * @return ::CIO_SUCCESS for success,
-	 *         ::cio_no_such_file_or_directory if the timer wasn't armed.
+	 *         ::CIO_NO_SUCH_FILE_OR_DIRECTORY if the timer wasn't armed.
 	 */
 	enum cio_error (*cancel)(struct cio_timer *timer);
 
