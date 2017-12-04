@@ -323,10 +323,6 @@ static void parse(struct cio_buffered_stream *stream, void *handler_context, enu
 	size_t nparsed = http_parser_execute(parser, &client->parser_settings, (const char *)cio_read_buffer_get_read_ptr(read_buffer), bytes_transfered);
 	client->parsing--;
 
-	if (parser->upgrade){
-		return;
-	}
-
 	if (unlikely(nparsed != bytes_transfered)) {
 		client->write_header(client, cio_http_status_bad_request);
 		return;
@@ -334,6 +330,10 @@ static void parse(struct cio_buffered_stream *stream, void *handler_context, enu
 
 	if (client->to_be_closed) {
 		close_client(client);
+		return;
+	}
+
+	if (parser->upgrade) {
 		return;
 	}
 

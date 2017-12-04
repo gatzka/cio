@@ -253,7 +253,7 @@ static enum cio_http_cb_return handle_headers_complete(struct cio_http_client *c
 		return cio_http_cb_error;
 	}
 
-	if (unlikely(client->http_method != cio_http_get)) {
+	if (unlikely(client->http_method != CIO_HTTP_GET)) {
 		return cio_http_cb_error;
 	}
 
