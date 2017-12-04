@@ -35,8 +35,9 @@ static void close(struct cio_websocket *ws, enum cio_websocket_status_code statu
 	ws->client->close(ws->client);
 }
 
-void cio_websocket_init(struct cio_websocket *ws, struct cio_http_client *client)
+void cio_websocket_init(struct cio_websocket *ws)
 {
+	ws->client = NULL;
+	ws->onconnect_handler = NULL;
 	ws->close = close;
-	ws->client = client;
 }

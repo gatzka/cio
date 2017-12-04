@@ -35,6 +35,7 @@
 #include "cio_http_location_handler.h"
 #include "cio_string.h"
 #include "cio_util.h"
+#include "cio_websocket.h"
 #include "cio_websocket_location_handler.h"
 #include "cio_write_buffer.h"
 #include "sha1/sha1.h"
@@ -187,10 +188,23 @@ static void response_written(struct cio_buffered_stream *bs, void *handler_conte
 {
 	(void)bs;
 	(void)buffer;
-	(void)err;
 
 	struct cio_http_client *client = (struct cio_http_client *)handler_context;
-	(void)client;
+
+	if (unlikely(err != cio_success)) {
+		client->close(client);
+		return;
+	}
+
+	struct cio_websocket_location_handler *ws = container_of(client->handler, struct cio_websocket_location_handler, http_location);
+
+	ws->websocket.client = client;
+
+	if (likely(ws->websocket.onconnect_handler != NULL)) {
+		ws->websocket.onconnect_handler(&ws->websocket);
+	} else {
+		client->close(client);
+	}
 }
 
 static void send_upgrade_response(struct cio_http_client *client)
@@ -259,13 +273,16 @@ static enum cio_http_cb_return handle_headers_complete(struct cio_http_client *c
 
 void cio_websocket_location_handler_init(struct cio_websocket_location_handler *handler, const char *subprotocols[], unsigned int num_subprotocols)
 {
-	cio_http_location_handler_init(&handler->http_location);
 	handler->flags.current_header_field = 0;
 	handler->chosen_subprotocol = -1;
 	handler->flags.subprotocol_requested = 0;
 	handler->subprotocols = subprotocols;
 	handler->number_subprotocols = num_subprotocols;
+
+	cio_http_location_handler_init(&handler->http_location);
 	handler->http_location.on_header_field = handle_field;
 	handler->http_location.on_header_value = handle_value;
 	handler->http_location.on_headers_complete = handle_headers_complete;
+
+	cio_websocket_init(&handler->websocket);
 }

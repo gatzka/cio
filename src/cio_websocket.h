@@ -51,8 +51,14 @@ enum cio_websocket_status_code {
 	CIO_WEBSOCKET_CLOSE_RESERVED_UPPER_BOUND = 4999
 };
 
+struct cio_websocket;
+
+typedef void (*cio_websocket_onconnect_handler)(struct cio_websocket *ws);
+
 struct cio_websocket {
 	void (*close)(struct cio_websocket *ws, enum cio_websocket_status_code status_code);
+
+	cio_websocket_onconnect_handler onconnect_handler;
 
 	/**
 	 * @privatesection
@@ -60,7 +66,8 @@ struct cio_websocket {
 	struct cio_http_client *client;
 };
 
-void cio_websocket_init(struct cio_websocket *ws, struct cio_http_client *client);
+
+void cio_websocket_init(struct cio_websocket *ws);
 
 #ifdef __cplusplus
 }
