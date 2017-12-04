@@ -43,10 +43,10 @@
 #define CIO_CRLF "\r\n"
 
 enum header_field {
-	HEADER_UNKNOWN,
-	HEADER_SEC_WEBSOCKET_KEY,
-	HEADER_SEC_WEBSOCKET_VERSION,
-	HEADER_SEC_WEBSOCKET_PROTOCOL,
+	CIO_WS_HEADER_UNKNOWN,
+	CIO_WS_HEADER_SEC_WEBSOCKET_KEY,
+	CIO_WS_HEADER_SEC_WEBSOCKET_VERSION,
+	CIO_WS_HEADER_SEC_WEBSOCKET_PROTOCOL,
 };
 
 static enum cio_http_cb_return save_websocket_key(uint8_t *dest, const char *at, size_t length)
@@ -131,11 +131,11 @@ static enum cio_http_cb_return handle_field(struct cio_http_client *client, cons
 	struct cio_websocket_location_handler *ws = container_of(client->handler, struct cio_websocket_location_handler, http_location);
 
 	if ((sizeof(sec_key) - 1 == length) && (cio_strncasecmp(at, sec_key, length) == 0)) {
-		ws->flags.current_header_field = HEADER_SEC_WEBSOCKET_KEY;
+		ws->flags.current_header_field = CIO_WS_HEADER_SEC_WEBSOCKET_KEY;
 	} else if ((sizeof(ws_version) - 1 == length) && (cio_strncasecmp(at, ws_version, length) == 0)) {
-		ws->flags.current_header_field = HEADER_SEC_WEBSOCKET_VERSION;
+		ws->flags.current_header_field = CIO_WS_HEADER_SEC_WEBSOCKET_VERSION;
 	} else if ((sizeof(ws_protocol) - 1 == length) && (cio_strncasecmp(at, ws_protocol, length) == 0)) {
-		ws->flags.current_header_field = HEADER_SEC_WEBSOCKET_PROTOCOL;
+		ws->flags.current_header_field = CIO_WS_HEADER_SEC_WEBSOCKET_PROTOCOL;
 	}
 
 	return CIO_HTTP_CB_SUCCESS;
@@ -148,27 +148,27 @@ static enum cio_http_cb_return handle_value(struct cio_http_client *client, cons
 	struct cio_websocket_location_handler *ws = container_of(client->handler, struct cio_websocket_location_handler, http_location);
 
 	switch (ws->flags.current_header_field) {
-	case HEADER_SEC_WEBSOCKET_KEY:
+	case CIO_WS_HEADER_SEC_WEBSOCKET_KEY:
 		ret = save_websocket_key(ws->sec_web_socket_key, at, length);
 		break;
 
-	case HEADER_SEC_WEBSOCKET_VERSION:
+	case CIO_WS_HEADER_SEC_WEBSOCKET_VERSION:
 		ret = check_websocket_version(at, length);
 		break;
 
-	case HEADER_SEC_WEBSOCKET_PROTOCOL:
+	case CIO_WS_HEADER_SEC_WEBSOCKET_PROTOCOL:
 		ws->flags.subprotocol_requested = 1;
 		ret = CIO_HTTP_CB_SUCCESS;
 		check_websocket_protocol(ws, at, length);
 		break;
 
-	case HEADER_UNKNOWN:
+	case CIO_WS_HEADER_UNKNOWN:
 	default:
 		ret = CIO_HTTP_CB_SUCCESS;
 		break;
 	}
 
-	ws->flags.current_header_field = HEADER_UNKNOWN;
+	ws->flags.current_header_field = CIO_WS_HEADER_UNKNOWN;
 	return ret;
 }
 
