@@ -34,6 +34,7 @@ extern "C" {
 #include <stdint.h>
 
 #include "cio_http_location_handler.h"
+#include "cio_websocket.h"
 #include "cio_write_buffer.h"
 
 #define SEC_WEB_SOCKET_KEY_LENGTH 24
@@ -62,6 +63,8 @@ struct cio_websocket_location_handler {
 	struct cio_write_buffer wb_protocol_field;
 	struct cio_write_buffer wb_protocol_value;
 	struct cio_write_buffer wb_protocol_end;
+
+	struct cio_websocket websocket;
 };
 
 /**
