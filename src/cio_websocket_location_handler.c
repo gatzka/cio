@@ -284,5 +284,5 @@ void cio_websocket_location_handler_init(struct cio_websocket_location_handler *
 	handler->http_location.on_header_value = handle_value;
 	handler->http_location.on_headers_complete = handle_headers_complete;
 
-	cio_websocket_init(&handler->websocket);
+	cio_websocket_init(&handler->websocket, true);
 }
