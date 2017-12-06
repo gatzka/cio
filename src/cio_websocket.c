@@ -519,16 +519,16 @@ static void receive_frames(struct cio_websocket *ws)
 	ws->bs->read_exactly(ws->bs, ws->rb, 1, get_header, ws);
 }
 
-static void self_close_normal(struct cio_websocket *ws)
+static void self_close_frame(struct cio_websocket *ws, enum cio_websocket_status_code status_code)
 {
 	ws->self_initiated_close = true;
-	send_close_frame(ws, CIO_WEBSOCKET_CLOSE_NORMAL);
+	send_close_frame(ws, status_code);
 }
 
 void cio_websocket_init(struct cio_websocket *ws, bool is_server, cio_websocket_close_hook close_hook)
 {
 	ws->onconnect_handler = NULL;
-	ws->close = self_close_normal;
+	ws->close = self_close_frame;
 	ws->is_server = is_server;
 	ws->close_hook = close_hook;
 	ws->ws_flags.is_fragmented = 0;

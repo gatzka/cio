@@ -58,7 +58,7 @@ static void free_websocket_handler(struct cio_http_location_handler *handler)
 
 static void onconnect_handler(struct cio_websocket *ws)
 {
-	ws->close(ws);
+	ws->close(ws, CIO_WEBSOCKET_CLOSE_NORMAL);
 }
 
 static struct cio_http_location_handler *alloc_websocket_handler(const void *config)

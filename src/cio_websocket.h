@@ -64,7 +64,7 @@ enum cio_websocket_status_code {
 typedef void (*cio_websocket_onconnect_handler)(struct cio_websocket *ws);
 
 struct cio_websocket {
-	void (*close)(struct cio_websocket *ws);
+	void (*close)(struct cio_websocket *ws, enum cio_websocket_status_code status);
 
 	cio_websocket_onconnect_handler onconnect_handler;
 
