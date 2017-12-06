@@ -64,6 +64,7 @@ struct cio_websocket_location_handler {
 	struct cio_write_buffer wb_protocol_value;
 	struct cio_write_buffer wb_protocol_end;
 
+
 	struct cio_websocket websocket;
 };
 

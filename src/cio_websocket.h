@@ -35,6 +35,8 @@ extern "C" {
 #include <stdint.h>
 
 #include "cio_buffered_stream.h"
+#include "cio_eventloop.h"
+#include "cio_timer.h"
 #include "cio_write_buffer.h"
 
 struct cio_websocket;
@@ -66,17 +68,37 @@ struct cio_websocket {
 
 	cio_websocket_onconnect_handler onconnect_handler;
 
+	void (*onbinaryframe_received)(struct cio_websocket *ws, uint8_t *data, size_t length, bool last_frame);
+	void (*on_textframe_received)(struct cio_websocket *ws, char *data, size_t length, bool last_frame);
+	void (*on_ping)(struct cio_websocket *ws, uint8_t *data, size_t length);
+	void (*on_pong)(struct cio_websocket *ws, uint8_t *data, size_t length);
+	void (*on_close)(struct cio_websocket *ws, enum cio_websocket_status_code status, char *text);
+
 	/**
 	 * @privatesection
 	 */
+	uint64_t read_frame_length;
+	struct cio_eventloop *loop;
+
+	struct {
+		unsigned int fin : 1;
+		unsigned int rsv : 3;
+		unsigned int opcode : 4;
+		unsigned int mask : 1;
+		unsigned int frag_opcode : 4;
+		unsigned int is_fragmented : 1;
+	} ws_flags;
 
 	struct cio_buffered_stream *bs;
+	struct cio_read_buffer *rb;
 	struct cio_write_buffer wbh;
 	struct cio_write_buffer wb_send_header;
 	struct cio_write_buffer wb_send_payload;
+	struct cio_timer close_timer;
 	cio_websocket_close_hook close_hook;
 	bool is_server;
-	bool wait_for_close_response;
+	bool self_initiated_close;
+	uint8_t mask[4];
 	uint16_t close_status;
 	uint8_t send_header[14];
 };

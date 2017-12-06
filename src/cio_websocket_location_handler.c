@@ -200,6 +200,8 @@ static void response_written(struct cio_buffered_stream *bs, void *handler_conte
 
 	struct cio_websocket *ws = &wslh->websocket;
 	ws->bs = &client->bs;
+	ws->rb = &client->rb;
+	ws->loop = client->socket.loop;
 
 	if (likely(ws->onconnect_handler != NULL)) {
 		ws->onconnect_handler(ws);
@@ -291,6 +293,5 @@ void cio_websocket_location_handler_init(struct cio_websocket_location_handler *
 	handler->http_location.on_header_field = handle_field;
 	handler->http_location.on_header_value = handle_value;
 	handler->http_location.on_headers_complete = handle_headers_complete;
-
 	cio_websocket_init(&handler->websocket, true, close_server_websocket);
 }
