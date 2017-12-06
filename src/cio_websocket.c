@@ -214,6 +214,14 @@ static void close_frame_written(struct cio_buffered_stream *bs, void *handler_co
 	}
 }
 
+static void do_nothing(struct cio_buffered_stream *bs, void *handler_context, const struct cio_write_buffer *buffer, enum cio_error err)
+{
+	(void)bs;
+	(void)handler_context;
+	(void)buffer;
+	(void)err;
+}
+
 static void close_timeout_handler(struct cio_timer *timer, void *handler_context, enum cio_error err)
 {
 	(void)timer;
@@ -225,9 +233,17 @@ static void close_timeout_handler(struct cio_timer *timer, void *handler_context
 static void send_close_frame(struct cio_websocket *ws, enum cio_websocket_status_code status_code)
 {
 	ws->close_status = cio_htobe16(status_code);
-	cio_timer_init(&ws->close_timer, ws->loop, NULL);
-	ws->close_timer.expires_from_now(&ws->close_timer, close_timeout_ns, close_timeout_handler, ws);
-	send_frame(ws, (uint8_t *)&ws->close_status, sizeof(ws->close_status), CIO_WEBSOCKET_CLOSE_FRAME, close_frame_written);
+	enum cio_error err = cio_timer_init(&ws->close_timer, ws->loop, NULL);
+	if (err == CIO_SUCCESS) {
+		err = ws->close_timer.expires_from_now(&ws->close_timer, close_timeout_ns, close_timeout_handler, ws);
+		if (err == CIO_SUCCESS) {
+			send_frame(ws, (uint8_t *)&ws->close_status, sizeof(ws->close_status), CIO_WEBSOCKET_CLOSE_FRAME, close_frame_written);
+			return;
+		}
+	}
+
+	send_frame(ws, (uint8_t *)&ws->close_status, sizeof(ws->close_status), CIO_WEBSOCKET_CLOSE_FRAME, do_nothing);
+	close(ws);
 }
 
 static void handle_frame(struct cio_websocket *ws, uint8_t *data, uint64_t length)
