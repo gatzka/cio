@@ -276,10 +276,8 @@ static void test_cancel_settime_in_cancel_fails(void)
 	timer.expires_from_now(&timer, 2000, handle_timeout, NULL);
 
 	err = timer.cancel(&timer);
-	TEST_ASSERT(err == CIO_SUCCESS);
-	TEST_ASSERT_EQUAL(1, handle_timeout_fake.call_count);
-	TEST_ASSERT((handle_timeout_fake.arg2_val != CIO_SUCCESS) && (handle_timeout_fake.arg2_val != CIO_OPERATION_ABORTED));
-	TEST_ASSERT_EQUAL(&timer, handle_timeout_fake.arg0_val);
+	TEST_ASSERT_MESSAGE(err != CIO_SUCCESS, "timer cancel did not failed when settime fails!");
+	TEST_ASSERT_EQUAL(0, handle_timeout_fake.call_count);
 }
 
 static void test_arming_settime_fails(void)
@@ -293,11 +291,9 @@ static void test_arming_settime_fails(void)
 	enum cio_error err = cio_timer_init(&timer, NULL, NULL);
 	TEST_ASSERT_EQUAL(CIO_SUCCESS, err);
 
-	timer.expires_from_now(&timer, 2000, handle_timeout, NULL);
-
-	TEST_ASSERT_EQUAL(1, handle_timeout_fake.call_count);
-	TEST_ASSERT(handle_timeout_fake.arg2_val != CIO_SUCCESS);
-	TEST_ASSERT_EQUAL(&timer, handle_timeout_fake.arg0_val);
+	err = timer.expires_from_now(&timer, 2000, handle_timeout, NULL);
+	TEST_ASSERT_MESSAGE(err != CIO_SUCCESS, "Timer arming did not fail when settime fails!");
+	TEST_ASSERT_EQUAL_MESSAGE(0, handle_timeout_fake.call_count, "Timer callback was called even if arming failed!");
 }
 
 static void test_arming_read_fails(void)

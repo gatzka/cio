@@ -79,8 +79,9 @@ struct cio_timer {
 	 * @anchor cio_timer_expires_from_now_handler_context
 	 * @param handler_context A pointer to a context which might be
 	 *                        useful inside @p handler.
+	 * @return ::CIO_SUCCESS if @p timer was armed successfully.
 	 */
-	void (*expires_from_now)(struct cio_timer *timer, uint64_t timeout_ns, timer_handler handler, void *handler_context);
+	enum cio_error (*expires_from_now)(struct cio_timer *timer, uint64_t timeout_ns, timer_handler handler, void *handler_context);
 
 	/**
 	 * @anchor cio_timer_cancel
