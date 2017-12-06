@@ -403,17 +403,26 @@ static void handle_accept(struct cio_server_socket *ss, void *handler_context, e
 
 	err = cio_timer_init(&client->read_timer, server->loop, NULL);
 	if (unlikely(err != CIO_SUCCESS)) {
-		if (server->error_cb != NULL) {
-			server->error_cb(server);
-		}
-
-		client->bs.close(&client->bs);
-		return;
+		goto timer_err;
 	}
 
-	client->read_timer.expires_from_now(&client->read_timer, server->read_timeout_ns, client_timeout_handler, client);
+	err = client->read_timer.expires_from_now(&client->read_timer, server->read_timeout_ns, client_timeout_handler, client);
+	if (unlikely(err != CIO_SUCCESS)) {
+		goto timer_err;
+	}
+
 	client->finish_func = finish_request_line;
 	client->bs.read_until(&client->bs, &client->rb, CIO_CRLF, parse, client);
+
+	return;
+
+timer_err:
+	if (server->error_cb != NULL) {
+		server->error_cb(server);
+	}
+
+	client->bs.close(&client->bs);
+	return;
 }
 
 static enum cio_error serve(struct cio_http_server *server)
