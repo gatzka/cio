@@ -48,9 +48,11 @@ static void handle_timeout(struct cio_timer *timer, void *handler_context, enum 
 	(void)handler_context;
 	if (err == CIO_SUCCESS) {
 		fprintf(stdout, "timer expired!\n");
-		timer->expires_from_now(timer, FIVE_S, handle_timeout, NULL);
+		if (timer->expires_from_now(timer, FIVE_S, handle_timeout, NULL) != CIO_SUCCESS) {
+			fprintf(stderr, "arming timer failed!\n");
+		}
 	} else {
-		fprintf(stdout, "timer error!\n");
+		fprintf(stderr, "timer error!\n");
 	}
 }
 
@@ -79,7 +81,11 @@ int main()
 		goto destroy_loop;
 	}
 
-	timer.expires_from_now(&timer, FIVE_S, handle_timeout, NULL);
+	if (timer.expires_from_now(&timer, FIVE_S, handle_timeout, NULL) != CIO_SUCCESS) {
+		fprintf(stderr, "arming timer failed!\n");
+		ret = EXIT_FAILURE;
+		goto destroy_loop;
+	}
 
 	err = cio_eventloop_run(&loop);
 	if (err != CIO_SUCCESS) {
