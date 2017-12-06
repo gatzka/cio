@@ -115,6 +115,7 @@ static void timer_expires_from_now(struct cio_timer *t, uint64_t timeout_ns, tim
 	ret = timerfd_settime(t->ev.fd, 0, &timeout, NULL);
 	if (unlikely(ret != 0)) {
 		t->handler(t, t->handler_context, (enum cio_error)errno);
+		return;
 	}
 
 	timer_read(t);
