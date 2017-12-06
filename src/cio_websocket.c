@@ -29,8 +29,8 @@
 #include <string.h>
 
 #include "cio_endian.h"
-#include "cio_http_client.h"
 #include "cio_random.h"
+#include "cio_util.h"
 #include "cio_websocket.h"
 
 static const uint8_t WS_MASK_SET = 0x80;
@@ -163,41 +163,48 @@ static void send_frame(struct cio_websocket *s, uint8_t *payload, size_t length,
 
 	s->send_header[1] = first_len;
 
-	cio_write_buffer_head_init(&s->client->wbh);
+	cio_write_buffer_head_init(&s->wbh);
 	cio_write_buffer_element_init(&s->wb_send_header, s->send_header, header_index);
 	cio_write_buffer_element_init(&s->wb_send_payload, payload, length);
-	cio_write_buffer_queue_tail(&s->client->wbh, &s->wb_send_header);
-	cio_write_buffer_queue_tail(&s->client->wbh, &s->wb_send_payload);
+	cio_write_buffer_queue_tail(&s->wbh, &s->wb_send_header);
+	cio_write_buffer_queue_tail(&s->wbh, &s->wb_send_payload);
 
-	s->client->flush(s->client, written_cb);
+	s->bs->write(s->bs, &s->wbh, written_cb, s);
 }
 
+static void close(struct cio_websocket *ws)
+{
+	if (ws->close_hook) {
+		ws->close_hook(ws);
+	}
+}
 
 static void close_frame_written(struct cio_buffered_stream *bs, void *handler_context, const struct cio_write_buffer *buffer, enum cio_error err)
 {
 	(void)bs;
 	(void)buffer;
 	(void)err;
-	struct cio_http_client *client = (struct cio_http_client *)handler_context;
-	client->close(client);
+	struct cio_websocket *ws = (struct cio_websocket *)handler_context;
+	close(ws);
 }
 
-static void close(struct cio_websocket *ws, enum cio_websocket_status_code status_code)
+static void send_close_frame(struct cio_websocket *ws, enum cio_websocket_status_code status_code)
 {
 	ws->close_status = cio_htobe16(status_code);
+	// TODO: start timer for close frame written and probably waiting for close response
 	send_frame(ws, (uint8_t *)&ws->close_status, sizeof(ws->close_status), CIO_WEBSOCKET_CLOSE_FRAME, close_frame_written);
 }
 
 static void self_close_going_away(struct cio_websocket *ws)
 {
 	ws->wait_for_close_response = true;
-	close(ws, CIO_WEBSOCKET_CLOSE_GOING_AWAY);
+	send_close_frame(ws, CIO_WEBSOCKET_CLOSE_GOING_AWAY);
 }
 
-void cio_websocket_init(struct cio_websocket *ws, bool is_server)
+void cio_websocket_init(struct cio_websocket *ws, bool is_server, cio_websocket_close_hook close_hook)
 {
-	ws->client = NULL;
 	ws->onconnect_handler = NULL;
 	ws->close = self_close_going_away;
 	ws->is_server = is_server;
+	ws->close_hook = close_hook;
 }

@@ -164,6 +164,11 @@ struct cio_http_location_handler {
 	 * connection is @ref cio_http_client_close "closed".
 	 */
 	void (*free)(struct cio_http_location_handler *handler);
+
+	/**
+	 * @privatesection
+	 */
+	struct cio_http_client *client;
 };
 
 /**

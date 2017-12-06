@@ -34,8 +34,12 @@ extern "C" {
 #include <stdbool.h>
 #include <stdint.h>
 
-#include "cio_http_client.h"
+#include "cio_buffered_stream.h"
 #include "cio_write_buffer.h"
+
+struct cio_websocket;
+
+typedef void (*cio_websocket_close_hook)(struct cio_websocket *s);
 
 enum cio_websocket_status_code {
 	CIO_WEBSOCKET_CLOSE_NORMAL = 1000,
@@ -55,8 +59,6 @@ enum cio_websocket_status_code {
 	CIO_WEBSOCKET_CLOSE_RESERVED_UPPER_BOUND = 4999
 };
 
-struct cio_websocket;
-
 typedef void (*cio_websocket_onconnect_handler)(struct cio_websocket *ws);
 
 struct cio_websocket {
@@ -67,18 +69,20 @@ struct cio_websocket {
 	/**
 	 * @privatesection
 	 */
-	struct cio_http_client *client;
-	bool is_server;
-	bool wait_for_close_response;
-	uint8_t send_header[14];
 
+	struct cio_buffered_stream *bs;
+	struct cio_write_buffer wbh;
 	struct cio_write_buffer wb_send_header;
 	struct cio_write_buffer wb_send_payload;
+	cio_websocket_close_hook close_hook;
+	bool is_server;
+	bool wait_for_close_response;
 	uint16_t close_status;
+	uint8_t send_header[14];
 };
 
 
-void cio_websocket_init(struct cio_websocket *ws, bool is_server);
+void cio_websocket_init(struct cio_websocket *ws, bool is_server, cio_websocket_close_hook close_hook);
 
 #ifdef __cplusplus
 }

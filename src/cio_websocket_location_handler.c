@@ -196,12 +196,13 @@ static void response_written(struct cio_buffered_stream *bs, void *handler_conte
 		return;
 	}
 
-	struct cio_websocket_location_handler *ws = container_of(client->handler, struct cio_websocket_location_handler, http_location);
+	struct cio_websocket_location_handler *wslh = container_of(client->handler, struct cio_websocket_location_handler, http_location);
 
-	ws->websocket.client = client;
+	struct cio_websocket *ws = &wslh->websocket;
+	ws->bs = &client->bs;
 
-	if (likely(ws->websocket.onconnect_handler != NULL)) {
-		ws->websocket.onconnect_handler(&ws->websocket);
+	if (likely(ws->onconnect_handler != NULL)) {
+		ws->onconnect_handler(ws);
 	} else {
 		client->close(client);
 	}
@@ -271,6 +272,13 @@ static enum cio_http_cb_return handle_headers_complete(struct cio_http_client *c
 	return CIO_HTTP_CB_SKIP_BODY;
 }
 
+static void close_server_websocket(struct cio_websocket *s)
+{
+	struct cio_websocket_location_handler *wslh = container_of(s, struct cio_websocket_location_handler, websocket);
+	struct cio_http_client *client = wslh->http_location.client;
+	client->close(client);
+}
+
 void cio_websocket_location_handler_init(struct cio_websocket_location_handler *handler, const char *subprotocols[], unsigned int num_subprotocols)
 {
 	handler->flags.current_header_field = 0;
@@ -284,5 +292,5 @@ void cio_websocket_location_handler_init(struct cio_websocket_location_handler *
 	handler->http_location.on_header_value = handle_value;
 	handler->http_location.on_headers_complete = handle_headers_complete;
 
-	cio_websocket_init(&handler->websocket, true);
+	cio_websocket_init(&handler->websocket, true, close_server_websocket);
 }

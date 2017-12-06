@@ -263,6 +263,7 @@ static int on_url(http_parser *parser, const char *at, size_t length)
 	}
 
 	client->handler = handler;
+	handler->client = client;
 
 	int user_handler = 0;
 	user_handler |= call_url_parts_callback(&u, UF_SCHEMA, handler->on_schema, client, at);
