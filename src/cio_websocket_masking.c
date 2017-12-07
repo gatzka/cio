@@ -29,87 +29,48 @@
 
 #include "cio_websocket_masking.h"
 
-void cio_websocket_mask(uint8_t *buffer, size_t length, const uint8_t mask[4], size_t bytewidth)
+void cio_websocket_mask(uint8_t *buffer, size_t length, const uint8_t mask[4], unsigned int bytewidth)
 {
-	if (length < 8) {
-		bytewidth = 1;
-	}
-
-	size_t shift = 1;
-	if (bytewidth > 2) {
-		shift = 2;
-	}
-
-	if (bytewidth > 4) {
-		shift = 3;
-	}
-
-	size_t pre_length, main_length, post_length;
-	void *ptr_aligned;
-	uint32_t mask32;
-
-	switch (bytewidth) {
-	case 8:
-		pre_length = ((uintptr_t) buffer) % bytewidth;
-		pre_length = bytewidth - pre_length;
-		main_length = (length - pre_length) >> shift;
-		post_length = length - pre_length - (main_length << shift);
-		ptr_aligned = buffer + pre_length;
-
-		mask32 = 0x0;
-		for (unsigned int i = 0; i < 4; i++) {
-			mask32 |= ((uint32_t)mask[(i + pre_length) % 4]) << (i * 8);
-		}
-
-		for (size_t i = 0; i < pre_length; i++) {
-			buffer[i] ^= (mask[i % 4]);
-		}
-
-		uint64_t mask64 = ((uint64_t) mask32);
-		mask64 |= (mask64 << 32);
-		uint64_t *buffer_aligned64 = ptr_aligned;
-		for (size_t i = 0; i < main_length; i++) {
-			buffer_aligned64[i] ^= mask64;
-		}
-
-		for (size_t i = length - post_length; i < length; i++) {
-			buffer[i] ^= (mask[i % 4]);
-		}
-
-		break;
-
-	case 4:
-		pre_length = ((uintptr_t) buffer) % bytewidth;
-		pre_length = bytewidth - pre_length;
-		main_length = (length - pre_length) >> shift;
-		post_length = length - pre_length - (main_length << shift);
-		ptr_aligned = buffer + pre_length;
-
-		mask32 = 0x0;
-		for (unsigned int i = 0; i < 4; i++) {
-			mask32 |= ((uint32_t)mask[(i + pre_length) % 4]) << (i * 8);
-		}
-
-		for (size_t i = 0; i < pre_length; i++) {
-			buffer[i] ^= (mask[i % 4]);
-		}
-
-		uint32_t *buffer_aligned32 = ptr_aligned;
-		for (size_t i = 0; i < main_length; i++) {
-			buffer_aligned32[i] ^= mask32;
-		}
-
-		for (size_t i = length - post_length; i < length; i++) {
-			buffer[i] ^= (mask[i % 4]);
-		}
-
-		break;
-
-	default:
+	if (((bytewidth != 4) && (bytewidth != 8)) || (length < 8)) {
 		for (size_t i = 0; i < length; i++) {
 			buffer[i] = buffer[i] ^ (mask[i % 4]);
 		}
 
-		break;
+		return;
+	}
+
+	unsigned int pre_length = ((uintptr_t) buffer) % bytewidth;
+	pre_length = bytewidth - pre_length;
+	size_t main_length = (length - pre_length) / bytewidth;
+	unsigned int post_length = length - pre_length - (main_length * bytewidth);
+	void *ptr_aligned = buffer + pre_length;
+
+	uint32_t mask32 = 0x0;
+	for (unsigned int i = 0; i < 4; i++) {
+		mask32 |= ((uint32_t)mask[(i + pre_length) % 4]) << (i * 8);
+	}
+
+	for (unsigned int i = 0; i < pre_length; i++) {
+		buffer[i] ^= (mask[i % 4]);
+	}
+
+	if (bytewidth == 8) {
+		uint64_t mask64 = ((uint64_t) mask32);
+		mask64 |= (mask64 << 32);
+		uint64_t *buffer_aligned64 = ptr_aligned;
+		while (main_length-- > 0) {
+			*buffer_aligned64 ^= mask64;
+			buffer_aligned64++;
+		}
+	} else {
+		uint32_t *buffer_aligned32 = ptr_aligned;
+		for (size_t i = 0; i < main_length; i++) {
+			*buffer_aligned32 ^= mask32;
+			buffer_aligned32++;
+		}
+	}
+
+	for (size_t i = length - post_length; i < length; i++) {
+		buffer[i] ^= (mask[i % 4]);
 	}
 }

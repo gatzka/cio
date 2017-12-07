@@ -34,7 +34,7 @@ extern "C" {
 #include <stddef.h>
 #include <stdint.h>
 
-void cio_websocket_mask(uint8_t *buffer, size_t length, const uint8_t mask[4], size_t bytewidth);
+void cio_websocket_mask(uint8_t *buffer, size_t length, const uint8_t mask[4], unsigned int bytewidth);
 
 #ifdef __cplusplus
 }
