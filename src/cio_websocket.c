@@ -32,6 +32,7 @@
 #include "cio_random.h"
 #include "cio_util.h"
 #include "cio_websocket.h"
+#include "cio_websocket_masking.h"
 
 static const uint8_t WS_MASK_SET = 0x80;
 static const uint8_t WS_HEADER_FIN = 0x80;
@@ -50,92 +51,6 @@ enum cio_ws_frame_type {
 };
 
 static void receive_frames(struct cio_websocket *ws);
-
-static void mask_payload(uint8_t *buffer, size_t length, uint8_t *mask)
-{
-	size_t bytewidth = sizeof(uint_fast16_t);
-	if (length < 8) {
-		bytewidth = 1;
-	}
-
-	size_t shift = 1;
-	if (bytewidth > 2) {
-		shift = 2;
-	}
-
-	if (bytewidth > 4) {
-		shift = 3;
-	}
-
-	size_t pre_length, main_length, post_length;
-	void *ptr_aligned;
-	uint32_t mask32;
-
-	switch (bytewidth) {
-	case 8:
-		pre_length = ((size_t) buffer) % bytewidth;
-		pre_length = bytewidth - pre_length;
-		main_length = (length - pre_length) >> shift;
-		post_length = length - pre_length - (main_length << shift);
-		ptr_aligned = buffer + pre_length;
-
-		mask32 = 0x0;
-		for (unsigned int i = 0; i < 4; i++) {
-			mask32 |= (((uint32_t) *(mask + (i + pre_length) % 4)) & 0xFF) << (i * 8);
-		}
-
-		for (size_t i = 0; i < pre_length; i++) {
-			buffer[i] ^= (mask[i % 4]);
-		}
-
-		uint64_t mask64 = ((uint64_t) mask32) & 0xFFFFFFFF;
-		mask64 |= (mask64 << 32) & 0xFFFFFFFF00000000;
-		uint64_t *buffer_aligned64 = ptr_aligned;
-		for (size_t i = 0; i < main_length; i++) {
-			buffer_aligned64[i] ^= mask64;
-		}
-
-		for (size_t i = length - post_length; i < length; i++) {
-			buffer[i] ^= (mask[i % 4]);
-		}
-
-		break;
-
-	case 4:
-		pre_length = ((size_t) buffer) % bytewidth;
-		pre_length = bytewidth - pre_length;
-		main_length = (length - pre_length) >> shift;
-		post_length = length - pre_length - (main_length << shift);
-		ptr_aligned = buffer + pre_length;
-
-		mask32 = 0x0;
-		for (unsigned int i = 0; i < 4; i++) {
-			mask32 |= (((uint32_t) *(mask + (i + pre_length) % 4)) & 0xFF) << (i * 8);
-		}
-
-		for (size_t i = 0; i < pre_length; i++) {
-			buffer[i] ^= (mask[i % 4]);
-		}
-
-		uint32_t *buffer_aligned32 = ptr_aligned;
-		for (size_t i = 0; i < main_length; i++) {
-			buffer_aligned32[i] ^= mask32;
-		}
-
-		for (size_t i = length - post_length; i < length; i++) {
-			buffer[i] ^= (mask[i % 4]);
-		}
-
-		break;
-
-	default:
-		for (size_t i = 0; i < length; i++) {
-			buffer[i] = buffer[i] ^ (mask[i % 4]);
-		}
-
-		break;
-	}
-}
 
 static void send_frame(struct cio_websocket *s, uint8_t *payload, size_t length, enum cio_ws_frame_type frame_type, cio_buffered_stream_write_handler written_cb)
 {
@@ -163,7 +78,7 @@ static void send_frame(struct cio_websocket *s, uint8_t *payload, size_t length,
 		cio_random_get_bytes(mask, sizeof(mask));
 		memcpy(&s->send_header[header_index], &mask, sizeof(mask));
 		header_index += sizeof(mask);
-		mask_payload(payload, length, mask);
+		cio_websocket_mask(payload, length, mask);
 	}
 
 	s->send_header[1] = first_len;
@@ -254,7 +169,7 @@ static void handle_frame(struct cio_websocket *ws, uint8_t *data, uint64_t lengt
 	}
 
 	if (ws->ws_flags.mask != 0) {
-		mask_payload(data, length, ws->mask);
+		cio_websocket_mask(data, length, ws->mask);
 	}
 
 	if (unlikely((ws->ws_flags.fin == 0) && (ws->ws_flags.opcode >= CIO_WEBSOCKET_CLOSE_FRAME))) {
