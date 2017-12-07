@@ -64,23 +64,21 @@ static void test_aligned_buffer(void)
 #define buffer_size 16
 #define max_align 8
 
-	for (unsigned int bytewidth = 1; bytewidth <= 8; bytewidth = bytewidth << 1) {
-		for (unsigned int align_counter = 0; align_counter < max_align; align_counter++) {
-			for (unsigned int length_counter = 1; length_counter < buffer_size; length_counter++) {
-				uint8_t buffer[buffer_size + max_align];
-				fill_random(buffer, sizeof(buffer));
+	for (unsigned int align_counter = 0; align_counter < max_align; align_counter++) {
+		for (unsigned int length_counter = 1; length_counter < buffer_size; length_counter++) {
+			uint8_t buffer[buffer_size + max_align];
+			fill_random(buffer, sizeof(buffer));
 
-				uint8_t check_buffer[buffer_size + max_align];
-				memcpy(check_buffer, buffer, sizeof(buffer));
+			uint8_t check_buffer[buffer_size + max_align];
+			memcpy(check_buffer, buffer, sizeof(buffer));
 
-				uint8_t mask[4];
-				fill_random(mask, sizeof(mask));
+			uint8_t mask[4];
+			fill_random(mask, sizeof(mask));
 
-				cio_websocket_mask(buffer + align_counter, length_counter, mask, bytewidth);
-				check_masking(check_buffer + align_counter, length_counter, mask);
+			cio_websocket_mask(buffer + align_counter, length_counter, mask);
+			check_masking(check_buffer + align_counter, length_counter, mask);
 
-				TEST_ASSERT_MESSAGE(memcmp(check_buffer + align_counter, buffer + align_counter, length_counter) == 0, "Message masking not correct!");
-			}
+			TEST_ASSERT_MESSAGE(memcmp(check_buffer + align_counter, buffer + align_counter, length_counter) == 0, "Message masking not correct!");
 		}
 	}
 }

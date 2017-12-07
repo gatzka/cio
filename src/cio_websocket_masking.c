@@ -29,9 +29,8 @@
 
 #include "cio_websocket_masking.h"
 
-void cio_websocket_mask(uint8_t *buffer, size_t length, const uint8_t mask[4], unsigned int bytewidth)
+void cio_websocket_mask(uint8_t *buffer, size_t length, const uint8_t mask[4])
 {
-	(void)bytewidth;
 	uint_fast32_t aligned_mask;
 	if (length < sizeof(aligned_mask)) {
 		for (size_t i = 0; i < length; i++) {
@@ -41,17 +40,13 @@ void cio_websocket_mask(uint8_t *buffer, size_t length, const uint8_t mask[4], u
 		return;
 	}
 
-
-	aligned_mask = 0x00;
-
-#include <stdio.h>
-	printf("sizeof(aligned_mask): %zu\n", sizeof(aligned_mask));
 	unsigned int pre_length = ((uintptr_t) buffer) % sizeof(aligned_mask);
 	pre_length = sizeof(aligned_mask) - pre_length;
 	size_t main_length = (length - pre_length) / sizeof(aligned_mask);
 	unsigned int post_length = length - pre_length - (main_length * sizeof(aligned_mask));
-	void *ptr_aligned = buffer + pre_length;
+	uint_fast32_t *buffer_aligned = (void *)(buffer + pre_length);
 
+	aligned_mask = 0x00;
 	for (unsigned int i = 0; i < sizeof(aligned_mask); i++) {
 		aligned_mask |= ((uint_fast32_t)mask[(i + pre_length) % 4]) << (i * 8);
 	}
@@ -60,7 +55,6 @@ void cio_websocket_mask(uint8_t *buffer, size_t length, const uint8_t mask[4], u
 		buffer[i] ^= (mask[i % 4]);
 	}
 
-	uint_fast32_t *buffer_aligned = ptr_aligned;
 	for (size_t i = 0; i < main_length; i++) {
 		*buffer_aligned ^= aligned_mask;
 		buffer_aligned++;
