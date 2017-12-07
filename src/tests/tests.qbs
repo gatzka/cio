@@ -126,4 +126,16 @@ Project {
       "test_cio_write_buffer.c",
     ]
   }
+
+  UnittestProduct {
+    name: "test_cio_websocket_mask"
+    type: ["application", "unittest"]
+    
+    cpp.includePaths: [".."]
+
+    files: [
+      "test_cio_websocket_mask.c",
+      "../cio_websocket_masking.c"
+    ]
+  }
 }

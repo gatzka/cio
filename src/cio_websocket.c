@@ -78,7 +78,7 @@ static void send_frame(struct cio_websocket *s, uint8_t *payload, size_t length,
 		cio_random_get_bytes(mask, sizeof(mask));
 		memcpy(&s->send_header[header_index], &mask, sizeof(mask));
 		header_index += sizeof(mask);
-		cio_websocket_mask(payload, length, mask);
+		cio_websocket_mask(payload, length, mask, sizeof(uint_fast16_t));
 	}
 
 	s->send_header[1] = first_len;
@@ -169,7 +169,7 @@ static void handle_frame(struct cio_websocket *ws, uint8_t *data, uint64_t lengt
 	}
 
 	if (ws->ws_flags.mask != 0) {
-		cio_websocket_mask(data, length, ws->mask);
+		cio_websocket_mask(data, length, ws->mask, sizeof(uint_fast16_t));
 	}
 
 	if (unlikely((ws->ws_flags.fin == 0) && (ws->ws_flags.opcode >= CIO_WEBSOCKET_CLOSE_FRAME))) {

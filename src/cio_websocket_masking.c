@@ -29,9 +29,8 @@
 
 #include "cio_websocket_masking.h"
 
-void cio_websocket_mask(uint8_t *buffer, size_t length, uint8_t *mask)
+void cio_websocket_mask(uint8_t *buffer, size_t length, const uint8_t mask[4], size_t bytewidth)
 {
-	size_t bytewidth = sizeof(uint_fast16_t);
 	if (length < 8) {
 		bytewidth = 1;
 	}
