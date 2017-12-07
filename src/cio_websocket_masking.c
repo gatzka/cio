@@ -31,7 +31,9 @@
 
 void cio_websocket_mask(uint8_t *buffer, size_t length, const uint8_t mask[4], unsigned int bytewidth)
 {
-	if (((bytewidth != 4) && (bytewidth != 8)) || (length < 8)) {
+	(void)bytewidth;
+	uint_fast32_t aligned_mask;
+	if (length < sizeof(aligned_mask)) {
 		for (size_t i = 0; i < length; i++) {
 			buffer[i] = buffer[i] ^ (mask[i % 4]);
 		}
@@ -39,35 +41,29 @@ void cio_websocket_mask(uint8_t *buffer, size_t length, const uint8_t mask[4], u
 		return;
 	}
 
-	unsigned int pre_length = ((uintptr_t) buffer) % bytewidth;
-	pre_length = bytewidth - pre_length;
-	size_t main_length = (length - pre_length) / bytewidth;
-	unsigned int post_length = length - pre_length - (main_length * bytewidth);
+
+	aligned_mask = 0x00;
+
+#include <stdio.h>
+	printf("sizeof(aligned_mask): %zu\n", sizeof(aligned_mask));
+	unsigned int pre_length = ((uintptr_t) buffer) % sizeof(aligned_mask);
+	pre_length = sizeof(aligned_mask) - pre_length;
+	size_t main_length = (length - pre_length) / sizeof(aligned_mask);
+	unsigned int post_length = length - pre_length - (main_length * sizeof(aligned_mask));
 	void *ptr_aligned = buffer + pre_length;
 
-	uint32_t mask32 = 0x0;
-	for (unsigned int i = 0; i < 4; i++) {
-		mask32 |= ((uint32_t)mask[(i + pre_length) % 4]) << (i * 8);
+	for (unsigned int i = 0; i < sizeof(aligned_mask); i++) {
+		aligned_mask |= ((uint_fast32_t)mask[(i + pre_length) % 4]) << (i * 8);
 	}
 
 	for (unsigned int i = 0; i < pre_length; i++) {
 		buffer[i] ^= (mask[i % 4]);
 	}
 
-	if (bytewidth == 8) {
-		uint64_t mask64 = ((uint64_t) mask32);
-		mask64 |= (mask64 << 32);
-		uint64_t *buffer_aligned64 = ptr_aligned;
-		while (main_length-- > 0) {
-			*buffer_aligned64 ^= mask64;
-			buffer_aligned64++;
-		}
-	} else {
-		uint32_t *buffer_aligned32 = ptr_aligned;
-		for (size_t i = 0; i < main_length; i++) {
-			*buffer_aligned32 ^= mask32;
-			buffer_aligned32++;
-		}
+	uint_fast32_t *buffer_aligned = ptr_aligned;
+	for (size_t i = 0; i < main_length; i++) {
+		*buffer_aligned ^= aligned_mask;
+		buffer_aligned++;
 	}
 
 	for (size_t i = length - post_length; i < length; i++) {
