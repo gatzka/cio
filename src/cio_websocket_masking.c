@@ -50,7 +50,7 @@ void cio_websocket_mask(uint8_t *buffer, size_t length, const uint8_t mask[4], s
 
 	switch (bytewidth) {
 	case 8:
-		pre_length = ((size_t) buffer) % bytewidth;
+		pre_length = ((uintptr_t) buffer) % bytewidth;
 		pre_length = bytewidth - pre_length;
 		main_length = (length - pre_length) >> shift;
 		post_length = length - pre_length - (main_length << shift);
@@ -58,15 +58,15 @@ void cio_websocket_mask(uint8_t *buffer, size_t length, const uint8_t mask[4], s
 
 		mask32 = 0x0;
 		for (unsigned int i = 0; i < 4; i++) {
-			mask32 |= (((uint32_t) *(mask + (i + pre_length) % 4)) & 0xFF) << (i * 8);
+			mask32 |= ((uint32_t)mask[(i + pre_length) % 4]) << (i * 8);
 		}
 
 		for (size_t i = 0; i < pre_length; i++) {
 			buffer[i] ^= (mask[i % 4]);
 		}
 
-		uint64_t mask64 = ((uint64_t) mask32) & 0xFFFFFFFF;
-		mask64 |= (mask64 << 32) & 0xFFFFFFFF00000000;
+		uint64_t mask64 = ((uint64_t) mask32);
+		mask64 |= (mask64 << 32);
 		uint64_t *buffer_aligned64 = ptr_aligned;
 		for (size_t i = 0; i < main_length; i++) {
 			buffer_aligned64[i] ^= mask64;
@@ -79,7 +79,7 @@ void cio_websocket_mask(uint8_t *buffer, size_t length, const uint8_t mask[4], s
 		break;
 
 	case 4:
-		pre_length = ((size_t) buffer) % bytewidth;
+		pre_length = ((uintptr_t) buffer) % bytewidth;
 		pre_length = bytewidth - pre_length;
 		main_length = (length - pre_length) >> shift;
 		post_length = length - pre_length - (main_length << shift);
@@ -87,7 +87,7 @@ void cio_websocket_mask(uint8_t *buffer, size_t length, const uint8_t mask[4], s
 
 		mask32 = 0x0;
 		for (unsigned int i = 0; i < 4; i++) {
-			mask32 |= (((uint32_t) *(mask + (i + pre_length) % 4)) & 0xFF) << (i * 8);
+			mask32 |= ((uint32_t)mask[(i + pre_length) % 4]) << (i * 8);
 		}
 
 		for (size_t i = 0; i < pre_length; i++) {
