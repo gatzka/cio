@@ -422,7 +422,6 @@ timer_err:
 	}
 
 	client->bs.close(&client->bs);
-	return;
 }
 
 static enum cio_error serve(struct cio_http_server *server)
