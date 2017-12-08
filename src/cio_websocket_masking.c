@@ -62,9 +62,7 @@ void cio_websocket_mask(uint8_t *buffer, size_t length, const uint8_t mask[4])
 		buffer_aligned++;
 	}
 
-	size_t i = length - post_length;
-	while (post_length-- > 0) {
+	for (size_t i = length - post_length; i < length; i++) {
 		buffer[i] ^= (mask[i % 4]);
-		i++;
 	}
 }
