@@ -55,7 +55,6 @@ matrix:
         packages:
         - cmake
         - cmake-data
-        - doxygen
         - lcov
   - compiler: gcc
     env:
@@ -78,7 +77,6 @@ matrix:
         - gcc-7
         - cmake
         - cmake-data
-        - doxygen
   - compiler: gcc
     env:
     - MATRIX_EVAL="CMAKE_C_COMPILER=gcc-7 && CMAKE_BUILD_TYPE=Release && CIO_SANITIZE=1"
@@ -90,7 +88,6 @@ matrix:
         - gcc-7
         - cmake
         - cmake-data
-        - doxygen
   - compiler: clang
     env:
     - MATRIX_EVAL="CMAKE_C_COMPILER=clang && CMAKE_BUILD_TYPE=Debug && CIO_SANITIZE=1"
@@ -99,7 +96,6 @@ matrix:
         packages:
         - cmake
         - cmake-data
-        - doxygen
   - compiler: clang
     env:
     - MATRIX_EVAL="CMAKE_C_COMPILER=clang && CMAKE_BUILD_TYPE=Release && CIO_SANITIZE=1"
@@ -108,7 +104,6 @@ matrix:
         packages:
         - cmake
         - cmake-data
-        - doxygen
   - compiler: clang
     env:
     - MATRIX_EVAL="CMAKE_C_COMPILER=clang-5.0 && CMAKE_BUILD_TYPE=Debug && CIO_SANITIZE=1"
@@ -120,7 +115,6 @@ matrix:
         packages:
         - cmake
         - cmake-data
-        - doxygen
   - compiler: clang
     env:
     - MATRIX_EVAL="CMAKE_C_COMPILER=clang-5.0 && CMAKE_BUILD_TYPE=Release && CIO_SANITIZE=1"
@@ -132,7 +126,6 @@ matrix:
         packages:
         - cmake
         - cmake-data
-        - doxygen
   - compiler: clang
     env:
     - MATRIX_EVAL="CMAKE_C_COMPILER=/usr/share/clang/scan-build-5.0/libexec/ccc-analyzer
@@ -145,7 +138,6 @@ matrix:
         packages:
         - cmake
         - cmake-data
-        - doxygen
 before_install:
 - eval "${MATRIX_EVAL}"
 env:
