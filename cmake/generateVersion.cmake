@@ -1,3 +1,5 @@
+include(FindGit)
+
 function(GenerateVersion VERSION_FILE CUSTOM_PROJECT_NAME)
     file(STRINGS ${VERSION_FILE} VERSION_STRING)
     string(TOUPPER ${CUSTOM_PROJECT_NAME} PROJECT_NAME_UC)
@@ -14,7 +16,7 @@ function(GenerateVersion VERSION_FILE CUSTOM_PROJECT_NAME)
     set(PROJECT_VERSION_PATCH ${VERSION_PATCH} PARENT_SCOPE)
 
     execute_process(
-        COMMAND git diff --shortstat
+        COMMAND ${GIT_EXECUTABLE} diff --shortstat
         COMMAND tail -n1
         WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
         OUTPUT_VARIABLE GIT_DIRTY
@@ -23,7 +25,7 @@ function(GenerateVersion VERSION_FILE CUSTOM_PROJECT_NAME)
     )
 
     execute_process(
-        COMMAND git describe --exact-match --tags HEAD
+        COMMAND ${GIT_EXECUTABLE} describe --exact-match --tags HEAD
         WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
         RESULT_VARIABLE IS_TAG
         OUTPUT_STRIP_TRAILING_WHITESPACE
@@ -32,7 +34,7 @@ function(GenerateVersion VERSION_FILE CUSTOM_PROJECT_NAME)
     )
 
     execute_process(
-        COMMAND git rev-parse --short HEAD
+        COMMAND ${GIT_EXECUTABLE} rev-parse --short HEAD
         WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
         OUTPUT_VARIABLE GIT_HASH
         OUTPUT_STRIP_TRAILING_WHITESPACE
@@ -43,7 +45,7 @@ function(GenerateVersion VERSION_FILE CUSTOM_PROJECT_NAME)
         set(${PROJECTNAME}_VERSION_TWEAK "")
     else()
         execute_process(
-            COMMAND git rev-list HEAD --count
+            COMMAND ${GIT_EXECUTABLE} rev-list HEAD --count
             WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
             OUTPUT_VARIABLE GIT_REV_COUNT
             OUTPUT_STRIP_TRAILING_WHITESPACE

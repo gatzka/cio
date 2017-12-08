@@ -4,12 +4,12 @@ project("cio documentation" C)
 set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/../../cmake/)
 include(generateVersion)
 
+include(FindDoxygen)
+
 GenerateVersion(../version "cio")
 
 configure_file(../cio_version.h.in ${PROJECT_BINARY_DIR}/generated/cio_version.h)
 
-# check if Doxygen is installed
-find_package(Doxygen)
 if (DOXYGEN_FOUND)
     # set input and output files
     set(DOXYGEN_IN ${CMAKE_CURRENT_SOURCE_DIR}/Doxyfile.in)
