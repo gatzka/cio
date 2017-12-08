@@ -41,14 +41,16 @@ void cio_websocket_mask(uint8_t *buffer, size_t length, const uint8_t mask[4])
 	}
 
 	unsigned int pre_length = ((uintptr_t) buffer) % sizeof(aligned_mask);
-	pre_length = sizeof(aligned_mask) - pre_length;
+	pre_length = (sizeof(aligned_mask) - pre_length) % sizeof(aligned_mask);
+
 	size_t main_length = (length - pre_length) / sizeof(aligned_mask);
 	unsigned int post_length = length - pre_length - (main_length * sizeof(aligned_mask));
+
 	uint_fast32_t *buffer_aligned = (void *)(buffer + pre_length);
 
-	aligned_mask = 0x00;
+	uint8_t *aligned_mask_filler = (uint8_t *)&aligned_mask;
 	for (unsigned int i = 0; i < sizeof(aligned_mask); i++) {
-		aligned_mask |= ((uint_fast32_t)mask[(i + pre_length) % 4]) << (i * 8);
+		*aligned_mask_filler++ = mask[(i + pre_length) % 4];
 	}
 
 	unsigned int i_p = 0;
