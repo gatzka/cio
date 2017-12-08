@@ -23,7 +23,7 @@
  <tr style="height: 56px;">
   <td style="padding-left: 0.5em;">
    <div id="projectname">ANSI C I/O Library
-   &#160;<span id="projectnumber">0.0.1-742+f0c5716</span>
+   &#160;<span id="projectnumber">0.0.1-743+255da05</span>
    </div>
   </td>
  </tr>
@@ -118,9 +118,9 @@ Typedefs</h2></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="enum-members"></a>
 Enumerations</h2></td></tr>
-<tr class="memitem:a78aa67d350ee50928e889143bc042bc7"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="cio__buffered__stream_8h.html#a78aa67d350ee50928e889143bc042bc7">cio_bs_state</a> { <a class="el" href="cio__buffered__stream_8h.html#a78aa67d350ee50928e889143bc042bc7a71850695ae2d10c20379d3747e5b4468">cio_bs_open</a> = 0, 
-<a class="el" href="cio__buffered__stream_8h.html#a78aa67d350ee50928e889143bc042bc7a3d59de93575312f9f03bdcb4b9de2ada">cio_bs_closed</a>, 
-<a class="el" href="cio__buffered__stream_8h.html#a78aa67d350ee50928e889143bc042bc7a72ec6213c3fe9f97dfb102f8ebd5d1c1">cio_bs_again</a>
+<tr class="memitem:a78aa67d350ee50928e889143bc042bc7"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="cio__buffered__stream_8h.html#a78aa67d350ee50928e889143bc042bc7">cio_bs_state</a> { <a class="el" href="cio__buffered__stream_8h.html#a78aa67d350ee50928e889143bc042bc7a02f5f79da037aca73580a723dcbce0b3">CIO_BS_OPEN</a> = 0, 
+<a class="el" href="cio__buffered__stream_8h.html#a78aa67d350ee50928e889143bc042bc7a11d6ee42955cd51759ef05481da4b9df">CIO_BS_CLOSED</a>, 
+<a class="el" href="cio__buffered__stream_8h.html#a78aa67d350ee50928e889143bc042bc7abbac42171fbffee5fd8c4e6d682ddd89">CIO_BS_AGAIN</a>
  }</td></tr>
 <tr class="separator:a78aa67d350ee50928e889143bc042bc7"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
@@ -151,7 +151,7 @@ Functions</h2></td></tr>
   <table class="params">
     <tr><td class="paramname">bs</td><td>The <a class="el" href="structcio__buffered__stream.html">cio_buffered_stream</a> the read operation was called on. </td></tr>
     <tr><td class="paramname">handler_context</td><td>The context the functions works on. </td></tr>
-    <tr><td class="paramname">err</td><td>If err != <a class="el" href="cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afea67c18fefde0ae84d9023cc9f963cd25e">cio_success</a>, the read operation failed. </td></tr>
+    <tr><td class="paramname">err</td><td>If err != <a class="el" href="cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afea6bb29544c99750c61f70b10a1e17d96a">CIO_SUCCESS</a>, the read operation failed. </td></tr>
     <tr><td class="paramname">buffer</td><td>The buffer where the data read is stored. </td></tr>
   </table>
   </dd>
@@ -175,7 +175,7 @@ Functions</h2></td></tr>
     <tr><td class="paramname">bs</td><td>The <a class="el" href="structcio__buffered__stream.html">cio_buffered_stream</a> the write operation was called on. </td></tr>
     <tr><td class="paramname">handler_context</td><td>The context the functions works on. </td></tr>
     <tr><td class="paramname">buffer</td><td>The buffer which should have been written. </td></tr>
-    <tr><td class="paramname">err</td><td>If err != <a class="el" href="cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afea67c18fefde0ae84d9023cc9f963cd25e">cio_success</a>, the write operation failed. </td></tr>
+    <tr><td class="paramname">err</td><td>If err != <a class="el" href="cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afea6bb29544c99750c61f70b10a1e17d96a">CIO_SUCCESS</a>, the write operation failed. </td></tr>
   </table>
   </dd>
 </dl>
@@ -193,11 +193,11 @@ Functions</h2></td></tr>
       </table>
 </div><div class="memdoc">
 <table class="fieldtable">
-<tr><th colspan="2">Enumerator</th></tr><tr><td class="fieldname"><em><a class="anchor" id="a78aa67d350ee50928e889143bc042bc7a71850695ae2d10c20379d3747e5b4468"></a>cio_bs_open</em>&#160;</td><td class="fielddoc">
+<tr><th colspan="2">Enumerator</th></tr><tr><td class="fieldname"><em><a class="anchor" id="a78aa67d350ee50928e889143bc042bc7a02f5f79da037aca73580a723dcbce0b3"></a>CIO_BS_OPEN</em>&#160;</td><td class="fielddoc">
 </td></tr>
-<tr><td class="fieldname"><em><a class="anchor" id="a78aa67d350ee50928e889143bc042bc7a3d59de93575312f9f03bdcb4b9de2ada"></a>cio_bs_closed</em>&#160;</td><td class="fielddoc">
+<tr><td class="fieldname"><em><a class="anchor" id="a78aa67d350ee50928e889143bc042bc7a11d6ee42955cd51759ef05481da4b9df"></a>CIO_BS_CLOSED</em>&#160;</td><td class="fielddoc">
 </td></tr>
-<tr><td class="fieldname"><em><a class="anchor" id="a78aa67d350ee50928e889143bc042bc7a72ec6213c3fe9f97dfb102f8ebd5d1c1"></a>cio_bs_again</em>&#160;</td><td class="fielddoc">
+<tr><td class="fieldname"><em><a class="anchor" id="a78aa67d350ee50928e889143bc042bc7abbac42171fbffee5fd8c4e6d682ddd89"></a>CIO_BS_AGAIN</em>&#160;</td><td class="fielddoc">
 </td></tr>
 </table>
 
@@ -236,7 +236,7 @@ Functions</h2></td></tr>
   </table>
   </dd>
 </dl>
-<dl class="section return"><dt>Returns</dt><dd><a class="el" href="cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afea67c18fefde0ae84d9023cc9f963cd25e">cio_success</a> for success. </dd></dl>
+<dl class="section return"><dt>Returns</dt><dd><a class="el" href="cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afea6bb29544c99750c61f70b10a1e17d96a">CIO_SUCCESS</a> for success. </dd></dl>
 
 </div>
 </div>

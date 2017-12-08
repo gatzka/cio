@@ -10,5 +10,7 @@ var searchData=
   ['cio_5fserver_5fsocket',['cio_server_socket',['../structcio__server__socket.html',1,'']]],
   ['cio_5fsocket',['cio_socket',['../structcio__socket.html',1,'']]],
   ['cio_5ftimer',['cio_timer',['../structcio__timer.html',1,'']]],
+  ['cio_5fwebsocket',['cio_websocket',['../structcio__websocket.html',1,'']]],
+  ['cio_5fwebsocket_5flocation_5fhandler',['cio_websocket_location_handler',['../structcio__websocket__location__handler.html',1,'']]],
   ['cio_5fwrite_5fbuffer',['cio_write_buffer',['../structcio__write__buffer.html',1,'']]]
 ];

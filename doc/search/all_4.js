@@ -1,5 +1,5 @@
 var searchData=
 [
-  ['element',['element',['../structcio__write__buffer.html#a29b51a51c9ad53bc070facc33d9ce1bc',1,'cio_write_buffer']]],
-  ['expires_5ffrom_5fnow',['expires_from_now',['../structcio__timer.html#a4644f9f01b41fb3dbce27f5c019a07a5',1,'cio_timer']]]
+  ['element',['element',['../structcio__write__buffer.html#ad6c795b6fb46d07c487bd9ba9b99d05b',1,'cio_write_buffer']]],
+  ['expires_5ffrom_5fnow',['expires_from_now',['../structcio__timer.html#ab7de1507254b6b4fe5216615c0cbb333',1,'cio_timer']]]
 ];

@@ -23,7 +23,7 @@
  <tr style="height: 56px;">
   <td style="padding-left: 0.5em;">
    <div id="projectname">ANSI C I/O Library
-   &#160;<span id="projectnumber">0.0.1-742+f0c5716</span>
+   &#160;<span id="projectnumber">0.0.1-743+255da05</span>
    </div>
   </td>
  </tr>
@@ -98,6 +98,9 @@ Functions</h2></td></tr>
 <tr class="memitem:aa98e3cf3ccb2a8598da835e873afea3f"><td class="memItemLeft" align="right" valign="top">void *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="cio__string_8h.html#aa98e3cf3ccb2a8598da835e873afea3f">cio_memmem</a> (const void *haystack, size_t haystacklen, const void *needle, size_t needlelen)</td></tr>
 <tr class="memdesc:aa98e3cf3ccb2a8598da835e873afea3f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Finds the start of the first occurence of <code>needle</code> in <code>haystack</code>.  <a href="#aa98e3cf3ccb2a8598da835e873afea3f">More...</a><br/></td></tr>
 <tr class="separator:aa98e3cf3ccb2a8598da835e873afea3f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aaf7d79996ced7b024dd2ae714d07befa"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="cio__string_8h.html#aaf7d79996ced7b024dd2ae714d07befa">cio_strncasecmp</a> (const char *s1, const char *s2, size_t n)</td></tr>
+<tr class="memdesc:aaf7d79996ced7b024dd2ae714d07befa"><td class="mdescLeft">&#160;</td><td class="mdescRight">Compare two strings ignoring case.  <a href="#aaf7d79996ced7b024dd2ae714d07befa">More...</a><br/></td></tr>
+<tr class="separator:aaf7d79996ced7b024dd2ae714d07befa"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Wrapper functions for non-ANSI-C conformant string functions. </p>
@@ -149,6 +152,49 @@ Functions</h2></td></tr>
   </dd>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>Pointer to the beginning of the substring, <code>NULL</code> otherwise. </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="aaf7d79996ced7b024dd2ae714d07befa"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">int cio_strncasecmp </td>
+          <td>(</td>
+          <td class="paramtype">const char *&#160;</td>
+          <td class="paramname"><em>s1</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const char *&#160;</td>
+          <td class="paramname"><em>s2</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">size_t&#160;</td>
+          <td class="paramname"><em>n</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Compare two strings ignoring case. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">s1</td><td>First string to compare. </td></tr>
+    <tr><td class="paramname">s2</td><td>Second string to compare. </td></tr>
+    <tr><td class="paramname">n</td><td>Maximum number of bytes to be compared. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>an integer less than, equal to, or greater than zero if <code>s1</code> is, after ignoring case, found to be less than, to match, or be greater than <code>s2</code>, respectively </dd></dl>
 
 </div>
 </div>

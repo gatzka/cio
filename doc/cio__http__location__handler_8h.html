@@ -23,7 +23,7 @@
  <tr style="height: 56px;">
   <td style="padding-left: 0.5em;">
    <div id="projectname">ANSI C I/O Library
-   &#160;<span id="projectnumber">0.0.1-742+f0c5716</span>
+   &#160;<span id="projectnumber">0.0.1-743+255da05</span>
    </div>
   </td>
  </tr>
@@ -113,10 +113,11 @@ Typedefs</h2></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="enum-members"></a>
 Enumerations</h2></td></tr>
-<tr class="memitem:a6b90057db20102dfa1e40cafc014fbde"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="cio__http__location__handler_8h.html#a6b90057db20102dfa1e40cafc014fbde">cio_http_cb_return</a> { <a class="el" href="cio__http__location__handler_8h.html#a6b90057db20102dfa1e40cafc014fbdea20cd424776863489054559780d2620d7">cio_http_cb_success</a> = 0, 
-<a class="el" href="cio__http__location__handler_8h.html#a6b90057db20102dfa1e40cafc014fbdea2c35e3372feb8e181054e6fadb25fc8a">cio_http_cb_error</a> = -1
+<tr class="memitem:a6b90057db20102dfa1e40cafc014fbde"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="cio__http__location__handler_8h.html#a6b90057db20102dfa1e40cafc014fbde">cio_http_cb_return</a> { <a class="el" href="cio__http__location__handler_8h.html#a6b90057db20102dfa1e40cafc014fbdeae702ea5d11291265d3e736b7b1a60a78">CIO_HTTP_CB_SKIP_BODY</a> = 1, 
+<a class="el" href="cio__http__location__handler_8h.html#a6b90057db20102dfa1e40cafc014fbdeaaf9f1469599b7aec8863acbd62cea6a2">CIO_HTTP_CB_SUCCESS</a> = 0, 
+<a class="el" href="cio__http__location__handler_8h.html#a6b90057db20102dfa1e40cafc014fbdea009efa1646e481495db34fe3bc52fd06">CIO_HTTP_CB_ERROR</a> = -1
  }</td></tr>
-<tr class="memdesc:a6b90057db20102dfa1e40cafc014fbde"><td class="mdescLeft">&#160;</td><td class="mdescRight">The cio_http_cb_return enum lists the allowed return values of user specified callback functions like <a class="el" href="structcio__http__location__handler.html#cio_http_location_handler_on_header_field">on_header_field</a>. If the data provided via the callbacks doesn't match to the protocol the <a class="el" href="structcio__http__location__handler.html">HTTP handler</a> handles, return <a class="el" href="cio__http__location__handler_8h.html#a6b90057db20102dfa1e40cafc014fbdea2c35e3372feb8e181054e6fadb25fc8a">cio_http_cb_error</a>, <a class="el" href="cio__http__location__handler_8h.html#a6b90057db20102dfa1e40cafc014fbdea20cd424776863489054559780d2620d7">cio_http_cb_success</a> otherwise.  <a href="cio__http__location__handler_8h.html#a6b90057db20102dfa1e40cafc014fbde">More...</a><br/></td></tr>
+<tr class="memdesc:a6b90057db20102dfa1e40cafc014fbde"><td class="mdescLeft">&#160;</td><td class="mdescRight">The cio_http_cb_return enum lists the allowed return values of user specified callback functions like <a class="el" href="structcio__http__location__handler.html#cio_http_location_handler_on_header_field">on_header_field</a>. If the data provided via the callbacks doesn't match to the protocol the <a class="el" href="structcio__http__location__handler.html">HTTP handler</a> handles, return <a class="el" href="cio__http__location__handler_8h.html#a6b90057db20102dfa1e40cafc014fbdea009efa1646e481495db34fe3bc52fd06">CIO_HTTP_CB_ERROR</a>, <a class="el" href="cio__http__location__handler_8h.html#a6b90057db20102dfa1e40cafc014fbdeaaf9f1469599b7aec8863acbd62cea6a2">CIO_HTTP_CB_SUCCESS</a> otherwise.  <a href="cio__http__location__handler_8h.html#a6b90057db20102dfa1e40cafc014fbde">More...</a><br/></td></tr>
 <tr class="separator:a6b90057db20102dfa1e40cafc014fbde"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="func-members"></a>
@@ -127,7 +128,7 @@ Functions</h2></td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Generic interface to write user specific HTTP handlers. </p>
-<p>You have to set the callback functions with respect to the HTTP data (header information and/or body) you are interested in. If you don't set any callback, the <a class="el" href="structcio__http__server.html">HTTP server</a> will return <a class="el" href="cio__http__status__code_8h.html#ac968a65c0166575561fdd18b89ea580ca1771c951a72d1203978032d0ba08139d">"500 Internal server error"</a> to the requesting client.</p>
+<p>You have to set the callback functions with respect to the HTTP data (header information and/or body) you are interested in. If you don't set any callback, the <a class="el" href="structcio__http__server.html">HTTP server</a> will return <a class="el" href="cio__http__status__code_8h.html#ac968a65c0166575561fdd18b89ea580ca202e7585b0e3b59cf470136f8568ecc1">"500 Internal server error"</a> to the requesting client.</p>
 <p>Inside the callback functions you have access to the <a class="el" href="structcio__http__client.html">HTTP client</a> which performed the request. You have to use the client functions <a class="el" href="structcio__http__client.html#cio_http_client_write_response">write_response</a> and <a class="el" href="structcio__http__client.html#cio_http_client_write_header">write_header</a> to write HTTP responses (including a body) or just a simple response header, respectively.</p>
 <p>In case of an upgraded HTTP connection, callback have access to the <a class="el" href="structcio__http__client.html#cio_http_client_bs">buffered stream</a> used by the <a class="el" href="structcio__http__client.html">HTTP client</a> and the companion <a class="el" href="structcio__http__client.html#cio_http_client_rb">read buffer</a>. This provides a convenient way to take over a complete HTTP connection. Please note that for upgraded connections this handler is responsible to <a class="el" href="structcio__http__client.html#cio_http_client_close">close</a> the client connection! </p>
 </div><h2 class="groupheader">Typedef Documentation</h2>
@@ -184,12 +185,15 @@ Functions</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>The cio_http_cb_return enum lists the allowed return values of user specified callback functions like <a class="el" href="structcio__http__location__handler.html#cio_http_location_handler_on_header_field">on_header_field</a>. If the data provided via the callbacks doesn't match to the protocol the <a class="el" href="structcio__http__location__handler.html">HTTP handler</a> handles, return <a class="el" href="cio__http__location__handler_8h.html#a6b90057db20102dfa1e40cafc014fbdea2c35e3372feb8e181054e6fadb25fc8a">cio_http_cb_error</a>, <a class="el" href="cio__http__location__handler_8h.html#a6b90057db20102dfa1e40cafc014fbdea20cd424776863489054559780d2620d7">cio_http_cb_success</a> otherwise. </p>
+<p>The cio_http_cb_return enum lists the allowed return values of user specified callback functions like <a class="el" href="structcio__http__location__handler.html#cio_http_location_handler_on_header_field">on_header_field</a>. If the data provided via the callbacks doesn't match to the protocol the <a class="el" href="structcio__http__location__handler.html">HTTP handler</a> handles, return <a class="el" href="cio__http__location__handler_8h.html#a6b90057db20102dfa1e40cafc014fbdea009efa1646e481495db34fe3bc52fd06">CIO_HTTP_CB_ERROR</a>, <a class="el" href="cio__http__location__handler_8h.html#a6b90057db20102dfa1e40cafc014fbdeaaf9f1469599b7aec8863acbd62cea6a2">CIO_HTTP_CB_SUCCESS</a> otherwise. </p>
 <table class="fieldtable">
-<tr><th colspan="2">Enumerator</th></tr><tr><td class="fieldname"><em><a class="anchor" id="a6b90057db20102dfa1e40cafc014fbdea20cd424776863489054559780d2620d7"></a>cio_http_cb_success</em>&#160;</td><td class="fielddoc">
+<tr><th colspan="2">Enumerator</th></tr><tr><td class="fieldname"><em><a class="anchor" id="a6b90057db20102dfa1e40cafc014fbdeae702ea5d11291265d3e736b7b1a60a78"></a>CIO_HTTP_CB_SKIP_BODY</em>&#160;</td><td class="fielddoc">
+<p>The callback functions did an HTTP connection upgrade and the HTTP parser shall skip the body. </p>
+</td></tr>
+<tr><td class="fieldname"><em><a class="anchor" id="a6b90057db20102dfa1e40cafc014fbdeaaf9f1469599b7aec8863acbd62cea6a2"></a>CIO_HTTP_CB_SUCCESS</em>&#160;</td><td class="fielddoc">
 <p>The callback functions did not encounter any errors. </p>
 </td></tr>
-<tr><td class="fieldname"><em><a class="anchor" id="a6b90057db20102dfa1e40cafc014fbdea2c35e3372feb8e181054e6fadb25fc8a"></a>cio_http_cb_error</em>&#160;</td><td class="fielddoc">
+<tr><td class="fieldname"><em><a class="anchor" id="a6b90057db20102dfa1e40cafc014fbdea009efa1646e481495db34fe3bc52fd06"></a>CIO_HTTP_CB_ERROR</em>&#160;</td><td class="fielddoc">
 <p>The callback function encountered an error. </p>
 </td></tr>
 </table>

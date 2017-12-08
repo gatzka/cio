@@ -23,7 +23,7 @@
  <tr style="height: 56px;">
   <td style="padding-left: 0.5em;">
    <div id="projectname">ANSI C I/O Library
-   &#160;<span id="projectnumber">0.0.1-742+f0c5716</span>
+   &#160;<span id="projectnumber">0.0.1-743+255da05</span>
    </div>
   </td>
  </tr>
@@ -92,9 +92,9 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-attribs"></a>
 Data Fields</h2></td></tr>
-<tr class="memitem:a4644f9f01b41fb3dbce27f5c019a07a5"><td class="memItemLeft" align="right" valign="top">void(*&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structcio__timer.html#a4644f9f01b41fb3dbce27f5c019a07a5">expires_from_now</a> )(struct <a class="el" href="structcio__timer.html">cio_timer</a> *timer, uint64_t timeout_ns, <a class="el" href="cio__timer_8h.html#a5f39123edfcb6b2b61b55a4444b26978">timer_handler</a> handler, void *handler_context)</td></tr>
-<tr class="memdesc:a4644f9f01b41fb3dbce27f5c019a07a5"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set the timer's expiration time relative to now and arms the timer.  <a href="#a4644f9f01b41fb3dbce27f5c019a07a5">More...</a><br/></td></tr>
-<tr class="separator:a4644f9f01b41fb3dbce27f5c019a07a5"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab7de1507254b6b4fe5216615c0cbb333"><td class="memItemLeft" align="right" valign="top">enum <a class="el" href="cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afe">cio_error</a>(*&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structcio__timer.html#ab7de1507254b6b4fe5216615c0cbb333">expires_from_now</a> )(struct <a class="el" href="structcio__timer.html">cio_timer</a> *timer, uint64_t timeout_ns, <a class="el" href="cio__timer_8h.html#a5f39123edfcb6b2b61b55a4444b26978">timer_handler</a> handler, void *handler_context)</td></tr>
+<tr class="memdesc:ab7de1507254b6b4fe5216615c0cbb333"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set the timer's expiration time relative to now and arms the timer.  <a href="#ab7de1507254b6b4fe5216615c0cbb333">More...</a><br/></td></tr>
+<tr class="separator:ab7de1507254b6b4fe5216615c0cbb333"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a8e83f28b2eb60b637d517c7f1dd8f347"><td class="memItemLeft" align="right" valign="top">enum <a class="el" href="cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afe">cio_error</a>(*&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structcio__timer.html#a8e83f28b2eb60b637d517c7f1dd8f347">cancel</a> )(struct <a class="el" href="structcio__timer.html">cio_timer</a> *timer)</td></tr>
 <tr class="memdesc:a8e83f28b2eb60b637d517c7f1dd8f347"><td class="mdescLeft">&#160;</td><td class="mdescRight">Cancels an armed timer.  <a href="#a8e83f28b2eb60b637d517c7f1dd8f347">More...</a><br/></td></tr>
 <tr class="separator:a8e83f28b2eb60b637d517c7f1dd8f347"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -103,12 +103,12 @@ Data Fields</h2></td></tr>
 <tr class="separator:a9415fa7ec48bc6edaf1baa144ad479e2"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <h2 class="groupheader">Field Documentation</h2>
-<a class="anchor" id="a4644f9f01b41fb3dbce27f5c019a07a5"></a>
+<a class="anchor" id="ab7de1507254b6b4fe5216615c0cbb333"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">void(* cio_timer::expires_from_now)(struct <a class="el" href="structcio__timer.html">cio_timer</a> *timer, uint64_t timeout_ns, <a class="el" href="cio__timer_8h.html#a5f39123edfcb6b2b61b55a4444b26978">timer_handler</a> handler, void *handler_context)</td>
+          <td class="memname">enum <a class="el" href="cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afe">cio_error</a>(* cio_timer::expires_from_now)(struct <a class="el" href="structcio__timer.html">cio_timer</a> *timer, uint64_t timeout_ns, <a class="el" href="cio__timer_8h.html#a5f39123edfcb6b2b61b55a4444b26978">timer_handler</a> handler, void *handler_context)</td>
         </tr>
       </table>
 </div><div class="memdoc">
@@ -124,6 +124,7 @@ Data Fields</h2></td></tr>
   </table>
   </dd>
 </dl>
+<dl class="section return"><dt>Returns</dt><dd><a class="el" href="cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afea6bb29544c99750c61f70b10a1e17d96a">CIO_SUCCESS</a> if <code>timer</code> was armed successfully. </dd></dl>
 
 </div>
 </div>
@@ -145,7 +146,7 @@ Data Fields</h2></td></tr>
   </table>
   </dd>
 </dl>
-<dl class="section return"><dt>Returns</dt><dd><a class="el" href="cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afea67c18fefde0ae84d9023cc9f963cd25e">cio_success</a> for success, <a class="el" href="cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afeac831253eb8a4f887d3bb062053c0a383">cio_no_such_file_or_directory</a> if the timer wasn't armed. </dd></dl>
+<dl class="section return"><dt>Returns</dt><dd><a class="el" href="cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afea6bb29544c99750c61f70b10a1e17d96a">CIO_SUCCESS</a> for success, <a class="el" href="cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afea321fe4471f51fe768664a35ea47d232f">CIO_NO_SUCH_FILE_OR_DIRECTORY</a> if the timer wasn't armed. </dd></dl>
 
 </div>
 </div>
