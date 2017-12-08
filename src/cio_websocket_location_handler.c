@@ -77,11 +77,9 @@ static bool find_requested_sub_protocol(struct cio_websocket_location_handler *h
 	for (unsigned int i = 0; i < handler->number_subprotocols; i++) {
 		const char *sub_protocol = handler->subprotocols[i];
 		size_t name_length = strlen(sub_protocol);
-		if (name_length == length) {
-			if (memcmp(sub_protocol, name, length) == 0) {
-				handler->chosen_subprotocol = i;
-				return true;
-			}
+		if ((name_length == length) && (memcmp(sub_protocol, name, length) == 0)) {
+			handler->chosen_subprotocol = i;
+			return true;
 		}
 	}
 
