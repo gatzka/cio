@@ -160,7 +160,6 @@ static enum cio_http_cb_return handle_value(struct cio_http_client *client, cons
 		check_websocket_protocol(ws, at, length);
 		break;
 
-	case CIO_WS_HEADER_UNKNOWN:
 	default:
 		ret = CIO_HTTP_CB_SUCCESS;
 		break;
