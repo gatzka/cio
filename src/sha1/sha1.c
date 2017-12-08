@@ -223,7 +223,11 @@ void SHA1ProcessMessageBlock(SHA1Context *context)
 	int t;                  /* Loop counter                */
 	uint32_t temp;          /* Temporary word value        */
 	uint32_t W[80];         /* Word sequence               */
-	uint32_t A, B, C, D, E; /* Word buffers                */
+	uint32_t A; /* Word buffers                */
+	uint32_t B; /* Word buffers                */
+	uint32_t C; /* Word buffers                */
+	uint32_t D; /* Word buffers                */
+	uint32_t E; /* Word buffers                */
 
 	/*
      *  Initialize the first 16 words in the array W
