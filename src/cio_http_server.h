@@ -72,7 +72,7 @@ struct cio_http_server {
 	 * @brief Start serving HTTP client requests.
 	 *
 	 * @param server The HTTP server instance that shall serve the requests.
-	 * @return ::cio_success if serving runs correctly.
+	 * @return ::CIO_SUCCESS if serving runs correctly.
 	 */
 	enum cio_error (*serve)(struct cio_http_server *server);
 
@@ -85,7 +85,7 @@ struct cio_http_server {
 	 *
 	 * @param server The HTTP server instance which shall serve the new location.
 	 * @param location The location that should be served by the HTTP server.
-	 * @return ::cio_success if the @p location was registered correctly.
+	 * @return ::CIO_SUCCESS if the @p location was registered correctly.
 	 */
 	enum cio_error (*register_location)(struct cio_http_server *server, struct cio_http_location *location);
 
@@ -118,7 +118,7 @@ struct cio_http_server {
  * @param alloc_client A user provided function responsible to allocate a cio_http_client structure.
  * @anchor cio_http_server_init_free_client
  * @param free_client A user provided function to free the client memory @ref cio_http_server_init_alloc_client "allocated".
- * @return ::cio_success for success.
+ * @return ::CIO_SUCCESS for success.
  */
 enum cio_error cio_http_server_init(struct cio_http_server *server,
                                     uint16_t port,

@@ -75,7 +75,7 @@ struct cio_http_location {
  * This document root information could be passed to the handler using the \p config parameter.
  * @anchor cio_http_alloc_handler_handler
  * @param handler The allocation handler which is called an HTTP request matches the location.
- * @return ::cio_success if no error occured
+ * @return ::CIO_SUCCESS if no error occured
  */
 enum cio_error cio_http_location_init(struct cio_http_location *location, const char *path, const void *config, cio_http_alloc_handler handler);
 

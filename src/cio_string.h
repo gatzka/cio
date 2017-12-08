@@ -48,6 +48,16 @@ extern "C" {
  */
 void *cio_memmem(const void *haystack, size_t haystacklen, const void *needle, size_t needlelen);
 
+/**
+ * @brief Compare two strings ignoring case.
+ * @param s1 First string to compare.
+ * @param s2 Second string to compare.
+ * @param n Maximum number of bytes to be compared.
+ * @return an integer less than, equal to, or greater than zero if @p s1 is, after ignoring case,
+ * found to be less than, to match, or be greater than @p s2, respectively
+ */
+int cio_strncasecmp(const char *s1, const char *s2, size_t n);
+
 #ifdef __cplusplus
 }
 #endif

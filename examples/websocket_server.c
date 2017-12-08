@@ -32,6 +32,7 @@
 #include "cio_eventloop.h"
 #include "cio_http_location_handler.h"
 #include "cio_http_server.h"
+#include "cio_websocket_location_handler.h"
 #include "cio_util.h"
 
 #ifndef ARRAY_SIZE
@@ -44,51 +45,34 @@ static const size_t read_buffer_size = 2000;
 
 static const uint64_t read_timeout = UINT64_C(5) * UINT64_C(1000) * UINT64_C(1000) * UINT64_C(1000);
 
-static const char data[] = "<html><body><h1>Hello, World!</h1></body></html>";
 
-struct dummy_handler {
-	struct cio_http_location_handler handler;
-	struct cio_write_buffer wbh;
-	struct cio_write_buffer wb;
+struct ws_echo_handler {
+	struct cio_websocket_location_handler ws_handler;
 };
 
-static void free_dummy_handler(struct cio_http_location_handler *handler)
+static void free_websocket_handler(struct cio_http_location_handler *handler)
 {
-	struct dummy_handler *dh = container_of(handler, struct dummy_handler, handler);
-	free(dh);
+	struct ws_echo_handler *h = container_of(handler, struct ws_echo_handler, ws_handler);
+	free(h);
 }
 
-static enum cio_http_cb_return dummy_on_message_complete(struct cio_http_client *client)
+static void onconnect_handler(struct cio_websocket *ws)
 {
-	struct cio_http_location_handler *handler = client->handler;
-	struct dummy_handler *dh = container_of(handler, struct dummy_handler, handler);
-	cio_write_buffer_element_init(&dh->wb, data, sizeof(data));
-	cio_write_buffer_queue_tail(&dh->wbh, &dh->wb);
-	client->write_response(client, &dh->wbh);
-	return CIO_HTTP_CB_SUCCESS;
+	ws->close(ws, CIO_WEBSOCKET_CLOSE_NORMAL);
 }
 
-static enum cio_http_cb_return dummy_on_body(struct cio_http_client *client, const char *at, size_t length)
-{
-	(void)client;
-	(void)at;
-	(void)length;
-	return CIO_HTTP_CB_SUCCESS;
-}
-
-static struct cio_http_location_handler *alloc_dummy_handler(const void *config)
+static struct cio_http_location_handler *alloc_websocket_handler(const void *config)
 {
 	(void)config;
-	struct dummy_handler *handler = malloc(sizeof(*handler));
+	struct ws_echo_handler *handler = malloc(sizeof(*handler));
 	if (unlikely(handler == NULL)) {
 		return NULL;
 	} else {
-		cio_http_location_handler_init(&handler->handler);
-		cio_write_buffer_head_init(&handler->wbh);
-		handler->handler.free = free_dummy_handler;
-		handler->handler.on_body = dummy_on_body;
-		handler->handler.on_message_complete = dummy_on_message_complete;
-		return &handler->handler;
+		static const char *subprotocols[2] = {"echo", "jet"};
+		cio_websocket_location_handler_init(&handler->ws_handler, subprotocols, ARRAY_SIZE(subprotocols));
+		handler->ws_handler.websocket.onconnect_handler = onconnect_handler;
+		handler->ws_handler.http_location.free = free_websocket_handler;
+		return &handler->ws_handler.http_location;
 	}
 }
 
@@ -145,7 +129,7 @@ int main()
 	}
 
 	struct cio_http_location target_foo;
-	cio_http_location_init(&target_foo, "/foo", NULL, alloc_dummy_handler);
+	cio_http_location_init(&target_foo, "/ws", NULL, alloc_websocket_handler);
 	server.register_location(&server, &target_foo);
 
 	err = server.serve(&server);

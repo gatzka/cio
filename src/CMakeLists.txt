@@ -16,7 +16,9 @@ configure_file(cio_version.h.in ${PROJECT_BINARY_DIR}/generated/cio_version.h)
 string(COMPARE EQUAL "${CMAKE_SYSTEM_NAME}" "Linux" is_linux)
 if(is_linux)
     set(CIO_LINUX_FILES
+        linux/cio_linux_endian.c
         linux/cio_linux_epoll.c
+        linux/cio_linux_random.c
         linux/cio_linux_server_socket.c
         linux/cio_linux_socket.c
         linux/cio_linux_socket_utils.c
@@ -29,19 +31,23 @@ endif()
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/)
 set(CIO_FILES
+    cio_base64.c
+    cio_buffered_stream.c
 	cio_http_location.c
 	cio_http_location_handler.c
 	cio_http_server.c
+	cio_websocket.c
+	cio_websocket_location_handler.c
+	cio_websocket_masking.c
 	http-parser/http_parser.c
-    cio_buffered_stream.c
+    sha1/sha1.c
 )
-
-set_property(SOURCE http-parser/http_parser.c  APPEND_STRING PROPERTY COMPILE_FLAGS "-Wstrict-overflow=2 ")
 
 if(CMAKE_C_COMPILER_ID STREQUAL "GNU")
     if(NOT CMAKE_C_COMPILER_VERSION VERSION_LESS 7.0.0)
         set_property(SOURCE http-parser/http_parser.c  APPEND_STRING PROPERTY COMPILE_FLAGS "-Wimplicit-fallthrough=0 ")
     endif()
+    set_property(SOURCE http-parser/http_parser.c  APPEND_STRING PROPERTY COMPILE_FLAGS "-Wstrict-overflow=2 ")
 endif()
 
 if(CMAKE_C_COMPILER_ID STREQUAL "GNU" OR CMAKE_C_COMPILER_ID STREQUAL "Clang")

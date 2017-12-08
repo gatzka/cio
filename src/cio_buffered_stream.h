@@ -64,7 +64,7 @@ struct cio_buffered_stream;
  * 
  * @param bs The cio_buffered_stream the read operation was called on.
  * @param handler_context The context the functions works on.
- * @param err If err != ::cio_success, the read operation failed.
+ * @param err If err != ::CIO_SUCCESS, the read operation failed.
  * @param buffer The buffer where the data read is stored.
  */
 typedef void (*cio_buffered_stream_read_handler)(struct cio_buffered_stream *bs, void *handler_context, enum cio_error err, struct cio_read_buffer *buffer);
@@ -75,14 +75,14 @@ typedef void (*cio_buffered_stream_read_handler)(struct cio_buffered_stream *bs,
  * @param bs The cio_buffered_stream the write operation was called on.
  * @param handler_context The context the functions works on.
  * @param buffer The buffer which should have been written.
- * @param err If err != ::cio_success, the write operation failed.
+ * @param err If err != ::CIO_SUCCESS, the write operation failed.
  */
 typedef void (*cio_buffered_stream_write_handler)(struct cio_buffered_stream *bs, void *handler_context, const struct cio_write_buffer *buffer, enum cio_error err);
 
 enum cio_bs_state {
-	cio_bs_open = 0,
-	cio_bs_closed,
-	cio_bs_again
+	CIO_BS_OPEN = 0,
+	CIO_BS_CLOSED,
+	CIO_BS_AGAIN
 };
 
 /**
@@ -100,7 +100,7 @@ struct cio_buffered_stream {
 	 * @param handler_context A pointer to a context which might be
 	 * useful inside @p handler
 	 *
-	 * @return ::cio_success for success.
+	 * @return ::CIO_SUCCESS for success.
 	 */
 	enum cio_error (*read_exactly)(struct cio_buffered_stream *bs, struct cio_read_buffer *buffer, size_t num, cio_buffered_stream_read_handler handler, void *handler_context);
 
@@ -114,7 +114,7 @@ struct cio_buffered_stream {
 	 * @param handler_context A pointer to a context which might be
 	 * useful inside @p handler
 	 *
-	 * @return ::cio_success for success.
+	 * @return ::CIO_SUCCESS for success.
 	 */
 	enum cio_error (*read)(struct cio_buffered_stream *bs, struct cio_read_buffer *buffer, cio_buffered_stream_read_handler handler, void *handler_context);
 
@@ -129,7 +129,7 @@ struct cio_buffered_stream {
 	 * @param handler_context A pointer to a context which might be
 	 * useful inside @p handler
 	 *
-	 * @return ::cio_success for success.
+	 * @return ::CIO_SUCCESS for success.
 	 */
 	enum cio_error (*read_until)(struct cio_buffered_stream *bs, struct cio_read_buffer *buffer, const char *delim, cio_buffered_stream_read_handler handler, void *handler_context);
 
@@ -146,7 +146,7 @@ struct cio_buffered_stream {
 	 * @param handler_context A pointer to a context which might be
 	 * useful inside @p handler
 	 *
-	 * @return ::cio_success for success.
+	 * @return ::CIO_SUCCESS for success.
 	 */
 	enum cio_error (*write)(struct cio_buffered_stream *bs, struct cio_write_buffer *buffer, cio_buffered_stream_write_handler handler, void *handler_context);
 
@@ -156,7 +156,7 @@ struct cio_buffered_stream {
 	 *
 	 * @param bs A pointer to the cio_buffered_stream of the on which the operation should be performed.
 	 *
-	 * @return ::cio_success for success.
+	 * @return ::CIO_SUCCESS for success.
 	 */
 	enum cio_error (*close)(struct cio_buffered_stream *bs);
 
@@ -198,7 +198,7 @@ struct cio_buffered_stream {
  * @param stream The IO stream that should be used to read from
  * and to write to.
  *
- * @return ::cio_success for success.
+ * @return ::CIO_SUCCESS for success.
  */
 enum cio_error cio_buffered_stream_init(struct cio_buffered_stream *bs,
                                         struct cio_io_stream *stream);

@@ -24,32 +24,47 @@
  * SOFTWARE.
  */
 
-#ifndef CIO_HTTP_STATUS_CODE_H
-#define CIO_HTTP_STATUS_CODE_H
+#include <stddef.h>
+#include <stdint.h>
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+#include "cio_websocket_masking.h"
 
-/**
- * @file
- * @brief List the currently supported <a href="https://tools.ietf.org/html/rfc7231#section-6">HTTP status codes</a>.
- */
+void cio_websocket_mask(uint8_t *buffer, size_t length, const uint8_t mask[4])
+{
+	uint_fast32_t aligned_mask;
+	if (length < sizeof(aligned_mask)) {
+		for (size_t i = 0; i < length; i++) {
+			buffer[i] = buffer[i] ^ (mask[i % 4]);
+		}
 
-/**
- * @brief The cio_http_status_code enum lists all HTTP status codes that
- * can be emmited by the cio_http_server.
- */
-enum cio_http_status_code {
-	CIO_HTTP_SWITCHING_PROTOCOLS = 101,          /*!< The requester has asked the server to switch protocols and the server has agreed to do so. */
-	CIO_HTTP_STATUS_OK = 200,                    /*!< Standard response for a successful HTTP request. */
-	CIO_HTTP_STATUS_BAD_REQUEST = 400,           /*!< Request not processed due to a client error. */
-	CIO_HTTP_STATUS_NOT_FOUND = 404,             /*!< The requested resource was not found. */
-	CIO_HTTP_STATUS_INTERNAL_SERVER_ERROR = 500, /*!< An internal server error occured. */
-};
+		return;
+	}
 
-#ifdef __cplusplus
+	unsigned int pre_length = ((uintptr_t) buffer) % sizeof(aligned_mask);
+	pre_length = (sizeof(aligned_mask) - pre_length) % sizeof(aligned_mask);
+
+	size_t main_length = (length - pre_length) / sizeof(aligned_mask);
+	unsigned int post_length = length - pre_length - (main_length * sizeof(aligned_mask));
+
+	uint_fast32_t *buffer_aligned = (void *)(buffer + pre_length);
+
+	uint8_t *aligned_mask_filler = (uint8_t *)&aligned_mask;
+	for (unsigned int i = 0; i < sizeof(aligned_mask); i++) {
+		*aligned_mask_filler++ = mask[(i + pre_length) % 4];
+	}
+
+	unsigned int i_p = 0;
+	while (pre_length-- > 0) {
+		buffer[i_p] ^= (mask[i_p % 4]);
+		i_p++;
+	}
+
+	while (main_length-- > 0) {
+		*buffer_aligned ^= aligned_mask;
+		buffer_aligned++;
+	}
+
+	for (size_t i = length - post_length; i < length; i++) {
+		buffer[i] ^= (mask[i % 4]);
+	}
 }
-#endif
-
-#endif

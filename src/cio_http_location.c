@@ -30,7 +30,7 @@
 enum cio_error cio_http_location_init(struct cio_http_location *location, const char *path, const void *config, cio_http_alloc_handler handler)
 {
 	if (unlikely((location == NULL) || (path == NULL) || (handler == NULL))) {
-		return cio_invalid_argument;
+		return CIO_INVALID_ARGUMENT;
 	}
 
 	location->config = config;
@@ -38,5 +38,5 @@ enum cio_error cio_http_location_init(struct cio_http_location *location, const 
 	location->alloc_handler = handler;
 	location->path = path;
 
-	return cio_success;
+	return CIO_SUCCESS;
 }

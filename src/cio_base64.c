@@ -1,7 +1,7 @@
 /*
- * The MIT License (MIT)
+ *The MIT License (MIT)
  *
- * Copyright (c) <2017> <Stephan Gatzka>
+ * Copyright (c) <2016> <Stephan Gatzka>
  *
  * Permission is hereby granted, free of charge, to any person obtaining
  * a copy of this software and associated documentation files (the
@@ -24,32 +24,48 @@
  * SOFTWARE.
  */
 
-#ifndef CIO_HTTP_STATUS_CODE_H
-#define CIO_HTTP_STATUS_CODE_H
+#include <stddef.h>
+#include <stdint.h>
+#include <string.h>
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+#include "cio_base64.h"
+#include "cio_compiler.h"
 
-/**
- * @file
- * @brief List the currently supported <a href="https://tools.ietf.org/html/rfc7231#section-6">HTTP status codes</a>.
- */
+static const char encode_table[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
 
-/**
- * @brief The cio_http_status_code enum lists all HTTP status codes that
- * can be emmited by the cio_http_server.
- */
-enum cio_http_status_code {
-	CIO_HTTP_SWITCHING_PROTOCOLS = 101,          /*!< The requester has asked the server to switch protocols and the server has agreed to do so. */
-	CIO_HTTP_STATUS_OK = 200,                    /*!< Standard response for a successful HTTP request. */
-	CIO_HTTP_STATUS_BAD_REQUEST = 400,           /*!< Request not processed due to a client error. */
-	CIO_HTTP_STATUS_NOT_FOUND = 404,             /*!< The requested resource was not found. */
-	CIO_HTTP_STATUS_INTERNAL_SERVER_ERROR = 500, /*!< An internal server error occured. */
-};
+void cio_b64_encode_string(const uint8_t *__restrict in, size_t in_len, char *__restrict out)
+{
+	unsigned int triple[3];
+	unsigned int len;
 
-#ifdef __cplusplus
+	while (in_len) {
+		len = 0;
+		for (unsigned int i = 0; i < 3; i++) {
+			if (in_len) {
+				triple[i] = *in++;
+				len++;
+				in_len--;
+			} else {
+				triple[i] = 0;
+			}
+		}
+
+		char tmp[4];
+		tmp[0] = encode_table[triple[0] >> 2];
+		tmp[1] = encode_table[((triple[0] & 0x03) << 4) | ((triple[1] & 0xf0) >> 4)];
+		if (likely(len > 1)) {
+			tmp[2] = encode_table[((triple[1] & 0x0f) << 2) | ((triple[2] & 0xc0) >> 6)];
+		} else {
+			tmp[2] = '=';
+		}
+		if (likely(len > 2)) {
+			tmp[3] = encode_table[triple[2] & 0x3f];
+		} else {
+			tmp[3] = '=';
+		}
+		memcpy(out, tmp, sizeof(tmp));
+		out += 4;
+	}
+
+	*out = '\0';
 }
-#endif
-
-#endif

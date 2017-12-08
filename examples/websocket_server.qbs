@@ -24,32 +24,13 @@
  * SOFTWARE.
  */
 
-#ifndef CIO_HTTP_STATUS_CODE_H
-#define CIO_HTTP_STATUS_CODE_H
+import qbs 1.0
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+CppApplication {
+  name: "websocket_server"
+  Depends { name:"cio-static"}
 
-/**
- * @file
- * @brief List the currently supported <a href="https://tools.ietf.org/html/rfc7231#section-6">HTTP status codes</a>.
- */
-
-/**
- * @brief The cio_http_status_code enum lists all HTTP status codes that
- * can be emmited by the cio_http_server.
- */
-enum cio_http_status_code {
-	CIO_HTTP_SWITCHING_PROTOCOLS = 101,          /*!< The requester has asked the server to switch protocols and the server has agreed to do so. */
-	CIO_HTTP_STATUS_OK = 200,                    /*!< Standard response for a successful HTTP request. */
-	CIO_HTTP_STATUS_BAD_REQUEST = 400,           /*!< Request not processed due to a client error. */
-	CIO_HTTP_STATUS_NOT_FOUND = 404,             /*!< The requested resource was not found. */
-	CIO_HTTP_STATUS_INTERNAL_SERVER_ERROR = 500, /*!< An internal server error occured. */
-};
-
-#ifdef __cplusplus
+  files: [
+    "websocket_server.c"
+  ]
 }
-#endif
-
-#endif

@@ -95,6 +95,24 @@ struct cio_http_client {
 	void (*write_header)(struct cio_http_client *client, enum cio_http_status_code status);
 
 	/**
+	 * @anchor cio_http_client_queue_header
+	 * @brief Queues a response header for the requesting client without sending it.
+	 *
+	 * @param client The client which shall get the header.
+	 * @param status The status code (like 404, or 400) of the response header.
+	 */
+	void (*queue_header)(struct cio_http_client *client, enum cio_http_status_code status);
+
+    /**
+	 * @anchor cio_http_client_flush
+	 * @brief Flushes the write buffer attached of this client.
+     *
+	 * @param client The client which shall be flushed.
+	 * @param handler The handler to be called when flusing completed.
+     */
+	void (*flush)(struct cio_http_client *client, cio_buffered_stream_write_handler handler);
+
+	/**
 	 * @anchor cio_http_client_bs
 	 * @brief The buffered stream which is used to read data from and write data to the client.
 	 *
@@ -158,7 +176,8 @@ struct cio_http_client {
 	 * @privatesection
 	 */
 	struct cio_http_location_handler *handler;
-	struct cio_write_buffer wb_http_header;
+	struct cio_write_buffer wb_http_response_statusline;
+	struct cio_write_buffer wb_http_response_header_end;
 	struct cio_socket socket;
 	struct cio_timer read_timer;
 

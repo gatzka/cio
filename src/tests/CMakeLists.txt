@@ -31,11 +31,11 @@ message(STATUS "CMAKE_C_COMPILER_ID: " ${CMAKE_C_COMPILER_ID})
 message(STATUS "CMAKE_C_COMPILER_VERSION: " ${CMAKE_C_COMPILER_VERSION})
 
 if(CMAKE_C_COMPILER_ID STREQUAL "GNU")
-  if(NOT CMAKE_C_COMPILER_VERSION VERSION_LESS 7.0.0)
-    set_property(SOURCE ../http-parser/http_parser.c  APPEND_STRING PROPERTY COMPILE_FLAGS "-Wstrict-overflow=2 -Wimplicit-fallthrough=0")
-  endif()
+    if(NOT CMAKE_C_COMPILER_VERSION VERSION_LESS 7.0.0)
+        set_property(SOURCE ../http-parser/http_parser.c  APPEND_STRING PROPERTY COMPILE_FLAGS "-Wimplicit-fallthrough=0 ")
+    endif()
+    set_property(SOURCE ../http-parser/http_parser.c  APPEND_STRING PROPERTY COMPILE_FLAGS "-Wstrict-overflow=2 ")
 endif()
-
 
 add_executable(test_cio_buffered_stream
     test_cio_buffered_stream.c
@@ -74,10 +74,17 @@ add_executable(test_cio_write_buffer
 )
 target_link_libraries (test_cio_write_buffer cio_unity)
 
+add_executable(test_cio_websocket_mask
+    test_cio_websocket_mask.c
+    ../cio_websocket_masking.c
+)
+target_link_libraries (test_cio_websocket_mask cio_unity)
+
 enable_testing()
 add_test(NAME test_cio_buffered_stream COMMAND test_cio_buffered_stream)
 add_test(NAME test_cio_http_server COMMAND test_cio_http_server)
 add_test(NAME test_cio_http_server_iostream COMMAND test_cio_http_server_iostream)
 add_test(NAME test_cio_read_buffer COMMAND test_cio_read_buffer)
 add_test(NAME test_cio_write_buffer COMMAND test_cio_write_buffer)
+add_test(NAME test_cio_websocket_mask COMMAND test_cio_websocket_mask)
 

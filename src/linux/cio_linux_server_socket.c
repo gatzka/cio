@@ -71,7 +71,7 @@ static void accept_callback(void *context)
 		struct cio_socket *s = ss->alloc_client();
 		if (likely(s != NULL)) {
 			enum cio_error err = cio_linux_socket_init(s, client_fd, ss->loop, ss->free_client);
-			if (likely(err == cio_success)) {
+			if (likely(err == CIO_SUCCESS)) {
 				ss->handler(ss, ss->handler_context, err, s);
 			} else {
 				close(client_fd);
@@ -87,7 +87,7 @@ static enum cio_error socket_accept(struct cio_server_socket *ss, cio_accept_han
 {
 	enum cio_error err;
 	if (unlikely(handler == NULL)) {
-		return cio_invalid_argument;
+		return CIO_INVALID_ARGUMENT;
 	}
 
 	ss->handler = handler;
@@ -100,16 +100,16 @@ static enum cio_error socket_accept(struct cio_server_socket *ss, cio_accept_han
 	}
 
 	err = cio_linux_eventloop_add(ss->loop, &ss->ev);
-	if (unlikely(err != cio_success)) {
+	if (unlikely(err != CIO_SUCCESS)) {
 		return err;
 	}
 
 	err = cio_linux_eventloop_register_read(ss->loop, &ss->ev);
-	if (unlikely(err != cio_success)) {
+	if (unlikely(err != CIO_SUCCESS)) {
 		return err;
 	}
 
-	return cio_success;
+	return CIO_SUCCESS;
 }
 
 static enum cio_error socket_set_reuse_address(struct cio_server_socket *ss, bool on)
@@ -126,7 +126,7 @@ static enum cio_error socket_set_reuse_address(struct cio_server_socket *ss, boo
 		return (enum cio_error)errno;
 	}
 
-	return cio_success;
+	return CIO_SUCCESS;
 }
 
 static enum cio_error socket_bind(struct cio_server_socket *ss, const char *bind_address, uint16_t port)
@@ -153,7 +153,7 @@ static enum cio_error socket_bind(struct cio_server_socket *ss, const char *bind
 		if (ret == EAI_SYSTEM) {
 			return (enum cio_error)errno;
 		} else {
-			return cio_invalid_argument;
+			return CIO_INVALID_ARGUMENT;
 		}
 	}
 
@@ -166,10 +166,10 @@ static enum cio_error socket_bind(struct cio_server_socket *ss, const char *bind
 	freeaddrinfo(servinfo);
 
 	if (rp == NULL) {
-		return cio_invalid_argument;
+		return CIO_INVALID_ARGUMENT;
 	}
 
-	return cio_success;
+	return CIO_SUCCESS;
 }
 
 enum cio_error cio_server_socket_init(struct cio_server_socket *ss,
@@ -195,5 +195,5 @@ enum cio_error cio_server_socket_init(struct cio_server_socket *ss,
 	ss->loop = loop;
 	ss->close_hook = close_hook;
 	ss->backlog = (int)backlog;
-	return cio_success;
+	return CIO_SUCCESS;
 }

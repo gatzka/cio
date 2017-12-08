@@ -25,48 +25,67 @@
  */
 
 #include <stdint.h>
+#include <stdlib.h>
+#include <string.h>
+#include <time.h>
 
-#include "cio_error_code.h"
-#include "cio_read_buffer.h"
+#include "cio_websocket_masking.h"
+
 #include "fff.h"
 #include "unity.h"
+
+#define MIN(x, y) (((x) < (y)) ? (x) : (y))
 
 DEFINE_FFF_GLOBALS
 
 void setUp(void)
 {
+	srand(time(NULL));
+
 	FFF_RESET_HISTORY();
 }
 
-static void test_init_read_buffer(void)
+static void fill_random(uint8_t *buffer, size_t length)
 {
-	uint32_t buffer;
-	struct cio_read_buffer rb;
-	enum cio_error err = cio_read_buffer_init(&rb, &buffer, sizeof(buffer));
-	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Read buffer was not initialized correctly!");
-	TEST_ASSERT_EQUAL_MESSAGE(sizeof(buffer), cio_read_buffer_space_available(&rb), "Available space not initialized correctly!");
-	TEST_ASSERT_EQUAL_MESSAGE(0, cio_read_buffer_unread_bytes(&rb), "Unread bytes was not initialized correctly!");
+	for (size_t i = 0; i < length; i++) {
+		buffer[i] = (uint8_t)(rand() & 0xff);
+	}
 }
 
-static void test_init_no_read_buffer(void)
+static void check_masking(uint8_t *buffer, size_t length, uint8_t mask[4])
 {
-	uint32_t buffer;
-	enum cio_error err = cio_read_buffer_init(NULL, &buffer, sizeof(buffer));
-	TEST_ASSERT_EQUAL_MESSAGE(CIO_INVALID_ARGUMENT, err, "Return value for initialization with no read buffer not correct!");
+	for (size_t i = 0; i < length; i++) {
+		buffer[i] = buffer[i] ^ (mask[i % 4]);
+	}
 }
 
-static void test_init_no_buffer(void)
+static void test_aligned_buffer(void)
 {
-	struct cio_read_buffer rb;
-	enum cio_error err = cio_read_buffer_init(&rb, NULL, 4);
-	TEST_ASSERT_EQUAL_MESSAGE(CIO_INVALID_ARGUMENT, err, "Return value for initialization with no buffer provided is not correct!");
+#define buffer_size 16
+#define max_align 8
+
+	for (unsigned int align_counter = 0; align_counter < max_align; align_counter++) {
+		for (unsigned int length_counter = 1; length_counter < buffer_size; length_counter++) {
+			uint8_t buffer[buffer_size + max_align];
+			fill_random(buffer, sizeof(buffer));
+
+			uint8_t check_buffer[buffer_size + max_align];
+			memcpy(check_buffer, buffer, sizeof(buffer));
+
+			uint8_t mask[4];
+			fill_random(mask, sizeof(mask));
+
+			cio_websocket_mask(buffer + align_counter, length_counter, mask);
+			check_masking(check_buffer + align_counter, length_counter, mask);
+
+			TEST_ASSERT_MESSAGE(memcmp(check_buffer + align_counter, buffer + align_counter, length_counter) == 0, "Message masking not correct!");
+		}
+	}
 }
 
 int main(void)
 {
 	UNITY_BEGIN();
-	RUN_TEST(test_init_read_buffer);
-	RUN_TEST(test_init_no_read_buffer);
-	RUN_TEST(test_init_no_buffer);
+	RUN_TEST(test_aligned_buffer);
 	return UNITY_END();
 }

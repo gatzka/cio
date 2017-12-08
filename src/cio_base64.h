@@ -1,5 +1,5 @@
 /*
- * The MIT License (MIT)
+ *The MIT License (MIT)
  *
  * Copyright (c) <2017> <Stephan Gatzka>
  *
@@ -24,29 +24,21 @@
  * SOFTWARE.
  */
 
-#ifndef CIO_HTTP_STATUS_CODE_H
-#define CIO_HTTP_STATUS_CODE_H
+#ifndef CIO_BASE64_H
+#define CIO_BASE64_H
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-/**
- * @file
- * @brief List the currently supported <a href="https://tools.ietf.org/html/rfc7231#section-6">HTTP status codes</a>.
- */
+#include <stddef.h>
+#include <stdint.h>
 
-/**
- * @brief The cio_http_status_code enum lists all HTTP status codes that
- * can be emmited by the cio_http_server.
- */
-enum cio_http_status_code {
-	CIO_HTTP_SWITCHING_PROTOCOLS = 101,          /*!< The requester has asked the server to switch protocols and the server has agreed to do so. */
-	CIO_HTTP_STATUS_OK = 200,                    /*!< Standard response for a successful HTTP request. */
-	CIO_HTTP_STATUS_BAD_REQUEST = 400,           /*!< Request not processed due to a client error. */
-	CIO_HTTP_STATUS_NOT_FOUND = 404,             /*!< The requested resource was not found. */
-	CIO_HTTP_STATUS_INTERNAL_SERVER_ERROR = 500, /*!< An internal server error occured. */
-};
+void cio_b64_encode_string(const uint8_t *__restrict in, size_t in_len, char *__restrict out);
+static inline size_t cio_b64_encoded_string_length(size_t input_length)
+{
+	return 4 * ((input_length + 2) / 3);
+}
 
 #ifdef __cplusplus
 }

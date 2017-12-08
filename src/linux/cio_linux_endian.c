@@ -1,7 +1,7 @@
 /*
- * The MIT License (MIT)
+ *The MIT License (MIT)
  *
- * Copyright (c) <2017> <Stephan Gatzka>
+ * Copyright (c) <2016> <Stephan Gatzka>
  *
  * Permission is hereby granted, free of charge, to any person obtaining
  * a copy of this software and associated documentation files (the
@@ -24,32 +24,38 @@
  * SOFTWARE.
  */
 
-#ifndef CIO_HTTP_STATUS_CODE_H
-#define CIO_HTTP_STATUS_CODE_H
+#define _DEFAULT_SOURCE
+#include <endian.h>
+#include <stdint.h>
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+#include "cio_endian.h"
 
-/**
- * @file
- * @brief List the currently supported <a href="https://tools.ietf.org/html/rfc7231#section-6">HTTP status codes</a>.
- */
-
-/**
- * @brief The cio_http_status_code enum lists all HTTP status codes that
- * can be emmited by the cio_http_server.
- */
-enum cio_http_status_code {
-	CIO_HTTP_SWITCHING_PROTOCOLS = 101,          /*!< The requester has asked the server to switch protocols and the server has agreed to do so. */
-	CIO_HTTP_STATUS_OK = 200,                    /*!< Standard response for a successful HTTP request. */
-	CIO_HTTP_STATUS_BAD_REQUEST = 400,           /*!< Request not processed due to a client error. */
-	CIO_HTTP_STATUS_NOT_FOUND = 404,             /*!< The requested resource was not found. */
-	CIO_HTTP_STATUS_INTERNAL_SERVER_ERROR = 500, /*!< An internal server error occured. */
-};
-
-#ifdef __cplusplus
+uint16_t cio_be16toh(uint16_t big_endian_16bits)
+{
+	return be16toh(big_endian_16bits);
 }
-#endif
 
-#endif
+uint32_t cio_be32toh(uint32_t big_endian_32bits)
+{
+	return be32toh(big_endian_32bits);
+}
+
+uint64_t cio_be64toh(uint64_t big_endian_64bits)
+{
+	return be64toh(big_endian_64bits);
+}
+
+uint16_t cio_htobe16(uint16_t host_endian_16bits)
+{
+	return htobe16(host_endian_16bits);
+}
+
+uint32_t cio_htobe32(uint32_t host_endian_32bits)
+{
+	return htobe32(host_endian_32bits);
+}
+
+uint64_t cio_htobe64(uint64_t host_endian_64bits)
+{
+	return htobe64(host_endian_64bits);
+}

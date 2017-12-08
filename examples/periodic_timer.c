@@ -46,11 +46,13 @@ static void sighandler(int signum)
 static void handle_timeout(struct cio_timer *timer, void *handler_context, enum cio_error err)
 {
 	(void)handler_context;
-	if (err == cio_success) {
+	if (err == CIO_SUCCESS) {
 		fprintf(stdout, "timer expired!\n");
-		timer->expires_from_now(timer, FIVE_S, handle_timeout, NULL);
+		if (timer->expires_from_now(timer, FIVE_S, handle_timeout, NULL) != CIO_SUCCESS) {
+			fprintf(stderr, "arming timer failed!\n");
+		}
 	} else {
-		fprintf(stdout, "timer error!\n");
+		fprintf(stderr, "timer error!\n");
 	}
 }
 
@@ -68,21 +70,25 @@ int main()
 	}
 
 	enum cio_error err = cio_eventloop_init(&loop);
-	if (err != cio_success) {
+	if (err != CIO_SUCCESS) {
 		return EXIT_FAILURE;
 	}
 
 	struct cio_timer timer;
 	err = cio_timer_init(&timer, &loop, NULL);
-	if (err != cio_success) {
+	if (err != CIO_SUCCESS) {
 		ret = EXIT_FAILURE;
 		goto destroy_loop;
 	}
 
-	timer.expires_from_now(&timer, FIVE_S, handle_timeout, NULL);
+	if (timer.expires_from_now(&timer, FIVE_S, handle_timeout, NULL) != CIO_SUCCESS) {
+		fprintf(stderr, "arming timer failed!\n");
+		ret = EXIT_FAILURE;
+		goto destroy_loop;
+	}
 
 	err = cio_eventloop_run(&loop);
-	if (err != cio_success) {
+	if (err != CIO_SUCCESS) {
 		fprintf(stderr, "error in cio_eventloop_run!\n");
 	}
 
