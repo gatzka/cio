@@ -161,6 +161,37 @@ static void send_close_frame(struct cio_websocket *ws, enum cio_websocket_status
 	close(ws);
 }
 
+static void handle_close_frame(struct cio_websocket *ws, uint8_t *data, uint64_t length)
+{
+	uint16_t status_code = CIO_WEBSOCKET_CLOSE_NORMAL;
+	if (length >= 2) {
+		memcpy(&status_code, data, sizeof(status_code));
+		status_code = cio_be16toh(status_code);
+	}
+
+	if (length > 2) {
+		// TODO: struct cjet_utf8_checker c;
+		// TODO: cjet_init_checker(&c);
+		// TODO: if (!cjet_is_byte_sequence_valid(&c, frame + 2, length - 2, true)) {
+		// TODO: 	handle_error(s, WS_CLOSE_UNSUPPORTED_DATA);
+		// TODO: }
+	}
+
+	if ((length == 1) || (length > WS_SMALL_FRAME_SIZE) || is_status_code_invalid(status_code)) {
+		//handle_error(s, WS_CLOSE_PROTOCOL_ERROR);
+	}
+
+	if (ws->self_initiated_close) {
+		ws->close_timer.cancel(&ws->close_timer);
+	} else {
+		if (ws->on_close != NULL) {
+			ws->on_close(ws, (enum cio_websocket_status_code)status_code, NULL);
+		}
+
+		send_close_frame(ws, CIO_WEBSOCKET_CLOSE_GOING_AWAY);
+	}
+}
+
 static void handle_frame(struct cio_websocket *ws, uint8_t *data, uint64_t length)
 {
 	if (unlikely(ws->is_server && (ws->ws_flags.mask == 0))) {
@@ -262,37 +293,9 @@ static void handle_frame(struct cio_websocket *ws, uint8_t *data, uint64_t lengt
 
 		break;
 
-	case CIO_WEBSOCKET_CLOSE_FRAME: {
-		uint16_t status_code = CIO_WEBSOCKET_CLOSE_NORMAL;
-		if (length >= 2) {
-			memcpy(&status_code, data, sizeof(status_code));
-			status_code = cio_be16toh(status_code);
-		}
-
-		if (length > 2) {
-			// TODO: struct cjet_utf8_checker c;
-			// TODO: cjet_init_checker(&c);
-			// TODO: if (!cjet_is_byte_sequence_valid(&c, frame + 2, length - 2, true)) {
-			// TODO: 	handle_error(s, WS_CLOSE_UNSUPPORTED_DATA);
-			// TODO: }
-		}
-
-		if ((length == 1) || (length > WS_SMALL_FRAME_SIZE) || is_status_code_invalid(status_code)) {
-			//handle_error(s, WS_CLOSE_PROTOCOL_ERROR);
-		}
-
-		if (ws->self_initiated_close) {
-			ws->close_timer.cancel(&ws->close_timer);
-		} else {
-			if (ws->on_close != NULL) {
-				ws->on_close(ws, (enum cio_websocket_status_code)status_code, NULL);
-			}
-
-			send_close_frame(ws, CIO_WEBSOCKET_CLOSE_GOING_AWAY);
-		}
-
+	case CIO_WEBSOCKET_CLOSE_FRAME:
+		handle_close_frame(ws, data, length);
 		break;
-	}
 
 	default:
 		// TODO: handle_error(s, WS_CLOSE_PROTOCOL_ERROR);
