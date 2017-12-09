@@ -135,7 +135,6 @@ Project {
 
     files: [
       "test_cio_websocket_mask.c",
-      "../cio_websocket_masking.c"
     ]
   }
 }

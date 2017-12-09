@@ -76,7 +76,6 @@ target_link_libraries (test_cio_write_buffer cio_unity)
 
 add_executable(test_cio_websocket_mask
     test_cio_websocket_mask.c
-    ../cio_websocket_masking.c
 )
 target_link_libraries (test_cio_websocket_mask cio_unity)
 
