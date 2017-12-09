@@ -33,7 +33,7 @@ Group {
   Group {
     name: "ANSI C conformant"
     
-    cpp.cLanguageVersion: "c99"
+    cpp.cLanguageVersion: "c11"
     
     files: [
       "*.c",

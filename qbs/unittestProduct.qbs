@@ -31,6 +31,6 @@ HardenedProduct {
   name: "unit test product"
   Depends { name: "unity" }
   Depends { name: "fake-function-framework" }
-  cpp.cLanguageVersion: "c99"
+  cpp.cLanguageVersion: "c11"
 }
 
