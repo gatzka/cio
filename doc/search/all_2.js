@@ -176,7 +176,7 @@ var searchData=
   ['cio_5fwebsocket_5flocation_5fhandler',['cio_websocket_location_handler',['../structcio__websocket__location__handler.html',1,'']]],
   ['cio_5fwebsocket_5flocation_5fhandler_2eh',['cio_websocket_location_handler.h',['../cio__websocket__location__handler_8h.html',1,'']]],
   ['cio_5fwebsocket_5flocation_5fhandler_5finit',['cio_websocket_location_handler_init',['../cio__websocket__location__handler_8h.html#af93779dc5cac46d5752adacedb428884',1,'cio_websocket_location_handler.h']]],
-  ['cio_5fwebsocket_5fmask',['cio_websocket_mask',['../cio__websocket__masking_8h.html#ab8609cd9ba9784dfe48042786d53ff3a',1,'cio_websocket_masking.h']]],
+  ['cio_5fwebsocket_5fmask',['cio_websocket_mask',['../cio__websocket__masking_8h.html#adc260e8f2d104844810c62865f622be5',1,'cio_websocket_masking.h']]],
   ['cio_5fwebsocket_5fmasking_2eh',['cio_websocket_masking.h',['../cio__websocket__masking_8h.html',1,'']]],
   ['cio_5fwebsocket_5fonconnect_5fhandler',['cio_websocket_onconnect_handler',['../cio__websocket_8h.html#a2ac20030167eba987181f4e02facf1d8',1,'cio_websocket.h']]],
   ['cio_5fwebsocket_5fstatus_5fcode',['cio_websocket_status_code',['../cio__websocket_8h.html#aa24c9894ba2ee9dc5b0ebbc1c8809701',1,'cio_websocket.h']]],
