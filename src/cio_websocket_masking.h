@@ -34,7 +34,45 @@ extern "C" {
 #include <stddef.h>
 #include <stdint.h>
 
-void cio_websocket_mask(uint8_t *buffer, size_t length, const uint8_t mask[4]);
+static inline void cio_websocket_mask(uint8_t *buffer, size_t length, const uint8_t mask[4])
+{
+	uint_fast32_t aligned_mask;
+	if (length < sizeof(aligned_mask)) {
+		for (size_t i = 0; i < length; i++) {
+			buffer[i] = buffer[i] ^ (mask[i % 4]);
+		}
+
+		return;
+	}
+
+	unsigned int pre_length = ((uintptr_t) buffer) % sizeof(aligned_mask);
+	pre_length = (sizeof(aligned_mask) - pre_length) % sizeof(aligned_mask);
+
+	size_t main_length = (length - pre_length) / sizeof(aligned_mask);
+	unsigned int post_length = length - pre_length - (main_length * sizeof(aligned_mask));
+
+	uint_fast32_t *buffer_aligned = (void *)(buffer + pre_length);
+
+	uint8_t *aligned_mask_filler = (uint8_t *)&aligned_mask;
+	for (unsigned int i = 0; i < sizeof(aligned_mask); i++) {
+		*aligned_mask_filler++ = mask[(i + pre_length) % 4];
+	}
+
+	unsigned int i_p = 0;
+	while (pre_length-- > 0) {
+		buffer[i_p] ^= (mask[i_p % 4]);
+		i_p++;
+	}
+
+	while (main_length-- > 0) {
+		*buffer_aligned ^= aligned_mask;
+		buffer_aligned++;
+	}
+
+	for (size_t i = length - post_length; i < length; i++) {
+		buffer[i] ^= (mask[i % 4]);
+	}
+}
 
 #ifdef __cplusplus
 }
