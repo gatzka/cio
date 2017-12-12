@@ -61,6 +61,8 @@ enum cio_websocket_status_code {
 	CIO_WEBSOCKET_CLOSE_RESERVED_UPPER_BOUND = 4999
 };
 
+typedef void (*cio_websocket_write_handler)(struct cio_websocket *ws, void *handler_context, const struct cio_write_buffer *buffer, enum cio_error err);
+
 struct cio_websocket {
 
 	/**
@@ -111,7 +113,7 @@ struct cio_websocket {
 	 * @param data The data the pong frame carried.
 	 * @param length The length of data the pong frame carried.
 	 */
-	void (*onclose)(struct cio_websocket *ws, enum cio_websocket_status_code status, char *text);
+	void (*onclose)(const struct cio_websocket *ws, enum cio_websocket_status_code status, char *text);
 
 	/**
 	 * @brief A pointer to a function which is called if a receive error occurred.
@@ -124,7 +126,10 @@ struct cio_websocket {
 	 * @param ws The websocket which encountered the error.
 	 * @param status The status code describing the error.
 	 */
-	void (*on_error)(struct cio_websocket *ws, enum cio_websocket_status_code status);
+	void (*on_error)(const struct cio_websocket *ws, enum cio_websocket_status_code status);
+
+	void (*write_text_frame)(const struct cio_websocket *ws, struct cio_write_buffer *buffer, bool last_frame, cio_websocket_write_handler handler);
+	void (*write_binary_frame)(const struct cio_websocket *ws, struct cio_write_buffer *buffer, bool last_frame, cio_websocket_write_handler handler);
 
 	/**
 	 * @privatesection
