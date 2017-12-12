@@ -27,11 +27,13 @@
 #include <signal.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include "cio_error_code.h"
 #include "cio_eventloop.h"
 #include "cio_http_location_handler.h"
 #include "cio_http_server.h"
+#include "cio_write_buffer.h"
 #include "cio_websocket_location_handler.h"
 #include "cio_util.h"
 
@@ -48,6 +50,8 @@ static const uint64_t read_timeout = UINT64_C(5) * UINT64_C(1000) * UINT64_C(100
 
 struct ws_echo_handler {
 	struct cio_websocket_location_handler ws_handler;
+	struct cio_write_buffer wbh;
+	struct cio_write_buffer wb_close_message;
 };
 
 static void free_websocket_handler(struct cio_http_location_handler *handler)
@@ -64,12 +68,18 @@ static void onconnect_handler(struct cio_websocket *ws)
 
 static void ontextframe_received(struct cio_websocket *ws, char *data, size_t length, bool last_frame)
 {
-	(void)last_frame;
+	struct cio_websocket_location_handler *handler = container_of(ws, struct cio_websocket_location_handler, websocket);
+	struct ws_echo_handler *eh = container_of(handler, struct ws_echo_handler, ws_handler);
 	fprintf(stdout, "Got text message (last frame: %s):", last_frame ? "true" : "false");
 	fwrite(data, length, 1, stdout);
 	fflush(stdout);
 	fprintf(stdout, "\n");
-	ws->close(ws, CIO_WEBSOCKET_CLOSE_NORMAL);
+
+	static const char *close_message = "Good bye!";
+	cio_write_buffer_head_init(&eh->wbh);
+	cio_write_buffer_element_init(&eh->wb_close_message, close_message, strlen(close_message));
+	cio_write_buffer_queue_tail(&eh->wbh, &eh->wb_close_message);
+	ws->close(ws, CIO_WEBSOCKET_CLOSE_NORMAL, &eh->wbh);
 }
 
 static struct cio_http_location_handler *alloc_websocket_handler(const void *config)

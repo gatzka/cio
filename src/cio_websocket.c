@@ -50,10 +50,18 @@ enum cio_ws_frame_type {
 	CIO_WEBSOCKET_PONG_FRAME = 0x0a,
 };
 
-static void send_frame(struct cio_websocket *s, uint8_t *payload, size_t length, enum cio_ws_frame_type frame_type, cio_buffered_stream_write_handler written_cb)
+static void send_frame(struct cio_websocket *s, struct cio_write_buffer *payload, enum cio_ws_frame_type frame_type, cio_buffered_stream_write_handler written_cb)
 {
 	uint8_t first_len;
 	size_t header_index = 2;
+
+	size_t length = 0;
+
+	struct cio_write_buffer *element = payload;
+	for (size_t i = 0; i < payload->data.q_len; i++) {
+		element = element->next;
+		length += element->data.element.length;
+	}
 
 	s->send_header[0] = (uint8_t)(frame_type | WS_HEADER_FIN);
 	if (length <= WS_SMALL_FRAME_SIZE) {
@@ -76,16 +84,15 @@ static void send_frame(struct cio_websocket *s, uint8_t *payload, size_t length,
 		cio_random_get_bytes(mask, sizeof(mask));
 		memcpy(&s->send_header[header_index], &mask, sizeof(mask));
 		header_index += sizeof(mask);
-		cio_websocket_mask(payload, length, mask );
+		// TODO: cio_websocket_mask(payload, length, mask );
 	}
 
 	s->send_header[1] = first_len;
 
 	cio_write_buffer_head_init(&s->wbh);
 	cio_write_buffer_element_init(&s->wb_send_header, s->send_header, header_index);
-	cio_write_buffer_element_init(&s->wb_send_payload, payload, length);
 	cio_write_buffer_queue_tail(&s->wbh, &s->wb_send_header);
-	cio_write_buffer_queue_tail(&s->wbh, &s->wb_send_payload);
+	cio_write_buffer_splice(payload, &s->wbh);
 
 	s->bs->write(s->bs, &s->wbh, written_cb, s);
 }
@@ -141,18 +148,25 @@ static void close_timeout_handler(struct cio_timer *timer, void *handler_context
 	close(ws);
 }
 
-static void send_close_frame(struct cio_websocket *ws, enum cio_websocket_status_code status_code)
+static void send_close_frame(struct cio_websocket *ws, enum cio_websocket_status_code status_code, struct cio_write_buffer *reason)
 {
+	struct cio_write_buffer wbh;
+	cio_write_buffer_head_init(&wbh);
+	cio_write_buffer_queue_tail(&wbh, &ws->wb_close_status);
+	if (reason != NULL) {
+		cio_write_buffer_splice(reason, &wbh);
+	}
+
 	ws->close_status = cio_htobe16(status_code);
 	enum cio_error err = cio_timer_init(&ws->close_timer, ws->loop, NULL);
 	if (likely(err == CIO_SUCCESS)) {
 		err = ws->close_timer.expires_from_now(&ws->close_timer, close_timeout_ns, close_timeout_handler, ws);
 		if (likely(err == CIO_SUCCESS)) {
-			send_frame(ws, (uint8_t *)&ws->close_status, sizeof(ws->close_status), CIO_WEBSOCKET_CLOSE_FRAME, close_frame_written);
+			send_frame(ws, &wbh, CIO_WEBSOCKET_CLOSE_FRAME, close_frame_written);
 			return;
 		}
 	} else {
-		send_frame(ws, (uint8_t *)&ws->close_status, sizeof(ws->close_status), CIO_WEBSOCKET_CLOSE_FRAME, do_nothing);
+		send_frame(ws, &wbh, CIO_WEBSOCKET_CLOSE_FRAME, do_nothing);
 		close(ws);
 	}
 }
@@ -185,7 +199,7 @@ static int handle_close_frame(struct cio_websocket *ws, uint8_t *data, uint64_t 
 			ws->onclose(ws, (enum cio_websocket_status_code)status_code, NULL);
 		}
 
-		send_close_frame(ws, CIO_WEBSOCKET_CLOSE_GOING_AWAY);
+		send_close_frame(ws, CIO_WEBSOCKET_CLOSE_GOING_AWAY, NULL);
 		return 0;
 	}
 }
@@ -463,10 +477,10 @@ static void receive_frames(struct cio_websocket *ws)
 	ws->bs->read_exactly(ws->bs, ws->rb, 1, get_header, ws);
 }
 
-static void self_close_frame(struct cio_websocket *ws, enum cio_websocket_status_code status_code)
+static void self_close_frame(struct cio_websocket *ws, enum cio_websocket_status_code status_code, struct cio_write_buffer *reason)
 {
 	ws->self_initiated_close = true;
-	send_close_frame(ws, status_code);
+	send_close_frame(ws, status_code, reason);
 }
 
 static void write_binary_frame(const struct cio_websocket *ws, struct cio_write_buffer *buffer, bool last_frame, cio_websocket_write_handler handler)
@@ -497,4 +511,6 @@ void cio_websocket_init(struct cio_websocket *ws, bool is_server, cio_websocket_
 	ws->is_server = is_server;
 	ws->close_hook = close_hook;
 	ws->ws_flags.is_fragmented = 0;
+
+	cio_write_buffer_element_init(&ws->wb_close_status, &ws->close_status, sizeof(ws->close_status));
 }

@@ -72,7 +72,7 @@ struct cio_websocket {
 	 * @param ws The websocket to be closed.
 	 * @param status The @ref cio_websocket_status_code "websocket status code" to be sent.
 	 */
-	void (*close)(struct cio_websocket *ws, enum cio_websocket_status_code status);
+	void (*close)(struct cio_websocket *ws, enum cio_websocket_status_code status, struct cio_write_buffer *reason);
 
 	void (*onconnect_handler)(struct cio_websocket *ws);
 
@@ -113,7 +113,7 @@ struct cio_websocket {
 	 * @param data The data the pong frame carried.
 	 * @param length The length of data the pong frame carried.
 	 */
-	void (*onclose)(const struct cio_websocket *ws, enum cio_websocket_status_code status, char *text);
+	void (*onclose)(const struct cio_websocket *ws, enum cio_websocket_status_code status, char *reason);
 
 	/**
 	 * @brief A pointer to a function which is called if a receive error occurred.
@@ -152,13 +152,13 @@ struct cio_websocket {
 	struct cio_read_buffer *rb;
 	struct cio_write_buffer wbh;
 	struct cio_write_buffer wb_send_header;
-	struct cio_write_buffer wb_send_payload;
+	struct cio_write_buffer wb_close_status;
+	uint16_t close_status;
 	struct cio_timer close_timer;
 	cio_websocket_close_hook close_hook;
 	bool is_server;
 	bool self_initiated_close;
 	uint8_t mask[4];
-	uint16_t close_status;
 	uint8_t send_header[14];
 };
 
