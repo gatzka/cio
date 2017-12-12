@@ -145,19 +145,19 @@ static void send_close_frame(struct cio_websocket *ws, enum cio_websocket_status
 {
 	ws->close_status = cio_htobe16(status_code);
 	enum cio_error err = cio_timer_init(&ws->close_timer, ws->loop, NULL);
-	if (err == CIO_SUCCESS) {
+	if (likely(err == CIO_SUCCESS)) {
 		err = ws->close_timer.expires_from_now(&ws->close_timer, close_timeout_ns, close_timeout_handler, ws);
-		if (err == CIO_SUCCESS) {
+		if (likely(err == CIO_SUCCESS)) {
 			send_frame(ws, (uint8_t *)&ws->close_status, sizeof(ws->close_status), CIO_WEBSOCKET_CLOSE_FRAME, close_frame_written);
 			return;
 		}
+	} else {
+		send_frame(ws, (uint8_t *)&ws->close_status, sizeof(ws->close_status), CIO_WEBSOCKET_CLOSE_FRAME, do_nothing);
+		close(ws);
 	}
-
-	send_frame(ws, (uint8_t *)&ws->close_status, sizeof(ws->close_status), CIO_WEBSOCKET_CLOSE_FRAME, do_nothing);
-	close(ws);
 }
 
-static void handle_close_frame(struct cio_websocket *ws, uint8_t *data, uint64_t length)
+static int handle_close_frame(struct cio_websocket *ws, uint8_t *data, uint64_t length)
 {
 	uint16_t status_code = CIO_WEBSOCKET_CLOSE_NORMAL;
 	if (length >= 2) {
@@ -179,25 +179,29 @@ static void handle_close_frame(struct cio_websocket *ws, uint8_t *data, uint64_t
 
 	if (ws->self_initiated_close) {
 		ws->close_timer.cancel(&ws->close_timer);
+		return -1;
 	} else {
 		if (ws->onclose != NULL) {
 			ws->onclose(ws, (enum cio_websocket_status_code)status_code, NULL);
 		}
 
 		send_close_frame(ws, CIO_WEBSOCKET_CLOSE_GOING_AWAY);
+		return 0;
 	}
 }
 
-static int handle_frame(struct cio_websocket *ws, uint8_t *data, uint64_t length)
+static void get_header(struct cio_buffered_stream *bs, void *handler_context, enum cio_error err, struct cio_read_buffer *buffer);
+
+static void handle_frame(struct cio_websocket *ws, uint8_t *data, uint64_t length)
 {
 	if (unlikely(ws->is_server && (ws->ws_flags.mask == 0))) {
 		// TODO: handle_error(s, WS_CLOSE_PROTOCOL_ERROR);
-		return -1;
+		goto out;
 	}
 
 	if (unlikely((ws->ws_flags.fin == 0) && (ws->ws_flags.opcode >= CIO_WEBSOCKET_CLOSE_FRAME))) {
 		// TODO: handle_error(s, WS_CLOSE_PROTOCOL_ERROR);
-		return -1;
+		goto out;
 	}
 
 	if (ws->ws_flags.fin == 0) {
@@ -205,7 +209,7 @@ static int handle_frame(struct cio_websocket *ws, uint8_t *data, uint64_t length
 			if (unlikely(ws->ws_flags.is_fragmented)) {
 				// TODO: log_err("Overwriting Opcode of unfinished fragmentation!");
 				// TODO: handle_error(s, WS_CLOSE_PROTOCOL_ERROR);
-				return -1;
+				goto out;
 			}
 
 			ws->ws_flags.is_fragmented = 1;
@@ -215,13 +219,13 @@ static int handle_frame(struct cio_websocket *ws, uint8_t *data, uint64_t length
 			if (unlikely(ws->ws_flags.rsv != 0)) {
 				// TODO:log_err("RSV-Bits must be 0 during continuation!");
 				// TODO:handle_error(s, WS_CLOSE_PROTOCOL_ERROR);
-				return -1;
+				goto out;
 			}
 
 			if (unlikely(!(ws->ws_flags.is_fragmented))) {
 				//TODO: log_err("No start frame was send!");
 				//TODO: handle_error(s, WS_CLOSE_PROTOCOL_ERROR);
-				return -1;
+				goto out;
 			}
 		}
 	}
@@ -229,20 +233,23 @@ static int handle_frame(struct cio_websocket *ws, uint8_t *data, uint64_t length
 	if (unlikely(ws->ws_flags.is_fragmented && ((ws->ws_flags.opcode < CIO_WEBSOCKET_CLOSE_FRAME) && (ws->ws_flags.opcode > CIO_WEBSOCKET_CONTINUATION_FRAME)))) {
 		// log_err("Opcode during fragmentation must be 0x0!");
 		// handle_error(s, WS_CLOSE_PROTOCOL_ERROR);
-		return -1;
+		goto out;
 	}
 
 	if (ws->ws_flags.mask != 0) {
 		cio_websocket_mask(data, length, ws->mask);
 	}
 
-	bool last_frame = false;
+	bool last_frame;
+	if (ws->ws_flags.fin == 1) {
+		last_frame = true;
+	} else {
+		last_frame = false;
+	}
+
 	unsigned int opcode;
 	if (ws->ws_flags.opcode == CIO_WEBSOCKET_CONTINUATION_FRAME) {
 		opcode = ws->ws_flags.frag_opcode;
-		if (unlikely(ws->ws_flags.fin ==1)) {
-			last_frame = true;
-		}
 	} else {
 		opcode = ws->ws_flags.opcode;
 	}
@@ -253,7 +260,6 @@ static int handle_frame(struct cio_websocket *ws, uint8_t *data, uint64_t length
 			ws->onbinaryframe_received(ws, data, length, last_frame);
 		} else {
 			// TODO: handle_error(s, WS_CLOSE_UNSUPPORTED);
-			return -1;
 		}
 
 		break;
@@ -263,7 +269,6 @@ static int handle_frame(struct cio_websocket *ws, uint8_t *data, uint64_t length
 			ws->ontextframe_received(ws, (char *)data, length, last_frame);
 		} else {
 			// TODO: handle_error(s, WS_CLOSE_UNSUPPORTED);
-			return -1;
 		}
 
 		break;
@@ -276,7 +281,6 @@ static int handle_frame(struct cio_websocket *ws, uint8_t *data, uint64_t length
 			}
 		} else {
 			//TODO: handle_error(s, WS_CLOSE_PROTOCOL_ERROR);
-			return -1;
 		}
 
 		break;
@@ -288,30 +292,26 @@ static int handle_frame(struct cio_websocket *ws, uint8_t *data, uint64_t length
 			}
 		} else {
 			//TODO: handle_error(s, WS_CLOSE_PROTOCOL_ERROR);
-			return -1;
 		}
 
 		break;
 
 	case CIO_WEBSOCKET_CLOSE_FRAME:
-		if (ws->onclose != NULL) {
-			// TODO: ws->onclose(ws);
+		if (handle_close_frame(ws, data, length) < 0) {
+			// The struct websocket was closed, don't use it anymore
+			return;
 		}
 
-		handle_close_frame(ws, data, length);
 		break;
 
 	default:
 		// TODO: handle_error(s, WS_CLOSE_PROTOCOL_ERROR);
-		return -1;
-
+		break;
 	}
 
-
-	return 0;
+out:
+	ws->bs->read_exactly(ws->bs, ws->rb, 1, get_header, ws);
 }
-
-static void get_header(struct cio_buffered_stream *bs, void *handler_context, enum cio_error err, struct cio_read_buffer *buffer);
 
 static void get_payload(struct cio_buffered_stream *bs, void *handler_context, enum cio_error err, struct cio_read_buffer *buffer)
 {
@@ -327,8 +327,6 @@ static void get_payload(struct cio_buffered_stream *bs, void *handler_context, e
 	struct cio_websocket *ws = (struct cio_websocket *)handler_context;
 
 	handle_frame(ws, ptr, len);
-	//BUG: call read_exactly only if websocket was not closed!
-	ws->bs->read_exactly(ws->bs, ws->rb, 1, get_header, ws);
 }
 
 static void get_mask(struct cio_buffered_stream *bs, void *handler_context, enum cio_error err, struct cio_read_buffer *buffer)
