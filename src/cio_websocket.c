@@ -83,7 +83,7 @@ static void send_frame(struct cio_websocket *ws, struct cio_const_write_buffer *
 		first_len = CIO_WEBSOCKET_SMALL_FRAME_SIZE + 2;
 	}
 
-	if (!ws->is_server) {
+	if (ws->ws_flags.is_server == 0) {
 		first_len |= WS_MASK_SET;
 		uint8_t mask[4];
 		cio_random_get_bytes(mask, sizeof(mask));
@@ -132,7 +132,7 @@ static void close_frame_written(struct cio_buffered_stream *bs, void *handler_co
 	(void)buffer;
 	(void)err;
 	struct cio_websocket *ws = (struct cio_websocket *)handler_context;
-	if (!ws->self_initiated_close) {
+	if (ws->ws_flags.self_initiated_close == 0) {
 		close(ws);
 	}
 }
@@ -225,7 +225,7 @@ static int handle_close_frame(struct cio_websocket *ws, uint8_t *data, uint64_t 
 		reason = NULL;
 	}
 
-	if (ws->self_initiated_close) {
+	if (ws->ws_flags.self_initiated_close == 1) {
 		ws->close_timer.cancel(&ws->close_timer);
 		return -1;
 	} else {
@@ -244,7 +244,7 @@ static void get_header(struct cio_buffered_stream *bs, void *handler_context, en
 
 static void handle_frame(struct cio_websocket *ws, uint8_t *data, uint64_t length)
 {
-	if (unlikely(ws->is_server && (ws->ws_flags.shall_mask == 0))) {
+	if (unlikely((ws->ws_flags.is_server == 1 ) && (ws->ws_flags.shall_mask == 0))) {
 		// TODO: handle_error(s, WS_CLOSE_PROTOCOL_ERROR);
 		goto out;
 	}
@@ -506,7 +506,7 @@ static void receive_frames(struct cio_websocket *ws)
 static void self_close_frame(struct cio_websocket *ws, enum cio_websocket_status_code status_code, struct cio_const_write_buffer *reason)
 {
 	// TODO: check if reason fits into a small frame.
-	ws->self_initiated_close = true;
+	ws->ws_flags.self_initiated_close = 1;
 	send_close_frame(ws, status_code, reason);
 }
 
@@ -541,9 +541,10 @@ void cio_websocket_init(struct cio_websocket *ws, bool is_server, cio_websocket_
 	ws->receive_frames = receive_frames;
 	ws->write_binary_frame = write_binary_frame;
 	ws->write_text_frame = write_text_frame;
-	ws->is_server = is_server;
+	ws->ws_flags.is_server = is_server ? 1 : 0;
 	ws->close_hook = close_hook;
 	ws->ws_flags.is_fragmented = 0;
+	ws->ws_flags.self_initiated_close = 0;
 
 	cio_const_write_buffer_element_init(&ws->wb_close_status, &ws->close_status, sizeof(ws->close_status));
 }

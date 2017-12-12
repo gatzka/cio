@@ -174,6 +174,8 @@ struct cio_websocket {
 		unsigned int shall_mask : 1;
 		unsigned int frag_opcode : 4;
 		unsigned int is_fragmented : 1;
+		unsigned int self_initiated_close : 1;
+		unsigned int is_server : 1;
 	} ws_flags;
 
 	void (*receive_frames)(struct cio_websocket *ws);
@@ -186,13 +188,11 @@ struct cio_websocket {
 	struct cio_const_write_buffer wbh;
 	struct cio_const_write_buffer wb_send_header;
 	struct cio_const_write_buffer wb_close_status;
-	uint16_t close_status;
 	struct cio_timer close_timer;
 	cio_websocket_close_hook close_hook;
-	bool is_server;
-	bool self_initiated_close;
 	uint8_t mask[4];
 	uint8_t send_header[14];
+	uint16_t close_status;
 	uint8_t received_control_frame[CIO_WEBSOCKET_SMALL_FRAME_SIZE];
 	/*! @endcond */
 };
