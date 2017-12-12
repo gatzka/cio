@@ -61,18 +61,70 @@ enum cio_websocket_status_code {
 	CIO_WEBSOCKET_CLOSE_RESERVED_UPPER_BOUND = 4999
 };
 
-typedef void (*cio_websocket_onconnect_handler)(struct cio_websocket *ws);
-
 struct cio_websocket {
+
+	/**
+	 * @anchor cio_websocket_close
+	 * @brief Closes a websocket.
+	 *
+	 * @param ws The websocket to be closed.
+	 * @param status The @ref cio_websocket_status_code "websocket status code" to be sent.
+	 */
 	void (*close)(struct cio_websocket *ws, enum cio_websocket_status_code status);
 
-	cio_websocket_onconnect_handler onconnect_handler;
+	void (*onconnect_handler)(struct cio_websocket *ws);
 
 	void (*onbinaryframe_received)(struct cio_websocket *ws, uint8_t *data, size_t length, bool last_frame);
-	void (*on_textframe_received)(struct cio_websocket *ws, char *data, size_t length, bool last_frame);
-	void (*on_ping)(struct cio_websocket *ws, uint8_t *data, size_t length);
-	void (*on_pong)(struct cio_websocket *ws, uint8_t *data, size_t length);
-	void (*on_close)(struct cio_websocket *ws, enum cio_websocket_status_code status, char *text);
+	void (*ontextframe_received)(struct cio_websocket *ws, char *data, size_t length, bool last_frame);
+
+	/**
+	 * @brief A pointer to a function which is called if a ping frame was received.
+	 *
+	 * Library users are note required to set this function pointer. If you set
+	 * this function pointer, please do NOT sent a pong frame as a response.
+	 * The library takes care of this already.
+	 * @param ws The websocket which received the ping frame.
+	 * @param data The data the ping frame carried.
+	 * @param length The length of data the ping frame carried.
+	 */
+	void (*onping)(struct cio_websocket *ws, const uint8_t *data, size_t length);
+
+	/**
+	 * @brief A pointer to a function which is called if a pong frame was received.
+	 *
+	 * Library users are note required to set this function pointer.
+	 * @param ws The websocket which received the pong frame.
+	 * @param data The data the pong frame carried.
+	 * @param length The length of data the pong frame carried.
+	 */
+	void (*onpong)(struct cio_websocket *ws, uint8_t *data, size_t length);
+
+	/**
+	 * @brief A pointer to a function which is called when a close frame was received.
+	 *
+	 * Library users are note required to set this function pointer. If you set this
+	 * function pointer, please do NOT @ref cio_websocket_close "close()" the
+	 * websocket in the callback function. This is done immediately by the library after return of
+	 * this function.
+	 *
+	 * @param ws The websocket which received the pong frame.
+	 * @param data The data the pong frame carried.
+	 * @param length The length of data the pong frame carried.
+	 */
+	void (*onclose)(struct cio_websocket *ws, enum cio_websocket_status_code status, char *text);
+
+	/**
+	 * @brief A pointer to a function which is called if a receive error occurred.
+	 *
+	 * Library users are note required to set this function pointer. If you set this
+	 * function pointer, please operate no longer on this websocket (Do not call
+	 * @ref cio_websocket_close "close()" etc. on the websocket). Immediately after this
+	 * function returns, the library closes the websocket on its own.
+	 *
+	 * @param ws The websocket which encountered the error.
+	 * @param status The status code describing the error.
+	 */
+	void (*on_error)(struct cio_websocket *ws, enum cio_websocket_status_code status);
 
 	/**
 	 * @privatesection
@@ -88,6 +140,8 @@ struct cio_websocket {
 		unsigned int frag_opcode : 4;
 		unsigned int is_fragmented : 1;
 	} ws_flags;
+
+	void (*receive_frames)(struct cio_websocket *ws);
 
 	struct cio_buffered_stream *bs;
 	struct cio_read_buffer *rb;
