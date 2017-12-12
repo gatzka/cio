@@ -169,7 +169,6 @@ static void send_close_frame(struct cio_websocket *ws, enum cio_websocket_status
 		err = ws->close_timer.expires_from_now(&ws->close_timer, close_timeout_ns, close_timeout_handler, ws);
 		if (likely(err == CIO_SUCCESS)) {
 			send_frame(ws, &wbh, CIO_WEBSOCKET_CLOSE_FRAME, true, close_frame_written);
-			return;
 		}
 	} else {
 		send_frame(ws, &wbh, CIO_WEBSOCKET_CLOSE_FRAME, true, do_nothing);
