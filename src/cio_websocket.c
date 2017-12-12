@@ -276,6 +276,7 @@ static void handle_frame(struct cio_websocket *ws, uint8_t *data, uint64_t lengt
 	case CIO_WEBSOCKET_PING_FRAME:
 		if (likely(length <= WS_SMALL_FRAME_SIZE)) {
 			// TODO: send_pong_frame(ws, data, length);
+			// We have to copy the application data because the write send_pong might block
 			if (ws->onping != NULL) {
 				ws->onping(ws, data, length);
 			}
@@ -468,6 +469,22 @@ static void self_close_frame(struct cio_websocket *ws, enum cio_websocket_status
 	send_close_frame(ws, status_code);
 }
 
+static void write_binary_frame(const struct cio_websocket *ws, struct cio_write_buffer *buffer, bool last_frame, cio_websocket_write_handler handler)
+{
+	(void)ws;
+	(void)buffer;
+	(void)last_frame;
+	(void)handler;
+}
+
+static void write_text_frame(const struct cio_websocket *ws, struct cio_write_buffer *buffer, bool last_frame, cio_websocket_write_handler handler)
+{
+	(void)ws;
+	(void)buffer;
+	(void)last_frame;
+	(void)handler;
+}
+
 void cio_websocket_init(struct cio_websocket *ws, bool is_server, cio_websocket_close_hook close_hook)
 {
 	ws->onconnect_handler = NULL;
@@ -475,6 +492,8 @@ void cio_websocket_init(struct cio_websocket *ws, bool is_server, cio_websocket_
 	ws->onpong = NULL;
 	ws->close = self_close_frame;
 	ws->receive_frames = receive_frames;
+	ws->write_binary_frame = write_binary_frame;
+	ws->write_text_frame = write_text_frame;
 	ws->is_server = is_server;
 	ws->close_hook = close_hook;
 	ws->ws_flags.is_fragmented = 0;
