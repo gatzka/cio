@@ -23,7 +23,7 @@
  <tr style="height: 56px;">
   <td style="padding-left: 0.5em;">
    <div id="projectname">ANSI C I/O Library
-   &#160;<span id="projectnumber">0.0.1-772+1d0d1dd</span>
+   &#160;<span id="projectnumber">0.0.1-773+e8b28a4</span>
    </div>
   </td>
  </tr>
@@ -101,9 +101,9 @@ Data Fields</h2></td></tr>
 <tr class="memitem:aae99ca2eef74c4311c1a2b09638ef8cc"><td class="memItemLeft" align="right" valign="top">enum <a class="el" href="cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afe">cio_error</a>(*&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structcio__buffered__stream.html#aae99ca2eef74c4311c1a2b09638ef8cc">read_until</a> )(struct <a class="el" href="structcio__buffered__stream.html">cio_buffered_stream</a> *bs, struct <a class="el" href="structcio__read__buffer.html">cio_read_buffer</a> *buffer, const char *<a class="el" href="structcio__buffered__stream.html#a1899c11e354603e541750124f5820ff6">delim</a>, <a class="el" href="cio__buffered__stream_8h.html#a4c2bea7c602d4cab70c2c4500ae6e438">cio_buffered_stream_read_handler</a> handler, void *handler_context)</td></tr>
 <tr class="memdesc:aae99ca2eef74c4311c1a2b09638ef8cc"><td class="mdescLeft">&#160;</td><td class="mdescRight">Call <code>handler</code> if delimiter <code>delim</code> is encountered.  <a href="#aae99ca2eef74c4311c1a2b09638ef8cc">More...</a><br/></td></tr>
 <tr class="separator:aae99ca2eef74c4311c1a2b09638ef8cc"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a6659275439b9c9508e6ad10eced2ff62"><td class="memItemLeft" align="right" valign="top">enum <a class="el" href="cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afe">cio_error</a>(*&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structcio__buffered__stream.html#a6659275439b9c9508e6ad10eced2ff62">write</a> )(struct <a class="el" href="structcio__buffered__stream.html">cio_buffered_stream</a> *bs, struct <a class="el" href="structcio__write__buffer.html">cio_write_buffer</a> *buffer, <a class="el" href="cio__buffered__stream_8h.html#a8008ee06f8bc9abc27599593489b7430">cio_buffered_stream_write_handler</a> handler, void *handler_context)</td></tr>
-<tr class="memdesc:a6659275439b9c9508e6ad10eced2ff62"><td class="mdescLeft">&#160;</td><td class="mdescRight">Writes <code>count</code> bytes to the buffered stream.  <a href="#a6659275439b9c9508e6ad10eced2ff62">More...</a><br/></td></tr>
-<tr class="separator:a6659275439b9c9508e6ad10eced2ff62"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac8d6fdba3c6ac6d3ef2da74d6b36cfe5"><td class="memItemLeft" align="right" valign="top">enum <a class="el" href="cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afe">cio_error</a>(*&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structcio__buffered__stream.html#ac8d6fdba3c6ac6d3ef2da74d6b36cfe5">write</a> )(struct <a class="el" href="structcio__buffered__stream.html">cio_buffered_stream</a> *bs, struct <a class="el" href="structcio__const__write__buffer.html">cio_const_write_buffer</a> *buffer, <a class="el" href="cio__buffered__stream_8h.html#a36760211215707e10a9c84269c00ddf9">cio_buffered_stream_write_handler</a> handler, void *handler_context)</td></tr>
+<tr class="memdesc:ac8d6fdba3c6ac6d3ef2da74d6b36cfe5"><td class="mdescLeft">&#160;</td><td class="mdescRight">Writes <code>count</code> bytes to the buffered stream.  <a href="#ac8d6fdba3c6ac6d3ef2da74d6b36cfe5">More...</a><br/></td></tr>
+<tr class="separator:ac8d6fdba3c6ac6d3ef2da74d6b36cfe5"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a4b72d0030538512d2e6d39e3a023bcd6"><td class="memItemLeft" align="right" valign="top">enum <a class="el" href="cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afe">cio_error</a>(*&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structcio__buffered__stream.html#a4b72d0030538512d2e6d39e3a023bcd6">close</a> )(struct <a class="el" href="structcio__buffered__stream.html">cio_buffered_stream</a> *bs)</td></tr>
 <tr class="memdesc:a4b72d0030538512d2e6d39e3a023bcd6"><td class="mdescLeft">&#160;</td><td class="mdescRight">Closes the stream.  <a href="#a4b72d0030538512d2e6d39e3a023bcd6">More...</a><br/></td></tr>
 <tr class="separator:a4b72d0030538512d2e6d39e3a023bcd6"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -196,12 +196,12 @@ Data Fields</h2></td></tr>
 
 </div>
 </div>
-<a class="anchor" id="a6659275439b9c9508e6ad10eced2ff62"></a>
+<a class="anchor" id="ac8d6fdba3c6ac6d3ef2da74d6b36cfe5"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">enum <a class="el" href="cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afe">cio_error</a>(* cio_buffered_stream::write)(struct <a class="el" href="structcio__buffered__stream.html">cio_buffered_stream</a> *bs, struct <a class="el" href="structcio__write__buffer.html">cio_write_buffer</a> *buffer, <a class="el" href="cio__buffered__stream_8h.html#a8008ee06f8bc9abc27599593489b7430">cio_buffered_stream_write_handler</a> handler, void *handler_context)</td>
+          <td class="memname">enum <a class="el" href="cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afe">cio_error</a>(* cio_buffered_stream::write)(struct <a class="el" href="structcio__buffered__stream.html">cio_buffered_stream</a> *bs, struct <a class="el" href="structcio__const__write__buffer.html">cio_const_write_buffer</a> *buffer, <a class="el" href="cio__buffered__stream_8h.html#a36760211215707e10a9c84269c00ddf9">cio_buffered_stream_write_handler</a> handler, void *handler_context)</td>
         </tr>
       </table>
 </div><div class="memdoc">

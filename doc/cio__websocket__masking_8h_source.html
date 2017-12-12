@@ -23,7 +23,7 @@
  <tr style="height: 56px;">
   <td style="padding-left: 0.5em;">
    <div id="projectname">ANSI C I/O Library
-   &#160;<span id="projectnumber">0.0.1-772+1d0d1dd</span>
+   &#160;<span id="projectnumber">0.0.1-773+e8b28a4</span>
    </div>
   </td>
  </tr>
@@ -134,7 +134,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="line"><a name="l00048"></a><span class="lineno">   48</span>&#160;        <span class="keywordflow">return</span>;</div>
 <div class="line"><a name="l00049"></a><span class="lineno">   49</span>&#160;    }</div>
 <div class="line"><a name="l00050"></a><span class="lineno">   50</span>&#160;</div>
-<div class="line"><a name="l00051"></a><span class="lineno">   51</span>&#160;    <span class="keywordtype">unsigned</span> <span class="keywordtype">int</span> pre_length = ((uintptr_t) buffer) % <span class="keyword">sizeof</span>(aligned_mask);</div>
+<div class="line"><a name="l00051"></a><span class="lineno">   51</span>&#160;    <span class="keywordtype">unsigned</span> <span class="keywordtype">int</span> pre_length = ((uintptr_t)buffer) % <span class="keyword">sizeof</span>(aligned_mask);</div>
 <div class="line"><a name="l00052"></a><span class="lineno">   52</span>&#160;    pre_length = (<span class="keyword">sizeof</span>(aligned_mask) - pre_length) % <span class="keyword">sizeof</span>(aligned_mask);</div>
 <div class="line"><a name="l00053"></a><span class="lineno">   53</span>&#160;</div>
 <div class="line"><a name="l00054"></a><span class="lineno">   54</span>&#160;    <span class="keywordtype">size_t</span> main_length = (length - pre_length) / <span class="keyword">sizeof</span>(aligned_mask);</div>
