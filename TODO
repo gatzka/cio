@@ -1,6 +1,9 @@
 UTF8 validation:
 https://www.cl.cam.ac.uk/%7Emgk25/ucs/utf8_check.c
 https://github.com/websockets/utf-8-validate/blob/master/src/validation.cc
+Branchless: http://nullprogram.com/blog/2017/10/06/
+http://bjoern.hoehrmann.de/utf-8/decoder/dfa/
+
 
 Websocket example:
 https://github.com/wahengchang/nodejs-websocket-example
