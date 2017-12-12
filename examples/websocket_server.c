@@ -66,7 +66,7 @@ static void ontextframe_received(struct cio_websocket *ws, char *data, size_t le
 {
 	(void)last_frame;
 	fprintf(stdout, "Got text message (last frame: %s):", last_frame ? "true" : "false");
-	fwrite(data, (size_t)length, 1, stdout);
+	fwrite(data, length, 1, stdout);
 	fflush(stdout);
 	fprintf(stdout, "\n");
 	ws->close(ws, CIO_WEBSOCKET_CLOSE_NORMAL);
