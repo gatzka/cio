@@ -177,6 +177,24 @@ static void send_close_frame(struct cio_websocket *ws, enum cio_websocket_status
 	}
 }
 
+static void handle_binary_frame(struct cio_websocket *ws, uint8_t *data, uint64_t length, bool last_frame)
+{
+	if (likely(ws->onbinaryframe_received != NULL)) {
+		ws->onbinaryframe_received(ws, data, length, last_frame);
+	} else {
+		// TODO: handle_error(s, WS_CLOSE_UNSUPPORTED);
+	}
+}
+
+static void handle_text_frame(struct cio_websocket *ws, uint8_t *data, uint64_t length, bool last_frame)
+{
+	if (likely(ws->ontextframe_received != NULL)) {
+		ws->ontextframe_received(ws, (char *)data, length, last_frame);
+	} else {
+		// TODO: handle_error(s, WS_CLOSE_UNSUPPORTED);
+	}
+}
+
 static int handle_close_frame(struct cio_websocket *ws, uint8_t *data, uint64_t length)
 {
 	uint16_t status_code = CIO_WEBSOCKET_CLOSE_NORMAL;
@@ -276,21 +294,11 @@ static void handle_frame(struct cio_websocket *ws, uint8_t *data, uint64_t lengt
 
 	switch (opcode) {
 	case CIO_WEBSOCKET_BINARY_FRAME:
-		if (likely(ws->onbinaryframe_received != NULL)) {
-			ws->onbinaryframe_received(ws, data, length, last_frame);
-		} else {
-			// TODO: handle_error(s, WS_CLOSE_UNSUPPORTED);
-		}
-
+		handle_binary_frame(ws, data, length, last_frame);
 		break;
 
 	case CIO_WEBSOCKET_TEXT_FRAME:
-		if (likely(ws->ontextframe_received != NULL)) {
-			ws->ontextframe_received(ws, (char *)data, length, last_frame);
-		} else {
-			// TODO: handle_error(s, WS_CLOSE_UNSUPPORTED);
-		}
-
+		handle_text_frame(ws, data, length, last_frame);
 		break;
 
 	case CIO_WEBSOCKET_PING_FRAME:
