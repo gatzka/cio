@@ -116,7 +116,7 @@ struct cio_websocket {
 	 * @param data The data the pong frame carried.
 	 * @param length The length of data the pong frame carried.
 	 */
-	void (*onclose)(const struct cio_websocket *ws, enum cio_websocket_status_code status, char *reason, size_t reason_length);
+	void (*onclose)(const struct cio_websocket *ws, enum cio_websocket_status_code status, const char *reason, size_t reason_length);
 
 	/**
 	 * @brief A pointer to a function which is called if a receive error occurred.
@@ -131,7 +131,36 @@ struct cio_websocket {
 	 */
 	void (*on_error)(const struct cio_websocket *ws, enum cio_websocket_status_code status);
 
+	/**
+     * @brief Writes a text frame to the websocket.
+     *
+     * @warning Please note that the data @p payload encapsulates will be scrambled by
+     * the library if this function is uses in a websocket client connection. So if
+     * you want to write the same data again, you have to re-initialize the data encapsluated
+     * by @p payload.
+     *
+     * @param payload The payload to be sent.
+     * @param last_frame @c true if the is an unfragmented message or the last frame of a
+     * fragmented message, @c false otherwise.
+     * @param handler A callback function that will be called when the write completes.
+     * @param handler_context A context pointer given to @p handler when called.
+     */
 	void (*write_text_frame)(struct cio_websocket *ws, struct cio_const_write_buffer *payload, bool last_frame, cio_websocket_write_handler handler, void *handler_context);
+
+	/**
+     * @brief Writes a binary frame to the websocket.
+     *
+     * @warning Please note that the data @p payload encapsulates will be scrambled by
+     * the library if this function is uses in a websocket client connection. So if
+     * you want to write the same data again, you have to re-initialize the data encapsluated
+     * by @p payload.
+     *
+     * @param payload The payload to be sent.
+     * @param last_frame @c true if the is an unfragmented message or the last frame of a
+     * fragmented message, @c false otherwise.
+     * @param handler A callback function that will be called when the write completes.
+     * @param handler_context A context pointer given to @p handler when called.
+     */
 	void (*write_binary_frame)(struct cio_websocket *ws, struct cio_const_write_buffer *payload, bool last_frame, cio_websocket_write_handler handler, void *handler_context);
 
 	/**

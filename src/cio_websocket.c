@@ -211,7 +211,7 @@ static int handle_close_frame(struct cio_websocket *ws, uint8_t *data, uint64_t 
 		//handle_error(s, WS_CLOSE_PROTOCOL_ERROR);
 	}
 
-	char *reason;
+	const char *reason;
 	if (length > 2) {
 		// TODO: struct cjet_utf8_checker c;
 		// TODO: cjet_init_checker(&c);
@@ -220,7 +220,7 @@ static int handle_close_frame(struct cio_websocket *ws, uint8_t *data, uint64_t 
 		// TODO: }
 
 		length -= sizeof(status_code);
-		reason = (char *)&data[sizeof(status_code)];
+		reason = (const char *)&data[sizeof(status_code)];
 	} else {
 		reason = NULL;
 	}
@@ -232,6 +232,8 @@ static int handle_close_frame(struct cio_websocket *ws, uint8_t *data, uint64_t 
 		if (ws->onclose != NULL) {
 			ws->onclose(ws, (enum cio_websocket_status_code)status_code, reason, length);
 		}
+
+		// TODO: memcpy reason and use it in send_close_frame
 
 		send_close_frame(ws, (enum cio_websocket_status_code)status_code, NULL);
 		return 0;
