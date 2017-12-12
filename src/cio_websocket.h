@@ -63,6 +63,8 @@ enum cio_websocket_status_code {
 
 typedef void (*cio_websocket_write_handler)(struct cio_websocket *ws, void *handler_context, const struct cio_write_buffer *buffer, enum cio_error err);
 
+#define CIO_WEBSOCKET_SMALL_FRAME_SIZE 125
+
 struct cio_websocket {
 
 	/**
@@ -71,7 +73,7 @@ struct cio_websocket {
 	 *
 	 * @param ws The websocket to be closed.
 	 * @param status The @ref cio_websocket_status_code "websocket status code" to be sent.
-	 * @param reason A buffer which contains the reasond for the close in an UTF8 encoded string. Could be @c NULL if no reason should be sent.
+	 * @param reason A buffer which contains the reason for the close in an UTF8 encoded string. Could be @c NULL if no reason should be sent.
 	 */
 	void (*close)(struct cio_websocket *ws, enum cio_websocket_status_code status, struct cio_write_buffer *reason);
 
@@ -164,6 +166,7 @@ struct cio_websocket {
 	bool self_initiated_close;
 	uint8_t mask[4];
 	uint8_t send_header[14];
+	uint8_t received_control_frame[CIO_WEBSOCKET_SMALL_FRAME_SIZE];
 };
 
 

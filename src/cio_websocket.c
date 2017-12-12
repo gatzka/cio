@@ -36,7 +36,6 @@
 
 static const uint8_t WS_MASK_SET = 0x80;
 static const uint8_t WS_HEADER_FIN = 0x80;
-static const unsigned int WS_SMALL_FRAME_SIZE = 125;
 static const unsigned int WS_MID_FRAME_SIZE = 65535;
 
 static const uint64_t close_timeout_ns = UINT64_C(10) * UINT64_C(1000) * UINT64_C(1000);
@@ -70,18 +69,18 @@ static void send_frame(struct cio_websocket *ws, struct cio_write_buffer *payloa
 
 	ws->send_header[0] = first_byte;
 
-	if (length <= WS_SMALL_FRAME_SIZE) {
+	if (length <= CIO_WEBSOCKET_SMALL_FRAME_SIZE) {
 		first_len = (uint8_t)length;
 	} else if (length <= WS_MID_FRAME_SIZE) {
 		uint16_t be_len = cio_htobe16((uint16_t)length);
 		memcpy(&ws->send_header[2], &be_len, sizeof(be_len));
 		header_index += sizeof(be_len);
-		first_len = WS_SMALL_FRAME_SIZE + 1;
+		first_len = CIO_WEBSOCKET_SMALL_FRAME_SIZE + 1;
 	} else {
 		uint64_t be_len = cio_htobe64((uint64_t)length);
 		memcpy(&ws->send_header[2], &be_len, sizeof(be_len));
 		header_index += sizeof(be_len);
-		first_len = WS_SMALL_FRAME_SIZE + 2;
+		first_len = CIO_WEBSOCKET_SMALL_FRAME_SIZE + 2;
 	}
 
 	if (!ws->is_server) {
@@ -196,7 +195,7 @@ static void handle_text_frame(struct cio_websocket *ws, uint8_t *data, uint64_t 
 
 static int handle_close_frame(struct cio_websocket *ws, uint8_t *data, uint64_t length)
 {
-	if (unlikely((length == 1) || (length > WS_SMALL_FRAME_SIZE))) {
+	if (unlikely((length == 1) || (length > CIO_WEBSOCKET_SMALL_FRAME_SIZE))) {
 		//handle_error(s, WS_CLOSE_PROTOCOL_ERROR);
 	}
 
@@ -313,7 +312,7 @@ static void handle_frame(struct cio_websocket *ws, uint8_t *data, uint64_t lengt
 		break;
 
 	case CIO_WEBSOCKET_PING_FRAME:
-		if (likely(length <= WS_SMALL_FRAME_SIZE)) {
+		if (likely(length <= CIO_WEBSOCKET_SMALL_FRAME_SIZE)) {
 			// TODO: send_pong_frame(ws, data, length);
 			// We have to copy the application data because the write send_pong might block
 			if (ws->onping != NULL) {
@@ -326,7 +325,7 @@ static void handle_frame(struct cio_websocket *ws, uint8_t *data, uint64_t lengt
 		break;
 
 	case CIO_WEBSOCKET_PONG_FRAME:
-		if (likely(length <= WS_SMALL_FRAME_SIZE)) {
+		if (likely(length <= CIO_WEBSOCKET_SMALL_FRAME_SIZE)) {
 			if (ws->onpong != NULL) {
 				ws->onpong(ws, data, length);
 			}
@@ -457,10 +456,10 @@ static void get_first_length(struct cio_buffered_stream *bs, void *handler_conte
 	}
 
 	field = field & ~WS_MASK_SET;
-	if (field < WS_SMALL_FRAME_SIZE + 1) {
+	if (field <= CIO_WEBSOCKET_SMALL_FRAME_SIZE) {
 		ws->read_frame_length = (uint64_t)field;
 		get_mask_or_payload(ws, bs, buffer);
-	} else if (field == WS_SMALL_FRAME_SIZE + 1) {
+	} else if (field == CIO_WEBSOCKET_SMALL_FRAME_SIZE + 1) {
 		bs->read_exactly(bs, buffer, 2, get_length16, ws);
 	} else {
 		bs->read_exactly(bs, buffer, 8, get_length64, ws);
