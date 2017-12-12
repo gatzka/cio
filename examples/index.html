@@ -25,10 +25,10 @@
                   alert("Message is received...");
                };
 				
-               ws.onclose = function()
+               ws.onclose = function(evt)
                { 
                   // websocket is closed.
-                  alert("Connection is closed..."); 
+                  alert("Connection was closed with code " + evt.code + " and message: " + evt.reason);
                };
 					
                window.onbeforeunload = function(event) {
