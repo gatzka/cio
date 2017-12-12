@@ -23,7 +23,7 @@
  <tr style="height: 56px;">
   <td style="padding-left: 0.5em;">
    <div id="projectname">ANSI C I/O Library
-   &#160;<span id="projectnumber">0.0.1-774+7461bfe</span>
+   &#160;<span id="projectnumber">0.0.1-775+ea72f27</span>
    </div>
   </td>
  </tr>
@@ -121,7 +121,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="line"><a name="l00035"></a><span class="lineno">   35</span>&#160;<span class="preprocessor">#include &lt;stddef.h&gt;</span></div>
 <div class="line"><a name="l00036"></a><span class="lineno">   36</span>&#160;<span class="preprocessor">#include &lt;stdint.h&gt;</span></div>
 <div class="line"><a name="l00037"></a><span class="lineno">   37</span>&#160;</div>
-<div class="line"><a name="l00038"></a><span class="lineno"><a class="line" href="cio__websocket__masking_8h.html#adc260e8f2d104844810c62865f622be5">   38</a></span>&#160;<span class="keyword">static</span> <span class="keyword">inline</span> <span class="keywordtype">void</span> <a class="code" href="cio__websocket__masking_8h.html#adc260e8f2d104844810c62865f622be5">cio_websocket_mask</a>(uint8_t *buffer, <span class="keywordtype">size_t</span> length, <span class="keyword">const</span> uint8_t <a class="code" href="structcio__websocket.html#a3d2acfabce72ae31e180613471004e36">mask</a>[4])</div>
+<div class="line"><a name="l00038"></a><span class="lineno"><a class="line" href="cio__websocket__masking_8h.html#adc260e8f2d104844810c62865f622be5">   38</a></span>&#160;<span class="keyword">static</span> <span class="keyword">inline</span> <span class="keywordtype">void</span> <a class="code" href="cio__websocket__masking_8h.html#adc260e8f2d104844810c62865f622be5">cio_websocket_mask</a>(uint8_t *buffer, <span class="keywordtype">size_t</span> length, <span class="keyword">const</span> uint8_t mask[4])</div>
 <div class="line"><a name="l00039"></a><span class="lineno">   39</span>&#160;{</div>
 <div class="line"><a name="l00040"></a><span class="lineno">   40</span>&#160;    uint_fast32_t aligned_mask;</div>
 <div class="line"><a name="l00041"></a><span class="lineno">   41</span>&#160;    static_assert(<span class="keyword">sizeof</span>(aligned_mask) % 4 == 0, <span class="stringliteral">&quot;This algorithm works only if the mask is a multiple of 4 bytes!&quot;</span>);</div>
@@ -169,7 +169,6 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="line"><a name="l00083"></a><span class="lineno">   83</span>&#160;<span class="preprocessor"></span></div>
 <div class="line"><a name="l00084"></a><span class="lineno">   84</span>&#160;<span class="preprocessor">#endif</span></div>
 <div class="ttc" id="cio__websocket__masking_8h_html_adc260e8f2d104844810c62865f622be5"><div class="ttname"><a href="cio__websocket__masking_8h.html#adc260e8f2d104844810c62865f622be5">cio_websocket_mask</a></div><div class="ttdeci">static void cio_websocket_mask(uint8_t *buffer, size_t length, const uint8_t mask[4])</div><div class="ttdef"><b>Definition:</b> cio_websocket_masking.h:38</div></div>
-<div class="ttc" id="structcio__websocket_html_a3d2acfabce72ae31e180613471004e36"><div class="ttname"><a href="structcio__websocket.html#a3d2acfabce72ae31e180613471004e36">cio_websocket::mask</a></div><div class="ttdeci">unsigned int mask</div><div class="ttdef"><b>Definition:</b> cio_websocket.h:176</div></div>
 </div><!-- fragment --></div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>

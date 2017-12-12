@@ -23,7 +23,7 @@
  <tr style="height: 56px;">
   <td style="padding-left: 0.5em;">
    <div id="projectname">ANSI C I/O Library
-   &#160;<span id="projectnumber">0.0.1-774+7461bfe</span>
+   &#160;<span id="projectnumber">0.0.1-775+ea72f27</span>
    </div>
   </td>
  </tr>
@@ -119,18 +119,6 @@ Data Fields</h2></td></tr>
 <tr class="memitem:a4445db7e9452217afed20de5aa10a926"><td class="memItemLeft" align="right" valign="top">void(*&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structcio__websocket.html#a4445db7e9452217afed20de5aa10a926">write_binary_frame</a> )(struct <a class="el" href="structcio__websocket.html">cio_websocket</a> *ws, struct <a class="el" href="structcio__const__write__buffer.html">cio_const_write_buffer</a> *payload, bool last_frame, <a class="el" href="cio__websocket_8h.html#ab6225888741b68e929d6f43b8d841765">cio_websocket_write_handler</a> handler, void *handler_context)</td></tr>
 <tr class="memdesc:a4445db7e9452217afed20de5aa10a926"><td class="mdescLeft">&#160;</td><td class="mdescRight">Writes a binary frame to the websocket.  <a href="#a4445db7e9452217afed20de5aa10a926">More...</a><br/></td></tr>
 <tr class="separator:a4445db7e9452217afed20de5aa10a926"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a2552de07deb2a0a440040894da1a94de"><td class="memItemLeft" align="right" valign="top">unsigned int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structcio__websocket.html#a2552de07deb2a0a440040894da1a94de">fin</a>: 1</td></tr>
-<tr class="separator:a2552de07deb2a0a440040894da1a94de"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a39260c1ef8524cff6258f438da9656fe"><td class="memItemLeft" align="right" valign="top">unsigned int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structcio__websocket.html#a39260c1ef8524cff6258f438da9656fe">rsv</a>: 3</td></tr>
-<tr class="separator:a39260c1ef8524cff6258f438da9656fe"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ada9ca1afc3b6de1c584d1cfa6e3abf9e"><td class="memItemLeft" align="right" valign="top">unsigned int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structcio__websocket.html#ada9ca1afc3b6de1c584d1cfa6e3abf9e">opcode</a>: 4</td></tr>
-<tr class="separator:ada9ca1afc3b6de1c584d1cfa6e3abf9e"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a3d2acfabce72ae31e180613471004e36"><td class="memItemLeft" align="right" valign="top">unsigned int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structcio__websocket.html#a3d2acfabce72ae31e180613471004e36">mask</a>: 1</td></tr>
-<tr class="separator:a3d2acfabce72ae31e180613471004e36"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ad5d1237f14e45b211c288c38b2b27572"><td class="memItemLeft" align="right" valign="top">unsigned int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structcio__websocket.html#ad5d1237f14e45b211c288c38b2b27572">frag_opcode</a>: 4</td></tr>
-<tr class="separator:ad5d1237f14e45b211c288c38b2b27572"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aac8f56584c9ad4327a204a77a9913136"><td class="memItemLeft" align="right" valign="top">unsigned int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structcio__websocket.html#aac8f56584c9ad4327a204a77a9913136">is_fragmented</a>: 1</td></tr>
-<tr class="separator:aac8f56584c9ad4327a204a77a9913136"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <h2 class="groupheader">Field Documentation</h2>
 <a class="anchor" id="adc8dcb65e3135d2c4a24cb0b859c05ea"></a>
@@ -328,78 +316,6 @@ Data Fields</h2></td></tr>
   </table>
   </dd>
 </dl>
-
-</div>
-</div>
-<a class="anchor" id="a2552de07deb2a0a440040894da1a94de"></a>
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">unsigned int cio_websocket::fin</td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-</div>
-</div>
-<a class="anchor" id="a39260c1ef8524cff6258f438da9656fe"></a>
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">unsigned int cio_websocket::rsv</td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-</div>
-</div>
-<a class="anchor" id="ada9ca1afc3b6de1c584d1cfa6e3abf9e"></a>
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">unsigned int cio_websocket::opcode</td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-</div>
-</div>
-<a class="anchor" id="a3d2acfabce72ae31e180613471004e36"></a>
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">unsigned int cio_websocket::mask</td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-</div>
-</div>
-<a class="anchor" id="ad5d1237f14e45b211c288c38b2b27572"></a>
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">unsigned int cio_websocket::frag_opcode</td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-</div>
-</div>
-<a class="anchor" id="aac8f56584c9ad4327a204a77a9913136"></a>
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">unsigned int cio_websocket::is_fragmented</td>
-        </tr>
-      </table>
-</div><div class="memdoc">
 
 </div>
 </div>
