@@ -244,7 +244,7 @@ static void get_header(struct cio_buffered_stream *bs, void *handler_context, en
 
 static void handle_frame(struct cio_websocket *ws, uint8_t *data, uint64_t length)
 {
-	if (unlikely(ws->is_server && (ws->ws_flags.mask == 0))) {
+	if (unlikely(ws->is_server && (ws->ws_flags.shall_mask == 0))) {
 		// TODO: handle_error(s, WS_CLOSE_PROTOCOL_ERROR);
 		goto out;
 	}
@@ -286,7 +286,7 @@ static void handle_frame(struct cio_websocket *ws, uint8_t *data, uint64_t lengt
 		goto out;
 	}
 
-	if (ws->ws_flags.mask != 0) {
+	if (ws->ws_flags.shall_mask != 0) {
 		cio_websocket_mask(data, length, ws->mask);
 	}
 
@@ -392,7 +392,7 @@ static void get_mask(struct cio_buffered_stream *bs, void *handler_context, enum
 
 static void get_mask_or_payload(struct cio_websocket *ws, struct cio_buffered_stream *bs, struct cio_read_buffer *buffer)
 {
-	if (ws->ws_flags.mask == 1) {
+	if (ws->ws_flags.shall_mask == 1) {
 		bs->read_exactly(bs, buffer, sizeof(ws->mask), get_mask, ws);
 	} else {
 		if (likely(ws->read_frame_length > 0)) {
@@ -452,9 +452,9 @@ static void get_first_length(struct cio_buffered_stream *bs, void *handler_conte
 	struct cio_websocket *ws = (struct cio_websocket *)handler_context;
 
 	if ((field & WS_MASK_SET) == WS_MASK_SET) {
-		ws->ws_flags.mask = 1;
+		ws->ws_flags.shall_mask = 1;
 	} else {
-		ws->ws_flags.mask = 0;
+		ws->ws_flags.shall_mask = 0;
 	}
 
 	field = field & ~WS_MASK_SET;

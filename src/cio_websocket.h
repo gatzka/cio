@@ -163,9 +163,7 @@ struct cio_websocket {
      */
 	void (*write_binary_frame)(struct cio_websocket *ws, struct cio_const_write_buffer *payload, bool last_frame, cio_websocket_write_handler handler, void *handler_context);
 
-	/**
-	 * @privatesection
-	 */
+	/*! @cond PRIVATE */
 	uint64_t read_frame_length;
 	struct cio_eventloop *loop;
 
@@ -173,7 +171,7 @@ struct cio_websocket {
 		unsigned int fin : 1;
 		unsigned int rsv : 3;
 		unsigned int opcode : 4;
-		unsigned int mask : 1;
+		unsigned int shall_mask : 1;
 		unsigned int frag_opcode : 4;
 		unsigned int is_fragmented : 1;
 	} ws_flags;
@@ -196,6 +194,7 @@ struct cio_websocket {
 	uint8_t mask[4];
 	uint8_t send_header[14];
 	uint8_t received_control_frame[CIO_WEBSOCKET_SMALL_FRAME_SIZE];
+	/*! @endcond */
 };
 
 void cio_websocket_init(struct cio_websocket *ws, bool is_server, cio_websocket_close_hook close_hook);
