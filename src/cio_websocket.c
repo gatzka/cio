@@ -196,22 +196,32 @@ static void handle_text_frame(struct cio_websocket *ws, uint8_t *data, uint64_t 
 
 static int handle_close_frame(struct cio_websocket *ws, uint8_t *data, uint64_t length)
 {
+	if (unlikely((length == 1) || (length > WS_SMALL_FRAME_SIZE))) {
+		//handle_error(s, WS_CLOSE_PROTOCOL_ERROR);
+	}
+
 	uint16_t status_code = CIO_WEBSOCKET_CLOSE_NORMAL;
 	if (length >= 2) {
 		memcpy(&status_code, data, sizeof(status_code));
 		status_code = cio_be16toh(status_code);
 	}
 
+	if (unlikely(is_status_code_invalid(status_code))) {
+		//handle_error(s, WS_CLOSE_PROTOCOL_ERROR);
+	}
+
+	char *reason;
 	if (length > 2) {
 		// TODO: struct cjet_utf8_checker c;
 		// TODO: cjet_init_checker(&c);
 		// TODO: if (!cjet_is_byte_sequence_valid(&c, frame + 2, length - 2, true)) {
 		// TODO: 	handle_error(s, WS_CLOSE_UNSUPPORTED_DATA);
 		// TODO: }
-	}
 
-	if ((length == 1) || (length > WS_SMALL_FRAME_SIZE) || is_status_code_invalid(status_code)) {
-		//handle_error(s, WS_CLOSE_PROTOCOL_ERROR);
+		length -= sizeof(status_code);
+		reason = (char *)&data[sizeof(status_code)];
+	} else {
+		reason = NULL;
 	}
 
 	if (ws->self_initiated_close) {
@@ -219,10 +229,10 @@ static int handle_close_frame(struct cio_websocket *ws, uint8_t *data, uint64_t 
 		return -1;
 	} else {
 		if (ws->onclose != NULL) {
-			ws->onclose(ws, (enum cio_websocket_status_code)status_code, NULL);
+			ws->onclose(ws, (enum cio_websocket_status_code)status_code, reason, length);
 		}
 
-		send_close_frame(ws, CIO_WEBSOCKET_CLOSE_GOING_AWAY, NULL);
+		send_close_frame(ws, (enum cio_websocket_status_code)status_code, NULL);
 		return 0;
 	}
 }

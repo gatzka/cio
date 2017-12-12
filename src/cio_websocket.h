@@ -114,7 +114,7 @@ struct cio_websocket {
 	 * @param data The data the pong frame carried.
 	 * @param length The length of data the pong frame carried.
 	 */
-	void (*onclose)(const struct cio_websocket *ws, enum cio_websocket_status_code status, char *reason);
+	void (*onclose)(const struct cio_websocket *ws, enum cio_websocket_status_code status, char *reason, size_t reason_length);
 
 	/**
 	 * @brief A pointer to a function which is called if a receive error occurred.
