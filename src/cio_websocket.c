@@ -50,7 +50,7 @@ enum cio_ws_frame_type {
 	CIO_WEBSOCKET_PONG_FRAME = 0x0a,
 };
 
-static void send_frame(struct cio_websocket *s, struct cio_write_buffer *payload, enum cio_ws_frame_type frame_type, cio_buffered_stream_write_handler written_cb)
+static void send_frame(struct cio_websocket *ws, struct cio_write_buffer *payload, enum cio_ws_frame_type frame_type, cio_buffered_stream_write_handler written_cb)
 {
 	uint8_t first_len;
 	size_t header_index = 2;
@@ -63,38 +63,38 @@ static void send_frame(struct cio_websocket *s, struct cio_write_buffer *payload
 		length += element->data.element.length;
 	}
 
-	s->send_header[0] = (uint8_t)(frame_type | WS_HEADER_FIN);
+	ws->send_header[0] = (uint8_t)(frame_type | WS_HEADER_FIN);
 	if (length <= WS_SMALL_FRAME_SIZE) {
 		first_len = (uint8_t)length;
 	} else if (length <= WS_MID_FRAME_SIZE) {
 		uint16_t be_len = cio_htobe16((uint16_t)length);
-		memcpy(&s->send_header[2], &be_len, sizeof(be_len));
+		memcpy(&ws->send_header[2], &be_len, sizeof(be_len));
 		header_index += sizeof(be_len);
 		first_len = WS_SMALL_FRAME_SIZE + 1;
 	} else {
 		uint64_t be_len = cio_htobe64((uint64_t)length);
-		memcpy(&s->send_header[2], &be_len, sizeof(be_len));
+		memcpy(&ws->send_header[2], &be_len, sizeof(be_len));
 		header_index += sizeof(be_len);
 		first_len = WS_SMALL_FRAME_SIZE + 2;
 	}
 
-	if (!s->is_server) {
+	if (!ws->is_server) {
 		first_len |= WS_MASK_SET;
 		uint8_t mask[4];
 		cio_random_get_bytes(mask, sizeof(mask));
-		memcpy(&s->send_header[header_index], &mask, sizeof(mask));
+		memcpy(&ws->send_header[header_index], &mask, sizeof(mask));
 		header_index += sizeof(mask);
 		// TODO: cio_websocket_mask(payload, length, mask );
 	}
 
-	s->send_header[1] = first_len;
+	ws->send_header[1] = first_len;
 
-	cio_write_buffer_head_init(&s->wbh);
-	cio_write_buffer_element_init(&s->wb_send_header, s->send_header, header_index);
-	cio_write_buffer_queue_tail(&s->wbh, &s->wb_send_header);
-	cio_write_buffer_splice(payload, &s->wbh);
+	cio_write_buffer_head_init(&ws->wbh);
+	cio_write_buffer_element_init(&ws->wb_send_header, ws->send_header, header_index);
+	cio_write_buffer_queue_tail(&ws->wbh, &ws->wb_send_header);
+	cio_write_buffer_splice(payload, &ws->wbh);
 
-	s->bs->write(s->bs, &s->wbh, written_cb, s);
+	ws->bs->write(ws->bs, &ws->wbh, written_cb, ws);
 }
 
 static void close(struct cio_websocket *ws)
