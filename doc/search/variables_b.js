@@ -14,7 +14,7 @@ var searchData=
   ['on_5fschema',['on_schema',['../structcio__http__location__handler.html#aa1523567cb959d329891c77d7d340ce7',1,'cio_http_location_handler']]],
   ['on_5furl',['on_url',['../structcio__http__location__handler.html#adc9eb92df5e39f7341ced4fa0a225c68',1,'cio_http_location_handler']]],
   ['onbinaryframe_5freceived',['onbinaryframe_received',['../structcio__websocket.html#a0636f6d664819ae0786673af45bf3b21',1,'cio_websocket']]],
-  ['onclose',['onclose',['../structcio__websocket.html#af5b107c2e369f7f5f7b03322ac21e840',1,'cio_websocket']]],
+  ['onclose',['onclose',['../structcio__websocket.html#a140f4744ec30c16031cfc1abb79a808b',1,'cio_websocket']]],
   ['onconnect_5fhandler',['onconnect_handler',['../structcio__websocket.html#ae2a56e0594ccb894e9fd57910f737fcd',1,'cio_websocket']]],
   ['onping',['onping',['../structcio__websocket.html#a258cd0f5e5be365c5979c8b85c151ebb',1,'cio_websocket']]],
   ['onpong',['onpong',['../structcio__websocket.html#a4f0454fef15555a05bf675f542d949ad',1,'cio_websocket']]],
