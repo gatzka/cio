@@ -14,6 +14,5 @@ var searchData=
   ['cio_5fserver_5fsocket_5fclose_5fhook',['cio_server_socket_close_hook',['../cio__server__socket_8h.html#af0698e491abc9441583116ec7023d868',1,'cio_server_socket.h']]],
   ['cio_5fsocket_5fclose_5fhook',['cio_socket_close_hook',['../cio__socket_8h.html#a8641f6ac0091a6a5545e42337aad5d34',1,'cio_socket.h']]],
   ['cio_5ftimer_5fclose_5fhook',['cio_timer_close_hook',['../cio__timer_8h.html#a7cbe58df3a75c89662569743cfc2b40d',1,'cio_timer.h']]],
-  ['cio_5fwebsocket_5fclose_5fhook',['cio_websocket_close_hook',['../cio__websocket_8h.html#ae80b8348fc58df39d6c0d8bd35d5c607',1,'cio_websocket.h']]],
-  ['cio_5fwebsocket_5fonconnect_5fhandler',['cio_websocket_onconnect_handler',['../cio__websocket_8h.html#a2ac20030167eba987181f4e02facf1d8',1,'cio_websocket.h']]]
+  ['cio_5fwebsocket_5fclose_5fhook',['cio_websocket_close_hook',['../cio__websocket_8h.html#ae80b8348fc58df39d6c0d8bd35d5c607',1,'cio_websocket.h']]]
 ];
