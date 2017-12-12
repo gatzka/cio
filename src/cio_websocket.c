@@ -200,10 +200,12 @@ static int handle_close_frame(struct cio_websocket *ws, uint8_t *data, uint64_t 
 		//handle_error(s, WS_CLOSE_PROTOCOL_ERROR);
 	}
 
-	uint16_t status_code = CIO_WEBSOCKET_CLOSE_NORMAL;
+	uint16_t status_code;
 	if (length >= 2) {
 		memcpy(&status_code, data, sizeof(status_code));
 		status_code = cio_be16toh(status_code);
+	} else {
+		status_code = CIO_WEBSOCKET_CLOSE_NORMAL;
 	}
 
 	if (unlikely(is_status_code_invalid(status_code))) {
