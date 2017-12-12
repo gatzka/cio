@@ -71,6 +71,7 @@ struct cio_websocket {
 	 *
 	 * @param ws The websocket to be closed.
 	 * @param status The @ref cio_websocket_status_code "websocket status code" to be sent.
+	 * @param reason A buffer which contains the reasond for the close in an UTF8 encoded string. Could be @c NULL if no reason should be sent.
 	 */
 	void (*close)(struct cio_websocket *ws, enum cio_websocket_status_code status, struct cio_write_buffer *reason);
 
@@ -128,8 +129,8 @@ struct cio_websocket {
 	 */
 	void (*on_error)(const struct cio_websocket *ws, enum cio_websocket_status_code status);
 
-	void (*write_text_frame)(const struct cio_websocket *ws, struct cio_write_buffer *buffer, bool last_frame, cio_websocket_write_handler handler);
-	void (*write_binary_frame)(const struct cio_websocket *ws, struct cio_write_buffer *buffer, bool last_frame, cio_websocket_write_handler handler);
+	void (*write_text_frame)(struct cio_websocket *ws, struct cio_write_buffer *payload, bool last_frame, cio_websocket_write_handler handler, void *handler_context);
+	void (*write_binary_frame)(struct cio_websocket *ws, struct cio_write_buffer *payload, bool last_frame, cio_websocket_write_handler handler, void *handler_context);
 
 	/**
 	 * @privatesection
@@ -147,6 +148,9 @@ struct cio_websocket {
 	} ws_flags;
 
 	void (*receive_frames)(struct cio_websocket *ws);
+
+	cio_websocket_write_handler write_handler;
+	void *write_handler_context;
 
 	struct cio_buffered_stream *bs;
 	struct cio_read_buffer *rb;
