@@ -23,7 +23,7 @@
  <tr style="height: 56px;">
   <td style="padding-left: 0.5em;">
    <div id="projectname">ANSI C I/O Library
-   &#160;<span id="projectnumber">0.0.1-757+3fe0486</span>
+   &#160;<span id="projectnumber">0.0.1-767+6e09ef2</span>
    </div>
   </td>
  </tr>
@@ -92,9 +92,9 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-attribs"></a>
 Data Fields</h2></td></tr>
-<tr class="memitem:a1e6768fdbdf4ac6caaebc2a4fb9ebf18"><td class="memItemLeft" align="right" valign="top">void(*&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structcio__websocket.html#a1e6768fdbdf4ac6caaebc2a4fb9ebf18">close</a> )(struct <a class="el" href="structcio__websocket.html">cio_websocket</a> *ws, enum <a class="el" href="cio__websocket_8h.html#aa24c9894ba2ee9dc5b0ebbc1c8809701">cio_websocket_status_code</a> status)</td></tr>
-<tr class="memdesc:a1e6768fdbdf4ac6caaebc2a4fb9ebf18"><td class="mdescLeft">&#160;</td><td class="mdescRight">Closes a websocket.  <a href="#a1e6768fdbdf4ac6caaebc2a4fb9ebf18">More...</a><br/></td></tr>
-<tr class="separator:a1e6768fdbdf4ac6caaebc2a4fb9ebf18"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae6dbb44a49564eb969656059189885c9"><td class="memItemLeft" align="right" valign="top">void(*&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structcio__websocket.html#ae6dbb44a49564eb969656059189885c9">close</a> )(struct <a class="el" href="structcio__websocket.html">cio_websocket</a> *ws, enum <a class="el" href="cio__websocket_8h.html#aa24c9894ba2ee9dc5b0ebbc1c8809701">cio_websocket_status_code</a> status, struct <a class="el" href="structcio__write__buffer.html">cio_write_buffer</a> *reason)</td></tr>
+<tr class="memdesc:ae6dbb44a49564eb969656059189885c9"><td class="mdescLeft">&#160;</td><td class="mdescRight">Closes a websocket.  <a href="#ae6dbb44a49564eb969656059189885c9">More...</a><br/></td></tr>
+<tr class="separator:ae6dbb44a49564eb969656059189885c9"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ae2a56e0594ccb894e9fd57910f737fcd"><td class="memItemLeft" align="right" valign="top">void(*&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structcio__websocket.html#ae2a56e0594ccb894e9fd57910f737fcd">onconnect_handler</a> )(struct <a class="el" href="structcio__websocket.html">cio_websocket</a> *ws)</td></tr>
 <tr class="separator:ae2a56e0594ccb894e9fd57910f737fcd"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a0636f6d664819ae0786673af45bf3b21"><td class="memItemLeft" align="right" valign="top">void(*&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structcio__websocket.html#a0636f6d664819ae0786673af45bf3b21">onbinaryframe_received</a> )(struct <a class="el" href="structcio__websocket.html">cio_websocket</a> *ws, uint8_t *data, size_t length, bool last_frame)</td></tr>
@@ -107,12 +107,16 @@ Data Fields</h2></td></tr>
 <tr class="memitem:a4f0454fef15555a05bf675f542d949ad"><td class="memItemLeft" align="right" valign="top">void(*&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structcio__websocket.html#a4f0454fef15555a05bf675f542d949ad">onpong</a> )(struct <a class="el" href="structcio__websocket.html">cio_websocket</a> *ws, uint8_t *data, size_t length)</td></tr>
 <tr class="memdesc:a4f0454fef15555a05bf675f542d949ad"><td class="mdescLeft">&#160;</td><td class="mdescRight">A pointer to a function which is called if a pong frame was received.  <a href="#a4f0454fef15555a05bf675f542d949ad">More...</a><br/></td></tr>
 <tr class="separator:a4f0454fef15555a05bf675f542d949ad"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aff29215b4d867eaacbb48f4f8798ba41"><td class="memItemLeft" align="right" valign="top">void(*&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structcio__websocket.html#aff29215b4d867eaacbb48f4f8798ba41">onclose</a> )(struct <a class="el" href="structcio__websocket.html">cio_websocket</a> *ws, enum <a class="el" href="cio__websocket_8h.html#aa24c9894ba2ee9dc5b0ebbc1c8809701">cio_websocket_status_code</a> status, char *text)</td></tr>
-<tr class="memdesc:aff29215b4d867eaacbb48f4f8798ba41"><td class="mdescLeft">&#160;</td><td class="mdescRight">A pointer to a function which is called when a close frame was received.  <a href="#aff29215b4d867eaacbb48f4f8798ba41">More...</a><br/></td></tr>
-<tr class="separator:aff29215b4d867eaacbb48f4f8798ba41"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:acb17b346db4046378afeb26511920607"><td class="memItemLeft" align="right" valign="top">void(*&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structcio__websocket.html#acb17b346db4046378afeb26511920607">on_error</a> )(struct <a class="el" href="structcio__websocket.html">cio_websocket</a> *ws, enum <a class="el" href="cio__websocket_8h.html#aa24c9894ba2ee9dc5b0ebbc1c8809701">cio_websocket_status_code</a> status)</td></tr>
-<tr class="memdesc:acb17b346db4046378afeb26511920607"><td class="mdescLeft">&#160;</td><td class="mdescRight">A pointer to a function which is called if a receive error occurred.  <a href="#acb17b346db4046378afeb26511920607">More...</a><br/></td></tr>
-<tr class="separator:acb17b346db4046378afeb26511920607"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af5b107c2e369f7f5f7b03322ac21e840"><td class="memItemLeft" align="right" valign="top">void(*&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structcio__websocket.html#af5b107c2e369f7f5f7b03322ac21e840">onclose</a> )(const struct <a class="el" href="structcio__websocket.html">cio_websocket</a> *ws, enum <a class="el" href="cio__websocket_8h.html#aa24c9894ba2ee9dc5b0ebbc1c8809701">cio_websocket_status_code</a> status, char *reason)</td></tr>
+<tr class="memdesc:af5b107c2e369f7f5f7b03322ac21e840"><td class="mdescLeft">&#160;</td><td class="mdescRight">A pointer to a function which is called when a close frame was received.  <a href="#af5b107c2e369f7f5f7b03322ac21e840">More...</a><br/></td></tr>
+<tr class="separator:af5b107c2e369f7f5f7b03322ac21e840"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:adb84b442e77b1b872b3f94b5ad8c3b72"><td class="memItemLeft" align="right" valign="top">void(*&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structcio__websocket.html#adb84b442e77b1b872b3f94b5ad8c3b72">on_error</a> )(const struct <a class="el" href="structcio__websocket.html">cio_websocket</a> *ws, enum <a class="el" href="cio__websocket_8h.html#aa24c9894ba2ee9dc5b0ebbc1c8809701">cio_websocket_status_code</a> status)</td></tr>
+<tr class="memdesc:adb84b442e77b1b872b3f94b5ad8c3b72"><td class="mdescLeft">&#160;</td><td class="mdescRight">A pointer to a function which is called if a receive error occurred.  <a href="#adb84b442e77b1b872b3f94b5ad8c3b72">More...</a><br/></td></tr>
+<tr class="separator:adb84b442e77b1b872b3f94b5ad8c3b72"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a26a22c890fa7fa4f06564a9fa1ec792d"><td class="memItemLeft" align="right" valign="top">void(*&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structcio__websocket.html#a26a22c890fa7fa4f06564a9fa1ec792d">write_text_frame</a> )(struct <a class="el" href="structcio__websocket.html">cio_websocket</a> *ws, struct <a class="el" href="structcio__write__buffer.html">cio_write_buffer</a> *payload, bool last_frame, <a class="el" href="cio__websocket_8h.html#ab93857c98cee5759dadf1b263ae8a557">cio_websocket_write_handler</a> handler, void *handler_context)</td></tr>
+<tr class="separator:a26a22c890fa7fa4f06564a9fa1ec792d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa1ec1dcfb77208e26ca5449eb4747232"><td class="memItemLeft" align="right" valign="top">void(*&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structcio__websocket.html#aa1ec1dcfb77208e26ca5449eb4747232">write_binary_frame</a> )(struct <a class="el" href="structcio__websocket.html">cio_websocket</a> *ws, struct <a class="el" href="structcio__write__buffer.html">cio_write_buffer</a> *payload, bool last_frame, <a class="el" href="cio__websocket_8h.html#ab93857c98cee5759dadf1b263ae8a557">cio_websocket_write_handler</a> handler, void *handler_context)</td></tr>
+<tr class="separator:aa1ec1dcfb77208e26ca5449eb4747232"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a2552de07deb2a0a440040894da1a94de"><td class="memItemLeft" align="right" valign="top">unsigned int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structcio__websocket.html#a2552de07deb2a0a440040894da1a94de">fin</a>: 1</td></tr>
 <tr class="separator:a2552de07deb2a0a440040894da1a94de"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a39260c1ef8524cff6258f438da9656fe"><td class="memItemLeft" align="right" valign="top">unsigned int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structcio__websocket.html#a39260c1ef8524cff6258f438da9656fe">rsv</a>: 3</td></tr>
@@ -127,12 +131,12 @@ Data Fields</h2></td></tr>
 <tr class="separator:aac8f56584c9ad4327a204a77a9913136"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <h2 class="groupheader">Field Documentation</h2>
-<a class="anchor" id="a1e6768fdbdf4ac6caaebc2a4fb9ebf18"></a>
+<a class="anchor" id="ae6dbb44a49564eb969656059189885c9"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">void(* cio_websocket::close)(struct <a class="el" href="structcio__websocket.html">cio_websocket</a> *ws, enum <a class="el" href="cio__websocket_8h.html#aa24c9894ba2ee9dc5b0ebbc1c8809701">cio_websocket_status_code</a> status)</td>
+          <td class="memname">void(* cio_websocket::close)(struct <a class="el" href="structcio__websocket.html">cio_websocket</a> *ws, enum <a class="el" href="cio__websocket_8h.html#aa24c9894ba2ee9dc5b0ebbc1c8809701">cio_websocket_status_code</a> status, struct <a class="el" href="structcio__write__buffer.html">cio_write_buffer</a> *reason)</td>
         </tr>
       </table>
 </div><div class="memdoc">
@@ -143,6 +147,7 @@ Data Fields</h2></td></tr>
   <table class="params">
     <tr><td class="paramname">ws</td><td>The websocket to be closed. </td></tr>
     <tr><td class="paramname">status</td><td>The <a class="el" href="cio__websocket_8h.html#aa24c9894ba2ee9dc5b0ebbc1c8809701">websocket status code</a> to be sent. </td></tr>
+    <tr><td class="paramname">reason</td><td>A buffer which contains the reasond for the close in an UTF8 encoded string. Could be <code>NULL</code> if no reason should be sent. </td></tr>
   </table>
   </dd>
 </dl>
@@ -231,12 +236,12 @@ Data Fields</h2></td></tr>
 
 </div>
 </div>
-<a class="anchor" id="aff29215b4d867eaacbb48f4f8798ba41"></a>
+<a class="anchor" id="af5b107c2e369f7f5f7b03322ac21e840"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">void(* cio_websocket::onclose)(struct <a class="el" href="structcio__websocket.html">cio_websocket</a> *ws, enum <a class="el" href="cio__websocket_8h.html#aa24c9894ba2ee9dc5b0ebbc1c8809701">cio_websocket_status_code</a> status, char *text)</td>
+          <td class="memname">void(* cio_websocket::onclose)(const struct <a class="el" href="structcio__websocket.html">cio_websocket</a> *ws, enum <a class="el" href="cio__websocket_8h.html#aa24c9894ba2ee9dc5b0ebbc1c8809701">cio_websocket_status_code</a> status, char *reason)</td>
         </tr>
       </table>
 </div><div class="memdoc">
@@ -254,12 +259,12 @@ Data Fields</h2></td></tr>
 
 </div>
 </div>
-<a class="anchor" id="acb17b346db4046378afeb26511920607"></a>
+<a class="anchor" id="adb84b442e77b1b872b3f94b5ad8c3b72"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">void(* cio_websocket::on_error)(struct <a class="el" href="structcio__websocket.html">cio_websocket</a> *ws, enum <a class="el" href="cio__websocket_8h.html#aa24c9894ba2ee9dc5b0ebbc1c8809701">cio_websocket_status_code</a> status)</td>
+          <td class="memname">void(* cio_websocket::on_error)(const struct <a class="el" href="structcio__websocket.html">cio_websocket</a> *ws, enum <a class="el" href="cio__websocket_8h.html#aa24c9894ba2ee9dc5b0ebbc1c8809701">cio_websocket_status_code</a> status)</td>
         </tr>
       </table>
 </div><div class="memdoc">
@@ -273,6 +278,30 @@ Data Fields</h2></td></tr>
   </table>
   </dd>
 </dl>
+
+</div>
+</div>
+<a class="anchor" id="a26a22c890fa7fa4f06564a9fa1ec792d"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void(* cio_websocket::write_text_frame)(struct <a class="el" href="structcio__websocket.html">cio_websocket</a> *ws, struct <a class="el" href="structcio__write__buffer.html">cio_write_buffer</a> *payload, bool last_frame, <a class="el" href="cio__websocket_8h.html#ab93857c98cee5759dadf1b263ae8a557">cio_websocket_write_handler</a> handler, void *handler_context)</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="aa1ec1dcfb77208e26ca5449eb4747232"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void(* cio_websocket::write_binary_frame)(struct <a class="el" href="structcio__websocket.html">cio_websocket</a> *ws, struct <a class="el" href="structcio__write__buffer.html">cio_write_buffer</a> *payload, bool last_frame, <a class="el" href="cio__websocket_8h.html#ab93857c98cee5759dadf1b263ae8a557">cio_websocket_write_handler</a> handler, void *handler_context)</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
 
 </div>
 </div>
