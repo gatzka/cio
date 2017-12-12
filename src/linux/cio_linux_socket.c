@@ -155,14 +155,14 @@ static void write_callback(void *context)
 	stream->write_handler(stream, stream->write_handler_context, stream->write_buffer, CIO_SUCCESS, 0);
 }
 
-static enum cio_error stream_write(struct cio_io_stream *stream, const struct cio_write_buffer *buffer, cio_io_stream_write_handler handler, void *handler_context)
+static enum cio_error stream_write(struct cio_io_stream *stream, const struct cio_const_write_buffer *buffer, cio_io_stream_write_handler handler, void *handler_context)
 {
 	if (unlikely((stream == NULL) || (buffer == NULL) || (handler == NULL))) {
 		return CIO_INVALID_ARGUMENT;
 	}
 
 	struct cio_socket *s = container_of(stream, struct cio_socket, stream);
-	size_t chain_length = cio_write_buffer_get_number_of_elements(buffer);
+	size_t chain_length = cio_const_write_buffer_get_number_of_elements(buffer);
 	struct iovec msg_iov[chain_length];
 	struct msghdr msg;
 	msg.msg_name = NULL;
@@ -173,7 +173,7 @@ static enum cio_error stream_write(struct cio_io_stream *stream, const struct ci
 	msg.msg_iov = msg_iov;
 	msg.msg_iovlen = chain_length;
 
-	struct cio_write_buffer *wb = buffer->next;
+	struct cio_const_write_buffer *wb = buffer->next;
 	for (unsigned int i = 0; i < chain_length; i++) {
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wcast-qual"

@@ -117,7 +117,7 @@ Project {
   }
 
   UnittestProduct {
-    name: "test_cio_write_buffer"
+    name: "test_cio_const_write_buffer"
     type: ["application", "unittest"]
     
     cpp.includePaths: ["..", "../linux/"]

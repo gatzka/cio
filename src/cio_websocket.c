@@ -49,14 +49,14 @@ enum cio_ws_frame_type {
 	CIO_WEBSOCKET_PONG_FRAME = 0x0a,
 };
 
-static void send_frame(struct cio_websocket *ws, struct cio_write_buffer *payload, enum cio_ws_frame_type frame_type, bool last_frame, cio_buffered_stream_write_handler written_cb)
+static void send_frame(struct cio_websocket *ws, struct cio_const_write_buffer *payload, enum cio_ws_frame_type frame_type, bool last_frame, cio_buffered_stream_write_handler written_cb)
 {
 	uint8_t first_len;
 	size_t header_index = 2;
 
 	size_t length = 0;
 
-	struct cio_write_buffer *element = payload;
+	struct cio_const_write_buffer *element = payload;
 	for (size_t i = 0; i < payload->data.q_len; i++) {
 		element = element->next;
 		length += element->data.element.length;
@@ -94,10 +94,10 @@ static void send_frame(struct cio_websocket *ws, struct cio_write_buffer *payloa
 
 	ws->send_header[1] = first_len;
 
-	cio_write_buffer_head_init(&ws->wbh);
-	cio_write_buffer_element_init(&ws->wb_send_header, ws->send_header, header_index);
-	cio_write_buffer_queue_tail(&ws->wbh, &ws->wb_send_header);
-	cio_write_buffer_splice(payload, &ws->wbh);
+	cio_const_write_buffer_head_init(&ws->wbh);
+	cio_const_write_buffer_element_init(&ws->wb_send_header, ws->send_header, header_index);
+	cio_const_write_buffer_queue_tail(&ws->wbh, &ws->wb_send_header);
+	cio_const_write_buffer_splice(payload, &ws->wbh);
 
 	ws->bs->write(ws->bs, &ws->wbh, written_cb, ws);
 }
@@ -126,7 +126,7 @@ static bool is_status_code_invalid(uint16_t status_code)
 	return true;
 }
 
-static void close_frame_written(struct cio_buffered_stream *bs, void *handler_context, const struct cio_write_buffer *buffer, enum cio_error err)
+static void close_frame_written(struct cio_buffered_stream *bs, void *handler_context, const struct cio_const_write_buffer *buffer, enum cio_error err)
 {
 	(void)bs;
 	(void)buffer;
@@ -137,7 +137,7 @@ static void close_frame_written(struct cio_buffered_stream *bs, void *handler_co
 	}
 }
 
-static void do_nothing(struct cio_buffered_stream *bs, void *handler_context, const struct cio_write_buffer *buffer, enum cio_error err)
+static void do_nothing(struct cio_buffered_stream *bs, void *handler_context, const struct cio_const_write_buffer *buffer, enum cio_error err)
 {
 	(void)bs;
 	(void)handler_context;
@@ -153,13 +153,13 @@ static void close_timeout_handler(struct cio_timer *timer, void *handler_context
 	close(ws);
 }
 
-static void send_close_frame(struct cio_websocket *ws, enum cio_websocket_status_code status_code, struct cio_write_buffer *reason)
+static void send_close_frame(struct cio_websocket *ws, enum cio_websocket_status_code status_code, struct cio_const_write_buffer *reason)
 {
-	struct cio_write_buffer wbh;
-	cio_write_buffer_head_init(&wbh);
-	cio_write_buffer_queue_tail(&wbh, &ws->wb_close_status);
+	struct cio_const_write_buffer wbh;
+	cio_const_write_buffer_head_init(&wbh);
+	cio_const_write_buffer_queue_tail(&wbh, &ws->wb_close_status);
 	if (reason != NULL) {
-		cio_write_buffer_splice(reason, &wbh);
+		cio_const_write_buffer_splice(reason, &wbh);
 	}
 
 	ws->close_status = cio_htobe16(status_code);
@@ -501,28 +501,28 @@ static void receive_frames(struct cio_websocket *ws)
 	ws->bs->read_exactly(ws->bs, ws->rb, 1, get_header, ws);
 }
 
-static void self_close_frame(struct cio_websocket *ws, enum cio_websocket_status_code status_code, struct cio_write_buffer *reason)
+static void self_close_frame(struct cio_websocket *ws, enum cio_websocket_status_code status_code, struct cio_const_write_buffer *reason)
 {
 	// TODO: check if reason fits into a small frame.
 	ws->self_initiated_close = true;
 	send_close_frame(ws, status_code, reason);
 }
 
-static void handle_write(struct cio_buffered_stream *bs, void *handler_context, const struct cio_write_buffer *buffer, enum cio_error err)
+static void handle_write(struct cio_buffered_stream *bs, void *handler_context, const struct cio_const_write_buffer *buffer, enum cio_error err)
 {
 	(void)bs;
 	struct cio_websocket *ws = (struct cio_websocket *)handler_context;
 	ws->write_handler(ws, ws->write_handler_context, buffer, err);
 }
 
-static void write_binary_frame(struct cio_websocket *ws, struct cio_write_buffer *payload, bool last_frame, cio_websocket_write_handler handler, void *handler_context)
+static void write_binary_frame(struct cio_websocket *ws, struct cio_const_write_buffer *payload, bool last_frame, cio_websocket_write_handler handler, void *handler_context)
 {
 	ws->write_handler = handler;
 	ws->write_handler_context = handler_context;
 	send_frame(ws, payload, CIO_WEBSOCKET_BINARY_FRAME, last_frame, handle_write);
 }
 
-static void write_text_frame(struct cio_websocket *ws, struct cio_write_buffer *payload, bool last_frame, cio_websocket_write_handler handler, void *handler_context)
+static void write_text_frame(struct cio_websocket *ws, struct cio_const_write_buffer *payload, bool last_frame, cio_websocket_write_handler handler, void *handler_context)
 {
 	ws->write_handler = handler;
 	ws->write_handler_context = handler_context;
@@ -543,5 +543,5 @@ void cio_websocket_init(struct cio_websocket *ws, bool is_server, cio_websocket_
 	ws->close_hook = close_hook;
 	ws->ws_flags.is_fragmented = 0;
 
-	cio_write_buffer_element_init(&ws->wb_close_status, &ws->close_status, sizeof(ws->close_status));
+	cio_const_write_buffer_element_init(&ws->wb_close_status, &ws->close_status, sizeof(ws->close_status));
 }

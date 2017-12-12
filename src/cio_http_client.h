@@ -81,7 +81,7 @@ struct cio_http_client {
 	 * @param wbh The write buffer head containing the data which should be written after
 	 * the HTTP response header to the client.
 	 */
-	void (*write_response)(struct cio_http_client *client, struct cio_write_buffer *wbh);
+	void (*write_response)(struct cio_http_client *client, struct cio_const_write_buffer *wbh);
 
 	/**
 	 * @anchor cio_http_client_write_header
@@ -103,7 +103,7 @@ struct cio_http_client {
 	 */
 	void (*queue_header)(struct cio_http_client *client, enum cio_http_status_code status);
 
-    /**
+	/**
 	 * @anchor cio_http_client_flush
 	 * @brief Flushes the write buffer attached of this client.
      *
@@ -136,7 +136,7 @@ struct cio_http_client {
 	 * If you have an upgraded HTTP connection (i.e. web sockets), you are encouraged
 	 * to use this write buffer.
 	 */
-	struct cio_write_buffer wbh;
+	struct cio_const_write_buffer wbh;
 
 	/**
 	 * @brief The HTTP major version of the client request.
@@ -176,8 +176,8 @@ struct cio_http_client {
 	 * @privatesection
 	 */
 	struct cio_http_location_handler *handler;
-	struct cio_write_buffer wb_http_response_statusline;
-	struct cio_write_buffer wb_http_response_header_end;
+	struct cio_const_write_buffer wb_http_response_statusline;
+	struct cio_const_write_buffer wb_http_response_header_end;
 	struct cio_socket socket;
 	struct cio_timer read_timer;
 
