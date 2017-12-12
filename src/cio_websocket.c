@@ -479,24 +479,33 @@ static void receive_frames(struct cio_websocket *ws)
 
 static void self_close_frame(struct cio_websocket *ws, enum cio_websocket_status_code status_code, struct cio_write_buffer *reason)
 {
+	// TODO: check if reason fits into a small frame.
 	ws->self_initiated_close = true;
 	send_close_frame(ws, status_code, reason);
 }
 
-static void write_binary_frame(const struct cio_websocket *ws, struct cio_write_buffer *buffer, bool last_frame, cio_websocket_write_handler handler)
+static void handle_write(struct cio_buffered_stream *bs, void *handler_context, const struct cio_write_buffer *buffer, enum cio_error err)
 {
-	(void)ws;
-	(void)buffer;
-	(void)last_frame;
-	(void)handler;
+	(void)bs;
+	struct cio_websocket *ws = (struct cio_websocket *)handler_context;
+	ws->write_handler(ws, ws->write_handler_context, buffer, err);
 }
 
-static void write_text_frame(const struct cio_websocket *ws, struct cio_write_buffer *buffer, bool last_frame, cio_websocket_write_handler handler)
+static void write_binary_frame(struct cio_websocket *ws, struct cio_write_buffer *payload, bool last_frame, cio_websocket_write_handler handler, void *handler_context)
 {
-	(void)ws;
-	(void)buffer;
 	(void)last_frame;
-	(void)handler;
+	ws->write_handler = handler;
+	ws->write_handler_context = handler_context;
+	send_frame(ws, payload, CIO_WEBSOCKET_BINARY_FRAME, handle_write);
+}
+
+static void write_text_frame(struct cio_websocket *ws, struct cio_write_buffer *payload, bool last_frame, cio_websocket_write_handler handler, void *handler_context)
+{
+	(void)last_frame;
+	ws->write_handler = handler;
+	ws->write_handler_context = handler_context;
+
+	send_frame(ws, payload, CIO_WEBSOCKET_TEXT_FRAME, handle_write);
 }
 
 void cio_websocket_init(struct cio_websocket *ws, bool is_server, cio_websocket_close_hook close_hook)
