@@ -58,6 +58,17 @@ static void free_websocket_handler(struct cio_http_location_handler *handler)
 
 static void onconnect_handler(struct cio_websocket *ws)
 {
+	(void)ws;
+	fprintf(stdout, "Websocket connected!\n");
+}
+
+static void ontextframe_received(struct cio_websocket *ws, char *data, size_t length, bool last_frame)
+{
+	(void)last_frame;
+	fprintf(stdout, "Got text message (last frame: %s):", last_frame ? "true" : "false");
+	fwrite(data, (size_t)length, 1, stdout);
+	fflush(stdout);
+	fprintf(stdout, "\n");
 	ws->close(ws, CIO_WEBSOCKET_CLOSE_NORMAL);
 }
 
@@ -71,6 +82,7 @@ static struct cio_http_location_handler *alloc_websocket_handler(const void *con
 		static const char *subprotocols[2] = {"echo", "jet"};
 		cio_websocket_location_handler_init(&handler->ws_handler, subprotocols, ARRAY_SIZE(subprotocols));
 		handler->ws_handler.websocket.onconnect_handler = onconnect_handler;
+		handler->ws_handler.websocket.ontextframe_received = ontextframe_received;
 		handler->ws_handler.http_location.free = free_websocket_handler;
 		return &handler->ws_handler.http_location;
 	}
