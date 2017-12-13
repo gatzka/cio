@@ -32,5 +32,7 @@ HardenedProduct {
   Depends { name: "unity" }
   Depends { name: "fake-function-framework" }
   cpp.cLanguageVersion: "c11"
+  cpp.treatWarningsAsErrors: true
+  cpp.warningLevel: "all"
 }
 

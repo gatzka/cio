@@ -76,7 +76,7 @@ static void write_complete(struct cio_websocket *ws, void *handler_context, cons
 
 	static const char *close_message = "Good Bye!";
 	cio_write_buffer_head_init(&eh->wbh);
-	cio_write_buffer_element_init(&eh->wb_message, close_message, strlen(close_message));
+	cio_write_buffer_const_element_init(&eh->wb_message, close_message, strlen(close_message));
 	cio_write_buffer_queue_tail(&eh->wbh, &eh->wb_message);
 	ws->close(ws, CIO_WEBSOCKET_CLOSE_NORMAL, &eh->wbh);
 }
@@ -93,7 +93,7 @@ static void ontextframe_received(struct cio_websocket *ws, char *data, size_t le
 
 	static const char *text_message = "Hello World!";
 	cio_write_buffer_head_init(&eh->wbh);
-	cio_write_buffer_element_init(&eh->wb_message, text_message, strlen(text_message));
+	cio_write_buffer_const_element_init(&eh->wb_message, text_message, strlen(text_message));
 	cio_write_buffer_queue_tail(&eh->wbh, &eh->wb_message);
 	ws->write_text_frame(ws, &eh->wbh, true, write_complete, NULL);
 }

@@ -269,7 +269,7 @@ static void handle_write(struct cio_io_stream *io_stream, void *handler_context,
 
 			const void *new_data = &((const uint8_t *)wb->data.element.const_data)[bytes_transferred];
 			size_t new_length = wb->data.element.length - bytes_transferred;
-			cio_write_buffer_element_init(&bs->wb, new_data, new_length);
+			cio_write_buffer_const_element_init(&bs->wb, new_data, new_length);
 			cio_write_buffer_queue_head(&bs->wbh, &bs->wb);
 			bytes_transferred = 0;
 		} else {

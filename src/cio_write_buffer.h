@@ -253,18 +253,24 @@ static inline void cio_write_buffer_head_init(struct cio_write_buffer *wbh)
 }
 
 /**
- * @brief Initializes a write buffer element.
+ * @brief Initializes a write buffer element with const data.
  * @param wbe The write buffer element to be initialized.
  * @param data A pointer to the data the write buffer element shall be handled.
  * @param length The length in bytes of @p data.
  */
-static inline void cio_write_buffer_element_init(struct cio_write_buffer *wbe, const void *data, size_t length)
+static inline void cio_write_buffer_const_element_init(struct cio_write_buffer *wbe, const void *data, size_t length)
 {
 	wbe->data.element.const_data = data;
 	wbe->data.element.length = length;
 }
 
-static inline void cio_write_buffer_const_element_init(struct cio_write_buffer *wbe, void *data, size_t length)
+/**
+ * @brief Initializes a write buffer element with non-const data.
+ * @param wbe The write buffer element to be initialized.
+ * @param data A pointer to the data the write buffer element shall be handled.
+ * @param length The length in bytes of @p data.
+ */
+static inline void cio_write_buffer_element_init(struct cio_write_buffer *wbe, void *data, size_t length)
 {
 	wbe->data.element.data = data;
 	wbe->data.element.length = length;
