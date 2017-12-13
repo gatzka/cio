@@ -35,6 +35,7 @@ extern "C" {
 #include <stdint.h>
 
 #include "cio_buffered_stream.h"
+#include "cio_error_code.h"
 #include "cio_eventloop.h"
 #include "cio_timer.h"
 #include "cio_write_buffer.h"
@@ -79,8 +80,10 @@ struct cio_websocket {
 	 * @param ws The websocket to be closed.
 	 * @param status The @ref cio_websocket_status_code "websocket status code" to be sent.
 	 * @param reason A buffer which contains the reason for the close in an UTF8 encoded string. Could be @c NULL if no reason should be sent.
+	 *
+	 * @return ::CIO_SUCCESS for success, ::CIO_MESSAGE_TOO_LONG if length of @p reason exceeds a small websocket frame.
 	 */
-	void (*close)(struct cio_websocket *ws, enum cio_websocket_status_code status, struct cio_write_buffer *reason);
+	enum cio_error (*close)(struct cio_websocket *ws, enum cio_websocket_status_code status, struct cio_write_buffer *reason);
 
 	void (*onconnect_handler)(struct cio_websocket *ws);
 
