@@ -94,12 +94,12 @@ static void timer_read(void *context)
 			t->handler(t, t->handler_context, (enum cio_error)errno);
 		}
 	} else {
+		timer_handler handler = t->handler;
+		t->handler = NULL;
 		if (likely(ret == sizeof(number_of_expirations))) {
-			timer_handler handler = t->handler;
-			t->handler = NULL;
 			handler(t, t->handler_context, CIO_SUCCESS);
 		} else {
-			t->handler(t, t->handler_context, CIO_NOT_ENOUGH_MEMORY);
+			handler(t, t->handler_context, CIO_NOT_ENOUGH_MEMORY);
 		}
 	}
 }
