@@ -33,6 +33,7 @@
 #include "cio_eventloop.h"
 #include "cio_http_location_handler.h"
 #include "cio_http_server.h"
+#include "cio_timer.h"
 #include "cio_write_buffer.h"
 #include "cio_websocket_location_handler.h"
 #include "cio_util.h"
@@ -46,24 +47,79 @@ static struct cio_eventloop loop;
 static const size_t read_buffer_size = 2000;
 
 static const uint64_t read_timeout = UINT64_C(5) * UINT64_C(1000) * UINT64_C(1000) * UINT64_C(1000);
-
+static const uint64_t ping_period_ns = UINT64_C(1) * UINT64_C(1000) * UINT64_C(1000) * UINT64_C(1000);
 
 struct ws_echo_handler {
 	struct cio_websocket_location_handler ws_handler;
 	struct cio_write_buffer wbh;
 	struct cio_write_buffer wb_message;
+	struct cio_write_buffer wb_ping_message;
+	struct cio_timer ping_timer;
 };
 
 static void free_websocket_handler(struct cio_http_location_handler *handler)
 {
 	struct ws_echo_handler *h = container_of(handler, struct ws_echo_handler, ws_handler);
+	h->ping_timer.close(&h->ping_timer);
 	free(h);
+}
+
+static void send_ping(struct cio_timer *timer, void *handler_context, enum cio_error err);
+
+static void ping_written(struct cio_websocket *ws, void *handler_context, const struct cio_write_buffer *buffer, enum cio_error err)
+{
+	(void)buffer;
+	if (err != CIO_SUCCESS) {
+		fprintf(stderr, "writing ping frame failed!\n");
+		ws->close(ws, CIO_WEBSOCKET_CLOSE_INTERNAL_ERROR, NULL);
+	} else {
+		struct cio_timer *timer = (struct cio_timer *)handler_context;
+		err = timer->expires_from_now(timer, ping_period_ns, send_ping, ws);
+		if (err != CIO_SUCCESS) {
+			fprintf(stderr, "Could not start ping timer!\n");
+			ws->close(ws, CIO_WEBSOCKET_CLOSE_NORMAL, NULL);
+		}
+	}
+}
+
+static void send_ping(struct cio_timer *timer, void *handler_context, enum cio_error err)
+{
+	struct cio_websocket *ws = (struct cio_websocket *)handler_context;
+	if (err == CIO_SUCCESS) {
+		fprintf(stdout, "Sending ping!\n");
+
+		struct cio_websocket_location_handler *handler = container_of(ws, struct cio_websocket_location_handler, websocket);
+		struct ws_echo_handler *eh = container_of(handler, struct ws_echo_handler, ws_handler);
+
+		struct cio_write_buffer wbh;
+		cio_write_buffer_head_init(&wbh);
+		static const char *ping_message = "ping";
+		cio_write_buffer_const_element_init(&eh->wb_ping_message, ping_message, strlen(ping_message));
+		cio_write_buffer_queue_head(&wbh, &eh->wb_ping_message);
+		ws->write_ping_frame(ws, &wbh, ping_written, timer);
+	} else if (err != CIO_OPERATION_ABORTED){
+		fprintf(stderr, "ping timer failed!\n");
+		ws->close(ws, CIO_WEBSOCKET_CLOSE_INTERNAL_ERROR, NULL);
+	}
 }
 
 static void onconnect_handler(struct cio_websocket *ws)
 {
-	(void)ws;
 	fprintf(stdout, "Websocket connected!\n");
+
+	struct cio_websocket_location_handler *handler = container_of(ws, struct cio_websocket_location_handler, websocket);
+	struct ws_echo_handler *eh = container_of(handler, struct ws_echo_handler, ws_handler);
+	enum cio_error err = cio_timer_init(&eh->ping_timer, &loop, NULL);
+	if (err != CIO_SUCCESS) {
+		fprintf(stderr, "Could not initialize ping timer!\n");
+		ws->close(ws, CIO_WEBSOCKET_CLOSE_NORMAL, NULL);
+	}
+
+	err = eh->ping_timer.expires_from_now(&eh->ping_timer, ping_period_ns, send_ping, ws);
+	if (err != CIO_SUCCESS) {
+		fprintf(stderr, "Could not start ping timer!\n");
+		ws->close(ws, CIO_WEBSOCKET_CLOSE_NORMAL, NULL);
+	}
 }
 
 static void write_complete(struct cio_websocket *ws, void *handler_context, const struct cio_write_buffer *buffer, enum cio_error err)
@@ -78,7 +134,6 @@ static void write_complete(struct cio_websocket *ws, void *handler_context, cons
 	cio_write_buffer_head_init(&eh->wbh);
 	cio_write_buffer_const_element_init(&eh->wb_message, close_message, strlen(close_message));
 	cio_write_buffer_queue_tail(&eh->wbh, &eh->wb_message);
-	ws->close(ws, CIO_WEBSOCKET_CLOSE_NORMAL, &eh->wbh);
 }
 
 static void ontextframe_received(struct cio_websocket *ws, char *data, size_t length, bool last_frame)
@@ -98,6 +153,18 @@ static void ontextframe_received(struct cio_websocket *ws, char *data, size_t le
 	ws->write_text_frame(ws, &eh->wbh, true, write_complete, NULL);
 }
 
+static void onpong(struct cio_websocket *ws, uint8_t *data, size_t length)
+{
+	(void)ws;
+	fprintf(stdout, "Got pong message: ");
+	if (length > 0) {
+		fwrite(data, length, 1, stdout);
+		fflush(stdout);
+	}
+
+	fprintf(stdout, "\n");
+}
+
 static struct cio_http_location_handler *alloc_websocket_handler(const void *config)
 {
 	(void)config;
@@ -108,7 +175,8 @@ static struct cio_http_location_handler *alloc_websocket_handler(const void *con
 		static const char *subprotocols[2] = {"echo", "jet"};
 		cio_websocket_location_handler_init(&handler->ws_handler, subprotocols, ARRAY_SIZE(subprotocols));
 		handler->ws_handler.websocket.onconnect_handler = onconnect_handler;
-		handler->ws_handler.websocket.ontextframe_received = ontextframe_received;
+		handler->ws_handler.websocket.ontextframe = ontextframe_received;
+		handler->ws_handler.websocket.onpong = onpong;
 		handler->ws_handler.http_location.free = free_websocket_handler;
 		return &handler->ws_handler.http_location;
 	}

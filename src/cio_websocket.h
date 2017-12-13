@@ -87,8 +87,8 @@ struct cio_websocket {
 
 	void (*onconnect_handler)(struct cio_websocket *ws);
 
-	void (*onbinaryframe_received)(struct cio_websocket *ws, uint8_t *data, size_t length, bool last_frame);
-	void (*ontextframe_received)(struct cio_websocket *ws, char *data, size_t length, bool last_frame);
+	void (*onbinaryframe)(struct cio_websocket *ws, uint8_t *data, size_t length, bool last_frame);
+	void (*ontextframe)(struct cio_websocket *ws, char *data, size_t length, bool last_frame);
 
 	/**
 	 * @brief A pointer to a function which is called if a ping frame was received.
@@ -137,7 +137,7 @@ struct cio_websocket {
 	 * @param ws The websocket which encountered the error.
 	 * @param status The status code describing the error.
 	 */
-	void (*on_error)(const struct cio_websocket *ws, enum cio_websocket_status_code status);
+	void (*onerror)(const struct cio_websocket *ws, enum cio_websocket_status_code status);
 
 	/**
      * @brief Writes a text frame to the websocket.
@@ -147,6 +147,9 @@ struct cio_websocket {
      * you want to write the same data again, you have to re-initialize the data encapsluated
      * by @p payload. In addition you should ALWAYS intialize the write buffer elements in
      * @p payload using the @ref cio_write_buffer_element_init "non-const initialization function".
+     *
+     * @warning If you call this function consecutively without waiting that @p handler is called,
+     * you should know that @p handler is called only for the last write call!
      *
      * @param payload The payload to be sent.
      * @param last_frame @c true if the is an unfragmented message or the last frame of a
@@ -165,6 +168,9 @@ struct cio_websocket {
      * by @p payload. In addition you should ALWAYS intialize the write buffer elements in
      * @p payload using the @ref cio_write_buffer_element_init "non-const initialization function".
      *
+     * @warning If you call this function consecutively without waiting that @p handler is called,
+     * you should know that @p handler is called only for the last write call!
+     *
      * @param payload The payload to be sent.
      * @param last_frame @c true if the is an unfragmented message or the last frame of a
      * fragmented message, @c false otherwise.
@@ -172,6 +178,8 @@ struct cio_websocket {
      * @param handler_context A context pointer given to @p handler when called.
      */
 	void (*write_binary_frame)(struct cio_websocket *ws, struct cio_write_buffer *payload, bool last_frame, cio_websocket_write_handler handler, void *handler_context);
+
+	enum cio_error (*write_ping_frame)(struct cio_websocket *ws, struct cio_write_buffer *payload, cio_websocket_write_handler handler, void *handler_context);
 
 	/*! @cond PRIVATE */
 	uint64_t read_frame_length;
@@ -192,6 +200,9 @@ struct cio_websocket {
 
 	cio_websocket_write_handler write_handler;
 	void *write_handler_context;
+
+	cio_websocket_write_handler write_ping_handler;
+	void *write_ping_handler_context;
 
 	struct cio_buffered_stream *bs;
 	struct cio_read_buffer *rb;

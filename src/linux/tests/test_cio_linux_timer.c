@@ -52,7 +52,7 @@ FAKE_VALUE_FUNC(int, close, int)
 void on_close(struct cio_timer *timer);
 FAKE_VOID_FUNC(on_close, struct cio_timer *)
 
-void handle_timeout(struct cio_timer *context, void *handler_context, enum cio_error err);
+void handle_timeout(struct cio_timer *timer, void *handler_context, enum cio_error err);
 FAKE_VOID_FUNC(handle_timeout, struct cio_timer *, void *, enum cio_error)
 
 #ifndef ARRAY_SIZE
@@ -116,6 +116,20 @@ static ssize_t read_not_enough(int fd, void *buf, size_t count)
 	(void)count;
 
 	return 3;
+}
+
+static void close_in_timeout(struct cio_timer *timer, void *handler_context, enum cio_error err)
+{
+	(void)handler_context;
+	(void)err;
+	timer->close(timer);
+}
+
+static void cancel_in_timeout(struct cio_timer *timer, void *handler_context, enum cio_error err)
+{
+	(void)handler_context;
+	err = timer->cancel(timer);
+	TEST_ASSERT_EQUAL_MESSAGE(err, CIO_NO_SUCH_FILE_OR_DIRECTORY, "Cancel in timer callback did not returned an error!");
 }
 
 void setUp(void)
@@ -347,6 +361,45 @@ static void test_arming_success(void)
 	TEST_ASSERT_EQUAL(&timer, handle_timeout_fake.arg0_val);
 }
 
+static void test_close_in_callback(void)
+{
+	static const int timerfd = 5;
+	timerfd_create_fake.return_val = timerfd;
+	read_fake.return_val = sizeof(uint64_t);
+
+	handle_timeout_fake.custom_fake = close_in_timeout;
+	struct cio_timer timer;
+	enum cio_error err = cio_timer_init(&timer, NULL, NULL);
+	TEST_ASSERT_EQUAL(CIO_SUCCESS, err);
+
+	timer.expires_from_now(&timer, 2000, handle_timeout, NULL);
+
+	TEST_ASSERT_EQUAL(1, handle_timeout_fake.call_count);
+	TEST_ASSERT(handle_timeout_fake.arg2_val == CIO_SUCCESS);
+	TEST_ASSERT_EQUAL(&timer, handle_timeout_fake.arg0_val);
+
+	TEST_ASSERT_EQUAL(1, close_fake.call_count);
+	TEST_ASSERT_EQUAL(timerfd, close_fake.arg0_val);
+}
+
+static void test_cancel_in_callback(void)
+{
+	static const int timerfd = 5;
+	timerfd_create_fake.return_val = timerfd;
+	read_fake.return_val = sizeof(uint64_t);
+
+	handle_timeout_fake.custom_fake = cancel_in_timeout;
+	struct cio_timer timer;
+	enum cio_error err = cio_timer_init(&timer, NULL, NULL);
+	TEST_ASSERT_EQUAL(CIO_SUCCESS, err);
+
+	timer.expires_from_now(&timer, 2000, handle_timeout, NULL);
+
+	TEST_ASSERT_EQUAL(1, handle_timeout_fake.call_count);
+	TEST_ASSERT(handle_timeout_fake.arg2_val == CIO_SUCCESS);
+	TEST_ASSERT_EQUAL(&timer, handle_timeout_fake.arg0_val);
+}
+
 int main(void)
 {
 	UNITY_BEGIN();
@@ -363,5 +416,7 @@ int main(void)
 	RUN_TEST(test_arming_read_fails);
 	RUN_TEST(test_arming_read_not_enough);
 	RUN_TEST(test_arming_success);
+	RUN_TEST(test_close_in_callback);
+	RUN_TEST(test_cancel_in_callback);
 	return UNITY_END();
 }
