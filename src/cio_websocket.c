@@ -222,6 +222,7 @@ static int handle_close_frame(struct cio_websocket *ws, uint8_t *data, uint64_t 
 		length -= sizeof(status_code);
 		reason = (const char *)&data[sizeof(status_code)];
 	} else {
+		length = 0;
 		reason = NULL;
 	}
 
@@ -233,9 +234,17 @@ static int handle_close_frame(struct cio_websocket *ws, uint8_t *data, uint64_t 
 			ws->onclose(ws, (enum cio_websocket_status_code)status_code, reason, length);
 		}
 
-		// TODO: memcpy reason and use it in send_close_frame
+		if (length > 0) {
+			memcpy(ws->received_control_frame, &data[sizeof(status_code)], length);
+			struct cio_write_buffer wbh;
+			cio_write_buffer_head_init(&wbh);
+			cio_write_buffer_element_init(&ws->wb_control_data, ws->received_control_frame, length);
+			cio_write_buffer_queue_tail(&wbh, &ws->wb_control_data);
+			send_close_frame(ws, (enum cio_websocket_status_code)status_code, &wbh);
+		} else {
+			send_close_frame(ws, (enum cio_websocket_status_code)status_code, NULL);
+		}
 
-		send_close_frame(ws, (enum cio_websocket_status_code)status_code, NULL);
 		return 0;
 	}
 }

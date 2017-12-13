@@ -195,6 +195,7 @@ struct cio_websocket {
 	struct cio_write_buffer wbh;
 	struct cio_write_buffer wb_send_header;
 	struct cio_write_buffer wb_close_status;
+	struct cio_write_buffer wb_control_data;
 	struct cio_timer close_timer;
 	cio_websocket_close_hook close_hook;
 	uint8_t mask[4];
