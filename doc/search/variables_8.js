@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['length',['length',['../structcio__const__write__buffer.html#aef53b10d8e82d40e66564039c6c87dbb',1,'cio_const_write_buffer']]]
+  ['length',['length',['../structcio__write__buffer.html#ada5b2211a3ee640baf15abdae9be2d7a',1,'cio_write_buffer']]]
 ];

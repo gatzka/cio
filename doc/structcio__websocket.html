@@ -23,7 +23,7 @@
  <tr style="height: 56px;">
   <td style="padding-left: 0.5em;">
    <div id="projectname">ANSI C I/O Library
-   &#160;<span id="projectnumber">0.0.1-776+a7fd115</span>
+   &#160;<span id="projectnumber">0.0.1-779+c23a399</span>
    </div>
   </td>
  </tr>
@@ -92,9 +92,9 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-attribs"></a>
 Data Fields</h2></td></tr>
-<tr class="memitem:adc8dcb65e3135d2c4a24cb0b859c05ea"><td class="memItemLeft" align="right" valign="top">void(*&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structcio__websocket.html#adc8dcb65e3135d2c4a24cb0b859c05ea">close</a> )(struct <a class="el" href="structcio__websocket.html">cio_websocket</a> *ws, enum <a class="el" href="cio__websocket_8h.html#aa24c9894ba2ee9dc5b0ebbc1c8809701">cio_websocket_status_code</a> status, struct <a class="el" href="structcio__const__write__buffer.html">cio_const_write_buffer</a> *reason)</td></tr>
-<tr class="memdesc:adc8dcb65e3135d2c4a24cb0b859c05ea"><td class="mdescLeft">&#160;</td><td class="mdescRight">Closes a websocket.  <a href="#adc8dcb65e3135d2c4a24cb0b859c05ea">More...</a><br/></td></tr>
-<tr class="separator:adc8dcb65e3135d2c4a24cb0b859c05ea"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae6dbb44a49564eb969656059189885c9"><td class="memItemLeft" align="right" valign="top">void(*&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structcio__websocket.html#ae6dbb44a49564eb969656059189885c9">close</a> )(struct <a class="el" href="structcio__websocket.html">cio_websocket</a> *ws, enum <a class="el" href="cio__websocket_8h.html#aa24c9894ba2ee9dc5b0ebbc1c8809701">cio_websocket_status_code</a> status, struct <a class="el" href="structcio__write__buffer.html">cio_write_buffer</a> *reason)</td></tr>
+<tr class="memdesc:ae6dbb44a49564eb969656059189885c9"><td class="mdescLeft">&#160;</td><td class="mdescRight">Closes a websocket.  <a href="#ae6dbb44a49564eb969656059189885c9">More...</a><br/></td></tr>
+<tr class="separator:ae6dbb44a49564eb969656059189885c9"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ae2a56e0594ccb894e9fd57910f737fcd"><td class="memItemLeft" align="right" valign="top">void(*&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structcio__websocket.html#ae2a56e0594ccb894e9fd57910f737fcd">onconnect_handler</a> )(struct <a class="el" href="structcio__websocket.html">cio_websocket</a> *ws)</td></tr>
 <tr class="separator:ae2a56e0594ccb894e9fd57910f737fcd"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a0636f6d664819ae0786673af45bf3b21"><td class="memItemLeft" align="right" valign="top">void(*&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structcio__websocket.html#a0636f6d664819ae0786673af45bf3b21">onbinaryframe_received</a> )(struct <a class="el" href="structcio__websocket.html">cio_websocket</a> *ws, uint8_t *data, size_t length, bool last_frame)</td></tr>
@@ -113,20 +113,20 @@ Data Fields</h2></td></tr>
 <tr class="memitem:adb84b442e77b1b872b3f94b5ad8c3b72"><td class="memItemLeft" align="right" valign="top">void(*&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structcio__websocket.html#adb84b442e77b1b872b3f94b5ad8c3b72">on_error</a> )(const struct <a class="el" href="structcio__websocket.html">cio_websocket</a> *ws, enum <a class="el" href="cio__websocket_8h.html#aa24c9894ba2ee9dc5b0ebbc1c8809701">cio_websocket_status_code</a> status)</td></tr>
 <tr class="memdesc:adb84b442e77b1b872b3f94b5ad8c3b72"><td class="mdescLeft">&#160;</td><td class="mdescRight">A pointer to a function which is called if a receive error occurred.  <a href="#adb84b442e77b1b872b3f94b5ad8c3b72">More...</a><br/></td></tr>
 <tr class="separator:adb84b442e77b1b872b3f94b5ad8c3b72"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a0118d62d5893ab07776d7147b6f87d61"><td class="memItemLeft" align="right" valign="top">void(*&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structcio__websocket.html#a0118d62d5893ab07776d7147b6f87d61">write_text_frame</a> )(struct <a class="el" href="structcio__websocket.html">cio_websocket</a> *ws, struct <a class="el" href="structcio__const__write__buffer.html">cio_const_write_buffer</a> *payload, bool last_frame, <a class="el" href="cio__websocket_8h.html#ab6225888741b68e929d6f43b8d841765">cio_websocket_write_handler</a> handler, void *handler_context)</td></tr>
-<tr class="memdesc:a0118d62d5893ab07776d7147b6f87d61"><td class="mdescLeft">&#160;</td><td class="mdescRight">Writes a text frame to the websocket.  <a href="#a0118d62d5893ab07776d7147b6f87d61">More...</a><br/></td></tr>
-<tr class="separator:a0118d62d5893ab07776d7147b6f87d61"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a4445db7e9452217afed20de5aa10a926"><td class="memItemLeft" align="right" valign="top">void(*&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structcio__websocket.html#a4445db7e9452217afed20de5aa10a926">write_binary_frame</a> )(struct <a class="el" href="structcio__websocket.html">cio_websocket</a> *ws, struct <a class="el" href="structcio__const__write__buffer.html">cio_const_write_buffer</a> *payload, bool last_frame, <a class="el" href="cio__websocket_8h.html#ab6225888741b68e929d6f43b8d841765">cio_websocket_write_handler</a> handler, void *handler_context)</td></tr>
-<tr class="memdesc:a4445db7e9452217afed20de5aa10a926"><td class="mdescLeft">&#160;</td><td class="mdescRight">Writes a binary frame to the websocket.  <a href="#a4445db7e9452217afed20de5aa10a926">More...</a><br/></td></tr>
-<tr class="separator:a4445db7e9452217afed20de5aa10a926"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a26a22c890fa7fa4f06564a9fa1ec792d"><td class="memItemLeft" align="right" valign="top">void(*&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structcio__websocket.html#a26a22c890fa7fa4f06564a9fa1ec792d">write_text_frame</a> )(struct <a class="el" href="structcio__websocket.html">cio_websocket</a> *ws, struct <a class="el" href="structcio__write__buffer.html">cio_write_buffer</a> *payload, bool last_frame, <a class="el" href="cio__websocket_8h.html#ab93857c98cee5759dadf1b263ae8a557">cio_websocket_write_handler</a> handler, void *handler_context)</td></tr>
+<tr class="memdesc:a26a22c890fa7fa4f06564a9fa1ec792d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Writes a text frame to the websocket.  <a href="#a26a22c890fa7fa4f06564a9fa1ec792d">More...</a><br/></td></tr>
+<tr class="separator:a26a22c890fa7fa4f06564a9fa1ec792d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa1ec1dcfb77208e26ca5449eb4747232"><td class="memItemLeft" align="right" valign="top">void(*&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structcio__websocket.html#aa1ec1dcfb77208e26ca5449eb4747232">write_binary_frame</a> )(struct <a class="el" href="structcio__websocket.html">cio_websocket</a> *ws, struct <a class="el" href="structcio__write__buffer.html">cio_write_buffer</a> *payload, bool last_frame, <a class="el" href="cio__websocket_8h.html#ab93857c98cee5759dadf1b263ae8a557">cio_websocket_write_handler</a> handler, void *handler_context)</td></tr>
+<tr class="memdesc:aa1ec1dcfb77208e26ca5449eb4747232"><td class="mdescLeft">&#160;</td><td class="mdescRight">Writes a binary frame to the websocket.  <a href="#aa1ec1dcfb77208e26ca5449eb4747232">More...</a><br/></td></tr>
+<tr class="separator:aa1ec1dcfb77208e26ca5449eb4747232"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <h2 class="groupheader">Field Documentation</h2>
-<a class="anchor" id="adc8dcb65e3135d2c4a24cb0b859c05ea"></a>
+<a class="anchor" id="ae6dbb44a49564eb969656059189885c9"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">void(* cio_websocket::close)(struct <a class="el" href="structcio__websocket.html">cio_websocket</a> *ws, enum <a class="el" href="cio__websocket_8h.html#aa24c9894ba2ee9dc5b0ebbc1c8809701">cio_websocket_status_code</a> status, struct <a class="el" href="structcio__const__write__buffer.html">cio_const_write_buffer</a> *reason)</td>
+          <td class="memname">void(* cio_websocket::close)(struct <a class="el" href="structcio__websocket.html">cio_websocket</a> *ws, enum <a class="el" href="cio__websocket_8h.html#aa24c9894ba2ee9dc5b0ebbc1c8809701">cio_websocket_status_code</a> status, struct <a class="el" href="structcio__write__buffer.html">cio_write_buffer</a> *reason)</td>
         </tr>
       </table>
 </div><div class="memdoc">
@@ -271,18 +271,18 @@ Data Fields</h2></td></tr>
 
 </div>
 </div>
-<a class="anchor" id="a0118d62d5893ab07776d7147b6f87d61"></a>
+<a class="anchor" id="a26a22c890fa7fa4f06564a9fa1ec792d"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">void(* cio_websocket::write_text_frame)(struct <a class="el" href="structcio__websocket.html">cio_websocket</a> *ws, struct <a class="el" href="structcio__const__write__buffer.html">cio_const_write_buffer</a> *payload, bool last_frame, <a class="el" href="cio__websocket_8h.html#ab6225888741b68e929d6f43b8d841765">cio_websocket_write_handler</a> handler, void *handler_context)</td>
+          <td class="memname">void(* cio_websocket::write_text_frame)(struct <a class="el" href="structcio__websocket.html">cio_websocket</a> *ws, struct <a class="el" href="structcio__write__buffer.html">cio_write_buffer</a> *payload, bool last_frame, <a class="el" href="cio__websocket_8h.html#ab93857c98cee5759dadf1b263ae8a557">cio_websocket_write_handler</a> handler, void *handler_context)</td>
         </tr>
       </table>
 </div><div class="memdoc">
 
 <p>Writes a text frame to the websocket. </p>
-<dl class="section warning"><dt>Warning</dt><dd>Please note that the data <code>payload</code> encapsulates will be scrambled by the library if this function is uses in a websocket client connection. So if you want to write the same data again, you have to re-initialize the data encapsluated by <code>payload</code>.</dd></dl>
+<dl class="section warning"><dt>Warning</dt><dd>Please note that the data <code>payload</code> encapsulates will be scrambled by the library if this function is used in a websocket client connection. So if you want to write the same data again, you have to re-initialize the data encapsluated by <code>payload</code>. In addition you should ALWAYS intialize the write buffer elements in <code>payload</code> using the <a class="el" href="cio__write__buffer_8h.html#a6ad781e6c624d301aaf007ce554b501b">non-const initialization function</a>.</dd></dl>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">payload</td><td>The payload to be sent. </td></tr>
@@ -295,18 +295,18 @@ Data Fields</h2></td></tr>
 
 </div>
 </div>
-<a class="anchor" id="a4445db7e9452217afed20de5aa10a926"></a>
+<a class="anchor" id="aa1ec1dcfb77208e26ca5449eb4747232"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">void(* cio_websocket::write_binary_frame)(struct <a class="el" href="structcio__websocket.html">cio_websocket</a> *ws, struct <a class="el" href="structcio__const__write__buffer.html">cio_const_write_buffer</a> *payload, bool last_frame, <a class="el" href="cio__websocket_8h.html#ab6225888741b68e929d6f43b8d841765">cio_websocket_write_handler</a> handler, void *handler_context)</td>
+          <td class="memname">void(* cio_websocket::write_binary_frame)(struct <a class="el" href="structcio__websocket.html">cio_websocket</a> *ws, struct <a class="el" href="structcio__write__buffer.html">cio_write_buffer</a> *payload, bool last_frame, <a class="el" href="cio__websocket_8h.html#ab93857c98cee5759dadf1b263ae8a557">cio_websocket_write_handler</a> handler, void *handler_context)</td>
         </tr>
       </table>
 </div><div class="memdoc">
 
 <p>Writes a binary frame to the websocket. </p>
-<dl class="section warning"><dt>Warning</dt><dd>Please note that the data <code>payload</code> encapsulates will be scrambled by the library if this function is uses in a websocket client connection. So if you want to write the same data again, you have to re-initialize the data encapsluated by <code>payload</code>.</dd></dl>
+<dl class="section warning"><dt>Warning</dt><dd>Please note that the data <code>payload</code> encapsulates will be scrambled by the library if this function is used in a websocket client connection. So if you want to write the same data again, you have to re-initialize the data encapsluated by <code>payload</code>. In addition you should ALWAYS intialize the write buffer elements in <code>payload</code> using the <a class="el" href="cio__write__buffer_8h.html#a6ad781e6c624d301aaf007ce554b501b">non-const initialization function</a>.</dd></dl>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">payload</td><td>The payload to be sent. </td></tr>
