@@ -135,9 +135,10 @@ struct cio_websocket {
      * @brief Writes a text frame to the websocket.
      *
      * @warning Please note that the data @p payload encapsulates will be scrambled by
-     * the library if this function is uses in a websocket client connection. So if
+     * the library if this function is used in a websocket client connection. So if
      * you want to write the same data again, you have to re-initialize the data encapsluated
-     * by @p payload.
+     * by @p payload. In addition you should ALWAYS intialize the write buffer elements in
+     * @p payload using the @ref cio_write_buffer_element_init "non-const initialization function".
      *
      * @param payload The payload to be sent.
      * @param last_frame @c true if the is an unfragmented message or the last frame of a
@@ -151,9 +152,10 @@ struct cio_websocket {
      * @brief Writes a binary frame to the websocket.
      *
      * @warning Please note that the data @p payload encapsulates will be scrambled by
-     * the library if this function is uses in a websocket client connection. So if
+     * the library if this function is used in a websocket client connection. So if
      * you want to write the same data again, you have to re-initialize the data encapsluated
-     * by @p payload.
+     * by @p payload. In addition you should ALWAYS intialize the write buffer elements in
+     * @p payload using the @ref cio_write_buffer_element_init "non-const initialization function".
      *
      * @param payload The payload to be sent.
      * @param last_frame @c true if the is an unfragmented message or the last frame of a
