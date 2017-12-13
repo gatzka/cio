@@ -23,7 +23,7 @@
  <tr style="height: 56px;">
   <td style="padding-left: 0.5em;">
    <div id="projectname">ANSI C I/O Library
-   &#160;<span id="projectnumber">0.0.1-781+3099aa1</span>
+   &#160;<span id="projectnumber">0.0.1-782+722e43c</span>
    </div>
   </td>
  </tr>
@@ -92,9 +92,9 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-attribs"></a>
 Data Fields</h2></td></tr>
-<tr class="memitem:ae6dbb44a49564eb969656059189885c9"><td class="memItemLeft" align="right" valign="top">void(*&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structcio__websocket.html#ae6dbb44a49564eb969656059189885c9">close</a> )(struct <a class="el" href="structcio__websocket.html">cio_websocket</a> *ws, enum <a class="el" href="cio__websocket_8h.html#aa24c9894ba2ee9dc5b0ebbc1c8809701">cio_websocket_status_code</a> status, struct <a class="el" href="structcio__write__buffer.html">cio_write_buffer</a> *reason)</td></tr>
-<tr class="memdesc:ae6dbb44a49564eb969656059189885c9"><td class="mdescLeft">&#160;</td><td class="mdescRight">Closes a websocket.  <a href="#ae6dbb44a49564eb969656059189885c9">More...</a><br/></td></tr>
-<tr class="separator:ae6dbb44a49564eb969656059189885c9"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a49e194416baecdb81802b2af15a266d8"><td class="memItemLeft" align="right" valign="top">enum <a class="el" href="cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afe">cio_error</a>(*&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structcio__websocket.html#a49e194416baecdb81802b2af15a266d8">close</a> )(struct <a class="el" href="structcio__websocket.html">cio_websocket</a> *ws, enum <a class="el" href="cio__websocket_8h.html#aa24c9894ba2ee9dc5b0ebbc1c8809701">cio_websocket_status_code</a> status, struct <a class="el" href="structcio__write__buffer.html">cio_write_buffer</a> *reason)</td></tr>
+<tr class="memdesc:a49e194416baecdb81802b2af15a266d8"><td class="mdescLeft">&#160;</td><td class="mdescRight">Closes a websocket.  <a href="#a49e194416baecdb81802b2af15a266d8">More...</a><br/></td></tr>
+<tr class="separator:a49e194416baecdb81802b2af15a266d8"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ae2a56e0594ccb894e9fd57910f737fcd"><td class="memItemLeft" align="right" valign="top">void(*&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structcio__websocket.html#ae2a56e0594ccb894e9fd57910f737fcd">onconnect_handler</a> )(struct <a class="el" href="structcio__websocket.html">cio_websocket</a> *ws)</td></tr>
 <tr class="separator:ae2a56e0594ccb894e9fd57910f737fcd"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a0636f6d664819ae0786673af45bf3b21"><td class="memItemLeft" align="right" valign="top">void(*&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structcio__websocket.html#a0636f6d664819ae0786673af45bf3b21">onbinaryframe_received</a> )(struct <a class="el" href="structcio__websocket.html">cio_websocket</a> *ws, uint8_t *data, size_t length, bool last_frame)</td></tr>
@@ -121,12 +121,12 @@ Data Fields</h2></td></tr>
 <tr class="separator:aa1ec1dcfb77208e26ca5449eb4747232"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <h2 class="groupheader">Field Documentation</h2>
-<a class="anchor" id="ae6dbb44a49564eb969656059189885c9"></a>
+<a class="anchor" id="a49e194416baecdb81802b2af15a266d8"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">void(* cio_websocket::close)(struct <a class="el" href="structcio__websocket.html">cio_websocket</a> *ws, enum <a class="el" href="cio__websocket_8h.html#aa24c9894ba2ee9dc5b0ebbc1c8809701">cio_websocket_status_code</a> status, struct <a class="el" href="structcio__write__buffer.html">cio_write_buffer</a> *reason)</td>
+          <td class="memname">enum <a class="el" href="cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afe">cio_error</a>(* cio_websocket::close)(struct <a class="el" href="structcio__websocket.html">cio_websocket</a> *ws, enum <a class="el" href="cio__websocket_8h.html#aa24c9894ba2ee9dc5b0ebbc1c8809701">cio_websocket_status_code</a> status, struct <a class="el" href="structcio__write__buffer.html">cio_write_buffer</a> *reason)</td>
         </tr>
       </table>
 </div><div class="memdoc">
@@ -138,10 +138,11 @@ Data Fields</h2></td></tr>
   <table class="params">
     <tr><td class="paramname">ws</td><td>The websocket to be closed. </td></tr>
     <tr><td class="paramname">status</td><td>The <a class="el" href="cio__websocket_8h.html#aa24c9894ba2ee9dc5b0ebbc1c8809701">websocket status code</a> to be sent. </td></tr>
-    <tr><td class="paramname">reason</td><td>A buffer which contains the reason for the close in an UTF8 encoded string. Could be <code>NULL</code> if no reason should be sent. </td></tr>
+    <tr><td class="paramname">reason</td><td>A buffer which contains the reason for the close in an UTF8 encoded string. Could be <code>NULL</code> if no reason should be sent.</td></tr>
   </table>
   </dd>
 </dl>
+<dl class="section return"><dt>Returns</dt><dd><a class="el" href="cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afea6bb29544c99750c61f70b10a1e17d96a">CIO_SUCCESS</a> for success, <a class="el" href="cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afeac9b795483cae05076b54df12ff247712">CIO_MESSAGE_TOO_LONG</a> if length of <code>reason</code> exceeds a small websocket frame. </dd></dl>
 
 </div>
 </div>
