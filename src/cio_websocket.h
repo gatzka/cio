@@ -71,6 +71,11 @@ struct cio_websocket {
 	 * @anchor cio_websocket_close
 	 * @brief Closes a websocket.
 	 *
+     * @warning Please note that the data @p reason encapsulates will be scrambled by
+     * the library if this function is used in a websocket client connection. You should
+     * ALWAYS intialize the write buffer elements in * @p reason using the
+     * @ref cio_write_buffer_element_init "non-const initialization function".
+	 *
 	 * @param ws The websocket to be closed.
 	 * @param status The @ref cio_websocket_status_code "websocket status code" to be sent.
 	 * @param reason A buffer which contains the reason for the close in an UTF8 encoded string. Could be @c NULL if no reason should be sent.
