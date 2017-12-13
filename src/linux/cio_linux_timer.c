@@ -95,7 +95,9 @@ static void timer_read(void *context)
 		}
 	} else {
 		if (likely(ret == sizeof(number_of_expirations))) {
-			t->handler(t, t->handler_context, CIO_SUCCESS);
+			timer_handler handler = t->handler;
+			t->handler = NULL;
+			handler(t, t->handler_context, CIO_SUCCESS);
 		} else {
 			t->handler(t, t->handler_context, CIO_NOT_ENOUGH_MEMORY);
 		}
