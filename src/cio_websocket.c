@@ -196,7 +196,7 @@ static void handle_text_frame(struct cio_websocket *ws, uint8_t *data, uint64_t 
 
 static int handle_close_frame(struct cio_websocket *ws, uint8_t *data, uint64_t length)
 {
-	if (unlikely((length == 1) || (length > CIO_WEBSOCKET_SMALL_FRAME_SIZE))) {
+	if (unlikely(length == 1)) {
 		//handle_error(s, WS_CLOSE_PROTOCOL_ERROR);
 	}
 
@@ -314,6 +314,10 @@ static void handle_frame(struct cio_websocket *ws, uint8_t *data, uint64_t lengt
 		opcode = ws->ws_flags.opcode;
 	}
 
+	if (((opcode >= CIO_WEBSOCKET_CLOSE_FRAME) && (opcode <= CIO_WEBSOCKET_PONG_FRAME)) && (length > CIO_WEBSOCKET_SMALL_FRAME_SIZE)) {
+			//TODO: handle_error(s, WS_CLOSE_PROTOCOL_ERROR);
+	}
+
 	switch (opcode) {
 	case CIO_WEBSOCKET_BINARY_FRAME:
 		handle_binary_frame(ws, data, length, last_frame);
@@ -324,25 +328,15 @@ static void handle_frame(struct cio_websocket *ws, uint8_t *data, uint64_t lengt
 		break;
 
 	case CIO_WEBSOCKET_PING_FRAME:
-		if (likely(length <= CIO_WEBSOCKET_SMALL_FRAME_SIZE)) {
-			// TODO: send_pong_frame(ws, data, length);
-			// We have to copy the application data because the write send_pong might block
-			if (ws->onping != NULL) {
-				ws->onping(ws, data, length);
-			}
-		} else {
-			//TODO: handle_error(s, WS_CLOSE_PROTOCOL_ERROR);
+		if (ws->onping != NULL) {
+			ws->onping(ws, data, length);
 		}
 
 		break;
 
 	case CIO_WEBSOCKET_PONG_FRAME:
-		if (likely(length <= CIO_WEBSOCKET_SMALL_FRAME_SIZE)) {
-			if (ws->onpong != NULL) {
-				ws->onpong(ws, data, length);
-			}
-		} else {
-			//TODO: handle_error(s, WS_CLOSE_PROTOCOL_ERROR);
+		if (ws->onpong != NULL) {
+			ws->onpong(ws, data, length);
 		}
 
 		break;
