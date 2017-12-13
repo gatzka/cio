@@ -204,7 +204,7 @@ static void handle_text_frame(struct cio_websocket *ws, uint8_t *data, uint64_t 
 	}
 }
 
-static int handle_close_frame(struct cio_websocket *ws, uint8_t *data, uint64_t length)
+static void handle_close_frame(struct cio_websocket *ws, uint8_t *data, uint64_t length)
 {
 	if (unlikely(length == 1)) {
 		//handle_error(s, WS_CLOSE_PROTOCOL_ERROR);
@@ -239,7 +239,6 @@ static int handle_close_frame(struct cio_websocket *ws, uint8_t *data, uint64_t 
 
 	if (ws->ws_flags.self_initiated_close == 1) {
 		ws->close_timer.cancel(&ws->close_timer);
-		return -1;
 	} else {
 		if (ws->onclose != NULL) {
 			ws->onclose(ws, (enum cio_websocket_status_code)status_code, reason, length);
@@ -255,9 +254,6 @@ static int handle_close_frame(struct cio_websocket *ws, uint8_t *data, uint64_t 
 		} else {
 			send_close_frame(ws, (enum cio_websocket_status_code)status_code, NULL);
 		}
-
-		// TODO: eleminate return value???
-		return -1;
 	}
 }
 
@@ -353,12 +349,8 @@ static void handle_frame(struct cio_websocket *ws, uint8_t *data, uint64_t lengt
 		break;
 
 	case CIO_WEBSOCKET_CLOSE_FRAME:
-		if (handle_close_frame(ws, data, length) < 0) {
-			// The struct websocket was closed, don't use it anymore
-			return;
-		}
-
-		break;
+		handle_close_frame(ws, data, length);
+		return;
 
 	default:
 		// TODO: handle_error(s, WS_CLOSE_PROTOCOL_ERROR);
