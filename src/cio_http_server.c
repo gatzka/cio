@@ -104,9 +104,9 @@ static void queue_header(struct cio_http_client *client, enum cio_http_status_co
 {
 	const char *response = get_response_statusline(status_code);
 	cio_write_buffer_head_init(&client->wbh);
-	cio_write_buffer_element_init(&client->wb_http_response_statusline, response, strlen(response));
+	cio_write_buffer_const_element_init(&client->wb_http_response_statusline, response, strlen(response));
 	cio_write_buffer_queue_tail(&client->wbh, &client->wb_http_response_statusline);
-	cio_write_buffer_element_init(&client->wb_http_response_header_end, CIO_CRLF, strlen(CIO_CRLF));
+	cio_write_buffer_const_element_init(&client->wb_http_response_header_end, CIO_CRLF, strlen(CIO_CRLF));
 	cio_write_buffer_queue_tail(&client->wbh, &client->wb_http_response_header_end);
 }
 
