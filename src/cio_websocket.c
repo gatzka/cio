@@ -105,6 +105,10 @@ static void send_frame(struct cio_websocket *ws, struct cio_write_buffer *payloa
 
 static void close(struct cio_websocket *ws)
 {
+	if (ws->ws_flags.self_initiated_close == 1) {
+		ws->close_timer.close(&ws->close_timer);
+	}
+
 	if (ws->close_hook) {
 		ws->close_hook(ws);
 	}
@@ -156,6 +160,8 @@ static void close_timeout_handler(struct cio_timer *timer, void *handler_context
 
 static void send_close_frame(struct cio_websocket *ws, enum cio_websocket_status_code status_code, struct cio_write_buffer *reason)
 {
+	ws->close_status = cio_htobe16(status_code);
+
 	struct cio_write_buffer wbh;
 	cio_write_buffer_head_init(&wbh);
 	cio_write_buffer_queue_tail(&wbh, &ws->wb_close_status);
@@ -163,17 +169,19 @@ static void send_close_frame(struct cio_websocket *ws, enum cio_websocket_status
 		cio_write_buffer_splice(reason, &wbh);
 	}
 
-	ws->close_status = cio_htobe16(status_code);
-	enum cio_error err = cio_timer_init(&ws->close_timer, ws->loop, NULL);
-	if (likely(err == CIO_SUCCESS)) {
-		err = ws->close_timer.expires_from_now(&ws->close_timer, close_timeout_ns, close_timeout_handler, ws);
+	if (ws->ws_flags.self_initiated_close == 1) {
+		enum cio_error err = cio_timer_init(&ws->close_timer, ws->loop, NULL);
 		if (likely(err == CIO_SUCCESS)) {
-			send_frame(ws, &wbh, CIO_WEBSOCKET_CLOSE_FRAME, true, close_frame_written);
+			err = ws->close_timer.expires_from_now(&ws->close_timer, close_timeout_ns, close_timeout_handler, ws);
+			if (likely(err == CIO_SUCCESS)) {
+				send_frame(ws, &wbh, CIO_WEBSOCKET_CLOSE_FRAME, true, close_frame_written);
+				return;
+			}
 		}
-	} else {
-		send_frame(ws, &wbh, CIO_WEBSOCKET_CLOSE_FRAME, true, do_nothing);
-		close(ws);
 	}
+
+	send_frame(ws, &wbh, CIO_WEBSOCKET_CLOSE_FRAME, true, do_nothing);
+	close(ws);
 }
 
 static void handle_binary_frame(struct cio_websocket *ws, uint8_t *data, uint64_t length, bool last_frame)
@@ -246,7 +254,8 @@ static int handle_close_frame(struct cio_websocket *ws, uint8_t *data, uint64_t 
 			send_close_frame(ws, (enum cio_websocket_status_code)status_code, NULL);
 		}
 
-		return 0;
+// TODO: eleminate return value???
+		return -1;
 	}
 }
 
@@ -555,6 +564,7 @@ void cio_websocket_init(struct cio_websocket *ws, bool is_server, cio_websocket_
 {
 	ws->onconnect_handler = NULL;
 	ws->on_error = NULL;
+	ws->onclose = NULL;
 	ws->onpong = NULL;
 	ws->close = self_close_frame;
 	ws->receive_frames = receive_frames;
