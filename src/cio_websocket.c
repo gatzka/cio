@@ -518,20 +518,29 @@ static void receive_frames(struct cio_websocket *ws)
 	ws->bs->read_exactly(ws->bs, ws->rb, 1, get_header, ws);
 }
 
+static int payload_size_in_limit(const struct cio_write_buffer *payload, size_t limit) {
+
+	if (payload != NULL) {
+		size_t payload_length = 0;
+
+		const struct cio_write_buffer *element = payload;
+		for (size_t i = 0; i < payload->data.q_len; i++) {
+			element = element->next;
+			payload_length += element->data.element.length;
+		}
+
+		if (unlikely(payload_length > limit)) {
+			return 0;
+		}
+	}
+
+	return 1;
+}
+
 static enum cio_error self_close_frame(struct cio_websocket *ws, enum cio_websocket_status_code status_code, struct cio_write_buffer *reason)
 {
-	if (reason != NULL) {
-		size_t reason_length = 0;
-
-		struct cio_write_buffer *element = reason;
-		for (size_t i = 0; i < reason->data.q_len; i++) {
-			element = element->next;
-			reason_length += element->data.element.length;
-		}
-
-		if (unlikely(reason_length > CIO_WEBSOCKET_SMALL_FRAME_SIZE - sizeof(status_code))) {
-			return CIO_MESSAGE_TOO_LONG;
-		}
+	if (unlikely(payload_size_in_limit(reason, CIO_WEBSOCKET_SMALL_FRAME_SIZE - sizeof(status_code)) == 0)) {
+		return CIO_MESSAGE_TOO_LONG;
 	}
 
 	ws->ws_flags.self_initiated_close = 1;
@@ -561,12 +570,17 @@ static void write_binary_frame(struct cio_websocket *ws, struct cio_write_buffer
 	send_frame(ws, payload, CIO_WEBSOCKET_BINARY_FRAME, last_frame, handle_write);
 }
 
-static void write_ping_frame(struct cio_websocket *ws, struct cio_write_buffer *payload, cio_websocket_write_handler handler, void *handler_context)
+static enum cio_error write_ping_frame(struct cio_websocket *ws, struct cio_write_buffer *payload, cio_websocket_write_handler handler, void *handler_context)
 {
-	// TODO: check length of payload
+	if (unlikely(payload_size_in_limit(payload, CIO_WEBSOCKET_SMALL_FRAME_SIZE) == 0)) {
+		return CIO_MESSAGE_TOO_LONG;
+	}
+
 	ws->write_ping_handler = handler;
 	ws->write_ping_handler_context = handler_context;
 	send_frame(ws, payload, CIO_WEBSOCKET_PING_FRAME, true, handle_write_ping);
+
+	return CIO_SUCCESS;
 }
 
 static void write_text_frame(struct cio_websocket *ws, struct cio_write_buffer *payload, bool last_frame, cio_websocket_write_handler handler, void *handler_context)
