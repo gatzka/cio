@@ -87,8 +87,8 @@ struct cio_websocket {
 
 	void (*onconnect_handler)(struct cio_websocket *ws);
 
-	void (*onbinaryframe_received)(struct cio_websocket *ws, uint8_t *data, size_t length, bool last_frame);
-	void (*ontextframe_received)(struct cio_websocket *ws, char *data, size_t length, bool last_frame);
+	void (*onbinaryframe)(struct cio_websocket *ws, uint8_t *data, size_t length, bool last_frame);
+	void (*ontextframe)(struct cio_websocket *ws, char *data, size_t length, bool last_frame);
 
 	/**
 	 * @brief A pointer to a function which is called if a ping frame was received.
@@ -137,7 +137,7 @@ struct cio_websocket {
 	 * @param ws The websocket which encountered the error.
 	 * @param status The status code describing the error.
 	 */
-	void (*on_error)(const struct cio_websocket *ws, enum cio_websocket_status_code status);
+	void (*onerror)(const struct cio_websocket *ws, enum cio_websocket_status_code status);
 
 	/**
      * @brief Writes a text frame to the websocket.

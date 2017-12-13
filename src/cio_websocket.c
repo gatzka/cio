@@ -186,8 +186,8 @@ static void send_close_frame(struct cio_websocket *ws, enum cio_websocket_status
 
 static void handle_binary_frame(struct cio_websocket *ws, uint8_t *data, uint64_t length, bool last_frame)
 {
-	if (likely(ws->onbinaryframe_received != NULL)) {
-		ws->onbinaryframe_received(ws, data, length, last_frame);
+	if (likely(ws->onbinaryframe != NULL)) {
+		ws->onbinaryframe(ws, data, length, last_frame);
 	} else {
 		// TODO: handle_error(s, WS_CLOSE_UNSUPPORTED);
 	}
@@ -195,8 +195,8 @@ static void handle_binary_frame(struct cio_websocket *ws, uint8_t *data, uint64_
 
 static void handle_text_frame(struct cio_websocket *ws, uint8_t *data, uint64_t length, bool last_frame)
 {
-	if (likely(ws->ontextframe_received != NULL)) {
-		ws->ontextframe_received(ws, (char *)data, length, last_frame);
+	if (likely(ws->ontextframe != NULL)) {
+		ws->ontextframe(ws, (char *)data, length, last_frame);
 	} else {
 		// TODO: handle_error(s, WS_CLOSE_UNSUPPORTED);
 	}
@@ -563,7 +563,7 @@ static void write_text_frame(struct cio_websocket *ws, struct cio_write_buffer *
 void cio_websocket_init(struct cio_websocket *ws, bool is_server, cio_websocket_close_hook close_hook)
 {
 	ws->onconnect_handler = NULL;
-	ws->on_error = NULL;
+	ws->onerror = NULL;
 	ws->onclose = NULL;
 	ws->onpong = NULL;
 	ws->close = self_close_frame;
