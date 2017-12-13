@@ -76,8 +76,8 @@ static struct memory_stream ms;
 
 struct dummy_handler {
 	struct cio_http_location_handler handler;
-	struct cio_const_write_buffer wbh;
-	struct cio_const_write_buffer wb;
+	struct cio_write_buffer wbh;
+	struct cio_write_buffer wb;
 };
 
 static const size_t read_buffer_size = 200;
@@ -269,8 +269,8 @@ static enum cio_http_cb_return header_complete_write_response(struct cio_http_cl
 	static const char data[] = "Hello World!";
 	struct cio_http_location_handler *handler = c->handler;
 	struct dummy_handler *dh = container_of(handler, struct dummy_handler, handler);
-	cio_const_write_buffer_element_init(&dh->wb, data, sizeof(data));
-	cio_const_write_buffer_queue_tail(&dh->wbh, &dh->wb);
+	cio_write_buffer_element_init(&dh->wb, data, sizeof(data));
+	cio_write_buffer_queue_tail(&dh->wbh, &dh->wb);
 	c->write_response(c, &dh->wbh);
 	return CIO_HTTP_CB_SUCCESS;
 }
@@ -297,7 +297,7 @@ static struct cio_http_location_handler *alloc_dummy_handler(const void *config)
 		return NULL;
 	} else {
 		cio_http_location_handler_init(&handler->handler);
-		cio_const_write_buffer_head_init(&handler->wbh);
+		cio_write_buffer_head_init(&handler->wbh);
 		handler->handler.free = free_dummy_handler;
 		handler->handler.on_header_field = on_header_field;
 		handler->handler.on_header_value = on_header_value;
@@ -315,7 +315,7 @@ static struct cio_http_location_handler *alloc_handler_no_callbacks(const void *
 		return NULL;
 	} else {
 		cio_http_location_handler_init(&handler->handler);
-		cio_const_write_buffer_head_init(&handler->wbh);
+		cio_write_buffer_head_init(&handler->wbh);
 		handler->handler.free = free_dummy_handler;
 		return &handler->handler;
 	}
@@ -377,17 +377,17 @@ static enum cio_error mem_close(struct cio_io_stream *io_stream)
 	return CIO_SUCCESS;
 }
 
-static enum cio_error write_all(struct cio_io_stream *ios, const struct cio_const_write_buffer *buf, cio_io_stream_write_handler handler, void *handler_context)
+static enum cio_error write_all(struct cio_io_stream *ios, const struct cio_write_buffer *buf, cio_io_stream_write_handler handler, void *handler_context)
 {
 	struct memory_stream *memory_stream = container_of(ios, struct memory_stream, ios);
 
 	size_t bytes_transferred = 0;
-	size_t buffer_len = cio_const_write_buffer_get_number_of_elements(buf);
-	const struct cio_const_write_buffer *data_buf = buf;
+	size_t buffer_len = cio_write_buffer_get_number_of_elements(buf);
+	const struct cio_write_buffer *data_buf = buf;
 
 	for (unsigned int i = 0; i < buffer_len; i++) {
 		data_buf = data_buf->next;
-		memcpy(&memory_stream->write_buffer[memory_stream->write_pos], data_buf->data.element.data, data_buf->data.element.length);
+		memcpy(&memory_stream->write_buffer[memory_stream->write_pos], data_buf->data.element.const_data, data_buf->data.element.length);
 		memory_stream->write_pos += data_buf->data.element.length;
 		bytes_transferred += data_buf->data.element.length;
 	}

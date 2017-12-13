@@ -61,7 +61,7 @@ enum cio_websocket_status_code {
 	CIO_WEBSOCKET_CLOSE_RESERVED_UPPER_BOUND = 4999
 };
 
-typedef void (*cio_websocket_write_handler)(struct cio_websocket *ws, void *handler_context, const struct cio_const_write_buffer *buffer, enum cio_error err);
+typedef void (*cio_websocket_write_handler)(struct cio_websocket *ws, void *handler_context, const struct cio_write_buffer *buffer, enum cio_error err);
 
 #define CIO_WEBSOCKET_SMALL_FRAME_SIZE 125
 
@@ -75,7 +75,7 @@ struct cio_websocket {
 	 * @param status The @ref cio_websocket_status_code "websocket status code" to be sent.
 	 * @param reason A buffer which contains the reason for the close in an UTF8 encoded string. Could be @c NULL if no reason should be sent.
 	 */
-	void (*close)(struct cio_websocket *ws, enum cio_websocket_status_code status, struct cio_const_write_buffer *reason);
+	void (*close)(struct cio_websocket *ws, enum cio_websocket_status_code status, struct cio_write_buffer *reason);
 
 	void (*onconnect_handler)(struct cio_websocket *ws);
 
@@ -145,7 +145,7 @@ struct cio_websocket {
      * @param handler A callback function that will be called when the write completes.
      * @param handler_context A context pointer given to @p handler when called.
      */
-	void (*write_text_frame)(struct cio_websocket *ws, struct cio_const_write_buffer *payload, bool last_frame, cio_websocket_write_handler handler, void *handler_context);
+	void (*write_text_frame)(struct cio_websocket *ws, struct cio_write_buffer *payload, bool last_frame, cio_websocket_write_handler handler, void *handler_context);
 
 	/**
      * @brief Writes a binary frame to the websocket.
@@ -161,7 +161,7 @@ struct cio_websocket {
      * @param handler A callback function that will be called when the write completes.
      * @param handler_context A context pointer given to @p handler when called.
      */
-	void (*write_binary_frame)(struct cio_websocket *ws, struct cio_const_write_buffer *payload, bool last_frame, cio_websocket_write_handler handler, void *handler_context);
+	void (*write_binary_frame)(struct cio_websocket *ws, struct cio_write_buffer *payload, bool last_frame, cio_websocket_write_handler handler, void *handler_context);
 
 	/*! @cond PRIVATE */
 	uint64_t read_frame_length;
@@ -185,9 +185,9 @@ struct cio_websocket {
 
 	struct cio_buffered_stream *bs;
 	struct cio_read_buffer *rb;
-	struct cio_const_write_buffer wbh;
-	struct cio_const_write_buffer wb_send_header;
-	struct cio_const_write_buffer wb_close_status;
+	struct cio_write_buffer wbh;
+	struct cio_write_buffer wb_send_header;
+	struct cio_write_buffer wb_close_status;
 	struct cio_timer close_timer;
 	cio_websocket_close_hook close_hook;
 	uint8_t mask[4];

@@ -64,8 +64,8 @@ FAKE_VOID_FUNC(on_close, struct cio_socket *)
 void read_handler(struct cio_io_stream *context, void *handler_context, enum cio_error err, struct cio_read_buffer *buffer);
 FAKE_VOID_FUNC(read_handler, struct cio_io_stream *, void *, enum cio_error, struct cio_read_buffer *)
 
-void write_handler(struct cio_io_stream *stream, void *handler_context, const struct cio_const_write_buffer *, enum cio_error err, size_t bytes_transferred);
-FAKE_VOID_FUNC(write_handler, struct cio_io_stream *, void *, const struct cio_const_write_buffer *, enum cio_error, size_t)
+void write_handler(struct cio_io_stream *stream, void *handler_context, const struct cio_write_buffer *, enum cio_error err, size_t bytes_transferred);
+FAKE_VOID_FUNC(write_handler, struct cio_io_stream *, void *, const struct cio_write_buffer *, enum cio_error, size_t)
 
 #ifndef ARRAY_SIZE
 #define ARRAY_SIZE(a) (sizeof(a) / sizeof((a)[0]))
@@ -614,12 +614,12 @@ static void test_socket_writesome_all(void)
 	sendmsg_fake.custom_fake = send_all;
 
 	struct cio_socket s;
-	struct cio_const_write_buffer wbh;
-	struct cio_const_write_buffer wb;
+	struct cio_write_buffer wbh;
+	struct cio_write_buffer wb;
 
-	cio_const_write_buffer_head_init(&wbh);
-	cio_const_write_buffer_element_init(&wb, buffer, sizeof(buffer));
-	cio_const_write_buffer_queue_tail(&wbh, &wb);
+	cio_write_buffer_head_init(&wbh);
+	cio_write_buffer_element_init(&wb, buffer, sizeof(buffer));
+	cio_write_buffer_queue_tail(&wbh, &wb);
 
 	enum cio_error err = cio_socket_init(&s, &loop, on_close);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Return value of cio_socket_init not correct!");
@@ -644,14 +644,14 @@ static void test_socket_writesome_parts(void)
 	sendmsg_fake.custom_fake = send_parts;
 
 	struct cio_socket s;
-	struct cio_const_write_buffer wbh;
-	struct cio_const_write_buffer wb;
+	struct cio_write_buffer wbh;
+	struct cio_write_buffer wb;
 
-	cio_const_write_buffer_head_init(&wbh);
-	cio_const_write_buffer_element_init(&wb, buffer, sizeof(buffer));
-	wb.data.element.data = buffer;
+	cio_write_buffer_head_init(&wbh);
+	cio_write_buffer_element_init(&wb, buffer, sizeof(buffer));
+	wb.data.element.const_data = buffer;
 	wb.data.element.length = sizeof(buffer);
-	cio_const_write_buffer_queue_tail(&wbh, &wb);
+	cio_write_buffer_queue_tail(&wbh, &wb);
 
 	enum cio_error err = cio_socket_init(&s, &loop, on_close);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Return value of cio_socket_init not correct!");
@@ -675,12 +675,12 @@ static void test_socket_writesome_fails(void)
 	sendmsg_fake.custom_fake = send_fails;
 
 	struct cio_socket s;
-	struct cio_const_write_buffer wbh;
-	struct cio_const_write_buffer wb;
+	struct cio_write_buffer wbh;
+	struct cio_write_buffer wb;
 
-	cio_const_write_buffer_head_init(&wbh);
-	cio_const_write_buffer_element_init(&wb, buffer, sizeof(buffer));
-	cio_const_write_buffer_queue_tail(&wbh, &wb);
+	cio_write_buffer_head_init(&wbh);
+	cio_write_buffer_element_init(&wb, buffer, sizeof(buffer));
+	cio_write_buffer_queue_tail(&wbh, &wb);
 
 	enum cio_error err = cio_socket_init(&s, &loop, on_close);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Return value of cio_socket_init not correct!");
@@ -708,12 +708,12 @@ static void test_socket_writesome_blocks(void)
 	SET_CUSTOM_FAKE_SEQ(sendmsg, custom_fakes, ARRAY_SIZE(custom_fakes));
 
 	struct cio_socket s;
-	struct cio_const_write_buffer wbh;
-	struct cio_const_write_buffer wb;
+	struct cio_write_buffer wbh;
+	struct cio_write_buffer wb;
 
-	cio_const_write_buffer_head_init(&wbh);
-	cio_const_write_buffer_element_init(&wb, buffer, sizeof(buffer));
-	cio_const_write_buffer_queue_tail(&wbh, &wb);
+	cio_write_buffer_head_init(&wbh);
+	cio_write_buffer_element_init(&wb, buffer, sizeof(buffer));
+	cio_write_buffer_queue_tail(&wbh, &wb);
 
 	enum cio_error err = cio_socket_init(&s, &loop, on_close);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Return value of cio_socket_init not correct!");
@@ -744,12 +744,12 @@ static void test_socket_writesome_blocks_fails(void)
 	cio_linux_eventloop_register_write_fake.return_val = CIO_INVALID_ARGUMENT;
 
 	struct cio_socket s;
-	struct cio_const_write_buffer wbh;
-	struct cio_const_write_buffer wb;
+	struct cio_write_buffer wbh;
+	struct cio_write_buffer wb;
 
-	cio_const_write_buffer_head_init(&wbh);
-	cio_const_write_buffer_element_init(&wb, buffer, sizeof(buffer));
-	cio_const_write_buffer_queue_tail(&wbh, &wb);
+	cio_write_buffer_head_init(&wbh);
+	cio_write_buffer_element_init(&wb, buffer, sizeof(buffer));
+	cio_write_buffer_queue_tail(&wbh, &wb);
 
 	enum cio_error err = cio_socket_init(&s, &loop, on_close);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Return value of cio_socket_init not correct!");
@@ -773,12 +773,12 @@ static void test_socket_writesome_no_stream(void)
 	sendmsg_fake.custom_fake = send_all;
 
 	struct cio_socket s;
-	struct cio_const_write_buffer wbh;
-	struct cio_const_write_buffer wb;
+	struct cio_write_buffer wbh;
+	struct cio_write_buffer wb;
 
-	cio_const_write_buffer_head_init(&wbh);
-	cio_const_write_buffer_element_init(&wb, buffer, sizeof(buffer));
-	cio_const_write_buffer_queue_tail(&wbh, &wb);
+	cio_write_buffer_head_init(&wbh);
+	cio_write_buffer_element_init(&wb, buffer, sizeof(buffer));
+	cio_write_buffer_queue_tail(&wbh, &wb);
 
 	enum cio_error err = cio_socket_init(&s, &loop, on_close);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Return value of cio_socket_init not correct!");
@@ -796,12 +796,12 @@ static void test_socket_writesome_no_buffer(void)
 	sendmsg_fake.custom_fake = send_all;
 
 	struct cio_socket s;
-	struct cio_const_write_buffer wbh;
-	struct cio_const_write_buffer wb;
+	struct cio_write_buffer wbh;
+	struct cio_write_buffer wb;
 
-	cio_const_write_buffer_head_init(&wbh);
-	cio_const_write_buffer_element_init(&wb, buffer, sizeof(buffer));
-	cio_const_write_buffer_queue_tail(&wbh, &wb);
+	cio_write_buffer_head_init(&wbh);
+	cio_write_buffer_element_init(&wb, buffer, sizeof(buffer));
+	cio_write_buffer_queue_tail(&wbh, &wb);
 
 	enum cio_error err = cio_socket_init(&s, &loop, on_close);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Return value of cio_socket_init not correct!");
@@ -819,12 +819,12 @@ static void test_socket_writesome_no_handler(void)
 	sendmsg_fake.custom_fake = send_all;
 
 	struct cio_socket s;
-	struct cio_const_write_buffer wbh;
-	struct cio_const_write_buffer wb;
+	struct cio_write_buffer wbh;
+	struct cio_write_buffer wb;
 
-	cio_const_write_buffer_head_init(&wbh);
-	cio_const_write_buffer_element_init(&wb, buffer, sizeof(buffer));
-	cio_const_write_buffer_queue_tail(&wbh, &wb);
+	cio_write_buffer_head_init(&wbh);
+	cio_write_buffer_element_init(&wb, buffer, sizeof(buffer));
+	cio_write_buffer_queue_tail(&wbh, &wb);
 
 	enum cio_error err = cio_socket_init(&s, &loop, on_close);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Return value of cio_socket_init not correct!");
