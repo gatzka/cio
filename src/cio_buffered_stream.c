@@ -233,26 +233,26 @@ static enum cio_error bs_read_exactly(struct cio_buffered_stream *bs, struct cio
 	return CIO_SUCCESS;
 }
 
-static inline bool buffer_partially_written(const struct cio_const_write_buffer *wb, size_t bytes_transferred)
+static inline bool buffer_partially_written(const struct cio_write_buffer *wb, size_t bytes_transferred)
 {
 	return wb->data.element.length > bytes_transferred;
 }
 
-static inline bool buffer_is_temp_buffer(const struct cio_buffered_stream *bs, const struct cio_const_write_buffer *wb)
+static inline bool buffer_is_temp_buffer(const struct cio_buffered_stream *bs, const struct cio_write_buffer *wb)
 {
 	return &bs->wb == wb;
 }
 
-static void handle_write(struct cio_io_stream *io_stream, void *handler_context, const struct cio_const_write_buffer *buffer, enum cio_error err, size_t bytes_transferred)
+static void handle_write(struct cio_io_stream *io_stream, void *handler_context, const struct cio_write_buffer *buffer, enum cio_error err, size_t bytes_transferred)
 {
 	(void)buffer;
 
 	struct cio_buffered_stream *bs = handler_context;
 	if (unlikely(err != CIO_SUCCESS)) {
-		while (!cio_const_write_buffer_queue_empty(&bs->wbh)) {
-			struct cio_const_write_buffer *wb = cio_const_write_buffer_queue_dequeue(&bs->wbh);
+		while (!cio_write_buffer_queue_empty(&bs->wbh)) {
+			struct cio_write_buffer *wb = cio_write_buffer_queue_dequeue(&bs->wbh);
 			if (!buffer_is_temp_buffer(bs, wb)) {
-				cio_const_write_buffer_queue_tail(bs->original_wbh, wb);
+				cio_write_buffer_queue_tail(bs->original_wbh, wb);
 			}
 		}
 
@@ -261,33 +261,33 @@ static void handle_write(struct cio_io_stream *io_stream, void *handler_context,
 	}
 
 	while (bytes_transferred != 0) {
-		struct cio_const_write_buffer *wb = cio_const_write_buffer_queue_dequeue(&bs->wbh);
+		struct cio_write_buffer *wb = cio_write_buffer_queue_dequeue(&bs->wbh);
 		if (buffer_partially_written(wb, bytes_transferred)) {
 			if (!buffer_is_temp_buffer(bs, wb)) {
-				cio_const_write_buffer_queue_tail(bs->original_wbh, wb);
+				cio_write_buffer_queue_tail(bs->original_wbh, wb);
 			}
 
-			const void *new_data = &((const uint8_t *)wb->data.element.data)[bytes_transferred];
+			const void *new_data = &((const uint8_t *)wb->data.element.const_data)[bytes_transferred];
 			size_t new_length = wb->data.element.length - bytes_transferred;
-			cio_const_write_buffer_element_init(&bs->wb, new_data, new_length);
-			cio_const_write_buffer_queue_head(&bs->wbh, &bs->wb);
+			cio_write_buffer_element_init(&bs->wb, new_data, new_length);
+			cio_write_buffer_queue_head(&bs->wbh, &bs->wb);
 			bytes_transferred = 0;
 		} else {
 			bytes_transferred -= wb->data.element.length;
 			if (!buffer_is_temp_buffer(bs, wb)) {
-				cio_const_write_buffer_queue_tail(bs->original_wbh, wb);
+				cio_write_buffer_queue_tail(bs->original_wbh, wb);
 			}
 		}
 	}
 
-	if (cio_const_write_buffer_queue_empty(&bs->wbh)) {
+	if (cio_write_buffer_queue_empty(&bs->wbh)) {
 		bs->write_handler(bs, bs->write_handler_context, bs->original_wbh, CIO_SUCCESS);
 	} else {
 		bs->stream->write_some(io_stream, &bs->wbh, handle_write, bs);
 	}
 }
 
-static enum cio_error bs_write(struct cio_buffered_stream *bs, struct cio_const_write_buffer *buffer, cio_buffered_stream_write_handler handler, void *handler_context)
+static enum cio_error bs_write(struct cio_buffered_stream *bs, struct cio_write_buffer *buffer, cio_buffered_stream_write_handler handler, void *handler_context)
 {
 	if (unlikely((bs == NULL) || (buffer == NULL) || (handler == NULL))) {
 		return CIO_INVALID_ARGUMENT;
@@ -297,9 +297,9 @@ static enum cio_error bs_write(struct cio_buffered_stream *bs, struct cio_const_
 	bs->write_handler_context = handler_context;
 	bs->original_wbh = buffer;
 
-	while (!cio_const_write_buffer_queue_empty(buffer)) {
-		struct cio_const_write_buffer *wb = cio_const_write_buffer_queue_dequeue(buffer);
-		cio_const_write_buffer_queue_tail(&bs->wbh, wb);
+	while (!cio_write_buffer_queue_empty(buffer)) {
+		struct cio_write_buffer *wb = cio_write_buffer_queue_dequeue(buffer);
+		cio_write_buffer_queue_tail(&bs->wbh, wb);
 	}
 
 	bs->stream->write_some(bs->stream, &bs->wbh, handle_write, bs);
@@ -322,7 +322,7 @@ enum cio_error cio_buffered_stream_init(struct cio_buffered_stream *bs,
 	bs->read_exactly = bs_read_exactly;
 	bs->read_until = bs_read_until;
 
-	cio_const_write_buffer_head_init(&bs->wbh);
+	cio_write_buffer_head_init(&bs->wbh);
 	bs->write = bs_write;
 
 	bs->close = bs_close;

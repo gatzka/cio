@@ -69,8 +69,8 @@ static const uint64_t read_timeout = UINT64_C(5) * UINT64_C(1000) * UINT64_C(100
 
 struct dummy_handler {
 	struct cio_http_location_handler handler;
-	struct cio_const_write_buffer wbh;
-	struct cio_const_write_buffer wb;
+	struct cio_write_buffer wbh;
+	struct cio_write_buffer wb;
 };
 
 static const size_t read_buffer_size = 200;
@@ -112,8 +112,8 @@ FAKE_VALUE_FUNC(enum cio_error, timer_expires_from_now, struct cio_timer *, uint
 
 FAKE_VALUE_FUNC(enum cio_error, cio_timer_init, struct cio_timer *, struct cio_eventloop *, cio_timer_close_hook)
 
-static enum cio_error bs_write(struct cio_buffered_stream *bs, struct cio_const_write_buffer *buf, cio_buffered_stream_write_handler handler, void *handler_context);
-FAKE_VALUE_FUNC(enum cio_error, bs_write, struct cio_buffered_stream *, struct cio_const_write_buffer *, cio_buffered_stream_write_handler, void *)
+static enum cio_error bs_write(struct cio_buffered_stream *bs, struct cio_write_buffer *buf, cio_buffered_stream_write_handler handler, void *handler_context);
+FAKE_VALUE_FUNC(enum cio_error, bs_write, struct cio_buffered_stream *, struct cio_write_buffer *, cio_buffered_stream_write_handler, void *)
 
 static enum cio_error cancel_timer(struct cio_timer *t)
 {
@@ -232,8 +232,8 @@ static enum cio_http_cb_return header_complete_write_response(struct cio_http_cl
 	static const char data[] = "Hello World!";
 	struct cio_http_location_handler *handler = c->handler;
 	struct dummy_handler *dh = container_of(handler, struct dummy_handler, handler);
-	cio_const_write_buffer_element_init(&dh->wb, data, sizeof(data));
-	cio_const_write_buffer_queue_tail(&dh->wbh, &dh->wb);
+	cio_write_buffer_element_init(&dh->wb, data, sizeof(data));
+	cio_write_buffer_queue_tail(&dh->wbh, &dh->wb);
 	c->write_response(c, &dh->wbh);
 	return CIO_HTTP_CB_SUCCESS;
 }
@@ -258,7 +258,7 @@ static struct cio_http_location_handler *alloc_dummy_handler_msg_complete_only(c
 		return NULL;
 	} else {
 		cio_http_location_handler_init(&handler->handler);
-		cio_const_write_buffer_head_init(&handler->wbh);
+		cio_write_buffer_head_init(&handler->wbh);
 		handler->handler.free = free_dummy_handler;
 		handler->handler.on_message_complete = message_complete;
 		return &handler->handler;
@@ -273,7 +273,7 @@ static struct cio_http_location_handler *alloc_dummy_handler(const void *config)
 		return NULL;
 	} else {
 		cio_http_location_handler_init(&handler->handler);
-		cio_const_write_buffer_head_init(&handler->wbh);
+		cio_write_buffer_head_init(&handler->wbh);
 		handler->handler.free = free_dummy_handler;
 		handler->handler.on_header_field = on_header_field;
 		handler->handler.on_header_value = on_header_value;
@@ -293,7 +293,7 @@ static struct cio_http_location_handler *alloc_dummy_handler_url_callbacks(const
 		return NULL;
 	} else {
 		cio_http_location_handler_init(&handler->handler);
-		cio_const_write_buffer_head_init(&handler->wbh);
+		cio_write_buffer_head_init(&handler->wbh);
 		handler->handler.free = free_dummy_handler;
 		handler->handler.on_headers_complete = header_complete;
 		handler->handler.on_message_complete = message_complete;
@@ -315,7 +315,7 @@ static struct cio_http_location_handler *alloc_dummy_handler_sub(const void *con
 		return NULL;
 	} else {
 		cio_http_location_handler_init(&handler->handler);
-		cio_const_write_buffer_head_init(&handler->wbh);
+		cio_write_buffer_head_init(&handler->wbh);
 		handler->handler.free = free_dummy_handler;
 		handler->handler.on_header_field = on_header_field;
 		handler->handler.on_header_value = on_header_value;
@@ -394,14 +394,14 @@ static enum cio_error bs_close(struct cio_buffered_stream *bs)
 static uint8_t write_buffer[1000];
 static size_t write_pos;
 
-static enum cio_error bs_write_all(struct cio_buffered_stream *bs, struct cio_const_write_buffer *buf, cio_buffered_stream_write_handler handler, void *handler_context)
+static enum cio_error bs_write_all(struct cio_buffered_stream *bs, struct cio_write_buffer *buf, cio_buffered_stream_write_handler handler, void *handler_context)
 {
-	size_t buffer_len = cio_const_write_buffer_get_number_of_elements(buf);
-	const struct cio_const_write_buffer *data_buf = buf;
+	size_t buffer_len = cio_write_buffer_get_number_of_elements(buf);
+	const struct cio_write_buffer *data_buf = buf;
 
 	for (unsigned int i = 0; i < buffer_len; i++) {
 		data_buf = data_buf->next;
-		memcpy(&write_buffer[write_pos], data_buf->data.element.data, data_buf->data.element.length);
+		memcpy(&write_buffer[write_pos], data_buf->data.element.const_data, data_buf->data.element.length);
 		write_pos += data_buf->data.element.length;
 	}
 
@@ -410,11 +410,11 @@ static enum cio_error bs_write_all(struct cio_buffered_stream *bs, struct cio_co
 }
 
 static struct cio_buffered_stream *write_later_bs;
-static struct cio_const_write_buffer *write_later_buf;
+static struct cio_write_buffer *write_later_buf;
 static cio_buffered_stream_write_handler write_later_handler;
 static void *write_later_handler_context;
 
-static enum cio_error bs_write_later(struct cio_buffered_stream *bs, struct cio_const_write_buffer *buf, cio_buffered_stream_write_handler handler, void *handler_context)
+static enum cio_error bs_write_later(struct cio_buffered_stream *bs, struct cio_write_buffer *buf, cio_buffered_stream_write_handler handler, void *handler_context)
 {
 	write_later_bs = bs;
 	write_later_buf = buf;

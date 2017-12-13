@@ -42,8 +42,8 @@ static struct cio_eventloop loop;
 struct echo_client {
 	struct cio_socket socket;
 	uint8_t buffer[100];
-	struct cio_const_write_buffer wb;
-	struct cio_const_write_buffer wbh;
+	struct cio_write_buffer wb;
+	struct cio_write_buffer wbh;
 	struct cio_read_buffer rb;
 };
 
@@ -72,7 +72,7 @@ static void sighandler(int signum)
 static void handle_read(struct cio_io_stream *stream, void *handler_context, enum cio_error err, struct cio_read_buffer *read_buffer);
 
 
-static void handle_write(struct cio_io_stream *stream, void *handler_context, const struct cio_const_write_buffer *buf, enum cio_error err, size_t bytes_transferred)
+static void handle_write(struct cio_io_stream *stream, void *handler_context, const struct cio_write_buffer *buf, enum cio_error err, size_t bytes_transferred)
 {
 	(void)bytes_transferred;
 	(void)buf;
@@ -102,9 +102,9 @@ static void handle_read(struct cio_io_stream *stream, void *handler_context, enu
 		return;
 	}
 
-	cio_const_write_buffer_head_init(&client->wbh);
-	cio_const_write_buffer_element_init(&client->wb, read_buffer->data, read_buffer->bytes_transferred);
-	cio_const_write_buffer_queue_tail(&client->wbh, &client->wb);
+	cio_write_buffer_head_init(&client->wbh);
+	cio_write_buffer_element_init(&client->wb, read_buffer->data, read_buffer->bytes_transferred);
+	cio_write_buffer_queue_tail(&client->wbh, &client->wb);
 	stream->write_some(stream, &client->wbh, handle_write, client);
 }
 

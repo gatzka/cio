@@ -66,8 +66,8 @@ static size_t chunk_bytes_written = 0;
 enum cio_error read_some(struct cio_io_stream *ios, struct cio_read_buffer *buffer, cio_io_stream_read_handler handler, void *context);
 FAKE_VALUE_FUNC(enum cio_error, read_some, struct cio_io_stream *, struct cio_read_buffer *, cio_io_stream_read_handler, void *)
 
-enum cio_error write_some(struct cio_io_stream *io_stream, const struct cio_const_write_buffer *buf, cio_io_stream_write_handler handler, void *handler_context);
-FAKE_VALUE_FUNC(enum cio_error, write_some, struct cio_io_stream *, const struct cio_const_write_buffer *, cio_io_stream_write_handler, void *)
+enum cio_error write_some(struct cio_io_stream *io_stream, const struct cio_write_buffer *buf, cio_io_stream_write_handler handler, void *handler_context);
+FAKE_VALUE_FUNC(enum cio_error, write_some, struct cio_io_stream *, const struct cio_write_buffer *, cio_io_stream_write_handler, void *)
 
 enum cio_error close(struct cio_io_stream *context);
 FAKE_VALUE_FUNC(enum cio_error, close, struct cio_io_stream *)
@@ -78,8 +78,8 @@ FAKE_VOID_FUNC(dummy_read_handler, struct cio_buffered_stream *, void *, enum ci
 void second_dummy_read_handler(struct cio_buffered_stream *, void *, enum cio_error, struct cio_read_buffer *);
 FAKE_VOID_FUNC(second_dummy_read_handler, struct cio_buffered_stream *, void *, enum cio_error, struct cio_read_buffer *)
 
-void dummy_write_handler(struct cio_buffered_stream *, void *, const struct cio_const_write_buffer *, enum cio_error);
-FAKE_VOID_FUNC(dummy_write_handler, struct cio_buffered_stream *, void *, const struct cio_const_write_buffer *, enum cio_error)
+void dummy_write_handler(struct cio_buffered_stream *, void *, const struct cio_write_buffer *, enum cio_error);
+FAKE_VOID_FUNC(dummy_write_handler, struct cio_buffered_stream *, void *, const struct cio_write_buffer *, enum cio_error)
 
 struct client {
 	struct memory_stream ms;
@@ -135,7 +135,7 @@ void setUp(void)
 	chunk_bytes_written = 0;
 }
 
-static void write_then_read(struct cio_buffered_stream *bs, void *handler_context, const struct cio_const_write_buffer *wb, enum cio_error err)
+static void write_then_read(struct cio_buffered_stream *bs, void *handler_context, const struct cio_write_buffer *wb, enum cio_error err)
 {
 	(void)wb;
 
@@ -145,13 +145,13 @@ static void write_then_read(struct cio_buffered_stream *bs, void *handler_contex
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Return value not correct!");
 }
 
-static enum cio_error write_some_all(struct cio_io_stream *io_stream, const struct cio_const_write_buffer *buf, cio_io_stream_write_handler handler, void *handler_context)
+static enum cio_error write_some_all(struct cio_io_stream *io_stream, const struct cio_write_buffer *buf, cio_io_stream_write_handler handler, void *handler_context)
 {
-	struct cio_const_write_buffer *wb = buf->next;
+	struct cio_write_buffer *wb = buf->next;
 	size_t total_length = 0;
 
-	for (size_t i = 0; i < cio_const_write_buffer_get_number_of_elements(buf); i++) {
-		memcpy(&write_check_buffer[write_check_buffer_pos], wb->data.element.data, wb->data.element.length);
+	for (size_t i = 0; i < cio_write_buffer_get_number_of_elements(buf); i++) {
+		memcpy(&write_check_buffer[write_check_buffer_pos], wb->data.element.const_data, wb->data.element.length);
 		write_check_buffer_pos += wb->data.element.length;
 		total_length += wb->data.element.length;
 		wb = wb->next;
@@ -162,12 +162,12 @@ static enum cio_error write_some_all(struct cio_io_stream *io_stream, const stru
 	return CIO_SUCCESS;
 }
 
-static enum cio_error write_some_first_write_partial_second_error(struct cio_io_stream *io_stream, const struct cio_const_write_buffer *buf, cio_io_stream_write_handler handler, void *handler_context)
+static enum cio_error write_some_first_write_partial_second_error(struct cio_io_stream *io_stream, const struct cio_write_buffer *buf, cio_io_stream_write_handler handler, void *handler_context)
 {
 	if (write_some_fake.call_count == 1) {
-		struct cio_const_write_buffer *wb = buf->next;
-		if (cio_const_write_buffer_get_number_of_elements(buf) >= 1) {
-			memcpy(&write_check_buffer[write_check_buffer_pos], wb->data.element.data, wb->data.element.length / 2);
+		struct cio_write_buffer *wb = buf->next;
+		if (cio_write_buffer_get_number_of_elements(buf) >= 1) {
+			memcpy(&write_check_buffer[write_check_buffer_pos], wb->data.element.const_data, wb->data.element.length / 2);
 			write_check_buffer_pos += wb->data.element.length / 2;
 		}
 
@@ -181,18 +181,18 @@ static enum cio_error write_some_first_write_partial_second_error(struct cio_io_
 	return CIO_SUCCESS;
 }
 
-static enum cio_error write_some_error(struct cio_io_stream *io_stream, const struct cio_const_write_buffer *buf, cio_io_stream_write_handler handler, void *handler_context)
+static enum cio_error write_some_error(struct cio_io_stream *io_stream, const struct cio_write_buffer *buf, cio_io_stream_write_handler handler, void *handler_context)
 {
 	handler(io_stream, handler_context, buf, CIO_MESSAGE_TOO_LONG, 0);
 	return CIO_SUCCESS;
 }
 
-static enum cio_error write_some_double_write_partial(struct cio_io_stream *io_stream, const struct cio_const_write_buffer *buf, cio_io_stream_write_handler handler, void *handler_context)
+static enum cio_error write_some_double_write_partial(struct cio_io_stream *io_stream, const struct cio_write_buffer *buf, cio_io_stream_write_handler handler, void *handler_context)
 {
 	if (write_some_fake.call_count <= 2) {
-		struct cio_const_write_buffer *wb = buf->next;
-		if (cio_const_write_buffer_get_number_of_elements(buf) >= 1) {
-			memcpy(&write_check_buffer[write_check_buffer_pos], wb->data.element.data, wb->data.element.length / 2);
+		struct cio_write_buffer *wb = buf->next;
+		if (cio_write_buffer_get_number_of_elements(buf) >= 1) {
+			memcpy(&write_check_buffer[write_check_buffer_pos], wb->data.element.const_data, wb->data.element.length / 2);
 			write_check_buffer_pos += wb->data.element.length / 2;
 		}
 
@@ -204,12 +204,12 @@ static enum cio_error write_some_double_write_partial(struct cio_io_stream *io_s
 	return CIO_SUCCESS;
 }
 
-static enum cio_error write_some_first_write_partial_at_buffer_boundary(struct cio_io_stream *io_stream, const struct cio_const_write_buffer *buf, cio_io_stream_write_handler handler, void *handler_context)
+static enum cio_error write_some_first_write_partial_at_buffer_boundary(struct cio_io_stream *io_stream, const struct cio_write_buffer *buf, cio_io_stream_write_handler handler, void *handler_context)
 {
 	if (write_some_fake.call_count == 1) {
-		struct cio_const_write_buffer *wb = buf->next;
-		if (cio_const_write_buffer_get_number_of_elements(buf) >= 1) {
-			memcpy(&write_check_buffer[write_check_buffer_pos], wb->data.element.data, wb->data.element.length);
+		struct cio_write_buffer *wb = buf->next;
+		if (cio_write_buffer_get_number_of_elements(buf) >= 1) {
+			memcpy(&write_check_buffer[write_check_buffer_pos], wb->data.element.const_data, wb->data.element.length);
 			write_check_buffer_pos += wb->data.element.length;
 		}
 
@@ -323,12 +323,12 @@ static enum cio_error read_some_chunks(struct cio_io_stream *ios, struct cio_rea
 	return CIO_SUCCESS;
 }
 
-static enum cio_error write_some_first_write_partial(struct cio_io_stream *io_stream, const struct cio_const_write_buffer *buf, cio_io_stream_write_handler handler, void *handler_context)
+static enum cio_error write_some_first_write_partial(struct cio_io_stream *io_stream, const struct cio_write_buffer *buf, cio_io_stream_write_handler handler, void *handler_context)
 {
 	if (write_some_fake.call_count == 1) {
-		struct cio_const_write_buffer *wb = buf->next;
-		if (cio_const_write_buffer_get_number_of_elements(buf) >= 1) {
-			memcpy(&write_check_buffer[write_check_buffer_pos], wb->data.element.data, wb->data.element.length / 2);
+		struct cio_write_buffer *wb = buf->next;
+		if (cio_write_buffer_get_number_of_elements(buf) >= 1) {
+			memcpy(&write_check_buffer[write_check_buffer_pos], wb->data.element.const_data, wb->data.element.length / 2);
 			write_check_buffer_pos += wb->data.element.length / 2;
 		}
 
@@ -1244,14 +1244,14 @@ static void test_write_two_buffers_partial_write(void)
 	struct client *client = malloc(sizeof(*client));
 	int dummy_context;
 
-	struct cio_const_write_buffer wbh;
-	cio_const_write_buffer_head_init(&wbh);
-	struct cio_const_write_buffer wb1;
-	cio_const_write_buffer_element_init(&wb1, test_data, strlen(test_data) / 2);
-	cio_const_write_buffer_queue_tail(&wbh, &wb1);
-	struct cio_const_write_buffer wb2;
-	cio_const_write_buffer_element_init(&wb2, test_data + (strlen(test_data) / 2), strlen(test_data) - strlen(test_data) / 2);
-	cio_const_write_buffer_queue_tail(&wbh, &wb2);
+	struct cio_write_buffer wbh;
+	cio_write_buffer_head_init(&wbh);
+	struct cio_write_buffer wb1;
+	cio_write_buffer_element_init(&wb1, test_data, strlen(test_data) / 2);
+	cio_write_buffer_queue_tail(&wbh, &wb1);
+	struct cio_write_buffer wb2;
+	cio_write_buffer_element_init(&wb2, test_data + (strlen(test_data) / 2), strlen(test_data) - strlen(test_data) / 2);
+	cio_write_buffer_queue_tail(&wbh, &wb2);
 
 	memory_stream_init(&client->ms, "");
 	write_some_fake.custom_fake = write_some_first_write_partial;
@@ -1274,7 +1274,7 @@ static void test_write_two_buffers_partial_write(void)
 	TEST_ASSERT_EQUAL_MESSAGE(&client->bs, dummy_write_handler_fake.arg0_val, "Handler was not called with original buffered_stream!");
 	TEST_ASSERT_EQUAL_MESSAGE(&dummy_context, dummy_write_handler_fake.arg1_val, "Handler was not called with correct context!");
 	TEST_ASSERT_EQUAL_MESSAGE(&wbh, dummy_write_handler_fake.arg2_val, "Handler was not called with original write_buffer!");
-	struct cio_const_write_buffer *test_buffer = wbh.next;
+	struct cio_write_buffer *test_buffer = wbh.next;
 	TEST_ASSERT_EQUAL_MESSAGE(test_buffer, &wb1, "First write buffer not the original one!");
 	test_buffer = test_buffer->next;
 	TEST_ASSERT_EQUAL_MESSAGE(test_buffer, &wb2, "Second write buffer not the original one!");
@@ -1290,11 +1290,11 @@ static void test_write_one_buffer_one_chunk(void)
 	static const char *test_data = "Hello";
 	struct client *client = malloc(sizeof(*client));
 
-	struct cio_const_write_buffer wbh;
-	cio_const_write_buffer_head_init(&wbh);
-	struct cio_const_write_buffer wb;
-	cio_const_write_buffer_element_init(&wb, test_data, strlen(test_data));
-	cio_const_write_buffer_queue_tail(&wbh, &wb);
+	struct cio_write_buffer wbh;
+	cio_write_buffer_head_init(&wbh);
+	struct cio_write_buffer wb;
+	cio_write_buffer_element_init(&wb, test_data, strlen(test_data));
+	cio_write_buffer_queue_tail(&wbh, &wb);
 
 	memory_stream_init(&client->ms, "");
 	write_some_fake.custom_fake = write_some_all;
@@ -1309,7 +1309,7 @@ static void test_write_one_buffer_one_chunk(void)
 	TEST_ASSERT_EQUAL_MESSAGE(1, close_fake.call_count, "Underlying cio_iostream was not closed!");
 	TEST_ASSERT_EQUAL_MESSAGE(1, dummy_write_handler_fake.call_count, "Handler was not called!");
 	TEST_ASSERT_EQUAL_MESSAGE(&wbh, dummy_write_handler_fake.arg2_val, "Handler was not called with original write_buffer!");
-	struct cio_const_write_buffer *test_buffer = wbh.next;
+	struct cio_write_buffer *test_buffer = wbh.next;
 	TEST_ASSERT_EQUAL_MESSAGE(test_buffer, &wb, "First write buffer not the original one!");
 	test_buffer = test_buffer->next;
 	TEST_ASSERT_EQUAL_MESSAGE(test_buffer, &wbh, "First write buffer does not point to original head!");
@@ -1322,11 +1322,11 @@ static void test_write_one_buffer_one_chunk_read_in_callbacks_then_close(void)
 	static const char *test_data = "Hello";
 	struct client *client = malloc(sizeof(*client));
 
-	struct cio_const_write_buffer wbh;
-	cio_const_write_buffer_head_init(&wbh);
-	struct cio_const_write_buffer wb;
-	cio_const_write_buffer_element_init(&wb, test_data, strlen(test_data));
-	cio_const_write_buffer_queue_tail(&wbh, &wb);
+	struct cio_write_buffer wbh;
+	cio_write_buffer_head_init(&wbh);
+	struct cio_write_buffer wb;
+	cio_write_buffer_element_init(&wb, test_data, strlen(test_data));
+	cio_write_buffer_queue_tail(&wbh, &wb);
 
 	write_some_fake.custom_fake = write_some_all;
 
@@ -1352,7 +1352,7 @@ static void test_write_one_buffer_one_chunk_read_in_callbacks_then_close(void)
 	TEST_ASSERT_EQUAL_MESSAGE(1, close_fake.call_count, "Underlying cio_iostream was not closed!");
 	TEST_ASSERT_EQUAL_MESSAGE(1, dummy_write_handler_fake.call_count, "Handler was not called!");
 	TEST_ASSERT_EQUAL_MESSAGE(&wbh, dummy_write_handler_fake.arg2_val, "Handler was not called with original write_buffer!");
-	struct cio_const_write_buffer *test_buffer = wbh.next;
+	struct cio_write_buffer *test_buffer = wbh.next;
 	TEST_ASSERT_EQUAL_MESSAGE(test_buffer, &wb, "First write buffer not the original one!");
 	test_buffer = test_buffer->next;
 	TEST_ASSERT_EQUAL_MESSAGE(test_buffer, &wbh, "First write buffer does not point to original head!");
@@ -1385,14 +1385,14 @@ static void test_write_two_buffers_double_partial_write(void)
 
 	struct client *client = malloc(sizeof(*client));
 
-	struct cio_const_write_buffer wbh;
-	cio_const_write_buffer_head_init(&wbh);
-	struct cio_const_write_buffer wb1;
-	cio_const_write_buffer_element_init(&wb1, test_data, strlen(test_data) / 2);
-	cio_const_write_buffer_queue_tail(&wbh, &wb1);
-	struct cio_const_write_buffer wb2;
-	cio_const_write_buffer_element_init(&wb2, test_data + (strlen(test_data) / 2), strlen(test_data) - strlen(test_data) / 2);
-	cio_const_write_buffer_queue_tail(&wbh, &wb2);
+	struct cio_write_buffer wbh;
+	cio_write_buffer_head_init(&wbh);
+	struct cio_write_buffer wb1;
+	cio_write_buffer_element_init(&wb1, test_data, strlen(test_data) / 2);
+	cio_write_buffer_queue_tail(&wbh, &wb1);
+	struct cio_write_buffer wb2;
+	cio_write_buffer_element_init(&wb2, test_data + (strlen(test_data) / 2), strlen(test_data) - strlen(test_data) / 2);
+	cio_write_buffer_queue_tail(&wbh, &wb2);
 
 	memory_stream_init(&client->ms, "");
 	write_some_fake.custom_fake = write_some_double_write_partial;
@@ -1409,7 +1409,7 @@ static void test_write_two_buffers_double_partial_write(void)
 	TEST_ASSERT_EQUAL_MESSAGE(&client->bs, dummy_write_handler_fake.arg0_val, "Handler was not called with original buffered_stream!");
 	TEST_ASSERT_EQUAL_MESSAGE(&dummy_context, dummy_write_handler_fake.arg1_val, "Handler was not called with correct context!");
 	TEST_ASSERT_EQUAL_MESSAGE(&wbh, dummy_write_handler_fake.arg2_val, "Handler was not called with original write_buffer!");
-	struct cio_const_write_buffer *test_buffer = wbh.next;
+	struct cio_write_buffer *test_buffer = wbh.next;
 	TEST_ASSERT_EQUAL_MESSAGE(test_buffer, &wb1, "First write buffer not the original one!");
 	test_buffer = test_buffer->next;
 	TEST_ASSERT_EQUAL_MESSAGE(test_buffer, &wb2, "Second write buffer not the original one!");
@@ -1427,14 +1427,14 @@ static void test_write_two_buffers_partial_write_at_buffer_boundary(void)
 
 	struct client *client = malloc(sizeof(*client));
 
-	struct cio_const_write_buffer wbh;
-	cio_const_write_buffer_head_init(&wbh);
-	struct cio_const_write_buffer wb1;
-	cio_const_write_buffer_element_init(&wb1, test_data, strlen(test_data) / 2);
-	cio_const_write_buffer_queue_tail(&wbh, &wb1);
-	struct cio_const_write_buffer wb2;
-	cio_const_write_buffer_element_init(&wb2, test_data + (strlen(test_data) / 2), strlen(test_data) - strlen(test_data) / 2);
-	cio_const_write_buffer_queue_tail(&wbh, &wb2);
+	struct cio_write_buffer wbh;
+	cio_write_buffer_head_init(&wbh);
+	struct cio_write_buffer wb1;
+	cio_write_buffer_element_init(&wb1, test_data, strlen(test_data) / 2);
+	cio_write_buffer_queue_tail(&wbh, &wb1);
+	struct cio_write_buffer wb2;
+	cio_write_buffer_element_init(&wb2, test_data + (strlen(test_data) / 2), strlen(test_data) - strlen(test_data) / 2);
+	cio_write_buffer_queue_tail(&wbh, &wb2);
 
 	memory_stream_init(&client->ms, "");
 	write_some_fake.custom_fake = write_some_first_write_partial_at_buffer_boundary;
@@ -1451,7 +1451,7 @@ static void test_write_two_buffers_partial_write_at_buffer_boundary(void)
 	TEST_ASSERT_EQUAL_MESSAGE(&client->bs, dummy_write_handler_fake.arg0_val, "Handler was not called with original buffered_stream!");
 	TEST_ASSERT_EQUAL_MESSAGE(&dummy_context, dummy_write_handler_fake.arg1_val, "Handler was not called with correct context!");
 	TEST_ASSERT_EQUAL_MESSAGE(&wbh, dummy_write_handler_fake.arg2_val, "Handler was not called with original write_buffer!");
-	struct cio_const_write_buffer *test_buffer = wbh.next;
+	struct cio_write_buffer *test_buffer = wbh.next;
 	TEST_ASSERT_EQUAL_MESSAGE(test_buffer, &wb1, "First write buffer not the original one!");
 	test_buffer = test_buffer->next;
 	TEST_ASSERT_EQUAL_MESSAGE(test_buffer, &wb2, "Second write buffer not the original one!");
@@ -1468,11 +1468,11 @@ static void test_write_one_buffer_one_chunk_error(void)
 
 	struct client *client = malloc(sizeof(*client));
 
-	struct cio_const_write_buffer wbh;
-	cio_const_write_buffer_head_init(&wbh);
-	struct cio_const_write_buffer wb;
-	cio_const_write_buffer_element_init(&wb, test_data, strlen(test_data));
-	cio_const_write_buffer_queue_tail(&wbh, &wb);
+	struct cio_write_buffer wbh;
+	cio_write_buffer_head_init(&wbh);
+	struct cio_write_buffer wb;
+	cio_write_buffer_element_init(&wb, test_data, strlen(test_data));
+	cio_write_buffer_queue_tail(&wbh, &wb);
 
 	memory_stream_init(&client->ms, "");
 	write_some_fake.custom_fake = write_some_error;
@@ -1487,7 +1487,7 @@ static void test_write_one_buffer_one_chunk_error(void)
 	TEST_ASSERT_EQUAL_MESSAGE(1, close_fake.call_count, "Underlying cio_iostream was not closed!");
 	TEST_ASSERT_EQUAL_MESSAGE(1, dummy_write_handler_fake.call_count, "Handler was not called!");
 	TEST_ASSERT_EQUAL_MESSAGE(&wbh, dummy_write_handler_fake.arg2_val, "Handler was not called with original write_buffer!");
-	struct cio_const_write_buffer *test_buffer = wbh.next;
+	struct cio_write_buffer *test_buffer = wbh.next;
 	TEST_ASSERT_EQUAL_MESSAGE(test_buffer, &wb, "First write buffer not the original one!");
 	test_buffer = test_buffer->next;
 	TEST_ASSERT_EQUAL_MESSAGE(test_buffer, &wbh, "First write buffer does not point to original head!");
@@ -1500,11 +1500,11 @@ static void test_write_no_buffered_stream_for_write(void)
 
 	struct client *client = malloc(sizeof(*client));
 
-	struct cio_const_write_buffer wbh;
-	cio_const_write_buffer_head_init(&wbh);
-	struct cio_const_write_buffer wb;
-	cio_const_write_buffer_element_init(&wb, test_data, strlen(test_data));
-	cio_const_write_buffer_queue_tail(&wbh, &wb);
+	struct cio_write_buffer wbh;
+	cio_write_buffer_head_init(&wbh);
+	struct cio_write_buffer wb;
+	cio_write_buffer_element_init(&wb, test_data, strlen(test_data));
+	cio_write_buffer_queue_tail(&wbh, &wb);
 
 	memory_stream_init(&client->ms, "");
 	write_some_fake.custom_fake = write_some_all;
@@ -1526,11 +1526,11 @@ static void test_write_no_buffer_for_write(void)
 
 	struct client *client = malloc(sizeof(*client));
 
-	struct cio_const_write_buffer wbh;
-	cio_const_write_buffer_head_init(&wbh);
-	struct cio_const_write_buffer wb;
-	cio_const_write_buffer_element_init(&wb, test_data, strlen(test_data));
-	cio_const_write_buffer_queue_tail(&wbh, &wb);
+	struct cio_write_buffer wbh;
+	cio_write_buffer_head_init(&wbh);
+	struct cio_write_buffer wb;
+	cio_write_buffer_element_init(&wb, test_data, strlen(test_data));
+	cio_write_buffer_queue_tail(&wbh, &wb);
 
 	memory_stream_init(&client->ms, "");
 	write_some_fake.custom_fake = write_some_all;
@@ -1552,11 +1552,11 @@ static void test_write_no_handler_for_write(void)
 
 	struct client *client = malloc(sizeof(*client));
 
-	struct cio_const_write_buffer wbh;
-	cio_const_write_buffer_head_init(&wbh);
-	struct cio_const_write_buffer wb;
-	cio_const_write_buffer_element_init(&wb, test_data, strlen(test_data));
-	cio_const_write_buffer_queue_tail(&wbh, &wb);
+	struct cio_write_buffer wbh;
+	cio_write_buffer_head_init(&wbh);
+	struct cio_write_buffer wb;
+	cio_write_buffer_element_init(&wb, test_data, strlen(test_data));
+	cio_write_buffer_queue_tail(&wbh, &wb);
 
 	memory_stream_init(&client->ms, "");
 	write_some_fake.custom_fake = write_some_all;
@@ -1578,11 +1578,11 @@ static void test_write_one_buffer_partial_write_error(void)
 
 	struct client *client = malloc(sizeof(*client));
 
-	struct cio_const_write_buffer wbh;
-	cio_const_write_buffer_head_init(&wbh);
-	struct cio_const_write_buffer wb;
-	cio_const_write_buffer_element_init(&wb, test_data, strlen(test_data));
-	cio_const_write_buffer_queue_tail(&wbh, &wb);
+	struct cio_write_buffer wbh;
+	cio_write_buffer_head_init(&wbh);
+	struct cio_write_buffer wb;
+	cio_write_buffer_element_init(&wb, test_data, strlen(test_data));
+	cio_write_buffer_queue_tail(&wbh, &wb);
 
 	memory_stream_init(&client->ms, "");
 	write_some_fake.custom_fake = write_some_first_write_partial_second_error;
@@ -1597,7 +1597,7 @@ static void test_write_one_buffer_partial_write_error(void)
 	TEST_ASSERT_EQUAL_MESSAGE(1, close_fake.call_count, "Underlying cio_iostream was not closed!");
 	TEST_ASSERT_EQUAL_MESSAGE(1, dummy_write_handler_fake.call_count, "Handler was not called!");
 	TEST_ASSERT_EQUAL_MESSAGE(&wbh, dummy_write_handler_fake.arg2_val, "Handler was not called with original write_buffer!");
-	struct cio_const_write_buffer *test_buffer = wbh.next;
+	struct cio_write_buffer *test_buffer = wbh.next;
 	TEST_ASSERT_EQUAL_MESSAGE(test_buffer, &wb, "First write buffer not the original one!");
 	test_buffer = test_buffer->next;
 	TEST_ASSERT_EQUAL_MESSAGE(test_buffer, &wbh, "First write buffer does not point to original head!");
@@ -1610,14 +1610,14 @@ static void test_write_two_buffers_one_chunk(void)
 
 	struct client *client = malloc(sizeof(*client));
 
-	struct cio_const_write_buffer wbh;
-	cio_const_write_buffer_head_init(&wbh);
-	struct cio_const_write_buffer wb1;
-	cio_const_write_buffer_element_init(&wb1, test_data, strlen(test_data) / 2);
-	cio_const_write_buffer_queue_tail(&wbh, &wb1);
-	struct cio_const_write_buffer wb2;
-	cio_const_write_buffer_element_init(&wb2, test_data + (strlen(test_data) / 2), strlen(test_data) - strlen(test_data) / 2);
-	cio_const_write_buffer_queue_tail(&wbh, &wb2);
+	struct cio_write_buffer wbh;
+	cio_write_buffer_head_init(&wbh);
+	struct cio_write_buffer wb1;
+	cio_write_buffer_element_init(&wb1, test_data, strlen(test_data) / 2);
+	cio_write_buffer_queue_tail(&wbh, &wb1);
+	struct cio_write_buffer wb2;
+	cio_write_buffer_element_init(&wb2, test_data + (strlen(test_data) / 2), strlen(test_data) - strlen(test_data) / 2);
+	cio_write_buffer_queue_tail(&wbh, &wb2);
 
 	memory_stream_init(&client->ms, "");
 	write_some_fake.custom_fake = write_some_all;
@@ -1632,7 +1632,7 @@ static void test_write_two_buffers_one_chunk(void)
 	TEST_ASSERT_EQUAL_MESSAGE(1, close_fake.call_count, "Underlying cio_iostream was not closed!");
 	TEST_ASSERT_EQUAL_MESSAGE(1, dummy_write_handler_fake.call_count, "Handler was not called!");
 	TEST_ASSERT_EQUAL_MESSAGE(&wbh, dummy_write_handler_fake.arg2_val, "Handler was not called with original write_buffer!");
-	struct cio_const_write_buffer *test_buffer = wbh.next;
+	struct cio_write_buffer *test_buffer = wbh.next;
 	TEST_ASSERT_EQUAL_MESSAGE(test_buffer, &wb1, "First write buffer not the original one!");
 	test_buffer = test_buffer->next;
 	TEST_ASSERT_EQUAL_MESSAGE(test_buffer, &wb2, "Second write buffer not the original one!");

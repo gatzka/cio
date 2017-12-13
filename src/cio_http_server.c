@@ -73,7 +73,7 @@ static void mark_to_be_closed(struct cio_http_client *client)
 	}
 }
 
-static void response_written(struct cio_buffered_stream *bs, void *handler_context, const struct cio_const_write_buffer *buffer, enum cio_error err)
+static void response_written(struct cio_buffered_stream *bs, void *handler_context, const struct cio_write_buffer *buffer, enum cio_error err)
 {
 	(void)bs;
 	(void)buffer;
@@ -103,11 +103,11 @@ static const char *get_response_statusline(enum cio_http_status_code status_code
 static void queue_header(struct cio_http_client *client, enum cio_http_status_code status_code)
 {
 	const char *response = get_response_statusline(status_code);
-	cio_const_write_buffer_head_init(&client->wbh);
-	cio_const_write_buffer_element_init(&client->wb_http_response_statusline, response, strlen(response));
-	cio_const_write_buffer_queue_tail(&client->wbh, &client->wb_http_response_statusline);
-	cio_const_write_buffer_element_init(&client->wb_http_response_header_end, CIO_CRLF, strlen(CIO_CRLF));
-	cio_const_write_buffer_queue_tail(&client->wbh, &client->wb_http_response_header_end);
+	cio_write_buffer_head_init(&client->wbh);
+	cio_write_buffer_element_init(&client->wb_http_response_statusline, response, strlen(response));
+	cio_write_buffer_queue_tail(&client->wbh, &client->wb_http_response_statusline);
+	cio_write_buffer_element_init(&client->wb_http_response_header_end, CIO_CRLF, strlen(CIO_CRLF));
+	cio_write_buffer_queue_tail(&client->wbh, &client->wb_http_response_header_end);
 }
 
 static void flush(struct cio_http_client *client, cio_buffered_stream_write_handler handler)
@@ -121,10 +121,10 @@ static void write_header(struct cio_http_client *client, enum cio_http_status_co
 	flush(client, response_written);
 }
 
-static void write_response(struct cio_http_client *client, struct cio_const_write_buffer *wbh)
+static void write_response(struct cio_http_client *client, struct cio_write_buffer *wbh)
 {
 	queue_header(client, CIO_HTTP_STATUS_OK);
-	cio_const_write_buffer_splice(wbh, &client->wbh);
+	cio_write_buffer_splice(wbh, &client->wbh);
 	flush(client, response_written);
 }
 

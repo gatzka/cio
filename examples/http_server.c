@@ -48,8 +48,8 @@ static const char data[] = "<html><body><h1>Hello, World!</h1></body></html>";
 
 struct dummy_handler {
 	struct cio_http_location_handler handler;
-	struct cio_const_write_buffer wbh;
-	struct cio_const_write_buffer wb;
+	struct cio_write_buffer wbh;
+	struct cio_write_buffer wb;
 };
 
 static void free_dummy_handler(struct cio_http_location_handler *handler)
@@ -62,8 +62,8 @@ static enum cio_http_cb_return dummy_on_message_complete(struct cio_http_client 
 {
 	struct cio_http_location_handler *handler = client->handler;
 	struct dummy_handler *dh = container_of(handler, struct dummy_handler, handler);
-	cio_const_write_buffer_element_init(&dh->wb, data, sizeof(data));
-	cio_const_write_buffer_queue_tail(&dh->wbh, &dh->wb);
+	cio_write_buffer_element_init(&dh->wb, data, sizeof(data));
+	cio_write_buffer_queue_tail(&dh->wbh, &dh->wb);
 	client->write_response(client, &dh->wbh);
 	return CIO_HTTP_CB_SUCCESS;
 }
@@ -84,7 +84,7 @@ static struct cio_http_location_handler *alloc_dummy_handler(const void *config)
 		return NULL;
 	} else {
 		cio_http_location_handler_init(&handler->handler);
-		cio_const_write_buffer_head_init(&handler->wbh);
+		cio_write_buffer_head_init(&handler->wbh);
 		handler->handler.free = free_dummy_handler;
 		handler->handler.on_body = dummy_on_body;
 		handler->handler.on_message_complete = dummy_on_message_complete;

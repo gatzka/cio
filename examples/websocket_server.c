@@ -50,8 +50,8 @@ static const uint64_t read_timeout = UINT64_C(5) * UINT64_C(1000) * UINT64_C(100
 
 struct ws_echo_handler {
 	struct cio_websocket_location_handler ws_handler;
-	struct cio_const_write_buffer wbh;
-	struct cio_const_write_buffer wb_message;
+	struct cio_write_buffer wbh;
+	struct cio_write_buffer wb_message;
 };
 
 static void free_websocket_handler(struct cio_http_location_handler *handler)
@@ -66,7 +66,7 @@ static void onconnect_handler(struct cio_websocket *ws)
 	fprintf(stdout, "Websocket connected!\n");
 }
 
-static void write_complete(struct cio_websocket *ws, void *handler_context, const struct cio_const_write_buffer *buffer, enum cio_error err)
+static void write_complete(struct cio_websocket *ws, void *handler_context, const struct cio_write_buffer *buffer, enum cio_error err)
 {
 	(void)handler_context;
 	(void)buffer;
@@ -75,9 +75,9 @@ static void write_complete(struct cio_websocket *ws, void *handler_context, cons
 	struct ws_echo_handler *eh = container_of(handler, struct ws_echo_handler, ws_handler);
 
 	static const char *close_message = "Good Bye!";
-	cio_const_write_buffer_head_init(&eh->wbh);
-	cio_const_write_buffer_element_init(&eh->wb_message, close_message, strlen(close_message));
-	cio_const_write_buffer_queue_tail(&eh->wbh, &eh->wb_message);
+	cio_write_buffer_head_init(&eh->wbh);
+	cio_write_buffer_element_init(&eh->wb_message, close_message, strlen(close_message));
+	cio_write_buffer_queue_tail(&eh->wbh, &eh->wb_message);
 	ws->close(ws, CIO_WEBSOCKET_CLOSE_NORMAL, &eh->wbh);
 }
 
@@ -92,9 +92,9 @@ static void ontextframe_received(struct cio_websocket *ws, char *data, size_t le
 	fprintf(stdout, "\n");
 
 	static const char *text_message = "Hello World!";
-	cio_const_write_buffer_head_init(&eh->wbh);
-	cio_const_write_buffer_element_init(&eh->wb_message, text_message, strlen(text_message));
-	cio_const_write_buffer_queue_tail(&eh->wbh, &eh->wb_message);
+	cio_write_buffer_head_init(&eh->wbh);
+	cio_write_buffer_element_init(&eh->wb_message, text_message, strlen(text_message));
+	cio_write_buffer_queue_tail(&eh->wbh, &eh->wb_message);
 	ws->write_text_frame(ws, &eh->wbh, true, write_complete, NULL);
 }
 
