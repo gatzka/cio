@@ -23,7 +23,7 @@
  <tr style="height: 56px;">
   <td style="padding-left: 0.5em;">
    <div id="projectname">ANSI C I/O Library
-   &#160;<span id="projectnumber">0.0.1-779+c23a399</span>
+   &#160;<span id="projectnumber">0.0.1-780+f243da4</span>
    </div>
   </td>
  </tr>
@@ -133,6 +133,7 @@ Data Fields</h2></td></tr>
 
 <p>Closes a websocket. </p>
 <p><a class="anchor" id="cio_websocket_close"></a></p>
+<dl class="section warning"><dt>Warning</dt><dd>Please note that the data <code>reason</code> encapsulates will be scrambled by the library if this function is used in a websocket client connection. You should ALWAYS intialize the write buffer elements in * <code>reason</code> using the <a class="el" href="cio__write__buffer_8h.html#a6ad781e6c624d301aaf007ce554b501b">non-const initialization function</a>.</dd></dl>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">ws</td><td>The websocket to be closed. </td></tr>
