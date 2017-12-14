@@ -278,10 +278,10 @@ static void handle_ping_frame(struct cio_websocket *ws, uint8_t *data, uint64_t 
 		ws->onping(ws, data, length);
 	}
 
+	struct cio_write_buffer wbh;
 	struct cio_write_buffer *payload;
 	if (length > 0) {
 		memcpy(ws->received_control_frame, data, length);
-		struct cio_write_buffer wbh;
 		cio_write_buffer_head_init(&wbh);
 		cio_write_buffer_element_init(&ws->wb_control_data, ws->received_control_frame, length);
 		cio_write_buffer_queue_tail(&wbh, &ws->wb_control_data);
