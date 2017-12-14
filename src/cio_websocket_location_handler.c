@@ -174,6 +174,7 @@ static bool check_http_version(const struct cio_http_client *client)
 	if (client->http_major > 1) {
 		return true;
 	}
+
 	if ((client->http_major == 1) && (client->http_minor >= 1)) {
 		return true;
 	} else {
