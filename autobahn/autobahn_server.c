@@ -70,7 +70,6 @@ static void write_complete(struct cio_websocket *ws, void *handler_context, cons
 	(void)ws;
 	// struct cio_websocket_location_handler *handler = container_of(ws, struct cio_websocket_location_handler, websocket);
 	// struct ws_autobahn_handler *eh = container_of(handler, struct ws_autobahn_handler, ws_handler);
-	fprintf(stdout, "write complete\n");
 }
 
 static void ontextframe_received(struct cio_websocket *ws, char *data, size_t length, bool last_frame)
