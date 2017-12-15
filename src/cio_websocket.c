@@ -257,9 +257,12 @@ static void handle_close_frame(struct cio_websocket *ws, uint8_t *data, uint64_t
 	}
 }
 
-
 static void handle_error(struct cio_websocket *ws, enum cio_websocket_status_code status, const char *reason)
 {
+	if (ws->onerror != NULL) {
+		ws->onerror(ws, status, reason);
+	}
+
 	struct cio_write_buffer wbh;
 	cio_write_buffer_head_init(&wbh);
 	strncpy((char *)ws->received_control_frame, reason, sizeof(ws->received_control_frame));
