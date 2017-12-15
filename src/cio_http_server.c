@@ -39,10 +39,11 @@
 #include "cio_socket.h"
 #include "cio_timer.h"
 #include "cio_util.h"
+#include "cio_version.h"
 
 #define CIO_CRLF "\r\n"
 
-#define CIO_HTTP_VERSION "HTTP/1.0"
+#define CIO_HTTP_VERSION "HTTP/1.1"
 
 static void close_client(struct cio_http_client *client)
 {
@@ -87,16 +88,16 @@ static const char *get_response_statusline(enum cio_http_status_code status_code
 {
 	switch (status_code) {
 	case CIO_HTTP_SWITCHING_PROTOCOLS:
-		return CIO_HTTP_VERSION " 101 Switching Protocols" CIO_CRLF;
+		return CIO_HTTP_VERSION " 101 Switching Protocols" CIO_CRLF "Server: cio http/" CIO_VERSION CIO_CRLF;
 	case CIO_HTTP_STATUS_OK:
-		return CIO_HTTP_VERSION " 200 OK" CIO_CRLF;
+		return CIO_HTTP_VERSION " 200 OK" CIO_CRLF "Server: cio http/" CIO_VERSION CIO_CRLF;
 	case CIO_HTTP_STATUS_BAD_REQUEST:
-		return CIO_HTTP_VERSION " 400 Bad Request" CIO_CRLF;
+		return CIO_HTTP_VERSION " 400 Bad Request" CIO_CRLF "Server: cio http/" CIO_VERSION CIO_CRLF;
 	case CIO_HTTP_STATUS_NOT_FOUND:
-		return CIO_HTTP_VERSION " 404 Not Found" CIO_CRLF;
+		return CIO_HTTP_VERSION " 404 Not Found" CIO_CRLF "Server: cio http/" CIO_VERSION CIO_CRLF;
 
 	default:
-		return CIO_HTTP_VERSION " 500 Internal Server Error" CIO_CRLF;
+		return CIO_HTTP_VERSION " 500 Internal Server Error" CIO_CRLF "Server: cio http/" CIO_VERSION CIO_CRLF;
 	}
 }
 

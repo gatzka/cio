@@ -136,8 +136,9 @@ struct cio_websocket {
 	 *
 	 * @param ws The websocket which encountered the error.
 	 * @param status The status code describing the error.
+	 * @param status A string describing the reason for the error. Could be @c NULL.
 	 */
-	void (*onerror)(const struct cio_websocket *ws, enum cio_websocket_status_code status);
+	void (*onerror)(const struct cio_websocket *ws, enum cio_websocket_status_code status, const char *reason);
 
 	/**
      * @brief Writes a text frame to the websocket.

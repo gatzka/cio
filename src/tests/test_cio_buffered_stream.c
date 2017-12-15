@@ -1643,6 +1643,45 @@ static void test_write_two_buffers_one_chunk(void)
 	TEST_ASSERT_MESSAGE(memcmp((const char *)write_check_buffer, test_data, strlen(test_data)) == 0, "Data was not written correctly!");
 }
 
+static void test_write_two_buffers_one_chunk_last_buffer_empty(void)
+{
+	static const char *test_data = "HelloWorld";
+
+	struct client *client = malloc(sizeof(*client));
+
+	struct cio_write_buffer wbh;
+	cio_write_buffer_head_init(&wbh);
+	struct cio_write_buffer wb1;
+	cio_write_buffer_const_element_init(&wb1, test_data, strlen(test_data));
+	cio_write_buffer_queue_tail(&wbh, &wb1);
+	struct cio_write_buffer wb2;
+	cio_write_buffer_const_element_init(&wb2, NULL, 0);
+	cio_write_buffer_queue_tail(&wbh, &wb2);
+
+	memory_stream_init(&client->ms, "");
+	write_some_fake.custom_fake = write_some_all;
+
+	enum cio_error err = cio_buffered_stream_init(&client->bs, &client->ms.ios);
+	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Buffer was not initialized correctly!");
+	err = client->bs.write(&client->bs, &wbh, dummy_write_handler, NULL);
+	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Return value not correct!");
+
+	err = client->bs.close(&client->bs);
+	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Return value not correct!");
+	TEST_ASSERT_EQUAL_MESSAGE(1, close_fake.call_count, "Underlying cio_iostream was not closed!");
+	TEST_ASSERT_EQUAL_MESSAGE(1, dummy_write_handler_fake.call_count, "Handler was not called!");
+	TEST_ASSERT_EQUAL_MESSAGE(&wbh, dummy_write_handler_fake.arg2_val, "Handler was not called with original write_buffer!");
+	struct cio_write_buffer *test_buffer = wbh.next;
+	TEST_ASSERT_EQUAL_MESSAGE(test_buffer, &wb1, "First write buffer not the original one!");
+	test_buffer = test_buffer->next;
+	TEST_ASSERT_EQUAL_MESSAGE(test_buffer, &wb2, "Second write buffer not the original one!");
+	test_buffer = test_buffer->next;
+	TEST_ASSERT_EQUAL_MESSAGE(test_buffer, &wbh, "Second write buffer does not point to original head!");
+
+	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, dummy_write_handler_fake.arg3_val, "Handler was not called with CIO_SUCCESS!");
+	TEST_ASSERT_MESSAGE(memcmp((const char *)write_check_buffer, test_data, strlen(test_data)) == 0, "Data was not written correctly!");
+}
+
 static void test_close_no_stream(void)
 {
 	struct client *client = malloc(sizeof(*client));
@@ -1697,6 +1736,7 @@ int main(void)
 	RUN_TEST(test_write_one_buffer_one_chunk);
 	RUN_TEST(test_write_one_buffer_one_chunk_read_in_callbacks_then_close);
 	RUN_TEST(test_write_two_buffers_one_chunk);
+	RUN_TEST(test_write_two_buffers_one_chunk_last_buffer_empty);
 	RUN_TEST(test_write_two_buffers_partial_write);
 	RUN_TEST(test_write_two_buffers_double_partial_write);
 	RUN_TEST(test_write_two_buffers_partial_write_at_buffer_boundary);

@@ -257,6 +257,21 @@ static void handle_close_frame(struct cio_websocket *ws, uint8_t *data, uint64_t
 	}
 }
 
+static void handle_error(struct cio_websocket *ws, enum cio_websocket_status_code status, const char *reason)
+{
+	if (ws->onerror != NULL) {
+		ws->onerror(ws, status, reason);
+	}
+
+	struct cio_write_buffer wbh;
+	cio_write_buffer_head_init(&wbh);
+	strncpy((char *)ws->received_control_frame, reason, sizeof(ws->received_control_frame));
+	cio_write_buffer_element_init(&ws->wb_control_data, ws->received_control_frame, strlen(reason));
+	cio_write_buffer_queue_tail(&wbh, &ws->wb_control_data);
+
+	send_close_frame(ws, status, &wbh);
+}
+
 static void get_header(struct cio_buffered_stream *bs, void *handler_context, enum cio_error err, struct cio_read_buffer *buffer);
 
 static void restart_reading(struct cio_buffered_stream *bs, void *handler_context, const struct cio_write_buffer *buffer, enum cio_error err)
@@ -421,7 +436,11 @@ static void get_mask(struct cio_buffered_stream *bs, void *handler_context, enum
 
 	memcpy(ws->mask, ptr, sizeof(ws->mask));
 	if (likely(ws->read_frame_length > 0)) {
-		bs->read_exactly(bs, buffer, ws->read_frame_length, get_payload, ws);
+		err = bs->read_exactly(bs, buffer, ws->read_frame_length, get_payload, ws);
+		if (unlikely(err != CIO_SUCCESS)) {
+			handle_error(ws, CIO_WEBSOCKET_CLOSE_TOO_LARGE, "payload length too large to handle");
+			return;
+		}
 	} else {
 		buffer->bytes_transferred = 0;
 		handle_frame(ws, NULL, 0);
