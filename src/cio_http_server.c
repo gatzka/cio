@@ -42,7 +42,7 @@
 
 #define CIO_CRLF "\r\n"
 
-#define CIO_HTTP_VERSION "HTTP/1.0"
+#define CIO_HTTP_VERSION "HTTP/1.1"
 
 static void close_client(struct cio_http_client *client)
 {
