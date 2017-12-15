@@ -67,7 +67,8 @@ enum cio_error {
 	CIO_TOO_MANY_SYMBOLIC_LINK_LEVELS = -ELOOP,       /*!< Too many symbolic link levels. */
 	CIO_OPERATION_ABORTED = -ECANCELED,               /*!< Operation cancelled. */
 	CIO_NO_SUCH_DEVICE = -ENODEV,                     /*!< No such device. */
-	CIO_MESSAGE_TOO_LONG = -EMSGSIZE                  /*!< Message too long. */
+	CIO_MESSAGE_TOO_LONG = -EMSGSIZE,                 /*!< Message too long. */
+	CIO_NETRESET = -ENETRESET                         /*!< Network dropped connection because of reset. */
 };
 
 static inline bool cio_is_error(enum cio_error error)
