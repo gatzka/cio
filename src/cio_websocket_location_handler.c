@@ -203,10 +203,9 @@ static void response_written(struct cio_buffered_stream *bs, void *handler_conte
 
 	if (likely(ws->onconnect_handler != NULL)) {
 		ws->onconnect_handler(ws);
-		ws->receive_frames(ws);
-	} else {
-		client->close(client);
 	}
+
+	ws->receive_frames(ws);
 }
 
 static void send_upgrade_response(struct cio_http_client *client)
