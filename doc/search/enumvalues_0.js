@@ -55,6 +55,7 @@ var searchData=
   ['cio_5fhttp_5funsubscribe',['CIO_HTTP_UNSUBSCRIBE',['../cio__http__method_8h.html#af72daec94b7eb3d7c6ba31bdb7ba0ef3af2caaf7b83438ec60d832a88d9d57a29',1,'cio_http_method.h']]],
   ['cio_5finvalid_5fargument',['CIO_INVALID_ARGUMENT',['../cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afea5c1717df699ce9f37dff0713f0c183fe',1,'cio_error_code.h']]],
   ['cio_5fmessage_5ftoo_5flong',['CIO_MESSAGE_TOO_LONG',['../cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afeac9b795483cae05076b54df12ff247712',1,'cio_error_code.h']]],
+  ['cio_5fnetreset',['CIO_NETRESET',['../cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afea06200e7e0c85f55eb1ba3468fc2c6d70',1,'cio_error_code.h']]],
   ['cio_5fno_5fbuffer_5fspace',['CIO_NO_BUFFER_SPACE',['../cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afea10aa72394024ba09c852f329c4837f17',1,'cio_error_code.h']]],
   ['cio_5fno_5fprotocol_5foption',['CIO_NO_PROTOCOL_OPTION',['../cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afeaccb75f5d6425bab75f8d1e168b8c89f0',1,'cio_error_code.h']]],
   ['cio_5fno_5fspace_5fleft_5fon_5fdevice',['CIO_NO_SPACE_LEFT_ON_DEVICE',['../cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afeaeb3abd6ed874a2c9f32f8880a0c10452',1,'cio_error_code.h']]],

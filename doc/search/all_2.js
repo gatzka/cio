@@ -109,6 +109,7 @@ var searchData=
   ['cio_5fis_5ferror',['cio_is_error',['../cio__error__code_8h.html#ad02f5d7b307aca08ed1bc81013dd8195',1,'cio_error_code.h']]],
   ['cio_5fmemmem',['cio_memmem',['../cio__string_8h.html#aa98e3cf3ccb2a8598da835e873afea3f',1,'cio_string.h']]],
   ['cio_5fmessage_5ftoo_5flong',['CIO_MESSAGE_TOO_LONG',['../cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afeac9b795483cae05076b54df12ff247712',1,'cio_error_code.h']]],
+  ['cio_5fnetreset',['CIO_NETRESET',['../cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afea06200e7e0c85f55eb1ba3468fc2c6d70',1,'cio_error_code.h']]],
   ['cio_5fno_5fbuffer_5fspace',['CIO_NO_BUFFER_SPACE',['../cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afea10aa72394024ba09c852f329c4837f17',1,'cio_error_code.h']]],
   ['cio_5fno_5fprotocol_5foption',['CIO_NO_PROTOCOL_OPTION',['../cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afeaccb75f5d6425bab75f8d1e168b8c89f0',1,'cio_error_code.h']]],
   ['cio_5fno_5fspace_5fleft_5fon_5fdevice',['CIO_NO_SPACE_LEFT_ON_DEVICE',['../cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afeaeb3abd6ed874a2c9f32f8880a0c10452',1,'cio_error_code.h']]],

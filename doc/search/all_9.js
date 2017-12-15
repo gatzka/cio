@@ -15,7 +15,7 @@ var searchData=
   ['onbinaryframe',['onbinaryframe',['../structcio__websocket.html#af17b407ab06763f9682b4b274bbddbeb',1,'cio_websocket']]],
   ['onclose',['onclose',['../structcio__websocket.html#adad3c3b43cf47ef1a78481a3468968ab',1,'cio_websocket']]],
   ['onconnect_5fhandler',['onconnect_handler',['../structcio__websocket.html#ae2a56e0594ccb894e9fd57910f737fcd',1,'cio_websocket']]],
-  ['onerror',['onerror',['../structcio__websocket.html#a317d8d627b95e3d73c1ed97f79e210d9',1,'cio_websocket']]],
+  ['onerror',['onerror',['../structcio__websocket.html#a45a50fe74b2e094d493ccf4d58643eb0',1,'cio_websocket']]],
   ['onping',['onping',['../structcio__websocket.html#a258cd0f5e5be365c5979c8b85c151ebb',1,'cio_websocket']]],
   ['onpong',['onpong',['../structcio__websocket.html#a4f0454fef15555a05bf675f542d949ad',1,'cio_websocket']]],
   ['ontextframe',['ontextframe',['../structcio__websocket.html#a561deeeb9d5a3c445e8b268b2090cbd6',1,'cio_websocket']]]
