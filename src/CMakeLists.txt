@@ -30,6 +30,8 @@ if(is_linux)
 endif()
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/)
+include_directories(${PROJECT_BINARY_DIR}/generated/)
+
 set(CIO_FILES
     cio_base64.c
     cio_buffered_stream.c

@@ -2,10 +2,14 @@ cmake_minimum_required(VERSION 3.0)
 project(cio-tests C)
 
 set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/../../cmake/)
+include(generateVersion)
 
 if(NOT CMAKE_BUILD_TYPE)
     set(CMAKE_BUILD_TYPE "Debug")
 endif()
+
+GenerateVersion(../version ${PROJECT_NAME})
+configure_file(../cio_version.h.in ${PROJECT_BINARY_DIR}/generated/cio_version.h)
 
 include(sanitizer)
 
@@ -18,6 +22,7 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../linux/)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../fff/)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../unity/src/)
+include_directories(${PROJECT_BINARY_DIR}/generated/)
 
 set(WARN_SWITCHES "-Wall -Wextra -Werror -Wshadow -Winit-self -Wcast-qual -Wcast-align -Wformat=2 -Wwrite-strings -Wmissing-prototypes -Wstrict-overflow=5 -pedantic")
 set(COVERAGE_FLAGS "-fprofile-arcs -ftest-coverage")
