@@ -260,7 +260,7 @@ static void handle_write(struct cio_io_stream *io_stream, void *handler_context,
 		return;
 	}
 
-	while (bytes_transferred != 0) {
+	while (!cio_write_buffer_queue_empty(&bs->wbh)) {
 		struct cio_write_buffer *wb = cio_write_buffer_queue_dequeue(&bs->wbh);
 		if (buffer_partially_written(wb, bytes_transferred)) {
 			if (!buffer_is_temp_buffer(bs, wb)) {
@@ -271,7 +271,7 @@ static void handle_write(struct cio_io_stream *io_stream, void *handler_context,
 			size_t new_length = wb->data.element.length - bytes_transferred;
 			cio_write_buffer_const_element_init(&bs->wb, new_data, new_length);
 			cio_write_buffer_queue_head(&bs->wbh, &bs->wb);
-			bytes_transferred = 0;
+			break;
 		} else {
 			bytes_transferred -= wb->data.element.length;
 			if (!buffer_is_temp_buffer(bs, wb)) {
