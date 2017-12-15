@@ -259,6 +259,40 @@ static void handle_close_frame(struct cio_websocket *ws, uint8_t *data, uint64_t
 
 static void get_header(struct cio_buffered_stream *bs, void *handler_context, enum cio_error err, struct cio_read_buffer *buffer);
 
+static void restart_reading(struct cio_buffered_stream *bs, void *handler_context, const struct cio_write_buffer *buffer, enum cio_error err)
+{
+	(void)bs;
+	(void)buffer;
+	struct cio_websocket *ws = (struct cio_websocket *)handler_context;
+	if (err != CIO_SUCCESS) {
+		// TODO: handle_error(s, WS_CLOSE_PROTOCOL_ERROR);
+
+	}
+
+	ws->bs->read_exactly(ws->bs, ws->rb, 1, get_header, ws);
+}
+
+static void handle_ping_frame(struct cio_websocket *ws, uint8_t *data, uint64_t length)
+{
+	if (ws->onping != NULL) {
+		ws->onping(ws, data, length);
+	}
+
+	struct cio_write_buffer wbh;
+	struct cio_write_buffer *payload;
+	if (length > 0) {
+		memcpy(ws->received_control_frame, data, length);
+		cio_write_buffer_head_init(&wbh);
+		cio_write_buffer_element_init(&ws->wb_control_data, ws->received_control_frame, length);
+		cio_write_buffer_queue_tail(&wbh, &ws->wb_control_data);
+		payload = &wbh;
+	} else {
+		payload = NULL;
+	}
+
+	send_frame(ws, payload, CIO_WEBSOCKET_PONG_FRAME, true, restart_reading);
+}
+
 static void handle_frame(struct cio_websocket *ws, uint8_t *data, uint64_t length)
 {
 	if (unlikely((ws->ws_flags.is_server == 1) && (ws->ws_flags.shall_mask == 0))) {
@@ -335,11 +369,8 @@ static void handle_frame(struct cio_websocket *ws, uint8_t *data, uint64_t lengt
 		break;
 
 	case CIO_WEBSOCKET_PING_FRAME:
-		if (ws->onping != NULL) {
-			ws->onping(ws, data, length);
-		}
-
-		break;
+		handle_ping_frame(ws, data, length);
+		return;
 
 	case CIO_WEBSOCKET_PONG_FRAME:
 		if (ws->onpong != NULL) {
