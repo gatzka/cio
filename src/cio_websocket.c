@@ -188,8 +188,8 @@ static void send_close_frame(struct cio_websocket *ws, enum cio_websocket_status
 
 static void handle_binary_frame(struct cio_websocket *ws, uint8_t *data, uint64_t length, bool last_frame)
 {
-	if (likely(ws->onbinaryframe != NULL)) {
-		ws->onbinaryframe(ws, data, length, last_frame);
+	if (likely(ws->on_binaryframe != NULL)) {
+		ws->on_binaryframe(ws, data, length, last_frame);
 	} else {
 		// TODO: handle_error(s, WS_CLOSE_UNSUPPORTED);
 	}
@@ -197,8 +197,8 @@ static void handle_binary_frame(struct cio_websocket *ws, uint8_t *data, uint64_
 
 static void handle_text_frame(struct cio_websocket *ws, uint8_t *data, uint64_t length, bool last_frame)
 {
-	if (likely(ws->ontextframe != NULL)) {
-		ws->ontextframe(ws, (char *)data, length, last_frame);
+	if (likely(ws->on_textframe != NULL)) {
+		ws->on_textframe(ws, (char *)data, length, last_frame);
 	} else {
 		// TODO: handle_error(s, WS_CLOSE_UNSUPPORTED);
 	}
@@ -240,8 +240,8 @@ static void handle_close_frame(struct cio_websocket *ws, uint8_t *data, uint64_t
 	if (ws->ws_flags.self_initiated_close == 1) {
 		ws->close_timer.cancel(&ws->close_timer);
 	} else {
-		if (ws->onclose != NULL) {
-			ws->onclose(ws, (enum cio_websocket_status_code)status_code, reason, length);
+		if (ws->on_close != NULL) {
+			ws->on_close(ws, (enum cio_websocket_status_code)status_code, reason, length);
 		}
 
 		if (length > 0) {
@@ -259,8 +259,8 @@ static void handle_close_frame(struct cio_websocket *ws, uint8_t *data, uint64_t
 
 static void handle_error(struct cio_websocket *ws, enum cio_websocket_status_code status, const char *reason)
 {
-	if (ws->onerror != NULL) {
-		ws->onerror(ws, status, reason);
+	if (ws->on_error != NULL) {
+		ws->on_error(ws, status, reason);
 	}
 
 	struct cio_write_buffer wbh;
@@ -289,8 +289,8 @@ static void restart_reading(struct cio_buffered_stream *bs, void *handler_contex
 
 static void handle_ping_frame(struct cio_websocket *ws, uint8_t *data, uint64_t length)
 {
-	if (ws->onping != NULL) {
-		ws->onping(ws, data, length);
+	if (ws->on_ping != NULL) {
+		ws->on_ping(ws, data, length);
 	}
 
 	struct cio_write_buffer wbh;
@@ -388,8 +388,8 @@ static void handle_frame(struct cio_websocket *ws, uint8_t *data, uint64_t lengt
 		return;
 
 	case CIO_WEBSOCKET_PONG_FRAME:
-		if (ws->onpong != NULL) {
-			ws->onpong(ws, data, length);
+		if (ws->on_pong != NULL) {
+			ws->on_pong(ws, data, length);
 		}
 
 		break;
@@ -635,15 +635,15 @@ static void write_text_frame(struct cio_websocket *ws, struct cio_write_buffer *
 
 void cio_websocket_init(struct cio_websocket *ws, bool is_server, cio_websocket_close_hook close_hook)
 {
-	ws->onconnect_handler = NULL;
-	ws->onerror = NULL;
-	ws->onclose = NULL;
-	ws->onpong = NULL;
+	ws->on_connect = NULL;
+	ws->on_error = NULL;
+	ws->on_close = NULL;
+	ws->on_pong = NULL;
 	ws->close = self_close_frame;
 	ws->receive_frames = receive_frames;
-	ws->write_binary_frame = write_binary_frame;
-	ws->write_ping_frame = write_ping_frame;
-	ws->write_text_frame = write_text_frame;
+	ws->write_binaryframe = write_binary_frame;
+	ws->write_pingframe = write_ping_frame;
+	ws->write_textframe = write_text_frame;
 	ws->ws_flags.is_server = is_server ? 1 : 0;
 	ws->close_hook = close_hook;
 	ws->ws_flags.is_fragmented = 0;

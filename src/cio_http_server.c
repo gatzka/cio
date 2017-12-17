@@ -45,6 +45,13 @@
 
 #define CIO_HTTP_VERSION "HTTP/1.1"
 
+static void handle_error(struct cio_http_server *server, const char *reason)
+{
+	if (server->on_error != NULL) {
+		server->on_error(server, reason);
+	}
+}
+
 static void close_client(struct cio_http_client *client)
 {
 	if (likely(client->handler != NULL)) {
@@ -52,7 +59,11 @@ static void close_client(struct cio_http_client *client)
 	}
 
 	client->read_timer.close(&client->read_timer);
-	client->bs.close(&client->bs);
+	enum cio_error err = client->bs.close(&client->bs);
+	if (unlikely(err != CIO_SUCCESS)) {
+		struct cio_http_server *server = (struct cio_http_server *)client->parser.data;
+		handle_error(server, "closing buffered stream of client failed");
+	}
 }
 
 static void client_timeout_handler(struct cio_timer *timer, void *handler_context, enum cio_error err)
@@ -113,7 +124,11 @@ static void queue_header(struct cio_http_client *client, enum cio_http_status_co
 
 static void flush(struct cio_http_client *client, cio_buffered_stream_write_handler handler)
 {
-	client->bs.write(&client->bs, &client->wbh, handler, client);
+	enum cio_error err = client->bs.write(&client->bs, &client->wbh, handler, client);
+	if (unlikely(err != CIO_SUCCESS)) {
+		struct cio_http_server *server = (struct cio_http_server *)client->parser.data;
+		handle_error(server, "flushing client responses failed");
+	}
 }
 
 static void write_header(struct cio_http_client *client, enum cio_http_status_code status_code)
@@ -177,7 +192,12 @@ static int on_headers_complete(http_parser *parser)
 	client->headers_complete = true;
 	client->content_length = parser->content_length;
 	if (parser->upgrade) {
-		client->read_timer.cancel(&client->read_timer);
+		enum cio_error err = client->read_timer.cancel(&client->read_timer);
+		if (unlikely(err != CIO_SUCCESS)) {
+			struct cio_http_server *server = (struct cio_http_server *)parser->data;
+			handle_error(server, "Cancelling read timer in on_headers_complete failed, maybe not armed?");
+		}
+
 		if (unlikely(client->handler->on_headers_complete == NULL)) {
 			client->write_header(client, CIO_HTTP_STATUS_INTERNAL_SERVER_ERROR);
 			return 0;
@@ -209,7 +229,11 @@ static int on_message_complete(http_parser *parser)
 	if (parser->upgrade == 0) {
 		// In case of an upgraded connection, the read timeout timer was
 		// already cancelled in on_headers_complete.
-		client->read_timer.cancel(&client->read_timer);
+		enum cio_error err = client->read_timer.cancel(&client->read_timer);
+		if (unlikely(err != CIO_SUCCESS)) {
+			struct cio_http_server *server = (struct cio_http_server *)parser->data;
+			handle_error(server, "Cancelling read timer in on_message_complete failed, maybe not armed?");
+		}
 	}
 
 	return client->handler->on_message_complete(client);
@@ -221,13 +245,12 @@ static int on_body(http_parser *parser, const char *at, size_t length)
 	return client->handler->on_body(client, at, length);
 }
 
-static int call_url_parts_callback(const struct http_parser_url *u, enum http_parser_url_fields url_field, cio_http_data_cb callback, struct cio_http_client *client, const char *at)
+static enum cio_http_cb_return call_url_parts_callback(const struct http_parser_url *u, enum http_parser_url_fields url_field, cio_http_data_cb callback, struct cio_http_client *client, const char *at)
 {
 	if (((u->field_set & (1 << url_field)) == (1 << url_field)) && (callback != NULL)) {
-		callback(client, at + u->field_data[url_field].off, u->field_data[url_field].len);
-		return 1;
+		return callback(client, at + u->field_data[url_field].off, u->field_data[url_field].len);
 	} else {
-		return 0;
+		return CIO_HTTP_CB_UNHANDLED;
 	}
 }
 
@@ -267,12 +290,48 @@ static int on_url(http_parser *parser, const char *at, size_t length)
 	handler->client = client;
 
 	int user_handler = 0;
-	user_handler |= call_url_parts_callback(&u, UF_SCHEMA, handler->on_schema, client, at);
-	user_handler |= call_url_parts_callback(&u, UF_HOST, handler->on_host, client, at);
-	user_handler |= call_url_parts_callback(&u, UF_PORT, handler->on_port, client, at);
-	user_handler |= call_url_parts_callback(&u, UF_PATH, handler->on_path, client, at);
-	user_handler |= call_url_parts_callback(&u, UF_QUERY, handler->on_query, client, at);
-	user_handler |= call_url_parts_callback(&u, UF_FRAGMENT, handler->on_fragment, client, at);
+
+	enum cio_http_cb_return cb_ret = call_url_parts_callback(&u, UF_SCHEMA, handler->on_schema, client, at);
+	if (unlikely(cb_ret == CIO_HTTP_CB_ERROR)) {
+		return -1;
+	} else if (cb_ret != CIO_HTTP_CB_UNHANDLED) {
+		user_handler = 1;
+	}
+
+	cb_ret = call_url_parts_callback(&u, UF_HOST, handler->on_host, client, at);
+	if (unlikely(cb_ret == CIO_HTTP_CB_ERROR)) {
+		return -1;
+	} else if (cb_ret != CIO_HTTP_CB_UNHANDLED) {
+		user_handler = 1;
+	}
+
+	cb_ret = call_url_parts_callback(&u, UF_PORT, handler->on_port, client, at);
+	if (unlikely(cb_ret == CIO_HTTP_CB_ERROR)) {
+		return -1;
+	} else if (cb_ret != CIO_HTTP_CB_UNHANDLED) {
+		user_handler = 1;
+	}
+
+	cb_ret = call_url_parts_callback(&u, UF_PATH, handler->on_path, client, at);
+	if (unlikely(cb_ret == CIO_HTTP_CB_ERROR)) {
+		return -1;
+	} else if (cb_ret != CIO_HTTP_CB_UNHANDLED) {
+		user_handler = 1;
+	}
+
+	cb_ret = call_url_parts_callback(&u, UF_QUERY, handler->on_query, client, at);
+	if (unlikely(cb_ret == CIO_HTTP_CB_ERROR)) {
+		return -1;
+	} else if (cb_ret != CIO_HTTP_CB_UNHANDLED) {
+		user_handler = 1;
+	}
+
+	cb_ret = call_url_parts_callback(&u, UF_FRAGMENT, handler->on_fragment, client, at);
+	if (unlikely(cb_ret == CIO_HTTP_CB_ERROR)) {
+		return -1;
+	} else if (cb_ret != CIO_HTTP_CB_UNHANDLED) {
+		user_handler = 1;
+	}
 
 	client->parser_settings.on_headers_complete = on_headers_complete;
 
@@ -346,16 +405,29 @@ static void parse(struct cio_buffered_stream *stream, void *handler_context, enu
 
 static void finish_bytes(struct cio_http_client *client)
 {
-	client->bs.read(&client->bs, &client->rb, parse, client);
+	enum cio_error err = client->bs.read(&client->bs, &client->rb, parse, client);
+	if (unlikely(err != CIO_SUCCESS)) {
+		struct cio_http_server *server = (struct cio_http_server *)client->parser.data;
+		handle_error(server, "Reading of bytes failed");
+		close_client(client);
+	}
 }
 
 static void finish_header_line(struct cio_http_client *client)
 {
+	enum cio_error err;
+
 	if (!client->headers_complete) {
-		client->bs.read_until(&client->bs, &client->rb, CIO_CRLF, parse, client);
+		err = client->bs.read_until(&client->bs, &client->rb, CIO_CRLF, parse, client);
 	} else {
 		client->finish_func = finish_bytes;
-		client->bs.read(&client->bs, &client->rb, parse, client);
+		err = client->bs.read(&client->bs, &client->rb, parse, client);
+	}
+
+	if (unlikely(err != CIO_SUCCESS)) {
+		struct cio_http_server *server = (struct cio_http_server *)client->parser.data;
+		handle_error(server, "Reading of bytes/header line failed");
+		close_client(client);
 	}
 }
 
@@ -364,7 +436,12 @@ static void finish_request_line(struct cio_http_client *client)
 	client->http_major = client->parser.http_major;
 	client->http_minor = client->parser.http_minor;
 	client->finish_func = finish_header_line;
-	client->bs.read_until(&client->bs, &client->rb, CIO_CRLF, parse, client);
+	enum cio_error err = client->bs.read_until(&client->bs, &client->rb, CIO_CRLF, parse, client);
+	if (unlikely(err != CIO_SUCCESS)) {
+		struct cio_http_server *server = (struct cio_http_server *)client->parser.data;
+		handle_error(server, "Reading of header line failed");
+		close_client(client);
+	}
 }
 
 static void handle_accept(struct cio_server_socket *ss, void *handler_context, enum cio_error err, struct cio_socket *socket)
@@ -374,10 +451,7 @@ static void handle_accept(struct cio_server_socket *ss, void *handler_context, e
 	struct cio_http_server *server = (struct cio_http_server *)handler_context;
 
 	if (unlikely(err != CIO_SUCCESS)) {
-		if (server->error_cb != NULL) {
-			server->error_cb(server);
-		}
-
+		handle_error(server, "accept failed");
 		return;
 	}
 
@@ -399,8 +473,17 @@ static void handle_accept(struct cio_server_socket *ss, void *handler_context, e
 	client->parser.data = server;
 	http_parser_init(&client->parser, HTTP_REQUEST);
 
-	cio_read_buffer_init(&client->rb, client->buffer, client->buffer_size);
-	cio_buffered_stream_init(&client->bs, socket->get_io_stream(socket));
+	err = cio_read_buffer_init(&client->rb, client->buffer, client->buffer_size);
+	if (unlikely(err != CIO_SUCCESS)) {
+		handle_error(server, "read buffer initialization failed");
+		return;
+	}
+
+	err = cio_buffered_stream_init(&client->bs, socket->get_io_stream(socket));
+	if (unlikely(err != CIO_SUCCESS)) {
+		handle_error(server, "read buffered stream initialization failed");
+		return;
+	}
 
 	err = cio_timer_init(&client->read_timer, server->loop, NULL);
 	if (unlikely(err != CIO_SUCCESS)) {
@@ -418,11 +501,12 @@ static void handle_accept(struct cio_server_socket *ss, void *handler_context, e
 	return;
 
 timer_err:
-	if (server->error_cb != NULL) {
-		server->error_cb(server);
-	}
+	handle_error(server, "client read timer initialization failed");
 
-	client->bs.close(&client->bs);
+	err = client->bs.close(&client->bs);
+	if (unlikely(err != CIO_SUCCESS)) {
+		handle_error(server, "closing buffered stream of client failed");
+	}
 }
 
 static enum cio_error serve(struct cio_http_server *server)
@@ -433,17 +517,17 @@ static enum cio_error serve(struct cio_http_server *server)
 	}
 
 	err = server->server_socket.set_reuse_address(&server->server_socket, true);
-	if (err != CIO_SUCCESS) {
+	if (unlikely(err != CIO_SUCCESS)) {
 		goto close_socket;
 	}
 
 	err = server->server_socket.bind(&server->server_socket, NULL, server->port);
-	if (err != CIO_SUCCESS) {
+	if (unlikely(err != CIO_SUCCESS)) {
 		goto close_socket;
 	}
 
 	err = server->server_socket.accept(&server->server_socket, handle_accept, server);
-	if (err != CIO_SUCCESS) {
+	if (unlikely(err != CIO_SUCCESS)) {
 		goto close_socket;
 	}
 
@@ -469,7 +553,7 @@ static enum cio_error register_handler(struct cio_http_server *server, struct ci
 enum cio_error cio_http_server_init(struct cio_http_server *server,
                                     uint16_t port,
                                     struct cio_eventloop *loop,
-                                    cio_http_serve_error_cb error_cb,
+                                    cio_http_serve_on_error on_error,
                                     uint64_t read_timeout_ns,
                                     cio_alloc_client alloc_client,
                                     cio_free_client free_client)
@@ -486,7 +570,7 @@ enum cio_error cio_http_server_init(struct cio_http_server *server,
 	server->register_location = register_handler;
 	server->first_handler = NULL;
 	server->num_handlers = 0;
-	server->error_cb = error_cb;
+	server->on_error = on_error;
 	server->read_timeout_ns = read_timeout_ns;
 	return CIO_SUCCESS;
 }
