@@ -205,8 +205,9 @@ static void sighandler(int signum)
 	cio_eventloop_cancel(&loop);
 }
 
-static void serve_error(struct cio_http_server *server)
+static void serve_error(struct cio_http_server *server, const char *reason)
 {
+	fprintf(stderr, "http server error: %s\n", reason);
 	server->server_socket.close(&server->server_socket);
 }
 

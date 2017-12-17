@@ -60,8 +60,9 @@ struct cio_http_server;
  * @brief The type of an server error function passed to the @ref cio_http_server_init "initialization" of an HTTP server.
  *
  * @param server The cio_http_server that caused the error.
+ * @param reason A reason describing the error.
  */
-typedef void (*cio_http_serve_error_cb)(struct cio_http_server *server);
+typedef void (*cio_http_serve_on_error)(struct cio_http_server *server, const char *reason);
 
 /**
  * @brief The cio_http_server structure provides the implementation of a simple HTTP server.
@@ -98,7 +99,7 @@ struct cio_http_server {
 	cio_free_client free_client;
 
 	uint64_t read_timeout_ns;
-	cio_http_serve_error_cb error_cb;
+	cio_http_serve_on_error on_error;
 	struct cio_server_socket server_socket;
 	struct cio_http_location *first_handler;
 	size_t num_handlers;
@@ -109,7 +110,7 @@ struct cio_http_server {
  * @param server The cio_http_server that should be initialized.
  * @param port The TCP port the HTTP server listens on.
  * @param loop The eventloop the HTTP server uses.
- * @param error_cb This callback function will be called if something goes wrong while the HTTP client connection is established.
+ * @param on_error This callback function will be called if something goes wrong while the HTTP client connection is established.
  * @param read_timeout_ns The read timeout in nanoseconds.
  * The timeout is started after the HTTP connection is established and canceled after the complete HTTP message was received or after
  * the complete HTTP header was received in case of an upgraded HTTP connection. In case of a timeout the client connection is
@@ -123,7 +124,7 @@ struct cio_http_server {
 enum cio_error cio_http_server_init(struct cio_http_server *server,
                                     uint16_t port,
                                     struct cio_eventloop *loop,
-                                    cio_http_serve_error_cb error_cb,
+                                    cio_http_serve_on_error on_error,
                                     uint64_t read_timeout_ns,
                                     cio_alloc_client alloc_client,
                                     cio_free_client free_client);

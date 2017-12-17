@@ -80,8 +80,8 @@ DEFINE_FFF_GLOBALS
 static void socket_close(struct cio_server_socket *context);
 FAKE_VOID_FUNC(socket_close, struct cio_server_socket *)
 
-static void serve_error(struct cio_http_server *server);
-FAKE_VOID_FUNC(serve_error, struct cio_http_server *)
+static void serve_error(struct cio_http_server *server, const char *reason);
+FAKE_VOID_FUNC(serve_error, struct cio_http_server *, const char *)
 
 static enum cio_error socket_accept(struct cio_server_socket *context, cio_accept_handler handler, void *handler_context);
 FAKE_VALUE_FUNC(enum cio_error, socket_accept, struct cio_server_socket *, cio_accept_handler, void *)
