@@ -245,14 +245,12 @@ static int on_body(http_parser *parser, const char *at, size_t length)
 	return client->handler->on_body(client, at, length);
 }
 
-static int call_url_parts_callback(const struct http_parser_url *u, enum http_parser_url_fields url_field, cio_http_data_cb callback, struct cio_http_client *client, const char *at)
+static enum cio_http_cb_return call_url_parts_callback(const struct http_parser_url *u, enum http_parser_url_fields url_field, cio_http_data_cb callback, struct cio_http_client *client, const char *at)
 {
 	if (((u->field_set & (1 << url_field)) == (1 << url_field)) && (callback != NULL)) {
-		//TODO: handle return value of callback.
-		callback(client, at + u->field_data[url_field].off, u->field_data[url_field].len);
-		return 1;
+		return callback(client, at + u->field_data[url_field].off, u->field_data[url_field].len);
 	} else {
-		return 0;
+		return CIO_HTTP_CB_UNHANDLED;
 	}
 }
 
@@ -292,12 +290,48 @@ static int on_url(http_parser *parser, const char *at, size_t length)
 	handler->client = client;
 
 	int user_handler = 0;
-	user_handler |= call_url_parts_callback(&u, UF_SCHEMA, handler->on_schema, client, at);
-	user_handler |= call_url_parts_callback(&u, UF_HOST, handler->on_host, client, at);
-	user_handler |= call_url_parts_callback(&u, UF_PORT, handler->on_port, client, at);
-	user_handler |= call_url_parts_callback(&u, UF_PATH, handler->on_path, client, at);
-	user_handler |= call_url_parts_callback(&u, UF_QUERY, handler->on_query, client, at);
-	user_handler |= call_url_parts_callback(&u, UF_FRAGMENT, handler->on_fragment, client, at);
+
+	enum cio_http_cb_return cb_ret = call_url_parts_callback(&u, UF_SCHEMA, handler->on_schema, client, at);
+	if (unlikely(cb_ret == CIO_HTTP_CB_ERROR)) {
+		return -1;
+	} else if (cb_ret != CIO_HTTP_CB_UNHANDLED) {
+		user_handler = 1;
+	}
+
+	cb_ret = call_url_parts_callback(&u, UF_HOST, handler->on_host, client, at);
+	if (unlikely(cb_ret == CIO_HTTP_CB_ERROR)) {
+		return -1;
+	} else if (cb_ret != CIO_HTTP_CB_UNHANDLED) {
+		user_handler = 1;
+	}
+
+	cb_ret = call_url_parts_callback(&u, UF_PORT, handler->on_port, client, at);
+	if (unlikely(cb_ret == CIO_HTTP_CB_ERROR)) {
+		return -1;
+	} else if (cb_ret != CIO_HTTP_CB_UNHANDLED) {
+		user_handler = 1;
+	}
+
+	cb_ret = call_url_parts_callback(&u, UF_PATH, handler->on_path, client, at);
+	if (unlikely(cb_ret == CIO_HTTP_CB_ERROR)) {
+		return -1;
+	} else if (cb_ret != CIO_HTTP_CB_UNHANDLED) {
+		user_handler = 1;
+	}
+
+	cb_ret = call_url_parts_callback(&u, UF_QUERY, handler->on_query, client, at);
+	if (unlikely(cb_ret == CIO_HTTP_CB_ERROR)) {
+		return -1;
+	} else if (cb_ret != CIO_HTTP_CB_UNHANDLED) {
+		user_handler = 1;
+	}
+
+	cb_ret = call_url_parts_callback(&u, UF_FRAGMENT, handler->on_fragment, client, at);
+	if (unlikely(cb_ret == CIO_HTTP_CB_ERROR)) {
+		return -1;
+	} else if (cb_ret != CIO_HTTP_CB_UNHANDLED) {
+		user_handler = 1;
+	}
 
 	client->parser_settings.on_headers_complete = on_headers_complete;
 
