@@ -85,10 +85,10 @@ struct cio_websocket {
 	 */
 	enum cio_error (*close)(struct cio_websocket *ws, enum cio_websocket_status_code status, struct cio_write_buffer *reason);
 
-	void (*onconnect_handler)(struct cio_websocket *ws);
+	void (*on_connect)(struct cio_websocket *ws);
 
-	void (*onbinaryframe)(struct cio_websocket *ws, uint8_t *data, size_t length, bool last_frame);
-	void (*ontextframe)(struct cio_websocket *ws, char *data, size_t length, bool last_frame);
+	void (*on_binaryframe)(struct cio_websocket *ws, uint8_t *data, size_t length, bool last_frame);
+	void (*on_textframe)(struct cio_websocket *ws, char *data, size_t length, bool last_frame);
 
 	/**
 	 * @brief A pointer to a function which is called if a ping frame was received.
@@ -100,7 +100,7 @@ struct cio_websocket {
 	 * @param data The data the ping frame carried.
 	 * @param length The length of data the ping frame carried.
 	 */
-	void (*onping)(struct cio_websocket *ws, const uint8_t *data, size_t length);
+	void (*on_ping)(struct cio_websocket *ws, const uint8_t *data, size_t length);
 
 	/**
 	 * @brief A pointer to a function which is called if a pong frame was received.
@@ -110,7 +110,7 @@ struct cio_websocket {
 	 * @param data The data the pong frame carried.
 	 * @param length The length of data the pong frame carried.
 	 */
-	void (*onpong)(struct cio_websocket *ws, uint8_t *data, size_t length);
+	void (*on_pong)(struct cio_websocket *ws, uint8_t *data, size_t length);
 
 	/**
 	 * @brief A pointer to a function which is called when a close frame was received.
@@ -124,7 +124,7 @@ struct cio_websocket {
 	 * @param data The data the pong frame carried.
 	 * @param length The length of data the pong frame carried.
 	 */
-	void (*onclose)(const struct cio_websocket *ws, enum cio_websocket_status_code status, const char *reason, size_t reason_length);
+	void (*on_close)(const struct cio_websocket *ws, enum cio_websocket_status_code status, const char *reason, size_t reason_length);
 
 	/**
 	 * @brief A pointer to a function which is called if a receive error occurred.
@@ -138,7 +138,7 @@ struct cio_websocket {
 	 * @param status The status code describing the error.
 	 * @param status A string describing the reason for the error. Could be @c NULL.
 	 */
-	void (*onerror)(const struct cio_websocket *ws, enum cio_websocket_status_code status, const char *reason);
+	void (*on_error)(const struct cio_websocket *ws, enum cio_websocket_status_code status, const char *reason);
 
 	/**
      * @brief Writes a text frame to the websocket.
@@ -158,7 +158,7 @@ struct cio_websocket {
      * @param handler A callback function that will be called when the write completes.
      * @param handler_context A context pointer given to @p handler when called.
      */
-	void (*write_text_frame)(struct cio_websocket *ws, struct cio_write_buffer *payload, bool last_frame, cio_websocket_write_handler handler, void *handler_context);
+	void (*write_textframe)(struct cio_websocket *ws, struct cio_write_buffer *payload, bool last_frame, cio_websocket_write_handler handler, void *handler_context);
 
 	/**
      * @brief Writes a binary frame to the websocket.
@@ -178,9 +178,9 @@ struct cio_websocket {
      * @param handler A callback function that will be called when the write completes.
      * @param handler_context A context pointer given to @p handler when called.
      */
-	void (*write_binary_frame)(struct cio_websocket *ws, struct cio_write_buffer *payload, bool last_frame, cio_websocket_write_handler handler, void *handler_context);
+	void (*write_binaryframe)(struct cio_websocket *ws, struct cio_write_buffer *payload, bool last_frame, cio_websocket_write_handler handler, void *handler_context);
 
-	enum cio_error (*write_ping_frame)(struct cio_websocket *ws, struct cio_write_buffer *payload, cio_websocket_write_handler handler, void *handler_context);
+	enum cio_error (*write_pingframe)(struct cio_websocket *ws, struct cio_write_buffer *payload, cio_websocket_write_handler handler, void *handler_context);
 
 	/*! @cond PRIVATE */
 	uint64_t read_frame_length;

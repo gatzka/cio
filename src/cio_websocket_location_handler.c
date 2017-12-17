@@ -201,8 +201,8 @@ static void response_written(struct cio_buffered_stream *bs, void *handler_conte
 	ws->rb = &client->rb;
 	ws->loop = client->socket.loop;
 
-	if (likely(ws->onconnect_handler != NULL)) {
-		ws->onconnect_handler(ws);
+	if (likely(ws->on_connect != NULL)) {
+		ws->on_connect(ws);
 	}
 
 	ws->receive_frames(ws);

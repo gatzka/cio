@@ -96,7 +96,7 @@ static void send_ping(struct cio_timer *timer, void *handler_context, enum cio_e
 		static const char *ping_message = "ping";
 		cio_write_buffer_const_element_init(&eh->wb_ping_message, ping_message, strlen(ping_message));
 		cio_write_buffer_queue_head(&wbh, &eh->wb_ping_message);
-		ws->write_ping_frame(ws, &wbh, ping_written, timer);
+		ws->write_pingframe(ws, &wbh, ping_written, timer);
 	} else if (err != CIO_OPERATION_ABORTED){
 		fprintf(stderr, "ping timer failed!\n");
 		ws->close(ws, CIO_WEBSOCKET_CLOSE_INTERNAL_ERROR, NULL);
@@ -150,7 +150,7 @@ static void ontextframe_received(struct cio_websocket *ws, char *data, size_t le
 	cio_write_buffer_head_init(&eh->wbh);
 	cio_write_buffer_const_element_init(&eh->wb_message, text_message, strlen(text_message));
 	cio_write_buffer_queue_tail(&eh->wbh, &eh->wb_message);
-	ws->write_text_frame(ws, &eh->wbh, true, write_complete, NULL);
+	ws->write_textframe(ws, &eh->wbh, true, write_complete, NULL);
 }
 
 static void onpong(struct cio_websocket *ws, uint8_t *data, size_t length)
@@ -174,9 +174,9 @@ static struct cio_http_location_handler *alloc_websocket_handler(const void *con
 	} else {
 		static const char *subprotocols[2] = {"echo", "jet"};
 		cio_websocket_location_handler_init(&handler->ws_handler, subprotocols, ARRAY_SIZE(subprotocols));
-		handler->ws_handler.websocket.onconnect_handler = onconnect_handler;
-		handler->ws_handler.websocket.ontextframe = ontextframe_received;
-		handler->ws_handler.websocket.onpong = onpong;
+		handler->ws_handler.websocket.on_connect = onconnect_handler;
+		handler->ws_handler.websocket.on_textframe = ontextframe_received;
+		handler->ws_handler.websocket.on_pong = onpong;
 		handler->ws_handler.http_location.free = free_websocket_handler;
 		return &handler->ws_handler.http_location;
 	}
