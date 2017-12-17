@@ -30,6 +30,8 @@ import "../../qbs/unittestProduct.qbs" as UnittestProduct
 Project {
   name: "cio unit tests"
 
+  qbsSearchPaths: "../../qbs/"
+
   UnittestProduct {
     name: "test_cio_buffered_stream"
     type: ["application", "unittest"]
@@ -47,7 +49,9 @@ Project {
     name: "test_cio_http_server_iostream"
     type: ["application", "unittest"]
     
-    cpp.includePaths: ["..", "../linux/"]
+    Depends { name: "generateVersion" }
+
+    cpp.includePaths: ["..", "../linux", buildDirectory + "/generated/"];
     cpp.driverFlags: ["-Wno-error"]
     
     files: [
@@ -57,7 +61,25 @@ Project {
       "../cio_http_location.c",
       "../cio_http_server.c",
     ]
-  
+
+    Group {
+      name: "version file"
+      prefix: product.sourceDirectory + "/"
+
+      files: [
+        "../version"
+      ]
+      fileTags: ["version_file"]
+    }
+
+    Group {
+      name: "version header"
+      files: [
+        "../cio_version.h.in"
+      ]
+      fileTags: ["versionFileToPatch"]
+    }
+
     Group {
       name: "third party"
       cpp.cLanguageVersion: "c99"
@@ -84,7 +106,9 @@ Project {
     name: "test_cio_http_server"
     type: ["application", "unittest"]
     
-    cpp.includePaths: ["..", "../linux/"]
+    Depends { name: "generateVersion" }
+
+    cpp.includePaths: ["..", "../linux", buildDirectory + "/generated/"];
     cpp.driverFlags: ["-Wno-error"]
     
     files: [
@@ -93,7 +117,25 @@ Project {
       "../cio_http_location_handler.c",
       "../cio_http_server.c",
     ]
-  
+
+    Group {
+      name: "version file"
+      prefix: product.sourceDirectory + "/"
+
+      files: [
+        "../version"
+      ]
+      fileTags: ["version_file"]
+    }
+
+    Group {
+      name: "version header"
+      files: [
+        "../cio_version.h.in"
+      ]
+      fileTags: ["versionFileToPatch"]
+    }
+
     Group {
       name: "third party"
       cpp.cLanguageVersion: "c99"
