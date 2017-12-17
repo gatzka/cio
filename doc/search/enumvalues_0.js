@@ -17,6 +17,7 @@ var searchData=
   ['cio_5fhttp_5fcb_5ferror',['CIO_HTTP_CB_ERROR',['../cio__http__location__handler_8h.html#a6b90057db20102dfa1e40cafc014fbdea009efa1646e481495db34fe3bc52fd06',1,'cio_http_location_handler.h']]],
   ['cio_5fhttp_5fcb_5fskip_5fbody',['CIO_HTTP_CB_SKIP_BODY',['../cio__http__location__handler_8h.html#a6b90057db20102dfa1e40cafc014fbdeae702ea5d11291265d3e736b7b1a60a78',1,'cio_http_location_handler.h']]],
   ['cio_5fhttp_5fcb_5fsuccess',['CIO_HTTP_CB_SUCCESS',['../cio__http__location__handler_8h.html#a6b90057db20102dfa1e40cafc014fbdeaaf9f1469599b7aec8863acbd62cea6a2',1,'cio_http_location_handler.h']]],
+  ['cio_5fhttp_5fcb_5funhandled',['CIO_HTTP_CB_UNHANDLED',['../cio__http__location__handler_8h.html#a6b90057db20102dfa1e40cafc014fbdea4405af8e9f48fd54793b96562ba459e2',1,'cio_http_location_handler.h']]],
   ['cio_5fhttp_5fcheckout',['CIO_HTTP_CHECKOUT',['../cio__http__method_8h.html#af72daec94b7eb3d7c6ba31bdb7ba0ef3ad336912f5af7d7dcfe5b56c7bc7dd516',1,'cio_http_method.h']]],
   ['cio_5fhttp_5fconnect',['CIO_HTTP_CONNECT',['../cio__http__method_8h.html#af72daec94b7eb3d7c6ba31bdb7ba0ef3aa9ed68797b869f32c1d26ec2be871f19',1,'cio_http_method.h']]],
   ['cio_5fhttp_5fcopy',['CIO_HTTP_COPY',['../cio__http__method_8h.html#af72daec94b7eb3d7c6ba31bdb7ba0ef3acac0d16f394da2ee6949f9480881c868',1,'cio_http_method.h']]],

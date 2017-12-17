@@ -23,7 +23,7 @@
  <tr style="height: 56px;">
   <td style="padding-left: 0.5em;">
    <div id="projectname">ANSI C I/O Library
-   &#160;<span id="projectnumber">0.0.1-786+a0f82a1</span>
+   &#160;<span id="projectnumber">0.0.1-787+62d8686</span>
    </div>
   </td>
  </tr>
@@ -214,8 +214,20 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 
 
 <h3><a class="anchor" id="index_o"></a>- o -</h3><ul>
+<li>on_binaryframe
+: <a class="el" href="structcio__websocket.html#a8b7b0a469cf0e1f43f47297a424cd0d9">cio_websocket</a>
+</li>
 <li>on_body
 : <a class="el" href="structcio__http__location__handler.html#a32a7896a868d5778338e015f6610e504">cio_http_location_handler</a>
+</li>
+<li>on_close
+: <a class="el" href="structcio__websocket.html#a0ffcaef440bc7fb427ddb303e582db61">cio_websocket</a>
+</li>
+<li>on_connect
+: <a class="el" href="structcio__websocket.html#a1a44ecbfeb77f285ac2b66af76980fe1">cio_websocket</a>
+</li>
+<li>on_error
+: <a class="el" href="structcio__websocket.html#a20f9680edcf92ab60a6daa8479d39ec8">cio_websocket</a>
 </li>
 <li>on_fragment
 : <a class="el" href="structcio__http__location__handler.html#a45d7a4048f22f2061f6497e78ac83fa2">cio_http_location_handler</a>
@@ -238,6 +250,12 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <li>on_path
 : <a class="el" href="structcio__http__location__handler.html#a8aac155861d376507e3d444fb2793254">cio_http_location_handler</a>
 </li>
+<li>on_ping
+: <a class="el" href="structcio__websocket.html#a910f27b1d8e57816b0a235d5de0842bf">cio_websocket</a>
+</li>
+<li>on_pong
+: <a class="el" href="structcio__websocket.html#ad1daf9341acb8e90e993add484d36ef2">cio_websocket</a>
+</li>
 <li>on_port
 : <a class="el" href="structcio__http__location__handler.html#a73e8aec754945d52e42bc7207c361387">cio_http_location_handler</a>
 </li>
@@ -247,29 +265,11 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <li>on_schema
 : <a class="el" href="structcio__http__location__handler.html#aa1523567cb959d329891c77d7d340ce7">cio_http_location_handler</a>
 </li>
+<li>on_textframe
+: <a class="el" href="structcio__websocket.html#a898de6d292147ce4de4806ee2eb4f7a5">cio_websocket</a>
+</li>
 <li>on_url
 : <a class="el" href="structcio__http__location__handler.html#adc9eb92df5e39f7341ced4fa0a225c68">cio_http_location_handler</a>
-</li>
-<li>onbinaryframe
-: <a class="el" href="structcio__websocket.html#af17b407ab06763f9682b4b274bbddbeb">cio_websocket</a>
-</li>
-<li>onclose
-: <a class="el" href="structcio__websocket.html#adad3c3b43cf47ef1a78481a3468968ab">cio_websocket</a>
-</li>
-<li>onconnect_handler
-: <a class="el" href="structcio__websocket.html#ae2a56e0594ccb894e9fd57910f737fcd">cio_websocket</a>
-</li>
-<li>onerror
-: <a class="el" href="structcio__websocket.html#a45a50fe74b2e094d493ccf4d58643eb0">cio_websocket</a>
-</li>
-<li>onping
-: <a class="el" href="structcio__websocket.html#a258cd0f5e5be365c5979c8b85c151ebb">cio_websocket</a>
-</li>
-<li>onpong
-: <a class="el" href="structcio__websocket.html#a4f0454fef15555a05bf675f542d949ad">cio_websocket</a>
-</li>
-<li>ontextframe
-: <a class="el" href="structcio__websocket.html#a561deeeb9d5a3c445e8b268b2090cbd6">cio_websocket</a>
 </li>
 </ul>
 
@@ -339,14 +339,14 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <li>write
 : <a class="el" href="structcio__buffered__stream.html#a6659275439b9c9508e6ad10eced2ff62">cio_buffered_stream</a>
 </li>
-<li>write_binary_frame
-: <a class="el" href="structcio__websocket.html#aa1ec1dcfb77208e26ca5449eb4747232">cio_websocket</a>
+<li>write_binaryframe
+: <a class="el" href="structcio__websocket.html#aebcc6c4ccba7d5083b1640a8c6e3647f">cio_websocket</a>
 </li>
 <li>write_header
 : <a class="el" href="structcio__http__client.html#adc1a5a87e3e01609dc4feaba730d860b">cio_http_client</a>
 </li>
-<li>write_ping_frame
-: <a class="el" href="structcio__websocket.html#af45d951788759e487d79740126603d26">cio_websocket</a>
+<li>write_pingframe
+: <a class="el" href="structcio__websocket.html#ad4cbae07fa12cbc9c30d4254182a61e0">cio_websocket</a>
 </li>
 <li>write_response
 : <a class="el" href="structcio__http__client.html#a18162385dfa12942296ec53777cc9db1">cio_http_client</a>
@@ -354,8 +354,8 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <li>write_some
 : <a class="el" href="structcio__io__stream.html#a10b56600fd43cb7f5f1a16c5e37c1c9a">cio_io_stream</a>
 </li>
-<li>write_text_frame
-: <a class="el" href="structcio__websocket.html#a26a22c890fa7fa4f06564a9fa1ec792d">cio_websocket</a>
+<li>write_textframe
+: <a class="el" href="structcio__websocket.html#a2b6b86ae9355dbb02e0913b88186be9f">cio_websocket</a>
 </li>
 </ul>
 </div><!-- contents -->

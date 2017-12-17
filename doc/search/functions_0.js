@@ -15,7 +15,7 @@ var searchData=
   ['cio_5fhtobe64',['cio_htobe64',['../cio__endian_8h.html#a25eab71196996f9fd37b2c6e9e780d73',1,'cio_endian.h']]],
   ['cio_5fhttp_5flocation_5fhandler_5finit',['cio_http_location_handler_init',['../cio__http__location__handler_8h.html#ab35cfff4a299f8af85c545452d3035d8',1,'cio_http_location_handler.h']]],
   ['cio_5fhttp_5flocation_5finit',['cio_http_location_init',['../cio__http__location_8h.html#ab96d6fc337da1b603266f240ecb98c62',1,'cio_http_location.h']]],
-  ['cio_5fhttp_5fserver_5finit',['cio_http_server_init',['../cio__http__server_8h.html#a32ff793c6a13a5a05a5e3d0b1da05f53',1,'cio_http_server.h']]],
+  ['cio_5fhttp_5fserver_5finit',['cio_http_server_init',['../cio__http__server_8h.html#a7f2712bf0eb268d707e140aba69c891f',1,'cio_http_server.h']]],
   ['cio_5fis_5ferror',['cio_is_error',['../cio__error__code_8h.html#ad02f5d7b307aca08ed1bc81013dd8195',1,'cio_error_code.h']]],
   ['cio_5fmemmem',['cio_memmem',['../cio__string_8h.html#aa98e3cf3ccb2a8598da835e873afea3f',1,'cio_string.h']]],
   ['cio_5frandom_5fclose',['cio_random_close',['../cio__random_8h.html#a6cbe82550cf6545280dc1f2e2b055ccd',1,'cio_random.h']]],
