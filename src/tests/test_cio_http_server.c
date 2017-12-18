@@ -993,6 +993,7 @@ static void test_serve_complete_url_read_fails(void)
 	TEST_ASSERT_EQUAL_MESSAGE(0, message_complete_fake.call_count, "message_complete was called!");
 	TEST_ASSERT_EQUAL_MESSAGE(1, on_path_fake.call_count, "on_path was not called!");
 	TEST_ASSERT_EQUAL_MESSAGE(1, serve_error_fake.call_count, "Serve error callback was not called!");
+	TEST_ASSERT_EQUAL_MESSAGE(1, bs_close_fake.call_count, "Close was not called!");
 	check_http_response(500);
 }
 
@@ -1034,8 +1035,8 @@ static void test_serve_complete_url_read_until_fails(void)
 	TEST_ASSERT_EQUAL_MESSAGE(0, header_complete_fake.call_count, "header_complete was called!");
 	TEST_ASSERT_EQUAL_MESSAGE(0, message_complete_fake.call_count, "message_complete was called!");
 	TEST_ASSERT_EQUAL_MESSAGE(1, serve_error_fake.call_count, "Serve error callback was not called!");
+	TEST_ASSERT_EQUAL_MESSAGE(1, bs_close_fake.call_count, "Close was not called!");
 }
-
 
 static void test_serve_complete_url_onhost_fails(void)
 {
