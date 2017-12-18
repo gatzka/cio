@@ -1182,7 +1182,7 @@ static void test_serve_upgrade(void)
 {
 	cio_server_socket_init_fake.custom_fake = cio_server_socket_init_ok;
 	socket_accept_fake.custom_fake = accept_save_handler;
-	header_complete_fake.custom_fake = header_complete_close_client;
+	//header_complete_fake.custom_fake = header_complete_close_client;
 
 	struct cio_http_server server;
 	enum cio_error err = cio_http_server_init(&server, 8080, &loop, serve_error, read_timeout, alloc_dummy_client, free_dummy_client);
@@ -1204,7 +1204,6 @@ static void test_serve_upgrade(void)
 	    HTTP_GET " " REQUEST_TARGET " " HTTP_11 CRLF,
 	    "Upgrade: websocket" CRLF,
 	    "Connection: Upgrade" CRLF,
-	    KEEP_ALIVE_FIELD ": " KEEP_ALIVE_VALUE CRLF,
 	    CRLF};
 
 	init_request(request, ARRAY_SIZE(request));
@@ -1212,6 +1211,10 @@ static void test_serve_upgrade(void)
 	TEST_ASSERT_EQUAL_MESSAGE(1, header_complete_fake.call_count, "header_complete was not called!");
 	TEST_ASSERT_EQUAL_MESSAGE(1, timer_cancel_fake.call_count, "timer_cancel for read timeout was not called!");
 	TEST_ASSERT_EQUAL_MESSAGE(0, serve_error_fake.call_count, "Serve error callback was called!");
+
+
+	struct cio_http_client *client = container_of(s, struct cio_http_client, socket);
+	client->close(client);
 }
 
 static void test_serve_upgrade_without_on_headers_complete(void)
