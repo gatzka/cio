@@ -486,20 +486,23 @@ static void handle_accept(struct cio_server_socket *ss, void *handler_context, e
 
 	err = cio_timer_init(&client->read_timer, server->loop, NULL);
 	if (unlikely(err != CIO_SUCCESS)) {
-		goto timer_err;
+		goto init_err;
 	}
 
 	err = client->read_timer.expires_from_now(&client->read_timer, server->read_timeout_ns, client_timeout_handler, client);
 	if (unlikely(err != CIO_SUCCESS)) {
-		goto timer_err;
+		goto init_err;
 	}
 
 	client->finish_func = finish_request_line;
-	client->bs.read_until(&client->bs, &client->rb, CIO_CRLF, parse, client);
+	err = client->bs.read_until(&client->bs, &client->rb, CIO_CRLF, parse, client);
+	if (unlikely(err != CIO_SUCCESS)) {
+		goto init_err;
+	}
 
 	return;
 
-timer_err:
+init_err:
 	handle_error(server, "client read timer initialization failed");
 
 	err = client->bs.close(&client->bs);
