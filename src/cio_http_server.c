@@ -52,6 +52,16 @@ static void handle_error(struct cio_http_server *server, const char *reason)
 	}
 }
 
+static void close_bs(struct cio_http_client *client)
+{
+
+	enum cio_error err = client->bs.close(&client->bs);
+	if (unlikely(err != CIO_SUCCESS)) {
+		struct cio_http_server *server = (struct cio_http_server *)client->parser.data;
+		handle_error(server, "closing buffered stream of client failed");
+	}
+}
+
 static void close_client(struct cio_http_client *client)
 {
 	if (likely(client->handler != NULL)) {
@@ -59,11 +69,7 @@ static void close_client(struct cio_http_client *client)
 	}
 
 	client->read_timer.close(&client->read_timer);
-	enum cio_error err = client->bs.close(&client->bs);
-	if (unlikely(err != CIO_SUCCESS)) {
-		struct cio_http_server *server = (struct cio_http_server *)client->parser.data;
-		handle_error(server, "closing buffered stream of client failed");
-	}
+	close_bs(client);
 }
 
 static void client_timeout_handler(struct cio_timer *timer, void *handler_context, enum cio_error err)
@@ -505,10 +511,7 @@ static void handle_accept(struct cio_server_socket *ss, void *handler_context, e
 init_err:
 	handle_error(server, "client read timer initialization failed");
 
-	err = client->bs.close(&client->bs);
-	if (unlikely(err != CIO_SUCCESS)) {
-		handle_error(server, "closing buffered stream of client failed");
-	}
+	close_bs(client);
 }
 
 static enum cio_error serve(struct cio_http_server *server)
