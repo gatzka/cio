@@ -509,7 +509,7 @@ static void handle_accept(struct cio_server_socket *ss, void *handler_context, e
 	return;
 
 init_err:
-	handle_error(server, "client read timer initialization failed");
+	handle_error(server, "client initialization failed");
 
 	close_bs(client);
 }
