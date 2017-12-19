@@ -439,7 +439,6 @@ static void get_mask(struct cio_buffered_stream *bs, void *handler_context, enum
 		err = bs->read_exactly(bs, buffer, ws->read_frame_length, get_payload, ws);
 		if (unlikely(err != CIO_SUCCESS)) {
 			handle_error(ws, CIO_WEBSOCKET_CLOSE_TOO_LARGE, "payload length too large to handle");
-			return;
 		}
 	} else {
 		buffer->bytes_transferred = 0;
