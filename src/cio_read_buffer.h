@@ -85,7 +85,7 @@ static inline size_t cio_read_buffer_space_available(const struct cio_read_buffe
  */
 static inline enum cio_error cio_read_buffer_init(struct cio_read_buffer *rb, void *data, size_t size)
 {
-	if (unlikely((rb == NULL) || (data == NULL))) {
+	if (unlikely((rb == NULL) || (data == NULL) || (size == 0))) {
 		return CIO_INVALID_ARGUMENT;
 	}
 

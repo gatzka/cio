@@ -481,13 +481,15 @@ static void handle_accept(struct cio_server_socket *ss, void *handler_context, e
 
 	err = cio_read_buffer_init(&client->rb, client->buffer, client->buffer_size);
 	if (unlikely(err != CIO_SUCCESS)) {
-		handle_error(server, "read buffer initialization failed");
+		handle_error(server, "read buffer init failed");
+		server->free_client(socket);
 		return;
 	}
 
 	err = cio_buffered_stream_init(&client->bs, socket->get_io_stream(socket));
 	if (unlikely(err != CIO_SUCCESS)) {
-		handle_error(server, "read buffered stream initialization failed");
+		handle_error(server, "buffered stream init failed");
+		server->free_client(socket);
 		return;
 	}
 
