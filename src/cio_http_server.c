@@ -202,6 +202,8 @@ static int on_headers_complete(http_parser *parser)
 		if (unlikely(err != CIO_SUCCESS)) {
 			struct cio_http_server *server = (struct cio_http_server *)parser->data;
 			handle_error(server, "Cancelling read timer in on_headers_complete failed, maybe not armed?");
+			client->write_header(client, CIO_HTTP_STATUS_INTERNAL_SERVER_ERROR);
+			return CIO_HTTP_CB_ERROR;
 		}
 
 		if (unlikely(client->handler->on_headers_complete == NULL)) {

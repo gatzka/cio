@@ -1562,7 +1562,6 @@ static void test_serve_upgrade(void)
 {
 	cio_server_socket_init_fake.custom_fake = cio_server_socket_init_ok;
 	socket_accept_fake.custom_fake = accept_save_handler;
-	//header_complete_fake.custom_fake = header_complete_close_client;
 
 	struct cio_http_server server;
 	enum cio_error err = cio_http_server_init(&server, 8080, &loop, serve_error, read_timeout, alloc_dummy_client, free_dummy_client);
@@ -1595,6 +1594,43 @@ static void test_serve_upgrade(void)
 
 	struct cio_http_client *client = container_of(s, struct cio_http_client, socket);
 	client->close(client);
+}
+
+static void test_serve_upgrade_cancel_fails(void)
+{
+	cio_server_socket_init_fake.custom_fake = cio_server_socket_init_ok;
+	socket_accept_fake.custom_fake = accept_save_handler;
+
+	timer_cancel_fake.custom_fake = 0;
+	timer_cancel_fake.return_val = CIO_INVALID_ARGUMENT;
+
+	struct cio_http_server server;
+	enum cio_error err = cio_http_server_init(&server, 8080, &loop, serve_error, read_timeout, alloc_dummy_client, free_dummy_client);
+	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Server initialization failed!");
+
+	struct cio_http_location target;
+	err = cio_http_location_init(&target, REQUEST_TARGET, NULL, alloc_dummy_handler_url_callbacks);
+	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Request target initialization failed!");
+
+	err = server.register_location(&server, &target);
+	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Register request target failed!");
+
+	err = server.serve(&server);
+	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Serving http failed!");
+
+	struct cio_socket *s = server.alloc_client();
+
+	const char *request[] = {
+		HTTP_GET " " REQUEST_TARGET " " HTTP_11 CRLF,
+		"Upgrade: websocket" CRLF,
+		"Connection: Upgrade" CRLF,
+		CRLF};
+
+	init_request(request, ARRAY_SIZE(request));
+	server.server_socket.handler(&server.server_socket, server.server_socket.handler_context, CIO_SUCCESS, s);
+	TEST_ASSERT_EQUAL_MESSAGE(0, header_complete_fake.call_count, "header_complete was not called!");
+	TEST_ASSERT_EQUAL_MESSAGE(1, serve_error_fake.call_count, "Serve error callback was called!");
+	check_http_response(500);
 }
 
 static void test_serve_upgrade_without_on_headers_complete(void)
@@ -1661,6 +1697,7 @@ int main(void)
 	RUN_TEST(test_serve_msg_complete_only);
 	RUN_TEST(test_serve_msg_complete_only_timer_cancel_fails);
 	RUN_TEST(test_serve_upgrade);
+	RUN_TEST(test_serve_upgrade_cancel_fails);
 	RUN_TEST(test_serve_upgrade_without_on_headers_complete);
 	return UNITY_END();
 }
