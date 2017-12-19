@@ -134,6 +134,7 @@ static void flush(struct cio_http_client *client, cio_buffered_stream_write_hand
 	if (unlikely(err != CIO_SUCCESS)) {
 		struct cio_http_server *server = (struct cio_http_server *)client->parser.data;
 		handle_error(server, "flushing client responses failed");
+		client->close(client);
 	}
 }
 

@@ -1523,6 +1523,41 @@ static void test_serve_msg_complete_only(void)
 	check_http_response(200);
 }
 
+static void test_serve_msg_complete_write_fails(void)
+{
+	cio_server_socket_init_fake.custom_fake = cio_server_socket_init_ok;
+	socket_accept_fake.custom_fake = accept_save_handler;
+	message_complete_fake.custom_fake = message_complete_write_header;
+	bs_write_fake.custom_fake = NULL;
+	bs_write_fake.return_val = CIO_INVALID_ARGUMENT;
+
+	struct cio_http_server server;
+	enum cio_error err = cio_http_server_init(&server, 8080, &loop, serve_error, read_timeout, alloc_dummy_client, free_dummy_client);
+	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Server initialization failed!");
+
+	struct cio_http_location target;
+	err = cio_http_location_init(&target, REQUEST_TARGET, NULL, alloc_dummy_handler_msg_complete_only);
+	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Request target initialization failed!");
+
+	err = server.register_location(&server, &target);
+	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Register request target failed!");
+
+	err = server.serve(&server);
+	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Serving http failed!");
+
+	struct cio_socket *s = server.alloc_client();
+
+	const char *request[] = {
+		HTTP_GET " " REQUEST_TARGET " " HTTP_11 CRLF,
+		CRLF};
+
+	init_request(request, ARRAY_SIZE(request));
+	server.server_socket.handler(&server.server_socket, server.server_socket.handler_context, CIO_SUCCESS, s);
+	TEST_ASSERT_EQUAL_MESSAGE(1, message_complete_fake.call_count, "message_complete was called!");
+	TEST_ASSERT_EQUAL_MESSAGE(1, serve_error_fake.call_count, "Serve error callback was called!");
+}
+
+
 static void test_serve_msg_complete_only_timer_cancel_fails(void)
 {
 	cio_server_socket_init_fake.custom_fake = cio_server_socket_init_ok;
@@ -1680,6 +1715,7 @@ int main(void)
 	RUN_TEST(test_serve_locations_best_match);
 	RUN_TEST(test_serve_post_with_body);
 	RUN_TEST(test_serve_complete_url);
+	RUN_TEST(test_serve_msg_complete_write_fails);
 	RUN_TEST(test_serve_complete_url_readbuffer_init_fails);
 	RUN_TEST(test_serve_complete_url_buffered_stream_init_fails);
 	RUN_TEST(test_serve_complete_url_timer_expires_fails);
