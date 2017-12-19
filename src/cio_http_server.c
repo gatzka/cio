@@ -52,6 +52,16 @@ static void handle_error(struct cio_http_server *server, const char *reason)
 	}
 }
 
+static void close_bs(struct cio_http_client *client)
+{
+
+	enum cio_error err = client->bs.close(&client->bs);
+	if (unlikely(err != CIO_SUCCESS)) {
+		struct cio_http_server *server = (struct cio_http_server *)client->parser.data;
+		handle_error(server, "closing buffered stream of client failed");
+	}
+}
+
 static void close_client(struct cio_http_client *client)
 {
 	if (likely(client->handler != NULL)) {
@@ -59,11 +69,7 @@ static void close_client(struct cio_http_client *client)
 	}
 
 	client->read_timer.close(&client->read_timer);
-	enum cio_error err = client->bs.close(&client->bs);
-	if (unlikely(err != CIO_SUCCESS)) {
-		struct cio_http_server *server = (struct cio_http_server *)client->parser.data;
-		handle_error(server, "closing buffered stream of client failed");
-	}
+	close_bs(client);
 }
 
 static void client_timeout_handler(struct cio_timer *timer, void *handler_context, enum cio_error err)
@@ -128,6 +134,7 @@ static void flush(struct cio_http_client *client, cio_buffered_stream_write_hand
 	if (unlikely(err != CIO_SUCCESS)) {
 		struct cio_http_server *server = (struct cio_http_server *)client->parser.data;
 		handle_error(server, "flushing client responses failed");
+		client->close(client);
 	}
 }
 
@@ -196,6 +203,8 @@ static int on_headers_complete(http_parser *parser)
 		if (unlikely(err != CIO_SUCCESS)) {
 			struct cio_http_server *server = (struct cio_http_server *)parser->data;
 			handle_error(server, "Cancelling read timer in on_headers_complete failed, maybe not armed?");
+			client->write_header(client, CIO_HTTP_STATUS_INTERNAL_SERVER_ERROR);
+			return CIO_HTTP_CB_ERROR;
 		}
 
 		if (unlikely(client->handler->on_headers_complete == NULL)) {
@@ -233,6 +242,8 @@ static int on_message_complete(http_parser *parser)
 		if (unlikely(err != CIO_SUCCESS)) {
 			struct cio_http_server *server = (struct cio_http_server *)parser->data;
 			handle_error(server, "Cancelling read timer in on_message_complete failed, maybe not armed?");
+			client->write_header(client, CIO_HTTP_STATUS_INTERNAL_SERVER_ERROR);
+			return CIO_HTTP_CB_ERROR;
 		}
 	}
 
@@ -409,7 +420,7 @@ static void finish_bytes(struct cio_http_client *client)
 	if (unlikely(err != CIO_SUCCESS)) {
 		struct cio_http_server *server = (struct cio_http_server *)client->parser.data;
 		handle_error(server, "Reading of bytes failed");
-		close_client(client);
+		client->write_header(client, CIO_HTTP_STATUS_INTERNAL_SERVER_ERROR);
 	}
 }
 
@@ -427,7 +438,7 @@ static void finish_header_line(struct cio_http_client *client)
 	if (unlikely(err != CIO_SUCCESS)) {
 		struct cio_http_server *server = (struct cio_http_server *)client->parser.data;
 		handle_error(server, "Reading of bytes/header line failed");
-		close_client(client);
+		client->write_header(client, CIO_HTTP_STATUS_INTERNAL_SERVER_ERROR);
 	}
 }
 
@@ -440,7 +451,7 @@ static void finish_request_line(struct cio_http_client *client)
 	if (unlikely(err != CIO_SUCCESS)) {
 		struct cio_http_server *server = (struct cio_http_server *)client->parser.data;
 		handle_error(server, "Reading of header line failed");
-		close_client(client);
+		client->write_header(client, CIO_HTTP_STATUS_INTERNAL_SERVER_ERROR);
 	}
 }
 
@@ -475,38 +486,40 @@ static void handle_accept(struct cio_server_socket *ss, void *handler_context, e
 
 	err = cio_read_buffer_init(&client->rb, client->buffer, client->buffer_size);
 	if (unlikely(err != CIO_SUCCESS)) {
-		handle_error(server, "read buffer initialization failed");
+		handle_error(server, "read buffer init failed");
+		server->free_client(socket);
 		return;
 	}
 
 	err = cio_buffered_stream_init(&client->bs, socket->get_io_stream(socket));
 	if (unlikely(err != CIO_SUCCESS)) {
-		handle_error(server, "read buffered stream initialization failed");
+		handle_error(server, "buffered stream init failed");
+		server->free_client(socket);
 		return;
 	}
 
 	err = cio_timer_init(&client->read_timer, server->loop, NULL);
 	if (unlikely(err != CIO_SUCCESS)) {
-		goto timer_err;
+		goto init_err;
 	}
 
 	err = client->read_timer.expires_from_now(&client->read_timer, server->read_timeout_ns, client_timeout_handler, client);
 	if (unlikely(err != CIO_SUCCESS)) {
-		goto timer_err;
+		goto init_err;
 	}
 
 	client->finish_func = finish_request_line;
-	client->bs.read_until(&client->bs, &client->rb, CIO_CRLF, parse, client);
+	err = client->bs.read_until(&client->bs, &client->rb, CIO_CRLF, parse, client);
+	if (unlikely(err != CIO_SUCCESS)) {
+		goto init_err;
+	}
 
 	return;
 
-timer_err:
-	handle_error(server, "client read timer initialization failed");
+init_err:
+	handle_error(server, "client initialization failed");
 
-	err = client->bs.close(&client->bs);
-	if (unlikely(err != CIO_SUCCESS)) {
-		handle_error(server, "closing buffered stream of client failed");
-	}
+	close_bs(client);
 }
 
 static enum cio_error serve(struct cio_http_server *server)

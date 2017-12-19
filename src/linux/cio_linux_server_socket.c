@@ -65,7 +65,7 @@ static void accept_callback(void *context)
 	client_fd = accept(fd, (struct sockaddr *)&addr, &addrlen);
 	if (unlikely(client_fd == -1)) {
 		if ((errno != EAGAIN) && (errno != EWOULDBLOCK) && (errno != EBADF)) {
-			ss->handler(ss, ss->handler_context, (enum cio_error)errno, NULL);
+			ss->handler(ss, ss->handler_context, (enum cio_error)-errno, NULL);
 		}
 	} else {
 		struct cio_socket *s = ss->alloc_client();
@@ -96,7 +96,7 @@ static enum cio_error socket_accept(struct cio_server_socket *ss, cio_accept_han
 	ss->ev.context = ss;
 
 	if (unlikely(listen(ss->ev.fd, ss->backlog) < 0)) {
-		return (enum cio_error)errno;
+		return (enum cio_error)-errno;
 	}
 
 	err = cio_linux_eventloop_add(ss->loop, &ss->ev);
@@ -123,7 +123,7 @@ static enum cio_error socket_set_reuse_address(struct cio_server_socket *ss, boo
 
 	if (unlikely(setsockopt(ss->ev.fd, SOL_SOCKET, SO_REUSEADDR, &reuse,
 	                        sizeof(reuse)) < 0)) {
-		return (enum cio_error)errno;
+		return (enum cio_error)-errno;
 	}
 
 	return CIO_SUCCESS;
@@ -151,7 +151,7 @@ static enum cio_error socket_bind(struct cio_server_socket *ss, const char *bind
 	ret = getaddrinfo(bind_address, server_port_string, &hints, &servinfo);
 	if (ret != 0) {
 		if (ret == EAI_SYSTEM) {
-			return (enum cio_error)errno;
+			return (enum cio_error)-errno;
 		} else {
 			return CIO_INVALID_ARGUMENT;
 		}
@@ -181,7 +181,7 @@ enum cio_error cio_server_socket_init(struct cio_server_socket *ss,
 {
 	int listen_fd = cio_linux_socket_create();
 	if (listen_fd == -1) {
-		return (enum cio_error)errno;
+		return (enum cio_error)-errno;
 	}
 
 	ss->ev.fd = listen_fd;

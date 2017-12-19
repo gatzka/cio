@@ -51,7 +51,7 @@ struct cio_io_stream;
  * 
  * @param io_stream The cio_io_stream the read operation was called on.
  * @param handler_context The context the functions works on.
- * @param err If err != ::CIO_SUCCESS, the read operation failed.
+ * @param err If err != ::CIO_SUCCESS, the read operation failed, if err == ::CIO_EOF the peer closed the stream.
  * @param buffer The buffer that was filled.
  */
 typedef void (*cio_io_stream_read_handler)(struct cio_io_stream *io_stream, void *handler_context, enum cio_error err, struct cio_read_buffer *buffer);
