@@ -115,6 +115,8 @@ FAKE_VALUE_FUNC(enum cio_error, cio_timer_init, struct cio_timer *, struct cio_e
 static enum cio_error bs_write(struct cio_buffered_stream *bs, struct cio_write_buffer *buf, cio_buffered_stream_write_handler handler, void *handler_context);
 FAKE_VALUE_FUNC(enum cio_error, bs_write, struct cio_buffered_stream *, struct cio_write_buffer *, cio_buffered_stream_write_handler, void *)
 
+FAKE_VALUE_FUNC(enum cio_error, cio_buffered_stream_init, struct cio_buffered_stream *, struct cio_io_stream *)
+
 static enum cio_error cancel_timer(struct cio_timer *t)
 {
 	t->handler(t, t->handler_context, CIO_OPERATION_ABORTED);
@@ -464,8 +466,8 @@ static enum cio_error bs_write_later(struct cio_buffered_stream *bs, struct cio_
 	return CIO_SUCCESS;
 }
 
-enum cio_error cio_buffered_stream_init(struct cio_buffered_stream *bs,
-                                        struct cio_io_stream *stream)
+static enum cio_error cio_buffered_stream_init_ok(struct cio_buffered_stream *bs,
+										  struct cio_io_stream *stream)
 {
 	(void)stream;
 	bs->read_until = bs_read_until;
@@ -474,6 +476,15 @@ enum cio_error cio_buffered_stream_init(struct cio_buffered_stream *bs,
 	bs->close = bs_close;
 
 	return CIO_SUCCESS;
+}
+
+static enum cio_error cio_buffered_stream_init_fail(struct cio_buffered_stream *bs,
+										  struct cio_io_stream *stream)
+{
+	(void)bs;
+	(void)stream;
+
+	return CIO_BAD_FILE_DESCRIPTOR;
 }
 
 static struct cio_eventloop loop;
@@ -514,6 +525,7 @@ void setUp(void)
 	RESET_FAKE(bs_read_until);
 	RESET_FAKE(bs_read);
 	RESET_FAKE(bs_close);
+	RESET_FAKE(cio_buffered_stream_init);
 
 	http_parser_settings_init(&parser_settings);
 	http_parser_init(&parser, HTTP_RESPONSE);
@@ -530,7 +542,7 @@ void setUp(void)
 	write_pos = 0;
 
 	bs_write_fake.custom_fake = bs_write_all;
-
+	cio_buffered_stream_init_fake.custom_fake = cio_buffered_stream_init_ok;
 }
 
 static void test_serve_first_line_fails(void)
@@ -930,6 +942,46 @@ static void test_serve_complete_url_readbuffer_init_fails(void)
 
 	struct cio_http_server server;
 	enum cio_error err = cio_http_server_init(&server, 8080, &loop, serve_error, read_timeout, alloc_dummy_client_no_buffer, free_dummy_client);
+	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Server initialization failed!");
+
+	struct cio_http_location target;
+	err = cio_http_location_init(&target, REQUEST_TARGET, NULL, alloc_dummy_handler_url_callbacks);
+	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Request target initialization failed!");
+
+	err = server.register_location(&server, &target);
+	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Register request target failed!");
+
+	err = server.serve(&server);
+	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Serving http failed!");
+
+	struct cio_socket *s = server.alloc_client();
+
+	const char *request[] = {
+		HTTP_GET " " SCHEME "://" HOST ":" PORT REQUEST_TARGET "?" QUERY "#" FRAGMENT " " HTTP_11 CRLF,
+		CRLF};
+
+	init_request(request, ARRAY_SIZE(request));
+	server.server_socket.handler(&server.server_socket, server.server_socket.handler_context, CIO_SUCCESS, s);
+	TEST_ASSERT_EQUAL_MESSAGE(0, header_complete_fake.call_count, "header_complete was called!");
+	TEST_ASSERT_EQUAL_MESSAGE(0, message_complete_fake.call_count, "message_complete was called!");
+	TEST_ASSERT_EQUAL_MESSAGE(0, on_schema_fake.call_count, "on_schema was called!");
+	TEST_ASSERT_EQUAL_MESSAGE(0, on_host_fake.call_count, "on_host was called!");
+	TEST_ASSERT_EQUAL_MESSAGE(0, on_port_fake.call_count, "on_port was called!");
+	TEST_ASSERT_EQUAL_MESSAGE(0, on_path_fake.call_count, "on_path was called!");
+	TEST_ASSERT_EQUAL_MESSAGE(0, on_query_fake.call_count, "on_query was called!");
+	TEST_ASSERT_EQUAL_MESSAGE(0, on_fragment_fake.call_count, "on_fragment was called!");
+	TEST_ASSERT_EQUAL_MESSAGE(1, serve_error_fake.call_count, "Serve error callback was not called!");
+}
+
+static void test_serve_complete_url_buffered_stream_init_fails(void)
+{
+	cio_server_socket_init_fake.custom_fake = cio_server_socket_init_ok;
+	socket_accept_fake.custom_fake = accept_save_handler;
+	message_complete_fake.custom_fake = message_complete_write_header;
+	cio_buffered_stream_init_fake.custom_fake = cio_buffered_stream_init_fail;
+
+	struct cio_http_server server;
+	enum cio_error err = cio_http_server_init(&server, 8080, &loop, serve_error, read_timeout, alloc_dummy_client, free_dummy_client);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Server initialization failed!");
 
 	struct cio_http_location target;
@@ -1516,6 +1568,7 @@ int main(void)
 	RUN_TEST(test_serve_post_with_body);
 	RUN_TEST(test_serve_complete_url);
 	RUN_TEST(test_serve_complete_url_readbuffer_init_fails);
+	RUN_TEST(test_serve_complete_url_buffered_stream_init_fails);
 	RUN_TEST(test_serve_complete_url_close_fails);
 	RUN_TEST(test_serve_complete_url_read_fails);
 	RUN_TEST(test_serve_complete_url_second_read_fails);
