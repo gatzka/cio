@@ -546,7 +546,7 @@ static void test_socket_readsome_read_fails(void)
 	TEST_ASSERT_EQUAL_MESSAGE(1, read_handler_fake.call_count, "Read handler was not called!");
 	TEST_ASSERT_EQUAL_MESSAGE(stream, read_handler_fake.arg0_val, "Original stream was not passed to read handler!");
 	TEST_ASSERT_EQUAL_MESSAGE(NULL, read_handler_fake.arg1_val, "Context parameter for read handler is not correct!");
-	TEST_ASSERT_NOT_EQUAL_MESSAGE(CIO_SUCCESS, read_handler_fake.arg2_val, "Read handler was called with CIO_SUCCESS for a failing read!");
+	TEST_ASSERT_EQUAL_MESSAGE(CIO_INVALID_ARGUMENT, read_handler_fake.arg2_val, "Read handler was called with CIO_SUCCESS for a failing read!");
 	TEST_ASSERT_EQUAL_MESSAGE(&rb, read_handler_fake.arg3_val, "Original buffer was not passed to read handler!");
 }
 
