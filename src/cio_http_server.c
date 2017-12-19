@@ -446,6 +446,7 @@ static void finish_request_line(struct cio_http_client *client)
 	if (unlikely(err != CIO_SUCCESS)) {
 		struct cio_http_server *server = (struct cio_http_server *)client->parser.data;
 		handle_error(server, "Reading of header line failed");
+		client->write_header(client, CIO_HTTP_STATUS_INTERNAL_SERVER_ERROR);
 	}
 }
 
