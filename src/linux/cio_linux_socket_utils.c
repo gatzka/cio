@@ -24,44 +24,18 @@
  * SOFTWARE.
  */
 
-#include <fcntl.h>
 #include <sys/socket.h>
 #include <sys/types.h>
-#include <unistd.h>
 
 #include "cio_compiler.h"
-#include "cio_error_code.h"
 #include "linux/cio_linux_socket_utils.h"
-
-static int set_fd_non_blocking(int fd)
-{
-	int fd_flags = fcntl(fd, F_GETFL, 0);
-	if (unlikely(fd_flags < 0)) {
-		return -1;
-	}
-
-	fd_flags |= O_NONBLOCK;
-	if (unlikely(fcntl(fd, F_SETFL, fd_flags) < 0)) {
-		return -1;
-	}
-
-	return 0;
-}
 
 int cio_linux_socket_create(void)
 {
-	int ret;
-
-	int fd = socket(AF_INET6, SOCK_STREAM, 0);
-	if (fd == -1) {
+	int fd = socket(AF_INET6, SOCK_STREAM | SOCK_CLOEXEC | SOCK_NONBLOCK, 0);
+	if (unlikely(fd == -1)) {
 		return -1;
 	}
 
-	ret = set_fd_non_blocking(fd);
-	if (likely(ret != -1)) {
-		return fd;
-	}
-
-	close(fd);
-	return -1;
+	return fd;
 }

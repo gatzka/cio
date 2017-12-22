@@ -34,7 +34,7 @@ static FILE *dev_urandom = NULL;
 
 int cio_random_init(void)
 {
-	dev_urandom = fopen("/dev/urandom", "r");
+	dev_urandom = fopen("/dev/urandom", "re");
 	if (dev_urandom == NULL) {
 		return -1;
 	} else {
