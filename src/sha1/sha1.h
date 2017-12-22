@@ -61,11 +61,11 @@ typedef struct SHA1Context {
  *  Function Prototypes
  */
 
-int SHA1Reset(SHA1Context *);
-int SHA1Input(SHA1Context *,
-              const uint8_t *,
-              unsigned int);
-int SHA1Result(SHA1Context *,
+int SHA1Reset(SHA1Context *context);
+int SHA1Input(SHA1Context *context,
+			  const uint8_t *message_array,
+			  unsigned int length);
+int SHA1Result(SHA1Context *context,
                uint8_t Message_Digest[SHA1HashSize]);
 
 #endif
