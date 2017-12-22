@@ -467,7 +467,7 @@ static enum cio_error bs_write_later(struct cio_buffered_stream *bs, struct cio_
 }
 
 static enum cio_error cio_buffered_stream_init_ok(struct cio_buffered_stream *bs,
-										  struct cio_io_stream *stream)
+                                                  struct cio_io_stream *stream)
 {
 	(void)stream;
 	bs->read_until = bs_read_until;
@@ -479,7 +479,7 @@ static enum cio_error cio_buffered_stream_init_ok(struct cio_buffered_stream *bs
 }
 
 static enum cio_error cio_buffered_stream_init_fail(struct cio_buffered_stream *bs,
-										  struct cio_io_stream *stream)
+                                                    struct cio_io_stream *stream)
 {
 	(void)bs;
 	(void)stream;
@@ -877,8 +877,8 @@ static void test_serve_complete_url_onschema_fails(void)
 	struct cio_socket *s = server.alloc_client();
 
 	const char *request[] = {
-		HTTP_GET " " SCHEME "://" HOST ":" PORT REQUEST_TARGET "?" QUERY "#" FRAGMENT " " HTTP_11 CRLF,
-		CRLF};
+	    HTTP_GET " " SCHEME "://" HOST ":" PORT REQUEST_TARGET "?" QUERY "#" FRAGMENT " " HTTP_11 CRLF,
+	    CRLF};
 
 	init_request(request, ARRAY_SIZE(request));
 	server.server_socket.handler(&server.server_socket, server.server_socket.handler_context, CIO_SUCCESS, s);
@@ -957,8 +957,8 @@ static void test_serve_complete_url_readbuffer_init_fails(void)
 	struct cio_socket *s = server.alloc_client();
 
 	const char *request[] = {
-		HTTP_GET " " SCHEME "://" HOST ":" PORT REQUEST_TARGET "?" QUERY "#" FRAGMENT " " HTTP_11 CRLF,
-		CRLF};
+	    HTTP_GET " " SCHEME "://" HOST ":" PORT REQUEST_TARGET "?" QUERY "#" FRAGMENT " " HTTP_11 CRLF,
+	    CRLF};
 
 	init_request(request, ARRAY_SIZE(request));
 	server.server_socket.handler(&server.server_socket, server.server_socket.handler_context, CIO_SUCCESS, s);
@@ -997,8 +997,8 @@ static void test_serve_complete_url_buffered_stream_init_fails(void)
 	struct cio_socket *s = server.alloc_client();
 
 	const char *request[] = {
-		HTTP_GET " " SCHEME "://" HOST ":" PORT REQUEST_TARGET "?" QUERY "#" FRAGMENT " " HTTP_11 CRLF,
-		CRLF};
+	    HTTP_GET " " SCHEME "://" HOST ":" PORT REQUEST_TARGET "?" QUERY "#" FRAGMENT " " HTTP_11 CRLF,
+	    CRLF};
 
 	init_request(request, ARRAY_SIZE(request));
 	server.server_socket.handler(&server.server_socket, server.server_socket.handler_context, CIO_SUCCESS, s);
@@ -1038,8 +1038,8 @@ static void test_serve_complete_url_timer_expires_fails(void)
 	struct cio_socket *s = server.alloc_client();
 
 	const char *request[] = {
-		HTTP_GET " " SCHEME "://" HOST ":" PORT REQUEST_TARGET "?" QUERY "#" FRAGMENT " " HTTP_11 CRLF,
-		CRLF};
+	    HTTP_GET " " SCHEME "://" HOST ":" PORT REQUEST_TARGET "?" QUERY "#" FRAGMENT " " HTTP_11 CRLF,
+	    CRLF};
 
 	init_request(request, ARRAY_SIZE(request));
 	server.server_socket.handler(&server.server_socket, server.server_socket.handler_context, CIO_SUCCESS, s);
@@ -1053,7 +1053,6 @@ static void test_serve_complete_url_timer_expires_fails(void)
 	TEST_ASSERT_EQUAL_MESSAGE(0, on_fragment_fake.call_count, "on_fragment was called!");
 	TEST_ASSERT_EQUAL_MESSAGE(1, serve_error_fake.call_count, "Serve error callback was not called!");
 }
-
 
 static void test_serve_complete_url_close_fails(void)
 {
@@ -1079,8 +1078,8 @@ static void test_serve_complete_url_close_fails(void)
 	struct cio_socket *s = server.alloc_client();
 
 	const char *request[] = {
-		HTTP_GET " " SCHEME "://" HOST ":" PORT REQUEST_TARGET "?" QUERY "#" FRAGMENT " " HTTP_11 CRLF,
-		CRLF};
+	    HTTP_GET " " SCHEME "://" HOST ":" PORT REQUEST_TARGET "?" QUERY "#" FRAGMENT " " HTTP_11 CRLF,
+	    CRLF};
 
 	init_request(request, ARRAY_SIZE(request));
 	server.server_socket.handler(&server.server_socket, server.server_socket.handler_context, CIO_SUCCESS, s);
@@ -1125,11 +1124,11 @@ static void test_serve_complete_url_read_fails(void)
 	snprintf(line, sizeof(line) - 1, "Content-Length: %zu\r\n", strlen(BODY BODY1));
 
 	const char *request[] = {
-		HTTP_POST " " REQUEST_TARGET " " HTTP_11 CRLF,
-		line,
-		CRLF,
-		BODY,
-		BODY1};
+	    HTTP_POST " " REQUEST_TARGET " " HTTP_11 CRLF,
+	    line,
+	    CRLF,
+	    BODY,
+	    BODY1};
 
 	init_request(request, ARRAY_SIZE(request));
 	server.server_socket.handler(&server.server_socket, server.server_socket.handler_context, CIO_SUCCESS, s);
@@ -1148,8 +1147,8 @@ static void test_serve_complete_url_second_read_fails(void)
 	message_complete_fake.custom_fake = message_complete_write_header;
 
 	enum cio_error (*read_fakes[])(struct cio_buffered_stream *, struct cio_read_buffer *, cio_buffered_stream_read_handler, void *) = {
-		bs_read_ok,
-		bs_read_error,
+	    bs_read_ok,
+	    bs_read_error,
 	};
 
 	bs_read_fake.custom_fake = NULL;
@@ -1175,11 +1174,11 @@ static void test_serve_complete_url_second_read_fails(void)
 	snprintf(line, sizeof(line) - 1, "Content-Length: %zu\r\n", strlen(BODY BODY1));
 
 	const char *request[] = {
-		HTTP_POST " " REQUEST_TARGET " " HTTP_11 CRLF,
-		line,
-		CRLF,
-		BODY,
-		BODY1};
+	    HTTP_POST " " REQUEST_TARGET " " HTTP_11 CRLF,
+	    line,
+	    CRLF,
+	    BODY,
+	    BODY1};
 
 	init_request(request, ARRAY_SIZE(request));
 	server.server_socket.handler(&server.server_socket, server.server_socket.handler_context, CIO_SUCCESS, s);
@@ -1218,11 +1217,11 @@ static void test_serve_complete_url_read_until_fails(void)
 	snprintf(line, sizeof(line) - 1, "Content-Length: %zu\r\n", strlen(BODY BODY1));
 
 	const char *request[] = {
-		HTTP_POST " " REQUEST_TARGET " " HTTP_11 CRLF,
-		line,
-		CRLF,
-		BODY,
-		BODY1};
+	    HTTP_POST " " REQUEST_TARGET " " HTTP_11 CRLF,
+	    line,
+	    CRLF,
+	    BODY,
+	    BODY1};
 
 	init_request(request, ARRAY_SIZE(request));
 	server.server_socket.handler(&server.server_socket, server.server_socket.handler_context, CIO_SUCCESS, s);
@@ -1239,8 +1238,8 @@ static void test_serve_complete_url_second_read_until_fails(void)
 	message_complete_fake.custom_fake = message_complete_write_header;
 
 	enum cio_error (*read_until_fakes[])(struct cio_buffered_stream *, struct cio_read_buffer *, const char *, cio_buffered_stream_read_handler, void *) = {
-		bs_read_until_ok,
-		bs_read_until_call_fails,
+	    bs_read_until_ok,
+	    bs_read_until_call_fails,
 	};
 
 	bs_read_until_fake.custom_fake = NULL;
@@ -1266,11 +1265,11 @@ static void test_serve_complete_url_second_read_until_fails(void)
 	snprintf(line, sizeof(line) - 1, "Content-Length: %zu\r\n", strlen(BODY BODY1));
 
 	const char *request[] = {
-		HTTP_POST " " REQUEST_TARGET " " HTTP_11 CRLF,
-		line,
-		CRLF,
-		BODY,
-		BODY1};
+	    HTTP_POST " " REQUEST_TARGET " " HTTP_11 CRLF,
+	    line,
+	    CRLF,
+	    BODY,
+	    BODY1};
 
 	init_request(request, ARRAY_SIZE(request));
 	server.server_socket.handler(&server.server_socket, server.server_socket.handler_context, CIO_SUCCESS, s);
@@ -1305,8 +1304,8 @@ static void test_serve_complete_url_onhost_fails(void)
 	struct cio_socket *s = server.alloc_client();
 
 	const char *request[] = {
-		HTTP_GET " " SCHEME "://" HOST ":" PORT REQUEST_TARGET "?" QUERY "#" FRAGMENT " " HTTP_11 CRLF,
-		CRLF};
+	    HTTP_GET " " SCHEME "://" HOST ":" PORT REQUEST_TARGET "?" QUERY "#" FRAGMENT " " HTTP_11 CRLF,
+	    CRLF};
 
 	init_request(request, ARRAY_SIZE(request));
 	server.server_socket.handler(&server.server_socket, server.server_socket.handler_context, CIO_SUCCESS, s);
@@ -1347,8 +1346,8 @@ static void test_serve_complete_url_onport_fails(void)
 	struct cio_socket *s = server.alloc_client();
 
 	const char *request[] = {
-		HTTP_GET " " SCHEME "://" HOST ":" PORT REQUEST_TARGET "?" QUERY "#" FRAGMENT " " HTTP_11 CRLF,
-		CRLF};
+	    HTTP_GET " " SCHEME "://" HOST ":" PORT REQUEST_TARGET "?" QUERY "#" FRAGMENT " " HTTP_11 CRLF,
+	    CRLF};
 
 	init_request(request, ARRAY_SIZE(request));
 	server.server_socket.handler(&server.server_socket, server.server_socket.handler_context, CIO_SUCCESS, s);
@@ -1389,8 +1388,8 @@ static void test_serve_complete_url_onpath_fails(void)
 	struct cio_socket *s = server.alloc_client();
 
 	const char *request[] = {
-		HTTP_GET " " SCHEME "://" HOST ":" PORT REQUEST_TARGET "?" QUERY "#" FRAGMENT " " HTTP_11 CRLF,
-		CRLF};
+	    HTTP_GET " " SCHEME "://" HOST ":" PORT REQUEST_TARGET "?" QUERY "#" FRAGMENT " " HTTP_11 CRLF,
+	    CRLF};
 
 	init_request(request, ARRAY_SIZE(request));
 	server.server_socket.handler(&server.server_socket, server.server_socket.handler_context, CIO_SUCCESS, s);
@@ -1431,8 +1430,8 @@ static void test_serve_complete_url_onquery_fails(void)
 	struct cio_socket *s = server.alloc_client();
 
 	const char *request[] = {
-		HTTP_GET " " SCHEME "://" HOST ":" PORT REQUEST_TARGET "?" QUERY "#" FRAGMENT " " HTTP_11 CRLF,
-		CRLF};
+	    HTTP_GET " " SCHEME "://" HOST ":" PORT REQUEST_TARGET "?" QUERY "#" FRAGMENT " " HTTP_11 CRLF,
+	    CRLF};
 
 	init_request(request, ARRAY_SIZE(request));
 	server.server_socket.handler(&server.server_socket, server.server_socket.handler_context, CIO_SUCCESS, s);
@@ -1473,8 +1472,8 @@ static void test_serve_complete_url_onfragment_fails(void)
 	struct cio_socket *s = server.alloc_client();
 
 	const char *request[] = {
-		HTTP_GET " " SCHEME "://" HOST ":" PORT REQUEST_TARGET "?" QUERY "#" FRAGMENT " " HTTP_11 CRLF,
-		CRLF};
+	    HTTP_GET " " SCHEME "://" HOST ":" PORT REQUEST_TARGET "?" QUERY "#" FRAGMENT " " HTTP_11 CRLF,
+	    CRLF};
 
 	init_request(request, ARRAY_SIZE(request));
 	server.server_socket.handler(&server.server_socket, server.server_socket.handler_context, CIO_SUCCESS, s);
@@ -1548,15 +1547,14 @@ static void test_serve_msg_complete_write_fails(void)
 	struct cio_socket *s = server.alloc_client();
 
 	const char *request[] = {
-		HTTP_GET " " REQUEST_TARGET " " HTTP_11 CRLF,
-		CRLF};
+	    HTTP_GET " " REQUEST_TARGET " " HTTP_11 CRLF,
+	    CRLF};
 
 	init_request(request, ARRAY_SIZE(request));
 	server.server_socket.handler(&server.server_socket, server.server_socket.handler_context, CIO_SUCCESS, s);
 	TEST_ASSERT_EQUAL_MESSAGE(1, message_complete_fake.call_count, "message_complete was called!");
 	TEST_ASSERT_EQUAL_MESSAGE(1, serve_error_fake.call_count, "Serve error callback was called!");
 }
-
 
 static void test_serve_msg_complete_only_timer_cancel_fails(void)
 {
@@ -1583,8 +1581,8 @@ static void test_serve_msg_complete_only_timer_cancel_fails(void)
 	struct cio_socket *s = server.alloc_client();
 
 	const char *request[] = {
-		HTTP_GET " " REQUEST_TARGET " " HTTP_11 CRLF,
-		CRLF};
+	    HTTP_GET " " REQUEST_TARGET " " HTTP_11 CRLF,
+	    CRLF};
 
 	init_request(request, ARRAY_SIZE(request));
 	server.server_socket.handler(&server.server_socket, server.server_socket.handler_context, CIO_SUCCESS, s);
@@ -1626,7 +1624,6 @@ static void test_serve_upgrade(void)
 	TEST_ASSERT_EQUAL_MESSAGE(1, timer_cancel_fake.call_count, "timer_cancel for read timeout was not called!");
 	TEST_ASSERT_EQUAL_MESSAGE(0, serve_error_fake.call_count, "Serve error callback was called!");
 
-
 	struct cio_http_client *client = container_of(s, struct cio_http_client, socket);
 	client->close(client);
 }
@@ -1656,10 +1653,10 @@ static void test_serve_upgrade_cancel_fails(void)
 	struct cio_socket *s = server.alloc_client();
 
 	const char *request[] = {
-		HTTP_GET " " REQUEST_TARGET " " HTTP_11 CRLF,
-		"Upgrade: websocket" CRLF,
-		"Connection: Upgrade" CRLF,
-		CRLF};
+	    HTTP_GET " " REQUEST_TARGET " " HTTP_11 CRLF,
+	    "Upgrade: websocket" CRLF,
+	    "Connection: Upgrade" CRLF,
+	    CRLF};
 
 	init_request(request, ARRAY_SIZE(request));
 	server.server_socket.handler(&server.server_socket, server.server_socket.handler_context, CIO_SUCCESS, s);
