@@ -50,7 +50,8 @@ enum cio_ws_frame_type {
 	CIO_WEBSOCKET_PONG_FRAME = 0x0a,
 };
 
-static void write_complete(struct cio_buffered_stream *bs, void *handler_context, const struct cio_write_buffer *buffer, enum cio_error err) {
+static void write_complete(struct cio_buffered_stream *bs, void *handler_context, const struct cio_write_buffer *buffer, enum cio_error err)
+{
 	struct cio_websocket *ws = (struct cio_websocket *)handler_context;
 	ws->user_write_handler(bs, handler_context, buffer, err);
 }
@@ -286,7 +287,6 @@ static void restart_reading(struct cio_buffered_stream *bs, void *handler_contex
 	struct cio_websocket *ws = (struct cio_websocket *)handler_context;
 	if (err != CIO_SUCCESS) {
 		// TODO: handle_error(s, WS_CLOSE_PROTOCOL_ERROR);
-
 	}
 
 	ws->bs->read_exactly(ws->bs, ws->rb, 1, get_header, ws);
@@ -564,7 +564,8 @@ static void receive_frames(struct cio_websocket *ws)
 	ws->bs->read_exactly(ws->bs, ws->rb, 1, get_header, ws);
 }
 
-static int payload_size_in_limit(const struct cio_write_buffer *payload, size_t limit) {
+static int payload_size_in_limit(const struct cio_write_buffer *payload, size_t limit)
+{
 
 	if (payload != NULL) {
 		size_t payload_length = 0;
