@@ -50,6 +50,11 @@ enum cio_ws_frame_type {
 	CIO_WEBSOCKET_PONG_FRAME = 0x0a,
 };
 
+static void write_complete(struct cio_buffered_stream *bs, void *handler_context, const struct cio_write_buffer *buffer, enum cio_error err) {
+	struct cio_websocket *ws = (struct cio_websocket *)handler_context;
+	ws->user_write_handler(bs, handler_context, buffer, err);
+}
+
 static void send_frame(struct cio_websocket *ws, struct cio_write_buffer *payload, enum cio_ws_frame_type frame_type, bool last_frame, cio_buffered_stream_write_handler written_cb)
 {
 	uint8_t first_len;
@@ -101,8 +106,8 @@ static void send_frame(struct cio_websocket *ws, struct cio_write_buffer *payloa
 
 	cio_write_buffer_element_init(&ws->wb_send_header, ws->send_header, header_index);
 	cio_write_buffer_queue_head(&ws->wbh, &ws->wb_send_header);
-
-	ws->bs->write(ws->bs, &ws->wbh, written_cb, ws);
+	ws->user_write_handler = written_cb;
+	ws->bs->write(ws->bs, &ws->wbh, write_complete, ws);
 }
 
 static void close(struct cio_websocket *ws)
