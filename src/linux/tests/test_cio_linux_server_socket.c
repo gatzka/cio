@@ -27,7 +27,6 @@
 #include <errno.h>
 #include <stdlib.h>
 #include <sys/socket.h>
-#include <sys/types.h>
 #include <unistd.h>
 
 #include "fff.h"
@@ -41,7 +40,8 @@
 
 DEFINE_FFF_GLOBALS
 
-FAKE_VALUE_FUNC(int, accept, int, struct sockaddr *, socklen_t *)
+int accept4(int, struct sockaddr *, socklen_t *, int);
+FAKE_VALUE_FUNC(int, accept4, int, struct sockaddr *, socklen_t *, int)
 void accept_handler(struct cio_server_socket *ss, void *handler_context, enum cio_error err, struct cio_socket *socket);
 FAKE_VOID_FUNC(accept_handler, struct cio_server_socket *, void *, enum cio_error, struct cio_socket *)
 
@@ -66,8 +66,8 @@ FAKE_VOID_FUNC(free_client, struct cio_socket *)
 FAKE_VALUE_FUNC0(int, cio_linux_socket_create)
 
 FAKE_VALUE_FUNC(enum cio_error, cio_linux_socket_init, struct cio_socket *, int,
-                struct cio_eventloop *,
-                cio_socket_close_hook)
+				struct cio_eventloop *,
+				cio_socket_close_hook)
 
 static int optval;
 
@@ -89,7 +89,7 @@ static void free_success(struct cio_socket *socket)
 void setUp(void)
 {
 	FFF_RESET_HISTORY();
-	RESET_FAKE(accept);
+	RESET_FAKE(accept4);
 	RESET_FAKE(accept_handler);
 	RESET_FAKE(cio_linux_socket_create);
 
@@ -117,7 +117,7 @@ static int listen_fails(int sockfd, int backlog)
 }
 
 static int setsockopt_fails(int fd, int level, int option_name,
-                            const void *option_value, socklen_t option_len)
+							const void *option_value, socklen_t option_len)
 {
 	(void)fd;
 	(void)level;
@@ -130,7 +130,7 @@ static int setsockopt_fails(int fd, int level, int option_name,
 }
 
 static int setsockopt_capture(int fd, int level, int option_name,
-                              const void *option_value, socklen_t option_len)
+							  const void *option_value, socklen_t option_len)
 {
 	(void)fd;
 	(void)option_len;
@@ -143,7 +143,7 @@ static int setsockopt_capture(int fd, int level, int option_name,
 }
 
 static int bind_fails(int sockfd, const struct sockaddr *addr,
-                      socklen_t addrlen)
+					  socklen_t addrlen)
 {
 	(void)sockfd;
 	(void)addr;
@@ -153,12 +153,13 @@ static int bind_fails(int sockfd, const struct sockaddr *addr,
 	return -1;
 }
 
-static int custom_accept_fake(int fd, struct sockaddr *addr, socklen_t *addrlen)
+static int custom_accept_fake(int fd, struct sockaddr *addr, socklen_t *addrlen, int flags)
 {
 	(void)fd;
 	(void)addr;
 	(void)addrlen;
-	if (accept_fake.call_count == 1) {
+	(void)flags;
+	if (accept4_fake.call_count == 1) {
 		return 42;
 	} else {
 		errno = EBADF;
@@ -166,23 +167,25 @@ static int custom_accept_fake(int fd, struct sockaddr *addr, socklen_t *addrlen)
 	}
 }
 
-static int accept_wouldblock(int fd, struct sockaddr *addr, socklen_t *addrlen)
+static int accept_wouldblock(int fd, struct sockaddr *addr, socklen_t *addrlen, int flags)
 {
 	(void)fd;
 	(void)addr;
 	(void)addrlen;
+	(void)flags;
 
 	errno = EWOULDBLOCK;
 	return -1;
 }
 
-static int accept_wouldblock_second(int fd, struct sockaddr *addr, socklen_t *addrlen)
+static int accept_wouldblock_second(int fd, struct sockaddr *addr, socklen_t *addrlen, int flags)
 {
 	(void)fd;
 	(void)addr;
 	(void)addrlen;
+	(void)flags;
 
-	if (accept_fake.call_count == 1) {
+	if (accept4_fake.call_count == 1) {
 		return 42;
 	} else {
 		errno = EWOULDBLOCK;
@@ -190,11 +193,12 @@ static int accept_wouldblock_second(int fd, struct sockaddr *addr, socklen_t *ad
 	}
 }
 
-static int accept_fails(int fd, struct sockaddr *addr, socklen_t *addrlen)
+static int accept_fails(int fd, struct sockaddr *addr, socklen_t *addrlen, int flags)
 {
 	(void)fd;
 	(void)addr;
 	(void)addrlen;
+	(void)flags;
 
 	errno = EINVAL;
 	return -1;
@@ -244,7 +248,7 @@ static void accept_handler_close_socket(struct cio_server_socket *ss, void *hand
 
 static void test_accept_bind_address(void)
 {
-	accept_fake.custom_fake = custom_accept_fake;
+	accept4_fake.custom_fake = custom_accept_fake;
 	accept_handler_fake.custom_fake = accept_handler_close_server_socket;
 	alloc_client_fake.custom_fake = alloc_success;
 	free_client_fake.custom_fake = free_success;
@@ -269,7 +273,7 @@ static void test_accept_bind_address(void)
 
 static void test_accept_close_in_accept_handler(void)
 {
-	accept_fake.custom_fake = custom_accept_fake;
+	accept4_fake.custom_fake = custom_accept_fake;
 	accept_handler_fake.custom_fake = accept_handler_close_server_socket;
 	alloc_client_fake.custom_fake = alloc_success;
 	free_client_fake.custom_fake = free_success;
@@ -290,7 +294,7 @@ static void test_accept_close_in_accept_handler(void)
 
 static void test_accept_close_in_accept_handler_no_close_hook(void)
 {
-	accept_fake.custom_fake = custom_accept_fake;
+	accept4_fake.custom_fake = custom_accept_fake;
 	accept_handler_fake.custom_fake = accept_handler_close_server_socket;
 	alloc_client_fake.custom_fake = alloc_success;
 	free_client_fake.custom_fake = free_success;
@@ -310,7 +314,7 @@ static void test_accept_close_in_accept_handler_no_close_hook(void)
 
 static void test_accept_wouldblock(void)
 {
-	accept_fake.custom_fake = accept_wouldblock;
+	accept4_fake.custom_fake = accept_wouldblock;
 	accept_handler_fake.custom_fake = accept_handler_close_server_socket;
 	alloc_client_fake.custom_fake = alloc_success;
 	free_client_fake.custom_fake = free_success;
@@ -334,7 +338,7 @@ static void test_accept_wouldblock(void)
 
 static void test_accept_fails(void)
 {
-	accept_fake.custom_fake = accept_fails;
+	accept4_fake.custom_fake = accept_fails;
 	accept_handler_fake.custom_fake = accept_handler_close_server_socket;
 	alloc_client_fake.custom_fake = alloc_success;
 	free_client_fake.custom_fake = free_success;
@@ -535,7 +539,7 @@ static void test_init_bind_fails(void)
 
 static void test_accept_malloc_fails(void)
 {
-	accept_fake.custom_fake = accept_wouldblock_second;
+	accept4_fake.custom_fake = accept_wouldblock_second;
 
 	struct cio_eventloop loop;
 	struct cio_server_socket ss;
@@ -561,7 +565,7 @@ static void test_accept_malloc_fails(void)
  */
 static void test_accept_socket_init_fails(void)
 {
-	accept_fake.custom_fake = accept_wouldblock_second;
+	accept4_fake.custom_fake = accept_wouldblock_second;
 
 	cio_linux_socket_init_fake.return_val = CIO_NOT_ENOUGH_MEMORY;
 
@@ -586,7 +590,7 @@ static void test_accept_socket_init_fails(void)
 
 static void test_accept_socket_close_socket(void)
 {
-	accept_fake.custom_fake = accept_wouldblock_second;
+	accept4_fake.custom_fake = accept_wouldblock_second;
 	accept_handler_fake.custom_fake = accept_handler_close_socket;
 	cio_linux_socket_init_fake.custom_fake = custom_cio_linux_socket_init;
 

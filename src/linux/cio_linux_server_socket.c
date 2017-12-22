@@ -62,7 +62,7 @@ static void accept_callback(void *context)
 	int client_fd;
 	memset(&addr, 0, sizeof(addr));
 	addrlen = sizeof(addr);
-	client_fd = accept(fd, (struct sockaddr *)&addr, &addrlen);
+	client_fd = accept4(fd, (struct sockaddr *)&addr, &addrlen, SOCK_NONBLOCK | SOCK_CLOEXEC);
 	if (unlikely(client_fd == -1)) {
 		if ((errno != EAGAIN) && (errno != EWOULDBLOCK) && (errno != EBADF)) {
 			ss->handler(ss, ss->handler_context, (enum cio_error)-errno, NULL);
