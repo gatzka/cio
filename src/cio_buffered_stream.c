@@ -35,7 +35,7 @@
 #include "cio_string.h"
 #include "cio_write_buffer.h"
 
-static enum cio_bs_state run_read(struct cio_buffered_stream *bs);
+static void run_read(struct cio_buffered_stream *bs);
 
 static void handle_read(struct cio_io_stream *stream, void *handler_context, enum cio_error err, struct cio_read_buffer *buffer)
 {
@@ -60,13 +60,14 @@ static enum cio_bs_state call_handler(struct cio_buffered_stream *bs, enum cio_e
 	}
 }
 
-static enum cio_bs_state fill_buffer(struct cio_buffered_stream *bs)
+static void fill_buffer(struct cio_buffered_stream *bs)
 {
 	struct cio_read_buffer *rb = bs->read_buffer;
 	if (cio_read_buffer_space_available(rb) == 0) {
 		if (unlikely(rb->data == rb->fetch_ptr)) {
 			bs->last_error = CIO_MESSAGE_TOO_LONG;
-			return bs->read_job(bs);
+			bs->read_job(bs);
+			return;
 		}
 
 		size_t unread_bytes = cio_read_buffer_unread_bytes(rb);
@@ -77,9 +78,7 @@ static enum cio_bs_state fill_buffer(struct cio_buffered_stream *bs)
 
 	enum cio_error err = bs->stream->read_some(bs->stream, rb, handle_read, bs);
 	if (unlikely(err != CIO_SUCCESS)) {
-		return call_handler(bs, err, rb);
-	} else {
-		return CIO_BS_OPEN;
+		call_handler(bs, err, rb);
 	}
 }
 
@@ -98,22 +97,21 @@ static enum cio_error bs_close(struct cio_buffered_stream *bs)
 	return CIO_SUCCESS;
 }
 
-static enum cio_bs_state run_read(struct cio_buffered_stream *bs)
+static void run_read(struct cio_buffered_stream *bs)
 {
 	bs->read_is_running = true;
 	while (bs->read_job != NULL) {
 		enum cio_bs_state err = bs->read_job(bs);
 		if (err == CIO_BS_AGAIN) {
 			bs->read_is_running = false;
-			return fill_buffer(bs);
+			fill_buffer(bs);
+			return;
 		} else if (err == CIO_BS_CLOSED) {
-			return CIO_BS_CLOSED;
+			return;
 		}
 	}
 
 	bs->read_is_running = false;
-
-	return CIO_BS_OPEN;
 }
 
 static void start_read(struct cio_buffered_stream *bs)
