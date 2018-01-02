@@ -11,6 +11,26 @@ git:
 matrix:
   include:
 
+# Coverity build, must be the first!
+  - compiler: gcc
+    env:
+    - MATRIX_EVAL="CMAKE_C_COMPILER=gcc && CMAKE_BUILD_TYPE=Debug && COVERAGE_INFO=1 && CIO_SANITIZE=1"
+    addons:
+      coverity_scan:
+        project:
+          name: gatzka/cio
+          description: Build submitted via Travis CI
+        notification_email: stephan.gatzka@gmail.com
+        build_script_url: https://raw.githubusercontent.com/gatzka/cio/coverity_scan/.travisci_build_coverity_scan.sh
+        build_command_prepend: cmake ./
+        build_command: make -j
+        branch_pattern: coverity_scan
+      apt:
+        packages:
+        - cmake
+        - cmake-data
+        - lcov
+
 # Sonarcloud build
   - compiler: gcc
     env:
@@ -38,24 +58,6 @@ matrix:
         - cmake
         - cmake-data
 
-  - compiler: gcc
-    env:
-    - MATRIX_EVAL="CMAKE_C_COMPILER=gcc && CMAKE_BUILD_TYPE=Debug && COVERAGE_INFO=1 && CIO_SANITIZE=1"
-    addons:
-      coverity_scan:
-        project:
-          name: gatzka/cio
-          description: Build submitted via Travis CI
-        notification_email: stephan.gatzka@gmail.com
-        build_script_url: https://raw.githubusercontent.com/gatzka/cio/coverity_scan/.travisci_build_coverity_scan.sh
-        build_command_prepend: cmake ./
-        build_command: make -j
-        branch_pattern: coverity_scan
-      apt:
-        packages:
-        - cmake
-        - cmake-data
-        - lcov
   - compiler: gcc
     env:
     - MATRIX_EVAL="CMAKE_C_COMPILER=gcc && CMAKE_BUILD_TYPE=Release && CIO_SANITIZE=1"
