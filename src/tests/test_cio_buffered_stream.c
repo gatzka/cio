@@ -181,10 +181,39 @@ static enum cio_error write_some_first_write_partial_second_error(struct cio_io_
 	return CIO_SUCCESS;
 }
 
+static enum cio_error write_some_first_write_partial_second_error_sync(struct cio_io_stream *io_stream, const struct cio_write_buffer *buf, cio_io_stream_write_handler handler, void *handler_context)
+{
+	if (write_some_fake.call_count == 1) {
+		struct cio_write_buffer *wb = buf->next;
+		if (cio_write_buffer_get_number_of_elements(buf) >= 1) {
+			memcpy(&write_check_buffer[write_check_buffer_pos], wb->data.element.const_data, wb->data.element.length / 2);
+			write_check_buffer_pos += wb->data.element.length / 2;
+		}
+
+		handler(io_stream, handler_context, buf, CIO_SUCCESS, wb->data.element.length / 2);
+	} else if (write_some_fake.call_count == 2) {
+		return CIO_INVALID_ARGUMENT;
+	} else {
+		write_some_all(io_stream, buf, handler, handler_context);
+	}
+
+	return CIO_SUCCESS;
+}
+
 static enum cio_error write_some_error(struct cio_io_stream *io_stream, const struct cio_write_buffer *buf, cio_io_stream_write_handler handler, void *handler_context)
 {
 	handler(io_stream, handler_context, buf, CIO_MESSAGE_TOO_LONG, 0);
 	return CIO_SUCCESS;
+}
+
+static enum cio_error write_some_error_sync(struct cio_io_stream *io_stream, const struct cio_write_buffer *buf, cio_io_stream_write_handler handler, void *handler_context)
+{
+	(void)io_stream;
+	(void)buf;
+	(void)handler;
+	(void)handler_context;
+
+	return CIO_INVALID_ARGUMENT;
 }
 
 static enum cio_error write_some_double_write_partial(struct cio_io_stream *io_stream, const struct cio_write_buffer *buf, cio_io_stream_write_handler handler, void *handler_context)
@@ -1530,6 +1559,32 @@ static void test_write_one_buffer_one_chunk_error(void)
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_MESSAGE_TOO_LONG, dummy_write_handler_fake.arg3_val, "Handler was not called with CIO_MESSAGE_TOO_LONG!");
 }
 
+static void test_write_one_buffer_one_chunk_error_sync(void)
+{
+	static const char *test_data = "Hello";
+
+	struct client *client = malloc(sizeof(*client));
+
+	struct cio_write_buffer wbh;
+	cio_write_buffer_head_init(&wbh);
+	struct cio_write_buffer wb;
+	cio_write_buffer_const_element_init(&wb, test_data, strlen(test_data));
+	cio_write_buffer_queue_tail(&wbh, &wb);
+
+	memory_stream_init(&client->ms, "");
+	write_some_fake.custom_fake = write_some_error_sync;
+
+	enum cio_error err = cio_buffered_stream_init(&client->bs, &client->ms.ios);
+	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Buffer was not initialized correctly!");
+	err = client->bs.write(&client->bs, &wbh, dummy_write_handler, NULL);
+	TEST_ASSERT_NOT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Return value not correct!");
+
+	err = client->bs.close(&client->bs);
+	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Return value not correct!");
+	TEST_ASSERT_EQUAL_MESSAGE(1, close_fake.call_count, "Underlying cio_iostream was not closed!");
+	TEST_ASSERT_EQUAL_MESSAGE(0, dummy_write_handler_fake.call_count, "Handler was not called!");
+}
+
 static void test_write_no_buffered_stream_for_write(void)
 {
 	static const char *test_data = "Hello";
@@ -1638,6 +1693,38 @@ static void test_write_one_buffer_partial_write_error(void)
 	test_buffer = test_buffer->next;
 	TEST_ASSERT_EQUAL_MESSAGE(test_buffer, &wbh, "First write buffer does not point to original head!");
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_MESSAGE_TOO_LONG, dummy_write_handler_fake.arg3_val, "Handler was not called with CIO_MESSAGE_TOO_LONG!");
+}
+
+static void test_write_one_buffer_partial_write_error_sync(void)
+{
+	static const char *test_data = "Hello";
+
+	struct client *client = malloc(sizeof(*client));
+
+	struct cio_write_buffer wbh;
+	cio_write_buffer_head_init(&wbh);
+	struct cio_write_buffer wb;
+	cio_write_buffer_const_element_init(&wb, test_data, strlen(test_data));
+	cio_write_buffer_queue_tail(&wbh, &wb);
+
+	memory_stream_init(&client->ms, "");
+	write_some_fake.custom_fake = write_some_first_write_partial_second_error_sync;
+
+	enum cio_error err = cio_buffered_stream_init(&client->bs, &client->ms.ios);
+	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Buffer was not initialized correctly!");
+	err = client->bs.write(&client->bs, &wbh, dummy_write_handler, NULL);
+	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Return value not correct!");
+
+	err = client->bs.close(&client->bs);
+	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Return value not correct!");
+	TEST_ASSERT_EQUAL_MESSAGE(1, close_fake.call_count, "Underlying cio_iostream was not closed!");
+	TEST_ASSERT_EQUAL_MESSAGE(1, dummy_write_handler_fake.call_count, "Handler was not called!");
+	TEST_ASSERT_EQUAL_MESSAGE(&wbh, dummy_write_handler_fake.arg2_val, "Handler was not called with original write_buffer!");
+	struct cio_write_buffer *test_buffer = wbh.next;
+	TEST_ASSERT_EQUAL_MESSAGE(test_buffer, &wb, "First write buffer not the original one!");
+	test_buffer = test_buffer->next;
+	TEST_ASSERT_EQUAL_MESSAGE(test_buffer, &wbh, "First write buffer does not point to original head!");
+	TEST_ASSERT_EQUAL_MESSAGE(CIO_INVALID_ARGUMENT, dummy_write_handler_fake.arg3_val, "Handler was not called with CIO_INVALID_ARGUMENT!");
 }
 
 static void test_write_two_buffers_one_chunk(void)
@@ -1778,7 +1865,9 @@ int main(void)
 	RUN_TEST(test_write_two_buffers_double_partial_write);
 	RUN_TEST(test_write_two_buffers_partial_write_at_buffer_boundary);
 	RUN_TEST(test_write_one_buffer_one_chunk_error);
+	RUN_TEST(test_write_one_buffer_one_chunk_error_sync);
 	RUN_TEST(test_write_one_buffer_partial_write_error);
+	RUN_TEST(test_write_one_buffer_partial_write_error_sync);
 	RUN_TEST(test_write_no_buffered_stream_for_write);
 	RUN_TEST(test_write_no_buffer_for_write);
 	RUN_TEST(test_write_no_handler_for_write);
