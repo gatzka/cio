@@ -188,18 +188,14 @@ static enum cio_error stream_write(struct cio_io_stream *stream, const struct ci
 		handler(stream, handler_context, buffer, CIO_SUCCESS, (size_t)ret);
 	} else {
 		if (likely((errno == EWOULDBLOCK) || (errno == EAGAIN))) {
-			enum cio_error err;
 			s->stream.write_handler = handler;
 			s->stream.write_handler_context = handler_context;
 			s->stream.write_buffer = buffer;
 			s->ev.context = stream;
 			s->ev.write_callback = write_callback;
-			err = cio_linux_eventloop_register_write(s->loop, &s->ev);
-			if (unlikely(err != CIO_SUCCESS)) {
-				handler(stream, handler_context, buffer, err, 0);
-			}
+			return cio_linux_eventloop_register_write(s->loop, &s->ev);
 		} else {
-			handler(stream, handler_context, buffer, (enum cio_error)-errno, 0);
+			return (enum cio_error)-errno;
 		}
 	}
 
