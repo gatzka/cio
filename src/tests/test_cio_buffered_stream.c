@@ -347,6 +347,16 @@ static enum cio_error read_some_error(struct cio_io_stream *ios, struct cio_read
 	return CIO_SUCCESS;
 }
 
+static enum cio_error read_some_error_sync(struct cio_io_stream *ios, struct cio_read_buffer *buffer, cio_io_stream_read_handler handler, void *context)
+{
+	(void)ios;
+	(void)handler;
+	(void)context;
+
+	buffer->bytes_transferred = 0;
+	return CIO_INVALID_ARGUMENT;
+}
+
 static void test_init_missing_bs_pointer(void)
 {
 	struct cio_io_stream ios;
@@ -569,6 +579,32 @@ static void test_read_exactly_ios_error(void)
 	static const char *test_data = "Hello";
 	memory_stream_init(&client->ms, test_data);
 	read_some_fake.custom_fake = read_some_error;
+
+	uint8_t buffer[read_buffer_size];
+	struct cio_read_buffer rb;
+	enum cio_error err = cio_read_buffer_init(&rb, &buffer, sizeof(buffer));
+	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Read buffer was not initialized correctly!");
+
+	err = cio_buffered_stream_init(&client->bs, &client->ms.ios);
+	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Buffer was not initialized correctly!");
+	err = client->bs.read_exactly(&client->bs, &rb, read_buffer_size - 1, dummy_read_handler, NULL);
+	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Return value not correct!");
+
+	err = client->bs.close(&client->bs);
+	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Return value not correct!");
+	TEST_ASSERT_EQUAL_MESSAGE(1, close_fake.call_count, "Underlying cio_iostream was not closed!");
+	TEST_ASSERT_EQUAL_MESSAGE(1, dummy_read_handler_fake.call_count, "Handler was not called!");
+	TEST_ASSERT_EQUAL_MESSAGE(CIO_INVALID_ARGUMENT, dummy_read_handler_fake.arg2_val, "Handler was not called with CIO_INVALID_ARGUMENT!");
+}
+
+static void test_read_exactly_sync_error(void)
+{
+	struct client *client = malloc(sizeof(*client));
+
+	size_t read_buffer_size = 40;
+	static const char *test_data = "Hello";
+	memory_stream_init(&client->ms, test_data);
+	read_some_fake.custom_fake = read_some_error_sync;
 
 	uint8_t buffer[read_buffer_size];
 	struct cio_read_buffer rb;
@@ -1712,6 +1748,7 @@ int main(void)
 	RUN_TEST(test_read_exactly_no_handler);
 	RUN_TEST(test_read_exactly_no_buffer);
 	RUN_TEST(test_read_exactly_ios_error);
+	RUN_TEST(test_read_exactly_sync_error);
 	RUN_TEST(test_read_exactly_chunks);
 	RUN_TEST(test_read_exactly_zero_length);
 	RUN_TEST(test_read_exactly_second_read_in_callback);
