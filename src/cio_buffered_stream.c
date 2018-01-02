@@ -283,7 +283,10 @@ static void handle_write(struct cio_io_stream *io_stream, void *handler_context,
 	if (cio_write_buffer_queue_empty(&bs->wbh)) {
 		bs->write_handler(bs, bs->write_handler_context, bs->original_wbh, CIO_SUCCESS);
 	} else {
-		bs->stream->write_some(io_stream, &bs->wbh, handle_write, bs);
+		err = bs->stream->write_some(io_stream, &bs->wbh, handle_write, bs);
+		if (unlikely(err != CIO_SUCCESS)) {
+			bs->write_handler(bs, bs->write_handler_context, bs->original_wbh, err);
+		}
 	}
 }
 
@@ -302,9 +305,7 @@ static enum cio_error bs_write(struct cio_buffered_stream *bs, struct cio_write_
 		cio_write_buffer_queue_tail(&bs->wbh, wb);
 	}
 
-	bs->stream->write_some(bs->stream, &bs->wbh, handle_write, bs);
-
-	return CIO_SUCCESS;
+	return bs->stream->write_some(bs->stream, &bs->wbh, handle_write, bs);
 }
 
 enum cio_error cio_buffered_stream_init(struct cio_buffered_stream *bs,
