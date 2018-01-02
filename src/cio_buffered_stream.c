@@ -47,6 +47,19 @@ static void handle_read(struct cio_io_stream *stream, void *handler_context, enu
 	run_read(bs);
 }
 
+static enum cio_bs_state call_handler(struct cio_buffered_stream *bs, enum cio_error err, struct cio_read_buffer *rb)
+{
+	bs->read_job = NULL;
+	bs->read_handler(bs, bs->read_handler_context, err, rb);
+
+	if (bs->shall_close) {
+		bs->stream->close(bs->stream);
+		return CIO_BS_CLOSED;
+	} else {
+		return CIO_BS_OPEN;
+	}
+}
+
 static enum cio_bs_state fill_buffer(struct cio_buffered_stream *bs)
 {
 	struct cio_read_buffer *rb = bs->read_buffer;
@@ -62,8 +75,12 @@ static enum cio_bs_state fill_buffer(struct cio_buffered_stream *bs)
 		rb->add_ptr = rb->data + unread_bytes;
 	}
 
-	bs->stream->read_some(bs->stream, rb, handle_read, bs);
-	return CIO_BS_OPEN;
+	enum cio_error err = bs->stream->read_some(bs->stream, rb, handle_read, bs);
+	if (unlikely(err != CIO_SUCCESS)) {
+		return call_handler(bs, err, rb);
+	} else {
+		return CIO_BS_OPEN;
+	}
 }
 
 static enum cio_error bs_close(struct cio_buffered_stream *bs)
@@ -103,19 +120,6 @@ static void start_read(struct cio_buffered_stream *bs)
 {
 	if (!bs->read_is_running) {
 		run_read(bs);
-	}
-}
-
-static enum cio_bs_state call_handler(struct cio_buffered_stream *bs, enum cio_error err, struct cio_read_buffer *rb)
-{
-	bs->read_job = NULL;
-	bs->read_handler(bs, bs->read_handler_context, err, rb);
-
-	if (bs->shall_close) {
-		bs->stream->close(bs->stream);
-		return CIO_BS_CLOSED;
-	} else {
-		return CIO_BS_OPEN;
 	}
 }
 
