@@ -53,7 +53,7 @@ static enum cio_http_cb_return save_websocket_key(uint8_t *dest, const char *at,
 {
 	static const char ws_guid[SEC_WEB_SOCKET_GUID_LENGTH] = "258EAFA5-E914-47DA-95CA-C5AB0DC85B11";
 
-	if (length == SEC_WEB_SOCKET_KEY_LENGTH) {
+	if (likely(length == SEC_WEB_SOCKET_KEY_LENGTH)) {
 		memcpy(dest, at, length);
 		memcpy(&dest[length], ws_guid, sizeof(ws_guid));
 		return CIO_HTTP_CB_SUCCESS;
@@ -65,7 +65,7 @@ static enum cio_http_cb_return save_websocket_key(uint8_t *dest, const char *at,
 static enum cio_http_cb_return check_websocket_version(const char *at, size_t length)
 {
 	static const char version[2] = "13";
-	if ((length == sizeof(version)) && (memcmp(at, version, length) == 0)) {
+	if (likely((length == sizeof(version)) && (memcmp(at, version, length) == 0))) {
 		return CIO_HTTP_CB_SUCCESS;
 	} else {
 		return CIO_HTTP_CB_ERROR;
