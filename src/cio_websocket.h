@@ -195,6 +195,7 @@ struct cio_websocket {
 		unsigned int is_fragmented : 1;
 		unsigned int self_initiated_close : 1;
 		unsigned int is_server : 1;
+		unsigned int writing_frame : 1;
 	} ws_flags;
 
 	void (*receive_frames)(struct cio_websocket *ws);
