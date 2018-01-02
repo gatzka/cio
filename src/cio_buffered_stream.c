@@ -137,8 +137,6 @@ static enum cio_bs_state internal_read(struct cio_buffered_stream *bs)
 	} else {
 		return CIO_BS_AGAIN;
 	}
-
-	return CIO_BS_OPEN;
 }
 
 static enum cio_error bs_read(struct cio_buffered_stream *bs, struct cio_read_buffer *buffer, cio_buffered_stream_read_handler handler, void *handler_context)
