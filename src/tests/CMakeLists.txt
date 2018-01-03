@@ -84,6 +84,11 @@ add_executable(test_cio_websocket_mask
 )
 target_link_libraries (test_cio_websocket_mask cio_unity)
 
+add_executable(test_cio_websocket_location_handler
+    test_cio_websocket_location_handler.c
+)
+target_link_libraries (test_cio_websocket_location_handler cio_unity)
+
 enable_testing()
 add_test(NAME test_cio_buffered_stream COMMAND test_cio_buffered_stream)
 add_test(NAME test_cio_http_server COMMAND test_cio_http_server)

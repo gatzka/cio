@@ -179,4 +179,15 @@ Project {
       "test_cio_websocket_mask.c",
     ]
   }
+
+  UnittestProduct {
+    name: "test_cio_websocket_location_handler"
+    type: ["application", "unittest"]
+    
+    cpp.includePaths: ["..", "../linux/"]
+
+    files: [
+      "test_cio_websocket_location_handler.c",
+    ]
+  }
 }
