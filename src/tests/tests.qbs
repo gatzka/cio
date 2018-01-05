@@ -183,11 +183,63 @@ Project {
   UnittestProduct {
     name: "test_cio_websocket_location_handler"
     type: ["application", "unittest"]
-    
-    cpp.includePaths: ["..", "../linux/"]
+
+    Depends { name: "generateVersion" }
+
+    cpp.includePaths: ["..", "../linux", buildDirectory + "/generated/"];
 
     files: [
       "test_cio_websocket_location_handler.c",
+      "../cio_base64.c",
+      "../cio_http_location.c",
+      "../cio_http_location_handler.c",
+      "../cio_http_server.c",
+      "../cio_websocket.c",
+      "../cio_websocket_location_handler.c",
     ]
+
+    Group {
+      name: "version file"
+      prefix: product.sourceDirectory + "/"
+
+      files: [
+        "../version"
+      ]
+      fileTags: ["version_file"]
+    }
+
+    Group {
+      name: "version header"
+      files: [
+        "../cio_version.h.in"
+      ]
+      fileTags: ["versionFileToPatch"]
+    }
+
+    Group {
+      name: "third party"
+      cpp.cLanguageVersion: "c99"
+      cpp.warningLevel: "none"
+      files: [
+        "../http-parser/http_parser.c",
+        "../http-parser/http_parser.h",
+        "../sha1/sha1.c",
+        "../sha1/sha1.h",
+      ]
+    }
+
+    Group {
+      condition: qbs.targetOS.contains("linux")
+      name: "linux specific"
+      prefix: "../linux/"
+      cpp.cLanguageVersion: "c11"
+
+      files: [
+        "cio_linux_endian.c",
+        "cio_linux_random.c",
+        "cio_linux_string.c",
+      ]
+    }
+
   }
 }
