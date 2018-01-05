@@ -50,7 +50,7 @@ enum cio_error cio_eventloop_init(struct cio_eventloop *loop)
 {
 	loop->epoll_fd = epoll_create(1);
 	if (loop->epoll_fd < 0) {
-		return (enum cio_error)-errno;
+		return (enum cio_error)(-errno);
 	}
 
 	loop->num_events = 0;
@@ -74,7 +74,7 @@ enum cio_error cio_linux_eventloop_add(const struct cio_eventloop *loop, struct 
 	epoll_ev.data.ptr = ev;
 	epoll_ev.events = ev->registered_events;
 	if (unlikely(epoll_ctl(loop->epoll_fd, EPOLL_CTL_ADD, ev->fd, &epoll_ev) < 0)) {
-		return (enum cio_error)-errno;
+		return (enum cio_error)(-errno);
 	}
 
 	return CIO_SUCCESS;
@@ -87,7 +87,7 @@ static enum cio_error epoll_mod(const struct cio_eventloop *loop, struct cio_eve
 	epoll_ev.data.ptr = ev;
 	epoll_ev.events = events;
 	if (unlikely(epoll_ctl(loop->epoll_fd, EPOLL_CTL_MOD, ev->fd, &epoll_ev) < 0)) {
-		return (enum cio_error)-errno;
+		return (enum cio_error)(-errno);
 	}
 
 	return CIO_SUCCESS;
@@ -139,7 +139,7 @@ enum cio_error cio_eventloop_run(struct cio_eventloop *loop)
 				continue;
 			}
 
-			return (enum cio_error)-errno;
+			return (enum cio_error)(-errno);
 		}
 
 		loop->num_events = (unsigned int)num_events;

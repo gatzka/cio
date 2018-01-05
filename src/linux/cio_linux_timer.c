@@ -66,7 +66,7 @@ static enum cio_error timer_cancel(struct cio_timer *t)
 		t->handler(t, t->handler_context, CIO_OPERATION_ABORTED);
 		return CIO_SUCCESS;
 	} else {
-		return (enum cio_error)-errno;
+		return (enum cio_error)(-errno);
 	}
 }
 
@@ -91,7 +91,7 @@ static void timer_read(void *context)
 	ssize_t ret = read(t->ev.fd, &number_of_expirations, sizeof(number_of_expirations));
 	if (ret == -1) {
 		if ((errno != EAGAIN) && (errno != EWOULDBLOCK)) {
-			t->handler(t, t->handler_context, (enum cio_error)-errno);
+			t->handler(t, t->handler_context, (enum cio_error)(-errno));
 		}
 	} else {
 		timer_handler handler = t->handler;
@@ -115,7 +115,7 @@ static enum cio_error timer_expires_from_now(struct cio_timer *t, uint64_t timeo
 
 	ret = timerfd_settime(t->ev.fd, 0, &timeout, NULL);
 	if (unlikely(ret != 0)) {
-		return (enum cio_error)-errno;
+		return (enum cio_error)(-errno);
 	}
 
 	timer_read(t);
@@ -128,7 +128,7 @@ enum cio_error cio_timer_init(struct cio_timer *timer, struct cio_eventloop *loo
 	enum cio_error ret_val;
 	int fd = timerfd_create(CLOCK_MONOTONIC, O_NONBLOCK);
 	if (unlikely(fd == -1)) {
-		return (enum cio_error)-errno;
+		return (enum cio_error)(-errno);
 	}
 
 	timer->cancel = timer_cancel;

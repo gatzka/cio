@@ -69,7 +69,7 @@ static enum cio_error socket_tcp_no_delay(struct cio_socket *s, bool on)
 
 	if (setsockopt(s->ev.fd, IPPROTO_TCP, TCP_NODELAY, &tcp_no_delay,
 	               sizeof(tcp_no_delay)) < 0) {
-		return (enum cio_error)-errno;
+		return (enum cio_error)(-errno);
 	}
 
 	return CIO_SUCCESS;
@@ -83,22 +83,22 @@ static enum cio_error socket_keepalive(struct cio_socket *s, bool on, unsigned i
 	if (on) {
 		keep_alive = 1;
 		if (setsockopt(s->ev.fd, SOL_TCP, TCP_KEEPIDLE, &keep_idle_s, sizeof(keep_idle_s)) == -1) {
-			return (enum cio_error)-errno;
+			return (enum cio_error)(-errno);
 		}
 
 		if (setsockopt(s->ev.fd, SOL_TCP, TCP_KEEPINTVL, &keep_intvl_s, sizeof(keep_intvl_s)) == -1) {
-			return (enum cio_error)-errno;
+			return (enum cio_error)(-errno);
 		}
 
 		if (setsockopt(s->ev.fd, SOL_TCP, TCP_KEEPCNT, &keep_cnt, sizeof(keep_cnt)) == -1) {
-			return (enum cio_error)-errno;
+			return (enum cio_error)(-errno);
 		}
 	} else {
 		keep_alive = 0;
 	}
 
 	if (setsockopt(s->ev.fd, SOL_SOCKET, SO_KEEPALIVE, &keep_alive, sizeof(keep_alive)) == -1) {
-		return (enum cio_error)-errno;
+		return (enum cio_error)(-errno);
 	}
 
 	return CIO_SUCCESS;
@@ -118,7 +118,7 @@ static void read_callback(void *context)
 	if (ret == -1) {
 		if (unlikely((errno != EWOULDBLOCK) && (errno != EAGAIN))) {
 			rb->bytes_transferred = 0;
-			stream->read_handler(stream, stream->read_handler_context, (enum cio_error)-errno, rb);
+			stream->read_handler(stream, stream->read_handler_context, (enum cio_error)(-errno), rb);
 		}
 	} else {
 		enum cio_error error;
@@ -195,7 +195,7 @@ static enum cio_error stream_write(struct cio_io_stream *stream, const struct ci
 			s->ev.write_callback = write_callback;
 			return cio_linux_eventloop_register_write(s->loop, &s->ev);
 		} else {
-			return (enum cio_error)-errno;
+			return (enum cio_error)(-errno);
 		}
 	}
 
@@ -244,7 +244,7 @@ enum cio_error cio_socket_init(struct cio_socket *s,
 	enum cio_error err;
 	int socket_fd = cio_linux_socket_create();
 	if (unlikely(socket_fd == -1)) {
-		return (enum cio_error)-errno;
+		return (enum cio_error)(-errno);
 	}
 
 	err = cio_linux_socket_init(s, socket_fd, loop, close_hook);
