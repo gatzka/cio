@@ -86,6 +86,17 @@ target_link_libraries (test_cio_websocket_mask cio_unity)
 
 add_executable(test_cio_websocket_location_handler
     test_cio_websocket_location_handler.c
+    ../cio_base64.c
+	../cio_http_location.c
+	../cio_http_location_handler.c
+    ../cio_http_server.c
+    ../cio_websocket.c
+    ../cio_websocket_location_handler.c
+    ../http-parser/http_parser.c
+    ../linux/cio_linux_endian.c
+    ../linux/cio_linux_random.c
+    ../linux/cio_linux_string.c
+    ../sha1/sha1.c
 )
 target_link_libraries (test_cio_websocket_location_handler cio_unity)
 
