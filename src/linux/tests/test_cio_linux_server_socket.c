@@ -66,8 +66,8 @@ FAKE_VOID_FUNC(free_client, struct cio_socket *)
 FAKE_VALUE_FUNC0(int, cio_linux_socket_create)
 
 FAKE_VALUE_FUNC(enum cio_error, cio_linux_socket_init, struct cio_socket *, int,
-				struct cio_eventloop *,
-				cio_socket_close_hook)
+                struct cio_eventloop *,
+                cio_socket_close_hook)
 
 static int optval;
 
@@ -117,7 +117,7 @@ static int listen_fails(int sockfd, int backlog)
 }
 
 static int setsockopt_fails(int fd, int level, int option_name,
-							const void *option_value, socklen_t option_len)
+                            const void *option_value, socklen_t option_len)
 {
 	(void)fd;
 	(void)level;
@@ -130,7 +130,7 @@ static int setsockopt_fails(int fd, int level, int option_name,
 }
 
 static int setsockopt_capture(int fd, int level, int option_name,
-							  const void *option_value, socklen_t option_len)
+                              const void *option_value, socklen_t option_len)
 {
 	(void)fd;
 	(void)option_len;
@@ -143,7 +143,7 @@ static int setsockopt_capture(int fd, int level, int option_name,
 }
 
 static int bind_fails(int sockfd, const struct sockaddr *addr,
-					  socklen_t addrlen)
+                      socklen_t addrlen)
 {
 	(void)sockfd;
 	(void)addr;
