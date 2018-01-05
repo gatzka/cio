@@ -62,10 +62,11 @@ static enum cio_http_cb_return save_websocket_key(uint8_t *dest, const char *at,
 	}
 }
 
-static enum cio_http_cb_return check_websocket_version(const char *at, size_t length)
+static enum cio_http_cb_return check_websocket_version(struct cio_websocket_location_handler *wslh, const char *at, size_t length)
 {
 	static const char version[2] = "13";
 	if (likely((length == sizeof(version)) && (memcmp(at, version, length) == 0))) {
+		wslh->flags.ws_version_ok = 1;
 		return CIO_HTTP_CB_SUCCESS;
 	} else {
 		return CIO_HTTP_CB_ERROR;
@@ -151,7 +152,7 @@ static enum cio_http_cb_return handle_value(struct cio_http_client *client, cons
 		break;
 
 	case CIO_WS_HEADER_SEC_WEBSOCKET_VERSION:
-		ret = check_websocket_version(at, length);
+		ret = check_websocket_version(ws, at, length);
 		break;
 
 	case CIO_WS_HEADER_SEC_WEBSOCKET_PROTOCOL:
@@ -266,6 +267,14 @@ static enum cio_http_cb_return handle_headers_complete(struct cio_http_client *c
 		return CIO_HTTP_CB_ERROR;
 	}
 
+	if (unlikely(ws->flags.ws_version_ok == 0)) {
+		return CIO_HTTP_CB_ERROR;
+	}
+
+	if (unlikely(ws->sec_web_socket_key[0] == 0)) {
+		return CIO_HTTP_CB_ERROR;
+	}
+
 	send_upgrade_response(client);
 
 	return CIO_HTTP_CB_SKIP_BODY;
@@ -281,10 +290,12 @@ static void close_server_websocket(struct cio_websocket *s)
 void cio_websocket_location_handler_init(struct cio_websocket_location_handler *handler, const char *subprotocols[], unsigned int num_subprotocols)
 {
 	handler->flags.current_header_field = 0;
-	handler->chosen_subprotocol = -1;
+	handler->flags.ws_version_ok = 0;
 	handler->flags.subprotocol_requested = 0;
+	handler->chosen_subprotocol = -1;
 	handler->subprotocols = subprotocols;
 	handler->number_subprotocols = num_subprotocols;
+	handler->sec_web_socket_key[0] = 0;
 
 	cio_http_location_handler_init(&handler->http_location);
 	handler->http_location.on_header_field = handle_field;
