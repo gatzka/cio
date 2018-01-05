@@ -147,7 +147,6 @@ static enum cio_websocket_status send_frame(struct cio_websocket *ws, struct cio
 	ws->bs->write(ws->bs, &ws->wbh, write_complete, ws);
 
 	return CIO_WEBSOCKET_STATUS_OK;
-
 }
 
 static bool is_status_code_invalid(uint16_t status_code)
