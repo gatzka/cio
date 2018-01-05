@@ -54,6 +54,7 @@ struct cio_websocket_location_handler {
 	struct {
 		unsigned int current_header_field : 2;
 		unsigned int subprotocol_requested : 1;
+		unsigned int ws_version_ok : 1;
 	} flags;
 
 	signed int chosen_subprotocol;
