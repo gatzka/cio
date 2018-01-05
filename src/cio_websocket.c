@@ -578,7 +578,10 @@ static void get_header(struct cio_buffered_stream *bs, void *handler_context, en
 
 static void receive_frames(struct cio_websocket *ws)
 {
-	ws->bs->read_exactly(ws->bs, ws->rb, 1, get_header, ws);
+	enum cio_error err = ws->bs->read_exactly(ws->bs, ws->rb, 1, get_header, ws);
+	if (unlikely(err != CIO_SUCCESS)) {
+		close(ws);
+	}
 }
 
 static int payload_size_in_limit(const struct cio_write_buffer *payload, size_t limit)
