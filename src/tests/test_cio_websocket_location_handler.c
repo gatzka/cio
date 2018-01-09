@@ -239,7 +239,7 @@ static enum cio_error bs_close_ok(struct cio_buffered_stream *bs)
 }
 
 static uint8_t http_response_write_buffer[1000];
-static size_t write_pos;
+static size_t http_response_write_pos;
 
 static enum cio_error bs_write_response(struct cio_buffered_stream *bs, struct cio_write_buffer *buf, cio_buffered_stream_write_handler handler, void *handler_context)
 {
@@ -248,8 +248,8 @@ static enum cio_error bs_write_response(struct cio_buffered_stream *bs, struct c
 
 	for (unsigned int i = 0; i < buffer_len; i++) {
 		data_buf = data_buf->next;
-		memcpy(&http_response_write_buffer[write_pos], data_buf->data.element.const_data, data_buf->data.element.length);
-		write_pos += data_buf->data.element.length;
+		memcpy(&http_response_write_buffer[http_response_write_pos], data_buf->data.element.const_data, data_buf->data.element.length);
+		http_response_write_pos += data_buf->data.element.length;
 	}
 
 	handler(bs, handler_context, buf, CIO_SUCCESS);
@@ -282,9 +282,9 @@ static http_parser_settings parser_settings;
 
 static void check_http_response(int status_code)
 {
-	size_t nparsed = http_parser_execute(&parser, &parser_settings, (const char *)http_response_write_buffer, write_pos);
+	size_t nparsed = http_parser_execute(&parser, &parser_settings, (const char *)http_response_write_buffer, http_response_write_pos);
 	(void)nparsed;
-	TEST_ASSERT_EQUAL_MESSAGE(write_pos, nparsed, "Not a valid http response!");
+	TEST_ASSERT_EQUAL_MESSAGE(http_response_write_pos, nparsed, "Not a valid http response!");
 	TEST_ASSERT_EQUAL_MESSAGE(status_code, parser.status_code, "http response status code not correct!");
 }
 
@@ -320,7 +320,7 @@ void setUp(void)
 	bs_read_until_fake.custom_fake = bs_read_until_ok;
 
 	memset(http_response_write_buffer, 0xaf, sizeof(http_response_write_buffer));
-	write_pos = 0;
+	http_response_write_pos = 0;
 
 	bs_close_fake.custom_fake = bs_close_ok;
 }
