@@ -241,6 +241,9 @@ static enum cio_error bs_close_ok(struct cio_buffered_stream *bs)
 static uint8_t http_response_write_buffer[1000];
 static size_t http_response_write_pos;
 
+static uint8_t ws_frame_write_buffer[1000];
+static size_t ws_frame_write_pos;
+
 static enum cio_error bs_write_response(struct cio_buffered_stream *bs, struct cio_write_buffer *buf, cio_buffered_stream_write_handler handler, void *handler_context)
 {
 	size_t buffer_len = cio_write_buffer_get_number_of_elements(buf);
@@ -263,8 +266,8 @@ static enum cio_error bs_write_ws_frame(struct cio_buffered_stream *bs, struct c
 
 	for (unsigned int i = 0; i < buffer_len; i++) {
 		data_buf = data_buf->next;
-		//memcpy(&write_buffer[write_pos], data_buf->data.element.const_data, data_buf->data.element.length);
-	//	write_pos += data_buf->data.element.length;
+		memcpy(&ws_frame_write_buffer[ws_frame_write_pos], data_buf->data.element.const_data, data_buf->data.element.length);
+		ws_frame_write_pos += data_buf->data.element.length;
 	}
 
 	handler(bs, handler_context, buf, CIO_SUCCESS);
@@ -321,6 +324,9 @@ void setUp(void)
 
 	memset(http_response_write_buffer, 0xaf, sizeof(http_response_write_buffer));
 	http_response_write_pos = 0;
+
+	memset(ws_frame_write_buffer, 0xaf, sizeof(ws_frame_write_buffer));
+	ws_frame_write_pos = 0;
 
 	bs_close_fake.custom_fake = bs_close_ok;
 }
