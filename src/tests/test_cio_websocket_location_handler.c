@@ -244,7 +244,7 @@ static size_t http_response_write_pos;
 static uint8_t ws_frame_write_buffer[1000];
 static size_t ws_frame_write_pos;
 
-static enum cio_error bs_write_response(struct cio_buffered_stream *bs, struct cio_write_buffer *buf, cio_buffered_stream_write_handler handler, void *handler_context)
+static enum cio_error bs_write_http_response(struct cio_buffered_stream *bs, struct cio_write_buffer *buf, cio_buffered_stream_write_handler handler, void *handler_context)
 {
 	size_t buffer_len = cio_write_buffer_get_number_of_elements(buf);
 	const struct cio_write_buffer *data_buf = buf;
@@ -334,7 +334,7 @@ void setUp(void)
 static void test_ws_location(void)
 {
 	enum cio_error (*write_fakes[])(struct cio_buffered_stream *, struct cio_write_buffer *, cio_buffered_stream_write_handler, void *) = {
-		bs_write_response,
+		bs_write_http_response,
 		bs_write_ws_frame
 	};
 
