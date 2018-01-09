@@ -274,6 +274,15 @@ static enum cio_error bs_write_ws_frame(struct cio_buffered_stream *bs, struct c
 	return CIO_SUCCESS;
 }
 
+static enum cio_error bs_fake_write(struct cio_buffered_stream *bs, struct cio_write_buffer *buf, cio_buffered_stream_write_handler handler, void *handler_context)
+{
+	if (bs_write_fake.call_count == 1) {
+		return bs_write_http_response(bs, buf, handler, handler_context);
+	} else {
+		return bs_write_ws_frame(bs, buf, handler, handler_context);
+	}
+}
+
 static void init_request(const char **request, size_t lines)
 {
 	request_lines = request;
@@ -333,12 +342,7 @@ void setUp(void)
 
 static void test_ws_location(void)
 {
-	enum cio_error (*write_fakes[])(struct cio_buffered_stream *, struct cio_write_buffer *, cio_buffered_stream_write_handler, void *) = {
-		bs_write_http_response,
-		bs_write_ws_frame
-	};
-
-	SET_CUSTOM_FAKE_SEQ(bs_write, write_fakes, ARRAY_SIZE(write_fakes));
+	bs_write_fake.custom_fake = bs_fake_write;
 
 	bs_read_exactly_fake.return_val = CIO_INVALID_ARGUMENT;
 	struct cio_http_server server;
