@@ -238,18 +238,33 @@ static enum cio_error bs_close_ok(struct cio_buffered_stream *bs)
 	return CIO_SUCCESS;
 }
 
-static uint8_t write_buffer[1000];
+static uint8_t http_response_write_buffer[1000];
 static size_t write_pos;
 
-static enum cio_error bs_write_all(struct cio_buffered_stream *bs, struct cio_write_buffer *buf, cio_buffered_stream_write_handler handler, void *handler_context)
+static enum cio_error bs_write_response(struct cio_buffered_stream *bs, struct cio_write_buffer *buf, cio_buffered_stream_write_handler handler, void *handler_context)
 {
 	size_t buffer_len = cio_write_buffer_get_number_of_elements(buf);
 	const struct cio_write_buffer *data_buf = buf;
 
 	for (unsigned int i = 0; i < buffer_len; i++) {
 		data_buf = data_buf->next;
-		memcpy(&write_buffer[write_pos], data_buf->data.element.const_data, data_buf->data.element.length);
+		memcpy(&http_response_write_buffer[write_pos], data_buf->data.element.const_data, data_buf->data.element.length);
 		write_pos += data_buf->data.element.length;
+	}
+
+	handler(bs, handler_context, buf, CIO_SUCCESS);
+	return CIO_SUCCESS;
+}
+
+static enum cio_error bs_write_ws_frame(struct cio_buffered_stream *bs, struct cio_write_buffer *buf, cio_buffered_stream_write_handler handler, void *handler_context)
+{
+	size_t buffer_len = cio_write_buffer_get_number_of_elements(buf);
+	const struct cio_write_buffer *data_buf = buf;
+
+	for (unsigned int i = 0; i < buffer_len; i++) {
+		data_buf = data_buf->next;
+		//memcpy(&write_buffer[write_pos], data_buf->data.element.const_data, data_buf->data.element.length);
+	//	write_pos += data_buf->data.element.length;
 	}
 
 	handler(bs, handler_context, buf, CIO_SUCCESS);
@@ -267,9 +282,9 @@ static http_parser_settings parser_settings;
 
 static void check_http_response(int status_code)
 {
-	size_t nparsed = http_parser_execute(&parser, &parser_settings, (const char *)write_buffer, write_pos);
+	size_t nparsed = http_parser_execute(&parser, &parser_settings, (const char *)http_response_write_buffer, write_pos);
 	(void)nparsed;
-	//	TEST_ASSERT_EQUAL_MESSAGE(write_pos, nparsed, "Not a valid http response!");
+	TEST_ASSERT_EQUAL_MESSAGE(write_pos, nparsed, "Not a valid http response!");
 	TEST_ASSERT_EQUAL_MESSAGE(status_code, parser.status_code, "http response status code not correct!");
 }
 
@@ -303,9 +318,8 @@ void setUp(void)
 	cio_timer_init_fake.custom_fake = cio_timer_init_ok;
 	cio_buffered_stream_init_fake.custom_fake = cio_buffered_stream_init_ok;
 	bs_read_until_fake.custom_fake = bs_read_until_ok;
-	bs_write_fake.custom_fake = bs_write_all;
 
-	memset(write_buffer, 0xaf, sizeof(write_buffer));
+	memset(http_response_write_buffer, 0xaf, sizeof(http_response_write_buffer));
 	write_pos = 0;
 
 	bs_close_fake.custom_fake = bs_close_ok;
@@ -313,6 +327,13 @@ void setUp(void)
 
 static void test_ws_location(void)
 {
+	enum cio_error (*write_fakes[])(struct cio_buffered_stream *, struct cio_write_buffer *, cio_buffered_stream_write_handler, void *) = {
+		bs_write_response,
+		bs_write_ws_frame
+	};
+
+	SET_CUSTOM_FAKE_SEQ(bs_write, write_fakes, ARRAY_SIZE(write_fakes));
+
 	bs_read_exactly_fake.return_val = CIO_INVALID_ARGUMENT;
 	struct cio_http_server server;
 	enum cio_error err = cio_http_server_init(&server, 8080, &loop, serve_error, read_timeout, alloc_dummy_client, free_dummy_client);
