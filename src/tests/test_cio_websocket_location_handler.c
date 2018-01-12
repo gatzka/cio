@@ -29,6 +29,7 @@
 #include "cio_http_server.h"
 #include "cio_util.h"
 #include "cio_websocket_location_handler.h"
+#include "cio_websocket_masking.h"
 
 #include "fff.h"
 #include "unity.h"
@@ -44,6 +45,18 @@ DEFINE_FFF_GLOBALS
 
 struct ws_test_handler {
 	struct cio_websocket_location_handler ws_handler;
+};
+
+#define WS_HEADER_FIN 0x80
+#define WS_MASK_SET 0x80
+
+enum cio_ws_frame_type {
+	CIO_WEBSOCKET_CONTINUATION_FRAME = 0x0,
+	CIO_WEBSOCKET_TEXT_FRAME = 0x1,
+	CIO_WEBSOCKET_BINARY_FRAME = 0x2,
+	CIO_WEBSOCKET_CLOSE_FRAME = 0x8,
+	CIO_WEBSOCKET_PING_FRAME = 0x9,
+	CIO_WEBSOCKET_PONG_FRAME = 0x0a,
 };
 
 static void serve_error(struct cio_http_server *server, const char *reason);
@@ -104,6 +117,10 @@ FAKE_VALUE_FUNC(enum cio_error, cio_server_socket_init, struct cio_server_socket
 static struct cio_eventloop loop;
 static const uint64_t read_timeout = UINT64_C(5) * UINT64_C(1000) * UINT64_C(1000) * UINT64_C(1000);
 static const size_t read_buffer_size = 2000;
+
+static uint8_t *bs_read_exactly_buffer;
+static size_t bs_read_exactly_buffer_size;
+static size_t bs_read_exactly_buffer_pos;
 
 static void free_dummy_client(struct cio_socket *socket)
 {
@@ -274,6 +291,21 @@ static enum cio_error bs_write_ws_frame(struct cio_buffered_stream *bs, struct c
 	return CIO_SUCCESS;
 }
 
+static enum cio_error bs_read_exactly_from_buffer(struct cio_buffered_stream *bs, struct cio_read_buffer *buffer, size_t num, cio_buffered_stream_read_handler handler, void *handler_context)
+{
+	if (bs_read_exactly_buffer_pos >= bs_read_exactly_buffer_size) {
+		buffer->bytes_transferred = 0;
+	} else {
+		memcpy(buffer->add_ptr, &bs_read_exactly_buffer[bs_read_exactly_buffer_pos], num);
+		buffer->bytes_transferred = num;
+		buffer->fetch_ptr = buffer->add_ptr + num;
+		bs_read_exactly_buffer_pos += num;
+	}
+
+	handler(bs, handler_context, CIO_SUCCESS, buffer);
+	return CIO_SUCCESS;
+}
+
 static enum cio_error bs_fake_write(struct cio_buffered_stream *bs, struct cio_write_buffer *buf, cio_buffered_stream_write_handler handler, void *handler_context)
 {
 	if (bs_write_fake.call_count == 1) {
@@ -338,13 +370,54 @@ void setUp(void)
 	ws_frame_write_pos = 0;
 
 	bs_close_fake.custom_fake = bs_close_ok;
+	bs_read_exactly_buffer_pos = 0;
+}
+
+static size_t assemble_frame(uint8_t header, uint8_t *mask, uint8_t* data, size_t length, uint8_t **ptr)
+{
+	if (length > 125) {
+		*ptr = NULL;
+		return 0;
+	}
+
+	size_t bytes = 1 + 1 + length;
+	if (mask !=  NULL) {
+		bytes += 4;
+	}
+
+	unsigned int offset;
+	uint8_t *mem = malloc(bytes);
+	mem[0] = header;
+	mem[1] = length;
+	if (mask != NULL) {
+		mem[1] |= WS_MASK_SET;
+		memcpy(&mem[2], mask, 4);
+		offset = 6;
+	} else {
+		offset = 2;
+	}
+
+	memcpy(&mem[offset], data, length);
+	if (mask != NULL) {
+		cio_websocket_mask(&mem[6], length, &mem[2]);
+	}
+
+	*ptr = mem;
+	return offset + length;
 }
 
 static void test_ws_location(void)
 {
-	bs_write_fake.custom_fake = bs_fake_write;
+	uint8_t *close_frame;
+	uint8_t mask[4] = {0x1, 0x2, 0x3, 0x4};
+	uint8_t data[2] = {0x3, 0xe8};
+	bs_read_exactly_buffer_size = assemble_frame(WS_HEADER_FIN | CIO_WEBSOCKET_CLOSE_FRAME, mask, data, sizeof(data), &close_frame);
 
-	bs_read_exactly_fake.return_val = CIO_INVALID_ARGUMENT;
+	bs_read_exactly_buffer = close_frame;
+
+	bs_write_fake.custom_fake = bs_fake_write;
+	bs_read_exactly_fake.custom_fake = bs_read_exactly_from_buffer;
+
 	struct cio_http_server server;
 	enum cio_error err = cio_http_server_init(&server, 8080, &loop, serve_error, read_timeout, alloc_dummy_client, free_dummy_client);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Server initialization failed!");
@@ -373,6 +446,7 @@ static void test_ws_location(void)
 	init_request(request, ARRAY_SIZE(request));
 	server.server_socket.handler(&server.server_socket, server.server_socket.handler_context, CIO_SUCCESS, s);
 	check_http_response(101);
+	free(close_frame);
 }
 
 int main(void)
