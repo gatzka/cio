@@ -406,7 +406,7 @@ static size_t assemble_frame(uint8_t header, uint8_t *mask, uint8_t* data, size_
 	return offset + length;
 }
 
-static void test_ws_location(void)
+static void test_ws_location_close_in_onconnect(void)
 {
 	uint8_t *close_frame;
 	uint8_t mask[4] = {0x1, 0x2, 0x3, 0x4};
@@ -452,6 +452,6 @@ static void test_ws_location(void)
 int main(void)
 {
 	UNITY_BEGIN();
-	RUN_TEST(test_ws_location);
+	RUN_TEST(test_ws_location_close_in_onconnect);
 	return UNITY_END();
 }
