@@ -69,6 +69,12 @@ add_executable(test_cio_http_server
 )
 target_link_libraries (test_cio_http_server cio_unity)
 
+add_executable(test_cio_base64
+    test_cio_base64.c
+	../cio_base64.c
+)
+target_link_libraries (test_cio_base64 cio_unity)
+
 add_executable(test_cio_read_buffer
     test_cio_read_buffer.c
 )

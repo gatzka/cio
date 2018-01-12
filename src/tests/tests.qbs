@@ -159,6 +159,18 @@ Project {
   }
 
   UnittestProduct {
+    name: "test_cio_base64"
+    type: ["application", "unittest"]
+    
+    cpp.includePaths: [".."]
+    
+    files: [
+      "test_cio_base64.c",
+      "../cio_base64.c"
+    ]
+  }
+
+  UnittestProduct {
     name: "test_cio_write_buffer"
     type: ["application", "unittest"]
     
