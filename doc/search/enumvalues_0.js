@@ -6,6 +6,7 @@ var searchData=
   ['cio_5fagain',['CIO_AGAIN',['../cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afeac06f8dcf1c6ab3b3b78c27b0f9f79779',1,'cio_error_code.h']]],
   ['cio_5fbad_5faddress',['CIO_BAD_ADDRESS',['../cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afea37a8f67d7341dcffecc3d1ed29964f11',1,'cio_error_code.h']]],
   ['cio_5fbad_5ffile_5fdescriptor',['CIO_BAD_FILE_DESCRIPTOR',['../cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afea9b8563335cc73fc34331b1dbfa066b32',1,'cio_error_code.h']]],
+  ['cio_5fbroken_5fpipe',['CIO_BROKEN_PIPE',['../cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afea50c4c4db8159d36a5f1559ce3ebb3356',1,'cio_error_code.h']]],
   ['cio_5fbs_5fagain',['CIO_BS_AGAIN',['../cio__buffered__stream_8h.html#a78aa67d350ee50928e889143bc042bc7abbac42171fbffee5fd8c4e6d682ddd89',1,'cio_buffered_stream.h']]],
   ['cio_5fbs_5fclosed',['CIO_BS_CLOSED',['../cio__buffered__stream_8h.html#a78aa67d350ee50928e889143bc042bc7a11d6ee42955cd51759ef05481da4b9df',1,'cio_buffered_stream.h']]],
   ['cio_5fbs_5fopen',['CIO_BS_OPEN',['../cio__buffered__stream_8h.html#a78aa67d350ee50928e889143bc042bc7a02f5f79da037aca73580a723dcbce0b3',1,'cio_buffered_stream.h']]],
