@@ -686,42 +686,62 @@ static void test_ws_location_wrong_ws_version(void)
 	}
 }
 
-static void test_ws_location_no_ws_version(void)
+struct ws_version_test {
+	const char *version_line;
+	int status_code;
+};
+
+static void test_ws_version(void)
 {
-	bs_read_exactly_buffer_size = 0;
+	struct ws_version_test test_cases[] = {
+		{.version_line = "Sec-WebSocket-Version: 13" CRLF, .status_code = 101},
+		{.version_line = "Sec-WebSocket-Versiin: 13" CRLF, .status_code = 400},
+	};
 
-	bs_read_exactly_buffer = NULL;
+	for (unsigned int i = 0; i < ARRAY_SIZE(test_cases); i++) {
+		struct ws_version_test test_case = test_cases[i];
+		setUp();
 
-	bs_write_fake.custom_fake = bs_fake_write;
-	bs_read_exactly_fake.custom_fake = bs_read_exactly_from_buffer;
+		uint8_t *close_frame;
+		uint8_t mask[4] = {0x1, 0x2, 0x3, 0x4};
+		uint8_t data[2] = {0x3, 0xe8};
+		bs_read_exactly_buffer_size = assemble_frame(WS_HEADER_FIN | CIO_WEBSOCKET_CLOSE_FRAME, mask, data, sizeof(data), &close_frame);
 
-	struct cio_http_server server;
-	enum cio_error err = cio_http_server_init(&server, 8080, &loop, serve_error, read_timeout, alloc_dummy_client, free_dummy_client);
-	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Server initialization failed!");
+		bs_read_exactly_buffer = close_frame;
 
-	struct cio_http_location target;
-	err = cio_http_location_init(&target, REQUEST_TARGET, NULL, alloc_websocket_handler);
-	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Request target initialization failed!");
+		bs_write_fake.custom_fake = bs_fake_write;
+		bs_read_exactly_fake.custom_fake = bs_read_exactly_from_buffer;
 
-	err = server.register_location(&server, &target);
-	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Register request target failed!");
+		struct cio_http_server server;
+		enum cio_error err = cio_http_server_init(&server, 8080, &loop, serve_error, read_timeout, alloc_dummy_client, free_dummy_client);
+		TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Server initialization failed!");
 
-	err = server.serve(&server);
-	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Serving http failed!");
+		struct cio_http_location target;
+		err = cio_http_location_init(&target, REQUEST_TARGET, NULL, alloc_websocket_handler);
+		TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Request target initialization failed!");
 
-	struct cio_socket *s = server.alloc_client();
+		err = server.register_location(&server, &target);
+		TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Register request target failed!");
 
-	const char *request[] = {
-		"GET " REQUEST_TARGET " HTTP/1.1" CRLF,
-		"Upgrade: websocket" CRLF,
-		"Connection: Upgrade" CRLF,
-		"Sec-WebSocket-Key: dGhlIHNhbXBsZSBub25jZQ==" CRLF,
-		"Sec-WebSocket-Protocol: jet" CRLF,
-		CRLF};
+		err = server.serve(&server);
+		TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Serving http failed!");
 
-	init_request(request, ARRAY_SIZE(request));
-	server.server_socket.handler(&server.server_socket, server.server_socket.handler_context, CIO_SUCCESS, s);
-	check_http_response(400);
+		struct cio_socket *s = server.alloc_client();
+
+		const char *request[] = {
+			"GET " REQUEST_TARGET " HTTP/1.1" CRLF,
+			"Upgrade: websocket" CRLF,
+			"Connection: Upgrade" CRLF,
+			"Sec-WebSocket-Key: dGhlIHNhbXBsZSBub25jZQ==" CRLF,
+			"Sec-WebSocket-Protocol: jet" CRLF,
+			test_case.version_line,
+			CRLF};
+
+		init_request(request, ARRAY_SIZE(request));
+		server.server_socket.handler(&server.server_socket, server.server_socket.handler_context, CIO_SUCCESS, s);
+		check_http_response(test_case.status_code);
+		free(close_frame);
+	}
 }
 
 static void test_ws_location_no_upgrade(void)
@@ -866,8 +886,8 @@ int main(void)
 	RUN_TEST(test_ws_location_close_in_onconnect);
 	RUN_TEST(test_ws_location_wrong_http_version);
 	RUN_TEST(test_ws_location_wrong_http_method);
-	RUN_TEST(test_ws_location_no_ws_version);
 	RUN_TEST(test_ws_location_wrong_ws_version);
+	RUN_TEST(test_ws_version);
 	RUN_TEST(test_ws_location_no_upgrade);
 	RUN_TEST(test_ws_key);
 	RUN_TEST(test_ws_location_wrong_key_length);
