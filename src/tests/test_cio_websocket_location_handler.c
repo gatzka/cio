@@ -209,6 +209,22 @@ static struct cio_http_location_handler *alloc_websocket_handler(const void *con
 	}
 }
 
+static struct cio_http_location_handler *alloc_websocket_handler_no_subprotocol(const void *config)
+{
+	(void)config;
+	struct ws_test_handler *handler = malloc(sizeof(*handler));
+	if (unlikely(handler == NULL)) {
+		return NULL;
+	} else {
+		cio_websocket_location_handler_init(&handler->ws_handler, NULL, 0);
+		handler->ws_handler.websocket.on_connect = on_connect;
+		handler->ws_handler.websocket.on_textframe = NULL;
+		handler->ws_handler.websocket.on_pong = NULL;
+		handler->ws_handler.http_location.free = free_websocket_handler;
+		return &handler->ws_handler.http_location;
+	}
+}
+
 static enum cio_error accept_save_handler(struct cio_server_socket *ss, cio_accept_handler handler, void *handler_context)
 {
 	ss->handler = handler;
@@ -516,6 +532,76 @@ static void test_ws_location_wrong_http_version(void)
 	}
 }
 
+struct protocol_test {
+	const char *protocol_line;
+	int status_code;
+	cio_http_alloc_handler handler;
+};
+
+static void test_ws_location_subprotocols(void)
+{
+	struct protocol_test test_cases[] = {
+		{.protocol_line = "Sec-WebSocket-Protocol: jet" CRLF, .handler = alloc_websocket_handler, .status_code = 101},
+		{.protocol_line = "Sec-WebSocket-Protocol: jet,jetty" CRLF, .handler = alloc_websocket_handler, .status_code = 101},
+		{.protocol_line = "Sec-WebSocket-Protocol: foo, bar" CRLF, .handler = alloc_websocket_handler, .status_code = 400},
+		{.protocol_line = "Sec-WebSocket-Protocol: je" CRLF, .handler = alloc_websocket_handler, .status_code = 400},
+		{.protocol_line = "Sec-WebSocket-Protocol: bar" CRLF, .handler = alloc_websocket_handler, .status_code = 400},
+		{.protocol_line = "foo: bar" CRLF, .handler = alloc_websocket_handler, .status_code = 101},
+		{.protocol_line = "foo: bar" CRLF, .handler = alloc_websocket_handler_no_subprotocol, .status_code = 101},
+		{.protocol_line = "Sec-WebSocket-Protocol: jet" CRLF, .handler = alloc_websocket_handler_no_subprotocol, .status_code = 400},
+	};
+
+	for (unsigned int i = 0; i < ARRAY_SIZE(test_cases); i++) {
+		setUp();
+
+		struct protocol_test test_case = test_cases[i];
+
+		uint8_t *close_frame;
+		uint8_t mask[4] = {0x1, 0x2, 0x3, 0x4};
+		uint8_t data[2] = {0x3, 0xe8};
+		bs_read_exactly_buffer_size = assemble_frame(WS_HEADER_FIN | CIO_WEBSOCKET_CLOSE_FRAME, mask, data, sizeof(data), &close_frame);
+
+		bs_read_exactly_buffer = close_frame;
+
+		bs_write_fake.custom_fake = bs_fake_write;
+		bs_read_exactly_fake.custom_fake = bs_read_exactly_from_buffer;
+
+		struct cio_http_server server;
+		enum cio_error err = cio_http_server_init(&server, 8080, &loop, serve_error, read_timeout, alloc_dummy_client, free_dummy_client);
+		TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Server initialization failed!");
+
+		struct cio_http_location target;
+		err = cio_http_location_init(&target, REQUEST_TARGET, NULL, test_case.handler);
+		TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Request target initialization failed!");
+
+		err = server.register_location(&server, &target);
+		TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Register request target failed!");
+
+		err = server.serve(&server);
+		TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Serving http failed!");
+
+		struct cio_socket *s = server.alloc_client();
+
+		//char start_line[100];
+		//snprintf(start_line, sizeof(start_line) - 1, "GET " REQUEST_TARGET " HTTP/%d.%d" CRLF, test_case.major, test_case.minor);
+
+		const char *request[] = {
+			"GET " REQUEST_TARGET " HTTP/1.1" CRLF,
+			"Upgrade: websocket" CRLF,
+			"Connection: Upgrade" CRLF,
+			"Sec-WebSocket-Version: 13" CRLF,
+			"Sec-WebSocket-Key: dGhlIHNhbXBsZSBub25jZQ==" CRLF,
+			test_case.protocol_line,
+			CRLF};
+
+		init_request(request, ARRAY_SIZE(request));
+		server.server_socket.handler(&server.server_socket, server.server_socket.handler_context, CIO_SUCCESS, s);
+		check_http_response(test_case.status_code);
+
+		free(close_frame);
+	}
+}
+
 static void test_ws_location_wrong_http_method(void)
 {
 	bs_read_exactly_buffer_size = 0;
@@ -763,5 +849,6 @@ int main(void)
 	RUN_TEST(test_ws_location_no_upgrade);
 	RUN_TEST(test_ws_location_no_key);
 	RUN_TEST(test_ws_location_wrong_key_length);
+	RUN_TEST(test_ws_location_subprotocols);
 	return UNITY_END();
 }
