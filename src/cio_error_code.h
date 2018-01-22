@@ -68,6 +68,7 @@ enum cio_error {
 	CIO_OPERATION_ABORTED = -ECANCELED,               /*!< Operation cancelled. */
 	CIO_NO_SUCH_DEVICE = -ENODEV,                     /*!< No such device. */
 	CIO_MESSAGE_TOO_LONG = -EMSGSIZE,                 /*!< Message too long. */
+	CIO_BROKEN_PIPE = -EPIPE,                         /*!< Broken Pipe. */
 	CIO_NETRESET = -ENETRESET                         /*!< Network dropped connection because of reset. */
 };
 
