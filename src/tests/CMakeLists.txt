@@ -114,4 +114,6 @@ add_test(NAME test_cio_read_buffer COMMAND test_cio_read_buffer)
 add_test(NAME test_cio_write_buffer COMMAND test_cio_write_buffer)
 add_test(NAME test_cio_websocket_mask COMMAND test_cio_websocket_mask)
 add_test(NAME test_cio_websocket_location_handler COMMAND test_cio_websocket_location_handler)
+add_test(NAME test_cio_base64 COMMAND test_cio_base64)
+
 
