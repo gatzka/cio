@@ -39,6 +39,7 @@ Project {
       "*/tests/*",
       "*/http-parser/*",
       "*/linux/tests/*",
+      "*/sha1/*",
       "/usr/include/*",
     ]
     wrapper: [

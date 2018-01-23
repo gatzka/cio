@@ -55,6 +55,7 @@ Project {
     lcovRemovePatterns: [
       "*/tests/*",
       "*/http-parser/*",
+      "*/sha1/*",
       "*/linux/tests/*",
       "/usr/include/*",
     ]
