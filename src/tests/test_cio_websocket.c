@@ -109,6 +109,7 @@ struct ws_frame {
 
 static uint8_t frame_buffer[70000];
 static uint8_t read_buffer[70000];
+static uint8_t read_back_buffer[70000];
 static size_t frame_buffer_read_pos = 0;
 
 static void serialize_frames(struct ws_frame frames[], size_t num_frames)
@@ -143,18 +144,20 @@ static void serialize_frames(struct ws_frame frames[], size_t num_frames)
 			buffer_pos += sizeof(len);
 		}
 
-		uint8_t mask[4] = {0x1, 0x2, 0x3, 0x4};
-		if (frame.direction == FROM_CLIENT) {
-			memcpy(&frame_buffer[buffer_pos], mask, sizeof(mask));
-			buffer_pos += sizeof(mask);
-		}
+		if (frame.data_length > 0) {
+			uint8_t mask[4] = {0x1, 0x2, 0x3, 0x4};
+			if (frame.direction == FROM_CLIENT) {
+				memcpy(&frame_buffer[buffer_pos], mask, sizeof(mask));
+				buffer_pos += sizeof(mask);
+			}
 
-		memcpy(&frame_buffer[buffer_pos], frame.data, frame.data_length);
-		if (frame.direction == FROM_CLIENT) {
-			cio_websocket_mask(&frame_buffer[buffer_pos], frame.data_length, mask);
-		}
+			memcpy(&frame_buffer[buffer_pos], frame.data, frame.data_length);
+			if (frame.direction == FROM_CLIENT) {
+				cio_websocket_mask(&frame_buffer[buffer_pos], frame.data_length, mask);
+			}
 
-		buffer_pos += frame.data_length;
+			buffer_pos += frame.data_length;
+		}
 	}
 }
 
@@ -167,6 +170,13 @@ static enum cio_error bs_read_exactly_from_buffer(struct cio_buffered_stream *bs
 
 	handler(bs, handler_context, CIO_SUCCESS, buffer);
 	return CIO_SUCCESS;
+}
+
+static void on_textframe_save_data(struct cio_websocket *websocket, char *data, size_t length, bool last_frame)
+{
+	(void)last_frame;
+	(void)websocket;
+	memcpy(read_back_buffer, data, length);
 }
 
 void setUp(void)
@@ -209,6 +219,7 @@ static void test_small_text_frame(void)
 
 	serialize_frames(frames, ARRAY_SIZE(frames));
 	read_exactly_fake.custom_fake = bs_read_exactly_from_buffer;
+	on_textframe_fake.custom_fake = on_textframe_save_data;
 
 	ws.receive_frames(&ws);
 
@@ -217,6 +228,10 @@ static void test_small_text_frame(void)
 	TEST_ASSERT_EQUAL_MESSAGE(0, on_ping_fake.call_count, "callback for ping frames was called");
 	TEST_ASSERT_EQUAL_MESSAGE(0, on_pong_fake.call_count, "callback for pong frames was called");
 	TEST_ASSERT_EQUAL_MESSAGE(1, on_textframe_fake.call_count, "callback for text frames was not called");
+	TEST_ASSERT_EQUAL_MEMORY_MESSAGE(data, read_back_buffer, strlen(data), "data in text frame callback not correct");
+	TEST_ASSERT_EQUAL_MESSAGE(&ws, on_textframe_fake.arg0_val, "ws parameter in text frame callback not correct");
+	TEST_ASSERT_EQUAL_MESSAGE(strlen(data), on_textframe_fake.arg2_val, "data length in text frame callback not correct");
+	TEST_ASSERT_EQUAL_MESSAGE(true, on_textframe_fake.arg3_val, "last_frame in text frame callback not set");
 	TEST_ASSERT_EQUAL_MESSAGE(1, on_close_fake.call_count, "close was not called");
 }
 
