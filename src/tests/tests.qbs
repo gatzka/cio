@@ -252,6 +252,29 @@ Project {
         "cio_linux_string.c",
       ]
     }
+  }
+
+  UnittestProduct {
+    name: "test_cio_websocket"
+    type: ["application", "unittest"]
+
+    cpp.includePaths: ["..", "../linux/"];
+
+    files: [
+      "test_cio_websocket.c",
+      "../cio_websocket.c",
+    ]
+
+    Group {
+      condition: qbs.targetOS.contains("linux")
+      name: "linux specific"
+      prefix: "../linux/"
+      cpp.cLanguageVersion: "c11"
+
+      files: [
+        "cio_linux_endian.c",
+      ]
+    }
 
   }
 }

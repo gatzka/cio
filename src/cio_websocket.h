@@ -218,7 +218,7 @@ struct cio_websocket {
 	uint8_t mask[4];
 	uint8_t send_header[14];
 	uint16_t close_status;
-	uint8_t received_control_frame[CIO_WEBSOCKET_SMALL_FRAME_SIZE];
+	uint8_t send_control_frame_buffer[CIO_WEBSOCKET_SMALL_FRAME_SIZE];
 	/*! @endcond */
 };
 
