@@ -27,6 +27,7 @@
 #define _BSD_SOURCE
 #include <endian.h>
 #include <stdint.h>
+#include <stdlib.h>
 #include <string.h>
 
 #include "cio_buffered_stream.h"
@@ -114,7 +115,9 @@ static size_t frame_buffer_read_pos = 0;
 
 static void serialize_frames(struct ws_frame frames[], size_t num_frames)
 {
-	uint8_t buffer_pos = 0;
+	uint8_t *fb = frame_buffer;
+	(void)fb;
+	uint32_t buffer_pos = 0;
 	for (size_t i = 0; i < num_frames; i++) {
 		struct ws_frame frame = frames[i];
 		frame_buffer[buffer_pos++] = WS_HEADER_FIN | frame.frame_type;
@@ -128,18 +131,18 @@ static void serialize_frames(struct ws_frame frames[], size_t num_frames)
 		if (frame.data_length <= 125) {
 			frame_buffer[buffer_pos] |= (uint8_t)frame.data_length;
 			buffer_pos++;
-		} else if (frame.data_length <= 65536) {
+		} else if (frame.data_length < 65536) {
+			uint16_t len = (uint16_t)frame.data_length;
 			frame_buffer[buffer_pos] |= 126;
 			buffer_pos++;
-			uint16_t len = (uint16_t)frame.data_length;
 			len = htobe16(len);
 			memcpy(&frame_buffer[buffer_pos], &len, sizeof(len));
 			buffer_pos += sizeof(len);
 		} else {
 			frame_buffer[buffer_pos] |= 127;
 			buffer_pos++;
-			uint32_t len = (uint32_t)frame.data_length;
-			len = htobe32(len);
+			uint64_t len = (uint64_t)frame.data_length;
+			len = htobe64(len);
 			memcpy(&frame_buffer[buffer_pos], &len, sizeof(len));
 			buffer_pos += sizeof(len);
 		}
@@ -211,28 +214,37 @@ void setUp(void)
 
 static void test_small_text_frame(void)
 {
-	const char *data = "Hello";
-	struct ws_frame frames[] = {
-		{.frame_type = CIO_WEBSOCKET_TEXT_FRAME, .direction = FROM_CLIENT, .data = data, .data_length = strlen(data)},
-		{.frame_type = CIO_WEBSOCKET_CLOSE_FRAME, .direction = FROM_CLIENT, .data = NULL, .data_length = 0},
-	};
+	uint32_t frame_sizes[] = {1, 5, 125, 126, 65535, 65536};
 
-	serialize_frames(frames, ARRAY_SIZE(frames));
-	read_exactly_fake.custom_fake = bs_read_exactly_from_buffer;
-	on_textframe_fake.custom_fake = on_textframe_save_data;
+	for (unsigned int i = 0; i < ARRAY_SIZE(frame_sizes); i++) {
+		setUp();
+		uint32_t frame_size = frame_sizes[i];
+		char *data = malloc(frame_size);
+		memset(data, 'a', frame_size);
+		struct ws_frame frames[] = {
+			{.frame_type = CIO_WEBSOCKET_TEXT_FRAME, .direction = FROM_CLIENT, .data = data, .data_length = frame_size},
+			{.frame_type = CIO_WEBSOCKET_CLOSE_FRAME, .direction = FROM_CLIENT, .data = NULL, .data_length = 0},
+		};
 
-	ws.receive_frames(&ws);
+		serialize_frames(frames, ARRAY_SIZE(frames));
+		read_exactly_fake.custom_fake = bs_read_exactly_from_buffer;
+		on_textframe_fake.custom_fake = on_textframe_save_data;
 
-	TEST_ASSERT_EQUAL_MESSAGE(0, on_binaryframe_fake.call_count, "callback for binary frames was called");
-	TEST_ASSERT_EQUAL_MESSAGE(0, on_error_fake.call_count, "error callback was called");
-	TEST_ASSERT_EQUAL_MESSAGE(0, on_ping_fake.call_count, "callback for ping frames was called");
-	TEST_ASSERT_EQUAL_MESSAGE(0, on_pong_fake.call_count, "callback for pong frames was called");
-	TEST_ASSERT_EQUAL_MESSAGE(1, on_textframe_fake.call_count, "callback for text frames was not called");
-	TEST_ASSERT_EQUAL_MEMORY_MESSAGE(data, read_back_buffer, strlen(data), "data in text frame callback not correct");
-	TEST_ASSERT_EQUAL_MESSAGE(&ws, on_textframe_fake.arg0_val, "ws parameter in text frame callback not correct");
-	TEST_ASSERT_EQUAL_MESSAGE(strlen(data), on_textframe_fake.arg2_val, "data length in text frame callback not correct");
-	TEST_ASSERT_EQUAL_MESSAGE(true, on_textframe_fake.arg3_val, "last_frame in text frame callback not set");
-	TEST_ASSERT_EQUAL_MESSAGE(1, on_close_fake.call_count, "close was not called");
+		ws.receive_frames(&ws);
+
+		TEST_ASSERT_EQUAL_MESSAGE(0, on_binaryframe_fake.call_count, "callback for binary frames was called");
+		TEST_ASSERT_EQUAL_MESSAGE(0, on_error_fake.call_count, "error callback was called");
+		TEST_ASSERT_EQUAL_MESSAGE(0, on_ping_fake.call_count, "callback for ping frames was called");
+		TEST_ASSERT_EQUAL_MESSAGE(0, on_pong_fake.call_count, "callback for pong frames was called");
+		TEST_ASSERT_EQUAL_MESSAGE(1, on_textframe_fake.call_count, "callback for text frames was not called");
+		TEST_ASSERT_EQUAL_MEMORY_MESSAGE(data, read_back_buffer, frame_size, "data in text frame callback not correct");
+		TEST_ASSERT_EQUAL_MESSAGE(&ws, on_textframe_fake.arg0_val, "ws parameter in text frame callback not correct");
+		TEST_ASSERT_EQUAL_MESSAGE(frame_size, on_textframe_fake.arg2_val, "data length in text frame callback not correct");
+		TEST_ASSERT_EQUAL_MESSAGE(true, on_textframe_fake.arg3_val, "last_frame in text frame callback not set");
+		TEST_ASSERT_EQUAL_MESSAGE(1, on_close_fake.call_count, "close was not called");
+
+		free(data);
+	}
 }
 
 int main(void)
