@@ -219,7 +219,7 @@ void setUp(void)
 	frame_buffer_read_pos = 0;
 }
 
-static void test_small_text_frame(void)
+static void test_unfragmented_frames(void)
 {
 	uint32_t frame_sizes[] = {0, 1, 5, 125, 126, 65535, 65536};
 
@@ -277,6 +277,6 @@ static void test_small_text_frame(void)
 int main(void)
 {
 	UNITY_BEGIN();
-	RUN_TEST(test_small_text_frame);
+	RUN_TEST(test_unfragmented_frames);
 	return UNITY_END();
 }
