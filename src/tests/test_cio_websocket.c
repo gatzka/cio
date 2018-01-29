@@ -106,6 +106,7 @@ struct ws_frame {
 	enum frame_direction direction;
 	const void *data;
 	size_t data_length;
+	bool last_frame;
 };
 
 static uint8_t frame_buffer[70000];
@@ -120,7 +121,11 @@ static void serialize_frames(struct ws_frame frames[], size_t num_frames)
 	uint32_t buffer_pos = 0;
 	for (size_t i = 0; i < num_frames; i++) {
 		struct ws_frame frame = frames[i];
-		frame_buffer[buffer_pos++] = WS_HEADER_FIN | frame.frame_type;
+		if (frame.last_frame) {
+			frame_buffer[buffer_pos] = WS_HEADER_FIN;
+		}
+
+		frame_buffer[buffer_pos++] |= frame.frame_type;
 
 		if (frame.direction == FROM_CLIENT) {
 			frame_buffer[buffer_pos] = WS_MASK_SET;
@@ -233,8 +238,8 @@ static void test_unfragmented_frames(void)
 			char *data = malloc(frame_size);
 			memset(data, 'a', frame_size);
 			struct ws_frame frames[] = {
-				{.frame_type = frame_type, .direction = FROM_CLIENT, .data = data, .data_length = frame_size},
-				{.frame_type = CIO_WEBSOCKET_CLOSE_FRAME, .direction = FROM_CLIENT, .data = NULL, .data_length = 0},
+				{.frame_type = frame_type, .direction = FROM_CLIENT, .data = data, .data_length = frame_size, .last_frame = true},
+				{.frame_type = CIO_WEBSOCKET_CLOSE_FRAME, .direction = FROM_CLIENT, .data = NULL, .data_length = 0, .last_frame = true},
 			};
 
 			serialize_frames(frames, ARRAY_SIZE(frames));
