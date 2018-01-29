@@ -382,11 +382,33 @@ static void test_ping_frame(void)
 	TEST_ASSERT_EQUAL_MEMORY_MESSAGE(data, read_back_buffer, sizeof(data), "data in ping frame callback not correct");
 }
 
+static void test_ping_frame_no_payload(void)
+{
+	struct ws_frame frames[] = {
+		{.frame_type = CIO_WEBSOCKET_PING_FRAME, .direction = FROM_CLIENT, .data = NULL, .data_length = 0, .last_frame = true},
+		{.frame_type = CIO_WEBSOCKET_CLOSE_FRAME, .direction = FROM_CLIENT, .data = NULL, .data_length = 0, .last_frame = true},
+	};
+
+	serialize_frames(frames, ARRAY_SIZE(frames));
+	read_exactly_fake.custom_fake = bs_read_exactly_from_buffer;
+	on_ping_fake.custom_fake = on_ping_frame_save_data;
+
+	ws.receive_frames(&ws);
+
+	TEST_ASSERT_EQUAL_MESSAGE(0, on_error_fake.call_count, "error callback was called");
+	TEST_ASSERT_EQUAL_MESSAGE(0, on_textframe_fake.call_count, "callback for text frames was called");
+	TEST_ASSERT_EQUAL_MESSAGE(0, on_binaryframe_fake.call_count, "callback for binary frames was called");
+	TEST_ASSERT_EQUAL_MESSAGE(1, on_ping_fake.call_count, "callback for ping frames was not called");
+	TEST_ASSERT_EQUAL_MESSAGE(&ws, on_ping_fake.arg0_val, "ws parameter in ping frame callback not correct");
+	TEST_ASSERT_EQUAL_MESSAGE(0, on_ping_fake.arg2_val, "data length in ping frame callback not correct");
+}
+
 int main(void)
 {
 	UNITY_BEGIN();
 	RUN_TEST(test_unfragmented_frames);
 	RUN_TEST(test_fragmented_frames);
 	RUN_TEST(test_ping_frame);
+	RUN_TEST(test_ping_frame_no_payload);
 	return UNITY_END();
 }
