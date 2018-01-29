@@ -89,7 +89,6 @@ static enum cio_websocket_status send_frame(struct cio_websocket *ws, struct cio
 		 * frame to write and write this frame after the first write completes.
 		 */
 
-		close(ws);
 		return CIO_WEBSOCKET_STATUS_CLOSED;
 	}
 
@@ -343,10 +342,6 @@ static void get_header(struct cio_buffered_stream *bs, void *handler_context, en
 
 static void handle_ping_frame(struct cio_websocket *ws, uint8_t *data, uint64_t length)
 {
-	if (ws->on_ping != NULL) {
-		ws->on_ping(ws, data, length);
-	}
-
 	struct cio_write_buffer wbh;
 	struct cio_write_buffer *payload;
 	if (length > 0) {
@@ -360,6 +355,10 @@ static void handle_ping_frame(struct cio_websocket *ws, uint8_t *data, uint64_t 
 	}
 
 	send_frame(ws, payload, CIO_WEBSOCKET_PONG_FRAME, true, do_nothing);
+
+	if (ws->on_ping != NULL) {
+		ws->on_ping(ws, data, length);
+	}
 }
 
 static void handle_frame(struct cio_websocket *ws, uint8_t *data, uint64_t length)
