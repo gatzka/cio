@@ -292,6 +292,38 @@ static void handle_close_frame(struct cio_websocket *ws, uint8_t *data, uint64_t
 	}
 }
 
+static int payload_size_in_limit(const struct cio_write_buffer *payload, size_t limit)
+{
+
+	if (payload != NULL) {
+		size_t payload_length = 0;
+
+		const struct cio_write_buffer *element = payload;
+		for (size_t i = 0; i < payload->data.q_len; i++) {
+			element = element->next;
+			payload_length += element->data.element.length;
+		}
+
+		if (unlikely(payload_length > limit)) {
+			return 0;
+		}
+	}
+
+	return 1;
+}
+
+static enum cio_error self_close_frame(struct cio_websocket *ws, enum cio_websocket_status_code status_code, struct cio_write_buffer *reason)
+{
+	if (unlikely(payload_size_in_limit(reason, CIO_WEBSOCKET_SMALL_FRAME_SIZE - sizeof(status_code)) == 0)) {
+		return CIO_MESSAGE_TOO_LONG;
+	}
+
+	ws->ws_flags.self_initiated_close = 1;
+	send_close_frame(ws, status_code, reason);
+
+	return CIO_SUCCESS;
+}
+
 static void handle_error(struct cio_websocket *ws, enum cio_websocket_status_code status, const char *reason)
 {
 	if (ws->on_error != NULL) {
@@ -304,7 +336,7 @@ static void handle_error(struct cio_websocket *ws, enum cio_websocket_status_cod
 	cio_write_buffer_element_init(&ws->wb_control_data, ws->send_control_frame_buffer, strlen(reason));
 	cio_write_buffer_queue_tail(&wbh, &ws->wb_control_data);
 
-	send_close_frame(ws, status, &wbh);
+	self_close_frame(ws, status, &wbh);
 }
 
 static void get_header(struct cio_buffered_stream *bs, void *handler_context, enum cio_error err, struct cio_read_buffer *buffer);
@@ -583,38 +615,6 @@ static void receive_frames(struct cio_websocket *ws)
 	if (unlikely(err != CIO_SUCCESS)) {
 		close(ws);
 	}
-}
-
-static int payload_size_in_limit(const struct cio_write_buffer *payload, size_t limit)
-{
-
-	if (payload != NULL) {
-		size_t payload_length = 0;
-
-		const struct cio_write_buffer *element = payload;
-		for (size_t i = 0; i < payload->data.q_len; i++) {
-			element = element->next;
-			payload_length += element->data.element.length;
-		}
-
-		if (unlikely(payload_length > limit)) {
-			return 0;
-		}
-	}
-
-	return 1;
-}
-
-static enum cio_error self_close_frame(struct cio_websocket *ws, enum cio_websocket_status_code status_code, struct cio_write_buffer *reason)
-{
-	if (unlikely(payload_size_in_limit(reason, CIO_WEBSOCKET_SMALL_FRAME_SIZE - sizeof(status_code)) == 0)) {
-		return CIO_MESSAGE_TOO_LONG;
-	}
-
-	ws->ws_flags.self_initiated_close = 1;
-	send_close_frame(ws, status_code, reason);
-
-	return CIO_SUCCESS;
 }
 
 static void handle_write(struct cio_buffered_stream *bs, void *handler_context, const struct cio_write_buffer *buffer, enum cio_error err)
