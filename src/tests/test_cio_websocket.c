@@ -204,6 +204,14 @@ static void on_ping_frame_save_data(struct cio_websocket *websocket, const uint8
 	read_back_buffer_pos += length;
 }
 
+static void on_error_save_data(const struct cio_websocket *websocket, enum cio_websocket_status_code status, const char *reason)
+{
+	(void)websocket;
+	(void)status;
+	strcpy((char *)&read_back_buffer[read_back_buffer_pos], reason);
+	read_back_buffer_pos += strlen(reason);
+}
+
 void setUp(void)
 {
 	FFF_RESET_HISTORY();
@@ -403,6 +411,31 @@ static void test_ping_frame_no_payload(void)
 	TEST_ASSERT_EQUAL_MESSAGE(0, on_ping_fake.arg2_val, "data length in ping frame callback not correct");
 }
 
+static void test_ping_frame_payload_too_long(void)
+{
+	char data[126] = {'a'};
+
+	struct ws_frame frames[] = {
+		{.frame_type = CIO_WEBSOCKET_PING_FRAME, .direction = FROM_CLIENT, .data = data, .data_length = sizeof(data), .last_frame = true},
+		{.frame_type = CIO_WEBSOCKET_CLOSE_FRAME, .direction = FROM_CLIENT, .data = NULL, .data_length = 0, .last_frame = true},
+	};
+
+	serialize_frames(frames, ARRAY_SIZE(frames));
+	read_exactly_fake.custom_fake = bs_read_exactly_from_buffer;
+	on_ping_fake.custom_fake = on_ping_frame_save_data;
+	on_error_fake.custom_fake = on_error_save_data;
+
+	ws.receive_frames(&ws);
+
+	TEST_ASSERT_EQUAL_MESSAGE(0, on_textframe_fake.call_count, "callback for text frames was called");
+	TEST_ASSERT_EQUAL_MESSAGE(0, on_binaryframe_fake.call_count, "callback for binary frames was called");
+	TEST_ASSERT_EQUAL_MESSAGE(0, on_ping_fake.call_count, "callback for ping frames was not called");
+	TEST_ASSERT_EQUAL_MESSAGE(1, on_error_fake.call_count, "error callback was not called");
+	TEST_ASSERT_EQUAL_MESSAGE(&ws, on_error_fake.arg0_val, "ws parameter in first fragment of error callback not correct");
+	TEST_ASSERT_EQUAL_MESSAGE(CIO_WEBSOCKET_CLOSE_PROTOCOL_ERROR, on_error_fake.arg1_val, "status parameter in error callback not correct");
+	TEST_ASSERT_EQUAL_STRING_MESSAGE("payload of control frame too long", read_back_buffer, "reason in error callback not correct");
+}
+
 int main(void)
 {
 	UNITY_BEGIN();
@@ -410,5 +443,6 @@ int main(void)
 	RUN_TEST(test_fragmented_frames);
 	RUN_TEST(test_ping_frame);
 	RUN_TEST(test_ping_frame_no_payload);
+	RUN_TEST(test_ping_frame_payload_too_long);
 	return UNITY_END();
 }

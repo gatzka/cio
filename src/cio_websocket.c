@@ -393,7 +393,8 @@ static void handle_frame(struct cio_websocket *ws, uint8_t *data, uint64_t lengt
 	}
 
 	if (((opcode >= CIO_WEBSOCKET_CLOSE_FRAME) && (opcode <= CIO_WEBSOCKET_PONG_FRAME)) && (length > CIO_WEBSOCKET_SMALL_FRAME_SIZE)) {
-		//TODO: handle_error(s, WS_CLOSE_PROTOCOL_ERROR);
+		handle_error(ws, CIO_WEBSOCKET_CLOSE_PROTOCOL_ERROR, "payload of control frame too long");
+		goto out;
 	}
 
 	switch (opcode) {
