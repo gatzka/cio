@@ -612,7 +612,8 @@ static void get_header(struct cio_buffered_stream *bs, void *handler_context, en
 	static const uint8_t OPCODE_MASK = 0x0f;
 	field = field & OPCODE_MASK;
 	ws->ws_flags.opcode = field;
-	if (bs->read_exactly(bs, buffer, 1, get_first_length, ws) != CIO_SUCCESS) {
+	err = bs->read_exactly(bs, buffer, 1, get_first_length, ws);
+	if (err != CIO_SUCCESS) {
 		handle_error(ws, CIO_WEBSOCKET_CLOSE_INTERNAL_ERROR, "error while start reading websocket frame length", CLOSE_IMMEDIATE);
 	}
 }
