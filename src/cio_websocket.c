@@ -35,6 +35,9 @@
 #include "cio_websocket.h"
 #include "cio_websocket_masking.h"
 
+#undef MIN
+#define MIN(X, Y) (((X) < (Y)) ? (X) : (Y))
+
 static const uint8_t WS_MASK_SET = 0x80;
 static const uint8_t WS_HEADER_FIN = 0x80;
 static const unsigned int WS_MID_FRAME_SIZE = 65535;
@@ -308,16 +311,10 @@ static int payload_size_in_limit(const struct cio_write_buffer *payload, size_t 
 	return 1;
 }
 
-static enum cio_error self_close_frame(struct cio_websocket *ws, enum cio_websocket_status_code status_code, struct cio_write_buffer *reason)
+static void self_close_frame(struct cio_websocket *ws, enum cio_websocket_status_code status_code, struct cio_write_buffer *reason)
 {
-	if (unlikely(payload_size_in_limit(reason, CIO_WEBSOCKET_SMALL_FRAME_SIZE - sizeof(status_code)) == 0)) {
-		return CIO_MESSAGE_TOO_LONG;
-	}
-
 	ws->ws_flags.self_initiated_close = 1;
 	send_close_frame(ws, status_code, reason);
-
-	return CIO_SUCCESS;
 }
 
 static void handle_error(struct cio_websocket *ws, enum cio_websocket_status_code status, const char *reason)
@@ -329,7 +326,7 @@ static void handle_error(struct cio_websocket *ws, enum cio_websocket_status_cod
 	struct cio_write_buffer wbh;
 	cio_write_buffer_head_init(&wbh);
 	strncpy((char *)ws->send_control_frame_buffer, reason, sizeof(ws->send_control_frame_buffer));
-	cio_write_buffer_element_init(&ws->wb_control_data, ws->send_control_frame_buffer, strlen(reason));
+	cio_write_buffer_element_init(&ws->wb_control_data, ws->send_control_frame_buffer, MIN(strlen(reason) - sizeof(status), CIO_WEBSOCKET_SMALL_FRAME_SIZE - sizeof(status)));
 	cio_write_buffer_queue_tail(&wbh, &ws->wb_control_data);
 
 	self_close_frame(ws, status, &wbh);
@@ -580,15 +577,20 @@ static void get_first_length(struct cio_buffered_stream *bs, void *handler_conte
 
 static void get_header(struct cio_buffered_stream *bs, void *handler_context, enum cio_error err, struct cio_read_buffer *buffer)
 {
-	size_t len = cio_read_buffer_get_transferred_bytes(buffer);
-	if (unlikely((err != CIO_SUCCESS) || (len == 0))) {
-		// TODO: fill out
+	struct cio_websocket *ws = (struct cio_websocket *)handler_context;
+	if (unlikely(err != CIO_SUCCESS)) {
+		if (err == CIO_EOF) {
+			close(ws);
+			return;
+		} else {
+
+		}
+
 		return;
 	}
 
 	uint8_t *ptr = cio_read_buffer_get_read_ptr(buffer);
 	uint8_t field = *ptr;
-	struct cio_websocket *ws = (struct cio_websocket *)handler_context;
 
 	if ((field & WS_HEADER_FIN) == WS_HEADER_FIN) {
 		ws->ws_flags.fin = 1;

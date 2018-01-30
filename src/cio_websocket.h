@@ -85,10 +85,8 @@ struct cio_websocket {
 	 * @param ws The websocket to be closed.
 	 * @param status The @ref cio_websocket_status_code "websocket status code" to be sent.
 	 * @param reason A buffer which contains the reason for the close in an UTF8 encoded string. Could be @c NULL if no reason should be sent.
-	 *
-	 * @return ::CIO_SUCCESS for success, ::CIO_MESSAGE_TOO_LONG if length of @p reason exceeds a small websocket frame.
 	 */
-	enum cio_error (*close)(struct cio_websocket *ws, enum cio_websocket_status_code status, struct cio_write_buffer *reason);
+	void (*close)(struct cio_websocket *ws, enum cio_websocket_status_code status, struct cio_write_buffer *reason);
 
 	void (*on_connect)(struct cio_websocket *ws);
 
