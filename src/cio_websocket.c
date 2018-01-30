@@ -44,6 +44,11 @@ static const unsigned int WS_MID_FRAME_SIZE = 65535;
 
 static const uint64_t close_timeout_ns = UINT64_C(10) * UINT64_C(1000) * UINT64_C(1000);
 
+enum close_handling {
+	CLOSE_IMMEDIATE,
+	CLOSE_WEBSOCKET_HANDSHAKE
+};
+
 enum cio_ws_frame_type {
 	CIO_WEBSOCKET_CONTINUATION_FRAME = 0x0,
 	CIO_WEBSOCKET_TEXT_FRAME = 0x1,
@@ -191,7 +196,7 @@ static void close_timeout_handler(struct cio_timer *timer, void *handler_context
 	}
 }
 
-static void send_close_frame(struct cio_websocket *ws, enum cio_websocket_status_code status_code, struct cio_write_buffer *reason)
+static void send_close_frame(struct cio_websocket *ws, enum cio_websocket_status_code status_code, struct cio_write_buffer *reason, enum close_handling handling)
 {
 	ws->close_status = cio_htobe16(status_code);
 
@@ -202,11 +207,12 @@ static void send_close_frame(struct cio_websocket *ws, enum cio_websocket_status
 		cio_write_buffer_splice(reason, &wbh);
 	}
 
-	if (ws->ws_flags.self_initiated_close == 1) {
+	if (handling == CLOSE_WEBSOCKET_HANDSHAKE) {
 		enum cio_error err = cio_timer_init(&ws->close_timer, ws->loop, NULL);
 		if (likely(err == CIO_SUCCESS)) {
 			err = ws->close_timer.expires_from_now(&ws->close_timer, close_timeout_ns, close_timeout_handler, ws);
 			if (likely(err == CIO_SUCCESS)) {
+				ws->ws_flags.self_initiated_close = 1;
 				send_frame(ws, &wbh, CIO_WEBSOCKET_CLOSE_FRAME, true, close_frame_written);
 				return;
 			}
@@ -284,9 +290,9 @@ static void handle_close_frame(struct cio_websocket *ws, uint8_t *data, uint64_t
 			cio_write_buffer_head_init(&wbh);
 			cio_write_buffer_element_init(&ws->wb_control_data, ws->send_control_frame_buffer, length);
 			cio_write_buffer_queue_tail(&wbh, &ws->wb_control_data);
-			send_close_frame(ws, (enum cio_websocket_status_code)status_code, &wbh);
+			send_close_frame(ws, (enum cio_websocket_status_code)status_code, &wbh, CLOSE_IMMEDIATE);
 		} else {
-			send_close_frame(ws, (enum cio_websocket_status_code)status_code, NULL);
+			send_close_frame(ws, (enum cio_websocket_status_code)status_code, NULL, CLOSE_IMMEDIATE);
 		}
 	}
 }
@@ -313,23 +319,22 @@ static int payload_size_in_limit(const struct cio_write_buffer *payload, size_t 
 
 static void self_close_frame(struct cio_websocket *ws, enum cio_websocket_status_code status_code, struct cio_write_buffer *reason)
 {
-	ws->ws_flags.self_initiated_close = 1;
-	send_close_frame(ws, status_code, reason);
+	send_close_frame(ws, status_code, reason, CLOSE_WEBSOCKET_HANDSHAKE);
 }
 
-static void handle_error(struct cio_websocket *ws, enum cio_websocket_status_code status, const char *reason)
+static void handle_error(struct cio_websocket *ws, enum cio_websocket_status_code status_code, const char *reason, enum close_handling close_handling)
 {
 	if (ws->on_error != NULL) {
-		ws->on_error(ws, status, reason);
+		ws->on_error(ws, status_code, reason);
 	}
 
 	struct cio_write_buffer wbh;
 	cio_write_buffer_head_init(&wbh);
 	strncpy((char *)ws->send_control_frame_buffer, reason, sizeof(ws->send_control_frame_buffer));
-	cio_write_buffer_element_init(&ws->wb_control_data, ws->send_control_frame_buffer, MIN(strlen(reason) - sizeof(status), CIO_WEBSOCKET_SMALL_FRAME_SIZE - sizeof(status)));
+	cio_write_buffer_element_init(&ws->wb_control_data, ws->send_control_frame_buffer, MIN(strlen(reason) - sizeof(status_code), CIO_WEBSOCKET_SMALL_FRAME_SIZE - sizeof(status_code)));
 	cio_write_buffer_queue_tail(&wbh, &ws->wb_control_data);
 
-	self_close_frame(ws, status, &wbh);
+	send_close_frame(ws, status_code, &wbh, close_handling);
 }
 
 static void get_header(struct cio_buffered_stream *bs, void *handler_context, enum cio_error err, struct cio_read_buffer *buffer);
@@ -421,7 +426,7 @@ static void handle_frame(struct cio_websocket *ws, uint8_t *data, uint64_t lengt
 	}
 
 	if (((opcode >= CIO_WEBSOCKET_CLOSE_FRAME) && (opcode <= CIO_WEBSOCKET_PONG_FRAME)) && (length > CIO_WEBSOCKET_SMALL_FRAME_SIZE)) {
-		handle_error(ws, CIO_WEBSOCKET_CLOSE_PROTOCOL_ERROR, "payload of control frame too long");
+		handle_error(ws, CIO_WEBSOCKET_CLOSE_PROTOCOL_ERROR, "payload of control frame too long", CLOSE_WEBSOCKET_HANDSHAKE);
 		goto out;
 	}
 
@@ -489,7 +494,7 @@ static void get_mask(struct cio_buffered_stream *bs, void *handler_context, enum
 	if (likely(ws->read_frame_length > 0)) {
 		err = bs->read_exactly(bs, buffer, ws->read_frame_length, get_payload, ws);
 		if (unlikely(err != CIO_SUCCESS)) {
-			handle_error(ws, CIO_WEBSOCKET_CLOSE_TOO_LARGE, "payload length too large to handle");
+			handle_error(ws, CIO_WEBSOCKET_CLOSE_TOO_LARGE, "payload length too large to handle", CLOSE_IMMEDIATE);
 		}
 	} else {
 		buffer->bytes_transferred = 0;
@@ -580,10 +585,10 @@ static void get_header(struct cio_buffered_stream *bs, void *handler_context, en
 	struct cio_websocket *ws = (struct cio_websocket *)handler_context;
 	if (unlikely(err != CIO_SUCCESS)) {
 		if (err == CIO_EOF) {
-			close(ws);
+			handle_error(ws, CIO_WEBSOCKET_CLOSE_NORMAL, "connection closed by other peer", CLOSE_IMMEDIATE);
 			return;
 		} else {
-
+			handle_error(ws, CIO_WEBSOCKET_CLOSE_INTERNAL_ERROR, "error while reading websocket header", CLOSE_IMMEDIATE);
 		}
 
 		return;
@@ -607,7 +612,9 @@ static void get_header(struct cio_buffered_stream *bs, void *handler_context, en
 	static const uint8_t OPCODE_MASK = 0x0f;
 	field = field & OPCODE_MASK;
 	ws->ws_flags.opcode = field;
-	bs->read_exactly(bs, buffer, 1, get_first_length, ws);
+	if (bs->read_exactly(bs, buffer, 1, get_first_length, ws) != CIO_SUCCESS) {
+		handle_error(ws, CIO_WEBSOCKET_CLOSE_INTERNAL_ERROR, "error while start reading websocket frame length", CLOSE_IMMEDIATE);
+	}
 }
 
 static void receive_frames(struct cio_websocket *ws)
