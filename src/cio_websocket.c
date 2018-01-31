@@ -300,7 +300,6 @@ static void handle_close_frame(struct cio_websocket *ws, uint8_t *data, uint64_t
 
 static int payload_size_in_limit(const struct cio_write_buffer *payload, size_t limit)
 {
-
 	if (payload != NULL) {
 		size_t payload_length = 0;
 
