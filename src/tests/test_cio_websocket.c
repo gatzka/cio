@@ -190,6 +190,30 @@ static enum cio_error bs_read_exactly_from_buffer(struct cio_buffered_stream *bs
 	return CIO_SUCCESS;
 }
 
+static enum cio_error bs_read_exactly_immediate_error(struct cio_buffered_stream *bs, struct cio_read_buffer *buffer, size_t num, cio_buffered_stream_read_handler handler, void *handler_context)
+{
+	(void)bs;
+	(void)buffer;
+	(void)num;
+	(void)handler;
+	(void)handler_context;
+	return CIO_ADDRESS_IN_USE;
+}
+
+static enum cio_error bs_read_exactly_peer_close(struct cio_buffered_stream *bs, struct cio_read_buffer *buffer, size_t num, cio_buffered_stream_read_handler handler, void *handler_context)
+{
+	(void)num;
+	handler(bs, handler_context, CIO_EOF, buffer);
+	return CIO_SUCCESS;
+}
+
+static enum cio_error bs_read_exactly_error(struct cio_buffered_stream *bs, struct cio_read_buffer *buffer, size_t num, cio_buffered_stream_read_handler handler, void *handler_context)
+{
+	(void)num;
+	handler(bs, handler_context, CIO_OPERATION_NOT_PERMITTED, buffer);
+	return CIO_SUCCESS;
+}
+
 static void on_textframe_save_data(struct cio_websocket *websocket, char *data, size_t length, bool last_frame)
 {
 	(void)last_frame;
@@ -516,6 +540,102 @@ static void test_ping_frame_payload_too_long(void)
 	TEST_ASSERT_EQUAL_STRING_MESSAGE("payload of control frame too long", read_back_buffer, "reason in error callback not correct");
 }
 
+static void test_peer_close_in_getheader(void)
+{
+	unsigned int frame_type = CIO_WEBSOCKET_TEXT_FRAME;
+	uint32_t frame_size = 5;
+	char *data = malloc(frame_size);
+	memset(data, 'a', frame_size);
+	struct ws_frame frames[] = {
+		{.frame_type = frame_type, .direction = FROM_CLIENT, .data = data, .data_length = frame_size, .last_frame = true},
+		{.frame_type = CIO_WEBSOCKET_CLOSE_FRAME, .direction = FROM_CLIENT, .data = NULL, .data_length = 0, .last_frame = true},
+	};
+
+	serialize_frames(frames, ARRAY_SIZE(frames));
+	read_exactly_fake.custom_fake = bs_read_exactly_peer_close;
+
+	ws->receive_frames(ws);
+
+	TEST_ASSERT_EQUAL_MESSAGE(0, on_binaryframe_fake.call_count, "callback for binary frames was called");
+	TEST_ASSERT_EQUAL_MESSAGE(0, on_textframe_fake.call_count, "callback for text frames was not called");
+	TEST_ASSERT_EQUAL_MESSAGE(1, on_error_fake.call_count, "error callback was called");
+	TEST_ASSERT_EQUAL_MESSAGE(ws, on_error_fake.arg0_val, "ws parameter in error callback not correct");
+	TEST_ASSERT_EQUAL_MESSAGE(CIO_WEBSOCKET_CLOSE_NORMAL, on_error_fake.arg1_val, "error callback called with wrong status code");
+	TEST_ASSERT_EQUAL_MESSAGE(0, on_ping_fake.call_count, "callback for ping frames was called");
+	TEST_ASSERT_EQUAL_MESSAGE(0, on_pong_fake.call_count, "callback for pong frames was called");
+	TEST_ASSERT_EQUAL_MESSAGE(0, on_close_fake.call_count, "close was not called");
+
+	if (data) {
+		free(data);
+	}
+}
+
+static void test_peer_read_error_in_getheader(void)
+{
+	unsigned int frame_type = CIO_WEBSOCKET_TEXT_FRAME;
+	uint32_t frame_size = 5;
+	char *data = malloc(frame_size);
+	memset(data, 'a', frame_size);
+	struct ws_frame frames[] = {
+		{.frame_type = frame_type, .direction = FROM_CLIENT, .data = data, .data_length = frame_size, .last_frame = true},
+		{.frame_type = CIO_WEBSOCKET_CLOSE_FRAME, .direction = FROM_CLIENT, .data = NULL, .data_length = 0, .last_frame = true},
+	};
+
+	serialize_frames(frames, ARRAY_SIZE(frames));
+	read_exactly_fake.custom_fake = bs_read_exactly_error;
+
+	ws->receive_frames(ws);
+
+	TEST_ASSERT_EQUAL_MESSAGE(0, on_binaryframe_fake.call_count, "callback for binary frames was called");
+	TEST_ASSERT_EQUAL_MESSAGE(0, on_textframe_fake.call_count, "callback for text frames was not called");
+	TEST_ASSERT_EQUAL_MESSAGE(1, on_error_fake.call_count, "error callback was called");
+	TEST_ASSERT_EQUAL_MESSAGE(ws, on_error_fake.arg0_val, "ws parameter in error callback not correct");
+	TEST_ASSERT_EQUAL_MESSAGE(CIO_WEBSOCKET_CLOSE_INTERNAL_ERROR, on_error_fake.arg1_val, "error callback called with wrong status code");
+	TEST_ASSERT_EQUAL_MESSAGE(0, on_ping_fake.call_count, "callback for ping frames was called");
+	TEST_ASSERT_EQUAL_MESSAGE(0, on_pong_fake.call_count, "callback for pong frames was called");
+	TEST_ASSERT_EQUAL_MESSAGE(0, on_close_fake.call_count, "close was not called");
+
+	if (data) {
+		free(data);
+	}
+}
+
+static void test_peer_read_error_in_first_length_call(void)
+{
+	unsigned int frame_type = CIO_WEBSOCKET_TEXT_FRAME;
+	uint32_t frame_size = 5;
+	char *data = malloc(frame_size);
+	memset(data, 'a', frame_size);
+	struct ws_frame frames[] = {
+		{.frame_type = frame_type, .direction = FROM_CLIENT, .data = data, .data_length = frame_size, .last_frame = true},
+		{.frame_type = CIO_WEBSOCKET_CLOSE_FRAME, .direction = FROM_CLIENT, .data = NULL, .data_length = 0, .last_frame = true},
+	};
+
+	serialize_frames(frames, ARRAY_SIZE(frames));
+	enum cio_error (*read_exactly_fakes[])(struct cio_buffered_stream *, struct cio_read_buffer *, size_t, cio_buffered_stream_read_handler, void *) = {
+		bs_read_exactly_from_buffer,
+		bs_read_exactly_immediate_error
+	};
+
+	SET_CUSTOM_FAKE_SEQ(read_exactly, read_exactly_fakes, ARRAY_SIZE(read_exactly_fakes));
+
+
+	ws->receive_frames(ws);
+
+	TEST_ASSERT_EQUAL_MESSAGE(0, on_binaryframe_fake.call_count, "callback for binary frames was called");
+	TEST_ASSERT_EQUAL_MESSAGE(0, on_textframe_fake.call_count, "callback for text frames was not called");
+	TEST_ASSERT_EQUAL_MESSAGE(1, on_error_fake.call_count, "error callback was called");
+	TEST_ASSERT_EQUAL_MESSAGE(ws, on_error_fake.arg0_val, "ws parameter in error callback not correct");
+	TEST_ASSERT_EQUAL_MESSAGE(CIO_WEBSOCKET_CLOSE_INTERNAL_ERROR, on_error_fake.arg1_val, "error callback called with wrong status code");
+	TEST_ASSERT_EQUAL_MESSAGE(0, on_ping_fake.call_count, "callback for ping frames was called");
+	TEST_ASSERT_EQUAL_MESSAGE(0, on_pong_fake.call_count, "callback for pong frames was called");
+	TEST_ASSERT_EQUAL_MESSAGE(0, on_close_fake.call_count, "close was not called");
+
+	if (data) {
+		free(data);
+	}
+}
+
 int main(void)
 {
 	UNITY_BEGIN();
@@ -525,5 +645,8 @@ int main(void)
 	RUN_TEST(test_ping_frame_no_payload);
 	RUN_TEST(test_ping_frame_payload_too_long);
 	RUN_TEST(test_ping_frame_pong_not_written);
+	RUN_TEST(test_peer_close_in_getheader);
+	RUN_TEST(test_peer_read_error_in_getheader);
+	RUN_TEST(test_peer_read_error_in_first_length_call);
 	return UNITY_END();
 }
