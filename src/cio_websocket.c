@@ -146,6 +146,7 @@ static enum cio_websocket_status send_frame(struct cio_websocket *ws, struct cio
 	cio_write_buffer_queue_head(&ws->wbh, &ws->wb_send_header);
 	ws->user_write_handler = written_cb;
 	ws->ws_flags.writing_frame = 1;
+	//TODO: check return value
 	ws->bs->write(ws->bs, &ws->wbh, write_complete, ws);
 
 	return CIO_WEBSOCKET_STATUS_OK;
