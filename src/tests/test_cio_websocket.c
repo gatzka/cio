@@ -290,11 +290,8 @@ void setUp(void)
 
 static void test_unfragmented_frames(void)
 {
-	uint32_t frame_sizes[] = {1};
-	unsigned int frame_types[] = {CIO_WEBSOCKET_TEXT_FRAME};
-
-	//uint32_t frame_sizes[] = {0, 1, 5, 125, 126, 65535, 65536};
-	//unsigned int frame_types[] = {CIO_WEBSOCKET_BINARY_FRAME, CIO_WEBSOCKET_TEXT_FRAME};
+	uint32_t frame_sizes[] = {0, 1, 5, 125, 126, 65535, 65536};
+	unsigned int frame_types[] = {CIO_WEBSOCKET_BINARY_FRAME, CIO_WEBSOCKET_TEXT_FRAME};
 
 	for (unsigned int i = 0; i < ARRAY_SIZE(frame_sizes); i++) {
 		for (unsigned int j = 0; j < ARRAY_SIZE(frame_types); j++) {
