@@ -106,6 +106,9 @@ FAKE_VOID_FUNC(timer_close, struct cio_timer *)
 static enum cio_error timer_expires_from_now(struct cio_timer *t, uint64_t timeout_ns, timer_handler handler, void *handler_context);
 FAKE_VALUE_FUNC(enum cio_error, timer_expires_from_now, struct cio_timer *, uint64_t, timer_handler, void *)
 
+static void on_close(const struct cio_websocket *ws, enum cio_websocket_status_code status, const char *reason, size_t reason_length);
+FAKE_VOID_FUNC(on_close, const struct cio_websocket *, enum cio_websocket_status_code, const char *, size_t)
+
 enum cio_error cio_server_socket_init(struct cio_server_socket *ss,
                                       struct cio_eventloop *loop,
                                       unsigned int backlog,
@@ -168,6 +171,14 @@ static enum cio_error cio_timer_init_ok(struct cio_timer *timer, struct cio_even
 	return CIO_SUCCESS;
 }
 
+static enum cio_error cio_timer_init_err(struct cio_timer *timer, struct cio_eventloop *l, cio_timer_close_hook hook)
+{
+	(void)timer;
+	(void)l;
+	(void)hook;
+	return CIO_INVALID_ARGUMENT;
+}
+
 static enum cio_error cio_buffered_stream_init_ok(struct cio_buffered_stream *bs,
                                                   struct cio_io_stream *stream)
 {
@@ -202,6 +213,7 @@ static struct cio_http_location_handler *alloc_websocket_handler(const void *con
 		static const char *subprotocols[2] = {"echo", "jet"};
 		cio_websocket_location_handler_init(&handler->ws_handler, subprotocols, ARRAY_SIZE(subprotocols));
 		handler->ws_handler.websocket.on_connect = on_connect;
+		handler->ws_handler.websocket.on_close = on_close;
 		handler->ws_handler.websocket.on_textframe = NULL;
 		handler->ws_handler.websocket.on_pong = NULL;
 		handler->ws_handler.http_location.free = free_websocket_handler;
@@ -393,6 +405,8 @@ void setUp(void)
 	RESET_FAKE(bs_read_until);
 	RESET_FAKE(bs_read);
 
+	RESET_FAKE(on_close);
+
 	http_parser_settings_init(&parser_settings);
 	http_parser_init(&parser, HTTP_RESPONSE);
 
@@ -497,9 +511,17 @@ static void test_ws_location_close_in_onconnect(void)
 	bs_read_exactly_buffer_size = assemble_frame(WS_HEADER_FIN | CIO_WEBSOCKET_CLOSE_FRAME, mask, data, sizeof(data), &close_frame);
 
 	bs_read_exactly_buffer = close_frame;
-
 	bs_write_fake.custom_fake = bs_fake_write;
+
 	bs_read_exactly_fake.custom_fake = bs_read_exactly_from_buffer;
+
+	RESET_FAKE(cio_timer_init);
+
+	enum cio_error (*cio_timer_init_fakes[])(struct cio_timer *, struct cio_eventloop *, cio_timer_close_hook) = {
+		cio_timer_init_ok,
+		cio_timer_init_err,
+	};
+	SET_CUSTOM_FAKE_SEQ(cio_timer_init, cio_timer_init_fakes, ARRAY_SIZE(cio_timer_init_fakes));
 
 	struct cio_http_server server;
 	enum cio_error err = cio_http_server_init(&server, 8080, &loop, serve_error, read_timeout, alloc_dummy_client, free_dummy_client);
@@ -529,6 +551,8 @@ static void test_ws_location_close_in_onconnect(void)
 	init_request(request, ARRAY_SIZE(request));
 	server.server_socket.handler(&server.server_socket, server.server_socket.handler_context, CIO_SUCCESS, s);
 	check_http_response(101);
+
+	TEST_ASSERT_EQUAL_MESSAGE(0, on_close_fake.call_count, "close callback count even after immediate close");
 	free(close_frame);
 }
 
