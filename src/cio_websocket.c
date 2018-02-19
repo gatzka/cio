@@ -197,7 +197,7 @@ static void close_timeout_handler(struct cio_timer *timer, void *handler_context
 	}
 }
 
-static void send_close_frame(struct cio_websocket *ws, enum cio_websocket_status_code status_code, struct cio_write_buffer *reason, enum close_handling handling)
+static void send_close_frame_and_close(struct cio_websocket *ws, enum cio_websocket_status_code status_code, struct cio_write_buffer *reason)
 {
 	ws->close_status = cio_htobe16(status_code);
 
@@ -208,22 +208,39 @@ static void send_close_frame(struct cio_websocket *ws, enum cio_websocket_status
 		cio_write_buffer_splice(reason, &wbh);
 	}
 
-	if (handling == CLOSE_WEBSOCKET_HANDSHAKE) {
-		enum cio_error err = cio_timer_init(&ws->close_timer, ws->loop, NULL);
-		if (likely(err == CIO_SUCCESS)) {
-			err = ws->close_timer.expires_from_now(&ws->close_timer, close_timeout_ns, close_timeout_handler, ws);
-			if (likely(err == CIO_SUCCESS)) {
-				ws->ws_flags.self_initiated_close = 1;
-				send_frame(ws, &wbh, CIO_WEBSOCKET_CLOSE_FRAME, true, close_frame_written);
-				return;
-			}
-		}
-	}
-
 	enum cio_websocket_status status =  send_frame(ws, &wbh, CIO_WEBSOCKET_CLOSE_FRAME, true, do_nothing);
 	if (status != CIO_WEBSOCKET_STATUS_CLOSED) {
 		close(ws);
 	}
+}
+
+static void send_close_frame_wait_for_response(struct cio_websocket *ws, enum cio_websocket_status_code status_code, struct cio_write_buffer *reason)
+{
+	ws->close_status = cio_htobe16(status_code);
+
+	struct cio_write_buffer wbh;
+	cio_write_buffer_head_init(&wbh);
+	cio_write_buffer_queue_tail(&wbh, &ws->wb_close_status);
+	if (reason != NULL) {
+		cio_write_buffer_splice(reason, &wbh);
+	}
+
+	enum cio_error err = cio_timer_init(&ws->close_timer, ws->loop, NULL);
+	if (unlikely(err != CIO_SUCCESS)) {
+		goto err;
+	}
+
+	err = ws->close_timer.expires_from_now(&ws->close_timer, close_timeout_ns, close_timeout_handler, ws);
+	if (unlikely(err != CIO_SUCCESS)) {
+		goto err;
+	}
+
+	ws->ws_flags.self_initiated_close = 1;
+	send_frame(ws, &wbh, CIO_WEBSOCKET_CLOSE_FRAME, true, close_frame_written);
+	return;
+
+err:
+	send_close_frame_and_close(ws, status_code, reason);
 }
 
 static void handle_binary_frame(struct cio_websocket *ws, uint8_t *data, uint64_t length, bool last_frame)
@@ -291,9 +308,9 @@ static void handle_close_frame(struct cio_websocket *ws, uint8_t *data, uint64_t
 			cio_write_buffer_head_init(&wbh);
 			cio_write_buffer_element_init(&ws->wb_control_data, ws->send_control_frame_buffer, length);
 			cio_write_buffer_queue_tail(&wbh, &ws->wb_control_data);
-			send_close_frame(ws, (enum cio_websocket_status_code)status_code, &wbh, CLOSE_IMMEDIATE);
+			send_close_frame_and_close(ws, (enum cio_websocket_status_code)status_code, &wbh);
 		} else {
-			send_close_frame(ws, (enum cio_websocket_status_code)status_code, NULL, CLOSE_IMMEDIATE);
+			send_close_frame_and_close(ws, (enum cio_websocket_status_code)status_code, NULL);
 		}
 	}
 }
@@ -319,10 +336,10 @@ static int payload_size_in_limit(const struct cio_write_buffer *payload, size_t 
 
 static void self_close_frame(struct cio_websocket *ws, enum cio_websocket_status_code status_code, struct cio_write_buffer *reason)
 {
-	send_close_frame(ws, status_code, reason, CLOSE_WEBSOCKET_HANDSHAKE);
+	send_close_frame_wait_for_response(ws, status_code, reason);
 }
 
-static void handle_error(struct cio_websocket *ws, enum cio_websocket_status_code status_code, const char *reason, enum close_handling close_handling)
+static void handle_error(struct cio_websocket *ws, enum cio_websocket_status_code status_code, const char *reason)
 {
 	if (ws->on_error != NULL) {
 		ws->on_error(ws, status_code, reason);
@@ -334,7 +351,7 @@ static void handle_error(struct cio_websocket *ws, enum cio_websocket_status_cod
 	cio_write_buffer_element_init(&ws->wb_control_data, ws->send_control_frame_buffer, MIN(strlen(reason) - sizeof(status_code), CIO_WEBSOCKET_SMALL_FRAME_SIZE - sizeof(status_code)));
 	cio_write_buffer_queue_tail(&wbh, &ws->wb_control_data);
 
-	send_close_frame(ws, status_code, &wbh, close_handling);
+	send_close_frame_and_close(ws, status_code, &wbh);
 }
 
 static void get_header(struct cio_buffered_stream *bs, void *handler_context, enum cio_error err, struct cio_read_buffer *buffer);
@@ -425,9 +442,9 @@ static void handle_frame(struct cio_websocket *ws, uint8_t *data, uint64_t lengt
 		opcode = ws->ws_flags.opcode;
 	}
 
-	if (((opcode >= CIO_WEBSOCKET_CLOSE_FRAME) && (opcode <= CIO_WEBSOCKET_PONG_FRAME)) && (length > CIO_WEBSOCKET_SMALL_FRAME_SIZE)) {
-		handle_error(ws, CIO_WEBSOCKET_CLOSE_PROTOCOL_ERROR, "payload of control frame too long", CLOSE_WEBSOCKET_HANDSHAKE);
-		goto out;
+	if (unlikely(((opcode >= CIO_WEBSOCKET_CLOSE_FRAME) && (opcode <= CIO_WEBSOCKET_PONG_FRAME)) && (length > CIO_WEBSOCKET_SMALL_FRAME_SIZE))) {
+		handle_error(ws, CIO_WEBSOCKET_CLOSE_PROTOCOL_ERROR, "payload of control frame too long");
+		return;
 	}
 
 	switch (opcode) {
@@ -494,7 +511,7 @@ static void get_mask(struct cio_buffered_stream *bs, void *handler_context, enum
 	if (likely(ws->read_frame_length > 0)) {
 		err = bs->read_exactly(bs, buffer, ws->read_frame_length, get_payload, ws);
 		if (unlikely(err != CIO_SUCCESS)) {
-			handle_error(ws, CIO_WEBSOCKET_CLOSE_TOO_LARGE, "payload length too large to handle", CLOSE_IMMEDIATE);
+			handle_error(ws, CIO_WEBSOCKET_CLOSE_TOO_LARGE, "payload length too large to handle");
 		}
 	} else {
 		buffer->bytes_transferred = 0;
@@ -585,10 +602,10 @@ static void get_header(struct cio_buffered_stream *bs, void *handler_context, en
 	struct cio_websocket *ws = (struct cio_websocket *)handler_context;
 	if (unlikely(err != CIO_SUCCESS)) {
 		if (err == CIO_EOF) {
-			handle_error(ws, CIO_WEBSOCKET_CLOSE_NORMAL, "connection closed by other peer", CLOSE_IMMEDIATE);
+			handle_error(ws, CIO_WEBSOCKET_CLOSE_NORMAL, "connection closed by other peer");
 			return;
 		} else {
-			handle_error(ws, CIO_WEBSOCKET_CLOSE_INTERNAL_ERROR, "error while reading websocket header", CLOSE_IMMEDIATE);
+			handle_error(ws, CIO_WEBSOCKET_CLOSE_INTERNAL_ERROR, "error while reading websocket header");
 		}
 
 		return;
@@ -614,7 +631,7 @@ static void get_header(struct cio_buffered_stream *bs, void *handler_context, en
 	ws->ws_flags.opcode = field;
 	err = bs->read_exactly(bs, buffer, 1, get_first_length, ws);
 	if (err != CIO_SUCCESS) {
-		handle_error(ws, CIO_WEBSOCKET_CLOSE_INTERNAL_ERROR, "error while start reading websocket frame length", CLOSE_IMMEDIATE);
+		handle_error(ws, CIO_WEBSOCKET_CLOSE_INTERNAL_ERROR, "error while start reading websocket frame length");
 	}
 }
 
