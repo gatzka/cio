@@ -186,6 +186,8 @@ struct cio_websocket {
 	enum cio_websocket_status (*write_pingframe)(struct cio_websocket *ws, struct cio_write_buffer *payload, cio_websocket_write_handler handler, void *handler_context);
 
 	/*! @cond PRIVATE */
+
+	void (*internal_on_connect)(struct cio_websocket *ws);
 	uint64_t read_frame_length;
 	struct cio_eventloop *loop;
 
@@ -197,11 +199,10 @@ struct cio_websocket {
 		unsigned int frag_opcode : 4;
 		unsigned int is_fragmented : 1;
 		unsigned int self_initiated_close : 1;
+		unsigned int to_be_closed : 1;
 		unsigned int is_server : 1;
 		unsigned int writing_frame : 1;
 	} ws_flags;
-
-	void (*receive_frames)(struct cio_websocket *ws);
 
 	cio_websocket_write_handler write_handler;
 	void *write_handler_context;

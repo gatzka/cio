@@ -333,7 +333,7 @@ static void test_unfragmented_frames(void)
 			on_textframe_fake.custom_fake = on_textframe_save_data;
 			on_binaryframe_fake.custom_fake = on_binaryframe_save_data;
 
-			ws->receive_frames(ws);
+			ws->internal_on_connect(ws);
 
 			if (frame_type == CIO_WEBSOCKET_BINARY_FRAME) {
 				TEST_ASSERT_EQUAL_MESSAGE(0, on_textframe_fake.call_count, "callback for text frames was called");
@@ -393,7 +393,7 @@ static void test_fragmented_frames(void)
 			on_textframe_fake.custom_fake = on_textframe_save_data;
 			on_binaryframe_fake.custom_fake = on_binaryframe_save_data;
 
-			ws->receive_frames(ws);
+			ws->internal_on_connect(ws);
 
 			if (frame_type == CIO_WEBSOCKET_BINARY_FRAME) {
 				TEST_ASSERT_EQUAL_MESSAGE(0, on_textframe_fake.call_count, "callback for text frames was called");
@@ -454,7 +454,7 @@ static void test_ping_frame(void)
 	bs_write_fake.custom_fake = bs_write_ok;
 	on_ping_fake.custom_fake = on_ping_frame_save_data;
 
-	ws->receive_frames(ws);
+	ws->internal_on_connect(ws);
 
 	TEST_ASSERT_EQUAL_MESSAGE(0, on_error_fake.call_count, "error callback was called");
 	TEST_ASSERT_EQUAL_MESSAGE(0, on_textframe_fake.call_count, "callback for text frames was called");
@@ -479,7 +479,7 @@ static void test_ping_frame_pong_not_written(void)
 	bs_write_fake.custom_fake = bs_write_later;
 	on_ping_fake.custom_fake = on_ping_frame_save_data;
 
-	ws->receive_frames(ws);
+	ws->internal_on_connect(ws);
 
 	TEST_ASSERT_EQUAL_MESSAGE(0, on_error_fake.call_count, "error callback was called");
 	TEST_ASSERT_EQUAL_MESSAGE(0, on_textframe_fake.call_count, "callback for text frames was called");
@@ -504,7 +504,7 @@ static void test_ping_frame_no_payload(void)
 	on_ping_fake.custom_fake = on_ping_frame_save_data;
 	on_error_fake.custom_fake = on_error_save_data;
 
-	ws->receive_frames(ws);
+	ws->internal_on_connect(ws);
 
 	TEST_ASSERT_EQUAL_MESSAGE(0, on_error_fake.call_count, "error callback was called");
 	TEST_ASSERT_EQUAL_MESSAGE(0, on_textframe_fake.call_count, "callback for text frames was called");
@@ -529,7 +529,7 @@ static void test_ping_frame_payload_too_long(void)
 	on_ping_fake.custom_fake = on_ping_frame_save_data;
 	on_error_fake.custom_fake = on_error_save_data;
 
-	ws->receive_frames(ws);
+	ws->internal_on_connect(ws);
 
 	TEST_ASSERT_EQUAL_MESSAGE(0, on_textframe_fake.call_count, "callback for text frames was called");
 	TEST_ASSERT_EQUAL_MESSAGE(0, on_binaryframe_fake.call_count, "callback for binary frames was called");
@@ -554,7 +554,7 @@ static void test_peer_close_in_getheader(void)
 	serialize_frames(frames, ARRAY_SIZE(frames));
 	read_exactly_fake.custom_fake = bs_read_exactly_peer_close;
 
-	ws->receive_frames(ws);
+	ws->internal_on_connect(ws);
 
 	TEST_ASSERT_EQUAL_MESSAGE(0, on_binaryframe_fake.call_count, "callback for binary frames was called");
 	TEST_ASSERT_EQUAL_MESSAGE(0, on_textframe_fake.call_count, "callback for text frames was not called");
@@ -584,7 +584,7 @@ static void test_peer_read_error_in_getheader(void)
 	serialize_frames(frames, ARRAY_SIZE(frames));
 	read_exactly_fake.custom_fake = bs_read_exactly_error;
 
-	ws->receive_frames(ws);
+	ws->internal_on_connect(ws);
 
 	TEST_ASSERT_EQUAL_MESSAGE(0, on_binaryframe_fake.call_count, "callback for binary frames was called");
 	TEST_ASSERT_EQUAL_MESSAGE(0, on_textframe_fake.call_count, "callback for text frames was not called");
@@ -619,8 +619,7 @@ static void test_peer_read_error_in_first_length_call(void)
 
 	SET_CUSTOM_FAKE_SEQ(read_exactly, read_exactly_fakes, ARRAY_SIZE(read_exactly_fakes));
 
-
-	ws->receive_frames(ws);
+	ws->internal_on_connect(ws);
 
 	TEST_ASSERT_EQUAL_MESSAGE(0, on_binaryframe_fake.call_count, "callback for binary frames was called");
 	TEST_ASSERT_EQUAL_MESSAGE(0, on_textframe_fake.call_count, "callback for text frames was not called");
