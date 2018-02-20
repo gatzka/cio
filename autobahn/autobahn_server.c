@@ -81,7 +81,7 @@ static void ontextframe_received(struct cio_websocket *ws, char *data, size_t le
 	cio_write_buffer_head_init(&eh->wbh);
 	cio_write_buffer_const_element_init(&eh->wb_message, eh->echo_buffer, length);
 	cio_write_buffer_queue_tail(&eh->wbh, &eh->wb_message);
-	ws->write_text_frame(ws, &eh->wbh, last_frame, write_complete, NULL);
+	ws->write_textframe(ws, &eh->wbh, last_frame, write_complete, NULL);
 }
 
 static void onerror(const struct cio_websocket *ws, enum cio_websocket_status_code status, const char *reason)
@@ -98,8 +98,8 @@ static struct cio_http_location_handler *alloc_autobahn_handler(const void *conf
 		return NULL;
 	} else {
 		cio_websocket_location_handler_init(&handler->ws_handler, NULL, 0);
-		handler->ws_handler.websocket.ontextframe = ontextframe_received;
-		handler->ws_handler.websocket.onerror = onerror;
+		handler->ws_handler.websocket.on_textframe = ontextframe_received;
+		handler->ws_handler.websocket.on_error = onerror;
 		handler->ws_handler.http_location.free = free_autobahn_handler;
 		return &handler->ws_handler.http_location;
 	}
@@ -128,8 +128,9 @@ static void sighandler(int signum)
 	cio_eventloop_cancel(&loop);
 }
 
-static void serve_error(struct cio_http_server *server)
+static void serve_error(struct cio_http_server *server, const char *reason)
 {
+	(void)reason;
 	server->server_socket.close(&server->server_socket);
 }
 
