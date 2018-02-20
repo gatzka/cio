@@ -721,6 +721,9 @@ void cio_websocket_init(struct cio_websocket *ws, bool is_server, cio_websocket_
 	ws->on_error = NULL;
 	ws->on_close = NULL;
 	ws->on_pong = NULL;
+	ws->on_ping = NULL;
+	ws->on_textframe = NULL;
+	ws->on_binaryframe = NULL;
 	ws->close = self_close_frame;
 	ws->write_binaryframe = write_binary_frame;
 	ws->write_pingframe = write_ping_frame;
