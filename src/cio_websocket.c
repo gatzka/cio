@@ -308,11 +308,6 @@ static void handle_close_frame(struct cio_websocket *ws, uint8_t *data, uint64_t
 			handle_error(ws, CIO_WEBSOCKET_CLOSE_PROTOCOL_ERROR , "reason in close frame not utf8 valid");
 			return;
 		}
-		// TODO: struct cjet_utf8_checker c;
-		// TODO: cjet_init_checker(&c);
-		// TODO: if (!cjet_is_byte_sequence_valid(&c, frame + 2, length - 2, true)) {
-		// TODO: 	handle_error(s, WS_CLOSE_UNSUPPORTED_DATA);
-		// TODO: }
 
 		length -= sizeof(status_code);
 		reason = (const char *)&data[sizeof(status_code)];
