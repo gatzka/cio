@@ -72,7 +72,7 @@ static void write_complete(struct cio_websocket *ws, void *handler_context, cons
 	// struct ws_autobahn_handler *eh = container_of(handler, struct ws_autobahn_handler, ws_handler);
 }
 
-static void ontextframe_received(struct cio_websocket *ws, char *data, size_t length, bool last_frame)
+static void on_textframe(struct cio_websocket *ws, char *data, size_t length, bool last_frame)
 {
 	struct cio_websocket_location_handler *handler = container_of(ws, struct cio_websocket_location_handler, websocket);
 	struct ws_autobahn_handler *eh = container_of(handler, struct ws_autobahn_handler, ws_handler);
@@ -87,7 +87,22 @@ static void ontextframe_received(struct cio_websocket *ws, char *data, size_t le
 	ws->write_textframe(ws, &eh->wbh, last_frame, write_complete, NULL);
 }
 
-static void onerror(const struct cio_websocket *ws, enum cio_websocket_status_code status, const char *reason)
+static void on_binaryframe(struct cio_websocket *ws, uint8_t *data, size_t length, bool last_frame)
+{
+	struct cio_websocket_location_handler *handler = container_of(ws, struct cio_websocket_location_handler, websocket);
+	struct ws_autobahn_handler *eh = container_of(handler, struct ws_autobahn_handler, ws_handler);
+
+	if (length > 0) {
+		memcpy(eh->echo_buffer, data, length);
+	}
+
+	cio_write_buffer_head_init(&eh->wbh);
+	cio_write_buffer_const_element_init(&eh->wb_message, eh->echo_buffer, length);
+	cio_write_buffer_queue_tail(&eh->wbh, &eh->wb_message);
+	ws->write_binaryframe(ws, &eh->wbh, last_frame, write_complete, NULL);
+}
+
+static void on_error(const struct cio_websocket *ws, enum cio_websocket_status_code status, const char *reason)
 {
 	(void)ws;
 	fprintf(stderr, "Unexpected error: %d, %s\n", status, reason);
@@ -101,8 +116,9 @@ static struct cio_http_location_handler *alloc_autobahn_handler(const void *conf
 		return NULL;
 	} else {
 		cio_websocket_location_handler_init(&handler->ws_handler, NULL, 0);
-		handler->ws_handler.websocket.on_textframe = ontextframe_received;
-		handler->ws_handler.websocket.on_error = onerror;
+		handler->ws_handler.websocket.on_textframe = on_textframe;
+		handler->ws_handler.websocket.on_binaryframe = on_binaryframe;
+		handler->ws_handler.websocket.on_error = on_error;
 		handler->ws_handler.http_location.free = free_autobahn_handler;
 		return &handler->ws_handler.http_location;
 	}
