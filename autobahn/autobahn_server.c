@@ -43,7 +43,7 @@
 
 static struct cio_eventloop loop;
 
-#define read_buffer_size 300000
+#define read_buffer_size 16 * 1024 * 1024
 
 static const uint64_t read_timeout = UINT64_C(5) * UINT64_C(1000) * UINT64_C(1000) * UINT64_C(1000);
 static const uint64_t ping_period_ns = UINT64_C(1) * UINT64_C(1000) * UINT64_C(1000) * UINT64_C(1000);
@@ -78,6 +78,15 @@ static void on_textframe(struct cio_websocket *ws, char *data, size_t length, bo
 	struct cio_websocket_location_handler *handler = container_of(ws, struct cio_websocket_location_handler, websocket);
 	struct ws_autobahn_handler *eh = container_of(handler, struct ws_autobahn_handler, ws_handler);
 
+	if (length + eh->bytes_in_echo_buffer > read_buffer_size) {
+		const char *error_msg = "payload too large for read buffer in autobahn test";
+		cio_write_buffer_head_init(&eh->wbh);
+		cio_write_buffer_const_element_init(&eh->wb_message, error_msg, strlen(error_msg));
+		cio_write_buffer_queue_tail(&eh->wbh, &eh->wb_message);
+		ws->close(ws, CIO_WEBSOCKET_CLOSE_TOO_LARGE, &eh->wbh);
+		return;
+	}
+
 	if (length > 0) {
 		memcpy(&eh->echo_buffer[eh->bytes_in_echo_buffer], data, length);
 		eh->bytes_in_echo_buffer += length;
@@ -88,6 +97,7 @@ static void on_textframe(struct cio_websocket *ws, char *data, size_t length, bo
 		cio_write_buffer_const_element_init(&eh->wb_message, eh->echo_buffer, eh->bytes_in_echo_buffer);
 		cio_write_buffer_queue_tail(&eh->wbh, &eh->wb_message);
 		ws->write_textframe(ws, &eh->wbh, last_frame, write_complete, NULL);
+		eh->bytes_in_echo_buffer = 0;
 	}
 }
 
@@ -96,14 +106,27 @@ static void on_binaryframe(struct cio_websocket *ws, uint8_t *data, size_t lengt
 	struct cio_websocket_location_handler *handler = container_of(ws, struct cio_websocket_location_handler, websocket);
 	struct ws_autobahn_handler *eh = container_of(handler, struct ws_autobahn_handler, ws_handler);
 
-	if (length > 0) {
-		memcpy(eh->echo_buffer, data, length);
+	if (length + eh->bytes_in_echo_buffer > read_buffer_size) {
+		const char *error_msg = "payload too large for read buffer in autobahn test";
+		cio_write_buffer_head_init(&eh->wbh);
+		cio_write_buffer_const_element_init(&eh->wb_message, error_msg, strlen(error_msg));
+		cio_write_buffer_queue_tail(&eh->wbh, &eh->wb_message);
+		ws->close(ws, CIO_WEBSOCKET_CLOSE_TOO_LARGE, &eh->wbh);
+		return;
 	}
 
-	cio_write_buffer_head_init(&eh->wbh);
-	cio_write_buffer_const_element_init(&eh->wb_message, eh->echo_buffer, length);
-	cio_write_buffer_queue_tail(&eh->wbh, &eh->wb_message);
-	ws->write_binaryframe(ws, &eh->wbh, last_frame, write_complete, NULL);
+	if (length > 0) {
+		memcpy(&eh->echo_buffer[eh->bytes_in_echo_buffer], data, length);
+		eh->bytes_in_echo_buffer += length;
+	}
+
+	if (last_frame) {
+		cio_write_buffer_head_init(&eh->wbh);
+		cio_write_buffer_const_element_init(&eh->wb_message, eh->echo_buffer, eh->bytes_in_echo_buffer);
+		cio_write_buffer_queue_tail(&eh->wbh, &eh->wb_message);
+		ws->write_binaryframe(ws, &eh->wbh, last_frame, write_complete, NULL);
+		eh->bytes_in_echo_buffer = 0;
+	}
 }
 
 static void on_error(const struct cio_websocket *ws, enum cio_websocket_status_code status, const char *reason)
