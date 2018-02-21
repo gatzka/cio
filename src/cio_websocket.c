@@ -112,9 +112,12 @@ static void send_frame(struct cio_websocket *ws, struct cio_write_buffer *payloa
 		cio_write_buffer_splice(payload, &ws->wbh);
 	}
 
-	uint8_t first_byte = (uint8_t)frame_type;
+	uint8_t first_byte;
 	if (last_frame) {
+		first_byte = (uint8_t)frame_type;
 		first_byte |= WS_HEADER_FIN;
+	} else {
+		first_byte = CIO_WEBSOCKET_CONTINUATION_FRAME;
 	}
 
 	ws->send_header[0] = first_byte;
@@ -148,8 +151,11 @@ static void send_frame(struct cio_websocket *ws, struct cio_write_buffer *payloa
 	cio_write_buffer_queue_head(&ws->wbh, &ws->wb_send_header);
 	ws->user_write_handler = written_cb;
 	ws->ws_flags.writing_frame = 1;
-	//TODO: check return value
-	ws->bs->write(ws->bs, &ws->wbh, write_complete, ws);
+	enum cio_error err = ws->bs->write(ws->bs, &ws->wbh, write_complete, ws);
+	if (err != CIO_SUCCESS) {
+		//TODO: check return value
+		return;
+	}
 }
 
 static bool is_status_code_invalid(uint16_t status_code)
