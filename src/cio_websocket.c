@@ -31,6 +31,7 @@
 #include "cio_endian.h"
 #include "cio_error_code.h"
 #include "cio_random.h"
+#include "cio_utf8_checker.h"
 #include "cio_util.h"
 #include "cio_websocket.h"
 #include "cio_websocket_masking.h"
@@ -303,6 +304,10 @@ static void handle_close_frame(struct cio_websocket *ws, uint8_t *data, uint64_t
 
 	const char *reason;
 	if (length > 2) {
+		if (unlikely(!cio_utf8_valid(data + 2, length - 2))) {
+			handle_error(ws, CIO_WEBSOCKET_CLOSE_PROTOCOL_ERROR , "reason in close frame not utf8 valid");
+			return;
+		}
 		// TODO: struct cjet_utf8_checker c;
 		// TODO: cjet_init_checker(&c);
 		// TODO: if (!cjet_is_byte_sequence_valid(&c, frame + 2, length - 2, true)) {
