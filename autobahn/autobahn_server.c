@@ -79,11 +79,12 @@ static void ontextframe_received(struct cio_websocket *ws, char *data, size_t le
 
 	if (length > 0) {
 		memcpy(eh->echo_buffer, data, length);
-		cio_write_buffer_head_init(&eh->wbh);
-		cio_write_buffer_const_element_init(&eh->wb_message, eh->echo_buffer, length);
-		cio_write_buffer_queue_tail(&eh->wbh, &eh->wb_message);
-		ws->write_textframe(ws, &eh->wbh, last_frame, write_complete, NULL);
 	}
+
+	cio_write_buffer_head_init(&eh->wbh);
+	cio_write_buffer_const_element_init(&eh->wb_message, eh->echo_buffer, length);
+	cio_write_buffer_queue_tail(&eh->wbh, &eh->wb_message);
+	ws->write_textframe(ws, &eh->wbh, last_frame, write_complete, NULL);
 }
 
 static void onerror(const struct cio_websocket *ws, enum cio_websocket_status_code status, const char *reason)
