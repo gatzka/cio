@@ -60,12 +60,14 @@ enum cio_ws_frame_type {
 
 static void close(struct cio_websocket *ws)
 {
-	if (ws->ws_flags.self_initiated_close == 1) {
-		ws->close_timer.close(&ws->close_timer);
-	}
+	if (ws->ws_flags.handle_frame_ctx == 0) {
+		if (ws->ws_flags.self_initiated_close == 1) {
+			ws->close_timer.close(&ws->close_timer);
+		}
 
-	if (ws->close_hook) {
-		ws->close_hook(ws);
+		if (ws->close_hook) {
+			ws->close_hook(ws);
+		}
 	}
 }
 
@@ -444,6 +446,7 @@ static void handle_frame(struct cio_websocket *ws, uint8_t *data, uint64_t lengt
 		return;
 	}
 
+	ws->ws_flags.handle_frame_ctx = 1;
 	switch (opcode) {
 	case CIO_WEBSOCKET_BINARY_FRAME:
 		handle_binary_frame(ws, data, length, last_frame);
@@ -473,6 +476,7 @@ static void handle_frame(struct cio_websocket *ws, uint8_t *data, uint64_t lengt
 		break;
 	}
 
+	ws->ws_flags.handle_frame_ctx = 0;
 out:
 	if (ws->ws_flags.to_be_closed == 1) {
 		close(ws);
@@ -734,6 +738,7 @@ void cio_websocket_init(struct cio_websocket *ws, bool is_server, cio_websocket_
 	ws->ws_flags.self_initiated_close = 0;
 	ws->ws_flags.to_be_closed = 0;
 	ws->ws_flags.writing_frame = 0;
+	ws->ws_flags.handle_frame_ctx = 0;
 
 	cio_write_buffer_element_init(&ws->wb_close_status, &ws->close_status, sizeof(ws->close_status));
 }

@@ -202,6 +202,7 @@ struct cio_websocket {
 		unsigned int to_be_closed : 1;
 		unsigned int is_server : 1;
 		unsigned int writing_frame : 1;
+		unsigned int handle_frame_ctx : 1;
 	} ws_flags;
 
 	cio_websocket_write_handler write_handler;
