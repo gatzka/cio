@@ -247,6 +247,22 @@ err:
 	send_close_frame_and_close(ws, status_code, reason);
 }
 
+static void handle_error(struct cio_websocket *ws, enum cio_websocket_status_code status_code, const char *reason)
+{
+	if (ws->on_error != NULL) {
+		ws->on_error(ws, status_code, reason);
+	}
+
+	struct cio_write_buffer wbh;
+	cio_write_buffer_head_init(&wbh);
+	strncpy((char *)ws->send_control_frame_buffer, reason, sizeof(ws->send_control_frame_buffer));
+	cio_write_buffer_element_init(&ws->wb_control_data, ws->send_control_frame_buffer, MIN(strlen(reason), CIO_WEBSOCKET_SMALL_FRAME_SIZE - sizeof(status_code)));
+	cio_write_buffer_queue_tail(&wbh, &ws->wb_control_data);
+
+	send_close_frame_and_close(ws, status_code, &wbh);
+	close(ws);
+}
+
 static void handle_binary_frame(struct cio_websocket *ws, uint8_t *data, uint64_t length, bool last_frame)
 {
 	if (likely(ws->on_binaryframe != NULL)) {
@@ -268,7 +284,8 @@ static void handle_text_frame(struct cio_websocket *ws, uint8_t *data, uint64_t 
 static void handle_close_frame(struct cio_websocket *ws, uint8_t *data, uint64_t length)
 {
 	if (unlikely(length == 1)) {
-		//handle_error(s, WS_CLOSE_PROTOCOL_ERROR);
+		handle_error(ws, CIO_WEBSOCKET_CLOSE_PROTOCOL_ERROR , "close payload of length 1");
+		return;
 	}
 
 	uint16_t status_code;
@@ -343,22 +360,6 @@ static void self_close_frame(struct cio_websocket *ws, enum cio_websocket_status
 	send_close_frame_wait_for_response(ws, status_code, reason);
 }
 
-static void handle_error(struct cio_websocket *ws, enum cio_websocket_status_code status_code, const char *reason)
-{
-	if (ws->on_error != NULL) {
-		ws->on_error(ws, status_code, reason);
-	}
-
-	struct cio_write_buffer wbh;
-	cio_write_buffer_head_init(&wbh);
-	strncpy((char *)ws->send_control_frame_buffer, reason, sizeof(ws->send_control_frame_buffer));
-	cio_write_buffer_element_init(&ws->wb_control_data, ws->send_control_frame_buffer, MIN(strlen(reason) - sizeof(status_code), CIO_WEBSOCKET_SMALL_FRAME_SIZE - sizeof(status_code)));
-	cio_write_buffer_queue_tail(&wbh, &ws->wb_control_data);
-
-	send_close_frame_and_close(ws, status_code, &wbh);
-	close(ws);
-}
-
 static void get_header(struct cio_buffered_stream *bs, void *handler_context, enum cio_error err, struct cio_read_buffer *buffer);
 
 static void handle_ping_frame(struct cio_websocket *ws, uint8_t *data, uint64_t length)
@@ -419,8 +420,6 @@ static void handle_frame(struct cio_websocket *ws, uint8_t *data, uint64_t lengt
 			ws->ws_flags.opcode = CIO_WEBSOCKET_CONTINUATION_FRAME;
 		} else {
 			if (unlikely(!(ws->ws_flags.is_fragmented))) {
-				//TODO: log_err("No start frame was send!");
-				//TODO: handle_error(s, WS_CLOSE_PROTOCOL_ERROR);
 				handle_error(ws, CIO_WEBSOCKET_CLOSE_PROTOCOL_ERROR , "opcode for continuation frame not correct");
 				goto out;
 			}
