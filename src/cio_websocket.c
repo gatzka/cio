@@ -381,10 +381,19 @@ static void handle_ping_frame(struct cio_websocket *ws, uint8_t *data, uint64_t 
 
 static void handle_frame(struct cio_websocket *ws, uint8_t *data, uint64_t length)
 {
+	ws->ws_flags.handle_frame_ctx = 1;
+
+	if (unlikely(ws->ws_flags.rsv != 0)) {
+	//AB tested
+		handle_error(ws, CIO_WEBSOCKET_CLOSE_PROTOCOL_ERROR , "reserved bit set in frame");
+		goto out;
+	}
+
 	if (unlikely((ws->ws_flags.is_server == 1) && (ws->ws_flags.shall_mask == 0))) {
 		// TODO: handle_error(s, WS_CLOSE_PROTOCOL_ERROR);
 		goto out;
 	}
+
 
 	if (unlikely((ws->ws_flags.fin == 0) && (ws->ws_flags.opcode >= CIO_WEBSOCKET_CLOSE_FRAME))) {
 		// TODO: handle_error(s, WS_CLOSE_PROTOCOL_ERROR);
@@ -403,11 +412,6 @@ static void handle_frame(struct cio_websocket *ws, uint8_t *data, uint64_t lengt
 			ws->ws_flags.frag_opcode = ws->ws_flags.opcode;
 			ws->ws_flags.opcode = CIO_WEBSOCKET_CONTINUATION_FRAME;
 		} else {
-			if (unlikely(ws->ws_flags.rsv != 0)) {
-				// TODO:log_err("RSV-Bits must be 0 during continuation!");
-				// TODO:handle_error(s, WS_CLOSE_PROTOCOL_ERROR);
-				goto out;
-			}
 
 			if (unlikely(!(ws->ws_flags.is_fragmented))) {
 				//TODO: log_err("No start frame was send!");
@@ -442,11 +446,11 @@ static void handle_frame(struct cio_websocket *ws, uint8_t *data, uint64_t lengt
 	}
 
 	if (unlikely(((opcode >= CIO_WEBSOCKET_CLOSE_FRAME) && (opcode <= CIO_WEBSOCKET_PONG_FRAME)) && (length > CIO_WEBSOCKET_SMALL_FRAME_SIZE))) {
+	//AB tested
 		handle_error(ws, CIO_WEBSOCKET_CLOSE_PROTOCOL_ERROR, "payload of control frame too long");
-		return;
+		goto out;
 	}
 
-	ws->ws_flags.handle_frame_ctx = 1;
 	switch (opcode) {
 	case CIO_WEBSOCKET_BINARY_FRAME:
 		handle_binary_frame(ws, data, length, last_frame);
@@ -472,7 +476,8 @@ static void handle_frame(struct cio_websocket *ws, uint8_t *data, uint64_t lengt
 		break;
 
 	default:
-		// TODO: handle_error(s, WS_CLOSE_PROTOCOL_ERROR);
+	//AB tested
+		handle_error(ws, CIO_WEBSOCKET_CLOSE_PROTOCOL_ERROR , "reserved opcode used");
 		break;
 	}
 
