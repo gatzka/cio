@@ -418,18 +418,18 @@ static void handle_frame(struct cio_websocket *ws, uint8_t *data, uint64_t lengt
 			ws->ws_flags.frag_opcode = ws->ws_flags.opcode;
 			ws->ws_flags.opcode = CIO_WEBSOCKET_CONTINUATION_FRAME;
 		} else {
-
 			if (unlikely(!(ws->ws_flags.is_fragmented))) {
 				//TODO: log_err("No start frame was send!");
 				//TODO: handle_error(s, WS_CLOSE_PROTOCOL_ERROR);
+				handle_error(ws, CIO_WEBSOCKET_CLOSE_PROTOCOL_ERROR , "opcode for continuation frame not correct");
 				goto out;
 			}
 		}
 	}
 
 	if (unlikely(ws->ws_flags.is_fragmented && ((ws->ws_flags.opcode < CIO_WEBSOCKET_CLOSE_FRAME) && (ws->ws_flags.opcode > CIO_WEBSOCKET_CONTINUATION_FRAME)))) {
-		// log_err("Opcode during fragmentation must be 0x0!");
-		// handle_error(s, WS_CLOSE_PROTOCOL_ERROR);
+	//AB tested
+		handle_error(ws, CIO_WEBSOCKET_CLOSE_PROTOCOL_ERROR , "opcode for continuation frame not correct");
 		goto out;
 	}
 
@@ -487,8 +487,8 @@ static void handle_frame(struct cio_websocket *ws, uint8_t *data, uint64_t lengt
 		break;
 	}
 
-	ws->ws_flags.handle_frame_ctx = 0;
 out:
+	ws->ws_flags.handle_frame_ctx = 0;
 	if (ws->ws_flags.to_be_closed == 1) {
 		close(ws);
 	} else {
@@ -743,8 +743,8 @@ void cio_websocket_init(struct cio_websocket *ws, bool is_server, cio_websocket_
 	ws->write_binaryframe = write_binary_frame;
 	ws->write_pingframe = write_ping_frame;
 	ws->write_textframe = write_text_frame;
-	ws->ws_flags.is_server = is_server ? 1 : 0;
 	ws->close_hook = close_hook;
+	ws->ws_flags.is_server = is_server ? 1 : 0;
 	ws->ws_flags.is_fragmented = 0;
 	ws->ws_flags.self_initiated_close = 0;
 	ws->ws_flags.to_be_closed = 0;
