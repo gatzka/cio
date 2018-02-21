@@ -297,7 +297,8 @@ static void handle_close_frame(struct cio_websocket *ws, uint8_t *data, uint64_t
 	}
 
 	if (unlikely(is_status_code_invalid(status_code))) {
-		//handle_error(s, WS_CLOSE_PROTOCOL_ERROR);
+		handle_error(ws, CIO_WEBSOCKET_CLOSE_PROTOCOL_ERROR , "invalid status code in close");
+		return;
 	}
 
 	const char *reason;
@@ -400,7 +401,6 @@ static void handle_frame(struct cio_websocket *ws, uint8_t *data, uint64_t lengt
 		// TODO: handle_error(s, WS_CLOSE_PROTOCOL_ERROR);
 		goto out;
 	}
-
 
 	if (unlikely((ws->ws_flags.fin == 0) && (ws->ws_flags.opcode >= CIO_WEBSOCKET_CLOSE_FRAME))) {
 		// TODO: handle_error(s, WS_CLOSE_PROTOCOL_ERROR);
