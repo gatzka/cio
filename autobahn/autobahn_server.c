@@ -53,6 +53,7 @@ struct ws_autobahn_handler {
 	struct cio_write_buffer wbh;
 	struct cio_write_buffer wb_message;
 	uint8_t echo_buffer[read_buffer_size];
+	size_t bytes_in_echo_buffer;
 };
 
 static void free_autobahn_handler(struct cio_http_location_handler *handler)
@@ -78,13 +79,16 @@ static void on_textframe(struct cio_websocket *ws, char *data, size_t length, bo
 	struct ws_autobahn_handler *eh = container_of(handler, struct ws_autobahn_handler, ws_handler);
 
 	if (length > 0) {
-		memcpy(eh->echo_buffer, data, length);
+		memcpy(&eh->echo_buffer[eh->bytes_in_echo_buffer], data, length);
+		eh->bytes_in_echo_buffer += length;
 	}
 
-	cio_write_buffer_head_init(&eh->wbh);
-	cio_write_buffer_const_element_init(&eh->wb_message, eh->echo_buffer, length);
-	cio_write_buffer_queue_tail(&eh->wbh, &eh->wb_message);
-	ws->write_textframe(ws, &eh->wbh, last_frame, write_complete, NULL);
+	if (last_frame) {
+		cio_write_buffer_head_init(&eh->wbh);
+		cio_write_buffer_const_element_init(&eh->wb_message, eh->echo_buffer, eh->bytes_in_echo_buffer);
+		cio_write_buffer_queue_tail(&eh->wbh, &eh->wb_message);
+		ws->write_textframe(ws, &eh->wbh, last_frame, write_complete, NULL);
+	}
 }
 
 static void on_binaryframe(struct cio_websocket *ws, uint8_t *data, size_t length, bool last_frame)
@@ -120,6 +124,7 @@ static struct cio_http_location_handler *alloc_autobahn_handler(const void *conf
 		handler->ws_handler.websocket.on_binaryframe = on_binaryframe;
 		handler->ws_handler.websocket.on_error = on_error;
 		handler->ws_handler.http_location.free = free_autobahn_handler;
+		handler->bytes_in_echo_buffer = 0;
 		return &handler->ws_handler.http_location;
 	}
 }
