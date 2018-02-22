@@ -98,7 +98,7 @@ struct cio_websocket {
 	 * @param data The data the binary frame carried.
 	 * @param length The length of data the binary frame carried.
 	 * @param last_frame Indicates if the last frame of a fragmented message is received.
-	 * For unfragmented messages thi flag is always set tu @c true.
+	 * For unfragmented messages this flag is always set to @c true.
 	 */
 	void (*on_binaryframe)(struct cio_websocket *ws, uint8_t *data, size_t length, bool last_frame);
 
@@ -106,10 +106,11 @@ struct cio_websocket {
 	 * @brief A pointer to a function which is called when a text frame was received.
 	 *
 	 * @param ws The websocket which received the text frame.
-	 * @param data The data encoded in UTF8 the text frame carried.
+	 * @param data The data encoded in UTF8 the text frame carried. Please be aware that for
+	 * fragmented messages the message boundary could be within an UTF8 code point.
 	 * @param length The length of data the text frame carried.
 	 * @param last_frame Indicates if the last frame of a fragmented message is received.
-	 * For unfragmented messages thi flag is always set tu @c true.
+	 * For unfragmented messages this flag is always set to @c true.
 	 */
 	void (*on_textframe)(struct cio_websocket *ws, uint8_t *data, size_t length, bool last_frame);
 
