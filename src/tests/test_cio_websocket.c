@@ -81,8 +81,8 @@ FAKE_VALUE_FUNC(enum cio_error, bs_write, struct cio_buffered_stream *, struct c
 static void on_close(const struct cio_websocket *ws, enum cio_websocket_status_code status, const char *reason, size_t reason_length);
 FAKE_VOID_FUNC(on_close, const struct cio_websocket *, enum cio_websocket_status_code, const char *, size_t )
 
-static void on_textframe(struct cio_websocket *ws, char *data, size_t length, bool last_frame);
-FAKE_VOID_FUNC(on_textframe, struct cio_websocket *, char *, size_t, bool)
+static void on_textframe(struct cio_websocket *ws, uint8_t *data, size_t length, bool last_frame);
+FAKE_VOID_FUNC(on_textframe, struct cio_websocket *, uint8_t *, size_t, bool)
 
 static void on_binaryframe(struct cio_websocket *ws, uint8_t *data, size_t length, bool last_frame);
 FAKE_VOID_FUNC(on_binaryframe, struct cio_websocket *, uint8_t *, size_t, bool)
@@ -214,7 +214,7 @@ static enum cio_error bs_read_exactly_error(struct cio_buffered_stream *bs, stru
 	return CIO_SUCCESS;
 }
 
-static void on_textframe_save_data(struct cio_websocket *websocket, char *data, size_t length, bool last_frame)
+static void on_textframe_save_data(struct cio_websocket *websocket, uint8_t *data, size_t length, bool last_frame)
 {
 	(void)last_frame;
 	(void)websocket;

@@ -91,8 +91,27 @@ struct cio_websocket {
 
 	void (*on_connect)(struct cio_websocket *ws);
 
+	/**
+	 * @brief A pointer to a function which is called when a binary frame was received.
+	 *
+	 * @param ws The websocket which received the binary frame.
+	 * @param data The data the binary frame carried.
+	 * @param length The length of data the binary frame carried.
+	 * @param last_frame Indicates if the last frame of a fragmented message is received.
+	 * For unfragmented messages thi flag is always set tu @c true.
+	 */
 	void (*on_binaryframe)(struct cio_websocket *ws, uint8_t *data, size_t length, bool last_frame);
-	void (*on_textframe)(struct cio_websocket *ws, char *data, size_t length, bool last_frame);
+
+	/**
+	 * @brief A pointer to a function which is called when a text frame was received.
+	 *
+	 * @param ws The websocket which received the text frame.
+	 * @param data The data encoded in UTF8 the text frame carried.
+	 * @param length The length of data the text frame carried.
+	 * @param last_frame Indicates if the last frame of a fragmented message is received.
+	 * For unfragmented messages thi flag is always set tu @c true.
+	 */
+	void (*on_textframe)(struct cio_websocket *ws, uint8_t *data, size_t length, bool last_frame);
 
 	/**
 	 * @brief A pointer to a function which is called if a ping frame was received.

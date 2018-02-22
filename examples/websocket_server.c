@@ -136,7 +136,7 @@ static void write_complete(struct cio_websocket *ws, void *handler_context, cons
 	cio_write_buffer_queue_tail(&eh->wbh, &eh->wb_message);
 }
 
-static void ontextframe_received(struct cio_websocket *ws, char *data, size_t length, bool last_frame)
+static void ontextframe_received(struct cio_websocket *ws, uint8_t *data, size_t length, bool last_frame)
 {
 	struct cio_websocket_location_handler *handler = container_of(ws, struct cio_websocket_location_handler, websocket);
 	struct ws_echo_handler *eh = container_of(handler, struct ws_echo_handler, ws_handler);

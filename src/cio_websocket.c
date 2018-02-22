@@ -283,7 +283,7 @@ static void handle_text_frame(struct cio_websocket *ws, uint8_t *data, uint64_t 
 			return;
 		}
 
-		ws->on_textframe(ws, (char *)data, length, last_frame);
+		ws->on_textframe(ws, data, length, last_frame);
 		if (last_frame) {
 			cio_utf8_init(&ws->utf8_state);
 		}
