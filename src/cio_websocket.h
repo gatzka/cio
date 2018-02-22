@@ -89,6 +89,11 @@ struct cio_websocket {
 	 */
 	void (*close)(struct cio_websocket *ws, enum cio_websocket_status_code status, struct cio_write_buffer *reason);
 
+	/**
+	 * @brief A pointer to a function which is called when a websocket connection was established.
+	 *
+	 * @param ws The websocket which was connected.
+	 */
 	void (*on_connect)(struct cio_websocket *ws);
 
 	/**
