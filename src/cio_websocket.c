@@ -664,7 +664,7 @@ static void receive_frames(struct cio_websocket *ws)
 {
 	enum cio_error err = ws->bs->read_exactly(ws->bs, ws->rb, 1, get_header, ws);
 	if (unlikely(err != CIO_SUCCESS)) {
-		close(ws);
+		handle_error(ws, CIO_WEBSOCKET_CLOSE_INTERNAL_ERROR, "error while start reading websocket header");
 	}
 }
 
