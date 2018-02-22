@@ -539,7 +539,7 @@ static void test_ping_frame_payload_too_long(void)
 	TEST_ASSERT_EQUAL_STRING_MESSAGE("payload of control frame too long", read_back_buffer, "reason in error callback not correct");
 }
 
-static void test_peer_close_in_getheader(void)
+static void test_close_in_getheader(void)
 {
 	unsigned int frame_type = CIO_WEBSOCKET_TEXT_FRAME;
 	uint32_t frame_size = 5;
@@ -569,7 +569,7 @@ static void test_peer_close_in_getheader(void)
 	}
 }
 
-static void test_peer_read_error_in_getheader(void)
+static void test_read_error_in_getheader(void)
 {
 	unsigned int frame_type = CIO_WEBSOCKET_TEXT_FRAME;
 	uint32_t frame_size = 5;
@@ -599,7 +599,7 @@ static void test_peer_read_error_in_getheader(void)
 	}
 }
 
-static void test_peer_read_error_in_first_length_call(void)
+static void test_immediate_read_error_for_get_first_length(void)
 {
 	unsigned int frame_type = CIO_WEBSOCKET_TEXT_FRAME;
 	uint32_t frame_size = 5;
@@ -633,7 +633,7 @@ static void test_peer_read_error_in_first_length_call(void)
 	}
 }
 
-static void test_peer_immediate_read_error_in_get_header(void)
+static void test_immediate_read_error_for_get_header(void)
 {
 	unsigned int frame_type = CIO_WEBSOCKET_TEXT_FRAME;
 	uint32_t frame_size = 5;
@@ -675,9 +675,9 @@ int main(void)
 	RUN_TEST(test_ping_frame_no_payload);
 	RUN_TEST(test_ping_frame_payload_too_long);
 	RUN_TEST(test_ping_frame_pong_not_written);
-	RUN_TEST(test_peer_close_in_getheader);
-	RUN_TEST(test_peer_read_error_in_getheader);
-	RUN_TEST(test_peer_read_error_in_first_length_call);
-	RUN_TEST(test_peer_immediate_read_error_in_get_header);
+	RUN_TEST(test_close_in_getheader);
+	RUN_TEST(test_read_error_in_getheader);
+	RUN_TEST(test_immediate_read_error_for_get_first_length);
+	RUN_TEST(test_immediate_read_error_for_get_header);
 	return UNITY_END();
 }
