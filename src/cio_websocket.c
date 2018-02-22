@@ -269,16 +269,26 @@ static void handle_binary_frame(struct cio_websocket *ws, uint8_t *data, uint64_
 	if (likely(ws->on_binaryframe != NULL)) {
 		ws->on_binaryframe(ws, data, length, last_frame);
 	} else {
-		// TODO: handle_error(s, WS_CLOSE_UNSUPPORTED);
+		handle_error(ws, CIO_WEBSOCKET_CLOSE_UNSUPPORTED, "got binary frame but no on_binaryframe callback installed");
 	}
 }
 
 static void handle_text_frame(struct cio_websocket *ws, uint8_t *data, uint64_t length, bool last_frame)
 {
 	if (likely(ws->on_textframe != NULL)) {
+		uint32_t state = cio_check_utf8(&ws->utf8_state, data, length);
+
+		if (unlikely((state == UTF8_REJECT) || (last_frame && (state != UTF8_ACCEPT)))) {
+			handle_error(ws, CIO_WEBSOCKET_CLOSE_UNSUPPORTED_DATA, "payload not valid utf8");
+			return;
+		}
+
 		ws->on_textframe(ws, (char *)data, length, last_frame);
+		if (last_frame) {
+			cio_utf8_init(&ws->utf8_state);
+		}
 	} else {
-		// TODO: handle_error(s, WS_CLOSE_UNSUPPORTED);
+		handle_error(ws, CIO_WEBSOCKET_CLOSE_UNSUPPORTED, "got text frame but no on_textframe callback installed");
 	}
 }
 
@@ -304,7 +314,9 @@ static void handle_close_frame(struct cio_websocket *ws, uint8_t *data, uint64_t
 
 	const char *reason;
 	if (length > 2) {
-		if (unlikely(!cio_utf8_valid(data + 2, length - 2))) {
+		struct cio_utf8_state state;
+		cio_utf8_init(&state);
+		if (unlikely(cio_check_utf8(&state, data + 2, length - 2) != UTF8_ACCEPT)) {
 			handle_error(ws, CIO_WEBSOCKET_CLOSE_PROTOCOL_ERROR , "reason in close frame not utf8 valid");
 			return;
 		}
@@ -751,4 +763,5 @@ void cio_websocket_init(struct cio_websocket *ws, bool is_server, cio_websocket_
 	ws->ws_flags.handle_frame_ctx = 0;
 
 	cio_write_buffer_element_init(&ws->wb_close_status, &ws->close_status, sizeof(ws->close_status));
+	cio_utf8_init(&ws->utf8_state);
 }

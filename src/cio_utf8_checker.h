@@ -35,7 +35,16 @@
 extern "C" {
 #endif
 
-bool cio_utf8_valid(uint8_t *s, size_t count);
+#define UTF8_ACCEPT 0
+#define UTF8_REJECT 12
+
+struct cio_utf8_state {
+	uint32_t codepoint;
+	uint32_t state;
+};
+
+void cio_utf8_init(struct cio_utf8_state *state);
+uint32_t cio_check_utf8(struct cio_utf8_state *state, uint8_t *s, size_t count);
 
 #ifdef __cplusplus
 }

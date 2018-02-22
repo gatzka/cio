@@ -7,9 +7,6 @@
 
 #include "cio_utf8_checker.h"
 
-#define UTF8_ACCEPT 0
-#define UTF8_REJECT 12
-
 static const uint8_t utf8d[] = {
 	// The first part of the table maps bytes to character classes that
 	// to reduce the size of the transition table and create bitmasks.
@@ -42,17 +39,19 @@ static inline uint32_t decode(uint32_t *state, uint32_t *codep, uint32_t byte) {
 	return *state;
 }
 
-bool cio_utf8_valid(uint8_t *s, size_t count) {
-	uint32_t codepoint;
-	uint32_t state = 0;
-
+uint32_t cio_check_utf8(struct cio_utf8_state *state, uint8_t *s, size_t count) {
 	for (size_t i = 0; i < count; i++) {
-		if (decode(&state, &codepoint, *s) == UTF8_REJECT) {
-			return false;
+		if (decode(&state->state, &state->codepoint, *s) == UTF8_REJECT) {
+			return UTF8_REJECT;
 		}
 
 		s++;
 	}
 
-	return state == UTF8_ACCEPT;
+	return state->state;
+}
+
+void cio_utf8_init(struct cio_utf8_state *state)
+{
+	state->state = 0;
 }

@@ -37,6 +37,7 @@ extern "C" {
 #include "cio_buffered_stream.h"
 #include "cio_error_code.h"
 #include "cio_eventloop.h"
+#include "cio_utf8_checker.h"
 #include "cio_timer.h"
 #include "cio_write_buffer.h"
 
@@ -218,6 +219,7 @@ struct cio_websocket {
 	struct cio_write_buffer wb_close_status;
 	struct cio_write_buffer wb_control_data;
 	struct cio_timer close_timer;
+	struct cio_utf8_state utf8_state;
 	cio_websocket_close_hook close_hook;
 	cio_buffered_stream_write_handler user_write_handler;
 	uint8_t mask[4];
