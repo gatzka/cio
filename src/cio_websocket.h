@@ -209,6 +209,22 @@ struct cio_websocket {
      */
 	enum cio_websocket_status (*write_binaryframe)(struct cio_websocket *ws, struct cio_write_buffer *payload, bool last_frame, cio_websocket_write_handler handler, void *handler_context);
 
+	/**
+	 * @brief Writes a ping frame to the websocket.
+	 *
+	 * @warning Please note that the data @p payload encapsulates will be scrambled by
+	 * the library if this function is used in a websocket client connection. So if
+	 * you want to write the same data again, you have to re-initialize the data encapsluated
+	 * by @p payload. In addition you should ALWAYS intialize the write buffer elements in
+	 * @p payload using the @ref cio_write_buffer_element_init "non-const initialization function".
+	 *
+	 * @warning If you call this function consecutively without waiting that @p handler is called,
+	 * you should know that @p handler is called only for the last write call!
+	 *
+	 * @param payload The payload to be sent.
+	 * @param handler A callback function that will be called when the write completes.
+	 * @param handler_context A context pointer given to @p handler when called.
+	 */
 	enum cio_websocket_status (*write_pingframe)(struct cio_websocket *ws, struct cio_write_buffer *payload, cio_websocket_write_handler handler, void *handler_context);
 
 	/*! @cond PRIVATE */
