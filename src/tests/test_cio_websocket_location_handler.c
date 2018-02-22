@@ -427,7 +427,7 @@ void setUp(void)
 	bs_read_exactly_buffer_pos = 0;
 }
 
-static size_t assemble_frame(uint8_t header, uint8_t *mask, uint8_t* data, size_t length, uint8_t **ptr)
+static size_t assemble_frame(uint8_t header, uint8_t *mask, uint8_t *data, size_t length, uint8_t **ptr)
 {
 	if (length > 125) {
 		*ptr = NULL;
@@ -435,7 +435,7 @@ static size_t assemble_frame(uint8_t header, uint8_t *mask, uint8_t* data, size_
 	}
 
 	size_t bytes = 1 + 1 + length;
-	if (mask !=  NULL) {
+	if (mask != NULL) {
 		bytes += 4;
 	}
 
@@ -489,13 +489,13 @@ static void test_ws_location_write_error(void)
 	struct cio_socket *s = server.alloc_client();
 
 	const char *request[] = {
-		"GET " REQUEST_TARGET " HTTP/1.1" CRLF,
-		"Upgrade: websocket" CRLF,
-		"Connection: Upgrade" CRLF,
-		"Sec-WebSocket-Version: 13" CRLF,
-		"Sec-WebSocket-Key: dGhlIHNhbXBsZSBub25jZQ==" CRLF,
-		"Sec-WebSocket-Protocol: jet" CRLF,
-		CRLF};
+	    "GET " REQUEST_TARGET " HTTP/1.1" CRLF,
+	    "Upgrade: websocket" CRLF,
+	    "Connection: Upgrade" CRLF,
+	    "Sec-WebSocket-Version: 13" CRLF,
+	    "Sec-WebSocket-Key: dGhlIHNhbXBsZSBub25jZQ==" CRLF,
+	    "Sec-WebSocket-Protocol: jet" CRLF,
+	    CRLF};
 
 	init_request(request, ARRAY_SIZE(request));
 	server.server_socket.handler(&server.server_socket, server.server_socket.handler_context, CIO_SUCCESS, s);
@@ -518,8 +518,8 @@ static void test_ws_location_close_in_onconnect(void)
 	RESET_FAKE(cio_timer_init);
 
 	enum cio_error (*cio_timer_init_fakes[])(struct cio_timer *, struct cio_eventloop *, cio_timer_close_hook) = {
-		cio_timer_init_ok,
-		cio_timer_init_err,
+	    cio_timer_init_ok,
+	    cio_timer_init_err,
 	};
 	SET_CUSTOM_FAKE_SEQ(cio_timer_init, cio_timer_init_fakes, ARRAY_SIZE(cio_timer_init_fakes));
 
@@ -585,13 +585,13 @@ static void test_ws_location_no_onconnect(void)
 	struct cio_socket *s = server.alloc_client();
 
 	const char *request[] = {
-		"GET " REQUEST_TARGET " HTTP/1.1" CRLF,
-		"Upgrade: websocket" CRLF,
-		"Connection: Upgrade" CRLF,
-		"Sec-WebSocket-Version: 13" CRLF,
-		"Sec-WebSocket-Key: dGhlIHNhbXBsZSBub25jZQ==" CRLF,
-		"Sec-WebSocket-Protocol: jet" CRLF,
-		CRLF};
+	    "GET " REQUEST_TARGET " HTTP/1.1" CRLF,
+	    "Upgrade: websocket" CRLF,
+	    "Connection: Upgrade" CRLF,
+	    "Sec-WebSocket-Version: 13" CRLF,
+	    "Sec-WebSocket-Key: dGhlIHNhbXBsZSBub25jZQ==" CRLF,
+	    "Sec-WebSocket-Protocol: jet" CRLF,
+	    CRLF};
 
 	init_request(request, ARRAY_SIZE(request));
 	server.server_socket.handler(&server.server_socket, server.server_socket.handler_context, CIO_SUCCESS, s);
@@ -607,11 +607,11 @@ struct http_test {
 static void test_ws_location_wrong_http_version(void)
 {
 	struct http_test test_cases[] = {
-		{.start_line = "GET " REQUEST_TARGET " HTTP/1.1" CRLF, .status_code = 101},
-		{.start_line = "GET " REQUEST_TARGET " HTTP/1.0" CRLF, .status_code = 400},
-		{.start_line = "GET " REQUEST_TARGET " HTTP/2.0" CRLF, .status_code = 101},
-		{.start_line = "GET " REQUEST_TARGET " HTTP/1.2" CRLF, .status_code = 101},
-		{.start_line = "GET " REQUEST_TARGET CRLF, .status_code = 400},
+	    {.start_line = "GET " REQUEST_TARGET " HTTP/1.1" CRLF, .status_code = 101},
+	    {.start_line = "GET " REQUEST_TARGET " HTTP/1.0" CRLF, .status_code = 400},
+	    {.start_line = "GET " REQUEST_TARGET " HTTP/2.0" CRLF, .status_code = 101},
+	    {.start_line = "GET " REQUEST_TARGET " HTTP/1.2" CRLF, .status_code = 101},
+	    {.start_line = "GET " REQUEST_TARGET CRLF, .status_code = 400},
 	};
 
 	for (unsigned int i = 0; i < ARRAY_SIZE(test_cases); i++) {
@@ -649,13 +649,13 @@ static void test_ws_location_wrong_http_version(void)
 		//snprintf(start_line, sizeof(start_line) - 1, "GET " REQUEST_TARGET " HTTP/%d.%d" CRLF, test_case.major, test_case.minor);
 
 		const char *request[] = {
-			test_case.start_line,
-			"Upgrade: websocket" CRLF,
-			"Connection: Upgrade" CRLF,
-			"Sec-WebSocket-Version: 13" CRLF,
-			"Sec-WebSocket-Key: dGhlIHNhbXBsZSBub25jZQ==" CRLF,
-			"Sec-WebSocket-Protocol: jet" CRLF,
-			CRLF};
+		    test_case.start_line,
+		    "Upgrade: websocket" CRLF,
+		    "Connection: Upgrade" CRLF,
+		    "Sec-WebSocket-Version: 13" CRLF,
+		    "Sec-WebSocket-Key: dGhlIHNhbXBsZSBub25jZQ==" CRLF,
+		    "Sec-WebSocket-Protocol: jet" CRLF,
+		    CRLF};
 
 		init_request(request, ARRAY_SIZE(request));
 		server.server_socket.handler(&server.server_socket, server.server_socket.handler_context, CIO_SUCCESS, s);
@@ -674,15 +674,15 @@ struct protocol_test {
 static void test_ws_location_subprotocols(void)
 {
 	struct protocol_test test_cases[] = {
-		{.protocol_line = "Sec-WebSocket-Protocal: jet" CRLF, .handler = alloc_websocket_handler, .status_code = 101},
-		{.protocol_line = "Sec-WebSocket-Protocol: jet" CRLF, .handler = alloc_websocket_handler, .status_code = 101},
-		{.protocol_line = "Sec-WebSocket-Protocol: jet,jetty" CRLF, .handler = alloc_websocket_handler, .status_code = 101},
-		{.protocol_line = "Sec-WebSocket-Protocol: foo, bar" CRLF, .handler = alloc_websocket_handler, .status_code = 400},
-		{.protocol_line = "Sec-WebSocket-Protocol: je" CRLF, .handler = alloc_websocket_handler, .status_code = 400},
-		{.protocol_line = "Sec-WebSocket-Protocol: bar" CRLF, .handler = alloc_websocket_handler, .status_code = 400},
-		{.protocol_line = "foo: bar" CRLF, .handler = alloc_websocket_handler, .status_code = 101},
-		{.protocol_line = "foo: bar" CRLF, .handler = alloc_websocket_handler_no_subprotocol, .status_code = 101},
-		{.protocol_line = "Sec-WebSocket-Protocol: jet" CRLF, .handler = alloc_websocket_handler_no_subprotocol, .status_code = 400},
+	    {.protocol_line = "Sec-WebSocket-Protocal: jet" CRLF, .handler = alloc_websocket_handler, .status_code = 101},
+	    {.protocol_line = "Sec-WebSocket-Protocol: jet" CRLF, .handler = alloc_websocket_handler, .status_code = 101},
+	    {.protocol_line = "Sec-WebSocket-Protocol: jet,jetty" CRLF, .handler = alloc_websocket_handler, .status_code = 101},
+	    {.protocol_line = "Sec-WebSocket-Protocol: foo, bar" CRLF, .handler = alloc_websocket_handler, .status_code = 400},
+	    {.protocol_line = "Sec-WebSocket-Protocol: je" CRLF, .handler = alloc_websocket_handler, .status_code = 400},
+	    {.protocol_line = "Sec-WebSocket-Protocol: bar" CRLF, .handler = alloc_websocket_handler, .status_code = 400},
+	    {.protocol_line = "foo: bar" CRLF, .handler = alloc_websocket_handler, .status_code = 101},
+	    {.protocol_line = "foo: bar" CRLF, .handler = alloc_websocket_handler_no_subprotocol, .status_code = 101},
+	    {.protocol_line = "Sec-WebSocket-Protocol: jet" CRLF, .handler = alloc_websocket_handler_no_subprotocol, .status_code = 400},
 	};
 
 	for (unsigned int i = 0; i < ARRAY_SIZE(test_cases); i++) {
@@ -720,13 +720,13 @@ static void test_ws_location_subprotocols(void)
 		//snprintf(start_line, sizeof(start_line) - 1, "GET " REQUEST_TARGET " HTTP/%d.%d" CRLF, test_case.major, test_case.minor);
 
 		const char *request[] = {
-			"GET " REQUEST_TARGET " HTTP/1.1" CRLF,
-			"Upgrade: websocket" CRLF,
-			"Connection: Upgrade" CRLF,
-			"Sec-WebSocket-Version: 13" CRLF,
-			"Sec-WebSocket-Key: dGhlIHNhbXBsZSBub25jZQ==" CRLF,
-			test_case.protocol_line,
-			CRLF};
+		    "GET " REQUEST_TARGET " HTTP/1.1" CRLF,
+		    "Upgrade: websocket" CRLF,
+		    "Connection: Upgrade" CRLF,
+		    "Sec-WebSocket-Version: 13" CRLF,
+		    "Sec-WebSocket-Key: dGhlIHNhbXBsZSBub25jZQ==" CRLF,
+		    test_case.protocol_line,
+		    CRLF};
 
 		init_request(request, ARRAY_SIZE(request));
 		server.server_socket.handler(&server.server_socket, server.server_socket.handler_context, CIO_SUCCESS, s);
@@ -762,13 +762,13 @@ static void test_ws_location_wrong_http_method(void)
 	struct cio_socket *s = server.alloc_client();
 
 	const char *request[] = {
-		"PUT " REQUEST_TARGET " HTTP/1.1" CRLF,
-		"Upgrade: websocket" CRLF,
-		"Connection: Upgrade" CRLF,
-		"Sec-WebSocket-Version: 13" CRLF,
-		"Sec-WebSocket-Key: dGhlIHNhbXBsZSBub25jZQ==" CRLF,
-		"Sec-WebSocket-Protocol: jet" CRLF,
-		CRLF};
+	    "PUT " REQUEST_TARGET " HTTP/1.1" CRLF,
+	    "Upgrade: websocket" CRLF,
+	    "Connection: Upgrade" CRLF,
+	    "Sec-WebSocket-Version: 13" CRLF,
+	    "Sec-WebSocket-Key: dGhlIHNhbXBsZSBub25jZQ==" CRLF,
+	    "Sec-WebSocket-Protocol: jet" CRLF,
+	    CRLF};
 
 	init_request(request, ARRAY_SIZE(request));
 	server.server_socket.handler(&server.server_socket, server.server_socket.handler_context, CIO_SUCCESS, s);
@@ -805,13 +805,13 @@ static void test_ws_location_wrong_ws_version(void)
 		char version_buffer[100];
 		snprintf(version_buffer, sizeof(version_buffer) - 1, "Sec-WebSocket-Version: %d" CRLF, i);
 		const char *request[] = {
-			"GET " REQUEST_TARGET " HTTP/1.1" CRLF,
-			"Upgrade: websocket" CRLF,
-			"Connection: Upgrade" CRLF,
-			version_buffer,
-			"Sec-WebSocket-Key: dGhlIHNhbXBsZSBub25jZQ==" CRLF,
-			"Sec-WebSocket-Protocol: jet" CRLF,
-			CRLF};
+		    "GET " REQUEST_TARGET " HTTP/1.1" CRLF,
+		    "Upgrade: websocket" CRLF,
+		    "Connection: Upgrade" CRLF,
+		    version_buffer,
+		    "Sec-WebSocket-Key: dGhlIHNhbXBsZSBub25jZQ==" CRLF,
+		    "Sec-WebSocket-Protocol: jet" CRLF,
+		    CRLF};
 
 		init_request(request, ARRAY_SIZE(request));
 		server.server_socket.handler(&server.server_socket, server.server_socket.handler_context, CIO_SUCCESS, s);
@@ -827,8 +827,8 @@ struct ws_version_test {
 static void test_ws_version(void)
 {
 	struct ws_version_test test_cases[] = {
-		{.version_line = "Sec-WebSocket-Version: 13" CRLF, .status_code = 101},
-		{.version_line = "Sec-WebSocket-Versiin: 13" CRLF, .status_code = 400},
+	    {.version_line = "Sec-WebSocket-Version: 13" CRLF, .status_code = 101},
+	    {.version_line = "Sec-WebSocket-Versiin: 13" CRLF, .status_code = 400},
 	};
 
 	for (unsigned int i = 0; i < ARRAY_SIZE(test_cases); i++) {
@@ -862,13 +862,13 @@ static void test_ws_version(void)
 		struct cio_socket *s = server.alloc_client();
 
 		const char *request[] = {
-			"GET " REQUEST_TARGET " HTTP/1.1" CRLF,
-			"Upgrade: websocket" CRLF,
-			"Connection: Upgrade" CRLF,
-			"Sec-WebSocket-Key: dGhlIHNhbXBsZSBub25jZQ==" CRLF,
-			"Sec-WebSocket-Protocol: jet" CRLF,
-			test_case.version_line,
-			CRLF};
+		    "GET " REQUEST_TARGET " HTTP/1.1" CRLF,
+		    "Upgrade: websocket" CRLF,
+		    "Connection: Upgrade" CRLF,
+		    "Sec-WebSocket-Key: dGhlIHNhbXBsZSBub25jZQ==" CRLF,
+		    "Sec-WebSocket-Protocol: jet" CRLF,
+		    test_case.version_line,
+		    CRLF};
 
 		init_request(request, ARRAY_SIZE(request));
 		server.server_socket.handler(&server.server_socket, server.server_socket.handler_context, CIO_SUCCESS, s);
@@ -903,12 +903,12 @@ static void test_ws_location_no_upgrade(void)
 	struct cio_socket *s = server.alloc_client();
 
 	const char *request[] = {
-		"GET " REQUEST_TARGET " HTTP/1.1" CRLF,
-		"Upgrade: websocket" CRLF,
-		"Sec-WebSocket-Version: 13" CRLF,
-		"Sec-WebSocket-Key: dGhlIHNhbXBsZSBub25jZQ==" CRLF,
-		"Sec-WebSocket-Protocol: jet" CRLF,
-		CRLF};
+	    "GET " REQUEST_TARGET " HTTP/1.1" CRLF,
+	    "Upgrade: websocket" CRLF,
+	    "Sec-WebSocket-Version: 13" CRLF,
+	    "Sec-WebSocket-Key: dGhlIHNhbXBsZSBub25jZQ==" CRLF,
+	    "Sec-WebSocket-Protocol: jet" CRLF,
+	    CRLF};
 
 	init_request(request, ARRAY_SIZE(request));
 	server.server_socket.handler(&server.server_socket, server.server_socket.handler_context, CIO_SUCCESS, s);
@@ -923,9 +923,9 @@ struct key_test {
 static void test_ws_key(void)
 {
 	struct key_test test_cases[] = {
-		{.key_line = "Sec-WebSocket-Key: dGhlIHNhbXBsZSBub25jZQ==" CRLF, .status_code = 101},
-		{.key_line = "Sec-WebSocket-Kez: dGhlIHNhbXBsZSBub25jZQ==" CRLF, .status_code = 400},
-		{.key_line = "foo: bar" CRLF, .status_code = 400},
+	    {.key_line = "Sec-WebSocket-Key: dGhlIHNhbXBsZSBub25jZQ==" CRLF, .status_code = 101},
+	    {.key_line = "Sec-WebSocket-Kez: dGhlIHNhbXBsZSBub25jZQ==" CRLF, .status_code = 400},
+	    {.key_line = "foo: bar" CRLF, .status_code = 400},
 	};
 
 	for (unsigned int i = 0; i < ARRAY_SIZE(test_cases); i++) {
@@ -959,13 +959,13 @@ static void test_ws_key(void)
 		struct cio_socket *s = server.alloc_client();
 
 		const char *request[] = {
-			"GET " REQUEST_TARGET " HTTP/1.1" CRLF,
-			"Upgrade: websocket" CRLF,
-			"Connection: Upgrade" CRLF,
-			"Sec-WebSocket-Version: 13" CRLF,
-			test_case.key_line,
-			"Sec-WebSocket-Protocol: jet" CRLF,
-			CRLF};
+		    "GET " REQUEST_TARGET " HTTP/1.1" CRLF,
+		    "Upgrade: websocket" CRLF,
+		    "Connection: Upgrade" CRLF,
+		    "Sec-WebSocket-Version: 13" CRLF,
+		    test_case.key_line,
+		    "Sec-WebSocket-Protocol: jet" CRLF,
+		    CRLF};
 
 		init_request(request, ARRAY_SIZE(request));
 		server.server_socket.handler(&server.server_socket, server.server_socket.handler_context, CIO_SUCCESS, s);
@@ -1000,13 +1000,13 @@ static void test_ws_location_wrong_key_length(void)
 	struct cio_socket *s = server.alloc_client();
 
 	const char *request[] = {
-		"GET " REQUEST_TARGET " HTTP/1.1" CRLF,
-		"Upgrade: websocket" CRLF,
-		"Connection: Upgrade" CRLF,
-		"Sec-WebSocket-Key: dGhlIHNhBsZSBub25jZQ==" CRLF,
-		"Sec-WebSocket-Version: 13" CRLF,
-		"Sec-WebSocket-Protocol: jet" CRLF,
-		CRLF};
+	    "GET " REQUEST_TARGET " HTTP/1.1" CRLF,
+	    "Upgrade: websocket" CRLF,
+	    "Connection: Upgrade" CRLF,
+	    "Sec-WebSocket-Key: dGhlIHNhBsZSBub25jZQ==" CRLF,
+	    "Sec-WebSocket-Version: 13" CRLF,
+	    "Sec-WebSocket-Protocol: jet" CRLF,
+	    CRLF};
 
 	init_request(request, ARRAY_SIZE(request));
 	server.server_socket.handler(&server.server_socket, server.server_socket.handler_context, CIO_SUCCESS, s);

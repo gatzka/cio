@@ -37,8 +37,8 @@ extern "C" {
 #include "cio_buffered_stream.h"
 #include "cio_error_code.h"
 #include "cio_eventloop.h"
-#include "cio_utf8_checker.h"
 #include "cio_timer.h"
+#include "cio_utf8_checker.h"
 #include "cio_write_buffer.h"
 
 struct cio_websocket;

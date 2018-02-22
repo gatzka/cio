@@ -295,7 +295,7 @@ static void handle_text_frame(struct cio_websocket *ws, uint8_t *data, uint64_t 
 static void handle_close_frame(struct cio_websocket *ws, uint8_t *data, uint64_t length)
 {
 	if (unlikely(length == 1)) {
-		handle_error(ws, CIO_WEBSOCKET_CLOSE_PROTOCOL_ERROR , "close payload of length 1");
+		handle_error(ws, CIO_WEBSOCKET_CLOSE_PROTOCOL_ERROR, "close payload of length 1");
 		return;
 	}
 
@@ -308,7 +308,7 @@ static void handle_close_frame(struct cio_websocket *ws, uint8_t *data, uint64_t
 	}
 
 	if (unlikely(is_status_code_invalid(status_code))) {
-		handle_error(ws, CIO_WEBSOCKET_CLOSE_PROTOCOL_ERROR , "invalid status code in close");
+		handle_error(ws, CIO_WEBSOCKET_CLOSE_PROTOCOL_ERROR, "invalid status code in close");
 		return;
 	}
 
@@ -317,7 +317,7 @@ static void handle_close_frame(struct cio_websocket *ws, uint8_t *data, uint64_t
 		struct cio_utf8_state state;
 		cio_utf8_init(&state);
 		if (unlikely(cio_check_utf8(&state, data + 2, length - 2) != CIO_UTF8_ACCEPT)) {
-			handle_error(ws, CIO_WEBSOCKET_CLOSE_PROTOCOL_ERROR , "reason in close frame not utf8 valid");
+			handle_error(ws, CIO_WEBSOCKET_CLOSE_PROTOCOL_ERROR, "reason in close frame not utf8 valid");
 			return;
 		}
 
@@ -404,8 +404,8 @@ static void handle_frame(struct cio_websocket *ws, uint8_t *data, uint64_t lengt
 	ws->ws_flags.handle_frame_ctx = 1;
 
 	if (unlikely(ws->ws_flags.rsv != 0)) {
-	//AB tested
-		handle_error(ws, CIO_WEBSOCKET_CLOSE_PROTOCOL_ERROR , "reserved bit set in frame");
+		//AB tested
+		handle_error(ws, CIO_WEBSOCKET_CLOSE_PROTOCOL_ERROR, "reserved bit set in frame");
 		goto out;
 	}
 
@@ -432,15 +432,15 @@ static void handle_frame(struct cio_websocket *ws, uint8_t *data, uint64_t lengt
 			ws->ws_flags.opcode = CIO_WEBSOCKET_CONTINUATION_FRAME;
 		} else {
 			if (unlikely(!(ws->ws_flags.is_fragmented))) {
-				handle_error(ws, CIO_WEBSOCKET_CLOSE_PROTOCOL_ERROR , "opcode for continuation frame not correct");
+				handle_error(ws, CIO_WEBSOCKET_CLOSE_PROTOCOL_ERROR, "opcode for continuation frame not correct");
 				goto out;
 			}
 		}
 	}
 
 	if (unlikely(ws->ws_flags.is_fragmented && ((ws->ws_flags.opcode < CIO_WEBSOCKET_CLOSE_FRAME) && (ws->ws_flags.opcode > CIO_WEBSOCKET_CONTINUATION_FRAME)))) {
-	//AB tested
-		handle_error(ws, CIO_WEBSOCKET_CLOSE_PROTOCOL_ERROR , "opcode for continuation frame not correct");
+		//AB tested
+		handle_error(ws, CIO_WEBSOCKET_CLOSE_PROTOCOL_ERROR, "opcode for continuation frame not correct");
 		goto out;
 	}
 
@@ -463,7 +463,7 @@ static void handle_frame(struct cio_websocket *ws, uint8_t *data, uint64_t lengt
 	}
 
 	if (unlikely(((opcode >= CIO_WEBSOCKET_CLOSE_FRAME) && (opcode <= CIO_WEBSOCKET_PONG_FRAME)) && (length > CIO_WEBSOCKET_SMALL_FRAME_SIZE))) {
-	//AB tested
+		//AB tested
 		handle_error(ws, CIO_WEBSOCKET_CLOSE_PROTOCOL_ERROR, "payload of control frame too long");
 		goto out;
 	}
@@ -493,8 +493,8 @@ static void handle_frame(struct cio_websocket *ws, uint8_t *data, uint64_t lengt
 		break;
 
 	default:
-	//AB tested
-		handle_error(ws, CIO_WEBSOCKET_CLOSE_PROTOCOL_ERROR , "reserved opcode used");
+		//AB tested
+		handle_error(ws, CIO_WEBSOCKET_CLOSE_PROTOCOL_ERROR, "reserved opcode used");
 		break;
 	}
 
