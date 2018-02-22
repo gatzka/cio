@@ -154,8 +154,7 @@ static void send_frame(struct cio_websocket *ws, struct cio_write_buffer *payloa
 	ws->ws_flags.writing_frame = 1;
 	enum cio_error err = ws->bs->write(ws->bs, &ws->wbh, write_complete, ws);
 	if (err != CIO_SUCCESS) {
-		//TODO: check return value
-		return;
+		ws->ws_flags.to_be_closed = 1;
 	}
 }
 
