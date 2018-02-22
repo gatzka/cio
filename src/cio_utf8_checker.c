@@ -28,7 +28,7 @@ static const uint8_t utf8d[] = {
 	12,36,12,12,12,12,12,12,12,12,12,12,
 };
 
-static inline uint8_t decode(uint8_t *state, uint32_t *codep, uint32_t byte) {
+static inline uint8_t decode(uint8_t *state, uint8_t *codep, uint8_t byte) {
 	uint8_t type = utf8d[byte];
 
 	*codep = (*state != CIO_UTF8_ACCEPT) ?

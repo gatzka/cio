@@ -39,7 +39,7 @@ static const uint8_t CIO_UTF8_ACCEPT = 0;
 static const uint8_t CIO_UTF8_REJECT = 12;
 
 struct cio_utf8_state {
-	uint32_t codepoint;
+	uint8_t codepoint;
 	uint8_t state;
 };
 
