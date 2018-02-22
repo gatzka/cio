@@ -206,6 +206,7 @@ Project {
       "../cio_http_location.c",
       "../cio_http_location_handler.c",
       "../cio_http_server.c",
+      "../cio_utf8_checker.c",
       "../cio_websocket.c",
       "../cio_websocket_location_handler.c",
     ]
@@ -262,6 +263,7 @@ Project {
 
     files: [
       "test_cio_websocket.c",
+      "../cio_utf8_checker.c",
       "../cio_websocket.c",
     ]
 
