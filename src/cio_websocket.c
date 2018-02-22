@@ -597,14 +597,19 @@ static void get_length64(struct cio_buffered_stream *bs, void *handler_context, 
 static void get_first_length(struct cio_buffered_stream *bs, void *handler_context, enum cio_error err, struct cio_read_buffer *buffer)
 {
 	size_t len = cio_read_buffer_get_transferred_bytes(buffer);
+	struct cio_websocket *ws = (struct cio_websocket *)handler_context;
 	if (unlikely((err != CIO_SUCCESS) || (len == 0))) {
-		// TODO: fill out
+		if (err == CIO_EOF) {
+			handle_error(ws, CIO_WEBSOCKET_CLOSE_NORMAL, "connection closed by other peer");
+		} else {
+			handle_error(ws, CIO_WEBSOCKET_CLOSE_INTERNAL_ERROR, "error while reading websocket header");
+		}
+
 		return;
 	}
 
 	uint8_t *ptr = cio_read_buffer_get_read_ptr(buffer);
 	uint8_t field = *ptr;
-	struct cio_websocket *ws = (struct cio_websocket *)handler_context;
 
 	if ((field & WS_MASK_SET) == WS_MASK_SET) {
 		ws->ws_flags.shall_mask = 1;
@@ -623,7 +628,7 @@ static void get_first_length(struct cio_buffered_stream *bs, void *handler_conte
 	}
 
 	if (unlikely(err != CIO_SUCCESS)) {
-		handle_error(ws, CIO_WEBSOCKET_CLOSE_INTERNAL_ERROR, "error while start extended websocket frame length");
+		handle_error(ws, CIO_WEBSOCKET_CLOSE_INTERNAL_ERROR, "error while start reading extended websocket frame length");
 	}
 }
 
