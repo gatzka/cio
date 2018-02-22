@@ -617,9 +617,13 @@ static void get_first_length(struct cio_buffered_stream *bs, void *handler_conte
 		ws->read_frame_length = (uint64_t)field;
 		get_mask_or_payload(ws, bs, buffer);
 	} else if (field == CIO_WEBSOCKET_SMALL_FRAME_SIZE + 1) {
-		bs->read_exactly(bs, buffer, 2, get_length16, ws);
+		err = bs->read_exactly(bs, buffer, 2, get_length16, ws);
 	} else {
-		bs->read_exactly(bs, buffer, 8, get_length64, ws);
+		err = bs->read_exactly(bs, buffer, 8, get_length64, ws);
+	}
+
+	if (err != CIO_SUCCESS) {
+		handle_error(ws, CIO_WEBSOCKET_CLOSE_INTERNAL_ERROR, "error while start extended websocket frame length");
 	}
 }
 
