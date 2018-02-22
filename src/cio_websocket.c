@@ -278,7 +278,7 @@ static void handle_text_frame(struct cio_websocket *ws, uint8_t *data, uint64_t 
 	if (likely(ws->on_textframe != NULL)) {
 		uint32_t state = cio_check_utf8(&ws->utf8_state, data, length);
 
-		if (unlikely((state == UTF8_REJECT) || (last_frame && (state != UTF8_ACCEPT)))) {
+		if (unlikely((state == CIO_UTF8_REJECT) || (last_frame && (state != CIO_UTF8_ACCEPT)))) {
 			handle_error(ws, CIO_WEBSOCKET_CLOSE_UNSUPPORTED_DATA, "payload not valid utf8");
 			return;
 		}
@@ -316,7 +316,7 @@ static void handle_close_frame(struct cio_websocket *ws, uint8_t *data, uint64_t
 	if (length > 2) {
 		struct cio_utf8_state state;
 		cio_utf8_init(&state);
-		if (unlikely(cio_check_utf8(&state, data + 2, length - 2) != UTF8_ACCEPT)) {
+		if (unlikely(cio_check_utf8(&state, data + 2, length - 2) != CIO_UTF8_ACCEPT)) {
 			handle_error(ws, CIO_WEBSOCKET_CLOSE_PROTOCOL_ERROR , "reason in close frame not utf8 valid");
 			return;
 		}

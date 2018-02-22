@@ -28,10 +28,10 @@ static const uint8_t utf8d[] = {
 	12,36,12,12,12,12,12,12,12,12,12,12,
 };
 
-static inline uint32_t decode(uint32_t *state, uint32_t *codep, uint32_t byte) {
-	uint32_t type = utf8d[byte];
+static inline uint8_t decode(uint8_t *state, uint32_t *codep, uint32_t byte) {
+	uint8_t type = utf8d[byte];
 
-	*codep = (*state != UTF8_ACCEPT) ?
+	*codep = (*state != CIO_UTF8_ACCEPT) ?
 		(byte & 0x3fu) | (*codep << 6) :
 		(0xff >> type) & (byte);
 
@@ -39,10 +39,10 @@ static inline uint32_t decode(uint32_t *state, uint32_t *codep, uint32_t byte) {
 	return *state;
 }
 
-uint32_t cio_check_utf8(struct cio_utf8_state *state, uint8_t *s, size_t count) {
+uint8_t cio_check_utf8(struct cio_utf8_state *state, uint8_t *s, size_t count) {
 	for (size_t i = 0; i < count; i++) {
-		if (decode(&state->state, &state->codepoint, *s) == UTF8_REJECT) {
-			return UTF8_REJECT;
+		if (decode(&state->state, &state->codepoint, *s) == CIO_UTF8_REJECT) {
+			return CIO_UTF8_REJECT;
 		}
 
 		s++;
