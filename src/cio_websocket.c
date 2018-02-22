@@ -596,9 +596,8 @@ static void get_length64(struct cio_buffered_stream *bs, void *handler_context, 
 
 static void get_first_length(struct cio_buffered_stream *bs, void *handler_context, enum cio_error err, struct cio_read_buffer *buffer)
 {
-	size_t len = cio_read_buffer_get_transferred_bytes(buffer);
 	struct cio_websocket *ws = (struct cio_websocket *)handler_context;
-	if (unlikely((err != CIO_SUCCESS) || (len == 0))) {
+	if (unlikely(err != CIO_SUCCESS)) {
 		if (err == CIO_EOF) {
 			handle_error(ws, CIO_WEBSOCKET_CLOSE_NORMAL, "connection closed by other peer");
 		} else {
