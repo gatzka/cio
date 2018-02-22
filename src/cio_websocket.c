@@ -622,7 +622,7 @@ static void get_first_length(struct cio_buffered_stream *bs, void *handler_conte
 		err = bs->read_exactly(bs, buffer, 8, get_length64, ws);
 	}
 
-	if (err != CIO_SUCCESS) {
+	if (unlikely(err != CIO_SUCCESS)) {
 		handle_error(ws, CIO_WEBSOCKET_CLOSE_INTERNAL_ERROR, "error while start extended websocket frame length");
 	}
 }
@@ -659,7 +659,7 @@ static void get_header(struct cio_buffered_stream *bs, void *handler_context, en
 	field = field & OPCODE_MASK;
 	ws->ws_flags.opcode = field;
 	err = bs->read_exactly(bs, buffer, 1, get_first_length, ws);
-	if (err != CIO_SUCCESS) {
+	if (unlikely(err != CIO_SUCCESS)) {
 		handle_error(ws, CIO_WEBSOCKET_CLOSE_INTERNAL_ERROR, "error while start reading websocket frame length");
 	}
 }
