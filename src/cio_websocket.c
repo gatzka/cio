@@ -547,11 +547,22 @@ static void get_mask(struct cio_buffered_stream *bs, void *handler_context, enum
 
 static void get_mask_or_payload(struct cio_websocket *ws, struct cio_buffered_stream *bs, struct cio_read_buffer *buffer)
 {
+	enum cio_error err;
 	if (ws->ws_flags.shall_mask == 1) {
-		bs->read_exactly(bs, buffer, sizeof(ws->mask), get_mask, ws);
+		err = bs->read_exactly(bs, buffer, sizeof(ws->mask), get_mask, ws);
+		if (unlikely(err != CIO_SUCCESS)) {
+			handle_error(ws, CIO_WEBSOCKET_CLOSE_INTERNAL_ERROR, "error while start reading websocket mask");
+		}
+
+		return;
 	} else {
 		if (likely(ws->read_frame_length > 0)) {
-			bs->read_exactly(bs, buffer, ws->read_frame_length, get_payload, ws);
+			err = bs->read_exactly(bs, buffer, ws->read_frame_length, get_payload, ws);
+			if (unlikely(err != CIO_SUCCESS)) {
+				handle_error(ws, CIO_WEBSOCKET_CLOSE_INTERNAL_ERROR, "error while start reading websocket payload");
+			}
+
+			return;
 		} else {
 			handle_frame(ws, NULL, 0);
 		}
