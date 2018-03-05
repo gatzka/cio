@@ -171,6 +171,19 @@ Project {
   }
 
   UnittestProduct {
+    name: "test_cio_utf8_checker"
+    type: ["application", "unittest"]
+    
+    cpp.includePaths: [".."]
+    
+    files: [
+      "test_cio_utf8_checker.c",
+      "../cio_utf8_checker.c"
+    ]
+  }
+
+
+  UnittestProduct {
     name: "test_cio_write_buffer"
     type: ["application", "unittest"]
     

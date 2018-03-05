@@ -38,7 +38,7 @@ static inline uint8_t decode(uint8_t *state, uint8_t *codep, uint8_t byte)
 	return *state;
 }
 
-uint8_t cio_check_utf8(struct cio_utf8_state *state, uint8_t *s, size_t count)
+uint8_t cio_check_utf8(struct cio_utf8_state *state, const uint8_t *s, size_t count)
 {
 	for (size_t i = 0; i < count; i++) {
 		if (decode(&state->state, &state->codepoint, *s) == CIO_UTF8_REJECT) {

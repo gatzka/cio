@@ -24,30 +24,48 @@
  * SOFTWARE.
  */
 
-#ifndef CIO_UTF8_CHECKER_H
-#define CIO_UTF8_CHECKER_H
-
 #include <stdbool.h>
-#include <stddef.h>
 #include <stdint.h>
+#include <stdlib.h>
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+#include "cio_utf8_checker.h"
+#include "fff.h"
+#include "unity.h"
 
-static const uint8_t CIO_UTF8_ACCEPT = 0;
-static const uint8_t CIO_UTF8_REJECT = 12;
+DEFINE_FFF_GLOBALS
 
-struct cio_utf8_state {
-	uint8_t codepoint;
-	uint8_t state;
+#undef ARRAY_SIZE
+#define ARRAY_SIZE(a) (sizeof(a) / sizeof((a)[0]))
+
+struct test_entry {
+	const uint8_t *test_pattern;
+	uint8_t valid;
 };
 
-void cio_utf8_init(struct cio_utf8_state *state);
-uint8_t cio_check_utf8(struct cio_utf8_state *state, const uint8_t *s, size_t count);
-
-#ifdef __cplusplus
+void setUp(void)
+{
+	FFF_RESET_HISTORY();
 }
-#endif
 
-#endif
+static void test_utf8(void)
+{
+	struct test_entry entries[] = {
+		{.test_pattern = (const uint8_t *)"\xe7\xae\x80\xe4\xbd\x93\xe4\xb8\xad\xe6\x96\x87\x00", .valid = CIO_UTF8_ACCEPT},
+		{.test_pattern = (const uint8_t *)"\xf8\x88\x80\x80\x80", .valid = CIO_UTF8_REJECT}
+	};
+
+	for (unsigned int i = 0; i < ARRAY_SIZE(entries); i++) {
+		struct cio_utf8_state state;
+		cio_utf8_init(&state);
+		struct test_entry entry = entries[i];
+		uint8_t result = cio_check_utf8(&state, entry.test_pattern, strlen((const char *)entry.test_pattern));
+		TEST_ASSERT_MESSAGE(result == entry.valid, "Test pattern not checked successfully!");
+	}
+}
+
+int main(void)
+{
+	UNITY_BEGIN();
+	RUN_TEST(test_utf8);
+	return UNITY_END();
+}
