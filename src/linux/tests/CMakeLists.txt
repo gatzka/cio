@@ -59,7 +59,14 @@ add_executable(test_cio_linux_socket
 )
 target_link_libraries (test_cio_linux_socket unity)
 
+add_executable(test_cio_linux_endian
+    test_cio_linux_endian.c
+    ../cio_linux_endian.c
+)
+target_link_libraries (test_cio_linux_endian unity)
+
 enable_testing()
+add_test(NAME test_cio_linux_endian COMMAND test_cio_linux_endian)
 add_test(NAME test_cio_linux_epoll COMMAND test_cio_linux_epoll)
 add_test(NAME test_cio_linux_server_socket COMMAND test_cio_linux_server_socket)
 add_test(NAME test_cio_linux_socket COMMAND test_cio_linux_socket)

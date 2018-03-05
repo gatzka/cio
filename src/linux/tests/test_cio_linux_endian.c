@@ -1,0 +1,102 @@
+/*
+ * The MIT License (MIT)
+ *
+ * Copyright (c) <2017> <Stephan Gatzka>
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining
+ * a copy of this software and associated documentation files (the
+ * "Software"), to deal in the Software without restriction, including
+ * without limitation the rights to use, copy, modify, merge, publish,
+ * distribute, sublicense, and/or sell copies of the Software, and to
+ * permit persons to whom the Software is furnished to do so, subject to
+ * the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be
+ * included in all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+ * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+ * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS
+ * BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+ * ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+ * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+
+#include <stdint.h>
+
+#include "fff.h"
+#include "unity.h"
+
+#include "cio_endian.h"
+
+DEFINE_FFF_GLOBALS
+
+
+void setUp(void)
+{
+	FFF_RESET_HISTORY();
+}
+
+static void test_convert_be16(void)
+{
+	uint16_t pattern = 0x1234;
+	uint16_t check_pattern = 0x3412;
+
+	uint16_t check = cio_be16toh(pattern);
+	if (check == pattern) {
+		check = cio_htobe16(pattern);
+	}
+
+	TEST_ASSERT_EQUAL_MEMORY_MESSAGE(&check_pattern, &check, sizeof(check), "16 bit endian conversion incorrect!");
+}
+
+static void test_convert_hto16(void)
+{
+	uint16_t pattern = 0x1234;
+	uint16_t check_pattern = 0x3412;
+
+	uint16_t check = cio_htobe16(pattern);
+	if (check == pattern) {
+		check = cio_be16toh(pattern);
+	}
+
+	TEST_ASSERT_EQUAL_MEMORY_MESSAGE(&check_pattern, &check, sizeof(check), "16 bit endian conversion incorrect!");
+}
+
+static void test_convert_be64(void)
+{
+	uint64_t pattern = 0x123456789abcdef0;
+	uint64_t check_pattern = 0xf0debc9a78563412;
+
+	uint64_t check = cio_be64toh(pattern);
+	if (check == pattern) {
+		check = cio_htobe64(pattern);
+	}
+
+	TEST_ASSERT_EQUAL_MEMORY_MESSAGE(&check_pattern, &check, sizeof(check), "64 bit endian conversion incorrect!");
+}
+
+static void test_convert_hto64(void)
+{
+	uint64_t pattern = 0x123456789abcdef0;
+	uint64_t check_pattern = 0xf0debc9a78563412;
+
+	uint64_t check = cio_htobe64(pattern);
+	if (check == pattern) {
+		check = cio_be64toh(pattern);
+	}
+
+	TEST_ASSERT_EQUAL_MEMORY_MESSAGE(&check_pattern, &check, sizeof(check), "64 bit endian conversion incorrect!");
+}
+
+int main(void)
+{
+	UNITY_BEGIN();
+	RUN_TEST(test_convert_be16);
+	RUN_TEST(test_convert_hto16);
+	RUN_TEST(test_convert_be64);
+	RUN_TEST(test_convert_hto64);
+	return UNITY_END();
+}
