@@ -510,14 +510,19 @@ static void get_payload(struct cio_buffered_stream *bs, void *handler_context, e
 {
 	(void)bs;
 
-	size_t len = cio_read_buffer_get_transferred_bytes(buffer);
-	if (unlikely((err != CIO_SUCCESS) || (len == 0))) {
-		// TODO: fill out
+	struct cio_websocket *ws = (struct cio_websocket *)handler_context;
+	if (unlikely(err != CIO_SUCCESS)) {
+		if (err == CIO_EOF) {
+			handle_error(ws, CIO_WEBSOCKET_CLOSE_NORMAL, "connection closed by other peer");
+		} else {
+			handle_error(ws, CIO_WEBSOCKET_CLOSE_INTERNAL_ERROR, "error while reading websocket mask");
+		}
+
 		return;
 	}
 
 	uint8_t *ptr = cio_read_buffer_get_read_ptr(buffer);
-	struct cio_websocket *ws = (struct cio_websocket *)handler_context;
+	size_t len = cio_read_buffer_get_transferred_bytes(buffer);
 
 	handle_frame(ws, ptr, len);
 }
