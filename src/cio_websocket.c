@@ -403,7 +403,6 @@ static void handle_frame(struct cio_websocket *ws, uint8_t *data, uint64_t lengt
 	ws->ws_flags.handle_frame_ctx = 1;
 
 	if (unlikely(ws->ws_flags.rsv != 0)) {
-		//AB tested
 		handle_error(ws, CIO_WEBSOCKET_CLOSE_PROTOCOL_ERROR, "reserved bit set in frame");
 		goto out;
 	}
@@ -414,7 +413,7 @@ static void handle_frame(struct cio_websocket *ws, uint8_t *data, uint64_t lengt
 	}
 
 	if (unlikely((ws->ws_flags.fin == 0) && (ws->ws_flags.opcode >= CIO_WEBSOCKET_CLOSE_FRAME))) {
-		// TODO: handle_error(s, WS_CLOSE_PROTOCOL_ERROR);
+		handle_error(ws, CIO_WEBSOCKET_CLOSE_PROTOCOL_ERROR, "got fragmented control frame");
 		goto out;
 	}
 

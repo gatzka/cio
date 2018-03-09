@@ -121,6 +121,7 @@ struct ws_frame {
 
 static uint8_t frame_buffer[140000];
 static size_t frame_buffer_read_pos = 0;
+static size_t frame_buffer_fill_pos = 0;
 static uint8_t read_buffer[140000];
 static uint8_t read_back_buffer[140000];
 static size_t read_back_buffer_pos = 0;
@@ -182,16 +183,23 @@ static void serialize_frames(struct ws_frame frames[], size_t num_frames)
 			buffer_pos += frame.data_length;
 		}
 	}
+
+	frame_buffer_fill_pos = buffer_pos - 1;
 }
 
 static enum cio_error bs_read_exactly_from_buffer(struct cio_buffered_stream *bs, struct cio_read_buffer *buffer, size_t num, cio_buffered_stream_read_handler handler, void *handler_context)
 {
-	memcpy(buffer->add_ptr, &frame_buffer[frame_buffer_read_pos], num);
-	buffer->bytes_transferred = num;
-	buffer->fetch_ptr = buffer->add_ptr + num;
-	frame_buffer_read_pos += num;
+	if (frame_buffer_read_pos >= frame_buffer_fill_pos) {
+		handler(bs, handler_context, CIO_EOF, buffer);
+	} else {
+		memcpy(buffer->add_ptr, &frame_buffer[frame_buffer_read_pos], num);
+		buffer->bytes_transferred = num;
+		buffer->fetch_ptr = buffer->add_ptr + num;
+		frame_buffer_read_pos += num;
 
-	handler(bs, handler_context, CIO_SUCCESS, buffer);
+		handler(bs, handler_context, CIO_SUCCESS, buffer);
+	}
+
 	return CIO_SUCCESS;
 }
 
@@ -314,6 +322,7 @@ void setUp(void)
 	buffered_stream.read_exactly = read_exactly;
 	buffered_stream.write = bs_write;
 	frame_buffer_read_pos = 0;
+	frame_buffer_fill_pos = 0;
 	read_back_buffer_pos = 0;
 }
 
@@ -1170,6 +1179,28 @@ static void test_rsv_bit_in_header(void)
 	}
 }
 
+static void test_fragmented_control_frame(void)
+{
+	struct ws_frame frames[] = {
+		{.frame_type = CIO_WEBSOCKET_CLOSE_FRAME, .direction = FROM_CLIENT, .data = NULL, .data_length = 0, .last_frame = false, .rsv = false},
+	};
+
+	serialize_frames(frames, ARRAY_SIZE(frames));
+	read_exactly_fake.custom_fake = bs_read_exactly_from_buffer;
+
+	ws->internal_on_connect(ws);
+
+	TEST_ASSERT_EQUAL_MESSAGE(0, on_binaryframe_fake.call_count, "callback for binary frames was called");
+	TEST_ASSERT_EQUAL_MESSAGE(0, on_textframe_fake.call_count, "callback for text frames was not called");
+
+	TEST_ASSERT_EQUAL_MESSAGE(1, on_error_fake.call_count, "error callback was called");
+	TEST_ASSERT_EQUAL_MESSAGE(ws, on_error_fake.arg0_val, "ws parameter in error callback not correct");
+	TEST_ASSERT_EQUAL_MESSAGE(CIO_WEBSOCKET_CLOSE_PROTOCOL_ERROR, on_error_fake.arg1_val, "error callback called with wrong status code");
+	TEST_ASSERT_EQUAL_MESSAGE(0, on_ping_fake.call_count, "callback for ping frames was called");
+	TEST_ASSERT_EQUAL_MESSAGE(0, on_pong_fake.call_count, "callback for pong frames was called");
+	TEST_ASSERT_EQUAL_MESSAGE(0, on_close_fake.call_count, "close callback was called");
+}
+
 int main(void)
 {
 	UNITY_BEGIN();
@@ -1205,6 +1236,7 @@ int main(void)
 	RUN_TEST(test_read_error_in_get_payload);
 
 	RUN_TEST(test_rsv_bit_in_header);
+	RUN_TEST(test_fragmented_control_frame);
 
 	return UNITY_END();
 }
