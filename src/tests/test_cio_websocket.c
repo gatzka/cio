@@ -116,6 +116,7 @@ struct ws_frame {
 	const void *data;
 	size_t data_length;
 	bool last_frame;
+	bool rsv;
 };
 
 static uint8_t frame_buffer[140000];
@@ -124,7 +125,7 @@ static uint8_t read_buffer[140000];
 static uint8_t read_back_buffer[140000];
 static size_t read_back_buffer_pos = 0;
 
-static void serialize_frames(struct ws_frame frames[], size_t num_frames, bool rsv)
+static void serialize_frames(struct ws_frame frames[], size_t num_frames)
 {
 	uint32_t buffer_pos = 0;
 	for (size_t i = 0; i < num_frames; i++) {
@@ -135,7 +136,7 @@ static void serialize_frames(struct ws_frame frames[], size_t num_frames, bool r
 			frame_buffer[buffer_pos] = 0x0;
 		}
 
-		if (rsv) {
+		if (frame.rsv) {
 			frame_buffer[buffer_pos] |= 0x70;
 		}
 
@@ -328,11 +329,11 @@ static void test_unfragmented_frames(void)
 			char *data = malloc(frame_size);
 			memset(data, 'a', frame_size);
 			struct ws_frame frames[] = {
-			    {.frame_type = frame_type, .direction = FROM_CLIENT, .data = data, .data_length = frame_size, .last_frame = true},
-			    {.frame_type = CIO_WEBSOCKET_CLOSE_FRAME, .direction = FROM_CLIENT, .data = NULL, .data_length = 0, .last_frame = true},
+				{.frame_type = frame_type, .direction = FROM_CLIENT, .data = data, .data_length = frame_size, .last_frame = true, .rsv = false},
+				{.frame_type = CIO_WEBSOCKET_CLOSE_FRAME, .direction = FROM_CLIENT, .data = NULL, .data_length = 0, .last_frame = true, .rsv = false},
 			};
 
-			serialize_frames(frames, ARRAY_SIZE(frames), false);
+			serialize_frames(frames, ARRAY_SIZE(frames));
 			read_exactly_fake.custom_fake = bs_read_exactly_from_buffer;
 			on_textframe_fake.custom_fake = on_textframe_save_data;
 			on_binaryframe_fake.custom_fake = on_binaryframe_save_data;
@@ -388,11 +389,11 @@ static void test_fragmented_frames(void)
 			memset(last_data, 'b', frame_size);
 			struct ws_frame frames[] = {
 			    {.frame_type = frame_type, .direction = FROM_CLIENT, .data = first_data, .data_length = frame_size, .last_frame = false},
-			    {.frame_type = CIO_WEBSOCKET_CONTINUATION_FRAME, .direction = FROM_CLIENT, .data = last_data, .data_length = frame_size, .last_frame = true},
-			    {.frame_type = CIO_WEBSOCKET_CLOSE_FRAME, .direction = FROM_CLIENT, .data = NULL, .data_length = 0, .last_frame = true},
+				{.frame_type = CIO_WEBSOCKET_CONTINUATION_FRAME, .direction = FROM_CLIENT, .data = last_data, .data_length = frame_size, .last_frame = true, .rsv = false},
+				{.frame_type = CIO_WEBSOCKET_CLOSE_FRAME, .direction = FROM_CLIENT, .data = NULL, .data_length = 0, .last_frame = true, .rsv = false},
 			};
 
-			serialize_frames(frames, ARRAY_SIZE(frames), false);
+			serialize_frames(frames, ARRAY_SIZE(frames));
 			read_exactly_fake.custom_fake = bs_read_exactly_from_buffer;
 			on_textframe_fake.custom_fake = on_textframe_save_data;
 			on_binaryframe_fake.custom_fake = on_binaryframe_save_data;
@@ -449,11 +450,11 @@ static void test_ping_frame(void)
 	char data[] = "aaaa";
 
 	struct ws_frame frames[] = {
-	    {.frame_type = CIO_WEBSOCKET_PING_FRAME, .direction = FROM_CLIENT, .data = data, .data_length = sizeof(data), .last_frame = true},
-	    {.frame_type = CIO_WEBSOCKET_CLOSE_FRAME, .direction = FROM_CLIENT, .data = NULL, .data_length = 0, .last_frame = true},
+		{.frame_type = CIO_WEBSOCKET_PING_FRAME, .direction = FROM_CLIENT, .data = data, .data_length = sizeof(data), .last_frame = true, .rsv = false},
+		{.frame_type = CIO_WEBSOCKET_CLOSE_FRAME, .direction = FROM_CLIENT, .data = NULL, .data_length = 0, .last_frame = true, .rsv = false},
 	};
 
-	serialize_frames(frames, ARRAY_SIZE(frames), false);
+	serialize_frames(frames, ARRAY_SIZE(frames));
 	read_exactly_fake.custom_fake = bs_read_exactly_from_buffer;
 	bs_write_fake.custom_fake = bs_write_ok;
 	on_ping_fake.custom_fake = on_ping_frame_save_data;
@@ -474,11 +475,11 @@ static void test_ping_frame_pong_not_written(void)
 	char data[] = "aaaa";
 
 	struct ws_frame frames[] = {
-	    {.frame_type = CIO_WEBSOCKET_PING_FRAME, .direction = FROM_CLIENT, .data = data, .data_length = sizeof(data), .last_frame = true},
-	    {.frame_type = CIO_WEBSOCKET_CLOSE_FRAME, .direction = FROM_CLIENT, .data = NULL, .data_length = 0, .last_frame = true},
+		{.frame_type = CIO_WEBSOCKET_PING_FRAME, .direction = FROM_CLIENT, .data = data, .data_length = sizeof(data), .last_frame = true, .rsv = false},
+		{.frame_type = CIO_WEBSOCKET_CLOSE_FRAME, .direction = FROM_CLIENT, .data = NULL, .data_length = 0, .last_frame = true, .rsv = false},
 	};
 
-	serialize_frames(frames, ARRAY_SIZE(frames), false);
+	serialize_frames(frames, ARRAY_SIZE(frames));
 	read_exactly_fake.custom_fake = bs_read_exactly_from_buffer;
 	bs_write_fake.custom_fake = bs_write_later;
 	on_ping_fake.custom_fake = on_ping_frame_save_data;
@@ -497,11 +498,11 @@ static void test_ping_frame_pong_not_written(void)
 static void test_ping_frame_no_payload(void)
 {
 	struct ws_frame frames[] = {
-	    {.frame_type = CIO_WEBSOCKET_PING_FRAME, .direction = FROM_CLIENT, .data = NULL, .data_length = 0, .last_frame = true},
-	    {.frame_type = CIO_WEBSOCKET_CLOSE_FRAME, .direction = FROM_CLIENT, .data = NULL, .data_length = 0, .last_frame = true},
+		{.frame_type = CIO_WEBSOCKET_PING_FRAME, .direction = FROM_CLIENT, .data = NULL, .data_length = 0, .last_frame = true, .rsv = false},
+		{.frame_type = CIO_WEBSOCKET_CLOSE_FRAME, .direction = FROM_CLIENT, .data = NULL, .data_length = 0, .last_frame = true, .rsv = false},
 	};
 
-	serialize_frames(frames, ARRAY_SIZE(frames), false);
+	serialize_frames(frames, ARRAY_SIZE(frames));
 	read_exactly_fake.custom_fake = bs_read_exactly_from_buffer;
 	bs_write_fake.custom_fake = bs_write_ok;
 	on_ping_fake.custom_fake = on_ping_frame_save_data;
@@ -522,11 +523,11 @@ static void test_ping_frame_payload_too_long(void)
 	char data[126] = {'a'};
 
 	struct ws_frame frames[] = {
-	    {.frame_type = CIO_WEBSOCKET_PING_FRAME, .direction = FROM_CLIENT, .data = data, .data_length = sizeof(data), .last_frame = true},
-	    {.frame_type = CIO_WEBSOCKET_CLOSE_FRAME, .direction = FROM_CLIENT, .data = NULL, .data_length = 0, .last_frame = true},
+		{.frame_type = CIO_WEBSOCKET_PING_FRAME, .direction = FROM_CLIENT, .data = data, .data_length = sizeof(data), .last_frame = true, .rsv = false},
+		{.frame_type = CIO_WEBSOCKET_CLOSE_FRAME, .direction = FROM_CLIENT, .data = NULL, .data_length = 0, .last_frame = true, .rsv = false},
 	};
 
-	serialize_frames(frames, ARRAY_SIZE(frames), false);
+	serialize_frames(frames, ARRAY_SIZE(frames));
 	read_exactly_fake.custom_fake = bs_read_exactly_from_buffer;
 	bs_write_fake.custom_fake = bs_write_ok;
 	on_ping_fake.custom_fake = on_ping_frame_save_data;
@@ -550,11 +551,11 @@ static void test_close_in_get_header(void)
 	char *data = malloc(frame_size);
 	memset(data, 'a', frame_size);
 	struct ws_frame frames[] = {
-	    {.frame_type = frame_type, .direction = FROM_CLIENT, .data = data, .data_length = frame_size, .last_frame = true},
-	    {.frame_type = CIO_WEBSOCKET_CLOSE_FRAME, .direction = FROM_CLIENT, .data = NULL, .data_length = 0, .last_frame = true},
+		{.frame_type = frame_type, .direction = FROM_CLIENT, .data = data, .data_length = frame_size, .last_frame = true, .rsv = false},
+		{.frame_type = CIO_WEBSOCKET_CLOSE_FRAME, .direction = FROM_CLIENT, .data = NULL, .data_length = 0, .last_frame = true, .rsv = false},
 	};
 
-	serialize_frames(frames, ARRAY_SIZE(frames), false);
+	serialize_frames(frames, ARRAY_SIZE(frames));
 	read_exactly_fake.custom_fake = bs_read_exactly_peer_close;
 
 	ws->internal_on_connect(ws);
@@ -580,11 +581,11 @@ static void test_read_error_in_get_header(void)
 	char *data = malloc(frame_size);
 	memset(data, 'a', frame_size);
 	struct ws_frame frames[] = {
-	    {.frame_type = frame_type, .direction = FROM_CLIENT, .data = data, .data_length = frame_size, .last_frame = true},
-	    {.frame_type = CIO_WEBSOCKET_CLOSE_FRAME, .direction = FROM_CLIENT, .data = NULL, .data_length = 0, .last_frame = true},
+		{.frame_type = frame_type, .direction = FROM_CLIENT, .data = data, .data_length = frame_size, .last_frame = true, .rsv = false},
+		{.frame_type = CIO_WEBSOCKET_CLOSE_FRAME, .direction = FROM_CLIENT, .data = NULL, .data_length = 0, .last_frame = true, .rsv = false},
 	};
 
-	serialize_frames(frames, ARRAY_SIZE(frames), false);
+	serialize_frames(frames, ARRAY_SIZE(frames));
 	read_exactly_fake.custom_fake = bs_read_exactly_error;
 
 	ws->internal_on_connect(ws);
@@ -610,11 +611,11 @@ static void test_read_error_in_get_first_length(void)
 	char *data = malloc(frame_size);
 	memset(data, 'a', frame_size);
 	struct ws_frame frames[] = {
-		{.frame_type = frame_type, .direction = FROM_CLIENT, .data = data, .data_length = frame_size, .last_frame = true},
-		{.frame_type = CIO_WEBSOCKET_CLOSE_FRAME, .direction = FROM_CLIENT, .data = NULL, .data_length = 0, .last_frame = true},
+		{.frame_type = frame_type, .direction = FROM_CLIENT, .data = data, .data_length = frame_size, .last_frame = true, .rsv = false},
+		{.frame_type = CIO_WEBSOCKET_CLOSE_FRAME, .direction = FROM_CLIENT, .data = NULL, .data_length = 0, .last_frame = true, .rsv = false},
 	};
 
-	serialize_frames(frames, ARRAY_SIZE(frames), false);
+	serialize_frames(frames, ARRAY_SIZE(frames));
 
 	enum cio_error (*read_exactly_fakes[])(struct cio_buffered_stream *, struct cio_read_buffer *, size_t, cio_buffered_stream_read_handler, void *) = {
 		bs_read_exactly_from_buffer,
@@ -645,11 +646,11 @@ static void test_close_in_get_first_length(void)
 	char *data = malloc(frame_size);
 	memset(data, 'a', frame_size);
 	struct ws_frame frames[] = {
-		{.frame_type = frame_type, .direction = FROM_CLIENT, .data = data, .data_length = frame_size, .last_frame = true},
-		{.frame_type = CIO_WEBSOCKET_CLOSE_FRAME, .direction = FROM_CLIENT, .data = NULL, .data_length = 0, .last_frame = true},
+		{.frame_type = frame_type, .direction = FROM_CLIENT, .data = data, .data_length = frame_size, .last_frame = true, .rsv = false},
+		{.frame_type = CIO_WEBSOCKET_CLOSE_FRAME, .direction = FROM_CLIENT, .data = NULL, .data_length = 0, .last_frame = true, .rsv = false},
 	};
 
-	serialize_frames(frames, ARRAY_SIZE(frames), false);
+	serialize_frames(frames, ARRAY_SIZE(frames));
 
 	enum cio_error (*read_exactly_fakes[])(struct cio_buffered_stream *, struct cio_read_buffer *, size_t, cio_buffered_stream_read_handler, void *) = {
 		bs_read_exactly_from_buffer,
@@ -681,11 +682,11 @@ static void test_immediate_read_error_for_get_first_length(void)
 	char *data = malloc(frame_size);
 	memset(data, 'a', frame_size);
 	struct ws_frame frames[] = {
-	    {.frame_type = frame_type, .direction = FROM_CLIENT, .data = data, .data_length = frame_size, .last_frame = true},
-	    {.frame_type = CIO_WEBSOCKET_CLOSE_FRAME, .direction = FROM_CLIENT, .data = NULL, .data_length = 0, .last_frame = true},
+		{.frame_type = frame_type, .direction = FROM_CLIENT, .data = data, .data_length = frame_size, .last_frame = true, .rsv = false},
+		{.frame_type = CIO_WEBSOCKET_CLOSE_FRAME, .direction = FROM_CLIENT, .data = NULL, .data_length = 0, .last_frame = true, .rsv = false},
 	};
 
-	serialize_frames(frames, ARRAY_SIZE(frames), false);
+	serialize_frames(frames, ARRAY_SIZE(frames));
 	enum cio_error (*read_exactly_fakes[])(struct cio_buffered_stream *, struct cio_read_buffer *, size_t, cio_buffered_stream_read_handler, void *) = {
 	    bs_read_exactly_from_buffer,
 	    bs_read_exactly_immediate_error};
@@ -715,11 +716,11 @@ static void test_immediate_read_error_for_get_mask_or_payload(void)
 	char *data = malloc(frame_size);
 	memset(data, 'a', frame_size);
 	struct ws_frame frames[] = {
-		{.frame_type = frame_type, .direction = FROM_CLIENT, .data = data, .data_length = frame_size, .last_frame = true},
-		{.frame_type = CIO_WEBSOCKET_CLOSE_FRAME, .direction = FROM_CLIENT, .data = NULL, .data_length = 0, .last_frame = true},
+		{.frame_type = frame_type, .direction = FROM_CLIENT, .data = data, .data_length = frame_size, .last_frame = true, .rsv = false},
+		{.frame_type = CIO_WEBSOCKET_CLOSE_FRAME, .direction = FROM_CLIENT, .data = NULL, .data_length = 0, .last_frame = true, .rsv = false},
 	};
 
-	serialize_frames(frames, ARRAY_SIZE(frames), false);
+	serialize_frames(frames, ARRAY_SIZE(frames));
 	enum cio_error (*read_exactly_fakes[])(struct cio_buffered_stream *, struct cio_read_buffer *, size_t, cio_buffered_stream_read_handler, void *) = {
 		bs_read_exactly_from_buffer,
 		bs_read_exactly_from_buffer,
@@ -750,11 +751,11 @@ static void test_immediate_read_error_for_get_header(void)
 	char *data = malloc(frame_size);
 	memset(data, 'a', frame_size);
 	struct ws_frame frames[] = {
-		{.frame_type = frame_type, .direction = FROM_CLIENT, .data = data, .data_length = frame_size, .last_frame = true},
-		{.frame_type = CIO_WEBSOCKET_CLOSE_FRAME, .direction = FROM_CLIENT, .data = NULL, .data_length = 0, .last_frame = true},
+		{.frame_type = frame_type, .direction = FROM_CLIENT, .data = data, .data_length = frame_size, .last_frame = true, .rsv = false},
+		{.frame_type = CIO_WEBSOCKET_CLOSE_FRAME, .direction = FROM_CLIENT, .data = NULL, .data_length = 0, .last_frame = true, .rsv = false},
 	};
 
-	serialize_frames(frames, ARRAY_SIZE(frames), false);
+	serialize_frames(frames, ARRAY_SIZE(frames));
 	enum cio_error (*read_exactly_fakes[])(struct cio_buffered_stream *, struct cio_read_buffer *, size_t, cio_buffered_stream_read_handler, void *) = {
 		bs_read_exactly_immediate_error};
 
@@ -783,11 +784,11 @@ static void test_immediate_read_error_for_get_length16(void)
 	char *data = malloc(frame_size);
 	memset(data, 'a', frame_size);
 	struct ws_frame frames[] = {
-		{.frame_type = frame_type, .direction = FROM_CLIENT, .data = data, .data_length = frame_size, .last_frame = true},
-		{.frame_type = CIO_WEBSOCKET_CLOSE_FRAME, .direction = FROM_CLIENT, .data = NULL, .data_length = 0, .last_frame = true},
+		{.frame_type = frame_type, .direction = FROM_CLIENT, .data = data, .data_length = frame_size, .last_frame = true, .rsv = false},
+		{.frame_type = CIO_WEBSOCKET_CLOSE_FRAME, .direction = FROM_CLIENT, .data = NULL, .data_length = 0, .last_frame = true, .rsv = false},
 	};
 
-	serialize_frames(frames, ARRAY_SIZE(frames), false);
+	serialize_frames(frames, ARRAY_SIZE(frames));
 	enum cio_error (*read_exactly_fakes[])(struct cio_buffered_stream *, struct cio_read_buffer *, size_t, cio_buffered_stream_read_handler, void *) = {
 		bs_read_exactly_from_buffer,
 		bs_read_exactly_from_buffer,
@@ -818,11 +819,11 @@ static void test_close_in_get_length16(void)
 	char *data = malloc(frame_size);
 	memset(data, 'a', frame_size);
 	struct ws_frame frames[] = {
-		{.frame_type = frame_type, .direction = FROM_CLIENT, .data = data, .data_length = frame_size, .last_frame = true},
-		{.frame_type = CIO_WEBSOCKET_CLOSE_FRAME, .direction = FROM_CLIENT, .data = NULL, .data_length = 0, .last_frame = true},
+		{.frame_type = frame_type, .direction = FROM_CLIENT, .data = data, .data_length = frame_size, .last_frame = true, .rsv = false},
+		{.frame_type = CIO_WEBSOCKET_CLOSE_FRAME, .direction = FROM_CLIENT, .data = NULL, .data_length = 0, .last_frame = true, .rsv = false},
 	};
 
-	serialize_frames(frames, ARRAY_SIZE(frames), false);
+	serialize_frames(frames, ARRAY_SIZE(frames));
 
 	enum cio_error (*read_exactly_fakes[])(struct cio_buffered_stream *, struct cio_read_buffer *, size_t, cio_buffered_stream_read_handler, void *) = {
 		bs_read_exactly_from_buffer,
@@ -855,11 +856,11 @@ static void test_read_error_in_get_length16(void)
 	char *data = malloc(frame_size);
 	memset(data, 'a', frame_size);
 	struct ws_frame frames[] = {
-		{.frame_type = frame_type, .direction = FROM_CLIENT, .data = data, .data_length = frame_size, .last_frame = true},
-		{.frame_type = CIO_WEBSOCKET_CLOSE_FRAME, .direction = FROM_CLIENT, .data = NULL, .data_length = 0, .last_frame = true},
+		{.frame_type = frame_type, .direction = FROM_CLIENT, .data = data, .data_length = frame_size, .last_frame = true, .rsv = false},
+		{.frame_type = CIO_WEBSOCKET_CLOSE_FRAME, .direction = FROM_CLIENT, .data = NULL, .data_length = 0, .last_frame = true, .rsv = false},
 	};
 
-	serialize_frames(frames, ARRAY_SIZE(frames), false);
+	serialize_frames(frames, ARRAY_SIZE(frames));
 
 	enum cio_error (*read_exactly_fakes[])(struct cio_buffered_stream *, struct cio_read_buffer *, size_t, cio_buffered_stream_read_handler, void *) = {
 		bs_read_exactly_from_buffer,
@@ -891,11 +892,11 @@ static void test_close_in_get_length64(void)
 	char *data = malloc(frame_size);
 	memset(data, 'a', frame_size);
 	struct ws_frame frames[] = {
-		{.frame_type = frame_type, .direction = FROM_CLIENT, .data = data, .data_length = frame_size, .last_frame = true},
-		{.frame_type = CIO_WEBSOCKET_CLOSE_FRAME, .direction = FROM_CLIENT, .data = NULL, .data_length = 0, .last_frame = true},
+		{.frame_type = frame_type, .direction = FROM_CLIENT, .data = data, .data_length = frame_size, .last_frame = true, .rsv = false},
+		{.frame_type = CIO_WEBSOCKET_CLOSE_FRAME, .direction = FROM_CLIENT, .data = NULL, .data_length = 0, .last_frame = true, .rsv = false},
 	};
 
-	serialize_frames(frames, ARRAY_SIZE(frames), false);
+	serialize_frames(frames, ARRAY_SIZE(frames));
 
 	enum cio_error (*read_exactly_fakes[])(struct cio_buffered_stream *, struct cio_read_buffer *, size_t, cio_buffered_stream_read_handler, void *) = {
 		bs_read_exactly_from_buffer,
@@ -928,11 +929,11 @@ static void test_read_error_in_get_length64(void)
 	char *data = malloc(frame_size);
 	memset(data, 'a', frame_size);
 	struct ws_frame frames[] = {
-		{.frame_type = frame_type, .direction = FROM_CLIENT, .data = data, .data_length = frame_size, .last_frame = true},
-		{.frame_type = CIO_WEBSOCKET_CLOSE_FRAME, .direction = FROM_CLIENT, .data = NULL, .data_length = 0, .last_frame = true},
+		{.frame_type = frame_type, .direction = FROM_CLIENT, .data = data, .data_length = frame_size, .last_frame = true, .rsv = false},
+		{.frame_type = CIO_WEBSOCKET_CLOSE_FRAME, .direction = FROM_CLIENT, .data = NULL, .data_length = 0, .last_frame = true, .rsv = false},
 	};
 
-	serialize_frames(frames, ARRAY_SIZE(frames), false);
+	serialize_frames(frames, ARRAY_SIZE(frames));
 
 	enum cio_error (*read_exactly_fakes[])(struct cio_buffered_stream *, struct cio_read_buffer *, size_t, cio_buffered_stream_read_handler, void *) = {
 		bs_read_exactly_from_buffer,
@@ -964,11 +965,11 @@ static void test_close_in_get_mask(void)
 	char *data = malloc(frame_size);
 	memset(data, 'a', frame_size);
 	struct ws_frame frames[] = {
-		{.frame_type = frame_type, .direction = FROM_CLIENT, .data = data, .data_length = frame_size, .last_frame = true},
-		{.frame_type = CIO_WEBSOCKET_CLOSE_FRAME, .direction = FROM_CLIENT, .data = NULL, .data_length = 0, .last_frame = true},
+		{.frame_type = frame_type, .direction = FROM_CLIENT, .data = data, .data_length = frame_size, .last_frame = true, .rsv = false},
+		{.frame_type = CIO_WEBSOCKET_CLOSE_FRAME, .direction = FROM_CLIENT, .data = NULL, .data_length = 0, .last_frame = true, .rsv = false},
 	};
 
-	serialize_frames(frames, ARRAY_SIZE(frames), false);
+	serialize_frames(frames, ARRAY_SIZE(frames));
 
 	enum cio_error (*read_exactly_fakes[])(struct cio_buffered_stream *, struct cio_read_buffer *, size_t, cio_buffered_stream_read_handler, void *) = {
 		bs_read_exactly_from_buffer,
@@ -1000,11 +1001,11 @@ static void test_read_error_in_get_mask(void)
 	char *data = malloc(frame_size);
 	memset(data, 'a', frame_size);
 	struct ws_frame frames[] = {
-		{.frame_type = frame_type, .direction = FROM_CLIENT, .data = data, .data_length = frame_size, .last_frame = true},
-		{.frame_type = CIO_WEBSOCKET_CLOSE_FRAME, .direction = FROM_CLIENT, .data = NULL, .data_length = 0, .last_frame = true},
+		{.frame_type = frame_type, .direction = FROM_CLIENT, .data = data, .data_length = frame_size, .last_frame = true, .rsv = false},
+		{.frame_type = CIO_WEBSOCKET_CLOSE_FRAME, .direction = FROM_CLIENT, .data = NULL, .data_length = 0, .last_frame = true, .rsv = false},
 	};
 
-	serialize_frames(frames, ARRAY_SIZE(frames), false);
+	serialize_frames(frames, ARRAY_SIZE(frames));
 
 	enum cio_error (*read_exactly_fakes[])(struct cio_buffered_stream *, struct cio_read_buffer *, size_t, cio_buffered_stream_read_handler, void *) = {
 		bs_read_exactly_from_buffer,
@@ -1036,11 +1037,11 @@ static void test_immediate_read_error_for_get_payload(void)
 	char *data = malloc(frame_size);
 	memset(data, 'a', frame_size);
 	struct ws_frame frames[] = {
-		{.frame_type = frame_type, .direction = FROM_CLIENT, .data = data, .data_length = frame_size, .last_frame = true},
-		{.frame_type = CIO_WEBSOCKET_CLOSE_FRAME, .direction = FROM_CLIENT, .data = NULL, .data_length = 0, .last_frame = true},
+		{.frame_type = frame_type, .direction = FROM_CLIENT, .data = data, .data_length = frame_size, .last_frame = true, .rsv = false},
+		{.frame_type = CIO_WEBSOCKET_CLOSE_FRAME, .direction = FROM_CLIENT, .data = NULL, .data_length = 0, .last_frame = true, .rsv = false},
 	};
 
-	serialize_frames(frames, ARRAY_SIZE(frames), false);
+	serialize_frames(frames, ARRAY_SIZE(frames));
 	enum cio_error (*read_exactly_fakes[])(struct cio_buffered_stream *, struct cio_read_buffer *, size_t, cio_buffered_stream_read_handler, void *) = {
 		bs_read_exactly_from_buffer,
 		bs_read_exactly_from_buffer,
@@ -1072,11 +1073,11 @@ static void test_close_in_get_payload(void)
 	char *data = malloc(frame_size);
 	memset(data, 'a', frame_size);
 	struct ws_frame frames[] = {
-		{.frame_type = frame_type, .direction = FROM_CLIENT, .data = data, .data_length = frame_size, .last_frame = true},
-		{.frame_type = CIO_WEBSOCKET_CLOSE_FRAME, .direction = FROM_CLIENT, .data = NULL, .data_length = 0, .last_frame = true},
+		{.frame_type = frame_type, .direction = FROM_CLIENT, .data = data, .data_length = frame_size, .last_frame = true, .rsv = false},
+		{.frame_type = CIO_WEBSOCKET_CLOSE_FRAME, .direction = FROM_CLIENT, .data = NULL, .data_length = 0, .last_frame = true, .rsv = false},
 	};
 
-	serialize_frames(frames, ARRAY_SIZE(frames), false);
+	serialize_frames(frames, ARRAY_SIZE(frames));
 
 	enum cio_error (*read_exactly_fakes[])(struct cio_buffered_stream *, struct cio_read_buffer *, size_t, cio_buffered_stream_read_handler, void *) = {
 		bs_read_exactly_from_buffer,
@@ -1109,11 +1110,11 @@ static void test_read_error_in_get_payload(void)
 	char *data = malloc(frame_size);
 	memset(data, 'a', frame_size);
 	struct ws_frame frames[] = {
-		{.frame_type = frame_type, .direction = FROM_CLIENT, .data = data, .data_length = frame_size, .last_frame = true},
-		{.frame_type = CIO_WEBSOCKET_CLOSE_FRAME, .direction = FROM_CLIENT, .data = NULL, .data_length = 0, .last_frame = true},
+		{.frame_type = frame_type, .direction = FROM_CLIENT, .data = data, .data_length = frame_size, .last_frame = true, .rsv = false},
+		{.frame_type = CIO_WEBSOCKET_CLOSE_FRAME, .direction = FROM_CLIENT, .data = NULL, .data_length = 0, .last_frame = true, .rsv = false},
 	};
 
-	serialize_frames(frames, ARRAY_SIZE(frames), false);
+	serialize_frames(frames, ARRAY_SIZE(frames));
 
 	enum cio_error (*read_exactly_fakes[])(struct cio_buffered_stream *, struct cio_read_buffer *, size_t, cio_buffered_stream_read_handler, void *) = {
 		bs_read_exactly_from_buffer,
@@ -1145,11 +1146,11 @@ static void test_rsv_bit_in_header(void)
 	char *data = malloc(frame_size);
 	memset(data, 'a', frame_size);
 	struct ws_frame frames[] = {
-		{.frame_type = CIO_WEBSOCKET_TEXT_FRAME, .direction = FROM_CLIENT, .data = data, .data_length = frame_size, .last_frame = true},
-		{.frame_type = CIO_WEBSOCKET_CLOSE_FRAME, .direction = FROM_CLIENT, .data = NULL, .data_length = 0, .last_frame = true},
+		{.frame_type = CIO_WEBSOCKET_TEXT_FRAME, .direction = FROM_CLIENT, .data = data, .data_length = frame_size, .last_frame = true, .rsv = true},
+		{.frame_type = CIO_WEBSOCKET_CLOSE_FRAME, .direction = FROM_CLIENT, .data = NULL, .data_length = 0, .last_frame = true, .rsv = false},
 	};
 
-	serialize_frames(frames, ARRAY_SIZE(frames), true);
+	serialize_frames(frames, ARRAY_SIZE(frames));
 	read_exactly_fake.custom_fake = bs_read_exactly_from_buffer;
 
 	ws->internal_on_connect(ws);
