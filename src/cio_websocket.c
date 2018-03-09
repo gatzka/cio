@@ -420,8 +420,7 @@ static void handle_frame(struct cio_websocket *ws, uint8_t *data, uint64_t lengt
 	if (ws->ws_flags.fin == 0) {
 		if (ws->ws_flags.opcode != CIO_WEBSOCKET_CONTINUATION_FRAME) {
 			if (unlikely(ws->ws_flags.is_fragmented)) {
-				// TODO: log_err("Overwriting Opcode of unfinished fragmentation!");
-				// TODO: handle_error(s, WS_CLOSE_PROTOCOL_ERROR);
+				handle_error(ws, CIO_WEBSOCKET_CLOSE_PROTOCOL_ERROR, "new opcode for within fragmented frames");
 				goto out;
 			}
 
