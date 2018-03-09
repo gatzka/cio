@@ -124,7 +124,7 @@ static uint8_t read_buffer[140000];
 static uint8_t read_back_buffer[140000];
 static size_t read_back_buffer_pos = 0;
 
-static void serialize_frames(struct ws_frame frames[], size_t num_frames)
+static void serialize_frames(struct ws_frame frames[], size_t num_frames, bool rsv)
 {
 	uint32_t buffer_pos = 0;
 	for (size_t i = 0; i < num_frames; i++) {
@@ -133,6 +133,10 @@ static void serialize_frames(struct ws_frame frames[], size_t num_frames)
 			frame_buffer[buffer_pos] = WS_HEADER_FIN;
 		} else {
 			frame_buffer[buffer_pos] = 0x0;
+		}
+
+		if (rsv) {
+			frame_buffer[buffer_pos] |= 0x70;
 		}
 
 		frame_buffer[buffer_pos++] |= frame.frame_type;
@@ -328,7 +332,7 @@ static void test_unfragmented_frames(void)
 			    {.frame_type = CIO_WEBSOCKET_CLOSE_FRAME, .direction = FROM_CLIENT, .data = NULL, .data_length = 0, .last_frame = true},
 			};
 
-			serialize_frames(frames, ARRAY_SIZE(frames));
+			serialize_frames(frames, ARRAY_SIZE(frames), false);
 			read_exactly_fake.custom_fake = bs_read_exactly_from_buffer;
 			on_textframe_fake.custom_fake = on_textframe_save_data;
 			on_binaryframe_fake.custom_fake = on_binaryframe_save_data;
@@ -388,7 +392,7 @@ static void test_fragmented_frames(void)
 			    {.frame_type = CIO_WEBSOCKET_CLOSE_FRAME, .direction = FROM_CLIENT, .data = NULL, .data_length = 0, .last_frame = true},
 			};
 
-			serialize_frames(frames, ARRAY_SIZE(frames));
+			serialize_frames(frames, ARRAY_SIZE(frames), false);
 			read_exactly_fake.custom_fake = bs_read_exactly_from_buffer;
 			on_textframe_fake.custom_fake = on_textframe_save_data;
 			on_binaryframe_fake.custom_fake = on_binaryframe_save_data;
@@ -449,7 +453,7 @@ static void test_ping_frame(void)
 	    {.frame_type = CIO_WEBSOCKET_CLOSE_FRAME, .direction = FROM_CLIENT, .data = NULL, .data_length = 0, .last_frame = true},
 	};
 
-	serialize_frames(frames, ARRAY_SIZE(frames));
+	serialize_frames(frames, ARRAY_SIZE(frames), false);
 	read_exactly_fake.custom_fake = bs_read_exactly_from_buffer;
 	bs_write_fake.custom_fake = bs_write_ok;
 	on_ping_fake.custom_fake = on_ping_frame_save_data;
@@ -474,7 +478,7 @@ static void test_ping_frame_pong_not_written(void)
 	    {.frame_type = CIO_WEBSOCKET_CLOSE_FRAME, .direction = FROM_CLIENT, .data = NULL, .data_length = 0, .last_frame = true},
 	};
 
-	serialize_frames(frames, ARRAY_SIZE(frames));
+	serialize_frames(frames, ARRAY_SIZE(frames), false);
 	read_exactly_fake.custom_fake = bs_read_exactly_from_buffer;
 	bs_write_fake.custom_fake = bs_write_later;
 	on_ping_fake.custom_fake = on_ping_frame_save_data;
@@ -497,7 +501,7 @@ static void test_ping_frame_no_payload(void)
 	    {.frame_type = CIO_WEBSOCKET_CLOSE_FRAME, .direction = FROM_CLIENT, .data = NULL, .data_length = 0, .last_frame = true},
 	};
 
-	serialize_frames(frames, ARRAY_SIZE(frames));
+	serialize_frames(frames, ARRAY_SIZE(frames), false);
 	read_exactly_fake.custom_fake = bs_read_exactly_from_buffer;
 	bs_write_fake.custom_fake = bs_write_ok;
 	on_ping_fake.custom_fake = on_ping_frame_save_data;
@@ -522,7 +526,7 @@ static void test_ping_frame_payload_too_long(void)
 	    {.frame_type = CIO_WEBSOCKET_CLOSE_FRAME, .direction = FROM_CLIENT, .data = NULL, .data_length = 0, .last_frame = true},
 	};
 
-	serialize_frames(frames, ARRAY_SIZE(frames));
+	serialize_frames(frames, ARRAY_SIZE(frames), false);
 	read_exactly_fake.custom_fake = bs_read_exactly_from_buffer;
 	bs_write_fake.custom_fake = bs_write_ok;
 	on_ping_fake.custom_fake = on_ping_frame_save_data;
@@ -550,7 +554,7 @@ static void test_close_in_get_header(void)
 	    {.frame_type = CIO_WEBSOCKET_CLOSE_FRAME, .direction = FROM_CLIENT, .data = NULL, .data_length = 0, .last_frame = true},
 	};
 
-	serialize_frames(frames, ARRAY_SIZE(frames));
+	serialize_frames(frames, ARRAY_SIZE(frames), false);
 	read_exactly_fake.custom_fake = bs_read_exactly_peer_close;
 
 	ws->internal_on_connect(ws);
@@ -562,7 +566,7 @@ static void test_close_in_get_header(void)
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_WEBSOCKET_CLOSE_NORMAL, on_error_fake.arg1_val, "error callback called with wrong status code");
 	TEST_ASSERT_EQUAL_MESSAGE(0, on_ping_fake.call_count, "callback for ping frames was called");
 	TEST_ASSERT_EQUAL_MESSAGE(0, on_pong_fake.call_count, "callback for pong frames was called");
-	TEST_ASSERT_EQUAL_MESSAGE(0, on_close_fake.call_count, "close was not called");
+	TEST_ASSERT_EQUAL_MESSAGE(0, on_close_fake.call_count, "close callback was called");
 
 	if (data) {
 		free(data);
@@ -580,7 +584,7 @@ static void test_read_error_in_get_header(void)
 	    {.frame_type = CIO_WEBSOCKET_CLOSE_FRAME, .direction = FROM_CLIENT, .data = NULL, .data_length = 0, .last_frame = true},
 	};
 
-	serialize_frames(frames, ARRAY_SIZE(frames));
+	serialize_frames(frames, ARRAY_SIZE(frames), false);
 	read_exactly_fake.custom_fake = bs_read_exactly_error;
 
 	ws->internal_on_connect(ws);
@@ -592,7 +596,7 @@ static void test_read_error_in_get_header(void)
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_WEBSOCKET_CLOSE_INTERNAL_ERROR, on_error_fake.arg1_val, "error callback called with wrong status code");
 	TEST_ASSERT_EQUAL_MESSAGE(0, on_ping_fake.call_count, "callback for ping frames was called");
 	TEST_ASSERT_EQUAL_MESSAGE(0, on_pong_fake.call_count, "callback for pong frames was called");
-	TEST_ASSERT_EQUAL_MESSAGE(0, on_close_fake.call_count, "close was not called");
+	TEST_ASSERT_EQUAL_MESSAGE(0, on_close_fake.call_count, "close callback was called");
 
 	if (data) {
 		free(data);
@@ -610,7 +614,7 @@ static void test_read_error_in_get_first_length(void)
 		{.frame_type = CIO_WEBSOCKET_CLOSE_FRAME, .direction = FROM_CLIENT, .data = NULL, .data_length = 0, .last_frame = true},
 	};
 
-	serialize_frames(frames, ARRAY_SIZE(frames));
+	serialize_frames(frames, ARRAY_SIZE(frames), false);
 
 	enum cio_error (*read_exactly_fakes[])(struct cio_buffered_stream *, struct cio_read_buffer *, size_t, cio_buffered_stream_read_handler, void *) = {
 		bs_read_exactly_from_buffer,
@@ -627,7 +631,7 @@ static void test_read_error_in_get_first_length(void)
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_WEBSOCKET_CLOSE_INTERNAL_ERROR, on_error_fake.arg1_val, "error callback called with wrong status code");
 	TEST_ASSERT_EQUAL_MESSAGE(0, on_ping_fake.call_count, "callback for ping frames was called");
 	TEST_ASSERT_EQUAL_MESSAGE(0, on_pong_fake.call_count, "callback for pong frames was called");
-	TEST_ASSERT_EQUAL_MESSAGE(0, on_close_fake.call_count, "close was not called");
+	TEST_ASSERT_EQUAL_MESSAGE(0, on_close_fake.call_count, "close callback was called");
 
 	if (data) {
 		free(data);
@@ -645,7 +649,7 @@ static void test_close_in_get_first_length(void)
 		{.frame_type = CIO_WEBSOCKET_CLOSE_FRAME, .direction = FROM_CLIENT, .data = NULL, .data_length = 0, .last_frame = true},
 	};
 
-	serialize_frames(frames, ARRAY_SIZE(frames));
+	serialize_frames(frames, ARRAY_SIZE(frames), false);
 
 	enum cio_error (*read_exactly_fakes[])(struct cio_buffered_stream *, struct cio_read_buffer *, size_t, cio_buffered_stream_read_handler, void *) = {
 		bs_read_exactly_from_buffer,
@@ -663,7 +667,7 @@ static void test_close_in_get_first_length(void)
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_WEBSOCKET_CLOSE_NORMAL, on_error_fake.arg1_val, "error callback called with wrong status code");
 	TEST_ASSERT_EQUAL_MESSAGE(0, on_ping_fake.call_count, "callback for ping frames was called");
 	TEST_ASSERT_EQUAL_MESSAGE(0, on_pong_fake.call_count, "callback for pong frames was called");
-	TEST_ASSERT_EQUAL_MESSAGE(0, on_close_fake.call_count, "close was not called");
+	TEST_ASSERT_EQUAL_MESSAGE(0, on_close_fake.call_count, "close callback was called");
 
 	if (data) {
 		free(data);
@@ -681,7 +685,7 @@ static void test_immediate_read_error_for_get_first_length(void)
 	    {.frame_type = CIO_WEBSOCKET_CLOSE_FRAME, .direction = FROM_CLIENT, .data = NULL, .data_length = 0, .last_frame = true},
 	};
 
-	serialize_frames(frames, ARRAY_SIZE(frames));
+	serialize_frames(frames, ARRAY_SIZE(frames), false);
 	enum cio_error (*read_exactly_fakes[])(struct cio_buffered_stream *, struct cio_read_buffer *, size_t, cio_buffered_stream_read_handler, void *) = {
 	    bs_read_exactly_from_buffer,
 	    bs_read_exactly_immediate_error};
@@ -697,7 +701,7 @@ static void test_immediate_read_error_for_get_first_length(void)
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_WEBSOCKET_CLOSE_INTERNAL_ERROR, on_error_fake.arg1_val, "error callback called with wrong status code");
 	TEST_ASSERT_EQUAL_MESSAGE(0, on_ping_fake.call_count, "callback for ping frames was called");
 	TEST_ASSERT_EQUAL_MESSAGE(0, on_pong_fake.call_count, "callback for pong frames was called");
-	TEST_ASSERT_EQUAL_MESSAGE(0, on_close_fake.call_count, "close was not called");
+	TEST_ASSERT_EQUAL_MESSAGE(0, on_close_fake.call_count, "close callback was called");
 
 	if (data) {
 		free(data);
@@ -715,7 +719,7 @@ static void test_immediate_read_error_for_get_mask_or_payload(void)
 		{.frame_type = CIO_WEBSOCKET_CLOSE_FRAME, .direction = FROM_CLIENT, .data = NULL, .data_length = 0, .last_frame = true},
 	};
 
-	serialize_frames(frames, ARRAY_SIZE(frames));
+	serialize_frames(frames, ARRAY_SIZE(frames), false);
 	enum cio_error (*read_exactly_fakes[])(struct cio_buffered_stream *, struct cio_read_buffer *, size_t, cio_buffered_stream_read_handler, void *) = {
 		bs_read_exactly_from_buffer,
 		bs_read_exactly_from_buffer,
@@ -732,7 +736,7 @@ static void test_immediate_read_error_for_get_mask_or_payload(void)
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_WEBSOCKET_CLOSE_INTERNAL_ERROR, on_error_fake.arg1_val, "error callback called with wrong status code");
 	TEST_ASSERT_EQUAL_MESSAGE(0, on_ping_fake.call_count, "callback for ping frames was called");
 	TEST_ASSERT_EQUAL_MESSAGE(0, on_pong_fake.call_count, "callback for pong frames was called");
-	TEST_ASSERT_EQUAL_MESSAGE(0, on_close_fake.call_count, "close was not called");
+	TEST_ASSERT_EQUAL_MESSAGE(0, on_close_fake.call_count, "close callback was called");
 
 	if (data) {
 		free(data);
@@ -750,7 +754,7 @@ static void test_immediate_read_error_for_get_header(void)
 		{.frame_type = CIO_WEBSOCKET_CLOSE_FRAME, .direction = FROM_CLIENT, .data = NULL, .data_length = 0, .last_frame = true},
 	};
 
-	serialize_frames(frames, ARRAY_SIZE(frames));
+	serialize_frames(frames, ARRAY_SIZE(frames), false);
 	enum cio_error (*read_exactly_fakes[])(struct cio_buffered_stream *, struct cio_read_buffer *, size_t, cio_buffered_stream_read_handler, void *) = {
 		bs_read_exactly_immediate_error};
 
@@ -765,7 +769,7 @@ static void test_immediate_read_error_for_get_header(void)
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_WEBSOCKET_CLOSE_INTERNAL_ERROR, on_error_fake.arg1_val, "error callback called with wrong status code");
 	TEST_ASSERT_EQUAL_MESSAGE(0, on_ping_fake.call_count, "callback for ping frames was called");
 	TEST_ASSERT_EQUAL_MESSAGE(0, on_pong_fake.call_count, "callback for pong frames was called");
-	TEST_ASSERT_EQUAL_MESSAGE(0, on_close_fake.call_count, "close was not called");
+	TEST_ASSERT_EQUAL_MESSAGE(0, on_close_fake.call_count, "close callback was called");
 
 	if (data) {
 		free(data);
@@ -783,7 +787,7 @@ static void test_immediate_read_error_for_get_length16(void)
 		{.frame_type = CIO_WEBSOCKET_CLOSE_FRAME, .direction = FROM_CLIENT, .data = NULL, .data_length = 0, .last_frame = true},
 	};
 
-	serialize_frames(frames, ARRAY_SIZE(frames));
+	serialize_frames(frames, ARRAY_SIZE(frames), false);
 	enum cio_error (*read_exactly_fakes[])(struct cio_buffered_stream *, struct cio_read_buffer *, size_t, cio_buffered_stream_read_handler, void *) = {
 		bs_read_exactly_from_buffer,
 		bs_read_exactly_from_buffer,
@@ -800,7 +804,7 @@ static void test_immediate_read_error_for_get_length16(void)
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_WEBSOCKET_CLOSE_INTERNAL_ERROR, on_error_fake.arg1_val, "error callback called with wrong status code");
 	TEST_ASSERT_EQUAL_MESSAGE(0, on_ping_fake.call_count, "callback for ping frames was called");
 	TEST_ASSERT_EQUAL_MESSAGE(0, on_pong_fake.call_count, "callback for pong frames was called");
-	TEST_ASSERT_EQUAL_MESSAGE(0, on_close_fake.call_count, "close was not called");
+	TEST_ASSERT_EQUAL_MESSAGE(0, on_close_fake.call_count, "close callback was called");
 
 	if (data) {
 		free(data);
@@ -818,7 +822,7 @@ static void test_close_in_get_length16(void)
 		{.frame_type = CIO_WEBSOCKET_CLOSE_FRAME, .direction = FROM_CLIENT, .data = NULL, .data_length = 0, .last_frame = true},
 	};
 
-	serialize_frames(frames, ARRAY_SIZE(frames));
+	serialize_frames(frames, ARRAY_SIZE(frames), false);
 
 	enum cio_error (*read_exactly_fakes[])(struct cio_buffered_stream *, struct cio_read_buffer *, size_t, cio_buffered_stream_read_handler, void *) = {
 		bs_read_exactly_from_buffer,
@@ -837,7 +841,7 @@ static void test_close_in_get_length16(void)
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_WEBSOCKET_CLOSE_NORMAL, on_error_fake.arg1_val, "error callback called with wrong status code");
 	TEST_ASSERT_EQUAL_MESSAGE(0, on_ping_fake.call_count, "callback for ping frames was called");
 	TEST_ASSERT_EQUAL_MESSAGE(0, on_pong_fake.call_count, "callback for pong frames was called");
-	TEST_ASSERT_EQUAL_MESSAGE(0, on_close_fake.call_count, "close was not called");
+	TEST_ASSERT_EQUAL_MESSAGE(0, on_close_fake.call_count, "close callback was called");
 
 	if (data) {
 		free(data);
@@ -855,7 +859,7 @@ static void test_read_error_in_get_length16(void)
 		{.frame_type = CIO_WEBSOCKET_CLOSE_FRAME, .direction = FROM_CLIENT, .data = NULL, .data_length = 0, .last_frame = true},
 	};
 
-	serialize_frames(frames, ARRAY_SIZE(frames));
+	serialize_frames(frames, ARRAY_SIZE(frames), false);
 
 	enum cio_error (*read_exactly_fakes[])(struct cio_buffered_stream *, struct cio_read_buffer *, size_t, cio_buffered_stream_read_handler, void *) = {
 		bs_read_exactly_from_buffer,
@@ -873,7 +877,7 @@ static void test_read_error_in_get_length16(void)
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_WEBSOCKET_CLOSE_INTERNAL_ERROR, on_error_fake.arg1_val, "error callback called with wrong status code");
 	TEST_ASSERT_EQUAL_MESSAGE(0, on_ping_fake.call_count, "callback for ping frames was called");
 	TEST_ASSERT_EQUAL_MESSAGE(0, on_pong_fake.call_count, "callback for pong frames was called");
-	TEST_ASSERT_EQUAL_MESSAGE(0, on_close_fake.call_count, "close was not called");
+	TEST_ASSERT_EQUAL_MESSAGE(0, on_close_fake.call_count, "close callback was called");
 
 	if (data) {
 		free(data);
@@ -891,7 +895,7 @@ static void test_close_in_get_length64(void)
 		{.frame_type = CIO_WEBSOCKET_CLOSE_FRAME, .direction = FROM_CLIENT, .data = NULL, .data_length = 0, .last_frame = true},
 	};
 
-	serialize_frames(frames, ARRAY_SIZE(frames));
+	serialize_frames(frames, ARRAY_SIZE(frames), false);
 
 	enum cio_error (*read_exactly_fakes[])(struct cio_buffered_stream *, struct cio_read_buffer *, size_t, cio_buffered_stream_read_handler, void *) = {
 		bs_read_exactly_from_buffer,
@@ -910,7 +914,7 @@ static void test_close_in_get_length64(void)
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_WEBSOCKET_CLOSE_NORMAL, on_error_fake.arg1_val, "error callback called with wrong status code");
 	TEST_ASSERT_EQUAL_MESSAGE(0, on_ping_fake.call_count, "callback for ping frames was called");
 	TEST_ASSERT_EQUAL_MESSAGE(0, on_pong_fake.call_count, "callback for pong frames was called");
-	TEST_ASSERT_EQUAL_MESSAGE(0, on_close_fake.call_count, "close was not called");
+	TEST_ASSERT_EQUAL_MESSAGE(0, on_close_fake.call_count, "close callback was called");
 
 	if (data) {
 		free(data);
@@ -928,7 +932,7 @@ static void test_read_error_in_get_length64(void)
 		{.frame_type = CIO_WEBSOCKET_CLOSE_FRAME, .direction = FROM_CLIENT, .data = NULL, .data_length = 0, .last_frame = true},
 	};
 
-	serialize_frames(frames, ARRAY_SIZE(frames));
+	serialize_frames(frames, ARRAY_SIZE(frames), false);
 
 	enum cio_error (*read_exactly_fakes[])(struct cio_buffered_stream *, struct cio_read_buffer *, size_t, cio_buffered_stream_read_handler, void *) = {
 		bs_read_exactly_from_buffer,
@@ -946,7 +950,7 @@ static void test_read_error_in_get_length64(void)
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_WEBSOCKET_CLOSE_INTERNAL_ERROR, on_error_fake.arg1_val, "error callback called with wrong status code");
 	TEST_ASSERT_EQUAL_MESSAGE(0, on_ping_fake.call_count, "callback for ping frames was called");
 	TEST_ASSERT_EQUAL_MESSAGE(0, on_pong_fake.call_count, "callback for pong frames was called");
-	TEST_ASSERT_EQUAL_MESSAGE(0, on_close_fake.call_count, "close was not called");
+	TEST_ASSERT_EQUAL_MESSAGE(0, on_close_fake.call_count, "close callback was called");
 
 	if (data) {
 		free(data);
@@ -964,7 +968,7 @@ static void test_close_in_get_mask(void)
 		{.frame_type = CIO_WEBSOCKET_CLOSE_FRAME, .direction = FROM_CLIENT, .data = NULL, .data_length = 0, .last_frame = true},
 	};
 
-	serialize_frames(frames, ARRAY_SIZE(frames));
+	serialize_frames(frames, ARRAY_SIZE(frames), false);
 
 	enum cio_error (*read_exactly_fakes[])(struct cio_buffered_stream *, struct cio_read_buffer *, size_t, cio_buffered_stream_read_handler, void *) = {
 		bs_read_exactly_from_buffer,
@@ -982,7 +986,7 @@ static void test_close_in_get_mask(void)
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_WEBSOCKET_CLOSE_NORMAL, on_error_fake.arg1_val, "error callback called with wrong status code");
 	TEST_ASSERT_EQUAL_MESSAGE(0, on_ping_fake.call_count, "callback for ping frames was called");
 	TEST_ASSERT_EQUAL_MESSAGE(0, on_pong_fake.call_count, "callback for pong frames was called");
-	TEST_ASSERT_EQUAL_MESSAGE(0, on_close_fake.call_count, "close was not called");
+	TEST_ASSERT_EQUAL_MESSAGE(0, on_close_fake.call_count, "close callback was called");
 
 	if (data) {
 		free(data);
@@ -1000,7 +1004,7 @@ static void test_read_error_in_get_mask(void)
 		{.frame_type = CIO_WEBSOCKET_CLOSE_FRAME, .direction = FROM_CLIENT, .data = NULL, .data_length = 0, .last_frame = true},
 	};
 
-	serialize_frames(frames, ARRAY_SIZE(frames));
+	serialize_frames(frames, ARRAY_SIZE(frames), false);
 
 	enum cio_error (*read_exactly_fakes[])(struct cio_buffered_stream *, struct cio_read_buffer *, size_t, cio_buffered_stream_read_handler, void *) = {
 		bs_read_exactly_from_buffer,
@@ -1018,7 +1022,7 @@ static void test_read_error_in_get_mask(void)
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_WEBSOCKET_CLOSE_INTERNAL_ERROR, on_error_fake.arg1_val, "error callback called with wrong status code");
 	TEST_ASSERT_EQUAL_MESSAGE(0, on_ping_fake.call_count, "callback for ping frames was called");
 	TEST_ASSERT_EQUAL_MESSAGE(0, on_pong_fake.call_count, "callback for pong frames was called");
-	TEST_ASSERT_EQUAL_MESSAGE(0, on_close_fake.call_count, "close was not called");
+	TEST_ASSERT_EQUAL_MESSAGE(0, on_close_fake.call_count, "close callback was called");
 
 	if (data) {
 		free(data);
@@ -1036,7 +1040,7 @@ static void test_immediate_read_error_for_get_payload(void)
 		{.frame_type = CIO_WEBSOCKET_CLOSE_FRAME, .direction = FROM_CLIENT, .data = NULL, .data_length = 0, .last_frame = true},
 	};
 
-	serialize_frames(frames, ARRAY_SIZE(frames));
+	serialize_frames(frames, ARRAY_SIZE(frames), false);
 	enum cio_error (*read_exactly_fakes[])(struct cio_buffered_stream *, struct cio_read_buffer *, size_t, cio_buffered_stream_read_handler, void *) = {
 		bs_read_exactly_from_buffer,
 		bs_read_exactly_from_buffer,
@@ -1054,7 +1058,7 @@ static void test_immediate_read_error_for_get_payload(void)
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_WEBSOCKET_CLOSE_TOO_LARGE, on_error_fake.arg1_val, "error callback called with wrong status code");
 	TEST_ASSERT_EQUAL_MESSAGE(0, on_ping_fake.call_count, "callback for ping frames was called");
 	TEST_ASSERT_EQUAL_MESSAGE(0, on_pong_fake.call_count, "callback for pong frames was called");
-	TEST_ASSERT_EQUAL_MESSAGE(0, on_close_fake.call_count, "close was not called");
+	TEST_ASSERT_EQUAL_MESSAGE(0, on_close_fake.call_count, "close callback was called");
 
 	if (data) {
 		free(data);
@@ -1072,7 +1076,7 @@ static void test_close_in_get_payload(void)
 		{.frame_type = CIO_WEBSOCKET_CLOSE_FRAME, .direction = FROM_CLIENT, .data = NULL, .data_length = 0, .last_frame = true},
 	};
 
-	serialize_frames(frames, ARRAY_SIZE(frames));
+	serialize_frames(frames, ARRAY_SIZE(frames), false);
 
 	enum cio_error (*read_exactly_fakes[])(struct cio_buffered_stream *, struct cio_read_buffer *, size_t, cio_buffered_stream_read_handler, void *) = {
 		bs_read_exactly_from_buffer,
@@ -1091,7 +1095,7 @@ static void test_close_in_get_payload(void)
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_WEBSOCKET_CLOSE_NORMAL, on_error_fake.arg1_val, "error callback called with wrong status code");
 	TEST_ASSERT_EQUAL_MESSAGE(0, on_ping_fake.call_count, "callback for ping frames was called");
 	TEST_ASSERT_EQUAL_MESSAGE(0, on_pong_fake.call_count, "callback for pong frames was called");
-	TEST_ASSERT_EQUAL_MESSAGE(0, on_close_fake.call_count, "close was not called");
+	TEST_ASSERT_EQUAL_MESSAGE(0, on_close_fake.call_count, "close callback was called");
 
 	if (data) {
 		free(data);
@@ -1109,7 +1113,7 @@ static void test_read_error_in_get_payload(void)
 		{.frame_type = CIO_WEBSOCKET_CLOSE_FRAME, .direction = FROM_CLIENT, .data = NULL, .data_length = 0, .last_frame = true},
 	};
 
-	serialize_frames(frames, ARRAY_SIZE(frames));
+	serialize_frames(frames, ARRAY_SIZE(frames), false);
 
 	enum cio_error (*read_exactly_fakes[])(struct cio_buffered_stream *, struct cio_read_buffer *, size_t, cio_buffered_stream_read_handler, void *) = {
 		bs_read_exactly_from_buffer,
@@ -1128,7 +1132,37 @@ static void test_read_error_in_get_payload(void)
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_WEBSOCKET_CLOSE_INTERNAL_ERROR, on_error_fake.arg1_val, "error callback called with wrong status code");
 	TEST_ASSERT_EQUAL_MESSAGE(0, on_ping_fake.call_count, "callback for ping frames was called");
 	TEST_ASSERT_EQUAL_MESSAGE(0, on_pong_fake.call_count, "callback for pong frames was called");
-	TEST_ASSERT_EQUAL_MESSAGE(0, on_close_fake.call_count, "close was not called");
+	TEST_ASSERT_EQUAL_MESSAGE(0, on_close_fake.call_count, "close callback was called");
+
+	if (data) {
+		free(data);
+	}
+}
+
+static void test_rsv_bit_in_header(void)
+{
+	uint32_t frame_size = 5;
+	char *data = malloc(frame_size);
+	memset(data, 'a', frame_size);
+	struct ws_frame frames[] = {
+		{.frame_type = CIO_WEBSOCKET_TEXT_FRAME, .direction = FROM_CLIENT, .data = data, .data_length = frame_size, .last_frame = true},
+		{.frame_type = CIO_WEBSOCKET_CLOSE_FRAME, .direction = FROM_CLIENT, .data = NULL, .data_length = 0, .last_frame = true},
+	};
+
+	serialize_frames(frames, ARRAY_SIZE(frames), true);
+	read_exactly_fake.custom_fake = bs_read_exactly_from_buffer;
+
+	ws->internal_on_connect(ws);
+
+	TEST_ASSERT_EQUAL_MESSAGE(0, on_binaryframe_fake.call_count, "callback for binary frames was called");
+	TEST_ASSERT_EQUAL_MESSAGE(0, on_textframe_fake.call_count, "callback for text frames was not called");
+
+	TEST_ASSERT_EQUAL_MESSAGE(1, on_error_fake.call_count, "error callback was called");
+	TEST_ASSERT_EQUAL_MESSAGE(ws, on_error_fake.arg0_val, "ws parameter in error callback not correct");
+	TEST_ASSERT_EQUAL_MESSAGE(CIO_WEBSOCKET_CLOSE_PROTOCOL_ERROR, on_error_fake.arg1_val, "error callback called with wrong status code");
+	TEST_ASSERT_EQUAL_MESSAGE(0, on_ping_fake.call_count, "callback for ping frames was called");
+	TEST_ASSERT_EQUAL_MESSAGE(0, on_pong_fake.call_count, "callback for pong frames was called");
+	TEST_ASSERT_EQUAL_MESSAGE(0, on_close_fake.call_count, "close callback was called");
 
 	if (data) {
 		free(data);
@@ -1168,6 +1202,8 @@ int main(void)
 
 	RUN_TEST(test_close_in_get_payload);
 	RUN_TEST(test_read_error_in_get_payload);
+
+	RUN_TEST(test_rsv_bit_in_header);
 
 	return UNITY_END();
 }
