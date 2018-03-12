@@ -235,7 +235,6 @@ struct cio_websocket {
 
 	struct {
 		unsigned int fin : 1;
-		unsigned int rsv : 3;
 		unsigned int opcode : 4;
 		unsigned int shall_mask : 1;
 		unsigned int frag_opcode : 4;

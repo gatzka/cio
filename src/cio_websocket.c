@@ -402,11 +402,6 @@ static void handle_frame(struct cio_websocket *ws, uint8_t *data, uint64_t lengt
 {
 	ws->ws_flags.handle_frame_ctx = 1;
 
-	if (unlikely(ws->ws_flags.rsv != 0)) {
-		handle_error(ws, CIO_WEBSOCKET_CLOSE_PROTOCOL_ERROR, "reserved bit set in frame");
-		goto out;
-	}
-
 	if (unlikely((ws->ws_flags.is_server == 1) && (ws->ws_flags.shall_mask == 0))) {
 		// TODO: handle_error(s, WS_CLOSE_PROTOCOL_ERROR);
 		goto out;
@@ -673,10 +668,11 @@ static void get_header(struct cio_buffered_stream *bs, void *handler_context, en
 	}
 
 	static const uint8_t RSV_MASK = 0x70;
-	uint8_t rsv_field;
-	rsv_field = field & RSV_MASK;
-	rsv_field = rsv_field >> 4;
-	ws->ws_flags.rsv = rsv_field;
+	uint8_t rsv_field = field & RSV_MASK;
+	if (unlikely(rsv_field != 0)) {
+		handle_error(ws, CIO_WEBSOCKET_CLOSE_PROTOCOL_ERROR, "reserved bit set in frame");
+		return;
+	}
 
 	static const uint8_t OPCODE_MASK = 0x0f;
 	field = field & OPCODE_MASK;
