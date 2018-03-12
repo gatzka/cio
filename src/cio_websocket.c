@@ -609,6 +609,10 @@ static void get_first_length(struct cio_buffered_stream *bs, void *handler_conte
 	}
 }
 
+static inline bool is_control_frame(unsigned int opcode) {
+	return opcode >= CIO_WEBSOCKET_CLOSE_FRAME;
+}
+
 static void get_header(struct cio_buffered_stream *bs, void *handler_context, enum cio_error err, struct cio_read_buffer *buffer)
 {
 	struct cio_websocket *ws = (struct cio_websocket *)handler_context;
@@ -648,7 +652,7 @@ static void get_header(struct cio_buffered_stream *bs, void *handler_context, en
 
 	if (ws->ws_flags.fin == 1) {
 		if (field != CIO_WEBSOCKET_CONTINUATION_FRAME) {
-			if (unlikely(ws->ws_flags.frag_opcode)) {
+			if (unlikely(ws->ws_flags.frag_opcode && !is_control_frame(field))) {
 				handle_error(ws, CIO_WEBSOCKET_CLOSE_PROTOCOL_ERROR, "got non-continuation frame within fragmented stream");
 				return;
 			}
@@ -659,7 +663,7 @@ static void get_header(struct cio_buffered_stream *bs, void *handler_context, en
 				handle_error(ws, CIO_WEBSOCKET_CLOSE_PROTOCOL_ERROR, "got continuation frame without correct start frame");
 				return;
 			}
-
+			ws->ws_flags.opcode = ws->ws_flags.frag_opcode;
 			ws->ws_flags.frag_opcode = 0;
 		}
 	} else {
@@ -676,6 +680,8 @@ static void get_header(struct cio_buffered_stream *bs, void *handler_context, en
 				handle_error(ws, CIO_WEBSOCKET_CLOSE_PROTOCOL_ERROR, "got continuation frame without correct start frame");
 				return;
 			}
+
+			ws->ws_flags.opcode = ws->ws_flags.frag_opcode;
 		}
 	}
 
