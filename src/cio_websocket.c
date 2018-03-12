@@ -445,13 +445,6 @@ static void handle_frame(struct cio_websocket *ws, uint8_t *data, uint64_t lengt
 		cio_websocket_mask(data, length, ws->mask);
 	}
 
-	bool last_frame;
-	if (ws->ws_flags.fin == 1) {
-		last_frame = true;
-	} else {
-		last_frame = false;
-	}
-
 	unsigned int opcode;
 	if (ws->ws_flags.opcode == CIO_WEBSOCKET_CONTINUATION_FRAME) {
 		opcode = ws->ws_flags.frag_opcode;
@@ -467,11 +460,11 @@ static void handle_frame(struct cio_websocket *ws, uint8_t *data, uint64_t lengt
 
 	switch (opcode) {
 	case CIO_WEBSOCKET_BINARY_FRAME:
-		handle_binary_frame(ws, data, length, last_frame);
+		handle_binary_frame(ws, data, length, ws->ws_flags.fin == 1);
 		break;
 
 	case CIO_WEBSOCKET_TEXT_FRAME:
-		handle_text_frame(ws, data, length, last_frame);
+		handle_text_frame(ws, data, length, ws->ws_flags.fin == 1);
 		break;
 
 	case CIO_WEBSOCKET_PING_FRAME:
