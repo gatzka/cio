@@ -238,7 +238,6 @@ struct cio_websocket {
 		unsigned int opcode : 4;
 		unsigned int shall_mask : 1;
 		unsigned int frag_opcode : 4;
-		unsigned int is_fragmented : 1;
 		unsigned int self_initiated_close : 1;
 		unsigned int to_be_closed : 1;
 		unsigned int is_server : 1;

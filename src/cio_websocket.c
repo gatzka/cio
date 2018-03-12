@@ -407,53 +407,17 @@ static void handle_frame(struct cio_websocket *ws, uint8_t *data, uint64_t lengt
 		goto out;
 	}
 
-	if (unlikely((ws->ws_flags.fin == 0) && (ws->ws_flags.opcode >= CIO_WEBSOCKET_CLOSE_FRAME))) {
-		handle_error(ws, CIO_WEBSOCKET_CLOSE_PROTOCOL_ERROR, "got fragmented control frame");
-		goto out;
-	}
-
-	if (ws->ws_flags.fin == 0) {
-		if (ws->ws_flags.opcode != CIO_WEBSOCKET_CONTINUATION_FRAME) {
-			if (unlikely(ws->ws_flags.is_fragmented)) {
-				handle_error(ws, CIO_WEBSOCKET_CLOSE_PROTOCOL_ERROR, "new opcode for within fragmented frames");
-				goto out;
-			}
-
-			ws->ws_flags.is_fragmented = 1;
-			ws->ws_flags.frag_opcode = ws->ws_flags.opcode;
-			ws->ws_flags.opcode = CIO_WEBSOCKET_CONTINUATION_FRAME;
-		} else {
-			if (unlikely(!(ws->ws_flags.is_fragmented))) {
-				handle_error(ws, CIO_WEBSOCKET_CLOSE_PROTOCOL_ERROR, "opcode for continuation frame not correct");
-				goto out;
-			}
-		}
-	}
-
-	if (unlikely(ws->ws_flags.is_fragmented && ((ws->ws_flags.opcode < CIO_WEBSOCKET_CLOSE_FRAME) && (ws->ws_flags.opcode > CIO_WEBSOCKET_CONTINUATION_FRAME)))) {
-		//AB tested
-		handle_error(ws, CIO_WEBSOCKET_CLOSE_PROTOCOL_ERROR, "opcode for continuation frame not correct");
-		goto out;
-	}
-
 	if (ws->ws_flags.shall_mask != 0) {
 		cio_websocket_mask(data, length, ws->mask);
 	}
 
-	unsigned int opcode;
-	if (ws->ws_flags.opcode == CIO_WEBSOCKET_CONTINUATION_FRAME) {
-		opcode = ws->ws_flags.frag_opcode;
-	} else {
-		opcode = ws->ws_flags.opcode;
-	}
-
-	if (unlikely(((opcode >= CIO_WEBSOCKET_CLOSE_FRAME) && (opcode <= CIO_WEBSOCKET_PONG_FRAME)) && (length > CIO_WEBSOCKET_SMALL_FRAME_SIZE))) {
+	if (unlikely(((ws->ws_flags.opcode >= CIO_WEBSOCKET_CLOSE_FRAME) && (ws->ws_flags.opcode <= CIO_WEBSOCKET_PONG_FRAME)) && (length > CIO_WEBSOCKET_SMALL_FRAME_SIZE))) {
 		//AB tested
 		handle_error(ws, CIO_WEBSOCKET_CLOSE_PROTOCOL_ERROR, "payload of control frame too long");
 		goto out;
 	}
 
-	switch (opcode) {
+	switch (ws->ws_flags.opcode) {
 	case CIO_WEBSOCKET_BINARY_FRAME:
 		handle_binary_frame(ws, data, length, ws->ws_flags.fin == 1);
 		break;
@@ -676,7 +640,45 @@ static void get_header(struct cio_buffered_stream *bs, void *handler_context, en
 
 	static const uint8_t OPCODE_MASK = 0x0f;
 	field = field & OPCODE_MASK;
-	ws->ws_flags.opcode = field;
+
+	if (unlikely((ws->ws_flags.fin == 0) && (field >= CIO_WEBSOCKET_CLOSE_FRAME))) {
+		handle_error(ws, CIO_WEBSOCKET_CLOSE_PROTOCOL_ERROR, "got fragmented control frame");
+		return;
+	}
+
+	if (ws->ws_flags.fin == 1) {
+		if (field != CIO_WEBSOCKET_CONTINUATION_FRAME) {
+			if (unlikely(ws->ws_flags.frag_opcode)) {
+				handle_error(ws, CIO_WEBSOCKET_CLOSE_PROTOCOL_ERROR, "got non-continuation frame within fragmented stream");
+				return;
+			}
+
+			ws->ws_flags.opcode = field;
+		} else {
+			if (unlikely(!ws->ws_flags.frag_opcode)) {
+				handle_error(ws, CIO_WEBSOCKET_CLOSE_PROTOCOL_ERROR, "got continuation frame without correct start frame");
+				return;
+			}
+
+			ws->ws_flags.frag_opcode = 0;
+		}
+	} else {
+		if (field != CIO_WEBSOCKET_CONTINUATION_FRAME) {
+			if (unlikely(ws->ws_flags.frag_opcode)) {
+				handle_error(ws, CIO_WEBSOCKET_CLOSE_PROTOCOL_ERROR, "got non-continuation frame within fragmented stream");
+				return;
+			}
+
+			ws->ws_flags.frag_opcode = field;
+			ws->ws_flags.opcode = field;
+		} else {
+			if (unlikely(!ws->ws_flags.frag_opcode)) {
+				handle_error(ws, CIO_WEBSOCKET_CLOSE_PROTOCOL_ERROR, "got continuation frame without correct start frame");
+				return;
+			}
+		}
+	}
+
 	err = bs->read_exactly(bs, buffer, 1, get_first_length, ws);
 	if (unlikely(err != CIO_SUCCESS)) {
 		handle_error(ws, CIO_WEBSOCKET_CLOSE_INTERNAL_ERROR, "error while start reading websocket frame length");
@@ -778,7 +780,7 @@ void cio_websocket_init(struct cio_websocket *ws, bool is_server, cio_websocket_
 	ws->write_textframe = write_text_frame;
 	ws->close_hook = close_hook;
 	ws->ws_flags.is_server = is_server ? 1 : 0;
-	ws->ws_flags.is_fragmented = 0;
+	ws->ws_flags.frag_opcode = 0;
 	ws->ws_flags.self_initiated_close = 0;
 	ws->ws_flags.to_be_closed = 0;
 	ws->ws_flags.writing_frame = 0;
