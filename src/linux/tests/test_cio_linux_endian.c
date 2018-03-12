@@ -33,7 +33,6 @@
 
 DEFINE_FFF_GLOBALS
 
-
 void setUp(void)
 {
 	FFF_RESET_HISTORY();
