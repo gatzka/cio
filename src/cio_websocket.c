@@ -411,12 +411,6 @@ static void handle_frame(struct cio_websocket *ws, uint8_t *data, uint64_t lengt
 		cio_websocket_mask(data, length, ws->mask);
 	}
 
-	if (unlikely(((ws->ws_flags.opcode >= CIO_WEBSOCKET_CLOSE_FRAME) && (ws->ws_flags.opcode <= CIO_WEBSOCKET_PONG_FRAME)) && (length > CIO_WEBSOCKET_SMALL_FRAME_SIZE))) {
-		//AB tested
-		handle_error(ws, CIO_WEBSOCKET_CLOSE_PROTOCOL_ERROR, "payload of control frame too long");
-		goto out;
-	}
-
 	switch (ws->ws_flags.opcode) {
 	case CIO_WEBSOCKET_BINARY_FRAME:
 		handle_binary_frame(ws, data, length, ws->ws_flags.fin == 1);
@@ -598,10 +592,17 @@ static void get_first_length(struct cio_buffered_stream *bs, void *handler_conte
 	if (field <= CIO_WEBSOCKET_SMALL_FRAME_SIZE) {
 		ws->read_frame_length = (uint64_t)field;
 		get_mask_or_payload(ws, bs, buffer);
-	} else if (field == CIO_WEBSOCKET_SMALL_FRAME_SIZE + 1) {
-		err = bs->read_exactly(bs, buffer, 2, get_length16, ws);
 	} else {
-		err = bs->read_exactly(bs, buffer, 8, get_length64, ws);
+		if (unlikely((ws->ws_flags.opcode >= CIO_WEBSOCKET_CLOSE_FRAME) && (ws->ws_flags.opcode <= CIO_WEBSOCKET_PONG_FRAME))) {
+			handle_error(ws, CIO_WEBSOCKET_CLOSE_PROTOCOL_ERROR, "payload of control frame too long");
+			return;
+		}
+
+		if (field == CIO_WEBSOCKET_SMALL_FRAME_SIZE + 1) {
+			err = bs->read_exactly(bs, buffer, 2, get_length16, ws);
+		} else {
+			err = bs->read_exactly(bs, buffer, 8, get_length64, ws);
+		}
 	}
 
 	if (unlikely(err != CIO_SUCCESS)) {
