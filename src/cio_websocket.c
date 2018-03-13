@@ -566,6 +566,11 @@ static void get_length64(struct cio_buffered_stream *bs, void *handler_context, 
 	get_mask_or_payload(ws, bs, buffer);
 }
 
+static inline bool is_control_frame(unsigned int opcode)
+{
+	return opcode >= CIO_WEBSOCKET_CLOSE_FRAME;
+}
+
 static void get_first_length(struct cio_buffered_stream *bs, void *handler_context, enum cio_error err, struct cio_read_buffer *buffer)
 {
 	struct cio_websocket *ws = (struct cio_websocket *)handler_context;
@@ -593,7 +598,7 @@ static void get_first_length(struct cio_buffered_stream *bs, void *handler_conte
 		ws->read_frame_length = (uint64_t)field;
 		get_mask_or_payload(ws, bs, buffer);
 	} else {
-		if (unlikely((ws->ws_flags.opcode >= CIO_WEBSOCKET_CLOSE_FRAME) && (ws->ws_flags.opcode <= CIO_WEBSOCKET_PONG_FRAME))) {
+		if (unlikely(is_control_frame(ws->ws_flags.opcode))) {
 			handle_error(ws, CIO_WEBSOCKET_CLOSE_PROTOCOL_ERROR, "payload of control frame too long");
 			return;
 		}
@@ -608,11 +613,6 @@ static void get_first_length(struct cio_buffered_stream *bs, void *handler_conte
 	if (unlikely(err != CIO_SUCCESS)) {
 		handle_error(ws, CIO_WEBSOCKET_CLOSE_INTERNAL_ERROR, "error while start reading extended websocket frame length");
 	}
-}
-
-static inline bool is_control_frame(unsigned int opcode)
-{
-	return opcode >= CIO_WEBSOCKET_CLOSE_FRAME;
 }
 
 static void get_header(struct cio_buffered_stream *bs, void *handler_context, enum cio_error err, struct cio_read_buffer *buffer)
