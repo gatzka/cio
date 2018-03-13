@@ -1411,6 +1411,36 @@ static void test_binary_frame_within_fragment(void)
 	}
 }
 
+static void test_wrong_fragment_start(void)
+{
+	uint32_t frame_size = 5;
+	char *data = malloc(frame_size);
+	memset(data, 'a', frame_size);
+
+	struct ws_frame frames[] = {
+		{.frame_type = CIO_WEBSOCKET_CONTINUATION_FRAME, .direction = FROM_CLIENT, .data = data, .data_length = frame_size, .last_frame = true, .rsv = false},
+		{.frame_type = CIO_WEBSOCKET_CONTINUATION_FRAME, .direction = FROM_CLIENT, .data = data, .data_length = frame_size, .last_frame = true, .rsv = false},
+		{.frame_type = CIO_WEBSOCKET_CLOSE_FRAME, .direction = FROM_CLIENT, .data = NULL, .data_length = 0, .last_frame = true, .rsv = false},
+	};
+
+	serialize_frames(frames, ARRAY_SIZE(frames));
+	read_exactly_fake.custom_fake = bs_read_exactly_from_buffer;
+
+	ws->internal_on_connect(ws);
+
+	TEST_ASSERT_EQUAL_MESSAGE(0, on_binaryframe_fake.call_count, "callback for binary frames was called");
+	TEST_ASSERT_EQUAL_MESSAGE(0, on_textframe_fake.call_count, "callback for text frames was not called correctly");
+
+	TEST_ASSERT_EQUAL_MESSAGE(1, on_error_fake.call_count, "error callback was not called");
+	TEST_ASSERT_EQUAL_MESSAGE(0, on_ping_fake.call_count, "callback for ping frames was called");
+	TEST_ASSERT_EQUAL_MESSAGE(0, on_pong_fake.call_count, "callback for pong frames was called");
+	TEST_ASSERT_EQUAL_MESSAGE(0, on_close_fake.call_count, "close callback was not called");
+
+	if (data) {
+		free(data);
+	}
+}
+
 int main(void)
 {
 	UNITY_BEGIN();
@@ -1453,6 +1483,7 @@ int main(void)
 	RUN_TEST(test_wrong_opcode_in_fragment);
 	RUN_TEST(test_ping_within_fragment);
 	RUN_TEST(test_binary_frame_within_fragment);
+	RUN_TEST(test_wrong_fragment_start);
 
 	return UNITY_END();
 }
