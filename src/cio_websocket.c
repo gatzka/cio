@@ -348,25 +348,6 @@ static void handle_close_frame(struct cio_websocket *ws, uint8_t *data, uint64_t
 	}
 }
 
-static int payload_size_in_limit(const struct cio_write_buffer *payload, size_t limit)
-{
-	if (payload != NULL) {
-		size_t payload_length = 0;
-
-		const struct cio_write_buffer *element = payload;
-		for (size_t i = 0; i < payload->data.q_len; i++) {
-			element = element->next;
-			payload_length += element->data.element.length;
-		}
-
-		if (unlikely(payload_length > limit)) {
-			return 0;
-		}
-	}
-
-	return 1;
-}
-
 static void self_close_frame(struct cio_websocket *ws, enum cio_websocket_status_code status_code, struct cio_write_buffer *reason)
 {
 	send_close_frame_wait_for_response(ws, status_code, reason);
@@ -726,6 +707,25 @@ static enum cio_websocket_status write_binary_frame(struct cio_websocket *ws, st
 	} else {
 		return CIO_WEBSOCKET_STATUS_OK;
 	}
+}
+
+static int payload_size_in_limit(const struct cio_write_buffer *payload, size_t limit)
+{
+	if (payload != NULL) {
+		size_t payload_length = 0;
+
+		const struct cio_write_buffer *element = payload;
+		for (size_t i = 0; i < payload->data.q_len; i++) {
+			element = element->next;
+			payload_length += element->data.element.length;
+		}
+
+		if (unlikely(payload_length > limit)) {
+			return 0;
+		}
+	}
+
+	return 1;
 }
 
 static enum cio_websocket_status write_ping_frame(struct cio_websocket *ws, struct cio_write_buffer *payload, cio_websocket_write_handler handler, void *handler_context)
