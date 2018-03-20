@@ -1726,6 +1726,33 @@ static void test_text_frame_no_callback(void)
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_WEBSOCKET_CLOSE_UNSUPPORTED, on_error_fake.arg1_val, "error code parameter in error frame callback not correct");
 }
 
+static void test_text_frame_fragmented_not_utf8(void)
+{
+	uint8_t data0[] = "Hello";
+	uint8_t data1[] = {'\xe4','\xbd','\xa0','\xe5','\xa5'};
+
+	struct ws_frame frames[] = {
+		{.frame_type = CIO_WEBSOCKET_TEXT_FRAME, .direction = FROM_CLIENT, .data = data0, .data_length = sizeof(data0), .last_frame = false, .rsv = false},
+		{.frame_type = CIO_WEBSOCKET_CONTINUATION_FRAME, .direction = FROM_CLIENT, .data = data1, .data_length = sizeof(data1), .last_frame = true, .rsv = false},
+		{.frame_type = CIO_WEBSOCKET_CLOSE_FRAME, .direction = FROM_CLIENT, .data = NULL, .data_length = 0, .last_frame = true, .rsv = false},
+	};
+
+	serialize_frames(frames, ARRAY_SIZE(frames));
+	read_exactly_fake.custom_fake = bs_read_exactly_from_buffer;
+	bs_write_fake.custom_fake = bs_write_ok;
+
+	ws->internal_on_connect(ws);
+
+	TEST_ASSERT_EQUAL_MESSAGE(1, on_textframe_fake.call_count, "callback for text frames was not called");
+	TEST_ASSERT_EQUAL_MESSAGE(0, on_binaryframe_fake.call_count, "callback for binary frames was called");
+	TEST_ASSERT_EQUAL_MESSAGE(0, on_ping_fake.call_count, "callback for ping frames was called");
+	TEST_ASSERT_EQUAL_MESSAGE(0, on_pong_fake.call_count, "callback for pong frames was called");
+	TEST_ASSERT_EQUAL_MESSAGE(0, on_close_fake.call_count, "close callback was called");
+	TEST_ASSERT_EQUAL_MESSAGE(1, on_error_fake.call_count, "error callback was not called");
+	TEST_ASSERT_EQUAL_MESSAGE(ws, on_error_fake.arg0_val, "ws parameter in error frame callback not correct");
+	TEST_ASSERT_EQUAL_MESSAGE(CIO_WEBSOCKET_CLOSE_UNSUPPORTED_DATA, on_error_fake.arg1_val, "error code parameter in error frame callback not correct");
+}
+
 int main(void)
 {
 	UNITY_BEGIN();
@@ -1783,6 +1810,7 @@ int main(void)
 	RUN_TEST(test_close_reason_not_utf8);
 	RUN_TEST(test_text_frame_not_utf8);
 	RUN_TEST(test_text_frame_no_callback);
+	RUN_TEST(test_text_frame_fragmented_not_utf8);
 
 	return UNITY_END();
 }
