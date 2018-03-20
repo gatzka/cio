@@ -258,6 +258,17 @@ static void on_ping_frame_save_data(struct cio_websocket *websocket, const uint8
 	read_back_buffer_pos += length;
 }
 
+static void on_close_frame_save_data(const struct cio_websocket *websocket, enum cio_websocket_status_code status, const char *reason, size_t length)
+{
+	(void)websocket;
+	uint16_t stat = status;
+	stat = be16toh(stat);
+	memcpy(&read_back_buffer[read_back_buffer_pos], &stat, sizeof(status));
+	read_back_buffer_pos += sizeof(stat);
+	memcpy(&read_back_buffer[read_back_buffer_pos], reason, length);
+	read_back_buffer_pos += length;
+}
+
 static void websocket_free(struct cio_websocket *s)
 {
 	free(s);
@@ -1580,8 +1591,6 @@ static void test_short_close_status(void)
 
 	serialize_frames(frames, ARRAY_SIZE(frames));
 	read_exactly_fake.custom_fake = bs_read_exactly_from_buffer;
-	bs_write_fake.custom_fake = bs_write_later;
-	on_ping_fake.custom_fake = on_ping_frame_save_data;
 
 	ws->internal_on_connect(ws);
 
@@ -1593,6 +1602,31 @@ static void test_short_close_status(void)
 	TEST_ASSERT_EQUAL_MESSAGE(1, on_error_fake.call_count, "error callback was not called");
 	TEST_ASSERT_EQUAL_MESSAGE(ws, on_error_fake.arg0_val, "ws parameter in error frame callback not correct");
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_WEBSOCKET_CLOSE_PROTOCOL_ERROR, on_error_fake.arg1_val, "error code parameter in error frame callback not correct");
+}
+
+static void test_close_with_message(void)
+{
+
+	uint8_t data[] = {0x3, 0xe8, 'G', 'o', 'o', 'd', ' ', 'B', 'y', 'e'};
+
+	struct ws_frame frames[] = {
+		{.frame_type = CIO_WEBSOCKET_CLOSE_FRAME, .direction = FROM_CLIENT, .data = data, .data_length = sizeof(data), .last_frame = true, .rsv = false},
+	};
+
+	serialize_frames(frames, ARRAY_SIZE(frames));
+	read_exactly_fake.custom_fake = bs_read_exactly_from_buffer;
+	on_close_fake.custom_fake = on_close_frame_save_data;
+
+	ws->internal_on_connect(ws);
+
+	TEST_ASSERT_EQUAL_MESSAGE(0, on_textframe_fake.call_count, "callback for text frames was called");
+	TEST_ASSERT_EQUAL_MESSAGE(0, on_binaryframe_fake.call_count, "callback for binary frames was called");
+	TEST_ASSERT_EQUAL_MESSAGE(0, on_ping_fake.call_count, "callback for ping frames was called");
+	TEST_ASSERT_EQUAL_MESSAGE(0, on_pong_fake.call_count, "callback for pong frames was called");
+	TEST_ASSERT_EQUAL_MESSAGE(1, on_close_fake.call_count, "close callback was called");
+	TEST_ASSERT_EQUAL_MESSAGE(ws, on_close_fake.arg0_val, "ws parameter in close callback not correct");
+	TEST_ASSERT_EQUAL_MESSAGE(0, on_error_fake.call_count, "error callback was not called");
+	TEST_ASSERT_EQUAL_MEMORY_MESSAGE(data, read_back_buffer, sizeof(data), "echoed data in close frame not correct");
 }
 
 int main(void)
@@ -1646,6 +1680,7 @@ int main(void)
 	RUN_TEST(test_ping_frame_pong_not_written);
 
 	RUN_TEST(test_short_close_status);
+	RUN_TEST(test_close_with_message);
 
 	return UNITY_END();
 }
