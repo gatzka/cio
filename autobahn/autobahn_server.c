@@ -46,7 +46,6 @@ static struct cio_eventloop loop;
 #define read_buffer_size 16 * 1024 * 1024
 
 static const uint64_t read_timeout = UINT64_C(5) * UINT64_C(1000) * UINT64_C(1000) * UINT64_C(1000);
-static const uint64_t ping_period_ns = UINT64_C(1) * UINT64_C(1000) * UINT64_C(1000) * UINT64_C(1000);
 
 struct ws_autobahn_handler {
 	struct cio_websocket_location_handler ws_handler;
