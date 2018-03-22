@@ -29,6 +29,9 @@ import qbs 1.0
 CppApplication {
   name: "autobahn_server"
   Depends { name:"cio-static"}
+  
+  cpp.warningLevel: "all"
+  cpp.treatWarningsAsErrors: true
 
   files: [
     "autobahn_server.c"
