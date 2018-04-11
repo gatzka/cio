@@ -225,9 +225,7 @@ static void prepare_close_message(struct cio_websocket *ws, struct cio_write_buf
 	cio_write_buffer_head_init(wbh);
 	cio_write_buffer_queue_tail(wbh, &ws->wb_close_status);
 	if (reason != NULL) {
-		if (payload_size_in_limit(reason, CIO_WEBSOCKET_SMALL_FRAME_SIZE - sizeof(status_code))) {
-			cio_write_buffer_splice(reason, wbh);
-		}
+		cio_write_buffer_splice(reason, wbh);
 	}
 }
 
@@ -272,7 +270,7 @@ static void handle_error(struct cio_websocket *ws, enum cio_websocket_status_cod
 
 	struct cio_write_buffer wbh;
 	cio_write_buffer_head_init(&wbh);
-	strncpy((char *)ws->send_control_frame_buffer, reason, sizeof(ws->send_control_frame_buffer));
+	strncpy((char *)ws->send_control_frame_buffer, reason, sizeof(ws->send_control_frame_buffer) - sizeof(ws->close_status));
 	cio_write_buffer_element_init(&ws->wb_control_data, ws->send_control_frame_buffer, strlen(reason));
 	cio_write_buffer_queue_tail(&wbh, &ws->wb_control_data);
 
@@ -365,9 +363,17 @@ static void handle_close_frame(struct cio_websocket *ws, uint8_t *data, uint64_t
 	}
 }
 
-static void self_close_frame(struct cio_websocket *ws, enum cio_websocket_status_code status_code, struct cio_write_buffer *reason)
+static void self_close_frame(struct cio_websocket *ws, enum cio_websocket_status_code status_code, const char *reason)
 {
-	send_close_frame_wait_for_response(ws, status_code, reason);
+	struct cio_write_buffer wbh;
+	cio_write_buffer_head_init(&wbh);
+	if (reason != NULL) {
+		strncpy((char *)ws->send_control_frame_buffer, reason, sizeof(ws->send_control_frame_buffer) - sizeof(ws->close_status));
+		cio_write_buffer_element_init(&ws->wb_control_data, ws->send_control_frame_buffer, strlen(reason));
+		cio_write_buffer_queue_tail(&wbh, &ws->wb_control_data);
+	}
+
+	send_close_frame_wait_for_response(ws, status_code, &wbh);
 }
 
 static void get_header(struct cio_buffered_stream *bs, void *handler_context, enum cio_error err, struct cio_read_buffer *buffer);

@@ -79,10 +79,7 @@ static void on_textframe(struct cio_websocket *ws, uint8_t *data, size_t length,
 
 	if (length + eh->bytes_in_echo_buffer > read_buffer_size) {
 		const char *error_msg = "payload too large for read buffer in autobahn test";
-		cio_write_buffer_head_init(&eh->wbh);
-		cio_write_buffer_const_element_init(&eh->wb_message, error_msg, strlen(error_msg));
-		cio_write_buffer_queue_tail(&eh->wbh, &eh->wb_message);
-		ws->close(ws, CIO_WEBSOCKET_CLOSE_TOO_LARGE, &eh->wbh);
+		ws->close(ws, CIO_WEBSOCKET_CLOSE_TOO_LARGE, error_msg);
 		return;
 	}
 
@@ -107,10 +104,7 @@ static void on_binaryframe(struct cio_websocket *ws, uint8_t *data, size_t lengt
 
 	if (length + eh->bytes_in_echo_buffer > read_buffer_size) {
 		const char *error_msg = "payload too large for read buffer in autobahn test";
-		cio_write_buffer_head_init(&eh->wbh);
-		cio_write_buffer_const_element_init(&eh->wb_message, error_msg, strlen(error_msg));
-		cio_write_buffer_queue_tail(&eh->wbh, &eh->wb_message);
-		ws->close(ws, CIO_WEBSOCKET_CLOSE_TOO_LARGE, &eh->wbh);
+		ws->close(ws, CIO_WEBSOCKET_CLOSE_TOO_LARGE, error_msg);
 		return;
 	}
 

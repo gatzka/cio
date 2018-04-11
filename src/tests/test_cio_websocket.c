@@ -683,7 +683,6 @@ static void test_ping_frame_payload_too_long(void)
 	TEST_ASSERT_EQUAL_STRING_MESSAGE("payload of control frame too long", read_back_buffer, "reason in error callback not correct");
 	TEST_ASSERT_MESSAGE(is_close_frame(), "written frame is not a close frame!");
 	TEST_ASSERT_EQUAL_MESSAGE(close_status_code, CIO_WEBSOCKET_CLOSE_PROTOCOL_ERROR, "status code not correct!");
-
 }
 
 static void test_ping_frame_payload_too_long_no_error_callback(void)
@@ -1849,6 +1848,77 @@ static void test_binary_frame_no_callback(void)
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_WEBSOCKET_CLOSE_UNSUPPORTED, on_error_fake.arg1_val, "error code parameter in error frame callback not correct");
 }
 
+static void close_with_no_reason(struct cio_websocket *s, uint8_t *data, size_t length, bool last_frame)
+{
+	(void)data;
+	(void)length;
+	(void)last_frame;
+	ws->close(s, CIO_WEBSOCKET_CLOSE_GOING_AWAY, NULL);
+}
+
+static void test_close_in_textframe_callback(void)
+{
+	uint8_t data[] = "Hello";
+
+	struct ws_frame frames[] = {
+		{.frame_type = CIO_WEBSOCKET_TEXT_FRAME, .direction = FROM_CLIENT, .data = data, .data_length = sizeof(data), .last_frame = true, .rsv = false},
+		{.frame_type = CIO_WEBSOCKET_CLOSE_FRAME, .direction = FROM_CLIENT, .data = NULL, .data_length = 0, .last_frame = true, .rsv = false},
+	};
+
+	serialize_frames(frames, ARRAY_SIZE(frames));
+	read_exactly_fake.custom_fake = bs_read_exactly_from_buffer;
+	bs_write_fake.custom_fake = bs_write_ok;
+	on_textframe_fake.custom_fake = close_with_no_reason;
+
+	ws->internal_on_connect(ws);
+
+	TEST_ASSERT_EQUAL_MESSAGE(1, on_textframe_fake.call_count, "callback for text frames was called");
+	TEST_ASSERT_EQUAL_MESSAGE(0, on_binaryframe_fake.call_count, "callback for binary frames was called");
+	TEST_ASSERT_EQUAL_MESSAGE(0, on_ping_fake.call_count, "callback for ping frames was called");
+	TEST_ASSERT_EQUAL_MESSAGE(0, on_pong_fake.call_count, "callback for pong frames was called");
+	TEST_ASSERT_EQUAL_MESSAGE(0, on_close_fake.call_count, "close callback was called");
+	TEST_ASSERT_EQUAL_MESSAGE(0, on_error_fake.call_count, "error callback was not called");
+	TEST_ASSERT_MESSAGE(is_close_frame(), "written frame is not a close frame!");
+	TEST_ASSERT_EQUAL_MESSAGE(close_status_code, CIO_WEBSOCKET_CLOSE_GOING_AWAY, "status code not correct!");
+}
+
+static void close_with_overlong_reason(struct cio_websocket *s, uint8_t *data, size_t length, bool last_frame)
+{
+	(void)data;
+	(void)length;
+	(void)last_frame;
+	char buf[127];
+	memset(buf, 0x00, sizeof(buf));
+	buf[126] = '\0';
+	ws->close(s, CIO_WEBSOCKET_CLOSE_GOING_AWAY, buf);
+}
+
+static void test_close_with_overlong_reason_in_textframe_callback(void)
+{
+	uint8_t data[] = "Hello";
+
+	struct ws_frame frames[] = {
+		{.frame_type = CIO_WEBSOCKET_TEXT_FRAME, .direction = FROM_CLIENT, .data = data, .data_length = sizeof(data), .last_frame = true, .rsv = false},
+		{.frame_type = CIO_WEBSOCKET_CLOSE_FRAME, .direction = FROM_CLIENT, .data = NULL, .data_length = 0, .last_frame = true, .rsv = false},
+	};
+
+	serialize_frames(frames, ARRAY_SIZE(frames));
+	read_exactly_fake.custom_fake = bs_read_exactly_from_buffer;
+	bs_write_fake.custom_fake = bs_write_ok;
+	on_textframe_fake.custom_fake = close_with_overlong_reason;
+
+	ws->internal_on_connect(ws);
+
+	TEST_ASSERT_EQUAL_MESSAGE(1, on_textframe_fake.call_count, "callback for text frames was called");
+	TEST_ASSERT_EQUAL_MESSAGE(0, on_binaryframe_fake.call_count, "callback for binary frames was called");
+	TEST_ASSERT_EQUAL_MESSAGE(0, on_ping_fake.call_count, "callback for ping frames was called");
+	TEST_ASSERT_EQUAL_MESSAGE(0, on_pong_fake.call_count, "callback for pong frames was called");
+	TEST_ASSERT_EQUAL_MESSAGE(0, on_close_fake.call_count, "close callback was called");
+	TEST_ASSERT_EQUAL_MESSAGE(0, on_error_fake.call_count, "error callback was not called");
+	TEST_ASSERT_MESSAGE(is_close_frame(), "written frame is not a close frame!");
+	TEST_ASSERT_EQUAL_MESSAGE(close_status_code, CIO_WEBSOCKET_CLOSE_GOING_AWAY, "status code not correct!");
+}
+
 int main(void)
 {
 	UNITY_BEGIN();
@@ -1910,6 +1980,9 @@ int main(void)
 	RUN_TEST(test_text_frame_fragmented_not_utf8);
 
 	RUN_TEST(test_binary_frame_no_callback);
+
+	RUN_TEST(test_close_in_textframe_callback);
+	RUN_TEST(test_close_with_overlong_reason_in_textframe_callback);
 
 	return UNITY_END();
 }

@@ -87,7 +87,7 @@ struct cio_websocket {
 	 * @param status The @ref cio_websocket_status_code "websocket status code" to be sent.
 	 * @param reason A buffer which contains the reason for the close in an UTF8 encoded string. Could be @c NULL if no reason should be sent.
 	 */
-	void (*close)(struct cio_websocket *ws, enum cio_websocket_status_code status, struct cio_write_buffer *reason);
+	void (*close)(struct cio_websocket *ws, enum cio_websocket_status_code status, const char *reason);
 
 	/**
 	 * @brief A pointer to a function which is called when a websocket connection was established.
