@@ -31,6 +31,7 @@
 #include <string.h>
 
 #include "cio_buffered_stream.h"
+#include "cio_endian.h"
 #include "cio_error_code.h"
 #include "cio_eventloop.h"
 #include "cio_random.h"
@@ -101,7 +102,10 @@ FAKE_VOID_FUNC(on_pong, struct cio_websocket *, uint8_t *, size_t)
 #endif
 
 #define WS_HEADER_FIN 0x80
+#define WS_CLOSE_FRAME 0x8
 #define WS_MASK_SET 0x80
+#define WS_PAYLOAD_LENGTH 0x7f
+
 
 void cio_random_get_bytes(void *bytes, size_t num_bytes)
 {
@@ -125,6 +129,35 @@ static size_t frame_buffer_fill_pos = 0;
 static uint8_t read_buffer[140000];
 static uint8_t read_back_buffer[140000];
 static size_t read_back_buffer_pos = 0;
+static uint8_t write_buffer[1000];
+static size_t write_buffer_pos = 0;
+
+static uint16_t close_status_code = 0;
+
+static bool is_close_frame()
+{
+	if ((write_buffer[0] & WS_HEADER_FIN) == 0) {
+		return false;
+	}
+
+	if ((write_buffer[0] & WS_CLOSE_FRAME) == 0) {
+		return false;
+	}
+
+	if ((write_buffer[1] & WS_MASK_SET) != 0) {
+		return false;
+	}
+
+	size_t len = write_buffer[1] & WS_PAYLOAD_LENGTH;
+	if (len < 2) {
+		return false;
+	}
+
+	memcpy(&close_status_code, &write_buffer[2], sizeof(close_status_code));
+	close_status_code = cio_be16toh(close_status_code);
+
+	return true;
+}
 
 static void serialize_frames(struct ws_frame frames[], size_t num_frames)
 {
@@ -276,6 +309,13 @@ static void websocket_free(struct cio_websocket *s)
 
 static enum cio_error bs_write_ok(struct cio_buffered_stream *bs, struct cio_write_buffer *buf, cio_buffered_stream_write_handler handler, void *handler_context)
 {
+	size_t len = buf->data.q_len;
+	for (unsigned int i = 0; i < len; i++) {
+		buf = buf->next;
+		memcpy(&write_buffer[write_buffer_pos], buf->data.element.data, buf->data.element.length);
+		write_buffer_pos += buf->data.element.length;
+	}
+
 	handler(bs, handler_context, buf, CIO_SUCCESS);
 	return CIO_SUCCESS;
 }
@@ -335,6 +375,8 @@ void setUp(void)
 	frame_buffer_read_pos = 0;
 	frame_buffer_fill_pos = 0;
 	read_back_buffer_pos = 0;
+	write_buffer_pos = 0;
+	memset(write_buffer, 0x00, sizeof(write_buffer));
 }
 
 static void test_unfragmented_frames(void)
@@ -639,6 +681,34 @@ static void test_ping_frame_payload_too_long(void)
 	TEST_ASSERT_EQUAL_MESSAGE(ws, on_error_fake.arg0_val, "ws parameter in first fragment of error callback not correct");
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_WEBSOCKET_CLOSE_PROTOCOL_ERROR, on_error_fake.arg1_val, "status parameter in error callback not correct");
 	TEST_ASSERT_EQUAL_STRING_MESSAGE("payload of control frame too long", read_back_buffer, "reason in error callback not correct");
+	TEST_ASSERT_MESSAGE(is_close_frame(), "written frame is not a close frame!");
+	TEST_ASSERT_EQUAL_MESSAGE(close_status_code, CIO_WEBSOCKET_CLOSE_PROTOCOL_ERROR, "status code not correct!");
+
+}
+
+static void test_ping_frame_payload_too_long_no_error_callback(void)
+{
+	char data[126] = {'a'};
+
+	struct ws_frame frames[] = {
+		{.frame_type = CIO_WEBSOCKET_PING_FRAME, .direction = FROM_CLIENT, .data = data, .data_length = sizeof(data), .last_frame = true, .rsv = false},
+		{.frame_type = CIO_WEBSOCKET_CLOSE_FRAME, .direction = FROM_CLIENT, .data = NULL, .data_length = 0, .last_frame = true, .rsv = false},
+	};
+
+	serialize_frames(frames, ARRAY_SIZE(frames));
+	read_exactly_fake.custom_fake = bs_read_exactly_from_buffer;
+	bs_write_fake.custom_fake = bs_write_ok;
+	on_ping_fake.custom_fake = on_ping_frame_save_data;
+	on_error_fake.custom_fake = on_error_save_data;
+
+	ws->on_error = NULL;
+	ws->internal_on_connect(ws);
+
+	TEST_ASSERT_EQUAL_MESSAGE(0, on_textframe_fake.call_count, "callback for text frames was called");
+	TEST_ASSERT_EQUAL_MESSAGE(0, on_binaryframe_fake.call_count, "callback for binary frames was called");
+	TEST_ASSERT_EQUAL_MESSAGE(0, on_ping_fake.call_count, "callback for ping frames was not called");
+	TEST_ASSERT_EQUAL_MESSAGE(0, on_error_fake.call_count, "error callback was called");
+	TEST_ASSERT_EQUAL_MESSAGE(1, bs_write_fake.call_count, "No frame was written!");
 }
 
 static void test_close_in_get_header(void)
@@ -1790,6 +1860,7 @@ int main(void)
 	RUN_TEST(test_pong_frame_no_callback);
 	RUN_TEST(test_ping_frame_no_payload);
 	RUN_TEST(test_ping_frame_payload_too_long);
+	RUN_TEST(test_ping_frame_payload_too_long_no_error_callback);
 	RUN_TEST(test_close_frame_pong_not_written);
 
 	RUN_TEST(test_immediate_read_error_for_get_header);
