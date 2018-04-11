@@ -214,11 +214,9 @@ static int payload_size_in_limit(const struct cio_write_buffer *payload, size_t 
 		if (unlikely(payload_length > limit)) {
 			return 0;
 		}
-
-		return 1;
-	} else {
-		return 0;
 	}
+
+	return 1;
 }
 
 static void prepare_close_message(struct cio_websocket *ws, struct cio_write_buffer *wbh, enum cio_websocket_status_code status_code, struct cio_write_buffer *reason)
