@@ -36,9 +36,6 @@
 #include "cio_websocket.h"
 #include "cio_websocket_masking.h"
 
-#undef MIN
-#define MIN(X, Y) (((X) < (Y)) ? (X) : (Y))
-
 static const uint8_t WS_MASK_SET = 0x80;
 static const uint8_t WS_HEADER_FIN = 0x80;
 static const unsigned int WS_MID_FRAME_SIZE = 65535;
@@ -203,16 +200,29 @@ static void close_timeout_handler(struct cio_timer *timer, void *handler_context
 	}
 }
 
-static void send_close_frame_and_close(struct cio_websocket *ws, enum cio_websocket_status_code status_code, struct cio_write_buffer *reason)
+static void prepare_close_message(struct cio_websocket *ws, struct cio_write_buffer *wbh, enum cio_websocket_status_code status_code, struct cio_write_buffer *reason)
 {
 	ws->close_status = cio_htobe16(status_code);
-
-	struct cio_write_buffer wbh;
-	cio_write_buffer_head_init(&wbh);
-	cio_write_buffer_queue_tail(&wbh, &ws->wb_close_status);
+	cio_write_buffer_head_init(wbh);
+	cio_write_buffer_queue_tail(wbh, &ws->wb_close_status);
 	if (reason != NULL) {
-		cio_write_buffer_splice(reason, &wbh);
+		size_t reason_len = 0;
+		struct cio_write_buffer *buf = reason->next;
+		while (buf != reason) {
+			reason_len += buf->data.element.length;
+			buf = buf->next;
+		}
+
+		if (reason_len <= (CIO_WEBSOCKET_SMALL_FRAME_SIZE - sizeof(status_code))) {
+			cio_write_buffer_splice(reason, wbh);
+		}
 	}
+}
+
+static void send_close_frame_and_close(struct cio_websocket *ws, enum cio_websocket_status_code status_code, struct cio_write_buffer *reason)
+{
+	struct cio_write_buffer wbh;
+	prepare_close_message(ws, &wbh, status_code, reason);
 
 	send_frame(ws, &wbh, CIO_WEBSOCKET_CLOSE_FRAME, true, do_nothing);
 	ws->ws_flags.to_be_closed = 1;
@@ -220,14 +230,9 @@ static void send_close_frame_and_close(struct cio_websocket *ws, enum cio_websoc
 
 static void send_close_frame_wait_for_response(struct cio_websocket *ws, enum cio_websocket_status_code status_code, struct cio_write_buffer *reason)
 {
-	ws->close_status = cio_htobe16(status_code);
-
 	struct cio_write_buffer wbh;
-	cio_write_buffer_head_init(&wbh);
-	cio_write_buffer_queue_tail(&wbh, &ws->wb_close_status);
-	if (reason != NULL) {
-		cio_write_buffer_splice(reason, &wbh);
-	}
+
+	prepare_close_message(ws, &wbh, status_code, reason);
 
 	enum cio_error err = cio_timer_init(&ws->close_timer, ws->loop, NULL);
 	if (unlikely(err != CIO_SUCCESS)) {
@@ -256,7 +261,7 @@ static void handle_error(struct cio_websocket *ws, enum cio_websocket_status_cod
 	struct cio_write_buffer wbh;
 	cio_write_buffer_head_init(&wbh);
 	strncpy((char *)ws->send_control_frame_buffer, reason, sizeof(ws->send_control_frame_buffer));
-	cio_write_buffer_element_init(&ws->wb_control_data, ws->send_control_frame_buffer, MIN(strlen(reason), CIO_WEBSOCKET_SMALL_FRAME_SIZE - sizeof(status_code)));
+	cio_write_buffer_element_init(&ws->wb_control_data, ws->send_control_frame_buffer, strlen(reason));
 	cio_write_buffer_queue_tail(&wbh, &ws->wb_control_data);
 
 	send_close_frame_and_close(ws, status_code, &wbh);
