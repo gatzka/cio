@@ -465,7 +465,7 @@ static void test_fragmented_frames(void)
 	free(ws);
 }
 
-static void test_ping_frame(void)
+static void test_incoming_ping_frame(void)
 {
 	char data[] = "aaaa";
 
@@ -1784,7 +1784,7 @@ int main(void)
 	UNITY_BEGIN();
 	RUN_TEST(test_unfragmented_frames);
 	RUN_TEST(test_fragmented_frames);
-	RUN_TEST(test_ping_frame);
+	RUN_TEST(test_incoming_ping_frame);
 	RUN_TEST(test_ping_frame_no_callback);
 	RUN_TEST(test_pong_frame);
 	RUN_TEST(test_pong_frame_no_callback);
