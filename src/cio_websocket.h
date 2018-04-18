@@ -248,9 +248,6 @@ struct cio_websocket {
 	cio_websocket_write_handler write_handler;
 	void *write_handler_context;
 
-	cio_websocket_write_handler write_ping_handler;
-	void *write_ping_handler_context;
-
 	struct cio_buffered_stream *bs;
 	struct cio_read_buffer *rb;
 	struct cio_write_buffer wbh;
