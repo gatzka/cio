@@ -31,6 +31,16 @@
 extern "C" {
 #endif
 
+/**
+ * @file
+ * @brief This file contains the declarations all users of a
+ * cio_websocket need to know.
+ *
+ * @warning Please note that you always have to wait for the completion of
+ * a write call (@ref cio_write_textframe, @ref cio_write_binaryframe, @ref cio_write_pingframe)
+ * before issuing a new write call. Otherwise, you risk loss of data to be written!
+ */
+
 #include <stdbool.h>
 #include <stdint.h>
 
@@ -170,16 +180,14 @@ struct cio_websocket {
 	void (*on_error)(const struct cio_websocket *ws, enum cio_websocket_status_code status, const char *reason);
 
 	/**
-     * @brief Writes a text frame to the websocket.
+	 * @anchor cio_write_textframe
+	 * @brief Writes a text frame to the websocket.
      *
      * @warning Please note that the data @p payload encapsulates will be scrambled by
      * the library if this function is used in a websocket client connection. So if
      * you want to write the same data again, you have to re-initialize the data encapsluated
      * by @p payload. In addition you should ALWAYS intialize the write buffer elements in
      * @p payload using the @ref cio_write_buffer_element_init "non-const initialization function".
-     *
-     * @warning If you call this function consecutively without waiting that @p handler is called,
-     * you should know that @p handler is called only for the last write call!
      *
      * @param payload The payload to be sent.
      * @param last_frame @c true if the is an unfragmented message or the last frame of a
@@ -190,16 +198,14 @@ struct cio_websocket {
 	enum cio_websocket_status (*write_textframe)(struct cio_websocket *ws, struct cio_write_buffer *payload, bool last_frame, cio_websocket_write_handler handler, void *handler_context);
 
 	/**
-     * @brief Writes a binary frame to the websocket.
+	 * @anchor cio_write_binaryframe
+	 * @brief Writes a binary frame to the websocket.
      *
      * @warning Please note that the data @p payload encapsulates will be scrambled by
      * the library if this function is used in a websocket client connection. So if
      * you want to write the same data again, you have to re-initialize the data encapsluated
      * by @p payload. In addition you should ALWAYS intialize the write buffer elements in
      * @p payload using the @ref cio_write_buffer_element_init "non-const initialization function".
-     *
-     * @warning If you call this function consecutively without waiting that @p handler is called,
-     * you should know that @p handler is called only for the last write call!
      *
      * @param payload The payload to be sent.
      * @param last_frame @c true if the is an unfragmented message or the last frame of a
@@ -210,6 +216,7 @@ struct cio_websocket {
 	enum cio_websocket_status (*write_binaryframe)(struct cio_websocket *ws, struct cio_write_buffer *payload, bool last_frame, cio_websocket_write_handler handler, void *handler_context);
 
 	/**
+	 * @anchor cio_write_pingframe
 	 * @brief Writes a ping frame to the websocket.
 	 *
 	 * @warning Please note that the data @p payload encapsulates will be scrambled by
@@ -217,9 +224,6 @@ struct cio_websocket {
 	 * you want to write the same data again, you have to re-initialize the data encapsluated
 	 * by @p payload. In addition you should ALWAYS intialize the write buffer elements in
 	 * @p payload using the @ref cio_write_buffer_element_init "non-const initialization function".
-	 *
-	 * @warning If you call this function consecutively without waiting that @p handler is called,
-	 * you should know that @p handler is called only for the last write call!
 	 *
 	 * @param payload The payload to be sent.
 	 * @param handler A callback function that will be called when the write completes.
