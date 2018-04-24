@@ -91,10 +91,9 @@ static void mark_to_be_closed(struct cio_http_client *client)
 	}
 }
 
-static void response_written(struct cio_buffered_stream *bs, void *handler_context, const struct cio_write_buffer *buffer, enum cio_error err)
+static void response_written(struct cio_buffered_stream *bs, void *handler_context, enum cio_error err)
 {
 	(void)bs;
-	(void)buffer;
 	(void)err;
 
 	struct cio_http_client *client = (struct cio_http_client *)handler_context;

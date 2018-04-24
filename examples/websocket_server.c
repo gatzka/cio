@@ -66,9 +66,8 @@ static void free_websocket_handler(struct cio_http_location_handler *handler)
 
 static void send_ping(struct cio_timer *timer, void *handler_context, enum cio_error err);
 
-static void ping_written(struct cio_websocket *ws, void *handler_context, const struct cio_write_buffer *buffer, enum cio_error err)
+static void ping_written(struct cio_websocket *ws, void *handler_context, enum cio_error err)
 {
-	(void)buffer;
 	if (err != CIO_SUCCESS) {
 		fprintf(stderr, "writing ping frame failed!\n");
 		ws->close(ws, CIO_WEBSOCKET_CLOSE_INTERNAL_ERROR, NULL);
@@ -122,10 +121,9 @@ static void onconnect_handler(struct cio_websocket *ws)
 	}
 }
 
-static void write_complete(struct cio_websocket *ws, void *handler_context, const struct cio_write_buffer *buffer, enum cio_error err)
+static void write_complete(struct cio_websocket *ws, void *handler_context, enum cio_error err)
 {
 	(void)handler_context;
-	(void)buffer;
 	(void)err;
 	struct cio_websocket_location_handler *handler = container_of(ws, struct cio_websocket_location_handler, websocket);
 	struct ws_echo_handler *eh = container_of(handler, struct ws_echo_handler, ws_handler);

@@ -97,8 +97,8 @@ FAKE_VOID_FUNC(on_ping, struct cio_websocket *, const uint8_t *, size_t)
 static void on_pong(struct cio_websocket *ws, uint8_t *data, size_t length);
 FAKE_VOID_FUNC(on_pong, struct cio_websocket *, uint8_t *, size_t)
 
-static void write_handler(struct cio_websocket *ws, void *context, const struct cio_write_buffer *buffer, enum cio_error err);
-FAKE_VOID_FUNC(write_handler, struct cio_websocket *, void *, const struct cio_write_buffer *, enum cio_error)
+static void write_handler(struct cio_websocket *ws, void *context, enum cio_error err);
+FAKE_VOID_FUNC(write_handler, struct cio_websocket *, void *, enum cio_error)
 
 #ifndef ARRAY_SIZE
 #define ARRAY_SIZE(a) (sizeof(a) / sizeof((a)[0]))
@@ -389,7 +389,7 @@ static enum cio_error bs_write_ok(struct cio_buffered_stream *bs, struct cio_wri
 		write_buffer_pos += buf->data.element.length;
 	}
 
-	handler(bs, handler_context, buf, CIO_SUCCESS);
+	handler(bs, handler_context, CIO_SUCCESS);
 	return CIO_SUCCESS;
 }
 
@@ -1990,7 +1990,7 @@ static void test_close_with_overlong_reason_in_textframe_callback(void)
 	TEST_ASSERT_MESSAGE(is_close_frame(CIO_WEBSOCKET_CLOSE_GOING_AWAY, true), "written frame is not a close frame!");
 }
 
-static void test_send_textframe(void)
+static void test_send_small_textframe(void)
 {
 	uint32_t context = 0x1234568;
 
@@ -2023,6 +2023,11 @@ static void test_send_textframe(void)
 	TEST_ASSERT_EQUAL_MESSAGE(0, on_pong_fake.call_count, "callback for pong frames was called");
 	TEST_ASSERT_EQUAL_MESSAGE(1, on_close_fake.call_count, "close callback was not called");
 	TEST_ASSERT_EQUAL_MESSAGE(0, on_error_fake.call_count, "error callback was called");
+
+	TEST_ASSERT_EQUAL_MESSAGE(1, write_handler_fake.call_count, "write handler was not called!");
+	TEST_ASSERT_EQUAL_PTR_MESSAGE(ws, write_handler_fake.arg0_val, "websocket pointer in write handler not correct!");
+	TEST_ASSERT_EQUAL_PTR_MESSAGE(&context, write_handler_fake.arg1_val, "context pointer in write handler not correct!");
+	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, write_handler_fake.arg2_val, "error code in write handler not correct!");
 }
 
 int main(void)
@@ -2090,7 +2095,7 @@ int main(void)
 	RUN_TEST(test_close_in_textframe_callback);
 	RUN_TEST(test_close_with_overlong_reason_in_textframe_callback);
 
-	RUN_TEST(test_send_textframe);
+	RUN_TEST(test_send_small_textframe);
 
 	return UNITY_END();
 }

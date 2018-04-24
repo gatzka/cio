@@ -74,10 +74,9 @@ typedef void (*cio_buffered_stream_read_handler)(struct cio_buffered_stream *bs,
  * 
  * @param bs The cio_buffered_stream the write operation was called on.
  * @param handler_context The context the functions works on.
- * @param buffer The buffer which should have been written.
  * @param err If err != ::CIO_SUCCESS, the write operation failed.
  */
-typedef void (*cio_buffered_stream_write_handler)(struct cio_buffered_stream *bs, void *handler_context, const struct cio_write_buffer *buffer, enum cio_error err);
+typedef void (*cio_buffered_stream_write_handler)(struct cio_buffered_stream *bs, void *handler_context, enum cio_error err);
 
 enum cio_bs_state {
 	CIO_BS_OPEN = 0,

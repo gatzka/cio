@@ -78,7 +78,7 @@ enum cio_websocket_status {
 	CIO_WEBSOCKET_STATUS_CLOSED = -1
 };
 
-typedef void (*cio_websocket_write_handler)(struct cio_websocket *ws, void *handler_context, const struct cio_write_buffer *buffer, enum cio_error err);
+typedef void (*cio_websocket_write_handler)(struct cio_websocket *ws, void *handler_context, enum cio_error err);
 
 #define CIO_WEBSOCKET_SMALL_FRAME_SIZE 125
 

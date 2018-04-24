@@ -92,8 +92,8 @@ FAKE_VALUE_FUNC(enum cio_error, bs_read, struct cio_buffered_stream *, struct ci
 static enum cio_error bs_close(struct cio_buffered_stream *bs);
 FAKE_VALUE_FUNC(enum cio_error, bs_close, struct cio_buffered_stream *)
 
-static enum cio_error bs_write(struct cio_buffered_stream *bs, struct cio_write_buffer *buf, cio_buffered_stream_write_handler handler, void *handler_context);
-FAKE_VALUE_FUNC(enum cio_error, bs_write, struct cio_buffered_stream *, struct cio_write_buffer *, cio_buffered_stream_write_handler, void *)
+static enum cio_error bs_write(struct cio_buffered_stream *bs, struct cio_write_buffer *buffer, cio_buffered_stream_write_handler handler, void *handler_context);
+FAKE_VALUE_FUNC(enum cio_error, bs_write, struct cio_buffered_stream *, struct cio_write_buffer *,cio_buffered_stream_write_handler, void *)
 
 FAKE_VALUE_FUNC(enum cio_error, cio_timer_init, struct cio_timer *, struct cio_eventloop *, cio_timer_close_hook)
 
@@ -318,7 +318,7 @@ static enum cio_error bs_write_http_response(struct cio_buffered_stream *bs, str
 		http_response_write_pos += data_buf->data.element.length;
 	}
 
-	handler(bs, handler_context, buf, CIO_SUCCESS);
+	handler(bs, handler_context, CIO_SUCCESS);
 	return CIO_SUCCESS;
 }
 
@@ -333,7 +333,7 @@ static enum cio_error bs_write_ws_frame(struct cio_buffered_stream *bs, struct c
 		ws_frame_write_pos += data_buf->data.element.length;
 	}
 
-	handler(bs, handler_context, buf, CIO_SUCCESS);
+	handler(bs, handler_context, CIO_SUCCESS);
 	return CIO_SUCCESS;
 }
 
@@ -361,9 +361,11 @@ static enum cio_error bs_fake_write(struct cio_buffered_stream *bs, struct cio_w
 	}
 }
 
-static enum cio_error bs_fake_write_error(struct cio_buffered_stream *bs, struct cio_write_buffer *buf, cio_buffered_stream_write_handler handler, void *handler_context)
+static enum cio_error bs_fake_write_error(struct cio_buffered_stream *bs, struct cio_write_buffer *buffer, cio_buffered_stream_write_handler handler, void *handler_context)
 {
-	handler(bs, handler_context, buf, CIO_BROKEN_PIPE);
+	(void)buffer;
+
+	handler(bs, handler_context, CIO_BROKEN_PIPE);
 	return CIO_SUCCESS;
 }
 

@@ -256,7 +256,7 @@ static void handle_write(struct cio_io_stream *io_stream, void *handler_context,
 			}
 		}
 
-		bs->write_handler(bs, bs->write_handler_context, bs->original_wbh, err);
+		bs->write_handler(bs, bs->write_handler_context, err);
 		return;
 	}
 
@@ -281,11 +281,11 @@ static void handle_write(struct cio_io_stream *io_stream, void *handler_context,
 	}
 
 	if (cio_write_buffer_queue_empty(&bs->wbh)) {
-		bs->write_handler(bs, bs->write_handler_context, bs->original_wbh, CIO_SUCCESS);
+		bs->write_handler(bs, bs->write_handler_context, CIO_SUCCESS);
 	} else {
 		err = bs->stream->write_some(io_stream, &bs->wbh, handle_write, bs);
 		if (unlikely(err != CIO_SUCCESS)) {
-			bs->write_handler(bs, bs->write_handler_context, bs->original_wbh, err);
+			bs->write_handler(bs, bs->write_handler_context, err);
 		}
 	}
 }

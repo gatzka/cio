@@ -447,7 +447,7 @@ static enum cio_error bs_write_all(struct cio_buffered_stream *bs, struct cio_wr
 		write_pos += data_buf->data.element.length;
 	}
 
-	handler(bs, handler_context, buf, CIO_SUCCESS);
+	handler(bs, handler_context, CIO_SUCCESS);
 	return CIO_SUCCESS;
 }
 

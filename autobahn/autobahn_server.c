@@ -62,10 +62,9 @@ static void free_autobahn_handler(struct cio_http_location_handler *handler)
 }
 
 
-static void write_complete(struct cio_websocket *ws, void *handler_context, const struct cio_write_buffer *buffer, enum cio_error err)
+static void write_complete(struct cio_websocket *ws, void *handler_context, enum cio_error err)
 {
 	(void)handler_context;
-	(void)buffer;
 	(void)err;
 	(void)ws;
 	// struct cio_websocket_location_handler *handler = container_of(ws, struct cio_websocket_location_handler, websocket);
