@@ -2022,7 +2022,7 @@ static void test_send_textframe(void)
 	TEST_ASSERT_EQUAL_MESSAGE(0, on_ping_fake.call_count, "callback for ping frames was called");
 	TEST_ASSERT_EQUAL_MESSAGE(0, on_pong_fake.call_count, "callback for pong frames was called");
 	TEST_ASSERT_EQUAL_MESSAGE(1, on_close_fake.call_count, "close callback was not called");
-	TEST_ASSERT_EQUAL_MESSAGE(0, on_error_fake.call_count, "error callback was not called");
+	TEST_ASSERT_EQUAL_MESSAGE(0, on_error_fake.call_count, "error callback was called");
 }
 
 int main(void)
