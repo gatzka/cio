@@ -133,7 +133,7 @@ static size_t frame_buffer_fill_pos = 0;
 static uint8_t read_buffer[140000];
 static uint8_t read_back_buffer[140000];
 static size_t read_back_buffer_pos = 0;
-static uint8_t write_buffer[1000];
+static uint8_t write_buffer[140000];
 static size_t write_buffer_pos = 0;
 static size_t write_buffer_parse_pos = 0;
 
@@ -428,6 +428,7 @@ void setUp(void)
 	RESET_FAKE(on_error);
 	RESET_FAKE(on_ping);
 	RESET_FAKE(on_pong);
+	RESET_FAKE(write_handler);
 
 	cio_read_buffer_init(&rb, read_buffer, sizeof(read_buffer));
 	ws = malloc(sizeof(*ws));
@@ -1990,48 +1991,62 @@ static void test_close_with_overlong_reason_in_textframe_callback(void)
 	TEST_ASSERT_MESSAGE(is_close_frame(CIO_WEBSOCKET_CLOSE_GOING_AWAY, true), "written frame is not a close frame!");
 }
 
-static void test_send_small_textframe(void)
+static void test_send_textframe(void)
 {
-	uint32_t context = 0x1234568;
+	uint32_t frame_sizes[] = {1, 5, 125, 126, 65535, 65536};
+	for (unsigned int i = 0; i < ARRAY_SIZE(frame_sizes); i++) {
+		uint32_t frame_size = frame_sizes[i];
+		char *data = malloc(frame_size);
+		memset(data, 'a', frame_size);
 
-	struct ws_frame frames[] = {
-		{.frame_type = CIO_WEBSOCKET_CLOSE_FRAME, .direction = FROM_CLIENT, .data = NULL, .data_length = 0, .last_frame = true, .rsv = false},
-	};
 
-	serialize_frames(frames, ARRAY_SIZE(frames));
-	read_exactly_fake.custom_fake = bs_read_exactly_from_buffer;
-	bs_write_fake.custom_fake = bs_write_ok;
+		struct ws_frame frames[] = {
+			{.frame_type = CIO_WEBSOCKET_CLOSE_FRAME, .direction = FROM_CLIENT, .data = NULL, .data_length = 0, .last_frame = true, .rsv = false},
+		};
 
-	struct cio_write_buffer wbh;
-	cio_write_buffer_head_init(&wbh);
+		serialize_frames(frames, ARRAY_SIZE(frames));
+		read_exactly_fake.custom_fake = bs_read_exactly_from_buffer;
+		bs_write_fake.custom_fake = bs_write_ok;
 
-	char buffer[] = "Hello World!";
-	struct cio_write_buffer wb;
-	cio_write_buffer_element_init(&wb, buffer, sizeof(buffer));
-	cio_write_buffer_queue_tail(&wbh, &wb);
+		struct cio_write_buffer wbh;
+		cio_write_buffer_head_init(&wbh);
 
-	enum cio_websocket_status status = ws->write_textframe(ws, &wbh, true, write_handler, &context);
-	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, status, "Writing a text frame did not succeed!");
-	TEST_ASSERT_MESSAGE(check_frame(CIO_WEBSOCKET_TEXT_FRAME, buffer, sizeof(buffer), true), "First frame send is incorrect text frame!");
+		struct cio_write_buffer wb;
+		cio_write_buffer_element_init(&wb, data, frame_size);
+		cio_write_buffer_queue_tail(&wbh, &wb);
 
-	ws->internal_on_connect(ws);
+		uint32_t context = 0x1234568;
+		enum cio_websocket_status status = ws->write_textframe(ws, &wbh, true, write_handler, &context);
+		TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, status, "Writing a text frame did not succeed!");
+		TEST_ASSERT_MESSAGE(check_frame(CIO_WEBSOCKET_TEXT_FRAME, data, frame_size, true), "First frame send is incorrect text frame!");
 
-	TEST_ASSERT_MESSAGE(is_close_frame(CIO_WEBSOCKET_CLOSE_NORMAL, true), "written frame is not a close frame!");
-	TEST_ASSERT_EQUAL_MESSAGE(0, on_textframe_fake.call_count, "callback for text frames was called");
-	TEST_ASSERT_EQUAL_MESSAGE(0, on_binaryframe_fake.call_count, "callback for binary frames was called");
-	TEST_ASSERT_EQUAL_MESSAGE(0, on_ping_fake.call_count, "callback for ping frames was called");
-	TEST_ASSERT_EQUAL_MESSAGE(0, on_pong_fake.call_count, "callback for pong frames was called");
-	TEST_ASSERT_EQUAL_MESSAGE(1, on_close_fake.call_count, "close callback was not called");
-	TEST_ASSERT_EQUAL_MESSAGE(0, on_error_fake.call_count, "error callback was called");
+		ws->internal_on_connect(ws);
 
-	TEST_ASSERT_EQUAL_MESSAGE(1, write_handler_fake.call_count, "write handler was not called!");
-	TEST_ASSERT_EQUAL_PTR_MESSAGE(ws, write_handler_fake.arg0_val, "websocket pointer in write handler not correct!");
-	TEST_ASSERT_EQUAL_PTR_MESSAGE(&context, write_handler_fake.arg1_val, "context pointer in write handler not correct!");
-	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, write_handler_fake.arg2_val, "error code in write handler not correct!");
+		TEST_ASSERT_MESSAGE(is_close_frame(CIO_WEBSOCKET_CLOSE_NORMAL, true), "written frame is not a close frame!");
+		TEST_ASSERT_EQUAL_MESSAGE(0, on_textframe_fake.call_count, "callback for text frames was called");
+		TEST_ASSERT_EQUAL_MESSAGE(0, on_binaryframe_fake.call_count, "callback for binary frames was called");
+		TEST_ASSERT_EQUAL_MESSAGE(0, on_ping_fake.call_count, "callback for ping frames was called");
+		TEST_ASSERT_EQUAL_MESSAGE(0, on_pong_fake.call_count, "callback for pong frames was called");
+		TEST_ASSERT_EQUAL_MESSAGE(1, on_close_fake.call_count, "close callback was not called");
+		TEST_ASSERT_EQUAL_MESSAGE(0, on_error_fake.call_count, "error callback was called");
 
-	TEST_ASSERT_EQUAL_MESSAGE(1, wbh.data.q_len, "Length of write buffer different than before writing!");
-	TEST_ASSERT_EQUAL_MESSAGE(&wbh, wbh.next->next, "Concatenation of write buffers no longer correct after writing!");
-	TEST_ASSERT_EQUAL_MEMORY_MESSAGE(buffer, wbh.next->data.element.data, sizeof(buffer), "Content of writebuffer not correct after writing!");
+		TEST_ASSERT_EQUAL_MESSAGE(1, write_handler_fake.call_count, "write handler was not called!");
+		TEST_ASSERT_EQUAL_PTR_MESSAGE(ws, write_handler_fake.arg0_val, "websocket pointer in write handler not correct!");
+		TEST_ASSERT_EQUAL_PTR_MESSAGE(&context, write_handler_fake.arg1_val, "context pointer in write handler not correct!");
+		TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, write_handler_fake.arg2_val, "error code in write handler not correct!");
+
+		TEST_ASSERT_EQUAL_MESSAGE(1, wbh.data.q_len, "Length of write buffer different than before writing!");
+		TEST_ASSERT_EQUAL_MESSAGE(&wbh, wbh.next->next, "Concatenation of write buffers no longer correct after writing!");
+		TEST_ASSERT_EQUAL_MEMORY_MESSAGE(data, wbh.next->data.element.data, frame_size, "Content of writebuffer not correct after writing!");
+
+		if (data) {
+			free(data);
+		}
+
+		setUp();
+	}
+
+	free(ws);
 }
 
 int main(void)
@@ -2099,7 +2114,7 @@ int main(void)
 	RUN_TEST(test_close_in_textframe_callback);
 	RUN_TEST(test_close_with_overlong_reason_in_textframe_callback);
 
-	RUN_TEST(test_send_small_textframe);
+	RUN_TEST(test_send_textframe);
 
 	return UNITY_END();
 }
