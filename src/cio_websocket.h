@@ -254,7 +254,7 @@ struct cio_websocket {
 
 	struct cio_buffered_stream *bs;
 	struct cio_read_buffer *rb;
-	struct cio_write_buffer wbh;
+	struct cio_write_buffer *wbh;
 	struct cio_write_buffer wb_send_header;
 	struct cio_write_buffer wb_close_status;
 	struct cio_write_buffer wb_control_data;

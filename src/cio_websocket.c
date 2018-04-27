@@ -73,6 +73,7 @@ static void write_complete(struct cio_buffered_stream *bs, void *handler_context
 {
 	struct cio_websocket *ws = (struct cio_websocket *)handler_context;
 	ws->ws_flags.writing_frame = 0;
+	cio_write_buffer_queue_dequeue(ws->wbh); // Remove the websocket header writebuffer
 	ws->user_write_handler(bs, handler_context, err);
 }
 
@@ -99,16 +100,12 @@ static void send_frame(struct cio_websocket *ws, struct cio_write_buffer *payloa
 	size_t header_index = 2;
 
 	size_t length = 0;
-	cio_write_buffer_head_init(&ws->wbh);
-	if (unlikely(payload != NULL)) {
-		struct cio_write_buffer *element = payload;
-		for (size_t i = 0; i < payload->data.q_len; i++) {
-			element = element->next;
-			length += element->data.element.length;
-		}
-
-		cio_write_buffer_splice(payload, &ws->wbh);
+	struct cio_write_buffer *element = payload;
+	for (size_t i = 0; i < payload->data.q_len; i++) {
+		element = element->next;
+		length += element->data.element.length;
 	}
+
 
 	uint8_t first_byte;
 	if (last_frame) {
@@ -146,10 +143,11 @@ static void send_frame(struct cio_websocket *ws, struct cio_write_buffer *payloa
 	ws->send_header[1] = first_len;
 
 	cio_write_buffer_element_init(&ws->wb_send_header, ws->send_header, header_index);
-	cio_write_buffer_queue_head(&ws->wbh, &ws->wb_send_header);
+	cio_write_buffer_queue_head(payload, &ws->wb_send_header);
 	ws->user_write_handler = written_cb;
 	ws->ws_flags.writing_frame = 1;
-	enum cio_error err = ws->bs->write(ws->bs, &ws->wbh, write_complete, ws);
+	ws->wbh = payload;
+	enum cio_error err = ws->bs->write(ws->bs, payload, write_complete, ws);
 	if (err != CIO_SUCCESS) {
 		ws->ws_flags.to_be_closed = 1;
 	}
@@ -379,18 +377,14 @@ static void get_header(struct cio_buffered_stream *bs, void *handler_context, en
 static void handle_ping_frame(struct cio_websocket *ws, uint8_t *data, uint64_t length)
 {
 	struct cio_write_buffer wbh;
-	struct cio_write_buffer *payload;
+	cio_write_buffer_head_init(&wbh);
 	if (length > 0) {
 		memcpy(ws->send_control_frame_buffer, data, length);
-		cio_write_buffer_head_init(&wbh);
 		cio_write_buffer_element_init(&ws->wb_control_data, ws->send_control_frame_buffer, length);
 		cio_write_buffer_queue_tail(&wbh, &ws->wb_control_data);
-		payload = &wbh;
-	} else {
-		payload = NULL;
 	}
 
-	send_frame(ws, payload, CIO_WEBSOCKET_PONG_FRAME, true, do_nothing);
+	send_frame(ws, &wbh, CIO_WEBSOCKET_PONG_FRAME, true, do_nothing);
 	if (unlikely(ws->ws_flags.to_be_closed == 1)) {
 		return;
 	}
