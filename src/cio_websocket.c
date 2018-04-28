@@ -69,11 +69,21 @@ static void close(struct cio_websocket *ws)
 	}
 }
 
+static void add_websocket_header(struct cio_websocket *ws)
+{
+	cio_write_buffer_queue_head(ws->wbh, &ws->wb_send_header);
+}
+
+static void remove_websocket_header(const struct cio_websocket *ws)
+{
+	cio_write_buffer_queue_dequeue(ws->wbh);
+}
+
 static void write_complete(struct cio_buffered_stream *bs, void *handler_context, enum cio_error err)
 {
 	struct cio_websocket *ws = (struct cio_websocket *)handler_context;
 	ws->ws_flags.writing_frame = 0;
-	cio_write_buffer_queue_dequeue(ws->wbh); // Remove the websocket header writebuffer
+	remove_websocket_header(ws);
 	ws->user_write_handler(bs, handler_context, err);
 }
 
@@ -143,10 +153,10 @@ static void send_frame(struct cio_websocket *ws, struct cio_write_buffer *payloa
 	ws->send_header[1] = first_len;
 
 	cio_write_buffer_element_init(&ws->wb_send_header, ws->send_header, header_index);
-	cio_write_buffer_queue_head(payload, &ws->wb_send_header);
+	ws->wbh = payload;
+	add_websocket_header(ws);
 	ws->user_write_handler = written_cb;
 	ws->ws_flags.writing_frame = 1;
-	ws->wbh = payload;
 	enum cio_error err = ws->bs->write(ws->bs, payload, write_complete, ws);
 	if (err != CIO_SUCCESS) {
 		ws->ws_flags.to_be_closed = 1;
