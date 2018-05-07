@@ -183,11 +183,9 @@ static bool is_status_code_invalid(uint16_t status_code)
 static void close_frame_written(struct cio_buffered_stream *bs, void *handler_context, enum cio_error err)
 {
 	(void)bs;
+	(void)handler_context;
 	(void)err;
-	struct cio_websocket *ws = (struct cio_websocket *)handler_context;
-	if (ws->ws_flags.self_initiated_close == 0) {
-		close(ws);
-	}
+	// TODO: we could emit a shutdown(WR) here.
 }
 
 static void do_nothing(struct cio_buffered_stream *bs, void *handler_context, enum cio_error err)
