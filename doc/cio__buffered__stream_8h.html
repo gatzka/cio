@@ -23,7 +23,7 @@
  <tr style="height: 56px;">
   <td style="padding-left: 0.5em;">
    <div id="projectname">ANSI C I/O Library
-   &#160;<span id="projectnumber">0.0.1-835+af2772b</span>
+   &#160;<span id="projectnumber">0.0.1-836+ec46d5d</span>
    </div>
   </td>
  </tr>
@@ -112,9 +112,9 @@ Typedefs</h2></td></tr>
 <tr class="memitem:a4c2bea7c602d4cab70c2c4500ae6e438"><td class="memItemLeft" align="right" valign="top">typedef void(*&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="cio__buffered__stream_8h.html#a4c2bea7c602d4cab70c2c4500ae6e438">cio_buffered_stream_read_handler</a> )(struct <a class="el" href="structcio__buffered__stream.html">cio_buffered_stream</a> *bs, void *handler_context, enum <a class="el" href="cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afe">cio_error</a> err, struct <a class="el" href="structcio__read__buffer.html">cio_read_buffer</a> *buffer)</td></tr>
 <tr class="memdesc:a4c2bea7c602d4cab70c2c4500ae6e438"><td class="mdescLeft">&#160;</td><td class="mdescRight">The type of a function passed to all <a class="el" href="structcio__buffered__stream.html">cio_buffered_stream</a> read callback functions.  <a href="#a4c2bea7c602d4cab70c2c4500ae6e438">More...</a><br/></td></tr>
 <tr class="separator:a4c2bea7c602d4cab70c2c4500ae6e438"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a8008ee06f8bc9abc27599593489b7430"><td class="memItemLeft" align="right" valign="top">typedef void(*&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="cio__buffered__stream_8h.html#a8008ee06f8bc9abc27599593489b7430">cio_buffered_stream_write_handler</a> )(struct <a class="el" href="structcio__buffered__stream.html">cio_buffered_stream</a> *bs, void *handler_context, const struct <a class="el" href="structcio__write__buffer.html">cio_write_buffer</a> *buffer, enum <a class="el" href="cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afe">cio_error</a> err)</td></tr>
-<tr class="memdesc:a8008ee06f8bc9abc27599593489b7430"><td class="mdescLeft">&#160;</td><td class="mdescRight">The type of a function passed to all <a class="el" href="structcio__buffered__stream.html">cio_buffered_stream</a> write callback functions.  <a href="#a8008ee06f8bc9abc27599593489b7430">More...</a><br/></td></tr>
-<tr class="separator:a8008ee06f8bc9abc27599593489b7430"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a5bd4f8eea0445358ba927825c34e19d3"><td class="memItemLeft" align="right" valign="top">typedef void(*&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="cio__buffered__stream_8h.html#a5bd4f8eea0445358ba927825c34e19d3">cio_buffered_stream_write_handler</a> )(struct <a class="el" href="structcio__buffered__stream.html">cio_buffered_stream</a> *bs, void *handler_context, enum <a class="el" href="cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afe">cio_error</a> err)</td></tr>
+<tr class="memdesc:a5bd4f8eea0445358ba927825c34e19d3"><td class="mdescLeft">&#160;</td><td class="mdescRight">The type of a function passed to all <a class="el" href="structcio__buffered__stream.html">cio_buffered_stream</a> write callback functions.  <a href="#a5bd4f8eea0445358ba927825c34e19d3">More...</a><br/></td></tr>
+<tr class="separator:a5bd4f8eea0445358ba927825c34e19d3"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="enum-members"></a>
 Enumerations</h2></td></tr>
@@ -159,12 +159,12 @@ Functions</h2></td></tr>
 
 </div>
 </div>
-<a class="anchor" id="a8008ee06f8bc9abc27599593489b7430"></a>
+<a class="anchor" id="a5bd4f8eea0445358ba927825c34e19d3"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">typedef void(* cio_buffered_stream_write_handler)(struct <a class="el" href="structcio__buffered__stream.html">cio_buffered_stream</a> *bs, void *handler_context, const struct <a class="el" href="structcio__write__buffer.html">cio_write_buffer</a> *buffer, enum <a class="el" href="cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afe">cio_error</a> err)</td>
+          <td class="memname">typedef void(* cio_buffered_stream_write_handler)(struct <a class="el" href="structcio__buffered__stream.html">cio_buffered_stream</a> *bs, void *handler_context, enum <a class="el" href="cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afe">cio_error</a> err)</td>
         </tr>
       </table>
 </div><div class="memdoc">
@@ -174,7 +174,6 @@ Functions</h2></td></tr>
   <table class="params">
     <tr><td class="paramname">bs</td><td>The <a class="el" href="structcio__buffered__stream.html">cio_buffered_stream</a> the write operation was called on. </td></tr>
     <tr><td class="paramname">handler_context</td><td>The context the functions works on. </td></tr>
-    <tr><td class="paramname">buffer</td><td>The buffer which should have been written. </td></tr>
     <tr><td class="paramname">err</td><td>If err != <a class="el" href="cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afea6bb29544c99750c61f70b10a1e17d96a">CIO_SUCCESS</a>, the write operation failed. </td></tr>
   </table>
   </dd>

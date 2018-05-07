@@ -4,7 +4,7 @@
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
 <meta http-equiv="X-UA-Compatible" content="IE=9"/>
 <meta name="generator" content="Doxygen 1.8.6"/>
-<title>ANSI C I/O Library: cio_http_client.h File Reference</title>
+<title>ANSI C I/O Library: cio_utf8_state Struct Reference</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
@@ -38,8 +38,8 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
   <div id="navrow1" class="tabs">
     <ul class="tablist">
       <li><a href="index.html"><span>Main&#160;Page</span></a></li>
-      <li><a href="annotated.html"><span>Data&#160;Structures</span></a></li>
-      <li class="current"><a href="files.html"><span>Files</span></a></li>
+      <li class="current"><a href="annotated.html"><span>Data&#160;Structures</span></a></li>
+      <li><a href="files.html"><span>Files</span></a></li>
       <li>
         <div id="MSearchBox" class="MSearchBoxInactive">
         <span class="left">
@@ -60,8 +60,9 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
   </div>
   <div id="navrow2" class="tabs2">
     <ul class="tablist">
-      <li><a href="files.html"><span>File&#160;List</span></a></li>
-      <li><a href="globals.html"><span>Globals</span></a></li>
+      <li><a href="annotated.html"><span>Data&#160;Structures</span></a></li>
+      <li><a href="classes.html"><span>Data&#160;Structure&#160;Index</span></a></li>
+      <li><a href="functions.html"><span>Data&#160;Fields</span></a></li>
     </ul>
   </div>
 <!-- window showing the filter options -->
@@ -81,37 +82,50 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 </div><!-- top -->
 <div class="header">
   <div class="summary">
-<a href="#nested-classes">Data Structures</a>  </div>
+<a href="#pub-attribs">Data Fields</a>  </div>
   <div class="headertitle">
-<div class="title">cio_http_client.h File Reference</div>  </div>
+<div class="title">cio_utf8_state Struct Reference</div>  </div>
 </div><!--header-->
 <div class="contents">
 
-<p>The interface to an HTTP client connection.  
-<a href="#details">More...</a></p>
-<div class="textblock"><code>#include &lt;stdbool.h&gt;</code><br/>
-<code>#include &lt;stddef.h&gt;</code><br/>
-<code>#include &lt;stdint.h&gt;</code><br/>
-<code>#include &quot;<a class="el" href="cio__buffered__stream_8h_source.html">cio_buffered_stream.h</a>&quot;</code><br/>
-<code>#include &quot;<a class="el" href="cio__http__method_8h_source.html">cio_http_method.h</a>&quot;</code><br/>
-<code>#include &quot;<a class="el" href="cio__http__status__code_8h_source.html">cio_http_status_code.h</a>&quot;</code><br/>
-<code>#include &quot;<a class="el" href="cio__read__buffer_8h_source.html">cio_read_buffer.h</a>&quot;</code><br/>
-<code>#include &quot;<a class="el" href="cio__socket_8h_source.html">cio_socket.h</a>&quot;</code><br/>
-<code>#include &quot;<a class="el" href="cio__timer_8h_source.html">cio_timer.h</a>&quot;</code><br/>
-<code>#include &quot;<a class="el" href="cio__write__buffer_8h_source.html">cio_write_buffer.h</a>&quot;</code><br/>
-<code>#include &quot;http-parser/http_parser.h&quot;</code><br/>
-</div>
-<p><a href="cio__http__client_8h_source.html">Go to the source code of this file.</a></p>
+<p><code>#include &lt;<a class="el" href="cio__utf8__checker_8h_source.html">cio_utf8_checker.h</a>&gt;</code></p>
 <table class="memberdecls">
-<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="nested-classes"></a>
-Data Structures</h2></td></tr>
-<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structcio__http__client.html">cio_http_client</a></td></tr>
-<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">A <a class="el" href="structcio__http__client.html" title="A cio_http_client struct represents an HTTP client connection. ">cio_http_client</a> struct represents an HTTP client connection.  <a href="structcio__http__client.html#details">More...</a><br/></td></tr>
-<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-attribs"></a>
+Data Fields</h2></td></tr>
+<tr class="memitem:a5e66194d8cc9ec2b85acd00e4b4fccfb"><td class="memItemLeft" align="right" valign="top">uint8_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structcio__utf8__state.html#a5e66194d8cc9ec2b85acd00e4b4fccfb">codepoint</a></td></tr>
+<tr class="separator:a5e66194d8cc9ec2b85acd00e4b4fccfb"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad5d20ff3befbecac8f36e02326e11f3c"><td class="memItemLeft" align="right" valign="top">uint8_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structcio__utf8__state.html#ad5d20ff3befbecac8f36e02326e11f3c">state</a></td></tr>
+<tr class="separator:ad5d20ff3befbecac8f36e02326e11f3c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
-<a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
-<div class="textblock"><p>The interface to an HTTP client connection. </p>
-</div></div><!-- contents -->
+<h2 class="groupheader">Field Documentation</h2>
+<a class="anchor" id="a5e66194d8cc9ec2b85acd00e4b4fccfb"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">uint8_t cio_utf8_state::codepoint</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="ad5d20ff3befbecac8f36e02326e11f3c"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">uint8_t cio_utf8_state::state</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<hr/>The documentation for this struct was generated from the following file:<ul>
+<li><a class="el" href="cio__utf8__checker_8h_source.html">cio_utf8_checker.h</a></li>
+</ul>
+</div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
 Generated by &#160;<a href="http://www.doxygen.org/index.html">

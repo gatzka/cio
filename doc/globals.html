@@ -23,7 +23,7 @@
  <tr style="height: 56px;">
   <td style="padding-left: 0.5em;">
    <div id="projectname">ANSI C I/O Library
-   &#160;<span id="projectnumber">0.0.1-835+af2772b</span>
+   &#160;<span id="projectnumber">0.0.1-836+ec46d5d</span>
    </div>
   </td>
  </tr>
@@ -68,6 +68,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
     <ul class="tablist">
       <li class="current"><a href="globals.html"><span>All</span></a></li>
       <li><a href="globals_func.html"><span>Functions</span></a></li>
+      <li><a href="globals_vars.html"><span>Variables</span></a></li>
       <li><a href="globals_type.html"><span>Typedefs</span></a></li>
       <li><a href="globals_enum.html"><span>Enumerations</span></a></li>
       <li><a href="globals_eval.html"><span>Enumerator</span></a></li>
@@ -136,9 +137,6 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <li>cio_be16toh()
 : <a class="el" href="cio__endian_8h.html#a3fde2677ce076a9ddb5631bc01263dc9">cio_endian.h</a>
 </li>
-<li>cio_be32toh()
-: <a class="el" href="cio__endian_8h.html#a7d788d1bfcaae3b66f32100337cb06df">cio_endian.h</a>
-</li>
 <li>cio_be64toh()
 : <a class="el" href="cio__endian_8h.html#ad83673a31b557bfb6cb651a2838e3649">cio_endian.h</a>
 </li>
@@ -164,7 +162,10 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 : <a class="el" href="cio__buffered__stream_8h.html#a4c2bea7c602d4cab70c2c4500ae6e438">cio_buffered_stream.h</a>
 </li>
 <li>cio_buffered_stream_write_handler
-: <a class="el" href="cio__buffered__stream_8h.html#a8008ee06f8bc9abc27599593489b7430">cio_buffered_stream.h</a>
+: <a class="el" href="cio__buffered__stream_8h.html#a5bd4f8eea0445358ba927825c34e19d3">cio_buffered_stream.h</a>
+</li>
+<li>cio_check_utf8()
+: <a class="el" href="cio__utf8__checker_8h.html#a6533469466509391a2c495f34ba76bdb">cio_utf8_checker.h</a>
 </li>
 <li>CIO_EOF
 : <a class="el" href="cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afea237cc68c5cce982ac9a6e9a434a28dc1">cio_error_code.h</a>
@@ -195,9 +196,6 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 </li>
 <li>cio_htobe16()
 : <a class="el" href="cio__endian_8h.html#af61d141f11ba2847323a03e5b144452d">cio_endian.h</a>
-</li>
-<li>cio_htobe32()
-: <a class="el" href="cio__endian_8h.html#a2455f0812e5a6326315589a8b5ff086c">cio_endian.h</a>
 </li>
 <li>cio_htobe64()
 : <a class="el" href="cio__endian_8h.html#a1cf2a726c38163a8cf6cad9ed5afe042">cio_endian.h</a>
@@ -475,6 +473,15 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <li>CIO_TOO_MANY_SYMBOLIC_LINK_LEVELS
 : <a class="el" href="cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afea4d57cc6f8e1fa638917916386d201172">cio_error_code.h</a>
 </li>
+<li>CIO_UTF8_ACCEPT
+: <a class="el" href="cio__utf8__checker_8h.html#ae65c8ae6c68b049f8e2ce6856918e318">cio_utf8_checker.h</a>
+</li>
+<li>cio_utf8_init()
+: <a class="el" href="cio__utf8__checker_8h.html#ac348d62f7d6eb6adb663f139187283c6">cio_utf8_checker.h</a>
+</li>
+<li>CIO_UTF8_REJECT
+: <a class="el" href="cio__utf8__checker_8h.html#a6abdb419c7f2695b7ee80fd55a4a5a43">cio_utf8_checker.h</a>
+</li>
 <li>CIO_VERSION
 : <a class="el" href="cio__version_8h.html#a2ad4f41eb192668c7f7f611746c4c15c">cio_version.h</a>
 </li>
@@ -538,11 +545,20 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <li>CIO_WEBSOCKET_SMALL_FRAME_SIZE
 : <a class="el" href="cio__websocket_8h.html#a6092b5c3a185ea1e9ca81b41026a2aea">cio_websocket.h</a>
 </li>
+<li>cio_websocket_status
+: <a class="el" href="cio__websocket_8h.html#a118d44b930fb2dd12444d7311e4615de">cio_websocket.h</a>
+</li>
+<li>CIO_WEBSOCKET_STATUS_CLOSED
+: <a class="el" href="cio__websocket_8h.html#a118d44b930fb2dd12444d7311e4615dea2681e9a2b6f184b7f76bb0423e56fa28">cio_websocket.h</a>
+</li>
 <li>cio_websocket_status_code
 : <a class="el" href="cio__websocket_8h.html#aa24c9894ba2ee9dc5b0ebbc1c8809701">cio_websocket.h</a>
 </li>
+<li>CIO_WEBSOCKET_STATUS_OK
+: <a class="el" href="cio__websocket_8h.html#a118d44b930fb2dd12444d7311e4615deae188530b2887d0dda653adb627d148ef">cio_websocket.h</a>
+</li>
 <li>cio_websocket_write_handler
-: <a class="el" href="cio__websocket_8h.html#ab93857c98cee5759dadf1b263ae8a557">cio_websocket.h</a>
+: <a class="el" href="cio__websocket_8h.html#a34598b194d24e9a9ecf0487cda5ba11b">cio_websocket.h</a>
 </li>
 <li>cio_write_buffer_const_element_init()
 : <a class="el" href="cio__write__buffer_8h.html#a119ccb2ce237c24377c946cb58c07e7c">cio_write_buffer.h</a>

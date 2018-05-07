@@ -19,6 +19,7 @@ var searchData=
   ['cio_5fsocket_2eh',['cio_socket.h',['../cio__socket_8h.html',1,'']]],
   ['cio_5fstring_2eh',['cio_string.h',['../cio__string_8h.html',1,'']]],
   ['cio_5ftimer_2eh',['cio_timer.h',['../cio__timer_8h.html',1,'']]],
+  ['cio_5futf8_5fchecker_2eh',['cio_utf8_checker.h',['../cio__utf8__checker_8h.html',1,'']]],
   ['cio_5futil_2eh',['cio_util.h',['../cio__util_8h.html',1,'']]],
   ['cio_5fversion_2eh',['cio_version.h',['../cio__version_8h.html',1,'']]],
   ['cio_5fwebsocket_2eh',['cio_websocket.h',['../cio__websocket_8h.html',1,'']]],

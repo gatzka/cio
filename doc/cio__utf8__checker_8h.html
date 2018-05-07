@@ -4,7 +4,7 @@
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
 <meta http-equiv="X-UA-Compatible" content="IE=9"/>
 <meta name="generator" content="Doxygen 1.8.6"/>
-<title>ANSI C I/O Library: cio_eventloop.h File Reference</title>
+<title>ANSI C I/O Library: cio_utf8_checker.h File Reference</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
@@ -81,42 +81,48 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 </div><!-- top -->
 <div class="header">
   <div class="summary">
-<a href="#func-members">Functions</a>  </div>
+<a href="#nested-classes">Data Structures</a> &#124;
+<a href="#func-members">Functions</a> &#124;
+<a href="#var-members">Variables</a>  </div>
   <div class="headertitle">
-<div class="title">cio_eventloop.h File Reference</div>  </div>
+<div class="title">cio_utf8_checker.h File Reference</div>  </div>
 </div><!--header-->
 <div class="contents">
-
-<p>This file describes the interface to an eventloop.  
-<a href="#details">More...</a></p>
-<div class="textblock"><code>#include &quot;<a class="el" href="cio__error__code_8h_source.html">cio_error_code.h</a>&quot;</code><br/>
-<code>#include &quot;cio_eventloop_impl.h&quot;</code><br/>
+<div class="textblock"><code>#include &lt;stdbool.h&gt;</code><br/>
+<code>#include &lt;stddef.h&gt;</code><br/>
+<code>#include &lt;stdint.h&gt;</code><br/>
 </div>
-<p><a href="cio__eventloop_8h_source.html">Go to the source code of this file.</a></p>
+<p><a href="cio__utf8__checker_8h_source.html">Go to the source code of this file.</a></p>
 <table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="nested-classes"></a>
+Data Structures</h2></td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structcio__utf8__state.html">cio_utf8_state</a></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="func-members"></a>
 Functions</h2></td></tr>
-<tr class="memitem:ab079e2f8f0fc66e1fb54ffc3fe43793d"><td class="memItemLeft" align="right" valign="top">enum <a class="el" href="cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afe">cio_error</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="cio__eventloop_8h.html#ab079e2f8f0fc66e1fb54ffc3fe43793d">cio_eventloop_init</a> (struct cio_eventloop *loop)</td></tr>
-<tr class="separator:ab079e2f8f0fc66e1fb54ffc3fe43793d"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a32bfdd29575247961d39ad73b6623b76"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="cio__eventloop_8h.html#a32bfdd29575247961d39ad73b6623b76">cio_eventloop_destroy</a> (const struct cio_eventloop *loop)</td></tr>
-<tr class="separator:a32bfdd29575247961d39ad73b6623b76"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a493688086c6b1442288d2c2cebc30c7e"><td class="memItemLeft" align="right" valign="top">enum <a class="el" href="cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afe">cio_error</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="cio__eventloop_8h.html#a493688086c6b1442288d2c2cebc30c7e">cio_eventloop_run</a> (struct cio_eventloop *loop)</td></tr>
-<tr class="separator:a493688086c6b1442288d2c2cebc30c7e"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a5f7892b6393477a8d022b50057f4d1d1"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="cio__eventloop_8h.html#a5f7892b6393477a8d022b50057f4d1d1">cio_eventloop_cancel</a> (struct cio_eventloop *loop)</td></tr>
-<tr class="separator:a5f7892b6393477a8d022b50057f4d1d1"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac348d62f7d6eb6adb663f139187283c6"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="cio__utf8__checker_8h.html#ac348d62f7d6eb6adb663f139187283c6">cio_utf8_init</a> (struct <a class="el" href="structcio__utf8__state.html">cio_utf8_state</a> *state)</td></tr>
+<tr class="separator:ac348d62f7d6eb6adb663f139187283c6"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6533469466509391a2c495f34ba76bdb"><td class="memItemLeft" align="right" valign="top">uint8_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="cio__utf8__checker_8h.html#a6533469466509391a2c495f34ba76bdb">cio_check_utf8</a> (struct <a class="el" href="structcio__utf8__state.html">cio_utf8_state</a> *state, const uint8_t *s, size_t count)</td></tr>
+<tr class="separator:a6533469466509391a2c495f34ba76bdb"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="var-members"></a>
+Variables</h2></td></tr>
+<tr class="memitem:ae65c8ae6c68b049f8e2ce6856918e318"><td class="memItemLeft" align="right" valign="top">static const uint8_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="cio__utf8__checker_8h.html#ae65c8ae6c68b049f8e2ce6856918e318">CIO_UTF8_ACCEPT</a> = 0</td></tr>
+<tr class="separator:ae65c8ae6c68b049f8e2ce6856918e318"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6abdb419c7f2695b7ee80fd55a4a5a43"><td class="memItemLeft" align="right" valign="top">static const uint8_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="cio__utf8__checker_8h.html#a6abdb419c7f2695b7ee80fd55a4a5a43">CIO_UTF8_REJECT</a> = 12</td></tr>
+<tr class="separator:a6abdb419c7f2695b7ee80fd55a4a5a43"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
-<a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
-<div class="textblock"><p>This file describes the interface to an eventloop. </p>
-</div><h2 class="groupheader">Function Documentation</h2>
-<a class="anchor" id="ab079e2f8f0fc66e1fb54ffc3fe43793d"></a>
+<h2 class="groupheader">Function Documentation</h2>
+<a class="anchor" id="ac348d62f7d6eb6adb663f139187283c6"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">enum <a class="el" href="cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afe">cio_error</a> cio_eventloop_init </td>
+          <td class="memname">void cio_utf8_init </td>
           <td>(</td>
-          <td class="paramtype">struct cio_eventloop *&#160;</td>
-          <td class="paramname"><em>loop</em></td><td>)</td>
+          <td class="paramtype">struct <a class="el" href="structcio__utf8__state.html">cio_utf8_state</a> *&#160;</td>
+          <td class="paramname"><em>state</em></td><td>)</td>
           <td></td>
         </tr>
       </table>
@@ -124,50 +130,75 @@ Functions</h2></td></tr>
 
 </div>
 </div>
-<a class="anchor" id="a32bfdd29575247961d39ad73b6623b76"></a>
+<a class="anchor" id="a6533469466509391a2c495f34ba76bdb"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">void cio_eventloop_destroy </td>
+          <td class="memname">uint8_t cio_check_utf8 </td>
           <td>(</td>
-          <td class="paramtype">const struct cio_eventloop *&#160;</td>
-          <td class="paramname"><em>loop</em></td><td>)</td>
+          <td class="paramtype">struct <a class="el" href="structcio__utf8__state.html">cio_utf8_state</a> *&#160;</td>
+          <td class="paramname"><em>state</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
           <td></td>
+          <td class="paramtype">const uint8_t *&#160;</td>
+          <td class="paramname"><em>s</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">size_t&#160;</td>
+          <td class="paramname"><em>count</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
         </tr>
       </table>
 </div><div class="memdoc">
 
 </div>
 </div>
-<a class="anchor" id="a493688086c6b1442288d2c2cebc30c7e"></a>
+<h2 class="groupheader">Variable Documentation</h2>
+<a class="anchor" id="ae65c8ae6c68b049f8e2ce6856918e318"></a>
 <div class="memitem">
 <div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">enum <a class="el" href="cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afe">cio_error</a> cio_eventloop_run </td>
-          <td>(</td>
-          <td class="paramtype">struct cio_eventloop *&#160;</td>
-          <td class="paramname"><em>loop</em></td><td>)</td>
-          <td></td>
+          <td class="memname">const uint8_t CIO_UTF8_ACCEPT = 0</td>
         </tr>
       </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
 </div><div class="memdoc">
 
 </div>
 </div>
-<a class="anchor" id="a5f7892b6393477a8d022b50057f4d1d1"></a>
+<a class="anchor" id="a6abdb419c7f2695b7ee80fd55a4a5a43"></a>
 <div class="memitem">
 <div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">void cio_eventloop_cancel </td>
-          <td>(</td>
-          <td class="paramtype">struct cio_eventloop *&#160;</td>
-          <td class="paramname"><em>loop</em></td><td>)</td>
-          <td></td>
+          <td class="memname">const uint8_t CIO_UTF8_REJECT = 12</td>
         </tr>
       </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
 </div><div class="memdoc">
 
 </div>

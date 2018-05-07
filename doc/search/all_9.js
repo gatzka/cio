@@ -17,6 +17,6 @@ var searchData=
   ['on_5fport',['on_port',['../structcio__http__location__handler.html#a73e8aec754945d52e42bc7207c361387',1,'cio_http_location_handler']]],
   ['on_5fquery',['on_query',['../structcio__http__location__handler.html#a474e56be1ac82499b397d07a99a65746',1,'cio_http_location_handler']]],
   ['on_5fschema',['on_schema',['../structcio__http__location__handler.html#aa1523567cb959d329891c77d7d340ce7',1,'cio_http_location_handler']]],
-  ['on_5ftextframe',['on_textframe',['../structcio__websocket.html#a898de6d292147ce4de4806ee2eb4f7a5',1,'cio_websocket']]],
+  ['on_5ftextframe',['on_textframe',['../structcio__websocket.html#a672bd8f050a7b82c2deb42cee852d36e',1,'cio_websocket']]],
   ['on_5furl',['on_url',['../structcio__http__location__handler.html#adc9eb92df5e39f7341ced4fa0a225c68',1,'cio_http_location_handler']]]
 ];
