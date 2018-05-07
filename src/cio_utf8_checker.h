@@ -24,55 +24,30 @@
  * SOFTWARE.
  */
 
+#ifndef CIO_UTF8_CHECKER_H
+#define CIO_UTF8_CHECKER_H
+
+#include <stdbool.h>
+#include <stddef.h>
 #include <stdint.h>
-#include <stdlib.h>
 
-#include "cio_base64.h"
-#include "fff.h"
-#include "unity.h"
+#ifdef __cplusplus
+extern "C" {
+#endif
 
-DEFINE_FFF_GLOBALS
+static const uint8_t CIO_UTF8_ACCEPT = 0;
+static const uint8_t CIO_UTF8_REJECT = 12;
 
-#undef ARRAY_SIZE
-#define ARRAY_SIZE(a) (sizeof(a) / sizeof((a)[0]))
-
-void setUp(void)
-{
-	FFF_RESET_HISTORY();
-}
-
-struct entry {
-	const char *s;
-	const char *base64_string;
+struct cio_utf8_state {
+	uint8_t codepoint;
+	uint8_t state;
 };
 
-static void test_patterns(void)
-{
-	struct entry entries[] = {
-	    {.s = "", .base64_string = ""},
-	    {.s = "f", .base64_string = "Zg=="},
-	    {.s = "fo", .base64_string = "Zm8="},
-	    {.s = "foo", .base64_string = "Zm9v"},
-	    {.s = "foob", .base64_string = "Zm9vYg=="},
-	    {.s = "fooba", .base64_string = "Zm9vYmE="},
-	    {.s = "foobar", .base64_string = "Zm9vYmFy"},
-	};
+void cio_utf8_init(struct cio_utf8_state *state);
+uint8_t cio_check_utf8(struct cio_utf8_state *state, const uint8_t *s, size_t count);
 
-	for (unsigned int i = 0; i < ARRAY_SIZE(entries); i++) {
-		struct entry e = entries[i];
-		size_t len = strlen(e.s);
-		char *out = malloc(cio_b64_encoded_string_length(len) + 1);
-		cio_b64_encode_string((const uint8_t *)e.s, len, out);
-
-		TEST_ASSERT_EQUAL_STRING_MESSAGE(e.base64_string, out, "base64 conversion not correct!");
-
-		free(out);
-	}
+#ifdef __cplusplus
 }
+#endif
 
-int main(void)
-{
-	UNITY_BEGIN();
-	RUN_TEST(test_patterns);
-	return UNITY_END();
-}
+#endif

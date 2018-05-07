@@ -183,10 +183,8 @@ static bool check_http_version(const struct cio_http_client *client)
 	}
 }
 
-static void response_written(struct cio_buffered_stream *bs, void *handler_context, const struct cio_write_buffer *buffer, enum cio_error err)
+static void response_written(struct cio_buffered_stream *bs, void *handler_context, enum cio_error err)
 {
-	(void)buffer;
-
 	struct cio_http_client *client = (struct cio_http_client *)handler_context;
 
 	if (unlikely(err != CIO_SUCCESS)) {
@@ -201,11 +199,7 @@ static void response_written(struct cio_buffered_stream *bs, void *handler_conte
 	ws->rb = &client->rb;
 	ws->loop = client->socket.loop;
 
-	if (likely(ws->on_connect != NULL)) {
-		ws->on_connect(ws);
-	}
-
-	ws->receive_frames(ws);
+	ws->internal_on_connect(ws);
 }
 
 static void send_upgrade_response(struct cio_http_client *client)

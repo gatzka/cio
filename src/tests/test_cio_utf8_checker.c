@@ -24,10 +24,11 @@
  * SOFTWARE.
  */
 
+#include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
 
-#include "cio_base64.h"
+#include "cio_utf8_checker.h"
 #include "fff.h"
 #include "unity.h"
 
@@ -36,43 +37,34 @@ DEFINE_FFF_GLOBALS
 #undef ARRAY_SIZE
 #define ARRAY_SIZE(a) (sizeof(a) / sizeof((a)[0]))
 
+struct test_entry {
+	const uint8_t *test_pattern;
+	uint8_t valid;
+};
+
 void setUp(void)
 {
 	FFF_RESET_HISTORY();
 }
 
-struct entry {
-	const char *s;
-	const char *base64_string;
-};
-
-static void test_patterns(void)
+static void test_utf8(void)
 {
-	struct entry entries[] = {
-	    {.s = "", .base64_string = ""},
-	    {.s = "f", .base64_string = "Zg=="},
-	    {.s = "fo", .base64_string = "Zm8="},
-	    {.s = "foo", .base64_string = "Zm9v"},
-	    {.s = "foob", .base64_string = "Zm9vYg=="},
-	    {.s = "fooba", .base64_string = "Zm9vYmE="},
-	    {.s = "foobar", .base64_string = "Zm9vYmFy"},
-	};
+	struct test_entry entries[] = {
+	    {.test_pattern = (const uint8_t *)"\xe7\xae\x80\xe4\xbd\x93\xe4\xb8\xad\xe6\x96\x87\x00", .valid = CIO_UTF8_ACCEPT},
+	    {.test_pattern = (const uint8_t *)"\xf8\x88\x80\x80\x80", .valid = CIO_UTF8_REJECT}};
 
 	for (unsigned int i = 0; i < ARRAY_SIZE(entries); i++) {
-		struct entry e = entries[i];
-		size_t len = strlen(e.s);
-		char *out = malloc(cio_b64_encoded_string_length(len) + 1);
-		cio_b64_encode_string((const uint8_t *)e.s, len, out);
-
-		TEST_ASSERT_EQUAL_STRING_MESSAGE(e.base64_string, out, "base64 conversion not correct!");
-
-		free(out);
+		struct cio_utf8_state state;
+		cio_utf8_init(&state);
+		struct test_entry entry = entries[i];
+		uint8_t result = cio_check_utf8(&state, entry.test_pattern, strlen((const char *)entry.test_pattern));
+		TEST_ASSERT_MESSAGE(result == entry.valid, "Test pattern not checked successfully!");
 	}
 }
 
 int main(void)
 {
 	UNITY_BEGIN();
-	RUN_TEST(test_patterns);
+	RUN_TEST(test_utf8);
 	return UNITY_END();
 }

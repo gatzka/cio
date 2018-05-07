@@ -171,6 +171,19 @@ Project {
   }
 
   UnittestProduct {
+    name: "test_cio_utf8_checker"
+    type: ["application", "unittest"]
+    
+    cpp.includePaths: [".."]
+    
+    files: [
+      "test_cio_utf8_checker.c",
+      "../cio_utf8_checker.c"
+    ]
+  }
+
+
+  UnittestProduct {
     name: "test_cio_write_buffer"
     type: ["application", "unittest"]
     
@@ -206,6 +219,7 @@ Project {
       "../cio_http_location.c",
       "../cio_http_location_handler.c",
       "../cio_http_server.c",
+      "../cio_utf8_checker.c",
       "../cio_websocket.c",
       "../cio_websocket_location_handler.c",
     ]
@@ -250,6 +264,30 @@ Project {
         "cio_linux_endian.c",
         "cio_linux_random.c",
         "cio_linux_string.c",
+      ]
+    }
+  }
+
+  UnittestProduct {
+    name: "test_cio_websocket"
+    type: ["application", "unittest"]
+
+    cpp.includePaths: ["..", "../linux/"];
+
+    files: [
+      "test_cio_websocket.c",
+      "../cio_utf8_checker.c",
+      "../cio_websocket.c",
+    ]
+
+    Group {
+      condition: qbs.targetOS.contains("linux")
+      name: "linux specific"
+      prefix: "../linux/"
+      cpp.cLanguageVersion: "c11"
+
+      files: [
+        "cio_linux_endian.c",
       ]
     }
 

@@ -54,7 +54,7 @@ void cio_random_get_bytes(void *bytes, size_t num_bytes)
 	int ret = fread(bytes, 1, num_bytes, dev_urandom);
 	/* Ignore return value deliberately.
 	 * There is no good error handling when this call fails
-	 * besides shutting down cjet completely.
+	 * besides shutting down cio completely.
 	 */
 	(void)ret;
 }

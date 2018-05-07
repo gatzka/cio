@@ -75,6 +75,12 @@ add_executable(test_cio_base64
 )
 target_link_libraries (test_cio_base64 cio_unity)
 
+add_executable(test_cio_utf8_checker
+    test_cio_utf8_checker.c
+	../cio_utf8_checker.c
+)
+target_link_libraries (test_cio_utf8_checker cio_unity)
+
 add_executable(test_cio_read_buffer
     test_cio_read_buffer.c
 )
@@ -96,6 +102,7 @@ add_executable(test_cio_websocket_location_handler
 	../cio_http_location.c
 	../cio_http_location_handler.c
     ../cio_http_server.c
+    ../cio_utf8_checker.c
     ../cio_websocket.c
     ../cio_websocket_location_handler.c
     ../http-parser/http_parser.c
@@ -106,14 +113,24 @@ add_executable(test_cio_websocket_location_handler
 )
 target_link_libraries (test_cio_websocket_location_handler cio_unity)
 
+add_executable(test_cio_websocket
+    test_cio_websocket.c
+    ../cio_utf8_checker.c
+    ../cio_websocket.c
+    ../linux/cio_linux_endian.c
+)
+target_link_libraries (test_cio_websocket cio_unity)
+
 enable_testing()
+add_test(NAME test_cio_base64 COMMAND test_cio_base64)
 add_test(NAME test_cio_buffered_stream COMMAND test_cio_buffered_stream)
 add_test(NAME test_cio_http_server COMMAND test_cio_http_server)
 add_test(NAME test_cio_http_server_iostream COMMAND test_cio_http_server_iostream)
 add_test(NAME test_cio_read_buffer COMMAND test_cio_read_buffer)
-add_test(NAME test_cio_write_buffer COMMAND test_cio_write_buffer)
-add_test(NAME test_cio_websocket_mask COMMAND test_cio_websocket_mask)
+add_test(NAME test_cio_utf8_checker COMMAND test_cio_utf8_checker)
+add_test(NAME test_cio_websocket COMMAND test_cio_websocket)
 add_test(NAME test_cio_websocket_location_handler COMMAND test_cio_websocket_location_handler)
-add_test(NAME test_cio_base64 COMMAND test_cio_base64)
+add_test(NAME test_cio_websocket_mask COMMAND test_cio_websocket_mask)
+add_test(NAME test_cio_write_buffer COMMAND test_cio_write_buffer)
 
 

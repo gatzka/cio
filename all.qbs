@@ -40,7 +40,8 @@ Project {
   references: [
     "src/unity.qbs",
     "src/fff.qbs",
-    "src/cio_project.qbs"
+    "src/cio_project.qbs",
+    "autobahn/autobahn_server.qbs"
   ]
 
   TestProducts { }

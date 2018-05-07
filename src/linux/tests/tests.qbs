@@ -92,4 +92,16 @@ Project {
       "../cio_linux_timer.c",
     ]
   }
+
+  UnittestProduct {
+    name: "test_cio_linux_endian"
+    type: ["application", "unittest"]
+
+    cpp.includePaths: ["../", "../../"]
+
+    files: [
+      "test_cio_linux_endian.c",
+      "../cio_linux_endian.c",
+    ]
+  }
 }
