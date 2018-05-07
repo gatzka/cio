@@ -697,14 +697,6 @@ static void get_header(struct cio_buffered_stream *bs, void *handler_context, en
 	}
 }
 
-static void receive_frames(struct cio_websocket *ws)
-{
-	enum cio_error err = ws->bs->read_exactly(ws->bs, ws->rb, 1, get_header, ws);
-	if (unlikely(err != CIO_SUCCESS)) {
-		handle_error(ws, CIO_WEBSOCKET_CLOSE_INTERNAL_ERROR, "error while start reading websocket header");
-	}
-}
-
 static void handle_write(struct cio_buffered_stream *bs, void *handler_context, enum cio_error err)
 {
 	(void)bs;
@@ -746,22 +738,12 @@ static enum cio_websocket_status write_text_frame(struct cio_websocket *ws, stru
 	return send_frame_from_api_user(ws, CIO_WEBSOCKET_TEXT_FRAME, payload, last_frame, handler, handler_context);
 }
 
-static void internal_on_connect(struct cio_websocket *ws)
+enum cio_error cio_websocket_init(struct cio_websocket *ws, bool is_server, cio_websocket_on_connect on_connect, cio_websocket_close_hook close_hook)
 {
-	if (ws->on_connect != NULL) {
-		ws->on_connect(ws);
+	if (unlikely(on_connect == NULL)) {
+		return CIO_INVALID_ARGUMENT;
 	}
 
-	if (unlikely(ws->ws_flags.to_be_closed == 1)) {
-		close(ws);
-	} else {
-		receive_frames(ws);
-	}
-}
-
-void cio_websocket_init(struct cio_websocket *ws, bool is_server, cio_websocket_close_hook close_hook)
-{
-	ws->internal_on_connect = internal_on_connect;
 	ws->on_connect = NULL;
 	ws->on_error = NULL;
 	ws->on_close = NULL;
@@ -783,4 +765,6 @@ void cio_websocket_init(struct cio_websocket *ws, bool is_server, cio_websocket_
 
 	cio_write_buffer_element_init(&ws->wb_close_status, &ws->close_status, sizeof(ws->close_status));
 	cio_utf8_init(&ws->utf8_state);
+
+	return CIO_SUCCESS;
 }

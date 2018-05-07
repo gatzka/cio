@@ -54,6 +54,7 @@ extern "C" {
 struct cio_websocket;
 
 typedef void (*cio_websocket_close_hook)(struct cio_websocket *s);
+typedef void (*cio_websocket_on_connect)(struct cio_websocket *s);
 
 enum cio_websocket_status_code {
 	CIO_WEBSOCKET_CLOSE_NORMAL = 1000,
@@ -269,7 +270,7 @@ struct cio_websocket {
 	/*! @endcond */
 };
 
-void cio_websocket_init(struct cio_websocket *ws, bool is_server, cio_websocket_close_hook close_hook);
+enum cio_error cio_websocket_init(struct cio_websocket *ws, bool is_server, cio_websocket_on_connect on_connect, cio_websocket_close_hook close_hook);
 
 #ifdef __cplusplus
 }

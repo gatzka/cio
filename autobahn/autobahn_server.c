@@ -121,6 +121,11 @@ static void on_binaryframe(struct cio_websocket *ws, uint8_t *data, size_t lengt
 	}
 }
 
+static void on_connect(struct cio_websocket *ws)
+{
+	(void)ws;
+}
+
 static void on_error(const struct cio_websocket *ws, enum cio_websocket_status_code status, const char *reason)
 {
 	(void)ws;
@@ -134,7 +139,7 @@ static struct cio_http_location_handler *alloc_autobahn_handler(const void *conf
 	if (unlikely(handler == NULL)) {
 		return NULL;
 	} else {
-		cio_websocket_location_handler_init(&handler->ws_handler, NULL, 0);
+		cio_websocket_location_handler_init(&handler->ws_handler, NULL, 0, on_connect);
 		handler->ws_handler.websocket.on_textframe = on_textframe;
 		handler->ws_handler.websocket.on_binaryframe = on_binaryframe;
 		handler->ws_handler.websocket.on_error = on_error;
