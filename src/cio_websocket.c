@@ -479,7 +479,7 @@ static void get_mask(struct cio_buffered_stream *bs, void *handler_context, enum
 	if (likely(ws->read_frame_length > 0)) {
 		err = bs->read_exactly(bs, buffer, ws->read_frame_length, get_payload, ws);
 		if (unlikely(err != CIO_SUCCESS)) {
-			handle_error(ws, CIO_WEBSOCKET_CLOSE_TOO_LARGE, "payload length too large to handle");
+			handle_error(ws, CIO_WEBSOCKET_CLOSE_INTERNAL_ERROR, "error while start reading websocket payload");
 		}
 	} else {
 		buffer->bytes_transferred = 0;
@@ -506,6 +506,7 @@ static void get_mask_or_payload(struct cio_websocket *ws, struct cio_buffered_st
 
 			return;
 		} else {
+			buffer->bytes_transferred = 0;
 			handle_frame(ws, NULL, 0);
 		}
 	}
