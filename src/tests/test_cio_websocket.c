@@ -369,7 +369,7 @@ static void on_close_frame_save_data(const struct cio_websocket *websocket, enum
 	(void)websocket;
 	uint16_t stat = status;
 	stat = be16toh(stat);
-	memcpy(&read_back_buffer[read_back_buffer_pos], &stat, sizeof(status));
+	memcpy(&read_back_buffer[read_back_buffer_pos], &stat, sizeof(stat));
 	read_back_buffer_pos += sizeof(stat);
 	memcpy(&read_back_buffer[read_back_buffer_pos], reason, length);
 	read_back_buffer_pos += length;
