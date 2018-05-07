@@ -289,6 +289,7 @@ enum cio_error cio_websocket_location_handler_init(struct cio_websocket_location
 	handler->chosen_subprotocol = -1;
 	handler->subprotocols = subprotocols;
 	handler->number_subprotocols = num_subprotocols;
+	//TODO: remove initialisation?
 	handler->sec_web_socket_key[0] = 0;
 
 	cio_http_location_handler_init(&handler->http_location);

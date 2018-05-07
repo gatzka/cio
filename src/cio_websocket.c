@@ -47,15 +47,6 @@ enum close_handling {
 	CLOSE_WEBSOCKET_HANDSHAKE
 };
 
-enum cio_ws_frame_type {
-	CIO_WEBSOCKET_CONTINUATION_FRAME = 0x0,
-	CIO_WEBSOCKET_TEXT_FRAME = 0x1,
-	CIO_WEBSOCKET_BINARY_FRAME = 0x2,
-	CIO_WEBSOCKET_CLOSE_FRAME = 0x8,
-	CIO_WEBSOCKET_PING_FRAME = 0x9,
-	CIO_WEBSOCKET_PONG_FRAME = 0x0a,
-};
-
 static void close(struct cio_websocket *ws)
 {
 	if (ws->ws_flags.handle_frame_ctx == 0) {
@@ -87,7 +78,7 @@ static void write_complete(struct cio_buffered_stream *bs, void *handler_context
 	ws->user_write_handler(bs, handler_context, err);
 }
 
-static void send_frame(struct cio_websocket *ws, struct cio_write_buffer *payload, enum cio_ws_frame_type frame_type, bool last_frame, cio_buffered_stream_write_handler written_cb)
+static void send_frame(struct cio_websocket *ws, struct cio_write_buffer *payload, enum cio_websocket_frame_type frame_type, bool last_frame, cio_buffered_stream_write_handler written_cb)
 {
 	if (unlikely(ws->ws_flags.writing_frame == 1)) {
 		/*
@@ -330,7 +321,6 @@ static void handle_close_frame(struct cio_websocket *ws, uint8_t *data, uint64_t
 		return;
 	}
 
-	const char *reason;
 	if (length > 2) {
 		struct cio_utf8_state state;
 		cio_utf8_init(&state);
@@ -340,18 +330,14 @@ static void handle_close_frame(struct cio_websocket *ws, uint8_t *data, uint64_t
 		}
 
 		length -= sizeof(status_code);
-		reason = (const char *)&data[sizeof(status_code)];
-	} else {
-		length = 0;
-		reason = NULL;
 	}
 
 	if (ws->ws_flags.self_initiated_close == 1) {
 		ws->close_timer.cancel(&ws->close_timer);
 		ws->ws_flags.to_be_closed = 1;
 	} else {
-		if (ws->on_close != NULL) {
-			ws->on_close(ws, (enum cio_websocket_status_code)status_code, reason, length);
+		if (ws->on_control != NULL) {
+			ws->on_control(ws, CIO_WEBSOCKET_CLOSE_FRAME, data, length);
 		}
 
 		if (length > 0) {
@@ -397,8 +383,8 @@ static void handle_ping_frame(struct cio_websocket *ws, uint8_t *data, uint64_t 
 		return;
 	}
 
-	if (ws->on_ping != NULL) {
-		ws->on_ping(ws, data, length);
+	if (ws->on_control != NULL) {
+		ws->on_control(ws, CIO_WEBSOCKET_PING_FRAME, data, length);
 	}
 }
 
@@ -429,8 +415,8 @@ static void handle_frame(struct cio_websocket *ws, uint8_t *data, uint64_t lengt
 		break;
 
 	case CIO_WEBSOCKET_PONG_FRAME:
-		if (ws->on_pong != NULL) {
-			ws->on_pong(ws, data, length);
+		if (ws->on_control != NULL) {
+			ws->on_control(ws, CIO_WEBSOCKET_PONG_FRAME, data, length);
 		}
 
 		break;
@@ -704,7 +690,7 @@ static void handle_write(struct cio_buffered_stream *bs, void *handler_context, 
 	ws->write_handler(ws, ws->write_handler_context, err);
 }
 
-static enum cio_websocket_status send_frame_from_api_user(struct cio_websocket *ws, enum cio_ws_frame_type frame_type,  struct cio_write_buffer *payload, bool last_frame, cio_websocket_write_handler handler, void* handler_context)
+static enum cio_websocket_status send_frame_from_api_user(struct cio_websocket *ws, enum cio_websocket_frame_type frame_type,  struct cio_write_buffer *payload, bool last_frame, cio_websocket_write_handler handler, void* handler_context)
 {
 	ws->write_handler = handler;
 	ws->write_handler_context = handler_context;
@@ -746,9 +732,6 @@ enum cio_error cio_websocket_init(struct cio_websocket *ws, bool is_server, cio_
 
 	ws->on_connect = NULL;
 	ws->on_error = NULL;
-	ws->on_close = NULL;
-	ws->on_pong = NULL;
-	ws->on_ping = NULL;
 	ws->on_textframe = NULL;
 	ws->on_binaryframe = NULL;
 	ws->close = self_close_frame;
