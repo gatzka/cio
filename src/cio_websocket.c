@@ -734,10 +734,11 @@ static enum cio_websocket_status write_binary_frame(struct cio_websocket *ws, st
 static enum cio_websocket_status write_ping_frame(struct cio_websocket *ws, struct cio_write_buffer *payload, cio_websocket_write_handler handler, void *handler_context)
 {
 	if (unlikely(payload_size_in_limit(payload, CIO_WEBSOCKET_SMALL_FRAME_SIZE) == 0)) {
-		return CIO_MESSAGE_TOO_LONG;
+		handler(ws, handler_context, CIO_MESSAGE_TOO_LONG);
+		return CIO_WEBSOCKET_STATUS_OK;
+	} else {
+		return send_frame_from_api_user(ws, CIO_WEBSOCKET_PING_FRAME, payload, true, handler, handler_context);
 	}
-
-	return send_frame_from_api_user(ws, CIO_WEBSOCKET_PING_FRAME, payload, true, handler, handler_context);
 }
 
 static enum cio_websocket_status write_text_frame(struct cio_websocket *ws, struct cio_write_buffer *payload, bool last_frame, cio_websocket_write_handler handler, void *handler_context)
