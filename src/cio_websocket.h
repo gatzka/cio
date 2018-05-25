@@ -55,6 +55,8 @@ struct cio_websocket;
 
 typedef void (*cio_websocket_close_hook)(struct cio_websocket *s);
 typedef void (*cio_websocket_on_connect)(struct cio_websocket *s);
+typedef void (*cio_websocket_read_handler)(struct cio_websocket *ws, void *handler_context, enum cio_error err, uint8_t *data, size_t length, bool last_frame, bool is_binary);
+typedef void (*cio_websocket_write_handler)(struct cio_websocket *ws, void *handler_context, enum cio_error err);
 
 enum cio_websocket_status_code {
 	CIO_WEBSOCKET_CLOSE_NORMAL = 1000,
@@ -83,12 +85,13 @@ enum cio_websocket_frame_type {
 	CIO_WEBSOCKET_PONG_FRAME = 0x0a,
 };
 
+
+// Remove and use callbacks or document
 enum cio_websocket_status {
 	CIO_WEBSOCKET_STATUS_OK = 0,
 	CIO_WEBSOCKET_STATUS_CLOSED = -1
 };
 
-typedef void (*cio_websocket_write_handler)(struct cio_websocket *ws, void *handler_context, enum cio_error err);
 
 #define CIO_WEBSOCKET_SMALL_FRAME_SIZE 125
 
@@ -115,6 +118,8 @@ struct cio_websocket {
 	 * @param ws The websocket which was connected.
 	 */
 	void (*on_connect)(struct cio_websocket *ws);
+
+	void (*read_message)(struct cio_websocket *ws, cio_websocket_read_handler handler, void *handler_context);
 
 	/**
 	 * @brief A pointer to a function which is called when a binary frame was received.
@@ -233,6 +238,9 @@ struct cio_websocket {
 		unsigned int writing_frame : 1;
 		unsigned int handle_frame_ctx : 1;
 	} ws_flags;
+
+	cio_websocket_read_handler read_handler;
+	void *read_handler_context;
 
 	cio_websocket_write_handler write_handler;
 	void *write_handler_context;

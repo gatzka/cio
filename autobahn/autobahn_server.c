@@ -61,69 +61,55 @@ static void free_autobahn_handler(struct cio_http_location_handler *handler)
 	free(h);
 }
 
+static void read_handler(struct cio_websocket *ws, void *handler_context, enum cio_error err, uint8_t *data, size_t length, bool last_frame, bool is_binary);
 
 static void write_complete(struct cio_websocket *ws, void *handler_context, enum cio_error err)
 {
 	(void)handler_context;
 	(void)err;
-	(void)ws;
-	// struct cio_websocket_location_handler *handler = container_of(ws, struct cio_websocket_location_handler, websocket);
-	// struct ws_autobahn_handler *eh = container_of(handler, struct ws_autobahn_handler, ws_handler);
+	ws->read_message(ws, read_handler, NULL);
 }
 
-static void on_textframe(struct cio_websocket *ws, uint8_t *data, size_t length, bool last_frame)
+static void read_handler(struct cio_websocket *ws, void *handler_context, enum cio_error err, uint8_t *data, size_t length, bool last_frame, bool is_binary)
 {
-	struct cio_websocket_location_handler *handler = container_of(ws, struct cio_websocket_location_handler, websocket);
-	struct ws_autobahn_handler *eh = container_of(handler, struct ws_autobahn_handler, ws_handler);
+	(void)handler_context;
 
-	if (length + eh->bytes_in_echo_buffer > read_buffer_size) {
-		const char *error_msg = "payload too large for read buffer in autobahn test";
-		ws->close(ws, CIO_WEBSOCKET_CLOSE_TOO_LARGE, error_msg);
-		return;
-	}
+	if (err == CIO_SUCCESS) {
+		struct cio_websocket_location_handler *handler = container_of(ws, struct cio_websocket_location_handler, websocket);
+		struct ws_autobahn_handler *eh = container_of(handler, struct ws_autobahn_handler, ws_handler);
 
-	if (length > 0) {
-		memcpy(&eh->echo_buffer[eh->bytes_in_echo_buffer], data, length);
-		eh->bytes_in_echo_buffer += length;
-	}
+		if (length + eh->bytes_in_echo_buffer > read_buffer_size) {
+			const char *error_msg = "payload too large for read buffer in autobahn test";
+			ws->close(ws, CIO_WEBSOCKET_CLOSE_TOO_LARGE, error_msg);
+			return;
+		}
 
-	if (last_frame) {
-		cio_write_buffer_head_init(&eh->wbh);
-		cio_write_buffer_const_element_init(&eh->wb_message, eh->echo_buffer, eh->bytes_in_echo_buffer);
-		cio_write_buffer_queue_tail(&eh->wbh, &eh->wb_message);
-		ws->write_textframe(ws, &eh->wbh, last_frame, write_complete, NULL);
-		eh->bytes_in_echo_buffer = 0;
-	}
-}
+		if (length > 0) {
+			memcpy(&eh->echo_buffer[eh->bytes_in_echo_buffer], data, length);
+			eh->bytes_in_echo_buffer += length;
+		}
 
-static void on_binaryframe(struct cio_websocket *ws, uint8_t *data, size_t length, bool last_frame)
-{
-	struct cio_websocket_location_handler *handler = container_of(ws, struct cio_websocket_location_handler, websocket);
-	struct ws_autobahn_handler *eh = container_of(handler, struct ws_autobahn_handler, ws_handler);
-
-	if (length + eh->bytes_in_echo_buffer > read_buffer_size) {
-		const char *error_msg = "payload too large for read buffer in autobahn test";
-		ws->close(ws, CIO_WEBSOCKET_CLOSE_TOO_LARGE, error_msg);
-		return;
-	}
-
-	if (length > 0) {
-		memcpy(&eh->echo_buffer[eh->bytes_in_echo_buffer], data, length);
-		eh->bytes_in_echo_buffer += length;
-	}
-
-	if (last_frame) {
-		cio_write_buffer_head_init(&eh->wbh);
-		cio_write_buffer_const_element_init(&eh->wb_message, eh->echo_buffer, eh->bytes_in_echo_buffer);
-		cio_write_buffer_queue_tail(&eh->wbh, &eh->wb_message);
-		ws->write_binaryframe(ws, &eh->wbh, last_frame, write_complete, NULL);
-		eh->bytes_in_echo_buffer = 0;
+		if (last_frame) {
+			cio_write_buffer_head_init(&eh->wbh);
+			cio_write_buffer_const_element_init(&eh->wb_message, eh->echo_buffer, eh->bytes_in_echo_buffer);
+			cio_write_buffer_queue_tail(&eh->wbh, &eh->wb_message);
+			if (is_binary) {
+				ws->write_binaryframe(ws, &eh->wbh, last_frame, write_complete, NULL);
+			} else {
+				ws->write_textframe(ws, &eh->wbh, last_frame, write_complete, NULL);
+			}
+			eh->bytes_in_echo_buffer = 0;
+		} else {
+			ws->read_message(ws, read_handler, NULL);
+		}
+	} else if (err != CIO_EOF) {
+		fprintf(stderr, "read failure!\n");
 	}
 }
 
 static void on_connect(struct cio_websocket *ws)
 {
-	(void)ws;
+	ws->read_message(ws, read_handler, NULL);
 }
 
 static void on_error(const struct cio_websocket *ws, enum cio_websocket_status_code status, const char *reason)
@@ -140,8 +126,6 @@ static struct cio_http_location_handler *alloc_autobahn_handler(const void *conf
 		return NULL;
 	} else {
 		cio_websocket_location_handler_init(&handler->ws_handler, NULL, 0, on_connect);
-		handler->ws_handler.websocket.on_textframe = on_textframe;
-		handler->ws_handler.websocket.on_binaryframe = on_binaryframe;
 		handler->ws_handler.websocket.on_error = on_error;
 		handler->ws_handler.http_location.free = free_autobahn_handler;
 		handler->bytes_in_echo_buffer = 0;

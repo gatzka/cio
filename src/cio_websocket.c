@@ -49,14 +49,13 @@ enum close_handling {
 
 static void close(struct cio_websocket *ws)
 {
-	if (ws->ws_flags.handle_frame_ctx == 0) {
-		if (ws->ws_flags.self_initiated_close == 1) {
-			ws->close_timer.close(&ws->close_timer);
-		}
+	if (ws->ws_flags.self_initiated_close == 1) {
+		ws->close_timer.close(&ws->close_timer);
+	}
 
-		if (ws->close_hook) {
-			ws->close_hook(ws);
-		}
+	ws->read_handler(ws, ws->read_handler_context, CIO_EOF, NULL, 0, false, false);
+	if (ws->close_hook) {
+		ws->close_hook(ws);
 	}
 }
 
@@ -171,19 +170,59 @@ static bool is_status_code_invalid(uint16_t status_code)
 	return true;
 }
 
-static void close_frame_written(struct cio_buffered_stream *bs, void *handler_context, enum cio_error err)
+static void get_header(struct cio_buffered_stream *bs, void *handler_context, enum cio_error err, struct cio_read_buffer *buffer);
+
+static void prepare_close_message(struct cio_websocket *ws, struct cio_write_buffer *wbh, enum cio_websocket_status_code status_code, struct cio_write_buffer *reason)
 {
-	(void)bs;
-	(void)handler_context;
-	(void)err;
-	// TODO: we could emit a shutdown(WR) here.
+	ws->close_status = cio_htobe16(status_code);
+	cio_write_buffer_head_init(wbh);
+	cio_write_buffer_queue_tail(wbh, &ws->wb_close_status);
+	if (reason != NULL) {
+		cio_write_buffer_splice(reason, wbh);
+	}
 }
 
-static void do_nothing(struct cio_buffered_stream *bs, void *handler_context, enum cio_error err)
+static void close_frame_written(struct cio_buffered_stream *bs, void *handler_context, enum cio_error err)
+{
+	struct cio_websocket *ws = handler_context;
+	(void)bs;
+	(void)err;
+
+	close(ws);
+}
+
+static void send_close_frame_and_close(struct cio_websocket *ws, enum cio_websocket_status_code status_code, struct cio_write_buffer *reason)
+{
+	struct cio_write_buffer wbh;
+	prepare_close_message(ws, &wbh, status_code, reason);
+
+	send_frame(ws, &wbh, CIO_WEBSOCKET_CLOSE_FRAME, true, close_frame_written);
+}
+
+static void handle_error(struct cio_websocket *ws, enum cio_websocket_status_code status_code, const char *reason)
+{
+	if (ws->on_error != NULL) {
+		ws->on_error(ws, status_code, reason);
+	}
+
+	struct cio_write_buffer wbh;
+	cio_write_buffer_head_init(&wbh);
+	strncpy((char *)ws->send_control_frame_buffer, reason, sizeof(ws->send_control_frame_buffer) - sizeof(ws->close_status));
+	cio_write_buffer_element_init(&ws->wb_control_data, ws->send_control_frame_buffer, strlen(reason));
+	cio_write_buffer_queue_tail(&wbh, &ws->wb_control_data);
+
+	send_close_frame_and_close(ws, status_code, &wbh);
+}
+
+static void pong_frame_written(struct cio_buffered_stream *bs, void *handler_context, enum cio_error err)
 {
 	(void)bs;
-	(void)handler_context;
-	(void)err;
+	struct cio_websocket *ws = handler_context;
+	if (likely(err == CIO_SUCCESS)) {
+		ws->bs->read_exactly(ws->bs, ws->rb, 1, get_header, ws);
+	} else {
+		handle_error(ws, CIO_WEBSOCKET_CLOSE_INTERNAL_ERROR, "pong frame not written successfully");
+	}
 }
 
 static void close_timeout_handler(struct cio_timer *timer, void *handler_context, enum cio_error err)
@@ -214,25 +253,6 @@ static int payload_size_in_limit(const struct cio_write_buffer *payload, size_t 
 	return 1;
 }
 
-static void prepare_close_message(struct cio_websocket *ws, struct cio_write_buffer *wbh, enum cio_websocket_status_code status_code, struct cio_write_buffer *reason)
-{
-	ws->close_status = cio_htobe16(status_code);
-	cio_write_buffer_head_init(wbh);
-	cio_write_buffer_queue_tail(wbh, &ws->wb_close_status);
-	if (reason != NULL) {
-		cio_write_buffer_splice(reason, wbh);
-	}
-}
-
-static void send_close_frame_and_close(struct cio_websocket *ws, enum cio_websocket_status_code status_code, struct cio_write_buffer *reason)
-{
-	struct cio_write_buffer wbh;
-	prepare_close_message(ws, &wbh, status_code, reason);
-
-	send_frame(ws, &wbh, CIO_WEBSOCKET_CLOSE_FRAME, true, do_nothing);
-	ws->ws_flags.to_be_closed = 1;
-}
-
 static void send_close_frame_wait_for_response(struct cio_websocket *ws, enum cio_websocket_status_code status_code, struct cio_write_buffer *reason)
 {
 	struct cio_write_buffer wbh;
@@ -257,47 +277,24 @@ err:
 	send_close_frame_and_close(ws, status_code, reason);
 }
 
-static void handle_error(struct cio_websocket *ws, enum cio_websocket_status_code status_code, const char *reason)
-{
-	if (ws->on_error != NULL) {
-		ws->on_error(ws, status_code, reason);
-	}
-
-	struct cio_write_buffer wbh;
-	cio_write_buffer_head_init(&wbh);
-	strncpy((char *)ws->send_control_frame_buffer, reason, sizeof(ws->send_control_frame_buffer) - sizeof(ws->close_status));
-	cio_write_buffer_element_init(&ws->wb_control_data, ws->send_control_frame_buffer, strlen(reason));
-	cio_write_buffer_queue_tail(&wbh, &ws->wb_control_data);
-
-	send_close_frame_and_close(ws, status_code, &wbh);
-	close(ws);
-}
 
 static void handle_binary_frame(struct cio_websocket *ws, uint8_t *data, uint64_t length, bool last_frame)
 {
-	if (likely(ws->on_binaryframe != NULL)) {
-		ws->on_binaryframe(ws, data, length, last_frame);
-	} else {
-		handle_error(ws, CIO_WEBSOCKET_CLOSE_UNSUPPORTED, "got binary frame but no on_binaryframe callback installed");
-	}
+	ws->read_handler(ws, ws->read_handler_context, CIO_SUCCESS, data, length, last_frame, true);
 }
 
 static void handle_text_frame(struct cio_websocket *ws, uint8_t *data, uint64_t length, bool last_frame)
 {
-	if (likely(ws->on_textframe != NULL)) {
-		uint32_t state = cio_check_utf8(&ws->utf8_state, data, length);
+	uint32_t state = cio_check_utf8(&ws->utf8_state, data, length);
 
-		if (unlikely((state == CIO_UTF8_REJECT) || (last_frame && (state != CIO_UTF8_ACCEPT)))) {
-			handle_error(ws, CIO_WEBSOCKET_CLOSE_UNSUPPORTED_DATA, "payload not valid utf8");
-			return;
-		}
+	if (unlikely((state == CIO_UTF8_REJECT) || (last_frame && (state != CIO_UTF8_ACCEPT)))) {
+		handle_error(ws, CIO_WEBSOCKET_CLOSE_UNSUPPORTED_DATA, "payload not valid utf8");
+		return;
+	}
 
-		ws->on_textframe(ws, data, length, last_frame);
-		if (last_frame) {
-			cio_utf8_init(&ws->utf8_state);
-		}
-	} else {
-		handle_error(ws, CIO_WEBSOCKET_CLOSE_UNSUPPORTED, "got text frame but no on_textframe callback installed");
+	ws->read_handler(ws, ws->read_handler_context, CIO_SUCCESS, data, length, last_frame, false);
+	if (last_frame) {
+		cio_utf8_init(&ws->utf8_state);
 	}
 }
 
@@ -312,6 +309,7 @@ static void handle_close_frame(struct cio_websocket *ws, uint8_t *data, uint64_t
 	if (length >= 2) {
 		memcpy(&status_code, data, sizeof(status_code));
 		status_code = cio_be16toh(status_code);
+		length -= sizeof(status_code);
 	} else {
 		status_code = CIO_WEBSOCKET_CLOSE_NORMAL;
 	}
@@ -321,20 +319,18 @@ static void handle_close_frame(struct cio_websocket *ws, uint8_t *data, uint64_t
 		return;
 	}
 
-	if (length > 2) {
+	if (length > 0) {
 		struct cio_utf8_state state;
 		cio_utf8_init(&state);
 		if (unlikely(cio_check_utf8(&state, data + 2, length - 2) != CIO_UTF8_ACCEPT)) {
 			handle_error(ws, CIO_WEBSOCKET_CLOSE_PROTOCOL_ERROR, "reason in close frame not utf8 valid");
 			return;
 		}
-
-		length -= sizeof(status_code);
 	}
 
 	if (ws->ws_flags.self_initiated_close == 1) {
 		ws->close_timer.cancel(&ws->close_timer);
-		ws->ws_flags.to_be_closed = 1;
+		close(ws);
 	} else {
 		if (ws->on_control != NULL) {
 			ws->on_control(ws, CIO_WEBSOCKET_CLOSE_FRAME, data, length);
@@ -366,8 +362,6 @@ static void self_close_frame(struct cio_websocket *ws, enum cio_websocket_status
 	send_close_frame_wait_for_response(ws, status_code, &wbh);
 }
 
-static void get_header(struct cio_buffered_stream *bs, void *handler_context, enum cio_error err, struct cio_read_buffer *buffer);
-
 static void handle_ping_frame(struct cio_websocket *ws, uint8_t *data, uint64_t length)
 {
 	struct cio_write_buffer wbh;
@@ -378,7 +372,7 @@ static void handle_ping_frame(struct cio_websocket *ws, uint8_t *data, uint64_t 
 		cio_write_buffer_queue_tail(&wbh, &ws->wb_control_data);
 	}
 
-	send_frame(ws, &wbh, CIO_WEBSOCKET_PONG_FRAME, true, do_nothing);
+	send_frame(ws, &wbh, CIO_WEBSOCKET_PONG_FRAME, true, pong_frame_written);
 	if (unlikely(ws->ws_flags.to_be_closed == 1)) {
 		return;
 	}
@@ -390,11 +384,9 @@ static void handle_ping_frame(struct cio_websocket *ws, uint8_t *data, uint64_t 
 
 static void handle_frame(struct cio_websocket *ws, uint8_t *data, uint64_t length)
 {
-	ws->ws_flags.handle_frame_ctx = 1;
-
 	if (unlikely((ws->ws_flags.is_server == 1) && (ws->ws_flags.shall_mask == 0))) {
-		// TODO: handle_error(s, WS_CLOSE_PROTOCOL_ERROR);
-		goto out;
+		handle_error(ws, CIO_WEBSOCKET_CLOSE_PROTOCOL_ERROR, "received unmasked frame on server websocket");
+		return;
 	}
 
 	if (ws->ws_flags.shall_mask != 0) {
@@ -419,6 +411,8 @@ static void handle_frame(struct cio_websocket *ws, uint8_t *data, uint64_t lengt
 			ws->on_control(ws, CIO_WEBSOCKET_PONG_FRAME, data, length);
 		}
 
+		ws->bs->read_exactly(ws->bs, ws->rb, 1, get_header, ws);
+
 		break;
 
 	case CIO_WEBSOCKET_CLOSE_FRAME:
@@ -428,14 +422,6 @@ static void handle_frame(struct cio_websocket *ws, uint8_t *data, uint64_t lengt
 	default:
 		handle_error(ws, CIO_WEBSOCKET_CLOSE_PROTOCOL_ERROR, "reserved opcode used");
 		break;
-	}
-
-out:
-	ws->ws_flags.handle_frame_ctx = 0;
-	if (ws->ws_flags.to_be_closed == 1) {
-		close(ws);
-	} else {
-		ws->bs->read_exactly(ws->bs, ws->rb, 1, get_header, ws);
 	}
 }
 
@@ -684,6 +670,13 @@ static void get_header(struct cio_buffered_stream *bs, void *handler_context, en
 	}
 }
 
+static void read_message(struct cio_websocket *ws, cio_websocket_read_handler handler, void *handler_context)
+{
+	ws->read_handler = handler;
+	ws->read_handler_context = handler_context;
+	ws->bs->read_exactly(ws->bs, ws->rb, 1, get_header, ws);
+}
+
 static void handle_write(struct cio_buffered_stream *bs, void *handler_context, enum cio_error err)
 {
 	(void)bs;
@@ -731,7 +724,11 @@ enum cio_error cio_websocket_init(struct cio_websocket *ws, bool is_server, cio_
 		return CIO_INVALID_ARGUMENT;
 	}
 
-	ws->on_connect = NULL;
+	ws->on_connect = on_connect;
+	ws->read_message = read_message;
+	ws->on_control = NULL;
+
+
 	ws->on_error = NULL;
 	ws->on_textframe = NULL;
 	ws->on_binaryframe = NULL;
@@ -745,7 +742,6 @@ enum cio_error cio_websocket_init(struct cio_websocket *ws, bool is_server, cio_
 	ws->ws_flags.self_initiated_close = 0;
 	ws->ws_flags.to_be_closed = 0;
 	ws->ws_flags.writing_frame = 0;
-	ws->ws_flags.handle_frame_ctx = 0;
 
 	cio_write_buffer_element_init(&ws->wb_close_status, &ws->close_status, sizeof(ws->close_status));
 	cio_utf8_init(&ws->utf8_state);
