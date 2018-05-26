@@ -105,7 +105,6 @@ static void send_ping(struct cio_timer *timer, void *handler_context, enum cio_e
 static void write_complete(struct cio_websocket *ws, void *handler_context, enum cio_error err)
 {
 	(void)handler_context;
-	(void)err;
 
 	if (err == CIO_SUCCESS) {
 		static const char *close_message = "Good Bye!";
@@ -115,6 +114,16 @@ static void write_complete(struct cio_websocket *ws, void *handler_context, enum
 	}
 }
 
+static void print_payload(const uint8_t *data, size_t length)
+{
+	if (length > 0) {
+		fwrite(data, length, 1, stdout);
+		fflush(stdout);
+		fprintf(stdout, "\n");
+	} else {
+		fprintf(stdout, "no payload\n");
+	}
+}
 
 static void on_control(const struct cio_websocket *ws, enum cio_websocket_frame_type type, const uint8_t *data, size_t length)
 {
@@ -122,25 +131,23 @@ static void on_control(const struct cio_websocket *ws, enum cio_websocket_frame_
 
 	switch (type) {
 		case CIO_WEBSOCKET_CLOSE_FRAME:
-			fprintf(stdout, "Got close frame\n");
+			fprintf(stdout, "Got close frame: ");
+			print_payload(data, length);
 			break;
 
 		case CIO_WEBSOCKET_PING_FRAME:
-			fprintf(stdout, "Got ping frame\n");
+			fprintf(stdout, "Got ping frame: ");
+			print_payload(data, length);
 			break;
 
 		case CIO_WEBSOCKET_PONG_FRAME:
-			fprintf(stdout, "Got pong frame\n");
+			fprintf(stdout, "Got pong frame: ");
+			print_payload(data, length);
 			break;
 
 		default:
 			fprintf(stderr, "Got unknown control frame: %x\n", type);
 			break;
-	}
-
-	if (length > 0) {
-		fwrite(data, length, 1, stdout);
-		fflush(stdout);
 	}
 }
 
