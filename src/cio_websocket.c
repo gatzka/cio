@@ -53,7 +53,10 @@ static void close(struct cio_websocket *ws)
 		ws->close_timer.close(&ws->close_timer);
 	}
 
-	ws->read_handler(ws, ws->read_handler_context, CIO_EOF, NULL, 0, false, false);
+	if (likely(ws->read_handler != NULL)) {
+		ws->read_handler(ws, ws->read_handler_context, CIO_EOF, NULL, 0, false, false);
+	}
+
 	if (ws->close_hook) {
 		ws->close_hook(ws);
 	}
@@ -300,6 +303,8 @@ static void handle_text_frame(struct cio_websocket *ws, uint8_t *data, uint64_t 
 
 static void handle_close_frame(struct cio_websocket *ws, uint8_t *data, uint64_t length)
 {
+	uint64_t len = length;
+
 	if (unlikely(length == 1)) {
 		handle_error(ws, CIO_WEBSOCKET_CLOSE_PROTOCOL_ERROR, "close payload of length 1");
 		return;
@@ -328,13 +333,14 @@ static void handle_close_frame(struct cio_websocket *ws, uint8_t *data, uint64_t
 		}
 	}
 
+	if (ws->on_control != NULL) {
+		ws->on_control(ws, CIO_WEBSOCKET_CLOSE_FRAME, data, len);
+	}
+
 	if (ws->ws_flags.self_initiated_close == 1) {
 		ws->close_timer.cancel(&ws->close_timer);
 		close(ws);
 	} else {
-		if (ws->on_control != NULL) {
-			ws->on_control(ws, CIO_WEBSOCKET_CLOSE_FRAME, data, length);
-		}
 
 		if (length > 0) {
 			memcpy(ws->send_control_frame_buffer, &data[sizeof(status_code)], length);
@@ -733,6 +739,7 @@ enum cio_error cio_websocket_init(struct cio_websocket *ws, bool is_server, cio_
 	ws->on_connect = on_connect;
 	ws->read_message = read_message;
 	ws->on_control = NULL;
+	ws->read_handler = NULL;
 
 
 	ws->on_error = NULL;
