@@ -739,7 +739,6 @@ enum cio_error cio_websocket_init(struct cio_websocket *ws, bool is_server, cio_
 	ws->on_control = NULL;
 	ws->read_handler = NULL;
 
-
 	ws->on_error = NULL;
 	ws->close = self_close_frame;
 	ws->write_binaryframe = write_binary_frame;
