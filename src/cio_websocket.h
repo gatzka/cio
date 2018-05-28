@@ -200,7 +200,6 @@ struct cio_websocket {
 
 	/*! @cond PRIVATE */
 
-	void (*internal_on_connect)(struct cio_websocket *ws);
 	uint64_t read_frame_length;
 	struct cio_eventloop *loop;
 

@@ -378,16 +378,14 @@ static void handle_ping_frame(struct cio_websocket *ws, uint8_t *data, uint64_t 
 		cio_write_buffer_queue_tail(&wbh, &ws->wb_control_data);
 	}
 
-	send_frame(ws, &wbh, CIO_WEBSOCKET_PONG_FRAME, true, pong_frame_written);
-	if (unlikely(ws->ws_flags.to_be_closed == 1)) {
-		return;
-	}
-
 	if (ws->on_control != NULL) {
 		ws->on_control(ws, CIO_WEBSOCKET_PING_FRAME, data, length);
 	}
 
-	ws->bs->read_exactly(ws->bs, ws->rb, 1, get_header, ws);
+	send_frame(ws, &wbh, CIO_WEBSOCKET_PONG_FRAME, true, pong_frame_written);
+	if (unlikely(ws->ws_flags.to_be_closed == 1)) {
+		return;
+	}
 }
 
 static void handle_pong_frame(struct cio_websocket *ws, uint8_t *data, uint64_t length)
