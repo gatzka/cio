@@ -380,6 +380,17 @@ static void handle_ping_frame(struct cio_websocket *ws, uint8_t *data, uint64_t 
 	if (ws->on_control != NULL) {
 		ws->on_control(ws, CIO_WEBSOCKET_PING_FRAME, data, length);
 	}
+
+	ws->bs->read_exactly(ws->bs, ws->rb, 1, get_header, ws);
+}
+
+static void handle_pong_frame(struct cio_websocket *ws, uint8_t *data, uint64_t length)
+{
+	if (ws->on_control != NULL) {
+		ws->on_control(ws, CIO_WEBSOCKET_PONG_FRAME, data, length);
+	}
+
+	ws->bs->read_exactly(ws->bs, ws->rb, 1, get_header, ws);
 }
 
 static void handle_frame(struct cio_websocket *ws, uint8_t *data, uint64_t length)
@@ -407,12 +418,7 @@ static void handle_frame(struct cio_websocket *ws, uint8_t *data, uint64_t lengt
 		break;
 
 	case CIO_WEBSOCKET_PONG_FRAME:
-		if (ws->on_control != NULL) {
-			ws->on_control(ws, CIO_WEBSOCKET_PONG_FRAME, data, length);
-		}
-
-		ws->bs->read_exactly(ws->bs, ws->rb, 1, get_header, ws);
-
+		handle_pong_frame(ws, data, length);
 		break;
 
 	case CIO_WEBSOCKET_CLOSE_FRAME:
