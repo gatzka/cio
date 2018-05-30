@@ -199,7 +199,7 @@ static void response_written(struct cio_buffered_stream *bs, void *handler_conte
 	ws->rb = &client->rb;
 	ws->loop = client->socket.loop;
 
-	ws->internal_on_connect(ws);
+	ws->on_connect(ws);
 }
 
 static void send_upgrade_response(struct cio_http_client *client)
@@ -281,7 +281,7 @@ static void close_server_websocket(struct cio_websocket *s)
 	client->close(client);
 }
 
-void cio_websocket_location_handler_init(struct cio_websocket_location_handler *handler, const char *subprotocols[], unsigned int num_subprotocols)
+enum cio_error cio_websocket_location_handler_init(struct cio_websocket_location_handler *handler, const char *subprotocols[], unsigned int num_subprotocols, cio_websocket_on_connect on_connect)
 {
 	handler->flags.current_header_field = 0;
 	handler->flags.ws_version_ok = 0;
@@ -289,11 +289,12 @@ void cio_websocket_location_handler_init(struct cio_websocket_location_handler *
 	handler->chosen_subprotocol = -1;
 	handler->subprotocols = subprotocols;
 	handler->number_subprotocols = num_subprotocols;
+	//TODO: remove initialisation?
 	handler->sec_web_socket_key[0] = 0;
 
 	cio_http_location_handler_init(&handler->http_location);
 	handler->http_location.on_header_field = handle_field;
 	handler->http_location.on_header_value = handle_value;
 	handler->http_location.on_headers_complete = handle_headers_complete;
-	cio_websocket_init(&handler->websocket, true, close_server_websocket);
+	return cio_websocket_init(&handler->websocket, true, on_connect, close_server_websocket);
 }

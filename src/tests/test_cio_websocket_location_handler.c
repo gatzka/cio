@@ -51,15 +51,6 @@ struct ws_test_handler {
 #define WS_HEADER_FIN 0x80
 #define WS_MASK_SET 0x80
 
-enum cio_ws_frame_type {
-	CIO_WEBSOCKET_CONTINUATION_FRAME = 0x0,
-	CIO_WEBSOCKET_TEXT_FRAME = 0x1,
-	CIO_WEBSOCKET_BINARY_FRAME = 0x2,
-	CIO_WEBSOCKET_CLOSE_FRAME = 0x8,
-	CIO_WEBSOCKET_PING_FRAME = 0x9,
-	CIO_WEBSOCKET_PONG_FRAME = 0x0a,
-};
-
 static void serve_error(struct cio_http_server *server, const char *reason);
 FAKE_VOID_FUNC(serve_error, struct cio_http_server *, const char *)
 
@@ -106,9 +97,6 @@ FAKE_VOID_FUNC(timer_close, struct cio_timer *)
 static enum cio_error timer_expires_from_now(struct cio_timer *t, uint64_t timeout_ns, timer_handler handler, void *handler_context);
 FAKE_VALUE_FUNC(enum cio_error, timer_expires_from_now, struct cio_timer *, uint64_t, timer_handler, void *)
 
-static void on_close(const struct cio_websocket *ws, enum cio_websocket_status_code status, const char *reason, size_t reason_length);
-FAKE_VOID_FUNC(on_close, const struct cio_websocket *, enum cio_websocket_status_code, const char *, size_t)
-
 enum cio_error cio_server_socket_init(struct cio_server_socket *ss,
                                       struct cio_eventloop *loop,
                                       unsigned int backlog,
@@ -117,6 +105,12 @@ enum cio_error cio_server_socket_init(struct cio_server_socket *ss,
                                       cio_server_socket_close_hook close_hook);
 
 FAKE_VALUE_FUNC(enum cio_error, cio_server_socket_init, struct cio_server_socket *, struct cio_eventloop *, unsigned int, cio_alloc_client, cio_free_client, cio_server_socket_close_hook)
+
+static void on_control(const struct cio_websocket *ws, enum cio_websocket_frame_type type, const uint8_t *data, size_t length);
+FAKE_VOID_FUNC(on_control, const struct cio_websocket *, enum cio_websocket_frame_type, const uint8_t *, size_t)
+
+static void read_handler(struct cio_websocket *ws, void *handler_context, enum cio_error err, uint8_t *data, size_t length, bool last_frame, bool is_binary);
+FAKE_VOID_FUNC(read_handler, struct cio_websocket *, void *, enum cio_error, uint8_t *, size_t, bool, bool)
 
 static struct cio_eventloop loop;
 static const uint64_t read_timeout = UINT64_C(5) * UINT64_C(1000) * UINT64_C(1000) * UINT64_C(1000);
@@ -171,14 +165,6 @@ static enum cio_error cio_timer_init_ok(struct cio_timer *timer, struct cio_even
 	return CIO_SUCCESS;
 }
 
-static enum cio_error cio_timer_init_err(struct cio_timer *timer, struct cio_eventloop *l, cio_timer_close_hook hook)
-{
-	(void)timer;
-	(void)l;
-	(void)hook;
-	return CIO_INVALID_ARGUMENT;
-}
-
 static enum cio_error cio_buffered_stream_init_ok(struct cio_buffered_stream *bs,
                                                   struct cio_io_stream *stream)
 {
@@ -201,6 +187,7 @@ static void free_websocket_handler(struct cio_http_location_handler *handler)
 static void on_connect(struct cio_websocket *ws)
 {
 	ws->close(ws, CIO_WEBSOCKET_CLOSE_NORMAL, NULL);
+	ws->read_message(ws, read_handler, NULL);
 }
 
 static struct cio_http_location_handler *alloc_websocket_handler(const void *config)
@@ -211,29 +198,9 @@ static struct cio_http_location_handler *alloc_websocket_handler(const void *con
 		return NULL;
 	} else {
 		static const char *subprotocols[2] = {"echo", "jet"};
-		cio_websocket_location_handler_init(&handler->ws_handler, subprotocols, ARRAY_SIZE(subprotocols));
-		handler->ws_handler.websocket.on_connect = on_connect;
-		handler->ws_handler.websocket.on_close = on_close;
-		handler->ws_handler.websocket.on_textframe = NULL;
-		handler->ws_handler.websocket.on_pong = NULL;
+		cio_websocket_location_handler_init(&handler->ws_handler, subprotocols, ARRAY_SIZE(subprotocols), on_connect);
 		handler->ws_handler.http_location.free = free_websocket_handler;
-		return &handler->ws_handler.http_location;
-	}
-}
-
-static struct cio_http_location_handler *alloc_websocket_handler_no_connect(const void *config)
-{
-	(void)config;
-	struct ws_test_handler *handler = malloc(sizeof(*handler));
-	if (unlikely(handler == NULL)) {
-		return NULL;
-	} else {
-		static const char *subprotocols[2] = {"echo", "jet"};
-		cio_websocket_location_handler_init(&handler->ws_handler, subprotocols, ARRAY_SIZE(subprotocols));
-		handler->ws_handler.websocket.on_connect = NULL;
-		handler->ws_handler.websocket.on_textframe = NULL;
-		handler->ws_handler.websocket.on_pong = NULL;
-		handler->ws_handler.http_location.free = free_websocket_handler;
+		handler->ws_handler.websocket.on_control = on_control;
 		return &handler->ws_handler.http_location;
 	}
 }
@@ -245,10 +212,7 @@ static struct cio_http_location_handler *alloc_websocket_handler_no_subprotocol(
 	if (unlikely(handler == NULL)) {
 		return NULL;
 	} else {
-		cio_websocket_location_handler_init(&handler->ws_handler, NULL, 0);
-		handler->ws_handler.websocket.on_connect = on_connect;
-		handler->ws_handler.websocket.on_textframe = NULL;
-		handler->ws_handler.websocket.on_pong = NULL;
+		cio_websocket_location_handler_init(&handler->ws_handler, NULL, 0, on_connect);
 		handler->ws_handler.http_location.free = free_websocket_handler;
 		return &handler->ws_handler.http_location;
 	}
@@ -407,7 +371,8 @@ void setUp(void)
 	RESET_FAKE(bs_read_until);
 	RESET_FAKE(bs_read);
 
-	RESET_FAKE(on_close);
+	RESET_FAKE(on_control);
+	RESET_FAKE(read_handler);
 
 	http_parser_settings_init(&parser_settings);
 	http_parser_init(&parser, HTTP_RESPONSE);
@@ -517,14 +482,6 @@ static void test_ws_location_close_in_onconnect(void)
 
 	bs_read_exactly_fake.custom_fake = bs_read_exactly_from_buffer;
 
-	RESET_FAKE(cio_timer_init);
-
-	enum cio_error (*cio_timer_init_fakes[])(struct cio_timer *, struct cio_eventloop *, cio_timer_close_hook) = {
-	    cio_timer_init_ok,
-	    cio_timer_init_err,
-	};
-	SET_CUSTOM_FAKE_SEQ(cio_timer_init, cio_timer_init_fakes, ARRAY_SIZE(cio_timer_init_fakes));
-
 	struct cio_http_server server;
 	enum cio_error err = cio_http_server_init(&server, 8080, &loop, serve_error, read_timeout, alloc_dummy_client, free_dummy_client);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Server initialization failed!");
@@ -554,50 +511,11 @@ static void test_ws_location_close_in_onconnect(void)
 	server.server_socket.handler(&server.server_socket, server.server_socket.handler_context, CIO_SUCCESS, s);
 	check_http_response(101);
 
-	TEST_ASSERT_EQUAL_MESSAGE(0, on_close_fake.call_count, "close callback count even after immediate close");
-	free(close_frame);
-}
-
-static void test_ws_location_no_onconnect(void)
-{
-	uint8_t *close_frame;
-	uint8_t mask[4] = {0x1, 0x2, 0x3, 0x4};
-	uint8_t data[2] = {0x3, 0xe8};
-	bs_read_exactly_buffer_size = assemble_frame(WS_HEADER_FIN | CIO_WEBSOCKET_CLOSE_FRAME, mask, data, sizeof(data), &close_frame);
-
-	bs_read_exactly_buffer = close_frame;
-
-	bs_write_fake.custom_fake = bs_fake_write;
-	bs_read_exactly_fake.custom_fake = bs_read_exactly_from_buffer;
-
-	struct cio_http_server server;
-	enum cio_error err = cio_http_server_init(&server, 8080, &loop, serve_error, read_timeout, alloc_dummy_client, free_dummy_client);
-	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Server initialization failed!");
-
-	struct cio_http_location target;
-	err = cio_http_location_init(&target, REQUEST_TARGET, NULL, alloc_websocket_handler_no_connect);
-	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Request target initialization failed!");
-
-	err = server.register_location(&server, &target);
-	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Register request target failed!");
-
-	err = server.serve(&server);
-	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Serving http failed!");
-
-	struct cio_socket *s = server.alloc_client();
-
-	const char *request[] = {
-	    "GET " REQUEST_TARGET " HTTP/1.1" CRLF,
-	    "Upgrade: websocket" CRLF,
-	    "Connection: Upgrade" CRLF,
-	    "Sec-WebSocket-Version: 13" CRLF,
-	    "Sec-WebSocket-Key: dGhlIHNhbXBsZSBub25jZQ==" CRLF,
-	    "Sec-WebSocket-Protocol: jet" CRLF,
-	    CRLF};
-
-	init_request(request, ARRAY_SIZE(request));
-	server.server_socket.handler(&server.server_socket, server.server_socket.handler_context, CIO_SUCCESS, s);
-	check_http_response(101);
+	TEST_ASSERT_EQUAL_MESSAGE(1, on_control_fake.call_count, "control callback was not called for last close frame");
+	TEST_ASSERT_NOT_NULL_MESSAGE(on_control_fake.arg0_val, "websocket parameter of control callback is NULL");
+	TEST_ASSERT_EQUAL_MESSAGE(CIO_WEBSOCKET_CLOSE_FRAME, on_control_fake.arg1_val, "websocket parameter of control callback is NULL");
+	TEST_ASSERT_EQUAL_MESSAGE(sizeof(data), on_control_fake.arg3_val, "data length parameter of control callback is not correct");
+	TEST_ASSERT_EQUAL_MESSAGE(1, read_handler_fake.call_count, "read callback was not called for last close frame");
 	free(close_frame);
 }
 
@@ -717,9 +635,6 @@ static void test_ws_location_subprotocols(void)
 		TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Serving http failed!");
 
 		struct cio_socket *s = server.alloc_client();
-
-		//char start_line[100];
-		//snprintf(start_line, sizeof(start_line) - 1, "GET " REQUEST_TARGET " HTTP/%d.%d" CRLF, test_case.major, test_case.minor);
 
 		const char *request[] = {
 		    "GET " REQUEST_TARGET " HTTP/1.1" CRLF,
@@ -1019,7 +934,6 @@ int main(void)
 {
 	UNITY_BEGIN();
 	RUN_TEST(test_ws_location_close_in_onconnect);
-	RUN_TEST(test_ws_location_no_onconnect);
 	RUN_TEST(test_ws_location_wrong_http_version);
 	RUN_TEST(test_ws_location_wrong_http_method);
 	RUN_TEST(test_ws_location_wrong_ws_version);

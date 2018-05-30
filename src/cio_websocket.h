@@ -54,6 +54,9 @@ extern "C" {
 struct cio_websocket;
 
 typedef void (*cio_websocket_close_hook)(struct cio_websocket *s);
+typedef void (*cio_websocket_on_connect)(struct cio_websocket *s);
+typedef void (*cio_websocket_read_handler)(struct cio_websocket *ws, void *handler_context, enum cio_error err, uint8_t *data, size_t length, bool last_frame, bool is_binary);
+typedef void (*cio_websocket_write_handler)(struct cio_websocket *ws, void *handler_context, enum cio_error err);
 
 enum cio_websocket_status_code {
 	CIO_WEBSOCKET_CLOSE_NORMAL = 1000,
@@ -73,12 +76,22 @@ enum cio_websocket_status_code {
 	CIO_WEBSOCKET_CLOSE_RESERVED_UPPER_BOUND = 4999
 };
 
+enum cio_websocket_frame_type {
+	CIO_WEBSOCKET_CONTINUATION_FRAME = 0x0,
+	CIO_WEBSOCKET_TEXT_FRAME = 0x1,
+	CIO_WEBSOCKET_BINARY_FRAME = 0x2,
+	CIO_WEBSOCKET_CLOSE_FRAME = 0x8,
+	CIO_WEBSOCKET_PING_FRAME = 0x9,
+	CIO_WEBSOCKET_PONG_FRAME = 0x0a,
+};
+
+
+// Remove and use callbacks or document
 enum cio_websocket_status {
 	CIO_WEBSOCKET_STATUS_OK = 0,
 	CIO_WEBSOCKET_STATUS_CLOSED = -1
 };
 
-typedef void (*cio_websocket_write_handler)(struct cio_websocket *ws, void *handler_context, enum cio_error err);
 
 #define CIO_WEBSOCKET_SMALL_FRAME_SIZE 125
 
@@ -106,64 +119,18 @@ struct cio_websocket {
 	 */
 	void (*on_connect)(struct cio_websocket *ws);
 
-	/**
-	 * @brief A pointer to a function which is called when a binary frame was received.
-	 *
-	 * @param ws The websocket which received the binary frame.
-	 * @param data The data the binary frame carried.
-	 * @param length The length of data the binary frame carried.
-	 * @param last_frame Indicates if the last frame of a fragmented message is received.
-	 * For unfragmented messages this flag is always set to @c true.
-	 */
-	void (*on_binaryframe)(struct cio_websocket *ws, uint8_t *data, size_t length, bool last_frame);
+	void (*read_message)(struct cio_websocket *ws, cio_websocket_read_handler handler, void *handler_context);
 
 	/**
-	 * @brief A pointer to a function which is called when a text frame was received.
-	 *
-	 * @param ws The websocket which received the text frame.
-	 * @param data The data encoded in UTF8 the text frame carried. Please be aware that for
-	 * fragmented messages the message boundary could be within an UTF8 code point.
-	 * @param length The length of data the text frame carried.
-	 * @param last_frame Indicates if the last frame of a fragmented message is received.
-	 * For unfragmented messages this flag is always set to @c true.
-	 */
-	void (*on_textframe)(struct cio_websocket *ws, uint8_t *data, size_t length, bool last_frame);
-
-	/**
-	 * @brief A pointer to a function which is called if a ping frame was received.
-	 *
-	 * Library users are note required to set this function pointer. If you set
-	 * this function pointer, please do NOT sent a pong frame as a response.
-	 * The library takes care of this already.
-	 * @param ws The websocket which received the ping frame.
-	 * @param data The data the ping frame carried.
-	 * @param length The length of data the ping frame carried.
-	 */
-	void (*on_ping)(struct cio_websocket *ws, const uint8_t *data, size_t length);
-
-	/**
-	 * @brief A pointer to a function which is called if a pong frame was received.
+	 * @brief A pointer to a function which is called when a control frame was received.
 	 *
 	 * Library users are note required to set this function pointer.
-	 * @param ws The websocket which received the pong frame.
-	 * @param data The data the pong frame carried.
-	 * @param length The length of data the pong frame carried.
+	 * @param ws The websocket which received the control frame.
+	 * @param type The type of control frame (::CIO_WEBSOCKET_CLOSE_FRAME, ::CIO_WEBSOCKET_PING_FRAME, ::CIO_WEBSOCKET_PONG_FRAME)
+	 * @param data The data the control frame carried.
+	 * @param length The length of data the control frame carried.
 	 */
-	void (*on_pong)(struct cio_websocket *ws, uint8_t *data, size_t length);
-
-	/**
-	 * @brief A pointer to a function which is called when a close frame was received.
-	 *
-	 * Library users are note required to set this function pointer. If you set this
-	 * function pointer, please do NOT @ref cio_websocket_close "close()" the
-	 * websocket in the callback function. This is done immediately by the library after return of
-	 * this function.
-	 *
-	 * @param ws The websocket which received the pong frame.
-	 * @param data The data the pong frame carried.
-	 * @param length The length of data the pong frame carried.
-	 */
-	void (*on_close)(const struct cio_websocket *ws, enum cio_websocket_status_code status, const char *reason, size_t reason_length);
+	void (*on_control)(const struct cio_websocket *ws, enum cio_websocket_frame_type type, const uint8_t *data, size_t length);
 
 	/**
 	 * @brief A pointer to a function which is called if a receive error occurred.
@@ -233,7 +200,6 @@ struct cio_websocket {
 
 	/*! @cond PRIVATE */
 
-	void (*internal_on_connect)(struct cio_websocket *ws);
 	uint64_t read_frame_length;
 	struct cio_eventloop *loop;
 
@@ -248,6 +214,9 @@ struct cio_websocket {
 		unsigned int writing_frame : 1;
 		unsigned int handle_frame_ctx : 1;
 	} ws_flags;
+
+	cio_websocket_read_handler read_handler;
+	void *read_handler_context;
 
 	cio_websocket_write_handler write_handler;
 	void *write_handler_context;
@@ -269,7 +238,7 @@ struct cio_websocket {
 	/*! @endcond */
 };
 
-void cio_websocket_init(struct cio_websocket *ws, bool is_server, cio_websocket_close_hook close_hook);
+enum cio_error cio_websocket_init(struct cio_websocket *ws, bool is_server, cio_websocket_on_connect on_connect, cio_websocket_close_hook close_hook);
 
 #ifdef __cplusplus
 }
