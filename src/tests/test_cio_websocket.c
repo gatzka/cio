@@ -392,6 +392,21 @@ static enum cio_error cio_timer_init_ok(struct cio_timer *timer, struct cio_even
 	return CIO_SUCCESS;
 }
 
+static void read_handler_save_data(struct cio_websocket *websocket, void *handler_context, enum cio_error err, uint8_t *data, size_t length, bool last_frame, bool is_binary)
+{
+	(void)last_frame;
+	(void)is_binary;
+
+	if (err == CIO_SUCCESS) {
+		if (length > 0) {
+			memcpy(&read_back_buffer[read_back_buffer_pos], data, length);
+			read_back_buffer_pos += length;
+		}
+
+		websocket->read_message(websocket, read_handler, handler_context);
+	}
+}
+
 void setUp(void)
 {
 	FFF_RESET_HISTORY();
@@ -418,6 +433,8 @@ void setUp(void)
 	ws->on_error = on_error;
 
 	cio_timer_init_fake.custom_fake = cio_timer_init_ok;
+	read_handler_fake.custom_fake = read_handler_save_data;
+	read_exactly_fake.custom_fake = bs_read_exactly_from_buffer;
 
 	buffered_stream.read_exactly = read_exactly;
 	buffered_stream.write = bs_write;
@@ -435,21 +452,6 @@ void setUp(void)
 void tearDown(void)
 {
 	free(ws);
-}
-
-static void read_handler_save_data(struct cio_websocket *websocket, void *handler_context, enum cio_error err, uint8_t *data, size_t length, bool last_frame, bool is_binary)
-{
-	(void)last_frame;
-	(void)is_binary;
-
-	if (err == CIO_SUCCESS) {
-		if (length > 0) {
-			memcpy(&read_back_buffer[read_back_buffer_pos], data, length);
-			read_back_buffer_pos += length;
-		}
-
-		websocket->read_message(websocket, read_handler, handler_context);
-	}
 }
 
 static void on_control_save_data(const struct cio_websocket *websocket, enum cio_websocket_frame_type type,  const uint8_t *data, size_t length)
@@ -487,8 +489,6 @@ static void test_unfragmented_frames(void)
 			};
 
 			serialize_frames(frames, ARRAY_SIZE(frames));
-			read_exactly_fake.custom_fake = bs_read_exactly_from_buffer;
-			read_handler_fake.custom_fake = read_handler_save_data;
 
 			ws->read_message(ws, read_handler, NULL);
 
@@ -546,8 +546,6 @@ static void test_fragmented_frames(void)
 			};
 
 			serialize_frames(frames, ARRAY_SIZE(frames));
-			read_exactly_fake.custom_fake = bs_read_exactly_from_buffer;
-			read_handler_fake.custom_fake = read_handler_save_data;
 
 			ws->read_message(ws, read_handler, NULL);
 
@@ -607,7 +605,6 @@ static void test_incoming_ping_frame(void)
 	};
 
 	serialize_frames(frames, ARRAY_SIZE(frames));
-	read_exactly_fake.custom_fake = bs_read_exactly_from_buffer;
 	bs_write_fake.custom_fake = bs_write_ok;
 	on_control_fake.custom_fake = on_control_save_data;
 
@@ -645,7 +642,6 @@ static void test_ping_frame_no_callback(void)
 	};
 
 	serialize_frames(frames, ARRAY_SIZE(frames));
-	read_exactly_fake.custom_fake = bs_read_exactly_from_buffer;
 	bs_write_fake.custom_fake = bs_write_ok;
 
 	ws->on_control = NULL;
@@ -671,7 +667,6 @@ static void test_ping_frame_no_payload(void)
 	};
 
 	serialize_frames(frames, ARRAY_SIZE(frames));
-	read_exactly_fake.custom_fake = bs_read_exactly_from_buffer;
 	bs_write_fake.custom_fake = bs_write_ok;
 	on_control_fake.custom_fake = on_control_save_data;
 	on_error_fake.custom_fake = on_error_save_data;
@@ -708,7 +703,6 @@ static void test_pong_frame(void)
 	};
 
 	serialize_frames(frames, ARRAY_SIZE(frames));
-	read_exactly_fake.custom_fake = bs_read_exactly_from_buffer;
 	bs_write_fake.custom_fake = bs_write_ok;
 	on_control_fake.custom_fake = on_control_save_data;
 
@@ -746,7 +740,6 @@ static void test_pong_frame_no_callback(void)
 	};
 
 	serialize_frames(frames, ARRAY_SIZE(frames));
-	read_exactly_fake.custom_fake = bs_read_exactly_from_buffer;
 	bs_write_fake.custom_fake = bs_write_ok;
 
 	ws->on_control = NULL;
@@ -774,7 +767,6 @@ static void test_ping_frame_payload_too_long(void)
 	};
 
 	serialize_frames(frames, ARRAY_SIZE(frames));
-	read_exactly_fake.custom_fake = bs_read_exactly_from_buffer;
 	bs_write_fake.custom_fake = bs_write_ok;
 	on_error_fake.custom_fake = on_error_save_data;
 	on_control_fake.custom_fake = on_control_save_data;
@@ -807,7 +799,6 @@ static void test_ping_frame_payload_too_long_no_error_callback(void)
 	};
 
 	serialize_frames(frames, ARRAY_SIZE(frames));
-	read_exactly_fake.custom_fake = bs_read_exactly_from_buffer;
 	bs_write_fake.custom_fake = bs_write_ok;
 	on_control_fake.custom_fake = on_control_save_data;
 
@@ -1265,7 +1256,6 @@ static void test_rsv_bit_in_header(void)
 	};
 
 	serialize_frames(frames, ARRAY_SIZE(frames));
-	read_exactly_fake.custom_fake = bs_read_exactly_from_buffer;
 	bs_write_fake.custom_fake = bs_write_ok;
 
 	ws->read_message(ws, read_handler, NULL);
@@ -1289,7 +1279,6 @@ static void test_fragmented_control_frame(void)
 	};
 
 	serialize_frames(frames, ARRAY_SIZE(frames));
-	read_exactly_fake.custom_fake = bs_read_exactly_from_buffer;
 	bs_write_fake.custom_fake = bs_write_ok;
 
 	ws->read_message(ws, read_handler, NULL);
@@ -1315,7 +1304,6 @@ static void test_wrong_continuation_frame_without_correct_start_frame(void)
 	};
 
 	serialize_frames(frames, ARRAY_SIZE(frames));
-	read_exactly_fake.custom_fake = bs_read_exactly_from_buffer;
 	bs_write_fake.custom_fake = bs_write_ok;
 
 	ws->read_message(ws, read_handler, NULL);
@@ -1344,9 +1332,7 @@ static void test_three_fragments(void)
 	};
 
 	serialize_frames(frames, ARRAY_SIZE(frames));
-	read_exactly_fake.custom_fake = bs_read_exactly_from_buffer;
 	bs_write_fake.custom_fake = bs_write_ok;
-	read_handler_fake.custom_fake = read_handler_save_data;
 
 	ws->read_message(ws, read_handler, NULL);
 
@@ -1386,9 +1372,7 @@ static void test_wrong_opcode_between_fragments(void)
 	};
 
 	serialize_frames(frames, ARRAY_SIZE(frames));
-	read_exactly_fake.custom_fake = bs_read_exactly_from_buffer;
 	bs_write_fake.custom_fake = bs_write_ok;
-	read_handler_fake.custom_fake = read_handler_save_data;
 
 	ws->read_message(ws, read_handler, NULL);
 
@@ -1415,7 +1399,6 @@ static void test_close_frame_pong_not_written(void)
 	};
 
 	serialize_frames(frames, ARRAY_SIZE(frames));
-	read_exactly_fake.custom_fake = bs_read_exactly_from_buffer;
 	bs_write_fake.custom_fake = bs_write_later;
 	on_ping_fake.custom_fake = on_ping_frame_save_data;
 
@@ -1459,7 +1442,6 @@ static void test_wrong_opcode_in_fragment(void)
 	};
 
 	serialize_frames(frames, ARRAY_SIZE(frames));
-	read_exactly_fake.custom_fake = bs_read_exactly_from_buffer;
 
 	ws->internal_on_connect(ws);
 
@@ -1494,7 +1476,6 @@ static void test_ping_within_fragment(void)
 	};
 
 	serialize_frames(frames, ARRAY_SIZE(frames));
-	read_exactly_fake.custom_fake = bs_read_exactly_from_buffer;
 
 	ws->internal_on_connect(ws);
 
@@ -1529,7 +1510,6 @@ static void test_binary_frame_within_fragment(void)
 	};
 
 	serialize_frames(frames, ARRAY_SIZE(frames));
-	read_exactly_fake.custom_fake = bs_read_exactly_from_buffer;
 
 	ws->internal_on_connect(ws);
 
@@ -1562,7 +1542,6 @@ static void test_wrong_fragment_start(void)
 	};
 
 	serialize_frames(frames, ARRAY_SIZE(frames));
-	read_exactly_fake.custom_fake = bs_read_exactly_from_buffer;
 
 	ws->internal_on_connect(ws);
 
@@ -1589,7 +1568,6 @@ static void test_illegal_opcode(void)
 	};
 
 	serialize_frames(frames, ARRAY_SIZE(frames));
-	read_exactly_fake.custom_fake = bs_read_exactly_from_buffer;
 	bs_write_fake.custom_fake = bs_write_ok;
 	on_ping_fake.custom_fake = on_ping_frame_save_data;
 
@@ -1614,7 +1592,6 @@ static void test_ping_frame_pong_not_written(void)
 	};
 
 	serialize_frames(frames, ARRAY_SIZE(frames));
-	read_exactly_fake.custom_fake = bs_read_exactly_from_buffer;
 	bs_write_fake.custom_fake = bs_write_later;
 	on_ping_fake.custom_fake = on_ping_frame_save_data;
 
@@ -1640,7 +1617,6 @@ static void test_close_short_status(void)
 	};
 
 	serialize_frames(frames, ARRAY_SIZE(frames));
-	read_exactly_fake.custom_fake = bs_read_exactly_from_buffer;
 
 	ws->internal_on_connect(ws);
 
@@ -1664,7 +1640,6 @@ static void test_close_with_message(void)
 	};
 
 	serialize_frames(frames, ARRAY_SIZE(frames));
-	read_exactly_fake.custom_fake = bs_read_exactly_from_buffer;
 	on_close_fake.custom_fake = on_close_frame_save_data;
 
 	ws->internal_on_connect(ws);
@@ -1688,7 +1663,6 @@ static void test_close_invalid_status(void)
 	};
 
 	serialize_frames(frames, ARRAY_SIZE(frames));
-	read_exactly_fake.custom_fake = bs_read_exactly_from_buffer;
 
 	ws->internal_on_connect(ws);
 
@@ -1711,7 +1685,6 @@ static void test_close_reason_not_utf8(void)
 	};
 
 	serialize_frames(frames, ARRAY_SIZE(frames));
-	read_exactly_fake.custom_fake = bs_read_exactly_from_buffer;
 
 	ws->internal_on_connect(ws);
 
@@ -1735,7 +1708,6 @@ static void test_text_frame_not_utf8(void)
 	};
 
 	serialize_frames(frames, ARRAY_SIZE(frames));
-	read_exactly_fake.custom_fake = bs_read_exactly_from_buffer;
 	bs_write_fake.custom_fake = bs_write_ok;
 
 	ws->internal_on_connect(ws);
@@ -1760,7 +1732,6 @@ static void test_text_frame_no_callback(void)
 	};
 
 	serialize_frames(frames, ARRAY_SIZE(frames));
-	read_exactly_fake.custom_fake = bs_read_exactly_from_buffer;
 	bs_write_fake.custom_fake = bs_write_ok;
 	ws->on_textframe = NULL;
 
@@ -1788,7 +1759,6 @@ static void test_text_frame_fragmented_not_utf8(void)
 	};
 
 	serialize_frames(frames, ARRAY_SIZE(frames));
-	read_exactly_fake.custom_fake = bs_read_exactly_from_buffer;
 	bs_write_fake.custom_fake = bs_write_ok;
 
 	ws->internal_on_connect(ws);
@@ -1813,7 +1783,6 @@ static void test_binary_frame_no_callback(void)
 	};
 
 	serialize_frames(frames, ARRAY_SIZE(frames));
-	read_exactly_fake.custom_fake = bs_read_exactly_from_buffer;
 	bs_write_fake.custom_fake = bs_write_ok;
 	ws->on_binaryframe = NULL;
 
@@ -1847,7 +1816,6 @@ static void test_close_in_textframe_callback(void)
 	};
 
 	serialize_frames(frames, ARRAY_SIZE(frames));
-	read_exactly_fake.custom_fake = bs_read_exactly_from_buffer;
 	bs_write_fake.custom_fake = bs_write_ok;
 	on_textframe_fake.custom_fake = close_with_no_reason;
 
@@ -1883,7 +1851,6 @@ static void test_close_with_overlong_reason_in_textframe_callback(void)
 	};
 
 	serialize_frames(frames, ARRAY_SIZE(frames));
-	read_exactly_fake.custom_fake = bs_read_exactly_from_buffer;
 	bs_write_fake.custom_fake = bs_write_ok;
 	on_textframe_fake.custom_fake = close_with_overlong_reason;
 
@@ -1914,7 +1881,6 @@ static void test_send_text_binary_frame(void)
 			};
 
 			serialize_frames(frames, ARRAY_SIZE(frames));
-			read_exactly_fake.custom_fake = bs_read_exactly_from_buffer;
 			bs_write_fake.custom_fake = bs_write_ok;
 
 			struct cio_write_buffer wbh;
@@ -1973,7 +1939,6 @@ static void test_send_ping_frame_no_payload(void)
 	};
 
 	serialize_frames(frames, ARRAY_SIZE(frames));
-	read_exactly_fake.custom_fake = bs_read_exactly_from_buffer;
 	bs_write_fake.custom_fake = bs_write_ok;
 
 
@@ -2008,7 +1973,6 @@ static void test_send_ping_frame(void)
 	};
 
 	serialize_frames(frames, ARRAY_SIZE(frames));
-	read_exactly_fake.custom_fake = bs_read_exactly_from_buffer;
 	bs_write_fake.custom_fake = bs_write_ok;
 
 	struct cio_write_buffer wbh;
