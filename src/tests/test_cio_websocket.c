@@ -78,6 +78,7 @@ FAKE_VALUE_FUNC(enum cio_error, timer_expires_from_now, struct cio_timer *, uint
 
 static enum cio_error read_exactly(struct cio_buffered_stream *bs, struct cio_read_buffer *buffer, size_t num, cio_buffered_stream_read_handler handler, void *handler_context);
 FAKE_VALUE_FUNC(enum cio_error, read_exactly, struct cio_buffered_stream *, struct cio_read_buffer *, size_t, cio_buffered_stream_read_handler, void *)
+typedef enum cio_error (*read_exactly_fake_fun)(struct cio_buffered_stream *, struct cio_read_buffer *, size_t, cio_buffered_stream_read_handler, void *);
 
 static enum cio_error bs_write(struct cio_buffered_stream *bs, struct cio_write_buffer *buf, cio_buffered_stream_write_handler handler, void *handler_context);
 FAKE_VALUE_FUNC(enum cio_error, bs_write, struct cio_buffered_stream *, struct cio_write_buffer *, cio_buffered_stream_write_handler, void *)
@@ -1038,18 +1039,18 @@ static void test_close_in_get_length(void)
 
 		serialize_frames(frames, ARRAY_SIZE(frames));
 
+		read_exactly_fake_fun *read_exactly_fakes;
 		if (frame_size <= 125) {
-			enum cio_error (*read_exactly_fakes[])(struct cio_buffered_stream *, struct cio_read_buffer *, size_t, cio_buffered_stream_read_handler, void *) = {
-				bs_read_exactly_from_buffer,
-				bs_read_exactly_peer_close};
-			SET_CUSTOM_FAKE_SEQ(read_exactly, read_exactly_fakes, ARRAY_SIZE(read_exactly_fakes));
-
+			read_exactly_fakes = malloc(2 * sizeof(read_exactly_fake_fun));
+			read_exactly_fakes[0] = bs_read_exactly_from_buffer;
+			read_exactly_fakes[1] = bs_read_exactly_peer_close;
+			SET_CUSTOM_FAKE_SEQ(read_exactly, read_exactly_fakes, 2);
 		} else {
-			enum cio_error (*read_exactly_fakes[])(struct cio_buffered_stream *, struct cio_read_buffer *, size_t, cio_buffered_stream_read_handler, void *) = {
-				bs_read_exactly_from_buffer,
-				bs_read_exactly_from_buffer,
-				bs_read_exactly_peer_close};
-			SET_CUSTOM_FAKE_SEQ(read_exactly, read_exactly_fakes, ARRAY_SIZE(read_exactly_fakes));
+			read_exactly_fakes = malloc(2 * sizeof(read_exactly_fake_fun));
+			read_exactly_fakes[0] = bs_read_exactly_from_buffer;
+			read_exactly_fakes[1] = bs_read_exactly_from_buffer;
+			read_exactly_fakes[2] = bs_read_exactly_peer_close;
+			SET_CUSTOM_FAKE_SEQ(read_exactly, read_exactly_fakes, 3);
 		}
 
 		bs_write_fake.custom_fake = bs_write_ok;
@@ -1070,6 +1071,8 @@ static void test_close_in_get_length(void)
 		if (data) {
 			free(data);
 		}
+
+		free(read_exactly_fakes);
 
 		free(ws);
 		setUp();
