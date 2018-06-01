@@ -444,7 +444,7 @@ static void get_payload(struct cio_buffered_stream *bs, void *handler_context, e
 		if (err == CIO_EOF) {
 			handle_error(ws, CIO_WEBSOCKET_CLOSE_NORMAL, "connection closed by other peer");
 		} else {
-			handle_error(ws, CIO_WEBSOCKET_CLOSE_INTERNAL_ERROR, "error while reading websocket mask");
+			handle_error(ws, CIO_WEBSOCKET_CLOSE_INTERNAL_ERROR, "error while reading websocket payload");
 		}
 
 		return;
@@ -684,7 +684,10 @@ static void read_message(struct cio_websocket *ws, cio_websocket_read_handler ha
 {
 	ws->read_handler = handler;
 	ws->read_handler_context = handler_context;
-	ws->bs->read_exactly(ws->bs, ws->rb, 1, get_header, ws);
+	enum cio_error err = ws->bs->read_exactly(ws->bs, ws->rb, 1, get_header, ws);
+	if (unlikely(err != CIO_SUCCESS)) {
+		handle_error(ws, CIO_WEBSOCKET_CLOSE_INTERNAL_ERROR, "error while start reading websocket header");
+	}
 }
 
 static void handle_write(struct cio_buffered_stream *bs, void *handler_context, enum cio_error err)
