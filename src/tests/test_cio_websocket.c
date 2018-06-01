@@ -92,8 +92,11 @@ FAKE_VOID_FUNC(on_control, const struct cio_websocket *, enum cio_websocket_fram
 static void on_error(const struct cio_websocket *ws, enum cio_websocket_status_code status, const char *reason);
 FAKE_VOID_FUNC(on_error, const struct cio_websocket *, enum cio_websocket_status_code, const char *)
 
+#if 0
 static void write_handler(struct cio_websocket *ws, void *context, enum cio_error err);
 FAKE_VOID_FUNC(write_handler, struct cio_websocket *, void *, enum cio_error)
+#endif
+
 
 #ifndef ARRAY_SIZE
 #define ARRAY_SIZE(a) (sizeof(a) / sizeof((a)[0]))
@@ -403,7 +406,7 @@ void setUp(void)
 	RESET_FAKE(on_connect);
 	RESET_FAKE(on_control);
 	RESET_FAKE(on_error);
-	RESET_FAKE(write_handler);
+//	RESET_FAKE(write_handler);
 
 	cio_read_buffer_init(&rb, read_buffer, sizeof(read_buffer));
 	ws = malloc(sizeof(*ws));
