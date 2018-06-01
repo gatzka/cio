@@ -74,6 +74,8 @@ var searchData=
   ['cio_5fsuccess',['CIO_SUCCESS',['../cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afea6bb29544c99750c61f70b10a1e17d96a',1,'cio_error_code.h']]],
   ['cio_5ftoo_5fmany_5ffiles_5fopen',['CIO_TOO_MANY_FILES_OPEN',['../cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afea5943517bd1417748a5861a147db26657',1,'cio_error_code.h']]],
   ['cio_5ftoo_5fmany_5fsymbolic_5flink_5flevels',['CIO_TOO_MANY_SYMBOLIC_LINK_LEVELS',['../cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afea4d57cc6f8e1fa638917916386d201172',1,'cio_error_code.h']]],
+  ['cio_5fwebsocket_5fbinary_5fframe',['CIO_WEBSOCKET_BINARY_FRAME',['../cio__websocket_8h.html#af33fb069400eeffde11ab324bf2245e9a35933dcf2a9173b8b2c05a87113f2ebb',1,'cio_websocket.h']]],
+  ['cio_5fwebsocket_5fclose_5fframe',['CIO_WEBSOCKET_CLOSE_FRAME',['../cio__websocket_8h.html#af33fb069400eeffde11ab324bf2245e9a2c1fb6190c895d3c5d1c22310af91a5d',1,'cio_websocket.h']]],
   ['cio_5fwebsocket_5fclose_5fgoing_5faway',['CIO_WEBSOCKET_CLOSE_GOING_AWAY',['../cio__websocket_8h.html#aa24c9894ba2ee9dc5b0ebbc1c8809701a8ee520b364af620ff44e60a09c393b97',1,'cio_websocket.h']]],
   ['cio_5fwebsocket_5fclose_5finternal_5ferror',['CIO_WEBSOCKET_CLOSE_INTERNAL_ERROR',['../cio__websocket_8h.html#aa24c9894ba2ee9dc5b0ebbc1c8809701a8dd8f47511214b8ed8b6901de272e845',1,'cio_websocket.h']]],
   ['cio_5fwebsocket_5fclose_5fmissing_5fextension',['CIO_WEBSOCKET_CLOSE_MISSING_EXTENSION',['../cio__websocket_8h.html#aa24c9894ba2ee9dc5b0ebbc1c8809701a4bb8a74d7c07bacc386e8f849b427434',1,'cio_websocket.h']]],
@@ -89,6 +91,10 @@ var searchData=
   ['cio_5fwebsocket_5fclose_5ftry_5fagain_5flater',['CIO_WEBSOCKET_CLOSE_TRY_AGAIN_LATER',['../cio__websocket_8h.html#aa24c9894ba2ee9dc5b0ebbc1c8809701a4fe538993d22d7dbceb83f2cb17937e8',1,'cio_websocket.h']]],
   ['cio_5fwebsocket_5fclose_5funsupported',['CIO_WEBSOCKET_CLOSE_UNSUPPORTED',['../cio__websocket_8h.html#aa24c9894ba2ee9dc5b0ebbc1c8809701a0c5ed5627c015f6e7b81c3fc74d7c28e',1,'cio_websocket.h']]],
   ['cio_5fwebsocket_5fclose_5funsupported_5fdata',['CIO_WEBSOCKET_CLOSE_UNSUPPORTED_DATA',['../cio__websocket_8h.html#aa24c9894ba2ee9dc5b0ebbc1c8809701ac561a452a68e836193daadbdf1db5c10',1,'cio_websocket.h']]],
+  ['cio_5fwebsocket_5fcontinuation_5fframe',['CIO_WEBSOCKET_CONTINUATION_FRAME',['../cio__websocket_8h.html#af33fb069400eeffde11ab324bf2245e9a268d3844949375e76864185036973bd9',1,'cio_websocket.h']]],
+  ['cio_5fwebsocket_5fping_5fframe',['CIO_WEBSOCKET_PING_FRAME',['../cio__websocket_8h.html#af33fb069400eeffde11ab324bf2245e9a42de48db574a3eb78ee662c4683f4ed3',1,'cio_websocket.h']]],
+  ['cio_5fwebsocket_5fpong_5fframe',['CIO_WEBSOCKET_PONG_FRAME',['../cio__websocket_8h.html#af33fb069400eeffde11ab324bf2245e9ac89c2941151a6830f7cf69729ee9693c',1,'cio_websocket.h']]],
   ['cio_5fwebsocket_5fstatus_5fclosed',['CIO_WEBSOCKET_STATUS_CLOSED',['../cio__websocket_8h.html#a118d44b930fb2dd12444d7311e4615dea2681e9a2b6f184b7f76bb0423e56fa28',1,'cio_websocket.h']]],
-  ['cio_5fwebsocket_5fstatus_5fok',['CIO_WEBSOCKET_STATUS_OK',['../cio__websocket_8h.html#a118d44b930fb2dd12444d7311e4615deae188530b2887d0dda653adb627d148ef',1,'cio_websocket.h']]]
+  ['cio_5fwebsocket_5fstatus_5fok',['CIO_WEBSOCKET_STATUS_OK',['../cio__websocket_8h.html#a118d44b930fb2dd12444d7311e4615deae188530b2887d0dda653adb627d148ef',1,'cio_websocket.h']]],
+  ['cio_5fwebsocket_5ftext_5fframe',['CIO_WEBSOCKET_TEXT_FRAME',['../cio__websocket_8h.html#af33fb069400eeffde11ab324bf2245e9a4698fc6e497c243a27b44361cf407090',1,'cio_websocket.h']]]
 ];

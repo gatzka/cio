@@ -23,7 +23,7 @@
  <tr style="height: 56px;">
   <td style="padding-left: 0.5em;">
    <div id="projectname">ANSI C I/O Library
-   &#160;<span id="projectnumber">0.0.1-836+ec46d5d</span>
+   &#160;<span id="projectnumber">0.0.1-840+66c15c1</span>
    </div>
   </td>
  </tr>
@@ -98,21 +98,11 @@ Data Fields</h2></td></tr>
 <tr class="memitem:a1a44ecbfeb77f285ac2b66af76980fe1"><td class="memItemLeft" align="right" valign="top">void(*&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structcio__websocket.html#a1a44ecbfeb77f285ac2b66af76980fe1">on_connect</a> )(struct <a class="el" href="structcio__websocket.html">cio_websocket</a> *ws)</td></tr>
 <tr class="memdesc:a1a44ecbfeb77f285ac2b66af76980fe1"><td class="mdescLeft">&#160;</td><td class="mdescRight">A pointer to a function which is called when a websocket connection was established.  <a href="#a1a44ecbfeb77f285ac2b66af76980fe1">More...</a><br/></td></tr>
 <tr class="separator:a1a44ecbfeb77f285ac2b66af76980fe1"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a8b7b0a469cf0e1f43f47297a424cd0d9"><td class="memItemLeft" align="right" valign="top">void(*&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structcio__websocket.html#a8b7b0a469cf0e1f43f47297a424cd0d9">on_binaryframe</a> )(struct <a class="el" href="structcio__websocket.html">cio_websocket</a> *ws, uint8_t *data, size_t length, bool last_frame)</td></tr>
-<tr class="memdesc:a8b7b0a469cf0e1f43f47297a424cd0d9"><td class="mdescLeft">&#160;</td><td class="mdescRight">A pointer to a function which is called when a binary frame was received.  <a href="#a8b7b0a469cf0e1f43f47297a424cd0d9">More...</a><br/></td></tr>
-<tr class="separator:a8b7b0a469cf0e1f43f47297a424cd0d9"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a672bd8f050a7b82c2deb42cee852d36e"><td class="memItemLeft" align="right" valign="top">void(*&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structcio__websocket.html#a672bd8f050a7b82c2deb42cee852d36e">on_textframe</a> )(struct <a class="el" href="structcio__websocket.html">cio_websocket</a> *ws, uint8_t *data, size_t length, bool last_frame)</td></tr>
-<tr class="memdesc:a672bd8f050a7b82c2deb42cee852d36e"><td class="mdescLeft">&#160;</td><td class="mdescRight">A pointer to a function which is called when a text frame was received.  <a href="#a672bd8f050a7b82c2deb42cee852d36e">More...</a><br/></td></tr>
-<tr class="separator:a672bd8f050a7b82c2deb42cee852d36e"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a910f27b1d8e57816b0a235d5de0842bf"><td class="memItemLeft" align="right" valign="top">void(*&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structcio__websocket.html#a910f27b1d8e57816b0a235d5de0842bf">on_ping</a> )(struct <a class="el" href="structcio__websocket.html">cio_websocket</a> *ws, const uint8_t *data, size_t length)</td></tr>
-<tr class="memdesc:a910f27b1d8e57816b0a235d5de0842bf"><td class="mdescLeft">&#160;</td><td class="mdescRight">A pointer to a function which is called if a ping frame was received.  <a href="#a910f27b1d8e57816b0a235d5de0842bf">More...</a><br/></td></tr>
-<tr class="separator:a910f27b1d8e57816b0a235d5de0842bf"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ad1daf9341acb8e90e993add484d36ef2"><td class="memItemLeft" align="right" valign="top">void(*&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structcio__websocket.html#ad1daf9341acb8e90e993add484d36ef2">on_pong</a> )(struct <a class="el" href="structcio__websocket.html">cio_websocket</a> *ws, uint8_t *data, size_t length)</td></tr>
-<tr class="memdesc:ad1daf9341acb8e90e993add484d36ef2"><td class="mdescLeft">&#160;</td><td class="mdescRight">A pointer to a function which is called if a pong frame was received.  <a href="#ad1daf9341acb8e90e993add484d36ef2">More...</a><br/></td></tr>
-<tr class="separator:ad1daf9341acb8e90e993add484d36ef2"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a0ffcaef440bc7fb427ddb303e582db61"><td class="memItemLeft" align="right" valign="top">void(*&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structcio__websocket.html#a0ffcaef440bc7fb427ddb303e582db61">on_close</a> )(const struct <a class="el" href="structcio__websocket.html">cio_websocket</a> *ws, enum <a class="el" href="cio__websocket_8h.html#aa24c9894ba2ee9dc5b0ebbc1c8809701">cio_websocket_status_code</a> status, const char *reason, size_t reason_length)</td></tr>
-<tr class="memdesc:a0ffcaef440bc7fb427ddb303e582db61"><td class="mdescLeft">&#160;</td><td class="mdescRight">A pointer to a function which is called when a close frame was received.  <a href="#a0ffcaef440bc7fb427ddb303e582db61">More...</a><br/></td></tr>
-<tr class="separator:a0ffcaef440bc7fb427ddb303e582db61"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a663604d8c5f33c8a56484b4747334ec1"><td class="memItemLeft" align="right" valign="top">void(*&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structcio__websocket.html#a663604d8c5f33c8a56484b4747334ec1">read_message</a> )(struct <a class="el" href="structcio__websocket.html">cio_websocket</a> *ws, <a class="el" href="cio__websocket_8h.html#aeb18a406608a7135dcb338ea814acf81">cio_websocket_read_handler</a> handler, void *handler_context)</td></tr>
+<tr class="separator:a663604d8c5f33c8a56484b4747334ec1"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af52210afb0b0935c1fd2df50977d0e8b"><td class="memItemLeft" align="right" valign="top">void(*&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structcio__websocket.html#af52210afb0b0935c1fd2df50977d0e8b">on_control</a> )(const struct <a class="el" href="structcio__websocket.html">cio_websocket</a> *ws, enum <a class="el" href="cio__websocket_8h.html#af33fb069400eeffde11ab324bf2245e9">cio_websocket_frame_type</a> type, const uint8_t *data, size_t length)</td></tr>
+<tr class="memdesc:af52210afb0b0935c1fd2df50977d0e8b"><td class="mdescLeft">&#160;</td><td class="mdescRight">A pointer to a function which is called when a control frame was received.  <a href="#af52210afb0b0935c1fd2df50977d0e8b">More...</a><br/></td></tr>
+<tr class="separator:af52210afb0b0935c1fd2df50977d0e8b"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a20f9680edcf92ab60a6daa8479d39ec8"><td class="memItemLeft" align="right" valign="top">void(*&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structcio__websocket.html#a20f9680edcf92ab60a6daa8479d39ec8">on_error</a> )(const struct <a class="el" href="structcio__websocket.html">cio_websocket</a> *ws, enum <a class="el" href="cio__websocket_8h.html#aa24c9894ba2ee9dc5b0ebbc1c8809701">cio_websocket_status_code</a> status, const char *reason)</td></tr>
 <tr class="memdesc:a20f9680edcf92ab60a6daa8479d39ec8"><td class="mdescLeft">&#160;</td><td class="mdescRight">A pointer to a function which is called if a receive error occurred.  <a href="#a20f9680edcf92ab60a6daa8479d39ec8">More...</a><br/></td></tr>
 <tr class="separator:a20f9680edcf92ab60a6daa8479d39ec8"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -171,115 +161,36 @@ Data Fields</h2></td></tr>
 
 </div>
 </div>
-<a class="anchor" id="a8b7b0a469cf0e1f43f47297a424cd0d9"></a>
+<a class="anchor" id="a663604d8c5f33c8a56484b4747334ec1"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">void(* cio_websocket::on_binaryframe)(struct <a class="el" href="structcio__websocket.html">cio_websocket</a> *ws, uint8_t *data, size_t length, bool last_frame)</td>
+          <td class="memname">void(* cio_websocket::read_message)(struct <a class="el" href="structcio__websocket.html">cio_websocket</a> *ws, <a class="el" href="cio__websocket_8h.html#aeb18a406608a7135dcb338ea814acf81">cio_websocket_read_handler</a> handler, void *handler_context)</td>
         </tr>
       </table>
 </div><div class="memdoc">
 
-<p>A pointer to a function which is called when a binary frame was received. </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">ws</td><td>The websocket which received the binary frame. </td></tr>
-    <tr><td class="paramname">data</td><td>The data the binary frame carried. </td></tr>
-    <tr><td class="paramname">length</td><td>The length of data the binary frame carried. </td></tr>
-    <tr><td class="paramname">last_frame</td><td>Indicates if the last frame of a fragmented message is received. For unfragmented messages this flag is always set to <code>true</code>. </td></tr>
-  </table>
-  </dd>
-</dl>
-
 </div>
 </div>
-<a class="anchor" id="a672bd8f050a7b82c2deb42cee852d36e"></a>
+<a class="anchor" id="af52210afb0b0935c1fd2df50977d0e8b"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">void(* cio_websocket::on_textframe)(struct <a class="el" href="structcio__websocket.html">cio_websocket</a> *ws, uint8_t *data, size_t length, bool last_frame)</td>
+          <td class="memname">void(* cio_websocket::on_control)(const struct <a class="el" href="structcio__websocket.html">cio_websocket</a> *ws, enum <a class="el" href="cio__websocket_8h.html#af33fb069400eeffde11ab324bf2245e9">cio_websocket_frame_type</a> type, const uint8_t *data, size_t length)</td>
         </tr>
       </table>
 </div><div class="memdoc">
 
-<p>A pointer to a function which is called when a text frame was received. </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">ws</td><td>The websocket which received the text frame. </td></tr>
-    <tr><td class="paramname">data</td><td>The data encoded in UTF8 the text frame carried. Please be aware that for fragmented messages the message boundary could be within an UTF8 code point. </td></tr>
-    <tr><td class="paramname">length</td><td>The length of data the text frame carried. </td></tr>
-    <tr><td class="paramname">last_frame</td><td>Indicates if the last frame of a fragmented message is received. For unfragmented messages this flag is always set to <code>true</code>. </td></tr>
-  </table>
-  </dd>
-</dl>
-
-</div>
-</div>
-<a class="anchor" id="a910f27b1d8e57816b0a235d5de0842bf"></a>
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">void(* cio_websocket::on_ping)(struct <a class="el" href="structcio__websocket.html">cio_websocket</a> *ws, const uint8_t *data, size_t length)</td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>A pointer to a function which is called if a ping frame was received. </p>
-<p>Library users are note required to set this function pointer. If you set this function pointer, please do NOT sent a pong frame as a response. The library takes care of this already. </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">ws</td><td>The websocket which received the ping frame. </td></tr>
-    <tr><td class="paramname">data</td><td>The data the ping frame carried. </td></tr>
-    <tr><td class="paramname">length</td><td>The length of data the ping frame carried. </td></tr>
-  </table>
-  </dd>
-</dl>
-
-</div>
-</div>
-<a class="anchor" id="ad1daf9341acb8e90e993add484d36ef2"></a>
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">void(* cio_websocket::on_pong)(struct <a class="el" href="structcio__websocket.html">cio_websocket</a> *ws, uint8_t *data, size_t length)</td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>A pointer to a function which is called if a pong frame was received. </p>
+<p>A pointer to a function which is called when a control frame was received. </p>
 <p>Library users are note required to set this function pointer. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">ws</td><td>The websocket which received the pong frame. </td></tr>
-    <tr><td class="paramname">data</td><td>The data the pong frame carried. </td></tr>
-    <tr><td class="paramname">length</td><td>The length of data the pong frame carried. </td></tr>
-  </table>
-  </dd>
-</dl>
-
-</div>
-</div>
-<a class="anchor" id="a0ffcaef440bc7fb427ddb303e582db61"></a>
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">void(* cio_websocket::on_close)(const struct <a class="el" href="structcio__websocket.html">cio_websocket</a> *ws, enum <a class="el" href="cio__websocket_8h.html#aa24c9894ba2ee9dc5b0ebbc1c8809701">cio_websocket_status_code</a> status, const char *reason, size_t reason_length)</td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>A pointer to a function which is called when a close frame was received. </p>
-<p>Library users are note required to set this function pointer. If you set this function pointer, please do NOT <a class="el" href="structcio__websocket.html#cio_websocket_close">close()</a> the websocket in the callback function. This is done immediately by the library after return of this function.</p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">ws</td><td>The websocket which received the pong frame. </td></tr>
-    <tr><td class="paramname">data</td><td>The data the pong frame carried. </td></tr>
-    <tr><td class="paramname">length</td><td>The length of data the pong frame carried. </td></tr>
+    <tr><td class="paramname">ws</td><td>The websocket which received the control frame. </td></tr>
+    <tr><td class="paramname">type</td><td>The type of control frame (<a class="el" href="cio__websocket_8h.html#af33fb069400eeffde11ab324bf2245e9a2c1fb6190c895d3c5d1c22310af91a5d">CIO_WEBSOCKET_CLOSE_FRAME</a>, <a class="el" href="cio__websocket_8h.html#af33fb069400eeffde11ab324bf2245e9a42de48db574a3eb78ee662c4683f4ed3">CIO_WEBSOCKET_PING_FRAME</a>, <a class="el" href="cio__websocket_8h.html#af33fb069400eeffde11ab324bf2245e9ac89c2941151a6830f7cf69729ee9693c">CIO_WEBSOCKET_PONG_FRAME</a>) </td></tr>
+    <tr><td class="paramname">data</td><td>The data the control frame carried. </td></tr>
+    <tr><td class="paramname">length</td><td>The length of data the control frame carried. </td></tr>
   </table>
   </dd>
 </dl>

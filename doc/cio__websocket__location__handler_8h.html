@@ -23,7 +23,7 @@
  <tr style="height: 56px;">
   <td style="padding-left: 0.5em;">
    <div id="projectname">ANSI C I/O Library
-   &#160;<span id="projectnumber">0.0.1-836+ec46d5d</span>
+   &#160;<span id="projectnumber">0.0.1-840+66c15c1</span>
    </div>
   </td>
  </tr>
@@ -109,9 +109,9 @@ Macros</h2></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="func-members"></a>
 Functions</h2></td></tr>
-<tr class="memitem:af93779dc5cac46d5752adacedb428884"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="cio__websocket__location__handler_8h.html#af93779dc5cac46d5752adacedb428884">cio_websocket_location_handler_init</a> (struct <a class="el" href="structcio__websocket__location__handler.html">cio_websocket_location_handler</a> *handler, const char *subprotocols[], unsigned int num_subprotocols)</td></tr>
-<tr class="memdesc:af93779dc5cac46d5752adacedb428884"><td class="mdescLeft">&#160;</td><td class="mdescRight">Initializes a websocket handler.  <a href="#af93779dc5cac46d5752adacedb428884">More...</a><br/></td></tr>
-<tr class="separator:af93779dc5cac46d5752adacedb428884"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a9737188e9763f2216e2ee7d4b46d26bd"><td class="memItemLeft" align="right" valign="top">enum <a class="el" href="cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afe">cio_error</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="cio__websocket__location__handler_8h.html#a9737188e9763f2216e2ee7d4b46d26bd">cio_websocket_location_handler_init</a> (struct <a class="el" href="structcio__websocket__location__handler.html">cio_websocket_location_handler</a> *handler, const char *subprotocols[], unsigned int num_subprotocols, <a class="el" href="cio__websocket_8h.html#a1c79de7dd7f7071c4d2a8396a664b2d6">cio_websocket_on_connect</a> on_connect)</td></tr>
+<tr class="memdesc:a9737188e9763f2216e2ee7d4b46d26bd"><td class="mdescLeft">&#160;</td><td class="mdescRight">Initializes a websocket handler.  <a href="#a9737188e9763f2216e2ee7d4b46d26bd">More...</a><br/></td></tr>
+<tr class="separator:a9737188e9763f2216e2ee7d4b46d26bd"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <h2 class="groupheader">Macro Definition Documentation</h2>
 <a class="anchor" id="a590010bbe0ea10b51636a490064839b3"></a>
@@ -139,12 +139,12 @@ Functions</h2></td></tr>
 </div>
 </div>
 <h2 class="groupheader">Function Documentation</h2>
-<a class="anchor" id="af93779dc5cac46d5752adacedb428884"></a>
+<a class="anchor" id="a9737188e9763f2216e2ee7d4b46d26bd"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">void cio_websocket_location_handler_init </td>
+          <td class="memname">enum <a class="el" href="cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afe">cio_error</a> cio_websocket_location_handler_init </td>
           <td>(</td>
           <td class="paramtype">struct <a class="el" href="structcio__websocket__location__handler.html">cio_websocket_location_handler</a> *&#160;</td>
           <td class="paramname"><em>handler</em>, </td>
@@ -159,7 +159,13 @@ Functions</h2></td></tr>
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype">unsigned int&#160;</td>
-          <td class="paramname"><em>num_subprotocols</em>&#160;</td>
+          <td class="paramname"><em>num_subprotocols</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="cio__websocket_8h.html#a1c79de7dd7f7071c4d2a8396a664b2d6">cio_websocket_on_connect</a>&#160;</td>
+          <td class="paramname"><em>on_connect</em>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -175,9 +181,11 @@ Functions</h2></td></tr>
     <tr><td class="paramname">handler</td><td>The handler to initialize. </td></tr>
     <tr><td class="paramname">subprotocols</td><td>An array of strings containing the supported subprotocols. Please note that the functions will not copy this array, this array must be available as long as this <a class="el" href="structcio__websocket__location__handler.html">cio_websocket_location_handler</a> exists! </td></tr>
     <tr><td class="paramname">num_subprotocols</td><td>The number of entries <code>subprotocols</code> contains. </td></tr>
+    <tr><td class="paramname">on_connect</td><td>Function that will be called if websocket is connected. </td></tr>
   </table>
   </dd>
 </dl>
+<dl class="section return"><dt>Returns</dt><dd>CIO_SUCCESS if no error occured. </dd></dl>
 
 </div>
 </div>
