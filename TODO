@@ -12,3 +12,5 @@ https://github.com/PsichiX/simple-websocket-echo-server
 
 Client
 http://demos.kaazing.com/echo/
+
+Even after an error was seen reported with handle_error, the close in handle_error should wait until a close packet was received from the peer (with timeout handling).
