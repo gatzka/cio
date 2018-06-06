@@ -70,13 +70,13 @@ static void ping_written(struct cio_websocket *ws, void *handler_context, enum c
 {
 	if (err != CIO_SUCCESS) {
 		fprintf(stderr, "writing ping frame failed!\n");
-		ws->close(ws, CIO_WEBSOCKET_CLOSE_INTERNAL_ERROR, NULL);
+		err = ws->close(ws, CIO_WEBSOCKET_CLOSE_INTERNAL_ERROR, NULL, NULL, NULL);
 	} else {
 		struct cio_timer *timer = (struct cio_timer *)handler_context;
 		err = timer->expires_from_now(timer, ping_period_ns, send_ping, ws);
 		if (err != CIO_SUCCESS) {
 			fprintf(stderr, "Could not start ping timer!\n");
-			ws->close(ws, CIO_WEBSOCKET_CLOSE_NORMAL, NULL);
+			err = ws->close(ws, CIO_WEBSOCKET_CLOSE_NORMAL, NULL, NULL, NULL);
 		}
 	}
 }
@@ -98,7 +98,7 @@ static void send_ping(struct cio_timer *timer, void *handler_context, enum cio_e
 		ws->write_pingframe(ws, &wbh, ping_written, timer);
 	} else if (err != CIO_OPERATION_ABORTED){
 		fprintf(stderr, "ping timer failed!\n");
-		ws->close(ws, CIO_WEBSOCKET_CLOSE_INTERNAL_ERROR, NULL);
+		ws->close(ws, CIO_WEBSOCKET_CLOSE_INTERNAL_ERROR, NULL, NULL, NULL);
 	}
 }
 
@@ -108,9 +108,9 @@ static void write_complete(struct cio_websocket *ws, void *handler_context, enum
 
 	if (err == CIO_SUCCESS) {
 		static const char *close_message = "Good Bye!";
-		ws->close(ws, CIO_WEBSOCKET_CLOSE_NORMAL, close_message);
+		ws->close(ws, CIO_WEBSOCKET_CLOSE_NORMAL, close_message, NULL, NULL);
 	} else {
-		ws->close(ws, CIO_WEBSOCKET_CLOSE_INTERNAL_ERROR, "write did not complete");
+		ws->close(ws, CIO_WEBSOCKET_CLOSE_INTERNAL_ERROR, "write did not complete", NULL, NULL);
 	}
 }
 
@@ -185,14 +185,14 @@ static void on_connect(struct cio_websocket *ws)
 	enum cio_error err = cio_timer_init(&eh->ping_timer, &loop, NULL);
 	if (err != CIO_SUCCESS) {
 		fprintf(stderr, "Could not initialize ping timer!\n");
-		ws->close(ws, CIO_WEBSOCKET_CLOSE_NORMAL, NULL);
+		ws->close(ws, CIO_WEBSOCKET_CLOSE_NORMAL, NULL, NULL, NULL);
 		return;
 	}
 
 	err = eh->ping_timer.expires_from_now(&eh->ping_timer, ping_period_ns, send_ping, ws);
 	if (err != CIO_SUCCESS) {
 		fprintf(stderr, "Could not start ping timer!\n");
-		ws->close(ws, CIO_WEBSOCKET_CLOSE_NORMAL, NULL);
+		ws->close(ws, CIO_WEBSOCKET_CLOSE_NORMAL, NULL, NULL, NULL);
 		return;
 	}
 
