@@ -181,11 +181,12 @@ struct cio_websocket {
 	struct {
 		unsigned int fin : 1;
 		unsigned int opcode : 4;
+		//TODO: take out shall_mask and use is_server
 		unsigned int shall_mask : 1;
 		unsigned int frag_opcode : 4;
 		unsigned int self_initiated_close : 1;
 		unsigned int is_server : 1;
-		unsigned int handle_frame_ctx : 1;
+		unsigned int fragmented_write : 1;
 	} ws_flags;
 
 	cio_websocket_read_handler read_handler;
