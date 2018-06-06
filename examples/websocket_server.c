@@ -196,7 +196,10 @@ static void on_connect(struct cio_websocket *ws)
 		return;
 	}
 
-	ws->read_message(ws, read_handler, NULL);
+	err = ws->read_message(ws, read_handler, NULL);
+	if (err != CIO_SUCCESS) {
+		fprintf(stderr, "Could not start reading a new message!\n");
+	}
 }
 
 static struct cio_http_location_handler *alloc_websocket_handler(const void *config)

@@ -187,7 +187,8 @@ static void free_websocket_handler(struct cio_http_location_handler *handler)
 static void on_connect(struct cio_websocket *ws)
 {
 	ws->close(ws, CIO_WEBSOCKET_CLOSE_NORMAL, NULL);
-	ws->read_message(ws, read_handler, NULL);
+	enum cio_error err = ws->read_message(ws, read_handler, NULL);
+	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Could not start reading a message!");
 }
 
 static struct cio_http_location_handler *alloc_websocket_handler(const void *config)
