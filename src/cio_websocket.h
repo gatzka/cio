@@ -37,7 +37,7 @@ extern "C" {
  * cio_websocket need to know.
  *
  * @warning Please note that you always have to wait for the completion of
- * a write call (@ref cio_write_message)
+ * a write call (@ref cio_websocket_write_message)
  * before issuing a new write call. Otherwise, you risk loss of data to be written!
  */
 
@@ -101,6 +101,7 @@ struct cio_websocket {
 	 * @param ws The websocket to be closed.
 	 * @param status The @ref cio_websocket_status_code "websocket status code" to be sent.
 	 * @param reason A buffer which contains the reason for the close in an UTF8 encoded string. Could be @c NULL if no reason should be sent.
+	 * @return ::CIO_SUCCESS for success.
 	 */
 	void (*close)(struct cio_websocket *ws, enum cio_websocket_status_code status, const char *reason);
 
@@ -111,10 +112,19 @@ struct cio_websocket {
 	 */
 	void (*on_connect)(struct cio_websocket *ws);
 
-	void (*read_message)(struct cio_websocket *ws, cio_websocket_read_handler handler, void *handler_context);
+	/**
+	 * @anchor cio_websocket_read_message
+	 * @brief Reads a message from a websocket.
+	 *
+	 * @param ws The websocket from which a message shall be read.
+	 * @param handler A callback function that will be called when the read completes.
+	 * @param handler_context A context pointer given to @p handler when called.
+	 * @return ::CIO_SUCCESS for success.
+	 */
+	enum cio_error (*read_message)(struct cio_websocket *ws, cio_websocket_read_handler handler, void *handler_context);
 
 	/**
-	 * @anchor cio_write_message
+	 * @anchor cio_websocket_write_message
 	 * @brief Writes a complete message to the websocket.
 	 *
 	 * @warning Please note that the data @p payload encapsulates will be scrambled by
@@ -123,12 +133,14 @@ struct cio_websocket {
 	 * by @p payload. In addition you should ALWAYS intialize the write buffer elements in
 	 * @p payload using the @ref cio_write_buffer_element_init "non-const initialization function".
 	 *
+	 * @param ws The websocket which received the control frame.
 	 * @param payload The payload to be sent.
 	 * @param last_frame @c true if the is an unfragmented message or the last frame of a
 	 * fragmented message, @c false otherwise.
 	 * @param is_binary @c true if the message to be sent is a binary message.
 	 * @param handler A callback function that will be called when the write completes.
 	 * @param handler_context A context pointer given to @p handler when called.
+	 * @return ::CIO_SUCCESS for success.
 	 */
 	enum cio_error (*write_message)(struct cio_websocket *ws, struct cio_write_buffer *payload, bool last_frame, bool is_binary, cio_websocket_write_handler handler, void *handler_context);
 
@@ -170,6 +182,7 @@ struct cio_websocket {
 	 * @param payload The payload to be sent.
 	 * @param handler A callback function that will be called when the write completes.
 	 * @param handler_context A context pointer given to @p handler when called.
+	 * @return ::CIO_SUCCESS for success.
 	 */
 	enum cio_error (*write_pingframe)(struct cio_websocket *ws, struct cio_write_buffer *payload, cio_websocket_write_handler handler, void *handler_context);
 

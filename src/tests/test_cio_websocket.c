@@ -404,7 +404,8 @@ static void read_handler_save_data(struct cio_websocket *websocket, void *handle
 			read_back_buffer_pos += length;
 		}
 
-		websocket->read_message(websocket, read_handler, handler_context);
+		err = websocket->read_message(websocket, read_handler, handler_context);
+		TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Could not start reading a message!");
 	}
 }
 
@@ -494,7 +495,8 @@ static void test_unfragmented_frames(void)
 
 			serialize_frames(frames, ARRAY_SIZE(frames));
 
-			ws->read_message(ws, read_handler, NULL);
+			enum cio_error err = ws->read_message(ws, read_handler, NULL);
+			TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Could not start reading a message!");
 
 			TEST_ASSERT_EQUAL_MESSAGE(2, read_handler_fake.call_count, "read_handler was not called");
 			TEST_ASSERT_EQUAL_MESSAGE(ws, read_handler_fake.arg0_history[0], "websocket parameter of read_handler not correct");
@@ -557,7 +559,8 @@ static void test_fragmented_frames(void)
 
 			serialize_frames(frames, ARRAY_SIZE(frames));
 
-			ws->read_message(ws, read_handler, NULL);
+			enum cio_error err = ws->read_message(ws, read_handler, NULL);
+			TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Could not start reading a message!");
 
 			TEST_ASSERT_EQUAL_MESSAGE(3, read_handler_fake.call_count, "read_handler was not called");
 			if (read_handler_fake.call_count < 3) {
@@ -614,7 +617,8 @@ static void test_incoming_ping_frame(void)
 
 	serialize_frames(frames, ARRAY_SIZE(frames));
 
-	ws->read_message(ws, read_handler, NULL);
+	enum cio_error err = ws->read_message(ws, read_handler, NULL);
+	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Could not start reading a message!");
 
 	TEST_ASSERT_EQUAL_MESSAGE(1, read_handler_fake.call_count, "read_handler was not called");
 	TEST_ASSERT_EQUAL_PTR_MESSAGE(ws, read_handler_fake.arg0_val, "websocket parameter of read_handler not correct");
@@ -650,7 +654,8 @@ static void test_ping_frame_no_callback(void)
 	serialize_frames(frames, ARRAY_SIZE(frames));
 
 	ws->on_control = NULL;
-	ws->read_message(ws, read_handler, NULL);
+	enum cio_error err = ws->read_message(ws, read_handler, NULL);
+	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Could not start reading a message!");
 
 	TEST_ASSERT_EQUAL_MESSAGE(0, on_control_fake.call_count, "control callback was called");
 
@@ -673,7 +678,8 @@ static void test_ping_frame_no_payload(void)
 
 	serialize_frames(frames, ARRAY_SIZE(frames));
 
-	ws->read_message(ws, read_handler, NULL);
+	enum cio_error err = ws->read_message(ws, read_handler, NULL);
+	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Could not start reading a message!");
 
 	TEST_ASSERT_EQUAL_MESSAGE(1, read_handler_fake.call_count, "read_handler was not called");
 	TEST_ASSERT_EQUAL_PTR_MESSAGE(ws, read_handler_fake.arg0_val, "websocket parameter of read_handler not correct");
@@ -706,7 +712,8 @@ static void test_pong_frame(void)
 
 	serialize_frames(frames, ARRAY_SIZE(frames));
 
-	ws->read_message(ws, read_handler, NULL);
+	enum cio_error err = ws->read_message(ws, read_handler, NULL);
+	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Could not start reading a message!");
 
 	TEST_ASSERT_EQUAL_MESSAGE(1, read_handler_fake.call_count, "read_handler was not called");
 	TEST_ASSERT_EQUAL_PTR_MESSAGE(ws, read_handler_fake.arg0_val, "websocket parameter of read_handler not correct");
@@ -742,7 +749,8 @@ static void test_pong_frame_no_callback(void)
 	serialize_frames(frames, ARRAY_SIZE(frames));
 
 	ws->on_control = NULL;
-	ws->read_message(ws, read_handler, NULL);
+	enum cio_error err = ws->read_message(ws, read_handler, NULL);
+	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Could not start reading a message!");
 
 	TEST_ASSERT_EQUAL_MESSAGE(0, on_control_fake.call_count, "control callback was called");
 
@@ -767,7 +775,8 @@ static void test_ping_frame_payload_too_long(void)
 
 	serialize_frames(frames, ARRAY_SIZE(frames));
 
-	ws->read_message(ws, read_handler, NULL);
+	enum cio_error err = ws->read_message(ws, read_handler, NULL);
+	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Could not start reading a message!");
 
 	TEST_ASSERT_EQUAL_MESSAGE(0, on_control_fake.call_count, "control callback was called");
 
@@ -797,7 +806,8 @@ static void test_ping_frame_payload_too_long_no_error_callback(void)
 	serialize_frames(frames, ARRAY_SIZE(frames));
 
 	ws->on_error = NULL;
-	ws->read_message(ws, read_handler, NULL);
+	enum cio_error err = ws->read_message(ws, read_handler, NULL);
+	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Could not start reading a message!");
 
 	TEST_ASSERT_EQUAL_MESSAGE(0, on_control_fake.call_count, "control callback was called");
 
@@ -826,7 +836,8 @@ static void test_close_in_get_header(void)
 	serialize_frames(frames, ARRAY_SIZE(frames));
 	read_exactly_fake.custom_fake = bs_read_exactly_peer_close;
 
-	ws->read_message(ws, read_handler, NULL);
+	enum cio_error err = ws->read_message(ws, read_handler, NULL);
+	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Could not start reading a message!");
 
 	TEST_ASSERT_EQUAL_MESSAGE(1, read_handler_fake.call_count, "read_handler was not called");
 	TEST_ASSERT_EQUAL_PTR_MESSAGE(ws, read_handler_fake.arg0_val, "websocket parameter of read_handler not correct");
@@ -856,7 +867,8 @@ static void test_immediate_read_error_for_get_header(void)
 
 	SET_CUSTOM_FAKE_SEQ(read_exactly, read_exactly_fakes, ARRAY_SIZE(read_exactly_fakes));
 
-	ws->read_message(ws, read_handler, NULL);
+	enum cio_error err = ws->read_message(ws, read_handler, NULL);
+	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Could not start reading a message!");
 
 	TEST_ASSERT_EQUAL_MESSAGE(1, read_handler_fake.call_count, "read_handler was not called");
 	TEST_ASSERT_EQUAL_PTR_MESSAGE(ws, read_handler_fake.arg0_val, "websocket parameter of read_handler not correct");
@@ -884,7 +896,8 @@ static void test_read_error_in_get_header(void)
 	serialize_frames(frames, ARRAY_SIZE(frames));
 	read_exactly_fake.custom_fake = bs_read_exactly_error;
 
-	ws->read_message(ws, read_handler, NULL);
+	enum cio_error err = ws->read_message(ws, read_handler, NULL);
+	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Could not start reading a message!");
 
 	TEST_ASSERT_EQUAL_MESSAGE(1, read_handler_fake.call_count, "read_handler was not called");
 	TEST_ASSERT_EQUAL_PTR_MESSAGE(ws, read_handler_fake.arg0_val, "websocket parameter of read_handler not correct");
@@ -916,7 +929,8 @@ static void test_immediate_read_error_for_get_first_length(void)
 
 	SET_CUSTOM_FAKE_SEQ(read_exactly, read_exactly_fakes, ARRAY_SIZE(read_exactly_fakes));
 
-	ws->read_message(ws, read_handler, NULL);
+	enum cio_error err = ws->read_message(ws, read_handler, NULL);
+	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Could not start reading a message!");
 
 	TEST_ASSERT_EQUAL_MESSAGE(1, read_handler_fake.call_count, "read_handler was not called");
 	TEST_ASSERT_EQUAL_PTR_MESSAGE(ws, read_handler_fake.arg0_val, "websocket parameter of read_handler not correct");
@@ -948,7 +962,8 @@ static void test_immediate_read_error_for_get_mask(void)
 
 	SET_CUSTOM_FAKE_SEQ(read_exactly, read_exactly_fakes, ARRAY_SIZE(read_exactly_fakes));
 
-	ws->read_message(ws, read_handler, NULL);
+	enum cio_error err = ws->read_message(ws, read_handler, NULL);
+	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Could not start reading a message!");
 
 	TEST_ASSERT_EQUAL_MESSAGE(1, read_handler_fake.call_count, "read_handler was not called");
 	TEST_ASSERT_EQUAL_PTR_MESSAGE(ws, read_handler_fake.arg0_val, "websocket parameter of read_handler not correct");
@@ -985,7 +1000,8 @@ static void test_immediate_read_error_for_get_extended_length(void)
 
 		SET_CUSTOM_FAKE_SEQ(read_exactly, read_exactly_fakes, ARRAY_SIZE(read_exactly_fakes));
 
-		ws->read_message(ws, read_handler, NULL);
+		enum cio_error err = ws->read_message(ws, read_handler, NULL);
+		TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Could not start reading a message!");
 
 		TEST_ASSERT_EQUAL_MESSAGE(1, read_handler_fake.call_count, "read_handler was not called");
 		TEST_ASSERT_EQUAL_PTR_MESSAGE(ws, read_handler_fake.arg0_val, "websocket parameter of read_handler not correct");
@@ -1036,7 +1052,8 @@ static void test_close_in_get_extended_length(void)
 			SET_CUSTOM_FAKE_SEQ(read_exactly, read_exactly_fakes, 3);
 		}
 
-		ws->read_message(ws, read_handler, NULL);
+		enum cio_error err = ws->read_message(ws, read_handler, NULL);
+		TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Could not start reading a message!");
 
 		TEST_ASSERT_EQUAL_MESSAGE(1, read_handler_fake.call_count, "read_handler was not called");
 		TEST_ASSERT_EQUAL_PTR_MESSAGE(ws, read_handler_fake.arg0_val, "websocket parameter of read_handler not correct");
@@ -1079,7 +1096,8 @@ static void test_close_in_get_mask(void)
 
 	SET_CUSTOM_FAKE_SEQ(read_exactly, read_exactly_fakes, ARRAY_SIZE(read_exactly_fakes));
 
-	ws->read_message(ws, read_handler, NULL);
+	enum cio_error err = ws->read_message(ws, read_handler, NULL);
+	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Could not start reading a message!");
 
 	TEST_ASSERT_EQUAL_MESSAGE(1, read_handler_fake.call_count, "read_handler was not called");
 	TEST_ASSERT_EQUAL_PTR_MESSAGE(ws, read_handler_fake.arg0_val, "websocket parameter of read_handler not correct");
@@ -1112,7 +1130,8 @@ static void test_read_error_in_get_mask(void)
 
 	SET_CUSTOM_FAKE_SEQ(read_exactly, read_exactly_fakes, ARRAY_SIZE(read_exactly_fakes));
 
-	ws->read_message(ws, read_handler, NULL);
+	enum cio_error err = ws->read_message(ws, read_handler, NULL);
+	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Could not start reading a message!");
 
 	TEST_ASSERT_EQUAL_MESSAGE(1, read_handler_fake.call_count, "read_handler was not called");
 	TEST_ASSERT_EQUAL_PTR_MESSAGE(ws, read_handler_fake.arg0_val, "websocket parameter of read_handler not correct");
@@ -1145,7 +1164,8 @@ static void test_immediate_read_error_for_get_payload(void)
 
 	SET_CUSTOM_FAKE_SEQ(read_exactly, read_exactly_fakes, ARRAY_SIZE(read_exactly_fakes));
 
-	ws->read_message(ws, read_handler, NULL);
+	enum cio_error err = ws->read_message(ws, read_handler, NULL);
+	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Could not start reading a message!");
 
 	TEST_ASSERT_EQUAL_MESSAGE(1, read_handler_fake.call_count, "read_handler was not called");
 	TEST_ASSERT_EQUAL_PTR_MESSAGE(ws, read_handler_fake.arg0_val, "websocket parameter of read_handler not correct");
@@ -1179,7 +1199,8 @@ static void test_close_in_get_payload(void)
 
 	SET_CUSTOM_FAKE_SEQ(read_exactly, read_exactly_fakes, ARRAY_SIZE(read_exactly_fakes));
 
-	ws->read_message(ws, read_handler, NULL);
+	enum cio_error err = ws->read_message(ws, read_handler, NULL);
+	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Could not start reading a message!");
 
 	TEST_ASSERT_EQUAL_MESSAGE(1, read_handler_fake.call_count, "read_handler was not called");
 	TEST_ASSERT_EQUAL_PTR_MESSAGE(ws, read_handler_fake.arg0_val, "websocket parameter of read_handler not correct");
@@ -1213,7 +1234,8 @@ static void test_read_error_in_get_payload(void)
 
 	SET_CUSTOM_FAKE_SEQ(read_exactly, read_exactly_fakes, ARRAY_SIZE(read_exactly_fakes));
 
-	ws->read_message(ws, read_handler, NULL);
+	enum cio_error err = ws->read_message(ws, read_handler, NULL);
+	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Could not start reading a message!");
 
 	TEST_ASSERT_EQUAL_MESSAGE(1, read_handler_fake.call_count, "read_handler was not called");
 	TEST_ASSERT_EQUAL_PTR_MESSAGE(ws, read_handler_fake.arg0_val, "websocket parameter of read_handler not correct");
@@ -1238,7 +1260,8 @@ static void test_rsv_bit_in_header(void)
 
 	serialize_frames(frames, ARRAY_SIZE(frames));
 
-	ws->read_message(ws, read_handler, NULL);
+	enum cio_error err = ws->read_message(ws, read_handler, NULL);
+	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Could not start reading a message!");
 
 	TEST_ASSERT_EQUAL_MESSAGE(1, read_handler_fake.call_count, "read_handler was not called");
 	TEST_ASSERT_EQUAL_PTR_MESSAGE(ws, read_handler_fake.arg0_val, "websocket parameter of read_handler not correct");
@@ -1260,7 +1283,9 @@ static void test_fragmented_control_frame(void)
 
 	serialize_frames(frames, ARRAY_SIZE(frames));
 
-	ws->read_message(ws, read_handler, NULL);
+	enum cio_error err = ws->read_message(ws, read_handler, NULL);
+	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Could not start reading a message!");
+
 	TEST_ASSERT_EQUAL_MESSAGE(1, read_handler_fake.call_count, "read_handler was not called");
 	TEST_ASSERT_EQUAL_PTR_MESSAGE(ws, read_handler_fake.arg0_val, "websocket parameter of read_handler not correct");
 	TEST_ASSERT_NULL_MESSAGE(read_handler_fake.arg1_val, "context parameter of read_handler not correct");
@@ -1284,7 +1309,9 @@ static void test_wrong_continuation_frame_without_correct_start_frame(void)
 
 	serialize_frames(frames, ARRAY_SIZE(frames));
 
-	ws->read_message(ws, read_handler, NULL);
+	enum cio_error err = ws->read_message(ws, read_handler, NULL);
+	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Could not start reading a message!");
+
 	TEST_ASSERT_EQUAL_MESSAGE(1, read_handler_fake.call_count, "read_handler was not called");
 	TEST_ASSERT_EQUAL_PTR_MESSAGE(ws, read_handler_fake.arg0_val, "websocket parameter of read_handler not correct");
 	TEST_ASSERT_NULL_MESSAGE(read_handler_fake.arg1_val, "context parameter of read_handler not correct");
@@ -1311,7 +1338,8 @@ static void test_three_fragments(void)
 
 	serialize_frames(frames, ARRAY_SIZE(frames));
 
-	ws->read_message(ws, read_handler, NULL);
+	enum cio_error err = ws->read_message(ws, read_handler, NULL);
+	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Could not start reading a message!");
 
 	TEST_ASSERT_EQUAL_MESSAGE(ARRAY_SIZE(frames), read_handler_fake.call_count, "read_handler was not called");
 	for (unsigned int i = 0; i < (ARRAY_SIZE(frames) - 1); i++) {
@@ -1350,7 +1378,8 @@ static void test_wrong_opcode_between_fragments(void)
 
 	serialize_frames(frames, ARRAY_SIZE(frames));
 
-	ws->read_message(ws, read_handler, NULL);
+	enum cio_error err = ws->read_message(ws, read_handler, NULL);
+	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Could not start reading a message!");
 
 	TEST_ASSERT_EQUAL_MESSAGE(3, read_handler_fake.call_count, "read_handler was not called");
 
@@ -1379,7 +1408,8 @@ static void test_wrong_opcode_in_fragment(void)
 
 	serialize_frames(frames, ARRAY_SIZE(frames));
 
-	ws->read_message(ws, read_handler, NULL);
+	enum cio_error err = ws->read_message(ws, read_handler, NULL);
+	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Could not start reading a message!");
 
 	TEST_ASSERT_EQUAL_MESSAGE(3, read_handler_fake.call_count, "read_handler was not called");
 
@@ -1408,7 +1438,8 @@ static void test_control_frame_within_fragment(void)
 
 	serialize_frames(frames, ARRAY_SIZE(frames));
 
-	ws->read_message(ws, read_handler, NULL);
+	enum cio_error err = ws->read_message(ws, read_handler, NULL);
+	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Could not start reading a message!");
 
 	TEST_ASSERT_EQUAL_MESSAGE(4, read_handler_fake.call_count, "read_handler was not called");
 
@@ -1455,7 +1486,8 @@ static void test_binary_frame_within_text_fragments(void)
 
 	serialize_frames(frames, ARRAY_SIZE(frames));
 
-	ws->read_message(ws, read_handler, NULL);
+	enum cio_error err = ws->read_message(ws, read_handler, NULL);
+	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Could not start reading a message!");
 
 	TEST_ASSERT_EQUAL_MESSAGE(3, read_handler_fake.call_count, "number of read_handler callbacks called not correct");
 
@@ -1491,7 +1523,8 @@ static void test_wrong_fragment_start(void)
 
 	serialize_frames(frames, ARRAY_SIZE(frames));
 
-	ws->read_message(ws, read_handler, NULL);
+	enum cio_error err = ws->read_message(ws, read_handler, NULL);
+	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Could not start reading a message!");
 
 	TEST_ASSERT_EQUAL_MESSAGE(1, read_handler_fake.call_count, "number of read_handler callbacks called not correct");
 	TEST_ASSERT_NULL_MESSAGE(read_handler_fake.arg1_history[read_handler_fake.call_count - 1], "context parameter of read_handler not correct");
@@ -1514,7 +1547,8 @@ static void test_illegal_opcode(void)
 
 	serialize_frames(frames, ARRAY_SIZE(frames));
 
-	ws->read_message(ws, read_handler, NULL);
+	enum cio_error err = ws->read_message(ws, read_handler, NULL);
+	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Could not start reading a message!");
 
 	TEST_ASSERT_EQUAL_MESSAGE(1, read_handler_fake.call_count, "number of read_handler callbacks called not correct");
 	TEST_ASSERT_NULL_MESSAGE(read_handler_fake.arg1_history[read_handler_fake.call_count - 1], "context parameter of read_handler not correct");

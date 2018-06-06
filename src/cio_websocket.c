@@ -648,14 +648,20 @@ static void get_header(struct cio_buffered_stream *bs, void *handler_context, en
 	}
 }
 
-static void read_message(struct cio_websocket *ws, cio_websocket_read_handler handler, void *handler_context)
+static enum cio_error read_message(struct cio_websocket *ws, cio_websocket_read_handler handler, void *handler_context)
 {
+	if (unlikely((ws == NULL)) || (handler == NULL)) {
+		return CIO_INVALID_ARGUMENT;
+	}
+
 	ws->read_handler = handler;
 	ws->read_handler_context = handler_context;
 	enum cio_error err = ws->bs->read_exactly(ws->bs, ws->rb, 1, get_header, ws);
 	if (unlikely(err != CIO_SUCCESS)) {
 		handle_error(ws, CIO_WEBSOCKET_CLOSE_INTERNAL_ERROR, "error while start reading websocket header");
 	}
+
+	return CIO_SUCCESS;
 }
 
 static void handle_write(struct cio_buffered_stream *bs, void *handler_context, enum cio_error err)

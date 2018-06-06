@@ -65,8 +65,12 @@ static void read_handler(struct cio_websocket *ws, void *handler_context, enum c
 static void write_complete(struct cio_websocket *ws, void *handler_context, enum cio_error err)
 {
 	(void)handler_context;
-	(void)err;
-	ws->read_message(ws, read_handler, NULL);
+	if (err == CIO_SUCCESS) {
+		err = ws->read_message(ws, read_handler, NULL);
+		if (err != CIO_SUCCESS) {
+			fprintf(stderr, "could not start reading a new message!\n");
+		}
+	}
 }
 
 static void read_handler(struct cio_websocket *ws, void *handler_context, enum cio_error err, uint8_t *data, size_t length, bool last_frame, bool is_binary)
@@ -95,7 +99,10 @@ static void read_handler(struct cio_websocket *ws, void *handler_context, enum c
 
 static void on_connect(struct cio_websocket *ws)
 {
-	ws->read_message(ws, read_handler, NULL);
+	enum cio_error err = ws->read_message(ws, read_handler, NULL);
+	if (err != CIO_SUCCESS) {
+		fprintf(stderr, "could not start reading a new message!\n");
+	}
 }
 
 static void on_error(const struct cio_websocket *ws, enum cio_websocket_status_code status, const char *reason)
