@@ -103,7 +103,7 @@ struct cio_websocket {
 	 * @param reason A buffer which contains the reason for the close in an UTF8 encoded string. Could be @c NULL if no reason should be sent.
 	 * @return ::CIO_SUCCESS for success.
 	 */
-	void (*close)(struct cio_websocket *ws, enum cio_websocket_status_code status, const char *reason);
+	enum cio_error (*close)(struct cio_websocket *ws, enum cio_websocket_status_code status, const char *reason, cio_websocket_write_handler handler, void *handler_context);
 
 	/**
 	 * @brief A pointer to a function which is called when a websocket connection was established.
