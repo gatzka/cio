@@ -101,7 +101,10 @@ static void send_ping(struct cio_timer *timer, void *handler_context, enum cio_e
 		static const char *ping_message = "ping";
 		cio_write_buffer_const_element_init(&eh->wb_ping_message, ping_message, strlen(ping_message));
 		cio_write_buffer_queue_head(&wbh, &eh->wb_ping_message);
-		ws->write_ping(ws, &wbh, ping_written, timer);
+		err = ws->write_ping(ws, &wbh, ping_written, timer);
+		if (err != CIO_SUCCESS) {
+			fprintf(stderr, "Could not start writing websocket ping!\n");
+		}
 	} else if (err != CIO_OPERATION_ABORTED){
 		fprintf(stderr, "ping timer failed!\n");
 		err = ws->close(ws, CIO_WEBSOCKET_CLOSE_INTERNAL_ERROR, NULL, NULL, NULL);
