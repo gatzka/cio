@@ -373,12 +373,7 @@ static void handle_pong_frame(struct cio_websocket *ws, uint8_t *data, uint64_t 
 
 static void handle_frame(struct cio_websocket *ws, uint8_t *data, uint64_t length)
 {
-	if (unlikely((ws->ws_flags.is_server == 1) && (ws->ws_flags.shall_mask == 0))) {
-		handle_error(ws, CIO_WEBSOCKET_CLOSE_PROTOCOL_ERROR, "received unmasked frame on server websocket");
-		return;
-	}
-
-	if (ws->ws_flags.shall_mask != 0) {
+	if (ws->ws_flags.is_server == 1) {
 		cio_websocket_mask(data, length, ws->mask);
 	}
 
@@ -460,7 +455,7 @@ static void get_mask(struct cio_buffered_stream *bs, void *handler_context, enum
 static void get_mask_or_payload(struct cio_websocket *ws, struct cio_buffered_stream *bs, struct cio_read_buffer *buffer)
 {
 	enum cio_error err;
-	if (ws->ws_flags.shall_mask == 1) {
+	if (ws->ws_flags.is_server == 1) {
 		err = bs->read_exactly(bs, buffer, sizeof(ws->mask), get_mask, ws);
 		if (unlikely(err != CIO_SUCCESS)) {
 			handle_error(ws, CIO_WEBSOCKET_CLOSE_INTERNAL_ERROR, "error while start reading websocket mask");
@@ -547,10 +542,9 @@ static void get_first_length(struct cio_buffered_stream *bs, void *handler_conte
 	uint8_t *ptr = cio_read_buffer_get_read_ptr(buffer);
 	uint8_t field = *ptr;
 
-	if ((field & WS_MASK_SET) == WS_MASK_SET) {
-		ws->ws_flags.shall_mask = 1;
-	} else {
-		ws->ws_flags.shall_mask = 0;
+	if (((field & WS_MASK_SET) == 0) && (ws->ws_flags.is_server == 1)) {
+		handle_error(ws, CIO_WEBSOCKET_CLOSE_PROTOCOL_ERROR, "received unmasked frame on server websocket");
+		return;
 	}
 
 	field = field & ~WS_MASK_SET;
