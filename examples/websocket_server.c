@@ -71,12 +71,18 @@ static void ping_written(struct cio_websocket *ws, void *handler_context, enum c
 	if (err != CIO_SUCCESS) {
 		fprintf(stderr, "writing ping frame failed!\n");
 		err = ws->close(ws, CIO_WEBSOCKET_CLOSE_INTERNAL_ERROR, NULL, NULL, NULL);
+		if (err != CIO_SUCCESS) {
+			fprintf(stderr, "Could not start writing websocket close!\n");
+		}
 	} else {
 		struct cio_timer *timer = (struct cio_timer *)handler_context;
 		err = timer->expires_from_now(timer, ping_period_ns, send_ping, ws);
 		if (err != CIO_SUCCESS) {
 			fprintf(stderr, "Could not start ping timer!\n");
 			err = ws->close(ws, CIO_WEBSOCKET_CLOSE_NORMAL, NULL, NULL, NULL);
+			if (err != CIO_SUCCESS) {
+				fprintf(stderr, "Could not start writing websocket close!\n");
+			}
 		}
 	}
 }
