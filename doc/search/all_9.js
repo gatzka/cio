@@ -2,7 +2,7 @@ var searchData=
 [
   ['on_5fbody',['on_body',['../structcio__http__location__handler.html#a32a7896a868d5778338e015f6610e504',1,'cio_http_location_handler']]],
   ['on_5fconnect',['on_connect',['../structcio__websocket.html#a1a44ecbfeb77f285ac2b66af76980fe1',1,'cio_websocket']]],
-  ['on_5fcontrol',['on_control',['../structcio__websocket.html#af52210afb0b0935c1fd2df50977d0e8b',1,'cio_websocket']]],
+  ['on_5fcontrol',['on_control',['../structcio__websocket.html#a78a01c53f613d3496c71d35a0fc162b1',1,'cio_websocket']]],
   ['on_5ferror',['on_error',['../structcio__websocket.html#a20f9680edcf92ab60a6daa8479d39ec8',1,'cio_websocket']]],
   ['on_5ffragment',['on_fragment',['../structcio__http__location__handler.html#a45d7a4048f22f2061f6497e78ac83fa2',1,'cio_http_location_handler']]],
   ['on_5fheader_5ffield',['on_header_field',['../structcio__http__location__handler.html#a4d075f82eb121f4cf2a79aac878bea37',1,'cio_http_location_handler']]],

@@ -23,7 +23,7 @@
  <tr style="height: 56px;">
   <td style="padding-left: 0.5em;">
    <div id="projectname">ANSI C I/O Library
-   &#160;<span id="projectnumber">0.0.1-849+bfa8abe</span>
+   &#160;<span id="projectnumber">0.0.1-856+759fdac</span>
    </div>
   </td>
  </tr>
@@ -160,10 +160,6 @@ Enumerations</h2></td></tr>
 <br/>
  }</td></tr>
 <tr class="separator:af33fb069400eeffde11ab324bf2245e9"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a118d44b930fb2dd12444d7311e4615de"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="cio__websocket_8h.html#a118d44b930fb2dd12444d7311e4615de">cio_websocket_status</a> { <a class="el" href="cio__websocket_8h.html#a118d44b930fb2dd12444d7311e4615deae188530b2887d0dda653adb627d148ef">CIO_WEBSOCKET_STATUS_OK</a> = 0, 
-<a class="el" href="cio__websocket_8h.html#a118d44b930fb2dd12444d7311e4615dea2681e9a2b6f184b7f76bb0423e56fa28">CIO_WEBSOCKET_STATUS_CLOSED</a> = -1
- }</td></tr>
-<tr class="separator:a118d44b930fb2dd12444d7311e4615de"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="func-members"></a>
 Functions</h2></td></tr>
@@ -172,7 +168,7 @@ Functions</h2></td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>This file contains the declarations all users of a <a class="el" href="structcio__websocket.html">cio_websocket</a> need to know. </p>
-<dl class="section warning"><dt>Warning</dt><dd>Please note that you always have to wait for the completion of a write call (<a class="el" href="structcio__websocket.html#cio_write_textframe">cio_write_textframe</a>, <a class="el" href="structcio__websocket.html#cio_write_binaryframe">cio_write_binaryframe</a>, <a class="el" href="structcio__websocket.html#cio_write_pingframe">cio_write_pingframe</a>) before issuing a new write call. Otherwise, you risk loss of data to be written! </dd></dl>
+<dl class="section warning"><dt>Warning</dt><dd>Please note that you always have to wait for the completion of a write call (<a class="el" href="structcio__websocket.html#cio_websocket_write_message">cio_websocket_write_message</a>) before issuing a new write call. Otherwise, you risk loss of data to be written! </dd></dl>
 </div><h2 class="groupheader">Macro Definition Documentation</h2>
 <a class="anchor" id="a6092b5c3a185ea1e9ca81b41026a2aea"></a>
 <div class="memitem">
@@ -301,24 +297,6 @@ Functions</h2></td></tr>
 <tr><td class="fieldname"><em><a class="anchor" id="af33fb069400eeffde11ab324bf2245e9a42de48db574a3eb78ee662c4683f4ed3"></a>CIO_WEBSOCKET_PING_FRAME</em>&#160;</td><td class="fielddoc">
 </td></tr>
 <tr><td class="fieldname"><em><a class="anchor" id="af33fb069400eeffde11ab324bf2245e9ac89c2941151a6830f7cf69729ee9693c"></a>CIO_WEBSOCKET_PONG_FRAME</em>&#160;</td><td class="fielddoc">
-</td></tr>
-</table>
-
-</div>
-</div>
-<a class="anchor" id="a118d44b930fb2dd12444d7311e4615de"></a>
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">enum <a class="el" href="cio__websocket_8h.html#a118d44b930fb2dd12444d7311e4615de">cio_websocket_status</a></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-<table class="fieldtable">
-<tr><th colspan="2">Enumerator</th></tr><tr><td class="fieldname"><em><a class="anchor" id="a118d44b930fb2dd12444d7311e4615deae188530b2887d0dda653adb627d148ef"></a>CIO_WEBSOCKET_STATUS_OK</em>&#160;</td><td class="fielddoc">
-</td></tr>
-<tr><td class="fieldname"><em><a class="anchor" id="a118d44b930fb2dd12444d7311e4615dea2681e9a2b6f184b7f76bb0423e56fa28"></a>CIO_WEBSOCKET_STATUS_CLOSED</em>&#160;</td><td class="fielddoc">
 </td></tr>
 </table>
 
