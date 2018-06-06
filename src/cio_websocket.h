@@ -170,7 +170,7 @@ struct cio_websocket {
 	void (*on_error)(const struct cio_websocket *ws, enum cio_websocket_status_code status, const char *reason);
 
 	/**
-	 * @anchor cio_write_pingframe
+	 * @anchor cio_write_ping
 	 * @brief Writes a ping frame to the websocket.
 	 *
 	 * @warning Please note that the data @p payload encapsulates will be scrambled by
@@ -180,11 +180,28 @@ struct cio_websocket {
 	 * @p payload using the @ref cio_write_buffer_element_init "non-const initialization function".
 	 *
 	 * @param payload The payload to be sent.
-	 * @param handler A callback function that will be called when the write completes.
+	 * @param handler A callback function that will be called when the write operation of the ping completes.
 	 * @param handler_context A context pointer given to @p handler when called.
 	 * @return ::CIO_SUCCESS for success.
 	 */
-	enum cio_error (*write_pingframe)(struct cio_websocket *ws, struct cio_write_buffer *payload, cio_websocket_write_handler handler, void *handler_context);
+	enum cio_error (*write_ping)(struct cio_websocket *ws, struct cio_write_buffer *payload, cio_websocket_write_handler handler, void *handler_context);
+
+	/**
+	 * @anchor cio_write_pong
+	 * @brief Writes a pong frame to the websocket.
+	 *
+	 * @warning Please note that the data @p payload encapsulates will be scrambled by
+	 * the library if this function is used in a websocket client connection. So if
+	 * you want to write the same data again, you have to re-initialize the data encapsluated
+	 * by @p payload. In addition you should ALWAYS intialize the write buffer elements in
+	 * @p payload using the @ref cio_write_buffer_element_init "non-const initialization function".
+	 *
+	 * @param payload The payload to be sent.
+	 * @param handler A callback function that will be called when the write operation of the pong completes.
+	 * @param handler_context A context pointer given to @p handler when called.
+	 * @return ::CIO_SUCCESS for success.
+	 */
+	enum cio_error (*write_pong)(struct cio_websocket *ws, struct cio_write_buffer *payload, cio_websocket_write_handler handler, void *handler_context);
 
 	/*! @cond PRIVATE */
 

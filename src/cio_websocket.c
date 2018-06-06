@@ -729,6 +729,16 @@ static enum cio_error write_ping_frame(struct cio_websocket *ws, struct cio_writ
 	}
 }
 
+static enum cio_error write_pong_frame(struct cio_websocket *ws, struct cio_write_buffer *payload, cio_websocket_write_handler handler, void *handler_context)
+{
+	if (unlikely(payload_size_in_limit(payload, CIO_WEBSOCKET_SMALL_FRAME_SIZE) == 0)) {
+		handler(ws, handler_context, CIO_MESSAGE_TOO_LONG);
+		return CIO_INVALID_ARGUMENT;
+	} else {
+		return send_frame_from_api_user(ws, CIO_WEBSOCKET_PONG_FRAME, payload, true, handler, handler_context);
+	}
+}
+
 enum cio_error cio_websocket_init(struct cio_websocket *ws, bool is_server, cio_websocket_on_connect on_connect, cio_websocket_close_hook close_hook)
 {
 	if (unlikely(on_connect == NULL)) {
@@ -743,7 +753,8 @@ enum cio_error cio_websocket_init(struct cio_websocket *ws, bool is_server, cio_
 	ws->on_error = NULL;
 	ws->close = self_close_frame;
 	ws->write_message = write_message;
-	ws->write_pingframe = write_ping_frame;
+	ws->write_ping = write_ping_frame;
+	ws->write_pong = write_pong_frame;
 	ws->close_hook = close_hook;
 	ws->write_handler = NULL;
 	ws->ws_flags.is_server = is_server ? 1 : 0;
