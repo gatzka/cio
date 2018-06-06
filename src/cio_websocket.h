@@ -37,7 +37,7 @@ extern "C" {
  * cio_websocket need to know.
  *
  * @warning Please note that you always have to wait for the completion of
- * a write call (@ref cio_write_textframe, @ref cio_write_binaryframe, @ref cio_write_pingframe)
+ * a write call (@ref cio_write_message)
  * before issuing a new write call. Otherwise, you risk loss of data to be written!
  */
 
@@ -85,14 +85,6 @@ enum cio_websocket_frame_type {
 	CIO_WEBSOCKET_PONG_FRAME = 0x0a,
 };
 
-
-// Remove and use callbacks or document
-enum cio_websocket_status {
-	CIO_WEBSOCKET_STATUS_OK = 0,
-	CIO_WEBSOCKET_STATUS_CLOSED = -1
-};
-
-
 #define CIO_WEBSOCKET_SMALL_FRAME_SIZE 125
 
 struct cio_websocket {
@@ -122,15 +114,34 @@ struct cio_websocket {
 	void (*read_message)(struct cio_websocket *ws, cio_websocket_read_handler handler, void *handler_context);
 
 	/**
+	 * @anchor cio_write_message
+	 * @brief Writes a complete message to the websocket.
+	 *
+	 * @warning Please note that the data @p payload encapsulates will be scrambled by
+	 * the library if this function is used in a websocket client connection. So if
+	 * you want to write the same data again, you have to re-initialize the data encapsluated
+	 * by @p payload. In addition you should ALWAYS intialize the write buffer elements in
+	 * @p payload using the @ref cio_write_buffer_element_init "non-const initialization function".
+	 *
+	 * @param payload The payload to be sent.
+	 * @param last_frame @c true if the is an unfragmented message or the last frame of a
+	 * fragmented message, @c false otherwise.
+	 * @param is_binary @c true if the message to be sent is a binary message.
+	 * @param handler A callback function that will be called when the write completes.
+	 * @param handler_context A context pointer given to @p handler when called.
+	 */
+	enum cio_error (*write_message)(struct cio_websocket *ws, struct cio_write_buffer *payload, bool last_frame, bool is_binary, cio_websocket_write_handler handler, void *handler_context);
+
+	/**
 	 * @brief A pointer to a function which is called when a control frame was received.
 	 *
 	 * Library users are note required to set this function pointer.
 	 * @param ws The websocket which received the control frame.
-	 * @param type The type of control frame (::CIO_WEBSOCKET_CLOSE_FRAME, ::CIO_WEBSOCKET_PING_FRAME, ::CIO_WEBSOCKET_PONG_FRAME)
+	 * @param kind The kind of control frame (::CIO_WEBSOCKET_CLOSE_FRAME, ::CIO_WEBSOCKET_PING_FRAME, ::CIO_WEBSOCKET_PONG_FRAME)
 	 * @param data The data the control frame carried.
 	 * @param length The length of data the control frame carried.
 	 */
-	void (*on_control)(const struct cio_websocket *ws, enum cio_websocket_frame_type type, const uint8_t *data, size_t length);
+	void (*on_control)(const struct cio_websocket *ws, enum cio_websocket_frame_type kind, const uint8_t *data, size_t length);
 
 	/**
 	 * @brief A pointer to a function which is called if a receive error occurred.
@@ -147,42 +158,6 @@ struct cio_websocket {
 	void (*on_error)(const struct cio_websocket *ws, enum cio_websocket_status_code status, const char *reason);
 
 	/**
-	 * @anchor cio_write_textframe
-	 * @brief Writes a text frame to the websocket.
-     *
-     * @warning Please note that the data @p payload encapsulates will be scrambled by
-     * the library if this function is used in a websocket client connection. So if
-     * you want to write the same data again, you have to re-initialize the data encapsluated
-     * by @p payload. In addition you should ALWAYS intialize the write buffer elements in
-     * @p payload using the @ref cio_write_buffer_element_init "non-const initialization function".
-     *
-     * @param payload The payload to be sent.
-     * @param last_frame @c true if the is an unfragmented message or the last frame of a
-     * fragmented message, @c false otherwise.
-     * @param handler A callback function that will be called when the write completes.
-     * @param handler_context A context pointer given to @p handler when called.
-     */
-	enum cio_websocket_status (*write_textframe)(struct cio_websocket *ws, struct cio_write_buffer *payload, bool last_frame, cio_websocket_write_handler handler, void *handler_context);
-
-	/**
-	 * @anchor cio_write_binaryframe
-	 * @brief Writes a binary frame to the websocket.
-     *
-     * @warning Please note that the data @p payload encapsulates will be scrambled by
-     * the library if this function is used in a websocket client connection. So if
-     * you want to write the same data again, you have to re-initialize the data encapsluated
-     * by @p payload. In addition you should ALWAYS intialize the write buffer elements in
-     * @p payload using the @ref cio_write_buffer_element_init "non-const initialization function".
-     *
-     * @param payload The payload to be sent.
-     * @param last_frame @c true if the is an unfragmented message or the last frame of a
-     * fragmented message, @c false otherwise.
-     * @param handler A callback function that will be called when the write completes.
-     * @param handler_context A context pointer given to @p handler when called.
-     */
-	enum cio_websocket_status (*write_binaryframe)(struct cio_websocket *ws, struct cio_write_buffer *payload, bool last_frame, cio_websocket_write_handler handler, void *handler_context);
-
-	/**
 	 * @anchor cio_write_pingframe
 	 * @brief Writes a ping frame to the websocket.
 	 *
@@ -196,7 +171,7 @@ struct cio_websocket {
 	 * @param handler A callback function that will be called when the write completes.
 	 * @param handler_context A context pointer given to @p handler when called.
 	 */
-	enum cio_websocket_status (*write_pingframe)(struct cio_websocket *ws, struct cio_write_buffer *payload, cio_websocket_write_handler handler, void *handler_context);
+	enum cio_error (*write_pingframe)(struct cio_websocket *ws, struct cio_write_buffer *payload, cio_websocket_write_handler handler, void *handler_context);
 
 	/*! @cond PRIVATE */
 
@@ -209,9 +184,7 @@ struct cio_websocket {
 		unsigned int shall_mask : 1;
 		unsigned int frag_opcode : 4;
 		unsigned int self_initiated_close : 1;
-		unsigned int to_be_closed : 1;
 		unsigned int is_server : 1;
-		unsigned int writing_frame : 1;
 		unsigned int handle_frame_ctx : 1;
 	} ws_flags;
 

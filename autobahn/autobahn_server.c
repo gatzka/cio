@@ -93,11 +93,7 @@ static void read_handler(struct cio_websocket *ws, void *handler_context, enum c
 			cio_write_buffer_head_init(&eh->wbh);
 			cio_write_buffer_const_element_init(&eh->wb_message, eh->echo_buffer, eh->bytes_in_echo_buffer);
 			cio_write_buffer_queue_tail(&eh->wbh, &eh->wb_message);
-			if (is_binary) {
-				ws->write_binaryframe(ws, &eh->wbh, last_frame, write_complete, NULL);
-			} else {
-				ws->write_textframe(ws, &eh->wbh, last_frame, write_complete, NULL);
-			}
+			ws->write_message(ws, &eh->wbh, last_frame, is_binary, write_complete, NULL);
 			eh->bytes_in_echo_buffer = 0;
 		} else {
 			ws->read_message(ws, read_handler, NULL);
