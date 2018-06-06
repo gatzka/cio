@@ -91,13 +91,9 @@ static void send_frame(struct cio_websocket *ws, struct cio_write_buffer *payloa
 		length += element->data.element.length;
 	}
 
-
-	uint8_t first_byte;
+	uint8_t first_byte = (uint8_t)frame_type;
 	if (last_frame) {
-		first_byte = (uint8_t)frame_type;
 		first_byte |= WS_HEADER_FIN;
-	} else {
-		first_byte = CIO_WEBSOCKET_CONTINUATION_FRAME;
 	}
 
 	ws->send_header[0] = first_byte;
@@ -690,11 +686,27 @@ static enum cio_error send_frame_from_api_user(struct cio_websocket *ws, enum ci
 
 static enum cio_error write_message(struct cio_websocket *ws, struct cio_write_buffer *payload, bool last_frame, bool is_binary, cio_websocket_write_handler handler, void *handler_context)
 {
-	if (is_binary) {
-		return send_frame_from_api_user(ws, CIO_WEBSOCKET_BINARY_FRAME, payload, last_frame, handler, handler_context);
+	enum cio_websocket_frame_type kind;
+
+	if (ws->ws_flags.fragmented_write == 1) {
+		if (is_binary) {
+			kind = CIO_WEBSOCKET_BINARY_FRAME;
+		} else {
+			kind = CIO_WEBSOCKET_TEXT_FRAME;
+		}
+
+		if (!last_frame) {
+			ws->ws_flags.fragmented_write = 0;
+		}
 	} else {
-		return send_frame_from_api_user(ws, CIO_WEBSOCKET_TEXT_FRAME, payload, last_frame, handler, handler_context);
+		if (last_frame) {
+			ws->ws_flags.fragmented_write = 1;
+		}
+
+		kind = CIO_WEBSOCKET_CONTINUATION_FRAME;
 	}
+
+	return send_frame_from_api_user(ws, kind, payload, last_frame, handler, handler_context);
 }
 
 static enum cio_error write_ping_frame(struct cio_websocket *ws, struct cio_write_buffer *payload, cio_websocket_write_handler handler, void *handler_context)
@@ -726,6 +738,7 @@ enum cio_error cio_websocket_init(struct cio_websocket *ws, bool is_server, cio_
 	ws->ws_flags.is_server = is_server ? 1 : 0;
 	ws->ws_flags.frag_opcode = 0;
 	ws->ws_flags.self_initiated_close = 0;
+	ws->ws_flags.fragmented_write = 1;
 
 	cio_write_buffer_element_init(&ws->wb_close_status, &ws->close_status, sizeof(ws->close_status));
 	cio_utf8_init(&ws->utf8_state);
