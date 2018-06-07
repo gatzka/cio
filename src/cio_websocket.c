@@ -384,7 +384,7 @@ static void handle_pong_frame(struct cio_websocket *ws, uint8_t *data, uint64_t 
 static void handle_frame(struct cio_websocket *ws, uint8_t *data, uint64_t length)
 {
 	if (ws->ws_flags.is_server == 1) {
-		cio_websocket_mask(data, length, ws->mask);
+		cio_websocket_mask(data, length, ws->received_mask);
 	}
 
 	switch (ws->ws_flags.opcode) {
@@ -450,7 +450,7 @@ static void get_mask(struct cio_buffered_stream *bs, void *handler_context, enum
 
 	uint8_t *ptr = cio_read_buffer_get_read_ptr(buffer);
 
-	memcpy(ws->mask, ptr, sizeof(ws->mask));
+	memcpy(ws->received_mask, ptr, sizeof(ws->received_mask));
 	if (likely(ws->read_frame_length > 0)) {
 		err = bs->read_exactly(bs, buffer, ws->read_frame_length, get_payload, ws);
 		if (unlikely(err != CIO_SUCCESS)) {
@@ -466,7 +466,7 @@ static void get_mask_or_payload(struct cio_websocket *ws, struct cio_buffered_st
 {
 	enum cio_error err;
 	if (ws->ws_flags.is_server == 1) {
-		err = bs->read_exactly(bs, buffer, sizeof(ws->mask), get_mask, ws);
+		err = bs->read_exactly(bs, buffer, sizeof(ws->received_mask), get_mask, ws);
 		if (unlikely(err != CIO_SUCCESS)) {
 			handle_error(ws, CIO_WEBSOCKET_CLOSE_INTERNAL_ERROR, "error while start reading websocket mask");
 		}
@@ -761,6 +761,13 @@ enum cio_error cio_websocket_init(struct cio_websocket *ws, bool is_server, cio_
 	ws->ws_flags.frag_opcode = 0;
 	ws->ws_flags.self_initiated_close = 0;
 	ws->ws_flags.fragmented_write = 1;
+
+	ws->write_message_job.wbh = NULL;
+	ws->write_ping_job.wbh = NULL;
+	ws->write_pong_job.wbh = NULL;
+	ws->write_close_job.wbh = NULL;
+	ws->first_write_job = NULL;
+	ws->last_write_job = NULL;
 
 	cio_write_buffer_element_init(&ws->wb_close_status, &ws->close_status, sizeof(ws->close_status));
 	cio_utf8_init(&ws->utf8_state);
