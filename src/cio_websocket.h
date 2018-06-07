@@ -87,6 +87,14 @@ enum cio_websocket_frame_type {
 
 #define CIO_WEBSOCKET_SMALL_FRAME_SIZE 125
 
+struct cio_websocket_write_job {
+	struct cio_write_buffer *wbh;
+	struct cio_write_buffer websocket_header;
+	uint8_t send_header[14];
+	cio_websocket_write_handler handler;
+	void *handler_context;
+};
+
 struct cio_websocket {
 
 	/**
@@ -225,17 +233,27 @@ struct cio_websocket {
 
 	struct cio_buffered_stream *bs;
 	struct cio_read_buffer *rb;
-	struct cio_write_buffer *wbh;
-	struct cio_write_buffer wb_send_header;
-	struct cio_write_buffer wb_close_status;
-	struct cio_write_buffer wb_control_data;
 	struct cio_timer close_timer;
 	struct cio_utf8_state utf8_state;
 	cio_websocket_close_hook close_hook;
 	cio_buffered_stream_write_handler user_write_handler;
-	uint8_t mask[4];
-	uint8_t send_header[14];
+	uint8_t received_mask[4];
 	uint16_t close_status;
+
+	struct cio_websocket_write_job write_message_job;
+	struct cio_websocket_write_job write_ping_job;
+	struct cio_websocket_write_job write_pong_job;
+	struct cio_websocket_write_job write_close_job;
+
+	struct cio_websocket_write_job *first_write_job;
+	struct cio_websocket_write_job *last_write_job;
+
+
+	struct cio_write_buffer *wbh;
+	struct cio_write_buffer wb_send_header;
+	struct cio_write_buffer wb_close_status;
+	struct cio_write_buffer wb_control_data;
+	uint8_t send_header[14];
 	uint8_t send_control_frame_buffer[CIO_WEBSOCKET_SMALL_FRAME_SIZE];
 	/*! @endcond */
 };
