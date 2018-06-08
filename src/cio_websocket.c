@@ -130,7 +130,7 @@ static void close_frame_written(struct cio_buffered_stream *bs, void *handler_co
 	// TODO: abort all outstanding write jobs with OPERATION_ABORTED
 }
 
-static void send_frame(struct cio_websocket *ws, enum cio_websocket_frame_type frame_type, struct cio_websocket_write_job *job, bool last_frame, cio_buffered_stream_write_handler handler)
+static enum cio_error send_frame(struct cio_websocket *ws, enum cio_websocket_frame_type frame_type, struct cio_websocket_write_job *job, bool last_frame, cio_buffered_stream_write_handler handler)
 {
 	uint8_t first_len;
 	size_t header_index = 2;
@@ -176,10 +176,7 @@ static void send_frame(struct cio_websocket *ws, enum cio_websocket_frame_type f
 
 	cio_write_buffer_element_init(&job->websocket_header, job->send_header, header_index);
 	add_websocket_header(job);
-	enum cio_error err = ws->bs->write(ws->bs, job->wbh, handler, job);
-	if (err != CIO_SUCCESS) {
-		//TODO: call callback
-	}
+	return ws->bs->write(ws->bs, job->wbh, handler, job);
 }
 
 static bool is_status_code_invalid(uint16_t status_code)
@@ -329,7 +326,10 @@ static void handle_close_frame(struct cio_websocket *ws, uint8_t *data, uint64_t
 		}
 
 		prepare_close_job(ws, status_code, (const uint8_t *)reason, length, NULL, NULL);
-		send_frame(ws, CIO_WEBSOCKET_CLOSE_FRAME, &ws->write_close_job, true, response_close_frame_written);
+		enum cio_error err = send_frame(ws, CIO_WEBSOCKET_CLOSE_FRAME, &ws->write_close_job, true, response_close_frame_written);
+		if (unlikely(err != CIO_SUCCESS)) {
+			handle_error(ws, CIO_WEBSOCKET_CLOSE_INTERNAL_ERROR, "could not send close frame");
+		}
 	}
 }
 
@@ -350,8 +350,12 @@ static void handle_ping_frame(struct cio_websocket *ws, uint8_t *data, uint64_t 
 	ws->write_pong_job.handler = NULL;
 	ws->write_pong_job.handler_context = NULL;
 
-	send_frame(ws, CIO_WEBSOCKET_PONG_FRAME, &ws->write_pong_job, true, pong_written);
-	ws->bs->read_exactly(ws->bs, ws->rb, 1, get_header, ws);
+	enum cio_error err = send_frame(ws, CIO_WEBSOCKET_PONG_FRAME, &ws->write_pong_job, true, pong_written);
+	if (unlikely(err != CIO_SUCCESS)) {
+		handle_error(ws, CIO_WEBSOCKET_CLOSE_INTERNAL_ERROR, "could not send close frame");
+	} else {
+		ws->bs->read_exactly(ws->bs, ws->rb, 1, get_header, ws);
+	}
 }
 
 static void handle_pong_frame(struct cio_websocket *ws, uint8_t *data, uint64_t length)
@@ -690,8 +694,7 @@ static enum cio_error write_message(struct cio_websocket *ws, struct cio_write_b
 		kind = CIO_WEBSOCKET_CONTINUATION_FRAME;
 	}
 
-	send_frame(ws, kind, &ws->write_message_job, last_frame, message_written);
-	return CIO_SUCCESS;
+	return send_frame(ws, kind, &ws->write_message_job, last_frame, message_written);
 }
 
 static enum cio_error write_ping_message(struct cio_websocket *ws, struct cio_write_buffer *payload, cio_websocket_write_handler handler, void *handler_context)
@@ -713,8 +716,7 @@ static enum cio_error write_ping_message(struct cio_websocket *ws, struct cio_wr
 	ws->write_ping_job.handler = handler;
 	ws->write_ping_job.handler_context = handler_context;
 
-	send_frame(ws, CIO_WEBSOCKET_PING_FRAME, &ws->write_ping_job, true, ping_written);
-	return CIO_SUCCESS;
+	return send_frame(ws, CIO_WEBSOCKET_PING_FRAME, &ws->write_ping_job, true, ping_written);
 }
 
 static enum cio_error write_pong_message(struct cio_websocket *ws, struct cio_write_buffer *payload, cio_websocket_write_handler handler, void *handler_context)
@@ -736,8 +738,7 @@ static enum cio_error write_pong_message(struct cio_websocket *ws, struct cio_wr
 	ws->write_pong_job.handler = handler;
 	ws->write_pong_job.handler_context = handler_context;
 
-	send_frame(ws, CIO_WEBSOCKET_PING_FRAME, &ws->write_pong_job, true, pong_written);
-	return CIO_SUCCESS;
+	return send_frame(ws, CIO_WEBSOCKET_PING_FRAME, &ws->write_pong_job, true, pong_written);
 }
 
 static enum cio_error write_close_message(struct cio_websocket *ws, enum cio_websocket_status_code status_code, const char *reason, cio_websocket_write_handler handler, void *handler_context)
@@ -763,8 +764,7 @@ static enum cio_error write_close_message(struct cio_websocket *ws, enum cio_web
 	}
 
 	ws->ws_flags.self_initiated_close = 1;
-	send_frame(ws, CIO_WEBSOCKET_CLOSE_FRAME, &ws->write_close_job, true, close_frame_written);
-	return CIO_SUCCESS;
+	return send_frame(ws, CIO_WEBSOCKET_CLOSE_FRAME, &ws->write_close_job, true, close_frame_written);
 err:
 	close(ws);
 	return CIO_SUCCESS;
