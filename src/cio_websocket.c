@@ -729,26 +729,6 @@ static enum cio_error write_pong_frame(struct cio_websocket *ws, struct cio_writ
 	return CIO_SUCCESS;
 }
 
-static void send_close_frame_wait_for_response(struct cio_websocket *ws)
-{
-	enum cio_error err = cio_timer_init(&ws->close_timer, ws->loop, NULL);
-	if (unlikely(err != CIO_SUCCESS)) {
-		goto err;
-	}
-
-	err = ws->close_timer.expires_from_now(&ws->close_timer, close_timeout_ns, close_timeout_handler, ws);
-	if (unlikely(err != CIO_SUCCESS)) {
-		goto err;
-	}
-
-	ws->ws_flags.self_initiated_close = 1;
-	send_frame(ws, CIO_WEBSOCKET_CLOSE_FRAME, &ws->write_close_job, true, close_frame_written);
-	return;
-
-err:
-	send_frame(ws, CIO_WEBSOCKET_CLOSE_FRAME, &ws->write_close_job, true, close_frame_written);
-}
-
 static enum cio_error write_close_frame(struct cio_websocket *ws, enum cio_websocket_status_code status_code, const char *reason, cio_websocket_write_handler handler, void *handler_context)
 {
 	if (unlikely(ws->write_close_job.wbh != NULL)) {
@@ -761,7 +741,20 @@ static enum cio_error write_close_frame(struct cio_websocket *ws, enum cio_webso
 
 	prepare_close_job(ws, status_code, (const uint8_t *)reason, strlen(reason), handler, handler_context);
 
-	send_close_frame_wait_for_response(ws);
+	enum cio_error err = cio_timer_init(&ws->close_timer, ws->loop, NULL);
+	if (unlikely(err != CIO_SUCCESS)) {
+		goto err;
+	}
+
+	err = ws->close_timer.expires_from_now(&ws->close_timer, close_timeout_ns, close_timeout_handler, ws);
+	if (unlikely(err != CIO_SUCCESS)) {
+		goto err;
+	}
+
+	ws->ws_flags.self_initiated_close = 1;
+err:
+	send_frame(ws, CIO_WEBSOCKET_CLOSE_FRAME, &ws->write_close_job, true, close_frame_written);
+
 	return CIO_SUCCESS;
 }
 
