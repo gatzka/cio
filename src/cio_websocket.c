@@ -193,11 +193,6 @@ static bool is_status_code_invalid(uint16_t status_code)
 
 static void get_header(struct cio_buffered_stream *bs, void *handler_context, enum cio_error err, struct cio_read_buffer *buffer);
 
-static void send_close_frame_and_close(struct cio_websocket *ws)
-{
-	send_frame(ws, CIO_WEBSOCKET_CLOSE_FRAME, &ws->write_close_job, true, close_frame_written);
-}
-
 static void prepare_close_job(struct cio_websocket *ws, enum cio_websocket_status_code status_code, const uint8_t *reason, size_t reason_length, cio_websocket_write_handler handler, void * handler_context)
 {
 	size_t close_buffer_length = sizeof(status_code);
@@ -224,7 +219,7 @@ static void handle_error(struct cio_websocket *ws, enum cio_websocket_status_cod
 	}
 
 	prepare_close_job(ws, status_code, (const uint8_t *)reason, strlen(reason), NULL, NULL);
-	send_close_frame_and_close(ws);
+	send_frame(ws, CIO_WEBSOCKET_CLOSE_FRAME, &ws->write_close_job, true, close_frame_written);
 }
 
 static void close_timeout_handler(struct cio_timer *timer, void *handler_context, enum cio_error err)
@@ -323,25 +318,24 @@ static void handle_close_frame(struct cio_websocket *ws, uint8_t *data, uint64_t
 		}
 
 		prepare_close_job(ws, status_code, (const uint8_t *)reason, length, NULL, NULL);
-		send_close_frame_and_close(ws);
+		send_frame(ws, CIO_WEBSOCKET_CLOSE_FRAME, &ws->write_close_job, true, close_frame_written);
 	}
 }
 
 static void handle_ping_frame(struct cio_websocket *ws, uint8_t *data, uint64_t length)
 {
-	struct cio_write_buffer wbh;
-	cio_write_buffer_head_init(&wbh);
+	cio_write_buffer_head_init(&ws->wb_head_ping_payload_buffer);
 	if (length > 0) {
 		memcpy(ws->ping_payload_buffer, data, length);
 		cio_write_buffer_element_init(&ws->wb_ping_payload_buffer, ws->ping_payload_buffer, length);
-		cio_write_buffer_queue_tail(&wbh, &ws->wb_ping_payload_buffer);
+		cio_write_buffer_queue_tail(&ws->wb_head_ping_payload_buffer, &ws->wb_ping_payload_buffer);
 	}
 
 	if (ws->on_control != NULL) {
 		ws->on_control(ws, CIO_WEBSOCKET_PING_FRAME, data, length);
 	}
 
-	ws->write_pong_job.wbh = &wbh;
+	ws->write_pong_job.wbh = &ws->wb_head_ping_payload_buffer;
 	ws->write_pong_job.handler = NULL;
 	ws->write_pong_job.handler_context = NULL;
 
@@ -752,7 +746,7 @@ static void send_close_frame_wait_for_response(struct cio_websocket *ws)
 	return;
 
 err:
-	send_close_frame_and_close(ws);
+	send_frame(ws, CIO_WEBSOCKET_CLOSE_FRAME, &ws->write_close_job, true, close_frame_written);
 }
 
 static enum cio_error write_close_frame(struct cio_websocket *ws, enum cio_websocket_status_code status_code, const char *reason, cio_websocket_write_handler handler, void *handler_context)

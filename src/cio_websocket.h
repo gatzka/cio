@@ -250,6 +250,7 @@ struct cio_websocket {
 	struct cio_write_buffer wb_close_payload_buffer;
 	uint8_t close_payload_buffer[CIO_WEBSOCKET_SMALL_FRAME_SIZE];
 
+	struct cio_write_buffer wb_head_ping_payload_buffer;
 	struct cio_write_buffer wb_ping_payload_buffer;
 	uint8_t ping_payload_buffer[CIO_WEBSOCKET_SMALL_FRAME_SIZE];
 	/*! @endcond */
