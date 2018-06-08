@@ -156,6 +156,7 @@ enum cio_error cio_eventloop_run(struct cio_eventloop *loop)
 			 * The current event could have been removed via cio_linux_eventloop_remove
 			 */
 			if (likely(loop->current_ev != NULL) && (events_type & EPOLLOUT & ev->registered_events) != 0) {
+				cio_linux_eventloop_unregister_write(loop, ev);
 				ev->write_callback(ev->context);
 			}
 		}
