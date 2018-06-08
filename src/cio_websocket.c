@@ -53,10 +53,6 @@ enum close_handling {
 
 static void close(struct cio_websocket *ws)
 {
-	if (ws->ws_flags.self_initiated_close == 1) {
-		ws->close_timer.close(&ws->close_timer);
-	}
-
 	if (likely(ws->read_handler != NULL)) {
 		ws->read_handler(ws, ws->read_handler_context, CIO_EOF, NULL, 0, false, false);
 	}
@@ -118,6 +114,8 @@ static void close_frame_written(struct cio_buffered_stream *bs, void *handler_co
 	if (job->handler) {
 		job->handler(ws, job->handler_context, err);
 	}
+
+	// TODO: abort all outstanding write jobs with OPERATION_ABORTED
 
 	close(ws);
 }
@@ -308,6 +306,7 @@ static void handle_close_frame(struct cio_websocket *ws, uint8_t *data, uint64_t
 
 	if (ws->ws_flags.self_initiated_close == 1) {
 		ws->close_timer.cancel(&ws->close_timer);
+		ws->close_timer.close(&ws->close_timer);
 		close(ws);
 	} else {
 		char *reason;
