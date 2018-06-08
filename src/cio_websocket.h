@@ -236,7 +236,6 @@ struct cio_websocket {
 	struct cio_timer close_timer;
 	struct cio_utf8_state utf8_state;
 	cio_websocket_close_hook close_hook;
-	cio_buffered_stream_write_handler user_write_handler;
 	uint8_t received_mask[4];
 	uint16_t close_status;
 
@@ -249,12 +248,12 @@ struct cio_websocket {
 	struct cio_websocket_write_job *last_write_job;
 
 
-	struct cio_write_buffer *wbh;
-	struct cio_write_buffer wb_send_header;
 	struct cio_write_buffer wb_close_status;
-	struct cio_write_buffer wb_control_data;
-	uint8_t send_header[14];
-	uint8_t send_control_frame_buffer[CIO_WEBSOCKET_SMALL_FRAME_SIZE];
+	struct cio_write_buffer wb_close_payload_buffer;
+	uint8_t close_payload_buffer[CIO_WEBSOCKET_SMALL_FRAME_SIZE];
+
+	struct cio_write_buffer wb_ping_payload_buffer;
+	uint8_t ping_payload_buffer[CIO_WEBSOCKET_SMALL_FRAME_SIZE];
 	/*! @endcond */
 };
 
