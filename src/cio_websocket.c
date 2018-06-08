@@ -189,22 +189,9 @@ static bool is_status_code_invalid(uint16_t status_code)
 
 static void get_header(struct cio_buffered_stream *bs, void *handler_context, enum cio_error err, struct cio_read_buffer *buffer);
 
-static void prepare_close_message(struct cio_websocket *ws, struct cio_write_buffer *wbh, enum cio_websocket_status_code status_code, struct cio_write_buffer *reason)
+static void send_close_frame_and_close(struct cio_websocket *ws, struct cio_write_buffer *reason)
 {
-	ws->close_status = cio_htobe16(status_code);
-	cio_write_buffer_head_init(wbh);
-	cio_write_buffer_queue_tail(wbh, &ws->wb_close_status);
-	if (reason != NULL) {
-		cio_write_buffer_splice(reason, wbh);
-	}
-}
-
-static void send_close_frame_and_close(struct cio_websocket *ws, enum cio_websocket_status_code status_code, struct cio_write_buffer *reason)
-{
-	struct cio_write_buffer wbh;
-	prepare_close_message(ws, &wbh, status_code, reason);
-
-	ws->write_close_job.wbh = &wbh;
+	ws->write_close_job.wbh = reason;
 	ws->write_close_job.handler = NULL;
 	ws->write_close_job.handler_context = NULL;
 
@@ -219,11 +206,13 @@ static void handle_error(struct cio_websocket *ws, enum cio_websocket_status_cod
 
 	struct cio_write_buffer wbh;
 	cio_write_buffer_head_init(&wbh);
-	strncpy((char *)ws->close_payload_buffer, reason, sizeof(ws->close_payload_buffer) - sizeof(ws->close_status));
+	status_code = cio_htobe16(status_code);
+	memcpy(ws->close_payload_buffer, &status_code, sizeof(status_code));
+	memcpy(ws->close_payload_buffer + sizeof(status_code), reason, sizeof(ws->close_payload_buffer) - sizeof(status_code));
 	cio_write_buffer_element_init(&ws->wb_close_payload_buffer, ws->close_payload_buffer, strlen(reason));
 	cio_write_buffer_queue_tail(&wbh, &ws->wb_close_payload_buffer);
 
-	send_close_frame_and_close(ws, status_code, &wbh);
+	send_close_frame_and_close(ws, &wbh);
 }
 
 static void close_timeout_handler(struct cio_timer *timer, void *handler_context, enum cio_error err)
@@ -287,14 +276,14 @@ static void handle_close_frame(struct cio_websocket *ws, uint8_t *data, uint64_t
 	if (length >= 2) {
 		memcpy(&status_code, data, sizeof(status_code));
 		status_code = cio_be16toh(status_code);
+		if (unlikely(is_status_code_invalid(status_code))) {
+			handle_error(ws, CIO_WEBSOCKET_CLOSE_PROTOCOL_ERROR, "invalid status code in close");
+			return;
+		}
+
 		length -= sizeof(status_code);
 	} else {
 		status_code = CIO_WEBSOCKET_CLOSE_NORMAL;
-	}
-
-	if (unlikely(is_status_code_invalid(status_code))) {
-		handle_error(ws, CIO_WEBSOCKET_CLOSE_PROTOCOL_ERROR, "invalid status code in close");
-		return;
 	}
 
 	if (length > 0) {
@@ -314,17 +303,17 @@ static void handle_close_frame(struct cio_websocket *ws, uint8_t *data, uint64_t
 		ws->close_timer.cancel(&ws->close_timer);
 		close(ws);
 	} else {
-
+		status_code = cio_htobe16(status_code);
+		memcpy(ws->close_payload_buffer, &status_code, sizeof(status_code));
 		if (length > 0) {
-			memcpy(ws->close_payload_buffer, &data[sizeof(status_code)], length);
-			struct cio_write_buffer wbh;
-			cio_write_buffer_head_init(&wbh);
-			cio_write_buffer_element_init(&ws->wb_close_payload_buffer, ws->close_payload_buffer, length);
-			cio_write_buffer_queue_tail(&wbh, &ws->wb_close_payload_buffer);
-			send_close_frame_and_close(ws, (enum cio_websocket_status_code)status_code, &wbh);
-		} else {
-			send_close_frame_and_close(ws, (enum cio_websocket_status_code)status_code, NULL);
+			memcpy(ws->close_payload_buffer + sizeof(status_code), data + sizeof(status_code), sizeof(ws->close_payload_buffer) - sizeof(status_code));
 		}
+
+		struct cio_write_buffer wbh;
+		cio_write_buffer_head_init(&wbh);
+		cio_write_buffer_element_init(&ws->wb_close_payload_buffer, ws->close_payload_buffer, len);
+		cio_write_buffer_queue_tail(&wbh, &ws->wb_close_payload_buffer);
+		send_close_frame_and_close(ws, &wbh);
 	}
 }
 
@@ -736,12 +725,8 @@ static enum cio_error write_pong_frame(struct cio_websocket *ws, struct cio_writ
 	return CIO_SUCCESS;
 }
 
-static void send_close_frame_wait_for_response(struct cio_websocket *ws, enum cio_websocket_status_code status_code, struct cio_write_buffer *reason)
+static void send_close_frame_wait_for_response(struct cio_websocket *ws, struct cio_write_buffer *reason)
 {
-	struct cio_write_buffer wbh;
-
-	prepare_close_message(ws, &wbh, status_code, reason);
-
 	enum cio_error err = cio_timer_init(&ws->close_timer, ws->loop, NULL);
 	if (unlikely(err != CIO_SUCCESS)) {
 		goto err;
@@ -757,7 +742,7 @@ static void send_close_frame_wait_for_response(struct cio_websocket *ws, enum ci
 	return;
 
 err:
-	send_close_frame_and_close(ws, status_code, reason);
+	send_close_frame_and_close(ws, reason);
 }
 
 static enum cio_error write_close_frame(struct cio_websocket *ws, enum cio_websocket_status_code status_code, const char *reason, cio_websocket_write_handler handler, void *handler_context)
@@ -772,8 +757,10 @@ static enum cio_error write_close_frame(struct cio_websocket *ws, enum cio_webso
 
 	struct cio_write_buffer wbh;
 	cio_write_buffer_head_init(&wbh);
+	status_code = cio_htobe16(status_code);
+	memcpy(ws->close_payload_buffer, &status_code, sizeof(status_code));
 	if (reason != NULL) {
-		strncpy((char *)ws->close_payload_buffer, reason, sizeof(ws->close_payload_buffer) - sizeof(ws->close_status));
+		memcpy(ws->close_payload_buffer + sizeof(status_code), reason, sizeof(ws->close_payload_buffer) - sizeof(status_code));
 		cio_write_buffer_element_init(&ws->wb_close_payload_buffer, ws->close_payload_buffer, strlen(reason));
 		cio_write_buffer_queue_tail(&wbh, &ws->wb_close_payload_buffer);
 	}
@@ -782,10 +769,9 @@ static enum cio_error write_close_frame(struct cio_websocket *ws, enum cio_webso
 	ws->write_close_job.handler = handler;
 	ws->write_close_job.handler_context = handler_context;
 
-	send_close_frame_wait_for_response(ws, status_code, &wbh);
+	send_close_frame_wait_for_response(ws, &wbh);
 	return CIO_SUCCESS;
 }
-
 
 enum cio_error cio_websocket_init(struct cio_websocket *ws, bool is_server, cio_websocket_on_connect on_connect, cio_websocket_close_hook close_hook)
 {
@@ -817,7 +803,6 @@ enum cio_error cio_websocket_init(struct cio_websocket *ws, bool is_server, cio_
 	ws->first_write_job = NULL;
 	ws->last_write_job = NULL;
 
-	cio_write_buffer_element_init(&ws->wb_close_status, &ws->close_status, sizeof(ws->close_status));
 	cio_utf8_init(&ws->utf8_state);
 
 	return CIO_SUCCESS;

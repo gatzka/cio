@@ -237,7 +237,6 @@ struct cio_websocket {
 	struct cio_utf8_state utf8_state;
 	cio_websocket_close_hook close_hook;
 	uint8_t received_mask[4];
-	uint16_t close_status;
 
 	struct cio_websocket_write_job write_message_job;
 	struct cio_websocket_write_job write_ping_job;
@@ -247,8 +246,6 @@ struct cio_websocket {
 	struct cio_websocket_write_job *first_write_job;
 	struct cio_websocket_write_job *last_write_job;
 
-
-	struct cio_write_buffer wb_close_status;
 	struct cio_write_buffer wb_close_payload_buffer;
 	uint8_t close_payload_buffer[CIO_WEBSOCKET_SMALL_FRAME_SIZE];
 
