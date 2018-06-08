@@ -246,6 +246,7 @@ struct cio_websocket {
 	struct cio_websocket_write_job *first_write_job;
 	struct cio_websocket_write_job *last_write_job;
 
+	struct cio_write_buffer wb_head_close_payload_buffer;
 	struct cio_write_buffer wb_close_payload_buffer;
 	uint8_t close_payload_buffer[CIO_WEBSOCKET_SMALL_FRAME_SIZE];
 
