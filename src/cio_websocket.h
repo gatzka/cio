@@ -228,9 +228,6 @@ struct cio_websocket {
 	cio_websocket_read_handler read_handler;
 	void *read_handler_context;
 
-	cio_websocket_write_handler write_handler;
-	void *write_handler_context;
-
 	struct cio_buffered_stream *bs;
 	struct cio_read_buffer *rb;
 	struct cio_timer close_timer;

@@ -104,6 +104,18 @@ static void pong_written(struct cio_buffered_stream *bs, void *handler_context, 
 	}
 }
 
+static void response_close_frame_written(struct cio_buffered_stream *bs, void *handler_context, enum cio_error err)
+{
+	(void)bs;
+	(void)err;
+
+	struct cio_websocket_write_job *job = (struct cio_websocket_write_job *)handler_context;
+	struct cio_websocket *ws = container_of(job, struct cio_websocket, write_close_job);
+	remove_websocket_header(job);
+	job->wbh = NULL;
+	close(ws);
+}
+
 static void close_frame_written(struct cio_buffered_stream *bs, void *handler_context, enum cio_error err)
 {
 	(void)bs;
@@ -116,8 +128,6 @@ static void close_frame_written(struct cio_buffered_stream *bs, void *handler_co
 	}
 
 	// TODO: abort all outstanding write jobs with OPERATION_ABORTED
-
-	close(ws);
 }
 
 static void send_frame(struct cio_websocket *ws, enum cio_websocket_frame_type frame_type, struct cio_websocket_write_job *job, bool last_frame, cio_buffered_stream_write_handler handler)
@@ -210,6 +220,16 @@ static void prepare_close_job(struct cio_websocket *ws, enum cio_websocket_statu
 	ws->write_close_job.handler_context = handler_context;
 }
 
+static void close_timeout_handler(struct cio_timer *timer, void *handler_context, enum cio_error err)
+{
+	(void)timer;
+	if (err != CIO_OPERATION_ABORTED) {
+		struct cio_websocket *ws = (struct cio_websocket *)handler_context;
+		ws->close_timer.close(&ws->close_timer);
+		close(ws);
+	}
+}
+
 static void handle_error(struct cio_websocket *ws, enum cio_websocket_status_code status_code, const char *reason)
 {
 	if (ws->on_error != NULL) {
@@ -218,15 +238,7 @@ static void handle_error(struct cio_websocket *ws, enum cio_websocket_status_cod
 
 	prepare_close_job(ws, status_code, (const uint8_t *)reason, strlen(reason), NULL, NULL);
 	send_frame(ws, CIO_WEBSOCKET_CLOSE_FRAME, &ws->write_close_job, true, close_frame_written);
-}
-
-static void close_timeout_handler(struct cio_timer *timer, void *handler_context, enum cio_error err)
-{
-	(void)timer;
-	if (err != CIO_OPERATION_ABORTED) {
-		struct cio_websocket *ws = (struct cio_websocket *)handler_context;
-		close(ws);
-	}
+	close(ws);
 }
 
 static int payload_size_in_limit(const struct cio_write_buffer *payload, size_t limit)
@@ -317,7 +329,7 @@ static void handle_close_frame(struct cio_websocket *ws, uint8_t *data, uint64_t
 		}
 
 		prepare_close_job(ws, status_code, (const uint8_t *)reason, length, NULL, NULL);
-		send_frame(ws, CIO_WEBSOCKET_CLOSE_FRAME, &ws->write_close_job, true, close_frame_written);
+		send_frame(ws, CIO_WEBSOCKET_CLOSE_FRAME, &ws->write_close_job, true, response_close_frame_written);
 	}
 }
 
@@ -682,7 +694,7 @@ static enum cio_error write_message(struct cio_websocket *ws, struct cio_write_b
 	return CIO_SUCCESS;
 }
 
-static enum cio_error write_ping_frame(struct cio_websocket *ws, struct cio_write_buffer *payload, cio_websocket_write_handler handler, void *handler_context)
+static enum cio_error write_ping_message(struct cio_websocket *ws, struct cio_write_buffer *payload, cio_websocket_write_handler handler, void *handler_context)
 {
 	if (unlikely(payload_size_in_limit(payload, CIO_WEBSOCKET_SMALL_FRAME_SIZE) == 0)) {
 		handler(ws, handler_context, CIO_MESSAGE_TOO_LONG);
@@ -705,7 +717,7 @@ static enum cio_error write_ping_frame(struct cio_websocket *ws, struct cio_writ
 	return CIO_SUCCESS;
 }
 
-static enum cio_error write_pong_frame(struct cio_websocket *ws, struct cio_write_buffer *payload, cio_websocket_write_handler handler, void *handler_context)
+static enum cio_error write_pong_message(struct cio_websocket *ws, struct cio_write_buffer *payload, cio_websocket_write_handler handler, void *handler_context)
 {
 	if (unlikely(payload_size_in_limit(payload, CIO_WEBSOCKET_SMALL_FRAME_SIZE) == 0)) {
 		handler(ws, handler_context, CIO_MESSAGE_TOO_LONG);
@@ -728,7 +740,7 @@ static enum cio_error write_pong_frame(struct cio_websocket *ws, struct cio_writ
 	return CIO_SUCCESS;
 }
 
-static enum cio_error write_close_frame(struct cio_websocket *ws, enum cio_websocket_status_code status_code, const char *reason, cio_websocket_write_handler handler, void *handler_context)
+static enum cio_error write_close_message(struct cio_websocket *ws, enum cio_websocket_status_code status_code, const char *reason, cio_websocket_write_handler handler, void *handler_context)
 {
 	if (unlikely(ws->write_close_job.wbh != NULL)) {
 		return CIO_OPERATION_NOT_PERMITTED;
@@ -751,9 +763,10 @@ static enum cio_error write_close_frame(struct cio_websocket *ws, enum cio_webso
 	}
 
 	ws->ws_flags.self_initiated_close = 1;
-err:
 	send_frame(ws, CIO_WEBSOCKET_CLOSE_FRAME, &ws->write_close_job, true, close_frame_written);
-
+	return CIO_SUCCESS;
+err:
+	close(ws);
 	return CIO_SUCCESS;
 }
 
@@ -769,12 +782,11 @@ enum cio_error cio_websocket_init(struct cio_websocket *ws, bool is_server, cio_
 	ws->read_handler = NULL;
 
 	ws->on_error = NULL;
-	ws->close = write_close_frame;
+	ws->close = write_close_message;
 	ws->write_message = write_message;
-	ws->write_ping = write_ping_frame;
-	ws->write_pong = write_pong_frame;
+	ws->write_ping = write_ping_message;
+	ws->write_pong = write_pong_message;
 	ws->close_hook = close_hook;
-	ws->write_handler = NULL;
 	ws->ws_flags.is_server = is_server ? 1 : 0;
 	ws->ws_flags.frag_opcode = 0;
 	ws->ws_flags.self_initiated_close = 0;
