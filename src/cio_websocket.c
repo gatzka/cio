@@ -195,40 +195,7 @@ static void message_written(struct cio_buffered_stream *bs, void *handler_contex
 	struct cio_websocket_write_job *job = dequeue_job(ws);
 	remove_websocket_header(job);
 	job->wbh = NULL;
-	job->handler(ws, job->handler_context, err);
 
-	if (ws->first_write_job != NULL) {
-		 err = send_frame(ws, ws->first_write_job);
-		 if (unlikely(err != CIO_SUCCESS)) {
-		 	handle_error(ws, CIO_WEBSOCKET_CLOSE_INTERNAL_ERROR, "could not send next frame");
-		 }
-	}
-}
-
-static void ping_written(struct cio_buffered_stream *bs, void *handler_context, enum cio_error err)
-{
-	(void)bs;
-	struct cio_websocket *ws = (struct cio_websocket *)handler_context;
-	struct cio_websocket_write_job *job = dequeue_job(ws);
-	remove_websocket_header(job);
-	job->wbh = NULL;
-	job->handler(ws, job->handler_context, err);
-
-	if (ws->first_write_job != NULL) {
-		 err = send_frame(ws, ws->first_write_job);
-		 if (unlikely(err != CIO_SUCCESS)) {
-		 	handle_error(ws, CIO_WEBSOCKET_CLOSE_INTERNAL_ERROR, "could not send next frame");
-		 }
-	}
-}
-
-static void pong_written(struct cio_buffered_stream *bs, void *handler_context, enum cio_error err)
-{
-	(void)bs;
-	struct cio_websocket *ws = (struct cio_websocket *)handler_context;
-	struct cio_websocket_write_job *job = dequeue_job(ws);
-	remove_websocket_header(job);
-	job->wbh = NULL;
 	if (likely(job->handler != NULL)) {
 		job->handler(ws, job->handler_context, err);
 	}
@@ -411,7 +378,7 @@ static void handle_ping_frame(struct cio_websocket *ws, uint8_t *data, uint64_t 
 	ws->write_pong_job.handler_context = NULL;
 	ws->write_pong_job.frame_type = CIO_WEBSOCKET_PONG_FRAME;
 	ws->write_pong_job.last_frame = true;
-	ws->write_pong_job.stream_handler = pong_written;
+	ws->write_pong_job.stream_handler = message_written;
 
 	enum cio_error err = send_frame(ws, &ws->write_pong_job);
 	if (unlikely(err != CIO_SUCCESS)) {
@@ -783,7 +750,7 @@ static enum cio_error write_ping_message(struct cio_websocket *ws, struct cio_wr
 	ws->write_ping_job.handler_context = handler_context;
 	ws->write_ping_job.frame_type = CIO_WEBSOCKET_PING_FRAME;
 	ws->write_ping_job.last_frame = true;
-	ws->write_ping_job.stream_handler = ping_written;
+	ws->write_ping_job.stream_handler = message_written;
 
 
 	return send_frame(ws, &ws->write_ping_job);
@@ -809,7 +776,7 @@ static enum cio_error write_pong_message(struct cio_websocket *ws, struct cio_wr
 	ws->write_pong_job.handler_context = handler_context;
 	ws->write_pong_job.frame_type = CIO_WEBSOCKET_PONG_FRAME;
 	ws->write_pong_job.last_frame = true;
-	ws->write_pong_job.stream_handler = pong_written;
+	ws->write_pong_job.stream_handler = message_written;
 
 	return send_frame(ws, &ws->write_pong_job);
 }
