@@ -88,11 +88,15 @@ enum cio_websocket_frame_type {
 #define CIO_WEBSOCKET_SMALL_FRAME_SIZE 125
 
 struct cio_websocket_write_job {
+	struct cio_websocket_write_job *next;
 	struct cio_write_buffer *wbh;
 	struct cio_write_buffer websocket_header;
 	uint8_t send_header[14];
 	cio_websocket_write_handler handler;
 	void *handler_context;
+	enum cio_websocket_frame_type frame_type;
+	bool last_frame;
+	cio_buffered_stream_write_handler stream_handler;
 };
 
 struct cio_websocket {
