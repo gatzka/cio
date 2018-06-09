@@ -14,7 +14,7 @@ matrix:
 # Coverity build, must be the first!
   - compiler: gcc
     env:
-    - MATRIX_EVAL="CMAKE_C_COMPILER=gcc && CMAKE_BUILD_TYPE=Debug && COVERAGE_INFO=1 && CIO_SANITIZE=1"
+    - MATRIX_EVAL="CMAKE_C_COMPILER=gcc && CMAKE_BUILD_TYPE=Debug && COVERAGE_INFO=1 && CIO_SANITIZE=ON"
     addons:
       coverity_scan:
         project:
@@ -35,7 +35,7 @@ matrix:
   - compiler: gcc
     env:
     - BUILD_NAME="linux-sonar-analysis"
-    - MATRIX_EVAL="CMAKE_C_COMPILER=gcc && CMAKE_BUILD_TYPE=Debug && CIO_SANITIZE=1"
+    - MATRIX_EVAL="CMAKE_C_COMPILER=gcc && CMAKE_BUILD_TYPE=Debug && CIO_SANITIZE=ON"
     script:
     - cmake ./
     - build-wrapper-linux-x86-64 --out-dir bw-output make
@@ -60,7 +60,7 @@ matrix:
 
   - compiler: gcc
     env:
-    - MATRIX_EVAL="CMAKE_C_COMPILER=gcc && CMAKE_BUILD_TYPE=Release && CIO_SANITIZE=1"
+    - MATRIX_EVAL="CMAKE_C_COMPILER=gcc && CMAKE_BUILD_TYPE=Release && CIO_SANITIZE=ON"
     - CREATE_DOXY=true
     addons:
       apt:
@@ -70,7 +70,7 @@ matrix:
         - doxygen
   - compiler: gcc
     env:
-    - MATRIX_EVAL="CMAKE_C_COMPILER=gcc-7 && CMAKE_BUILD_TYPE=Debug && CIO_SANITIZE=1"
+    - MATRIX_EVAL="CMAKE_C_COMPILER=gcc-7 && CMAKE_BUILD_TYPE=Debug && CIO_SANITIZE=ON"
     addons:
       apt:
         sources:
@@ -81,7 +81,7 @@ matrix:
         - cmake-data
   - compiler: gcc
     env:
-    - MATRIX_EVAL="CMAKE_C_COMPILER=gcc-7 && CMAKE_BUILD_TYPE=Release && CIO_SANITIZE=1"
+    - MATRIX_EVAL="CMAKE_C_COMPILER=gcc-7 && CMAKE_BUILD_TYPE=Release && CIO_SANITIZE=ON"
     addons:
       apt:
         sources:
@@ -92,7 +92,7 @@ matrix:
         - cmake-data
   - compiler: clang
     env:
-    - MATRIX_EVAL="CMAKE_C_COMPILER=clang && CMAKE_BUILD_TYPE=Debug && CIO_SANITIZE=1"
+    - MATRIX_EVAL="CMAKE_C_COMPILER=clang && CMAKE_BUILD_TYPE=Debug && CIO_SANITIZE=ON"
     addons:
       apt:
         packages:
@@ -100,7 +100,7 @@ matrix:
         - cmake-data
   - compiler: clang
     env:
-    - MATRIX_EVAL="CMAKE_C_COMPILER=clang && CMAKE_BUILD_TYPE=Release && CIO_SANITIZE=1"
+    - MATRIX_EVAL="CMAKE_C_COMPILER=clang && CMAKE_BUILD_TYPE=Release && CIO_SANITIZE=ON"
     addons:
       apt:
         packages:
@@ -108,7 +108,7 @@ matrix:
         - cmake-data
   - compiler: clang
     env:
-    - MATRIX_EVAL="CMAKE_C_COMPILER=clang-5.0 && CMAKE_BUILD_TYPE=Debug && CIO_SANITIZE=1"
+    - MATRIX_EVAL="CMAKE_C_COMPILER=clang-5.0 && CMAKE_BUILD_TYPE=Debug && CIO_SANITIZE=ON"
     addons:
       apt:
         sources:
@@ -119,7 +119,7 @@ matrix:
         - cmake-data
   - compiler: clang
     env:
-    - MATRIX_EVAL="CMAKE_C_COMPILER=clang-5.0 && CMAKE_BUILD_TYPE=Release && CIO_SANITIZE=1"
+    - MATRIX_EVAL="CMAKE_C_COMPILER=clang-5.0 && CMAKE_BUILD_TYPE=Release && CIO_SANITIZE=ON"
     addons:
       apt:
         sources:
@@ -131,7 +131,7 @@ matrix:
   - compiler: clang
     env:
     - MATRIX_EVAL="CMAKE_C_COMPILER=/usr/share/clang/scan-build-5.0/libexec/ccc-analyzer
-      && CMAKE_BUILD_TYPE=Debug && SCAN_BUILD=1 && CIO_SANITIZE=1"
+      && CMAKE_BUILD_TYPE=Debug && SCAN_BUILD=1 && CIO_SANITIZE=ON"
     addons:
       apt:
         sources:
