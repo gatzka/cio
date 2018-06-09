@@ -46,11 +46,6 @@ static const unsigned int WS_MID_FRAME_SIZE = 65535;
 
 static const uint64_t close_timeout_ns = UINT64_C(10) * UINT64_C(1000) * UINT64_C(1000);
 
-enum close_handling {
-	CLOSE_IMMEDIATE,
-	CLOSE_WEBSOCKET_HANDSHAKE
-};
-
 static void close(struct cio_websocket *ws)
 {
 	if (likely(ws->read_handler != NULL)) {
