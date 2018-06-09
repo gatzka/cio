@@ -791,8 +791,8 @@ enum cio_error cio_websocket_init(struct cio_websocket *ws, bool is_server, cio_
 	ws->write_ping_job.wbh = NULL;
 	ws->write_pong_job.wbh = NULL;
 	ws->write_close_job.wbh = NULL;
+
 	ws->first_write_job = NULL;
-	ws->last_write_job = NULL;
 
 	cio_utf8_init(&ws->utf8_state);
 
