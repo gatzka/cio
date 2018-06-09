@@ -188,13 +188,20 @@ static void handle_error(struct cio_websocket *ws, enum cio_websocket_status_cod
 	close(ws);
 }
 
+static inline struct cio_websocket_write_job *get_job(struct cio_websocket *ws)
+{
+	struct cio_websocket_write_job *job = dequeue_job(ws);
+	remove_websocket_header(job);
+	job->wbh = NULL;
+
+	return job;
+}
+
 static void message_written(struct cio_buffered_stream *bs, void *handler_context, enum cio_error err)
 {
 	(void)bs;
 	struct cio_websocket *ws = (struct cio_websocket *)handler_context;
-	struct cio_websocket_write_job *job = dequeue_job(ws);
-	remove_websocket_header(job);
-	job->wbh = NULL;
+	struct cio_websocket_write_job *job = get_job(ws);
 
 	if (likely(job->handler != NULL)) {
 		job->handler(ws, job->handler_context, err);
@@ -214,9 +221,7 @@ static void response_close_frame_written(struct cio_buffered_stream *bs, void *h
 	(void)err;
 
 	struct cio_websocket *ws = (struct cio_websocket *)handler_context;
-	struct cio_websocket_write_job *job = dequeue_job(ws);
-	remove_websocket_header(job);
-	job->wbh = NULL;
+	get_job(ws);
 
 	abort_write_jobs(ws);
 	close(ws);
@@ -226,14 +231,13 @@ static void close_frame_written(struct cio_buffered_stream *bs, void *handler_co
 {
 	(void)bs;
 	struct cio_websocket *ws = (struct cio_websocket *)handler_context;
-	struct cio_websocket_write_job *job = dequeue_job(ws);
-	remove_websocket_header(job);
-	job->wbh = NULL;
+	struct cio_websocket_write_job *job = get_job(ws);
+
+	abort_write_jobs(ws);
+
 	if (job->handler) {
 		job->handler(ws, job->handler_context, err);
 	}
-
-	abort_write_jobs(ws);
 }
 
 static bool is_status_code_invalid(uint16_t status_code)
