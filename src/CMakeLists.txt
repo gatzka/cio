@@ -19,11 +19,7 @@ if(is_linux)
         "linux/*.c"
         "linux/*.h"
     )
-    include_directories(${CMAKE_CURRENT_SOURCE_DIR}/linux/)
 endif()
-
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/)
-include_directories(${PROJECT_BINARY_DIR}/generated/)
 
 file(GLOB CIO_FILES
     "*.c"
@@ -77,6 +73,11 @@ add_library(cio_static
 set_target_properties(cio_static
     PROPERTIES OUTPUT_NAME "cio"
 )
+target_include_directories(cio_static PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/)
+target_include_directories(cio_static PUBLIC ${PROJECT_BINARY_DIR}/generated/)
+if(is_linux)
+    target_include_directories(cio_static PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/linux/)
+endif()
 
 add_library(cio SHARED
     ${CIO_FILES}
@@ -85,6 +86,11 @@ add_library(cio SHARED
 set_target_properties(cio
     PROPERTIES OUTPUT_NAME "cio"
 )
+target_include_directories(cio PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/)
+target_include_directories(cio PUBLIC ${PROJECT_BINARY_DIR}/generated/)
+if(is_linux)
+    target_include_directories(cio PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/linux/)
+endif()
 
 file(GLOB LIB_HEADERS
    ${PROJECT_SOURCE_DIR}/*.h
