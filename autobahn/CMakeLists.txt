@@ -9,7 +9,9 @@ endif()
 
 include(sanitizer)
 
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../src/ ${CMAKE_CURRENT_SOURCE_DIR}/../src/linux/)
+if (NOT TARGET cio_static)
+    add_subdirectory(../src/ lib)
+endif()
 
 set(WARN_SWITCHES "-Wall -Wextra -Werror -Wshadow -Winit-self -Wcast-qual -Wcast-align -Wformat=2 -Wwrite-strings -Wmissing-prototypes -Wstrict-overflow=5 -pedantic")
 set(CMAKE_C_FLAGS "-pipe -fno-common -std=c11 ${WARN_SWITCHES} ${CMAKE_C_FLAGS}")
