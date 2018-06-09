@@ -46,6 +46,42 @@ static const unsigned int WS_MID_FRAME_SIZE = 65535;
 
 static const uint64_t close_timeout_ns = UINT64_C(10) * UINT64_C(1000) * UINT64_C(1000);
 
+static void enqueue_job(struct cio_websocket *ws, struct cio_websocket_write_job *job)
+{
+	if (ws->first_write_job == NULL) {
+		ws->first_write_job = job;
+		ws->last_write_job = job;
+	} else {
+		ws->last_write_job->next = job;
+		ws->last_write_job = job;
+	}
+}
+
+static struct cio_websocket_write_job *dequeue_job(struct cio_websocket *ws)
+{
+	struct cio_websocket_write_job *job = ws->first_write_job;
+	if (job == NULL) {
+		return NULL;
+	} else if (ws->first_write_job == ws->last_write_job) {
+		ws->first_write_job = NULL;
+	} else {
+		ws->first_write_job = job->next;
+	}
+
+	return job;
+}
+
+static void abort_write_jobs(struct cio_websocket *ws)
+{
+	struct cio_websocket_write_job *job = dequeue_job(ws);
+
+	while (job != NULL) {
+		job->wbh = NULL;
+		job->handler(ws, job->handler_context, CIO_OPERATION_ABORTED);
+		job = dequeue_job(ws);
+	}
+}
+
 static void close(struct cio_websocket *ws)
 {
 	if (likely(ws->read_handler != NULL)) {
@@ -67,65 +103,7 @@ static void remove_websocket_header(const struct cio_websocket_write_job *job)
 	cio_write_buffer_queue_dequeue(job->wbh);
 }
 
-static void message_written(struct cio_buffered_stream *bs, void *handler_context, enum cio_error err)
-{
-	(void)bs;
-	struct cio_websocket_write_job *job = (struct cio_websocket_write_job *)handler_context;
-	struct cio_websocket *ws = container_of(job, struct cio_websocket, write_message_job);
-	remove_websocket_header(job);
-	job->wbh = NULL;
-	job->handler(ws, job->handler_context, err);
-}
-
-static void ping_written(struct cio_buffered_stream *bs, void *handler_context, enum cio_error err)
-{
-	(void)bs;
-	struct cio_websocket_write_job *job = (struct cio_websocket_write_job *)handler_context;
-	struct cio_websocket *ws = container_of(job, struct cio_websocket, write_ping_job);
-	remove_websocket_header(job);
-	job->wbh = NULL;
-	job->handler(ws, job->handler_context, err);
-}
-
-static void pong_written(struct cio_buffered_stream *bs, void *handler_context, enum cio_error err)
-{
-	(void)bs;
-	struct cio_websocket_write_job *job = (struct cio_websocket_write_job *)handler_context;
-	struct cio_websocket *ws = container_of(job, struct cio_websocket, write_pong_job);
-	remove_websocket_header(job);
-	job->wbh = NULL;
-	if (job->handler) {
-		job->handler(ws, job->handler_context, err);
-	}
-}
-
-static void response_close_frame_written(struct cio_buffered_stream *bs, void *handler_context, enum cio_error err)
-{
-	(void)bs;
-	(void)err;
-
-	struct cio_websocket_write_job *job = (struct cio_websocket_write_job *)handler_context;
-	struct cio_websocket *ws = container_of(job, struct cio_websocket, write_close_job);
-	remove_websocket_header(job);
-	job->wbh = NULL;
-	close(ws);
-}
-
-static void close_frame_written(struct cio_buffered_stream *bs, void *handler_context, enum cio_error err)
-{
-	(void)bs;
-	struct cio_websocket_write_job *job = (struct cio_websocket_write_job *)handler_context;
-	struct cio_websocket *ws = container_of(job, struct cio_websocket, write_close_job);
-	remove_websocket_header(job);
-	job->wbh = NULL;
-	if (job->handler) {
-		job->handler(ws, job->handler_context, err);
-	}
-
-	// TODO: abort all outstanding write jobs with OPERATION_ABORTED
-}
-
-static enum cio_error send_frame(struct cio_websocket *ws, enum cio_websocket_frame_type frame_type, struct cio_websocket_write_job *job, bool last_frame, cio_buffered_stream_write_handler handler)
+static enum cio_error send_frame(struct cio_websocket *ws, struct cio_websocket_write_job *job)
 {
 	uint8_t first_len;
 	size_t header_index = 2;
@@ -137,8 +115,8 @@ static enum cio_error send_frame(struct cio_websocket *ws, enum cio_websocket_fr
 		length += element->data.element.length;
 	}
 
-	uint8_t first_byte = (uint8_t)frame_type;
-	if (last_frame) {
+	uint8_t first_byte = (uint8_t)job->frame_type;
+	if (job->last_frame) {
 		first_byte |= WS_HEADER_FIN;
 	}
 
@@ -171,7 +149,124 @@ static enum cio_error send_frame(struct cio_websocket *ws, enum cio_websocket_fr
 
 	cio_write_buffer_element_init(&job->websocket_header, job->send_header, header_index);
 	add_websocket_header(job);
-	return ws->bs->write(ws->bs, job->wbh, handler, job);
+	enqueue_job(ws, job);
+	return ws->bs->write(ws->bs, job->wbh, job->stream_handler, ws);
+}
+
+static void prepare_close_job(struct cio_websocket *ws, enum cio_websocket_status_code status_code, const uint8_t *reason, size_t reason_length, cio_websocket_write_handler handler, void *handler_context, cio_buffered_stream_write_handler stream_handler)
+{
+	size_t close_buffer_length = sizeof(status_code);
+	status_code = cio_htobe16(status_code);
+	memcpy(ws->close_payload_buffer, &status_code, sizeof(status_code));
+	if (reason != NULL) {
+		size_t copy_len = MIN(reason_length, sizeof(ws->close_payload_buffer) - sizeof(status_code));
+		memcpy(ws->close_payload_buffer + sizeof(status_code), reason, copy_len);
+		close_buffer_length += copy_len;
+	}
+
+	cio_write_buffer_head_init(&ws->wb_head_close_payload_buffer);
+	cio_write_buffer_element_init(&ws->wb_close_payload_buffer, ws->close_payload_buffer, close_buffer_length);
+	cio_write_buffer_queue_tail(&ws->wb_head_close_payload_buffer, &ws->wb_close_payload_buffer);
+	ws->write_close_job.wbh = &ws->wb_head_close_payload_buffer;
+	ws->write_close_job.handler = handler;
+	ws->write_close_job.handler_context = handler_context;
+	ws->write_close_job.frame_type = CIO_WEBSOCKET_CLOSE_FRAME;
+	ws->write_close_job.last_frame = true;
+	ws->write_close_job.stream_handler = stream_handler;
+}
+
+static void close_frame_written(struct cio_buffered_stream *bs, void *handler_context, enum cio_error err);
+
+static void handle_error(struct cio_websocket *ws, enum cio_websocket_status_code status_code, const char *reason)
+{
+	if (ws->on_error != NULL) {
+		ws->on_error(ws, status_code, reason);
+	}
+
+	prepare_close_job(ws, status_code, (const uint8_t *)reason, strlen(reason), NULL, NULL, close_frame_written);
+	send_frame(ws, &ws->write_close_job);
+	close(ws);
+}
+
+static void message_written(struct cio_buffered_stream *bs, void *handler_context, enum cio_error err)
+{
+	(void)bs;
+	struct cio_websocket *ws = (struct cio_websocket *)handler_context;
+	struct cio_websocket_write_job *job = dequeue_job(ws);
+	remove_websocket_header(job);
+	job->wbh = NULL;
+	job->handler(ws, job->handler_context, err);
+
+	if (ws->first_write_job != NULL) {
+		 err = send_frame(ws, ws->first_write_job);
+		 if (unlikely(err != CIO_SUCCESS)) {
+		 	handle_error(ws, CIO_WEBSOCKET_CLOSE_INTERNAL_ERROR, "could not send next frame");
+		 }
+	}
+}
+
+static void ping_written(struct cio_buffered_stream *bs, void *handler_context, enum cio_error err)
+{
+	(void)bs;
+	struct cio_websocket *ws = (struct cio_websocket *)handler_context;
+	struct cio_websocket_write_job *job = dequeue_job(ws);
+	remove_websocket_header(job);
+	job->wbh = NULL;
+	job->handler(ws, job->handler_context, err);
+
+	if (ws->first_write_job != NULL) {
+		 err = send_frame(ws, ws->first_write_job);
+		 if (unlikely(err != CIO_SUCCESS)) {
+		 	handle_error(ws, CIO_WEBSOCKET_CLOSE_INTERNAL_ERROR, "could not send next frame");
+		 }
+	}
+}
+
+static void pong_written(struct cio_buffered_stream *bs, void *handler_context, enum cio_error err)
+{
+	(void)bs;
+	struct cio_websocket *ws = (struct cio_websocket *)handler_context;
+	struct cio_websocket_write_job *job = dequeue_job(ws);
+	remove_websocket_header(job);
+	job->wbh = NULL;
+	if (likely(job->handler != NULL)) {
+		job->handler(ws, job->handler_context, err);
+	}
+
+	if (ws->first_write_job != NULL) {
+		 err = send_frame(ws, ws->first_write_job);
+		 if (unlikely(err != CIO_SUCCESS)) {
+		 	handle_error(ws, CIO_WEBSOCKET_CLOSE_INTERNAL_ERROR, "could not send next frame");
+		 }
+	}
+}
+
+static void response_close_frame_written(struct cio_buffered_stream *bs, void *handler_context, enum cio_error err)
+{
+	(void)bs;
+	(void)err;
+
+	struct cio_websocket *ws = (struct cio_websocket *)handler_context;
+	struct cio_websocket_write_job *job = dequeue_job(ws);
+	remove_websocket_header(job);
+	job->wbh = NULL;
+
+	abort_write_jobs(ws);
+	close(ws);
+}
+
+static void close_frame_written(struct cio_buffered_stream *bs, void *handler_context, enum cio_error err)
+{
+	(void)bs;
+	struct cio_websocket *ws = (struct cio_websocket *)handler_context;
+	struct cio_websocket_write_job *job = dequeue_job(ws);
+	remove_websocket_header(job);
+	job->wbh = NULL;
+	if (job->handler) {
+		job->handler(ws, job->handler_context, err);
+	}
+
+	abort_write_jobs(ws);
 }
 
 static bool is_status_code_invalid(uint16_t status_code)
@@ -193,25 +288,6 @@ static bool is_status_code_invalid(uint16_t status_code)
 
 static void get_header(struct cio_buffered_stream *bs, void *handler_context, enum cio_error err, struct cio_read_buffer *buffer);
 
-static void prepare_close_job(struct cio_websocket *ws, enum cio_websocket_status_code status_code, const uint8_t *reason, size_t reason_length, cio_websocket_write_handler handler, void * handler_context)
-{
-	size_t close_buffer_length = sizeof(status_code);
-	status_code = cio_htobe16(status_code);
-	memcpy(ws->close_payload_buffer, &status_code, sizeof(status_code));
-	if (reason != NULL) {
-		size_t copy_len = MIN(reason_length, sizeof(ws->close_payload_buffer) - sizeof(status_code));
-		memcpy(ws->close_payload_buffer + sizeof(status_code), reason, copy_len);
-		close_buffer_length += copy_len;
-	}
-
-	cio_write_buffer_head_init(&ws->wb_head_close_payload_buffer);
-	cio_write_buffer_element_init(&ws->wb_close_payload_buffer, ws->close_payload_buffer, close_buffer_length);
-	cio_write_buffer_queue_tail(&ws->wb_head_close_payload_buffer, &ws->wb_close_payload_buffer);
-	ws->write_close_job.wbh = &ws->wb_head_close_payload_buffer;
-	ws->write_close_job.handler = handler;
-	ws->write_close_job.handler_context = handler_context;
-}
-
 static void close_timeout_handler(struct cio_timer *timer, void *handler_context, enum cio_error err)
 {
 	(void)timer;
@@ -220,17 +296,6 @@ static void close_timeout_handler(struct cio_timer *timer, void *handler_context
 		ws->close_timer.close(&ws->close_timer);
 		close(ws);
 	}
-}
-
-static void handle_error(struct cio_websocket *ws, enum cio_websocket_status_code status_code, const char *reason)
-{
-	if (ws->on_error != NULL) {
-		ws->on_error(ws, status_code, reason);
-	}
-
-	prepare_close_job(ws, status_code, (const uint8_t *)reason, strlen(reason), NULL, NULL);
-	send_frame(ws, CIO_WEBSOCKET_CLOSE_FRAME, &ws->write_close_job, true, close_frame_written);
-	close(ws);
 }
 
 static int payload_size_in_limit(const struct cio_write_buffer *payload, size_t limit)
@@ -320,8 +385,8 @@ static void handle_close_frame(struct cio_websocket *ws, uint8_t *data, uint64_t
 			reason = NULL;
 		}
 
-		prepare_close_job(ws, status_code, (const uint8_t *)reason, length, NULL, NULL);
-		enum cio_error err = send_frame(ws, CIO_WEBSOCKET_CLOSE_FRAME, &ws->write_close_job, true, response_close_frame_written);
+		prepare_close_job(ws, status_code, (const uint8_t *)reason, length, NULL, NULL, response_close_frame_written);
+		enum cio_error err = send_frame(ws, &ws->write_close_job);
 		if (unlikely(err != CIO_SUCCESS)) {
 			handle_error(ws, CIO_WEBSOCKET_CLOSE_INTERNAL_ERROR, "could not send close frame");
 		}
@@ -344,8 +409,11 @@ static void handle_ping_frame(struct cio_websocket *ws, uint8_t *data, uint64_t 
 	ws->write_pong_job.wbh = &ws->wb_head_ping_payload_buffer;
 	ws->write_pong_job.handler = NULL;
 	ws->write_pong_job.handler_context = NULL;
+	ws->write_pong_job.frame_type = CIO_WEBSOCKET_PONG_FRAME;
+	ws->write_pong_job.last_frame = true;
+	ws->write_pong_job.stream_handler = pong_written;
 
-	enum cio_error err = send_frame(ws, CIO_WEBSOCKET_PONG_FRAME, &ws->write_pong_job, true, pong_written);
+	enum cio_error err = send_frame(ws, &ws->write_pong_job);
 	if (unlikely(err != CIO_SUCCESS)) {
 		handle_error(ws, CIO_WEBSOCKET_CLOSE_INTERNAL_ERROR, "could not send close frame");
 	} else {
@@ -665,10 +733,6 @@ static enum cio_error write_message(struct cio_websocket *ws, struct cio_write_b
 		return CIO_INVALID_ARGUMENT;
 	}
 
-	ws->write_message_job.wbh = payload;
-	ws->write_message_job.handler = handler;
-	ws->write_message_job.handler_context = handler_context;
-
 	enum cio_websocket_frame_type kind;
 
 	if (ws->ws_flags.fragmented_write == 1) {
@@ -689,7 +753,14 @@ static enum cio_error write_message(struct cio_websocket *ws, struct cio_write_b
 		kind = CIO_WEBSOCKET_CONTINUATION_FRAME;
 	}
 
-	return send_frame(ws, kind, &ws->write_message_job, last_frame, message_written);
+	ws->write_message_job.wbh = payload;
+	ws->write_message_job.handler = handler;
+	ws->write_message_job.handler_context = handler_context;
+	ws->write_message_job.frame_type = kind;
+	ws->write_message_job.last_frame = last_frame;
+	ws->write_message_job.stream_handler = message_written;
+
+	return send_frame(ws, &ws->write_message_job);
 }
 
 static enum cio_error write_ping_message(struct cio_websocket *ws, struct cio_write_buffer *payload, cio_websocket_write_handler handler, void *handler_context)
@@ -710,8 +781,12 @@ static enum cio_error write_ping_message(struct cio_websocket *ws, struct cio_wr
 	ws->write_ping_job.wbh = payload;
 	ws->write_ping_job.handler = handler;
 	ws->write_ping_job.handler_context = handler_context;
+	ws->write_ping_job.frame_type = CIO_WEBSOCKET_PING_FRAME;
+	ws->write_ping_job.last_frame = true;
+	ws->write_ping_job.stream_handler = ping_written;
 
-	return send_frame(ws, CIO_WEBSOCKET_PING_FRAME, &ws->write_ping_job, true, ping_written);
+
+	return send_frame(ws, &ws->write_ping_job);
 }
 
 static enum cio_error write_pong_message(struct cio_websocket *ws, struct cio_write_buffer *payload, cio_websocket_write_handler handler, void *handler_context)
@@ -732,8 +807,11 @@ static enum cio_error write_pong_message(struct cio_websocket *ws, struct cio_wr
 	ws->write_pong_job.wbh = payload;
 	ws->write_pong_job.handler = handler;
 	ws->write_pong_job.handler_context = handler_context;
+	ws->write_pong_job.frame_type = CIO_WEBSOCKET_PONG_FRAME;
+	ws->write_pong_job.last_frame = true;
+	ws->write_pong_job.stream_handler = pong_written;
 
-	return send_frame(ws, CIO_WEBSOCKET_PING_FRAME, &ws->write_pong_job, true, pong_written);
+	return send_frame(ws, &ws->write_pong_job);
 }
 
 static enum cio_error write_close_message(struct cio_websocket *ws, enum cio_websocket_status_code status_code, const char *reason, cio_websocket_write_handler handler, void *handler_context)
@@ -746,7 +824,7 @@ static enum cio_error write_close_message(struct cio_websocket *ws, enum cio_web
 		return CIO_INVALID_ARGUMENT;
 	}
 
-	prepare_close_job(ws, status_code, (const uint8_t *)reason, strlen(reason), handler, handler_context);
+	prepare_close_job(ws, status_code, (const uint8_t *)reason, strlen(reason), handler, handler_context, close_frame_written);
 
 	enum cio_error err = cio_timer_init(&ws->close_timer, ws->loop, NULL);
 	if (unlikely(err != CIO_SUCCESS)) {
@@ -759,7 +837,7 @@ static enum cio_error write_close_message(struct cio_websocket *ws, enum cio_web
 	}
 
 	ws->ws_flags.self_initiated_close = 1;
-	return send_frame(ws, CIO_WEBSOCKET_CLOSE_FRAME, &ws->write_close_job, true, close_frame_written);
+	return send_frame(ws, &ws->write_close_job);
 err:
 	close(ws);
 	return CIO_SUCCESS;
