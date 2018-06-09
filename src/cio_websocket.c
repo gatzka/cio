@@ -240,7 +240,7 @@ static void close_frame_written(struct cio_buffered_stream *bs, void *handler_co
 	}
 }
 
-static bool is_status_code_invalid(uint16_t status_code)
+static bool is_invalid_status_code(uint16_t status_code)
 {
 	if ((status_code >= CIO_WEBSOCKET_CLOSE_NORMAL) && (status_code <= CIO_WEBSOCKET_CLOSE_UNSUPPORTED)) {
 		return false;
@@ -321,7 +321,7 @@ static void handle_close_frame(struct cio_websocket *ws, uint8_t *data, uint64_t
 	if (length >= 2) {
 		memcpy(&status_code, data, sizeof(status_code));
 		status_code = cio_be16toh(status_code);
-		if (unlikely(is_status_code_invalid(status_code))) {
+		if (unlikely(is_invalid_status_code(status_code))) {
 			handle_error(ws, CIO_WEBSOCKET_CLOSE_PROTOCOL_ERROR, "invalid status code in close");
 			return;
 		}
