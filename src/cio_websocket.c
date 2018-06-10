@@ -696,12 +696,12 @@ static enum cio_error read_message(struct cio_websocket *ws, cio_websocket_read_
 
 static enum cio_error write_message(struct cio_websocket *ws, struct cio_write_buffer *payload, bool last_frame, bool is_binary, cio_websocket_write_handler handler, void *handler_context)
 {
-	if (unlikely(ws->write_message_job.wbh != NULL)) {
-		return CIO_OPERATION_NOT_PERMITTED;
-	}
-
 	if (unlikely((ws == NULL)) || (handler == NULL)) {
 		return CIO_INVALID_ARGUMENT;
+	}
+
+	if (unlikely(ws->write_message_job.wbh != NULL)) {
+		return CIO_OPERATION_NOT_PERMITTED;
 	}
 
 	enum cio_websocket_frame_type kind;
@@ -741,12 +741,12 @@ static enum cio_error write_ping_message(struct cio_websocket *ws, struct cio_wr
 		return CIO_INVALID_ARGUMENT;
 	}
 
-	if (unlikely(ws->write_ping_job.wbh != NULL)) {
-		return CIO_OPERATION_NOT_PERMITTED;
-	}
-
 	if (unlikely((ws == NULL)) || (handler == NULL)) {
 		return CIO_INVALID_ARGUMENT;
+	}
+
+	if (unlikely(ws->write_ping_job.wbh != NULL)) {
+		return CIO_OPERATION_NOT_PERMITTED;
 	}
 
 	ws->write_ping_job.wbh = payload;
@@ -755,7 +755,6 @@ static enum cio_error write_ping_message(struct cio_websocket *ws, struct cio_wr
 	ws->write_ping_job.frame_type = CIO_WEBSOCKET_PING_FRAME;
 	ws->write_ping_job.last_frame = true;
 	ws->write_ping_job.stream_handler = message_written;
-
 
 	return send_frame(ws, &ws->write_ping_job);
 }
@@ -767,12 +766,12 @@ static enum cio_error write_pong_message(struct cio_websocket *ws, struct cio_wr
 		return CIO_INVALID_ARGUMENT;
 	}
 
-	if (unlikely(ws->write_pong_job.wbh != NULL)) {
-		return CIO_OPERATION_NOT_PERMITTED;
-	}
-
 	if (unlikely((ws == NULL)) || (handler == NULL)) {
 		return CIO_INVALID_ARGUMENT;
+	}
+
+	if (unlikely(ws->write_pong_job.wbh != NULL)) {
+		return CIO_OPERATION_NOT_PERMITTED;
 	}
 
 	ws->write_pong_job.wbh = payload;
@@ -787,12 +786,12 @@ static enum cio_error write_pong_message(struct cio_websocket *ws, struct cio_wr
 
 static enum cio_error write_close_message(struct cio_websocket *ws, enum cio_websocket_status_code status_code, const char *reason, cio_websocket_write_handler handler, void *handler_context)
 {
-	if (unlikely(ws->write_close_job.wbh != NULL)) {
-		return CIO_OPERATION_NOT_PERMITTED;
-	}
-
 	if (unlikely((ws == NULL)) || (handler == NULL)) {
 		return CIO_INVALID_ARGUMENT;
+	}
+
+	if (unlikely(ws->write_close_job.wbh != NULL)) {
+		return CIO_OPERATION_NOT_PERMITTED;
 	}
 
 	prepare_close_job(ws, status_code, (const uint8_t *)reason, strlen(reason), handler, handler_context, close_frame_written);
