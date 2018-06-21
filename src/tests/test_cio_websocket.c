@@ -1036,9 +1036,9 @@ static void test_immediate_read_error_for_get_extended_length(void)
 	}
 }
 
-static void test_close_in_get_extended_length(void)
+static void test_close_in_get_length(void)
 {
-	uint32_t frame_sizes[] = {30000, 70000};
+	uint32_t frame_sizes[] = {100, 30000, 70000};
 
 	for (unsigned int i = 0; i < ARRAY_SIZE(frame_sizes); i++) {
 		uint32_t frame_size = frame_sizes[i];
@@ -2064,7 +2064,7 @@ int main(void)
 
 	RUN_TEST(test_immediate_read_error_for_get_extended_length);
 
-	RUN_TEST(test_close_in_get_extended_length);
+	RUN_TEST(test_close_in_get_length);
 
 	RUN_TEST(test_close_in_get_mask);
 	RUN_TEST(test_read_error_in_get_mask);
