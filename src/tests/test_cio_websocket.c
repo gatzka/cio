@@ -1671,6 +1671,32 @@ static void test_close_short_status(void)
 	TEST_ASSERT_EQUAL_MESSAGE(0, on_control_fake.call_count, "control callback was called for last close frame");
 }
 
+static void test_close_invalid_status(void)
+{
+	uint8_t data[] = {0x3, 0xec};
+
+	struct ws_frame frames[] = {
+		{.frame_type = CIO_WEBSOCKET_CLOSE_FRAME, .direction = FROM_CLIENT, .data = data, .data_length = sizeof(data), .last_frame = true, .rsv = false},
+	};
+
+	serialize_frames(frames, ARRAY_SIZE(frames));
+
+	enum cio_error err = ws->read_message(ws, read_handler, NULL);
+	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Could not start reading a message!");
+
+	TEST_ASSERT_EQUAL_MESSAGE(1, read_handler_fake.call_count, "read_handler was not called");
+	TEST_ASSERT_EQUAL_MESSAGE(ws, read_handler_fake.arg0_val, "websocket parameter of read_handler not correct");
+	TEST_ASSERT_NULL_MESSAGE(read_handler_fake.arg1_val, "context of read handler not NULL");
+	TEST_ASSERT_EQUAL_MESSAGE(CIO_EOF, read_handler_fake.arg2_val, "error parameter of read_handler not CIO_SUCCESS");
+
+	TEST_ASSERT_EQUAL_MESSAGE(1, on_error_fake.call_count, "error callback was not called");
+	TEST_ASSERT_EQUAL_MESSAGE(ws, on_error_fake.arg0_val, "websocket parameter of error handler not correct");
+	TEST_ASSERT_EQUAL_MESSAGE(CIO_WEBSOCKET_CLOSE_PROTOCOL_ERROR, on_error_fake.arg1_val, "error code in error handler not correct");
+
+	TEST_ASSERT_EQUAL_MESSAGE(0, on_control_fake.call_count, "control callback was called for last close frame");
+}
+
+
 #if 0
 
 
@@ -1696,28 +1722,6 @@ static void test_close_with_message(void)
 	TEST_ASSERT_EQUAL_MESSAGE(ws, on_close_fake.arg0_val, "ws parameter in close callback not correct");
 	TEST_ASSERT_EQUAL_MESSAGE(0, on_error_fake.call_count, "error callback was not called");
 	TEST_ASSERT_EQUAL_MEMORY_MESSAGE(data, read_back_buffer, sizeof(data), "echoed data in close frame not correct");
-}
-
-static void test_close_invalid_status(void)
-{
-	uint8_t data[] = {0x3, 0xec};
-
-	struct ws_frame frames[] = {
-		{.frame_type = CIO_WEBSOCKET_CLOSE_FRAME, .direction = FROM_CLIENT, .data = data, .data_length = sizeof(data), .last_frame = true, .rsv = false},
-	};
-
-	serialize_frames(frames, ARRAY_SIZE(frames));
-
-	ws->internal_on_connect(ws);
-
-	TEST_ASSERT_EQUAL_MESSAGE(0, on_textframe_fake.call_count, "callback for text frames was called");
-	TEST_ASSERT_EQUAL_MESSAGE(0, on_binaryframe_fake.call_count, "callback for binary frames was called");
-	TEST_ASSERT_EQUAL_MESSAGE(0, on_ping_fake.call_count, "callback for ping frames was called");
-	TEST_ASSERT_EQUAL_MESSAGE(0, on_pong_fake.call_count, "callback for pong frames was called");
-	TEST_ASSERT_EQUAL_MESSAGE(0, on_close_fake.call_count, "close callback was called");
-	TEST_ASSERT_EQUAL_MESSAGE(1, on_error_fake.call_count, "error callback was not called");
-	TEST_ASSERT_EQUAL_MESSAGE(ws, on_error_fake.arg0_val, "ws parameter in error frame callback not correct");
-	TEST_ASSERT_EQUAL_MESSAGE(CIO_WEBSOCKET_CLOSE_PROTOCOL_ERROR, on_error_fake.arg1_val, "error code parameter in error frame callback not correct");
 }
 
 static void test_close_reason_not_utf8(void)
@@ -2097,6 +2101,7 @@ int main(void)
 	RUN_TEST(test_no_mask_set_from_client);
 
 	RUN_TEST(test_close_short_status);
+	RUN_TEST(test_close_invalid_status);
 #if 0
 
 
@@ -2104,7 +2109,6 @@ int main(void)
 
 
 	RUN_TEST(test_close_with_message);
-	RUN_TEST(test_close_invalid_status);
 
 	RUN_TEST(test_close_reason_not_utf8);
 	RUN_TEST(test_text_frame_not_utf8);
