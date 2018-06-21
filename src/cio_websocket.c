@@ -335,7 +335,7 @@ static void handle_close_frame(struct cio_websocket *ws, uint8_t *data, uint64_t
 		struct cio_utf8_state state;
 		cio_utf8_init(&state);
 		if (unlikely(cio_check_utf8(&state, data + 2, length - 2) != CIO_UTF8_ACCEPT)) {
-			handle_error(ws, CIO_WEBSOCKET_CLOSE_PROTOCOL_ERROR, "reason in close frame not utf8 valid");
+			handle_error(ws, CIO_WEBSOCKET_CLOSE_UNSUPPORTED_DATA, "reason in close frame not utf8 valid");
 			return;
 		}
 	}
