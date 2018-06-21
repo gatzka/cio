@@ -295,9 +295,9 @@ static void handle_binary_frame(struct cio_websocket *ws, uint8_t *data, uint64_
 
 static void handle_text_frame(struct cio_websocket *ws, uint8_t *data, uint64_t length, bool last_frame)
 {
-	uint32_t state = cio_check_utf8(&ws->utf8_state, data, length);
+	enum cio_utf8_status status = cio_check_utf8(&ws->utf8_state, data, length);
 
-	if (unlikely((state == CIO_UTF8_REJECT) || (last_frame && (state != CIO_UTF8_ACCEPT)))) {
+	if (unlikely((status == CIO_UTF8_REJECT) || (last_frame && (status != CIO_UTF8_ACCEPT)))) {
 		handle_error(ws, CIO_WEBSOCKET_CLOSE_UNSUPPORTED_DATA, "payload not valid utf8");
 		return;
 	}
