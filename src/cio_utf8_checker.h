@@ -35,8 +35,10 @@
 extern "C" {
 #endif
 
-static const uint8_t CIO_UTF8_ACCEPT = 0;
-static const uint8_t CIO_UTF8_REJECT = 12;
+enum cio_utf8_status {
+	CIO_UTF8_ACCEPT = 0,
+	CIO_UTF8_REJECT = 12
+};
 
 struct cio_utf8_state {
 	uint8_t codepoint;
