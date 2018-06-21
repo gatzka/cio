@@ -1776,7 +1776,7 @@ static void test_close_reason_not_utf8(void)
 
 	TEST_ASSERT_EQUAL_MESSAGE(1, on_error_fake.call_count, "error callback was not called");
 	TEST_ASSERT_EQUAL_MESSAGE(ws, on_error_fake.arg0_val, "websocket parameter of error handler not correct");
-	TEST_ASSERT_EQUAL_MESSAGE(CIO_WEBSOCKET_CLOSE_PROTOCOL_ERROR, on_error_fake.arg1_val, "error code in error handler not correct");
+	TEST_ASSERT_EQUAL_MESSAGE(CIO_WEBSOCKET_CLOSE_UNSUPPORTED_DATA, on_error_fake.arg1_val, "error code in error handler not correct");
 
 	TEST_ASSERT_EQUAL_MESSAGE(0, on_control_fake.call_count, "control callback was called for last close frame");
 }
