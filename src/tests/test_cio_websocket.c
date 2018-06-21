@@ -373,6 +373,15 @@ static enum cio_error bs_write_ok(struct cio_buffered_stream *bs, struct cio_wri
 	return CIO_SUCCESS;
 }
 
+static enum cio_error bs_write_error(struct cio_buffered_stream *bs, struct cio_write_buffer *buf, cio_buffered_stream_write_handler handler, void *handler_context)
+{
+	(void)bs;
+	(void)buf;
+	(void)handler;
+	(void)handler_context;
+	return CIO_BROKEN_PIPE;
+}
+
 #if 0
 static enum cio_error bs_write_later(struct cio_buffered_stream *bs, struct cio_write_buffer *buf, cio_buffered_stream_write_handler handler, void *handler_context)
 {
@@ -712,6 +721,39 @@ static void test_ping_frame_no_payload(void)
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_WEBSOCKET_CLOSE_FRAME, on_control_fake.arg1_history[1], "type parameter of control callback (close) is not CLOSE");
 	TEST_ASSERT_NULL_MESSAGE(on_control_fake.arg2_history[1], "data parameter of control callback (close) is not NULL");
 	TEST_ASSERT_EQUAL_MESSAGE(0, on_control_fake.arg3_history[1], "data length parameter of control callback (close) is not correct");
+}
+
+static void test_incoming_ping_pong_send_fails(void)
+{
+	char data[] = "aaaa";
+
+	struct ws_frame frames[] = {
+		{.frame_type = CIO_WEBSOCKET_PING_FRAME, .direction = FROM_CLIENT, .data = data, .data_length = sizeof(data), .last_frame = true, .rsv = false},
+		{.frame_type = CIO_WEBSOCKET_CLOSE_FRAME, .direction = FROM_CLIENT, .data = NULL, .data_length = 0, .last_frame = true, .rsv = false},
+	};
+
+	bs_write_fake.custom_fake = bs_write_error;
+
+	serialize_frames(frames, ARRAY_SIZE(frames));
+
+	enum cio_error err = ws->read_message(ws, read_handler, NULL);
+	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Could not start reading a message!");
+
+	TEST_ASSERT_EQUAL_MESSAGE(1, read_handler_fake.call_count, "read_handler was not called");
+	TEST_ASSERT_EQUAL_PTR_MESSAGE(ws, read_handler_fake.arg0_val, "websocket parameter of read_handler not correct");
+	TEST_ASSERT_NULL_MESSAGE(read_handler_fake.arg1_val, "context parameter of read_handler not correct");
+	TEST_ASSERT_EQUAL_MESSAGE(CIO_EOF, read_handler_fake.arg2_val, "error parameter of read_handler not correct");
+	TEST_ASSERT_NULL_MESSAGE(read_handler_fake.arg3_val, "data parameter of read_handler not correct");
+	TEST_ASSERT_EQUAL_MESSAGE(0, read_handler_fake.arg4_val, "length parameter of read_handler not correct");
+
+	TEST_ASSERT_EQUAL_MESSAGE(1, on_error_fake.call_count, "error callback was called");
+
+	TEST_ASSERT_EQUAL_MESSAGE(1, on_control_fake.call_count, "on_control callback was not called once");
+	TEST_ASSERT_NOT_NULL_MESSAGE(on_control_fake.arg0_val, "websocket parameter of control callback (ping) is NULL");
+	TEST_ASSERT_EQUAL_MESSAGE(CIO_WEBSOCKET_PING_FRAME, on_control_fake.arg1_val, "type parameter of control callback (ping) is not PING");
+	TEST_ASSERT_EQUAL_MESSAGE(sizeof(data), on_control_fake.arg3_val, "data length parameter of control callback (ping) is not correct");
+
+	TEST_ASSERT_EQUAL_MEMORY_MESSAGE(data, read_back_buffer, sizeof(data), "data in ping frame callback not correct");
 }
 
 static void test_pong_frame(void)
@@ -2072,6 +2114,7 @@ int main(void)
 	RUN_TEST(test_unfragmented_frames);
 	RUN_TEST(test_fragmented_frames);
 	RUN_TEST(test_incoming_ping_frame);
+	RUN_TEST(test_incoming_ping_pong_send_fails);
 	RUN_TEST(test_ping_frame_no_callback);
 	RUN_TEST(test_pong_frame);
 	RUN_TEST(test_pong_frame_no_callback);
