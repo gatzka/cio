@@ -478,6 +478,18 @@ void tearDown(void)
 	free(ws);
 }
 
+static void test_read_message_no_websocket(void)
+{
+	enum cio_error err = ws->read_message(NULL, read_handler, NULL);
+	TEST_ASSERT_EQUAL_MESSAGE(CIO_INVALID_ARGUMENT, err, "Wrong error code if no websocket pointer is provided!");
+}
+
+static void test_read_message_no_handler(void)
+{
+	enum cio_error err = ws->read_message(ws, NULL, NULL);
+	TEST_ASSERT_EQUAL_MESSAGE(CIO_INVALID_ARGUMENT, err, "Wrong error code if no handler is provided!");
+}
+
 static void test_unfragmented_frames(void)
 {
 	uint32_t frame_sizes[] = {0, 1, 5, 125, 126, 65535, 65536};
@@ -2026,6 +2038,8 @@ static void test_send_ping_frame(void)
 int main(void)
 {
 	UNITY_BEGIN();
+	RUN_TEST(test_read_message_no_websocket);
+	RUN_TEST(test_read_message_no_handler);
 	RUN_TEST(test_unfragmented_frames);
 	RUN_TEST(test_fragmented_frames);
 	RUN_TEST(test_incoming_ping_frame);
