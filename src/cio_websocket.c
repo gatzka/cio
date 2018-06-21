@@ -434,11 +434,8 @@ static void handle_frame(struct cio_websocket *ws, uint8_t *data, uint64_t lengt
 	}
 }
 
-static void get_payload(struct cio_buffered_stream *bs, void *handler_context, enum cio_error err, struct cio_read_buffer *buffer)
+static bool handled_read_error(struct cio_websocket *ws, enum cio_error err)
 {
-	(void)bs;
-
-	struct cio_websocket *ws = (struct cio_websocket *)handler_context;
 	if (unlikely(err != CIO_SUCCESS)) {
 		if (err == CIO_EOF) {
 			handle_error(ws, CIO_WEBSOCKET_CLOSE_NORMAL, "connection closed by other peer");
@@ -446,6 +443,18 @@ static void get_payload(struct cio_buffered_stream *bs, void *handler_context, e
 			handle_error(ws, CIO_WEBSOCKET_CLOSE_INTERNAL_ERROR, "error while reading websocket payload");
 		}
 
+		return true;
+	}
+
+	return false;
+}
+
+static void get_payload(struct cio_buffered_stream *bs, void *handler_context, enum cio_error err, struct cio_read_buffer *buffer)
+{
+	(void)bs;
+
+	struct cio_websocket *ws = (struct cio_websocket *)handler_context;
+	if (unlikely(handled_read_error(ws, err))) {
 		return;
 	}
 
@@ -458,13 +467,7 @@ static void get_payload(struct cio_buffered_stream *bs, void *handler_context, e
 static void get_mask(struct cio_buffered_stream *bs, void *handler_context, enum cio_error err, struct cio_read_buffer *buffer)
 {
 	struct cio_websocket *ws = (struct cio_websocket *)handler_context;
-	if (unlikely(err != CIO_SUCCESS)) {
-		if (err == CIO_EOF) {
-			handle_error(ws, CIO_WEBSOCKET_CLOSE_NORMAL, "connection closed by other peer");
-		} else {
-			handle_error(ws, CIO_WEBSOCKET_CLOSE_INTERNAL_ERROR, "error while reading websocket mask");
-		}
-
+	if (unlikely(handled_read_error(ws, err))) {
 		return;
 	}
 
@@ -510,13 +513,7 @@ static void get_mask_or_payload(struct cio_websocket *ws, struct cio_buffered_st
 static void get_length16(struct cio_buffered_stream *bs, void *handler_context, enum cio_error err, struct cio_read_buffer *buffer)
 {
 	struct cio_websocket *ws = (struct cio_websocket *)handler_context;
-	if (unlikely(err != CIO_SUCCESS)) {
-		if (err == CIO_EOF) {
-			handle_error(ws, CIO_WEBSOCKET_CLOSE_NORMAL, "connection closed by other peer");
-		} else {
-			handle_error(ws, CIO_WEBSOCKET_CLOSE_INTERNAL_ERROR, "error while reading websocket length16");
-		}
-
+	if (unlikely(handled_read_error(ws, err))) {
 		return;
 	}
 
@@ -532,13 +529,7 @@ static void get_length16(struct cio_buffered_stream *bs, void *handler_context, 
 static void get_length64(struct cio_buffered_stream *bs, void *handler_context, enum cio_error err, struct cio_read_buffer *buffer)
 {
 	struct cio_websocket *ws = (struct cio_websocket *)handler_context;
-	if (unlikely(err != CIO_SUCCESS)) {
-		if (err == CIO_EOF) {
-			handle_error(ws, CIO_WEBSOCKET_CLOSE_NORMAL, "connection closed by other peer");
-		} else {
-			handle_error(ws, CIO_WEBSOCKET_CLOSE_INTERNAL_ERROR, "error while reading websocket length64");
-		}
-
+	if (unlikely(handled_read_error(ws, err))) {
 		return;
 	}
 
@@ -559,13 +550,7 @@ static inline bool is_control_frame(unsigned int opcode)
 static void get_first_length(struct cio_buffered_stream *bs, void *handler_context, enum cio_error err, struct cio_read_buffer *buffer)
 {
 	struct cio_websocket *ws = (struct cio_websocket *)handler_context;
-	if (unlikely(err != CIO_SUCCESS)) {
-		if (err == CIO_EOF) {
-			handle_error(ws, CIO_WEBSOCKET_CLOSE_NORMAL, "connection closed by other peer");
-		} else {
-			handle_error(ws, CIO_WEBSOCKET_CLOSE_INTERNAL_ERROR, "error while reading websocket length");
-		}
-
+	if (unlikely(handled_read_error(ws, err))) {
 		return;
 	}
 
@@ -602,13 +587,7 @@ static void get_first_length(struct cio_buffered_stream *bs, void *handler_conte
 static void get_header(struct cio_buffered_stream *bs, void *handler_context, enum cio_error err, struct cio_read_buffer *buffer)
 {
 	struct cio_websocket *ws = (struct cio_websocket *)handler_context;
-	if (unlikely(err != CIO_SUCCESS)) {
-		if (err == CIO_EOF) {
-			handle_error(ws, CIO_WEBSOCKET_CLOSE_NORMAL, "connection closed by other peer");
-		} else {
-			handle_error(ws, CIO_WEBSOCKET_CLOSE_INTERNAL_ERROR, "error while reading websocket header");
-		}
-
+	if (unlikely(handled_read_error(ws, err))) {
 		return;
 	}
 
