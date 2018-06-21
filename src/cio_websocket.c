@@ -434,13 +434,13 @@ static void handle_frame(struct cio_websocket *ws, uint8_t *data, uint64_t lengt
 	}
 }
 
-static bool handled_read_error(struct cio_websocket *ws, enum cio_error err)
+static inline bool handled_read_error(struct cio_websocket *ws, enum cio_error err)
 {
 	if (unlikely(err != CIO_SUCCESS)) {
 		if (err == CIO_EOF) {
 			handle_error(ws, CIO_WEBSOCKET_CLOSE_NORMAL, "connection closed by other peer");
 		} else {
-			handle_error(ws, CIO_WEBSOCKET_CLOSE_INTERNAL_ERROR, "error while reading websocket payload");
+			handle_error(ws, CIO_WEBSOCKET_CLOSE_INTERNAL_ERROR, "error while reading websocket packet");
 		}
 
 		return true;
