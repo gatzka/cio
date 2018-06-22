@@ -790,19 +790,26 @@ static enum cio_error write_close_message(struct cio_websocket *ws, enum cio_web
 
 	enum cio_error err = cio_timer_init(&ws->close_timer, ws->loop, NULL);
 	if (unlikely(err != CIO_SUCCESS)) {
-		goto err;
+		return err;
 	}
 
 	err = ws->close_timer.expires_from_now(&ws->close_timer, close_timeout_ns, close_timeout_handler, ws);
 	if (unlikely(err != CIO_SUCCESS)) {
-		goto err;
+		goto timer_expires_failed;
 	}
 
 	ws->ws_flags.self_initiated_close = 1;
-	return send_frame(ws, &ws->write_close_job);
-err:
-	close(ws);
-	return CIO_SUCCESS;
+	err = send_frame(ws, &ws->write_close_job);
+	if (unlikely(err != CIO_SUCCESS)) {
+		goto send_frame_failed;
+	}
+
+	return err;
+send_frame_failed:
+	ws->close_timer.cancel(&ws->close_timer);
+timer_expires_failed:
+	ws->close_timer.close(&ws->close_timer);
+	return err;
 }
 
 enum cio_error cio_websocket_init(struct cio_websocket *ws, bool is_server, cio_websocket_on_connect on_connect, cio_websocket_close_hook close_hook)
