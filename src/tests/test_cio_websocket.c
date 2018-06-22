@@ -404,6 +404,14 @@ static enum cio_error cio_timer_init_ok(struct cio_timer *timer, struct cio_even
 	return CIO_SUCCESS;
 }
 
+static enum cio_error cio_timer_init_fails(struct cio_timer *timer, struct cio_eventloop *l, cio_timer_close_hook hook)
+{
+	(void)timer;
+	(void)l;
+	(void)hook;
+	return CIO_INVALID_ARGUMENT;
+}
+
 static void read_handler_save_data(struct cio_websocket *websocket, void *handler_context, enum cio_error err, uint8_t *data, size_t length, bool last_frame, bool is_binary)
 {
 	(void)last_frame;
@@ -1932,6 +1940,36 @@ static void test_close_self_twice(void)
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_OPERATION_NOT_PERMITTED, err, "Close did not failed correctly");
 }
 
+static void test_close_self_timer_init_fails(void)
+{
+	cio_timer_init_fake.custom_fake = cio_timer_init_fails;
+
+	enum cio_error err = ws->close(ws, CIO_WEBSOCKET_CLOSE_NORMAL, "Going away", close_handler, NULL);
+	TEST_ASSERT_EQUAL_MESSAGE(CIO_INVALID_ARGUMENT, err, "Close not failed correctly");
+	TEST_ASSERT_EQUAL_MESSAGE(0, timer_cancel_fake.call_count, "Timer cancel was called");
+	TEST_ASSERT_EQUAL_MESSAGE(0, timer_close_fake.call_count, "Timer close was called");
+}
+
+static void test_close_self_timer_expire_fails(void)
+{
+	timer_expires_from_now_fake.return_val = CIO_ADDRESS_IN_USE;
+
+	enum cio_error err = ws->close(ws, CIO_WEBSOCKET_CLOSE_NORMAL, "Going away", close_handler, NULL);
+	TEST_ASSERT_EQUAL_MESSAGE(CIO_ADDRESS_IN_USE, err, "Close not failed correctly");
+	TEST_ASSERT_EQUAL_MESSAGE(0, timer_cancel_fake.call_count, "Timer cancel was called");
+	TEST_ASSERT_EQUAL_MESSAGE(1, timer_close_fake.call_count, "Timer close was called");
+}
+
+static void test_close_self_sendframe_fails(void)
+{
+	bs_write_fake.custom_fake = bs_write_error;
+
+	enum cio_error err = ws->close(ws, CIO_WEBSOCKET_CLOSE_NORMAL, "Going away", close_handler, NULL);
+	TEST_ASSERT_EQUAL_MESSAGE(CIO_BROKEN_PIPE, err, "Close not failed correctly");
+	TEST_ASSERT_EQUAL_MESSAGE(1, timer_cancel_fake.call_count, "Timer cancel was called");
+	TEST_ASSERT_EQUAL_MESSAGE(1, timer_close_fake.call_count, "Timer close was called");
+}
+
 static void test_text_frame_not_utf8(void)
 {
 	uint8_t data[] = {0xf8, 0x88, 0x80, 0x80, 0x80};
@@ -2333,6 +2371,9 @@ int main(void)
 	RUN_TEST(test_close_self_no_ws);
 	RUN_TEST(test_close_self_no_handler);
 	RUN_TEST(test_close_self_twice);
+	RUN_TEST(test_close_self_timer_init_fails);
+	RUN_TEST(test_close_self_timer_expire_fails);
+	RUN_TEST(test_close_self_sendframe_fails);
 #if 0
 
 
