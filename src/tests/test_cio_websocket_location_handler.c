@@ -112,6 +112,9 @@ FAKE_VOID_FUNC(on_control, const struct cio_websocket *, enum cio_websocket_fram
 static void read_handler(struct cio_websocket *ws, void *handler_context, enum cio_error err, uint8_t *data, size_t length, bool last_frame, bool is_binary);
 FAKE_VOID_FUNC(read_handler, struct cio_websocket *, void *, enum cio_error, uint8_t *, size_t, bool, bool)
 
+static void close_written(struct cio_websocket *ws, void *handler_context, enum cio_error err);
+FAKE_VOID_FUNC(close_written, struct cio_websocket *, void *, enum cio_error)
+
 static struct cio_eventloop loop;
 static const uint64_t read_timeout = UINT64_C(5) * UINT64_C(1000) * UINT64_C(1000) * UINT64_C(1000);
 static const size_t read_buffer_size = 2000;
@@ -186,7 +189,7 @@ static void free_websocket_handler(struct cio_http_location_handler *handler)
 
 static void on_connect(struct cio_websocket *ws)
 {
-	ws->close(ws, CIO_WEBSOCKET_CLOSE_NORMAL, NULL, NULL, NULL);
+	ws->close(ws, CIO_WEBSOCKET_CLOSE_NORMAL, NULL, close_written, NULL);
 	enum cio_error err = ws->read_message(ws, read_handler, NULL);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Could not start reading a message!");
 }
