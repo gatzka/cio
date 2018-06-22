@@ -175,6 +175,19 @@ static void prepare_close_job(struct cio_websocket *ws, enum cio_websocket_statu
 	ws->write_close_job.stream_handler = stream_handler;
 }
 
+static void prepare_close_job_string(struct cio_websocket *ws, enum cio_websocket_status_code status_code, const char *reason, cio_websocket_write_handler handler, void *handler_context, cio_buffered_stream_write_handler stream_handler)
+{
+	size_t length;
+
+	if (reason == NULL) {
+		length = 0;
+	} else {
+		length = strlen(reason);
+	}
+
+	prepare_close_job(ws, status_code, (const uint8_t *)reason, length, handler, handler_context, stream_handler);
+}
+
 static void close_frame_written(struct cio_buffered_stream *bs, void *handler_context, enum cio_error err);
 
 static void handle_error(struct cio_websocket *ws, enum cio_websocket_status_code status_code, const char *reason)
@@ -183,7 +196,7 @@ static void handle_error(struct cio_websocket *ws, enum cio_websocket_status_cod
 		ws->on_error(ws, status_code, reason);
 	}
 
-	prepare_close_job(ws, status_code, (const uint8_t *)reason, strlen(reason), NULL, NULL, close_frame_written);
+	prepare_close_job_string(ws, status_code, reason, NULL, NULL, close_frame_written);
 	send_frame(ws, &ws->write_close_job);
 	close(ws);
 }
@@ -349,14 +362,14 @@ static void handle_close_frame(struct cio_websocket *ws, uint8_t *data, uint64_t
 		ws->close_timer.close(&ws->close_timer);
 		close(ws);
 	} else {
-		char *reason;
+		const uint8_t *reason;
 		if (length > 0) {
-			reason = (char *)data + sizeof(status_code);
+			reason = data + sizeof(status_code);
 		} else {
 			reason = NULL;
 		}
 
-		prepare_close_job(ws, status_code, (const uint8_t *)reason, length, NULL, NULL, response_close_frame_written);
+		prepare_close_job(ws, status_code, reason, length, NULL, NULL, response_close_frame_written);
 		enum cio_error err = send_frame(ws, &ws->write_close_job);
 		if (unlikely(err != CIO_SUCCESS)) {
 			handle_error(ws, CIO_WEBSOCKET_CLOSE_INTERNAL_ERROR, "could not send close frame");
@@ -773,7 +786,7 @@ static enum cio_error write_close_message(struct cio_websocket *ws, enum cio_web
 		return CIO_OPERATION_NOT_PERMITTED;
 	}
 
-	prepare_close_job(ws, status_code, (const uint8_t *)reason, strlen(reason), handler, handler_context, close_frame_written);
+	prepare_close_job_string(ws, status_code, reason, handler, handler_context, close_frame_written);
 
 	enum cio_error err = cio_timer_init(&ws->close_timer, ws->loop, NULL);
 	if (unlikely(err != CIO_SUCCESS)) {
