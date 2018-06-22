@@ -375,6 +375,8 @@ void setUp(void)
 	RESET_FAKE(bs_read_until);
 	RESET_FAKE(bs_read);
 
+	RESET_FAKE(close_written);
+
 	RESET_FAKE(on_control);
 	RESET_FAKE(read_handler);
 
