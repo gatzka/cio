@@ -130,6 +130,15 @@ static uint8_t write_buffer[140000];
 static size_t write_buffer_pos = 0;
 static size_t write_buffer_parse_pos = 0;
 
+
+static enum cio_error timer_expires_from_now_save(struct cio_timer *t, uint64_t timeout_ns, timer_handler handler, void *handler_context)
+{
+	(void)timeout_ns;
+	t->handler = handler;
+	t->handler_context = handler_context;
+	return CIO_SUCCESS;
+}
+
 static bool check_frame(enum cio_websocket_frame_type opcode, const char *payload, size_t payload_length, bool is_last_frame)
 {
 	(void)payload;
@@ -298,6 +307,16 @@ static enum cio_error bs_read_exactly_from_buffer(struct cio_buffered_stream *bs
 		handler(bs, handler_context, CIO_SUCCESS, buffer);
 	}
 
+	return CIO_SUCCESS;
+}
+
+static enum cio_error bs_read_exactly_block(struct cio_buffered_stream *bs, struct cio_read_buffer *buffer, size_t num, cio_buffered_stream_read_handler handler, void *handler_context)
+{
+	(void)bs;
+	(void)buffer;
+	(void)num;
+	(void)handler;
+	(void)handler_context;
 	return CIO_SUCCESS;
 }
 
@@ -471,6 +490,8 @@ void setUp(void)
 	ws->on_error = on_error;
 
 	cio_timer_init_fake.custom_fake = cio_timer_init_ok;
+	timer_expires_from_now_fake.custom_fake = timer_expires_from_now_save;
+
 	read_handler_fake.custom_fake = read_handler_save_data;
 	read_exactly_fake.custom_fake = bs_read_exactly_from_buffer;
 	bs_write_fake.custom_fake = bs_write_ok;
@@ -1948,6 +1969,7 @@ static void test_close_self_timer_init_fails(void)
 
 static void test_close_self_timer_expire_fails(void)
 {
+	timer_expires_from_now_fake.custom_fake = NULL;
 	timer_expires_from_now_fake.return_val = CIO_ADDRESS_IN_USE;
 
 	enum cio_error err = ws->close(ws, CIO_WEBSOCKET_CLOSE_NORMAL, "Going away", close_handler, NULL);
@@ -1964,6 +1986,28 @@ static void test_close_self_sendframe_fails(void)
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_BROKEN_PIPE, err, "Close not failed correctly");
 	TEST_ASSERT_EQUAL_MESSAGE(1, timer_cancel_fake.call_count, "Timer cancel was called");
 	TEST_ASSERT_EQUAL_MESSAGE(1, timer_close_fake.call_count, "Timer close was called");
+}
+
+static void test_close_self_no_answer(void)
+{
+	enum cio_error err = ws->close(ws, CIO_WEBSOCKET_CLOSE_NORMAL, NULL, close_handler, NULL);
+	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Could not start reading a message!");
+
+	read_exactly_fake.custom_fake = bs_read_exactly_block;
+
+	err = ws->read_message(ws, read_handler, NULL);
+	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "read_message did not succeed");
+
+	ws->close_timer.handler(&ws->close_timer, ws->close_timer.handler_context, CIO_SUCCESS);
+
+	TEST_ASSERT_EQUAL_MESSAGE(1, read_handler_fake.call_count, "read_handler was not called");
+	TEST_ASSERT_EQUAL_MESSAGE(ws, read_handler_fake.arg0_val, "websocket parameter of read_handler not correct");
+	TEST_ASSERT_NULL_MESSAGE(read_handler_fake.arg1_val, "context of read handler not NULL");
+	TEST_ASSERT_EQUAL_MESSAGE(CIO_EOF, read_handler_fake.arg2_val, "error parameter of read_handler not CIO_SUCCESS");
+
+	TEST_ASSERT_EQUAL_MESSAGE(0, on_error_fake.call_count, "error callback was not called");
+
+	TEST_ASSERT_EQUAL_MESSAGE(0, on_control_fake.call_count, "control callback was not called for last close frame");
 }
 
 static void test_text_frame_not_utf8(void)
@@ -2500,6 +2544,7 @@ int main(void)
 	RUN_TEST(test_close_reason_not_utf8);
 	RUN_TEST(test_close_with_valid_status_codes);
 	RUN_TEST(test_close_with_invalid_status_codes);
+	RUN_TEST(test_close_self_no_answer);
 
 	RUN_TEST(test_text_frame_not_utf8);
 	RUN_TEST(test_text_frame_utf8_no_complete_in_last_frame);
