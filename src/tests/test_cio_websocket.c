@@ -95,10 +95,8 @@ FAKE_VOID_FUNC(on_error, const struct cio_websocket *, enum cio_websocket_status
 static void close_handler(struct cio_websocket *ws, void *handler_context, enum cio_error err);
 FAKE_VOID_FUNC(close_handler, struct cio_websocket *, void *, enum cio_error)
 
-#if 0
 static void write_handler(struct cio_websocket *ws, void *context, enum cio_error err);
 FAKE_VOID_FUNC(write_handler, struct cio_websocket *, void *, enum cio_error)
-#endif
 
 
 #ifndef ARRAY_SIZE
@@ -132,7 +130,6 @@ static uint8_t write_buffer[140000];
 static size_t write_buffer_pos = 0;
 static size_t write_buffer_parse_pos = 0;
 
-#if 0
 static bool check_frame(enum cio_websocket_frame_type opcode, const char *payload, size_t payload_length, bool is_last_frame)
 {
 	(void)payload;
@@ -188,7 +185,6 @@ static bool check_frame(enum cio_websocket_frame_type opcode, const char *payloa
 	return true;
 }
 
-#endif
 static bool is_close_frame(uint16_t status_code, bool status_code_required)
 {
 	if ((write_buffer[write_buffer_parse_pos] & WS_HEADER_FIN) != WS_HEADER_FIN) {
@@ -464,7 +460,7 @@ void setUp(void)
 	RESET_FAKE(on_error);
 
 	RESET_FAKE(close_handler);
-//	RESET_FAKE(write_handler);
+	RESET_FAKE(write_handler);
 
 	cio_read_buffer_init(&rb, read_buffer, sizeof(read_buffer));
 	ws = malloc(sizeof(*ws));
@@ -2021,6 +2017,33 @@ static void test_text_frame_utf8_no_complete_in_last_frame(void)
 	TEST_ASSERT_EQUAL_MESSAGE(0, on_control_fake.call_count, "control callback was called for last close frame");
 }
 
+static void test_send_pong_frame(void)
+{
+	char buffer[] = "aaaaaaaa";
+
+	struct cio_write_buffer wbh;
+	cio_write_buffer_head_init(&wbh);
+
+	struct cio_write_buffer wb;
+	cio_write_buffer_element_init(&wb, buffer, sizeof(buffer));
+	cio_write_buffer_queue_tail(&wbh, &wb);
+
+	enum cio_error err = ws->write_pong(ws, &wbh, write_handler, NULL);
+	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Writing a pong frame did not succeed!");
+	TEST_ASSERT_EQUAL_MESSAGE(1, write_handler_fake.call_count, "Write handler was not called once");
+	TEST_ASSERT_EQUAL_MESSAGE(ws, write_handler_fake.arg0_val, "websocket parameter of write_handler not correct");
+	TEST_ASSERT_NULL_MESSAGE(write_handler_fake.arg1_val, "context parameter of write_handler not NULL");
+	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, write_handler_fake.arg2_val, "err parameter of write_handler not correct");
+
+	TEST_ASSERT_EQUAL_MESSAGE(0, on_error_fake.call_count, "error callback was called");
+
+	TEST_ASSERT_EQUAL_MESSAGE(1, wbh.data.q_len, "Length of write buffer different than before writing!");
+	TEST_ASSERT_EQUAL_MESSAGE(&wbh, wbh.next->next, "Concatenation of write buffers no longer correct after writing!");
+	TEST_ASSERT_EQUAL_MEMORY_MESSAGE(buffer, wbh.next->data.element.data, sizeof(buffer), "Content of writebuffer not correct after writing!");
+
+	TEST_ASSERT_TRUE_MESSAGE(check_frame(CIO_WEBSOCKET_PONG_FRAME, buffer, sizeof(buffer), true), "Written pong frame not correct");
+}
+
 #if 0
 
 
@@ -2374,6 +2397,8 @@ int main(void)
 	RUN_TEST(test_close_self_timer_init_fails);
 	RUN_TEST(test_close_self_timer_expire_fails);
 	RUN_TEST(test_close_self_sendframe_fails);
+
+	RUN_TEST(test_send_pong_frame);
 #if 0
 
 
