@@ -798,7 +798,7 @@ timer_expires_failed:
 
 enum cio_error cio_websocket_init(struct cio_websocket *ws, bool is_server, cio_websocket_on_connect on_connect, cio_websocket_close_hook close_hook)
 {
-	if (unlikely(on_connect == NULL)) {
+	if (unlikely((ws == NULL) || (on_connect == NULL))) {
 		return CIO_INVALID_ARGUMENT;
 	}
 
