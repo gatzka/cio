@@ -733,7 +733,6 @@ static enum cio_error write_ping_message(struct cio_websocket *ws, struct cio_wr
 	}
 
 	if (unlikely(payload_size_in_limit(payload, CIO_WEBSOCKET_SMALL_FRAME_SIZE) == 0)) {
-		handler(ws, handler_context, CIO_MESSAGE_TOO_LONG);
 		return CIO_INVALID_ARGUMENT;
 	}
 
@@ -758,7 +757,6 @@ static enum cio_error write_pong_message(struct cio_websocket *ws, struct cio_wr
 	}
 
 	if (unlikely(payload_size_in_limit(payload, CIO_WEBSOCKET_SMALL_FRAME_SIZE) == 0)) {
-		handler(ws, handler_context, CIO_MESSAGE_TOO_LONG);
 		return CIO_INVALID_ARGUMENT;
 	}
 
