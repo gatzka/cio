@@ -382,7 +382,8 @@ static void on_close_frame_save_data(const struct cio_websocket *websocket, enum
 
 static void websocket_free(struct cio_websocket *s)
 {
-	free(s);
+	(void)s;
+	//free(s);
 }
 
 static enum cio_error bs_write_ok(struct cio_buffered_stream *bs, struct cio_write_buffer *buf, cio_buffered_stream_write_handler handler, void *handler_context)
@@ -491,7 +492,7 @@ void setUp(void)
 
 	cio_read_buffer_init(&rb, read_buffer, sizeof(read_buffer));
 	ws = malloc(sizeof(*ws));
-	cio_websocket_init(ws, true, websocket_free, on_connect);
+	cio_websocket_init(ws, true, on_connect, websocket_free);
 	ws->rb = &rb;
 	ws->bs = &buffered_stream;
 	ws->on_control = on_control;
@@ -524,6 +525,13 @@ void tearDown(void)
 {
 	free(ws);
 }
+
+
+#if 0
+static void test_init_without_close_hook(void) {
+	cio_websocket_init(ws, true, websocket_free, on_connect);
+}
+#endif
 
 static void test_read_message_no_websocket(void)
 {
