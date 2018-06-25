@@ -726,7 +726,7 @@ static enum cio_error write_message(struct cio_websocket *ws, struct cio_write_b
 	return send_frame(ws, &ws->write_message_job);
 }
 
-static enum cio_error write_ping_message(struct cio_websocket *ws, struct cio_write_buffer *payload, cio_websocket_write_handler handler, void *handler_context)
+static enum cio_error write_ping_or_pong_message(struct cio_websocket *ws, enum cio_websocket_frame_type frame_type, struct cio_websocket_write_job *job, struct cio_write_buffer *payload, cio_websocket_write_handler handler, void *handler_context)
 {
 	if (unlikely((ws == NULL)) || (handler == NULL)) {
 		return CIO_INVALID_ARGUMENT;
@@ -736,42 +736,28 @@ static enum cio_error write_ping_message(struct cio_websocket *ws, struct cio_wr
 		return CIO_INVALID_ARGUMENT;
 	}
 
-	if (unlikely(ws->write_ping_job.wbh != NULL)) {
+	if (unlikely(job->wbh != NULL)) {
 		return CIO_OPERATION_NOT_PERMITTED;
 	}
 
-	ws->write_ping_job.wbh = payload;
-	ws->write_ping_job.handler = handler;
-	ws->write_ping_job.handler_context = handler_context;
-	ws->write_ping_job.frame_type = CIO_WEBSOCKET_PING_FRAME;
-	ws->write_ping_job.last_frame = true;
-	ws->write_ping_job.stream_handler = message_written;
+	job->wbh = payload;
+	job->handler = handler;
+	job->handler_context = handler_context;
+	job->frame_type = frame_type;
+	job->last_frame = true;
+	job->stream_handler = message_written;
 
-	return send_frame(ws, &ws->write_ping_job);
+	return send_frame(ws, job);
+}
+
+static enum cio_error write_ping_message(struct cio_websocket *ws, struct cio_write_buffer *payload, cio_websocket_write_handler handler, void *handler_context)
+{
+	return write_ping_or_pong_message(ws, CIO_WEBSOCKET_PING_FRAME, &ws->write_ping_job, payload, handler, handler_context);
 }
 
 static enum cio_error write_pong_message(struct cio_websocket *ws, struct cio_write_buffer *payload, cio_websocket_write_handler handler, void *handler_context)
 {
-	if (unlikely((ws == NULL)) || (handler == NULL)) {
-		return CIO_INVALID_ARGUMENT;
-	}
-
-	if (unlikely(payload_size_in_limit(payload, CIO_WEBSOCKET_SMALL_FRAME_SIZE) == 0)) {
-		return CIO_INVALID_ARGUMENT;
-	}
-
-	if (unlikely(ws->write_pong_job.wbh != NULL)) {
-		return CIO_OPERATION_NOT_PERMITTED;
-	}
-
-	ws->write_pong_job.wbh = payload;
-	ws->write_pong_job.handler = handler;
-	ws->write_pong_job.handler_context = handler_context;
-	ws->write_pong_job.frame_type = CIO_WEBSOCKET_PONG_FRAME;
-	ws->write_pong_job.last_frame = true;
-	ws->write_pong_job.stream_handler = message_written;
-
-	return send_frame(ws, &ws->write_pong_job);
+	return write_ping_or_pong_message(ws, CIO_WEBSOCKET_PONG_FRAME, &ws->write_pong_job, payload, handler, handler_context);
 }
 
 static enum cio_error write_close_message(struct cio_websocket *ws, enum cio_websocket_status_code status_code, const char *reason, cio_websocket_write_handler handler, void *handler_context)
