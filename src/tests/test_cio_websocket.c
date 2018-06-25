@@ -2329,9 +2329,8 @@ static void test_send_text_binary_frame(void)
 
 static void test_send_fragmented_text_frame(void)
 {
-	uint32_t frame_size = 5;
-	char *data = malloc(frame_size);
-	memset(data, 'a', frame_size);
+	char data[6];
+	memset(data, 'a', sizeof(data));
 
 	struct ws_frame frames[] = {
 		{.frame_type = CIO_WEBSOCKET_CLOSE_FRAME, .direction = FROM_CLIENT, .data = NULL, .data_length = 0, .last_frame = true, .rsv = false},
@@ -2343,13 +2342,13 @@ static void test_send_fragmented_text_frame(void)
 	cio_write_buffer_head_init(&wbh);
 
 	struct cio_write_buffer wb;
-	cio_write_buffer_element_init(&wb, data, frame_size);
+	cio_write_buffer_element_init(&wb, data, sizeof(data));
 	cio_write_buffer_queue_tail(&wbh, &wb);
 
 	uint32_t context = 0x1234568;
 	enum cio_error err = ws->write_message(ws, &wbh, false, false, write_handler, &context);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Writing a text frame did not succeed!");
-	TEST_ASSERT_MESSAGE(check_frame(CIO_WEBSOCKET_TEXT_FRAME, data, frame_size, false), "First frame fragment sent is incorrect text frame!");
+	TEST_ASSERT_MESSAGE(check_frame(CIO_WEBSOCKET_TEXT_FRAME, data, sizeof(data), false), "First frame fragment sent is incorrect text frame!");
 
 	err = ws->read_message(ws, read_handler, NULL);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Could not start reading a message!");
@@ -2362,15 +2361,65 @@ static void test_send_fragmented_text_frame(void)
 
 	TEST_ASSERT_EQUAL_MESSAGE(1, wbh.data.q_len, "Length of write buffer different than before writing!");
 	TEST_ASSERT_EQUAL_MESSAGE(&wbh, wbh.next->next, "Concatenation of write buffers no longer correct after writing!");
-	TEST_ASSERT_EQUAL_MEMORY_MESSAGE(data, wbh.next->data.element.data, frame_size, "Content of writebuffer not correct after writing!");
+	TEST_ASSERT_EQUAL_MEMORY_MESSAGE(data, wbh.next->data.element.data, sizeof(data), "Content of writebuffer not correct after writing!");
 
 	TEST_ASSERT_EQUAL_MESSAGE(0, on_error_fake.call_count, "error callback was called");
 	TEST_ASSERT_EQUAL_MESSAGE(1, on_control_fake.call_count, "control callback was called not for last close frame");
-
-	if (data) {
-		free(data);
-	}
 }
+
+static void test_send_text_frame_no_ws(void)
+{
+	char data[5];
+	memset(data, 'a', sizeof(data));
+
+	struct cio_write_buffer wbh;
+	cio_write_buffer_head_init(&wbh);
+
+	struct cio_write_buffer wb;
+	cio_write_buffer_element_init(&wb, data, sizeof(data));
+	cio_write_buffer_queue_tail(&wbh, &wb);
+
+	enum cio_error err = ws->write_message(NULL, &wbh, true, false, write_handler, NULL);
+	TEST_ASSERT_EQUAL_MESSAGE(CIO_INVALID_ARGUMENT, err, "Writing a text frame with not webscoket did not fail!");
+}
+
+static void test_send_text_frame_no_handler(void)
+{
+	char data[5];
+	memset(data, 'a', sizeof(data));
+
+	struct cio_write_buffer wbh;
+	cio_write_buffer_head_init(&wbh);
+
+	struct cio_write_buffer wb;
+	cio_write_buffer_element_init(&wb, data, sizeof(data));
+	cio_write_buffer_queue_tail(&wbh, &wb);
+
+	enum cio_error err = ws->write_message(ws, &wbh, true, false, NULL, NULL);
+	TEST_ASSERT_EQUAL_MESSAGE(CIO_INVALID_ARGUMENT, err, "Writing a text frame with no handler did not fail!");
+}
+
+static void test_send_text_frame_twice(void)
+{
+	bs_write_fake.custom_fake = bs_write_later;
+
+	char data[5];
+	memset(data, 'a', sizeof(data));
+
+	struct cio_write_buffer wbh;
+	cio_write_buffer_head_init(&wbh);
+
+	struct cio_write_buffer wb;
+	cio_write_buffer_element_init(&wb, data, sizeof(data));
+	cio_write_buffer_queue_tail(&wbh, &wb);
+
+	enum cio_error err = ws->write_message(ws, &wbh, true, false, write_handler, NULL);
+	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Writing a text frame did not succeed!");
+
+	err = ws->write_message(ws, &wbh, true, false, write_handler, NULL);
+	TEST_ASSERT_EQUAL_MESSAGE(CIO_OPERATION_NOT_PERMITTED, err, "Writing a second text frame did not fail!");
+}
+
 
 int main(void)
 {
@@ -2458,6 +2507,9 @@ int main(void)
 
 	RUN_TEST(test_send_text_binary_frame);
 	RUN_TEST(test_send_fragmented_text_frame);
+	RUN_TEST(test_send_text_frame_no_ws);
+	RUN_TEST(test_send_text_frame_no_handler);
+	RUN_TEST(test_send_text_frame_twice);
 
 	return UNITY_END();
 }
