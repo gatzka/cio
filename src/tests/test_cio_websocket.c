@@ -139,6 +139,13 @@ static enum cio_error timer_expires_from_now_save(struct cio_timer *t, uint64_t 
 	return CIO_SUCCESS;
 }
 
+static void timer_close_cancel(struct cio_timer *t)
+{
+	if (t->handler) {
+		t->handler(t, t->handler_context, CIO_OPERATION_ABORTED);
+	}
+}
+
 static bool check_frame(enum cio_websocket_frame_type opcode, const char *payload, size_t payload_length, bool is_last_frame)
 {
 	(void)payload;
@@ -412,6 +419,7 @@ static enum cio_error bs_write_later(struct cio_buffered_stream *bs, struct cio_
 static enum cio_error cio_timer_init_ok(struct cio_timer *timer, struct cio_eventloop *l, cio_timer_close_hook hook)
 {
 	(void)l;
+	timer->handler = NULL;
 	timer->cancel = timer_cancel;
 	timer->close = timer_close;
 	timer->close_hook = hook;
@@ -491,6 +499,7 @@ void setUp(void)
 
 	cio_timer_init_fake.custom_fake = cio_timer_init_ok;
 	timer_expires_from_now_fake.custom_fake = timer_expires_from_now_save;
+	timer_close_fake.custom_fake = timer_close_cancel;
 
 	read_handler_fake.custom_fake = read_handler_save_data;
 	read_exactly_fake.custom_fake = bs_read_exactly_from_buffer;
