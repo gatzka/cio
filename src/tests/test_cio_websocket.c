@@ -2131,6 +2131,33 @@ static void test_send_pong_frame_twice(void)
 	TEST_ASSERT_EQUAL_MESSAGE(0, on_error_fake.call_count, "error callback was called");
 }
 
+static void test_send_ping_frame(void)
+{
+	char buffer[] = "aaaaaaaa";
+
+	struct cio_write_buffer wbh;
+	cio_write_buffer_head_init(&wbh);
+
+	struct cio_write_buffer wb;
+	cio_write_buffer_element_init(&wb, buffer, sizeof(buffer));
+	cio_write_buffer_queue_tail(&wbh, &wb);
+
+	enum cio_error err = ws->write_ping(ws, &wbh, write_handler, NULL);
+	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Writing a ping frame did not succeed!");
+	TEST_ASSERT_EQUAL_MESSAGE(1, write_handler_fake.call_count, "Write handler was not called once");
+	TEST_ASSERT_EQUAL_MESSAGE(ws, write_handler_fake.arg0_val, "websocket parameter of write_handler not correct");
+	TEST_ASSERT_NULL_MESSAGE(write_handler_fake.arg1_val, "context parameter of write_handler not NULL");
+	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, write_handler_fake.arg2_val, "err parameter of write_handler not correct");
+
+	TEST_ASSERT_EQUAL_MESSAGE(0, on_error_fake.call_count, "error callback was called");
+
+	TEST_ASSERT_EQUAL_MESSAGE(1, wbh.data.q_len, "Length of write buffer different than before writing!");
+	TEST_ASSERT_EQUAL_MESSAGE(&wbh, wbh.next->next, "Concatenation of write buffers no longer correct after writing!");
+	TEST_ASSERT_EQUAL_MEMORY_MESSAGE(buffer, wbh.next->data.element.data, sizeof(buffer), "Content of writebuffer not correct after writing!");
+
+	TEST_ASSERT_TRUE_MESSAGE(check_frame(CIO_WEBSOCKET_PING_FRAME, buffer, sizeof(buffer), true), "Written ping frame not correct");
+}
+
 
 #if 0
 
@@ -2491,6 +2518,8 @@ int main(void)
 	RUN_TEST(test_send_pong_frame_no_handler);
 	RUN_TEST(test_send_pong_frame_payload_too_large);
 	RUN_TEST(test_send_pong_frame_twice);
+
+	RUN_TEST(test_send_ping_frame);
 #if 0
 
 
