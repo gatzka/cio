@@ -728,12 +728,12 @@ static enum cio_error write_message(struct cio_websocket *ws, struct cio_write_b
 
 static enum cio_error write_ping_message(struct cio_websocket *ws, struct cio_write_buffer *payload, cio_websocket_write_handler handler, void *handler_context)
 {
-	if (unlikely(payload_size_in_limit(payload, CIO_WEBSOCKET_SMALL_FRAME_SIZE) == 0)) {
-		handler(ws, handler_context, CIO_MESSAGE_TOO_LONG);
+	if (unlikely((ws == NULL)) || (handler == NULL)) {
 		return CIO_INVALID_ARGUMENT;
 	}
 
-	if (unlikely((ws == NULL)) || (handler == NULL)) {
+	if (unlikely(payload_size_in_limit(payload, CIO_WEBSOCKET_SMALL_FRAME_SIZE) == 0)) {
+		handler(ws, handler_context, CIO_MESSAGE_TOO_LONG);
 		return CIO_INVALID_ARGUMENT;
 	}
 
@@ -753,12 +753,12 @@ static enum cio_error write_ping_message(struct cio_websocket *ws, struct cio_wr
 
 static enum cio_error write_pong_message(struct cio_websocket *ws, struct cio_write_buffer *payload, cio_websocket_write_handler handler, void *handler_context)
 {
-	if (unlikely(payload_size_in_limit(payload, CIO_WEBSOCKET_SMALL_FRAME_SIZE) == 0)) {
-		handler(ws, handler_context, CIO_MESSAGE_TOO_LONG);
+	if (unlikely((ws == NULL)) || (handler == NULL)) {
 		return CIO_INVALID_ARGUMENT;
 	}
 
-	if (unlikely((ws == NULL)) || (handler == NULL)) {
+	if (unlikely(payload_size_in_limit(payload, CIO_WEBSOCKET_SMALL_FRAME_SIZE) == 0)) {
+		handler(ws, handler_context, CIO_MESSAGE_TOO_LONG);
 		return CIO_INVALID_ARGUMENT;
 	}
 
