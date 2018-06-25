@@ -2211,6 +2211,67 @@ static void test_send_ping_frame(void)
 	TEST_ASSERT_TRUE_MESSAGE(check_frame(CIO_WEBSOCKET_PING_FRAME, buffer, sizeof(buffer), true), "Written ping frame not correct");
 }
 
+static void test_send_text_binary_frame(void)
+{
+	uint32_t frame_sizes[] = {1, 5, 125, 126, 65535, 65536};
+	unsigned int frame_types[] = {CIO_WEBSOCKET_BINARY_FRAME, CIO_WEBSOCKET_TEXT_FRAME};
+
+	for (unsigned int i = 0; i < ARRAY_SIZE(frame_sizes); i++) {
+		for (unsigned int j = 0; j < ARRAY_SIZE(frame_types); j++) {
+			uint32_t frame_size = frame_sizes[i];
+			char *data = malloc(frame_size);
+			memset(data, 'a', frame_size);
+
+			struct ws_frame frames[] = {
+				{.frame_type = CIO_WEBSOCKET_CLOSE_FRAME, .direction = FROM_CLIENT, .data = NULL, .data_length = 0, .last_frame = true, .rsv = false},
+			};
+
+			serialize_frames(frames, ARRAY_SIZE(frames));
+
+			struct cio_write_buffer wbh;
+			cio_write_buffer_head_init(&wbh);
+
+			struct cio_write_buffer wb;
+			cio_write_buffer_element_init(&wb, data, frame_size);
+			cio_write_buffer_queue_tail(&wbh, &wb);
+
+			uint32_t context = 0x1234568;
+			if (frame_types[j] == CIO_WEBSOCKET_TEXT_FRAME) {
+				enum cio_error err = ws->write_message(ws, &wbh, true, false, write_handler, &context);
+				TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Writing a text frame did not succeed!");
+				TEST_ASSERT_MESSAGE(check_frame(CIO_WEBSOCKET_TEXT_FRAME, data, frame_size, true), "First frame send is incorrect text frame!");
+			} else if (frame_types[j] == CIO_WEBSOCKET_BINARY_FRAME) {
+				enum cio_error err = ws->write_message(ws, &wbh, true, true, write_handler, &context);
+				TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Writing a binary frame did not succeed!");
+				TEST_ASSERT_MESSAGE(check_frame(CIO_WEBSOCKET_BINARY_FRAME, data, frame_size, true), "First frame send is incorrect binary frame!");
+			}
+
+			enum cio_error err = ws->read_message(ws, read_handler, NULL);
+			TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Could not start reading a message!");
+			TEST_ASSERT_MESSAGE(is_close_frame(CIO_WEBSOCKET_CLOSE_NORMAL, true), "written frame is not a close frame!");
+
+			TEST_ASSERT_EQUAL_MESSAGE(1, write_handler_fake.call_count, "write handler was not called!");
+			TEST_ASSERT_EQUAL_PTR_MESSAGE(ws, write_handler_fake.arg0_val, "websocket pointer in write handler not correct!");
+			TEST_ASSERT_EQUAL_PTR_MESSAGE(&context, write_handler_fake.arg1_val, "context pointer in write handler not correct!");
+			TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, write_handler_fake.arg2_val, "error code in write handler not correct!");
+
+			TEST_ASSERT_EQUAL_MESSAGE(1, wbh.data.q_len, "Length of write buffer different than before writing!");
+			TEST_ASSERT_EQUAL_MESSAGE(&wbh, wbh.next->next, "Concatenation of write buffers no longer correct after writing!");
+			TEST_ASSERT_EQUAL_MEMORY_MESSAGE(data, wbh.next->data.element.data, frame_size, "Content of writebuffer not correct after writing!");
+
+			TEST_ASSERT_EQUAL_MESSAGE(0, on_error_fake.call_count, "error callback was called");
+			TEST_ASSERT_EQUAL_MESSAGE(1, on_control_fake.call_count, "control callback was called not for last close frame");
+
+			if (data) {
+				free(data);
+			}
+
+			free(ws);
+			setUp();
+		}
+	}
+}
+
 
 #if 0
 
@@ -2353,70 +2414,6 @@ static void test_close_with_overlong_reason_in_textframe_callback(void)
 	TEST_ASSERT_MESSAGE(is_close_frame(CIO_WEBSOCKET_CLOSE_GOING_AWAY, true), "written frame is not a close frame!");
 }
 
-static void test_send_text_binary_frame(void)
-{
-	uint32_t frame_sizes[] = {1, 5, 125, 126, 65535, 65536};
-	unsigned int frame_types[] = {CIO_WEBSOCKET_BINARY_FRAME, CIO_WEBSOCKET_TEXT_FRAME};
-
-	for (unsigned int i = 0; i < ARRAY_SIZE(frame_sizes); i++) {
-		for (unsigned int j = 0; j < ARRAY_SIZE(frame_types); j++) {
-			uint32_t frame_size = frame_sizes[i];
-			char *data = malloc(frame_size);
-			memset(data, 'a', frame_size);
-
-			struct ws_frame frames[] = {
-				{.frame_type = CIO_WEBSOCKET_CLOSE_FRAME, .direction = FROM_CLIENT, .data = NULL, .data_length = 0, .last_frame = true, .rsv = false},
-			};
-
-			serialize_frames(frames, ARRAY_SIZE(frames));
-
-			struct cio_write_buffer wbh;
-			cio_write_buffer_head_init(&wbh);
-
-			struct cio_write_buffer wb;
-			cio_write_buffer_element_init(&wb, data, frame_size);
-			cio_write_buffer_queue_tail(&wbh, &wb);
-
-			uint32_t context = 0x1234568;
-			if (frame_types[j] == CIO_WEBSOCKET_TEXT_FRAME) {
-				enum cio_websocket_status status = ws->write_textframe(ws, &wbh, true, write_handler, &context);
-				TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, status, "Writing a text frame did not succeed!");
-				TEST_ASSERT_MESSAGE(check_frame(CIO_WEBSOCKET_TEXT_FRAME, data, frame_size, true), "First frame send is incorrect text frame!");
-			} else if (frame_types[j] == CIO_WEBSOCKET_BINARY_FRAME) {
-				enum cio_websocket_status status = ws->write_binaryframe(ws, &wbh, true, write_handler, &context);
-				TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, status, "Writing a binary frame did not succeed!");
-				TEST_ASSERT_MESSAGE(check_frame(CIO_WEBSOCKET_BINARY_FRAME, data, frame_size, true), "First frame send is incorrect binary frame!");
-			}
-
-			ws->internal_on_connect(ws);
-
-			TEST_ASSERT_MESSAGE(is_close_frame(CIO_WEBSOCKET_CLOSE_NORMAL, true), "written frame is not a close frame!");
-			TEST_ASSERT_EQUAL_MESSAGE(0, on_textframe_fake.call_count, "callback for text frames was called");
-			TEST_ASSERT_EQUAL_MESSAGE(0, on_binaryframe_fake.call_count, "callback for binary frames was called");
-			TEST_ASSERT_EQUAL_MESSAGE(0, on_ping_fake.call_count, "callback for ping frames was called");
-			TEST_ASSERT_EQUAL_MESSAGE(0, on_pong_fake.call_count, "callback for pong frames was called");
-			TEST_ASSERT_EQUAL_MESSAGE(1, on_close_fake.call_count, "close callback was not called");
-			TEST_ASSERT_EQUAL_MESSAGE(0, on_error_fake.call_count, "error callback was called");
-
-			TEST_ASSERT_EQUAL_MESSAGE(1, write_handler_fake.call_count, "write handler was not called!");
-			TEST_ASSERT_EQUAL_PTR_MESSAGE(ws, write_handler_fake.arg0_val, "websocket pointer in write handler not correct!");
-			TEST_ASSERT_EQUAL_PTR_MESSAGE(&context, write_handler_fake.arg1_val, "context pointer in write handler not correct!");
-			TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, write_handler_fake.arg2_val, "error code in write handler not correct!");
-
-			TEST_ASSERT_EQUAL_MESSAGE(1, wbh.data.q_len, "Length of write buffer different than before writing!");
-			TEST_ASSERT_EQUAL_MESSAGE(&wbh, wbh.next->next, "Concatenation of write buffers no longer correct after writing!");
-			TEST_ASSERT_EQUAL_MEMORY_MESSAGE(data, wbh.next->data.element.data, frame_size, "Content of writebuffer not correct after writing!");
-
-			if (data) {
-				free(data);
-			}
-
-			setUp();
-		}
-	}
-
-	free(ws);
-}
 
 #if 0
 static void test_send_ping_frame_no_payload(void)
@@ -2574,6 +2571,8 @@ int main(void)
 	RUN_TEST(test_send_pong_frame_twice);
 
 	RUN_TEST(test_send_ping_frame);
+
+	RUN_TEST(test_send_text_binary_frame);
 #if 0
 
 
