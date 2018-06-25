@@ -98,7 +98,6 @@ FAKE_VOID_FUNC(close_handler, struct cio_websocket *, void *, enum cio_error)
 static void write_handler(struct cio_websocket *ws, void *context, enum cio_error err);
 FAKE_VOID_FUNC(write_handler, struct cio_websocket *, void *, enum cio_error)
 
-
 #ifndef ARRAY_SIZE
 #define ARRAY_SIZE(a) (sizeof(a) / sizeof((a)[0]))
 #endif
@@ -108,8 +107,6 @@ FAKE_VOID_FUNC(write_handler, struct cio_websocket *, void *, enum cio_error)
 #define WS_CLOSE_FRAME 0x8
 #define WS_MASK_SET 0x80
 #define WS_PAYLOAD_LENGTH 0x7f
-
-
 
 struct ws_frame {
 	enum cio_websocket_frame_type frame_type;
@@ -383,7 +380,6 @@ static void on_close_frame_save_data(const struct cio_websocket *websocket, enum
 static void websocket_free(struct cio_websocket *s)
 {
 	(void)s;
-	//free(s);
 }
 
 static enum cio_error bs_write_ok(struct cio_buffered_stream *bs, struct cio_write_buffer *buf, cio_buffered_stream_write_handler handler, void *handler_context)
@@ -527,11 +523,15 @@ void tearDown(void)
 }
 
 
-#if 0
-static void test_init_without_close_hook(void) {
-	cio_websocket_init(ws, true, websocket_free, on_connect);
+static void test_init_without_ws(void) {
+	enum cio_error err = cio_websocket_init(NULL, true, on_connect, websocket_free);
+	TEST_ASSERT_EQUAL_MESSAGE(CIO_INVALID_ARGUMENT, err, "Wrong error code if no ws pointer provided");
 }
-#endif
+
+static void test_init_without_on_connect(void) {
+	enum cio_error err = cio_websocket_init(ws, true, NULL, websocket_free);
+	TEST_ASSERT_EQUAL_MESSAGE(CIO_INVALID_ARGUMENT, err, "Wrong error code if no on_connect function provided");
+}
 
 static void test_read_message_no_websocket(void)
 {
@@ -2557,6 +2557,9 @@ static void test_send_ping_frame(void)
 int main(void)
 {
 	UNITY_BEGIN();
+	RUN_TEST(test_init_without_ws);
+	RUN_TEST(test_init_without_on_connect);
+
 	RUN_TEST(test_read_message_no_websocket);
 	RUN_TEST(test_read_message_no_handler);
 	RUN_TEST(test_unfragmented_frames);
