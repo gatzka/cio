@@ -2327,44 +2327,71 @@ static void test_send_text_binary_frame(void)
 	}
 }
 
+struct fragmented_websocket {
+	struct cio_websocket ws;
+	char first_fragment[5];
+	char second_fragment[5];
+	char third_fragment[5];
+	struct cio_write_buffer wbh;
+	struct cio_write_buffer wb;
+};
+
+static void write_handler_third_fragment(struct cio_websocket *s, void *context, enum cio_error err)
+{
+	write_handler_fake.custom_fake = NULL;
+
+	struct fragmented_websocket *fws = (struct fragmented_websocket *)context;
+
+	TEST_ASSERT_TRUE_MESSAGE(check_frame(CIO_WEBSOCKET_CONTINUATION_FRAME, fws->second_fragment, sizeof(fws->second_fragment), false), "Second fragment written not correct");
+
+	cio_write_buffer_head_init(&fws->wbh);
+	cio_write_buffer_element_init(&fws->wb, fws->third_fragment, sizeof(fws->third_fragment));
+	cio_write_buffer_queue_tail(&fws->wbh, &fws->wb);
+
+	err = s->write_message(s, &fws->wbh, true, false, write_handler, fws);
+	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Writing third frame of text message did not succeed!");
+}
+
+static void write_handler_second_fragment(struct cio_websocket *s, void *context, enum cio_error err)
+{
+	write_handler_fake.custom_fake = write_handler_third_fragment;
+
+	struct fragmented_websocket *fws = (struct fragmented_websocket *)context;
+
+	TEST_ASSERT_TRUE_MESSAGE(check_frame(CIO_WEBSOCKET_TEXT_FRAME, fws->first_fragment, sizeof(fws->first_fragment), false), "Written first fragment not correct");
+
+	cio_write_buffer_head_init(&fws->wbh);
+	cio_write_buffer_element_init(&fws->wb, fws->second_fragment, sizeof(fws->second_fragment));
+	cio_write_buffer_queue_tail(&fws->wbh, &fws->wb);
+
+	err = s->write_message(s, &fws->wbh, false, false, write_handler, fws);
+	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Writing second frame of text message did not succeed!");
+}
+
 static void test_send_fragmented_text_frame(void)
 {
-	char data[6];
-	memset(data, 'a', sizeof(data));
+	write_handler_fake.custom_fake = write_handler_second_fragment;
 
-	struct ws_frame frames[] = {
-		{.frame_type = CIO_WEBSOCKET_CLOSE_FRAME, .direction = FROM_CLIENT, .data = NULL, .data_length = 0, .last_frame = true, .rsv = false},
-	};
+	struct fragmented_websocket fws;
+	cio_write_buffer_head_init(&fws.wbh);
 
-	serialize_frames(frames, ARRAY_SIZE(frames));
+	memcpy(fws.first_fragment, "Hello", strlen("Hello"));
+	memcpy(fws.second_fragment, "World", strlen("World"));
+	memcpy(fws.third_fragment, "olleH", strlen("olleH"));
+	cio_write_buffer_element_init(&fws.wb, fws.first_fragment, sizeof(fws.first_fragment));
+	cio_write_buffer_queue_tail(&fws.wbh, &fws.wb);
 
-	struct cio_write_buffer wbh;
-	cio_write_buffer_head_init(&wbh);
+	enum cio_error err = cio_websocket_init(&fws.ws, true, on_connect, NULL);
+	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Init did not succeeded");
 
-	struct cio_write_buffer wb;
-	cio_write_buffer_element_init(&wb, data, sizeof(data));
-	cio_write_buffer_queue_tail(&wbh, &wb);
+	fws.ws.rb = &rb;
+	fws.ws.bs = &buffered_stream;
 
-	uint32_t context = 0x1234568;
-	enum cio_error err = ws->write_message(ws, &wbh, false, false, write_handler, &context);
+	err = fws.ws.write_message(&fws.ws, &fws.wbh, false, false, write_handler, &fws);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Writing a text frame did not succeed!");
-	TEST_ASSERT_MESSAGE(check_frame(CIO_WEBSOCKET_TEXT_FRAME, data, sizeof(data), false), "First frame fragment sent is incorrect text frame!");
+	TEST_ASSERT_MESSAGE(check_frame(CIO_WEBSOCKET_CONTINUATION_FRAME, fws.third_fragment, sizeof(fws.third_fragment), true), "Third frame fragment sent is incorrect text frame!");
 
-	err = ws->read_message(ws, read_handler, NULL);
-	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Could not start reading a message!");
-	TEST_ASSERT_MESSAGE(is_close_frame(CIO_WEBSOCKET_CLOSE_NORMAL, true), "written frame is not a close frame!");
-
-	TEST_ASSERT_EQUAL_MESSAGE(1, write_handler_fake.call_count, "write handler was not called!");
-	TEST_ASSERT_EQUAL_PTR_MESSAGE(ws, write_handler_fake.arg0_val, "websocket pointer in write handler not correct!");
-	TEST_ASSERT_EQUAL_PTR_MESSAGE(&context, write_handler_fake.arg1_val, "context pointer in write handler not correct!");
-	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, write_handler_fake.arg2_val, "error code in write handler not correct!");
-
-	TEST_ASSERT_EQUAL_MESSAGE(1, wbh.data.q_len, "Length of write buffer different than before writing!");
-	TEST_ASSERT_EQUAL_MESSAGE(&wbh, wbh.next->next, "Concatenation of write buffers no longer correct after writing!");
-	TEST_ASSERT_EQUAL_MEMORY_MESSAGE(data, wbh.next->data.element.data, sizeof(data), "Content of writebuffer not correct after writing!");
-
-	TEST_ASSERT_EQUAL_MESSAGE(0, on_error_fake.call_count, "error callback was called");
-	TEST_ASSERT_EQUAL_MESSAGE(1, on_control_fake.call_count, "control callback was called not for last close frame");
+	TEST_ASSERT_EQUAL_MESSAGE(3, write_handler_fake.call_count, "write handler was not called!");
 }
 
 static void test_send_text_frame_no_ws(void)
