@@ -2044,6 +2044,94 @@ static void test_send_pong_frame(void)
 	TEST_ASSERT_TRUE_MESSAGE(check_frame(CIO_WEBSOCKET_PONG_FRAME, buffer, sizeof(buffer), true), "Written pong frame not correct");
 }
 
+static void test_send_pong_frame_no_ws(void)
+{
+	char buffer[] = "aaaaaaaa";
+
+	struct cio_write_buffer wbh;
+	cio_write_buffer_head_init(&wbh);
+
+	struct cio_write_buffer wb;
+	cio_write_buffer_element_init(&wb, buffer, sizeof(buffer));
+	cio_write_buffer_queue_tail(&wbh, &wb);
+
+	enum cio_error err = ws->write_pong(NULL, &wbh, write_handler, NULL);
+	TEST_ASSERT_EQUAL_MESSAGE(CIO_INVALID_ARGUMENT, err, "Writing a pong frame did not succeed!");
+	TEST_ASSERT_EQUAL_MESSAGE(0, write_handler_fake.call_count, "Write handler was called");
+	TEST_ASSERT_EQUAL_MESSAGE(0, on_error_fake.call_count, "error callback was called");
+
+	TEST_ASSERT_EQUAL_MESSAGE(1, wbh.data.q_len, "Length of write buffer different than before writing!");
+	TEST_ASSERT_EQUAL_MESSAGE(&wbh, wbh.next->next, "Concatenation of write buffers no longer correct after writing!");
+	TEST_ASSERT_EQUAL_MEMORY_MESSAGE(buffer, wbh.next->data.element.data, sizeof(buffer), "Content of writebuffer not correct after writing!");
+}
+
+static void test_send_pong_frame_no_handler(void)
+{
+	char buffer[] = "aaaaaaaa";
+
+	struct cio_write_buffer wbh;
+	cio_write_buffer_head_init(&wbh);
+
+	struct cio_write_buffer wb;
+	cio_write_buffer_element_init(&wb, buffer, sizeof(buffer));
+	cio_write_buffer_queue_tail(&wbh, &wb);
+
+	enum cio_error err = ws->write_pong(ws, &wbh, NULL, NULL);
+	TEST_ASSERT_EQUAL_MESSAGE(CIO_INVALID_ARGUMENT, err, "Writing a pong frame did not succeed!");
+	TEST_ASSERT_EQUAL_MESSAGE(0, write_handler_fake.call_count, "Write handler was called");
+	TEST_ASSERT_EQUAL_MESSAGE(0, on_error_fake.call_count, "error callback was called");
+
+	TEST_ASSERT_EQUAL_MESSAGE(1, wbh.data.q_len, "Length of write buffer different than before writing!");
+	TEST_ASSERT_EQUAL_MESSAGE(&wbh, wbh.next->next, "Concatenation of write buffers no longer correct after writing!");
+	TEST_ASSERT_EQUAL_MEMORY_MESSAGE(buffer, wbh.next->data.element.data, sizeof(buffer), "Content of writebuffer not correct after writing!");
+}
+
+static void test_send_pong_frame_payload_too_large(void)
+{
+	char buffer[126] = {'a'};
+
+	struct cio_write_buffer wbh;
+	cio_write_buffer_head_init(&wbh);
+
+	struct cio_write_buffer wb;
+	cio_write_buffer_element_init(&wb, buffer, sizeof(buffer));
+	cio_write_buffer_queue_tail(&wbh, &wb);
+
+	enum cio_error err = ws->write_pong(ws, &wbh, write_handler, NULL);
+	TEST_ASSERT_EQUAL_MESSAGE(CIO_INVALID_ARGUMENT, err, "Writing a pong frame did not succeed!");
+	TEST_ASSERT_EQUAL_MESSAGE(0, write_handler_fake.call_count, "Write handler was called");
+
+	TEST_ASSERT_EQUAL_MESSAGE(0, on_error_fake.call_count, "error callback was called");
+
+	TEST_ASSERT_EQUAL_MESSAGE(1, wbh.data.q_len, "Length of write buffer different than before writing!");
+	TEST_ASSERT_EQUAL_MESSAGE(&wbh, wbh.next->next, "Concatenation of write buffers no longer correct after writing!");
+	TEST_ASSERT_EQUAL_MEMORY_MESSAGE(buffer, wbh.next->data.element.data, sizeof(buffer), "Content of writebuffer not correct after writing!");
+}
+
+static void test_send_pong_frame_twice(void)
+{
+	char buffer[125] = {'a'};
+
+	bs_write_fake.custom_fake = bs_write_later;
+
+	struct cio_write_buffer wbh;
+	cio_write_buffer_head_init(&wbh);
+
+	struct cio_write_buffer wb;
+	cio_write_buffer_element_init(&wb, buffer, sizeof(buffer));
+	cio_write_buffer_queue_tail(&wbh, &wb);
+
+	enum cio_error err = ws->write_pong(ws, &wbh, write_handler, NULL);
+	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Writing a pong frame did not succeed!");
+
+	err = ws->write_pong(ws, NULL, write_handler, NULL);
+	TEST_ASSERT_EQUAL_MESSAGE(CIO_OPERATION_NOT_PERMITTED, err, "Writing a second pong frame did not failed");
+
+	TEST_ASSERT_EQUAL_MESSAGE(0, write_handler_fake.call_count, "Write handler was not called once");
+	TEST_ASSERT_EQUAL_MESSAGE(0, on_error_fake.call_count, "error callback was called");
+}
+
+
 #if 0
 
 
@@ -2399,6 +2487,10 @@ int main(void)
 	RUN_TEST(test_close_self_sendframe_fails);
 
 	RUN_TEST(test_send_pong_frame);
+	RUN_TEST(test_send_pong_frame_no_ws);
+	RUN_TEST(test_send_pong_frame_no_handler);
+	RUN_TEST(test_send_pong_frame_payload_too_large);
+	RUN_TEST(test_send_pong_frame_twice);
 #if 0
 
 
