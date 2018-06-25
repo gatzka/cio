@@ -523,12 +523,14 @@ void tearDown(void)
 }
 
 
-static void test_init_without_ws(void) {
+static void test_init_without_ws(void)
+{
 	enum cio_error err = cio_websocket_init(NULL, true, on_connect, websocket_free);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_INVALID_ARGUMENT, err, "Wrong error code if no ws pointer provided");
 }
 
-static void test_init_without_on_connect(void) {
+static void test_init_without_on_connect(void)
+{
 	enum cio_error err = cio_websocket_init(ws, true, NULL, websocket_free);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_INVALID_ARGUMENT, err, "Wrong error code if no on_connect function provided");
 }
@@ -2017,6 +2019,39 @@ static void test_close_self_without_read(void)
 	TEST_ASSERT_EQUAL_MESSAGE(0, on_control_fake.call_count, "control callback was not called for last close frame");
 }
 
+static void test_close_self_without_close_hook(void)
+{
+	struct cio_websocket my_ws;
+	enum cio_error err = cio_websocket_init(&my_ws, true, on_connect, NULL);
+	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Init did not succeeded");
+
+	my_ws.rb = &rb;
+	my_ws.bs = &buffered_stream;
+
+	uint8_t data[] = {0x3, 0xe8};
+
+	struct ws_frame frames[] = {
+		{.frame_type = CIO_WEBSOCKET_CLOSE_FRAME, .direction = FROM_CLIENT, .data = data, .data_length = sizeof(data), .last_frame = true, .rsv = false},
+	};
+
+	serialize_frames(frames, ARRAY_SIZE(frames));
+
+	err = my_ws.close(&my_ws, CIO_WEBSOCKET_CLOSE_NORMAL, NULL, close_handler, NULL);
+	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Could not start reading a message!");
+
+	err = my_ws.read_message(&my_ws, read_handler, NULL);
+	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Could not start reading a message!");
+
+	TEST_ASSERT_EQUAL_MESSAGE(1, read_handler_fake.call_count, "read_handler was not called");
+	TEST_ASSERT_EQUAL_MESSAGE(&my_ws, read_handler_fake.arg0_val, "websocket parameter of read_handler not correct");
+	TEST_ASSERT_NULL_MESSAGE(read_handler_fake.arg1_val, "context of read handler not NULL");
+	TEST_ASSERT_EQUAL_MESSAGE(CIO_EOF, read_handler_fake.arg2_val, "error parameter of read_handler not CIO_SUCCESS");
+
+	TEST_ASSERT_EQUAL_MESSAGE(0, on_error_fake.call_count, "error callback was not called");
+
+	TEST_ASSERT_EQUAL_MESSAGE(0, on_control_fake.call_count, "control callback was not called for last close frame");
+}
+
 static void test_close_self_no_answer(void)
 {
 	enum cio_error err = ws->close(ws, CIO_WEBSOCKET_CLOSE_NORMAL, NULL, close_handler, NULL);
@@ -2632,6 +2667,7 @@ int main(void)
 	RUN_TEST(test_close_self_timer_expire_fails);
 	RUN_TEST(test_close_self_sendframe_fails);
 	RUN_TEST(test_close_self_without_read);
+	RUN_TEST(test_close_self_without_close_hook);
 
 	RUN_TEST(test_send_pong_frame);
 	RUN_TEST(test_send_pong_frame_no_ws);
