@@ -1997,6 +1997,18 @@ static void test_close_self_sendframe_fails(void)
 	TEST_ASSERT_EQUAL_MESSAGE(1, timer_close_fake.call_count, "Timer close was called");
 }
 
+static void test_close_self_without_read(void)
+{
+	enum cio_error err = ws->close(ws, CIO_WEBSOCKET_CLOSE_NORMAL, "Going away", close_handler, NULL);
+	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Close failed");
+
+	ws->close_timer.handler(&ws->close_timer, ws->close_timer.handler_context, CIO_SUCCESS);
+
+	TEST_ASSERT_EQUAL_MESSAGE(0, on_error_fake.call_count, "error callback was called");
+
+	TEST_ASSERT_EQUAL_MESSAGE(0, on_control_fake.call_count, "control callback was not called for last close frame");
+}
+
 static void test_close_self_no_answer(void)
 {
 	enum cio_error err = ws->close(ws, CIO_WEBSOCKET_CLOSE_NORMAL, NULL, close_handler, NULL);
@@ -2014,7 +2026,7 @@ static void test_close_self_no_answer(void)
 	TEST_ASSERT_NULL_MESSAGE(read_handler_fake.arg1_val, "context of read handler not NULL");
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_EOF, read_handler_fake.arg2_val, "error parameter of read_handler not CIO_SUCCESS");
 
-	TEST_ASSERT_EQUAL_MESSAGE(0, on_error_fake.call_count, "error callback was not called");
+	TEST_ASSERT_EQUAL_MESSAGE(0, on_error_fake.call_count, "error callback was called");
 
 	TEST_ASSERT_EQUAL_MESSAGE(0, on_control_fake.call_count, "control callback was not called for last close frame");
 }
@@ -2608,6 +2620,7 @@ int main(void)
 	RUN_TEST(test_close_self_timer_init_fails);
 	RUN_TEST(test_close_self_timer_expire_fails);
 	RUN_TEST(test_close_self_sendframe_fails);
+	RUN_TEST(test_close_self_without_read);
 
 	RUN_TEST(test_send_pong_frame);
 	RUN_TEST(test_send_pong_frame_no_ws);
