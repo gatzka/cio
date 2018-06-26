@@ -119,7 +119,7 @@ static enum cio_error send_frame(struct cio_websocket *ws, struct cio_websocket_
 	return ws->bs->write(ws->bs, job->wbh, job->stream_handler, ws);
 }
 
-static void enqueue_job(struct cio_websocket *ws, struct cio_websocket_write_job *job)
+static enum cio_error enqueue_job(struct cio_websocket *ws, struct cio_websocket_write_job *job)
 {
 	if (ws->first_write_job == NULL) {
 		ws->first_write_job = job;
@@ -127,11 +127,14 @@ static void enqueue_job(struct cio_websocket *ws, struct cio_websocket_write_job
 		enum cio_error err = send_frame(ws, job);
 		if (unlikely(err != CIO_SUCCESS)) {
 			handle_error(ws, CIO_WEBSOCKET_CLOSE_INTERNAL_ERROR, "Could not send frame");
+			return err;
 		}
 	} else {
 		ws->last_write_job->next = job;
 		ws->last_write_job = job;
 	}
+
+	return CIO_SUCCESS;
 }
 
 static struct cio_websocket_write_job *dequeue_job(struct cio_websocket *ws)
@@ -406,8 +409,10 @@ static void handle_ping_frame(struct cio_websocket *ws, uint8_t *data, uint64_t 
 	ws->write_pong_job.last_frame = true;
 	ws->write_pong_job.stream_handler = message_written;
 
-	enqueue_job(ws, &ws->write_pong_job);
-	ws->bs->read_exactly(ws->bs, ws->rb, 1, get_header, ws);
+	enum cio_error err = enqueue_job(ws, &ws->write_pong_job);
+	if (likely(err == CIO_SUCCESS)) {
+		ws->bs->read_exactly(ws->bs, ws->rb, 1, get_header, ws);
+	}
 }
 
 static void handle_pong_frame(struct cio_websocket *ws, uint8_t *data, uint64_t length)
