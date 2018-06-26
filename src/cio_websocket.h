@@ -227,6 +227,7 @@ struct cio_websocket {
 		unsigned int self_initiated_close : 1;
 		unsigned int is_server : 1;
 		unsigned int fragmented_write : 1;
+		unsigned int closed_by_error : 1;
 	} ws_flags;
 
 	cio_websocket_read_handler read_handler;

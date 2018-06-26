@@ -154,7 +154,10 @@ static void abort_write_jobs(struct cio_websocket *ws)
 
 	while (job != NULL) {
 		job->wbh = NULL;
-		job->handler(ws, job->handler_context, CIO_OPERATION_ABORTED);
+		if (job->handler) {
+			job->handler(ws, job->handler_context, CIO_OPERATION_ABORTED);
+		}
+
 		job = dequeue_job(ws);
 	}
 }
@@ -198,14 +201,18 @@ static void close_frame_written(struct cio_buffered_stream *bs, void *handler_co
 
 static void handle_error(struct cio_websocket *ws, enum cio_websocket_status_code status_code, const char *reason)
 {
-	if (ws->on_error != NULL) {
-		ws->on_error(ws, status_code, reason);
+	if (ws->ws_flags.closed_by_error == 0) {
+		ws->ws_flags.closed_by_error = 1;
+		if (ws->on_error != NULL) {
+			ws->on_error(ws, status_code, reason);
+		}
+
+		abort_write_jobs(ws);
+		prepare_close_job_string(ws, status_code, reason, NULL, NULL, close_frame_written);
+		enqueue_job(ws, &ws->write_close_job);
+
+		close(ws);
 	}
-
-	prepare_close_job_string(ws, status_code, reason, NULL, NULL, close_frame_written);
-	enqueue_job(ws, &ws->write_close_job);
-
-	close(ws);
 }
 
 static inline struct cio_websocket_write_job *get_job(struct cio_websocket *ws)
@@ -813,6 +820,7 @@ enum cio_error cio_websocket_init(struct cio_websocket *ws, bool is_server, cio_
 	ws->ws_flags.frag_opcode = 0;
 	ws->ws_flags.self_initiated_close = 0;
 	ws->ws_flags.fragmented_write = 1;
+	ws->ws_flags.closed_by_error = 0;
 
 	ws->write_message_job.wbh = NULL;
 	ws->write_ping_job.wbh = NULL;
