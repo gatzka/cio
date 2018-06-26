@@ -23,7 +23,7 @@
  <tr style="height: 56px;">
   <td style="padding-left: 0.5em;">
    <div id="projectname">ANSI C I/O Library
-   &#160;<span id="projectnumber">0.0.1-882+f7dea31</span>
+   &#160;<span id="projectnumber">0.0.1-935+1eae655</span>
    </div>
   </td>
  </tr>
@@ -82,8 +82,8 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="header">
   <div class="summary">
 <a href="#nested-classes">Data Structures</a> &#124;
-<a href="#func-members">Functions</a> &#124;
-<a href="#var-members">Variables</a>  </div>
+<a href="#enum-members">Enumerations</a> &#124;
+<a href="#func-members">Functions</a>  </div>
   <div class="headertitle">
 <div class="title">cio_utf8_checker.h File Reference</div>  </div>
 </div><!--header-->
@@ -99,20 +99,39 @@ Data Structures</h2></td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structcio__utf8__state.html">cio_utf8_state</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="enum-members"></a>
+Enumerations</h2></td></tr>
+<tr class="memitem:a8cc342c473ef83b38ab4e96678d4d63e"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="cio__utf8__checker_8h.html#a8cc342c473ef83b38ab4e96678d4d63e">cio_utf8_status</a> { <a class="el" href="cio__utf8__checker_8h.html#a8cc342c473ef83b38ab4e96678d4d63ea2375a85acbf1e6af16060d7d0d91eb11">CIO_UTF8_ACCEPT</a> = 0, 
+<a class="el" href="cio__utf8__checker_8h.html#a8cc342c473ef83b38ab4e96678d4d63ea0b2a76047615923429dfe58732314818">CIO_UTF8_REJECT</a> = 12
+ }</td></tr>
+<tr class="separator:a8cc342c473ef83b38ab4e96678d4d63e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="func-members"></a>
 Functions</h2></td></tr>
 <tr class="memitem:ac348d62f7d6eb6adb663f139187283c6"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="cio__utf8__checker_8h.html#ac348d62f7d6eb6adb663f139187283c6">cio_utf8_init</a> (struct <a class="el" href="structcio__utf8__state.html">cio_utf8_state</a> *state)</td></tr>
 <tr class="separator:ac348d62f7d6eb6adb663f139187283c6"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a6533469466509391a2c495f34ba76bdb"><td class="memItemLeft" align="right" valign="top">uint8_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="cio__utf8__checker_8h.html#a6533469466509391a2c495f34ba76bdb">cio_check_utf8</a> (struct <a class="el" href="structcio__utf8__state.html">cio_utf8_state</a> *state, const uint8_t *s, size_t count)</td></tr>
 <tr class="separator:a6533469466509391a2c495f34ba76bdb"><td class="memSeparator" colspan="2">&#160;</td></tr>
-</table><table class="memberdecls">
-<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="var-members"></a>
-Variables</h2></td></tr>
-<tr class="memitem:ae65c8ae6c68b049f8e2ce6856918e318"><td class="memItemLeft" align="right" valign="top">static const uint8_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="cio__utf8__checker_8h.html#ae65c8ae6c68b049f8e2ce6856918e318">CIO_UTF8_ACCEPT</a> = 0</td></tr>
-<tr class="separator:ae65c8ae6c68b049f8e2ce6856918e318"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a6abdb419c7f2695b7ee80fd55a4a5a43"><td class="memItemLeft" align="right" valign="top">static const uint8_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="cio__utf8__checker_8h.html#a6abdb419c7f2695b7ee80fd55a4a5a43">CIO_UTF8_REJECT</a> = 12</td></tr>
-<tr class="separator:a6abdb419c7f2695b7ee80fd55a4a5a43"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
+<h2 class="groupheader">Enumeration Type Documentation</h2>
+<a class="anchor" id="a8cc342c473ef83b38ab4e96678d4d63e"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">enum <a class="el" href="cio__utf8__checker_8h.html#a8cc342c473ef83b38ab4e96678d4d63e">cio_utf8_status</a></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<table class="fieldtable">
+<tr><th colspan="2">Enumerator</th></tr><tr><td class="fieldname"><em><a class="anchor" id="a8cc342c473ef83b38ab4e96678d4d63ea2375a85acbf1e6af16060d7d0d91eb11"></a>CIO_UTF8_ACCEPT</em>&#160;</td><td class="fielddoc">
+</td></tr>
+<tr><td class="fieldname"><em><a class="anchor" id="a8cc342c473ef83b38ab4e96678d4d63ea0b2a76047615923429dfe58732314818"></a>CIO_UTF8_REJECT</em>&#160;</td><td class="fielddoc">
+</td></tr>
+</table>
+
+</div>
+</div>
 <h2 class="groupheader">Function Documentation</h2>
 <a class="anchor" id="ac348d62f7d6eb6adb663f139187283c6"></a>
 <div class="memitem">
@@ -158,47 +177,6 @@ Variables</h2></td></tr>
           <td></td><td></td>
         </tr>
       </table>
-</div><div class="memdoc">
-
-</div>
-</div>
-<h2 class="groupheader">Variable Documentation</h2>
-<a class="anchor" id="ae65c8ae6c68b049f8e2ce6856918e318"></a>
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">const uint8_t CIO_UTF8_ACCEPT = 0</td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">static</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-
-</div>
-</div>
-<a class="anchor" id="a6abdb419c7f2695b7ee80fd55a4a5a43"></a>
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">const uint8_t CIO_UTF8_REJECT = 12</td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">static</span></span>  </td>
-  </tr>
-</table>
 </div><div class="memdoc">
 
 </div>

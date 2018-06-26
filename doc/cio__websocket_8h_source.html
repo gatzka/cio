@@ -23,7 +23,7 @@
  <tr style="height: 56px;">
   <td style="padding-left: 0.5em;">
    <div id="projectname">ANSI C I/O Library
-   &#160;<span id="projectnumber">0.0.1-882+f7dea31</span>
+   &#160;<span id="projectnumber">0.0.1-935+1eae655</span>
    </div>
   </td>
  </tr>
@@ -203,42 +203,43 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="line"><a name="l00227"></a><span class="lineno">  227</span>&#160;        <span class="keywordtype">unsigned</span> <span class="keywordtype">int</span> self_initiated_close : 1;</div>
 <div class="line"><a name="l00228"></a><span class="lineno">  228</span>&#160;        <span class="keywordtype">unsigned</span> <span class="keywordtype">int</span> is_server : 1;</div>
 <div class="line"><a name="l00229"></a><span class="lineno">  229</span>&#160;        <span class="keywordtype">unsigned</span> <span class="keywordtype">int</span> fragmented_write : 1;</div>
-<div class="line"><a name="l00230"></a><span class="lineno">  230</span>&#160;    } ws_flags;</div>
-<div class="line"><a name="l00231"></a><span class="lineno">  231</span>&#160;</div>
-<div class="line"><a name="l00232"></a><span class="lineno">  232</span>&#160;    <a class="code" href="cio__websocket_8h.html#aeb18a406608a7135dcb338ea814acf81">cio_websocket_read_handler</a> read_handler;</div>
-<div class="line"><a name="l00233"></a><span class="lineno">  233</span>&#160;    <span class="keywordtype">void</span> *read_handler_context;</div>
-<div class="line"><a name="l00234"></a><span class="lineno">  234</span>&#160;</div>
-<div class="line"><a name="l00235"></a><span class="lineno">  235</span>&#160;    <span class="keyword">struct </span><a class="code" href="structcio__buffered__stream.html">cio_buffered_stream</a> *bs;</div>
-<div class="line"><a name="l00236"></a><span class="lineno">  236</span>&#160;    <span class="keyword">struct </span><a class="code" href="structcio__read__buffer.html">cio_read_buffer</a> *rb;</div>
-<div class="line"><a name="l00237"></a><span class="lineno">  237</span>&#160;    <span class="keyword">struct </span><a class="code" href="structcio__timer.html">cio_timer</a> close_timer;</div>
-<div class="line"><a name="l00238"></a><span class="lineno">  238</span>&#160;    <span class="keyword">struct </span><a class="code" href="structcio__utf8__state.html">cio_utf8_state</a> utf8_state;</div>
-<div class="line"><a name="l00239"></a><span class="lineno">  239</span>&#160;    <a class="code" href="cio__websocket_8h.html#ae80b8348fc58df39d6c0d8bd35d5c607">cio_websocket_close_hook</a> close_hook;</div>
-<div class="line"><a name="l00240"></a><span class="lineno">  240</span>&#160;    uint8_t received_mask[4];</div>
-<div class="line"><a name="l00241"></a><span class="lineno">  241</span>&#160;</div>
-<div class="line"><a name="l00242"></a><span class="lineno">  242</span>&#160;    <span class="keyword">struct </span><a class="code" href="structcio__websocket__write__job.html">cio_websocket_write_job</a> write_message_job;</div>
-<div class="line"><a name="l00243"></a><span class="lineno">  243</span>&#160;    <span class="keyword">struct </span><a class="code" href="structcio__websocket__write__job.html">cio_websocket_write_job</a> write_ping_job;</div>
-<div class="line"><a name="l00244"></a><span class="lineno">  244</span>&#160;    <span class="keyword">struct </span><a class="code" href="structcio__websocket__write__job.html">cio_websocket_write_job</a> write_pong_job;</div>
-<div class="line"><a name="l00245"></a><span class="lineno">  245</span>&#160;    <span class="keyword">struct </span><a class="code" href="structcio__websocket__write__job.html">cio_websocket_write_job</a> write_close_job;</div>
-<div class="line"><a name="l00246"></a><span class="lineno">  246</span>&#160;</div>
-<div class="line"><a name="l00247"></a><span class="lineno">  247</span>&#160;    <span class="keyword">struct </span><a class="code" href="structcio__websocket__write__job.html">cio_websocket_write_job</a> *first_write_job;</div>
-<div class="line"><a name="l00248"></a><span class="lineno">  248</span>&#160;    <span class="keyword">struct </span><a class="code" href="structcio__websocket__write__job.html">cio_websocket_write_job</a> *last_write_job;</div>
-<div class="line"><a name="l00249"></a><span class="lineno">  249</span>&#160;</div>
-<div class="line"><a name="l00250"></a><span class="lineno">  250</span>&#160;    <span class="keyword">struct </span><a class="code" href="structcio__write__buffer.html">cio_write_buffer</a> wb_head_close_payload_buffer;</div>
-<div class="line"><a name="l00251"></a><span class="lineno">  251</span>&#160;    <span class="keyword">struct </span><a class="code" href="structcio__write__buffer.html">cio_write_buffer</a> wb_close_payload_buffer;</div>
-<div class="line"><a name="l00252"></a><span class="lineno">  252</span>&#160;    uint8_t close_payload_buffer[<a class="code" href="cio__websocket_8h.html#a6092b5c3a185ea1e9ca81b41026a2aea">CIO_WEBSOCKET_SMALL_FRAME_SIZE</a>];</div>
-<div class="line"><a name="l00253"></a><span class="lineno">  253</span>&#160;</div>
-<div class="line"><a name="l00254"></a><span class="lineno">  254</span>&#160;    <span class="keyword">struct </span><a class="code" href="structcio__write__buffer.html">cio_write_buffer</a> wb_head_ping_payload_buffer;</div>
-<div class="line"><a name="l00255"></a><span class="lineno">  255</span>&#160;    <span class="keyword">struct </span><a class="code" href="structcio__write__buffer.html">cio_write_buffer</a> wb_ping_payload_buffer;</div>
-<div class="line"><a name="l00256"></a><span class="lineno">  256</span>&#160;    uint8_t ping_payload_buffer[<a class="code" href="cio__websocket_8h.html#a6092b5c3a185ea1e9ca81b41026a2aea">CIO_WEBSOCKET_SMALL_FRAME_SIZE</a>];</div>
-<div class="line"><a name="l00258"></a><span class="lineno">  258</span>&#160;};</div>
-<div class="line"><a name="l00259"></a><span class="lineno">  259</span>&#160;</div>
-<div class="line"><a name="l00260"></a><span class="lineno">  260</span>&#160;<span class="keyword">enum</span> <a class="code" href="cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afe">cio_error</a> <a class="code" href="cio__websocket_8h.html#acf943032bcd768ba38f15fd37655f70d">cio_websocket_init</a>(<span class="keyword">struct</span> <a class="code" href="structcio__websocket.html">cio_websocket</a> *ws, <span class="keywordtype">bool</span> is_server, <a class="code" href="cio__websocket_8h.html#a1c79de7dd7f7071c4d2a8396a664b2d6">cio_websocket_on_connect</a> on_connect, <a class="code" href="cio__websocket_8h.html#ae80b8348fc58df39d6c0d8bd35d5c607">cio_websocket_close_hook</a> close_hook);</div>
-<div class="line"><a name="l00261"></a><span class="lineno">  261</span>&#160;</div>
-<div class="line"><a name="l00262"></a><span class="lineno">  262</span>&#160;<span class="preprocessor">#ifdef __cplusplus</span></div>
-<div class="line"><a name="l00263"></a><span class="lineno">  263</span>&#160;<span class="preprocessor"></span>}</div>
-<div class="line"><a name="l00264"></a><span class="lineno">  264</span>&#160;<span class="preprocessor">#endif</span></div>
-<div class="line"><a name="l00265"></a><span class="lineno">  265</span>&#160;<span class="preprocessor"></span></div>
-<div class="line"><a name="l00266"></a><span class="lineno">  266</span>&#160;<span class="preprocessor">#endif</span></div>
+<div class="line"><a name="l00230"></a><span class="lineno">  230</span>&#160;        <span class="keywordtype">unsigned</span> <span class="keywordtype">int</span> closed_by_error : 1;</div>
+<div class="line"><a name="l00231"></a><span class="lineno">  231</span>&#160;    } ws_flags;</div>
+<div class="line"><a name="l00232"></a><span class="lineno">  232</span>&#160;</div>
+<div class="line"><a name="l00233"></a><span class="lineno">  233</span>&#160;    <a class="code" href="cio__websocket_8h.html#aeb18a406608a7135dcb338ea814acf81">cio_websocket_read_handler</a> read_handler;</div>
+<div class="line"><a name="l00234"></a><span class="lineno">  234</span>&#160;    <span class="keywordtype">void</span> *read_handler_context;</div>
+<div class="line"><a name="l00235"></a><span class="lineno">  235</span>&#160;</div>
+<div class="line"><a name="l00236"></a><span class="lineno">  236</span>&#160;    <span class="keyword">struct </span><a class="code" href="structcio__buffered__stream.html">cio_buffered_stream</a> *bs;</div>
+<div class="line"><a name="l00237"></a><span class="lineno">  237</span>&#160;    <span class="keyword">struct </span><a class="code" href="structcio__read__buffer.html">cio_read_buffer</a> *rb;</div>
+<div class="line"><a name="l00238"></a><span class="lineno">  238</span>&#160;    <span class="keyword">struct </span><a class="code" href="structcio__timer.html">cio_timer</a> close_timer;</div>
+<div class="line"><a name="l00239"></a><span class="lineno">  239</span>&#160;    <span class="keyword">struct </span><a class="code" href="structcio__utf8__state.html">cio_utf8_state</a> utf8_state;</div>
+<div class="line"><a name="l00240"></a><span class="lineno">  240</span>&#160;    <a class="code" href="cio__websocket_8h.html#ae80b8348fc58df39d6c0d8bd35d5c607">cio_websocket_close_hook</a> close_hook;</div>
+<div class="line"><a name="l00241"></a><span class="lineno">  241</span>&#160;    uint8_t received_mask[4];</div>
+<div class="line"><a name="l00242"></a><span class="lineno">  242</span>&#160;</div>
+<div class="line"><a name="l00243"></a><span class="lineno">  243</span>&#160;    <span class="keyword">struct </span><a class="code" href="structcio__websocket__write__job.html">cio_websocket_write_job</a> write_message_job;</div>
+<div class="line"><a name="l00244"></a><span class="lineno">  244</span>&#160;    <span class="keyword">struct </span><a class="code" href="structcio__websocket__write__job.html">cio_websocket_write_job</a> write_ping_job;</div>
+<div class="line"><a name="l00245"></a><span class="lineno">  245</span>&#160;    <span class="keyword">struct </span><a class="code" href="structcio__websocket__write__job.html">cio_websocket_write_job</a> write_pong_job;</div>
+<div class="line"><a name="l00246"></a><span class="lineno">  246</span>&#160;    <span class="keyword">struct </span><a class="code" href="structcio__websocket__write__job.html">cio_websocket_write_job</a> write_close_job;</div>
+<div class="line"><a name="l00247"></a><span class="lineno">  247</span>&#160;</div>
+<div class="line"><a name="l00248"></a><span class="lineno">  248</span>&#160;    <span class="keyword">struct </span><a class="code" href="structcio__websocket__write__job.html">cio_websocket_write_job</a> *first_write_job;</div>
+<div class="line"><a name="l00249"></a><span class="lineno">  249</span>&#160;    <span class="keyword">struct </span><a class="code" href="structcio__websocket__write__job.html">cio_websocket_write_job</a> *last_write_job;</div>
+<div class="line"><a name="l00250"></a><span class="lineno">  250</span>&#160;</div>
+<div class="line"><a name="l00251"></a><span class="lineno">  251</span>&#160;    <span class="keyword">struct </span><a class="code" href="structcio__write__buffer.html">cio_write_buffer</a> wb_head_close_payload_buffer;</div>
+<div class="line"><a name="l00252"></a><span class="lineno">  252</span>&#160;    <span class="keyword">struct </span><a class="code" href="structcio__write__buffer.html">cio_write_buffer</a> wb_close_payload_buffer;</div>
+<div class="line"><a name="l00253"></a><span class="lineno">  253</span>&#160;    uint8_t close_payload_buffer[<a class="code" href="cio__websocket_8h.html#a6092b5c3a185ea1e9ca81b41026a2aea">CIO_WEBSOCKET_SMALL_FRAME_SIZE</a>];</div>
+<div class="line"><a name="l00254"></a><span class="lineno">  254</span>&#160;</div>
+<div class="line"><a name="l00255"></a><span class="lineno">  255</span>&#160;    <span class="keyword">struct </span><a class="code" href="structcio__write__buffer.html">cio_write_buffer</a> wb_head_ping_payload_buffer;</div>
+<div class="line"><a name="l00256"></a><span class="lineno">  256</span>&#160;    <span class="keyword">struct </span><a class="code" href="structcio__write__buffer.html">cio_write_buffer</a> wb_ping_payload_buffer;</div>
+<div class="line"><a name="l00257"></a><span class="lineno">  257</span>&#160;    uint8_t ping_payload_buffer[<a class="code" href="cio__websocket_8h.html#a6092b5c3a185ea1e9ca81b41026a2aea">CIO_WEBSOCKET_SMALL_FRAME_SIZE</a>];</div>
+<div class="line"><a name="l00259"></a><span class="lineno">  259</span>&#160;};</div>
+<div class="line"><a name="l00260"></a><span class="lineno">  260</span>&#160;</div>
+<div class="line"><a name="l00261"></a><span class="lineno">  261</span>&#160;<span class="keyword">enum</span> <a class="code" href="cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afe">cio_error</a> <a class="code" href="cio__websocket_8h.html#acf943032bcd768ba38f15fd37655f70d">cio_websocket_init</a>(<span class="keyword">struct</span> <a class="code" href="structcio__websocket.html">cio_websocket</a> *ws, <span class="keywordtype">bool</span> is_server, <a class="code" href="cio__websocket_8h.html#a1c79de7dd7f7071c4d2a8396a664b2d6">cio_websocket_on_connect</a> on_connect, <a class="code" href="cio__websocket_8h.html#ae80b8348fc58df39d6c0d8bd35d5c607">cio_websocket_close_hook</a> close_hook);</div>
+<div class="line"><a name="l00262"></a><span class="lineno">  262</span>&#160;</div>
+<div class="line"><a name="l00263"></a><span class="lineno">  263</span>&#160;<span class="preprocessor">#ifdef __cplusplus</span></div>
+<div class="line"><a name="l00264"></a><span class="lineno">  264</span>&#160;<span class="preprocessor"></span>}</div>
+<div class="line"><a name="l00265"></a><span class="lineno">  265</span>&#160;<span class="preprocessor">#endif</span></div>
+<div class="line"><a name="l00266"></a><span class="lineno">  266</span>&#160;<span class="preprocessor"></span></div>
+<div class="line"><a name="l00267"></a><span class="lineno">  267</span>&#160;<span class="preprocessor">#endif</span></div>
 <div class="ttc" id="structcio__buffered__stream_html"><div class="ttname"><a href="structcio__buffered__stream.html">cio_buffered_stream</a></div><div class="ttdef"><b>Definition:</b> cio_buffered_stream.h:90</div></div>
 <div class="ttc" id="cio__websocket_8h_html_aa24c9894ba2ee9dc5b0ebbc1c8809701a4fe538993d22d7dbceb83f2cb17937e8"><div class="ttname"><a href="cio__websocket_8h.html#aa24c9894ba2ee9dc5b0ebbc1c8809701a4fe538993d22d7dbceb83f2cb17937e8">CIO_WEBSOCKET_CLOSE_TRY_AGAIN_LATER</a></div><div class="ttdef"><b>Definition:</b> cio_websocket.h:73</div></div>
 <div class="ttc" id="cio__websocket_8h_html_aa24c9894ba2ee9dc5b0ebbc1c8809701"><div class="ttname"><a href="cio__websocket_8h.html#aa24c9894ba2ee9dc5b0ebbc1c8809701">cio_websocket_status_code</a></div><div class="ttdeci">cio_websocket_status_code</div><div class="ttdef"><b>Definition:</b> cio_websocket.h:61</div></div>
@@ -275,7 +276,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="ttc" id="cio__timer_8h_html"><div class="ttname"><a href="cio__timer_8h.html">cio_timer.h</a></div><div class="ttdoc">This file contains the interface of a timer. </div></div>
 <div class="ttc" id="structcio__websocket_html_a47b792bc86f20879aa73e97e6549b556"><div class="ttname"><a href="structcio__websocket.html#a47b792bc86f20879aa73e97e6549b556">cio_websocket::close</a></div><div class="ttdeci">enum cio_error(* close)(struct cio_websocket *ws, enum cio_websocket_status_code status, const char *reason, cio_websocket_write_handler handler, void *handler_context)</div><div class="ttdoc">Closes a websocket. </div><div class="ttdef"><b>Definition:</b> cio_websocket.h:118</div></div>
 <div class="ttc" id="structcio__websocket__write__job_html_ab280f25abec5056c40d480c0a03b163e"><div class="ttname"><a href="structcio__websocket__write__job.html#ab280f25abec5056c40d480c0a03b163e">cio_websocket_write_job::stream_handler</a></div><div class="ttdeci">cio_buffered_stream_write_handler stream_handler</div><div class="ttdef"><b>Definition:</b> cio_websocket.h:99</div></div>
-<div class="ttc" id="structcio__utf8__state_html"><div class="ttname"><a href="structcio__utf8__state.html">cio_utf8_state</a></div><div class="ttdef"><b>Definition:</b> cio_utf8_checker.h:41</div></div>
+<div class="ttc" id="structcio__utf8__state_html"><div class="ttname"><a href="structcio__utf8__state.html">cio_utf8_state</a></div><div class="ttdef"><b>Definition:</b> cio_utf8_checker.h:43</div></div>
 <div class="ttc" id="structcio__websocket__write__job_html_aa861ea6f9fbe9270a2ca76f9faced872"><div class="ttname"><a href="structcio__websocket__write__job.html#aa861ea6f9fbe9270a2ca76f9faced872">cio_websocket_write_job::frame_type</a></div><div class="ttdeci">enum cio_websocket_frame_type frame_type</div><div class="ttdef"><b>Definition:</b> cio_websocket.h:97</div></div>
 <div class="ttc" id="cio__websocket_8h_html_aa24c9894ba2ee9dc5b0ebbc1c8809701ac561a452a68e836193daadbdf1db5c10"><div class="ttname"><a href="cio__websocket_8h.html#aa24c9894ba2ee9dc5b0ebbc1c8809701ac561a452a68e836193daadbdf1db5c10">CIO_WEBSOCKET_CLOSE_UNSUPPORTED_DATA</a></div><div class="ttdef"><b>Definition:</b> cio_websocket.h:67</div></div>
 <div class="ttc" id="cio__websocket_8h_html_af33fb069400eeffde11ab324bf2245e9a35933dcf2a9173b8b2c05a87113f2ebb"><div class="ttname"><a href="cio__websocket_8h.html#af33fb069400eeffde11ab324bf2245e9a35933dcf2a9173b8b2c05a87113f2ebb">CIO_WEBSOCKET_BINARY_FRAME</a></div><div class="ttdef"><b>Definition:</b> cio_websocket.h:82</div></div>
