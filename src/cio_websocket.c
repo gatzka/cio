@@ -260,11 +260,11 @@ static void close_frame_written(struct cio_buffered_stream *bs, void *handler_co
 	struct cio_websocket *ws = (struct cio_websocket *)handler_context;
 	struct cio_websocket_write_job *job = get_job(ws);
 
-	abort_write_jobs(ws);
-
 	if (job->handler) {
 		job->handler(ws, job->handler_context, err);
 	}
+
+	abort_write_jobs(ws);
 }
 
 static bool is_invalid_status_code(uint16_t status_code)
