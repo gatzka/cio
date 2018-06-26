@@ -127,6 +127,10 @@ static uint8_t write_buffer[140000];
 static size_t write_buffer_pos = 0;
 static size_t write_buffer_parse_pos = 0;
 
+static struct cio_buffered_stream *write_later_bs;
+static struct cio_write_buffer *write_later_buf;
+static cio_buffered_stream_write_handler write_later_handler;
+static void *write_later_handler_context;
 
 static enum cio_error timer_expires_from_now_save(struct cio_timer *t, uint64_t timeout_ns, timer_handler handler, void *handler_context)
 {
@@ -145,8 +149,6 @@ static void timer_close_cancel(struct cio_timer *t)
 
 static bool check_frame(enum cio_websocket_frame_type opcode, const char *payload, size_t payload_length, bool is_last_frame)
 {
-	(void)payload;
-
 	uint header = write_buffer[write_buffer_parse_pos++];
 	if (((header & WS_HEADER_FIN) == WS_HEADER_FIN) != is_last_frame) {
 		return false;
@@ -348,34 +350,6 @@ static enum cio_error bs_read_exactly_immediate_error(struct cio_buffered_stream
 
 	return CIO_ADDRESS_IN_USE;
 }
-#if 0
-static void on_error_save_data(const struct cio_websocket *websocket, enum cio_websocket_status_code status, const char *reason)
-{
-	(void)websocket;
-	(void)status;
-	strcpy((char *)&read_back_buffer[read_back_buffer_pos], reason);
-	read_back_buffer_pos += strlen(reason);
-}
-
-static void on_ping_frame_save_data(struct cio_websocket *websocket, const uint8_t *data, size_t length)
-{
-	(void)websocket;
-	memcpy(&read_back_buffer[read_back_buffer_pos], data, length);
-	read_back_buffer_pos += length;
-}
-
-static void on_close_frame_save_data(const struct cio_websocket *websocket, enum cio_websocket_status_code status, const char *reason, size_t length)
-{
-	(void)websocket;
-	uint16_t stat = status;
-	stat = be16toh(stat);
-	memcpy(&read_back_buffer[read_back_buffer_pos], &stat, sizeof(stat));
-	read_back_buffer_pos += sizeof(stat);
-	memcpy(&read_back_buffer[read_back_buffer_pos], reason, length);
-	read_back_buffer_pos += length;
-}
-
-#endif
 
 static void websocket_free(struct cio_websocket *s)
 {
@@ -406,10 +380,10 @@ static enum cio_error bs_write_error(struct cio_buffered_stream *bs, struct cio_
 
 static enum cio_error bs_write_later(struct cio_buffered_stream *bs, struct cio_write_buffer *buf, cio_buffered_stream_write_handler handler, void *handler_context)
 {
-	(void)bs;
-	(void)buf;
-	(void)handler;
-	(void)handler_context;
+	write_later_bs = bs;
+	write_later_buf = buf;
+	write_later_handler = handler;
+	write_later_handler_context = handler_context;
 	return CIO_SUCCESS;
 }
 
@@ -515,6 +489,11 @@ void setUp(void)
 	write_buffer_pos = 0;
 	write_buffer_parse_pos = 0;
 	memset(write_buffer, 0x00, sizeof(write_buffer));
+
+	write_later_bs = NULL;
+	write_later_buf = NULL;
+	write_later_handler = NULL;
+	write_later_handler_context = NULL;
 }
 
 void tearDown(void)
@@ -796,10 +775,13 @@ static void test_incoming_ping_pong_send_fails(void)
 
 	TEST_ASSERT_EQUAL_MESSAGE(1, on_error_fake.call_count, "error callback was called");
 
-	TEST_ASSERT_EQUAL_MESSAGE(1, on_control_fake.call_count, "on_control callback was not called once");
-	TEST_ASSERT_NOT_NULL_MESSAGE(on_control_fake.arg0_val, "websocket parameter of control callback (ping) is NULL");
-	TEST_ASSERT_EQUAL_MESSAGE(CIO_WEBSOCKET_PING_FRAME, on_control_fake.arg1_val, "type parameter of control callback (ping) is not PING");
-	TEST_ASSERT_EQUAL_MESSAGE(sizeof(data), on_control_fake.arg3_val, "data length parameter of control callback (ping) is not correct");
+	TEST_ASSERT_EQUAL_MESSAGE(2, on_control_fake.call_count, "on_control callback was not called once");
+	TEST_ASSERT_NOT_NULL_MESSAGE(on_control_fake.arg0_history[0], "websocket parameter of control callback (ping) is NULL");
+	TEST_ASSERT_EQUAL_MESSAGE(CIO_WEBSOCKET_PING_FRAME, on_control_fake.arg1_history[0], "type parameter of control callback (ping) is not PING");
+	TEST_ASSERT_EQUAL_MESSAGE(sizeof(data), on_control_fake.arg3_history[0], "data length parameter of control callback (ping) is not correct");
+	TEST_ASSERT_NOT_NULL_MESSAGE(on_control_fake.arg0_history[1], "websocket parameter of control callback (close) is NULL");
+	TEST_ASSERT_EQUAL_MESSAGE(CIO_WEBSOCKET_CLOSE_FRAME, on_control_fake.arg1_history[1], "type parameter of control callback (close) is not CLOSE");
+	TEST_ASSERT_EQUAL_MESSAGE(0, on_control_fake.arg3_history[1], "data length parameter of control callback (close) is not correct");
 
 	TEST_ASSERT_EQUAL_MEMORY_MESSAGE(data, read_back_buffer, sizeof(data), "data in ping frame callback not correct");
 }
@@ -2002,9 +1984,11 @@ static void test_close_self_sendframe_fails(void)
 	bs_write_fake.custom_fake = bs_write_error;
 
 	enum cio_error err = ws->close(ws, CIO_WEBSOCKET_CLOSE_NORMAL, "Going away", close_handler, NULL);
-	TEST_ASSERT_EQUAL_MESSAGE(CIO_BROKEN_PIPE, err, "Close not failed correctly");
-	TEST_ASSERT_EQUAL_MESSAGE(1, timer_cancel_fake.call_count, "Timer cancel was called");
-	TEST_ASSERT_EQUAL_MESSAGE(1, timer_close_fake.call_count, "Timer close was called");
+	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Close not failed correctly");
+
+	TEST_ASSERT_EQUAL_MESSAGE(1, on_error_fake.call_count, "error callback was not called");
+	TEST_ASSERT_EQUAL_MESSAGE(ws, on_error_fake.arg0_val, "websocket parameter of error handler not correct");
+	TEST_ASSERT_EQUAL_MESSAGE(CIO_WEBSOCKET_CLOSE_INTERNAL_ERROR, on_error_fake.arg1_val, "error code in error handler not correct");
 }
 
 static void test_close_self_without_read(void)
@@ -2447,6 +2431,43 @@ static void test_send_text_frame_twice(void)
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_OPERATION_NOT_PERMITTED, err, "Writing a second text frame did not fail!");
 }
 
+static void test_send_multiple_jobs(void)
+{
+	char buffer[125] = {'a'};
+
+	bs_write_fake.custom_fake = bs_write_later;
+
+	struct cio_write_buffer ping_wbh;
+	cio_write_buffer_head_init(&ping_wbh);
+	struct cio_write_buffer pong_wbh;
+	cio_write_buffer_head_init(&pong_wbh);
+	struct cio_write_buffer text_wbh;
+	cio_write_buffer_head_init(&text_wbh);
+
+	struct cio_write_buffer wb;
+	cio_write_buffer_element_init(&wb, buffer, sizeof(buffer));
+	cio_write_buffer_queue_tail(&text_wbh, &wb);
+
+	enum cio_error err = ws->write_ping(ws, &ping_wbh, write_handler, NULL);
+	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Writing a ping frame did not succeed!");
+	err = ws->write_pong(ws, &pong_wbh, write_handler, NULL);
+	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Writing a pong frame did not succeed!");
+	err = ws->write_message(ws, &text_wbh, true, false, write_handler, NULL);
+	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Writing a text frame did not succeed!");
+	err = ws->close(ws, CIO_WEBSOCKET_CLOSE_NORMAL, NULL, write_handler, NULL);
+	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Writing a close frame did not succeed!");
+
+	// Simulate write call over the eventloop
+	bs_write_fake.custom_fake = bs_write_ok;
+	bs_write_ok(write_later_bs, write_later_buf, write_later_handler, write_later_handler_context);
+
+	TEST_ASSERT_EQUAL_MESSAGE(4, write_handler_fake.call_count, "Write handler was not called");
+
+	TEST_ASSERT_TRUE_MESSAGE(check_frame(CIO_WEBSOCKET_PING_FRAME, NULL, 0, true), "Written ping frame not correct");
+	TEST_ASSERT_TRUE_MESSAGE(check_frame(CIO_WEBSOCKET_PONG_FRAME, NULL, 0, true), "Written pong frame not correct");
+	TEST_ASSERT_TRUE_MESSAGE(check_frame(CIO_WEBSOCKET_TEXT_FRAME, buffer, sizeof(buffer), true), "Written text frame not correct");
+	TEST_ASSERT_TRUE_MESSAGE(is_close_frame(CIO_WEBSOCKET_CLOSE_NORMAL, true), "Written close frame not correct");
+}
 
 int main(void)
 {
@@ -2537,6 +2558,8 @@ int main(void)
 	RUN_TEST(test_send_text_frame_no_ws);
 	RUN_TEST(test_send_text_frame_no_handler);
 	RUN_TEST(test_send_text_frame_twice);
+
+	RUN_TEST(test_send_multiple_jobs);
 
 	return UNITY_END();
 }
