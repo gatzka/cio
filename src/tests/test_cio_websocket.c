@@ -2469,6 +2469,43 @@ static void test_send_multiple_jobs(void)
 	TEST_ASSERT_TRUE_MESSAGE(is_close_frame(CIO_WEBSOCKET_CLOSE_NORMAL, true), "Written close frame not correct");
 }
 
+static void test_send_multiple_jobs_with_failures(void)
+{
+	char buffer[125] = {'a'};
+
+	bs_write_fake.custom_fake = bs_write_later;
+
+	struct cio_write_buffer ping_wbh;
+	cio_write_buffer_head_init(&ping_wbh);
+	struct cio_write_buffer pong_wbh;
+	cio_write_buffer_head_init(&pong_wbh);
+	struct cio_write_buffer text_wbh;
+	cio_write_buffer_head_init(&text_wbh);
+
+	struct cio_write_buffer wb;
+	cio_write_buffer_element_init(&wb, buffer, sizeof(buffer));
+	cio_write_buffer_queue_tail(&text_wbh, &wb);
+
+	enum cio_error err = ws->write_ping(ws, &ping_wbh, write_handler, NULL);
+	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Writing a ping frame did not succeed!");
+	err = ws->write_pong(ws, &pong_wbh, write_handler, NULL);
+	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Writing a pong frame did not succeed!");
+	err = ws->write_message(ws, &text_wbh, true, false, write_handler, NULL);
+	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Writing a text frame did not succeed!");
+	err = ws->close(ws, CIO_WEBSOCKET_CLOSE_NORMAL, NULL, write_handler, NULL);
+	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Writing a close frame did not succeed!");
+
+	// Simulate write call over the eventloop
+	bs_write_fake.custom_fake = bs_write_error;
+	bs_write_ok(write_later_bs, write_later_buf, write_later_handler, write_later_handler_context);
+
+	TEST_ASSERT_EQUAL_MESSAGE(1, write_handler_fake.call_count, "Write handler was not called");
+
+	TEST_ASSERT_EQUAL_MESSAGE(1, on_error_fake.call_count, "error callback was called");
+
+	TEST_ASSERT_TRUE_MESSAGE(check_frame(CIO_WEBSOCKET_PING_FRAME, NULL, 0, true), "Written ping frame not correct");
+}
+
 int main(void)
 {
 	UNITY_BEGIN();
@@ -2560,6 +2597,7 @@ int main(void)
 	RUN_TEST(test_send_text_frame_twice);
 
 	RUN_TEST(test_send_multiple_jobs);
+	RUN_TEST(test_send_multiple_jobs_with_failures);
 
 	return UNITY_END();
 }
