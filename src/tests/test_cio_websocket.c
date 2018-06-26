@@ -191,8 +191,10 @@ static bool check_frame(enum cio_websocket_frame_type opcode, const char *payloa
 		// TODO unmask_payload
 	}
 
-	if (memcmp(&write_buffer[write_buffer_parse_pos], payload, length) != 0) {
-		return false;
+	if (length > 0) {
+		if (memcmp(&write_buffer[write_buffer_parse_pos], payload, length) != 0) {
+			return false;
+		}
 	}
 
 	write_buffer_parse_pos += payload_length;
