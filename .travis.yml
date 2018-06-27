@@ -146,13 +146,39 @@ matrix:
 
   - compiler: clang
     env:
-    - MATRIX_EVAL="CMAKE_C_COMPILER=/usr/share/clang/scan-build-5.0/libexec/ccc-analyzer
+    - MATRIX_EVAL="CMAKE_C_COMPILER=clang-6.0 && CMAKE_BUILD_TYPE=Debug && CIO_SANITIZE=ON"
+    addons:
+      apt:
+        sources:
+        - ubuntu-toolchain-r-test
+        - llvm-toolchain-trusty-6.0
+        packages:
+        - cmake
+        - cmake-data
+        - libbsd-dev
+
+  - compiler: clang
+    env:
+    - MATRIX_EVAL="CMAKE_C_COMPILER=clang-6.0 && CMAKE_BUILD_TYPE=Release && CIO_SANITIZE=ON"
+    addons:
+      apt:
+        sources:
+        - ubuntu-toolchain-r-test
+        - llvm-toolchain-trusty-6.0
+        packages:
+        - cmake
+        - cmake-data
+        - libbsd-dev
+
+  - compiler: clang
+    env:
+    - MATRIX_EVAL="CMAKE_C_COMPILER=/usr/share/clang/scan-build-6.0/libexec/ccc-analyzer
       && CMAKE_BUILD_TYPE=Debug && SCAN_BUILD=1 && CIO_SANITIZE=ON"
     addons:
       apt:
         sources:
         - ubuntu-toolchain-r-test
-        - llvm-toolchain-trusty-5.0
+        - llvm-toolchain-trusty-6.0
         packages:
         - cmake
         - cmake-data
