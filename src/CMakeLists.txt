@@ -78,6 +78,7 @@ target_include_directories(cio_static PUBLIC ${PROJECT_BINARY_DIR}/generated/)
 if(is_linux)
     target_include_directories(cio_static PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/linux/)
 endif()
+target_link_libraries(cio_static bsd)
 
 add_library(cio SHARED
     ${CIO_FILES}
@@ -88,6 +89,7 @@ set_target_properties(cio
 )
 target_include_directories(cio PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/)
 target_include_directories(cio PUBLIC ${PROJECT_BINARY_DIR}/generated/)
+target_link_libraries(cio bsd)
 if(is_linux)
     target_include_directories(cio PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/linux/)
 endif()

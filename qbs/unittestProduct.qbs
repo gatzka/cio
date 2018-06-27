@@ -34,5 +34,6 @@ HardenedProduct {
   cpp.cLanguageVersion: "c11"
   cpp.treatWarningsAsErrors: true
   cpp.warningLevel: "all"
+  cpp.dynamicLibraries: ["bsd"];
 }
 
