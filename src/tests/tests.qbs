@@ -52,7 +52,6 @@ Project {
     Depends { name: "generateVersion" }
 
     cpp.includePaths: ["..", "../linux", buildDirectory + "/generated/"];
-    cpp.driverFlags: ["-Wno-error"]
     
     files: [
       "test_cio_http_server_iostream.c",
@@ -109,8 +108,7 @@ Project {
     Depends { name: "generateVersion" }
 
     cpp.includePaths: ["..", "../linux", buildDirectory + "/generated/"];
-    cpp.driverFlags: ["-Wno-error"]
-    
+
     files: [
       "test_cio_http_server.c",
       "../cio_http_location.c",
@@ -199,6 +197,7 @@ Project {
     type: ["application", "unittest"]
     
     cpp.includePaths: [".."]
+    cpp.dynamicLibraries: ["bsd"];
 
     files: [
       "test_cio_websocket_mask.c",
