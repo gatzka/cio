@@ -24,37 +24,17 @@
  * SOFTWARE.
  */
 
+#define _DEFAULT_SOURCE
+#include <sys/types.h>
 #include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <bsd/stdlib.h>
 
 #include "cio_random.h"
 
-static FILE *dev_urandom = NULL;
-
-int cio_random_init(void)
-{
-	dev_urandom = fopen("/dev/urandom", "re");
-	if (dev_urandom == NULL) {
-		return -1;
-	} else {
-		return 0;
-	}
-}
-
-void cio_random_close(void)
-{
-	if (dev_urandom != NULL) {
-		fclose(dev_urandom);
-	}
-}
 
 void cio_random_get_bytes(void *bytes, size_t num_bytes)
 {
-	int ret = fread(bytes, 1, num_bytes, dev_urandom);
-	/* Ignore return value deliberately.
-	 * There is no good error handling when this call fails
-	 * besides shutting down cio completely.
-	 */
-	(void)ret;
+	arc4random_buf(bytes, num_bytes);
 }
