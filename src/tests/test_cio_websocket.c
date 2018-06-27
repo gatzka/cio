@@ -142,7 +142,7 @@ static void timer_close_cancel(struct cio_timer *t)
 
 static bool check_frame(enum cio_websocket_frame_type opcode, const char *payload, size_t payload_length, bool is_last_frame)
 {
-	uint header = write_buffer[write_buffer_parse_pos++];
+	uint8_t header = write_buffer[write_buffer_parse_pos++];
 	if (((header & WS_HEADER_FIN) == WS_HEADER_FIN) != is_last_frame) {
 		return false;
 	}
