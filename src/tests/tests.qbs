@@ -36,13 +36,28 @@ Project {
     name: "test_cio_buffered_stream"
     type: ["application", "unittest"]
     
-    cpp.includePaths: ["..", "../linux/"]
+    cpp.includePaths: [".."]
 
     files: [
       "test_cio_buffered_stream.c",
       "../cio_buffered_stream.c",
-      "../linux/cio_linux_string.c",
     ]
+
+    Properties {
+        condition: qbs.targetOS.contains("linux")
+        cpp.includePaths: outer.concat("../linux/") 
+    }
+
+    Group {
+      condition: qbs.targetOS.contains("linux")
+      name: "linux specific"
+      prefix: "../linux/"
+      cpp.cLanguageVersion: "c11"
+      
+      files: [
+        "cio_linux_string.c",
+      ]
+    }
   }
 
   UnittestProduct {
@@ -51,7 +66,7 @@ Project {
     
     Depends { name: "generateVersion" }
 
-    cpp.includePaths: ["..", "../linux", buildDirectory + "/generated/"];
+    cpp.includePaths: ["..", buildDirectory + "/generated/"];
     
     files: [
       "test_cio_http_server_iostream.c",
@@ -60,6 +75,11 @@ Project {
       "../cio_http_location.c",
       "../cio_http_server.c",
     ]
+
+    Properties {
+        condition: qbs.targetOS.contains("linux")
+        cpp.includePaths: outer.concat("../linux/") 
+    }
 
     Group {
       name: "version file"
@@ -107,7 +127,12 @@ Project {
     
     Depends { name: "generateVersion" }
 
-    cpp.includePaths: ["..", "../linux", buildDirectory + "/generated/"];
+    cpp.includePaths: ["..", buildDirectory + "/generated/"];
+ 
+    Properties {
+        condition: qbs.targetOS.contains("linux")
+        cpp.includePaths: outer.concat("../linux/") 
+    }
 
     files: [
       "test_cio_http_server.c",
@@ -149,7 +174,12 @@ Project {
     name: "test_cio_read_buffer"
     type: ["application", "unittest"]
     
-    cpp.includePaths: ["..", "../linux/"]
+    cpp.includePaths: [".."]
+
+    Properties {
+        condition: qbs.targetOS.contains("linux")
+        cpp.includePaths: outer.concat("../linux/") 
+    }
     
     files: [
       "test_cio_read_buffer.c",
@@ -185,7 +215,12 @@ Project {
     name: "test_cio_write_buffer"
     type: ["application", "unittest"]
     
-    cpp.includePaths: ["..", "../linux/"]
+    cpp.includePaths: [".."]
+
+    Properties {
+        condition: qbs.targetOS.contains("linux")
+        cpp.includePaths: outer.concat("../linux/") 
+    }
 
     files: [
       "test_cio_write_buffer.c",
@@ -209,7 +244,7 @@ Project {
 
     Depends { name: "generateVersion" }
 
-    cpp.includePaths: ["..", "../linux", buildDirectory + "/generated/"];
+    cpp.includePaths: ["..", buildDirectory + "/generated/"];
 
     files: [
       "test_cio_websocket_location_handler.c",
@@ -221,6 +256,11 @@ Project {
       "../cio_websocket.c",
       "../cio_websocket_location_handler.c",
     ]
+
+    Properties {
+        condition: qbs.targetOS.contains("linux")
+        cpp.includePaths: outer.concat("../linux/") 
+    }
 
     Group {
       name: "version file"
@@ -270,13 +310,17 @@ Project {
     name: "test_cio_websocket"
     type: ["application", "unittest"]
 
-    cpp.includePaths: ["..", "../linux/"];
+    cpp.includePaths: [".."];
+
+    Properties {
+        condition: qbs.targetOS.contains("linux")
+        cpp.includePaths: outer.concat("../linux/") 
+    }
 
     files: [
       "test_cio_websocket.c",
       "../cio_utf8_checker.c",
       "../cio_websocket.c",
-       "../linux/cio_linux_random.c"
     ]
 
     Group {
@@ -287,8 +331,38 @@ Project {
 
       files: [
         "cio_linux_endian.c",
+        "cio_linux_random.c"
       ]
     }
+  }
 
+  UnittestProduct {
+    name: "test_cio_websocket_client"
+    type: ["application", "unittest"]
+
+    cpp.includePaths: [".."];
+
+    Properties {
+        condition: qbs.targetOS.contains("linux")
+        cpp.includePaths: outer.concat("../linux/") 
+    }
+
+    files: [
+      "test_cio_websocket_client.c",
+      "../cio_utf8_checker.c",
+      "../cio_websocket.c",
+    ]
+
+    Group {
+      condition: qbs.targetOS.contains("linux")
+      name: "linux specific"
+      prefix: "../linux/"
+      cpp.cLanguageVersion: "c11"
+
+      files: [
+        "cio_linux_endian.c",
+        "cio_linux_random.c"
+      ]
+    }
   }
 }
