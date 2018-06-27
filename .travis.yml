@@ -30,6 +30,7 @@ matrix:
         - cmake
         - cmake-data
         - lcov
+        - libbsd-dev
 
 # Sonarcloud build
   - compiler: gcc
@@ -57,6 +58,7 @@ matrix:
         packages:
         - cmake
         - cmake-data
+        - libbsd-dev
 
   - compiler: gcc
     env:
@@ -68,6 +70,8 @@ matrix:
         - cmake
         - cmake-data
         - doxygen
+        - libbsd-dev
+
   - compiler: gcc
     env:
     - MATRIX_EVAL="CMAKE_C_COMPILER=gcc-7 && CMAKE_BUILD_TYPE=Debug && CIO_SANITIZE=ON"
@@ -79,6 +83,8 @@ matrix:
         - gcc-7
         - cmake
         - cmake-data
+        - libbsd-dev
+
   - compiler: gcc
     env:
     - MATRIX_EVAL="CMAKE_C_COMPILER=gcc-7 && CMAKE_BUILD_TYPE=Release && CIO_SANITIZE=ON"
@@ -90,6 +96,8 @@ matrix:
         - gcc-7
         - cmake
         - cmake-data
+        - libbsd-dev
+
   - compiler: clang
     env:
     - MATRIX_EVAL="CMAKE_C_COMPILER=clang && CMAKE_BUILD_TYPE=Debug && CIO_SANITIZE=ON"
@@ -98,6 +106,8 @@ matrix:
         packages:
         - cmake
         - cmake-data
+        - libbsd-dev
+
   - compiler: clang
     env:
     - MATRIX_EVAL="CMAKE_C_COMPILER=clang && CMAKE_BUILD_TYPE=Release && CIO_SANITIZE=ON"
@@ -106,6 +116,8 @@ matrix:
         packages:
         - cmake
         - cmake-data
+        - libbsd-dev
+
   - compiler: clang
     env:
     - MATRIX_EVAL="CMAKE_C_COMPILER=clang-5.0 && CMAKE_BUILD_TYPE=Debug && CIO_SANITIZE=ON"
@@ -117,6 +129,8 @@ matrix:
         packages:
         - cmake
         - cmake-data
+        - libbsd-dev
+
   - compiler: clang
     env:
     - MATRIX_EVAL="CMAKE_C_COMPILER=clang-5.0 && CMAKE_BUILD_TYPE=Release && CIO_SANITIZE=ON"
@@ -128,6 +142,8 @@ matrix:
         packages:
         - cmake
         - cmake-data
+        - libbsd-dev
+
   - compiler: clang
     env:
     - MATRIX_EVAL="CMAKE_C_COMPILER=/usr/share/clang/scan-build-5.0/libexec/ccc-analyzer
@@ -140,6 +156,8 @@ matrix:
         packages:
         - cmake
         - cmake-data
+        - libbsd-dev
+
 before_install:
 - eval "${MATRIX_EVAL}"
 env:
