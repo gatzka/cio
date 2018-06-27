@@ -197,7 +197,6 @@ Project {
     type: ["application", "unittest"]
     
     cpp.includePaths: [".."]
-    cpp.dynamicLibraries: ["bsd"];
 
     files: [
       "test_cio_websocket_mask.c",
@@ -277,6 +276,7 @@ Project {
       "test_cio_websocket.c",
       "../cio_utf8_checker.c",
       "../cio_websocket.c",
+       "../linux/cio_linux_random.c"
     ]
 
     Group {

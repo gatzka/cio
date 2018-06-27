@@ -44,13 +44,6 @@
 
 DEFINE_FFF_GLOBALS
 
-void cio_random_get_bytes(void *bytes, size_t num_bytes)
-{
-	for (unsigned int i = 0; i < num_bytes; i++) {
-		((uint8_t *)bytes)[i] = 0;
-	}
-}
-
 FAKE_VALUE_FUNC(enum cio_error, cio_timer_init, struct cio_timer *, struct cio_eventloop *, cio_timer_close_hook)
 
 static struct cio_websocket *ws;

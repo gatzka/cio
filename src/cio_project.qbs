@@ -56,6 +56,7 @@ Project {
 
         return paths;
       }
+      cpp.dynamicLibraries: ["bsd"]
     }
   }
 
@@ -79,6 +80,7 @@ Project {
 
         return paths;
       }
+      cpp.dynamicLibraries: ["bsd"]
     }
   }
 

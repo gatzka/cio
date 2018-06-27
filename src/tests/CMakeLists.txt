@@ -111,15 +111,16 @@ add_executable(test_cio_websocket_location_handler
     ../linux/cio_linux_string.c
     ../sha1/sha1.c
 )
-target_link_libraries (test_cio_websocket_location_handler cio_unity)
+target_link_libraries (test_cio_websocket_location_handler cio_unity bsd)
 
 add_executable(test_cio_websocket
     test_cio_websocket.c
     ../cio_utf8_checker.c
     ../cio_websocket.c
     ../linux/cio_linux_endian.c
+    ../linux/cio_linux_random.c
 )
-target_link_libraries (test_cio_websocket cio_unity)
+target_link_libraries (test_cio_websocket cio_unity bsd)
 
 enable_testing()
 add_test(NAME test_cio_base64 COMMAND test_cio_base64)
