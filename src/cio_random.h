@@ -33,8 +33,6 @@ extern "C" {
 
 #include <stddef.h>
 
-int cio_random_init(void);
-void cio_random_close(void);
 void cio_random_get_bytes(void *bytes, size_t num_bytes);
 
 #ifdef __cplusplus
