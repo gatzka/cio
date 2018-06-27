@@ -24,10 +24,12 @@
  * SOFTWARE.
  */
 
+#define _DEFAULT_SOURCE
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
+#include <sys/types.h>
 #include <bsd/stdlib.h>
 
 #include "cio_websocket_masking.h"
