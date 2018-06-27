@@ -94,7 +94,7 @@ target_link_libraries (test_cio_write_buffer cio_unity)
 add_executable(test_cio_websocket_mask
     test_cio_websocket_mask.c
 )
-target_link_libraries (test_cio_websocket_mask cio_unity)
+target_link_libraries (test_cio_websocket_mask cio_unity bsd)
 
 add_executable(test_cio_websocket_location_handler
     test_cio_websocket_location_handler.c

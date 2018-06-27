@@ -28,6 +28,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
+#include <bsd/stdlib.h>
 
 #include "cio_websocket_masking.h"
 
@@ -47,9 +48,7 @@ void setUp(void)
 
 static void fill_random(uint8_t *buffer, size_t length)
 {
-	for (size_t i = 0; i < length; i++) {
-		buffer[i] = (uint8_t)(rand() & 0xff);
-	}
+	arc4random_buf(buffer, length);
 }
 
 static void check_masking(uint8_t *buffer, size_t length, uint8_t mask[4])
