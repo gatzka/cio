@@ -47,7 +47,7 @@ struct cio_websocket_location_handler {
 	 */
 	struct cio_http_location_handler http_location;
 
-	uint8_t sec_web_socket_key[SEC_WEB_SOCKET_KEY_LENGTH + SEC_WEB_SOCKET_GUID_LENGTH];
+	uint8_t sec_websocket_key[SEC_WEB_SOCKET_KEY_LENGTH + SEC_WEB_SOCKET_GUID_LENGTH];
 
 	const char **subprotocols;
 	unsigned int number_subprotocols;

@@ -54,8 +54,8 @@ static enum cio_http_cb_return save_websocket_key(struct cio_websocket_location_
 	static const char ws_guid[SEC_WEB_SOCKET_GUID_LENGTH] = "258EAFA5-E914-47DA-95CA-C5AB0DC85B11";
 
 	if (likely(length == SEC_WEB_SOCKET_KEY_LENGTH)) {
-		memcpy(wslh->sec_web_socket_key, at, length);
-		memcpy(&wslh->sec_web_socket_key[length], ws_guid, sizeof(ws_guid));
+		memcpy(wslh->sec_websocket_key, at, length);
+		memcpy(&wslh->sec_websocket_key[length], ws_guid, sizeof(ws_guid));
 		return CIO_HTTP_CB_SUCCESS;
 	} else {
 		return CIO_HTTP_CB_ERROR;
@@ -208,7 +208,7 @@ static void send_upgrade_response(struct cio_http_client *client)
 	SHA1Reset(&context);
 
 	struct cio_websocket_location_handler *ws = container_of(client->handler, struct cio_websocket_location_handler, http_location);
-	SHA1Input(&context, ws->sec_web_socket_key, SEC_WEB_SOCKET_GUID_LENGTH + SEC_WEB_SOCKET_KEY_LENGTH);
+	SHA1Input(&context, ws->sec_websocket_key, SEC_WEB_SOCKET_GUID_LENGTH + SEC_WEB_SOCKET_KEY_LENGTH);
 	uint8_t sha1_buffer[SHA1HashSize];
 	SHA1Result(&context, sha1_buffer);
 	cio_b64_encode_string(sha1_buffer, SHA1HashSize, ws->accept_value);
@@ -256,16 +256,16 @@ static enum cio_http_cb_return handle_headers_complete(struct cio_http_client *c
 		return CIO_HTTP_CB_ERROR;
 	}
 
-	struct cio_websocket_location_handler *ws = container_of(client->handler, struct cio_websocket_location_handler, http_location);
-	if (unlikely((ws->flags.subprotocol_requested == 1) && (ws->chosen_subprotocol == -1))) {
+	struct cio_websocket_location_handler *wslh = container_of(client->handler, struct cio_websocket_location_handler, http_location);
+	if (unlikely((wslh->flags.subprotocol_requested == 1) && (wslh->chosen_subprotocol == -1))) {
 		return CIO_HTTP_CB_ERROR;
 	}
 
-	if (unlikely(ws->flags.ws_version_ok == 0)) {
+	if (unlikely(wslh->flags.ws_version_ok == 0)) {
 		return CIO_HTTP_CB_ERROR;
 	}
 
-	if (unlikely(ws->sec_web_socket_key[0] == 0)) {
+	if (unlikely(wslh->sec_websocket_key[0] == 0)) {
 		return CIO_HTTP_CB_ERROR;
 	}
 
@@ -289,8 +289,7 @@ enum cio_error cio_websocket_location_handler_init(struct cio_websocket_location
 	handler->chosen_subprotocol = -1;
 	handler->subprotocols = subprotocols;
 	handler->number_subprotocols = num_subprotocols;
-	//TODO: remove initialisation?
-	handler->sec_web_socket_key[0] = 0;
+	handler->sec_websocket_key[0] = 0;
 
 	cio_http_location_handler_init(&handler->http_location);
 	handler->http_location.on_header_field = handle_field;
