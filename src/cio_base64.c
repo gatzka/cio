@@ -35,11 +35,10 @@ static const char encode_table[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqr
 
 void cio_b64_encode_string(const uint8_t *__restrict in, size_t in_len, char *__restrict out)
 {
-	unsigned int triple[3];
-	unsigned int len;
 
 	while (in_len) {
-		len = 0;
+		unsigned int len = 0;
+		unsigned int triple[3];
 		for (unsigned int i = 0; i < 3; i++) {
 			if (in_len) {
 				triple[i] = *in++;
