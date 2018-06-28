@@ -49,6 +49,24 @@ extern "C" {
  * @brief The interface to an HTTP client connection.
  */
 
+
+struct cio_http_client;
+
+struct cio_http_client_private {
+	struct cio_write_buffer wb_http_response_statusline;
+	struct cio_write_buffer wb_http_response_header_end;
+	struct cio_timer read_timer;
+
+	bool headers_complete;
+	bool to_be_closed;
+	unsigned int parsing;
+
+	http_parser parser;
+	http_parser_settings parser_settings;
+
+	void (*finish_func)(struct cio_http_client *client);
+};
+
 /**
  * @brief A cio_http_client struct represents an HTTP client connection.
  *
@@ -172,26 +190,15 @@ struct cio_http_client {
 	 */
 	enum cio_http_method http_method;
 
-	/**
-	 * @privatesection
-	 */
 	struct cio_http_location_handler *handler;
-	struct cio_write_buffer wb_http_response_statusline;
-	struct cio_write_buffer wb_http_response_header_end;
+
 	struct cio_socket socket;
-	struct cio_timer read_timer;
 
-	bool headers_complete;
-	bool to_be_closed;
-	unsigned int parsing;
-
-	http_parser parser;
-	http_parser_settings parser_settings;
-
-	void (*finish_func)(struct cio_http_client *client);
-
+	/*! @cond PRIVATE */
+	struct cio_http_client_private private;
 	size_t buffer_size;
 	uint8_t buffer[];
+	/*! @endcond */
 };
 
 #ifdef __cplusplus
