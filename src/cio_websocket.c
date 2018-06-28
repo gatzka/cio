@@ -203,17 +203,17 @@ static void prepare_close_job(struct cio_websocket *ws, enum cio_websocket_statu
 	uint16_t sc = (uint16_t)status_code;
 	size_t close_buffer_length = sizeof(sc);
 	sc = cio_htobe16(sc);
-	memcpy(ws->close_payload_buffer, &sc, sizeof(sc));
+	memcpy(ws->close_buffer.buffer, &sc, sizeof(sc));
 	if (reason != NULL) {
-		size_t copy_len = MIN(reason_length, sizeof(ws->close_payload_buffer) - sizeof(sc));
-		memcpy(ws->close_payload_buffer + sizeof(sc), reason, copy_len);
+		size_t copy_len = MIN(reason_length, sizeof(ws->close_buffer.buffer) - sizeof(sc));
+		memcpy(ws->close_buffer.buffer + sizeof(sc), reason, copy_len);
 		close_buffer_length += copy_len;
 	}
 
-	cio_write_buffer_head_init(&ws->wb_head_close_payload_buffer);
-	cio_write_buffer_element_init(&ws->wb_close_payload_buffer, ws->close_payload_buffer, close_buffer_length);
-	cio_write_buffer_queue_tail(&ws->wb_head_close_payload_buffer, &ws->wb_close_payload_buffer);
-	ws->write_close_job.wbh = &ws->wb_head_close_payload_buffer;
+	cio_write_buffer_head_init(&ws->close_buffer.wb_head);
+	cio_write_buffer_element_init(&ws->close_buffer.wb, ws->close_buffer.buffer, close_buffer_length);
+	cio_write_buffer_queue_tail(&ws->close_buffer.wb_head, &ws->close_buffer.wb);
+	ws->write_close_job.wbh = &ws->close_buffer.wb_head;
 	ws->write_close_job.handler = handler;
 	ws->write_close_job.handler_context = handler_context;
 	ws->write_close_job.frame_type = CIO_WEBSOCKET_CLOSE_FRAME;
@@ -425,18 +425,18 @@ static void handle_close_frame(struct cio_websocket *ws, uint8_t *data, uint64_t
 
 static void handle_ping_frame(struct cio_websocket *ws, uint8_t *data, uint64_t length)
 {
-	cio_write_buffer_head_init(&ws->wb_head_ping_payload_buffer);
+	cio_write_buffer_head_init(&ws->ping_buffer.wb_head);
 	if (length > 0) {
-		memcpy(ws->ping_payload_buffer, data, length);
-		cio_write_buffer_element_init(&ws->wb_ping_payload_buffer, ws->ping_payload_buffer, length);
-		cio_write_buffer_queue_tail(&ws->wb_head_ping_payload_buffer, &ws->wb_ping_payload_buffer);
+		memcpy(ws->ping_buffer.buffer, data, length);
+		cio_write_buffer_element_init(&ws->ping_buffer.wb, ws->ping_buffer.buffer, length);
+		cio_write_buffer_queue_tail(&ws->ping_buffer.wb_head, &ws->ping_buffer.wb);
 	}
 
 	if (ws->on_control != NULL) {
 		ws->on_control(ws, CIO_WEBSOCKET_PING_FRAME, data, length);
 	}
 
-	ws->write_pong_job.wbh = &ws->wb_head_ping_payload_buffer;
+	ws->write_pong_job.wbh = &ws->ping_buffer.wb_head;
 	ws->write_pong_job.handler = NULL;
 	ws->write_pong_job.handler_context = NULL;
 	ws->write_pong_job.frame_type = CIO_WEBSOCKET_PONG_FRAME;
