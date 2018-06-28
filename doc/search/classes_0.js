@@ -13,6 +13,7 @@ var searchData=
   ['cio_5futf8_5fstate',['cio_utf8_state',['../structcio__utf8__state.html',1,'']]],
   ['cio_5fwebsocket',['cio_websocket',['../structcio__websocket.html',1,'']]],
   ['cio_5fwebsocket_5flocation_5fhandler',['cio_websocket_location_handler',['../structcio__websocket__location__handler.html',1,'']]],
+  ['cio_5fwebsocket_5fprivate',['cio_websocket_private',['../structcio__websocket__private.html',1,'']]],
   ['cio_5fwebsocket_5fwrite_5fjob',['cio_websocket_write_job',['../structcio__websocket__write__job.html',1,'']]],
   ['cio_5fwrite_5fbuffer',['cio_write_buffer',['../structcio__write__buffer.html',1,'']]]
 ];
