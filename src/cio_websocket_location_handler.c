@@ -49,13 +49,13 @@ enum header_field {
 	CIO_WS_HEADER_SEC_WEBSOCKET_PROTOCOL,
 };
 
-static enum cio_http_cb_return save_websocket_key(uint8_t *dest, const char *at, size_t length)
+static enum cio_http_cb_return save_websocket_key(struct cio_websocket_location_handler *wslh, const char *at, size_t length)
 {
 	static const char ws_guid[SEC_WEB_SOCKET_GUID_LENGTH] = "258EAFA5-E914-47DA-95CA-C5AB0DC85B11";
 
 	if (likely(length == SEC_WEB_SOCKET_KEY_LENGTH)) {
-		memcpy(dest, at, length);
-		memcpy(&dest[length], ws_guid, sizeof(ws_guid));
+		memcpy(wslh->sec_web_socket_key, at, length);
+		memcpy(&wslh->sec_web_socket_key[length], ws_guid, sizeof(ws_guid));
 		return CIO_HTTP_CB_SUCCESS;
 	} else {
 		return CIO_HTTP_CB_ERROR;
@@ -148,7 +148,7 @@ static enum cio_http_cb_return handle_value(struct cio_http_client *client, cons
 
 	switch (ws->flags.current_header_field) {
 	case CIO_WS_HEADER_SEC_WEBSOCKET_KEY:
-		ret = save_websocket_key(ws->sec_web_socket_key, at, length);
+		ret = save_websocket_key(ws, at, length);
 		break;
 
 	case CIO_WS_HEADER_SEC_WEBSOCKET_VERSION:
