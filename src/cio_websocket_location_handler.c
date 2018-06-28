@@ -89,34 +89,36 @@ static bool find_requested_sub_protocol(struct cio_websocket_location_handler *h
 
 static void check_websocket_protocol(struct cio_websocket_location_handler *handler, const char *at, size_t length)
 {
-	if (handler->subprotocols != NULL) {
-		const char *start = at;
-		while (length > 0) {
-			if (!isspace(*start) && (*start != ',')) {
-				const char *end = start;
-				while (length > 0) {
-					if (*end == ',') {
-						ptrdiff_t len = end - start;
-						if (find_requested_sub_protocol(handler, start, len)) {
-							return;
-						}
+	if (handler->subprotocols == NULL) {
+		return;
+	}
 
-						start = end;
-						break;
-					}
-					end++;
-					length--;
-				}
-				if (length == 0) {
+	const char *start = at;
+	while (length > 0) {
+		if (!isspace(*start) && (*start != ',')) {
+			const char *end = start;
+			while (length > 0) {
+				if (*end == ',') {
 					ptrdiff_t len = end - start;
 					if (find_requested_sub_protocol(handler, start, len)) {
 						return;
 					}
+
+					start = end;
+					break;
 				}
-			} else {
-				start++;
+				end++;
 				length--;
 			}
+			if (length == 0) {
+				ptrdiff_t len = end - start;
+				if (find_requested_sub_protocol(handler, start, len)) {
+					return;
+				}
+			}
+		} else {
+			start++;
+			length--;
 		}
 	}
 }
