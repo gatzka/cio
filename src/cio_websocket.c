@@ -647,11 +647,7 @@ static void get_header(struct cio_buffered_stream *bs, void *handler_context, en
 	uint8_t *ptr = cio_read_buffer_get_read_ptr(buffer);
 	uint8_t field = *ptr;
 
-	if ((field & WS_HEADER_FIN) == WS_HEADER_FIN) {
-		ws->ws_flags.fin = 1;
-	} else {
-		ws->ws_flags.fin = 0;
-	}
+	ws->ws_flags.fin = (field & WS_HEADER_FIN) == WS_HEADER_FIN;
 
 	static const uint8_t RSV_MASK = 0x70;
 	uint8_t rsv_field = field & RSV_MASK;
