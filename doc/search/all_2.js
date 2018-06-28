@@ -52,6 +52,7 @@ var searchData=
   ['cio_5fhttp_5fcheckout',['CIO_HTTP_CHECKOUT',['../cio__http__method_8h.html#af72daec94b7eb3d7c6ba31bdb7ba0ef3ad336912f5af7d7dcfe5b56c7bc7dd516',1,'cio_http_method.h']]],
   ['cio_5fhttp_5fclient',['cio_http_client',['../structcio__http__client.html',1,'']]],
   ['cio_5fhttp_5fclient_2eh',['cio_http_client.h',['../cio__http__client_8h.html',1,'']]],
+  ['cio_5fhttp_5fclient_5fprivate',['cio_http_client_private',['../structcio__http__client__private.html',1,'']]],
   ['cio_5fhttp_5fconnect',['CIO_HTTP_CONNECT',['../cio__http__method_8h.html#af72daec94b7eb3d7c6ba31bdb7ba0ef3aa9ed68797b869f32c1d26ec2be871f19',1,'cio_http_method.h']]],
   ['cio_5fhttp_5fcopy',['CIO_HTTP_COPY',['../cio__http__method_8h.html#af72daec94b7eb3d7c6ba31bdb7ba0ef3acac0d16f394da2ee6949f9480881c868',1,'cio_http_method.h']]],
   ['cio_5fhttp_5fdata_5fcb',['cio_http_data_cb',['../cio__http__location__handler_8h.html#a1b574d89b2af37b5bee074468861a554',1,'cio_http_location_handler.h']]],

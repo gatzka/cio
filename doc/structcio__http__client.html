@@ -23,7 +23,7 @@
  <tr style="height: 56px;">
   <td style="padding-left: 0.5em;">
    <div id="projectname">ANSI C I/O Library
-   &#160;<span id="projectnumber">0.0.1-964+1091a9c</span>
+   &#160;<span id="projectnumber">0.0.1-965+f36d593</span>
    </div>
   </td>
  </tr>
@@ -107,7 +107,7 @@ Data Fields</h2></td></tr>
 <tr class="memitem:a05b7992a3ecafef5262e93bc50d00ae8"><td class="memItemLeft" align="right" valign="top">void(*&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structcio__http__client.html#a05b7992a3ecafef5262e93bc50d00ae8">queue_header</a> )(struct <a class="el" href="structcio__http__client.html">cio_http_client</a> *client, enum <a class="el" href="cio__http__status__code_8h.html#ac968a65c0166575561fdd18b89ea580c">cio_http_status_code</a> status)</td></tr>
 <tr class="memdesc:a05b7992a3ecafef5262e93bc50d00ae8"><td class="mdescLeft">&#160;</td><td class="mdescRight">Queues a response header for the requesting client without sending it.  <a href="#a05b7992a3ecafef5262e93bc50d00ae8">More...</a><br/></td></tr>
 <tr class="separator:a05b7992a3ecafef5262e93bc50d00ae8"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:abf722b1e31efcbc125cca2ddd3b8afe6"><td class="memItemLeft" align="right" valign="top">void(*&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structcio__http__client.html#abf722b1e31efcbc125cca2ddd3b8afe6">flush</a> )(struct <a class="el" href="structcio__http__client.html">cio_http_client</a> *client, <a class="el" href="cio__buffered__stream_8h.html#a5bd4f8eea0445358ba927825c34e19d3">cio_buffered_stream_write_handler</a> handler)</td></tr>
+<tr class="memitem:abf722b1e31efcbc125cca2ddd3b8afe6"><td class="memItemLeft" align="right" valign="top">void(*&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structcio__http__client.html#abf722b1e31efcbc125cca2ddd3b8afe6">flush</a> )(struct <a class="el" href="structcio__http__client.html">cio_http_client</a> *client, <a class="el" href="cio__buffered__stream_8h.html#a5bd4f8eea0445358ba927825c34e19d3">cio_buffered_stream_write_handler</a> <a class="el" href="structcio__http__client.html#a90844e5f9e1490cb15eb051c9ed11715">handler</a>)</td></tr>
 <tr class="memdesc:abf722b1e31efcbc125cca2ddd3b8afe6"><td class="mdescLeft">&#160;</td><td class="mdescRight">Flushes the write buffer attached of this client.  <a href="#abf722b1e31efcbc125cca2ddd3b8afe6">More...</a><br/></td></tr>
 <tr class="separator:abf722b1e31efcbc125cca2ddd3b8afe6"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a3a185f7fadbf330a176bbe7041f77474"><td class="memItemLeft" align="right" valign="top">struct <a class="el" href="structcio__buffered__stream.html">cio_buffered_stream</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structcio__http__client.html#a3a185f7fadbf330a176bbe7041f77474">bs</a></td></tr>
@@ -131,6 +131,10 @@ Data Fields</h2></td></tr>
 <tr class="memitem:a87bb7cbe9882e05b9c2eaace76698246"><td class="memItemLeft" align="right" valign="top">enum <a class="el" href="cio__http__method_8h.html#af72daec94b7eb3d7c6ba31bdb7ba0ef3">cio_http_method</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structcio__http__client.html#a87bb7cbe9882e05b9c2eaace76698246">http_method</a></td></tr>
 <tr class="memdesc:a87bb7cbe9882e05b9c2eaace76698246"><td class="mdescLeft">&#160;</td><td class="mdescRight">The HTTP method (i.e. GET, POST, PUT, ...) of the HTTP client request.  <a href="#a87bb7cbe9882e05b9c2eaace76698246">More...</a><br/></td></tr>
 <tr class="separator:a87bb7cbe9882e05b9c2eaace76698246"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a90844e5f9e1490cb15eb051c9ed11715"><td class="memItemLeft" align="right" valign="top">struct <a class="el" href="structcio__http__location__handler.html">cio_http_location_handler</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structcio__http__client.html#a90844e5f9e1490cb15eb051c9ed11715">handler</a></td></tr>
+<tr class="separator:a90844e5f9e1490cb15eb051c9ed11715"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a54b2c729a5b04b9c81c148d18540cdb1"><td class="memItemLeft" align="right" valign="top">struct <a class="el" href="structcio__socket.html">cio_socket</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structcio__http__client.html#a54b2c729a5b04b9c81c148d18540cdb1">socket</a></td></tr>
+<tr class="separator:a54b2c729a5b04b9c81c148d18540cdb1"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>A <a class="el" href="structcio__http__client.html" title="A cio_http_client struct represents an HTTP client connection. ">cio_http_client</a> struct represents an HTTP client connection. </p>
@@ -228,7 +232,7 @@ Data Fields</h2></td></tr>
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">void(* cio_http_client::flush)(struct <a class="el" href="structcio__http__client.html">cio_http_client</a> *client, <a class="el" href="cio__buffered__stream_8h.html#a5bd4f8eea0445358ba927825c34e19d3">cio_buffered_stream_write_handler</a> handler)</td>
+          <td class="memname">void(* cio_http_client::flush)(struct <a class="el" href="structcio__http__client.html">cio_http_client</a> *client, <a class="el" href="cio__buffered__stream_8h.html#a5bd4f8eea0445358ba927825c34e19d3">cio_buffered_stream_write_handler</a> <a class="el" href="structcio__http__client.html#a90844e5f9e1490cb15eb051c9ed11715">handler</a>)</td>
         </tr>
       </table>
 </div><div class="memdoc">
@@ -348,6 +352,30 @@ Data Fields</h2></td></tr>
 
 <p>The HTTP method (i.e. GET, POST, PUT, ...) of the HTTP client request. </p>
 <p>Reading the HTTP method is only valid after the HTTP start line is read, which means that the <a class="el" href="structcio__http__location__handler.html#cio_http_location_handler_on_url">on_url callback</a> was performed. </p>
+
+</div>
+</div>
+<a class="anchor" id="a90844e5f9e1490cb15eb051c9ed11715"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">struct <a class="el" href="structcio__http__location__handler.html">cio_http_location_handler</a>* cio_http_client::handler</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="a54b2c729a5b04b9c81c148d18540cdb1"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">struct <a class="el" href="structcio__socket.html">cio_socket</a> cio_http_client::socket</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
 
 </div>
 </div>

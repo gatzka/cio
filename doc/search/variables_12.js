@@ -6,7 +6,6 @@ var searchData=
   ['wb_5fhttp_5fresponse_5fstatusline',['wb_http_response_statusline',['../structcio__http__client__private.html#aeac0cb76877803781370be45509b2a46',1,'cio_http_client_private']]],
   ['wbh',['wbh',['../structcio__http__client.html#a5c18d4350ac8432cc939e5e3cdc6fcfd',1,'cio_http_client::wbh()'],['../structcio__websocket__write__job.html#aa7f770b89a2f840fd5ab79ece5d6d116',1,'cio_websocket_write_job::wbh()']]],
   ['websocket_5fheader',['websocket_header',['../structcio__websocket__write__job.html#a95bdcf4a76ed0daed24d0ebe95a897be',1,'cio_websocket_write_job']]],
-  ['wmb',['wmb',['../cio__compiler_8h.html#a6cec6ad808589891b39e150d6a18152c',1,'cio_compiler.h']]],
   ['write',['write',['../structcio__buffered__stream.html#a6659275439b9c9508e6ad10eced2ff62',1,'cio_buffered_stream']]],
   ['write_5fclose_5fjob',['write_close_job',['../structcio__websocket__private.html#a64848421972153cf531ef13efa4efad9',1,'cio_websocket_private']]],
   ['write_5fheader',['write_header',['../structcio__http__client.html#adc1a5a87e3e01609dc4feaba730d860b',1,'cio_http_client']]],
