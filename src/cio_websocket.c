@@ -70,6 +70,37 @@ static void remove_websocket_header(const struct cio_websocket_write_job *job)
 	cio_write_buffer_queue_dequeue(job->wbh);
 }
 
+static inline void swap(uint8_t mask[4], uint_fast8_t first, uint_fast8_t last)
+{
+	uint8_t tmp = mask[first];
+	mask[first] = mask[last];
+	mask[last] = tmp;
+}
+
+static inline void rotate(uint8_t mask[4], uint_fast8_t middle)
+{
+	uint_fast8_t first = 0;
+	uint_fast8_t last = 4;
+	uint_fast8_t next = middle;
+
+	while (first != next) {
+		swap(mask, first++, next++);
+		if (next == last) next = middle;
+		else if (first == middle) middle = next;
+	}
+}
+
+static void mask_write_buffer(struct cio_write_buffer *wb, uint8_t mask[4])
+{
+	size_t num_buffers = wb->data.q_len;
+	for (size_t i = 0; i < num_buffers; i++) {
+		wb = wb->next;
+		cio_websocket_mask(wb->data.element.data, wb->data.element.length, mask);
+		size_t middle = wb->data.element.length % 4;
+		rotate(mask, middle);
+	}
+}
+
 static enum cio_error send_frame(struct cio_websocket *ws, struct cio_websocket_write_job *job)
 {
 	uint8_t first_len;
@@ -109,7 +140,7 @@ static enum cio_error send_frame(struct cio_websocket *ws, struct cio_websocket_
 		cio_random_get_bytes(mask, sizeof(mask));
 		memcpy(&job->send_header[header_index], &mask, sizeof(mask));
 		header_index += sizeof(mask);
-		// TODO: cio_websocket_mask(payload, length, mask );
+		mask_write_buffer(job->wbh, mask);
 	}
 
 	job->send_header[1] = first_len;
