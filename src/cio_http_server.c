@@ -57,7 +57,7 @@ static void close_bs(struct cio_http_client *client)
 
 	enum cio_error err = client->bs.close(&client->bs);
 	if (unlikely(err != CIO_SUCCESS)) {
-		struct cio_http_server *server = (struct cio_http_server *)client->private.parser.data;
+		struct cio_http_server *server = (struct cio_http_server *)client->parser.data;
 		handle_error(server, "closing buffered stream of client failed");
 	}
 }
@@ -131,7 +131,7 @@ static void flush(struct cio_http_client *client, cio_buffered_stream_write_hand
 {
 	enum cio_error err = client->bs.write(&client->bs, &client->wbh, handler, client);
 	if (unlikely(err != CIO_SUCCESS)) {
-		struct cio_http_server *server = (struct cio_http_server *)client->private.parser.data;
+		struct cio_http_server *server = (struct cio_http_server *)client->parser.data;
 		handle_error(server, "flushing client responses failed");
 		client->close(client);
 	}
@@ -194,7 +194,7 @@ static const struct cio_http_location *find_handler(const struct cio_http_server
 
 static int on_headers_complete(http_parser *parser)
 {
-	struct cio_http_client *client = container_of(parser, struct cio_http_client, private.parser);
+	struct cio_http_client *client = container_of(parser, struct cio_http_client, parser);
 	client->private.headers_complete = true;
 	client->content_length = parser->content_length;
 	if (parser->upgrade) {
@@ -221,19 +221,19 @@ static int on_headers_complete(http_parser *parser)
 
 static int on_header_field(http_parser *parser, const char *at, size_t length)
 {
-	struct cio_http_client *client = container_of(parser, struct cio_http_client, private.parser);
+	struct cio_http_client *client = container_of(parser, struct cio_http_client, parser);
 	return client->handler->on_header_field(client, at, length);
 }
 
 static int on_header_value(http_parser *parser, const char *at, size_t length)
 {
-	struct cio_http_client *client = container_of(parser, struct cio_http_client, private.parser);
+	struct cio_http_client *client = container_of(parser, struct cio_http_client, parser);
 	return client->handler->on_header_value(client, at, length);
 }
 
 static int on_message_complete(http_parser *parser)
 {
-	struct cio_http_client *client = container_of(parser, struct cio_http_client, private.parser);
+	struct cio_http_client *client = container_of(parser, struct cio_http_client, parser);
 	if (parser->upgrade == 0) {
 		// In case of an upgraded connection, the read timeout timer was
 		// already cancelled in on_headers_complete.
@@ -251,7 +251,7 @@ static int on_message_complete(http_parser *parser)
 
 static int on_body(http_parser *parser, const char *at, size_t length)
 {
-	struct cio_http_client *client = container_of(parser, struct cio_http_client, private.parser);
+	struct cio_http_client *client = container_of(parser, struct cio_http_client, parser);
 	return client->handler->on_body(client, at, length);
 }
 
@@ -266,7 +266,7 @@ static enum cio_http_cb_return call_url_parts_callback(const struct http_parser_
 
 static int on_url(http_parser *parser, const char *at, size_t length)
 {
-	struct cio_http_client *client = container_of(parser, struct cio_http_client, private.parser);
+	struct cio_http_client *client = container_of(parser, struct cio_http_client, parser);
 
 	int is_connect;
 	if (unlikely(parser->method == HTTP_CONNECT)) {
@@ -275,7 +275,7 @@ static int on_url(http_parser *parser, const char *at, size_t length)
 		is_connect = 0;
 	}
 
-	client->http_method = client->private.parser.method;
+	client->http_method = client->parser.method;
 
 	struct http_parser_url u;
 	http_parser_url_init(&u);
@@ -343,25 +343,25 @@ static int on_url(http_parser *parser, const char *at, size_t length)
 		user_handler = 1;
 	}
 
-	client->private.parser_settings.on_headers_complete = on_headers_complete;
+	client->parser_settings.on_headers_complete = on_headers_complete;
 
 	if (handler->on_header_field != NULL) {
-		client->private.parser_settings.on_header_field = on_header_field;
+		client->parser_settings.on_header_field = on_header_field;
 		user_handler = 1;
 	}
 
 	if (handler->on_header_value != NULL) {
-		client->private.parser_settings.on_header_value = on_header_value;
+		client->parser_settings.on_header_value = on_header_value;
 		user_handler = 1;
 	}
 
 	if (handler->on_body != NULL) {
-		client->private.parser_settings.on_body = on_body;
+		client->parser_settings.on_body = on_body;
 		user_handler = 1;
 	}
 
 	if (handler->on_message_complete != NULL) {
-		client->private.parser_settings.on_message_complete = on_message_complete;
+		client->parser_settings.on_message_complete = on_message_complete;
 		user_handler = 1;
 	}
 
@@ -390,8 +390,8 @@ static void parse(struct cio_buffered_stream *stream, void *handler_context, enu
 	size_t bytes_transfered = cio_read_buffer_get_transferred_bytes(read_buffer);
 	client->private.parsing++;
 
-	http_parser *parser = &client->private.parser;
-	size_t nparsed = http_parser_execute(parser, &client->private.parser_settings, (const char *)cio_read_buffer_get_read_ptr(read_buffer), bytes_transfered);
+	http_parser *parser = &client->parser;
+	size_t nparsed = http_parser_execute(parser, &client->parser_settings, (const char *)cio_read_buffer_get_read_ptr(read_buffer), bytes_transfered);
 	client->private.parsing--;
 
 	if (unlikely(nparsed != bytes_transfered)) {
@@ -417,7 +417,7 @@ static void finish_bytes(struct cio_http_client *client)
 {
 	enum cio_error err = client->bs.read(&client->bs, &client->rb, parse, client);
 	if (unlikely(err != CIO_SUCCESS)) {
-		struct cio_http_server *server = (struct cio_http_server *)client->private.parser.data;
+		struct cio_http_server *server = (struct cio_http_server *)client->parser.data;
 		handle_error(server, "Reading of bytes failed");
 		client->write_header(client, CIO_HTTP_STATUS_INTERNAL_SERVER_ERROR);
 	}
@@ -435,7 +435,7 @@ static void finish_header_line(struct cio_http_client *client)
 	}
 
 	if (unlikely(err != CIO_SUCCESS)) {
-		struct cio_http_server *server = (struct cio_http_server *)client->private.parser.data;
+		struct cio_http_server *server = (struct cio_http_server *)client->parser.data;
 		handle_error(server, "Reading of bytes/header line failed");
 		client->write_header(client, CIO_HTTP_STATUS_INTERNAL_SERVER_ERROR);
 	}
@@ -443,12 +443,12 @@ static void finish_header_line(struct cio_http_client *client)
 
 static void finish_request_line(struct cio_http_client *client)
 {
-	client->http_major = client->private.parser.http_major;
-	client->http_minor = client->private.parser.http_minor;
+	client->http_major = client->parser.http_major;
+	client->http_minor = client->parser.http_minor;
 	client->private.finish_func = finish_header_line;
 	enum cio_error err = client->bs.read_until(&client->bs, &client->rb, CIO_CRLF, parse, client);
 	if (unlikely(err != CIO_SUCCESS)) {
-		struct cio_http_server *server = (struct cio_http_server *)client->private.parser.data;
+		struct cio_http_server *server = (struct cio_http_server *)client->parser.data;
 		handle_error(server, "Reading of header line failed");
 		client->write_header(client, CIO_HTTP_STATUS_INTERNAL_SERVER_ERROR);
 	}
@@ -478,10 +478,10 @@ static void handle_accept(struct cio_server_socket *ss, void *handler_context, e
 	client->flush = flush;
 
 	client->handler = NULL;
-	http_parser_settings_init(&client->private.parser_settings);
-	client->private.parser_settings.on_url = on_url;
-	client->private.parser.data = server;
-	http_parser_init(&client->private.parser, HTTP_REQUEST);
+	http_parser_settings_init(&client->parser_settings);
+	client->parser_settings.on_url = on_url;
+	client->parser.data = server;
+	http_parser_init(&client->parser, HTTP_REQUEST);
 
 	err = cio_read_buffer_init(&client->rb, client->buffer, client->buffer_size);
 	if (unlikely(err != CIO_SUCCESS)) {

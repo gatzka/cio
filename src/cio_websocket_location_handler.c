@@ -254,7 +254,7 @@ static enum cio_http_cb_return handle_headers_complete(struct cio_http_client *c
 		return CIO_HTTP_CB_ERROR;
 	}
 
-	if (unlikely(!client->private.parser.upgrade)) {
+	if (unlikely(!client->parser.upgrade)) {
 		return CIO_HTTP_CB_ERROR;
 	}
 
