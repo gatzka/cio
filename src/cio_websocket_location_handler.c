@@ -144,21 +144,21 @@ static enum cio_http_cb_return handle_value(struct cio_http_client *client, cons
 {
 	enum cio_http_cb_return ret;
 
-	struct cio_websocket_location_handler *ws = container_of(client->handler, struct cio_websocket_location_handler, http_location);
+	struct cio_websocket_location_handler *wslh = container_of(client->handler, struct cio_websocket_location_handler, http_location);
 
-	switch (ws->flags.current_header_field) {
+	switch (wslh->flags.current_header_field) {
 	case CIO_WS_HEADER_SEC_WEBSOCKET_KEY:
-		ret = save_websocket_key(ws, at, length);
+		ret = save_websocket_key(wslh, at, length);
 		break;
 
 	case CIO_WS_HEADER_SEC_WEBSOCKET_VERSION:
-		ret = check_websocket_version(ws, at, length);
+		ret = check_websocket_version(wslh, at, length);
 		break;
 
 	case CIO_WS_HEADER_SEC_WEBSOCKET_PROTOCOL:
-		ws->flags.subprotocol_requested = 1;
+		wslh->flags.subprotocol_requested = 1;
 		ret = CIO_HTTP_CB_SUCCESS;
-		check_websocket_protocol(ws, at, length);
+		check_websocket_protocol(wslh, at, length);
 		break;
 
 	default:
@@ -166,7 +166,7 @@ static enum cio_http_cb_return handle_value(struct cio_http_client *client, cons
 		break;
 	}
 
-	ws->flags.current_header_field = CIO_WS_HEADER_UNKNOWN;
+	wslh->flags.current_header_field = CIO_WS_HEADER_UNKNOWN;
 	return ret;
 }
 
