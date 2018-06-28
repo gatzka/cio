@@ -1,5 +1,7 @@
 var searchData=
 [
+  ['wb',['wb',['../structresponse__buffer.html#a7633037b44b1ebb0e584ca4e9b1b33e5',1,'response_buffer']]],
+  ['wb_5fhead',['wb_head',['../structresponse__buffer.html#a0e24805538bc10c6dd29e57c0e301634',1,'response_buffer']]],
   ['wbh',['wbh',['../structcio__http__client.html#a5c18d4350ac8432cc939e5e3cdc6fcfd',1,'cio_http_client::wbh()'],['../structcio__websocket__write__job.html#aa7f770b89a2f840fd5ab79ece5d6d116',1,'cio_websocket_write_job::wbh()']]],
   ['websocket_5fheader',['websocket_header',['../structcio__websocket__write__job.html#a95bdcf4a76ed0daed24d0ebe95a897be',1,'cio_websocket_write_job']]],
   ['wmb',['wmb',['../cio__compiler_8h.html#a6cec6ad808589891b39e150d6a18152c',1,'cio_compiler.h']]],

@@ -4,7 +4,7 @@
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
 <meta http-equiv="X-UA-Compatible" content="IE=9"/>
 <meta name="generator" content="Doxygen 1.8.6"/>
-<title>ANSI C I/O Library: cio_write_buffer Struct Reference</title>
+<title>ANSI C I/O Library: response_buffer Struct Reference</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
@@ -81,73 +81,55 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 
 </div><!-- top -->
 <div class="header">
+  <div class="summary">
+<a href="#pub-attribs">Data Fields</a>  </div>
   <div class="headertitle">
-<div class="title">cio_write_buffer Struct Reference</div>  </div>
+<div class="title">response_buffer Struct Reference</div>  </div>
 </div><!--header-->
 <div class="contents">
 
-<p>Structure to build up a write buffer chain.  
- <a href="structcio__write__buffer.html#details">More...</a></p>
-
-<p><code>#include &lt;<a class="el" href="cio__write__buffer_8h_source.html">cio_write_buffer.h</a>&gt;</code></p>
-<a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
-<div class="textblock"><p>Structure to build up a write buffer chain. </p>
-<p>This structure is used for both a write buffer head and a write buffer element holding data. </p>
-</div><h2 class="groupheader">Field Documentation</h2>
-<a class="anchor" id="af814a576f13c8be9a02eb018b085c8d6"></a>
+<p><code>#include &lt;<a class="el" href="cio__websocket_8h_source.html">cio_websocket.h</a>&gt;</code></p>
+<table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-attribs"></a>
+Data Fields</h2></td></tr>
+<tr class="memitem:a0e24805538bc10c6dd29e57c0e301634"><td class="memItemLeft" align="right" valign="top">struct <a class="el" href="structcio__write__buffer.html">cio_write_buffer</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structresponse__buffer.html#a0e24805538bc10c6dd29e57c0e301634">wb_head</a></td></tr>
+<tr class="separator:a0e24805538bc10c6dd29e57c0e301634"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7633037b44b1ebb0e584ca4e9b1b33e5"><td class="memItemLeft" align="right" valign="top">struct <a class="el" href="structcio__write__buffer.html">cio_write_buffer</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structresponse__buffer.html#a7633037b44b1ebb0e584ca4e9b1b33e5">wb</a></td></tr>
+<tr class="separator:a7633037b44b1ebb0e584ca4e9b1b33e5"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad2a61d4742403a5b67faae2b48a77eb7"><td class="memItemLeft" align="right" valign="top">uint8_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structresponse__buffer.html#ad2a61d4742403a5b67faae2b48a77eb7">buffer</a> [<a class="el" href="cio__websocket_8h.html#a6092b5c3a185ea1e9ca81b41026a2aea">CIO_WEBSOCKET_SMALL_FRAME_SIZE</a>]</td></tr>
+<tr class="separator:ad2a61d4742403a5b67faae2b48a77eb7"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table>
+<h2 class="groupheader">Field Documentation</h2>
+<a class="anchor" id="a0e24805538bc10c6dd29e57c0e301634"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">const void* cio_write_buffer::const_data</td>
+          <td class="memname">struct <a class="el" href="structcio__write__buffer.html">cio_write_buffer</a> response_buffer::wb_head</td>
         </tr>
       </table>
 </div><div class="memdoc">
 
 </div>
 </div>
-<a class="anchor" id="af9e736e2fb82a15e552147a4754d19c7"></a>
+<a class="anchor" id="a7633037b44b1ebb0e584ca4e9b1b33e5"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">void* cio_write_buffer::data</td>
+          <td class="memname">struct <a class="el" href="structcio__write__buffer.html">cio_write_buffer</a> response_buffer::wb</td>
         </tr>
       </table>
 </div><div class="memdoc">
 
 </div>
 </div>
-<a class="anchor" id="ada5b2211a3ee640baf15abdae9be2d7a"></a>
+<a class="anchor" id="ad2a61d4742403a5b67faae2b48a77eb7"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">size_t cio_write_buffer::length</td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-</div>
-</div>
-<a class="anchor" id="a02500d1a92d49f16f632eb2fd2415440"></a>
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">struct { ... }   cio_write_buffer::element</td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-</div>
-</div>
-<a class="anchor" id="a21d9ee9a38c18e9ee82f90743524dd47"></a>
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">size_t cio_write_buffer::q_len</td>
+          <td class="memname">uint8_t response_buffer::buffer[<a class="el" href="cio__websocket_8h.html#a6092b5c3a185ea1e9ca81b41026a2aea">CIO_WEBSOCKET_SMALL_FRAME_SIZE</a>]</td>
         </tr>
       </table>
 </div><div class="memdoc">
@@ -155,7 +137,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 </div>
 </div>
 <hr/>The documentation for this struct was generated from the following file:<ul>
-<li><a class="el" href="cio__write__buffer_8h_source.html">cio_write_buffer.h</a></li>
+<li><a class="el" href="cio__websocket_8h_source.html">cio_websocket.h</a></li>
 </ul>
 </div><!-- contents -->
 <!-- start footer part -->
