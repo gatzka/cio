@@ -105,6 +105,42 @@ struct response_buffer {
 	uint8_t buffer[CIO_WEBSOCKET_SMALL_FRAME_SIZE];
 };
 
+struct cio_websocket_private {
+	uint64_t read_frame_length;
+	struct cio_eventloop *loop;
+
+	struct {
+		unsigned int fin : 1;
+		unsigned int opcode : 4;
+		unsigned int frag_opcode : 4;
+		unsigned int self_initiated_close : 1;
+		unsigned int is_server : 1;
+		unsigned int fragmented_write : 1;
+		unsigned int closed_by_error : 1;
+	} ws_flags;
+
+	cio_websocket_read_handler read_handler;
+	void *read_handler_context;
+
+	struct cio_buffered_stream *bs;
+	struct cio_read_buffer *rb;
+	struct cio_timer close_timer;
+	struct cio_utf8_state utf8_state;
+	cio_websocket_close_hook close_hook;
+	uint8_t received_mask[4];
+
+	struct cio_websocket_write_job write_message_job;
+	struct cio_websocket_write_job write_ping_job;
+	struct cio_websocket_write_job write_pong_job;
+	struct cio_websocket_write_job write_close_job;
+
+	struct cio_websocket_write_job *first_write_job;
+	struct cio_websocket_write_job *last_write_job;
+
+	struct response_buffer close_buffer;
+	struct response_buffer ping_buffer;
+};
+
 struct cio_websocket {
 
 	/**
@@ -222,40 +258,7 @@ struct cio_websocket {
 	enum cio_error (*write_pong)(struct cio_websocket *ws, struct cio_write_buffer *payload, cio_websocket_write_handler handler, void *handler_context);
 
 	/*! @cond PRIVATE */
-
-	uint64_t read_frame_length;
-	struct cio_eventloop *loop;
-
-	struct {
-		unsigned int fin : 1;
-		unsigned int opcode : 4;
-		unsigned int frag_opcode : 4;
-		unsigned int self_initiated_close : 1;
-		unsigned int is_server : 1;
-		unsigned int fragmented_write : 1;
-		unsigned int closed_by_error : 1;
-	} ws_flags;
-
-	cio_websocket_read_handler read_handler;
-	void *read_handler_context;
-
-	struct cio_buffered_stream *bs;
-	struct cio_read_buffer *rb;
-	struct cio_timer close_timer;
-	struct cio_utf8_state utf8_state;
-	cio_websocket_close_hook close_hook;
-	uint8_t received_mask[4];
-
-	struct cio_websocket_write_job write_message_job;
-	struct cio_websocket_write_job write_ping_job;
-	struct cio_websocket_write_job write_pong_job;
-	struct cio_websocket_write_job write_close_job;
-
-	struct cio_websocket_write_job *first_write_job;
-	struct cio_websocket_write_job *last_write_job;
-
-	struct response_buffer close_buffer;
-	struct response_buffer ping_buffer;
+	    struct cio_websocket_private private;
 	/*! @endcond */
 };
 
