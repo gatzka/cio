@@ -120,6 +120,112 @@ static uint8_t write_buffer[140000];
 static size_t write_buffer_pos = 0;
 static size_t write_buffer_parse_pos = 0;
 
+static bool check_frame(enum cio_websocket_frame_type opcode, const char *payload, size_t payload_length, bool is_last_frame)
+{
+	uint8_t header = write_buffer[write_buffer_parse_pos++];
+	if (((header & WS_HEADER_FIN) == WS_HEADER_FIN) != is_last_frame) {
+		return false;
+	}
+
+	if ((header & WS_HEADER_RSV) != 0) {
+		return false;
+	}
+
+	if ((header & opcode) != opcode) {
+		return false;
+	}
+
+	uint8_t first_length = write_buffer[write_buffer_parse_pos++];
+	bool is_masked = ((first_length & WS_MASK_SET) == WS_MASK_SET);
+	first_length = first_length & ~WS_MASK_SET;
+
+	uint64_t length;
+	if (first_length == 126) {
+		uint16_t len;
+		memcpy(&len, &write_buffer[write_buffer_parse_pos], sizeof(len));
+		write_buffer_parse_pos += sizeof(len);
+		len = be16toh(len);
+		length = len;
+	} else if (first_length == 127) {
+		uint64_t len;
+		memcpy(&len, &write_buffer[write_buffer_parse_pos], sizeof(len));
+		write_buffer_parse_pos += sizeof(len);
+		len = be64toh(len);
+		length = len;
+	} else {
+		length = first_length;
+	}
+
+	if (length != payload_length) {
+		return false;
+	}
+
+	if (is_masked) {
+		uint8_t mask[4];
+		memcpy(mask, &write_buffer[write_buffer_parse_pos], sizeof(mask));
+		write_buffer_parse_pos += sizeof(mask);
+		cio_websocket_mask(&write_buffer[write_buffer_parse_pos], length, mask);
+	}
+
+	if (length > 0) {
+		if (memcmp(&write_buffer[write_buffer_parse_pos], payload, length) != 0) {
+			return false;
+		}
+	}
+
+	write_buffer_parse_pos += payload_length;
+
+	return true;
+}
+
+static bool is_close_frame(uint16_t status_code, bool status_code_required)
+{
+	if ((write_buffer[write_buffer_parse_pos] & WS_HEADER_FIN) != WS_HEADER_FIN) {
+		return false;
+	}
+
+	if ((write_buffer[write_buffer_parse_pos++] & WS_CLOSE_FRAME) == 0) {
+		return false;
+	}
+
+	uint8_t first_length = write_buffer[write_buffer_parse_pos++];
+	bool is_masked = ((first_length & WS_MASK_SET) == WS_MASK_SET);
+	first_length = first_length & ~WS_MASK_SET;
+
+	if (first_length > CIO_WEBSOCKET_SMALL_FRAME_SIZE) {
+		return false;
+	}
+
+	if ((first_length == 0) && (status_code_required)) {
+		return false;
+	}
+
+	if (first_length == 1) {
+		return false;
+	}
+
+	if (is_masked) {
+		uint8_t mask[4];
+		memcpy(mask, &write_buffer[write_buffer_parse_pos], sizeof(mask));
+		write_buffer_parse_pos += sizeof(mask);
+		cio_websocket_mask(&write_buffer[write_buffer_parse_pos], first_length, mask);
+	}
+
+	if (first_length > 0) {
+		uint16_t sc;
+		memcpy(&sc, &write_buffer[write_buffer_parse_pos], sizeof(sc));
+		sc = cio_be16toh(sc);
+		write_buffer_parse_pos += sizeof(sc);
+		first_length -= sizeof(sc);
+		write_buffer_parse_pos += first_length;
+		if (status_code != sc) {
+			return false;
+		}
+	}
+
+	return true;
+}
+
 static void serialize_frames(struct ws_frame frames[], size_t num_frames)
 {
 	uint32_t buffer_pos = 0;
@@ -373,11 +479,73 @@ static void test_client_immediate_read_error_for_get_payload(void)
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_WEBSOCKET_CLOSE_INTERNAL_ERROR, on_error_fake.arg1_val, "error callback called with wrong status code");
 }
 
+static void test_client_send_text_binary_frame(void)
+{
+	uint32_t frame_sizes[] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 125, 126, 65535, 65536};
+	unsigned int frame_types[] = {CIO_WEBSOCKET_BINARY_FRAME, CIO_WEBSOCKET_TEXT_FRAME};
+
+	for (unsigned int i = 0; i < ARRAY_SIZE(frame_sizes); i++) {
+		for (unsigned int j = 0; j < ARRAY_SIZE(frame_types); j++) {
+			uint32_t frame_size = frame_sizes[i];
+			char data[frame_size];
+			memset(data, 'a', frame_size);
+			char check_data[frame_size];
+			memset(check_data, 'a', frame_size);
+
+			struct ws_frame frames[] = {
+				{.frame_type = CIO_WEBSOCKET_CLOSE_FRAME, .direction = FROM_CLIENT, .data = NULL, .data_length = 0, .last_frame = true, .rsv = false},
+			};
+
+			serialize_frames(frames, ARRAY_SIZE(frames));
+
+			struct cio_write_buffer wbh;
+			cio_write_buffer_head_init(&wbh);
+
+			struct cio_write_buffer wb;
+			cio_write_buffer_element_init(&wb, data, frame_size);
+			cio_write_buffer_queue_tail(&wbh, &wb);
+
+			uint32_t context = 0x1234568;
+			if (frame_types[j] == CIO_WEBSOCKET_TEXT_FRAME) {
+				enum cio_error err = ws->write_message(ws, &wbh, true, false, write_handler, &context);
+				TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Writing a text frame did not succeed!");
+				TEST_ASSERT_MESSAGE(check_frame(CIO_WEBSOCKET_TEXT_FRAME, check_data, frame_size, true), "First frame send is incorrect text frame!");
+			} else if (frame_types[j] == CIO_WEBSOCKET_BINARY_FRAME) {
+				enum cio_error err = ws->write_message(ws, &wbh, true, true, write_handler, &context);
+				TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Writing a binary frame did not succeed!");
+				TEST_ASSERT_MESSAGE(check_frame(CIO_WEBSOCKET_BINARY_FRAME, check_data, frame_size, true), "First frame send is incorrect binary frame!");
+			}
+
+			enum cio_error err = ws->read_message(ws, read_handler, NULL);
+			TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Could not start reading a message!");
+			TEST_ASSERT_MESSAGE(is_close_frame(CIO_WEBSOCKET_CLOSE_NORMAL, true), "written frame is not a close frame!");
+
+			TEST_ASSERT_EQUAL_MESSAGE(1, write_handler_fake.call_count, "write handler was not called!");
+			TEST_ASSERT_EQUAL_PTR_MESSAGE(ws, write_handler_fake.arg0_val, "websocket pointer in write handler not correct!");
+			TEST_ASSERT_EQUAL_PTR_MESSAGE(&context, write_handler_fake.arg1_val, "context pointer in write handler not correct!");
+			TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, write_handler_fake.arg2_val, "error code in write handler not correct!");
+
+			TEST_ASSERT_EQUAL_MESSAGE(1, wbh.data.q_len, "Length of write buffer different than before writing!");
+			TEST_ASSERT_EQUAL_MESSAGE(&wbh, wbh.next->next, "Concatenation of write buffers no longer correct after writing!");
+			if (frame_size > 0) {
+				TEST_ASSERT_EQUAL_MEMORY_MESSAGE(data, wbh.next->data.element.data, frame_size, "Content of writebuffer not correct after writing!");
+			}
+
+			TEST_ASSERT_EQUAL_MESSAGE(0, on_error_fake.call_count, "error callback was called");
+			TEST_ASSERT_EQUAL_MESSAGE(1, on_control_fake.call_count, "control callback was called not for last close frame");
+
+			free(ws);
+			setUp();
+		}
+	}
+}
+
 int main(void)
 {
 	UNITY_BEGIN();
 	RUN_TEST(test_client_read_frame);
 	RUN_TEST(test_client_immediate_read_error_for_get_payload);
+	RUN_TEST(test_client_send_text_binary_frame);
 
 	return UNITY_END();
 }
