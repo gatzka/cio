@@ -99,7 +99,7 @@ struct cio_websocket_write_job {
 	cio_buffered_stream_write_handler stream_handler;
 };
 
-struct response_buffer {
+struct cio_response_buffer {
 	struct cio_write_buffer wb_head;
 	struct cio_write_buffer wb;
 	uint8_t buffer[CIO_WEBSOCKET_SMALL_FRAME_SIZE];
@@ -137,8 +137,8 @@ struct cio_websocket_private {
 	struct cio_websocket_write_job *first_write_job;
 	struct cio_websocket_write_job *last_write_job;
 
-	struct response_buffer close_buffer;
-	struct response_buffer ping_buffer;
+	struct cio_response_buffer close_buffer;
+	struct cio_response_buffer ping_buffer;
 };
 
 struct cio_websocket {
