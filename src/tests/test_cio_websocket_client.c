@@ -463,7 +463,7 @@ static void test_client_immediate_read_error_for_get_payload(void)
 
 static void test_client_send_text_binary_frame(void)
 {
-	uint32_t frame_sizes[] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 125, 126, 65535, 65536};
+	uint32_t frame_sizes[] = {1, 2, 3, 4, 5, 6, 7, 8, 9, 125, 126, 65535, 65536};
 	unsigned int frame_types[] = {CIO_WEBSOCKET_BINARY_FRAME, CIO_WEBSOCKET_TEXT_FRAME};
 
 	for (unsigned int i = 0; i < ARRAY_SIZE(frame_sizes); i++) {
@@ -524,8 +524,8 @@ static void test_client_send_text_binary_frame(void)
 
 static void test_client_send_fragmented_frames(void)
 {
-	uint32_t first_frame_sizes[] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 125, 126, 65535, 65536};
-	uint32_t second_frame_sizes[] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 125, 126, 65535, 65536};
+	uint32_t first_frame_sizes[] = {1, 2, 3, 4, 5, 6, 7, 8, 125, 126, 65535, 65536};
+	uint32_t second_frame_sizes[] = {1, 2, 3, 4, 5, 6, 7, 8, 125, 126, 65535, 65536};
 	unsigned int frame_types[] = {CIO_WEBSOCKET_BINARY_FRAME, CIO_WEBSOCKET_TEXT_FRAME};
 
 	for (unsigned int i = 0; i < ARRAY_SIZE(first_frame_sizes); i++) {
