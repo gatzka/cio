@@ -167,12 +167,13 @@ static void abort_write_jobs(struct cio_websocket *ws)
 
 static void prepare_close_job(struct cio_websocket *ws, enum cio_websocket_status_code status_code, const uint8_t *reason, size_t reason_length, cio_websocket_write_handler handler, void *handler_context, cio_buffered_stream_write_handler stream_handler)
 {
-	size_t close_buffer_length = sizeof(status_code);
-	status_code = cio_htobe16(status_code);
-	memcpy(ws->close_payload_buffer, &status_code, sizeof(status_code));
+	uint16_t sc = (uint16_t)status_code;
+	size_t close_buffer_length = sizeof(sc);
+	sc = cio_htobe16(sc);
+	memcpy(ws->close_payload_buffer, &sc, sizeof(sc));
 	if (reason != NULL) {
-		size_t copy_len = MIN(reason_length, sizeof(ws->close_payload_buffer) - sizeof(status_code));
-		memcpy(ws->close_payload_buffer + sizeof(status_code), reason, copy_len);
+		size_t copy_len = MIN(reason_length, sizeof(ws->close_payload_buffer) - sizeof(sc));
+		memcpy(ws->close_payload_buffer + sizeof(sc), reason, copy_len);
 		close_buffer_length += copy_len;
 	}
 
