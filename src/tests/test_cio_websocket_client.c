@@ -58,17 +58,6 @@ enum frame_direction {
 static void read_handler(struct cio_websocket *ws, void *handler_context, enum cio_error err, uint8_t *data, size_t length, bool last_frame, bool is_binary);
 FAKE_VOID_FUNC(read_handler, struct cio_websocket *, void *, enum cio_error, uint8_t *, size_t, bool, bool)
 
-
-
-static enum cio_error timer_cancel(struct cio_timer *t);
-FAKE_VALUE_FUNC(enum cio_error, timer_cancel, struct cio_timer *)
-
-static void timer_close(struct cio_timer *t);
-FAKE_VOID_FUNC(timer_close, struct cio_timer *)
-
-static enum cio_error timer_expires_from_now(struct cio_timer *t, uint64_t timeout_ns, timer_handler handler, void *handler_context);
-FAKE_VALUE_FUNC(enum cio_error, timer_expires_from_now, struct cio_timer *, uint64_t, timer_handler, void *)
-
 static enum cio_error read_exactly(struct cio_buffered_stream *bs, struct cio_read_buffer *buffer, size_t num, cio_buffered_stream_read_handler handler, void *handler_context);
 FAKE_VALUE_FUNC(enum cio_error, read_exactly, struct cio_buffered_stream *, struct cio_read_buffer *, size_t, cio_buffered_stream_read_handler, void *)
 typedef enum cio_error (*read_exactly_fake_fun)(struct cio_buffered_stream *, struct cio_read_buffer *, size_t, cio_buffered_stream_read_handler, void *);
@@ -84,9 +73,6 @@ FAKE_VOID_FUNC(on_control, const struct cio_websocket *, enum cio_websocket_fram
 
 static void on_error(const struct cio_websocket *ws, enum cio_websocket_status_code status, const char *reason);
 FAKE_VOID_FUNC(on_error, const struct cio_websocket *, enum cio_websocket_status_code, const char *)
-
-static void close_handler(struct cio_websocket *ws, void *handler_context, enum cio_error err);
-FAKE_VOID_FUNC(close_handler, struct cio_websocket *, void *, enum cio_error)
 
 static void write_handler(struct cio_websocket *ws, void *context, enum cio_error err);
 FAKE_VOID_FUNC(write_handler, struct cio_websocket *, void *, enum cio_error)
@@ -369,16 +355,12 @@ void setUp(void)
 	RESET_FAKE(read_handler);
 
 	RESET_FAKE(cio_timer_init);
-	RESET_FAKE(timer_cancel);
-	RESET_FAKE(timer_close);
-	RESET_FAKE(timer_expires_from_now);
 	RESET_FAKE(read_exactly);
 	RESET_FAKE(bs_write);
 	RESET_FAKE(on_connect);
 	RESET_FAKE(on_control);
 	RESET_FAKE(on_error);
 
-	RESET_FAKE(close_handler);
 	RESET_FAKE(write_handler);
 
 	cio_read_buffer_init(&rb, read_buffer, sizeof(read_buffer));
