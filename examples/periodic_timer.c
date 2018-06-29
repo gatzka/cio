@@ -56,7 +56,7 @@ static void handle_timeout(struct cio_timer *timer, void *handler_context, enum 
 	}
 }
 
-int main()
+int main(void)
 {
 	int ret = EXIT_SUCCESS;
 
