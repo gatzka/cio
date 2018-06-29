@@ -1,7 +1,5 @@
 option(CIO_SANITIZE "Make a sanitized build." OFF)
 
-message(STATUS "Sanitized build: " ${CIO_SANITIZE})
-
 if (CIO_SANITIZE)
     if(CMAKE_BUILD_TYPE STREQUAL "Debug")
         if(CMAKE_C_COMPILER_ID STREQUAL "GNU")

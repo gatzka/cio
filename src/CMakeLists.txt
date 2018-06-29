@@ -2,13 +2,10 @@ cmake_minimum_required(VERSION 3.0)
 project(cio C)
 
 set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/../cmake/)
+include(compiler_settings)
 include(generateVersion)
-
-if(NOT CMAKE_BUILD_TYPE)
-    set(CMAKE_BUILD_TYPE "Release")
-endif()
-
 include(sanitizer)
+
 GenerateVersion(version ${PROJECT_NAME})
 
 configure_file(cio_version.h.in ${PROJECT_BINARY_DIR}/generated/cio_version.h)
@@ -38,32 +35,18 @@ if(CMAKE_C_COMPILER_ID STREQUAL "GNU")
 endif()
 
 if(CMAKE_C_COMPILER_ID STREQUAL "GNU" OR CMAKE_C_COMPILER_ID STREQUAL "Clang")
-    set(WARN_SWITCHES "-Wall -Wextra -Werror -Wshadow -Winit-self -Wcast-qual -Wcast-align -Wformat=2 -Wwrite-strings -Wmissing-prototypes -Wstrict-prototypes -Wold-style-definition -Wstrict-overflow=5 -Wdisabled-optimization -Wmissing-include-dirs -Wswitch-default -Wundef -pedantic")
-
-    if(CMAKE_C_COMPILER_ID STREQUAL "GNU")
-        if(NOT CMAKE_C_COMPILER_VERSION VERSION_LESS 4.5.0)
-            set(WARN_SWITCHES "${WARN_SWITCHES} -Wunused-result ")
-        endif()
-    endif()
-
-    set(CMAKE_C_FLAGS "-pipe -fno-common ${WARN_SWITCHES} ${CMAKE_C_FLAGS}")
-    set(CMAKE_C_FLAGS_RELEASE "-fno-asynchronous-unwind-tables ${CMAKE_C_FLAGS_RELEASE}")
 
     foreach(_file ${CIO_LINUX_FILES})
         file(SHA1 ${_file} checksum)
         string(SUBSTRING ${checksum} 0 8 checksum)
-        set_property(SOURCE ${_file} APPEND_STRING PROPERTY COMPILE_FLAGS "-std=c11 -frandom-seed=0x${checksum}")
+        set_property(SOURCE ${_file} APPEND_STRING PROPERTY COMPILE_FLAGS "-frandom-seed=0x${checksum}")
     endforeach()
 
     foreach(_file ${CIO_FILES})
         file(SHA1 ${_file} checksum)
         string(SUBSTRING ${checksum} 0 8 checksum)
-        set_property(SOURCE ${_file} APPEND_STRING PROPERTY COMPILE_FLAGS "-std=c11 -frandom-seed=0x${checksum}")
+        set_property(SOURCE ${_file} APPEND_STRING PROPERTY COMPILE_FLAGS "-frandom-seed=0x${checksum}")
     endforeach()
-endif()
-
-if(CMAKE_C_COMPILER_ID STREQUAL "Clang")
-    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wdocumentation")
 endif()
 
 add_library(cio_static
