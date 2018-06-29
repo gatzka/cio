@@ -52,7 +52,6 @@ Project {
       condition: qbs.targetOS.contains("linux")
       name: "linux specific"
       prefix: "../linux/"
-      cpp.cLanguageVersion: "c11"
       
       files: [
         "cio_linux_string.c",
@@ -296,7 +295,6 @@ Project {
       condition: qbs.targetOS.contains("linux")
       name: "linux specific"
       prefix: "../linux/"
-      cpp.cLanguageVersion: "c11"
 
       files: [
         "cio_linux_endian.c",
@@ -327,7 +325,6 @@ Project {
       condition: qbs.targetOS.contains("linux")
       name: "linux specific"
       prefix: "../linux/"
-      cpp.cLanguageVersion: "c11"
 
       files: [
         "cio_linux_endian.c",
@@ -357,7 +354,6 @@ Project {
       condition: qbs.targetOS.contains("linux")
       name: "linux specific"
       prefix: "../linux/"
-      cpp.cLanguageVersion: "c11"
 
       files: [
         "cio_linux_endian.c",
