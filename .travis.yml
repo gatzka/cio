@@ -193,8 +193,11 @@ env:
 script:
 - if [ "$COVERITY_SCAN_BRANCH" != 1 ]; then mkdir build_release; cd build_release;
   CMAKE_CMD_OPTION="-DCMAKE_C_COMPILER=${CMAKE_C_COMPILER} -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE} -DCIO_SANITIZE=${CIO_SANITIZE}";
-  echo $CMAKE_CMD_OPTION; cmake $CMAKE_CMD_OPTION ../; if [ -n "${SCAN_BUILD}" ];
-  then /usr/lib/llvm-5.0/bin/scan-build --status-bugs make -j; else make -j; fi; LSAN_OPTIONS=verbosity=1:log_threads=1 ASAN_OPTIONS=check_initialization_order=true:detect_stack_use_after_return=true:strict_init_order=true:detect_invalid_pointer_pairs=10:strict_string_checks=true ctest -V . ; fi
+  echo $CMAKE_CMD_OPTION; cmake $CMAKE_CMD_OPTION ../;
+  if [ -n "${SCAN_BUILD}" ];
+    then /usr/lib/llvm-5.0/bin/scan-build --status-bugs make -j;
+  else make -j; fi; LSAN_OPTIONS=verbosity=1:log_threads=1 ASAN_OPTIONS=check_initialization_order=true:detect_stack_use_after_return=true:strict_init_order=true:detect_invalid_pointer_pairs=10:strict_string_checks=true ctest -V . ;
+  fi
 after_success:
 - "../scripts/push-doxygen-to-gh-pages.sh"
 - if [ -n "${COVERAGE_INFO}" ]; then cd ${TRAVIS_BUILD_DIR}; lcov --version; lcov
@@ -202,13 +205,4 @@ after_success:
   '*/linux/tests/*' '*/tests/*' '*/http-parser/*' '*/sha1/*' '/usr/include/*' '*/unity/*' --output-file
   filtered-coverage.info; lcov --list filtered-coverage.info; bash <(curl -s https://codecov.io/bash)
   -f filtered-coverage.info || echo "Codecov did not collect coverage reports"; fi
-# addons:
-#   coverity_scan:
-#     project:
-#       name: gatzka/cio
-#       description: Build submitted via Travis CI
-#     notification_email: stephan.gatzka@gmail.com
-#     build_script_url: https://raw.githubusercontent.com/gatzka/cio/coverity_scan/.travisci_build_coverity_scan.sh
-#     build_command_prepend: cmake ./
-#     build_command: make -j
-#     branch_pattern: coverity_scan
+
