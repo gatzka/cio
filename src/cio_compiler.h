@@ -54,7 +54,7 @@
  */
 #define wmb() __sync_synchronize()
 
-#elif _MSC_VER
+#elif defined(_MSC_VER)
 
 #define likely(x) \
 	(x)
