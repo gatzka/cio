@@ -126,7 +126,7 @@ static void handle_accept(struct cio_server_socket *ss, void *handler_context, e
 	stream->read_some(stream, &client->rb, handle_read, client);
 }
 
-int main()
+int main(void)
 {
 	int ret = EXIT_SUCCESS;
 	if (signal(SIGTERM, sighandler) == SIG_ERR) {

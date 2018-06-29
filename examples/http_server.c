@@ -121,7 +121,7 @@ static void serve_error(struct cio_http_server *server, const char *reason)
 	server->server_socket.close(&server->server_socket);
 }
 
-int main()
+int main(void)
 {
 	int ret = EXIT_SUCCESS;
 	if (signal(SIGTERM, sighandler) == SIG_ERR) {
