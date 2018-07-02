@@ -40,12 +40,45 @@ static inline uint8_t decode(uint8_t *state, uint8_t *codep, uint8_t byte)
 
 uint8_t cio_check_utf8(struct cio_utf8_state *state, const uint8_t *s, size_t count)
 {
-	for (size_t i = 0; i < count; i++) {
-		if (decode(&state->state, &state->codepoint, *s) == CIO_UTF8_REJECT) {
+
+	uint_fast32_t *buffer_aligned;
+	unsigned int pre_length = ((uintptr_t)s) % sizeof(*buffer_aligned);
+	pre_length = (sizeof(*buffer_aligned) - pre_length) % sizeof(*buffer_aligned);
+
+	size_t main_length = (count - pre_length) / sizeof(*buffer_aligned);
+	unsigned int post_length = count - pre_length - (main_length * sizeof(*buffer_aligned));
+
+	const uint_fast32_t *s_aligned = (const void *)(s + pre_length);
+
+	unsigned int i_p = 0;
+	while (pre_length > 0) {
+		if (decode(&state->state, &state->codepoint, s[i_p]) == CIO_UTF8_REJECT) {
 			return CIO_UTF8_REJECT;
 		}
 
-		s++;
+		pre_length--;
+		i_p++;
+	}
+
+	while (main_length-- > 0) {
+		uint_fast32_t buffer = *s_aligned;
+		s_aligned++;
+		for (uint_fast8_t i = 0; i < sizeof(buffer); i++) {
+			uint8_t character = ((buffer >> (i * 8))) & 0xff;
+			if (decode(&state->state, &state->codepoint, character) == CIO_UTF8_REJECT) {
+				return CIO_UTF8_REJECT;
+			}
+		}
+	}
+
+	i_p = count - post_length;
+	while (post_length > 0){
+		if (decode(&state->state, &state->codepoint, s[i_p]) == CIO_UTF8_REJECT) {
+			return CIO_UTF8_REJECT;
+		}
+
+		post_length--;
+		i_p++;
 	}
 
 	return state->state;
