@@ -51,7 +51,8 @@ static void test_utf8(void)
 {
 	struct test_entry entries[] = {
 	    {.test_pattern = (const uint8_t *)"\xe7\xae\x80\xe4\xbd\x93\xe4\xb8\xad\xe6\x96\x87\x00", .valid = CIO_UTF8_ACCEPT},
-	    {.test_pattern = (const uint8_t *)"\xf8\x88\x80\x80\x80", .valid = CIO_UTF8_REJECT}};
+		{.test_pattern = (const uint8_t *)"Hello\xf8\x88\x80\x80\x80", .valid = CIO_UTF8_REJECT},
+		{.test_pattern = (const uint8_t *)"\xf8\x88\x80\x80\x80", .valid = CIO_UTF8_REJECT}};
 
 	for (unsigned int i = 0; i < ARRAY_SIZE(entries); i++) {
 		struct cio_utf8_state state;
