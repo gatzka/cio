@@ -64,7 +64,7 @@ uint8_t cio_check_utf8(struct cio_utf8_state *state, const uint8_t *s, size_t co
 		uint_fast32_t buffer = *s_aligned;
 		s_aligned++;
 		for (uint_fast8_t i = 0; i < sizeof(buffer); i++) {
-			uint8_t character = ((buffer >> (i * 8))) & 0xff;
+			uint8_t character = (buffer >> (i * 8)) & 0xff;
 			if (decode(&state->state, &state->codepoint, character) == CIO_UTF8_REJECT) {
 				return CIO_UTF8_REJECT;
 			}
