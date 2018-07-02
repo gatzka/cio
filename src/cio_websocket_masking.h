@@ -52,7 +52,7 @@ static inline void cio_websocket_mask(uint8_t *buffer, size_t length, const uint
 	pre_length = (sizeof(aligned_mask) - pre_length) % sizeof(aligned_mask);
 
 	size_t main_length = (length - pre_length) / sizeof(aligned_mask);
-	unsigned int post_length = length - pre_length - (main_length * sizeof(aligned_mask));
+	unsigned int post_length = (unsigned int)(length - pre_length - (main_length * sizeof(aligned_mask)));
 
 	uint_fast32_t *buffer_aligned = (void *)(buffer + pre_length);
 
