@@ -12,19 +12,29 @@ configure_file(cio_version.h.in ${PROJECT_BINARY_DIR}/generated/cio_version.h)
 
 string(COMPARE EQUAL "${CMAKE_SYSTEM_NAME}" "Linux" is_linux)
 if(is_linux)
-    file(GLOB CIO_LINUX_FILES
-        "linux/*.c"
-        "linux/*.h"
+    set(CIO_PLATFORM_FILES
+        "linux/cio_linux_endian.c"
+        "linux/cio_linux_epoll.c"
+        "linux/cio_linux_random.c"
+        "linux/cio_linux_server_socket.c"
+        "linux/cio_linux_socket.c"
+        "linux/cio_linux_socket_utils.c"
+        "linux/cio_linux_string.c"
+        "linux/cio_linux_timer.c"
     )
 endif()
 
-file(GLOB CIO_FILES
-    "*.c"
-    "*.h"
+set(CIO_FILES
+    "cio_base64.c"
+    "cio_buffered_stream.c"
+    "cio_http_location.c"
+    "cio_http_location_handler.c"
+    "cio_http_server.c"
+    "cio_utf8_checker.c"
+    "cio_websocket.c"
+    "cio_websocket_location_handler.c"
     "http-parser/http_parser.c"
-    "http-parser/http_parser.h"
-    "sha1/*.c"
-    "sha1/*.h"
+    "sha1/sha1.c"
 )
 
 if(CMAKE_C_COMPILER_ID STREQUAL "GNU")
@@ -36,14 +46,14 @@ endif()
 
 if(CMAKE_C_COMPILER_ID STREQUAL "GNU" OR CMAKE_C_COMPILER_ID STREQUAL "Clang")
 
-    foreach(_file ${CIO_LINUX_FILES})
-        file(SHA1 ${_file} checksum)
+    foreach(_file ${CIO_PLATFORM_FILES})
+        file(SHA1 ${CMAKE_CURRENT_SOURCE_DIR}/${_file} checksum)
         string(SUBSTRING ${checksum} 0 8 checksum)
         set_property(SOURCE ${_file} APPEND_STRING PROPERTY COMPILE_FLAGS "-frandom-seed=0x${checksum}")
     endforeach()
 
     foreach(_file ${CIO_FILES})
-        file(SHA1 ${_file} checksum)
+        file(SHA1 ${CMAKE_CURRENT_SOURCE_DIR}/${_file} checksum)
         string(SUBSTRING ${checksum} 0 8 checksum)
         set_property(SOURCE ${_file} APPEND_STRING PROPERTY COMPILE_FLAGS "-frandom-seed=0x${checksum}")
     endforeach()
@@ -51,7 +61,7 @@ endif()
 
 add_library(cio_static
     ${CIO_FILES}
-    ${CIO_LINUX_FILES}
+    ${CIO_PLATFORM_FILES}
 )
 set_target_properties(cio_static
     PROPERTIES OUTPUT_NAME "cio"
@@ -65,7 +75,7 @@ target_link_libraries(cio_static bsd)
 
 add_library(cio SHARED
     ${CIO_FILES}
-    ${CIO_LINUX_FILES}
+    ${CIO_PLATFORM_FILES}
 )
 set_target_properties(cio
     PROPERTIES OUTPUT_NAME "cio"
@@ -77,11 +87,41 @@ if(is_linux)
     target_include_directories(cio PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/linux/)
 endif()
 
-file(GLOB LIB_HEADERS
-   ${PROJECT_SOURCE_DIR}/*.h
+set(LIB_HEADERS
+	"cio_base64.h"
+	"cio_buffered_stream.h"
+	"cio_compiler.h"
+	"cio_endian.h"
+	"cio_error_code.h"
+	"cio_eventloop.h"
+	"cio_http_client.h"
+	"cio_http_location.h"
+	"cio_http_location_handler.h"
+	"cio_http_method.h"
+	"cio_http_server.h"
+	"cio_http_status_code.h"
+	"cio_io_stream.h"
+	"cio_random.h"
+	"cio_read_buffer.h"
+	"cio_server_socket.h"
+	"cio_socket.h"
+	"cio_string.h"
+	"cio_timer.h"
+	"cio_utf8_checker.h"
+	"cio_util.h"
+	"cio_websocket.h"
+	"cio_websocket_location_handler.h"
+	"cio_websocket_masking.h"
+	"cio_write_buffer.h"
+    "http-parser/http_parser.h"
+    "sha1/sha1.h"
 )
-file(GLOB LIB_HEADERS_LINUX
-   ${PROJECT_SOURCE_DIR}/linux/*.h
+
+set(LIB_HEADERS_LINUX
+    "linux/cio_error_code_impl.h"
+    "linux/cio_eventloop_impl.h"
+    "linux/cio_linux_socket.h"
+    "linux/cio_linux_socket_utils.h"
 )
 
 set_target_properties(cio
@@ -95,10 +135,10 @@ install(
 )
 
 install(
-    FILES ${LIB_HEADERS} DESTINATION include/cio/
+    FILES ${CMAKE_CURRENT_SOURCE_DIR}/${LIB_HEADERS} DESTINATION include/cio/
 )
 install(
-    FILES ${LIB_HEADERS_LINUX} DESTINATION include/cio/linux/
+    FILES ${CMAKE_CURRENT_SOURCE_DIR}/${LIB_HEADERS_LINUX} DESTINATION include/cio/linux/
 )
 install(
     FILES ${PROJECT_BINARY_DIR}/generated/cio_version.h DESTINATION include/cio/
