@@ -89,8 +89,8 @@ static void timer_read(void *context)
 	uint64_t number_of_expirations;
 
 	ssize_t ret = read(t->ev.fd, &number_of_expirations, sizeof(number_of_expirations));
-	if (ret == -1) {
-		if ((errno != EAGAIN) && (errno != EWOULDBLOCK)) {
+	if (unlikely(ret == -1)) {
+		if (unlikely((errno != EAGAIN) && (errno != EWOULDBLOCK))) {
 			t->handler(t, t->handler_context, (enum cio_error)(-errno));
 		}
 	} else {
