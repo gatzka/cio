@@ -50,15 +50,15 @@ void cio_b64_encode_string(const uint8_t *__restrict in, size_t in_len, char *__
 		}
 
 		char tmp[4];
-		tmp[0] = encode_table[triple[0] >> 2];
-		tmp[1] = encode_table[((triple[0] & 0x03) << 4) | ((triple[1] & 0xf0) >> 4)];
+		tmp[0] = encode_table[triple[0] >> 2U];
+		tmp[1] = encode_table[((triple[0] & 0x03U) << 4U) | ((triple[1] & 0xf0U) >> 4U)];
 		if (likely(len > 1)) {
-			tmp[2] = encode_table[((triple[1] & 0x0f) << 2) | ((triple[2] & 0xc0) >> 6)];
+			tmp[2] = encode_table[((triple[1] & 0x0fU) << 2U) | ((triple[2] & 0xc0U) >> 6U)];
 		} else {
 			tmp[2] = '=';
 		}
 		if (likely(len > 2)) {
-			tmp[3] = encode_table[triple[2] & 0x3f];
+			tmp[3] = encode_table[triple[2] & 0x3fU];
 		} else {
 			tmp[3] = '=';
 		}
