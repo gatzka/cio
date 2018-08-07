@@ -257,7 +257,7 @@ static int on_body(http_parser *parser, const char *at, size_t length)
 
 static enum cio_http_cb_return call_url_parts_callback(const struct http_parser_url *u, enum http_parser_url_fields url_field, cio_http_data_cb callback, struct cio_http_client *client, const char *at)
 {
-	if (((u->field_set & (1 << url_field)) == (1 << url_field)) && (callback != NULL)) {
+	if (((u->field_set & (1U << url_field)) == (1U << url_field)) && (callback != NULL)) {
 		return callback(client, at + u->field_data[url_field].off, u->field_data[url_field].len);
 	}
 
@@ -280,7 +280,7 @@ static int on_url(http_parser *parser, const char *at, size_t length)
 	struct http_parser_url u;
 	http_parser_url_init(&u);
 	int ret = http_parser_parse_url(at, length, is_connect, &u);
-	if ((unlikely(ret != 0)) || !((u.field_set & (1 << UF_PATH)) == (1 << UF_PATH))) {
+	if ((unlikely(ret != 0)) || !((u.field_set & (1U << (unsigned int)UF_PATH)) == (1U << (unsigned int)UF_PATH))) {
 		return -1;
 	}
 
