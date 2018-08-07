@@ -194,9 +194,9 @@ static enum cio_error stream_write(struct cio_io_stream *stream, const struct ci
 			s->ev.context = stream;
 			s->ev.write_callback = write_callback;
 			return cio_linux_eventloop_register_write(s->loop, &s->ev);
-		} else {
-			return (enum cio_error)(-errno);
 		}
+
+		return (enum cio_error)(-errno);
 	}
 
 	return CIO_SUCCESS;

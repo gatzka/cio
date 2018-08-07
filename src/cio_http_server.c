@@ -214,9 +214,9 @@ static int on_headers_complete(http_parser *parser)
 
 	if (client->handler->on_headers_complete != NULL) {
 		return client->handler->on_headers_complete(client);
-	} else {
-		return 0;
 	}
+
+	return 0;
 }
 
 static int on_header_field(http_parser *parser, const char *at, size_t length)
@@ -259,9 +259,9 @@ static enum cio_http_cb_return call_url_parts_callback(const struct http_parser_
 {
 	if (((u->field_set & (1 << url_field)) == (1 << url_field)) && (callback != NULL)) {
 		return callback(client, at + u->field_data[url_field].off, u->field_data[url_field].len);
-	} else {
-		return CIO_HTTP_CB_UNHANDLED;
 	}
+
+	return CIO_HTTP_CB_UNHANDLED;
 }
 
 static int on_url(http_parser *parser, const char *at, size_t length)
@@ -304,42 +304,54 @@ static int on_url(http_parser *parser, const char *at, size_t length)
 	enum cio_http_cb_return cb_ret = call_url_parts_callback(&u, UF_SCHEMA, handler->on_schema, client, at);
 	if (unlikely(cb_ret == CIO_HTTP_CB_ERROR)) {
 		return -1;
-	} else if (cb_ret != CIO_HTTP_CB_UNHANDLED) {
+	}
+
+	if (cb_ret != CIO_HTTP_CB_UNHANDLED) {
 		user_handler = 1;
 	}
 
 	cb_ret = call_url_parts_callback(&u, UF_HOST, handler->on_host, client, at);
 	if (unlikely(cb_ret == CIO_HTTP_CB_ERROR)) {
 		return -1;
-	} else if (cb_ret != CIO_HTTP_CB_UNHANDLED) {
+	}
+
+	if (cb_ret != CIO_HTTP_CB_UNHANDLED) {
 		user_handler = 1;
 	}
 
 	cb_ret = call_url_parts_callback(&u, UF_PORT, handler->on_port, client, at);
 	if (unlikely(cb_ret == CIO_HTTP_CB_ERROR)) {
 		return -1;
-	} else if (cb_ret != CIO_HTTP_CB_UNHANDLED) {
+	}
+
+	if (cb_ret != CIO_HTTP_CB_UNHANDLED) {
 		user_handler = 1;
 	}
 
 	cb_ret = call_url_parts_callback(&u, UF_PATH, handler->on_path, client, at);
 	if (unlikely(cb_ret == CIO_HTTP_CB_ERROR)) {
 		return -1;
-	} else if (cb_ret != CIO_HTTP_CB_UNHANDLED) {
+	}
+
+	if (cb_ret != CIO_HTTP_CB_UNHANDLED) {
 		user_handler = 1;
 	}
 
 	cb_ret = call_url_parts_callback(&u, UF_QUERY, handler->on_query, client, at);
 	if (unlikely(cb_ret == CIO_HTTP_CB_ERROR)) {
 		return -1;
-	} else if (cb_ret != CIO_HTTP_CB_UNHANDLED) {
+	}
+
+	if (cb_ret != CIO_HTTP_CB_UNHANDLED) {
 		user_handler = 1;
 	}
 
 	cb_ret = call_url_parts_callback(&u, UF_FRAGMENT, handler->on_fragment, client, at);
 	if (unlikely(cb_ret == CIO_HTTP_CB_ERROR)) {
 		return -1;
-	} else if (cb_ret != CIO_HTTP_CB_UNHANDLED) {
+	}
+
+	if (cb_ret != CIO_HTTP_CB_UNHANDLED) {
 		user_handler = 1;
 	}
 

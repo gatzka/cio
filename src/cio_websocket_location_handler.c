@@ -57,9 +57,9 @@ static enum cio_http_cb_return save_websocket_key(struct cio_websocket_location_
 		memcpy(wslh->sec_websocket_key, at, length);
 		memcpy(&wslh->sec_websocket_key[length], ws_guid, sizeof(ws_guid));
 		return CIO_HTTP_CB_SUCCESS;
-	} else {
-		return CIO_HTTP_CB_ERROR;
 	}
+
+	return CIO_HTTP_CB_ERROR;
 }
 
 static enum cio_http_cb_return check_websocket_version(struct cio_websocket_location_handler *wslh, const char *at, size_t length)
@@ -68,9 +68,9 @@ static enum cio_http_cb_return check_websocket_version(struct cio_websocket_loca
 	if (likely((length == sizeof(version)) && (memcmp(at, version, length) == 0))) {
 		wslh->flags.ws_version_ok = 1;
 		return CIO_HTTP_CB_SUCCESS;
-	} else {
-		return CIO_HTTP_CB_ERROR;
 	}
+
+	return CIO_HTTP_CB_ERROR;
 }
 
 static bool find_requested_sub_protocol(struct cio_websocket_location_handler *handler, const char *name, size_t length)
@@ -180,9 +180,9 @@ static bool check_http_version(const struct cio_http_client *client)
 
 	if ((client->http_major == 1) && (client->http_minor >= 1)) {
 		return true;
-	} else {
-		return false;
 	}
+
+	return false;
 }
 
 static void response_written(struct cio_buffered_stream *bs, void *handler_context, enum cio_error err)
