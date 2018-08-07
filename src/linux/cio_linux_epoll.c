@@ -148,14 +148,14 @@ enum cio_error cio_eventloop_run(struct cio_eventloop *loop)
 			uint32_t events_type = events[loop->event_counter].events;
 			loop->current_ev = ev;
 
-			if ((events_type & EPOLLIN & ev->registered_events) != 0) {
+			if ((events_type & (uint32_t)EPOLLIN & ev->registered_events) != 0) {
 				ev->read_callback(ev->context);
 			}
 
 			/*
 			 * The current event could have been removed via cio_linux_eventloop_remove
 			 */
-			if (likely(loop->current_ev != NULL) && (events_type & EPOLLOUT & ev->registered_events) != 0) {
+			if (likely(loop->current_ev != NULL) && (events_type & (uint32_t)EPOLLOUT & ev->registered_events) != 0) {
 				cio_linux_eventloop_unregister_write(loop, ev);
 				ev->write_callback(ev->context);
 			}
