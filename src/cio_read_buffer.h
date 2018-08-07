@@ -63,7 +63,7 @@ struct cio_read_buffer {
  */
 static inline size_t cio_read_buffer_unread_bytes(const struct cio_read_buffer *rb)
 {
-	return rb->add_ptr - rb->fetch_ptr;
+	return (size_t)(rb->add_ptr - rb->fetch_ptr);
 }
 
 /**
@@ -73,7 +73,7 @@ static inline size_t cio_read_buffer_unread_bytes(const struct cio_read_buffer *
  */
 static inline size_t cio_read_buffer_space_available(const struct cio_read_buffer *rb)
 {
-	return rb->end - rb->add_ptr;
+	return (size_t)(rb->end - rb->add_ptr);
 }
 
 /**
@@ -126,7 +126,7 @@ static inline size_t cio_read_buffer_get_transferred_bytes(const struct cio_read
  */
 static inline size_t cio_read_buffer_size(const struct cio_read_buffer *rb)
 {
-	return rb->end - rb->data;
+	return (size_t)(rb->end - rb->data);
 }
 
 #ifdef __cplusplus
