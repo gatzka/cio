@@ -152,9 +152,9 @@ static enum cio_error socket_bind(struct cio_server_socket *ss, const char *bind
 	if (ret != 0) {
 		if (ret == EAI_SYSTEM) {
 			return (enum cio_error)(-errno);
-		} else {
-			return CIO_INVALID_ARGUMENT;
 		}
+
+		return CIO_INVALID_ARGUMENT;
 	}
 
 	for (rp = servinfo; rp != NULL; rp = rp->ai_next) {
