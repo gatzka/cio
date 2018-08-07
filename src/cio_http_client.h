@@ -192,7 +192,7 @@ struct cio_http_client {
 	struct cio_socket socket;
 
 	/*! @cond PRIVATE */
-	struct cio_http_client_private private;
+	struct cio_http_client_private http_private;
 
 	http_parser parser;
 	http_parser_settings parser_settings;
