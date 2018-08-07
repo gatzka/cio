@@ -458,8 +458,8 @@ void setUp(void)
 	cio_read_buffer_init(&rb, read_buffer, sizeof(read_buffer));
 	ws = malloc(sizeof(*ws));
 	cio_websocket_init(ws, true, on_connect, NULL);
-	ws->private.rb = &rb;
-	ws->private.bs = &buffered_stream;
+	ws->ws_private.rb = &rb;
+	ws->ws_private.bs = &buffered_stream;
 	ws->on_control = on_control;
 	ws->on_error = on_error;
 
@@ -750,8 +750,8 @@ static void test_incoming_ping_pong_send_fails(void)
 	struct cio_websocket *my_ws = malloc(sizeof(*my_ws));
 	enum cio_error err = cio_websocket_init(my_ws, true, on_connect, websocket_free);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Could not init websocket");
-	my_ws->private.rb = &rb;
-	my_ws->private.bs = &buffered_stream;
+	my_ws->ws_private.rb = &rb;
+	my_ws->ws_private.bs = &buffered_stream;
 	my_ws->on_error = on_error;
 	my_ws->on_control = on_control;
 
@@ -1996,7 +1996,7 @@ static void test_close_self_without_read(void)
 	enum cio_error err = ws->close(ws, CIO_WEBSOCKET_CLOSE_NORMAL, "Going away", close_handler, NULL);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Close failed");
 
-	ws->private.close_timer.handler(&ws->private.close_timer, ws->private.close_timer.handler_context, CIO_SUCCESS);
+	ws->ws_private.close_timer.handler(&ws->ws_private.close_timer, ws->ws_private.close_timer.handler_context, CIO_SUCCESS);
 
 	TEST_ASSERT_EQUAL_MESSAGE(0, on_error_fake.call_count, "error callback was called");
 
@@ -2009,8 +2009,8 @@ static void test_close_self_without_close_hook(void)
 	enum cio_error err = cio_websocket_init(&my_ws, true, on_connect, NULL);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Init did not succeeded");
 
-	my_ws.private.rb = &rb;
-	my_ws.private.bs = &buffered_stream;
+	my_ws.ws_private.rb = &rb;
+	my_ws.ws_private.bs = &buffered_stream;
 
 	uint8_t data[] = {0x3, 0xe8};
 
@@ -2046,7 +2046,7 @@ static void test_close_self_no_answer(void)
 	err = ws->read_message(ws, read_handler, NULL);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "read_message did not succeed");
 
-	ws->private.close_timer.handler(&ws->private.close_timer, ws->private.close_timer.handler_context, CIO_SUCCESS);
+	ws->ws_private.close_timer.handler(&ws->ws_private.close_timer, ws->ws_private.close_timer.handler_context, CIO_SUCCESS);
 
 	TEST_ASSERT_EQUAL_MESSAGE(1, read_handler_fake.call_count, "read_handler was not called");
 	TEST_ASSERT_EQUAL_MESSAGE(ws, read_handler_fake.arg0_val, "websocket parameter of read_handler not correct");
@@ -2313,11 +2313,11 @@ static void test_send_text_binary_frame(void)
 
 struct fragmented_websocket {
 	struct cio_websocket ws;
+	struct cio_write_buffer wbh;
+	struct cio_write_buffer wb;
 	char first_fragment[5];
 	char second_fragment[5];
 	char third_fragment[5];
-	struct cio_write_buffer wbh;
-	struct cio_write_buffer wb;
 };
 
 static void write_handler_third_fragment(struct cio_websocket *s, void *context, enum cio_error err)
@@ -2368,8 +2368,8 @@ static void test_send_fragmented_text_frame(void)
 	enum cio_error err = cio_websocket_init(&fws.ws, true, on_connect, NULL);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Init did not succeeded");
 
-	fws.ws.private.rb = &rb;
-	fws.ws.private.bs = &buffered_stream;
+	fws.ws.ws_private.rb = &rb;
+	fws.ws.ws_private.bs = &buffered_stream;
 
 	err = fws.ws.write_message(&fws.ws, &fws.wbh, false, false, write_handler, &fws);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Writing a text frame did not succeed!");

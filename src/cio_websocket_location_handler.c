@@ -197,9 +197,9 @@ static void response_written(struct cio_buffered_stream *bs, void *handler_conte
 	struct cio_websocket_location_handler *wslh = container_of(client->handler, struct cio_websocket_location_handler, http_location);
 
 	struct cio_websocket *ws = &wslh->websocket;
-	ws->private.bs = bs;
-	ws->private.rb = &client->rb;
-	ws->private.loop = client->socket.loop;
+	ws->ws_private.bs = bs;
+	ws->ws_private.rb = &client->rb;
+	ws->ws_private.loop = client->socket.loop;
 
 	ws->on_connect(ws);
 }

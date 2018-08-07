@@ -366,8 +366,8 @@ void setUp(void)
 	cio_read_buffer_init(&rb, read_buffer, sizeof(read_buffer));
 	ws = malloc(sizeof(*ws));
 	cio_websocket_init(ws, false, on_connect, NULL);
-	ws->private.rb = &rb;
-	ws->private.bs = &buffered_stream;
+	ws->ws_private.rb = &rb;
+	ws->ws_private.bs = &buffered_stream;
 	ws->on_control = on_control;
 	ws->on_error = on_error;
 
