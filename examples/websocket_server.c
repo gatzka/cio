@@ -232,13 +232,13 @@ static struct cio_http_location_handler *alloc_websocket_handler(const void *con
 	struct ws_echo_handler *handler = malloc(sizeof(*handler));
 	if (unlikely(handler == NULL)) {
 		return NULL;
-	} else {
-		static const char *subprotocols[2] = {"echo", "jet"};
-		cio_websocket_location_handler_init(&handler->ws_handler, subprotocols, ARRAY_SIZE(subprotocols), on_connect);
-		handler->ws_handler.websocket.on_control = on_control;
-		handler->ws_handler.http_location.free = free_websocket_handler;
-		return &handler->ws_handler.http_location;
 	}
+
+	static const char *subprotocols[2] = {"echo", "jet"};
+	cio_websocket_location_handler_init(&handler->ws_handler, subprotocols, ARRAY_SIZE(subprotocols), on_connect);
+	handler->ws_handler.websocket.on_control = on_control;
+	handler->ws_handler.http_location.free = free_websocket_handler;
+	return &handler->ws_handler.http_location;
 }
 
 static struct cio_socket *alloc_http_client(void)
@@ -246,10 +246,10 @@ static struct cio_socket *alloc_http_client(void)
 	struct cio_http_client *client = malloc(sizeof(*client) + read_buffer_size);
 	if (unlikely(client == NULL)) {
 		return NULL;
-	} else {
-		client->buffer_size = read_buffer_size;
-		return &client->socket;
 	}
+
+	client->buffer_size = read_buffer_size;
+	return &client->socket;
 }
 
 static void free_http_client(struct cio_socket *socket)

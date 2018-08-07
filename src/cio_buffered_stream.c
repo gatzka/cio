@@ -55,9 +55,9 @@ static enum cio_bs_state call_handler(struct cio_buffered_stream *bs, enum cio_e
 	if (bs->shall_close) {
 		bs->stream->close(bs->stream);
 		return CIO_BS_CLOSED;
-	} else {
-		return CIO_BS_OPEN;
 	}
+
+	return CIO_BS_OPEN;
 }
 
 static void fill_buffer(struct cio_buffered_stream *bs)
@@ -106,7 +106,9 @@ static void run_read(struct cio_buffered_stream *bs)
 			bs->read_is_running = false;
 			fill_buffer(bs);
 			return;
-		} else if (err == CIO_BS_CLOSED) {
+		}
+
+		if (err == CIO_BS_CLOSED) {
 			return;
 		}
 	}
@@ -134,9 +136,9 @@ static enum cio_bs_state internal_read(struct cio_buffered_stream *bs)
 		rb->bytes_transferred = available;
 		rb->fetch_ptr += available;
 		return call_handler(bs, CIO_SUCCESS, rb);
-	} else {
-		return CIO_BS_AGAIN;
 	}
+
+	return CIO_BS_AGAIN;
 }
 
 static enum cio_error bs_read(struct cio_buffered_stream *bs, struct cio_read_buffer *buffer, cio_buffered_stream_read_handler handler, void *handler_context)
@@ -172,9 +174,9 @@ static enum cio_bs_state internal_read_until(struct cio_buffered_stream *bs)
 		rb->bytes_transferred = diff;
 		rb->fetch_ptr += diff;
 		return call_handler(bs, CIO_SUCCESS, rb);
-	} else {
-		return CIO_BS_AGAIN;
 	}
+
+	return CIO_BS_AGAIN;
 }
 
 static enum cio_error bs_read_until(struct cio_buffered_stream *bs, struct cio_read_buffer *buffer, const char *delim, cio_buffered_stream_read_handler handler, void *handler_context)
@@ -207,9 +209,9 @@ static enum cio_bs_state internal_read_exactly(struct cio_buffered_stream *bs)
 		rb->bytes_transferred = bs->read_info.bytes_to_read;
 		rb->fetch_ptr += bs->read_info.bytes_to_read;
 		return call_handler(bs, CIO_SUCCESS, rb);
-	} else {
-		return CIO_BS_AGAIN;
 	}
+
+	return CIO_BS_AGAIN;
 }
 
 static enum cio_error bs_read_exactly(struct cio_buffered_stream *bs, struct cio_read_buffer *buffer, size_t num, cio_buffered_stream_read_handler handler, void *handler_context)
@@ -272,11 +274,11 @@ static void handle_write(struct cio_io_stream *io_stream, void *handler_context,
 			cio_write_buffer_const_element_init(&bs->wb, new_data, new_length);
 			cio_write_buffer_queue_head(&bs->wbh, &bs->wb);
 			break;
-		} else {
-			bytes_transferred -= wb->data.element.length;
-			if (!buffer_is_temp_buffer(bs, wb)) {
-				cio_write_buffer_queue_tail(bs->original_wbh, wb);
-			}
+		}
+
+		bytes_transferred -= wb->data.element.length;
+		if (!buffer_is_temp_buffer(bs, wb)) {
+			cio_write_buffer_queue_tail(bs->original_wbh, wb);
 		}
 	}
 
