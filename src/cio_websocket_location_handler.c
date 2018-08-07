@@ -79,7 +79,7 @@ static bool find_requested_sub_protocol(struct cio_websocket_location_handler *h
 		const char *sub_protocol = handler->subprotocols[i];
 		size_t name_length = strlen(sub_protocol);
 		if ((name_length == length) && (memcmp(sub_protocol, name, length) == 0)) {
-			handler->chosen_subprotocol = i;
+			handler->chosen_subprotocol = (signed int)i;
 			return true;
 		}
 	}
@@ -100,7 +100,7 @@ static void check_websocket_protocol(struct cio_websocket_location_handler *hand
 			while (length > 0) {
 				if (*end == ',') {
 					ptrdiff_t len = end - start;
-					if (find_requested_sub_protocol(handler, start, len)) {
+					if (find_requested_sub_protocol(handler, start, (size_t)len)) {
 						return;
 					}
 
@@ -112,7 +112,7 @@ static void check_websocket_protocol(struct cio_websocket_location_handler *hand
 			}
 			if (length == 0) {
 				ptrdiff_t len = end - start;
-				if (find_requested_sub_protocol(handler, start, len)) {
+				if (find_requested_sub_protocol(handler, start, (size_t)len)) {
 					return;
 				}
 			}
