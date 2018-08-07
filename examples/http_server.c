@@ -82,14 +82,14 @@ static struct cio_http_location_handler *alloc_dummy_handler(const void *config)
 	struct dummy_handler *handler = malloc(sizeof(*handler));
 	if (unlikely(handler == NULL)) {
 		return NULL;
-	} else {
-		cio_http_location_handler_init(&handler->handler);
-		cio_write_buffer_head_init(&handler->wbh);
-		handler->handler.free = free_dummy_handler;
-		handler->handler.on_body = dummy_on_body;
-		handler->handler.on_message_complete = dummy_on_message_complete;
-		return &handler->handler;
 	}
+
+	cio_http_location_handler_init(&handler->handler);
+	cio_write_buffer_head_init(&handler->wbh);
+	handler->handler.free = free_dummy_handler;
+	handler->handler.on_body = dummy_on_body;
+	handler->handler.on_message_complete = dummy_on_message_complete;
+	return &handler->handler;
 }
 
 static struct cio_socket *alloc_http_client(void)
@@ -97,10 +97,10 @@ static struct cio_socket *alloc_http_client(void)
 	struct cio_http_client *client = malloc(sizeof(*client) + read_buffer_size);
 	if (unlikely(client == NULL)) {
 		return NULL;
-	} else {
-		client->buffer_size = read_buffer_size;
-		return &client->socket;
 	}
+
+	client->buffer_size = read_buffer_size;
+	return &client->socket;
 }
 
 static void free_http_client(struct cio_socket *socket)

@@ -52,9 +52,9 @@ static struct cio_socket *alloc_echo_client(void)
 	struct echo_client *client = malloc(sizeof(*client));
 	if (unlikely(client == NULL)) {
 		return NULL;
-	} else {
-		return &client->socket;
 	}
+
+	return &client->socket;
 }
 
 static void free_echo_client(struct cio_socket *socket)
