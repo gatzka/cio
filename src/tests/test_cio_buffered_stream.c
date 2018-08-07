@@ -112,7 +112,7 @@ static void memory_stream_init(struct memory_stream *ms, const char *fill_patter
 	ms->ios.close = client_close;
 	ms->mem = malloc(ms->size + 1);
 	memset(ms->mem, 0x00, ms->size + 1);
-	strncpy(ms->mem, fill_pattern, ms->size);
+	memcpy(ms->mem, fill_pattern, ms->size);
 }
 
 void setUp(void)
