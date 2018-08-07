@@ -388,6 +388,11 @@ static int on_url(http_parser *parser, const char *at, size_t length)
 	return 0;
 }
 
+static inline bool cio_is_error(enum cio_error error)
+{
+	return error < CIO_SUCCESS;
+}
+
 static void parse(struct cio_buffered_stream *stream, void *handler_context, enum cio_error err, struct cio_read_buffer *read_buffer)
 {
 	(void)stream;

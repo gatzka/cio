@@ -76,11 +76,6 @@ enum cio_error {
 	CIO_NETRESET = -ENETRESET                         /*!< Network dropped connection because of reset. */
 };
 
-static inline bool cio_is_error(enum cio_error error)
-{
-	return error < CIO_SUCCESS;
-}
-
 #ifdef __cplusplus
 }
 #endif
