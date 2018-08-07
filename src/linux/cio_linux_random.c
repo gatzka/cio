@@ -25,11 +25,13 @@
  */
 
 #define _DEFAULT_SOURCE
+
+#include <bsd/stdlib.h>
 #include <sys/types.h>
+
 #include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <bsd/stdlib.h>
 
 #include "cio_random.h"
 
