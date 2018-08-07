@@ -87,8 +87,11 @@ static inline void rotate(uint8_t mask[4], uint_fast8_t middle)
 		swap(mask, first, next);
 		first++;
 		next++;
-		if (next == last) next = middle;
-		else if (first == middle) middle = next;
+		if (next == last) {
+			next = middle;
+		} else if (first == middle) {
+			middle = next;
+		}
 	}
 }
 
