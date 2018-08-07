@@ -23,7 +23,7 @@
  <tr style="height: 56px;">
   <td style="padding-left: 0.5em;">
    <div id="projectname">ANSI C I/O Library
-   &#160;<span id="projectnumber">0.0.1-981+25baee4</span>
+   &#160;<span id="projectnumber">0.0.1-994+b20b784</span>
    </div>
   </td>
  </tr>
@@ -153,7 +153,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="line"><a name="l00135"></a><span class="lineno">  135</span>&#160;<span class="preprocessor">#endif</span></div>
 <div class="ttc" id="structcio__io__stream_html_a10b56600fd43cb7f5f1a16c5e37c1c9a"><div class="ttname"><a href="structcio__io__stream.html#a10b56600fd43cb7f5f1a16c5e37c1c9a">cio_io_stream::write_some</a></div><div class="ttdeci">enum cio_error(* write_some)(struct cio_io_stream *io_stream, const struct cio_write_buffer *buf, cio_io_stream_write_handler handler, void *handler_context)</div><div class="ttdoc">Writes upto count buffers to the stream. </div><div class="ttdef"><b>Definition:</b> cio_io_stream.h:105</div></div>
 <div class="ttc" id="cio__io__stream_8h_html_ac8987854cd66bc61113524c41692a4ca"><div class="ttname"><a href="cio__io__stream_8h.html#ac8987854cd66bc61113524c41692a4ca">cio_io_stream_read_handler</a></div><div class="ttdeci">void(* cio_io_stream_read_handler)(struct cio_io_stream *io_stream, void *handler_context, enum cio_error err, struct cio_read_buffer *buffer)</div><div class="ttdoc">The type of a function passed to all cio_io_stream read callback functions. </div><div class="ttdef"><b>Definition:</b> cio_io_stream.h:57</div></div>
-<div class="ttc" id="cio__error__code_8h_html_ac512c4abcb0c1e747cdaaf3b917d4afe"><div class="ttname"><a href="cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afe">cio_error</a></div><div class="ttdeci">cio_error</div><div class="ttdoc">All error codes used inside the cio libary. </div><div class="ttdef"><b>Definition:</b> cio_error_code.h:43</div></div>
+<div class="ttc" id="cio__error__code_8h_html_ac512c4abcb0c1e747cdaaf3b917d4afe"><div class="ttname"><a href="cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afe">cio_error</a></div><div class="ttdeci">cio_error</div><div class="ttdoc">All error codes used inside the cio libary. </div><div class="ttdef"><b>Definition:</b> cio_error_code.h:47</div></div>
 <div class="ttc" id="cio__error__code_8h_html"><div class="ttname"><a href="cio__error__code_8h.html">cio_error_code.h</a></div><div class="ttdoc">This file contains the declaration of the enumeration for all error codes. </div></div>
 <div class="ttc" id="structcio__io__stream_html_aa24c47612ee31a0aa9d12dfecb9f6567"><div class="ttname"><a href="structcio__io__stream.html#aa24c47612ee31a0aa9d12dfecb9f6567">cio_io_stream::read_some</a></div><div class="ttdeci">enum cio_error(* read_some)(struct cio_io_stream *io_stream, struct cio_read_buffer *buffer, cio_io_stream_read_handler handler, void *handler_context)</div><div class="ttdoc">Read upto count bytes into the buffer buf starting with offset offset. </div><div class="ttdef"><b>Definition:</b> cio_io_stream.h:88</div></div>
 <div class="ttc" id="structcio__io__stream_html"><div class="ttname"><a href="structcio__io__stream.html">cio_io_stream</a></div><div class="ttdoc">This structure describes the interface all implementations have to fulfill. </div><div class="ttdef"><b>Definition:</b> cio_io_stream.h:74</div></div>
