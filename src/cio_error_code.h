@@ -31,6 +31,10 @@
 
 #include "cio_error_code_impl.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /**
  * @file
  * @brief This file contains the declaration of the enumeration for all
