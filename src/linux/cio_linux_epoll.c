@@ -48,7 +48,7 @@ static void erase_pending_event(struct cio_eventloop *loop, const struct cio_eve
 
 enum cio_error cio_eventloop_init(struct cio_eventloop *loop)
 {
-	loop->epoll_fd = epoll_create(1);
+	loop->epoll_fd = epoll_create1(EPOLL_CLOEXEC);
 	if (loop->epoll_fd < 0) {
 		return (enum cio_error)(-errno);
 	}
