@@ -620,7 +620,7 @@ static void get_first_length(struct cio_buffered_stream *bs, void *handler_conte
 		return;
 	}
 
-	field = field & ~WS_MASK_SET;
+	field = field & (uint8_t)(~WS_MASK_SET);
 	if (field <= CIO_WEBSOCKET_SMALL_FRAME_SIZE) {
 		ws->ws_private.read_frame_length = (uint64_t)field;
 		get_mask_or_payload(ws, bs, buffer);
