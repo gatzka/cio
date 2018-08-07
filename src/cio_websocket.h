@@ -258,7 +258,7 @@ struct cio_websocket {
 	enum cio_error (*write_pong)(struct cio_websocket *ws, struct cio_write_buffer *payload, cio_websocket_write_handler handler, void *handler_context);
 
 	/*! @cond PRIVATE */
-	    struct cio_websocket_private private;
+	struct cio_websocket_private ws_private;
 	/*! @endcond */
 };
 
