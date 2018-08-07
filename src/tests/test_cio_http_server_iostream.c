@@ -407,7 +407,7 @@ static void memory_stream_init(struct memory_stream *stream, const char *fill_pa
 	stream->ios.close = mem_close;
 	stream->mem = malloc(stream->size + 1);
 	memset(stream->mem, 0x00, stream->size + 1);
-	strncpy(ms.mem, fill_pattern, ms.size);
+	memcpy(stream->mem, fill_pattern, stream->size);
 }
 
 static void check_http_response(struct memory_stream *stream, int status_code)
