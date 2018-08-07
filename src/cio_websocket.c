@@ -99,7 +99,7 @@ static void mask_write_buffer(struct cio_write_buffer *wb, uint8_t mask[4])
 		wb = wb->next;
 		cio_websocket_mask(wb->data.element.data, wb->data.element.length, mask);
 		size_t middle = wb->data.element.length % 4;
-		rotate(mask, middle);
+		rotate(mask, (uint_fast8_t)middle);
 	}
 }
 
