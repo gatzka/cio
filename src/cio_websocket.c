@@ -175,7 +175,9 @@ static struct cio_websocket_write_job *dequeue_job(struct cio_websocket *ws)
 	struct cio_websocket_write_job *job = ws->private.first_write_job;
 	if (job == NULL) {
 		return NULL;
-	} else if (ws->private.first_write_job == ws->private.last_write_job) {
+	}
+
+	if (ws->private.first_write_job == ws->private.last_write_job) {
 		ws->private.first_write_job = NULL;
 	} else {
 		ws->private.first_write_job = job->next;

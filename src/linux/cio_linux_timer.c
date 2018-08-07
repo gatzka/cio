@@ -65,9 +65,9 @@ static enum cio_error timer_cancel(struct cio_timer *t)
 	if (likely(ret == 0)) {
 		t->handler(t, t->handler_context, CIO_OPERATION_ABORTED);
 		return CIO_SUCCESS;
-	} else {
-		return (enum cio_error)(-errno);
 	}
+
+	return (enum cio_error)(-errno);
 }
 
 static void timer_close(struct cio_timer *t)
