@@ -32,7 +32,7 @@ static inline uint8_t decode(uint8_t *state, uint8_t *codep, uint8_t byte)
 {
 	uint8_t type = utf8d[byte];
 
-	*codep = (*state != CIO_UTF8_ACCEPT) ? (byte & 0x3fU) | (*codep << 6) : (0xff >> type) & (byte);
+	*codep = (uint8_t)((*state != CIO_UTF8_ACCEPT) ? ((byte & 0x3fU) | (uint8_t)(*codep << 6)) : ((0xff >> type) & (byte)));
 
 	*state = utf8d[256 + *state + type];
 	return *state;
@@ -46,11 +46,11 @@ uint8_t cio_check_utf8(struct cio_utf8_state *state, const uint8_t *s, size_t co
 	pre_length = (sizeof(*s_aligned) - pre_length) % sizeof(*s_aligned);
 
 	size_t main_length = (count - pre_length) / sizeof(*s_aligned);
-	unsigned int post_length = count - pre_length - (main_length * sizeof(*s_aligned));
+	unsigned int post_length = (unsigned int)(count - pre_length - (main_length * sizeof(*s_aligned)));
 
 	s_aligned = (const void *)(s + pre_length);
 
-	unsigned int i_p = 0;
+	size_t i_p = 0;
 	while (pre_length > 0) {
 		if (decode(&state->state, &state->codepoint, s[i_p]) == CIO_UTF8_REJECT) {
 			return CIO_UTF8_REJECT;
