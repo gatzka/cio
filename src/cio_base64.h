@@ -35,10 +35,6 @@ extern "C" {
 #include <stdint.h>
 
 void cio_b64_encode_string(const uint8_t *__restrict in, size_t in_len, char *__restrict out);
-static inline size_t cio_b64_encoded_string_length(size_t input_length)
-{
-	return 4 * ((input_length + 2) / 3);
-}
 
 #ifdef __cplusplus
 }
