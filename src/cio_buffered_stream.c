@@ -171,7 +171,7 @@ static enum cio_bs_state internal_read_until(struct cio_buffered_stream *bs)
 	uint8_t *found = cio_memmem(haystack, cio_read_buffer_unread_bytes(rb), needle, needle_length);
 	if (found != NULL) {
 		ptrdiff_t diff = (found + needle_length) - rb->fetch_ptr;
-		rb->bytes_transferred = diff;
+		rb->bytes_transferred = (size_t)diff;
 		rb->fetch_ptr += diff;
 		return call_handler(bs, CIO_SUCCESS, rb);
 	}
