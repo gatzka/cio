@@ -1253,9 +1253,6 @@ static void test_read_request_read_in_callback(void)
 	copy_length = MIN(strlen((char *)second_check_buffer), read_buffer_size);
 	strncat(result, (char *)second_check_buffer, copy_length);
 
-	//strncpy(result, (char *)first_check_buffer, read_buffer_size);
-	//result[read_buffer_size] = '\0';
-	//strncat(result, (char *)second_check_buffer, strlen(CHUNK1 CHUNK2) - read_buffer_size);
 	TEST_ASSERT_MESSAGE(memcmp(result, CHUNK1 CHUNK2, strlen(CHUNK1 CHUNK2)) == 0, "Handler was not called with correct data!");
 	free(result);
 
@@ -1427,9 +1424,6 @@ static void test_write_one_buffer_one_chunk_read_in_callbacks_then_close(void)
 	copy_length = MIN(strlen((char *)second_check_buffer), read_buffer_size);
 	strncat(result, (char *)second_check_buffer, copy_length);
 
-	//strncpy(result, (char *)first_check_buffer, read_buffer_size);
-	//result[read_buffer_size] = '\0';
-	//strncat(result, (char *)second_check_buffer, strlen(CHUNK1 CHUNK2) - read_buffer_size);
 	TEST_ASSERT_MESSAGE(memcmp(result, CHUNK1 CHUNK2, strlen(CHUNK1 CHUNK2)) == 0, "Handler was not called with correct data!");
 	free(result);
 
