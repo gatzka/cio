@@ -349,14 +349,14 @@ void SHA1PadMessage(SHA1Context *context)
 	/*
      *  Store the message length as the last 8 octets
      */
-	context->Message_Block[56] = (uint8_t)context->Length_High >> 24U;
-	context->Message_Block[57] = (uint8_t)context->Length_High >> 16U;
-	context->Message_Block[58] = (uint8_t)context->Length_High >> 8U;
-	context->Message_Block[59] = (uint8_t)context->Length_High;
-	context->Message_Block[60] = (uint8_t)context->Length_Low >> 24U;
-	context->Message_Block[61] = (uint8_t)context->Length_Low >> 16U;
-	context->Message_Block[62] = (uint8_t)context->Length_Low >> 8U;
-	context->Message_Block[63] = (uint8_t)context->Length_Low;
+	context->Message_Block[56] = (uint8_t)(context->Length_High >> 24U);
+	context->Message_Block[57] = (uint8_t)(context->Length_High >> 16U);
+	context->Message_Block[58] = (uint8_t)(context->Length_High >> 8U);
+	context->Message_Block[59] = (uint8_t)(context->Length_High);
+	context->Message_Block[60] = (uint8_t)(context->Length_Low >> 24U);
+	context->Message_Block[61] = (uint8_t)(context->Length_Low >> 16U);
+	context->Message_Block[62] = (uint8_t)(context->Length_Low >> 8U);
+	context->Message_Block[63] = (uint8_t)(context->Length_Low);
 
 	SHA1ProcessMessageBlock(context);
 }
