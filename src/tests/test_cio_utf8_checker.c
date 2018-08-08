@@ -52,6 +52,13 @@ static void test_utf8(void)
 	struct test_entry entries[] = {
 	    {.test_pattern = (const uint8_t *)"\xe7\xae\x80\xe4\xbd\x93\xe4\xb8\xad\xe6\x96\x87\x00", .valid = CIO_UTF8_ACCEPT},
 		{.test_pattern = (const uint8_t *)"Hello\xf8\x88\x80\x80\x80", .valid = CIO_UTF8_REJECT},
+		{.test_pattern = (const uint8_t *)"Hello12\xf8\x88\x80\x80\x80", .valid = CIO_UTF8_REJECT},
+		{.test_pattern = (const uint8_t *)"Hello123\xf8\x88\x80\x80\x80", .valid = CIO_UTF8_REJECT},
+		{.test_pattern = (const uint8_t *)"Hello1234\xf8\x88\x80\x80\x80", .valid = CIO_UTF8_REJECT},
+		{.test_pattern = (const uint8_t *)"Hello12345\xf8\x88\x80\x80\x80", .valid = CIO_UTF8_REJECT},
+		{.test_pattern = (const uint8_t *)"Hello123456\xf8\x88\x80\x80\x80", .valid = CIO_UTF8_REJECT},
+		{.test_pattern = (const uint8_t *)"Hello1234567\xf8\x88\x80\x80\x80", .valid = CIO_UTF8_REJECT},
+		{.test_pattern = (const uint8_t *)"Hello12345678\xf8\x88\x80\x80\x80", .valid = CIO_UTF8_REJECT},
 		{.test_pattern = (const uint8_t *)"H", .valid = CIO_UTF8_ACCEPT},
 		{.test_pattern = (const uint8_t *)"\xf8\x88\x80\x80\x80", .valid = CIO_UTF8_REJECT}};
 
