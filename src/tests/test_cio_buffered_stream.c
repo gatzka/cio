@@ -149,7 +149,10 @@ static enum cio_error write_some_all(struct cio_io_stream *io_stream, const stru
 	size_t total_length = 0;
 
 	for (size_t i = 0; i < cio_write_buffer_get_number_of_elements(buf); i++) {
-		memcpy(&write_check_buffer[write_check_buffer_pos], wb->data.element.const_data, wb->data.element.length);
+		if (wb->data.element.length > 0) {
+			memcpy(&write_check_buffer[write_check_buffer_pos], wb->data.element.const_data, wb->data.element.length);
+		}
+
 		write_check_buffer_pos += wb->data.element.length;
 		total_length += wb->data.element.length;
 		wb = wb->next;
@@ -1247,9 +1250,8 @@ static void test_read_request_read_in_callback(void)
 	TEST_ASSERT_EQUAL_MESSAGE(&rb, second_dummy_read_handler_fake.arg3_val, "Second handler was not called with original read buffer!");
 
 	char *result = malloc(strlen(CHUNK1) + strlen(CHUNK2) + 1);
-	strncpy(result, (char *)first_check_buffer, read_buffer_size);
-	result[read_buffer_size] = '\0';
-	strncat(result, (char *)second_check_buffer, strlen(CHUNK1 CHUNK2) - read_buffer_size);
+	memcpy(result, first_check_buffer, first_check_buffer_pos);
+	memcpy(&result[first_check_buffer_pos], second_check_buffer, second_check_buffer_pos);
 	TEST_ASSERT_MESSAGE(memcmp(result, CHUNK1 CHUNK2, strlen(CHUNK1 CHUNK2)) == 0, "Handler was not called with correct data!");
 	free(result);
 
@@ -1291,9 +1293,8 @@ static void test_read_request_read_in_callback_close_in_second_callback(void)
 	TEST_ASSERT_EQUAL_MESSAGE(&rb, second_dummy_read_handler_fake.arg3_val, "Second handler was not called with original read buffer!");
 
 	char *result = malloc(strlen(CHUNK1) + strlen(CHUNK2) + 1);
-	strncpy(result, (char *)first_check_buffer, read_buffer_size);
-	result[read_buffer_size] = '\0';
-	strncat(result, (char *)second_check_buffer, strlen(CHUNK1 CHUNK2) - read_buffer_size);
+	memcpy(result, first_check_buffer, first_check_buffer_pos);
+	memcpy(&result[first_check_buffer_pos], second_check_buffer, second_check_buffer_pos);
 	TEST_ASSERT_MESSAGE(memcmp(result, CHUNK1 CHUNK2, strlen(CHUNK1 CHUNK2)) == 0, "Handler was not called with correct data!");
 	free(result);
 
@@ -1413,9 +1414,8 @@ static void test_write_one_buffer_one_chunk_read_in_callbacks_then_close(void)
 	TEST_ASSERT_EQUAL_MESSAGE(&rb, second_dummy_read_handler_fake.arg3_val, "Second handler was not called with original read buffer!");
 
 	char *result = malloc(strlen(CHUNK1) + strlen(CHUNK2) + 1);
-	strncpy(result, (char *)first_check_buffer, read_buffer_size);
-	result[read_buffer_size] = '\0';
-	strncat(result, (char *)second_check_buffer, strlen(CHUNK1 CHUNK2) - read_buffer_size);
+	memcpy(result, first_check_buffer, first_check_buffer_pos);
+	memcpy(&result[first_check_buffer_pos], second_check_buffer, second_check_buffer_pos);
 	TEST_ASSERT_MESSAGE(memcmp(result, CHUNK1 CHUNK2, strlen(CHUNK1 CHUNK2)) == 0, "Handler was not called with correct data!");
 	free(result);
 
