@@ -10,6 +10,18 @@ GenerateVersion(version ${PROJECT_NAME})
 
 configure_file(cio_version.h.in ${PROJECT_BINARY_DIR}/generated/cio_version.h)
 
+find_program(
+  CLANG_TIDY_EXE
+  NAMES "clang-tidy"
+  DOC "Path to clang-tidy executable"
+  )
+if(NOT CLANG_TIDY_EXE)
+  message(STATUS "clang-tidy not found.")
+else()
+  message(STATUS "clang-tidy found: ${CLANG_TIDY_EXE}")
+  set(DO_CLANG_TIDY "${CLANG_TIDY_EXE}" "-extra-arg=-Wno-unknown-warning-option")
+endif()
+
 string(COMPARE EQUAL "${CMAKE_SYSTEM_NAME}" "Linux" is_linux)
 if(is_linux)
     set(CIO_PLATFORM_FILES
@@ -22,6 +34,13 @@ if(is_linux)
         "linux/cio_linux_string.c"
         "linux/cio_linux_timer.c"
     )
+
+    add_library(target_platform
+        OBJECT
+    	${CIO_PLATFORM_FILES}
+    )
+
+    set_property(TARGET target_platform PROPERTY POSITION_INDEPENDENT_CODE 1)
 endif()
 
 set(CIO_FILES
@@ -33,9 +52,23 @@ set(CIO_FILES
     "cio_utf8_checker.c"
     "cio_websocket.c"
     "cio_websocket_location_handler.c"
-    "http-parser/http_parser.c"
     "sha1/sha1.c"
 )
+
+add_library(target_platform_independent
+    OBJECT
+	${CIO_FILES}
+)
+
+set_property(TARGET target_platform_independent PROPERTY POSITION_INDEPENDENT_CODE 1)
+
+add_library(
+    target_third_party
+    OBJECT
+    "http-parser/http_parser.c"
+    "http-parser/http_parser.h"
+)
+set_property(TARGET target_third_party PROPERTY POSITION_INDEPENDENT_CODE 1)
 
 if(CMAKE_C_COMPILER_ID STREQUAL "GNU")
     if(NOT CMAKE_C_COMPILER_VERSION VERSION_LESS 7.0.0)
@@ -59,23 +92,50 @@ if(CMAKE_C_COMPILER_ID STREQUAL "GNU" OR CMAKE_C_COMPILER_ID STREQUAL "Clang")
     endforeach()
 endif()
 
-add_library(cio_static
-    ${CIO_FILES}
-    ${CIO_PLATFORM_FILES}
+set_target_properties(
+    target_third_party
+    PROPERTIES C_CLANG_TIDY ""
 )
+
+add_library(cio_static
+    $<TARGET_OBJECTS:target_platform_independent>
+    $<TARGET_OBJECTS:target_platform>
+    $<TARGET_OBJECTS:target_third_party>
+)
+
 set_target_properties(cio_static
     PROPERTIES OUTPUT_NAME "cio"
 )
+
+set_target_properties(
+    target_platform_independent PROPERTIES
+    C_CLANG_TIDY "${DO_CLANG_TIDY}"
+)
+
+set_target_properties(
+    target_platform PROPERTIES
+    C_CLANG_TIDY "${DO_CLANG_TIDY}"
+)
+
+target_include_directories(target_platform_independent PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/)
+target_include_directories(target_platform_independent PUBLIC ${PROJECT_BINARY_DIR}/generated/)
+if(is_linux)
+    target_include_directories(target_platform_independent PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/linux/)
+    target_include_directories(target_platform PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/linux/)
+    target_include_directories(target_platform PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/)
+endif()
+target_link_libraries(cio_static bsd)
+
 target_include_directories(cio_static PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/)
 target_include_directories(cio_static PUBLIC ${PROJECT_BINARY_DIR}/generated/)
 if(is_linux)
     target_include_directories(cio_static PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/linux/)
 endif()
-target_link_libraries(cio_static bsd)
 
 add_library(cio SHARED
-    ${CIO_FILES}
-    ${CIO_PLATFORM_FILES}
+    $<TARGET_OBJECTS:target_platform_independent>
+    $<TARGET_OBJECTS:target_platform>
+    $<TARGET_OBJECTS:target_third_party>
 )
 set_target_properties(cio
     PROPERTIES OUTPUT_NAME "cio"
