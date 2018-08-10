@@ -130,6 +130,7 @@ matrix:
         - cmake
         - cmake-data
         - libbsd-dev
+        - clang-5.0
 
   - compiler: clang
     env:
@@ -143,6 +144,7 @@ matrix:
         - cmake
         - cmake-data
         - libbsd-dev
+        - clang-5.0
 
   - compiler: clang
     env:
@@ -156,6 +158,7 @@ matrix:
         - cmake
         - cmake-data
         - libbsd-dev
+        - clang-6.0
 
   - compiler: clang
     env:
@@ -169,6 +172,7 @@ matrix:
         - cmake
         - cmake-data
         - libbsd-dev
+        - clang-6.0
 
   - compiler: clang
     env:
