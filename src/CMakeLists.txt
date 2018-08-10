@@ -10,16 +10,9 @@ GenerateVersion(version ${PROJECT_NAME})
 
 configure_file(cio_version.h.in ${PROJECT_BINARY_DIR}/generated/cio_version.h)
 
-find_program(
-  CLANG_TIDY_EXE
-  NAMES "clang-tidy"
-  DOC "Path to clang-tidy executable"
-  )
-if(NOT CLANG_TIDY_EXE)
-  message(STATUS "clang-tidy not found.")
-else()
-  message(STATUS "clang-tidy found: ${CLANG_TIDY_EXE}")
-  set(DO_CLANG_TIDY "${CLANG_TIDY_EXE}" "-extra-arg=-Wno-unknown-warning-option")
+if(CIO_C_CLANG_TIDY)
+  message(STATUS "setting clang-tidy")
+  set(DO_CLANG_TIDY "${CIO_C_CLANG_TIDY}" "-extra-arg=-Wno-unknown-warning-option")
 endif()
 
 string(COMPARE EQUAL "${CMAKE_SYSTEM_NAME}" "Linux" is_linux)
