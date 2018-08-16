@@ -26,6 +26,7 @@
 
 #include <ctype.h>
 #include <stdbool.h>
+#include <stddef.h>
 #include <stdint.h>
 #include <string.h>
 
@@ -33,6 +34,8 @@
 #include "cio_compiler.h"
 #include "cio_http_client.h"
 #include "cio_http_location_handler.h"
+#include "cio_http_method.h"
+#include "cio_http_status_code.h"
 #include "cio_string.h"
 #include "cio_util.h"
 #include "cio_websocket.h"

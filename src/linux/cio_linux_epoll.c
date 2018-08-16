@@ -25,6 +25,7 @@
  */
 
 #include <errno.h>
+#include <stdbool.h>
 #include <string.h>
 #include <sys/epoll.h>
 #include <unistd.h>

@@ -27,7 +27,6 @@
 #ifndef CIO_UTF8_CHECKER_H
 #define CIO_UTF8_CHECKER_H
 
-#include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
 
