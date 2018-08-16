@@ -27,8 +27,6 @@
 #ifndef CIO_LINUX_SOCKET_UTILS_H
 #define CIO_LINUX_SOCKET_UTILS_H
 
-#include "cio_error_code.h"
-
 #ifdef __cplusplus
 extern "C" {
 #endif

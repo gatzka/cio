@@ -25,7 +25,6 @@
  */
 
 #include <sys/socket.h>
-#include <sys/types.h>
 
 #include "cio_compiler.h"
 #include "linux/cio_linux_socket_utils.h"

@@ -27,16 +27,17 @@
 #define _GNU_SOURCE
 #include <errno.h>
 #include <netdb.h>
+#include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
 #include <stdio.h>
-#include <stdlib.h>
 #include <string.h>
+#include <sys/socket.h>
 #include <unistd.h>
 
 #include "cio_compiler.h"
 #include "cio_error_code.h"
-#include "cio_eventloop.h"
+#include "cio_eventloop_impl.h"
 #include "cio_linux_socket.h"
 #include "cio_server_socket.h"
 #include "cio_socket.h"

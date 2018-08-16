@@ -42,6 +42,7 @@ extern "C" {
  */
 
 #include <stdbool.h>
+#include <stddef.h>
 #include <stdint.h>
 
 #include "cio_buffered_stream.h"

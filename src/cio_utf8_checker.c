@@ -1,7 +1,6 @@
 // Copyright (c) 2008-2010 Bjoern Hoehrmann <bjoern@hoehrmann.de>
 // See http://bjoern.hoehrmann.de/utf-8/decoder/dfa/ for details.
 
-#include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
 
