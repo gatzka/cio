@@ -78,6 +78,9 @@ typedef void (*cio_buffered_stream_read_handler)(struct cio_buffered_stream *bs,
  */
 typedef void (*cio_buffered_stream_write_handler)(struct cio_buffered_stream *bs, void *handler_context, enum cio_error err);
 
+/**
+ * @private
+ */
 enum cio_bs_state {
 	CIO_BS_OPEN = 0,
 	CIO_BS_CLOSED,
