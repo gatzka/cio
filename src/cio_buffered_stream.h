@@ -1,4 +1,4 @@
-/*
+﻿/*
  * The MIT License (MIT)
  *
  * Copyright (c) <2017> <Stephan Gatzka>
@@ -42,8 +42,7 @@ extern "C" {
 
 /**
  * @file
- * @brief This file contains the declarations all users of a
- * cio_buffered_stream need to know.
+ * @brief Provides efficient reading and writing form or to an ::cio_io_stream.
  *
  * A cio_buffered_stream is always greedy to fill its internal read
  * buffer. Therefore, it greatly reduces the amount of read calls into
@@ -85,6 +84,17 @@ enum cio_bs_state {
 	CIO_BS_OPEN = 0,
 	CIO_BS_CLOSED,
 	CIO_BS_AGAIN
+};
+
+/**
+ * @private
+ */
+union cio_read_info{
+	size_t bytes_to_read;
+	struct {
+		const char *delim;
+		size_t delim_length;
+	} until;
 };
 
 /**
@@ -173,13 +183,7 @@ struct cio_buffered_stream {
 
 	enum cio_bs_state (*read_job)(struct cio_buffered_stream *bs);
 
-	union {
-		size_t bytes_to_read;
-		struct {
-			const char *delim;
-			size_t delim_length;
-		} until;
-	} read_info;
+	union cio_read_info read_info;
 
 	cio_buffered_stream_write_handler write_handler;
 	void *write_handler_context;
