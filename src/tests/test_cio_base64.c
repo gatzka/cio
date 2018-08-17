@@ -67,7 +67,7 @@ static void test_patterns(void)
 		struct entry e = entries[i];
 		size_t len = strlen(e.s);
 		char *out = malloc(base64_encoded_string_length(len) + 1);
-		cio_b64_encode_string((const uint8_t *)e.s, len, out);
+		cio_b64_encode_buffer((const uint8_t *)e.s, len, out);
 
 		TEST_ASSERT_EQUAL_STRING_MESSAGE(e.base64_string, out, "base64 conversion not correct!");
 
