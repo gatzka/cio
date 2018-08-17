@@ -8,6 +8,13 @@
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
+<link href="navtree.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="resize.js"></script>
+<script type="text/javascript" src="navtree.js"></script>
+<script type="text/javascript">
+  $(document).ready(initResizable);
+  $(window).load(resizeHeight);
+</script>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="search/search.js"></script>
 <script type="text/javascript">
@@ -23,7 +30,7 @@
  <tr style="height: 56px;">
   <td style="padding-left: 0.5em;">
    <div id="projectname">ANSI C I/O Library
-   &#160;<span id="projectnumber">0.0.1-1024+c600e45</span>
+   &#160;<span id="projectnumber">0.0.1-1032+3fa70c8</span>
    </div>
   </td>
  </tr>
@@ -77,14 +84,25 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
   <div id="navrow4" class="tabs3">
     <ul class="tablist">
       <li><a href="#index_c"><span>c</span></a></li>
-      <li><a href="#index_l"><span>l</span></a></li>
       <li><a href="#index_s"><span>s</span></a></li>
-      <li><a href="#index_t"><span>t</span></a></li>
-      <li><a href="#index_u"><span>u</span></a></li>
-      <li class="current"><a href="#index_w"><span>w</span></a></li>
+      <li class="current"><a href="#index_t"><span>t</span></a></li>
     </ul>
   </div>
 </div><!-- top -->
+<div id="side-nav" class="ui-resizable side-nav-resizable">
+  <div id="nav-tree">
+    <div id="nav-tree-contents">
+      <div id="nav-sync" class="sync"></div>
+    </div>
+  </div>
+  <div id="splitbar" style="-moz-user-select:none;" 
+       class="ui-resizable-handle">
+  </div>
+</div>
+<script type="text/javascript">
+$(document).ready(function(){initNavTree('globals.html','');});
+</script>
+<div id="doc-content">
 <!-- window showing the filter options -->
 <div id="MSearchSelectWindow"
      onmouseover="return searchBox.OnSearchSelectShow()"
@@ -121,8 +139,8 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <li>cio_alloc_client
 : <a class="el" href="cio__server__socket_8h.html#a6365344c7e5e854b40ff9a3b01e4176f">cio_server_socket.h</a>
 </li>
-<li>cio_b64_encode_string()
-: <a class="el" href="cio__base64_8h.html#a995065fb45316d6294dd1a95e41dd7fa">cio_base64.h</a>
+<li>cio_b64_encode_buffer()
+: <a class="el" href="cio__base64_8h.html#a21b685b510d66c0866e65d6df12530cb">cio_base64.h</a>
 </li>
 <li>CIO_BAD_ADDRESS
 : <a class="el" href="cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afea37a8f67d7341dcffecc3d1ed29964f11">cio_error_code.h</a>
@@ -147,9 +165,6 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 </li>
 <li>CIO_BS_OPEN
 : <a class="el" href="cio__buffered__stream_8h.html#a78aa67d350ee50928e889143bc042bc7a02f5f79da037aca73580a723dcbce0b3">cio_buffered_stream.h</a>
-</li>
-<li>cio_bs_state
-: <a class="el" href="cio__buffered__stream_8h.html#a78aa67d350ee50928e889143bc042bc7">cio_buffered_stream.h</a>
 </li>
 <li>cio_buffered_stream_init()
 : <a class="el" href="cio__buffered__stream_8h.html#a2e92bc0f797448c5a6486be3b0feb43b">cio_buffered_stream.h</a>
@@ -361,6 +376,9 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <li>cio_io_stream_write_handler
 : <a class="el" href="cio__io__stream_8h.html#aedba0c87003e90a0583e06d7c236923a">cio_io_stream.h</a>
 </li>
+<li>cio_likely
+: <a class="el" href="cio__compiler_8h.html#a6bc22c6fbfb28288ccbb17dd8a06ebba">cio_compiler.h</a>
+</li>
 <li>cio_memmem()
 : <a class="el" href="cio__string_8h.html#aa98e3cf3ccb2a8598da835e873afea3f">cio_string.h</a>
 </li>
@@ -459,6 +477,9 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 </li>
 <li>CIO_TOO_MANY_SYMBOLIC_LINK_LEVELS
 : <a class="el" href="cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afea4d57cc6f8e1fa638917916386d201172">cio_error_code.h</a>
+</li>
+<li>cio_unlikely
+: <a class="el" href="cio__compiler_8h.html#ab8a5d6edc0510baa721bb8bb9d5100d1">cio_compiler.h</a>
 </li>
 <li>CIO_UTF8_ACCEPT
 : <a class="el" href="cio__utf8__checker_8h.html#a8cc342c473ef83b38ab4e96678d4d63ea2375a85acbf1e6af16060d7d0d91eb11">cio_utf8_checker.h</a>
@@ -622,13 +643,6 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 </ul>
 
 
-<h3><a class="anchor" id="index_l"></a>- l -</h3><ul>
-<li>likely
-: <a class="el" href="cio__compiler_8h.html#a217a0bd562b98ae8c2ffce44935351e1">cio_compiler.h</a>
-</li>
-</ul>
-
-
 <h3><a class="anchor" id="index_s"></a>- s -</h3><ul>
 <li>SEC_WEB_SOCKET_GUID_LENGTH
 : <a class="el" href="cio__websocket__location__handler_8h.html#a193e096187e30f436f58b28b98d384ae">cio_websocket_location_handler.h</a>
@@ -644,26 +658,15 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 : <a class="el" href="cio__timer_8h.html#a5f39123edfcb6b2b61b55a4444b26978">cio_timer.h</a>
 </li>
 </ul>
-
-
-<h3><a class="anchor" id="index_u"></a>- u -</h3><ul>
-<li>unlikely
-: <a class="el" href="cio__compiler_8h.html#ac6c45889010c1bd68631771b64f18101">cio_compiler.h</a>
-</li>
-</ul>
-
-
-<h3><a class="anchor" id="index_w"></a>- w -</h3><ul>
-<li>wmb
-: <a class="el" href="cio__compiler_8h.html#a6cec6ad808589891b39e150d6a18152c">cio_compiler.h</a>
-</li>
-</ul>
 </div><!-- contents -->
+</div><!-- doc-content -->
 <!-- start footer part -->
-<hr class="footer"/><address class="footer"><small>
-Generated by &#160;<a href="http://www.doxygen.org/index.html">
-<img class="footer" src="doxygen.png" alt="doxygen"/>
-</a> 1.8.6
-</small></address>
+<div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
+  <ul>
+    <li class="footer">Generated by
+    <a href="http://www.doxygen.org/index.html">
+    <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.8.6 </li>
+  </ul>
+</div>
 </body>
 </html>

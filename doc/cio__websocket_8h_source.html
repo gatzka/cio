@@ -8,6 +8,13 @@
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
+<link href="navtree.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="resize.js"></script>
+<script type="text/javascript" src="navtree.js"></script>
+<script type="text/javascript">
+  $(document).ready(initResizable);
+  $(window).load(resizeHeight);
+</script>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="search/search.js"></script>
 <script type="text/javascript">
@@ -23,7 +30,7 @@
  <tr style="height: 56px;">
   <td style="padding-left: 0.5em;">
    <div id="projectname">ANSI C I/O Library
-   &#160;<span id="projectnumber">0.0.1-1024+c600e45</span>
+   &#160;<span id="projectnumber">0.0.1-1032+3fa70c8</span>
    </div>
   </td>
  </tr>
@@ -65,6 +72,20 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
     </ul>
   </div>
 </div><!-- top -->
+<div id="side-nav" class="ui-resizable side-nav-resizable">
+  <div id="nav-tree">
+    <div id="nav-tree-contents">
+      <div id="nav-sync" class="sync"></div>
+    </div>
+  </div>
+  <div id="splitbar" style="-moz-user-select:none;" 
+       class="ui-resizable-handle">
+  </div>
+</div>
+<script type="text/javascript">
+$(document).ready(function(){initNavTree('cio__websocket_8h_source.html','');});
+</script>
+<div id="doc-content">
 <!-- window showing the filter options -->
 <div id="MSearchSelectWindow"
      onmouseover="return searchBox.OnSearchSelectShow()"
@@ -194,7 +215,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="line"><a name="l00118"></a><span class="lineno"><a class="line" href="structcio__websocket__private.html#a0163f940ff3512c8d11f65237d673b86">  118</a></span>&#160;        <span class="keywordtype">unsigned</span> <span class="keywordtype">int</span> <a class="code" href="structcio__websocket__private.html#a0163f940ff3512c8d11f65237d673b86">is_server</a> : 1;</div>
 <div class="line"><a name="l00119"></a><span class="lineno"><a class="line" href="structcio__websocket__private.html#a56659e66ba0abd9c92befc6881bdd36f">  119</a></span>&#160;        <span class="keywordtype">unsigned</span> <span class="keywordtype">int</span> <a class="code" href="structcio__websocket__private.html#a56659e66ba0abd9c92befc6881bdd36f">fragmented_write</a> : 1;</div>
 <div class="line"><a name="l00120"></a><span class="lineno"><a class="line" href="structcio__websocket__private.html#a9713b99ac7dde95ddb5f824302835809">  120</a></span>&#160;        <span class="keywordtype">unsigned</span> <span class="keywordtype">int</span> <a class="code" href="structcio__websocket__private.html#a9713b99ac7dde95ddb5f824302835809">closed_by_error</a> : 1;</div>
-<div class="line"><a name="l00121"></a><span class="lineno">  121</span>&#160;    } <a class="code" href="structcio__websocket__private.html#a0a5a7e45706f1048b73d7868dc9bd8e6">ws_flags</a>;</div>
+<div class="line"><a name="l00121"></a><span class="lineno">  121</span>&#160;    } <a class="code" href="structcio__websocket__private.html#a41b8d0e6181ad659a77f0cbd308dc5c6">ws_flags</a>;</div>
 <div class="line"><a name="l00122"></a><span class="lineno">  122</span>&#160;</div>
 <div class="line"><a name="l00123"></a><span class="lineno"><a class="line" href="structcio__websocket__private.html#a039a8e2c5b9f72b9db0c26ff3ea9ba41">  123</a></span>&#160;    <a class="code" href="cio__websocket_8h.html#aeb18a406608a7135dcb338ea814acf81">cio_websocket_read_handler</a> <a class="code" href="structcio__websocket__private.html#a039a8e2c5b9f72b9db0c26ff3ea9ba41">read_handler</a>;</div>
 <div class="line"><a name="l00124"></a><span class="lineno"><a class="line" href="structcio__websocket__private.html#a1962b07487645e896c1ca63daad14d2e">  124</a></span>&#160;    <span class="keywordtype">void</span> *<a class="code" href="structcio__websocket__private.html#a1962b07487645e896c1ca63daad14d2e">read_handler_context</a>;</div>
@@ -246,7 +267,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="line"><a name="l00270"></a><span class="lineno">  270</span>&#160;<span class="preprocessor">#endif</span></div>
 <div class="line"><a name="l00271"></a><span class="lineno">  271</span>&#160;<span class="preprocessor"></span></div>
 <div class="line"><a name="l00272"></a><span class="lineno">  272</span>&#160;<span class="preprocessor">#endif</span></div>
-<div class="ttc" id="structcio__buffered__stream_html"><div class="ttname"><a href="structcio__buffered__stream.html">cio_buffered_stream</a></div><div class="ttdef"><b>Definition:</b> cio_buffered_stream.h:90</div></div>
+<div class="ttc" id="structcio__buffered__stream_html"><div class="ttname"><a href="structcio__buffered__stream.html">cio_buffered_stream</a></div><div class="ttdef"><b>Definition:</b> cio_buffered_stream.h:103</div></div>
 <div class="ttc" id="cio__websocket_8h_html_aa24c9894ba2ee9dc5b0ebbc1c8809701a4fe538993d22d7dbceb83f2cb17937e8"><div class="ttname"><a href="cio__websocket_8h.html#aa24c9894ba2ee9dc5b0ebbc1c8809701a4fe538993d22d7dbceb83f2cb17937e8">CIO_WEBSOCKET_CLOSE_TRY_AGAIN_LATER</a></div><div class="ttdef"><b>Definition:</b> cio_websocket.h:74</div></div>
 <div class="ttc" id="cio__websocket_8h_html_aa24c9894ba2ee9dc5b0ebbc1c8809701"><div class="ttname"><a href="cio__websocket_8h.html#aa24c9894ba2ee9dc5b0ebbc1c8809701">cio_websocket_status_code</a></div><div class="ttdeci">cio_websocket_status_code</div><div class="ttdef"><b>Definition:</b> cio_websocket.h:62</div></div>
 <div class="ttc" id="cio__websocket_8h_html_af33fb069400eeffde11ab324bf2245e9a268d3844949375e76864185036973bd9"><div class="ttname"><a href="cio__websocket_8h.html#af33fb069400eeffde11ab324bf2245e9a268d3844949375e76864185036973bd9">CIO_WEBSOCKET_CONTINUATION_FRAME</a></div><div class="ttdef"><b>Definition:</b> cio_websocket.h:81</div></div>
@@ -299,6 +320,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="ttc" id="structcio__websocket_html_a47b792bc86f20879aa73e97e6549b556"><div class="ttname"><a href="structcio__websocket.html#a47b792bc86f20879aa73e97e6549b556">cio_websocket::close</a></div><div class="ttdeci">enum cio_error(* close)(struct cio_websocket *ws, enum cio_websocket_status_code status, const char *reason, cio_websocket_write_handler handler, void *handler_context)</div><div class="ttdoc">Closes a websocket. </div><div class="ttdef"><b>Definition:</b> cio_websocket.h:161</div></div>
 <div class="ttc" id="structcio__websocket__private_html_a039a8e2c5b9f72b9db0c26ff3ea9ba41"><div class="ttname"><a href="structcio__websocket__private.html#a039a8e2c5b9f72b9db0c26ff3ea9ba41">cio_websocket_private::read_handler</a></div><div class="ttdeci">cio_websocket_read_handler read_handler</div><div class="ttdef"><b>Definition:</b> cio_websocket.h:123</div></div>
 <div class="ttc" id="structcio__websocket__private_html_afba2373519a3ecbd553f4c26b85c6a32"><div class="ttname"><a href="structcio__websocket__private.html#afba2373519a3ecbd553f4c26b85c6a32">cio_websocket_private::ping_buffer</a></div><div class="ttdeci">struct cio_response_buffer ping_buffer</div><div class="ttdef"><b>Definition:</b> cio_websocket.h:142</div></div>
+<div class="ttc" id="structcio__websocket__private_html_a41b8d0e6181ad659a77f0cbd308dc5c6"><div class="ttname"><a href="structcio__websocket__private.html#a41b8d0e6181ad659a77f0cbd308dc5c6">cio_websocket_private::ws_flags</a></div><div class="ttdeci">struct cio_websocket_private::@1 ws_flags</div></div>
 <div class="ttc" id="structcio__websocket__write__job_html_ab280f25abec5056c40d480c0a03b163e"><div class="ttname"><a href="structcio__websocket__write__job.html#ab280f25abec5056c40d480c0a03b163e">cio_websocket_write_job::stream_handler</a></div><div class="ttdeci">cio_buffered_stream_write_handler stream_handler</div><div class="ttdef"><b>Definition:</b> cio_websocket.h:100</div></div>
 <div class="ttc" id="structcio__websocket__private_html_a62f8cd2e77449db411e02638832c83a6"><div class="ttname"><a href="structcio__websocket__private.html#a62f8cd2e77449db411e02638832c83a6">cio_websocket_private::received_mask</a></div><div class="ttdeci">uint8_t received_mask[4]</div><div class="ttdef"><b>Definition:</b> cio_websocket.h:131</div></div>
 <div class="ttc" id="structcio__utf8__state_html"><div class="ttname"><a href="structcio__utf8__state.html">cio_utf8_state</a></div><div class="ttdef"><b>Definition:</b> cio_utf8_checker.h:42</div></div>
@@ -317,7 +339,6 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="ttc" id="structcio__websocket_html_a1a44ecbfeb77f285ac2b66af76980fe1"><div class="ttname"><a href="structcio__websocket.html#a1a44ecbfeb77f285ac2b66af76980fe1">cio_websocket::on_connect</a></div><div class="ttdeci">void(* on_connect)(struct cio_websocket *ws)</div><div class="ttdoc">A pointer to a function which is called when a websocket connection was established. </div><div class="ttdef"><b>Definition:</b> cio_websocket.h:168</div></div>
 <div class="ttc" id="structcio__websocket__private_html_a310adbcfc73e6d38444475531458c425"><div class="ttname"><a href="structcio__websocket__private.html#a310adbcfc73e6d38444475531458c425">cio_websocket_private::first_write_job</a></div><div class="ttdeci">struct cio_websocket_write_job * first_write_job</div><div class="ttdef"><b>Definition:</b> cio_websocket.h:138</div></div>
 <div class="ttc" id="structcio__websocket__private_html_a3fe66dbffbc5032fe80b323d027901a8"><div class="ttname"><a href="structcio__websocket__private.html#a3fe66dbffbc5032fe80b323d027901a8">cio_websocket_private::self_initiated_close</a></div><div class="ttdeci">unsigned int self_initiated_close</div><div class="ttdef"><b>Definition:</b> cio_websocket.h:117</div></div>
-<div class="ttc" id="structcio__websocket__private_html_a0a5a7e45706f1048b73d7868dc9bd8e6"><div class="ttname"><a href="structcio__websocket__private.html#a0a5a7e45706f1048b73d7868dc9bd8e6">cio_websocket_private::ws_flags</a></div><div class="ttdeci">struct cio_websocket_private::@2 ws_flags</div></div>
 <div class="ttc" id="structcio__websocket__write__job_html_a16d0cefda1aef984e79518621300d7da"><div class="ttname"><a href="structcio__websocket__write__job.html#a16d0cefda1aef984e79518621300d7da">cio_websocket_write_job::last_frame</a></div><div class="ttdeci">bool last_frame</div><div class="ttdef"><b>Definition:</b> cio_websocket.h:99</div></div>
 <div class="ttc" id="structcio__write__buffer_html"><div class="ttname"><a href="structcio__write__buffer.html">cio_write_buffer</a></div><div class="ttdoc">Structure to build up a write buffer chain. </div><div class="ttdef"><b>Definition:</b> cio_write_buffer.h:55</div></div>
 <div class="ttc" id="cio__websocket_8h_html_aa24c9894ba2ee9dc5b0ebbc1c8809701a4bb8a74d7c07bacc386e8f849b427434"><div class="ttname"><a href="cio__websocket_8h.html#aa24c9894ba2ee9dc5b0ebbc1c8809701a4bb8a74d7c07bacc386e8f849b427434">CIO_WEBSOCKET_CLOSE_MISSING_EXTENSION</a></div><div class="ttdef"><b>Definition:</b> cio_websocket.h:71</div></div>
@@ -325,7 +346,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="ttc" id="cio__websocket_8h_html_aa24c9894ba2ee9dc5b0ebbc1c8809701a011dbf3875199a1614ef3a81220dc088"><div class="ttname"><a href="cio__websocket_8h.html#aa24c9894ba2ee9dc5b0ebbc1c8809701a011dbf3875199a1614ef3a81220dc088">CIO_WEBSOCKET_CLOSE_SERVICE_RESTART</a></div><div class="ttdef"><b>Definition:</b> cio_websocket.h:73</div></div>
 <div class="ttc" id="structcio__websocket__private_html_a9713b99ac7dde95ddb5f824302835809"><div class="ttname"><a href="structcio__websocket__private.html#a9713b99ac7dde95ddb5f824302835809">cio_websocket_private::closed_by_error</a></div><div class="ttdeci">unsigned int closed_by_error</div><div class="ttdef"><b>Definition:</b> cio_websocket.h:120</div></div>
 <div class="ttc" id="cio__websocket_8h_html_af33fb069400eeffde11ab324bf2245e9"><div class="ttname"><a href="cio__websocket_8h.html#af33fb069400eeffde11ab324bf2245e9">cio_websocket_frame_type</a></div><div class="ttdeci">cio_websocket_frame_type</div><div class="ttdef"><b>Definition:</b> cio_websocket.h:80</div></div>
-<div class="ttc" id="cio__buffered__stream_8h_html_a5bd4f8eea0445358ba927825c34e19d3"><div class="ttname"><a href="cio__buffered__stream_8h.html#a5bd4f8eea0445358ba927825c34e19d3">cio_buffered_stream_write_handler</a></div><div class="ttdeci">void(* cio_buffered_stream_write_handler)(struct cio_buffered_stream *bs, void *handler_context, enum cio_error err)</div><div class="ttdoc">The type of a function passed to all cio_buffered_stream write callback functions. </div><div class="ttdef"><b>Definition:</b> cio_buffered_stream.h:79</div></div>
+<div class="ttc" id="cio__buffered__stream_8h_html_a5bd4f8eea0445358ba927825c34e19d3"><div class="ttname"><a href="cio__buffered__stream_8h.html#a5bd4f8eea0445358ba927825c34e19d3">cio_buffered_stream_write_handler</a></div><div class="ttdeci">void(* cio_buffered_stream_write_handler)(struct cio_buffered_stream *bs, void *handler_context, enum cio_error err)</div><div class="ttdoc">The type of a function passed to all cio_buffered_stream write callback functions. </div><div class="ttdef"><b>Definition:</b> cio_buffered_stream.h:78</div></div>
 <div class="ttc" id="structcio__websocket__private_html_a4db49931fb1dd4dbc4da22ded5f01678"><div class="ttname"><a href="structcio__websocket__private.html#a4db49931fb1dd4dbc4da22ded5f01678">cio_websocket_private::utf8_state</a></div><div class="ttdeci">struct cio_utf8_state utf8_state</div><div class="ttdef"><b>Definition:</b> cio_websocket.h:129</div></div>
 <div class="ttc" id="cio__websocket_8h_html_aa24c9894ba2ee9dc5b0ebbc1c8809701a82f24208e6292926e8e02352913d1e09"><div class="ttname"><a href="cio__websocket_8h.html#aa24c9894ba2ee9dc5b0ebbc1c8809701a82f24208e6292926e8e02352913d1e09">CIO_WEBSOCKET_CLOSE_NORMAL</a></div><div class="ttdef"><b>Definition:</b> cio_websocket.h:63</div></div>
 <div class="ttc" id="cio__websocket_8h_html_af33fb069400eeffde11ab324bf2245e9a2c1fb6190c895d3c5d1c22310af91a5d"><div class="ttname"><a href="cio__websocket_8h.html#af33fb069400eeffde11ab324bf2245e9a2c1fb6190c895d3c5d1c22310af91a5d">CIO_WEBSOCKET_CLOSE_FRAME</a></div><div class="ttdef"><b>Definition:</b> cio_websocket.h:84</div></div>
@@ -333,17 +354,21 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="ttc" id="cio__websocket_8h_html_af33fb069400eeffde11ab324bf2245e9ac89c2941151a6830f7cf69729ee9693c"><div class="ttname"><a href="cio__websocket_8h.html#af33fb069400eeffde11ab324bf2245e9ac89c2941151a6830f7cf69729ee9693c">CIO_WEBSOCKET_PONG_FRAME</a></div><div class="ttdef"><b>Definition:</b> cio_websocket.h:86</div></div>
 <div class="ttc" id="structcio__websocket__write__job_html_a7935a405777acb969c211cef16148173"><div class="ttname"><a href="structcio__websocket__write__job.html#a7935a405777acb969c211cef16148173">cio_websocket_write_job::next</a></div><div class="ttdeci">struct cio_websocket_write_job * next</div><div class="ttdef"><b>Definition:</b> cio_websocket.h:92</div></div>
 <div class="ttc" id="cio__websocket_8h_html_aa24c9894ba2ee9dc5b0ebbc1c8809701a8dd8f47511214b8ed8b6901de272e845"><div class="ttname"><a href="cio__websocket_8h.html#aa24c9894ba2ee9dc5b0ebbc1c8809701a8dd8f47511214b8ed8b6901de272e845">CIO_WEBSOCKET_CLOSE_INTERNAL_ERROR</a></div><div class="ttdef"><b>Definition:</b> cio_websocket.h:72</div></div>
-<div class="ttc" id="cio__buffered__stream_8h_html"><div class="ttname"><a href="cio__buffered__stream_8h.html">cio_buffered_stream.h</a></div><div class="ttdoc">This file contains the declarations all users of a cio_buffered_stream need to know. </div></div>
+<div class="ttc" id="cio__buffered__stream_8h_html"><div class="ttname"><a href="cio__buffered__stream_8h.html">cio_buffered_stream.h</a></div><div class="ttdoc">Provides efficient reading and writing form or to an cio_io_stream. </div></div>
 <div class="ttc" id="structcio__websocket__private_html_a0163f940ff3512c8d11f65237d673b86"><div class="ttname"><a href="structcio__websocket__private.html#a0163f940ff3512c8d11f65237d673b86">cio_websocket_private::is_server</a></div><div class="ttdeci">unsigned int is_server</div><div class="ttdef"><b>Definition:</b> cio_websocket.h:118</div></div>
 <div class="ttc" id="cio__websocket_8h_html_a34598b194d24e9a9ecf0487cda5ba11b"><div class="ttname"><a href="cio__websocket_8h.html#a34598b194d24e9a9ecf0487cda5ba11b">cio_websocket_write_handler</a></div><div class="ttdeci">void(* cio_websocket_write_handler)(struct cio_websocket *ws, void *handler_context, enum cio_error err)</div><div class="ttdef"><b>Definition:</b> cio_websocket.h:60</div></div>
 <div class="ttc" id="structcio__websocket__private_html_a2444b6d19ae7c43fbfb7ade730c76ddc"><div class="ttname"><a href="structcio__websocket__private.html#a2444b6d19ae7c43fbfb7ade730c76ddc">cio_websocket_private::frag_opcode</a></div><div class="ttdeci">unsigned int frag_opcode</div><div class="ttdef"><b>Definition:</b> cio_websocket.h:116</div></div>
 <div class="ttc" id="structcio__websocket_html_ab8f6c7f22dd53f96ae96657a2d133358"><div class="ttname"><a href="structcio__websocket.html#ab8f6c7f22dd53f96ae96657a2d133358">cio_websocket::write_ping</a></div><div class="ttdeci">enum cio_error(* write_ping)(struct cio_websocket *ws, struct cio_write_buffer *payload, cio_websocket_write_handler handler, void *handler_context)</div><div class="ttdoc">Writes a ping frame to the websocket. </div><div class="ttdef"><b>Definition:</b> cio_websocket.h:242</div></div>
 </div><!-- fragment --></div><!-- contents -->
+</div><!-- doc-content -->
 <!-- start footer part -->
-<hr class="footer"/><address class="footer"><small>
-Generated by &#160;<a href="http://www.doxygen.org/index.html">
-<img class="footer" src="doxygen.png" alt="doxygen"/>
-</a> 1.8.6
-</small></address>
+<div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
+  <ul>
+    <li class="navelem"><a class="el" href="cio__websocket_8h.html">cio_websocket.h</a></li>
+    <li class="footer">Generated by
+    <a href="http://www.doxygen.org/index.html">
+    <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.8.6 </li>
+  </ul>
+</div>
 </body>
 </html>

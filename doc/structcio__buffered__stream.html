@@ -8,6 +8,13 @@
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
+<link href="navtree.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="resize.js"></script>
+<script type="text/javascript" src="navtree.js"></script>
+<script type="text/javascript">
+  $(document).ready(initResizable);
+  $(window).load(resizeHeight);
+</script>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="search/search.js"></script>
 <script type="text/javascript">
@@ -23,7 +30,7 @@
  <tr style="height: 56px;">
   <td style="padding-left: 0.5em;">
    <div id="projectname">ANSI C I/O Library
-   &#160;<span id="projectnumber">0.0.1-1024+c600e45</span>
+   &#160;<span id="projectnumber">0.0.1-1032+3fa70c8</span>
    </div>
   </td>
  </tr>
@@ -65,6 +72,21 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
       <li><a href="functions.html"><span>Data&#160;Fields</span></a></li>
     </ul>
   </div>
+</div><!-- top -->
+<div id="side-nav" class="ui-resizable side-nav-resizable">
+  <div id="nav-tree">
+    <div id="nav-tree-contents">
+      <div id="nav-sync" class="sync"></div>
+    </div>
+  </div>
+  <div id="splitbar" style="-moz-user-select:none;" 
+       class="ui-resizable-handle">
+  </div>
+</div>
+<script type="text/javascript">
+$(document).ready(function(){initNavTree('structcio__buffered__stream.html','');});
+</script>
+<div id="doc-content">
 <!-- window showing the filter options -->
 <div id="MSearchSelectWindow"
      onmouseover="return searchBox.OnSearchSelectShow()"
@@ -79,7 +101,6 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 </iframe>
 </div>
 
-</div><!-- top -->
 <div class="header">
   <div class="summary">
 <a href="#pub-attribs">Data Fields</a>  </div>
@@ -98,7 +119,7 @@ Data Fields</h2></td></tr>
 <tr class="memitem:aa54e5ff21771c233678050b7ffc7d390"><td class="memItemLeft" align="right" valign="top">enum <a class="el" href="cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afe">cio_error</a>(*&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structcio__buffered__stream.html#aa54e5ff21771c233678050b7ffc7d390">read</a> )(struct <a class="el" href="structcio__buffered__stream.html">cio_buffered_stream</a> *bs, struct <a class="el" href="structcio__read__buffer.html">cio_read_buffer</a> *buffer, <a class="el" href="cio__buffered__stream_8h.html#a4c2bea7c602d4cab70c2c4500ae6e438">cio_buffered_stream_read_handler</a> handler, void *handler_context)</td></tr>
 <tr class="memdesc:aa54e5ff21771c233678050b7ffc7d390"><td class="mdescLeft">&#160;</td><td class="mdescRight">Read upto the size of <code>buffer</code>.  <a href="#aa54e5ff21771c233678050b7ffc7d390">More...</a><br/></td></tr>
 <tr class="separator:aa54e5ff21771c233678050b7ffc7d390"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aae99ca2eef74c4311c1a2b09638ef8cc"><td class="memItemLeft" align="right" valign="top">enum <a class="el" href="cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afe">cio_error</a>(*&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structcio__buffered__stream.html#aae99ca2eef74c4311c1a2b09638ef8cc">read_until</a> )(struct <a class="el" href="structcio__buffered__stream.html">cio_buffered_stream</a> *bs, struct <a class="el" href="structcio__read__buffer.html">cio_read_buffer</a> *buffer, const char *<a class="el" href="structcio__buffered__stream.html#a1899c11e354603e541750124f5820ff6">delim</a>, <a class="el" href="cio__buffered__stream_8h.html#a4c2bea7c602d4cab70c2c4500ae6e438">cio_buffered_stream_read_handler</a> handler, void *handler_context)</td></tr>
+<tr class="memitem:aae99ca2eef74c4311c1a2b09638ef8cc"><td class="memItemLeft" align="right" valign="top">enum <a class="el" href="cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afe">cio_error</a>(*&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structcio__buffered__stream.html#aae99ca2eef74c4311c1a2b09638ef8cc">read_until</a> )(struct <a class="el" href="structcio__buffered__stream.html">cio_buffered_stream</a> *bs, struct <a class="el" href="structcio__read__buffer.html">cio_read_buffer</a> *buffer, const char *delim, <a class="el" href="cio__buffered__stream_8h.html#a4c2bea7c602d4cab70c2c4500ae6e438">cio_buffered_stream_read_handler</a> handler, void *handler_context)</td></tr>
 <tr class="memdesc:aae99ca2eef74c4311c1a2b09638ef8cc"><td class="mdescLeft">&#160;</td><td class="mdescRight">Call <code>handler</code> if delimiter <code>delim</code> is encountered.  <a href="#aae99ca2eef74c4311c1a2b09638ef8cc">More...</a><br/></td></tr>
 <tr class="separator:aae99ca2eef74c4311c1a2b09638ef8cc"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a6659275439b9c9508e6ad10eced2ff62"><td class="memItemLeft" align="right" valign="top">enum <a class="el" href="cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afe">cio_error</a>(*&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structcio__buffered__stream.html#a6659275439b9c9508e6ad10eced2ff62">write</a> )(struct <a class="el" href="structcio__buffered__stream.html">cio_buffered_stream</a> *bs, struct <a class="el" href="structcio__write__buffer.html">cio_write_buffer</a> *buffer, <a class="el" href="cio__buffered__stream_8h.html#a5bd4f8eea0445358ba927825c34e19d3">cio_buffered_stream_write_handler</a> handler, void *handler_context)</td></tr>
@@ -107,22 +128,9 @@ Data Fields</h2></td></tr>
 <tr class="memitem:a4b72d0030538512d2e6d39e3a023bcd6"><td class="memItemLeft" align="right" valign="top">enum <a class="el" href="cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afe">cio_error</a>(*&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structcio__buffered__stream.html#a4b72d0030538512d2e6d39e3a023bcd6">close</a> )(struct <a class="el" href="structcio__buffered__stream.html">cio_buffered_stream</a> *bs)</td></tr>
 <tr class="memdesc:a4b72d0030538512d2e6d39e3a023bcd6"><td class="mdescLeft">&#160;</td><td class="mdescRight">Closes the stream.  <a href="#a4b72d0030538512d2e6d39e3a023bcd6">More...</a><br/></td></tr>
 <tr class="separator:a4b72d0030538512d2e6d39e3a023bcd6"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a785737a330f07c91b38b7578f99fbde7"><td class="memItemLeft" align="right" valign="top">size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structcio__buffered__stream.html#a785737a330f07c91b38b7578f99fbde7">bytes_to_read</a></td></tr>
-<tr class="separator:a785737a330f07c91b38b7578f99fbde7"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a1899c11e354603e541750124f5820ff6"><td class="memItemLeft" align="right" valign="top">const char *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structcio__buffered__stream.html#a1899c11e354603e541750124f5820ff6">delim</a></td></tr>
-<tr class="separator:a1899c11e354603e541750124f5820ff6"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a1113a309358bda0a44b275582fefda31"><td class="memItemLeft" align="right" valign="top">size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structcio__buffered__stream.html#a1113a309358bda0a44b275582fefda31">delim_length</a></td></tr>
-<tr class="separator:a1113a309358bda0a44b275582fefda31"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a4c0ab09668a2d67922dc067dab0af39e"><td class="memItemLeft" >struct {</td></tr>
-<tr class="memitem:aae9c2a50f1730c004309ebb6d694e21e"><td class="memItemLeft" >&#160;&#160;&#160;const char *&#160;&#160;&#160;<a class="el" href="structcio__buffered__stream.html#a1899c11e354603e541750124f5820ff6">delim</a></td></tr>
-<tr class="separator:aae9c2a50f1730c004309ebb6d694e21e"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a4b63db8a999bae8dc4314acc4921db88"><td class="memItemLeft" >&#160;&#160;&#160;size_t&#160;&#160;&#160;<a class="el" href="structcio__buffered__stream.html#a1113a309358bda0a44b275582fefda31">delim_length</a></td></tr>
-<tr class="separator:a4b63db8a999bae8dc4314acc4921db88"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a4c0ab09668a2d67922dc067dab0af39e"><td class="memItemLeft" valign="top">}&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structcio__buffered__stream.html#a4c0ab09668a2d67922dc067dab0af39e">until</a></td></tr>
-<tr class="separator:a4c0ab09668a2d67922dc067dab0af39e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
-<div class="textblock"><p>Interface description for implementing buffered I/O. </p>
+<div class="textblock"><p>Interface description for implementing buffered a buffered stream. </p>
 </div><h2 class="groupheader">Field Documentation</h2>
 <a class="anchor" id="a5ebdc3f60e64bc911ebaaeebeaa88cf3"></a>
 <div class="memitem">
@@ -177,7 +185,7 @@ Data Fields</h2></td></tr>
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">enum <a class="el" href="cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afe">cio_error</a>(* cio_buffered_stream::read_until)(struct <a class="el" href="structcio__buffered__stream.html">cio_buffered_stream</a> *bs, struct <a class="el" href="structcio__read__buffer.html">cio_read_buffer</a> *buffer, const char *<a class="el" href="structcio__buffered__stream.html#a1899c11e354603e541750124f5820ff6">delim</a>, <a class="el" href="cio__buffered__stream_8h.html#a4c2bea7c602d4cab70c2c4500ae6e438">cio_buffered_stream_read_handler</a> handler, void *handler_context)</td>
+          <td class="memname">enum <a class="el" href="cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afe">cio_error</a>(* cio_buffered_stream::read_until)(struct <a class="el" href="structcio__buffered__stream.html">cio_buffered_stream</a> *bs, struct <a class="el" href="structcio__read__buffer.html">cio_read_buffer</a> *buffer, const char *delim, <a class="el" href="cio__buffered__stream_8h.html#a4c2bea7c602d4cab70c2c4500ae6e438">cio_buffered_stream_read_handler</a> handler, void *handler_context)</td>
         </tr>
       </table>
 </div><div class="memdoc">
@@ -244,63 +252,19 @@ Data Fields</h2></td></tr>
 
 </div>
 </div>
-<a class="anchor" id="a785737a330f07c91b38b7578f99fbde7"></a>
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">size_t cio_buffered_stream::bytes_to_read</td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-</div>
-</div>
-<a class="anchor" id="a1899c11e354603e541750124f5820ff6"></a>
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">const char* cio_buffered_stream::delim</td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-</div>
-</div>
-<a class="anchor" id="a1113a309358bda0a44b275582fefda31"></a>
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">size_t cio_buffered_stream::delim_length</td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-</div>
-</div>
-<a class="anchor" id="a4c0ab09668a2d67922dc067dab0af39e"></a>
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">struct { ... }   cio_buffered_stream::until</td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-</div>
-</div>
 <hr/>The documentation for this struct was generated from the following file:<ul>
 <li><a class="el" href="cio__buffered__stream_8h_source.html">cio_buffered_stream.h</a></li>
 </ul>
 </div><!-- contents -->
+</div><!-- doc-content -->
 <!-- start footer part -->
-<hr class="footer"/><address class="footer"><small>
-Generated by &#160;<a href="http://www.doxygen.org/index.html">
-<img class="footer" src="doxygen.png" alt="doxygen"/>
-</a> 1.8.6
-</small></address>
+<div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
+  <ul>
+    <li class="navelem"><a class="el" href="structcio__buffered__stream.html">cio_buffered_stream</a></li>
+    <li class="footer">Generated by
+    <a href="http://www.doxygen.org/index.html">
+    <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.8.6 </li>
+  </ul>
+</div>
 </body>
 </html>

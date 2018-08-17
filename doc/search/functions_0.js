@@ -1,6 +1,6 @@
 var searchData=
 [
-  ['cio_5fb64_5fencode_5fstring',['cio_b64_encode_string',['../cio__base64_8h.html#a995065fb45316d6294dd1a95e41dd7fa',1,'cio_base64.h']]],
+  ['cio_5fb64_5fencode_5fbuffer',['cio_b64_encode_buffer',['../cio__base64_8h.html#a21b685b510d66c0866e65d6df12530cb',1,'cio_base64.h']]],
   ['cio_5fbe16toh',['cio_be16toh',['../cio__endian_8h.html#a3fde2677ce076a9ddb5631bc01263dc9',1,'cio_endian.h']]],
   ['cio_5fbe64toh',['cio_be64toh',['../cio__endian_8h.html#ad83673a31b557bfb6cb651a2838e3649',1,'cio_endian.h']]],
   ['cio_5fbuffered_5fstream_5finit',['cio_buffered_stream_init',['../cio__buffered__stream_8h.html#a2e92bc0f797448c5a6486be3b0feb43b',1,'cio_buffered_stream.h']]],
