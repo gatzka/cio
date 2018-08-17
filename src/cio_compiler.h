@@ -48,12 +48,6 @@
 #define unlikely(x) \
 	__builtin_expect((x), 0)
 
-/**
- * @hideinitializer
- * Guarantee ordering of writes.
- */
-#define wmb() __sync_synchronize()
-
 #elif defined(_MSC_VER)
 
 #define likely(x) \
@@ -63,8 +57,6 @@
 
 #define __attribute__(x)
 #define _Pragma(x)
-
-#define wmb() _WriteBarrier()
 
 #endif
 
