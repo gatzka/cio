@@ -216,7 +216,7 @@ static void send_upgrade_response(struct cio_http_client *client)
 	SHA1Input(&context, ws->sec_websocket_key, SEC_WEB_SOCKET_GUID_LENGTH + SEC_WEB_SOCKET_KEY_LENGTH);
 	uint8_t sha1_buffer[SHA1HashSize];
 	SHA1Result(&context, sha1_buffer);
-	cio_b64_encode_string(sha1_buffer, SHA1HashSize, ws->accept_value);
+	cio_b64_encode_buffer(sha1_buffer, SHA1HashSize, ws->accept_value);
 	ws->accept_value[28] = '\r';
 	ws->accept_value[29] = '\n';
 

@@ -33,17 +33,17 @@
 
 static const char encode_table[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
 
-void cio_b64_encode_string(const uint8_t *__restrict in, size_t in_len, char *__restrict out)
+void cio_b64_encode_buffer(const uint8_t *__restrict in, size_t in_length, char *__restrict out)
 {
 
-	while (in_len) {
+	while (in_length) {
 		unsigned int len = 0;
 		unsigned int triple[3];
 		for (unsigned int i = 0; i < 3; i++) {
-			if (in_len) {
+			if (in_length) {
 				triple[i] = *in++;
 				len++;
-				in_len--;
+				in_length--;
 			} else {
 				triple[i] = 0;
 			}

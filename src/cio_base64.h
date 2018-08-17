@@ -31,10 +31,25 @@
 extern "C" {
 #endif
 
+/**
+ * @file
+ * @brief Declarations to <a href="https://en.wikipedia.org/wiki/Base64" target="_blank">Base64</a>-encode buffers.
+ */
+
 #include <stddef.h>
 #include <stdint.h>
 
-void cio_b64_encode_string(const uint8_t *__restrict in, size_t in_len, char *__restrict out);
+
+/**
+ * @brief <a href="https://en.wikipedia.org/wiki/Base64" target="_blank">Base64</a>-encodes a buffer
+ *
+ * @param in The buffer that should be encoded.
+ * @param in_length The length of the input buffer to be encoded.
+ * @param out A pointer to a buffer containing the Base64-encoded string.
+ *
+ * @warning The memory @p in and @p out points to must not overlap.
+ */
+void cio_b64_encode_buffer(const uint8_t *__restrict in, size_t in_length, char *__restrict out);
 
 #ifdef __cplusplus
 }
