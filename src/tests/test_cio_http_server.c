@@ -270,7 +270,7 @@ static struct cio_http_location_handler *alloc_dummy_handler_msg_complete_only(c
 {
 	(void)config;
 	struct dummy_handler *handler = malloc(sizeof(*handler));
-	if (unlikely(handler == NULL)) {
+	if (cio_unlikely(handler == NULL)) {
 		return NULL;
 	} else {
 		cio_http_location_handler_init(&handler->handler);
@@ -285,7 +285,7 @@ static struct cio_http_location_handler *alloc_dummy_handler(const void *config)
 {
 	(void)config;
 	struct dummy_handler *handler = malloc(sizeof(*handler));
-	if (unlikely(handler == NULL)) {
+	if (cio_unlikely(handler == NULL)) {
 		return NULL;
 	} else {
 		cio_http_location_handler_init(&handler->handler);
@@ -305,7 +305,7 @@ static struct cio_http_location_handler *alloc_dummy_handler_url_callbacks(const
 {
 	(void)config;
 	struct dummy_handler *handler = malloc(sizeof(*handler));
-	if (unlikely(handler == NULL)) {
+	if (cio_unlikely(handler == NULL)) {
 		return NULL;
 	} else {
 		cio_http_location_handler_init(&handler->handler);
@@ -327,7 +327,7 @@ static struct cio_http_location_handler *alloc_dummy_handler_sub(const void *con
 {
 	(void)config;
 	struct dummy_handler *handler = malloc(sizeof(*handler));
-	if (unlikely(handler == NULL)) {
+	if (cio_unlikely(handler == NULL)) {
 		return NULL;
 	} else {
 		cio_http_location_handler_init(&handler->handler);

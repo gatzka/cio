@@ -56,7 +56,7 @@ static enum cio_http_cb_return save_websocket_key(struct cio_websocket_location_
 {
 	static const char ws_guid[SEC_WEB_SOCKET_GUID_LENGTH] = "258EAFA5-E914-47DA-95CA-C5AB0DC85B11";
 
-	if (likely(length == SEC_WEB_SOCKET_KEY_LENGTH)) {
+	if (cio_likely(length == SEC_WEB_SOCKET_KEY_LENGTH)) {
 		memcpy(wslh->sec_websocket_key, at, length);
 		memcpy(&wslh->sec_websocket_key[length], ws_guid, sizeof(ws_guid));
 		return CIO_HTTP_CB_SUCCESS;
@@ -68,7 +68,7 @@ static enum cio_http_cb_return save_websocket_key(struct cio_websocket_location_
 static enum cio_http_cb_return check_websocket_version(struct cio_websocket_location_handler *wslh, const char *at, size_t length)
 {
 	static const char version[2] = "13";
-	if (likely((length == sizeof(version)) && (memcmp(at, version, length) == 0))) {
+	if (cio_likely((length == sizeof(version)) && (memcmp(at, version, length) == 0))) {
 		wslh->flags.ws_version_ok = 1;
 		return CIO_HTTP_CB_SUCCESS;
 	}
@@ -192,7 +192,7 @@ static void response_written(struct cio_buffered_stream *bs, void *handler_conte
 {
 	struct cio_http_client *client = (struct cio_http_client *)handler_context;
 
-	if (unlikely(err != CIO_SUCCESS)) {
+	if (cio_unlikely(err != CIO_SUCCESS)) {
 		client->close(client);
 		return;
 	}
@@ -249,28 +249,28 @@ static void send_upgrade_response(struct cio_http_client *client)
 
 static enum cio_http_cb_return handle_headers_complete(struct cio_http_client *client)
 {
-	if (unlikely(!check_http_version(client))) {
+	if (cio_unlikely(!check_http_version(client))) {
 		return CIO_HTTP_CB_ERROR;
 	}
 
-	if (unlikely(client->http_method != CIO_HTTP_GET)) {
+	if (cio_unlikely(client->http_method != CIO_HTTP_GET)) {
 		return CIO_HTTP_CB_ERROR;
 	}
 
-	if (unlikely(!client->parser.upgrade)) {
+	if (cio_unlikely(!client->parser.upgrade)) {
 		return CIO_HTTP_CB_ERROR;
 	}
 
 	struct cio_websocket_location_handler *wslh = container_of(client->handler, struct cio_websocket_location_handler, http_location);
-	if (unlikely((wslh->flags.subprotocol_requested == 1) && (wslh->chosen_subprotocol == -1))) {
+	if (cio_unlikely((wslh->flags.subprotocol_requested == 1) && (wslh->chosen_subprotocol == -1))) {
 		return CIO_HTTP_CB_ERROR;
 	}
 
-	if (unlikely(wslh->flags.ws_version_ok == 0)) {
+	if (cio_unlikely(wslh->flags.ws_version_ok == 0)) {
 		return CIO_HTTP_CB_ERROR;
 	}
 
-	if (unlikely(wslh->sec_websocket_key[0] == 0)) {
+	if (cio_unlikely(wslh->sec_websocket_key[0] == 0)) {
 		return CIO_HTTP_CB_ERROR;
 	}
 

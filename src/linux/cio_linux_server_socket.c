@@ -64,15 +64,15 @@ static void accept_callback(void *context)
 	memset(&addr, 0, sizeof(addr));
 	addrlen = sizeof(addr);
 	client_fd = accept4(fd, (struct sockaddr *)&addr, &addrlen, SOCK_NONBLOCK | SOCK_CLOEXEC);
-	if (unlikely(client_fd == -1)) {
+	if (cio_unlikely(client_fd == -1)) {
 		if ((errno != EAGAIN) && (errno != EWOULDBLOCK) && (errno != EBADF)) {
 			ss->handler(ss, ss->handler_context, (enum cio_error)(-errno), NULL);
 		}
 	} else {
 		struct cio_socket *s = ss->alloc_client();
-		if (likely(s != NULL)) {
+		if (cio_likely(s != NULL)) {
 			enum cio_error err = cio_linux_socket_init(s, client_fd, ss->loop, ss->free_client);
-			if (likely(err == CIO_SUCCESS)) {
+			if (cio_likely(err == CIO_SUCCESS)) {
 				ss->handler(ss, ss->handler_context, err, s);
 			} else {
 				close(client_fd);
@@ -87,7 +87,7 @@ static void accept_callback(void *context)
 static enum cio_error socket_accept(struct cio_server_socket *ss, cio_accept_handler handler, void *handler_context)
 {
 	enum cio_error err;
-	if (unlikely(handler == NULL)) {
+	if (cio_unlikely(handler == NULL)) {
 		return CIO_INVALID_ARGUMENT;
 	}
 
@@ -96,17 +96,17 @@ static enum cio_error socket_accept(struct cio_server_socket *ss, cio_accept_han
 	ss->ev.read_callback = accept_callback;
 	ss->ev.context = ss;
 
-	if (unlikely(listen(ss->ev.fd, ss->backlog) < 0)) {
+	if (cio_unlikely(listen(ss->ev.fd, ss->backlog) < 0)) {
 		return (enum cio_error)(-errno);
 	}
 
 	err = cio_linux_eventloop_add(ss->loop, &ss->ev);
-	if (unlikely(err != CIO_SUCCESS)) {
+	if (cio_unlikely(err != CIO_SUCCESS)) {
 		return err;
 	}
 
 	err = cio_linux_eventloop_register_read(ss->loop, &ss->ev);
-	if (unlikely(err != CIO_SUCCESS)) {
+	if (cio_unlikely(err != CIO_SUCCESS)) {
 		return err;
 	}
 
@@ -122,7 +122,7 @@ static enum cio_error socket_set_reuse_address(struct cio_server_socket *ss, boo
 		reuse = 0;
 	}
 
-	if (unlikely(setsockopt(ss->ev.fd, SOL_SOCKET, SO_REUSEADDR, &reuse,
+	if (cio_unlikely(setsockopt(ss->ev.fd, SOL_SOCKET, SO_REUSEADDR, &reuse,
 	                        sizeof(reuse)) < 0)) {
 		return (enum cio_error)(-errno);
 	}
@@ -159,7 +159,7 @@ static enum cio_error socket_bind(struct cio_server_socket *ss, const char *bind
 	}
 
 	for (rp = servinfo; rp != NULL; rp = rp->ai_next) {
-		if (likely(bind(ss->ev.fd, rp->ai_addr, rp->ai_addrlen) == 0)) {
+		if (cio_likely(bind(ss->ev.fd, rp->ai_addr, rp->ai_addrlen) == 0)) {
 			break;
 		}
 	}

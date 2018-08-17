@@ -46,7 +46,7 @@
 
 static enum cio_error socket_close(struct cio_socket *s)
 {
-	if (unlikely(s == NULL)) {
+	if (cio_unlikely(s == NULL)) {
 		return CIO_INVALID_ARGUMENT;
 	}
 
@@ -119,7 +119,7 @@ static void read_callback(void *context)
 	struct cio_socket *s = container_of(stream, struct cio_socket, stream);
 	ssize_t ret = read(s->ev.fd, rb->add_ptr, cio_read_buffer_space_available(rb));
 	if (ret == -1) {
-		if (unlikely((errno != EWOULDBLOCK) && (errno != EAGAIN))) {
+		if (cio_unlikely((errno != EWOULDBLOCK) && (errno != EAGAIN))) {
 			rb->bytes_transferred = 0;
 			stream->read_handler(stream, stream->read_handler_context, (enum cio_error)(-errno), rb);
 		}
@@ -139,7 +139,7 @@ static void read_callback(void *context)
 
 static enum cio_error stream_read(struct cio_io_stream *stream, struct cio_read_buffer *buffer, cio_io_stream_read_handler handler, void *handler_context)
 {
-	if (unlikely((stream == NULL) || (buffer == NULL) || (handler == NULL))) {
+	if (cio_unlikely((stream == NULL) || (buffer == NULL) || (handler == NULL))) {
 		return CIO_INVALID_ARGUMENT;
 	}
 
@@ -160,7 +160,7 @@ static void write_callback(void *context)
 
 static enum cio_error stream_write(struct cio_io_stream *stream, const struct cio_write_buffer *buffer, cio_io_stream_write_handler handler, void *handler_context)
 {
-	if (unlikely((stream == NULL) || (buffer == NULL) || (handler == NULL))) {
+	if (cio_unlikely((stream == NULL) || (buffer == NULL) || (handler == NULL))) {
 		return CIO_INVALID_ARGUMENT;
 	}
 
@@ -187,10 +187,10 @@ static enum cio_error stream_write(struct cio_io_stream *stream, const struct ci
 	}
 
 	ssize_t ret = sendmsg(s->ev.fd, &msg, MSG_NOSIGNAL);
-	if (likely(ret >= 0)) {
+	if (cio_likely(ret >= 0)) {
 		handler(stream, handler_context, buffer, CIO_SUCCESS, (size_t)ret);
 	} else {
-		if (likely((errno == EWOULDBLOCK) || (errno == EAGAIN))) {
+		if (cio_likely((errno == EWOULDBLOCK) || (errno == EAGAIN))) {
 			s->stream.write_handler = handler;
 			s->stream.write_handler_context = handler_context;
 			s->stream.write_buffer = buffer;
@@ -215,7 +215,7 @@ enum cio_error cio_linux_socket_init(struct cio_socket *s, int client_fd,
                                      struct cio_eventloop *loop,
                                      cio_socket_close_hook close_hook)
 {
-	if (unlikely((s == NULL) || (loop == NULL))) {
+	if (cio_unlikely((s == NULL) || (loop == NULL))) {
 		return CIO_INVALID_ARGUMENT;
 	}
 
@@ -246,12 +246,12 @@ enum cio_error cio_socket_init(struct cio_socket *s,
 {
 	enum cio_error err;
 	int socket_fd = cio_linux_socket_create();
-	if (unlikely(socket_fd == -1)) {
+	if (cio_unlikely(socket_fd == -1)) {
 		return (enum cio_error)(-errno);
 	}
 
 	err = cio_linux_socket_init(s, socket_fd, loop, close_hook);
-	if (unlikely(err != CIO_SUCCESS)) {
+	if (cio_unlikely(err != CIO_SUCCESS)) {
 		close(socket_fd);
 	}
 

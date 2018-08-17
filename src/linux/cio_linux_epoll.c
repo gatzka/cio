@@ -74,7 +74,7 @@ enum cio_error cio_linux_eventloop_add(const struct cio_eventloop *loop, struct 
 
 	epoll_ev.data.ptr = ev;
 	epoll_ev.events = ev->registered_events;
-	if (unlikely(epoll_ctl(loop->epoll_fd, EPOLL_CTL_ADD, ev->fd, &epoll_ev) < 0)) {
+	if (cio_unlikely(epoll_ctl(loop->epoll_fd, EPOLL_CTL_ADD, ev->fd, &epoll_ev) < 0)) {
 		return (enum cio_error)(-errno);
 	}
 
@@ -87,7 +87,7 @@ static enum cio_error epoll_mod(const struct cio_eventloop *loop, struct cio_eve
 
 	epoll_ev.data.ptr = ev;
 	epoll_ev.events = events;
-	if (unlikely(epoll_ctl(loop->epoll_fd, EPOLL_CTL_MOD, ev->fd, &epoll_ev) < 0)) {
+	if (cio_unlikely(epoll_ctl(loop->epoll_fd, EPOLL_CTL_MOD, ev->fd, &epoll_ev) < 0)) {
 		return (enum cio_error)(-errno);
 	}
 
@@ -131,11 +131,11 @@ enum cio_error cio_eventloop_run(struct cio_eventloop *loop)
 {
 	struct epoll_event *events = loop->epoll_events;
 
-	while (likely(loop->go_ahead)) {
+	while (cio_likely(loop->go_ahead)) {
 		int num_events =
 		    epoll_wait(loop->epoll_fd, events, CONFIG_MAX_EPOLL_EVENTS, -1);
 
-		if (unlikely(num_events < 0)) {
+		if (cio_unlikely(num_events < 0)) {
 			if (errno == EINTR) {
 				continue;
 			}
@@ -156,7 +156,7 @@ enum cio_error cio_eventloop_run(struct cio_eventloop *loop)
 			/*
 			 * The current event could have been removed via cio_linux_eventloop_remove
 			 */
-			if (likely(loop->current_ev != NULL) && (events_type & (uint32_t)EPOLLOUT & ev->registered_events) != 0) {
+			if (cio_likely(loop->current_ev != NULL) && (events_type & (uint32_t)EPOLLOUT & ev->registered_events) != 0) {
 				cio_linux_eventloop_unregister_write(loop, ev);
 				ev->write_callback(ev->context);
 			}
