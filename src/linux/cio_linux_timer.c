@@ -62,7 +62,7 @@ static enum cio_error timer_cancel(struct cio_timer *t)
 
 	memset(&timeout, 0x0, sizeof(timeout));
 	ret = timerfd_settime(t->ev.fd, 0, &timeout, NULL);
-	if (likely(ret == 0)) {
+	if (cio_likely(ret == 0)) {
 		t->handler(t, t->handler_context, CIO_OPERATION_ABORTED);
 		return CIO_SUCCESS;
 	}
@@ -89,14 +89,14 @@ static void timer_read(void *context)
 	uint64_t number_of_expirations;
 
 	ssize_t ret = read(t->ev.fd, &number_of_expirations, sizeof(number_of_expirations));
-	if (unlikely(ret == -1)) {
-		if (unlikely((errno != EAGAIN) && (errno != EWOULDBLOCK))) {
+	if (cio_unlikely(ret == -1)) {
+		if (cio_unlikely((errno != EAGAIN) && (errno != EWOULDBLOCK))) {
 			t->handler(t, t->handler_context, (enum cio_error)(-errno));
 		}
 	} else {
 		timer_handler handler = t->handler;
 		t->handler = NULL;
-		if (likely(ret == sizeof(number_of_expirations))) {
+		if (cio_likely(ret == sizeof(number_of_expirations))) {
 			handler(t, t->handler_context, CIO_SUCCESS);
 		} else {
 			handler(t, t->handler_context, CIO_NOT_ENOUGH_MEMORY);
@@ -114,7 +114,7 @@ static enum cio_error timer_expires_from_now(struct cio_timer *t, uint64_t timeo
 	t->ev.context = t;
 
 	ret = timerfd_settime(t->ev.fd, 0, &timeout, NULL);
-	if (unlikely(ret != 0)) {
+	if (cio_unlikely(ret != 0)) {
 		return (enum cio_error)(-errno);
 	}
 
@@ -127,7 +127,7 @@ enum cio_error cio_timer_init(struct cio_timer *timer, struct cio_eventloop *loo
 {
 	enum cio_error ret_val;
 	int fd = timerfd_create(CLOCK_MONOTONIC, O_NONBLOCK);
-	if (unlikely(fd == -1)) {
+	if (cio_unlikely(fd == -1)) {
 		return (enum cio_error)(-errno);
 	}
 
@@ -145,12 +145,12 @@ enum cio_error cio_timer_init(struct cio_timer *timer, struct cio_eventloop *loo
 	timer->ev.fd = fd;
 
 	ret_val = cio_linux_eventloop_add(timer->loop, &timer->ev);
-	if (unlikely(ret_val != CIO_SUCCESS)) {
+	if (cio_unlikely(ret_val != CIO_SUCCESS)) {
 		goto eventloop_add_failed;
 	}
 
 	ret_val = cio_linux_eventloop_register_read(timer->loop, &timer->ev);
-	if (unlikely(ret_val != CIO_SUCCESS)) {
+	if (cio_unlikely(ret_val != CIO_SUCCESS)) {
 		goto register_read_failed;
 	}
 

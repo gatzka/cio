@@ -115,7 +115,7 @@ static struct cio_http_location_handler *alloc_autobahn_handler(const void *conf
 {
 	(void)config;
 	struct ws_autobahn_handler *handler = malloc(sizeof(*handler));
-	if (unlikely(handler == NULL)) {
+	if (cio_unlikely(handler == NULL)) {
 		return NULL;
 	}
 
@@ -128,7 +128,7 @@ static struct cio_http_location_handler *alloc_autobahn_handler(const void *conf
 static struct cio_socket *alloc_http_client(void)
 {
 	struct cio_http_client *client = malloc(sizeof(*client) + read_buffer_size);
-	if (unlikely(client == NULL)) {
+	if (cio_unlikely(client == NULL)) {
 		return NULL;
 	}
 

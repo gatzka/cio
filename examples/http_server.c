@@ -80,7 +80,7 @@ static struct cio_http_location_handler *alloc_dummy_handler(const void *config)
 {
 	(void)config;
 	struct dummy_handler *handler = malloc(sizeof(*handler));
-	if (unlikely(handler == NULL)) {
+	if (cio_unlikely(handler == NULL)) {
 		return NULL;
 	}
 
@@ -95,7 +95,7 @@ static struct cio_http_location_handler *alloc_dummy_handler(const void *config)
 static struct cio_socket *alloc_http_client(void)
 {
 	struct cio_http_client *client = malloc(sizeof(*client) + read_buffer_size);
-	if (unlikely(client == NULL)) {
+	if (cio_unlikely(client == NULL)) {
 		return NULL;
 	}
 

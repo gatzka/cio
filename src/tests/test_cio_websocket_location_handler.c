@@ -198,7 +198,7 @@ static struct cio_http_location_handler *alloc_websocket_handler(const void *con
 {
 	(void)config;
 	struct ws_test_handler *handler = malloc(sizeof(*handler));
-	if (unlikely(handler == NULL)) {
+	if (cio_unlikely(handler == NULL)) {
 		return NULL;
 	} else {
 		static const char *subprotocols[2] = {"echo", "jet"};
@@ -213,7 +213,7 @@ static struct cio_http_location_handler *alloc_websocket_handler_no_subprotocol(
 {
 	(void)config;
 	struct ws_test_handler *handler = malloc(sizeof(*handler));
-	if (unlikely(handler == NULL)) {
+	if (cio_unlikely(handler == NULL)) {
 		return NULL;
 	} else {
 		cio_websocket_location_handler_init(&handler->ws_handler, NULL, 0, on_connect);

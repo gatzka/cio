@@ -50,7 +50,7 @@ struct echo_client {
 static struct cio_socket *alloc_echo_client(void)
 {
 	struct echo_client *client = malloc(sizeof(*client));
-	if (unlikely(client == NULL)) {
+	if (cio_unlikely(client == NULL)) {
 		return NULL;
 	}
 
