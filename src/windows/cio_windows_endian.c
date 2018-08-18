@@ -24,26 +24,50 @@
  * SOFTWARE.
  */
 
-#include<winsock2.h>
+#include<windows.h>
 
 #include "cio_endian.h"
+#if REG_DWORD == REG_DWORD_LITTLE_ENDIAN
 
 uint16_t cio_be16toh(uint16_t big_endian_16bits)
 {
-	return ntohs(big_endian_16bits);
+	return _byteswap_ushort(big_endian_16bits);
 }
 
 uint64_t cio_be64toh(uint64_t big_endian_64bits)
 {
-	return ntohll(big_endian_64bits);
+	return _byteswap_uint64(big_endian_64bits);
 }
 
 uint16_t cio_htobe16(uint16_t host_endian_16bits)
 {
-	return htons(host_endian_16bits);
+	return _byteswap_ushort(host_endian_16bits);
 }
 
 uint64_t cio_htobe64(uint64_t host_endian_64bits)
 {
-	return htonll(host_endian_64bits);
+	return _byteswap_uint64(host_endian_64bits);
 }
+#else
+uint16_t cio_be16toh(uint16_t big_endian_16bits)
+{
+	return big_endian_16bits;
+}
+
+uint64_t cio_be64toh(uint64_t big_endian_64bits)
+{
+	return big_endian_64bits;
+}
+
+uint16_t cio_htobe16(uint16_t host_endian_16bits)
+{
+	return host_endian_16bits;
+}
+
+uint64_t cio_htobe64(uint64_t host_endian_64bits)
+{
+	return host_endian_64bits;
+}
+#endif
+
+
