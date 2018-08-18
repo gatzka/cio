@@ -30,12 +30,31 @@
 
 #include "cio_string.h"
 
-void *cio_memmem(const void *haystack, size_t haystacklen, const void *needle, size_t needlelen)
-{
-	return memmem(haystack, haystacklen, needle, needlelen);
+void *cio_memmem(const void *haystack, size_t l_len, const void *needle, size_t needle_len)
+	{
+		register char *cur, *last;
+		const char *cl = (const char *)haystack;
+		const char *cs = (const char *)needle;
+
+		if (l_len == 0 || needle_len == 0)
+			return NULL;
+
+		if (l_len < needle_len)
+			return NULL;
+
+		if (needle_len == 1)
+			return memchr(haystack, (int)*cs, l_len);
+
+		last = (char *)cl + l_len - needle_len;
+
+		for (cur = (char *)cl; cur <= last; cur++)
+			if (cur[0] == cs[0] && memcmp(cur, cs, needle_len) == 0)
+				return cur;
+
+		return NULL;
 }
 
 int cio_strncasecmp(const char *s1, const char *s2, size_t n)
 {
-	return strncasecmp(s1, s2, n);
+	return _strnicmp(s1, s2, n);
 }
