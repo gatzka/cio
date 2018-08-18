@@ -1,7 +1,7 @@
 /*
  * The MIT License (MIT)
  *
- * Copyright (c) <2017> <Stephan Gatzka>
+ * Copyright (c) <2018> <Stephan Gatzka>
  *
  * Permission is hereby granted, free of charge, to any person obtaining
  * a copy of this software and associated documentation files (the
@@ -24,40 +24,16 @@
  * SOFTWARE.
  */
 
-#ifndef CIO_COMPILER_H
-#define CIO_COMPILER_H
+#include "cio_error_code.h"
+#include "cio_eventloop_impl.h"
+#include "cio_server_socket.h"
 
-/**
- * @file
- * @brief Some macros wrapping compiler specific intrinsics.
- */
-
-#ifdef __GNUC__
-
-/**
- * @hideinitializer
- * Use this macro in to mark branches that are likely to be taken
- */
-#define cio_likely(x) \
-	__builtin_expect((x), 1)
-
-/**
- * @hideinitializer
- * Use this macro in to mark branches that are unlikely to be taken
- */
-#define cio_unlikely(x) \
-	__builtin_expect((x), 0)
-
-#elif defined(_MSC_VER)
-
-#define cio_likely(x) \
-	(x)
-#define cio_unlikely(x) \
-	(x)
-
-#define __attribute__(x)
-#define _Pragma(x)
-
-#endif
-
-#endif
+enum cio_error cio_server_socket_init(struct cio_server_socket *ss,
+                                      struct cio_eventloop *loop,
+                                      unsigned int backlog,
+                                      cio_alloc_client alloc_client,
+                                      cio_free_client free_client,
+                                      cio_server_socket_close_hook close_hook)
+{
+	return CIO_SUCCESS;
+}

@@ -16,6 +16,7 @@ if(CIO_C_CLANG_TIDY)
 endif()
 
 string(COMPARE EQUAL "${CMAKE_SYSTEM_NAME}" "Linux" is_linux)
+string(COMPARE EQUAL "${CMAKE_SYSTEM_NAME}" "Windows" is_windows)
 if(is_linux)
     set(CIO_PLATFORM_FILES
         "linux/cio_linux_endian.c"
@@ -27,14 +28,20 @@ if(is_linux)
         "linux/cio_linux_string.c"
         "linux/cio_linux_timer.c"
     )
-
-    add_library(target_platform
-        OBJECT
-    	${CIO_PLATFORM_FILES}
-    )
-
-    set_property(TARGET target_platform PROPERTY POSITION_INDEPENDENT_CODE 1)
+elseif(is_windows)
+	set(CIO_PLATFORM_FILES
+		"windows/cio_windows_endian.c"
+		"windows/cio_windows_server_socket.c"
+		"windows/cio_windows_string.c"
+		"windows/cio_windows_timer.c"
+	)
 endif()
+
+add_library(target_platform
+    OBJECT
+    ${CIO_PLATFORM_FILES}
+)
+set_property(TARGET target_platform PROPERTY POSITION_INDEPENDENT_CODE 1)
 
 set(CIO_FILES
     "cio_base64.c"
@@ -116,8 +123,13 @@ if(is_linux)
     target_include_directories(target_platform_independent PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/linux/)
     target_include_directories(target_platform PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/linux/)
     target_include_directories(target_platform PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/)
+	target_link_libraries(cio_static bsd)
+elseif(is_windows)
+    target_include_directories(target_platform_independent PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/windows/)
+    target_include_directories(target_platform PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/windows/)
+    target_include_directories(target_platform PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/)
+	target_link_libraries(cio_static)
 endif()
-target_link_libraries(cio_static bsd)
 
 target_include_directories(cio_static PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/)
 target_include_directories(cio_static PUBLIC ${PROJECT_BINARY_DIR}/generated/)
@@ -135,9 +147,12 @@ set_target_properties(cio
 )
 target_include_directories(cio PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/)
 target_include_directories(cio PUBLIC ${PROJECT_BINARY_DIR}/generated/)
-target_link_libraries(cio bsd)
 if(is_linux)
     target_include_directories(cio PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/linux/)
+	target_link_libraries(cio bsd)
+elseif(is_windows)
+    target_include_directories(cio PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/windows/)
+	target_link_libraries(cio)
 endif()
 
 set(LIB_HEADERS

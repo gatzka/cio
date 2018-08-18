@@ -1,7 +1,7 @@
 /*
- * The MIT License (MIT)
+ *The MIT License (MIT)
  *
- * Copyright (c) <2017> <Stephan Gatzka>
+ * Copyright (c) <2018> <Stephan Gatzka>
  *
  * Permission is hereby granted, free of charge, to any person obtaining
  * a copy of this software and associated documentation files (the
@@ -24,40 +24,26 @@
  * SOFTWARE.
  */
 
-#ifndef CIO_COMPILER_H
-#define CIO_COMPILER_H
+#include<winsock2.h>
 
-/**
- * @file
- * @brief Some macros wrapping compiler specific intrinsics.
- */
+#include "cio_endian.h"
 
-#ifdef __GNUC__
+uint16_t cio_be16toh(uint16_t big_endian_16bits)
+{
+	return ntohs(big_endian_16bits);
+}
 
-/**
- * @hideinitializer
- * Use this macro in to mark branches that are likely to be taken
- */
-#define cio_likely(x) \
-	__builtin_expect((x), 1)
+uint64_t cio_be64toh(uint64_t big_endian_64bits)
+{
+	return ntohll(big_endian_64bits);
+}
 
-/**
- * @hideinitializer
- * Use this macro in to mark branches that are unlikely to be taken
- */
-#define cio_unlikely(x) \
-	__builtin_expect((x), 0)
+uint16_t cio_htobe16(uint16_t host_endian_16bits)
+{
+	return htons(host_endian_16bits);
+}
 
-#elif defined(_MSC_VER)
-
-#define cio_likely(x) \
-	(x)
-#define cio_unlikely(x) \
-	(x)
-
-#define __attribute__(x)
-#define _Pragma(x)
-
-#endif
-
-#endif
+uint64_t cio_htobe64(uint64_t host_endian_64bits)
+{
+	return htonll(host_endian_64bits);
+}
