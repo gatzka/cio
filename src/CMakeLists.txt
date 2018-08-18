@@ -116,26 +116,22 @@ if(is_linux)
     target_include_directories(target_platform PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/linux/)
     target_include_directories(target_platform PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/)
 
-	target_include_directories(cio_static PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/)
-	target_include_directories(cio_static PUBLIC ${PROJECT_BINARY_DIR}/generated/)
-	target_include_directories(cio_static PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/linux/)
-	
 	add_library(cio_static STATIC
 		$<TARGET_OBJECTS:target_platform_independent>
 		$<TARGET_OBJECTS:target_platform>
 		$<TARGET_OBJECTS:target_third_party>
-)
+    )
+
+	target_include_directories(cio_static PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/)
+	target_include_directories(cio_static PUBLIC ${PROJECT_BINARY_DIR}/generated/)
+	target_include_directories(cio_static PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/linux/)
+	
 	set_target_properties(cio_static
 		PROPERTIES OUTPUT_NAME "cio"
 	)
 	
 	target_link_libraries(cio_static bsd)
 	
-	install(
-		TARGETS cio_static cio
-		LIBRARY DESTINATION lib
-		ARCHIVE DESTINATION lib
-	)
 elseif(is_windows)
     target_include_directories(target_platform_independent PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/windows/)
     target_include_directories(target_platform PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/windows/)
@@ -203,13 +199,20 @@ set_target_properties(cio
 )
 
 
-install(
-    FILES ${CMAKE_CURRENT_SOURCE_DIR}/${LIB_HEADERS} DESTINATION include/cio/
-)
-install(
-    FILES ${CMAKE_CURRENT_SOURCE_DIR}/${LIB_HEADERS_LINUX} DESTINATION include/cio/linux/
-)
-install(
-    FILES ${PROJECT_BINARY_DIR}/generated/cio_version.h DESTINATION include/cio/
-)
-
+if(is_linux)
+    install(
+        TARGETS cio_static cio
+        LIBRARY DESTINATION lib
+        ARCHIVE DESTINATION lib
+    )
+    
+    install(
+        FILES ${CMAKE_CURRENT_SOURCE_DIR}/${LIB_HEADERS} DESTINATION include/cio/
+    )
+    install(
+        FILES ${CMAKE_CURRENT_SOURCE_DIR}/${LIB_HEADERS_LINUX} DESTINATION include/cio/linux/
+    )
+    install(
+        FILES ${PROJECT_BINARY_DIR}/generated/cio_version.h DESTINATION include/cio/
+    )
+endif()
