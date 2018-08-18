@@ -98,15 +98,6 @@ set_target_properties(
     PROPERTIES C_CLANG_TIDY ""
 )
 
-add_library(cio_static
-    $<TARGET_OBJECTS:target_platform_independent>
-    $<TARGET_OBJECTS:target_platform>
-    $<TARGET_OBJECTS:target_third_party>
-)
-
-set_target_properties(cio_static
-    PROPERTIES OUTPUT_NAME "cio"
-)
 
 set_target_properties(
     target_platform_independent PROPERTIES
@@ -128,7 +119,23 @@ if(is_linux)
 	target_include_directories(cio_static PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/)
 	target_include_directories(cio_static PUBLIC ${PROJECT_BINARY_DIR}/generated/)
 	target_include_directories(cio_static PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/linux/)
+	
+	add_library(cio_static STATIC
+		$<TARGET_OBJECTS:target_platform_independent>
+		$<TARGET_OBJECTS:target_platform>
+		$<TARGET_OBJECTS:target_third_party>
+)
+	set_target_properties(cio_static
+		PROPERTIES OUTPUT_NAME "cio"
+	)
+	
 	target_link_libraries(cio_static bsd)
+	
+	install(
+		TARGETS cio_static cio
+		LIBRARY DESTINATION lib
+		ARCHIVE DESTINATION lib
+	)
 elseif(is_windows)
     target_include_directories(target_platform_independent PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/windows/)
     target_include_directories(target_platform PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/windows/)
@@ -137,9 +144,9 @@ endif()
 
 
 add_library(cio SHARED
-    $<TARGET_OBJECTS:target_platform_independent>
-    $<TARGET_OBJECTS:target_platform>
-    $<TARGET_OBJECTS:target_third_party>
+   $<TARGET_OBJECTS:target_platform_independent>
+   $<TARGET_OBJECTS:target_platform>
+   $<TARGET_OBJECTS:target_third_party>
 )
 set_target_properties(cio
     PROPERTIES OUTPUT_NAME "cio"
@@ -195,11 +202,6 @@ set_target_properties(cio
     PROPERTIES VERSION "${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}.${PROJECT_VERSION_PATCH}" SOVERSION ${PROJECT_VERSION_MAJOR}
 )
 
-install(
-    TARGETS cio_static cio
-    LIBRARY DESTINATION lib
-    ARCHIVE DESTINATION lib
-)
 
 install(
     FILES ${CMAKE_CURRENT_SOURCE_DIR}/${LIB_HEADERS} DESTINATION include/cio/
