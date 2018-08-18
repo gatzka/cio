@@ -24,40 +24,17 @@
  * SOFTWARE.
  */
 
-#ifndef CIO_COMPILER_H
-#define CIO_COMPILER_H
+#ifndef CIO_ERROR_CODE_IMPL_H
+#define CIO_ERROR_CODE_IMPL_H
 
-/**
- * @file
- * @brief Some macros wrapping compiler specific intrinsics.
- */
+#ifdef __cplusplus
+extern "C" {
+#endif
 
-#ifdef __GNUC__
+#include <errno.h>
 
-/**
- * @hideinitializer
- * Use this macro in to mark branches that are likely to be taken
- */
-#define cio_likely(x) \
-	__builtin_expect((x), 1)
-
-/**
- * @hideinitializer
- * Use this macro in to mark branches that are unlikely to be taken
- */
-#define cio_unlikely(x) \
-	__builtin_expect((x), 0)
-
-#elif defined(_MSC_VER)
-
-#define cio_likely(x) \
-	(x)
-#define cio_unlikely(x) \
-	(x)
-
-#define __attribute__(x)
-#define _Pragma(x)
-
+#ifdef __cplusplus
+}
 #endif
 
 #endif

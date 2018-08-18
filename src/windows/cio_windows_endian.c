@@ -1,7 +1,7 @@
 /*
- * The MIT License (MIT)
+ *The MIT License (MIT)
  *
- * Copyright (c) <2017> <Stephan Gatzka>
+ * Copyright (c) <2018> <Stephan Gatzka>
  *
  * Permission is hereby granted, free of charge, to any person obtaining
  * a copy of this software and associated documentation files (the
@@ -24,40 +24,50 @@
  * SOFTWARE.
  */
 
-#ifndef CIO_COMPILER_H
-#define CIO_COMPILER_H
+#include<windows.h>
 
-/**
- * @file
- * @brief Some macros wrapping compiler specific intrinsics.
- */
+#include "cio_endian.h"
+#if REG_DWORD == REG_DWORD_LITTLE_ENDIAN
 
-#ifdef __GNUC__
+uint16_t cio_be16toh(uint16_t big_endian_16bits)
+{
+	return _byteswap_ushort(big_endian_16bits);
+}
 
-/**
- * @hideinitializer
- * Use this macro in to mark branches that are likely to be taken
- */
-#define cio_likely(x) \
-	__builtin_expect((x), 1)
+uint64_t cio_be64toh(uint64_t big_endian_64bits)
+{
+	return _byteswap_uint64(big_endian_64bits);
+}
 
-/**
- * @hideinitializer
- * Use this macro in to mark branches that are unlikely to be taken
- */
-#define cio_unlikely(x) \
-	__builtin_expect((x), 0)
+uint16_t cio_htobe16(uint16_t host_endian_16bits)
+{
+	return _byteswap_ushort(host_endian_16bits);
+}
 
-#elif defined(_MSC_VER)
+uint64_t cio_htobe64(uint64_t host_endian_64bits)
+{
+	return _byteswap_uint64(host_endian_64bits);
+}
+#else
+uint16_t cio_be16toh(uint16_t big_endian_16bits)
+{
+	return big_endian_16bits;
+}
 
-#define cio_likely(x) \
-	(x)
-#define cio_unlikely(x) \
-	(x)
+uint64_t cio_be64toh(uint64_t big_endian_64bits)
+{
+	return big_endian_64bits;
+}
 
-#define __attribute__(x)
-#define _Pragma(x)
+uint16_t cio_htobe16(uint16_t host_endian_16bits)
+{
+	return host_endian_16bits;
+}
 
+uint64_t cio_htobe64(uint64_t host_endian_64bits)
+{
+	return host_endian_64bits;
+}
 #endif
 
-#endif
+

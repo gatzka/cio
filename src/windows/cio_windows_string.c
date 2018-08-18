@@ -24,40 +24,36 @@
  * SOFTWARE.
  */
 
-#ifndef CIO_COMPILER_H
-#define CIO_COMPILER_H
+#include <stddef.h>
+#include <string.h>
 
-/**
- * @file
- * @brief Some macros wrapping compiler specific intrinsics.
- */
+#include "cio_string.h"
 
-#ifdef __GNUC__
+void *cio_memmem(const void *haystack, size_t l_len, const void *needle, size_t needle_len)
+	{
+		register char *cur, *last;
+		const char *cl = (const char *)haystack;
+		const char *cs = (const char *)needle;
 
-/**
- * @hideinitializer
- * Use this macro in to mark branches that are likely to be taken
- */
-#define cio_likely(x) \
-	__builtin_expect((x), 1)
+		if (l_len == 0 || needle_len == 0)
+			return NULL;
 
-/**
- * @hideinitializer
- * Use this macro in to mark branches that are unlikely to be taken
- */
-#define cio_unlikely(x) \
-	__builtin_expect((x), 0)
+		if (l_len < needle_len)
+			return NULL;
 
-#elif defined(_MSC_VER)
+		if (needle_len == 1)
+			return memchr(haystack, (int)*cs, l_len);
 
-#define cio_likely(x) \
-	(x)
-#define cio_unlikely(x) \
-	(x)
+		last = (char *)cl + l_len - needle_len;
 
-#define __attribute__(x)
-#define _Pragma(x)
+		for (cur = (char *)cl; cur <= last; cur++)
+			if (cur[0] == cs[0] && memcmp(cur, cs, needle_len) == 0)
+				return cur;
 
-#endif
+		return NULL;
+}
 
-#endif
+int cio_strncasecmp(const char *s1, const char *s2, size_t n)
+{
+	return _strnicmp(s1, s2, n);
+}

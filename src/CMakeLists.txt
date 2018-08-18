@@ -16,6 +16,7 @@ if(CIO_C_CLANG_TIDY)
 endif()
 
 string(COMPARE EQUAL "${CMAKE_SYSTEM_NAME}" "Linux" is_linux)
+string(COMPARE EQUAL "${CMAKE_SYSTEM_NAME}" "Windows" is_windows)
 if(is_linux)
     set(CIO_PLATFORM_FILES
         "linux/cio_linux_endian.c"
@@ -27,14 +28,21 @@ if(is_linux)
         "linux/cio_linux_string.c"
         "linux/cio_linux_timer.c"
     )
-
-    add_library(target_platform
-        OBJECT
-    	${CIO_PLATFORM_FILES}
-    )
-
-    set_property(TARGET target_platform PROPERTY POSITION_INDEPENDENT_CODE 1)
+elseif(is_windows)
+	set(CIO_PLATFORM_FILES
+		"windows/cio_windows_endian.c"
+		"windows/cio_windows_random.c"
+		"windows/cio_windows_server_socket.c"
+		"windows/cio_windows_string.c"
+		"windows/cio_windows_timer.c"
+	)
 endif()
+
+add_library(target_platform
+    OBJECT
+    ${CIO_PLATFORM_FILES}
+)
+set_property(TARGET target_platform PROPERTY POSITION_INDEPENDENT_CODE 1)
 
 set(CIO_FILES
     "cio_base64.c"
@@ -90,15 +98,6 @@ set_target_properties(
     PROPERTIES C_CLANG_TIDY ""
 )
 
-add_library(cio_static
-    $<TARGET_OBJECTS:target_platform_independent>
-    $<TARGET_OBJECTS:target_platform>
-    $<TARGET_OBJECTS:target_third_party>
-)
-
-set_target_properties(cio_static
-    PROPERTIES OUTPUT_NAME "cio"
-)
 
 set_target_properties(
     target_platform_independent PROPERTIES
@@ -116,28 +115,46 @@ if(is_linux)
     target_include_directories(target_platform_independent PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/linux/)
     target_include_directories(target_platform PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/linux/)
     target_include_directories(target_platform PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/)
-endif()
-target_link_libraries(cio_static bsd)
 
-target_include_directories(cio_static PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/)
-target_include_directories(cio_static PUBLIC ${PROJECT_BINARY_DIR}/generated/)
-if(is_linux)
-    target_include_directories(cio_static PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/linux/)
+	add_library(cio_static STATIC
+		$<TARGET_OBJECTS:target_platform_independent>
+		$<TARGET_OBJECTS:target_platform>
+		$<TARGET_OBJECTS:target_third_party>
+    )
+
+	target_include_directories(cio_static PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/)
+	target_include_directories(cio_static PUBLIC ${PROJECT_BINARY_DIR}/generated/)
+	target_include_directories(cio_static PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/linux/)
+	
+	set_target_properties(cio_static
+		PROPERTIES OUTPUT_NAME "cio"
+	)
+	
+	target_link_libraries(cio_static bsd)
+	
+elseif(is_windows)
+    target_include_directories(target_platform_independent PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/windows/)
+    target_include_directories(target_platform PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/windows/)
+    target_include_directories(target_platform PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/)
 endif()
+
 
 add_library(cio SHARED
-    $<TARGET_OBJECTS:target_platform_independent>
-    $<TARGET_OBJECTS:target_platform>
-    $<TARGET_OBJECTS:target_third_party>
+   $<TARGET_OBJECTS:target_platform_independent>
+   $<TARGET_OBJECTS:target_platform>
+   $<TARGET_OBJECTS:target_third_party>
 )
 set_target_properties(cio
     PROPERTIES OUTPUT_NAME "cio"
 )
 target_include_directories(cio PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/)
 target_include_directories(cio PUBLIC ${PROJECT_BINARY_DIR}/generated/)
-target_link_libraries(cio bsd)
 if(is_linux)
     target_include_directories(cio PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/linux/)
+	target_link_libraries(cio bsd)
+elseif(is_windows)
+    target_include_directories(cio PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/windows/)
+	target_link_libraries(cio Bcrypt)
 endif()
 
 set(LIB_HEADERS
@@ -181,19 +198,21 @@ set_target_properties(cio
     PROPERTIES VERSION "${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}.${PROJECT_VERSION_PATCH}" SOVERSION ${PROJECT_VERSION_MAJOR}
 )
 
-install(
-    TARGETS cio_static cio
-    LIBRARY DESTINATION lib
-    ARCHIVE DESTINATION lib
-)
 
-install(
-    FILES ${CMAKE_CURRENT_SOURCE_DIR}/${LIB_HEADERS} DESTINATION include/cio/
-)
-install(
-    FILES ${CMAKE_CURRENT_SOURCE_DIR}/${LIB_HEADERS_LINUX} DESTINATION include/cio/linux/
-)
-install(
-    FILES ${PROJECT_BINARY_DIR}/generated/cio_version.h DESTINATION include/cio/
-)
-
+if(is_linux)
+    install(
+        TARGETS cio_static cio
+        LIBRARY DESTINATION lib
+        ARCHIVE DESTINATION lib
+    )
+    
+    install(
+        FILES ${CMAKE_CURRENT_SOURCE_DIR}/${LIB_HEADERS} DESTINATION include/cio/
+    )
+    install(
+        FILES ${CMAKE_CURRENT_SOURCE_DIR}/${LIB_HEADERS_LINUX} DESTINATION include/cio/linux/
+    )
+    install(
+        FILES ${PROJECT_BINARY_DIR}/generated/cio_version.h DESTINATION include/cio/
+    )
+endif()

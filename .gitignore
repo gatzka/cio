@@ -3,3 +3,4 @@ cscope.*
 build*
 *.qbs.user*
 *.obj
+.vs

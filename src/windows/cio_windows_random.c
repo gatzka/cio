@@ -1,7 +1,7 @@
 /*
- * The MIT License (MIT)
+ *The MIT License (MIT)
  *
- * Copyright (c) <2017> <Stephan Gatzka>
+ * Copyright (c) <2018> <Stephan Gatzka>
  *
  * Permission is hereby granted, free of charge, to any person obtaining
  * a copy of this software and associated documentation files (the
@@ -24,40 +24,14 @@
  * SOFTWARE.
  */
 
-#ifndef CIO_COMPILER_H
-#define CIO_COMPILER_H
+#include <windows.h>
+#include <bcrypt.h>
+#include <stddef.h>
 
-/**
- * @file
- * @brief Some macros wrapping compiler specific intrinsics.
- */
+#include "cio_random.h"
 
-#ifdef __GNUC__
 
-/**
- * @hideinitializer
- * Use this macro in to mark branches that are likely to be taken
- */
-#define cio_likely(x) \
-	__builtin_expect((x), 1)
-
-/**
- * @hideinitializer
- * Use this macro in to mark branches that are unlikely to be taken
- */
-#define cio_unlikely(x) \
-	__builtin_expect((x), 0)
-
-#elif defined(_MSC_VER)
-
-#define cio_likely(x) \
-	(x)
-#define cio_unlikely(x) \
-	(x)
-
-#define __attribute__(x)
-#define _Pragma(x)
-
-#endif
-
-#endif
+void cio_random_get_bytes(void *bytes, size_t num_bytes)
+{
+	BCryptGenRandom(NULL, bytes, (ULONG)num_bytes, BCRYPT_USE_SYSTEM_PREFERRED_RNG);
+}
