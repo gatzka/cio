@@ -30,7 +30,7 @@
  <tr style="height: 56px;">
   <td style="padding-left: 0.5em;">
    <div id="projectname">ANSI C I/O Library
-   &#160;<span id="projectnumber">0.0.1-1032+3fa70c8</span>
+   &#160;<span id="projectnumber">0.0.1-1033+5caa9aa</span>
    </div>
   </td>
  </tr>
@@ -159,7 +159,7 @@ $(document).ready(function(){initNavTree('cio__websocket__masking_8h_source.html
 <div class="line"><a name="l00052"></a><span class="lineno">   52</span>&#160;    pre_length = (<span class="keyword">sizeof</span>(aligned_mask) - pre_length) % <span class="keyword">sizeof</span>(aligned_mask);</div>
 <div class="line"><a name="l00053"></a><span class="lineno">   53</span>&#160;</div>
 <div class="line"><a name="l00054"></a><span class="lineno">   54</span>&#160;    <span class="keywordtype">size_t</span> main_length = (length - pre_length) / <span class="keyword">sizeof</span>(aligned_mask);</div>
-<div class="line"><a name="l00055"></a><span class="lineno">   55</span>&#160;    <span class="keywordtype">unsigned</span> <span class="keywordtype">int</span> post_length = length - pre_length - (main_length * <span class="keyword">sizeof</span>(aligned_mask));</div>
+<div class="line"><a name="l00055"></a><span class="lineno">   55</span>&#160;    <span class="keywordtype">unsigned</span> <span class="keywordtype">int</span> post_length = (<span class="keywordtype">unsigned</span> int)(length - pre_length - (main_length * <span class="keyword">sizeof</span>(aligned_mask)));</div>
 <div class="line"><a name="l00056"></a><span class="lineno">   56</span>&#160;</div>
 <div class="line"><a name="l00057"></a><span class="lineno">   57</span>&#160;    uint_fast32_t *buffer_aligned = (<span class="keywordtype">void</span> *)(buffer + pre_length);</div>
 <div class="line"><a name="l00058"></a><span class="lineno">   58</span>&#160;</div>
