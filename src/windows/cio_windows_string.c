@@ -24,7 +24,6 @@
  * SOFTWARE.
  */
 
-#define _GNU_SOURCE
 #include <stddef.h>
 #include <string.h>
 
