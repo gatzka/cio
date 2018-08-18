@@ -31,6 +31,7 @@ if(is_linux)
 elseif(is_windows)
 	set(CIO_PLATFORM_FILES
 		"windows/cio_windows_endian.c"
+		"windows/cio_windows_random.c"
 		"windows/cio_windows_server_socket.c"
 		"windows/cio_windows_string.c"
 		"windows/cio_windows_timer.c"
@@ -150,7 +151,7 @@ if(is_linux)
 	target_link_libraries(cio bsd)
 elseif(is_windows)
     target_include_directories(cio PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/windows/)
-	target_link_libraries(cio)
+	target_link_libraries(cio Bcrypt)
 endif()
 
 set(LIB_HEADERS
