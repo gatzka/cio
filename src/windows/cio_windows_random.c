@@ -33,5 +33,5 @@
 
 void cio_random_get_bytes(void *bytes, size_t num_bytes)
 {
-	BCryptGenRandom(NULL, bytes, num_bytes, BCRYPT_USE_SYSTEM_PREFERRED_RNG);
+	BCryptGenRandom(NULL, bytes, (ULONG)num_bytes, BCRYPT_USE_SYSTEM_PREFERRED_RNG);
 }
