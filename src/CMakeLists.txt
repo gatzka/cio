@@ -123,19 +123,17 @@ if(is_linux)
     target_include_directories(target_platform_independent PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/linux/)
     target_include_directories(target_platform PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/linux/)
     target_include_directories(target_platform PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/)
+
+	target_include_directories(cio_static PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/)
+	target_include_directories(cio_static PUBLIC ${PROJECT_BINARY_DIR}/generated/)
+	target_include_directories(cio_static PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/linux/)
 	target_link_libraries(cio_static bsd)
 elseif(is_windows)
     target_include_directories(target_platform_independent PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/windows/)
     target_include_directories(target_platform PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/windows/)
     target_include_directories(target_platform PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/)
-	target_link_libraries(cio_static)
 endif()
 
-target_include_directories(cio_static PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/)
-target_include_directories(cio_static PUBLIC ${PROJECT_BINARY_DIR}/generated/)
-if(is_linux)
-    target_include_directories(cio_static PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/linux/)
-endif()
 
 add_library(cio SHARED
     $<TARGET_OBJECTS:target_platform_independent>
