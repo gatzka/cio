@@ -44,7 +44,7 @@ before_build:
   - cmd: if "%platform%"=="x86" cmake -G "%GENERATOR%" -DCMAKE_BUILD_TYPE=%configuration% ../src/
   - cmd: if "%platform%"=="x64" cmake -G "%GENERATOR% Win64" -DCMAKE_BUILD_TYPE=%configuration% ../src/
 
-build:
+build_script:
   - cmd: cmake --build .
 
 #test_script:
