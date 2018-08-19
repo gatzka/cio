@@ -18,11 +18,6 @@ environment:
       os: Visual Studio 2017
 
 
-# scripts that are called at very beginning, before repo cloning
-init:
-  - cmd: cmake --help
-  - cmd: msbuild /version
-
 clone_folder: C:\projects\cio
 
 # branches to build
@@ -43,6 +38,10 @@ before_build:
   - cmd: cd build
   - cmd: if "%platform%"=="x86" cmake -G "%GENERATOR%" -DCMAKE_BUILD_TYPE=%configuration% ../src/
   - cmd: if "%platform%"=="x64" cmake -G "%GENERATOR% Win64" -DCMAKE_BUILD_TYPE=%configuration% ../src/
+
+build:
+  parallel: true
+  verbosity: minimal
 
 build_script:
   - cmd: cmake --build .
