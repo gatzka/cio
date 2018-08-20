@@ -9,6 +9,8 @@ include(sanitizer)
 GenerateVersion(../version ${PROJECT_NAME})
 configure_file(../cio_version.h.in ${PROJECT_BINARY_DIR}/generated/cio_version.h)
 
+string(COMPARE EQUAL "${CMAKE_SYSTEM_NAME}" "Linux" is_linux)
+string(COMPARE EQUAL "${CMAKE_SYSTEM_NAME}" "Windows" is_windows)
 
 add_library(cio_unity
     ../unity/src/unity.c
@@ -16,16 +18,22 @@ add_library(cio_unity
 )
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../)
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../linux/)
+if (is_linux)
+	include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../linux/)
+elseif(is_windows)
+	include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../windows/)
+endif()
+
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../fff/)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../unity/src/)
 include_directories(${PROJECT_BINARY_DIR}/generated/)
 
-
-if(CMAKE_BUILD_TYPE MATCHES Debug)
-  set(COVERAGE_FLAGS "-fprofile-arcs -ftest-coverage")
-  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${COVERAGE_FLAGS}")
-endif(CMAKE_BUILD_TYPE MATCHES Debug)
+if(CMAKE_C_COMPILER_ID STREQUAL "GNU")
+	if(CMAKE_BUILD_TYPE MATCHES Debug)
+	set(COVERAGE_FLAGS "-fprofile-arcs -ftest-coverage")
+	set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${COVERAGE_FLAGS}")
+	endif(CMAKE_BUILD_TYPE MATCHES Debug)
+endif()
 
 if(CMAKE_C_COMPILER_ID STREQUAL "GNU")
     if(NOT CMAKE_C_COMPILER_VERSION VERSION_LESS 7.0.0)
@@ -35,10 +43,26 @@ if(CMAKE_C_COMPILER_ID STREQUAL "GNU")
     set_property(SOURCE ../unity/src/unity.c  APPEND_STRING PROPERTY COMPILE_FLAGS "-Wstrict-overflow=2 ")
 endif()
 
+add_executable(test_cio_base64
+    test_cio_base64.c
+	../cio_base64.c
+)
+target_link_libraries (test_cio_base64 cio_unity)
+
+if (is_linux)
+	set (TEST_CIO_BUFFERED_STREAM_PLATFORM_FILES
+	    ../linux/cio_linux_string.c
+	)
+elseif (is_windows)
+	set (TEST_CIO_BUFFERED_STREAM_PLATFORM_FILES
+	    ../windows/cio_windows_string.c
+	)
+endif()
+
 add_executable(test_cio_buffered_stream
     test_cio_buffered_stream.c
     ../cio_buffered_stream.c
-    ../linux/cio_linux_string.c
+	${TEST_CIO_BUFFERED_STREAM_PLATFORM_FILES}
 )
 target_link_libraries (test_cio_buffered_stream cio_unity)
 
@@ -49,7 +73,7 @@ add_executable(test_cio_http_server_iostream
     ../cio_buffered_stream.c
     ../cio_http_server.c
     ../http-parser/http_parser.c
-    ../linux/cio_linux_string.c
+    ${TEST_CIO_BUFFERED_STREAM_PLATFORM_FILES}
 )
 target_link_libraries (test_cio_http_server_iostream cio_unity)
 
@@ -61,12 +85,6 @@ add_executable(test_cio_http_server
     ../http-parser/http_parser.c
 )
 target_link_libraries (test_cio_http_server cio_unity)
-
-add_executable(test_cio_base64
-    test_cio_base64.c
-	../cio_base64.c
-)
-target_link_libraries (test_cio_base64 cio_unity)
 
 add_executable(test_cio_utf8_checker
     test_cio_utf8_checker.c
@@ -84,12 +102,21 @@ add_executable(test_cio_write_buffer
 )
 target_link_libraries (test_cio_write_buffer cio_unity)
 
-add_executable(test_cio_websocket_mask
-    test_cio_websocket_mask.c
-)
-target_link_libraries (test_cio_websocket_mask cio_unity bsd)
+if (is_linux)
+	add_executable(test_cio_websocket_mask
+		test_cio_websocket_mask.c
+		../linux/cio_linux_random.c
+	)
+	target_link_libraries (test_cio_websocket_mask cio_unity bsd)
+elseif (is_windows)
+	add_executable(test_cio_websocket_mask
+		test_cio_websocket_mask.c
+		../windows/cio_windows_random.c
+	)
+	target_link_libraries (test_cio_websocket_mask cio_unity bcrypt)
+endif()
 
-add_executable(test_cio_websocket_location_handler
+set(TEST_CIO_WEBSOCKET_LOCATION_HANDLER_FILES
     test_cio_websocket_location_handler.c
     ../cio_base64.c
 	../cio_http_location.c
@@ -99,30 +126,67 @@ add_executable(test_cio_websocket_location_handler
     ../cio_websocket.c
     ../cio_websocket_location_handler.c
     ../http-parser/http_parser.c
-    ../linux/cio_linux_endian.c
-    ../linux/cio_linux_random.c
-    ../linux/cio_linux_string.c
     ../sha1/sha1.c
 )
-target_link_libraries (test_cio_websocket_location_handler cio_unity bsd)
+if (is_linux)
+	add_executable(test_cio_websocket_location_handler
+		${TEST_CIO_WEBSOCKET_LOCATION_HANDLER_FILES}
+		../linux/cio_linux_endian.c
+		../linux/cio_linux_random.c
+		../linux/cio_linux_string.c
+	)
+	target_link_libraries (test_cio_websocket_location_handler cio_unity bsd)
+elseif (is_windows)
+	add_executable(test_cio_websocket_location_handler
+		${TEST_CIO_WEBSOCKET_LOCATION_HANDLER_FILES}
+		../windows/cio_windows_endian.c
+		../windows/cio_windows_random.c
+		../windows/cio_windows_string.c
+	)
+	target_link_libraries (test_cio_websocket_location_handler cio_unity bcrypt)
+endif()
 
-add_executable(test_cio_websocket
+set(TEST_CIO_WEBSOCKET_FILES
     test_cio_websocket.c
     ../cio_utf8_checker.c
     ../cio_websocket.c
-    ../linux/cio_linux_endian.c
-    ../linux/cio_linux_random.c
 )
-target_link_libraries (test_cio_websocket cio_unity bsd)
+if (is_linux)
+	add_executable(test_cio_websocket
+		${TEST_CIO_WEBSOCKET_FILES}
+		../linux/cio_linux_endian.c
+		../linux/cio_linux_random.c
+	)
+	target_link_libraries (test_cio_websocket cio_unity bsd)
+elseif (is_windows)
+	add_executable(test_cio_websocket
+		${TEST_CIO_WEBSOCKET_FILES}
+		../windows/cio_windows_endian.c
+		../windows/cio_windows_random.c
+	)
+	target_link_libraries (test_cio_websocket cio_unity bcrypt)
+endif()
 
-add_executable(test_cio_websocket_client
+set(TEST_CIO_WEBSOCKET_CLIENT_FILES
     test_cio_websocket_client.c
     ../cio_utf8_checker.c
     ../cio_websocket.c
-    ../linux/cio_linux_endian.c
-    ../linux/cio_linux_random.c
 )
-target_link_libraries (test_cio_websocket_client cio_unity bsd)
+if (is_linux)
+	add_executable(test_cio_websocket_client
+		${TEST_CIO_WEBSOCKET_CLIENT_FILES}
+		../linux/cio_linux_endian.c
+		../linux/cio_linux_random.c
+	)
+	target_link_libraries (test_cio_websocket_client cio_unity bsd)
+elseif (is_windows)
+	add_executable(test_cio_websocket_client
+		${TEST_CIO_WEBSOCKET_CLIENT_FILES}
+		../windows/cio_windows_endian.c
+		../windows/cio_windows_random.c
+	)
+	target_link_libraries (test_cio_websocket_client cio_unity bcrypt)
+endif()
 
 enable_testing()
 add_test(NAME test_cio_base64 COMMAND test_cio_base64)

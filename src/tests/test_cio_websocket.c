@@ -24,8 +24,6 @@
  * SOFTWARE.
  */
 
-#define _DEFAULT_SOURCE
-#include <endian.h>
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
@@ -164,13 +162,13 @@ static bool check_frame(enum cio_websocket_frame_type opcode, const char *payloa
 		uint16_t len;
 		memcpy(&len, &write_buffer[write_buffer_parse_pos], sizeof(len));
 		write_buffer_parse_pos += sizeof(len);
-		len = be16toh(len);
+		len = cio_be16toh(len);
 		length = len;
 	} else if (first_length == 127) {
 		uint64_t len;
 		memcpy(&len, &write_buffer[write_buffer_parse_pos], sizeof(len));
 		write_buffer_parse_pos += sizeof(len);
-		len = be64toh(len);
+		len = cio_be64toh(len);
 		length = len;
 	} else {
 		length = first_length;
@@ -264,14 +262,14 @@ static void serialize_frames(struct ws_frame frames[], size_t num_frames)
 			uint16_t len = (uint16_t)frame.data_length;
 			frame_buffer[buffer_pos] |= 126;
 			buffer_pos++;
-			len = htobe16(len);
+			len = cio_htobe16(len);
 			memcpy(&frame_buffer[buffer_pos], &len, sizeof(len));
 			buffer_pos += sizeof(len);
 		} else {
 			frame_buffer[buffer_pos] |= 127;
 			buffer_pos++;
 			uint64_t len = (uint64_t)frame.data_length;
-			len = htobe64(len);
+			len = cio_htobe64(len);
 			memcpy(&frame_buffer[buffer_pos], &len, sizeof(len));
 			buffer_pos += sizeof(len);
 		}
@@ -495,7 +493,6 @@ void tearDown(void)
 {
 	free(ws);
 }
-
 
 static void test_init_without_ws(void)
 {
@@ -910,11 +907,10 @@ static void test_ping_frame_payload_too_long_no_error_callback(void)
 static void test_close_in_get_header(void)
 {
 	unsigned int frame_type = CIO_WEBSOCKET_TEXT_FRAME;
-	uint32_t frame_size = 5;
-	char data[frame_size];
-	memset(data, 'a', frame_size);
+	char data[5];
+	memset(data, 'a', sizeof(data));
 	struct ws_frame frames[] = {
-		{.frame_type = frame_type, .direction = FROM_CLIENT, .data = data, .data_length = frame_size, .last_frame = true, .rsv = false},
+		{.frame_type = frame_type, .direction = FROM_CLIENT, .data = data, .data_length = sizeof(data), .last_frame = true, .rsv = false},
 		{.frame_type = CIO_WEBSOCKET_CLOSE_FRAME, .direction = FROM_CLIENT, .data = NULL, .data_length = 0, .last_frame = true, .rsv = false},
 	};
 
@@ -970,11 +966,10 @@ static void test_immediate_read_error_for_get_header(void)
 static void test_read_error_in_get_header(void)
 {
 	unsigned int frame_type = CIO_WEBSOCKET_TEXT_FRAME;
-	uint32_t frame_size = 5;
-	char data[frame_size];
-	memset(data, 'a', frame_size);
+	char data[5];
+	memset(data, 'a', sizeof(data));
 	struct ws_frame frames[] = {
-		{.frame_type = frame_type, .direction = FROM_CLIENT, .data = data, .data_length = frame_size, .last_frame = true, .rsv = false},
+		{.frame_type = frame_type, .direction = FROM_CLIENT, .data = data, .data_length = sizeof(data), .last_frame = true, .rsv = false},
 		{.frame_type = CIO_WEBSOCKET_CLOSE_FRAME, .direction = FROM_CLIENT, .data = NULL, .data_length = 0, .last_frame = true, .rsv = false},
 	};
 
@@ -999,11 +994,10 @@ static void test_read_error_in_get_header(void)
 static void test_immediate_read_error_for_get_first_length(void)
 {
 	unsigned int frame_type = CIO_WEBSOCKET_TEXT_FRAME;
-	uint32_t frame_size = 5;
-	char data[frame_size];
-	memset(data, 'a', frame_size);
+	char data[5];
+	memset(data, 'a', sizeof(data));
 	struct ws_frame frames[] = {
-		{.frame_type = frame_type, .direction = FROM_CLIENT, .data = data, .data_length = frame_size, .last_frame = true, .rsv = false},
+		{.frame_type = frame_type, .direction = FROM_CLIENT, .data = data, .data_length = sizeof(data), .last_frame = true, .rsv = false},
 		{.frame_type = CIO_WEBSOCKET_CLOSE_FRAME, .direction = FROM_CLIENT, .data = NULL, .data_length = 0, .last_frame = true, .rsv = false},
 	};
 

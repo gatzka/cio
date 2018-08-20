@@ -38,6 +38,10 @@ void setUp(void)
 	FFF_RESET_HISTORY();
 }
 
+void tearDown(void)
+{
+}
+
 static void test_init_read_buffer(void)
 {
 	uint32_t buffer;

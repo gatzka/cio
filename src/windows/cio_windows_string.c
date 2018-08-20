@@ -29,28 +29,34 @@
 
 #include "cio_string.h"
 
-void *cio_memmem(const void *haystack, size_t l_len, const void *needle, size_t needle_len)
-	{
-		register char *cur, *last;
-		const char *cl = (const char *)haystack;
-		const char *cs = (const char *)needle;
+void *cio_memmem(const void *haystack, size_t haystacklen, const void *needle, size_t needlelen)
+{
+	const char *begin = haystack;
+	const char *last_possible = begin + haystacklen - needlelen;
+	const char *tail = needle;
+	char point;
 
-		if (l_len == 0 || needle_len == 0)
-			return NULL;
+	/*
+	 * The first occurrence of the empty string is deemed to occur at
+	 * the beginning of the string.
+	 */
+	if (needlelen == 0)
+		return (void *)begin;
 
-		if (l_len < needle_len)
-			return NULL;
-
-		if (needle_len == 1)
-			return memchr(haystack, (int)*cs, l_len);
-
-		last = (char *)cl + l_len - needle_len;
-
-		for (cur = (char *)cl; cur <= last; cur++)
-			if (cur[0] == cs[0] && memcmp(cur, cs, needle_len) == 0)
-				return cur;
-
+	/*
+	 * Sanity check, otherwise the loop might search through the whole
+	 * memory.
+	 */
+	if (haystacklen < needlelen)
 		return NULL;
+
+	point = *tail++;
+	for (; begin <= last_possible; begin++) {
+		if (*begin == point && !memcmp(begin + 1, tail, needlelen - 1))
+			return (void *)begin;
+	}
+
+	return NULL;
 }
 
 int cio_strncasecmp(const char *s1, const char *s2, size_t n)

@@ -24,14 +24,13 @@
  * SOFTWARE.
  */
 
-#define _DEFAULT_SOURCE
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include <time.h>
 #include <sys/types.h>
-#include <bsd/stdlib.h>
+#include <time.h>
 
+#include "cio_random.h"
 #include "cio_websocket_masking.h"
 
 #include "fff.h"
@@ -43,14 +42,16 @@ DEFINE_FFF_GLOBALS
 
 void setUp(void)
 {
-	srand(time(NULL));
-
 	FFF_RESET_HISTORY();
+}
+
+void tearDown(void)
+{
 }
 
 static void fill_random(uint8_t *buffer, size_t length)
 {
-	arc4random_buf(buffer, length);
+	cio_random_get_bytes(buffer, length);
 }
 
 static void check_masking(uint8_t *buffer, size_t length, uint8_t mask[4])

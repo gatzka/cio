@@ -38,6 +38,10 @@ void setUp(void)
 	FFF_RESET_HISTORY();
 }
 
+void tearDown(void)
+{
+}
+
 static void test_peek_from_empty_queue(void)
 {
 	struct cio_write_buffer wb;

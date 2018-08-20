@@ -41,6 +41,10 @@ void setUp(void)
 	FFF_RESET_HISTORY();
 }
 
+void tearDown(void)
+{
+}
+
 struct entry {
 	const char *s;
 	const char *base64_string;
