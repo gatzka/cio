@@ -102,10 +102,21 @@ add_executable(test_cio_write_buffer
 )
 target_link_libraries (test_cio_write_buffer cio_unity)
 
-add_executable(test_cio_websocket_mask
-    test_cio_websocket_mask.c
-)
-target_link_libraries (test_cio_websocket_mask cio_unity bsd)
+
+
+if (is_linux)
+	add_executable(test_cio_websocket_mask
+		test_cio_websocket_mask.c
+		../linux/cio_linux_random.c
+	)
+	target_link_libraries (test_cio_websocket_mask cio_unity bsd)
+elseif (is_windows)
+	add_executable(test_cio_websocket_mask
+		test_cio_websocket_mask.c
+		../windows/cio_windows_random.c
+	)
+	target_link_libraries (test_cio_websocket_mask cio_unity bcrypt)
+endif()
 
 #add_executable(test_cio_websocket_location_handler
 #    test_cio_websocket_location_handler.c
