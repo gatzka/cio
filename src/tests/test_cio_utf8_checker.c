@@ -47,6 +47,10 @@ void setUp(void)
 	FFF_RESET_HISTORY();
 }
 
+void tearDown(void)
+{
+}
+
 static void test_utf8(void)
 {
 	struct test_entry entries[] = {
