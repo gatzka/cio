@@ -400,6 +400,10 @@ void setUp(void)
 	bs_read_exactly_buffer_pos = 0;
 }
 
+void tearDown(void)
+{
+}
+
 static size_t assemble_frame(uint8_t header, uint8_t *mask, uint8_t *data, size_t length, uint8_t **ptr)
 {
 	if (length > 125) {
@@ -415,7 +419,7 @@ static size_t assemble_frame(uint8_t header, uint8_t *mask, uint8_t *data, size_
 	unsigned int offset;
 	uint8_t *mem = malloc(bytes);
 	mem[0] = header;
-	mem[1] = length;
+	mem[1] = (uint8_t)length;
 	if (mask != NULL) {
 		mem[1] |= WS_MASK_SET;
 		memcpy(&mem[2], mask, 4);

@@ -494,7 +494,6 @@ void tearDown(void)
 	free(ws);
 }
 
-
 static void test_init_without_ws(void)
 {
 	enum cio_error err = cio_websocket_init(NULL, true, on_connect, NULL);
