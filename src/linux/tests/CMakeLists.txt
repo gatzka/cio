@@ -20,6 +20,10 @@ if(CMAKE_BUILD_TYPE MATCHES Debug)
   set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${COVERAGE_FLAGS}")
 endif(CMAKE_BUILD_TYPE MATCHES Debug)
 
+if(CMAKE_C_COMPILER_ID STREQUAL "GNU")
+    set_property(SOURCE ../../unity/src/unity.c  APPEND_STRING PROPERTY COMPILE_FLAGS "-Wstrict-overflow=2 ")
+endif()
+
 add_executable(test_cio_linux_epoll
     test_cio_linux_epoll.c
     ../cio_linux_epoll.c
