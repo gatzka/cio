@@ -447,6 +447,10 @@ void setUp(void)
 	memset(header_value_history, 0xaf, sizeof(header_value_history[0][0]) * HISTORY_FIELD_LENGTH * HISTORY_LENGTH);
 }
 
+void tearDown(void)
+{
+}
+
 static void test_server_init_correctly(void)
 {
 	struct cio_http_server server;

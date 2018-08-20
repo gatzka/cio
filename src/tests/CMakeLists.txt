@@ -49,32 +49,42 @@ add_executable(test_cio_base64
 )
 target_link_libraries (test_cio_base64 cio_unity)
 
-#add_executable(test_cio_buffered_stream
-#    test_cio_buffered_stream.c
-#    ../cio_buffered_stream.c
-#    ../linux/cio_linux_string.c
-#)
-#target_link_libraries (test_cio_buffered_stream cio_unity)
+if (is_linux)
+	set (TEST_CIO_BUFFERED_STREAM_PLATFORM_FILES
+	    ../linux/cio_linux_string.c
+	)
+elseif (is_windows)
+	set (TEST_CIO_BUFFERED_STREAM_PLATFORM_FILES
+	    ../windows/cio_windows_string.c
+	)
+endif()
 
-#add_executable(test_cio_http_server_iostream
-#    test_cio_http_server_iostream.c
-#	../cio_http_location.c
-#	../cio_http_location_handler.c
-#    ../cio_buffered_stream.c
-#    ../cio_http_server.c
-#    ../http-parser/http_parser.c
-#    ../linux/cio_linux_string.c
-#)
-#target_link_libraries (test_cio_http_server_iostream cio_unity)
+add_executable(test_cio_buffered_stream
+    test_cio_buffered_stream.c
+    ../cio_buffered_stream.c
+	${TEST_CIO_BUFFERED_STREAM_PLATFORM_FILES}
+)
+target_link_libraries (test_cio_buffered_stream cio_unity)
 
-#add_executable(test_cio_http_server
-#    test_cio_http_server.c
-#	../cio_http_location.c
-#	../cio_http_location_handler.c
-#    ../cio_http_server.c
-#    ../http-parser/http_parser.c
-#)
-#target_link_libraries (test_cio_http_server cio_unity)
+add_executable(test_cio_http_server_iostream
+    test_cio_http_server_iostream.c
+	../cio_http_location.c
+	../cio_http_location_handler.c
+    ../cio_buffered_stream.c
+    ../cio_http_server.c
+    ../http-parser/http_parser.c
+    ${TEST_CIO_BUFFERED_STREAM_PLATFORM_FILES}
+)
+target_link_libraries (test_cio_http_server_iostream cio_unity)
+
+add_executable(test_cio_http_server
+    test_cio_http_server.c
+	../cio_http_location.c
+	../cio_http_location_handler.c
+    ../cio_http_server.c
+    ../http-parser/http_parser.c
+)
+target_link_libraries (test_cio_http_server cio_unity)
 
 #add_executable(test_cio_utf8_checker
 #    test_cio_utf8_checker.c
@@ -134,9 +144,9 @@ target_link_libraries (test_cio_base64 cio_unity)
 
 enable_testing()
 add_test(NAME test_cio_base64 COMMAND test_cio_base64)
-#add_test(NAME test_cio_buffered_stream COMMAND test_cio_buffered_stream)
-#add_test(NAME test_cio_http_server COMMAND test_cio_http_server)
-#add_test(NAME test_cio_http_server_iostream COMMAND test_cio_http_server_iostream)
+add_test(NAME test_cio_buffered_stream COMMAND test_cio_buffered_stream)
+add_test(NAME test_cio_http_server COMMAND test_cio_http_server)
+add_test(NAME test_cio_http_server_iostream COMMAND test_cio_http_server_iostream)
 #add_test(NAME test_cio_read_buffer COMMAND test_cio_read_buffer)
 #add_test(NAME test_cio_utf8_checker COMMAND test_cio_utf8_checker)
 #add_test(NAME test_cio_websocket COMMAND test_cio_websocket)
