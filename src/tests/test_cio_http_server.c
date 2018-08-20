@@ -545,6 +545,10 @@ void setUp(void)
 	cio_buffered_stream_init_fake.custom_fake = cio_buffered_stream_init_ok;
 }
 
+void tearDown(void)
+{
+}
+
 static void test_serve_first_line_fails(void)
 {
 	cio_server_socket_init_fake.custom_fake = cio_server_socket_init_ok;
