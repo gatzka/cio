@@ -102,8 +102,6 @@ add_executable(test_cio_write_buffer
 )
 target_link_libraries (test_cio_write_buffer cio_unity)
 
-
-
 if (is_linux)
 	add_executable(test_cio_websocket_mask
 		test_cio_websocket_mask.c
@@ -135,14 +133,27 @@ endif()
 #)
 #target_link_libraries (test_cio_websocket_location_handler cio_unity bsd)
 
-#add_executable(test_cio_websocket
-#    test_cio_websocket.c
-#    ../cio_utf8_checker.c
-#    ../cio_websocket.c
-#    ../linux/cio_linux_endian.c
-#    ../linux/cio_linux_random.c
-#)
-#target_link_libraries (test_cio_websocket cio_unity bsd)
+set(TEST_CIO_WEBSOCKET_FILES
+    test_cio_websocket.c
+    ../cio_utf8_checker.c
+    ../cio_websocket.c
+)
+
+if (is_linux)
+	add_executable(test_cio_websocket
+		${TEST_CIO_WEBSOCKET_FILES}
+		../linux/cio_linux_endian.c
+		../linux/cio_linux_random.c
+	)
+	target_link_libraries (test_cio_websocket cio_unity bsd)
+elseif (is_windows)
+	add_executable(test_cio_websocket
+		${TEST_CIO_WEBSOCKET_FILES}
+		../windows/cio_windows_endian.c
+		../windows/cio_windows_random.c
+	)
+	target_link_libraries (test_cio_websocket cio_unity bcrypt)
+endif()
 
 #add_executable(test_cio_websocket_client
 #    test_cio_websocket_client.c
@@ -160,7 +171,7 @@ add_test(NAME test_cio_http_server COMMAND test_cio_http_server)
 add_test(NAME test_cio_http_server_iostream COMMAND test_cio_http_server_iostream)
 add_test(NAME test_cio_read_buffer COMMAND test_cio_read_buffer)
 add_test(NAME test_cio_utf8_checker COMMAND test_cio_utf8_checker)
-#add_test(NAME test_cio_websocket COMMAND test_cio_websocket)
+add_test(NAME test_cio_websocket COMMAND test_cio_websocket)
 #add_test(NAME test_cio_websocket_client COMMAND test_cio_websocket_client)
 #add_test(NAME test_cio_websocket_location_handler COMMAND test_cio_websocket_location_handler)
 add_test(NAME test_cio_websocket_mask COMMAND test_cio_websocket_mask)
