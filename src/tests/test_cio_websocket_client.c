@@ -24,8 +24,6 @@
  * SOFTWARE.
  */
 
-#define _DEFAULT_SOURCE
-#include <endian.h>
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
@@ -130,13 +128,13 @@ static bool check_frame(enum cio_websocket_frame_type opcode, const char *payloa
 		uint16_t len;
 		memcpy(&len, &write_buffer[write_buffer_parse_pos], sizeof(len));
 		write_buffer_parse_pos += sizeof(len);
-		len = be16toh(len);
+		len = cio_be16toh(len);
 		length = len;
 	} else if (first_length == 127) {
 		uint64_t len;
 		memcpy(&len, &write_buffer[write_buffer_parse_pos], sizeof(len));
 		write_buffer_parse_pos += sizeof(len);
-		len = be64toh(len);
+		len = cio_be64toh(len);
 		length = len;
 	} else {
 		length = first_length;
@@ -214,7 +212,7 @@ static bool is_close_frame(uint16_t status_code, bool status_code_required)
 
 static void serialize_frames(struct ws_frame frames[], size_t num_frames)
 {
-	uint32_t buffer_pos = 0;
+	size_t buffer_pos = 0;
 	for (size_t i = 0; i < num_frames; i++) {
 		struct ws_frame frame = frames[i];
 		if (frame.last_frame) {
@@ -242,14 +240,14 @@ static void serialize_frames(struct ws_frame frames[], size_t num_frames)
 			uint16_t len = (uint16_t)frame.data_length;
 			frame_buffer[buffer_pos] |= 126;
 			buffer_pos++;
-			len = htobe16(len);
+			len = cio_htobe16(len);
 			memcpy(&frame_buffer[buffer_pos], &len, sizeof(len));
 			buffer_pos += sizeof(len);
 		} else {
 			frame_buffer[buffer_pos] |= 127;
 			buffer_pos++;
 			uint64_t len = (uint64_t)frame.data_length;
-			len = htobe64(len);
+			len = cio_htobe64(len);
 			memcpy(&frame_buffer[buffer_pos], &len, sizeof(len));
 			buffer_pos += sizeof(len);
 		}
@@ -344,7 +342,7 @@ static void on_error_save_data(const struct cio_websocket *websocket, enum cio_w
 	(void)websocket;
 	(void)status;
 	size_t free_space = sizeof(read_back_buffer) - read_back_buffer_pos;
-	strncpy((char *)&read_back_buffer[read_back_buffer_pos], reason, free_space -1);
+	memcpy((char *)&read_back_buffer[read_back_buffer_pos], reason, free_space -1);
 	read_back_buffer_pos += strlen(reason);
 }
 
@@ -469,9 +467,9 @@ static void test_client_send_text_binary_frame(void)
 	for (unsigned int i = 0; i < ARRAY_SIZE(frame_sizes); i++) {
 		for (unsigned int j = 0; j < ARRAY_SIZE(frame_types); j++) {
 			uint32_t frame_size = frame_sizes[i];
-			char data[frame_size];
+			char *data = malloc(frame_size);
 			memset(data, 'a', frame_size);
-			char check_data[frame_size];
+			char *check_data = malloc(frame_size);
 			memset(check_data, 'a', frame_size);
 
 			struct ws_frame frames[] = {
@@ -517,6 +515,8 @@ static void test_client_send_text_binary_frame(void)
 			TEST_ASSERT_EQUAL_MESSAGE(1, on_control_fake.call_count, "control callback was called not for last close frame");
 
 			free(ws);
+			free(data);
+			free(check_data);
 			setUp();
 		}
 	}
@@ -535,10 +535,10 @@ static void test_client_send_fragmented_frames(void)
 				uint32_t first_frame_size = first_frame_sizes[i];
 				uint32_t second_frame_size = second_frame_sizes[j];
 
-				char first_data[first_frame_size];
+				char *first_data = malloc(first_frame_size);
 				memset(first_data, 'a', first_frame_size);
 
-				char last_data[second_frame_size];
+				char *last_data = malloc(second_frame_size);
 				memset(last_data, 'b', second_frame_size);
 				struct ws_frame frames[] = {
 					{.frame_type = frame_type, .direction = FROM_SERVER, .data = first_data, .data_length = first_frame_size, .last_frame = false},
@@ -586,6 +586,8 @@ static void test_client_send_fragmented_frames(void)
 				TEST_ASSERT_EQUAL_MESSAGE(0, on_control_fake.arg3_val, "data length parameter of control callback is not correct");
 
 				free(ws);
+				free(first_data);
+				free(last_data);
 				setUp();
 			}
 		}
