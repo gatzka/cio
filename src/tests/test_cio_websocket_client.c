@@ -342,7 +342,7 @@ static void on_error_save_data(const struct cio_websocket *websocket, enum cio_w
 	(void)websocket;
 	(void)status;
 	size_t free_space = sizeof(read_back_buffer) - read_back_buffer_pos;
-	memcpy((char *)&read_back_buffer[read_back_buffer_pos], reason, free_space -1);
+	strncpy((char *)&read_back_buffer[read_back_buffer_pos], reason, free_space -1);
 	read_back_buffer_pos += strlen(reason);
 }
 
