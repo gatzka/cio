@@ -30,6 +30,7 @@ if(is_linux)
     )
 elseif(is_windows)
 	set(CIO_PLATFORM_FILES
+		"windows/cio_windows_cpio.c"
 		"windows/cio_windows_endian.c"
 		"windows/cio_windows_random.c"
 		"windows/cio_windows_server_socket.c"
@@ -111,50 +112,43 @@ set_target_properties(
 
 target_include_directories(target_platform_independent PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/)
 target_include_directories(target_platform_independent PUBLIC ${PROJECT_BINARY_DIR}/generated/)
-if(is_linux)
-    target_include_directories(target_platform_independent PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/linux/)
-    target_include_directories(target_platform PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/linux/)
-    target_include_directories(target_platform PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/)
 
-	add_library(cio_static STATIC
-		$<TARGET_OBJECTS:target_platform_independent>
-		$<TARGET_OBJECTS:target_platform>
-		$<TARGET_OBJECTS:target_third_party>
-    )
+target_include_directories(target_platform PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/)
 
-	target_include_directories(cio_static PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/)
-	target_include_directories(cio_static PUBLIC ${PROJECT_BINARY_DIR}/generated/)
-	target_include_directories(cio_static PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/linux/)
-	
-	set_target_properties(cio_static
-		PROPERTIES OUTPUT_NAME "cio"
-	)
-	
-	target_link_libraries(cio_static bsd)
-	
-elseif(is_windows)
-    target_include_directories(target_platform_independent PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/windows/)
-    target_include_directories(target_platform PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/windows/)
-    target_include_directories(target_platform PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/)
-endif()
-
+add_library(cio_static STATIC
+	$<TARGET_OBJECTS:target_platform_independent>
+	$<TARGET_OBJECTS:target_platform>
+	$<TARGET_OBJECTS:target_third_party>
+)
+target_include_directories(cio_static PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/)
+target_include_directories(cio_static PUBLIC ${PROJECT_BINARY_DIR}/generated/)
 
 add_library(cio SHARED
    $<TARGET_OBJECTS:target_platform_independent>
    $<TARGET_OBJECTS:target_platform>
    $<TARGET_OBJECTS:target_third_party>
 )
-set_target_properties(cio
-    PROPERTIES OUTPUT_NAME "cio"
-)
 target_include_directories(cio PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/)
 target_include_directories(cio PUBLIC ${PROJECT_BINARY_DIR}/generated/)
+
 if(is_linux)
-    target_include_directories(cio PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/linux/)
+    target_include_directories(target_platform_independent PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/linux/)
+    target_include_directories(target_platform PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/linux/)
+	
+	target_include_directories(cio_static PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/linux/)
+	target_link_libraries(cio_static bsd)
+	
+	target_include_directories(cio PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/linux/)
 	target_link_libraries(cio bsd)
 elseif(is_windows)
-    target_include_directories(cio PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/windows/)
-	target_link_libraries(cio Bcrypt)
+    target_include_directories(target_platform_independent PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/windows/)
+    target_include_directories(target_platform PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/windows/)
+	
+	target_include_directories(cio_static PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/windows/)
+	target_link_libraries(cio_static bcrypt)
+
+	target_include_directories(cio PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/windows/)
+	target_link_libraries(cio bcrypt)
 endif()
 
 set(LIB_HEADERS
