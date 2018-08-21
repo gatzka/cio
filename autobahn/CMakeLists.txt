@@ -6,7 +6,7 @@ include(compiler_settings)
 include(sanitizer)
 
 if (NOT TARGET cio_static)
-    add_subdirectory(../src/ lib)
+    add_subdirectory(../src/ ${CMAKE_BINARY_DIR}/lib)
 endif()
 
 add_executable(autobahn_server
