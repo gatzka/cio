@@ -358,21 +358,11 @@ static int payload_size_in_limit(const struct cio_write_buffer *payload, size_t 
 
 static void handle_binary_frame(struct cio_websocket *ws, uint8_t *data, uint64_t length, bool last_frame)
 {
-	if (cio_unlikely(length > SIZE_MAX)) {
-		handle_error(ws, CIO_WEBSOCKET_CLOSE_TOO_LARGE, "binary frame too large to process.");
-		return;
-	}
-
 	ws->ws_private.read_handler(ws, ws->ws_private.read_handler_context, CIO_SUCCESS, data, (size_t)length, last_frame, true);
 }
 
 static void handle_text_frame(struct cio_websocket *ws, uint8_t *data, uint64_t length, bool last_frame)
 {
-	if (cio_unlikely(length > SIZE_MAX)) {
-		handle_error(ws, CIO_WEBSOCKET_CLOSE_TOO_LARGE, "text frame too large to process.");
-		return;
-	}
-
 	size_t len = (size_t)length;
 
 	enum cio_utf8_status status = cio_check_utf8(&ws->ws_private.utf8_state, data, len);
@@ -551,9 +541,13 @@ static void get_mask(struct cio_buffered_stream *bs, void *handler_context, enum
 
 	memcpy(ws->ws_private.received_mask, ptr, sizeof(ws->ws_private.received_mask));
 	if (cio_likely(ws->ws_private.read_frame_length > 0)) {
-		err = bs->read_exactly(bs, buffer, ws->ws_private.read_frame_length, get_payload, ws);
-		if (cio_unlikely(err != CIO_SUCCESS)) {
-			handle_error(ws, CIO_WEBSOCKET_CLOSE_INTERNAL_ERROR, "error while start reading websocket payload");
+		if (cio_unlikely(ws->ws_private.read_frame_length > SIZE_MAX)) {
+			handle_error(ws, CIO_WEBSOCKET_CLOSE_TOO_LARGE, "websocket frame to large to process!");
+		} else {
+			err = bs->read_exactly(bs, buffer, (size_t)ws->ws_private.read_frame_length, get_payload, ws);
+			if (cio_unlikely(err != CIO_SUCCESS)) {
+				handle_error(ws, CIO_WEBSOCKET_CLOSE_INTERNAL_ERROR, "error while start reading websocket payload");
+			}
 		}
 	} else {
 		buffer->bytes_transferred = 0;
@@ -571,9 +565,13 @@ static void get_mask_or_payload(struct cio_websocket *ws, struct cio_buffered_st
 		}
 	} else {
 		if (cio_likely(ws->ws_private.read_frame_length > 0)) {
-			err = bs->read_exactly(bs, buffer, ws->ws_private.read_frame_length, get_payload, ws);
-			if (cio_unlikely(err != CIO_SUCCESS)) {
-				handle_error(ws, CIO_WEBSOCKET_CLOSE_INTERNAL_ERROR, "error while start reading websocket payload");
+			if (cio_unlikely(ws->ws_private.read_frame_length > SIZE_MAX)) {
+				handle_error(ws, CIO_WEBSOCKET_CLOSE_TOO_LARGE, "websocket frame to large to process!");
+			} else {
+				err = bs->read_exactly(bs, buffer, (size_t)ws->ws_private.read_frame_length, get_payload, ws);
+				if (cio_unlikely(err != CIO_SUCCESS)) {
+					handle_error(ws, CIO_WEBSOCKET_CLOSE_INTERNAL_ERROR, "error while start reading websocket payload");
+				}
 			}
 		} else {
 			buffer->bytes_transferred = 0;
