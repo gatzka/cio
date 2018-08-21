@@ -47,4 +47,5 @@ build_script:
   - cmd: cmake --build .
 
 test_script:
-  - cmd: ctest -C %configuration% -VV
+  - cmd: ctest -VV
+  # - cmd: ctest -C %configuration% -VV
