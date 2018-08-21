@@ -35,7 +35,7 @@ extern "C" {
 #include <stddef.h>
 #include <stdint.h>
 
-static inline void cio_websocket_mask(uint8_t *buffer, uint64_t length, const uint8_t mask[4])
+static inline void cio_websocket_mask(uint8_t *buffer, size_t length, const uint8_t mask[4])
 {
 	uint_fast32_t aligned_mask;
 	static_assert(sizeof(aligned_mask) % 4 == 0, "This algorithm works only if the mask is a multiple of 4 bytes!");
@@ -51,7 +51,7 @@ static inline void cio_websocket_mask(uint8_t *buffer, uint64_t length, const ui
 	unsigned int pre_length = ((uintptr_t)buffer) % sizeof(aligned_mask);
 	pre_length = (sizeof(aligned_mask) - pre_length) % sizeof(aligned_mask);
 
-	uint64_t main_length = (length - pre_length) / sizeof(aligned_mask);
+	size_t main_length = (length - pre_length) / sizeof(aligned_mask);
 	unsigned int post_length = (unsigned int)(length - pre_length - (main_length * sizeof(aligned_mask)));
 
 	uint_fast32_t *buffer_aligned = (void *)(buffer + pre_length);
@@ -72,7 +72,7 @@ static inline void cio_websocket_mask(uint8_t *buffer, uint64_t length, const ui
 		buffer_aligned++;
 	}
 
-	for (uint64_t i = length - post_length; i < length; i++) {
+	for (size_t i = length - post_length; i < length; i++) {
 		buffer[i] ^= (mask[i % 4]);
 	}
 }

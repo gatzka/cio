@@ -470,7 +470,7 @@ static void handle_pong_frame(struct cio_websocket *ws, uint8_t *data, uint_fast
 static void handle_frame(struct cio_websocket *ws, uint8_t *data, uint64_t length)
 {
 	if (ws->ws_private.ws_flags.is_server == 1) {
-		cio_websocket_mask(data, length, ws->ws_private.received_mask);
+		cio_websocket_mask(data, (size_t)length, ws->ws_private.received_mask);
 	}
 
 	switch (ws->ws_private.ws_flags.opcode) {
