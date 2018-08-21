@@ -1,6 +1,11 @@
 cmake_minimum_required(VERSION 3.0)
 project(cioall C)
 
+set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake/)
+include(compiler_settings)
+
+message(STATUS "build type: " ${CMAKE_BUILD_TYPE})
+
 string(COMPARE EQUAL "${CMAKE_SYSTEM_NAME}" "Linux" is_linux)
 string(COMPARE EQUAL "${CMAKE_SYSTEM_NAME}" "Windows" is_windows)
 
