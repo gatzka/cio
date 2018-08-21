@@ -368,19 +368,21 @@ static void handle_binary_frame(struct cio_websocket *ws, uint8_t *data, uint64_
 
 static void handle_text_frame(struct cio_websocket *ws, uint8_t *data, uint64_t length, bool last_frame)
 {
-	enum cio_utf8_status status = cio_check_utf8(&ws->ws_private.utf8_state, data, length);
+	if (cio_unlikely(length > SIZE_MAX)) {
+		handle_error(ws, CIO_WEBSOCKET_CLOSE_TOO_LARGE, "text frame too large to process.");
+		return;
+	}
+
+	size_t len = (size_t)length;
+
+	enum cio_utf8_status status = cio_check_utf8(&ws->ws_private.utf8_state, data, len);
 
 	if (cio_unlikely((status == CIO_UTF8_REJECT) || (last_frame && (status != CIO_UTF8_ACCEPT)))) {
 		handle_error(ws, CIO_WEBSOCKET_CLOSE_UNSUPPORTED_DATA, "payload not valid utf8");
 		return;
 	}
 
-	if (cio_unlikely(length > SIZE_MAX)) {
-		handle_error(ws, CIO_WEBSOCKET_CLOSE_TOO_LARGE, "text frame too large to process.");
-		return;
-	}
-
-	ws->ws_private.read_handler(ws, ws->ws_private.read_handler_context, CIO_SUCCESS, data, length, last_frame, false);
+	ws->ws_private.read_handler(ws, ws->ws_private.read_handler_context, CIO_SUCCESS, data, len, last_frame, false);
 
 	if (last_frame) {
 		cio_utf8_init(&ws->ws_private.utf8_state);
