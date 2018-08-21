@@ -5,7 +5,9 @@ set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/../cmake/)
 include(compiler_settings)
 include(sanitizer)
 
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../src/ ${CMAKE_CURRENT_SOURCE_DIR}/../src/linux/)
+if (NOT TARGET cio_static)
+    add_subdirectory(../src/ ${CMAKE_BINARY_DIR}/lib)
+endif()
 
 add_executable(socket_echo
     socket_echo.c
