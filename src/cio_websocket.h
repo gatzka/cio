@@ -208,7 +208,7 @@ struct cio_websocket {
 	 * @param data The data the control frame carried.
 	 * @param length The length of data the control frame carried.
 	 */
-	void (*on_control)(const struct cio_websocket *ws, enum cio_websocket_frame_type kind, const uint8_t *data, size_t length);
+	void (*on_control)(const struct cio_websocket *ws, enum cio_websocket_frame_type kind, const uint8_t *data, uint_fast8_t length);
 
 	/**
 	 * @brief A pointer to a function which is called if a receive error occurred.
