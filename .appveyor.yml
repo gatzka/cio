@@ -36,8 +36,8 @@ before_build:
   - cmd: cd C:\projects\cio
   - cmd: md build
   - cmd: cd build
-  - cmd: if "%platform%"=="x86" cmake -G "%GENERATOR%" -DCMAKE_BUILD_TYPE=%configuration% ../src/
-  - cmd: if "%platform%"=="x64" cmake -G "%GENERATOR% Win64" -DCMAKE_BUILD_TYPE=%configuration% ../src/
+  - cmd: if "%platform%"=="x86" cmake -G "%GENERATOR%" -DCMAKE_BUILD_TYPE=%configuration% ../
+  - cmd: if "%platform%"=="x64" cmake -G "%GENERATOR% Win64" -DCMAKE_BUILD_TYPE=%configuration% ../
 
 build:
   parallel: true
@@ -46,5 +46,5 @@ build:
 build_script:
   - cmd: cmake --build .
 
-#test_script:
-#  - cmd: ctest -C %configuration% -VV
+test_script:
+  - cmd: ctest -C %configuration% -VV
