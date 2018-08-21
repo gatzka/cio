@@ -144,15 +144,19 @@ static bool check_frame(enum cio_websocket_frame_type opcode, const char *payloa
 		return false;
 	}
 
+	if (length > SIZE_MAX) {
+		return false;
+	}
+
 	if (is_masked) {
 		uint8_t mask[4];
 		memcpy(mask, &write_buffer[write_buffer_parse_pos], sizeof(mask));
 		write_buffer_parse_pos += sizeof(mask);
-		cio_websocket_mask(&write_buffer[write_buffer_parse_pos], length, mask);
+		cio_websocket_mask(&write_buffer[write_buffer_parse_pos], (size_t)length, mask);
 	}
 
 	if (length > 0) {
-		if (memcmp(&write_buffer[write_buffer_parse_pos], payload, length) != 0) {
+		if (memcmp(&write_buffer[write_buffer_parse_pos], payload, (size_t)length) != 0) {
 			return false;
 		}
 	}
