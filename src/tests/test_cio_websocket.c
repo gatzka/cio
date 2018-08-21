@@ -77,8 +77,8 @@ FAKE_VALUE_FUNC(enum cio_error, bs_write, struct cio_buffered_stream *, struct c
 static void on_connect(struct cio_websocket *s);
 FAKE_VOID_FUNC(on_connect, struct cio_websocket *)
 
-static void on_control(const struct cio_websocket *ws, enum cio_websocket_frame_type type, const uint8_t *data, size_t length);
-FAKE_VOID_FUNC(on_control, const struct cio_websocket *, enum cio_websocket_frame_type, const uint8_t *, size_t)
+static void on_control(const struct cio_websocket *ws, enum cio_websocket_frame_type type, const uint8_t *data, uint_fast8_t length);
+FAKE_VOID_FUNC(on_control, const struct cio_websocket *, enum cio_websocket_frame_type, const uint8_t *, uint_fast8_t)
 
 static void on_error(const struct cio_websocket *ws, enum cio_websocket_status_code status, const char *reason);
 FAKE_VOID_FUNC(on_error, const struct cio_websocket *, enum cio_websocket_status_code, const char *)
@@ -415,7 +415,7 @@ static void read_handler_save_data(struct cio_websocket *websocket, void *handle
 	}
 }
 
-static void on_control_save_data(const struct cio_websocket *websocket, enum cio_websocket_frame_type type,  const uint8_t *data, size_t length)
+static void on_control_save_data(const struct cio_websocket *websocket, enum cio_websocket_frame_type type,  const uint8_t *data, uint_fast8_t length)
 {
 	(void)websocket;
 	(void)type;

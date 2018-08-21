@@ -130,7 +130,7 @@ static void write_complete(struct cio_websocket *ws, void *handler_context, enum
 	}
 }
 
-static void print_payload(const uint8_t *data, size_t length)
+static void print_payload(const uint8_t *data, uint_fast8_t length)
 {
 	if (length > 0) {
 		fwrite(data, length, 1, stdout);
@@ -141,7 +141,7 @@ static void print_payload(const uint8_t *data, size_t length)
 	}
 }
 
-static void on_control(const struct cio_websocket *ws, enum cio_websocket_frame_type type, const uint8_t *data, size_t length)
+static void on_control(const struct cio_websocket *ws, enum cio_websocket_frame_type type, const uint8_t *data, uint_fast8_t length)
 {
 	(void)ws;
 

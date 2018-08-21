@@ -28,6 +28,7 @@
 #include <stdint.h>
 #include <string.h>
 
+#include "cio_compiler.h"
 #include "cio_endian.h"
 #include "cio_error_code.h"
 #include "cio_random.h"
@@ -357,7 +358,12 @@ static int payload_size_in_limit(const struct cio_write_buffer *payload, size_t 
 
 static void handle_binary_frame(struct cio_websocket *ws, uint8_t *data, uint64_t length, bool last_frame)
 {
-	ws->ws_private.read_handler(ws, ws->ws_private.read_handler_context, CIO_SUCCESS, data, length, last_frame, true);
+	if (cio_unlikely(length > SIZE_MAX)) {
+		handle_error(ws, CIO_WEBSOCKET_CLOSE_TOO_LARGE, "binary frame too large to process.");
+		return;
+	}
+
+	ws->ws_private.read_handler(ws, ws->ws_private.read_handler_context, CIO_SUCCESS, data, (size_t)length, last_frame, true);
 }
 
 static void handle_text_frame(struct cio_websocket *ws, uint8_t *data, uint64_t length, bool last_frame)
@@ -369,15 +375,21 @@ static void handle_text_frame(struct cio_websocket *ws, uint8_t *data, uint64_t 
 		return;
 	}
 
+	if (cio_unlikely(length > SIZE_MAX)) {
+		handle_error(ws, CIO_WEBSOCKET_CLOSE_TOO_LARGE, "text frame too large to process.");
+		return;
+	}
+
 	ws->ws_private.read_handler(ws, ws->ws_private.read_handler_context, CIO_SUCCESS, data, length, last_frame, false);
+
 	if (last_frame) {
 		cio_utf8_init(&ws->ws_private.utf8_state);
 	}
 }
 
-static void handle_close_frame(struct cio_websocket *ws, uint8_t *data, uint64_t length)
+static void handle_close_frame(struct cio_websocket *ws, uint8_t *data, uint_fast8_t length)
 {
-	uint64_t len = length;
+	uint_fast8_t len = length;
 
 	if (cio_unlikely(length == 1)) {
 		handle_error(ws, CIO_WEBSOCKET_CLOSE_PROTOCOL_ERROR, "close payload of length 1");
@@ -428,7 +440,7 @@ static void handle_close_frame(struct cio_websocket *ws, uint8_t *data, uint64_t
 	}
 }
 
-static void handle_ping_frame(struct cio_websocket *ws, uint8_t *data, uint64_t length)
+static void handle_ping_frame(struct cio_websocket *ws, uint8_t *data, uint_fast8_t length)
 {
 	cio_write_buffer_head_init(&ws->ws_private.ping_buffer.wb_head);
 	if (length > 0) {
@@ -454,7 +466,7 @@ static void handle_ping_frame(struct cio_websocket *ws, uint8_t *data, uint64_t 
 	}
 }
 
-static void handle_pong_frame(struct cio_websocket *ws, uint8_t *data, uint64_t length)
+static void handle_pong_frame(struct cio_websocket *ws, uint8_t *data, uint_fast8_t length)
 {
 	if (ws->on_control != NULL) {
 		ws->on_control(ws, CIO_WEBSOCKET_PONG_FRAME, data, length);
@@ -479,15 +491,15 @@ static void handle_frame(struct cio_websocket *ws, uint8_t *data, uint64_t lengt
 		break;
 
 	case CIO_WEBSOCKET_PING_FRAME:
-		handle_ping_frame(ws, data, length);
+		handle_ping_frame(ws, data, (uint_fast8_t)length);
 		break;
 
 	case CIO_WEBSOCKET_PONG_FRAME:
-		handle_pong_frame(ws, data, length);
+		handle_pong_frame(ws, data, (uint_fast8_t)length);
 		break;
 
 	case CIO_WEBSOCKET_CLOSE_FRAME:
-		handle_close_frame(ws, data, length);
+		handle_close_frame(ws, data, (uint_fast8_t)length);
 		break;
 
 	default:
