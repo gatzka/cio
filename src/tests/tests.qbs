@@ -235,6 +235,17 @@ Project {
     files: [
       "test_cio_websocket_mask.c",
     ]
+
+    Group {
+      condition: qbs.targetOS.contains("linux")
+      name: "linux specific"
+      prefix: "../linux/"
+
+      files: [
+        "cio_linux_random.c",
+      ]
+    }
+
   }
 
   UnittestProduct {
