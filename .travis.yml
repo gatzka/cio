@@ -204,7 +204,7 @@ script:
   echo $CMAKE_CMD_OPTION; cmake $CMAKE_CMD_OPTION ../;
   if [ -n "${SCAN_BUILD}" ];
     then /usr/lib/llvm-6.0/bin/scan-build --status-bugs make -j;
-  else make -j; fi; LSAN_OPTIONS=verbosity=1:log_threads=1 ASAN_OPTIONS=check_initialization_order=true:detect_stack_use_after_return=true:strict_init_order=true:detect_invalid_pointer_pairs=10:strict_string_checks=true ctest -V . ;
+  else make -j; make docs; fi; LSAN_OPTIONS=verbosity=1:log_threads=1 ASAN_OPTIONS=check_initialization_order=true:detect_stack_use_after_return=true:strict_init_order=true:detect_invalid_pointer_pairs=10:strict_string_checks=true ctest -V . ;
   fi
 after_success:
 - "../scripts/push-doxygen-to-gh-pages.sh"
