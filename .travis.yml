@@ -189,6 +189,8 @@ matrix:
         - cmake
         - cmake-data
         - libbsd-dev
+        - clang-6.0
+        - clang-tools-6.0
 
 before_install:
 - eval "${MATRIX_EVAL}"
