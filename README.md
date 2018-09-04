@@ -12,6 +12,8 @@ limitations (MIT).
 [![codecov](https://codecov.io/gh/gatzka/cio/branch/master/graph/badge.svg)](https://codecov.io/gh/gatzka/cio)
 [![Quality Gate](https://sonarcloud.io/api/project_badges/measure?project=org.gatzka.cio&metric=alert_status)](https://sonarcloud.io/dashboard?id=org.gatzka.cio)
 
+[![Waffle.io - Columns and their card count](https://badge.waffle.io/gatzka/cio.svg?columns=all)](https://waffle.io/gatzka/cio)
+
 ## Howto Build
 ```
 git submodule update --init
