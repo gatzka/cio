@@ -6,6 +6,10 @@ include(compiler_settings)
 include(generateVersion)
 include(sanitizer)
 
+enable_testing()
+add_subdirectory(tests/)
+add_subdirectory(docs/) 
+
 GenerateVersion(version ${PROJECT_NAME})
 
 configure_file(cio_version.h.in ${PROJECT_BINARY_DIR}/generated/cio_version.h)
@@ -18,6 +22,8 @@ endif()
 string(COMPARE EQUAL "${CMAKE_SYSTEM_NAME}" "Linux" is_linux)
 string(COMPARE EQUAL "${CMAKE_SYSTEM_NAME}" "Windows" is_windows)
 if(is_linux)
+	add_subdirectory(linux/tests/)
+
     set(CIO_PLATFORM_FILES
         "linux/cio_linux_endian.c"
         "linux/cio_linux_epoll.c"
@@ -210,3 +216,9 @@ if(is_linux)
         FILES ${PROJECT_BINARY_DIR}/generated/cio_version.h DESTINATION include/cio/
     )
 endif()
+
+add_custom_target(coverage
+    COMMAND lcov -q -capture --directory ${CMAKE_BINARY_DIR} --output-file coverage.info --rc lcov_branch_coverage=1
+	COMMAND genhtml --quiet coverage.info --branch-coverage -o report -t cio
+)
+
