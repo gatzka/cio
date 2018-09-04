@@ -2,17 +2,44 @@ cmake_minimum_required(VERSION 3.0)
 project(cio C)
 
 set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/../cmake/)
+include(FindDoxygen)
 include(compiler_settings)
 include(generateVersion)
 include(sanitizer)
 
 enable_testing()
 add_subdirectory(tests/)
-add_subdirectory(docs/) 
+#add_subdirectory(docs/) 
 
 GenerateVersion(version ${PROJECT_NAME})
 
 configure_file(cio_version.h.in ${PROJECT_BINARY_DIR}/generated/cio_version.h)
+
+if (DOXYGEN_FOUND)
+	set(DOXYGEN_EXTRACT_ALL YES)
+	set(DOXYGEN_EXTRACT_STATIC YES)
+	set(DOXYGEN_GENERATE_HTML YES)
+	set(DOXYGEN_GENERATE_TREEVIEW YES)
+	set(DOXYGEN_HAVE_DOT NO)
+	set(DOXYGEN_OPTIMIZE_OUTPUT_FOR_C YES)
+	set(DOXYGEN_OUTPUT_DIRECTORY docs/)
+	set(DOXYGEN_PROJECT_BRIEF "An ANSI C Conformant I/O Library.")
+	set(DOXYGEN_PROJECT_NUMBER ${CIO_VERSION}${CIO_LAST})
+	set(DOXYGEN_QUIET YES)
+	set(DOXYGEN_RECURSIVE NO)
+	set(DOXYGEN_STRICT_PROTO_MATCHING YES)
+	set(DOXYGEN_STRIP_FROM_PATH ${PROJECT_BINARY_DIR}/generated/ ${CMAKE_CURRENT_SOURCE_DIR})
+	set(DOXYGEN_WARN_AS_ERROR YES)
+    set(DOXYGEN_PROJECT_NAME ${CMAKE_PROJECT_NAME})
+
+	doxygen_add_docs(docs
+	    ${PROJECT_SOURCE_DIR}
+	    ${PROJECT_BINARY_DIR}/generated/
+        COMMENT "Generating API documentation with Doxygen"
+	)
+else (DOXYGEN_FOUND)
+  message("Doxygen need to be installed to generate the doxygen documentation")
+endif (DOXYGEN_FOUND)
 
 if(CIO_C_CLANG_TIDY)
   message(STATUS "setting clang-tidy")

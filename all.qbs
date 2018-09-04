@@ -48,10 +48,6 @@ Project {
   LinuxTestProducts { }
   Examples { }
 
-  SubProject {
-    filePath: "src/docs/cio_doc.qbs"
-  }
-
   UnittestRunner {
     lcovRemovePatterns: [
       "*/tests/*",
