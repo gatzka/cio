@@ -9,7 +9,6 @@ include(sanitizer)
 
 enable_testing()
 add_subdirectory(tests/)
-#add_subdirectory(docs/) 
 
 GenerateVersion(version ${PROJECT_NAME})
 
