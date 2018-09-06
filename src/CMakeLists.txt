@@ -15,7 +15,8 @@ GenerateVersion(version ${PROJECT_NAME})
 
 configure_file(cio_version.h.in ${PROJECT_BINARY_DIR}/generated/cio_version.h)
 
-setup_target_for_coverage(coverage coverage)
+set(remove_patterns "'*/tests/*' '*/http-parser/*' '*/sha1/*' '*/unity/*' '/usr/include/*'")
+setup_target_for_coverage(coverage coverage ${remove_patterns})
 
 if (DOXYGEN_FOUND)
 	set(DOXYGEN_EXTRACT_ALL YES)
