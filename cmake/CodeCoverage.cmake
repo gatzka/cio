@@ -1,7 +1,7 @@
 FIND_PROGRAM( LCOV_PATH lcov )
 FIND_PROGRAM( GENHTML_PATH genhtml )
 
-if("${CMAKE_C_COMPILER_ID}" MATCHES "(Apple)?[Cc]lang")
+if(${CMAKE_C_COMPILER_ID} MATCHES "(Apple)?[Cc]lang")
 	if("${CMAKE_C_COMPILER_VERSION}" VERSION_LESS 3)
 		MESSAGE(FATAL_ERROR "Clang version must be 3.0.0 or greater! Aborting...")
 	endif()
