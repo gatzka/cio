@@ -59,6 +59,7 @@ matrix:
         packages:
         - cmake
         - cmake-data
+        - lcov
         - libbsd-dev
 
   - compiler: gcc
