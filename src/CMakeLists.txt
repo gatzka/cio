@@ -6,6 +6,7 @@ include(FindDoxygen)
 include(compiler_settings)
 include(generateVersion)
 include(sanitizer)
+include(CodeCoverage)
 
 enable_testing()
 add_subdirectory(tests/)
@@ -13,6 +14,8 @@ add_subdirectory(tests/)
 GenerateVersion(version ${PROJECT_NAME})
 
 configure_file(cio_version.h.in ${PROJECT_BINARY_DIR}/generated/cio_version.h)
+
+setup_target_for_coverage(coverage coverage)
 
 if (DOXYGEN_FOUND)
 	set(DOXYGEN_EXTRACT_ALL YES)
@@ -242,9 +245,4 @@ if(is_linux)
         FILES ${PROJECT_BINARY_DIR}/generated/cio_version.h DESTINATION include/cio/
     )
 endif()
-
-add_custom_target(coverage
-    COMMAND lcov -q -capture --directory ${CMAKE_BINARY_DIR} --output-file coverage.info --rc lcov_branch_coverage=1
-	COMMAND genhtml --quiet coverage.info --branch-coverage -o report -t cio
-)
 
