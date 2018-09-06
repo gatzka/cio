@@ -45,11 +45,11 @@ function(SETUP_TARGET_FOR_COVERAGE _targetname _outputname)
 
 	add_custom_target(${_targetname}
 
-		${LCOV_PATH} --directory ${PROJECT_BINARY_DIR} --zerocounters --quiet --rc lcov_branch_coverage=1
+		${LCOV_PATH} --directory ${CMAKE_BINARY_DIR} --zerocounters --quiet --rc lcov_branch_coverage=1
 
 		COMMAND make test
 
-		COMMAND ${LCOV_PATH} --directory ${PROJECT_BINARY_DIR} --capture --quiet --rc lcov_branch_coverage=1 --output-file ${coverage_info}
+		COMMAND ${LCOV_PATH} --directory ${CMAKE_BINARY_DIR} --capture --quiet --rc lcov_branch_coverage=1 --output-file ${coverage_info}
 		COMMAND ${LCOV_PATH} --remove ${coverage_info} '*/tests/*' '*/http-parser/*' '*/sha1/*' '*/unity/*' '/usr/include/*' --output-file ${coverage_cleaned} --rc lcov_branch_coverage=1 --quiet
 		COMMAND ${GENHTML_PATH} -o ${_outputname} ${coverage_cleaned} --branch-coverage --quiet
 		COMMAND ${CMAKE_COMMAND} -E remove ${coverage_info} ${coverage_cleaned}
@@ -60,7 +60,7 @@ function(SETUP_TARGET_FOR_COVERAGE _targetname _outputname)
 
 	add_custom_command(TARGET ${_targetname} POST_BUILD
 		COMMAND ;
-		COMMENT "Processing code coverage counters and generating report.\nOpen ${PROJECT_BINARY_DIR}/${_outputname}/index.html in your browser to view the coverage report."
+		COMMENT "Processing code coverage counters and generating report.\nOpen ${CMAKE_BINARY_DIR}/${_outputname}/index.html in your browser to view the coverage report."
 	)
 
 endfunction()
