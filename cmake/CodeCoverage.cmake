@@ -52,7 +52,7 @@ function(SETUP_TARGET_FOR_COVERAGE _targetname _outputname)
 		COMMAND ${LCOV_PATH} --directory ${CMAKE_BINARY_DIR} --capture --quiet --rc lcov_branch_coverage=1 --output-file ${coverage_info}
 		COMMAND ${LCOV_PATH} --remove ${coverage_info} '*/tests/*' '*/http-parser/*' '*/sha1/*' '*/unity/*' '/usr/include/*' --output-file ${coverage_cleaned} --rc lcov_branch_coverage=1 --quiet
 		COMMAND ${GENHTML_PATH} -o ${_outputname} ${coverage_cleaned} --branch-coverage --quiet
-		COMMAND ${CMAKE_COMMAND} -E remove ${coverage_info} ${coverage_cleaned}
+		COMMAND ${CMAKE_COMMAND} -E remove ${coverage_info}
 
 		WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
 		COMMENT "Resetting code coverage counters to zero."
