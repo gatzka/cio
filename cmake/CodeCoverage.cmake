@@ -52,7 +52,6 @@ function(SETUP_TARGET_FOR_COVERAGE _targetname _outputname _removepatterns)
 
 		COMMAND ${LCOV_PATH} --directory ${CMAKE_BINARY_DIR} --capture --quiet --rc lcov_branch_coverage=1 --output-file ${coverage_info}
 		COMMAND ${LCOV_PATH} --remove ${coverage_info} ${_removepatterns} --output-file ${coverage_cleaned} --rc lcov_branch_coverage=1 --quiet
-		COMMAND ${GENHTML_PATH} -o ${_outputname} ${coverage_cleaned} --branch-coverage
 		COMMAND ${GENHTML_PATH} -o ${_outputname} ${coverage_cleaned} --branch-coverage --quiet
 
 		WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
