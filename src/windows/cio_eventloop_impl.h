@@ -76,6 +76,8 @@ struct cio_event_notifier {
 	int fd;
 
 	uint32_t registered_events;
+
+	HANDLE event_handle;
 };
 
 struct cio_eventloop {
