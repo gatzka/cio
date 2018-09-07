@@ -27,9 +27,29 @@
 #include "cio_error_code.h"
 #include "cio_timer.h"
 
+
+static enum cio_error timer_cancel(struct cio_timer *t)
+{
+	return CIO_SUCCESS;
+}
+
+static void timer_close(struct cio_timer *t)
+{
+
+}
+
+static enum cio_error timer_expires_from_now(struct cio_timer *t, uint64_t timeout_ns, timer_handler handler, void *handler_context)
+{
+	return CIO_SUCCESS;
+}
+
 enum cio_error cio_timer_init(struct cio_timer *timer, struct cio_eventloop *loop,
                               cio_timer_close_hook close_hook)
 {
+	timer->cancel = timer_cancel;
+	timer->close = timer_close;
+	timer->expires_from_now = timer_expires_from_now;
+	timer->close_hook = close_hook;
 
 	return CIO_SUCCESS;
 }

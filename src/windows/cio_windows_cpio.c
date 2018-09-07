@@ -32,6 +32,8 @@
 #include "cio_eventloop.h"
 #include "windows/cio_eventloop_impl.h"
 
+static const ULONG_PTR STOP_COMPLETION_KEY = 0x1;
+
 enum cio_error cio_eventloop_init(struct cio_eventloop *loop)
 {
 	loop->loop_complion_port = CreateIoCompletionPort(INVALID_HANDLE_VALUE, NULL, 0, 1);
@@ -85,6 +87,7 @@ enum cio_error cio_eventloop_run(struct cio_eventloop *loop)
 		ULONG_PTR completion_key = 0;
 		OVERLAPPED *overlapped = NULL;
 		BOOL ret = GetQueuedCompletionStatus(loop->loop_complion_port, &size, &completion_key, &overlapped, INFINITE);
+
 		if (cio_unlikely(ret == false)) {
 			if (cio_unlikely(overlapped == NULL)) {
 				// An unrecoverable error occurred in the completion port. Wait for the next notification.
@@ -92,6 +95,10 @@ enum cio_error cio_eventloop_run(struct cio_eventloop *loop)
 			} else {
 				DWORD last_error = GetLastError();
 			}
+		}
+
+		if (completion_key == STOP_COMPLETION_KEY) {
+			break;
 		}
 	}
 
@@ -101,4 +108,5 @@ enum cio_error cio_eventloop_run(struct cio_eventloop *loop)
 void cio_eventloop_cancel(struct cio_eventloop *loop)
 {
 	loop->go_ahead = false;
+	PostQueuedCompletionStatus(loop->loop_complion_port, 0, STOP_COMPLETION_KEY, NULL);
 }
