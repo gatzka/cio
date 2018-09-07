@@ -29,6 +29,7 @@
 
 #include <stdbool.h>
 #include <stdint.h>
+#include <Windows.h>
 
 #include "cio_error_code.h"
 
@@ -81,11 +82,8 @@ struct cio_eventloop {
 	/**
 	 * @privatesection
 	 */
-	int epoll_fd;
+	HANDLE loop_complion_port;
 	bool go_ahead;
-	unsigned int event_counter;
-	unsigned int num_events;
-	struct cio_event_notifier *current_ev;
 };
 
 enum cio_error cio_windows_eventloop_add(const struct cio_eventloop *loop, struct cio_event_notifier *ev);
