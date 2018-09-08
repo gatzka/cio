@@ -37,45 +37,13 @@
 extern "C" {
 #endif
 
-/**
- * @file
- * @brief Implementation of an event loop running on Windows using cpio.
- */
-
-/**
- * @brief The cio_linux_event_notifier struct bundles the information
- * necessary to register I/O events.
- */
 struct cio_event_notifier {
-	/**
-	 * @anchor cio_linux_event_notifier_read_callback
-	 * @brief The function to be called when a file descriptor becomes readable.
-	 */
-	void (*read_callback)(void *context);
 
-	/**
-	 * @anchor cio_linux_event_notifier_write_callback
-	 * @brief The function to be called when a file descriptor becomes writeable.
-	 */
-	void (*write_callback)(void *context);
+	void (*callback)(void *context);
 
-	/**
-	 * @anchor cio_linux_event_notifier_error_callback
-	 * @brief The function to be called when a file descriptor got an error.
-	 */
-	void (*error_callback)(void *context);
-
-	/**
-	 * @brief The context that is given to the callback functions.
-	 */
 	void *context;
 
-	/**
-	 * @brief The file descriptor that shall be monitored.
-	 */
-	int fd;
-
-	uint32_t registered_events;
+	OVERLAPPED overlapped;
 
 	HANDLE event_handle;
 };
@@ -87,13 +55,6 @@ struct cio_eventloop {
 	HANDLE loop_complion_port;
 	bool go_ahead;
 };
-
-enum cio_error cio_windows_eventloop_add(const struct cio_eventloop *loop, struct cio_event_notifier *ev);
-void cio_windows_eventloop_remove(struct cio_eventloop *loop, const struct cio_event_notifier *ev);
-enum cio_error cio_windows_eventloop_register_read(const struct cio_eventloop *loop, struct cio_event_notifier *ev);
-enum cio_error cio_windows_eventloop_unregister_read(const struct cio_eventloop *loop, struct cio_event_notifier *ev);
-enum cio_error cio_windows_eventloop_register_write(const struct cio_eventloop *loop, struct cio_event_notifier *ev);
-enum cio_error cio_windows_eventloop_unregister_write(const struct cio_eventloop *loop, struct cio_event_notifier *ev);
 
 #ifdef __cplusplus
 }

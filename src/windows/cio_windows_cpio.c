@@ -51,35 +51,6 @@ void cio_eventloop_destroy(const struct cio_eventloop *loop)
 	CloseHandle(loop->loop_complion_port);
 }
 
-enum cio_error cio_windows_eventloop_add(const struct cio_eventloop *loop, struct cio_event_notifier *ev)
-{
-	return CIO_SUCCESS;
-}
-
-enum cio_error cio_windows_eventloop_register_read(const struct cio_eventloop *loop, struct cio_event_notifier *ev)
-{
-	return CIO_SUCCESS;
-}
-
-enum cio_error cio_windows_eventloop_unregister_read(const struct cio_eventloop *loop, struct cio_event_notifier *ev)
-{
-	return CIO_SUCCESS;
-}
-
-enum cio_error cio_windows_eventloop_register_write(const struct cio_eventloop *loop, struct cio_event_notifier *ev)
-{
-	return CIO_SUCCESS;
-}
-
-enum cio_error cio_windows_eventloop_unregister_write(const struct cio_eventloop *loop, struct cio_event_notifier *ev)
-{
-	return CIO_SUCCESS;
-}
-
-void cio_windows_eventloop_remove(struct cio_eventloop *loop, const struct cio_event_notifier *ev)
-{
-}
-
 enum cio_error cio_eventloop_run(struct cio_eventloop *loop)
 {
 	while (cio_likely(loop->go_ahead)) {
@@ -100,6 +71,10 @@ enum cio_error cio_eventloop_run(struct cio_eventloop *loop)
 		if (completion_key == STOP_COMPLETION_KEY) {
 			break;
 		}
+
+		struct cio_event_notifier *ev = (struct cio_event_notfier *)completion_key;
+		ev->callback(ev->context);
+
 	}
 
 	return CIO_SUCCESS;

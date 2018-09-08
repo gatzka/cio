@@ -26,6 +26,7 @@
 
 #include <Windows.h>
 
+#include "cio_compiler.h"
 #include "cio_error_code.h"
 #include "cio_timer.h"
 
@@ -33,12 +34,12 @@
 
 static enum cio_error timer_cancel(struct cio_timer *t)
 {
-	if (t->handler == NULL) {
+	if (cio_unlikely(t->handler == NULL)) {
 		return CIO_NO_SUCH_FILE_OR_DIRECTORY;
 	}
 
 	BOOL ret = DeleteTimerQueueTimer(NULL, t->ev.event_handle, NULL);
-	if (ret) {
+	if (cio_likely(ret)) {
 		t->handler(t, t->handler_context, CIO_OPERATION_ABORTED);
 		return CIO_SUCCESS;
 	}
@@ -48,6 +49,13 @@ static enum cio_error timer_cancel(struct cio_timer *t)
 
 static void timer_close(struct cio_timer *t)
 {
+	if (t->handler != NULL) {
+		timer_cancel(t);
+	}
+
+	if (t->close_hook != NULL) {
+		t->close_hook(t);
+	}
 }
 
 static void CALLBACK timer_callback(void *context, BOOLEAN fired)
@@ -55,18 +63,24 @@ static void CALLBACK timer_callback(void *context, BOOLEAN fired)
 	if (fired) {
 		struct cio_timer *t = (struct cio_timer *)context;
 		DeleteTimerQueueTimer(NULL, t->ev.event_handle, NULL);
-		BOOL ret = PostQueuedCompletionStatus(t->loop->loop_complion_port, 0, t, NULL);
-
-		if (!ret) {
-			t->handler(t, t->handler_context, CIO_INVALID_ARGUMENT);
-		}
+		t->ev.event_handle = NULL;
+		PostQueuedCompletionStatus(t->loop->loop_complion_port, 0, &t->ev, &t->ev.overlapped);
 	}
+}
+
+static void timer_event_callback(void *context)
+{
+	struct cio_timer *t = (struct cio_timer *)context;
+	timer_handler handler = t->handler;
+	t->handler = NULL;
+	handler(t, t->handler_context, CIO_SUCCESS);
 }
 
 static enum cio_error timer_expires_from_now(struct cio_timer *t, uint64_t timeout_ns, timer_handler handler, void *handler_context)
 {
 	t->handler = handler;
 	t->handler_context = handler_context;
+	t->ev.context = t;
 
 	if (t->ev.event_handle) {
 		DeleteTimerQueueTimer(NULL, t->ev.event_handle, NULL);
@@ -89,6 +103,7 @@ enum cio_error cio_timer_init(struct cio_timer *timer, struct cio_eventloop *loo
 	timer->close_hook = close_hook;
 	timer->loop = loop;
 	timer->ev.event_handle = 0;
+	timer->ev.callback = timer_event_callback;
 
 	return CIO_SUCCESS;
 }
