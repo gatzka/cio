@@ -197,7 +197,7 @@ static enum cio_error cio_server_socket_init_fails(struct cio_server_socket *ss,
 	(void)free_client;
 	(void)close_hook;
 
-	return CIO_NOT_ENOUGH_MEMORY;
+	return CIO_INVALID_ARGUMENT;
 }
 
 static enum cio_http_cb_return header_complete(struct cio_http_client *c);
@@ -936,7 +936,7 @@ static void test_serve_accept_fails(void)
 	err = server.serve(&server);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Serving http failed!");
 
-	server.server_socket.handler(&server.server_socket, server.server_socket.handler_context, CIO_NOT_ENOUGH_MEMORY, NULL);
+	server.server_socket.handler(&server.server_socket, server.server_socket.handler_context, CIO_INVALID_ARGUMENT, NULL);
 	TEST_ASSERT_EQUAL_MESSAGE(0, header_complete_fake.call_count, "header_complete was called despite accept error!");
 	TEST_ASSERT_EQUAL_MESSAGE(1, serve_error_fake.call_count, "Serve error callback was not called!");
 }
@@ -962,7 +962,7 @@ static void test_serve_accept_fails_no_error_callback(void)
 	err = server.serve(&server);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Serving http failed!");
 
-	server.server_socket.handler(&server.server_socket, server.server_socket.handler_context, CIO_NOT_ENOUGH_MEMORY, NULL);
+	server.server_socket.handler(&server.server_socket, server.server_socket.handler_context, CIO_INVALID_ARGUMENT, NULL);
 	TEST_ASSERT_EQUAL_MESSAGE(0, header_complete_fake.call_count, "header_complete was called despite accept error!");
 	TEST_ASSERT_EQUAL_MESSAGE(0, serve_error_fake.call_count, "Serve error callback was called!");
 }

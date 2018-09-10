@@ -372,7 +372,7 @@ static enum cio_error bs_write_error(struct cio_buffered_stream *bs, struct cio_
 	(void)buf;
 	(void)handler;
 	(void)handler_context;
-	return CIO_BROKEN_PIPE;
+	return CIO_MESSAGE_TOO_LONG;
 }
 
 static enum cio_error bs_write_later(struct cio_buffered_stream *bs, struct cio_write_buffer *buf, cio_buffered_stream_write_handler handler, void *handler_context)

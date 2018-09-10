@@ -57,7 +57,7 @@ static enum cio_error timer_cancel(struct cio_timer *t)
 	int ret;
 
 	if (t->handler == NULL) {
-		return CIO_NO_SUCH_FILE_OR_DIRECTORY;
+		return CIO_OPERATION_NOT_PERMITTED;
 	}
 
 	memset(&timeout, 0x0, sizeof(timeout));
@@ -96,11 +96,7 @@ static void timer_read(void *context)
 	} else {
 		timer_handler handler = t->handler;
 		t->handler = NULL;
-		if (cio_likely(ret == sizeof(number_of_expirations))) {
-			handler(t, t->handler_context, CIO_SUCCESS);
-		} else {
-			handler(t, t->handler_context, CIO_NOT_ENOUGH_MEMORY);
-		}
+		handler(t, t->handler_context, CIO_SUCCESS);
 	}
 }
 

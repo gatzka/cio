@@ -333,7 +333,7 @@ static enum cio_error bs_fake_write_error(struct cio_buffered_stream *bs, struct
 {
 	(void)buffer;
 
-	handler(bs, handler_context, CIO_BROKEN_PIPE);
+	handler(bs, handler_context, CIO_MESSAGE_TOO_LONG);
 	return CIO_SUCCESS;
 }
 
