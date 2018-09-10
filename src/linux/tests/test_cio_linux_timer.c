@@ -129,7 +129,7 @@ static void cancel_in_timeout(struct cio_timer *timer, void *handler_context, en
 {
 	(void)handler_context;
 	err = timer->cancel(timer);
-	TEST_ASSERT_EQUAL_MESSAGE(err, CIO_NO_SUCH_FILE_OR_DIRECTORY, "Cancel in timer callback did not returned an error!");
+	TEST_ASSERT_EQUAL_MESSAGE(err, CIO_OPERATION_NOT_PERMITTED, "Cancel in timer callback did not returned an error!");
 }
 
 void setUp(void)

@@ -57,7 +57,6 @@ enum cio_error {
 	CIO_NO_BUFFER_SPACE = -CIO_SOCKET_ERROR(ENOBUFS),                   /*!< No buffer space. */
 	CIO_NO_PROTOCOL_OPTION = -CIO_SOCKET_ERROR(ENOPROTOOPT),            /*!< No protocol option. */
 	CIO_WOULDBLOCK = -CIO_SOCKET_ERROR(EWOULDBLOCK),                    /*!< Try again. */
-	CIO_NO_SUCH_FILE_OR_DIRECTORY = -CIO_SOCKET_ERROR(ENOENT),          /*!< No such file or directory. */
 	CIO_NOT_A_SOCKET = -CIO_SOCKET_ERROR(ENOTSOCK),                     /*!< Not a socket. */
 	CIO_NOT_ENOUGH_MEMORY = -CIO_SOCKET_ERROR(ENOMEM),                  /*!< Not enough memory. */
 	CIO_OPERATION_NOT_PERMITTED = -CIO_WINDOWS_UNIX_SOCKET_ERROR(ERROR_ACCESS_DENIED, EPERM),             /*!< Operation not permitted. */

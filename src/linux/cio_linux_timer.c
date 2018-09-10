@@ -57,7 +57,7 @@ static enum cio_error timer_cancel(struct cio_timer *t)
 	int ret;
 
 	if (t->handler == NULL) {
-		return CIO_NO_SUCH_FILE_OR_DIRECTORY;
+		return CIO_OPERATION_NOT_PERMITTED;
 	}
 
 	memset(&timeout, 0x0, sizeof(timeout));
