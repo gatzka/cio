@@ -38,7 +38,14 @@ enum cio_error cio_eventloop_init(struct cio_eventloop *loop)
 {
 	loop->loop_complion_port = CreateIoCompletionPort(INVALID_HANDLE_VALUE, NULL, 0, 1);
 	if (cio_unlikely(loop->loop_complion_port == NULL)) {
-		return CIO_INVALID_ARGUMENT;
+		return -WSAGetLastError();
+	}
+
+	WORD RequestedSockVersion = MAKEWORD(2, 2);
+	WSADATA wsaData;
+	int err = WSAStartup(RequestedSockVersion, &wsaData);
+	if (cio_unlikely(err != 0)) {
+		return -WSAGetLastError();
 	}
 
 	loop->go_ahead = true;
@@ -49,6 +56,7 @@ enum cio_error cio_eventloop_init(struct cio_eventloop *loop)
 void cio_eventloop_destroy(const struct cio_eventloop *loop)
 {
 	CloseHandle(loop->loop_complion_port);
+	WSACleanup();
 }
 
 enum cio_error cio_eventloop_run(struct cio_eventloop *loop)
@@ -74,7 +82,6 @@ enum cio_error cio_eventloop_run(struct cio_eventloop *loop)
 
 		struct cio_event_notifier *ev = (struct cio_event_notfier *)completion_key;
 		ev->callback(ev->context);
-
 	}
 
 	return CIO_SUCCESS;
