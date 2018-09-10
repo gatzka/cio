@@ -181,10 +181,10 @@ elseif(is_windows)
     target_include_directories(target_platform PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/windows/)
 	
 	target_include_directories(cio_static PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/windows/)
-	target_link_libraries(cio_static bcrypt)
+	target_link_libraries(cio_static bcrypt ws2_32)
 
 	target_include_directories(cio PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/windows/)
-	target_link_libraries(cio bcrypt)
+	target_link_libraries(cio bcrypt ws2_32)
 endif()
 
 set(LIB_HEADERS
