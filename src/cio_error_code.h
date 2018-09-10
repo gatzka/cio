@@ -52,27 +52,21 @@ enum cio_error {
 	CIO_ADDRESS_NOT_AVAILABLE = -CIO_SOCKET_ERROR(EADDRNOTAVAIL),       /*!< Address not available */
 	CIO_BAD_ADDRESS = -CIO_SOCKET_ERROR(EFAULT),                        /*!< Bad address. */
 	CIO_BAD_FILE_DESCRIPTOR = -CIO_SOCKET_ERROR(EBADF),                 /*!< Bad file descriptor. */
-	CIO_FILE_EXISTS = -CIO_SOCKET_ERROR(EEXIST),                        /*!< File exists. */
 	CIO_FILENAME_TOO_LONG = -CIO_SOCKET_ERROR(ENAMETOOLONG),            /*!< File name too long. */
 	CIO_INVALID_ARGUMENT = -CIO_SOCKET_ERROR(EINVAL),                   /*!< Invalid argument. */
 	CIO_NO_BUFFER_SPACE = -CIO_SOCKET_ERROR(ENOBUFS),                   /*!< No buffer space. */
 	CIO_NO_PROTOCOL_OPTION = -CIO_SOCKET_ERROR(ENOPROTOOPT),            /*!< No protocol option. */
-	CIO_NO_SPACE_LEFT_ON_DEVICE = -CIO_SOCKET_ERROR(ENOSPC),            /*!< No space left on device. */
 	CIO_WOULDBLOCK = -CIO_SOCKET_ERROR(EWOULDBLOCK),                              /*!< Try again. */
 	CIO_NO_SUCH_FILE_OR_DIRECTORY = -CIO_SOCKET_ERROR(ENOENT),          /*!< No such file or directory. */
-	CIO_NOT_A_DIRECTORY = -CIO_SOCKET_ERROR(ENOTDIR),                   /*!< Not a directory. */
 	CIO_NOT_A_SOCKET = -CIO_SOCKET_ERROR(ENOTSOCK),                     /*!< Not a socket. */
 	CIO_NOT_ENOUGH_MEMORY = -CIO_SOCKET_ERROR(ENOMEM),                  /*!< Not enough memory. */
 	CIO_OPERATION_NOT_PERMITTED = -CIO_SOCKET_ERROR(EPERM),             /*!< Operation not permitted. */
 	CIO_PERMISSION_DENIED = -CIO_SOCKET_ERROR(EACCES),                  /*!< Permission denied. */
 	CIO_PROTOCOL_NOT_SUPPORTED = -CIO_SOCKET_ERROR(EPROTONOSUPPORT),    /*!< Protocol not supported. */
-	CIO_READ_ONLY_FILE_SYSTEM = -CIO_SOCKET_ERROR(EROFS),               /*!< Read only file system. */
 	CIO_TOO_MANY_FILES_OPEN = -CIO_SOCKET_ERROR(EMFILE),                /*!< Too many files open. */
 	CIO_TOO_MANY_SYMBOLIC_LINK_LEVELS = -CIO_SOCKET_ERROR(ELOOP),       /*!< Too many symbolic link levels. */
 	CIO_OPERATION_ABORTED = -CIO_SOCKET_ERROR(ECANCELED),               /*!< Operation cancelled. */
-	CIO_NO_SUCH_DEVICE = -CIO_SOCKET_ERROR(ENODEV),                     /*!< No such device. */
 	CIO_MESSAGE_TOO_LONG = -CIO_SOCKET_ERROR(EMSGSIZE),                 /*!< Message too long. */
-	CIO_BROKEN_PIPE = -CIO_SOCKET_ERROR(EPIPE),                         /*!< Broken Pipe. */
 	CIO_NETRESET = -CIO_SOCKET_ERROR(ENETRESET)                         /*!< Network dropped connection because of reset. */
 };
 

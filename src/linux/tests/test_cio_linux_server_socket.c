@@ -453,7 +453,7 @@ static void test_init_setsockopt_fails(void)
 
 static void test_init_register_read_fails(void)
 {
-	cio_linux_eventloop_register_read_fake.return_val = CIO_NO_SPACE_LEFT_ON_DEVICE;
+	cio_linux_eventloop_register_read_fake.return_val = CIO_FILENAME_TOO_LONG;
 
 	struct cio_eventloop loop;
 	struct cio_server_socket ss;
