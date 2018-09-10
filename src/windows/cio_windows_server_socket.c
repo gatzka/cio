@@ -24,9 +24,15 @@
  * SOFTWARE.
  */
 
+#include <Winsock2.h>
+
 #include "cio_error_code.h"
 #include "cio_eventloop_impl.h"
 #include "cio_server_socket.h"
+
+// TODO: Caution. When closing a socket and there are still pending overlapped operations,
+// we cannot just free the memory which holds the overlapped structure. We need to remove it from the 
+// The eventloop first and only close the socket afterwards.
 
 enum cio_error cio_server_socket_init(struct cio_server_socket *ss,
                                       struct cio_eventloop *loop,
@@ -35,5 +41,19 @@ enum cio_error cio_server_socket_init(struct cio_server_socket *ss,
                                       cio_free_client free_client,
                                       cio_server_socket_close_hook close_hook)
 {
+	
+	SOCKET s_ipv4 = WSASocket(AF_INET, SOCK_STREAM, 0, NULL, 0, WSA_FLAG_OVERLAPPED);
+	if (cio_unlikely(s_ipv4 == INVALID_SOCKET)) {
+		int err = WSAGetLastError();
+		return -err;
+	}
+
+	SOCKET s_ipv6 = WSASocket(AF_INET6, SOCK_STREAM, 0, NULL, 0, WSA_FLAG_OVERLAPPED);
+	if (cio_unlikely(s_ipv4 == INVALID_SOCKET)) {
+		int err = WSAGetLastError();
+		closesocket(s_ipv4);
+		return -err;
+	}
+
 	return CIO_SUCCESS;
 }
