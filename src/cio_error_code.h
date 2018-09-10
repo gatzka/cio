@@ -56,7 +56,7 @@ enum cio_error {
 	CIO_INVALID_ARGUMENT = -CIO_SOCKET_ERROR(EINVAL),                   /*!< Invalid argument. */
 	CIO_NO_BUFFER_SPACE = -CIO_SOCKET_ERROR(ENOBUFS),                   /*!< No buffer space. */
 	CIO_NO_PROTOCOL_OPTION = -CIO_SOCKET_ERROR(ENOPROTOOPT),            /*!< No protocol option. */
-	CIO_WOULDBLOCK = -CIO_SOCKET_ERROR(EWOULDBLOCK),                              /*!< Try again. */
+	CIO_WOULDBLOCK = -CIO_SOCKET_ERROR(EWOULDBLOCK),                    /*!< Try again. */
 	CIO_NO_SUCH_FILE_OR_DIRECTORY = -CIO_SOCKET_ERROR(ENOENT),          /*!< No such file or directory. */
 	CIO_NOT_A_SOCKET = -CIO_SOCKET_ERROR(ENOTSOCK),                     /*!< Not a socket. */
 	CIO_NOT_ENOUGH_MEMORY = -CIO_SOCKET_ERROR(ENOMEM),                  /*!< Not enough memory. */
@@ -65,7 +65,7 @@ enum cio_error {
 	CIO_PROTOCOL_NOT_SUPPORTED = -CIO_SOCKET_ERROR(EPROTONOSUPPORT),    /*!< Protocol not supported. */
 	CIO_TOO_MANY_FILES_OPEN = -CIO_SOCKET_ERROR(EMFILE),                /*!< Too many files open. */
 	CIO_TOO_MANY_SYMBOLIC_LINK_LEVELS = -CIO_SOCKET_ERROR(ELOOP),       /*!< Too many symbolic link levels. */
-	CIO_OPERATION_ABORTED = -CIO_SOCKET_ERROR(ECANCELED),               /*!< Operation cancelled. */
+	CIO_OPERATION_ABORTED = -CIO_WINDOWS_UNIX_SOCKET_ERROR(ERROR_OPERATION_ABORTED, ECANCELED), /*!< Operation cancelled. */
 	CIO_MESSAGE_TOO_LONG = -CIO_SOCKET_ERROR(EMSGSIZE),                 /*!< Message too long. */
 	CIO_NETRESET = -CIO_SOCKET_ERROR(ENETRESET)                         /*!< Network dropped connection because of reset. */
 };

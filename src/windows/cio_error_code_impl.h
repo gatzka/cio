@@ -34,6 +34,7 @@ extern "C" {
 #include <Winsock2.h>
 
 #define CIO_SOCKET_ERROR(e) WSA ## e
+#define CIO_WINDOWS_UNIX_SOCKET_ERROR(win_error, unix_error) win_error
 
 #ifdef __cplusplus
 }
