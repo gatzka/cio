@@ -567,7 +567,7 @@ static void test_accept_socket_init_fails(void)
 {
 	accept4_fake.custom_fake = accept_wouldblock_second;
 
-	cio_linux_socket_init_fake.return_val = CIO_NOT_ENOUGH_MEMORY;
+	cio_linux_socket_init_fake.return_val = CIO_INVALID_ARGUMENT;
 
 	struct cio_eventloop loop;
 	struct cio_server_socket ss;
