@@ -31,7 +31,9 @@
 extern "C" {
 #endif
 
-#include <errno.h>
+#include <Winsock2.h>
+
+#define CIO_SOCKET_ERROR(e) WSA ## e
 
 #ifdef __cplusplus
 }

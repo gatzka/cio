@@ -33,6 +33,8 @@ extern "C" {
 
 #include <errno.h>
 
+#define CIO_SOCKET_ERROR(e) e
+
 #ifdef __cplusplus
 }
 #endif
