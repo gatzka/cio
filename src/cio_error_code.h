@@ -60,7 +60,7 @@ enum cio_error {
 	CIO_NO_SUCH_FILE_OR_DIRECTORY = -CIO_SOCKET_ERROR(ENOENT),          /*!< No such file or directory. */
 	CIO_NOT_A_SOCKET = -CIO_SOCKET_ERROR(ENOTSOCK),                     /*!< Not a socket. */
 	CIO_NOT_ENOUGH_MEMORY = -CIO_SOCKET_ERROR(ENOMEM),                  /*!< Not enough memory. */
-	CIO_OPERATION_NOT_PERMITTED = -CIO_SOCKET_ERROR(EPERM),             /*!< Operation not permitted. */
+	CIO_OPERATION_NOT_PERMITTED = -CIO_WINDOWS_UNIX_SOCKET_ERROR(ERROR_ACCESS_DENIED, EPERM),             /*!< Operation not permitted. */
 	CIO_PERMISSION_DENIED = -CIO_SOCKET_ERROR(EACCES),                  /*!< Permission denied. */
 	CIO_PROTOCOL_NOT_SUPPORTED = -CIO_SOCKET_ERROR(EPROTONOSUPPORT),    /*!< Protocol not supported. */
 	CIO_TOO_MANY_FILES_OPEN = -CIO_SOCKET_ERROR(EMFILE),                /*!< Too many files open. */
