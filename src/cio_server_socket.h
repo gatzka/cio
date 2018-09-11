@@ -124,10 +124,8 @@ struct cio_server_socket {
 	 * @privatesection
 	 */
 	struct cio_server_socket_impl impl;
-	struct cio_eventloop *loop;
 	int backlog;
 	cio_server_socket_close_hook close_hook;
-	struct cio_event_notifier ev;
 	cio_accept_handler handler;
 	void *handler_context;
 	cio_alloc_client alloc_client;

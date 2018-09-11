@@ -31,8 +31,11 @@
 extern "C" {
 #endif
 
+#include "cio_eventloop.h"
+
 struct cio_server_socket_impl {
-	int fd;
+	struct cio_event_notifier ev;
+	struct cio_eventloop *loop;
 };
 
 
