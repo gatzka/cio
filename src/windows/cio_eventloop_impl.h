@@ -44,8 +44,7 @@ struct cio_event_notifier {
 	void *context;
 
 	OVERLAPPED overlapped;
-
-	HANDLE event_handle;
+	SOCKET s;
 };
 
 struct cio_eventloop {

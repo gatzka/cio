@@ -30,15 +30,13 @@
 #include "cio_error_code.h"
 #include "cio_timer.h"
 
-#include <stdio.h>
-
 static enum cio_error timer_cancel(struct cio_timer *t)
 {
 	if (cio_unlikely(t->handler == NULL)) {
 		return CIO_OPERATION_NOT_PERMITTED;
 	}
 
-	BOOL ret = DeleteTimerQueueTimer(NULL, t->ev.event_handle, NULL);
+	BOOL ret = DeleteTimerQueueTimer(NULL, t->ev.overlapped.hEvent, NULL);
 	if (cio_likely(ret)) {
 		t->handler(t, t->handler_context, CIO_OPERATION_ABORTED);
 		return CIO_SUCCESS;
@@ -62,8 +60,8 @@ static void CALLBACK timer_callback(void *context, BOOLEAN fired)
 {
 	if (fired) {
 		struct cio_timer *t = (struct cio_timer *)context;
-		DeleteTimerQueueTimer(NULL, t->ev.event_handle, NULL);
-		t->ev.event_handle = NULL;
+		DeleteTimerQueueTimer(NULL, t->ev.overlapped.hEvent, NULL);
+		t->ev.overlapped.hEvent = NULL;
 		PostQueuedCompletionStatus(t->loop->loop_complion_port, 0, &t->ev, &t->ev.overlapped);
 	}
 }
@@ -82,11 +80,11 @@ static enum cio_error timer_expires_from_now(struct cio_timer *t, uint64_t timeo
 	t->handler_context = handler_context;
 	t->ev.context = t;
 
-	if (t->ev.event_handle) {
-		DeleteTimerQueueTimer(NULL, t->ev.event_handle, NULL);
+	if (t->ev.overlapped.hEvent) {
+		DeleteTimerQueueTimer(NULL, t->ev.overlapped.hEvent, NULL);
 	}
 
-	BOOL ret = CreateTimerQueueTimer(&t->ev.event_handle, NULL, timer_callback, t, (DWORD)(timeout_ns / 1000000), 0, WT_EXECUTEDEFAULT);
+	BOOL ret = CreateTimerQueueTimer(&t->ev.overlapped.hEvent, NULL, timer_callback, t, (DWORD)(timeout_ns / 1000000), 0, WT_EXECUTEDEFAULT);
 	if (!ret) {
 		return CIO_INVALID_ARGUMENT;
 	}
@@ -102,7 +100,7 @@ enum cio_error cio_timer_init(struct cio_timer *timer, struct cio_eventloop *loo
 	timer->expires_from_now = timer_expires_from_now;
 	timer->close_hook = close_hook;
 	timer->loop = loop;
-	timer->ev.event_handle = 0;
+	timer->ev.overlapped.hEvent = 0;
 	timer->ev.callback = timer_event_callback;
 
 	return CIO_SUCCESS;
