@@ -51,7 +51,7 @@ struct cio_eventloop {
 	/**
 	 * @privatesection
 	 */
-	HANDLE loop_complion_port;
+	HANDLE loop_completion_port;
 	bool go_ahead;
 };
 
