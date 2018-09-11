@@ -24,8 +24,8 @@
  * SOFTWARE.
  */
 
-#include <Windows.h>
 #include <stddef.h>
+#include <Windows.h>
 
 #include "cio_compiler.h"
 #include "cio_error_code.h"
@@ -36,8 +36,8 @@ static const ULONG_PTR STOP_COMPLETION_KEY = 0x1;
 
 enum cio_error cio_eventloop_init(struct cio_eventloop *loop)
 {
-	loop->loop_complion_port = CreateIoCompletionPort(INVALID_HANDLE_VALUE, NULL, 0, 1);
-	if (cio_unlikely(loop->loop_complion_port == NULL)) {
+	loop->loop_completion_port = CreateIoCompletionPort(INVALID_HANDLE_VALUE, NULL, 0, 1);
+	if (cio_unlikely(loop->loop_completion_port == NULL)) {
 		return -WSAGetLastError();
 	}
 
@@ -55,7 +55,7 @@ enum cio_error cio_eventloop_init(struct cio_eventloop *loop)
 
 void cio_eventloop_destroy(const struct cio_eventloop *loop)
 {
-	CloseHandle(loop->loop_complion_port);
+	CloseHandle(loop->loop_completion_port);
 	WSACleanup();
 }
 
@@ -65,7 +65,7 @@ enum cio_error cio_eventloop_run(struct cio_eventloop *loop)
 		DWORD size = 0;
 		ULONG_PTR completion_key = 0;
 		OVERLAPPED *overlapped = NULL;
-		BOOL ret = GetQueuedCompletionStatus(loop->loop_complion_port, &size, &completion_key, &overlapped, INFINITE);
+		BOOL ret = GetQueuedCompletionStatus(loop->loop_completion_port, &size, &completion_key, &overlapped, INFINITE);
 
 		if (cio_unlikely(ret == false)) {
 			if (cio_unlikely(overlapped == NULL)) {
@@ -80,7 +80,7 @@ enum cio_error cio_eventloop_run(struct cio_eventloop *loop)
 			break;
 		}
 
-		struct cio_event_notifier *ev = (struct cio_event_notfier *)completion_key;
+		struct cio_event_notifier *ev = (struct cio_event_notifier *)completion_key;
 		ev->callback(ev->context);
 	}
 
@@ -90,5 +90,5 @@ enum cio_error cio_eventloop_run(struct cio_eventloop *loop)
 void cio_eventloop_cancel(struct cio_eventloop *loop)
 {
 	loop->go_ahead = false;
-	PostQueuedCompletionStatus(loop->loop_complion_port, 0, STOP_COMPLETION_KEY, NULL);
+	PostQueuedCompletionStatus(loop->loop_completion_port, 0, STOP_COMPLETION_KEY, NULL);
 }
