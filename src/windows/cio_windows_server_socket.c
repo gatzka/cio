@@ -24,17 +24,14 @@
  * SOFTWARE.
  */
 
-#include <stdio.h>
 #include <Winsock2.h>
 #include <Ws2tcpip.h>
+#include <mswsock.h>
+#include <stdio.h>
 
 #include "cio_error_code.h"
 #include "cio_eventloop_impl.h"
 #include "cio_server_socket.h"
-
-// TODO: Caution. When closing a socket and there are still pending overlapped operations,
-// we cannot just free the memory which holds the overlapped structure. We need to remove it from the
-// The eventloop first and only close the socket afterwards.
 
 static enum cio_error socket_set_reuse_address(struct cio_server_socket *ss, bool on)
 {
@@ -71,29 +68,112 @@ static enum cio_error socket_bind(struct cio_server_socket *ss, const char *bind
 	snprintf(server_port_string, sizeof(server_port_string), "%d", port);
 
 	if (bind_address == NULL) {
-		bind_address = "::";
-	}
-
-	ret = getaddrinfo(bind_address, server_port_string, &hints, &servinfo);
-	if (cio_unlikely(ret != 0)) {
-		return (enum cio_error)(-ret);
-	}
-
-	for (rp = servinfo; rp != NULL; rp = rp->ai_next) {
-		if (cio_likely(bind(ss->ev.s, rp->ai_addr, rp->ai_addrlen) == 0)) {
-			break;
+		struct sockaddr_in6 address;
+		memset(&address, 0, sizeof(address));
+		address.sin6_family = AF_INET6;
+		address.sin6_addr = in6addr_any;
+		address.sin6_port = htons(port);
+		if (cio_unlikely(bind(ss->ev.s, (struct sockaddr *)&address, sizeof(address)) == -1)) {
+			int err = WSAGetLastError();
+			return (enum cio_error)(-err);
+		} else {
+			return CIO_SUCCESS;
 		}
+	} else {
+		ret = getaddrinfo(bind_address, server_port_string, &hints, &servinfo);
+		if (cio_unlikely(ret != 0)) {
+			return (enum cio_error)(-ret);
+		}
+
+		for (rp = servinfo; rp != NULL; rp = rp->ai_next) {
+			if (cio_likely(bind(ss->ev.s, rp->ai_addr, rp->ai_addrlen) == 0)) {
+				break;
+			}
+		}
+
+		FreeAddrInfoW(servinfo);
+
+		if (rp == NULL) {
+			return CIO_INVALID_ARGUMENT;
+		}
+
+		return CIO_SUCCESS;
 	}
+}
 
-	FreeAddrInfoW(servinfo);
 
-	if (rp == NULL) {
+static void accept_callback(void *context)
+{
+
+}
+
+static enum cio_error socket_accept(struct cio_server_socket *ss, cio_accept_handler handler, void *handler_context)
+{
+	if (cio_unlikely(handler == NULL)) {
 		return CIO_INVALID_ARGUMENT;
 	}
+
+	ss->handler = handler;
+	ss->handler_context = handler_context;
+	ss->ev.callback = accept_callback;
+	ss->ev.context = ss;
+
+	if (cio_unlikely(listen(ss->ev.s, ss->backlog) < 0)) {
+		int err = WSAGetLastError();
+		return (enum cio_error)(-err);
+	}
+
+	if (CreateIoCompletionPort(ss->ev.s, ss->loop->loop_completion_port, &ss->ev, 1) == NULL) {
+		int err = WSAGetLastError();
+		return (enum cio_error)(-err);
+	}
+
+	DWORD dw_bytes;
+	GUID guid_accept_ex = WSAID_ACCEPTEX;
+	LPFN_ACCEPTEX accept_ex = NULL;
+	int status = WSAIoctl(ss->ev.s, SIO_GET_EXTENSION_FUNCTION_POINTER, &guid_accept_ex, sizeof(guid_accept_ex), &accept_ex, sizeof(accept_ex), &dw_bytes, NULL, NULL);
+	if (status != 0) {
+		int err = WSAGetLastError();
+		return (enum cio_error)(-err);
+	}
+
+	SOCKET accept_socket = WSASocket(AF_INET6, SOCK_STREAM, 0, NULL, 0, WSA_FLAG_OVERLAPPED);
+	if (cio_unlikely(accept_socket == INVALID_SOCKET)) {
+		int err = WSAGetLastError();
+		return (enum cio_error)(-err);
+	}
+	
+	DWORD bytes_received;
+	char accept_buffer[1024];
+	BOOL ret = accept_ex(ss->ev.s, accept_socket, accept_buffer, 0,
+	                     sizeof(struct sockaddr_storage), sizeof(struct sockaddr_storage),
+	                     &bytes_received, &ss->ev.overlapped);
+
+	if (ret == FALSE) {
+		int err = WSAGetLastError();
+		if (err == WSA_IO_PENDING) {
+			return CIO_SUCCESS;		
+		} else {
+			return (enum cio_error)(-err);
+		}
+	}
+	// TODO else???
 
 	return CIO_SUCCESS;
 }
 
+static void socket_close(struct cio_server_socket *ss)
+{
+
+	// TODO: Caution. When closing a socket and there are still pending overlapped operations,
+	// we cannot just free the memory which holds the overlapped structure. We need to remove it from the
+	// The eventloop first and only close the socket afterwards.
+
+	closesocket(ss->ev.s);
+	if (ss->close_hook != NULL) {
+		ss->close_hook(ss);
+	}
+}
 
 enum cio_error cio_server_socket_init(struct cio_server_socket *ss,
                                       struct cio_eventloop *loop,
@@ -131,6 +211,8 @@ enum cio_error cio_server_socket_init(struct cio_server_socket *ss,
 
 	ss->set_reuse_address = socket_set_reuse_address;
 	ss->bind = socket_bind;
+	ss->accept = socket_accept;
+	ss->close = socket_close;
 
 	return CIO_SUCCESS;
 
