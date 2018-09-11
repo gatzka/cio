@@ -34,7 +34,7 @@
 #include "cio_timer.h"
 
 static const uint64_t FIVE_S = 5000000000;
-static uint_fast8_t expirations = 0;;
+static uint_fast8_t expirations = 0;
 
 static struct cio_eventloop loop;
 
