@@ -47,7 +47,7 @@ static void socket_close(struct cio_server_socket *ss)
 {
 	cio_linux_eventloop_remove(ss->loop, &ss->ev);
 
-	close(ss->ev.fd);
+	close(ss->impl.fd);
 	if (ss->close_hook != NULL) {
 		ss->close_hook(ss);
 	}
@@ -57,7 +57,7 @@ static void accept_callback(void *context)
 {
 	struct sockaddr_storage addr;
 	struct cio_server_socket *ss = context;
-	int fd = ss->ev.fd;
+	int fd = ss->impl.fd;
 	socklen_t addrlen;
 
 	int client_fd;
@@ -96,7 +96,7 @@ static enum cio_error socket_accept(struct cio_server_socket *ss, cio_accept_han
 	ss->ev.read_callback = accept_callback;
 	ss->ev.context = ss;
 
-	if (cio_unlikely(listen(ss->ev.fd, ss->backlog) < 0)) {
+	if (cio_unlikely(listen(ss->impl.fd, ss->backlog) < 0)) {
 		return (enum cio_error)(-errno);
 	}
 
@@ -122,7 +122,7 @@ static enum cio_error socket_set_reuse_address(struct cio_server_socket *ss, boo
 		reuse = 0;
 	}
 
-	if (cio_unlikely(setsockopt(ss->ev.fd, SOL_SOCKET, SO_REUSEADDR, &reuse,
+	if (cio_unlikely(setsockopt(ss->impl.fd, SOL_SOCKET, SO_REUSEADDR, &reuse,
 	                        sizeof(reuse)) < 0)) {
 		return (enum cio_error)(-errno);
 	}
@@ -159,7 +159,7 @@ static enum cio_error socket_bind(struct cio_server_socket *ss, const char *bind
 	}
 
 	for (rp = servinfo; rp != NULL; rp = rp->ai_next) {
-		if (cio_likely(bind(ss->ev.fd, rp->ai_addr, rp->ai_addrlen) == 0)) {
+		if (cio_likely(bind(ss->impl.fd, rp->ai_addr, rp->ai_addrlen) == 0)) {
 			break;
 		}
 	}
@@ -185,6 +185,7 @@ enum cio_error cio_server_socket_init(struct cio_server_socket *ss,
 		return (enum cio_error)(-errno);
 	}
 
+	ss->impl.fd = listen_fd;
 	ss->ev.fd = listen_fd;
 
 	ss->alloc_client = alloc_client;

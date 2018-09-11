@@ -32,6 +32,7 @@
 
 #include "cio_error_code.h"
 #include "cio_eventloop.h"
+#include "cio_server_socket_impl.h"
 #include "cio_socket.h"
 
 #ifdef __cplusplus
@@ -122,6 +123,7 @@ struct cio_server_socket {
 	/**
 	 * @privatesection
 	 */
+	struct cio_server_socket_impl impl;
 	struct cio_eventloop *loop;
 	int backlog;
 	cio_server_socket_close_hook close_hook;
