@@ -24,7 +24,9 @@
  * SOFTWARE.
  */
 
+#include <stdio.h>
 #include <Winsock2.h>
+#include <Ws2tcpip.h>
 
 #include "cio_error_code.h"
 #include "cio_eventloop_impl.h"
@@ -51,6 +53,47 @@ static enum cio_error socket_set_reuse_address(struct cio_server_socket *ss, boo
 
 	return CIO_SUCCESS;
 }
+
+static enum cio_error socket_bind(struct cio_server_socket *ss, const char *bind_address, uint16_t port)
+{
+	struct addrinfo hints;
+	char server_port_string[6];
+	struct addrinfo *servinfo = NULL;
+	int ret;
+	struct addrinfo *rp;
+
+	memset(&hints, 0, sizeof(hints));
+	hints.ai_family = AF_UNSPEC;
+	hints.ai_socktype = SOCK_STREAM;
+	hints.ai_protocol = IPPROTO_TCP;
+	hints.ai_flags = AI_PASSIVE | AI_V4MAPPED | AI_NUMERICHOST;
+
+	snprintf(server_port_string, sizeof(server_port_string), "%d", port);
+
+	if (bind_address == NULL) {
+		bind_address = "::";
+	}
+
+	ret = getaddrinfo(bind_address, server_port_string, &hints, &servinfo);
+	if (cio_unlikely(ret != 0)) {
+		return (enum cio_error)(-ret);
+	}
+
+	for (rp = servinfo; rp != NULL; rp = rp->ai_next) {
+		if (cio_likely(bind(ss->ev.s, rp->ai_addr, rp->ai_addrlen) == 0)) {
+			break;
+		}
+	}
+
+	FreeAddrInfoW(servinfo);
+
+	if (rp == NULL) {
+		return CIO_INVALID_ARGUMENT;
+	}
+
+	return CIO_SUCCESS;
+}
+
 
 enum cio_error cio_server_socket_init(struct cio_server_socket *ss,
                                       struct cio_eventloop *loop,
@@ -87,6 +130,7 @@ enum cio_error cio_server_socket_init(struct cio_server_socket *ss,
 	ss->close_hook = close_hook;
 
 	ss->set_reuse_address = socket_set_reuse_address;
+	ss->bind = socket_bind;
 
 	return CIO_SUCCESS;
 
