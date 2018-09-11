@@ -2,7 +2,8 @@ cmake_minimum_required(VERSION 3.0)
 project(cio C)
 
 set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/../cmake/)
-include(FindDoxygen)
+find_package(Doxygen REQUIRED dot OPTIONAL_COMPONENTS mscgen dia)
+
 include(compiler_settings)
 include(generateVersion)
 include(sanitizer)
