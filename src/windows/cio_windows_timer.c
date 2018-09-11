@@ -62,7 +62,7 @@ static void CALLBACK timer_callback(void *context, BOOLEAN fired)
 		struct cio_timer *t = (struct cio_timer *)context;
 		DeleteTimerQueueTimer(NULL, t->ev.overlapped.hEvent, NULL);
 		t->ev.overlapped.hEvent = NULL;
-		PostQueuedCompletionStatus(t->loop->loop_complion_port, 0, &t->ev, &t->ev.overlapped);
+		PostQueuedCompletionStatus(t->loop->loop_completion_port, 0, &t->ev, &t->ev.overlapped);
 	}
 }
 
