@@ -35,7 +35,7 @@
 static enum cio_error timer_cancel(struct cio_timer *t)
 {
 	if (cio_unlikely(t->handler == NULL)) {
-		return CIO_NO_SUCH_FILE_OR_DIRECTORY;
+		return CIO_OPERATION_NOT_PERMITTED;
 	}
 
 	BOOL ret = DeleteTimerQueueTimer(NULL, t->ev.event_handle, NULL);
