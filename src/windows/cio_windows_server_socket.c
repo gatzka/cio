@@ -42,7 +42,7 @@ static enum cio_error socket_set_reuse_address(struct cio_server_socket *ss, boo
 		reuse = 0;
 	}
 
-	if (cio_unlikely(setsockopt(ss->ev.s, SOL_SOCKET, SO_REUSEADDR, &reuse,
+	if (cio_unlikely(setsockopt(ss->impl.listen_socket, SOL_SOCKET, SO_REUSEADDR, &reuse,
 	                            sizeof(reuse)) < 0)) {
 		int err = GetLastError();
 		return (enum cio_error)(-err);
@@ -73,7 +73,7 @@ static enum cio_error socket_bind(struct cio_server_socket *ss, const char *bind
 		address.sin6_family = AF_INET6;
 		address.sin6_addr = in6addr_any;
 		address.sin6_port = htons(port);
-		if (cio_unlikely(bind(ss->ev.s, (struct sockaddr *)&address, sizeof(address)) == -1)) {
+		if (cio_unlikely(bind(ss->impl.listen_socket, (struct sockaddr *)&address, sizeof(address)) == -1)) {
 			int err = WSAGetLastError();
 			return (enum cio_error)(-err);
 		} else {
@@ -86,7 +86,7 @@ static enum cio_error socket_bind(struct cio_server_socket *ss, const char *bind
 		}
 
 		for (rp = servinfo; rp != NULL; rp = rp->ai_next) {
-			if (cio_likely(bind(ss->ev.s, rp->ai_addr, rp->ai_addrlen) == 0)) {
+			if (cio_likely(bind(ss->impl.listen_socket, rp->ai_addr, rp->ai_addrlen) == 0)) {
 				break;
 			}
 		}
@@ -115,15 +115,15 @@ static enum cio_error socket_accept(struct cio_server_socket *ss, cio_accept_han
 
 	ss->handler = handler;
 	ss->handler_context = handler_context;
-	ss->ev.callback = accept_callback;
-	ss->ev.context = ss;
+	ss->impl.listen_event.callback = accept_callback;
+	ss->impl.listen_event.context = ss;
 
-	if (cio_unlikely(listen(ss->ev.s, ss->backlog) < 0)) {
+	if (cio_unlikely(listen(ss->impl.listen_socket, ss->backlog) < 0)) {
 		int err = WSAGetLastError();
 		return (enum cio_error)(-err);
 	}
 
-	if (CreateIoCompletionPort(ss->ev.s, ss->loop->loop_completion_port, &ss->ev, 1) == NULL) {
+	if (CreateIoCompletionPort(ss->impl.listen_socket, ss->impl.loop->loop_completion_port, &ss->impl.listen_event, 1) == NULL) {
 		int err = WSAGetLastError();
 		return (enum cio_error)(-err);
 	}
@@ -131,7 +131,7 @@ static enum cio_error socket_accept(struct cio_server_socket *ss, cio_accept_han
 	DWORD dw_bytes;
 	GUID guid_accept_ex = WSAID_ACCEPTEX;
 	LPFN_ACCEPTEX accept_ex = NULL;
-	int status = WSAIoctl(ss->ev.s, SIO_GET_EXTENSION_FUNCTION_POINTER, &guid_accept_ex, sizeof(guid_accept_ex), &accept_ex, sizeof(accept_ex), &dw_bytes, NULL, NULL);
+	int status = WSAIoctl(ss->impl.listen_socket, SIO_GET_EXTENSION_FUNCTION_POINTER, &guid_accept_ex, sizeof(guid_accept_ex), &accept_ex, sizeof(accept_ex), &dw_bytes, NULL, NULL);
 	if (status != 0) {
 		int err = WSAGetLastError();
 		return (enum cio_error)(-err);
@@ -145,9 +145,9 @@ static enum cio_error socket_accept(struct cio_server_socket *ss, cio_accept_han
 	
 	DWORD bytes_received;
 	char accept_buffer[1024];
-	BOOL ret = accept_ex(ss->ev.s, accept_socket, accept_buffer, 0,
+	BOOL ret = accept_ex(ss->impl.listen_socket, accept_socket, accept_buffer, 0,
 	                     sizeof(struct sockaddr_storage), sizeof(struct sockaddr_storage),
-	                     &bytes_received, &ss->ev.overlapped);
+	                     &bytes_received, &ss->impl.listen_event.overlapped);
 
 	if (ret == FALSE) {
 		int err = WSAGetLastError();
@@ -169,7 +169,7 @@ static void socket_close(struct cio_server_socket *ss)
 	// we cannot just free the memory which holds the overlapped structure. We need to remove it from the
 	// The eventloop first and only close the socket afterwards.
 
-	closesocket(ss->ev.s);
+	closesocket(ss->impl.listen_socket);
 	if (ss->close_hook != NULL) {
 		ss->close_hook(ss);
 	}
@@ -189,9 +189,9 @@ enum cio_error cio_server_socket_init(struct cio_server_socket *ss,
 		return (enum cio_error)-err;
 	}
 
-	ss->ev.s = s;
-	ss->ev.overlapped.hEvent = WSACreateEvent();
-	if (cio_unlikely(ss->ev.overlapped.hEvent == WSA_INVALID_EVENT)) {
+	ss->impl.listen_socket = s;
+	ss->impl.listen_event.overlapped.hEvent = WSACreateEvent();
+	if (cio_unlikely(ss->impl.listen_event.overlapped.hEvent == WSA_INVALID_EVENT)) {
 		err = WSAGetLastError();
 		goto create_event_failed;
 	}
@@ -203,7 +203,7 @@ enum cio_error cio_server_socket_init(struct cio_server_socket *ss,
 		goto ioctl_failed;
 	}
 
-	ss->loop = loop;
+	ss->impl.loop = loop;
 	ss->backlog = (int)backlog;
 	ss->alloc_client = alloc_client;
 	ss->free_client = free_client;
@@ -217,7 +217,7 @@ enum cio_error cio_server_socket_init(struct cio_server_socket *ss,
 	return CIO_SUCCESS;
 
 ioctl_failed:
-	WSACloseEvent(ss->ev.overlapped.hEvent);
+	WSACloseEvent(ss->impl.listen_event.overlapped.hEvent);
 create_event_failed:
 	closesocket(s);
 	return (enum cio_error)-err;

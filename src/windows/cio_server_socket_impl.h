@@ -1,7 +1,7 @@
 /*
  * The MIT License (MIT)
  *
- * Copyright (c) <2017> <Stephan Gatzka>
+ * Copyright (c) <2018> <Stephan Gatzka>
  *
  * Permission is hereby granted, free of charge, to any person obtaining
  * a copy of this software and associated documentation files (the
@@ -24,38 +24,26 @@
  * SOFTWARE.
  */
 
-#ifndef CIO_EVENTLOOP_IMPL_H
-#define CIO_EVENTLOOP_IMPL_H
-
-#include <stdbool.h>
-#include <stdint.h>
-#include <Windows.h>
-
-#include "cio_error_code.h"
+#ifndef CIO_WINDOWS_SERVER_SOCKET_IMPL_H
+#define CIO_WINDOWS_SERVER_SOCKET_IMPL_H
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-struct cio_event_notifier {
+#include <Windows.h>
 
-	void (*callback)(void *context);
+#include "cio_eventloop.h"
 
-	void *context;
-
-	OVERLAPPED overlapped;
+struct cio_server_socket_impl {
+	struct cio_event_notifier listen_event;
+	SOCKET listen_socket;
+	struct cio_eventloop *loop;
 };
 
-struct cio_eventloop {
-	/**
-	 * @privatesection
-	 */
-	HANDLE loop_completion_port;
-	bool go_ahead;
-};
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif
+#endif // CIO_WINDOWS_SERVER_SOCKET_IMPL_H
