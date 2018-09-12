@@ -38,9 +38,14 @@ extern "C" {
 #include <mswsock.h>
 #include "cio_eventloop.h"
 
-struct cio_server_socket_impl {
+struct cio_windows_socket {
 	struct cio_event_notifier listen_event;
-	SOCKET listen_socket;
+	SOCKET socket;
+};
+
+struct cio_server_socket_impl {
+	struct cio_windows_socket listen_socket_ipv4;
+	struct cio_windows_socket listen_socket_ipv6;
 	SOCKET accept_socket;
 	struct cio_eventloop *loop;
 	char accept_buffer[sizeof(struct sockaddr_storage) * 2];
