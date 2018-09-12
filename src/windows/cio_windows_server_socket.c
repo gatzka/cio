@@ -24,9 +24,9 @@
  * SOFTWARE.
  */
 
-#include <Winsock2.h>
-#include <Ws2tcpip.h>
-#include <mswsock.h>
+#define WIN32_LEAN_AND_MEAN
+
+#include <Windows.h>
 #include <stdio.h>
 
 #include "cio_error_code.h"
@@ -137,27 +137,25 @@ static enum cio_error socket_accept(struct cio_server_socket *ss, cio_accept_han
 		return (enum cio_error)(-err);
 	}
 
-	SOCKET accept_socket = WSASocket(AF_INET6, SOCK_STREAM, 0, NULL, 0, WSA_FLAG_OVERLAPPED);
-	if (cio_unlikely(accept_socket == INVALID_SOCKET)) {
+	ss->impl.accept_socket = WSASocket(AF_INET6, SOCK_STREAM, 0, NULL, 0, WSA_FLAG_OVERLAPPED);
+	if (cio_unlikely(ss->impl.accept_socket == INVALID_SOCKET)) {
 		int err = WSAGetLastError();
 		return (enum cio_error)(-err);
 	}
 	
 	DWORD bytes_received;
-	char accept_buffer[1024];
-	BOOL ret = accept_ex(ss->impl.listen_socket, accept_socket, accept_buffer, 0,
+	BOOL ret = accept_ex(ss->impl.listen_socket, ss->impl.accept_socket, ss->impl.accept_buffer, 0,
 	                     sizeof(struct sockaddr_storage), sizeof(struct sockaddr_storage),
 	                     &bytes_received, &ss->impl.listen_event.overlapped);
 
 	if (ret == FALSE) {
 		int err = WSAGetLastError();
-		if (err == WSA_IO_PENDING) {
+		if (cio_likely(err == WSA_IO_PENDING)) {
 			return CIO_SUCCESS;		
 		} else {
 			return (enum cio_error)(-err);
 		}
 	}
-	// TODO else???
 
 	return CIO_SUCCESS;
 }

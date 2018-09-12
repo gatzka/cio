@@ -31,14 +31,19 @@
 extern "C" {
 #endif
 
-#include <Windows.h>
+#define WIN32_LEAN_AND_MEAN
 
+#include <winsock2.h>
+#include <ws2tcpip.h>
+#include <mswsock.h>
 #include "cio_eventloop.h"
 
 struct cio_server_socket_impl {
 	struct cio_event_notifier listen_event;
 	SOCKET listen_socket;
+	SOCKET accept_socket;
 	struct cio_eventloop *loop;
+	char accept_buffer[sizeof(struct sockaddr_storage) * 2];
 };
 
 

@@ -24,11 +24,12 @@
  * SOFTWARE.
  */
 
-#ifndef CIO_EVENTLOOP_IMPL_H
-#define CIO_EVENTLOOP_IMPL_H
+#ifndef CIO_WINDOWS_EVENTLOOP_IMPL_H
+#define CIO_WINDOWS_EVENTLOOP_IMPL_H
+
+#define WIN32_LEAN_AND_MEAN
 
 #include <stdbool.h>
-#include <stdint.h>
 #include <Windows.h>
 
 #include "cio_error_code.h"
