@@ -44,6 +44,7 @@ struct cio_windows_listen_socket {
 	SOCKET accept_socket;
 	int address_family;
 	LPFN_ACCEPTEX accept_ex;
+	bool bound;
 	char accept_buffer[sizeof(struct sockaddr_storage) * 2];
 };
 

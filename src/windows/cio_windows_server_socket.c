@@ -81,6 +81,7 @@ static enum cio_error socket_bind(struct cio_server_socket *ss, const char *bind
 			int err = WSAGetLastError();
 			return (enum cio_error)(-err);
 		}
+		ss->impl.listen_socket_ipv6.bound = true;
 
 		struct sockaddr_in address_v4;
 		memset(&address_v4, 0, sizeof(address_v4));
@@ -91,6 +92,7 @@ static enum cio_error socket_bind(struct cio_server_socket *ss, const char *bind
 			int err = WSAGetLastError();
 			return (enum cio_error)(-err);
 		}
+		ss->impl.listen_socket_ipv4.bound = true;
 
 		return CIO_SUCCESS;
 	} else {
@@ -98,13 +100,24 @@ static enum cio_error socket_bind(struct cio_server_socket *ss, const char *bind
 		if (cio_unlikely(ret != 0)) {
 			return (enum cio_error)(-ret);
 		}
-		//TODO: switch case over address_family
+
 		for (rp = servinfo; rp != NULL; rp = rp->ai_next) {
-			if (cio_likely(bind(ss->impl.listen_socket_ipv4.listen_socket, rp->ai_addr, (int)rp->ai_addrlen) == 0)) {
+			switch (rp->ai_family) {
+			case AF_INET:
+				if (cio_likely(bind(ss->impl.listen_socket_ipv4.listen_socket, rp->ai_addr, (int)rp->ai_addrlen) == 0)) {
+					ss->impl.listen_socket_ipv4.bound = true;
+					goto out;
+				}
+				break;
+			case AF_INET6:
+				if (cio_likely(bind(ss->impl.listen_socket_ipv6.listen_socket, rp->ai_addr, (int)rp->ai_addrlen) == 0)) {
+					ss->impl.listen_socket_ipv6.bound = true;
+					goto out;
+				}
 				break;
 			}
 		}
-
+out:
 		freeaddrinfo(servinfo);
 
 		if (rp == NULL) {
@@ -134,47 +147,51 @@ static enum cio_error socket_accept(struct cio_server_socket *ss, cio_accept_han
 	ss->impl.listen_socket_ipv6.listen_event.callback = accept_callback;
 	ss->impl.listen_socket_ipv6.listen_event.context = &ss->impl.listen_socket_ipv6;
 
-	if (cio_unlikely(listen(ss->impl.listen_socket_ipv4.listen_socket, ss->backlog) < 0)) {
-		int err = WSAGetLastError();
-		return (enum cio_error)(-err);
-	}
-
-	if (cio_unlikely(listen(ss->impl.listen_socket_ipv6.listen_socket, ss->backlog) < 0)) {
-		int err = WSAGetLastError();
-		return (enum cio_error)(-err);
-	}
-
-	ss->impl.listen_socket_ipv6.accept_socket = WSASocket(AF_INET6, SOCK_STREAM, 0, NULL, 0, WSA_FLAG_OVERLAPPED);
-	if (cio_unlikely(ss->impl.listen_socket_ipv6.accept_socket == INVALID_SOCKET)) {
-		int err = WSAGetLastError();
-		return (enum cio_error)(-err);
-	}
-
-	ss->impl.listen_socket_ipv4.accept_socket = WSASocket(AF_INET, SOCK_STREAM, 0, NULL, 0, WSA_FLAG_OVERLAPPED);
-	if (cio_unlikely(ss->impl.listen_socket_ipv4.accept_socket == INVALID_SOCKET)) {
-		int err = WSAGetLastError();
-		return (enum cio_error)(-err);
-	}
-
-	DWORD bytes_received;
-	BOOL ret = ss->impl.listen_socket_ipv4.accept_ex(ss->impl.listen_socket_ipv4.listen_socket, ss->impl.listen_socket_ipv4.accept_socket, ss->impl.listen_socket_ipv4.accept_buffer, 0,
-	                                                 sizeof(struct sockaddr_storage), sizeof(struct sockaddr_storage),
-	                                                 &bytes_received, &ss->impl.listen_socket_ipv4.listen_event.overlapped);
-
-	if (ret == FALSE) {
-		int err = WSAGetLastError();
-		if (cio_likely(err != WSA_IO_PENDING)) {
+	if (ss->impl.listen_socket_ipv4.bound) {
+		if (cio_unlikely(listen(ss->impl.listen_socket_ipv4.listen_socket, ss->backlog) < 0)) {
+			int err = WSAGetLastError();
 			return (enum cio_error)(-err);
+		}
+
+		ss->impl.listen_socket_ipv4.accept_socket = WSASocket(AF_INET, SOCK_STREAM, 0, NULL, 0, WSA_FLAG_OVERLAPPED);
+		if (cio_unlikely(ss->impl.listen_socket_ipv4.accept_socket == INVALID_SOCKET)) {
+			int err = WSAGetLastError();
+			return (enum cio_error)(-err);
+		}
+
+		DWORD bytes_received;
+		BOOL ret = ss->impl.listen_socket_ipv4.accept_ex(ss->impl.listen_socket_ipv4.listen_socket, ss->impl.listen_socket_ipv4.accept_socket, ss->impl.listen_socket_ipv4.accept_buffer, 0,
+		                                                 sizeof(struct sockaddr_storage), sizeof(struct sockaddr_storage),
+		                                                 &bytes_received, &ss->impl.listen_socket_ipv4.listen_event.overlapped);
+		if (ret == FALSE) {
+			int err = WSAGetLastError();
+			if (cio_likely(err != WSA_IO_PENDING)) {
+				return (enum cio_error)(-err);
+			}
 		}
 	}
 
-	ret = ss->impl.listen_socket_ipv6.accept_ex(ss->impl.listen_socket_ipv6.listen_socket, ss->impl.listen_socket_ipv6.accept_socket, ss->impl.listen_socket_ipv6.accept_buffer, 0,
-	                                            sizeof(struct sockaddr_storage), sizeof(struct sockaddr_storage),
-	                                            &bytes_received, &ss->impl.listen_socket_ipv6.listen_event.overlapped);
-	if (ret == FALSE) {
-		int err = WSAGetLastError();
-		if (cio_likely(err != WSA_IO_PENDING)) {
+	if (ss->impl.listen_socket_ipv6.bound) {
+		if (cio_unlikely(listen(ss->impl.listen_socket_ipv6.listen_socket, ss->backlog) < 0)) {
+			int err = WSAGetLastError();
 			return (enum cio_error)(-err);
+		}
+
+		ss->impl.listen_socket_ipv6.accept_socket = WSASocket(AF_INET6, SOCK_STREAM, 0, NULL, 0, WSA_FLAG_OVERLAPPED);
+		if (cio_unlikely(ss->impl.listen_socket_ipv6.accept_socket == INVALID_SOCKET)) {
+			int err = WSAGetLastError();
+			return (enum cio_error)(-err);
+		}
+
+		DWORD bytes_received;
+		BOOL ret = ss->impl.listen_socket_ipv6.accept_ex(ss->impl.listen_socket_ipv6.listen_socket, ss->impl.listen_socket_ipv6.accept_socket, ss->impl.listen_socket_ipv6.accept_buffer, 0,
+		                                            sizeof(struct sockaddr_storage), sizeof(struct sockaddr_storage),
+		                                            &bytes_received, &ss->impl.listen_socket_ipv6.listen_event.overlapped);
+		if (ret == FALSE) {
+			int err = WSAGetLastError();
+			if (cio_likely(err != WSA_IO_PENDING)) {
+				return (enum cio_error)(-err);
+			}
 		}
 	}
 
@@ -204,6 +221,7 @@ static enum cio_error create_listen_socket(struct cio_windows_listen_socket *soc
 {
 	int err;
 	socket->address_family = address_family;
+	socket->bound = false;
 	socket->listen_socket = WSASocket(address_family, SOCK_STREAM, 0, NULL, 0, WSA_FLAG_OVERLAPPED);
 	if (cio_unlikely(socket->listen_socket == INVALID_SOCKET)) {
 		err = WSAGetLastError();
