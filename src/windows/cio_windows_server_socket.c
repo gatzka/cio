@@ -33,6 +33,7 @@
 #include "cio_eventloop_impl.h"
 #include "cio_server_socket.h"
 #include "cio_util.h"
+#include "cio_windows_socket.h"
 
 static SOCKET create_win_socket_nonblocking(int address_family)
 {
@@ -171,10 +172,43 @@ static enum cio_error socket_bind(struct cio_server_socket *ss, const char *bind
 static void accept_callback(void *context)
 {
 	struct cio_event_notifier *ev = (struct cio_event_notifier *)context;
-	struct cio_windows_listen_socket *s = container_of(ev, struct cio_windows_listen_socket, listen_event);
-	// TODO create new socket
+	struct cio_windows_listen_socket *wls = container_of(ev, struct cio_windows_listen_socket, listen_event);
+	SOCKET client_fd = wls->accept_socket;
 
-	prepare_accept_socket(s);
+	struct cio_server_socket_imp *impl;
+	if (wls->address_family == AF_INET) {
+		impl = container_of(wls, struct cio_server_socket_impl, listen_socket_ipv4);
+	} else {
+		impl = container_of(wls, struct cio_server_socket_impl, listen_socket_ipv6);
+	}
+
+	struct cio_server_socket *ss = container_of(impl, struct cio_server_socket, impl);
+
+	enum cio_error err = prepare_accept_socket(wls);
+	if (cio_unlikely(err != CIO_SUCCESS)) {
+		goto prepare_failed;
+	}
+
+	struct cio_socket *s = ss->alloc_client();
+	if (cio_unlikely(s == NULL)) {
+		err = CIO_NO_MEMORY;
+		goto alloc_failed;
+	}
+
+	err = cio_windows_socket_init(s, client_fd, ss->impl.loop, ss->free_client);
+	if (cio_unlikely(err != CIO_SUCCESS)) {
+		goto socket_init_failed;
+	}
+
+	ss->handler(ss, ss->handler_context, CIO_SUCCESS, s);
+	return;
+
+socket_init_failed:
+	ss->free_client(s);
+alloc_failed:
+	closesocket(client_fd);
+prepare_failed:
+	ss->handler(ss, ss->handler_context, err, NULL);
 }
 
 static enum cio_error socket_accept(struct cio_server_socket *ss, cio_accept_handler handler, void *handler_context)

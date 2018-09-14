@@ -71,6 +71,7 @@ elseif(is_windows)
 		"windows/cio_windows_endian.c"
 		"windows/cio_windows_random.c"
 		"windows/cio_windows_server_socket.c"
+		"windows/cio_windows_socket.c"
 		"windows/cio_windows_string.c"
 		"windows/cio_windows_timer.c"
 	)
