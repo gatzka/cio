@@ -67,10 +67,12 @@ enum cio_error cio_windows_eventloop_add(struct cio_event_notifier *ev, const st
 		return (enum cio_error) - WSAGetLastError();
 	}
 
-	if (CreateIoCompletionPort(ev->fd, loop->loop_completion_port, (ULONG_PTR)socket, 1) == NULL) {
+	if (CreateIoCompletionPort(ev->fd, loop->loop_completion_port, (ULONG_PTR)ev, 1) == NULL) {
 		WSACloseEvent(ev->overlapped.hEvent);
 		return (enum cio_error) - WSAGetLastError();
 	}
+
+	return CIO_SUCCESS;
 }
 
 void cio_windows_eventloop_remove(struct cio_eventloop *loop, const struct cio_event_notifier *ev)
