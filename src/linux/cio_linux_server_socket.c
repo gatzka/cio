@@ -79,6 +79,7 @@ static void accept_callback(void *context)
 				ss->free_client(s);
 			}
 		} else {
+			// TODO: call handler with error
 			close(client_fd);
 		}
 	}
