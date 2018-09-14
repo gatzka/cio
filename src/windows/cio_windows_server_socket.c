@@ -219,7 +219,7 @@ static enum cio_error socket_accept(struct cio_server_socket *ss, cio_accept_han
 
 static void close_listen_socket(struct cio_windows_listen_socket *socket)
 {
-	WSACloseEvent(socket->listen_event.overlapped.hEvent);
+	cio_windows_eventloop_remove(&socket->listen_event);
 	closesocket((SOCKET)socket->listen_event.fd);
 	if (socket->accept_socket != INVALID_SOCKET) {
 		closesocket(socket->accept_socket);
