@@ -24,8 +24,9 @@
  * SOFTWARE.
  */
 
-#include <stddef.h>
+#include <WinSock2.h>
 #include <Windows.h>
+#include <stddef.h>
 
 #include "cio_compiler.h"
 #include "cio_error_code.h"
@@ -57,6 +58,24 @@ void cio_eventloop_destroy(const struct cio_eventloop *loop)
 {
 	CloseHandle(loop->loop_completion_port);
 	WSACleanup();
+}
+
+enum cio_error cio_windows_eventloop_add(struct cio_event_notifier *ev, const struct cio_eventloop *loop)
+{
+	ev->overlapped.hEvent = WSACreateEvent();
+	if (cio_unlikely(ev->overlapped.hEvent == WSA_INVALID_EVENT)) {
+		return (enum cio_error) - WSAGetLastError();
+	}
+
+	if (CreateIoCompletionPort(ev->fd, loop->loop_completion_port, (ULONG_PTR)socket, 1) == NULL) {
+		WSACloseEvent(ev->overlapped.hEvent);
+		return (enum cio_error) - WSAGetLastError();
+	}
+}
+
+void cio_windows_eventloop_remove(struct cio_eventloop *loop, const struct cio_event_notifier *ev)
+{
+	WSACloseEvent(ev->overlapped.hEvent);
 }
 
 enum cio_error cio_eventloop_run(struct cio_eventloop *loop)

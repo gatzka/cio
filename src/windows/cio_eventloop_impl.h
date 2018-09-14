@@ -45,6 +45,7 @@ struct cio_event_notifier {
 	void *context;
 
 	OVERLAPPED overlapped;
+	HANDLE fd;
 };
 
 struct cio_eventloop {
@@ -54,6 +55,9 @@ struct cio_eventloop {
 	HANDLE loop_completion_port;
 	bool go_ahead;
 };
+
+enum cio_error cio_windows_eventloop_add(struct cio_event_notifier *ev, const struct cio_eventloop *loop);
+void cio_windows_eventloop_remove(struct cio_eventloop *loop, const struct cio_event_notifier *ev);
 
 #ifdef __cplusplus
 }

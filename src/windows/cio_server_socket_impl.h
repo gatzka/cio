@@ -40,7 +40,6 @@ extern "C" {
 
 struct cio_windows_listen_socket {
 	struct cio_event_notifier listen_event;
-	SOCKET listen_socket;
 	SOCKET accept_socket;
 	int address_family;
 	LPFN_ACCEPTEX accept_ex;
@@ -53,7 +52,6 @@ struct cio_server_socket_impl {
 	struct cio_windows_listen_socket listen_socket_ipv6;
 	struct cio_eventloop *loop;
 };
-
 
 #ifdef __cplusplus
 }
