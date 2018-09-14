@@ -51,6 +51,28 @@ static SOCKET create_win_socket_nonblocking(int address_family)
 	return s;
 }
 
+static enum cio_error prepare_accept_socket(struct cio_windows_listen_socket *s)
+{
+	s->accept_socket = WSASocket(s->address_family, SOCK_STREAM, 0, NULL, 0, WSA_FLAG_OVERLAPPED);
+	if (cio_unlikely(s->accept_socket == INVALID_SOCKET)) {
+		int err = WSAGetLastError();
+		return (enum cio_error)(-err);
+	}
+
+	DWORD bytes_received;
+	BOOL ret = s->accept_ex((SOCKET)s->listen_event.fd, s->accept_socket, s->accept_buffer, 0,
+	                                                 sizeof(struct sockaddr_storage), sizeof(struct sockaddr_storage),
+	                                                 &bytes_received, &s->listen_event.overlapped);
+	if (ret == FALSE) {
+		int err = WSAGetLastError();
+		if (cio_likely(err != WSA_IO_PENDING)) {
+			return (enum cio_error)(-err);
+		}
+	}
+
+	return CIO_SUCCESS;
+}
+
 static enum cio_error socket_set_reuse_address(struct cio_server_socket *ss, bool on)
 {
 	char reuse;
@@ -150,7 +172,9 @@ static void accept_callback(void *context)
 {
 	struct cio_event_notifier *ev = (struct cio_event_notifier *)context;
 	struct cio_windows_listen_socket *s = container_of(ev, struct cio_windows_listen_socket, listen_event);
-	(void)context;
+	// TODO create new socket
+
+	prepare_accept_socket(s);
 }
 
 static enum cio_error socket_accept(struct cio_server_socket *ss, cio_accept_handler handler, void *handler_context)
@@ -172,21 +196,9 @@ static enum cio_error socket_accept(struct cio_server_socket *ss, cio_accept_han
 			return (enum cio_error)(-err);
 		}
 
-		ss->impl.listen_socket_ipv4.accept_socket = WSASocket(AF_INET, SOCK_STREAM, 0, NULL, 0, WSA_FLAG_OVERLAPPED);
-		if (cio_unlikely(ss->impl.listen_socket_ipv4.accept_socket == INVALID_SOCKET)) {
-			int err = WSAGetLastError();
-			return (enum cio_error)(-err);
-		}
-
-		DWORD bytes_received;
-		BOOL ret = ss->impl.listen_socket_ipv4.accept_ex((SOCKET)ss->impl.listen_socket_ipv4.listen_event.fd, ss->impl.listen_socket_ipv4.accept_socket, ss->impl.listen_socket_ipv4.accept_buffer, 0,
-		                                                 sizeof(struct sockaddr_storage), sizeof(struct sockaddr_storage),
-		                                                 &bytes_received, &ss->impl.listen_socket_ipv4.listen_event.overlapped);
-		if (ret == FALSE) {
-			int err = WSAGetLastError();
-			if (cio_likely(err != WSA_IO_PENDING)) {
-				return (enum cio_error)(-err);
-			}
+		enum cio_error error = prepare_accept_socket(&ss->impl.listen_socket_ipv4);
+		if (cio_unlikely(error != CIO_SUCCESS)) {
+			return error;
 		}
 	}
 
@@ -196,21 +208,9 @@ static enum cio_error socket_accept(struct cio_server_socket *ss, cio_accept_han
 			return (enum cio_error)(-err);
 		}
 
-		ss->impl.listen_socket_ipv6.accept_socket = WSASocket(AF_INET6, SOCK_STREAM, 0, NULL, 0, WSA_FLAG_OVERLAPPED);
-		if (cio_unlikely(ss->impl.listen_socket_ipv6.accept_socket == INVALID_SOCKET)) {
-			int err = WSAGetLastError();
-			return (enum cio_error)(-err);
-		}
-
-		DWORD bytes_received;
-		BOOL ret = ss->impl.listen_socket_ipv6.accept_ex((SOCKET)ss->impl.listen_socket_ipv6.listen_event.fd, ss->impl.listen_socket_ipv6.accept_socket, ss->impl.listen_socket_ipv6.accept_buffer, 0,
-		                                                 sizeof(struct sockaddr_storage), sizeof(struct sockaddr_storage),
-		                                                 &bytes_received, &ss->impl.listen_socket_ipv6.listen_event.overlapped);
-		if (ret == FALSE) {
-			int err = WSAGetLastError();
-			if (cio_likely(err != WSA_IO_PENDING)) {
-				return (enum cio_error)(-err);
-			}
+		enum cio_error error = prepare_accept_socket(&ss->impl.listen_socket_ipv6);
+		if (cio_unlikely(error != CIO_SUCCESS)) {
+			return error;
 		}
 	}
 
@@ -245,7 +245,7 @@ static enum cio_error create_listen_socket(struct cio_windows_listen_socket *soc
 		
 	if (cio_unlikely((SOCKET)socket->listen_event.fd == INVALID_SOCKET)) {
 		err = WSAGetLastError();
-		return (enum cio_error) - err;
+		return (enum cio_error)(-err);
 	}
 
 	enum cio_error error = cio_windows_eventloop_add(&socket->listen_event, loop);
@@ -265,7 +265,7 @@ static enum cio_error create_listen_socket(struct cio_windows_listen_socket *soc
 	return CIO_SUCCESS;
 
 WSAioctl_failed:
-	cio_windows_eventloop_remove(loop, &socket->listen_event);
+	cio_windows_eventloop_remove(&socket->listen_event);
 eventloop_add_failed:
 	closesocket((SOCKET)socket->listen_event.fd);
 	return (enum cio_error)err;
