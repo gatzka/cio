@@ -32,6 +32,7 @@
 #include "cio_error_code.h"
 #include "cio_eventloop_impl.h"
 #include "cio_server_socket.h"
+#include "cio_util.h"
 
 static SOCKET create_win_socket_nonblocking(int address_family)
 {
@@ -147,7 +148,8 @@ static enum cio_error socket_bind(struct cio_server_socket *ss, const char *bind
 
 static void accept_callback(void *context)
 {
-	struct cio_windows_listen_socket *socket = (struct cio_windows_listen_socket *)context;
+	struct cio_event_notifier *ev = (struct cio_event_notifier *)context;
+	struct cio_windows_listen_socket *s = container_of(ev, struct cio_windows_listen_socket, listen_event);
 	(void)context;
 }
 
@@ -290,12 +292,12 @@ enum cio_error cio_server_socket_init(struct cio_server_socket *ss,
 	ss->impl.listen_socket_ipv4.accept_socket = INVALID_SOCKET;
 	ss->impl.listen_socket_ipv6.accept_socket = INVALID_SOCKET;
 
-	enum cio_error err = create_listen_socket(&ss->impl.listen_socket_ipv4, AF_INET, ss->impl.loop->loop_completion_port);
+	enum cio_error err = create_listen_socket(&ss->impl.listen_socket_ipv4, AF_INET, ss->impl.loop);
 	if (cio_unlikely(err != CIO_SUCCESS)) {
 		return err;
 	}
 
-	err = create_listen_socket(&ss->impl.listen_socket_ipv6, AF_INET6, ss->impl.loop->loop_completion_port);
+	err = create_listen_socket(&ss->impl.listen_socket_ipv6, AF_INET6, ss->impl.loop);
 	if (cio_unlikely(err != CIO_SUCCESS)) {
 		goto create_listen_socket_v6_failed;
 	}
