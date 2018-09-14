@@ -114,7 +114,6 @@ struct cio_socket {
 	cio_socket_close_hook close_hook;
 	struct cio_event_notifier ev;
 	struct cio_eventloop *loop;
-	struct cio_allocator *allocator;
 };
 
 /**
