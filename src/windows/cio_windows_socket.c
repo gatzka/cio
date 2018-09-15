@@ -77,6 +77,10 @@ static enum cio_error socket_keepalive(struct cio_socket *s, bool on, unsigned i
 	return CIO_SUCCESS;
 }
 
+static struct cio_io_stream *socket_get_io_stream(struct cio_socket *s)
+{
+	return &s->stream;
+}
 
 enum cio_error cio_windows_socket_init(struct cio_socket *s, SOCKET client_fd,
                                        struct cio_eventloop *loop,
@@ -96,7 +100,7 @@ enum cio_error cio_windows_socket_init(struct cio_socket *s, SOCKET client_fd,
 	s->close = socket_close;
 	s->set_tcp_no_delay = socket_tcp_no_delay;
 	s->set_keep_alive = socket_keepalive;
-	//s->get_io_stream = socket_get_io_stream;
+	s->get_io_stream = socket_get_io_stream;
 
 	//s->stream.read_some = stream_read;
 	//s->stream.write_some = stream_write;
