@@ -94,6 +94,7 @@ enum cio_error cio_eventloop_run(struct cio_eventloop *loop)
 				continue;
 			} else {
 				DWORD last_error = GetLastError();
+				//TODO??
 			}
 		}
 
