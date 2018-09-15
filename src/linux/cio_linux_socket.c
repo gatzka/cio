@@ -62,13 +62,7 @@ static enum cio_error socket_close(struct cio_socket *s)
 
 static enum cio_error socket_tcp_no_delay(struct cio_socket *s, bool on)
 {
-	int tcp_no_delay;
-
-	if (on) {
-		tcp_no_delay = 1;
-	} else {
-		tcp_no_delay = 0;
-	}
+	int tcp_no_delay = (char)on;
 
 	if (setsockopt(s->ev.fd, IPPROTO_TCP, TCP_NODELAY, &tcp_no_delay,
 	               sizeof(tcp_no_delay)) < 0) {
