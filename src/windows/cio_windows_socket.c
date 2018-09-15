@@ -32,6 +32,7 @@
 #include "cio_error_code.h"
 #include "cio_eventloop.h"
 #include "cio_socket.h"
+#include "cio_util.h"
 #include "cio_windows_socket.h"
 
 static enum cio_error socket_close(struct cio_socket *s)
@@ -82,6 +83,12 @@ static struct cio_io_stream *socket_get_io_stream(struct cio_socket *s)
 	return &s->stream;
 }
 
+static enum cio_error stream_close(struct cio_io_stream *stream)
+{
+	struct cio_socket *s = container_of(stream, struct cio_socket, stream);
+	return socket_close(s);
+}
+
 enum cio_error cio_windows_socket_init(struct cio_socket *s, SOCKET client_fd,
                                        struct cio_eventloop *loop,
                                        cio_socket_close_hook close_hook)
@@ -104,7 +111,7 @@ enum cio_error cio_windows_socket_init(struct cio_socket *s, SOCKET client_fd,
 
 	//s->stream.read_some = stream_read;
 	//s->stream.write_some = stream_write;
-	//s->stream.close = stream_close;
+	s->stream.close = stream_close;
 
 	return cio_windows_eventloop_add(&s->ev, loop);
 }
