@@ -290,7 +290,7 @@ static void serialize_frames(struct ws_frame frames[], size_t num_frames)
 				cio_websocket_mask(&frame_buffer[buffer_pos], frame.data_length, mask);
 			}
 
-			buffer_pos += frame.data_length;
+			buffer_pos += (uint32_t)frame.data_length;
 		}
 	}
 
