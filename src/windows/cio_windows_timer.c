@@ -39,6 +39,7 @@ static enum cio_error timer_cancel(struct cio_timer *t)
 	BOOL ret = DeleteTimerQueueTimer(NULL, t->ev.overlapped.hEvent, NULL);
 	if (cio_likely(ret)) {
 		t->handler(t, t->handler_context, CIO_OPERATION_ABORTED);
+		t->handler = NULL;
 		return CIO_SUCCESS;
 	}
 
