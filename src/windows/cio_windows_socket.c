@@ -56,7 +56,7 @@ static enum cio_error socket_tcp_no_delay(struct cio_socket *s, bool on)
 	char tcp_no_delay = (char)on;
 
 	if (cio_unlikely(setsockopt((SOCKET)s->ev.fd, IPPROTO_TCP, TCP_NODELAY, &tcp_no_delay,
-	               sizeof(tcp_no_delay)) == SOCKET_ERROR)) {
+	                            sizeof(tcp_no_delay)) == SOCKET_ERROR)) {
 		return (enum cio_error)(-WSAGetLastError());
 	}
 
@@ -71,9 +71,11 @@ static enum cio_error socket_keepalive(struct cio_socket *s, bool on, unsigned i
 	struct tcp_keepalive alive = {.onoff = on, .keepalivetime = keep_idle_s, .keepaliveinterval = keep_intvl_s};
 
 	DWORD bytes_returned;
-	if cio_unlikely(WSAIoctl((SOCKET)s->ev.fd, SIO_KEEPALIVE_VALS, &alive, sizeof(alive), NULL, 0, &bytes_returned, NULL, NULL) == SOCKET_ERROR) {
-		return (enum cio_error)(-WSAGetLastError());
-	}
+	if
+		cio_unlikely(WSAIoctl((SOCKET)s->ev.fd, SIO_KEEPALIVE_VALS, &alive, sizeof(alive), NULL, 0, &bytes_returned, NULL, NULL) == SOCKET_ERROR)
+		{
+			return (enum cio_error)(-WSAGetLastError());
+		}
 
 	return CIO_SUCCESS;
 }
@@ -87,6 +89,67 @@ static enum cio_error stream_close(struct cio_io_stream *stream)
 {
 	struct cio_socket *s = container_of(stream, struct cio_socket, stream);
 	return socket_close(s);
+}
+
+static void read_callback(void *context)
+{
+	int error;
+
+	struct cio_io_stream *stream = context;
+	struct cio_read_buffer *rb = stream->read_buffer;
+	struct cio_socket *s = container_of(stream, struct cio_socket, stream);
+
+	DWORD recv_bytes;
+	DWORD flags = 0;
+	BOOL rc = WSAGetOverlappedResult((SOCKET)s->ev.fd, &s->ev.overlapped, &recv_bytes, FALSE, &flags);
+	if (cio_unlikely(rc == FALSE)) {
+		error = WSAGetLastError();
+		stream->read_handler(stream, stream->read_handler_context, (enum cio_error)(-error), rb);
+		return;
+	}
+
+	rb->bytes_transferred = (size_t)recv_bytes;
+	if (recv_bytes == 0) {
+		error = CIO_EOF;
+	} else {
+		rb->add_ptr += (size_t)recv_bytes;
+		error = CIO_SUCCESS;
+	}
+
+	stream->read_handler(stream, stream->read_handler_context, error, rb);
+}
+
+static enum cio_error stream_read(struct cio_io_stream *stream, struct cio_read_buffer *buffer, cio_io_stream_read_handler handler, void *handler_context)
+{
+	if (cio_unlikely((stream == NULL) || (buffer == NULL) || (handler == NULL))) {
+		return CIO_INVALID_ARGUMENT;
+	}
+
+	struct cio_socket *s = container_of(stream, struct cio_socket, stream);
+
+	s->stream.read_buffer = buffer;
+	s->stream.read_handler = handler;
+	s->stream.read_handler_context = handler_context;
+	s->ev.context = stream;
+	s->ev.callback = read_callback;
+
+	WSABUF wsa_buffer;
+	wsa_buffer.len = (ULONG)cio_read_buffer_space_available(buffer);
+	wsa_buffer.buf = buffer->add_ptr;
+	DWORD received_bytes;
+	DWORD flags = 0;
+
+	int rc = WSARecv((SOCKET)s->ev.fd, &wsa_buffer, 1, &received_bytes, &flags, &s->ev.overlapped, NULL);
+	if (rc == SOCKET_ERROR) {
+		int error = WSAGetLastError();
+		if (cio_likely(error == WSA_IO_PENDING)) {
+			return CIO_SUCCESS;
+		} else {
+			return (enum cio_error)(-error);
+		}
+	} else {
+		return CIO_SUCCESS;
+	}
 }
 
 enum cio_error cio_windows_socket_init(struct cio_socket *s, SOCKET client_fd,
@@ -109,7 +172,7 @@ enum cio_error cio_windows_socket_init(struct cio_socket *s, SOCKET client_fd,
 	s->set_keep_alive = socket_keepalive;
 	s->get_io_stream = socket_get_io_stream;
 
-	//s->stream.read_some = stream_read;
+	s->stream.read_some = stream_read;
 	//s->stream.write_some = stream_write;
 	s->stream.close = stream_close;
 
