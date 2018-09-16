@@ -27,6 +27,7 @@
 #include <WinSock2.h>
 #include <Mstcpip.h>
 #include <Windows.h>
+#include <malloc.h>
 
 #include "cio_compiler.h"
 #include "cio_error_code.h"
@@ -135,21 +136,89 @@ static enum cio_error stream_read(struct cio_io_stream *stream, struct cio_read_
 
 	WSABUF wsa_buffer;
 	wsa_buffer.len = (ULONG)cio_read_buffer_space_available(buffer);
-	wsa_buffer.buf = buffer->add_ptr;
+	wsa_buffer.buf = (CHAR *)buffer->add_ptr;
 	DWORD received_bytes;
 	DWORD flags = 0;
+	int error;
 
 	int rc = WSARecv((SOCKET)s->ev.fd, &wsa_buffer, 1, &received_bytes, &flags, &s->ev.overlapped, NULL);
 	if (rc == SOCKET_ERROR) {
-		int error = WSAGetLastError();
+		error = WSAGetLastError();
 		if (cio_likely(error == WSA_IO_PENDING)) {
 			return CIO_SUCCESS;
 		} else {
 			return (enum cio_error)(-error);
 		}
 	} else {
+		buffer->bytes_transferred = (size_t)received_bytes;
+		if (received_bytes == 0) {
+			error = CIO_EOF;
+		} else {
+			buffer->add_ptr += (size_t)received_bytes;
+			error = CIO_SUCCESS;
+		}
+
+		stream->read_handler(stream, stream->read_handler_context, error, buffer);
 		return CIO_SUCCESS;
 	}
+}
+
+static void write_callback(void *context)
+{
+	int error;
+
+	struct cio_io_stream *stream = context;
+	struct cio_socket *s = container_of(stream, struct cio_socket, stream);
+
+	DWORD bytes_sent;
+	DWORD flags = 0;
+	BOOL rc = WSAGetOverlappedResult((SOCKET)s->ev.fd, &s->ev.overlapped, &bytes_sent, FALSE, &flags);
+	if (cio_unlikely(rc == FALSE)) {
+		error = WSAGetLastError();
+		stream->write_handler(stream, stream->read_handler_context, stream->write_buffer, (enum cio_error)(-error), 0);
+		return;
+	}
+
+	stream->write_handler(stream, stream->write_handler_context, stream->write_buffer, CIO_SUCCESS, (size_t)bytes_sent);
+}
+
+static enum cio_error stream_write(struct cio_io_stream *stream, const struct cio_write_buffer *buffer, cio_io_stream_write_handler handler, void *handler_context)
+{
+	if (cio_unlikely((stream == NULL) || (buffer == NULL) || (handler == NULL))) {
+		return CIO_INVALID_ARGUMENT;
+	}
+
+	struct cio_socket *s = container_of(stream, struct cio_socket, stream);
+	size_t chain_length = cio_write_buffer_get_number_of_elements(buffer);
+
+	DWORD bytes_sent;
+	WSABUF *wsa_buffers = alloca(sizeof(*wsa_buffers) * chain_length);
+	struct cio_write_buffer *wb = buffer->next;
+	for (size_t i = 0; i < chain_length; i++) {
+		wsa_buffers[i].buf = (void *)wb->data.element.const_data;
+		wsa_buffers[i].len = (ULONG)wb->data.element.length;
+		wb = wb->next;
+	}
+
+	int rc = WSASend((SOCKET)s->ev.fd, wsa_buffers, (DWORD)chain_length, &bytes_sent, 0, &s->ev.overlapped, NULL);
+	if (rc == SOCKET_ERROR) {
+		int error = WSAGetLastError();
+		if (cio_likely(error == WSA_IO_PENDING)) {
+			s->stream.write_handler = handler;
+			s->stream.write_handler_context = handler_context;
+			s->stream.write_buffer = buffer;
+			s->ev.context = stream;
+			s->ev.callback = write_callback;
+			return CIO_SUCCESS;
+		} else {
+			return (enum cio_error)(-error);
+		}
+	} else {
+		handler(stream, handler_context, buffer, CIO_SUCCESS, (size_t)bytes_sent);
+		return CIO_SUCCESS;
+	}
+
+	return CIO_SUCCESS;
 }
 
 enum cio_error cio_windows_socket_init(struct cio_socket *s, SOCKET client_fd,
@@ -173,7 +242,7 @@ enum cio_error cio_windows_socket_init(struct cio_socket *s, SOCKET client_fd,
 	s->get_io_stream = socket_get_io_stream;
 
 	s->stream.read_some = stream_read;
-	//s->stream.write_some = stream_write;
+	s->stream.write_some = stream_write;
 	s->stream.close = stream_close;
 
 	return cio_windows_eventloop_add(&s->ev, loop);
