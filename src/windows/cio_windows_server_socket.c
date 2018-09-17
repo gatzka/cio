@@ -172,9 +172,8 @@ static enum cio_error socket_bind(struct cio_server_socket *ss, const char *bind
 static void accept_callback(void *context)
 {
 	struct cio_event_notifier *ev = (struct cio_event_notifier *)context;
-	struct cio_windows_listen_socket *wls = container_of(ev, struct cio_windows_listen_socket, listen_event);
-	SOCKET client_fd = wls->accept_socket;
 
+	struct cio_windows_listen_socket *wls = container_of(ev, struct cio_windows_listen_socket, listen_event);
 	struct cio_server_socket_imp *impl;
 	if (wls->address_family == AF_INET) {
 		impl = container_of(wls, struct cio_server_socket_impl, listen_socket_ipv4);
@@ -184,7 +183,25 @@ static void accept_callback(void *context)
 
 	struct cio_server_socket *ss = container_of(impl, struct cio_server_socket, impl);
 
-	enum cio_error err = prepare_accept_socket(wls);
+	if (cio_unlikely(ev->last_error == ERROR_OPERATION_ABORTED)) {
+		// This seems to be the condition when a server socket is closed.
+		ev->last_error = ERROR_SUCCESS;
+		if (ss->close_hook != NULL) {
+			ss->close_hook(ss);
+		}
+
+		return;
+	}
+	
+	enum cio_error err;
+	SOCKET client_fd = wls->accept_socket;
+	int ret = setsockopt(client_fd, SOL_SOCKET, SO_UPDATE_ACCEPT_CONTEXT, (char *)&wls->listen_event.fd, sizeof(wls->listen_event.fd));
+	if (cio_unlikely(ret == SOCKET_ERROR)) {
+		err = (enum cio_error)(-WSAGetLastError());
+		goto setsockopt_failed;
+	}
+
+	err = prepare_accept_socket(wls);
 	if (cio_unlikely(err != CIO_SUCCESS)) {
 		goto prepare_failed;
 	}
@@ -207,6 +224,7 @@ socket_init_failed:
 	ss->free_client(s);
 alloc_failed:
 	closesocket(client_fd);
+setsockopt_failed:
 prepare_failed:
 	ss->handler(ss, ss->handler_context, err, NULL);
 }
@@ -264,10 +282,6 @@ static void socket_close(struct cio_server_socket *ss)
 {
 	close_listen_socket(&ss->impl.listen_socket_ipv4);
 	close_listen_socket(&ss->impl.listen_socket_ipv6);
-
-	if (ss->close_hook != NULL) {
-		ss->close_hook(ss);
-	}
 }
 
 static enum cio_error create_listen_socket(struct cio_windows_listen_socket *socket, int address_family, struct cio_eventloop *loop)
@@ -276,7 +290,7 @@ static enum cio_error create_listen_socket(struct cio_windows_listen_socket *soc
 	socket->address_family = address_family;
 	socket->bound = false;
 	socket->listen_event.fd = (HANDLE)create_win_socket_nonblocking(address_family);
-		
+
 	if (cio_unlikely((SOCKET)socket->listen_event.fd == INVALID_SOCKET)) {
 		err = WSAGetLastError();
 		return (enum cio_error)(-err);
@@ -286,6 +300,11 @@ static enum cio_error create_listen_socket(struct cio_windows_listen_socket *soc
 	if (cio_unlikely(error != CIO_SUCCESS)) {
 		err = error;
 		goto eventloop_add_failed;
+	}
+
+	if (cio_unlikely(WSAEventSelect((SOCKET)socket->listen_event.fd, socket->listen_event.overlapped.hEvent, FD_ACCEPT | FD_CLOSE) == SOCKET_ERROR)) {
+		err = WSAGetLastError();
+		return (enum cio_error)(-err);
 	}
 
 	DWORD dw_bytes;
