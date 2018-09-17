@@ -36,17 +36,34 @@
 #include "cio_util.h"
 #include "cio_windows_socket.h"
 
+static void close_and_free(struct cio_socket *s)
+{
+	if (cio_unlikely(WSAEventSelect((SOCKET)s->ev.fd, s->ev.network_event, 0) == SOCKET_ERROR)) {
+		int err = WSAGetLastError();
+		return (enum cio_error)(-err);
+	}
+
+	cio_windows_eventloop_remove(&s->ev);
+	closesocket((SOCKET)s->ev.fd);
+	//if (s->close_hook != NULL) {
+	//	s->close_hook(s);
+	//}
+}
+
 static enum cio_error socket_close(struct cio_socket *s)
 {
 	if (cio_unlikely(s == NULL)) {
 		return CIO_INVALID_ARGUMENT;
 	}
 
-	cio_windows_eventloop_remove(&s->ev);
+	if (cio_unlikely(WSAEventSelect((SOCKET)s->ev.fd, s->ev.network_event, FD_CLOSE) == SOCKET_ERROR)) {
+		int err = WSAGetLastError();
+		return (enum cio_error)(-err);
+	}
 
-	closesocket((SOCKET)s->ev.fd);
-	if (s->close_hook != NULL) {
-		s->close_hook(s);
+	if (cio_unlikely(shutdown((SOCKET)s->ev.fd, SD_BOTH) == SOCKET_ERROR)) {
+		int err = WSAGetLastError();
+		return (enum cio_error)(-err);
 	}
 
 	return CIO_SUCCESS;
@@ -92,32 +109,28 @@ static enum cio_error stream_close(struct cio_io_stream *stream)
 	return socket_close(s);
 }
 
-static void read_callback(void *context)
+static void read_callback(struct cio_socket *s)
 {
 	int error;
-
-	struct cio_io_stream *stream = context;
-	struct cio_read_buffer *rb = stream->read_buffer;
-	struct cio_socket *s = container_of(stream, struct cio_socket, stream);
 
 	DWORD recv_bytes;
 	DWORD flags = 0;
 	BOOL rc = WSAGetOverlappedResult((SOCKET)s->ev.fd, &s->ev.overlapped, &recv_bytes, FALSE, &flags);
 	if (cio_unlikely(rc == FALSE)) {
 		error = WSAGetLastError();
-		stream->read_handler(stream, stream->read_handler_context, (enum cio_error)(-error), rb);
+		s->stream.read_handler(&s->stream, s->stream.read_handler_context, (enum cio_error)(-error), s->stream.read_buffer);
 		return;
 	}
 
-	rb->bytes_transferred = (size_t)recv_bytes;
+	s->stream.read_buffer->bytes_transferred = (size_t)recv_bytes;
 	if (recv_bytes == 0) {
 		error = CIO_EOF;
 	} else {
-		rb->add_ptr += (size_t)recv_bytes;
+		s->stream.read_buffer->add_ptr += (size_t)recv_bytes;
 		error = CIO_SUCCESS;
 	}
 
-	stream->read_handler(stream, stream->read_handler_context, error, rb);
+	s->stream.read_handler(&s->stream, s->stream.read_handler_context, error, s->stream.read_buffer);
 }
 
 static enum cio_error stream_read(struct cio_io_stream *stream, struct cio_read_buffer *buffer, cio_io_stream_read_handler handler, void *handler_context)
@@ -131,8 +144,6 @@ static enum cio_error stream_read(struct cio_io_stream *stream, struct cio_read_
 	s->stream.read_buffer = buffer;
 	s->stream.read_handler = handler;
 	s->stream.read_handler_context = handler_context;
-	s->ev.context = stream;
-	s->ev.callback = read_callback;
 
 	WSABUF wsa_buffer;
 	wsa_buffer.len = (ULONG)cio_read_buffer_space_available(buffer);
@@ -163,23 +174,18 @@ static enum cio_error stream_read(struct cio_io_stream *stream, struct cio_read_
 	}
 }
 
-static void write_callback(void *context)
+static void write_callback(struct cio_socket *s)
 {
-	int error;
-
-	struct cio_io_stream *stream = context;
-	struct cio_socket *s = container_of(stream, struct cio_socket, stream);
-
 	DWORD bytes_sent;
 	DWORD flags = 0;
 	BOOL rc = WSAGetOverlappedResult((SOCKET)s->ev.fd, &s->ev.overlapped, &bytes_sent, FALSE, &flags);
 	if (cio_unlikely(rc == FALSE)) {
-		error = WSAGetLastError();
-		stream->write_handler(stream, stream->read_handler_context, stream->write_buffer, (enum cio_error)(-error), 0);
+		int error = WSAGetLastError();
+		s->stream.write_handler(&s->stream, s->stream.write_handler_context, s->stream.write_buffer, (enum cio_error)(-error), 0);
 		return;
 	}
 
-	stream->write_handler(stream, stream->write_handler_context, stream->write_buffer, CIO_SUCCESS, (size_t)bytes_sent);
+	s->stream.write_handler(&s->stream, s->stream.write_handler_context, s->stream.write_buffer, CIO_SUCCESS, (size_t)bytes_sent);
 }
 
 static enum cio_error stream_write(struct cio_io_stream *stream, const struct cio_write_buffer *buffer, cio_io_stream_write_handler handler, void *handler_context)
@@ -207,8 +213,6 @@ static enum cio_error stream_write(struct cio_io_stream *stream, const struct ci
 			s->stream.write_handler = handler;
 			s->stream.write_handler_context = handler_context;
 			s->stream.write_buffer = buffer;
-			s->ev.context = stream;
-			s->ev.callback = write_callback;
 			return CIO_SUCCESS;
 		} else {
 			return (enum cio_error)(-error);
@@ -221,6 +225,34 @@ static enum cio_error stream_write(struct cio_io_stream *stream, const struct ci
 	return CIO_SUCCESS;
 }
 
+static void socket_callback(void *context)
+{
+	struct cio_io_stream *stream = context;
+	struct cio_socket *s = container_of(stream, struct cio_socket, stream);
+
+	WSANETWORKEVENTS events;
+	if (cio_unlikely(WSAEnumNetworkEvents((SOCKET)s->ev.fd, s->ev.network_event, &events) == SOCKET_ERROR)) {
+		int err = WSAGetLastError();
+		//TODO
+		return;
+	}
+
+	if ((events.lNetworkEvents & FD_READ) == FD_READ) {
+		read_callback(s);
+		return;
+	}
+
+	//if ((events.lNetworkEvents & FD_WRITE) == FD_WRITE) {
+	//	write_callback(s);
+	//	return;
+	//}
+
+	if ((events.lNetworkEvents & FD_CLOSE) == FD_CLOSE) {
+		close_and_free(s);
+		return;
+	}
+}
+
 enum cio_error cio_windows_socket_init(struct cio_socket *s, SOCKET client_fd,
                                        struct cio_eventloop *loop,
                                        cio_socket_close_hook close_hook)
@@ -230,8 +262,6 @@ enum cio_error cio_windows_socket_init(struct cio_socket *s, SOCKET client_fd,
 	}
 
 	s->ev.fd = (HANDLE)client_fd;
-	s->ev.callback = NULL;
-	s->ev.context = s;
 
 	s->loop = loop;
 	s->close_hook = close_hook;
@@ -245,5 +275,23 @@ enum cio_error cio_windows_socket_init(struct cio_socket *s, SOCKET client_fd,
 	s->stream.write_some = stream_write;
 	s->stream.close = stream_close;
 
-	return cio_windows_eventloop_add(&s->ev, loop);
+	s->ev.callback = socket_callback;
+	s->ev.context = &s->stream;
+
+	enum cio_error error = cio_windows_eventloop_add(&s->ev, loop);
+	if (error != CIO_SUCCESS) {
+		return error;
+	}
+
+	s->ev.network_event = WSACreateEvent();
+	if (cio_unlikely(s->ev.network_event == WSA_INVALID_EVENT)) {
+		return (enum cio_error) - WSAGetLastError();
+	}
+
+	if (cio_unlikely(WSAEventSelect((SOCKET)s->ev.fd, s->ev.network_event, FD_READ | FD_CLOSE) == SOCKET_ERROR)) {
+		int err = WSAGetLastError();
+		return (enum cio_error)(-err);
+	}
+
+	return CIO_SUCCESS;
 }

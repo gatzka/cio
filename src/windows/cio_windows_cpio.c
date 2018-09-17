@@ -79,7 +79,10 @@ enum cio_error cio_windows_eventloop_add(struct cio_event_notifier *ev, const st
 
 void cio_windows_eventloop_remove(struct cio_event_notifier *ev)
 {
-	WSACloseEvent(ev->overlapped.hEvent);
+	BOOL rc = WSACloseEvent(ev->overlapped.hEvent);
+	if (rc == FALSE) {
+		return;
+	}
 }
 
 enum cio_error cio_eventloop_run(struct cio_eventloop *loop)
