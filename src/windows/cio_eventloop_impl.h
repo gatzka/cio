@@ -46,6 +46,7 @@ struct cio_event_notifier {
 
 	OVERLAPPED overlapped;
 	HANDLE fd;
+	DWORD last_error;
 };
 
 struct cio_eventloop {

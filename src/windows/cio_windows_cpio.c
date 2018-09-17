@@ -72,6 +72,8 @@ enum cio_error cio_windows_eventloop_add(struct cio_event_notifier *ev, const st
 		return (enum cio_error) - WSAGetLastError();
 	}
 
+	ev->last_error = ERROR_SUCCESS;
+
 	return CIO_SUCCESS;
 }
 
@@ -93,8 +95,9 @@ enum cio_error cio_eventloop_run(struct cio_eventloop *loop)
 				// An unrecoverable error occurred in the completion port. Wait for the next notification.
 				continue;
 			} else {
-				DWORD last_error = GetLastError();
-				//TODO??
+				struct cio_event_notifier *ev = (struct cio_event_notifier *)completion_key;
+				ev->last_error = GetLastError();
+				ev->callback(ev->context);
 			}
 		}
 
