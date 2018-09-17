@@ -40,7 +40,7 @@ static void close_and_free(struct cio_socket *s)
 {
 	if (cio_unlikely(WSAEventSelect((SOCKET)s->ev.fd, s->ev.network_event, 0) == SOCKET_ERROR)) {
 		int err = WSAGetLastError();
-		return (enum cio_error)(-err);
+		return;
 	}
 
 	cio_windows_eventloop_remove(&s->ev);
@@ -148,11 +148,10 @@ static enum cio_error stream_read(struct cio_io_stream *stream, struct cio_read_
 	WSABUF wsa_buffer;
 	wsa_buffer.len = (ULONG)cio_read_buffer_space_available(buffer);
 	wsa_buffer.buf = (CHAR *)buffer->add_ptr;
-	DWORD received_bytes;
 	DWORD flags = 0;
 	int error;
 
-	int rc = WSARecv((SOCKET)s->ev.fd, &wsa_buffer, 1, &received_bytes, &flags, &s->ev.overlapped, NULL);
+	int rc = WSARecv((SOCKET)s->ev.fd, &wsa_buffer, 1, NULL, &flags, &s->ev.overlapped, NULL);
 	if (rc == SOCKET_ERROR) {
 		error = WSAGetLastError();
 		if (cio_likely(error == WSA_IO_PENDING)) {
@@ -161,12 +160,19 @@ static enum cio_error stream_read(struct cio_io_stream *stream, struct cio_read_
 			return (enum cio_error)(-error);
 		}
 	} else {
-		buffer->bytes_transferred = (size_t)received_bytes;
-		if (received_bytes == 0) {
-			error = CIO_EOF;
+		DWORD recv_bytes;
+		flags = 0;
+		BOOL ret = WSAGetOverlappedResult((SOCKET)s->ev.fd, &s->ev.overlapped, &recv_bytes, FALSE, &flags);
+		if (cio_unlikely(ret == FALSE)) {
+			error = -WSAGetLastError();
 		} else {
-			buffer->add_ptr += (size_t)received_bytes;
-			error = CIO_SUCCESS;
+			buffer->bytes_transferred = (size_t)recv_bytes;
+			if (recv_bytes == 0) {
+				error = CIO_EOF;
+			} else {
+				buffer->add_ptr += (size_t)recv_bytes;
+				error = CIO_SUCCESS;
+			}		
 		}
 
 		stream->read_handler(stream, stream->read_handler_context, error, buffer);
@@ -197,7 +203,6 @@ static enum cio_error stream_write(struct cio_io_stream *stream, const struct ci
 	struct cio_socket *s = container_of(stream, struct cio_socket, stream);
 	size_t chain_length = cio_write_buffer_get_number_of_elements(buffer);
 
-	DWORD bytes_sent;
 	WSABUF *wsa_buffers = alloca(sizeof(*wsa_buffers) * chain_length);
 	struct cio_write_buffer *wb = buffer->next;
 	for (size_t i = 0; i < chain_length; i++) {
@@ -206,7 +211,7 @@ static enum cio_error stream_write(struct cio_io_stream *stream, const struct ci
 		wb = wb->next;
 	}
 
-	int rc = WSASend((SOCKET)s->ev.fd, wsa_buffers, (DWORD)chain_length, &bytes_sent, 0, &s->ev.overlapped, NULL);
+	int rc = WSASend((SOCKET)s->ev.fd, wsa_buffers, (DWORD)chain_length, NULL, 0, &s->ev.overlapped, NULL);
 	if (rc == SOCKET_ERROR) {
 		int error = WSAGetLastError();
 		if (cio_likely(error == WSA_IO_PENDING)) {
@@ -218,6 +223,10 @@ static enum cio_error stream_write(struct cio_io_stream *stream, const struct ci
 			return (enum cio_error)(-error);
 		}
 	} else {
+		DWORD flags = 0;
+		DWORD bytes_sent = 0;
+		BOOL ret = WSAGetOverlappedResult((SOCKET)s->ev.fd, &s->ev.overlapped, &bytes_sent, FALSE, &flags);
+
 		handler(stream, handler_context, buffer, CIO_SUCCESS, (size_t)bytes_sent);
 		return CIO_SUCCESS;
 	}
