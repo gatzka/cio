@@ -269,9 +269,9 @@ static enum cio_error socket_accept(struct cio_server_socket *ss, cio_accept_han
 	return CIO_SUCCESS;
 }
 
-static void close_listen_socket(struct cio_windows_listen_socket *socket)
+static void close_listen_socket(struct cio_windows_listen_socket *socket, const struct cio_eventloop *loop)
 {
-	cio_windows_eventloop_remove(&socket->listen_event);
+	cio_windows_eventloop_remove(&socket->listen_event, loop);
 	closesocket((SOCKET)socket->listen_event.fd);
 	if (socket->accept_socket != INVALID_SOCKET) {
 		closesocket(socket->accept_socket);
@@ -280,8 +280,8 @@ static void close_listen_socket(struct cio_windows_listen_socket *socket)
 
 static void socket_close(struct cio_server_socket *ss)
 {
-	close_listen_socket(&ss->impl.listen_socket_ipv4);
-	close_listen_socket(&ss->impl.listen_socket_ipv6);
+	close_listen_socket(&ss->impl.listen_socket_ipv4, ss->impl.loop);
+	close_listen_socket(&ss->impl.listen_socket_ipv6, ss->impl.loop);
 }
 
 static enum cio_error create_listen_socket(struct cio_windows_listen_socket *socket, int address_family, struct cio_eventloop *loop)
@@ -318,7 +318,7 @@ static enum cio_error create_listen_socket(struct cio_windows_listen_socket *soc
 	return CIO_SUCCESS;
 
 WSAioctl_failed:
-	cio_windows_eventloop_remove(&socket->listen_event);
+	cio_windows_eventloop_remove(&socket->listen_event, loop);
 eventloop_add_failed:
 	closesocket((SOCKET)socket->listen_event.fd);
 	return (enum cio_error)err;
@@ -358,6 +358,6 @@ enum cio_error cio_server_socket_init(struct cio_server_socket *ss,
 	return CIO_SUCCESS;
 
 create_listen_socket_v6_failed:
-	close_listen_socket(&ss->impl.listen_socket_ipv4);
+	close_listen_socket(&ss->impl.listen_socket_ipv4, loop);
 	return err;
 }

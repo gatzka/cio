@@ -38,13 +38,19 @@
 
 static void close_and_free(struct cio_socket *s)
 {
-	if (cio_unlikely(WSAEventSelect((SOCKET)s->ev.fd, s->ev.network_event, 0) == SOCKET_ERROR)) {
+	DWORD ret = 0;
+	if (cio_unlikely(WSAEventSelect((SOCKET)s->ev.fd, s->ev.network_event, 0) == SOCKET_ERROR))
+	{
 		int err = WSAGetLastError();
 		return;
 	}
 
-	cio_windows_eventloop_remove(&s->ev);
+	cio_windows_eventloop_remove(&s->ev, s->loop);
 	closesocket((SOCKET)s->ev.fd);
+	BOOL rc = CancelIoEx(s->ev.fd, &s->ev.overlapped);
+	if (rc == FALSE) {
+		ret = GetLastError();
+	}
 	//if (s->close_hook != NULL) {
 	//	s->close_hook(s);
 	//}
@@ -172,7 +178,7 @@ static enum cio_error stream_read(struct cio_io_stream *stream, struct cio_read_
 			} else {
 				buffer->add_ptr += (size_t)recv_bytes;
 				error = CIO_SUCCESS;
-			}		
+			}
 		}
 
 		stream->read_handler(stream, stream->read_handler_context, error, buffer);

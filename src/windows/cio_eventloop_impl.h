@@ -59,7 +59,7 @@ struct cio_eventloop {
 };
 
 enum cio_error cio_windows_eventloop_add(struct cio_event_notifier *ev, const struct cio_eventloop *loop);
-void cio_windows_eventloop_remove(struct cio_event_notifier *ev);
+void cio_windows_eventloop_remove(struct cio_event_notifier *ev, const struct cio_eventloop *loop);
 
 #ifdef __cplusplus
 }
