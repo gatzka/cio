@@ -50,9 +50,9 @@ static enum cio_error socket_close(struct cio_socket *s)
 		return CIO_INVALID_ARGUMENT;
 	}
 
-	cio_linux_eventloop_remove(s->loop, &s->ev);
+	cio_linux_eventloop_remove(s->impl.loop, &s->impl.ev);
 
-	close(s->ev.fd);
+	close(s->impl.ev.fd);
 	if (s->close_hook != NULL) {
 		s->close_hook(s);
 	}
@@ -64,7 +64,7 @@ static enum cio_error socket_tcp_no_delay(struct cio_socket *s, bool on)
 {
 	int tcp_no_delay = (char)on;
 
-	if (setsockopt(s->ev.fd, IPPROTO_TCP, TCP_NODELAY, &tcp_no_delay,
+	if (setsockopt(s->impl.ev.fd, IPPROTO_TCP, TCP_NODELAY, &tcp_no_delay,
 	               sizeof(tcp_no_delay)) < 0) {
 		return (enum cio_error)(-errno);
 	}
@@ -79,22 +79,22 @@ static enum cio_error socket_keepalive(struct cio_socket *s, bool on, unsigned i
 
 	if (on) {
 		keep_alive = 1;
-		if (setsockopt(s->ev.fd, SOL_TCP, TCP_KEEPIDLE, &keep_idle_s, sizeof(keep_idle_s)) == -1) {
+		if (setsockopt(s->impl.ev.fd, SOL_TCP, TCP_KEEPIDLE, &keep_idle_s, sizeof(keep_idle_s)) == -1) {
 			return (enum cio_error)(-errno);
 		}
 
-		if (setsockopt(s->ev.fd, SOL_TCP, TCP_KEEPINTVL, &keep_intvl_s, sizeof(keep_intvl_s)) == -1) {
+		if (setsockopt(s->impl.ev.fd, SOL_TCP, TCP_KEEPINTVL, &keep_intvl_s, sizeof(keep_intvl_s)) == -1) {
 			return (enum cio_error)(-errno);
 		}
 
-		if (setsockopt(s->ev.fd, SOL_TCP, TCP_KEEPCNT, &keep_cnt, sizeof(keep_cnt)) == -1) {
+		if (setsockopt(s->impl.ev.fd, SOL_TCP, TCP_KEEPCNT, &keep_cnt, sizeof(keep_cnt)) == -1) {
 			return (enum cio_error)(-errno);
 		}
 	} else {
 		keep_alive = 0;
 	}
 
-	if (setsockopt(s->ev.fd, SOL_SOCKET, SO_KEEPALIVE, &keep_alive, sizeof(keep_alive)) == -1) {
+	if (setsockopt(s->impl.ev.fd, SOL_SOCKET, SO_KEEPALIVE, &keep_alive, sizeof(keep_alive)) == -1) {
 		return (enum cio_error)(-errno);
 	}
 
@@ -111,7 +111,7 @@ static void read_callback(void *context)
 	struct cio_io_stream *stream = context;
 	struct cio_read_buffer *rb = stream->read_buffer;
 	struct cio_socket *s = container_of(stream, struct cio_socket, stream);
-	ssize_t ret = read(s->ev.fd, rb->add_ptr, cio_read_buffer_space_available(rb));
+	ssize_t ret = read(s->impl.ev.fd, rb->add_ptr, cio_read_buffer_space_available(rb));
 	if (ret == -1) {
 		if (cio_unlikely((errno != EWOULDBLOCK) && (errno != EAGAIN))) {
 			rb->bytes_transferred = 0;
@@ -138,12 +138,12 @@ static enum cio_error stream_read(struct cio_io_stream *stream, struct cio_read_
 	}
 
 	struct cio_socket *s = container_of(stream, struct cio_socket, stream);
-	s->ev.context = stream;
-	s->ev.read_callback = read_callback;
+	s->impl.ev.context = stream;
+	s->impl.ev.read_callback = read_callback;
 	s->stream.read_buffer = buffer;
 	s->stream.read_handler = handler;
 	s->stream.read_handler_context = handler_context;
-	return cio_linux_eventloop_register_read(s->loop, &s->ev);
+	return cio_linux_eventloop_register_read(s->impl.loop, &s->impl.ev);
 }
 
 static void write_callback(void *context)
@@ -180,7 +180,7 @@ static enum cio_error stream_write(struct cio_io_stream *stream, const struct ci
 		wb = wb->next;
 	}
 
-	ssize_t ret = sendmsg(s->ev.fd, &msg, MSG_NOSIGNAL);
+	ssize_t ret = sendmsg(s->impl.ev.fd, &msg, MSG_NOSIGNAL);
 	if (cio_likely(ret >= 0)) {
 		handler(stream, handler_context, buffer, CIO_SUCCESS, (size_t)ret);
 	} else {
@@ -188,9 +188,9 @@ static enum cio_error stream_write(struct cio_io_stream *stream, const struct ci
 			s->stream.write_handler = handler;
 			s->stream.write_handler_context = handler_context;
 			s->stream.write_buffer = buffer;
-			s->ev.context = stream;
-			s->ev.write_callback = write_callback;
-			return cio_linux_eventloop_register_write(s->loop, &s->ev);
+			s->impl.ev.context = stream;
+			s->impl.ev.write_callback = write_callback;
+			return cio_linux_eventloop_register_write(s->impl.loop, &s->impl.ev);
 		}
 
 		return (enum cio_error)(-errno);
@@ -213,11 +213,11 @@ enum cio_error cio_linux_socket_init(struct cio_socket *s, int client_fd,
 		return CIO_INVALID_ARGUMENT;
 	}
 
-	s->ev.fd = client_fd;
-	s->ev.error_callback = NULL;
-	s->ev.write_callback = NULL;
-	s->ev.read_callback = NULL;
-	s->ev.context = s;
+	s->impl.ev.fd = client_fd;
+	s->impl.ev.error_callback = NULL;
+	s->impl.ev.write_callback = NULL;
+	s->impl.ev.read_callback = NULL;
+	s->impl.ev.context = s;
 
 	s->close = socket_close;
 	s->set_tcp_no_delay = socket_tcp_no_delay;
@@ -228,10 +228,10 @@ enum cio_error cio_linux_socket_init(struct cio_socket *s, int client_fd,
 	s->stream.write_some = stream_write;
 	s->stream.close = stream_close;
 
-	s->loop = loop;
+	s->impl.loop = loop;
 	s->close_hook = close_hook;
 
-	return cio_linux_eventloop_add(s->loop, &s->ev);
+	return cio_linux_eventloop_add(s->impl.loop, &s->impl.ev);
 }
 
 enum cio_error cio_socket_init(struct cio_socket *s,

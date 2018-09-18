@@ -32,6 +32,7 @@
 #include "cio_error_code.h"
 #include "cio_eventloop.h"
 #include "cio_io_stream.h"
+#include "cio_socket_impl.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -112,8 +113,7 @@ struct cio_socket {
 	 */
 	struct cio_io_stream stream;
 	cio_socket_close_hook close_hook;
-	struct cio_event_notifier ev;
-	struct cio_eventloop *loop;
+	struct cio_socket_impl impl;
 };
 
 /**

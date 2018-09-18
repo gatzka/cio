@@ -217,7 +217,7 @@ static void accept_handler_close_server_socket(struct cio_server_socket *ss, voi
 
 static enum cio_error socket_close(struct cio_socket *s)
 {
-	close(s->ev.fd);
+	close(s->impl.ev.fd);
 	if (s->close_hook != NULL) {
 		s->close_hook(s);
 	}
@@ -227,11 +227,11 @@ static enum cio_error socket_close(struct cio_socket *s)
 
 static enum cio_error custom_cio_linux_socket_init(struct cio_socket *s, int fd, struct cio_eventloop *loop, cio_socket_close_hook hook)
 {
-	s->ev.fd = fd;
+	s->impl.ev.fd = fd;
 
 	s->close = socket_close;
 
-	s->loop = loop;
+	s->impl.loop = loop;
 	s->close_hook = hook;
 	return CIO_SUCCESS;
 }

@@ -24,8 +24,8 @@
  * SOFTWARE.
  */
 
-#ifndef CIO_SERVER_SOCKET_IMPL_H
-#define CIO_SERVER_SOCKET_IMPL_H
+#ifndef CIO_LINUX_SOCKET_IMPL_H
+#define CIO_LINUX_SOCKET_IMPL_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -33,7 +33,7 @@ extern "C" {
 
 #include "cio_eventloop.h"
 
-struct cio_server_socket_impl {
+struct cio_socket_impl {
 	struct cio_event_notifier ev;
 	struct cio_eventloop *loop;
 };
@@ -42,4 +42,4 @@ struct cio_server_socket_impl {
 }
 #endif
 
-#endif // CIO_SERVER_SOCKET_IMPL_H
+#endif // CIO_LINUX_SOCKET_IMPL_H
