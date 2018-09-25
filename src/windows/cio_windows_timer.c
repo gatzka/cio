@@ -79,7 +79,6 @@ static enum cio_error timer_expires_from_now(struct cio_timer *t, uint64_t timeo
 {
 	t->handler = handler;
 	t->handler_context = handler_context;
-	t->ev.context = t;
 
 	if (t->ev.overlapped.hEvent) {
 		DeleteTimerQueueTimer(NULL, t->ev.overlapped.hEvent, NULL);
@@ -103,6 +102,7 @@ enum cio_error cio_timer_init(struct cio_timer *timer, struct cio_eventloop *loo
 	timer->loop = loop;
 	timer->ev.overlapped.hEvent = 0;
 	timer->ev.callback = timer_event_callback;
+	timer->ev.context = timer;
 
 	return CIO_SUCCESS;
 }
