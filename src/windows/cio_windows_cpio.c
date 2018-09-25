@@ -69,7 +69,19 @@ enum cio_error cio_windows_eventloop_add(struct cio_event_notifier *ev, const st
 
 	if (CreateIoCompletionPort(ev->fd, loop->loop_completion_port, (ULONG_PTR)ev, 1) == NULL) {
 		WSACloseEvent(ev->overlapped.hEvent);
+		return (enum cio_error) - GetLastError();
+	}
+
+	OVERLAPPED o;
+	SecureZeroMemory(&o, sizeof(o));
+	o.hEvent = WSACreateEvent();
+	if (cio_unlikely(o.hEvent == WSA_INVALID_EVENT)) {
 		return (enum cio_error) - WSAGetLastError();
+	}
+
+	if (CreateIoCompletionPort(ev->fd, loop->loop_completion_port, (ULONG_PTR)ev, 1) == NULL) {
+		WSACloseEvent(ev->overlapped.hEvent);
+		return (enum cio_error) - GetLastError();
 	}
 
 	ev->last_error = ERROR_SUCCESS;
