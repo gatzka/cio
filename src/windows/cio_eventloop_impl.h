@@ -45,8 +45,11 @@ struct cio_event_notifier {
 	void *context;
 
 	OVERLAPPED overlapped;
-	HANDLE fd;
 	DWORD last_error;
+	
+	// Put this into the socket structure
+	HANDLE fd;
+
 	HANDLE network_event;
 };
 

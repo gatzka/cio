@@ -42,13 +42,14 @@ static SOCKET create_win_socket_nonblocking(int address_family)
 		return INVALID_SOCKET;
 	}
 
+#if 0
 	u_long on = 1;
 	int ret = ioctlsocket(s, FIONBIO, &on);
 	if (cio_unlikely(ret != 0)) {
 		closesocket(s);
 		return INVALID_SOCKET;
 	}
-
+#endif
 	return s;
 }
 
@@ -62,8 +63,8 @@ static enum cio_error prepare_accept_socket(struct cio_windows_listen_socket *s)
 
 	DWORD bytes_received;
 	BOOL ret = s->accept_ex((SOCKET)s->listen_event.fd, s->accept_socket, s->accept_buffer, 0,
-	                                                 sizeof(struct sockaddr_storage), sizeof(struct sockaddr_storage),
-	                                                 &bytes_received, &s->listen_event.overlapped);
+	                        sizeof(struct sockaddr_storage), sizeof(struct sockaddr_storage),
+	                        &bytes_received, &s->listen_event.overlapped);
 	if (ret == FALSE) {
 		int err = WSAGetLastError();
 		if (cio_likely(err != WSA_IO_PENDING)) {
@@ -192,7 +193,7 @@ static void accept_callback(void *context)
 
 		return;
 	}
-	
+
 	enum cio_error err;
 	SOCKET client_fd = wls->accept_socket;
 	int ret = setsockopt(client_fd, SOL_SOCKET, SO_UPDATE_ACCEPT_CONTEXT, (char *)&wls->listen_event.fd, sizeof(wls->listen_event.fd));
@@ -301,12 +302,12 @@ static enum cio_error create_listen_socket(struct cio_windows_listen_socket *soc
 		err = error;
 		goto eventloop_add_failed;
 	}
-
+#if 0
 	if (cio_unlikely(WSAEventSelect((SOCKET)socket->listen_event.fd, socket->listen_event.overlapped.hEvent, FD_ACCEPT | FD_CLOSE) == SOCKET_ERROR)) {
 		err = WSAGetLastError();
 		return (enum cio_error)(-err);
 	}
-
+#endif
 	DWORD dw_bytes;
 	GUID guid_accept_ex = WSAID_ACCEPTEX;
 	int status = WSAIoctl((SOCKET)socket->listen_event.fd, SIO_GET_EXTENSION_FUNCTION_POINTER, &guid_accept_ex, sizeof(guid_accept_ex), &socket->accept_ex, sizeof(socket->accept_ex), &dw_bytes, NULL, NULL);

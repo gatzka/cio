@@ -24,6 +24,7 @@
  * SOFTWARE.
  */
 
+
 #include <WinSock2.h>
 #include <Mstcpip.h>
 #include <Windows.h>
@@ -39,15 +40,14 @@
 static void close_and_free(struct cio_socket *s)
 {
 	DWORD ret = 0;
-	if (cio_unlikely(WSAEventSelect((SOCKET)s->impl.ev.fd, s->impl.ev.network_event, 0) == SOCKET_ERROR))
-	{
+	if (cio_unlikely(WSAEventSelect((SOCKET)s->impl.ev.fd, s->impl.ev.network_event, 0) == SOCKET_ERROR)) {
 		int err = WSAGetLastError();
 		return;
 	}
 
 	cio_windows_eventloop_remove(&s->impl.ev, s->impl.loop);
 	closesocket((SOCKET)s->impl.ev.fd);
-	BOOL rc = CancelIoEx(s->impl.ev.fd, &s->impl.ev.overlapped);
+	BOOL rc = CancelIoEx(s->impl.ev.fd, NULL);
 	if (rc == FALSE) {
 		ret = GetLastError();
 	}
