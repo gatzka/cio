@@ -38,8 +38,9 @@
 
 static void close_and_free(struct cio_socket *s)
 {
-#if 0
+
 	DWORD ret = 0;
+#if	0
 	if (cio_unlikely(WSAEventSelect((SOCKET)s->impl.ev.fd, s->impl.ev.network_event, 0) == SOCKET_ERROR)) {
 		int err = WSAGetLastError();
 		return;
@@ -98,7 +99,6 @@ static enum cio_error socket_keepalive(struct cio_socket *s, bool on, unsigned i
 
 	struct tcp_keepalive alive = {.onoff = on, .keepalivetime = keep_idle_s, .keepaliveinterval = keep_intvl_s};
 
-
 	DWORD bytes_returned;
 	if (cio_unlikely(WSAIoctl((SOCKET)s->impl.fd, SIO_KEEPALIVE_VALS, &alive, sizeof(alive), NULL, 0, &bytes_returned, NULL, NULL) == SOCKET_ERROR)) {
 		return (enum cio_error)(-WSAGetLastError());
@@ -142,12 +142,41 @@ static void read_callback(struct cio_socket *s)
 	s->stream.read_handler(&s->stream, s->stream.read_handler_context, error, s->stream.read_buffer);
 }
 
+static void socket_callback(struct cio_event_notifier *ev, void *context)
+{
+	struct cio_io_stream *stream = context;
+	struct cio_socket *s = container_of(stream, struct cio_socket, stream);
+#if 0
+	WSANETWORKEVENTS events;
+	if (cio_unlikely(WSAEnumNetworkEvents((SOCKET)s->impl.ev.fd, s->impl.ev.network_event, &events) == SOCKET_ERROR)) {
+		int err = WSAGetLastError();
+		//TODO
+		return;
+	}
+
+	if ((events.lNetworkEvents & FD_READ) == FD_READ) {
+		read_callback(s);
+		return;
+	}
+
+	//if ((events.lNetworkEvents & FD_WRITE) == FD_WRITE) {
+	//	write_callback(s);
+	//	return;
+	//}
+
+	if ((events.lNetworkEvents & FD_CLOSE) == FD_CLOSE) {
+		close_and_free(s);
+		return;
+	}
+#endif
+}
+
 static enum cio_error stream_read(struct cio_io_stream *stream, struct cio_read_buffer *buffer, cio_io_stream_read_handler handler, void *handler_context)
 {
 	if (cio_unlikely((stream == NULL) || (buffer == NULL) || (handler == NULL))) {
 		return CIO_INVALID_ARGUMENT;
 	}
-#if 0
+
 	struct cio_socket *s = container_of(stream, struct cio_socket, stream);
 
 	s->stream.read_buffer = buffer;
@@ -160,7 +189,14 @@ static enum cio_error stream_read(struct cio_io_stream *stream, struct cio_read_
 	DWORD flags = 0;
 	int error;
 
-	int rc = WSARecv((SOCKET)s->impl.ev.fd, &wsa_buffer, 1, NULL, &flags, &s->impl.ev.overlapped, NULL);
+	struct cio_event_notifier *en = cio_windows_get_event_entry();
+	if (cio_unlikely(en == NULL)) {
+		return CIO_NO_MEMORY;
+	}
+
+	en->callback = socket_callback;
+
+	int rc = WSARecv((SOCKET)s->impl.fd, &wsa_buffer, 1, NULL, &flags, &en->overlapped, NULL);
 	if (rc == SOCKET_ERROR) {
 		error = WSAGetLastError();
 		if (cio_likely(error == WSA_IO_PENDING)) {
@@ -171,7 +207,7 @@ static enum cio_error stream_read(struct cio_io_stream *stream, struct cio_read_
 	} else {
 		DWORD recv_bytes;
 		flags = 0;
-		BOOL ret = WSAGetOverlappedResult((SOCKET)s->impl.ev.fd, &s->impl.ev.overlapped, &recv_bytes, FALSE, &flags);
+		BOOL ret = WSAGetOverlappedResult((SOCKET)s->impl.fd, &en->overlapped, &recv_bytes, FALSE, &flags);
 		if (cio_unlikely(ret == FALSE)) {
 			error = -WSAGetLastError();
 		} else {
@@ -184,10 +220,11 @@ static enum cio_error stream_read(struct cio_io_stream *stream, struct cio_read_
 			}
 		}
 
+		cio_windows_release_event_entry(en);
 		stream->read_handler(stream, stream->read_handler_context, error, buffer);
 		return CIO_SUCCESS;
 	}
-#endif
+
 	return CIO_SUCCESS;
 }
 
@@ -247,35 +284,6 @@ static enum cio_error stream_write(struct cio_io_stream *stream, const struct ci
 	return CIO_SUCCESS;
 }
 
-static void socket_callback(void *context)
-{
-	struct cio_io_stream *stream = context;
-	struct cio_socket *s = container_of(stream, struct cio_socket, stream);
-#if 0
-	WSANETWORKEVENTS events;
-	if (cio_unlikely(WSAEnumNetworkEvents((SOCKET)s->impl.ev.fd, s->impl.ev.network_event, &events) == SOCKET_ERROR)) {
-		int err = WSAGetLastError();
-		//TODO
-		return;
-	}
-
-	if ((events.lNetworkEvents & FD_READ) == FD_READ) {
-		read_callback(s);
-		return;
-	}
-
-	//if ((events.lNetworkEvents & FD_WRITE) == FD_WRITE) {
-	//	write_callback(s);
-	//	return;
-	//}
-
-	if ((events.lNetworkEvents & FD_CLOSE) == FD_CLOSE) {
-		close_and_free(s);
-		return;
-	}
-#endif
-}
-
 enum cio_error cio_windows_socket_init(struct cio_socket *s, SOCKET client_fd,
                                        struct cio_eventloop *loop,
                                        cio_socket_close_hook close_hook)
@@ -298,9 +306,8 @@ enum cio_error cio_windows_socket_init(struct cio_socket *s, SOCKET client_fd,
 	s->stream.write_some = stream_write;
 	s->stream.close = stream_close;
 
-	enum cio_error err = cio_windows_add_handle_to_completion_port((HANDLE)s, loop, &s->stream);
+	enum cio_error err = cio_windows_add_handle_to_completion_port((HANDLE)client_fd, loop, &s->stream);
 	if (cio_unlikely(err != CIO_SUCCESS)) {
-		closesocket(s);
 		return err;
 	}
 
