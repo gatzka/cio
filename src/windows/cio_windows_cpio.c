@@ -91,6 +91,7 @@ struct cio_event_notifier *cio_windows_get_event_entry(void)
 
 void cio_windows_release_event_entry(struct cio_event_notifier *ev)
 {
+	ev->callback = NULL;
 	struct event_list_entry *entry = container_of(ev, struct event_list_entry, ev);
 	entry->next_free_idx = first_free_event_idx;
 	first_free_event_idx = (entry - event_list) / sizeof(*entry);
@@ -175,7 +176,7 @@ enum cio_error cio_eventloop_run(struct cio_eventloop *loop)
 			} else {
 				struct cio_event_notifier *ev = container_of(overlapped, struct cio_event_notifier, overlapped);
 				ev->last_error = GetLastError();
-				ev->callback(ev, completion_key);
+				ev->callback(ev, (void *)completion_key);
 				continue;
 			}
 		}
@@ -185,7 +186,7 @@ enum cio_error cio_eventloop_run(struct cio_eventloop *loop)
 		}
 
 		struct cio_event_notifier *ev = container_of(overlapped, struct cio_event_notifier, overlapped);
-		ev->callback(ev, completion_key);
+		ev->callback(ev, (void *)completion_key);
 	}
 
 	return CIO_SUCCESS;
