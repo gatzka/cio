@@ -283,8 +283,8 @@ enum cio_error cio_windows_socket_init(struct cio_socket *s, SOCKET client_fd,
 	if (cio_unlikely((s == NULL) || (loop == NULL))) {
 		return CIO_INVALID_ARGUMENT;
 	}
-#if 0
-	s->impl.ev.fd = (HANDLE)client_fd;
+
+	s->impl.fd = (HANDLE)client_fd;
 
 	s->impl.loop = loop;
 	s->close_hook = close_hook;
@@ -298,14 +298,13 @@ enum cio_error cio_windows_socket_init(struct cio_socket *s, SOCKET client_fd,
 	s->stream.write_some = stream_write;
 	s->stream.close = stream_close;
 
-	s->impl.ev.callback = socket_callback;
-	s->impl.ev.context = &s->stream;
-
-	enum cio_error error = cio_windows_eventloop_add(&s->impl.ev, loop);
-	if (error != CIO_SUCCESS) {
-		return error;
+	enum cio_error err = cio_windows_add_handle_to_completion_port((HANDLE)s, loop, &s->stream);
+	if (cio_unlikely(err != CIO_SUCCESS)) {
+		closesocket(s);
+		return err;
 	}
 
+#if 0
 	s->impl.ev.network_event = WSACreateEvent();
 	if (cio_unlikely(s->impl.ev.network_event == WSA_INVALID_EVENT)) {
 		return (enum cio_error) - WSAGetLastError();
