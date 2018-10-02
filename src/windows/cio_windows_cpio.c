@@ -61,7 +61,7 @@ static enum cio_error create_event_list(void)
 	return CIO_SUCCESS;
 }
 
-static struct cio_event_notifier *get_event_entry(void)
+struct cio_event_notifier *cio_windows_get_event_entry(void)
 {
 	if (first_free_event_idx == SIZE_MAX) {
 		struct event_list_entry *new_event_list = malloc(sizeof(*event_list) * EVENT_LIST_SIZE * 2);
@@ -84,10 +84,12 @@ static struct cio_event_notifier *get_event_entry(void)
 	struct event_list_entry *e = &event_list[first_free_event_idx];
 	first_free_event_idx = e->next_free_idx;
 
+	memset(&e->ev.overlapped, 0, sizeof(e->ev.overlapped));
+	e->ev.last_error = ERROR_SUCCESS;
 	return &e->ev;
 }
 
-static void release_event_entry(struct cio_event_notifier *ev)
+void cio_windows_release_event_entry(struct cio_event_notifier *ev)
 {
 	struct event_list_entry *entry = container_of(ev, struct event_list_entry, ev);
 	entry->next_free_idx = first_free_event_idx;
@@ -138,48 +140,24 @@ void cio_eventloop_destroy(const struct cio_eventloop *loop)
 	destroy_event_list();
 }
 
-enum cio_error cio_windows_eventloop_add(struct cio_event_notifier *ev, const struct cio_eventloop *loop)
+enum cio_error cio_windows_add_handle_to_completion_port(HANDLE fd, const struct cio_eventloop *loop, void *context)
 {
-#if 0
-	ev->overlapped.hEvent = WSACreateEvent();
-	if (cio_unlikely(ev->overlapped.hEvent == WSA_INVALID_EVENT)) {
-		return (enum cio_error) - WSAGetLastError();
-	}
-
-	if (CreateIoCompletionPort(ev->fd, loop->loop_completion_port, (ULONG_PTR)ev, 1) == NULL) {
-		WSACloseEvent(ev->overlapped.hEvent);
-		return (enum cio_error) - GetLastError();
-	}
-#endif
-
-	SecureZeroMemory(&ev->overlapped, sizeof(ev->overlapped));
-#if 0
-	o.hEvent = WSACreateEvent();
-	if (cio_unlikely(o.hEvent == WSA_INVALID_EVENT)) {
-		return (enum cio_error)(-WSAGetLastError());
-	}
-#endif
-	if (CreateIoCompletionPort(ev->fd, loop->loop_completion_port, (ULONG_PTR)ev, 1) == NULL) {
-		//WSACloseEvent(ev->overlapped.hEvent);
+	if (cio_unlikely(CreateIoCompletionPort(fd, loop->loop_completion_port, (ULONG_PTR)context, 1) == NULL)) {
 		return (enum cio_error)(-(int)GetLastError());
 	}
 
-	ev->last_error = ERROR_SUCCESS;
+	return CIO_SUCCESS;
+}
+
+enum cio_error cio_windows_eventloop_add(struct cio_event_notifier *ev, const struct cio_eventloop *loop)
+{
 
 	return CIO_SUCCESS;
 }
 
 void cio_windows_eventloop_remove(struct cio_event_notifier *ev, const struct cio_eventloop *loop)
 {
-	(void)loop;
-	DWORD ret = 0;
-	BOOL rc = CancelIoEx(ev->fd, NULL);
-	if (rc == FALSE) {
-		ret = GetLastError();
-	}
 
-	//	WSACloseEvent(ev->overlapped.hEvent);
-	ev->overlapped.hEvent = NULL;
 }
 
 enum cio_error cio_eventloop_run(struct cio_eventloop *loop)
@@ -195,9 +173,10 @@ enum cio_error cio_eventloop_run(struct cio_eventloop *loop)
 				// An unrecoverable error occurred in the completion port. Wait for the next notification.
 				continue;
 			} else {
-				struct cio_event_notifier *ev = (struct cio_event_notifier *)completion_key;
+				struct cio_event_notifier *ev = container_of(overlapped, struct cio_event_notifier, overlapped);
 				ev->last_error = GetLastError();
-				ev->callback(ev->context);
+				ev->callback(ev, completion_key);
+				continue;
 			}
 		}
 
@@ -205,14 +184,8 @@ enum cio_error cio_eventloop_run(struct cio_eventloop *loop)
 			break;
 		}
 
-		struct cio_event_notifier *ev = (struct cio_event_notifier *)completion_key;
-		DWORD flags = 0;
-		if (GetHandleInformation(ev->fd, &flags) == FALSE) {
-			DWORD status = GetLastError();
-			status++;
-		}
-
-		ev->callback(ev->context);
+		struct cio_event_notifier *ev = container_of(overlapped, struct cio_event_notifier, overlapped);
+		ev->callback(ev, completion_key);
 	}
 
 	return CIO_SUCCESS;

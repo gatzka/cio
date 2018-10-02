@@ -42,7 +42,7 @@ static struct cio_eventloop loop;
 
 static const size_t read_buffer_size = 2000;
 
-static const uint64_t read_timeout = UINT64_C(5) * UINT64_C(1000) * UINT64_C(1000) * UINT64_C(1000);
+static const uint64_t read_timeout = UINT64_C(5000) * UINT64_C(1000) * UINT64_C(1000) * UINT64_C(1000);
 
 static const char data[] = "<html><body><h1>Hello, World!</h1></body></html>";
 

@@ -39,11 +39,12 @@ extern "C" {
 #include "cio_eventloop.h"
 
 struct cio_windows_listen_socket {
-	struct cio_event_notifier listen_event;
 	SOCKET accept_socket;
 	int address_family;
 	LPFN_ACCEPTEX accept_ex;
 	bool bound;
+	HANDLE fd;
+	HANDLE network_event;
 	char accept_buffer[sizeof(struct sockaddr_storage) * 2];
 };
 
