@@ -59,33 +59,35 @@ static void close_and_free(struct cio_socket *s)
 
 static enum cio_error socket_close(struct cio_socket *s)
 {
-#if 0
+
 	if (cio_unlikely(s == NULL)) {
 		return CIO_INVALID_ARGUMENT;
 	}
 
+#if 0
 	if (cio_unlikely(WSAEventSelect((SOCKET)s->impl.ev.fd, s->impl.ev.network_event, FD_CLOSE) == SOCKET_ERROR)) {
 		int err = WSAGetLastError();
 		return (enum cio_error)(-err);
 	}
+#endif
 
-	if (cio_unlikely(shutdown((SOCKET)s->impl.ev.fd, SD_BOTH) == SOCKET_ERROR)) {
+	if (cio_unlikely(shutdown((SOCKET)s->impl.fd, SD_BOTH) == SOCKET_ERROR)) {
 		int err = WSAGetLastError();
 		return (enum cio_error)(-err);
 	}
-#endif
+
 	return CIO_SUCCESS;
 }
 
 static enum cio_error socket_tcp_no_delay(struct cio_socket *s, bool on)
 {
 	char tcp_no_delay = (char)on;
-#if 0
-	if (cio_unlikely(setsockopt((SOCKET)s->impl.ev.fd, IPPROTO_TCP, TCP_NODELAY, &tcp_no_delay,
+
+	if (cio_unlikely(setsockopt((SOCKET)s->impl.fd, IPPROTO_TCP, TCP_NODELAY, &tcp_no_delay,
 	                            sizeof(tcp_no_delay)) == SOCKET_ERROR)) {
 		return (enum cio_error)(-WSAGetLastError());
 	}
-#endif
+
 	return CIO_SUCCESS;
 }
 
@@ -96,14 +98,12 @@ static enum cio_error socket_keepalive(struct cio_socket *s, bool on, unsigned i
 
 	struct tcp_keepalive alive = {.onoff = on, .keepalivetime = keep_idle_s, .keepaliveinterval = keep_intvl_s};
 
-#if 0
+
 	DWORD bytes_returned;
-	if
-		cio_unlikely(WSAIoctl((SOCKET)s->impl.ev.fd, SIO_KEEPALIVE_VALS, &alive, sizeof(alive), NULL, 0, &bytes_returned, NULL, NULL) == SOCKET_ERROR)
-		{
-			return (enum cio_error)(-WSAGetLastError());
-		}
-#endif
+	if (cio_unlikely(WSAIoctl((SOCKET)s->impl.fd, SIO_KEEPALIVE_VALS, &alive, sizeof(alive), NULL, 0, &bytes_returned, NULL, NULL) == SOCKET_ERROR)) {
+		return (enum cio_error)(-WSAGetLastError());
+	}
+
 	return CIO_SUCCESS;
 }
 
