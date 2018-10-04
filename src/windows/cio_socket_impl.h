@@ -36,6 +36,7 @@ extern "C" {
 struct cio_socket_impl {
 	HANDLE fd;
 	struct cio_eventloop *loop;
+	unsigned int ref;
 };
 
 #ifdef __cplusplus

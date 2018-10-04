@@ -36,26 +36,14 @@
 #include "cio_util.h"
 #include "cio_windows_socket.h"
 
-static void close_and_free(struct cio_socket *s)
+static void try_free(struct cio_socket *s)
 {
-
-	DWORD ret = 0;
-#if	0
-	if (cio_unlikely(WSAEventSelect((SOCKET)s->impl.ev.fd, s->impl.ev.network_event, 0) == SOCKET_ERROR)) {
-		int err = WSAGetLastError();
-		return;
+	if (s->impl.ref == 0) {
+		closesocket((SOCKET)s->impl.fd);
+		if (s->close_hook != NULL) {
+			s->close_hook(s);
+		}
 	}
-
-	cio_windows_eventloop_remove(&s->impl.ev, s->impl.loop);
-	closesocket((SOCKET)s->impl.ev.fd);
-	BOOL rc = CancelIoEx(s->impl.ev.fd, NULL);
-	if (rc == FALSE) {
-		ret = GetLastError();
-	}
-	//if (s->close_hook != NULL) {
-	//	s->close_hook(s);
-	//}
-#endif
 }
 
 static enum cio_error socket_close(struct cio_socket *s)
@@ -65,17 +53,9 @@ static enum cio_error socket_close(struct cio_socket *s)
 		return CIO_INVALID_ARGUMENT;
 	}
 
-#if 0
-	if (cio_unlikely(WSAEventSelect((SOCKET)s->impl.ev.fd, s->impl.ev.network_event, FD_CLOSE) == SOCKET_ERROR)) {
-		int err = WSAGetLastError();
-		return (enum cio_error)(-err);
-	}
-#endif
-
-	if (cio_unlikely(shutdown((SOCKET)s->impl.fd, SD_BOTH) == SOCKET_ERROR)) {
-		int err = WSAGetLastError();
-		return (enum cio_error)(-err);
-	}
+	CancelIo(s->impl.fd);
+	shutdown((SOCKET)s->impl.fd, SD_BOTH);
+	try_free(s);
 
 	return CIO_SUCCESS;
 }
@@ -128,8 +108,14 @@ static void read_callback(struct cio_event_notifier *ev, void *context)
 	DWORD flags = 0;
 	BOOL rc = WSAGetOverlappedResult((SOCKET)s->impl.fd, &ev->overlapped, &recv_bytes, FALSE, &flags);
 	cio_windows_release_event_entry(ev);
+	s->impl.ref--;
 	if (cio_unlikely(rc == FALSE)) {
 		error = WSAGetLastError();
+		if (error == WSA_OPERATION_ABORTED) {
+			try_free(s);
+			return;
+		}
+
 		s->stream.read_handler(&s->stream, s->stream.read_handler_context, (enum cio_error)(-error), s->stream.read_buffer);
 		return;
 	}
@@ -173,32 +159,12 @@ static enum cio_error stream_read(struct cio_io_stream *stream, struct cio_read_
 	int rc = WSARecv((SOCKET)s->impl.fd, &wsa_buffer, 1, NULL, &flags, &en->overlapped, NULL);
 	if (rc == SOCKET_ERROR) {
 		error = WSAGetLastError();
-		if (cio_likely(error == WSA_IO_PENDING)) {
-			return CIO_SUCCESS;
-		} else {
+		if (cio_unlikely(error != WSA_IO_PENDING)) {
 			return (enum cio_error)(-error);
 		}
-	} else {
-		DWORD recv_bytes;
-		flags = 0;
-		BOOL ret = WSAGetOverlappedResult((SOCKET)s->impl.fd, &en->overlapped, &recv_bytes, FALSE, &flags);
-		if (cio_unlikely(ret == FALSE)) {
-			error = -WSAGetLastError();
-		} else {
-			buffer->bytes_transferred = (size_t)recv_bytes;
-			if (recv_bytes == 0) {
-				error = CIO_EOF;
-			} else {
-				buffer->add_ptr += (size_t)recv_bytes;
-				error = CIO_SUCCESS;
-			}
-		}
-
-		cio_windows_release_event_entry(en);
-		stream->read_handler(stream, stream->read_handler_context, error, buffer);
-		return CIO_SUCCESS;
 	}
 
+	s->impl.ref++;
 	return CIO_SUCCESS;
 }
 
@@ -211,8 +177,14 @@ static void write_callback(struct cio_event_notifier *ev, void *context)
 	DWORD flags = 0;
 	BOOL rc = WSAGetOverlappedResult((SOCKET)s->impl.fd, &ev->overlapped, &bytes_sent, FALSE, &flags);
 	cio_windows_release_event_entry(ev);
+	s->impl.ref--;
 	if (cio_unlikely(rc == FALSE)) {
 		int error = WSAGetLastError();
+		if (error == WSA_OPERATION_ABORTED) {
+			try_free(s);
+			return;
+		}
+
 		s->stream.write_handler(&s->stream, s->stream.write_handler_context, s->stream.write_buffer, (enum cio_error)(-error), 0);
 		return;
 	}
@@ -227,6 +199,10 @@ static enum cio_error stream_write(struct cio_io_stream *stream, const struct ci
 	}
 
 	struct cio_socket *s = container_of(stream, struct cio_socket, stream);
+	s->stream.write_handler = handler;
+	s->stream.write_handler_context = handler_context;
+	s->stream.write_buffer = buffer;
+
 	size_t chain_length = cio_write_buffer_get_number_of_elements(buffer);
 
 	WSABUF *wsa_buffers = alloca(sizeof(*wsa_buffers) * chain_length);
@@ -247,23 +223,12 @@ static enum cio_error stream_write(struct cio_io_stream *stream, const struct ci
 	int rc = WSASend((SOCKET)s->impl.fd, wsa_buffers, (DWORD)chain_length, NULL, 0, &en->overlapped, NULL);
 	if (rc == SOCKET_ERROR) {
 		int error = WSAGetLastError();
-		if (cio_likely(error == WSA_IO_PENDING)) {
-			s->stream.write_handler = handler;
-			s->stream.write_handler_context = handler_context;
-			s->stream.write_buffer = buffer;
-			return CIO_SUCCESS;
-		} else {
+		if (cio_unlikely(error != WSA_IO_PENDING)) {
 			return (enum cio_error)(-error);
 		}
-	} else {
-		DWORD flags = 0;
-		DWORD bytes_sent = 0;
-		BOOL ret = WSAGetOverlappedResult((SOCKET)s->impl.fd, &en->overlapped, &bytes_sent, FALSE, &flags);
-		cio_windows_release_event_entry(en);
-		handler(stream, handler_context, buffer, CIO_SUCCESS, (size_t)bytes_sent);
-		return CIO_SUCCESS;
 	}
 
+	s->impl.ref++;
 	return CIO_SUCCESS;
 }
 
@@ -278,6 +243,7 @@ enum cio_error cio_windows_socket_init(struct cio_socket *s, SOCKET client_fd,
 	s->impl.fd = (HANDLE)client_fd;
 
 	s->impl.loop = loop;
+	s->impl.ref = 0;
 	s->close_hook = close_hook;
 
 	s->close = socket_close;
@@ -294,16 +260,5 @@ enum cio_error cio_windows_socket_init(struct cio_socket *s, SOCKET client_fd,
 		return err;
 	}
 
-#if 0
-	s->impl.ev.network_event = WSACreateEvent();
-	if (cio_unlikely(s->impl.ev.network_event == WSA_INVALID_EVENT)) {
-		return (enum cio_error) - WSAGetLastError();
-	}
-
-	if (cio_unlikely(WSAEventSelect((SOCKET)s->impl.ev.fd, s->impl.ev.network_event, FD_READ | FD_CLOSE) == SOCKET_ERROR)) {
-		int err = WSAGetLastError();
-		return (enum cio_error)(-err);
-	}
-#endif
 	return CIO_SUCCESS;
 }
