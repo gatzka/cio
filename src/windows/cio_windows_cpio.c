@@ -94,7 +94,7 @@ void cio_windows_release_event_entry(struct cio_event_notifier *ev)
 	ev->callback = NULL;
 	struct event_list_entry *entry = container_of(ev, struct event_list_entry, ev);
 	entry->next_free_idx = first_free_event_idx;
-	first_free_event_idx = (entry - event_list) / sizeof(*entry);
+	first_free_event_idx = ((ptrdiff_t)entry - (ptrdiff_t)event_list) / sizeof(*entry);
 }
 
 static void destroy_event_list(void)
