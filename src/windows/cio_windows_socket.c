@@ -103,32 +103,31 @@ static void read_callback(struct cio_event_notifier *ev, void *context)
 	struct cio_io_stream *stream = context;
 	struct cio_socket *s = container_of(stream, struct cio_socket, stream);
 
-	int error;
 	DWORD recv_bytes;
 	DWORD flags = 0;
 	BOOL rc = WSAGetOverlappedResult((SOCKET)s->impl.fd, &ev->overlapped, &recv_bytes, FALSE, &flags);
 	cio_windows_release_event_entry(ev);
 	s->impl.ref--;
+	enum cio_error error_code;
 	if (cio_unlikely(rc == FALSE)) {
-		error = WSAGetLastError();
+		int error = WSAGetLastError();
 		if (error == WSA_OPERATION_ABORTED) {
 			try_free(s);
 			return;
 		}
 
-		s->stream.read_handler(&s->stream, s->stream.read_handler_context, (enum cio_error)(-error), s->stream.read_buffer);
-		return;
-	}
-
-	s->stream.read_buffer->bytes_transferred = (size_t)recv_bytes;
-	if (recv_bytes == 0) {
-		error = CIO_EOF;
+		error_code = (enum cio_error)(-error);
 	} else {
-		s->stream.read_buffer->add_ptr += (size_t)recv_bytes;
-		error = CIO_SUCCESS;
+		s->stream.read_buffer->bytes_transferred = (size_t)recv_bytes;
+		if (recv_bytes == 0) {
+			error_code = CIO_EOF;
+		} else {
+			s->stream.read_buffer->add_ptr += (size_t)recv_bytes;
+			error_code = CIO_SUCCESS;
+		}
 	}
 
-	s->stream.read_handler(&s->stream, s->stream.read_handler_context, error, s->stream.read_buffer);
+	s->stream.read_handler(&s->stream, s->stream.read_handler_context, error_code, s->stream.read_buffer);
 }
 
 static enum cio_error stream_read(struct cio_io_stream *stream, struct cio_read_buffer *buffer, cio_io_stream_read_handler handler, void *handler_context)
@@ -178,6 +177,7 @@ static void write_callback(struct cio_event_notifier *ev, void *context)
 	BOOL rc = WSAGetOverlappedResult((SOCKET)s->impl.fd, &ev->overlapped, &bytes_sent, FALSE, &flags);
 	cio_windows_release_event_entry(ev);
 	s->impl.ref--;
+	enum cio_error error_code = CIO_SUCCESS;
 	if (cio_unlikely(rc == FALSE)) {
 		int error = WSAGetLastError();
 		if (error == WSA_OPERATION_ABORTED) {
@@ -185,11 +185,11 @@ static void write_callback(struct cio_event_notifier *ev, void *context)
 			return;
 		}
 
-		s->stream.write_handler(&s->stream, s->stream.write_handler_context, s->stream.write_buffer, (enum cio_error)(-error), 0);
-		return;
+		bytes_sent = 0;
+		error_code = (enum cio_error)(-error);
 	}
 
-	s->stream.write_handler(&s->stream, s->stream.write_handler_context, s->stream.write_buffer, CIO_SUCCESS, (size_t)bytes_sent);
+	s->stream.write_handler(&s->stream, s->stream.write_handler_context, s->stream.write_buffer, error_code, (size_t)bytes_sent);
 }
 
 static enum cio_error stream_write(struct cio_io_stream *stream, const struct cio_write_buffer *buffer, cio_io_stream_write_handler handler, void *handler_context)
