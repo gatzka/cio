@@ -150,17 +150,6 @@ enum cio_error cio_windows_add_handle_to_completion_port(HANDLE fd, const struct
 	return CIO_SUCCESS;
 }
 
-enum cio_error cio_windows_eventloop_add(struct cio_event_notifier *ev, const struct cio_eventloop *loop)
-{
-
-	return CIO_SUCCESS;
-}
-
-void cio_windows_eventloop_remove(struct cio_event_notifier *ev, const struct cio_eventloop *loop)
-{
-
-}
-
 enum cio_error cio_eventloop_run(struct cio_eventloop *loop)
 {
 	while (cio_likely(loop->go_ahead)) {
