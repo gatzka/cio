@@ -146,7 +146,6 @@ static enum cio_error stream_read(struct cio_io_stream *stream, struct cio_read_
 	wsa_buffer.len = (ULONG)cio_read_buffer_space_available(buffer);
 	wsa_buffer.buf = (CHAR *)buffer->add_ptr;
 	DWORD flags = 0;
-	int error;
 
 	struct cio_event_notifier *en = cio_windows_get_event_entry();
 	if (cio_unlikely(en == NULL)) {
@@ -157,7 +156,7 @@ static enum cio_error stream_read(struct cio_io_stream *stream, struct cio_read_
 
 	int rc = WSARecv((SOCKET)s->impl.fd, &wsa_buffer, 1, NULL, &flags, &en->overlapped, NULL);
 	if (rc == SOCKET_ERROR) {
-		error = WSAGetLastError();
+		int error = WSAGetLastError();
 		if (cio_unlikely(error != WSA_IO_PENDING)) {
 			return (enum cio_error)(-error);
 		}
