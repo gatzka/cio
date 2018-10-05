@@ -137,9 +137,6 @@ static enum cio_error prepare_accept_socket(struct cio_windows_listen_socket *s)
 			err = (enum cio_error)(-rc);
 			goto accept_ex_failed;
 		}
-	} else {
-		//TODO: Call accept myself
-	
 	}
 
 	return CIO_SUCCESS;
