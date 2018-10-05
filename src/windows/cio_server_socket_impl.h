@@ -1,7 +1,7 @@
 /*
  * The MIT License (MIT)
  *
- * Copyright (c) <2017> <Stephan Gatzka>
+ * Copyright (c) <2018> <Stephan Gatzka>
  *
  * Permission is hereby granted, free of charge, to any person obtaining
  * a copy of this software and associated documentation files (the
@@ -24,45 +24,38 @@
  * SOFTWARE.
  */
 
-#ifndef CIO_WINDOWS_EVENTLOOP_IMPL_H
-#define CIO_WINDOWS_EVENTLOOP_IMPL_H
-
-#define WIN32_LEAN_AND_MEAN
-
-#include <stdbool.h>
-#include <Windows.h>
-
-#include "cio_error_code.h"
+#ifndef CIO_WINDOWS_SERVER_SOCKET_IMPL_H
+#define CIO_WINDOWS_SERVER_SOCKET_IMPL_H
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-struct cio_event_notifier {
+#define WIN32_LEAN_AND_MEAN
 
-	void (*callback)(struct cio_event_notifier *ev, void *context);
+#include <winsock2.h>
+#include <ws2tcpip.h>
+#include <mswsock.h>
+#include "cio_eventloop.h"
 
-	OVERLAPPED overlapped;
-	DWORD last_error;
+struct cio_windows_listen_socket {
+	SOCKET accept_socket;
+	int address_family;
+	LPFN_ACCEPTEX accept_ex;
+	bool bound;
+	HANDLE fd;
+	HANDLE network_event;
+	char accept_buffer[sizeof(struct sockaddr_storage) * 2];
 };
 
-struct cio_eventloop {
-	/**
-	 * @privatesection
-	 */
-	HANDLE loop_completion_port;
-	bool go_ahead;
+struct cio_server_socket_impl {
+	struct cio_windows_listen_socket listen_socket_ipv4;
+	struct cio_windows_listen_socket listen_socket_ipv6;
+	struct cio_eventloop *loop;
 };
-
-enum cio_error cio_windows_eventloop_add(struct cio_event_notifier *ev, const struct cio_eventloop *loop);
-void cio_windows_eventloop_remove(struct cio_event_notifier *ev, const struct cio_eventloop *loop);
-
-enum cio_error cio_windows_add_handle_to_completion_port(HANDLE fd, const struct cio_eventloop *loop, void *context);
-struct cio_event_notifier *cio_windows_get_event_entry(void);
-void cio_windows_release_event_entry(struct cio_event_notifier *ev);
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif
+#endif // CIO_WINDOWS_SERVER_SOCKET_IMPL_H

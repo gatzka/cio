@@ -32,6 +32,7 @@
 #include "cio_error_code.h"
 #include "cio_eventloop.h"
 #include "cio_io_stream.h"
+#include "cio_socket_impl.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -61,11 +62,11 @@ struct cio_socket {
 	 * @anchor cio_socket_get_io_stream
 	 * @brief Gets an I/O stream from the socket.
 	 *
-	 * @param context A pointer to a cio_socket from which the cio_io_stream is retrieved.
+	 * @param socket A pointer to a cio_socket from which the cio_io_stream is retrieved.
 	 *
 	 * @return An I/O stream for reading from and writing to this socket.
 	 */
-	struct cio_io_stream *(*get_io_stream)(struct cio_socket *context);
+	struct cio_io_stream *(*get_io_stream)(struct cio_socket *socket);
 
 	/**
 	 * @anchor cio_socket_close
@@ -74,26 +75,26 @@ struct cio_socket {
 	 * Once a socket has been closed, no further communication is possible. Closing the socket
 	 * also closes the socket's cio_io_stream.
 	 *
-	 * @param context A pointer to a cio_socket which shall be closed.
+	 * @param socket A pointer to a cio_socket which shall be closed.
 	 */
-	enum cio_error (*close)(struct cio_socket *context);
+	enum cio_error (*close)(struct cio_socket *socket);
 
 	/**
 	 * @anchor cio_socket_set_tcp_no_delay
 	 * @brief Enables/disables the Nagle algorithm
 	 *
-	 * @param context A pointer to a cio_socket for which the Nagle algorithm should be changed.
+	 * @param socket A pointer to a cio_socket for which the Nagle algorithm should be changed.
 	 * @param on Whether Nagle algorithm should be enabled or not.
 	 *
 	 * @return ::CIO_SUCCESS for success.
 	 */
-	enum cio_error (*set_tcp_no_delay)(struct cio_socket *context, bool on);
+	enum cio_error (*set_tcp_no_delay)(struct cio_socket *socket, bool on);
 
 	/**
 	 * @anchor cio_socket_set_keep_alive
 	 * @brief Enables/disables TCP keepalive messages.
 	 *
-	 * @param context A pointer to a cio_socket for which TCP keepalive should be changed.
+	 * @param socket A pointer to a cio_socket for which TCP keepalive should be changed.
 	 * @param on Whether or not to enable TCP keepalives.
 	 * @param keep_idle_s Time in seconds the connections needs to remain idle
 	 *        before start sending keepalive messages. This option might be unused
@@ -105,16 +106,14 @@ struct cio_socket {
 	 *
 	 * @return ::CIO_SUCCESS for success.
 	 */
-	enum cio_error (*set_keep_alive)(struct cio_socket *context, bool on, unsigned int keep_idle_s, unsigned int keep_intvl_s, unsigned int keep_cnt);
+	enum cio_error (*set_keep_alive)(struct cio_socket *socket, bool on, unsigned int keep_idle_s, unsigned int keep_intvl_s, unsigned int keep_cnt);
 
 	/**
 	 * @privatesection
 	 */
 	struct cio_io_stream stream;
 	cio_socket_close_hook close_hook;
-	struct cio_event_notifier ev;
-	struct cio_eventloop *loop;
-	struct cio_allocator *allocator;
+	struct cio_socket_impl impl;
 };
 
 /**

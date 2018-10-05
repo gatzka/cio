@@ -151,7 +151,7 @@ static enum cio_error cio_server_socket_init_ok(struct cio_server_socket *ss,
 	ss->alloc_client = alloc_client;
 	ss->free_client = free_client;
 	ss->backlog = (int)backlog;
-	ss->loop = loop;
+	ss->impl.loop = loop;
 	ss->close_hook = close_hook;
 	ss->close = socket_close;
 	ss->accept = socket_accept;

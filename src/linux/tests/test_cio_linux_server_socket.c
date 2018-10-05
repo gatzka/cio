@@ -217,7 +217,7 @@ static void accept_handler_close_server_socket(struct cio_server_socket *ss, voi
 
 static enum cio_error socket_close(struct cio_socket *s)
 {
-	close(s->ev.fd);
+	close(s->impl.ev.fd);
 	if (s->close_hook != NULL) {
 		s->close_hook(s);
 	}
@@ -227,11 +227,11 @@ static enum cio_error socket_close(struct cio_socket *s)
 
 static enum cio_error custom_cio_linux_socket_init(struct cio_socket *s, int fd, struct cio_eventloop *loop, cio_socket_close_hook hook)
 {
-	s->ev.fd = fd;
+	s->impl.ev.fd = fd;
 
 	s->close = socket_close;
 
-	s->loop = loop;
+	s->impl.loop = loop;
 	s->close_hook = hook;
 	return CIO_SUCCESS;
 }
@@ -264,7 +264,7 @@ static void test_accept_bind_address(void)
 	err = ss.accept(&ss, accept_handler, NULL);
 	TEST_ASSERT_EQUAL(CIO_SUCCESS, err);
 
-	ss.ev.read_callback(ss.ev.context);
+	ss.impl.ev.read_callback(ss.impl.ev.context);
 
 	TEST_ASSERT_EQUAL(1, accept_handler_fake.call_count);
 	TEST_ASSERT_EQUAL(1, on_close_fake.call_count);
@@ -285,7 +285,7 @@ static void test_accept_close_in_accept_handler(void)
 	ss.bind(&ss, NULL, 12345);
 	ss.accept(&ss, accept_handler, NULL);
 
-	ss.ev.read_callback(ss.ev.context);
+	ss.impl.ev.read_callback(ss.impl.ev.context);
 
 	TEST_ASSERT_EQUAL(1, accept_handler_fake.call_count);
 	TEST_ASSERT_EQUAL(1, on_close_fake.call_count);
@@ -306,7 +306,7 @@ static void test_accept_close_in_accept_handler_no_close_hook(void)
 	ss.bind(&ss, NULL, 12345);
 	ss.accept(&ss, accept_handler, NULL);
 
-	ss.ev.read_callback(ss.ev.context);
+	ss.impl.ev.read_callback(ss.impl.ev.context);
 
 	TEST_ASSERT_EQUAL(1, accept_handler_fake.call_count);
 	TEST_ASSERT_EQUAL(0, on_close_fake.call_count);
@@ -328,7 +328,7 @@ static void test_accept_wouldblock(void)
 	err = ss.accept(&ss, accept_handler, NULL);
 	TEST_ASSERT_EQUAL(CIO_SUCCESS, err);
 
-	ss.ev.read_callback(ss.ev.context);
+	ss.impl.ev.read_callback(ss.impl.ev.context);
 
 	TEST_ASSERT_EQUAL(0, accept_handler_fake.call_count);
 	ss.close(&ss);
@@ -350,7 +350,7 @@ static void test_accept_fails(void)
 	ss.bind(&ss, NULL, 12345);
 	ss.accept(&ss, accept_handler, NULL);
 
-	ss.ev.read_callback(ss.ev.context);
+	ss.impl.ev.read_callback(ss.impl.ev.context);
 
 	TEST_ASSERT_EQUAL(1, accept_handler_fake.call_count);
 	TEST_ASSERT_EQUAL(1, on_close_fake.call_count);
@@ -553,7 +553,7 @@ static void test_accept_malloc_fails(void)
 	ss.bind(&ss, NULL, 12345);
 	ss.accept(&ss, accept_handler, NULL);
 
-	ss.ev.read_callback(ss.ev.context);
+	ss.impl.ev.read_callback(ss.impl.ev.context);
 
 	TEST_ASSERT_EQUAL(0, accept_handler_fake.call_count);
 	TEST_ASSERT_EQUAL(1, close_fake.call_count);
@@ -581,7 +581,7 @@ static void test_accept_socket_init_fails(void)
 	ss.bind(&ss, NULL, 12345);
 	ss.accept(&ss, accept_handler, NULL);
 
-	ss.ev.read_callback(ss.ev.context);
+	ss.impl.ev.read_callback(ss.impl.ev.context);
 
 	TEST_ASSERT_EQUAL(0, accept_handler_fake.call_count);
 	TEST_ASSERT_EQUAL(1, close_fake.call_count);
@@ -606,7 +606,7 @@ static void test_accept_socket_close_socket(void)
 	ss.bind(&ss, NULL, 12345);
 	ss.accept(&ss, accept_handler, NULL);
 
-	ss.ev.read_callback(ss.ev.context);
+	ss.impl.ev.read_callback(ss.impl.ev.context);
 
 	TEST_ASSERT_EQUAL(1, accept_handler_fake.call_count);
 	TEST_ASSERT_EQUAL(1, close_fake.call_count);

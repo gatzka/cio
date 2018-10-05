@@ -1,8 +1,9 @@
-cmake_minimum_required(VERSION 3.0)
+cmake_minimum_required(VERSION 3.3)
 project(cio C)
 
 set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/../cmake/)
 include(FindDoxygen)
+
 include(compiler_settings)
 include(generateVersion)
 include(sanitizer)
@@ -70,6 +71,7 @@ elseif(is_windows)
 		"windows/cio_windows_endian.c"
 		"windows/cio_windows_random.c"
 		"windows/cio_windows_server_socket.c"
+		"windows/cio_windows_socket.c"
 		"windows/cio_windows_string.c"
 		"windows/cio_windows_timer.c"
 	)
@@ -181,10 +183,10 @@ elseif(is_windows)
     target_include_directories(target_platform PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/windows/)
 	
 	target_include_directories(cio_static PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/windows/)
-	target_link_libraries(cio_static bcrypt)
+	target_link_libraries(cio_static bcrypt ws2_32)
 
 	target_include_directories(cio PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/windows/)
-	target_link_libraries(cio bcrypt)
+	target_link_libraries(cio bcrypt ws2_32)
 endif()
 
 set(LIB_HEADERS

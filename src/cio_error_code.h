@@ -64,6 +64,7 @@ enum cio_error {
 	CIO_TOO_MANY_FILES_OPEN = -CIO_SOCKET_ERROR(EMFILE),                                        /*!< Too many files open. */
 	CIO_TOO_MANY_SYMBOLIC_LINK_LEVELS = -CIO_SOCKET_ERROR(ELOOP),                               /*!< Too many symbolic link levels. */
 	CIO_OPERATION_ABORTED = -CIO_WINDOWS_UNIX_SOCKET_ERROR(ERROR_OPERATION_ABORTED, ECANCELED), /*!< Operation cancelled. */
+	CIO_NO_MEMORY = -CIO_WINDOWS_UNIX_SOCKET_ERROR(ERROR_OUTOFMEMORY, ENOMEM),                  /*!< Out of memory. */
 	CIO_MESSAGE_TOO_LONG = -CIO_SOCKET_ERROR(EMSGSIZE),                                         /*!< Message too long. */
 	CIO_NETRESET = -CIO_SOCKET_ERROR(ENETRESET)                                                 /*!< Network dropped connection because of reset. */
 };

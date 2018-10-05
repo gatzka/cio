@@ -205,7 +205,7 @@ static void response_written(struct cio_buffered_stream *bs, void *handler_conte
 	struct cio_websocket *ws = &wslh->websocket;
 	ws->ws_private.bs = bs;
 	ws->ws_private.rb = &client->rb;
-	ws->ws_private.loop = client->socket.loop;
+	ws->ws_private.loop = client->socket.impl.loop;
 
 	ws->on_connect(ws);
 }

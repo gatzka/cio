@@ -1,7 +1,7 @@
 /*
  * The MIT License (MIT)
  *
- * Copyright (c) <2017> <Stephan Gatzka>
+ * Copyright (c) <2018> <Stephan Gatzka>
  *
  * Permission is hereby granted, free of charge, to any person obtaining
  * a copy of this software and associated documentation files (the
@@ -24,42 +24,22 @@
  * SOFTWARE.
  */
 
-#ifndef CIO_WINDOWS_EVENTLOOP_IMPL_H
-#define CIO_WINDOWS_EVENTLOOP_IMPL_H
+#ifndef CIO_WINDOWS_SOCKET_H
+#define CIO_WINDOWS_SOCKET_H
 
-#define WIN32_LEAN_AND_MEAN
-
-#include <stdbool.h>
-#include <Windows.h>
+#include <Winsock2.h>
 
 #include "cio_error_code.h"
+#include "cio_eventloop.h"
+#include "cio_socket.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-struct cio_event_notifier {
-
-	void (*callback)(struct cio_event_notifier *ev, void *context);
-
-	OVERLAPPED overlapped;
-	DWORD last_error;
-};
-
-struct cio_eventloop {
-	/**
-	 * @privatesection
-	 */
-	HANDLE loop_completion_port;
-	bool go_ahead;
-};
-
-enum cio_error cio_windows_eventloop_add(struct cio_event_notifier *ev, const struct cio_eventloop *loop);
-void cio_windows_eventloop_remove(struct cio_event_notifier *ev, const struct cio_eventloop *loop);
-
-enum cio_error cio_windows_add_handle_to_completion_port(HANDLE fd, const struct cio_eventloop *loop, void *context);
-struct cio_event_notifier *cio_windows_get_event_entry(void);
-void cio_windows_release_event_entry(struct cio_event_notifier *ev);
+enum cio_error cio_windows_socket_init(struct cio_socket *s, SOCKET client_fd,
+                                       struct cio_eventloop *loop,
+                                       cio_socket_close_hook close_hook);
 
 #ifdef __cplusplus
 }
