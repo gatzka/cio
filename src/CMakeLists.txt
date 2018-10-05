@@ -67,7 +67,7 @@ if(is_linux)
     )
 elseif(is_windows)
 	set(CIO_PLATFORM_FILES
-		"windows/cio_windows_cpio.c"
+		"windows/cio_windows_iocp.c"
 		"windows/cio_windows_endian.c"
 		"windows/cio_windows_random.c"
 		"windows/cio_windows_server_socket.c"
