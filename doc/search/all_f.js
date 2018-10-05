@@ -7,6 +7,7 @@ var searchData=
   ['read_5fhandler',['read_handler',['../structcio__websocket__private.html#a039a8e2c5b9f72b9db0c26ff3ea9ba41',1,'cio_websocket_private']]],
   ['read_5fhandler_5fcontext',['read_handler_context',['../structcio__websocket__private.html#a1962b07487645e896c1ca63daad14d2e',1,'cio_websocket_private']]],
   ['read_5fmessage',['read_message',['../structcio__websocket.html#aabf44d7087a05185256f8096864a4c8e',1,'cio_websocket::read_message()'],['../cio__websocket_8c.html#ab7a95a2f6f70555afad077daffcd54c3',1,'read_message():&#160;cio_websocket.c']]],
+  ['read_5fpayload',['read_payload',['../cio__websocket_8c.html#af920a64a69b044ef24c2bccc421e4660',1,'cio_websocket.c']]],
   ['read_5fsome',['read_some',['../structcio__io__stream.html#aa24c47612ee31a0aa9d12dfecb9f6567',1,'cio_io_stream']]],
   ['read_5ftimer',['read_timer',['../structcio__http__client__private.html#a7ca116ef6b3669b386baf53fedc05a70',1,'cio_http_client_private']]],
   ['read_5funtil',['read_until',['../structcio__buffered__stream.html#aae99ca2eef74c4311c1a2b09638ef8cc',1,'cio_buffered_stream']]],

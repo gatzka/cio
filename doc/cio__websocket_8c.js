@@ -33,6 +33,7 @@ var cio__websocket_8c =
     [ "prepare_close_job", "cio__websocket_8c.html#ac84f95ffc1c46e9fae0e04ea7d98f83b", null ],
     [ "prepare_close_job_string", "cio__websocket_8c.html#a4ebeebb5ddb29748b7ce854aa6c601c5", null ],
     [ "read_message", "cio__websocket_8c.html#ab7a95a2f6f70555afad077daffcd54c3", null ],
+    [ "read_payload", "cio__websocket_8c.html#af920a64a69b044ef24c2bccc421e4660", null ],
     [ "remove_websocket_header", "cio__websocket_8c.html#affcb5af087b780b814a1cba54cbeff70", null ],
     [ "response_close_frame_written", "cio__websocket_8c.html#a20c0f2320140712162a2a7799eb6966d", null ],
     [ "rotate", "cio__websocket_8c.html#a13bcaf54963aba2220dccb3e70cacf71", null ],

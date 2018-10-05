@@ -1,6 +1,7 @@
 var searchData=
 [
   ['read_5fmessage',['read_message',['../cio__websocket_8c.html#ab7a95a2f6f70555afad077daffcd54c3',1,'cio_websocket.c']]],
+  ['read_5fpayload',['read_payload',['../cio__websocket_8c.html#af920a64a69b044ef24c2bccc421e4660',1,'cio_websocket.c']]],
   ['register_5fhandler',['register_handler',['../cio__http__server_8c.html#a13cf7e5d7190f56b738755cae1c2e88f',1,'cio_http_server.c']]],
   ['remove_5fwebsocket_5fheader',['remove_websocket_header',['../cio__websocket_8c.html#affcb5af087b780b814a1cba54cbeff70',1,'cio_websocket.c']]],
   ['response_5fclose_5fframe_5fwritten',['response_close_frame_written',['../cio__websocket_8c.html#a20c0f2320140712162a2a7799eb6966d',1,'cio_websocket.c']]],
