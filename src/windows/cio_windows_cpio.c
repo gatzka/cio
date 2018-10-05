@@ -69,7 +69,7 @@ struct cio_event_notifier *cio_windows_get_event_entry(void)
 			return NULL;
 		}
 
-		memcpy(new_event_list, event_list, sizeof(event_list) * EVENT_LIST_SIZE);
+		memcpy(new_event_list, event_list, sizeof(*event_list) * EVENT_LIST_SIZE);
 		for (size_t i = EVENT_LIST_SIZE; i < ((EVENT_LIST_SIZE * 2) - 1); i++) {
 			event_list[i].next_free_idx = i + 1;		
 		}
