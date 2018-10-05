@@ -38,7 +38,7 @@
 
 static void try_free(struct cio_socket *s)
 {
-	if (s->impl.ref == 0) {
+	if (s->impl.overlapped_operations_in_use == 0) {
 		closesocket((SOCKET)s->impl.fd);
 		if (s->close_hook != NULL) {
 			s->close_hook(s);
@@ -107,7 +107,7 @@ static void read_callback(struct cio_event_notifier *ev, void *context)
 	DWORD flags = 0;
 	BOOL rc = WSAGetOverlappedResult((SOCKET)s->impl.fd, &ev->overlapped, &recv_bytes, FALSE, &flags);
 	cio_windows_release_event_entry(ev);
-	s->impl.ref--;
+	s->impl.overlapped_operations_in_use--;
 	enum cio_error error_code;
 	if (cio_unlikely(rc == FALSE)) {
 		int error = WSAGetLastError();
@@ -162,7 +162,7 @@ static enum cio_error stream_read(struct cio_io_stream *stream, struct cio_read_
 		}
 	}
 
-	s->impl.ref++;
+	s->impl.overlapped_operations_in_use++;
 	return CIO_SUCCESS;
 }
 
@@ -175,7 +175,7 @@ static void write_callback(struct cio_event_notifier *ev, void *context)
 	DWORD flags = 0;
 	BOOL rc = WSAGetOverlappedResult((SOCKET)s->impl.fd, &ev->overlapped, &bytes_sent, FALSE, &flags);
 	cio_windows_release_event_entry(ev);
-	s->impl.ref--;
+	s->impl.overlapped_operations_in_use--;
 	enum cio_error error_code = CIO_SUCCESS;
 	if (cio_unlikely(rc == FALSE)) {
 		int error = WSAGetLastError();
@@ -227,7 +227,7 @@ static enum cio_error stream_write(struct cio_io_stream *stream, const struct ci
 		}
 	}
 
-	s->impl.ref++;
+	s->impl.overlapped_operations_in_use++;
 	return CIO_SUCCESS;
 }
 
@@ -242,7 +242,7 @@ enum cio_error cio_windows_socket_init(struct cio_socket *s, SOCKET client_fd,
 	s->impl.fd = (HANDLE)client_fd;
 
 	s->impl.loop = loop;
-	s->impl.ref = 0;
+	s->impl.overlapped_operations_in_use = 0;
 	s->close_hook = close_hook;
 
 	s->close = socket_close;
