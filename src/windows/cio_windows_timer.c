@@ -62,13 +62,14 @@ static void CALLBACK timer_callback(void *context, BOOLEAN fired)
 	if (fired) {
 		struct cio_timer *t = (struct cio_timer *)context;
 		DeleteTimerQueueTimer(NULL, t->ev.overlapped.hEvent, NULL);
-		t->ev.overlapped.hEvent = NULL;
-		PostQueuedCompletionStatus(t->loop->loop_completion_port, 0, (ULONG_PTR)&t->ev, &t->ev.overlapped);
+		memset(&t->ev.overlapped, 0, sizeof(t->ev.overlapped));
+		PostQueuedCompletionStatus(t->loop->loop_completion_port, 0, (ULONG_PTR)t, &t->ev.overlapped);
 	}
 }
 
-static void timer_event_callback(void *context)
+static void timer_event_callback(struct cio_event_notifier *ev, void *context)
 {
+	(void)ev;
 	struct cio_timer *t = (struct cio_timer *)context;
 	timer_handler handler = t->handler;
 	t->handler = NULL;
@@ -102,7 +103,6 @@ enum cio_error cio_timer_init(struct cio_timer *timer, struct cio_eventloop *loo
 	timer->loop = loop;
 	timer->ev.overlapped.hEvent = 0;
 	timer->ev.callback = timer_event_callback;
-	// TODO timer->ev.context = timer;
 
 	return CIO_SUCCESS;
 }
