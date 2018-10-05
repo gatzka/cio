@@ -44,8 +44,9 @@ var NAVTREEINDEX0 =
 "cio__endian_8h_source.html":[1,0,6],
 "cio__error__code_8h.html":[1,0,7],
 "cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afe":[1,0,7,0],
-"cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afea06200e7e0c85f55eb1ba3468fc2c6d70":[1,0,7,0,20],
+"cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afea06200e7e0c85f55eb1ba3468fc2c6d70":[1,0,7,0,21],
 "cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afea10aa72394024ba09c852f329c4837f17":[1,0,7,0,9],
+"cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afea1126c8775173ab8cb253de612ede0ee1":[1,0,7,0,19],
 "cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afea237cc68c5cce982ac9a6e9a434a28dc1":[1,0,7,0,0],
 "cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afea2b17f2123e380cd5580bb6e614f9789a":[1,0,7,0,15],
 "cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afea37a8f67d7341dcffecc3d1ed29964f11":[1,0,7,0,5],
@@ -58,7 +59,7 @@ var NAVTREEINDEX0 =
 "cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afea9b8563335cc73fc34331b1dbfa066b32":[1,0,7,0,6],
 "cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afea9edd632146fdf8840413b990dcef02dd":[1,0,7,0,18],
 "cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afeabbbbbbff5b00e62674e59016d6c4ea9f":[1,0,7,0,7],
-"cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afeac9b795483cae05076b54df12ff247712":[1,0,7,0,19],
+"cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afeac9b795483cae05076b54df12ff247712":[1,0,7,0,20],
 "cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afeacbe96e6c41d13351a99ed59d910e146f":[1,0,7,0,14],
 "cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afeaccb75f5d6425bab75f8d1e168b8c89f0":[1,0,7,0,10],
 "cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afead160eb0012c00d7cbbbfa411d15c5b79":[1,0,7,0,11],
@@ -248,6 +249,5 @@ var NAVTREEINDEX0 =
 "cio__websocket_8c.html#a83e7355c03e5be2bcd43002a480fa19d":[1,0,28,44],
 "cio__websocket_8c.html#a85f03002fbf771a41928d5a1b5cb4851":[1,0,28,25],
 "cio__websocket_8c.html#a8ce63f0697fc1e3063d9111957342c81":[1,0,28,43],
-"cio__websocket_8c.html#a9535efa920691dfc80882d2c56430b08":[1,0,28,9],
-"cio__websocket_8c.html#a959f1ba0cdb8054e819b425284ecf544":[1,0,28,13]
+"cio__websocket_8c.html#a9535efa920691dfc80882d2c56430b08":[1,0,28,9]
 };

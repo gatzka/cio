@@ -30,7 +30,7 @@
  <tr style="height: 56px;">
   <td style="padding-left: 0.5em;">
    <div id="projectname">cioall
-   &#160;<span id="projectnumber">0.0.1-1059+9628bec</span>
+   &#160;<span id="projectnumber">0.0.1-1060+174b965</span>
    </div>
    <div id="projectbrief">An ANSI C Conformant I/O Library.</div>
   </td>
@@ -186,13 +186,13 @@ $(document).ready(function(){initNavTree('cio__http__server_8h_source.html','');
 <div class="ttc" id="cio__http__location_8h_html"><div class="ttname"><a href="cio__http__location_8h.html">cio_http_location.h</a></div><div class="ttdoc">This file contains the declarations for initializing an location in an HTTP server. </div></div>
 <div class="ttc" id="structcio__http__server_html"><div class="ttname"><a href="structcio__http__server.html">cio_http_server</a></div><div class="ttdoc">The cio_http_server structure provides the implementation of a simple HTTP server. </div><div class="ttdef"><b>Definition:</b> cio_http_server.h:70</div></div>
 <div class="ttc" id="cio__error__code_8h_html_ac512c4abcb0c1e747cdaaf3b917d4afe"><div class="ttname"><a href="cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afe">cio_error</a></div><div class="ttdeci">cio_error</div><div class="ttdoc">All error codes used inside the cio libary. </div><div class="ttdef"><b>Definition:</b> cio_error_code.h:47</div></div>
-<div class="ttc" id="cio__server__socket_8h_html_a6365344c7e5e854b40ff9a3b01e4176f"><div class="ttname"><a href="cio__server__socket_8h.html#a6365344c7e5e854b40ff9a3b01e4176f">cio_alloc_client</a></div><div class="ttdeci">struct cio_socket *(* cio_alloc_client)(void)</div><div class="ttdef"><b>Definition:</b> cio_server_socket.h:50</div></div>
+<div class="ttc" id="cio__server__socket_8h_html_a6365344c7e5e854b40ff9a3b01e4176f"><div class="ttname"><a href="cio__server__socket_8h.html#a6365344c7e5e854b40ff9a3b01e4176f">cio_alloc_client</a></div><div class="ttdeci">struct cio_socket *(* cio_alloc_client)(void)</div><div class="ttdef"><b>Definition:</b> cio_server_socket.h:51</div></div>
 <div class="ttc" id="cio__error__code_8h_html"><div class="ttname"><a href="cio__error__code_8h.html">cio_error_code.h</a></div><div class="ttdoc">This file contains the declaration of the enumeration for all error codes. </div></div>
 <div class="ttc" id="cio__http__server_8h_html_a7f2712bf0eb268d707e140aba69c891f"><div class="ttname"><a href="cio__http__server_8h.html#a7f2712bf0eb268d707e140aba69c891f">cio_http_server_init</a></div><div class="ttdeci">enum cio_error cio_http_server_init(struct cio_http_server *server, uint16_t port, struct cio_eventloop *loop, cio_http_serve_on_error on_error, uint64_t read_timeout_ns, cio_alloc_client alloc_client, cio_free_client free_client)</div><div class="ttdoc">Initializes an HTTP server. </div><div class="ttdef"><b>Definition:</b> cio_http_server.c:587</div></div>
 <div class="ttc" id="cio__eventloop_8h_html"><div class="ttname"><a href="cio__eventloop_8h.html">cio_eventloop.h</a></div><div class="ttdoc">This file describes the interface to an eventloop. </div></div>
-<div class="ttc" id="structcio__server__socket_html"><div class="ttname"><a href="structcio__server__socket.html">cio_server_socket</a></div><div class="ttdoc">The cio_server_socket struct describes a server socket. </div><div class="ttdef"><b>Definition:</b> cio_server_socket.h:76</div></div>
+<div class="ttc" id="structcio__server__socket_html"><div class="ttname"><a href="structcio__server__socket.html">cio_server_socket</a></div><div class="ttdoc">The cio_server_socket struct describes a server socket. </div><div class="ttdef"><b>Definition:</b> cio_server_socket.h:77</div></div>
 <div class="ttc" id="structcio__http__location_html"><div class="ttname"><a href="structcio__http__location.html">cio_http_location</a></div><div class="ttdoc">An opaque structure encapsulating the information of an HTTP location. </div><div class="ttdef"><b>Definition:</b> cio_http_location.h:58</div></div>
-<div class="ttc" id="cio__server__socket_8h_html_ad1fdf04763eef9c0a1883c9ebe833964"><div class="ttname"><a href="cio__server__socket_8h.html#ad1fdf04763eef9c0a1883c9ebe833964">cio_free_client</a></div><div class="ttdeci">void(* cio_free_client)(struct cio_socket *socket)</div><div class="ttdef"><b>Definition:</b> cio_server_socket.h:51</div></div>
+<div class="ttc" id="cio__server__socket_8h_html_ad1fdf04763eef9c0a1883c9ebe833964"><div class="ttname"><a href="cio__server__socket_8h.html#ad1fdf04763eef9c0a1883c9ebe833964">cio_free_client</a></div><div class="ttdeci">void(* cio_free_client)(struct cio_socket *socket)</div><div class="ttdef"><b>Definition:</b> cio_server_socket.h:52</div></div>
 <div class="ttc" id="structcio__http__server_html_ae4f8a7e10057f59c881f264b205e68ba"><div class="ttname"><a href="structcio__http__server.html#ae4f8a7e10057f59c881f264b205e68ba">cio_http_server::register_location</a></div><div class="ttdeci">enum cio_error(* register_location)(struct cio_http_server *server, struct cio_http_location *location)</div><div class="ttdoc">Register a location to the HTTP server. </div><div class="ttdef"><b>Definition:</b> cio_http_server.h:91</div></div>
 <div class="ttc" id="cio__server__socket_8h_html"><div class="ttname"><a href="cio__server__socket_8h.html">cio_server_socket.h</a></div><div class="ttdoc">This file contains the interface of a server socket. </div></div>
 <div class="ttc" id="cio__http__server_8h_html_a8c2e5f3520fbd97f6f904bcb75be6bf3"><div class="ttname"><a href="cio__http__server_8h.html#a8c2e5f3520fbd97f6f904bcb75be6bf3">cio_http_serve_on_error</a></div><div class="ttdeci">void(* cio_http_serve_on_error)(struct cio_http_server *server, const char *reason)</div><div class="ttdoc">The type of an server error function passed to the initialization of an HTTP server. </div><div class="ttdef"><b>Definition:</b> cio_http_server.h:65</div></div>
@@ -202,7 +202,7 @@ $(document).ready(function(){initNavTree('cio__http__server_8h_source.html','');
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="cio__http__server_8h.html">cio_http_server.h</a></li>
-    <li class="footer">Generated on Fri Sep 14 2018 15:17:50 for cioall by
+    <li class="footer">Generated on Fri Oct 5 2018 07:04:32 for cioall by
     <a href="http://www.doxygen.org/index.html">
     <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.8.6 </li>
   </ul>

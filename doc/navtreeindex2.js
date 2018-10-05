@@ -1,5 +1,6 @@
 var NAVTREEINDEX2 =
 {
+"structcio__websocket__write__job.html#a7935a405777acb969c211cef16148173":[0,0,16,4],
 "structcio__websocket__write__job.html#a95bdcf4a76ed0daed24d0ebe95a897be":[0,0,16,8],
 "structcio__websocket__write__job.html#aa7f770b89a2f840fd5ab79ece5d6d116":[0,0,16,7],
 "structcio__websocket__write__job.html#aa861ea6f9fbe9270a2ca76f9faced872":[0,0,16,0],

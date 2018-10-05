@@ -30,7 +30,7 @@
  <tr style="height: 56px;">
   <td style="padding-left: 0.5em;">
    <div id="projectname">cioall
-   &#160;<span id="projectnumber">0.0.1-1059+9628bec</span>
+   &#160;<span id="projectnumber">0.0.1-1060+174b965</span>
    </div>
    <div id="projectbrief">An ANSI C Conformant I/O Library.</div>
   </td>
@@ -142,9 +142,10 @@ Enumerations</h2></td></tr>
 &#160;&#160;<a class="el" href="cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afea5943517bd1417748a5861a147db26657">CIO_TOO_MANY_FILES_OPEN</a> = -CIO_SOCKET_ERROR(EMFILE), 
 <a class="el" href="cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afea4d57cc6f8e1fa638917916386d201172">CIO_TOO_MANY_SYMBOLIC_LINK_LEVELS</a> = -CIO_SOCKET_ERROR(ELOOP), 
 <a class="el" href="cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afea9edd632146fdf8840413b990dcef02dd">CIO_OPERATION_ABORTED</a> = -CIO_WINDOWS_UNIX_SOCKET_ERROR(ERROR_OPERATION_ABORTED, ECANCELED), 
-<a class="el" href="cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afeac9b795483cae05076b54df12ff247712">CIO_MESSAGE_TOO_LONG</a> = -CIO_SOCKET_ERROR(EMSGSIZE), 
+<a class="el" href="cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afea1126c8775173ab8cb253de612ede0ee1">CIO_NO_MEMORY</a> = -CIO_WINDOWS_UNIX_SOCKET_ERROR(ERROR_OUTOFMEMORY, ENOMEM), 
 <br/>
-&#160;&#160;<a class="el" href="cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afea06200e7e0c85f55eb1ba3468fc2c6d70">CIO_NETRESET</a> = -CIO_SOCKET_ERROR(ENETRESET)
+&#160;&#160;<a class="el" href="cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afeac9b795483cae05076b54df12ff247712">CIO_MESSAGE_TOO_LONG</a> = -CIO_SOCKET_ERROR(EMSGSIZE), 
+<a class="el" href="cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afea06200e7e0c85f55eb1ba3468fc2c6d70">CIO_NETRESET</a> = -CIO_SOCKET_ERROR(ENETRESET)
 <br/>
  }</td></tr>
 <tr class="memdesc:ac512c4abcb0c1e747cdaaf3b917d4afe"><td class="mdescLeft">&#160;</td><td class="mdescRight">All error codes used inside the cio libary.  <a href="cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afe">More...</a><br/></td></tr>
@@ -222,6 +223,9 @@ Enumerations</h2></td></tr>
 <tr><td class="fieldname"><em><a class="anchor" id="ac512c4abcb0c1e747cdaaf3b917d4afea9edd632146fdf8840413b990dcef02dd"></a>CIO_OPERATION_ABORTED</em>&#160;</td><td class="fielddoc">
 <p>Operation cancelled. </p>
 </td></tr>
+<tr><td class="fieldname"><em><a class="anchor" id="ac512c4abcb0c1e747cdaaf3b917d4afea1126c8775173ab8cb253de612ede0ee1"></a>CIO_NO_MEMORY</em>&#160;</td><td class="fielddoc">
+<p>Out of memory. </p>
+</td></tr>
 <tr><td class="fieldname"><em><a class="anchor" id="ac512c4abcb0c1e747cdaaf3b917d4afeac9b795483cae05076b54df12ff247712"></a>CIO_MESSAGE_TOO_LONG</em>&#160;</td><td class="fielddoc">
 <p>Message too long. </p>
 </td></tr>
@@ -238,7 +242,7 @@ Enumerations</h2></td></tr>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="cio__error__code_8h.html">cio_error_code.h</a></li>
-    <li class="footer">Generated on Fri Sep 14 2018 15:17:50 for cioall by
+    <li class="footer">Generated on Fri Oct 5 2018 07:04:32 for cioall by
     <a href="http://www.doxygen.org/index.html">
     <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.8.6 </li>
   </ul>

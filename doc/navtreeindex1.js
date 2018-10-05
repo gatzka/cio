@@ -1,5 +1,6 @@
 var NAVTREEINDEX1 =
 {
+"cio__websocket_8c.html#a959f1ba0cdb8054e819b425284ecf544":[1,0,28,13],
 "cio__websocket_8c.html#a96e6972377ffb1c140d766210d77ff55":[1,0,28,24],
 "cio__websocket_8c.html#a9fccc307ef55fe57f5fc0bef55274173":[1,0,28,46],
 "cio__websocket_8c.html#aa48d7398690dc0863406108141064c4d":[1,0,28,26],
@@ -103,8 +104,8 @@ var NAVTREEINDEX1 =
 "files.html":[1,0],
 "functions.html":[0,2,0],
 "functions_vars.html":[0,2,1],
-"globals.html":[1,1,0],
 "globals.html":[1,1,0,0],
+"globals.html":[1,1,0],
 "globals_b.html":[1,1,0,1],
 "globals_c.html":[1,1,0,2],
 "globals_d.html":[1,1,0,3],
@@ -193,10 +194,10 @@ var NAVTREEINDEX1 =
 "structcio__server__socket.html#aed89990810a207e4b9821942581c13bd":[0,0,9,3],
 "structcio__server__socket.html#afc6d6322fecf1b0bd931ed397d2016a6":[0,0,9,2],
 "structcio__socket.html":[0,0,10],
-"structcio__socket.html#a411e8e65890595385a3e96cc34f01171":[0,0,10,0],
-"structcio__socket.html#a9cd4160418b2300bedd508197329636e":[0,0,10,3],
-"structcio__socket.html#ac882e7284066501e26d9f85d3cc9b638":[0,0,10,1],
-"structcio__socket.html#aeee92d0cf2f5718fed36908065b81e96":[0,0,10,2],
+"structcio__socket.html#a3d062b34b29a51e1493688d9b77d1ecb":[0,0,10,3],
+"structcio__socket.html#a5c3ad0cc17948958eaf126f339baaa3e":[0,0,10,1],
+"structcio__socket.html#a9e5b096a1a0ccc9de189ff626c92e810":[0,0,10,0],
+"structcio__socket.html#af9dafcb2cae93da6f89b66ad460f9739":[0,0,10,2],
 "structcio__timer.html":[0,0,11],
 "structcio__timer.html#a8e83f28b2eb60b637d517c7f1dd8f347":[0,0,11,0],
 "structcio__timer.html#a9415fa7ec48bc6edaf1baa144ad479e2":[0,0,11,1],
@@ -248,6 +249,5 @@ var NAVTREEINDEX1 =
 "structcio__websocket__write__job.html#a03e58e95b659e7a39db6d818c11411b1":[0,0,16,2],
 "structcio__websocket__write__job.html#a16d0cefda1aef984e79518621300d7da":[0,0,16,3],
 "structcio__websocket__write__job.html#a1f6652868857b5523069b2655849a741":[0,0,16,1],
-"structcio__websocket__write__job.html#a331922ad95315110f1707d09b4fda75b":[0,0,16,5],
-"structcio__websocket__write__job.html#a7935a405777acb969c211cef16148173":[0,0,16,4]
+"structcio__websocket__write__job.html#a331922ad95315110f1707d09b4fda75b":[0,0,16,5]
 };
