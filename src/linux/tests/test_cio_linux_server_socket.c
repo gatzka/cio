@@ -555,8 +555,11 @@ static void test_accept_malloc_fails(void)
 
 	ss.impl.ev.read_callback(ss.impl.ev.context);
 
-	TEST_ASSERT_EQUAL(0, accept_handler_fake.call_count);
-	TEST_ASSERT_EQUAL(1, close_fake.call_count);
+	TEST_ASSERT_EQUAL(1, accept_handler_fake.call_count);
+	TEST_ASSERT_EQUAL_MESSAGE(&ss, accept_handler_fake.arg0_val, "first parameter of accept callback is not the server socket struct!");
+	TEST_ASSERT_EQUAL_MESSAGE(ss.handler_context, accept_handler_fake.arg1_val, "second parameter of accept callback is not the handler context!");
+	TEST_ASSERT_EQUAL_MESSAGE(CIO_NO_MEMORY, accept_handler_fake.arg2_val, "third parameter of accept callback is not CIO_NO_MEMORY!");
+	TEST_ASSERT_EQUAL_MESSAGE(1, close_fake.call_count, "Close was not called!");
 }
 
 /*
