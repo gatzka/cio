@@ -117,7 +117,6 @@ static const char *get_response_statusline(enum cio_http_status_code status_code
 		return CIO_HTTP_VERSION " 400 Bad Request" CIO_CRLF HTTP_SERVER_ID CIO_VERSION CIO_CRLF;
 	case CIO_HTTP_STATUS_NOT_FOUND:
 		return CIO_HTTP_VERSION " 404 Not Found" CIO_CRLF HTTP_SERVER_ID CIO_VERSION CIO_CRLF;
-	case CIO_HTTP_STATUS_INTERNAL_SERVER_ERROR:
 	default:
 		return CIO_HTTP_VERSION " 500 Internal Server Error" CIO_CRLF HTTP_SERVER_ID CIO_VERSION CIO_CRLF;
 	}
