@@ -2,6 +2,7 @@ var cio__http__server_8c =
 [
     [ "CIO_CRLF", "cio__http__server_8c.html#a87b26cd086f104607d0c759119ab6781", null ],
     [ "CIO_HTTP_VERSION", "cio__http__server_8c.html#a0006b2301960654c86e6e18dd8a6be2e", null ],
+    [ "HTTP_SERVER_ID", "cio__http__server_8c.html#a9b2ca1cc8761edc1fa0b096c160daa5e", null ],
     [ "call_url_parts_callback", "cio__http__server_8c.html#a581417547f7cb6a056e38859d2b1ccd4", null ],
     [ "cio_http_server_init", "cio__http__server_8c.html#a7f2712bf0eb268d707e140aba69c891f", null ],
     [ "cio_is_error", "cio__http__server_8c.html#ad02f5d7b307aca08ed1bc81013dd8195", null ],

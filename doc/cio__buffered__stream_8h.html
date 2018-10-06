@@ -30,7 +30,7 @@
  <tr style="height: 56px;">
   <td style="padding-left: 0.5em;">
    <div id="projectname">cioall
-   &#160;<span id="projectnumber">0.0.1-1067+16ca471</span>
+   &#160;<span id="projectnumber">0.0.1-1073+815ebbe</span>
    </div>
    <div id="projectbrief">An ANSI C Conformant I/O Library.</div>
   </td>
@@ -111,7 +111,7 @@ $(document).ready(function(){initNavTree('cio__buffered__stream_8h.html','');});
 </div><!--header-->
 <div class="contents">
 
-<p>Provides efficient reading and writing form or to an <a class="el" href="structcio__io__stream.html" title="This structure describes the interface all implementations have to fulfill. ">cio_io_stream</a>.  
+<p>Provides efficient reading and writing from or to an <a class="el" href="structcio__io__stream.html" title="This structure describes the interface all implementations have to fulfill. ">cio_io_stream</a>.  
 <a href="#details">More...</a></p>
 <div class="textblock"><code>#include &lt;stdbool.h&gt;</code><br/>
 <code>#include &lt;stddef.h&gt;</code><br/>
@@ -144,7 +144,7 @@ Functions</h2></td></tr>
 <tr class="separator:a2e92bc0f797448c5a6486be3b0feb43b"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
-<div class="textblock"><p>Provides efficient reading and writing form or to an <a class="el" href="structcio__io__stream.html" title="This structure describes the interface all implementations have to fulfill. ">cio_io_stream</a>. </p>
+<div class="textblock"><p>Provides efficient reading and writing from or to an <a class="el" href="structcio__io__stream.html" title="This structure describes the interface all implementations have to fulfill. ">cio_io_stream</a>. </p>
 <p>A <a class="el" href="structcio__buffered__stream.html">cio_buffered_stream</a> is always greedy to fill its internal read buffer. Therefore, it greatly reduces the amount of read calls into the underlying operating system.</p>
 <p>Additonally, a <a class="el" href="structcio__buffered__stream.html">cio_buffered_stream</a> gives you the concept of reading an exact number of bytes or reading until a delimiter string is encountered. Both concepts are useful when parsing protocols.</p>
 <p>The callback of a <code>write</code> call into a buffered_stream is only called if either the provided buffer was completely written or an error occured. </p>
@@ -237,7 +237,7 @@ Functions</h2></td></tr>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="cio__buffered__stream_8h.html">cio_buffered_stream.h</a></li>
-    <li class="footer">Generated on Fri Oct 5 2018 14:40:39 for cioall by
+    <li class="footer">Generated on Sat Oct 6 2018 11:26:00 for cioall by
     <a href="http://www.doxygen.org/index.html">
     <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.8.6 </li>
   </ul>

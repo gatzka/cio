@@ -15,7 +15,7 @@ var indexSectionsWithContent =
   5: "ct",
   6: "ch",
   7: "c",
-  8: "cms"
+  8: "chms"
 };
 
 var indexSectionNames =

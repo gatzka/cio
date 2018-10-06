@@ -1,5 +1,6 @@
 var NAVTREEINDEX1 =
 {
+"cio__websocket_8c.html#a9535efa920691dfc80882d2c56430b08":[1,0,28,9],
 "cio__websocket_8c.html#a959f1ba0cdb8054e819b425284ecf544":[1,0,28,13],
 "cio__websocket_8c.html#a96e6972377ffb1c140d766210d77ff55":[1,0,28,24],
 "cio__websocket_8c.html#a9fccc307ef55fe57f5fc0bef55274173":[1,0,28,47],
@@ -105,8 +106,8 @@ var NAVTREEINDEX1 =
 "files.html":[1,0],
 "functions.html":[0,2,0],
 "functions_vars.html":[0,2,1],
-"globals.html":[1,1,0],
 "globals.html":[1,1,0,0],
+"globals.html":[1,1,0],
 "globals_b.html":[1,1,0,1],
 "globals_c.html":[1,1,0,2],
 "globals_d.html":[1,1,0,3],
@@ -248,6 +249,5 @@ var NAVTREEINDEX1 =
 "structcio__websocket__private.html#afba2373519a3ecbd553f4c26b85c6a32":[0,0,15,13],
 "structcio__websocket__write__job.html":[0,0,16],
 "structcio__websocket__write__job.html#a03e58e95b659e7a39db6d818c11411b1":[0,0,16,2],
-"structcio__websocket__write__job.html#a16d0cefda1aef984e79518621300d7da":[0,0,16,3],
-"structcio__websocket__write__job.html#a1f6652868857b5523069b2655849a741":[0,0,16,1]
+"structcio__websocket__write__job.html#a16d0cefda1aef984e79518621300d7da":[0,0,16,3]
 };

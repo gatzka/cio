@@ -20,5 +20,6 @@ var searchData=
   ['headers_5fcomplete',['headers_complete',['../structcio__http__client__private.html#ad5fd3699d85d1bb18a48d8bec51493e1',1,'cio_http_client_private']]],
   ['http_5fmajor',['http_major',['../structcio__http__client.html#a44731b52ebf1a6e23d4be67549b36c0f',1,'cio_http_client']]],
   ['http_5fmethod',['http_method',['../structcio__http__client.html#a87bb7cbe9882e05b9c2eaace76698246',1,'cio_http_client']]],
-  ['http_5fminor',['http_minor',['../structcio__http__client.html#aaebd126fae4cd5aeaf9b94e65e11548c',1,'cio_http_client']]]
+  ['http_5fminor',['http_minor',['../structcio__http__client.html#aaebd126fae4cd5aeaf9b94e65e11548c',1,'cio_http_client']]],
+  ['http_5fserver_5fid',['HTTP_SERVER_ID',['../cio__http__server_8c.html#a9b2ca1cc8761edc1fa0b096c160daa5e',1,'cio_http_server.c']]]
 ];
