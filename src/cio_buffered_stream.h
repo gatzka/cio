@@ -42,7 +42,7 @@ extern "C" {
 
 /**
  * @file
- * @brief Provides efficient reading and writing form or to an ::cio_io_stream.
+ * @brief Provides efficient reading and writing from or to an ::cio_io_stream.
  *
  * A cio_buffered_stream is always greedy to fill its internal read
  * buffer. Therefore, it greatly reduces the amount of read calls into
