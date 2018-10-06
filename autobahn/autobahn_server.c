@@ -37,10 +37,6 @@
 #include "cio_websocket_location_handler.h"
 #include "cio_util.h"
 
-#ifndef ARRAY_SIZE
-#define ARRAY_SIZE(a) (sizeof(a) / sizeof((a)[0]))
-#endif
-
 static struct cio_eventloop loop;
 
 #define read_buffer_size (16 * 1024 * 1024)
