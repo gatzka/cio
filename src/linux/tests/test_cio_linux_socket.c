@@ -92,7 +92,7 @@ static ssize_t read_ok(int fd, void *buf, size_t count)
 	(void)count;
 
 	memcpy(buf, read_buffer, available_read_data);
-	return available_read_data;
+	return (ssize_t)available_read_data;
 }
 
 static ssize_t read_blocks(int fd, void *buf, size_t count)
@@ -149,11 +149,11 @@ static ssize_t send_parts(int fd, const struct msghdr *msg, int flags)
 		len += minimum;
 		remaining_bytes -= minimum;
 		if (remaining_bytes == 0) {
-			return bytes_to_send;
+			return (ssize_t)bytes_to_send;
 		}
 	}
 
-	return bytes_to_send;
+	return (ssize_t)bytes_to_send;
 }
 
 static ssize_t send_fails(int fd, const struct msghdr *msg, int flags)
