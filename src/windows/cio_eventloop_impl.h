@@ -39,11 +39,10 @@ extern "C" {
 #endif
 
 struct cio_event_notifier {
-
 	void (*callback)(struct cio_event_notifier *ev, void *context);
-
-	OVERLAPPED overlapped;
 	DWORD last_error;
+	unsigned int overlapped_operations_in_use;
+	OVERLAPPED overlapped;
 };
 
 struct cio_eventloop {
