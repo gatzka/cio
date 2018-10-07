@@ -29,6 +29,7 @@
 #include "cio_compiler.h"
 #include "cio_error_code.h"
 #include "cio_timer.h"
+#include "cio_util.h"
 
 static enum cio_error timer_cancel(struct cio_timer *t)
 {
@@ -67,11 +68,9 @@ static void CALLBACK timer_callback(void *context, BOOLEAN fired)
 	}
 }
 
-static void timer_event_callback(struct cio_event_notifier *ev, void *context)
+static void timer_event_callback(struct cio_event_notifier *ev)
 {
-	(void)context; // TODO
-	(void)ev;
-	struct cio_timer *t = (struct cio_timer *)context;
+	struct cio_timer *t = container_of(ev, struct cio_timer, ev);
 	timer_handler handler = t->handler;
 	t->handler = NULL;
 	handler(t, t->handler_context, CIO_SUCCESS);

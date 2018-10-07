@@ -97,9 +97,8 @@ static enum cio_error stream_close(struct cio_io_stream *stream)
 	return socket_close(s);
 }
 
-static void read_callback(struct cio_event_notifier *ev, void *context)
+static void read_callback(struct cio_event_notifier *ev)
 {
-	(void)context; // TODO
 	struct cio_socket_impl *impl = container_of(ev, struct cio_socket_impl, read_event);
 	struct cio_socket *s = container_of(impl, struct cio_socket, impl);
 
@@ -161,9 +160,8 @@ static enum cio_error stream_read(struct cio_io_stream *stream, struct cio_read_
 	return CIO_SUCCESS;
 }
 
-static void write_callback(struct cio_event_notifier *ev, void *context)
+static void write_callback(struct cio_event_notifier *ev)
 {
-	(void)context; // TODO
 	struct cio_socket_impl *impl = container_of(ev, struct cio_socket_impl, write_event);
 	struct cio_socket *s = container_of(impl, struct cio_socket, impl);
 
