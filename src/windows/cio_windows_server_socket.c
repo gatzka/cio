@@ -149,7 +149,6 @@ static enum cio_error prepare_accept_socket(struct cio_windows_listen_socket *wl
 	}
 
 	memset(&wls->en.overlapped, 0, sizeof(wls->en.overlapped));
-	wls->en.last_error = ERROR_SUCCESS;
 
 	DWORD bytes_received;
 	BOOL ret = wls->accept_ex((SOCKET)wls->fd, wls->accept_socket, wls->accept_buffer, 0,

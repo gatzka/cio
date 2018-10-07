@@ -146,7 +146,6 @@ static enum cio_error stream_read(struct cio_io_stream *stream, struct cio_read_
 	DWORD flags = 0;
 
 	memset(&s->impl.read_event.overlapped, 0, sizeof(s->impl.read_event.overlapped));
-	s->impl.read_event.last_error = ERROR_SUCCESS;
 
 	int rc = WSARecv((SOCKET)s->impl.fd, &wsa_buffer, 1, NULL, &flags, &s->impl.read_event.overlapped, NULL);
 	if (rc == SOCKET_ERROR) {
@@ -206,7 +205,6 @@ static enum cio_error stream_write(struct cio_io_stream *stream, const struct ci
 	}
 
 	memset(&s->impl.write_event.overlapped, 0, sizeof(s->impl.write_event.overlapped));
-	s->impl.write_event.last_error = ERROR_SUCCESS;
 
 	int rc = WSASend((SOCKET)s->impl.fd, wsa_buffers, (DWORD)chain_length, NULL, 0, &s->impl.write_event.overlapped, NULL);
 	if (rc == SOCKET_ERROR) {
