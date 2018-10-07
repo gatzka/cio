@@ -36,71 +36,7 @@
 #include "cio_util.h"
 #include "windows/cio_eventloop_impl.h"
 
-struct event_list_entry {
-	struct cio_event_notifier ev;
-	size_t next_free_idx;
-};
-
-static struct event_list_entry *event_list;
-static size_t EVENT_LIST_SIZE = 100;
-static size_t first_free_event_idx = 0;
 static const ULONG_PTR STOP_COMPLETION_KEY = SIZE_MAX;
-
-static enum cio_error create_event_list(void)
-{
-	event_list = malloc(sizeof(*event_list) * EVENT_LIST_SIZE);
-	if (event_list == NULL) {
-		return CIO_NO_MEMORY;
-	}
-
-	for (size_t i = 0; i < EVENT_LIST_SIZE - 1; i++) {
-		event_list[i].next_free_idx = i + 1;
-	}
-
-	event_list[EVENT_LIST_SIZE - 1].next_free_idx = SIZE_MAX;
-	return CIO_SUCCESS;
-}
-
-struct cio_event_notifier *cio_windows_get_event_entry(void)
-{
-	if (first_free_event_idx == SIZE_MAX) {
-		struct event_list_entry *new_event_list = malloc(sizeof(*event_list) * EVENT_LIST_SIZE * 2);
-		if (cio_unlikely(new_event_list == NULL)) {
-			return NULL;
-		}
-
-		memcpy(new_event_list, event_list, sizeof(*event_list) * EVENT_LIST_SIZE);
-		for (size_t i = EVENT_LIST_SIZE; i < ((EVENT_LIST_SIZE * 2) - 1); i++) {
-			event_list[i].next_free_idx = i + 1;		
-		}
-
-		event_list[(EVENT_LIST_SIZE * 2) - 1].next_free_idx = SIZE_MAX;
-
-		first_free_event_idx = EVENT_LIST_SIZE;
-		EVENT_LIST_SIZE = EVENT_LIST_SIZE * 2;
-		event_list = new_event_list;
-	}
-
-	struct event_list_entry *e = &event_list[first_free_event_idx];
-	first_free_event_idx = e->next_free_idx;
-
-	memset(&e->ev.overlapped, 0, sizeof(e->ev.overlapped));
-	e->ev.last_error = ERROR_SUCCESS;
-	return &e->ev;
-}
-
-void cio_windows_release_event_entry(struct cio_event_notifier *ev)
-{
-	ev->callback = NULL;
-	struct event_list_entry *entry = container_of(ev, struct event_list_entry, ev);
-	entry->next_free_idx = first_free_event_idx;
-	first_free_event_idx = ((ptrdiff_t)entry - (ptrdiff_t)event_list) / sizeof(*entry);
-}
-
-static void destroy_event_list(void)
-{
-	free(event_list);
-}
 
 enum cio_error cio_eventloop_init(struct cio_eventloop *loop)
 {
@@ -118,17 +54,10 @@ enum cio_error cio_eventloop_init(struct cio_eventloop *loop)
 		goto wsa_startup_failed;
 	}
 
-	ret = create_event_list();
-	if (cio_unlikely(ret != CIO_SUCCESS)) {
-		goto malloc_failed;
-	}
-
 	loop->go_ahead = true;
 
 	return CIO_SUCCESS;
 
-malloc_failed:
-	WSACleanup();
 wsa_startup_failed:
 	CloseHandle(loop->loop_completion_port);
 	return err;
@@ -138,7 +67,6 @@ void cio_eventloop_destroy(const struct cio_eventloop *loop)
 {
 	CloseHandle(loop->loop_completion_port);
 	WSACleanup();
-	destroy_event_list();
 }
 
 enum cio_error cio_windows_add_handle_to_completion_port(HANDLE fd, const struct cio_eventloop *loop, void *context)

@@ -53,12 +53,7 @@ struct cio_eventloop {
 	bool go_ahead;
 };
 
-enum cio_error cio_windows_eventloop_add(struct cio_event_notifier *ev, const struct cio_eventloop *loop);
-void cio_windows_eventloop_remove(struct cio_event_notifier *ev, const struct cio_eventloop *loop);
-
 enum cio_error cio_windows_add_handle_to_completion_port(HANDLE fd, const struct cio_eventloop *loop, void *context);
-struct cio_event_notifier *cio_windows_get_event_entry(void);
-void cio_windows_release_event_entry(struct cio_event_notifier *ev);
 
 #ifdef __cplusplus
 }
