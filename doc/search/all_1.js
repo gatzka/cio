@@ -1,6 +1,6 @@
 var searchData=
 [
-  ['bind',['bind',['../structcio__server__socket.html#a0509992db8651869aee290e1da7a9422',1,'cio_server_socket']]],
+  ['bind',['bind',['../structcio__server__socket.html#a5fff0f24c7ba799700f53d69e8d6d243',1,'cio_server_socket']]],
   ['bs',['bs',['../structcio__http__client.html#a3a185f7fadbf330a176bbe7041f77474',1,'cio_http_client::bs()'],['../structcio__websocket__private.html#a358e48f079c102fad8555db5d579db67',1,'cio_websocket_private::bs()']]],
   ['bs_5fclose',['bs_close',['../cio__buffered__stream_8c.html#a5bb22b5c62ca48e001b6075521b2d759',1,'cio_buffered_stream.c']]],
   ['bs_5fread',['bs_read',['../cio__buffered__stream_8c.html#ad4caddab993eade4d7790238398b189d',1,'cio_buffered_stream.c']]],
