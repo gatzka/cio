@@ -36,7 +36,9 @@ extern "C" {
 #include <winsock2.h>
 #include <ws2tcpip.h>
 #include <mswsock.h>
+
 #include "cio_eventloop.h"
+#include "cio_eventloop_impl.h"
 
 struct cio_windows_listen_socket {
 	SOCKET accept_socket;
@@ -45,13 +47,14 @@ struct cio_windows_listen_socket {
 	bool bound;
 	HANDLE fd;
 	HANDLE network_event;
+	struct cio_event_notifier en;
 	char accept_buffer[sizeof(struct sockaddr_storage) * 2];
 };
 
 struct cio_server_socket_impl {
+	struct cio_eventloop *loop;
 	struct cio_windows_listen_socket listen_socket_ipv4;
 	struct cio_windows_listen_socket listen_socket_ipv6;
-	struct cio_eventloop *loop;
 };
 
 #ifdef __cplusplus

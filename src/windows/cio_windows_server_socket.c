@@ -37,6 +37,32 @@
 
 static enum cio_error prepare_accept_socket(struct cio_windows_listen_socket *s);
 
+static struct cio_server_socket *get_server_socket(const struct cio_windows_listen_socket *wls)
+{
+	struct cio_server_socket_imp *impl;
+	if (wls->address_family == AF_INET) {
+		impl = container_of(wls, struct cio_server_socket_impl, listen_socket_ipv4);
+	} else {
+		impl = container_of(wls, struct cio_server_socket_impl, listen_socket_ipv6);
+	}
+
+	struct cio_server_socket *ss = container_of(impl, struct cio_server_socket, impl);
+	return ss;
+}
+
+static void try_free(struct cio_windows_listen_socket *wls)
+{
+	if (wls->en.overlapped_operations_in_use == 0) {
+		closesocket((SOCKET)wls->fd);
+		struct cio_server_socket *ss = get_server_socket(wls);
+		if ((ss->impl.listen_socket_ipv4.bound == false) && (ss->impl.listen_socket_ipv6.bound == false)) {
+			if (ss->close_hook != NULL) {
+				ss->close_hook(ss);
+			}
+		}
+	}
+}
+
 static SOCKET create_win_socket(int address_family, const struct cio_eventloop *loop, void *socket_impl)
 {
 	SOCKET s = WSASocket(address_family, SOCK_STREAM, 0, NULL, 0, WSA_FLAG_OVERLAPPED);
@@ -55,82 +81,82 @@ static SOCKET create_win_socket(int address_family, const struct cio_eventloop *
 
 static void accept_callback(struct cio_event_notifier *ev, void *context)
 {
-	struct cio_windows_listen_socket *wls = (struct cio_windows_listen_socket *)context;
-	struct cio_server_socket_imp *impl;
-	if (wls->address_family == AF_INET) {
-		impl = container_of(wls, struct cio_server_socket_impl, listen_socket_ipv4);
-	} else {
-		impl = container_of(wls, struct cio_server_socket_impl, listen_socket_ipv6);
-	}
+	(void)context; //TODO
 
-	struct cio_server_socket *ss = container_of(impl, struct cio_server_socket, impl);
-	DWORD last_error = ev->last_error;
-	cio_windows_release_event_entry(ev);
-	if (cio_unlikely(last_error == ERROR_OPERATION_ABORTED)) {
-		// This seems to be the condition when a server socket is closed.
-		if (ss->close_hook != NULL) {
-			ss->close_hook(ss);
+	struct cio_windows_listen_socket *wls = container_of(ev, struct cio_windows_listen_socket, en);
+	struct cio_server_socket *ss = get_server_socket(wls);
+
+	struct cio_socket *s;
+	enum cio_error error_code = CIO_SUCCESS;
+	DWORD bytes_transferred;
+	DWORD flags = 0;
+	BOOL rc = WSAGetOverlappedResult((SOCKET)wls->fd, &ev->overlapped, &bytes_transferred, FALSE, &flags);
+	wls->en.overlapped_operations_in_use--;
+	if (cio_unlikely(rc == FALSE)) {
+		int error = WSAGetLastError();
+		if (error == WSA_OPERATION_ABORTED) {
+			wls->bound = false;
+			try_free(wls);
+			return;
 		}
 
-		return;
+		error_code = (enum cio_error)(-error);
+		s = NULL;
+	} else {
+		SOCKET client_fd = wls->accept_socket;
+		int ret = setsockopt(client_fd, SOL_SOCKET, SO_UPDATE_ACCEPT_CONTEXT, (char *)&wls->fd, sizeof(wls->fd));
+		if (cio_unlikely(ret == SOCKET_ERROR)) {
+			error_code = (enum cio_error)(-WSAGetLastError());
+			s = NULL;
+			goto setsockopt_failed;
+		}
+
+		error_code = prepare_accept_socket(wls);
+		if (cio_unlikely(error_code != CIO_SUCCESS)) {
+			s = NULL;
+			goto prepare_failed;
+		}
+
+		s = ss->alloc_client();
+		if (cio_unlikely(s == NULL)) {
+			error_code = CIO_NO_MEMORY;
+			goto alloc_failed;
+		}
+
+		error_code = cio_windows_socket_init(s, client_fd, ss->impl.loop, ss->free_client);
+		if (cio_unlikely(error_code != CIO_SUCCESS)) {
+			goto socket_init_failed;
+		}
+
+		goto ok;
+	socket_init_failed:
+		ss->free_client(s);
+		s = NULL;
+	alloc_failed:
+		closesocket(client_fd);
 	}
 
-	enum cio_error err;
-	SOCKET client_fd = wls->accept_socket;
-	int ret = setsockopt(client_fd, SOL_SOCKET, SO_UPDATE_ACCEPT_CONTEXT, (char *)&wls->fd, sizeof(wls->fd));
-	if (cio_unlikely(ret == SOCKET_ERROR)) {
-		err = (enum cio_error)(-WSAGetLastError());
-		goto setsockopt_failed;
-	}
-
-	err = prepare_accept_socket(wls);
-	if (cio_unlikely(err != CIO_SUCCESS)) {
-		goto prepare_failed;
-	}
-
-	struct cio_socket *s = ss->alloc_client();
-	if (cio_unlikely(s == NULL)) {
-		err = CIO_NO_MEMORY;
-		goto alloc_failed;
-	}
-
-	err = cio_windows_socket_init(s, client_fd, ss->impl.loop, ss->free_client);
-	if (cio_unlikely(err != CIO_SUCCESS)) {
-		goto socket_init_failed;
-	}
-
-	ss->handler(ss, ss->handler_context, CIO_SUCCESS, s);
-	return;
-
-socket_init_failed:
-	ss->free_client(s);
-alloc_failed:
-	closesocket(client_fd);
 setsockopt_failed:
 prepare_failed:
-	ss->handler(ss, ss->handler_context, err, NULL);
+ok:
+	ss->handler(ss, ss->handler_context, error_code, s);
 }
 
-static enum cio_error prepare_accept_socket(struct cio_windows_listen_socket *s)
+static enum cio_error prepare_accept_socket(struct cio_windows_listen_socket *wls)
 {
 	enum cio_error err;
-	s->accept_socket = WSASocket(s->address_family, SOCK_STREAM, 0, NULL, 0, WSA_FLAG_OVERLAPPED);
-	if (cio_unlikely(s->accept_socket == INVALID_SOCKET)) {
+	wls->accept_socket = WSASocket(wls->address_family, SOCK_STREAM, 0, NULL, 0, WSA_FLAG_OVERLAPPED);
+	if (cio_unlikely(wls->accept_socket == INVALID_SOCKET)) {
 		return (enum cio_error)(-WSAGetLastError());
 	}
 
-	struct cio_event_notifier *en = cio_windows_get_event_entry();
-	if (cio_unlikely(en == NULL)) {
-		err = CIO_NO_MEMORY;
-		goto get_ev_failed;
-	}
-
-	en->callback = accept_callback;
+	memset(&wls->en.overlapped, 0, sizeof(wls->en.overlapped));
+	wls->en.last_error = ERROR_SUCCESS;
 
 	DWORD bytes_received;
-	BOOL ret = s->accept_ex((SOCKET)s->fd, s->accept_socket, s->accept_buffer, 0,
+	BOOL ret = wls->accept_ex((SOCKET)wls->fd, wls->accept_socket, wls->accept_buffer, 0,
 	                        sizeof(struct sockaddr_storage), sizeof(struct sockaddr_storage),
-	                        &bytes_received, &en->overlapped);
+	                        &bytes_received, &wls->en.overlapped);
 	if (ret == FALSE) {
 		int rc = WSAGetLastError();
 		if (cio_likely(rc != WSA_IO_PENDING)) {
@@ -139,12 +165,12 @@ static enum cio_error prepare_accept_socket(struct cio_windows_listen_socket *s)
 		}
 	}
 
+	wls->en.overlapped_operations_in_use++;
+
 	return CIO_SUCCESS;
 
 accept_ex_failed:
-	cio_windows_release_event_entry(en);
-get_ev_failed:
-	closesocket(s->accept_socket);
+	closesocket(wls->accept_socket);
 	return err;
 }
 
@@ -232,6 +258,7 @@ static enum cio_error socket_bind(struct cio_server_socket *ss, const char *bind
 			int err = WSAGetLastError();
 			return (enum cio_error)(-err);
 		}
+
 		ss->impl.listen_socket_ipv6.bound = true;
 
 		struct sockaddr_in address_v4;
@@ -243,6 +270,7 @@ static enum cio_error socket_bind(struct cio_server_socket *ss, const char *bind
 			int err = WSAGetLastError();
 			return (enum cio_error)(-err);
 		}
+
 		ss->impl.listen_socket_ipv4.bound = true;
 
 		return CIO_SUCCESS;
@@ -259,12 +287,14 @@ static enum cio_error socket_bind(struct cio_server_socket *ss, const char *bind
 					ss->impl.listen_socket_ipv4.bound = true;
 					goto out;
 				}
+
 				break;
 			case AF_INET6:
 				if (cio_likely(bind((SOCKET)ss->impl.listen_socket_ipv6.fd, rp->ai_addr, (int)rp->ai_addrlen) == 0)) {
 					ss->impl.listen_socket_ipv6.bound = true;
 					goto out;
 				}
+
 				break;
 			}
 		}
@@ -279,12 +309,14 @@ static enum cio_error socket_bind(struct cio_server_socket *ss, const char *bind
 	}
 }
 
-static void close_listen_socket(struct cio_windows_listen_socket *socket)
+static void close_listen_socket(struct cio_windows_listen_socket *wls)
 {
-	closesocket((SOCKET)socket->fd);
-	if (socket->accept_socket != INVALID_SOCKET) {
-		closesocket(socket->accept_socket);
+	CancelIo(wls->fd);
+	if (wls->accept_socket != INVALID_SOCKET) {
+		closesocket(wls->accept_socket);
 	}
+
+	try_free(wls);
 }
 
 static void socket_close(struct cio_server_socket *ss)
@@ -313,6 +345,9 @@ static enum cio_error create_listen_socket(struct cio_windows_listen_socket *soc
 		err = WSAGetLastError();
 		goto WSAioctl_failed;
 	}
+
+	socket->en.callback = accept_callback;
+	socket->en.overlapped_operations_in_use = 0;
 
 	return CIO_SUCCESS;
 
