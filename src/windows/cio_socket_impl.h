@@ -32,11 +32,13 @@ extern "C" {
 #endif
 
 #include "cio_eventloop.h"
+#include "cio_eventloop_impl.h"
 
 struct cio_socket_impl {
 	HANDLE fd;
 	struct cio_eventloop *loop;
-	unsigned int overlapped_operations_in_use;
+	struct cio_event_notifier read_event;
+	struct cio_event_notifier write_event;
 };
 
 #ifdef __cplusplus

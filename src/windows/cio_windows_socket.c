@@ -38,7 +38,7 @@
 
 static void try_free(struct cio_socket *s)
 {
-	if (s->impl.overlapped_operations_in_use == 0) {
+	if ((s->impl.read_event.overlapped_operations_in_use == 0) && (s->impl.write_event.overlapped_operations_in_use == 0)) {
 		closesocket((SOCKET)s->impl.fd);
 		if (s->close_hook != NULL) {
 			s->close_hook(s);
@@ -99,14 +99,14 @@ static enum cio_error stream_close(struct cio_io_stream *stream)
 
 static void read_callback(struct cio_event_notifier *ev, void *context)
 {
-	struct cio_io_stream *stream = context;
-	struct cio_socket *s = container_of(stream, struct cio_socket, stream);
+	(void)context; // TODO
+	struct cio_socket_impl *impl = container_of(ev, struct cio_socket_impl, read_event);
+	struct cio_socket *s = container_of(impl, struct cio_socket, impl);
 
 	DWORD recv_bytes;
 	DWORD flags = 0;
-	BOOL rc = WSAGetOverlappedResult((SOCKET)s->impl.fd, &ev->overlapped, &recv_bytes, FALSE, &flags);
-	cio_windows_release_event_entry(ev);
-	s->impl.overlapped_operations_in_use--;
+	BOOL rc = WSAGetOverlappedResult((SOCKET)impl->fd, &ev->overlapped, &recv_bytes, FALSE, &flags);
+	ev->overlapped_operations_in_use--;
 	enum cio_error error_code;
 	if (cio_unlikely(rc == FALSE)) {
 		int error = WSAGetLastError();
@@ -146,14 +146,10 @@ static enum cio_error stream_read(struct cio_io_stream *stream, struct cio_read_
 	wsa_buffer.buf = (CHAR *)buffer->add_ptr;
 	DWORD flags = 0;
 
-	struct cio_event_notifier *en = cio_windows_get_event_entry();
-	if (cio_unlikely(en == NULL)) {
-		return CIO_NO_MEMORY;
-	}
+	memset(&s->impl.read_event.overlapped, 0, sizeof(s->impl.read_event.overlapped));
+	s->impl.read_event.last_error = ERROR_SUCCESS;
 
-	en->callback = read_callback;
-
-	int rc = WSARecv((SOCKET)s->impl.fd, &wsa_buffer, 1, NULL, &flags, &en->overlapped, NULL);
+	int rc = WSARecv((SOCKET)s->impl.fd, &wsa_buffer, 1, NULL, &flags, &s->impl.read_event.overlapped, NULL);
 	if (rc == SOCKET_ERROR) {
 		int error = WSAGetLastError();
 		if (cio_unlikely(error != WSA_IO_PENDING)) {
@@ -161,20 +157,20 @@ static enum cio_error stream_read(struct cio_io_stream *stream, struct cio_read_
 		}
 	}
 
-	s->impl.overlapped_operations_in_use++;
+	s->impl.read_event.overlapped_operations_in_use++;
 	return CIO_SUCCESS;
 }
 
 static void write_callback(struct cio_event_notifier *ev, void *context)
 {
-	struct cio_io_stream *stream = context;
-	struct cio_socket *s = container_of(stream, struct cio_socket, stream);
+	(void)context; // TODO
+	struct cio_socket_impl *impl = container_of(ev, struct cio_socket_impl, write_event);
+	struct cio_socket *s = container_of(impl, struct cio_socket, impl);
 
 	DWORD bytes_sent;
 	DWORD flags = 0;
-	BOOL rc = WSAGetOverlappedResult((SOCKET)s->impl.fd, &ev->overlapped, &bytes_sent, FALSE, &flags);
-	cio_windows_release_event_entry(ev);
-	s->impl.overlapped_operations_in_use--;
+	BOOL rc = WSAGetOverlappedResult((SOCKET)impl->fd, &ev->overlapped, &bytes_sent, FALSE, &flags);
+	ev->overlapped_operations_in_use--;
 	enum cio_error error_code = CIO_SUCCESS;
 	if (cio_unlikely(rc == FALSE)) {
 		int error = WSAGetLastError();
@@ -211,14 +207,10 @@ static enum cio_error stream_write(struct cio_io_stream *stream, const struct ci
 		wb = wb->next;
 	}
 
-	struct cio_event_notifier *en = cio_windows_get_event_entry();
-	if (cio_unlikely(en == NULL)) {
-		return CIO_NO_MEMORY;
-	}
+	memset(&s->impl.write_event.overlapped, 0, sizeof(s->impl.write_event.overlapped));
+	s->impl.write_event.last_error = ERROR_SUCCESS;
 
-	en->callback = write_callback;
-
-	int rc = WSASend((SOCKET)s->impl.fd, wsa_buffers, (DWORD)chain_length, NULL, 0, &en->overlapped, NULL);
+	int rc = WSASend((SOCKET)s->impl.fd, wsa_buffers, (DWORD)chain_length, NULL, 0, &s->impl.write_event.overlapped, NULL);
 	if (rc == SOCKET_ERROR) {
 		int error = WSAGetLastError();
 		if (cio_unlikely(error != WSA_IO_PENDING)) {
@@ -226,7 +218,7 @@ static enum cio_error stream_write(struct cio_io_stream *stream, const struct ci
 		}
 	}
 
-	s->impl.overlapped_operations_in_use++;
+	s->impl.write_event.overlapped_operations_in_use++;
 	return CIO_SUCCESS;
 }
 
@@ -240,8 +232,11 @@ enum cio_error cio_windows_socket_init(struct cio_socket *s, SOCKET client_fd,
 
 	s->impl.fd = (HANDLE)client_fd;
 
+	s->impl.read_event.callback = read_callback;
+	s->impl.read_event.overlapped_operations_in_use = 0;
+	s->impl.write_event.callback = write_callback;
+	s->impl.write_event.overlapped_operations_in_use = 0;
 	s->impl.loop = loop;
-	s->impl.overlapped_operations_in_use = 0;
 	s->close_hook = close_hook;
 
 	s->close = socket_close;
