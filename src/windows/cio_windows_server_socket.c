@@ -79,10 +79,8 @@ static SOCKET create_win_socket(int address_family, const struct cio_eventloop *
 	return s;
 }
 
-static void accept_callback(struct cio_event_notifier *ev, void *context)
+static void accept_callback(struct cio_event_notifier *ev)
 {
-	(void)context; //TODO
-
 	struct cio_windows_listen_socket *wls = container_of(ev, struct cio_windows_listen_socket, en);
 	struct cio_server_socket *ss = get_server_socket(wls);
 

@@ -93,7 +93,7 @@ enum cio_error cio_eventloop_run(struct cio_eventloop *loop)
 			} else {
 				struct cio_event_notifier *ev = container_of(overlapped, struct cio_event_notifier, overlapped);
 				ev->last_error = GetLastError();
-				ev->callback(ev, (void *)completion_key);
+				ev->callback(ev);
 				continue;
 			}
 		}
@@ -103,7 +103,7 @@ enum cio_error cio_eventloop_run(struct cio_eventloop *loop)
 		}
 
 		struct cio_event_notifier *ev = container_of(overlapped, struct cio_event_notifier, overlapped);
-		ev->callback(ev, (void *)completion_key);
+		ev->callback(ev);
 	}
 
 	return CIO_SUCCESS;
