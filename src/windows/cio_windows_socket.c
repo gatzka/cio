@@ -48,7 +48,6 @@ static void try_free(struct cio_socket *s)
 
 static enum cio_error socket_close(struct cio_socket *s)
 {
-
 	if (cio_unlikely(s == NULL)) {
 		return CIO_INVALID_ARGUMENT;
 	}
