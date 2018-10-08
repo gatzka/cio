@@ -278,6 +278,7 @@ static void message_written(struct cio_buffered_stream *bs, void *handler_contex
 	(void)bs;
 	struct cio_websocket *ws = (struct cio_websocket *)handler_context;
 	struct cio_websocket_write_job *job = get_job(ws);
+	struct cio_websocket_write_job *first_job = ws->ws_private.first_write_job;
 
 	if (cio_likely(job->handler != NULL)) {
 		ws->ws_private.in_user_writecallback_context++;
@@ -288,11 +289,11 @@ static void message_written(struct cio_buffered_stream *bs, void *handler_contex
 	if (ws->ws_private.to_be_closed) {
 		close(ws);
 	} else {
-		if (ws->ws_private.first_write_job != NULL) {
-			 err = send_frame(ws, ws->ws_private.first_write_job);
-			 if (cio_unlikely(err != CIO_SUCCESS)) {
+		if (first_job != NULL) {
+			err = send_frame(ws, first_job);
+			if (cio_unlikely(err != CIO_SUCCESS)) {
 				handle_error(ws, CIO_WEBSOCKET_CLOSE_INTERNAL_ERROR, "could not send next frame");
-			 }
+			}
 		}
 	}
 }
