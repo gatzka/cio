@@ -52,12 +52,16 @@ static void handle_error(struct cio_websocket *ws, enum cio_websocket_status_cod
 
 static void close(struct cio_websocket *ws)
 {
-	if (cio_likely(ws->ws_private.read_handler != NULL)) {
-		ws->ws_private.read_handler(ws, ws->ws_private.read_handler_context, CIO_EOF, NULL, 0, false, false);
-	}
+	if (ws->ws_private.in_user_writecallback_context == 0) {
+		if (cio_likely(ws->ws_private.read_handler != NULL)) {
+			ws->ws_private.read_handler(ws, ws->ws_private.read_handler_context, CIO_EOF, NULL, 0, false, false);
+		}
 
-	if (ws->ws_private.close_hook) {
-		ws->ws_private.close_hook(ws);
+		if (ws->ws_private.close_hook) {
+			ws->ws_private.close_hook(ws);
+		}
+	} else {
+		ws->ws_private.to_be_closed = true;
 	}
 }
 
@@ -197,7 +201,9 @@ static void abort_write_jobs(struct cio_websocket *ws)
 	while (job != NULL) {
 		job->wbh = NULL;
 		if (job->handler) {
+			ws->ws_private.in_user_writecallback_context++;
 			job->handler(ws, job->handler_context, CIO_OPERATION_ABORTED);
+			ws->ws_private.in_user_writecallback_context--;
 		}
 
 		job = dequeue_job(ws);
@@ -274,14 +280,20 @@ static void message_written(struct cio_buffered_stream *bs, void *handler_contex
 	struct cio_websocket_write_job *job = get_job(ws);
 
 	if (cio_likely(job->handler != NULL)) {
+		ws->ws_private.in_user_writecallback_context++;
 		job->handler(ws, job->handler_context, err);
+		ws->ws_private.in_user_writecallback_context--;
 	}
 
-	if (ws->ws_private.first_write_job != NULL) {
-		 err = send_frame(ws, ws->ws_private.first_write_job);
-		 if (cio_unlikely(err != CIO_SUCCESS)) {
-			handle_error(ws, CIO_WEBSOCKET_CLOSE_INTERNAL_ERROR, "could not send next frame");
-		 }
+	if (ws->ws_private.to_be_closed) {
+		close(ws);
+	} else {
+		if (ws->ws_private.first_write_job != NULL) {
+			 err = send_frame(ws, ws->ws_private.first_write_job);
+			 if (cio_unlikely(err != CIO_SUCCESS)) {
+				handle_error(ws, CIO_WEBSOCKET_CLOSE_INTERNAL_ERROR, "could not send next frame");
+			 }
+		}
 	}
 }
 
@@ -304,7 +316,9 @@ static void close_frame_written(struct cio_buffered_stream *bs, void *handler_co
 	struct cio_websocket_write_job *job = get_job(ws);
 
 	if (job->handler) {
+		ws->ws_private.in_user_writecallback_context++;
 		job->handler(ws, job->handler_context, err);
+		ws->ws_private.in_user_writecallback_context--;
 	}
 
 	abort_write_jobs(ws);
@@ -850,6 +864,8 @@ enum cio_error cio_websocket_init(struct cio_websocket *ws, bool is_server, cio_
 	ws->read_message = read_message;
 	ws->on_control = NULL;
 	ws->ws_private.read_handler = NULL;
+	ws->ws_private.in_user_writecallback_context = 0;
+	ws->ws_private.to_be_closed = false;
 
 	ws->on_error = NULL;
 	ws->close = write_close_message;
