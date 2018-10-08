@@ -30,7 +30,7 @@
  <tr style="height: 56px;">
   <td style="padding-left: 0.5em;">
    <div id="projectname">cioall
-   &#160;<span id="projectnumber">0.0.1-1082+3c39bce</span>
+   &#160;<span id="projectnumber">0.0.1-1083+aded61e</span>
    </div>
    <div id="projectbrief">An ANSI C Conformant I/O Library.</div>
   </td>
@@ -179,6 +179,8 @@ Functions</h2></td></tr>
 <tr class="separator:aa9eeff6cc24ce4a5481f96b30d74f723"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aeff66a7bddf656e571162bc5d8dbf216"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="cio__websocket_8c.html#aeff66a7bddf656e571162bc5d8dbf216">handle_close_frame</a> (struct <a class="el" href="structcio__websocket.html">cio_websocket</a> *ws, uint8_t *data, uint_fast8_t length)</td></tr>
 <tr class="separator:aeff66a7bddf656e571162bc5d8dbf216"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a2681e344c714f223f1e15bdd7b861980"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="cio__websocket_8c.html#a2681e344c714f223f1e15bdd7b861980">pong_frame_written</a> (struct <a class="el" href="structcio__websocket.html">cio_websocket</a> *ws, void *handler_context, enum <a class="el" href="cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afe">cio_error</a> err)</td></tr>
+<tr class="separator:a2681e344c714f223f1e15bdd7b861980"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aee0d52030c5027515c0e8c03978bf100"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="cio__websocket_8c.html#aee0d52030c5027515c0e8c03978bf100">handle_ping_frame</a> (struct <a class="el" href="structcio__websocket.html">cio_websocket</a> *ws, uint8_t *data, uint_fast8_t length)</td></tr>
 <tr class="separator:aee0d52030c5027515c0e8c03978bf100"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ae6d975637b8f4805918c741111cb215d"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="cio__websocket_8c.html#ae6d975637b8f4805918c741111cb215d">handle_pong_frame</a> (struct <a class="el" href="structcio__websocket.html">cio_websocket</a> *ws, uint8_t *data, uint_fast8_t length)</td></tr>
@@ -1327,6 +1329,46 @@ Variables</h2></td></tr>
 
 </div>
 </div>
+<a class="anchor" id="a2681e344c714f223f1e15bdd7b861980"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static void pong_frame_written </td>
+          <td>(</td>
+          <td class="paramtype">struct <a class="el" href="structcio__websocket.html">cio_websocket</a> *&#160;</td>
+          <td class="paramname"><em>ws</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">void *&#160;</td>
+          <td class="paramname"><em>handler_context</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">enum <a class="el" href="cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afe">cio_error</a>&#160;</td>
+          <td class="paramname"><em>err</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
 <a class="anchor" id="ac84f95ffc1c46e9fae0e04ea7d98f83b"></a>
 <div class="memitem">
 <div class="memproto">
@@ -2048,7 +2090,7 @@ Variables</h2></td></tr>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="cio__websocket_8c.html">cio_websocket.c</a></li>
-    <li class="footer">Generated on Mon Oct 8 2018 12:01:59 for cioall by
+    <li class="footer">Generated on Mon Oct 8 2018 13:32:27 for cioall by
     <a href="http://www.doxygen.org/index.html">
     <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.8.6 </li>
   </ul>

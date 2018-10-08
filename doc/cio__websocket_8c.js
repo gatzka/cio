@@ -30,6 +30,7 @@ var cio__websocket_8c =
     [ "mask_write_buffer", "cio__websocket_8c.html#abe8788a5d81a6803f7854240de93be4b", null ],
     [ "message_written", "cio__websocket_8c.html#a04918b19c3af736b84d1a244002e77c0", null ],
     [ "payload_size_in_limit", "cio__websocket_8c.html#a673ac616ece9a565459018725447f24f", null ],
+    [ "pong_frame_written", "cio__websocket_8c.html#a2681e344c714f223f1e15bdd7b861980", null ],
     [ "prepare_close_job", "cio__websocket_8c.html#ac84f95ffc1c46e9fae0e04ea7d98f83b", null ],
     [ "prepare_close_job_string", "cio__websocket_8c.html#a4ebeebb5ddb29748b7ce854aa6c601c5", null ],
     [ "read_message", "cio__websocket_8c.html#ab7a95a2f6f70555afad077daffcd54c3", null ],
