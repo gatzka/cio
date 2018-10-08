@@ -280,11 +280,9 @@ static void message_written(struct cio_buffered_stream *bs, void *handler_contex
 	struct cio_websocket_write_job *job = get_job(ws);
 	struct cio_websocket_write_job *first_job = ws->ws_private.first_write_job;
 
-	if (cio_likely(job->handler != NULL)) {
-		ws->ws_private.in_user_writecallback_context++;
-		job->handler(ws, job->handler_context, err);
-		ws->ws_private.in_user_writecallback_context--;
-	}
+	ws->ws_private.in_user_writecallback_context++;
+	job->handler(ws, job->handler_context, err);
+	ws->ws_private.in_user_writecallback_context--;
 
 	if (ws->ws_private.to_be_closed) {
 		close(ws);
@@ -447,6 +445,17 @@ static void handle_close_frame(struct cio_websocket *ws, uint8_t *data, uint_fas
 	}
 }
 
+static void pong_frame_written(struct cio_websocket *ws, void *handler_context, enum cio_error err)
+{
+	(void)handler_context;
+
+	if (cio_likely(err == CIO_SUCCESS)) {
+		ws->ws_private.bs->read_exactly(ws->ws_private.bs, ws->ws_private.rb, 1, get_header, ws);
+	} else {
+		// TODO
+	}
+}
+
 static void handle_ping_frame(struct cio_websocket *ws, uint8_t *data, uint_fast8_t length)
 {
 	cio_write_buffer_head_init(&ws->ws_private.ping_buffer.wb_head);
@@ -461,15 +470,15 @@ static void handle_ping_frame(struct cio_websocket *ws, uint8_t *data, uint_fast
 	}
 
 	ws->ws_private.write_pong_job.wbh = &ws->ws_private.ping_buffer.wb_head;
-	ws->ws_private.write_pong_job.handler = NULL;
+	ws->ws_private.write_pong_job.handler = pong_frame_written;
 	ws->ws_private.write_pong_job.handler_context = NULL;
 	ws->ws_private.write_pong_job.frame_type = CIO_WEBSOCKET_PONG_FRAME;
 	ws->ws_private.write_pong_job.last_frame = true;
 	ws->ws_private.write_pong_job.stream_handler = message_written;
 
 	enum cio_error err = enqueue_job(ws, &ws->ws_private.write_pong_job);
-	if (cio_likely(err == CIO_SUCCESS)) {
-		ws->ws_private.bs->read_exactly(ws->ws_private.bs, ws->ws_private.rb, 1, get_header, ws);
+	if (cio_unlikely(err != CIO_SUCCESS)) {
+		// TODO
 	}
 }
 
