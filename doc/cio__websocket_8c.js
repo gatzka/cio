@@ -6,6 +6,7 @@ var cio__websocket_8c =
     [ "cio_websocket_init", "cio__websocket_8c.html#acf943032bcd768ba38f15fd37655f70d", null ],
     [ "close", "cio__websocket_8c.html#a05d9c2b44df64a10ae2cec6de702da20", null ],
     [ "close_frame_written", "cio__websocket_8c.html#af1079e0627882fc76da53839932dbc9a", null ],
+    [ "close_frame_written_immediate_close", "cio__websocket_8c.html#ad54662c4284ea4ce5eb8b25e23dd599a", null ],
     [ "close_timeout_handler", "cio__websocket_8c.html#ac000668c7b1bb16503d214c239b86f4d", null ],
     [ "dequeue_job", "cio__websocket_8c.html#a5c10065bf4396a60632030eb3230f4a0", null ],
     [ "enqueue_job", "cio__websocket_8c.html#a6d13ee64dc381db88cf7f22d57c76de4", null ],
