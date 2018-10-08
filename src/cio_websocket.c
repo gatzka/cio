@@ -259,7 +259,9 @@ static void handle_error(struct cio_websocket *ws, enum cio_websocket_status_cod
 
 		abort_write_jobs(ws);
 		prepare_close_job_string(ws, status_code, reason, NULL, NULL, close_frame_written_immediate_close);
-		enqueue_job(ws, &ws->ws_private.write_close_job);
+		if (enqueue_job(ws, &ws->ws_private.write_close_job) != CIO_SUCCESS) {
+			close(ws);
+		}
 	}
 }
 
@@ -482,10 +484,7 @@ static void handle_ping_frame(struct cio_websocket *ws, uint8_t *data, uint_fast
 	ws->ws_private.write_pong_job.last_frame = true;
 	ws->ws_private.write_pong_job.stream_handler = message_written;
 
-	enum cio_error err = enqueue_job(ws, &ws->ws_private.write_pong_job);
-	if (cio_unlikely(err != CIO_SUCCESS)) {
-		// TODO
-	}
+	enqueue_job(ws, &ws->ws_private.write_pong_job);
 }
 
 static void handle_pong_frame(struct cio_websocket *ws, uint8_t *data, uint_fast8_t length)
