@@ -247,6 +247,7 @@ static void prepare_close_job_string(struct cio_websocket *ws, enum cio_websocke
 }
 
 static void close_frame_written(struct cio_buffered_stream *bs, void *handler_context, enum cio_error err);
+static void close_frame_written_immediate_close(struct cio_buffered_stream *bs, void *handler_context, enum cio_error err);
 
 static void handle_error(struct cio_websocket *ws, enum cio_websocket_status_code status_code, const char *reason)
 {
@@ -257,10 +258,8 @@ static void handle_error(struct cio_websocket *ws, enum cio_websocket_status_cod
 		}
 
 		abort_write_jobs(ws);
-		prepare_close_job_string(ws, status_code, reason, NULL, NULL, close_frame_written);
+		prepare_close_job_string(ws, status_code, reason, NULL, NULL, close_frame_written_immediate_close);
 		enqueue_job(ws, &ws->ws_private.write_close_job);
-
-		close(ws);
 	}
 }
 
@@ -321,6 +320,13 @@ static void close_frame_written(struct cio_buffered_stream *bs, void *handler_co
 	}
 
 	abort_write_jobs(ws);
+}
+
+static void close_frame_written_immediate_close(struct cio_buffered_stream *bs, void *handler_context, enum cio_error err)
+{
+	close_frame_written(bs, handler_context, err);
+	struct cio_websocket *ws = (struct cio_websocket *)handler_context;
+	close(ws);
 }
 
 static bool is_invalid_status_code(uint16_t status_code)
