@@ -69,8 +69,8 @@ FAKE_VOID_FUNC(on_connect, struct cio_websocket *)
 static void on_control(const struct cio_websocket *ws, enum cio_websocket_frame_type type, const uint8_t *data, uint_fast8_t length);
 FAKE_VOID_FUNC(on_control, const struct cio_websocket *, enum cio_websocket_frame_type, const uint8_t *, uint_fast8_t)
 
-static void on_error(const struct cio_websocket *ws, enum cio_websocket_status_code status, const char *reason);
-FAKE_VOID_FUNC(on_error, const struct cio_websocket *, enum cio_websocket_status_code, const char *)
+static void on_error(const struct cio_websocket *ws, enum cio_error err, const char *reason);
+FAKE_VOID_FUNC(on_error, const struct cio_websocket *, enum cio_error, const char *)
 
 static void write_handler(struct cio_websocket *ws, void *context, enum cio_error err);
 FAKE_VOID_FUNC(write_handler, struct cio_websocket *, void *, enum cio_error)
@@ -341,10 +341,10 @@ static void on_control_save_data(const struct cio_websocket *websocket, enum cio
 	}
 }
 
-static void on_error_save_data(const struct cio_websocket *websocket, enum cio_websocket_status_code status, const char *reason)
+static void on_error_save_data(const struct cio_websocket *websocket, enum cio_error err, const char *reason)
 {
 	(void)websocket;
-	(void)status;
+	(void)err;
 	size_t free_space = sizeof(read_back_buffer) - read_back_buffer_pos;
 	strncpy((char *)&read_back_buffer[read_back_buffer_pos], reason, free_space -1);
 	read_back_buffer_pos += strlen(reason);
@@ -460,7 +460,7 @@ static void test_client_immediate_read_error_for_get_payload(void)
 
 	TEST_ASSERT_EQUAL_MESSAGE(1, on_error_fake.call_count, "error callback was called");
 	TEST_ASSERT_EQUAL_MESSAGE(ws, on_error_fake.arg0_val, "ws parameter in error callback not correct");
-	TEST_ASSERT_EQUAL_MESSAGE(CIO_WEBSOCKET_CLOSE_INTERNAL_ERROR, on_error_fake.arg1_val, "error callback called with wrong status code");
+	TEST_ASSERT_EQUAL_MESSAGE(CIO_ADDRESS_IN_USE, on_error_fake.arg1_val, "error callback called with wrong status code");
 }
 
 static void test_client_send_text_binary_frame(void)

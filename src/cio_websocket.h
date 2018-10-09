@@ -222,10 +222,10 @@ struct cio_websocket {
 	 * function returns, the library closes the websocket on its own.
 	 *
 	 * @param ws The websocket which encountered the error.
-	 * @param status The status code describing the error.
-	 * @param status A string describing the reason for the error. Could be @c NULL.
+	 * @param err An error code describing the error. Could be never ::CIO_SUCCESS.
+	 * @param reason A string describing the reason for the error. Could be @c NULL.
 	 */
-	void (*on_error)(const struct cio_websocket *ws, enum cio_websocket_status_code status, const char *reason);
+	void (*on_error)(const struct cio_websocket *ws, enum cio_error err, const char *reason);
 
 	/**
 	 * @anchor cio_write_ping

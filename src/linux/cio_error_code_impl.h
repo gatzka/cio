@@ -32,6 +32,7 @@ extern "C" {
 #endif
 
 #include <errno.h>
+#include <netdb.h>
 
 #define CIO_SOCKET_ERROR(e) e
 #define CIO_WINDOWS_UNIX_SOCKET_ERROR(win_error, unix_error) unix_error
