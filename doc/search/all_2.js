@@ -36,7 +36,7 @@ var searchData=
   ['cio_5ferror_5fcode_2eh',['cio_error_code.h',['../cio__error__code_8h.html',1,'']]],
   ['cio_5feventloop_2eh',['cio_eventloop.h',['../cio__eventloop_8h.html',1,'']]],
   ['cio_5feventloop_5fcancel',['cio_eventloop_cancel',['../cio__eventloop_8h.html#a5f7892b6393477a8d022b50057f4d1d1',1,'cio_eventloop.h']]],
-  ['cio_5feventloop_5fdestroy',['cio_eventloop_destroy',['../cio__eventloop_8h.html#a32bfdd29575247961d39ad73b6623b76',1,'cio_eventloop.h']]],
+  ['cio_5feventloop_5fdestroy',['cio_eventloop_destroy',['../cio__eventloop_8h.html#ab44278fe9c13fe170358a3e5e43b8679',1,'cio_eventloop.h']]],
   ['cio_5feventloop_5finit',['cio_eventloop_init',['../cio__eventloop_8h.html#ab079e2f8f0fc66e1fb54ffc3fe43793d',1,'cio_eventloop.h']]],
   ['cio_5feventloop_5frun',['cio_eventloop_run',['../cio__eventloop_8h.html#a493688086c6b1442288d2c2cebc30c7e',1,'cio_eventloop.h']]],
   ['cio_5ffilename_5ftoo_5flong',['CIO_FILENAME_TOO_LONG',['../cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afeabbbbbbff5b00e62674e59016d6c4ea9f',1,'cio_error_code.h']]],

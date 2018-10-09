@@ -11,7 +11,7 @@ var searchData=
   ['cio_5fbuffered_5fstream_5finit',['cio_buffered_stream_init',['../cio__buffered__stream_8c.html#a2e92bc0f797448c5a6486be3b0feb43b',1,'cio_buffered_stream_init(struct cio_buffered_stream *bs, struct cio_io_stream *stream):&#160;cio_buffered_stream.c'],['../cio__buffered__stream_8h.html#a2e92bc0f797448c5a6486be3b0feb43b',1,'cio_buffered_stream_init(struct cio_buffered_stream *bs, struct cio_io_stream *stream):&#160;cio_buffered_stream.c']]],
   ['cio_5fcheck_5futf8',['cio_check_utf8',['../cio__utf8__checker_8c.html#a6533469466509391a2c495f34ba76bdb',1,'cio_check_utf8(struct cio_utf8_state *state, const uint8_t *s, size_t count):&#160;cio_utf8_checker.c'],['../cio__utf8__checker_8h.html#a6533469466509391a2c495f34ba76bdb',1,'cio_check_utf8(struct cio_utf8_state *state, const uint8_t *s, size_t count):&#160;cio_utf8_checker.c']]],
   ['cio_5feventloop_5fcancel',['cio_eventloop_cancel',['../cio__eventloop_8h.html#a5f7892b6393477a8d022b50057f4d1d1',1,'cio_eventloop.h']]],
-  ['cio_5feventloop_5fdestroy',['cio_eventloop_destroy',['../cio__eventloop_8h.html#a32bfdd29575247961d39ad73b6623b76',1,'cio_eventloop.h']]],
+  ['cio_5feventloop_5fdestroy',['cio_eventloop_destroy',['../cio__eventloop_8h.html#ab44278fe9c13fe170358a3e5e43b8679',1,'cio_eventloop.h']]],
   ['cio_5feventloop_5finit',['cio_eventloop_init',['../cio__eventloop_8h.html#ab079e2f8f0fc66e1fb54ffc3fe43793d',1,'cio_eventloop.h']]],
   ['cio_5feventloop_5frun',['cio_eventloop_run',['../cio__eventloop_8h.html#a493688086c6b1442288d2c2cebc30c7e',1,'cio_eventloop.h']]],
   ['cio_5fhtobe16',['cio_htobe16',['../cio__endian_8h.html#af61d141f11ba2847323a03e5b144452d',1,'cio_endian.h']]],
