@@ -30,7 +30,7 @@
  <tr style="height: 56px;">
   <td style="padding-left: 0.5em;">
    <div id="projectname">cioall
-   &#160;<span id="projectnumber">0.0.1-1090+9f289c5</span>
+   &#160;<span id="projectnumber">0.0.1-1091+b555245</span>
    </div>
    <div id="projectbrief">An ANSI C Conformant I/O Library.</div>
   </td>
@@ -220,7 +220,8 @@ Data Fields</h2></td></tr>
 </div><div class="memdoc">
 
 <p>A pointer to a function which is called if a receive error occurred. </p>
-<p>Library users are note required to set this function pointer. If you set this function pointer, please operate no longer on this websocket (Do not call <a class="el" href="structcio__websocket.html#cio_websocket_close">close()</a> etc. on the websocket). Immediately after this function returns, the library closes the websocket on its own.</p>
+<p>Library users are note required to set this function pointer.</p>
+<dl class="section warning"><dt>Warning</dt><dd>If you set this function pointer, you are not allowed to on this websocket any longer. (I.e., do not call <a class="el" href="structcio__websocket.html#cio_websocket_close">close()</a> etc. on the websocket). Immediately after this function returns, the library closes the websocket on its own.</dd></dl>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">ws</td><td>The websocket which encountered the error. </td></tr>
@@ -343,7 +344,7 @@ Data Fields</h2></td></tr>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="structcio__websocket.html">cio_websocket</a></li>
-    <li class="footer">Generated on Tue Oct 9 2018 10:32:27 for cioall by
+    <li class="footer">Generated on Tue Oct 9 2018 10:39:38 for cioall by
     <a href="http://www.doxygen.org/index.html">
     <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.8.6 </li>
   </ul>
