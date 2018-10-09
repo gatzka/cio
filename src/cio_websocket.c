@@ -61,7 +61,7 @@ static void close(struct cio_websocket *ws)
 			ws->ws_private.close_hook(ws);
 		}
 	} else {
-		ws->ws_private.to_be_closed = true;
+		ws->ws_private.ws_flags.to_be_closed = 1;
 	}
 }
 
@@ -285,7 +285,7 @@ static void message_written(struct cio_buffered_stream *bs, void *handler_contex
 	job->handler(ws, job->handler_context, err);
 	ws->ws_private.in_user_writecallback_context--;
 
-	if (ws->ws_private.to_be_closed) {
+	if (ws->ws_private.ws_flags.to_be_closed == 1) {
 		close(ws);
 	} else {
 		if (first_job != NULL) {
@@ -880,7 +880,7 @@ enum cio_error cio_websocket_init(struct cio_websocket *ws, bool is_server, cio_
 	ws->on_control = NULL;
 	ws->ws_private.read_handler = NULL;
 	ws->ws_private.in_user_writecallback_context = 0;
-	ws->ws_private.to_be_closed = false;
+	ws->ws_private.ws_flags.to_be_closed = 0;
 
 	ws->on_error = NULL;
 	ws->close = write_close_message;

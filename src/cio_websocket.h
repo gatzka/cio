@@ -118,13 +118,13 @@ struct cio_websocket_private {
 		unsigned int is_server : 1;
 		unsigned int fragmented_write : 1;
 		unsigned int closed_by_error : 1;
+        unsigned int to_be_closed;
 	} ws_flags;
 
 	cio_websocket_read_handler read_handler;
 	void *read_handler_context;
 
 	unsigned int in_user_writecallback_context;
-	bool to_be_closed;
 
 	struct cio_buffered_stream *bs;
 	struct cio_read_buffer *rb;
