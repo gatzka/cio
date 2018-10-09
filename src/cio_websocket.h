@@ -216,8 +216,10 @@ struct cio_websocket {
 	/**
 	 * @brief A pointer to a function which is called if a receive error occurred.
 	 *
-	 * Library users are note required to set this function pointer. If you set this
-	 * function pointer, please operate no longer on this websocket (Do not call
+	 * Library users are note required to set this function pointer.
+     * 
+     * @warning If you set this function pointer, you are not allowed to
+     * on this websocket any longer. (I.e., do not call
 	 * @ref cio_websocket_close "close()" etc. on the websocket). Immediately after this
 	 * function returns, the library closes the websocket on its own.
 	 *
