@@ -101,10 +101,10 @@ static void on_connect(struct cio_websocket *ws)
 	}
 }
 
-static void on_error(const struct cio_websocket *ws, enum cio_websocket_status_code status, const char *reason)
+static void on_error(const struct cio_websocket *ws, enum cio_error err, const char *reason)
 {
 	(void)ws;
-	fprintf(stderr, "Unexpected error: %d, %s\n", status, reason);
+	fprintf(stderr, "Unexpected error: %d, %s\n", err, reason);
 }
 
 static struct cio_http_location_handler *alloc_autobahn_handler(const void *config)
