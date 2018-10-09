@@ -40,7 +40,7 @@ extern "C" {
  */
 
 enum cio_error cio_eventloop_init(struct cio_eventloop *loop);
-void cio_eventloop_destroy(const struct cio_eventloop *loop);
+void cio_eventloop_destroy(struct cio_eventloop *loop);
 enum cio_error cio_eventloop_run(struct cio_eventloop *loop);
 void cio_eventloop_cancel(struct cio_eventloop *loop);
 

@@ -88,7 +88,7 @@ struct cio_eventloop {
 	 * @privatesection
 	 */
 	int epoll_fd;
-	bool go_ahead;
+	struct cio_event_notifier stop_ev;
 	unsigned int event_counter;
 	unsigned int num_events;
 	struct cio_event_notifier *current_ev;
