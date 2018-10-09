@@ -460,7 +460,7 @@ static void pong_frame_written(struct cio_websocket *ws, void *handler_context, 
 	if (cio_likely(err == CIO_SUCCESS)) {
 		ws->ws_private.bs->read_exactly(ws->ws_private.bs, ws->ws_private.rb, 1, get_header, ws);
 	} else {
-		// TODO
+		handle_error(ws, CIO_WEBSOCKET_CLOSE_INTERNAL_ERROR, "pong frame not written correctly");
 	}
 }
 
