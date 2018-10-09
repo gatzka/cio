@@ -28,6 +28,7 @@
 #include <stdbool.h>
 #include <string.h>
 #include <sys/epoll.h>
+#include <sys/eventfd.h>
 #include <unistd.h>
 
 #include "cio_compiler.h"
@@ -47,23 +48,63 @@ static void erase_pending_event(struct cio_eventloop *loop, const struct cio_eve
 	}
 }
 
-enum cio_error cio_eventloop_init(struct cio_eventloop *loop)
+static enum cio_error epoll_mod(const struct cio_eventloop *loop, struct cio_event_notifier *ev, uint32_t events)
 {
-	loop->epoll_fd = epoll_create1(EPOLL_CLOEXEC);
-	if (loop->epoll_fd < 0) {
+	struct epoll_event epoll_ev;
+
+	epoll_ev.data.ptr = ev;
+	epoll_ev.events = events;
+	if (cio_unlikely(epoll_ctl(loop->epoll_fd, EPOLL_CTL_MOD, ev->fd, &epoll_ev) < 0)) {
 		return (enum cio_error)(-errno);
 	}
-
-	loop->num_events = 0;
-	loop->event_counter = 0;
-	loop->go_ahead = true;
-	loop->current_ev = NULL;
 
 	return CIO_SUCCESS;
 }
 
-void cio_eventloop_destroy(const struct cio_eventloop *loop)
+enum cio_error cio_eventloop_init(struct cio_eventloop *loop)
 {
+	enum cio_error err;
+	loop->epoll_fd = epoll_create1(EPOLL_CLOEXEC);
+	if (cio_unlikely(loop->epoll_fd == -1)) {
+		return (enum cio_error)(-errno);
+	}
+
+	loop->stop_ev.fd = eventfd(0, EFD_NONBLOCK);
+	if (cio_unlikely(loop->stop_ev.fd == -1)) {
+		err = (enum cio_error)(-errno);
+		goto eventfd_failed;
+	}
+
+	err = cio_linux_eventloop_add(loop, &loop->stop_ev);
+	if (cio_unlikely(err != CIO_SUCCESS)) {
+		goto ev_add_failed;
+	}
+
+	err = cio_linux_eventloop_register_read(loop, &loop->stop_ev);
+	if (cio_unlikely(err != CIO_SUCCESS)) {
+		goto ev_register_read_failed;
+	}
+
+	loop->num_events = 0;
+	loop->event_counter = 0;
+	loop->current_ev = NULL;
+
+	return CIO_SUCCESS;
+
+ev_register_read_failed:
+	cio_linux_eventloop_remove(loop, &loop->stop_ev);
+ev_add_failed:
+	close(loop->stop_ev.fd);
+eventfd_failed:
+	close(loop->epoll_fd);
+	return err;
+}
+
+void cio_eventloop_destroy(struct cio_eventloop *loop)
+{
+	cio_linux_eventloop_unregister_read(loop, &loop->stop_ev);
+	cio_linux_eventloop_remove(loop, &loop->stop_ev);
+	close(loop->stop_ev.fd);
 	close(loop->epoll_fd);
 }
 
@@ -75,19 +116,6 @@ enum cio_error cio_linux_eventloop_add(const struct cio_eventloop *loop, struct 
 	epoll_ev.data.ptr = ev;
 	epoll_ev.events = ev->registered_events;
 	if (cio_unlikely(epoll_ctl(loop->epoll_fd, EPOLL_CTL_ADD, ev->fd, &epoll_ev) < 0)) {
-		return (enum cio_error)(-errno);
-	}
-
-	return CIO_SUCCESS;
-}
-
-static enum cio_error epoll_mod(const struct cio_eventloop *loop, struct cio_event_notifier *ev, uint32_t events)
-{
-	struct epoll_event epoll_ev;
-
-	epoll_ev.data.ptr = ev;
-	epoll_ev.events = events;
-	if (cio_unlikely(epoll_ctl(loop->epoll_fd, EPOLL_CTL_MOD, ev->fd, &epoll_ev) < 0)) {
 		return (enum cio_error)(-errno);
 	}
 
@@ -131,7 +159,7 @@ enum cio_error cio_eventloop_run(struct cio_eventloop *loop)
 {
 	struct epoll_event *events = loop->epoll_events;
 
-	while (cio_likely(loop->go_ahead)) {
+	while (true) {
 		int num_events =
 		    epoll_wait(loop->epoll_fd, events, CONFIG_MAX_EPOLL_EVENTS, -1);
 
@@ -146,6 +174,10 @@ enum cio_error cio_eventloop_run(struct cio_eventloop *loop)
 		loop->num_events = (unsigned int)num_events;
 		for (loop->event_counter = 0; loop->event_counter < loop->num_events; loop->event_counter++) {
 			struct cio_event_notifier *ev = events[loop->event_counter].data.ptr;
+			if (cio_unlikely(ev == &loop->stop_ev)) {
+				goto out;
+			}
+
 			uint32_t events_type = events[loop->event_counter].events;
 			loop->current_ev = ev;
 
@@ -163,10 +195,12 @@ enum cio_error cio_eventloop_run(struct cio_eventloop *loop)
 		}
 	}
 
+out:
 	return CIO_SUCCESS;
 }
 
 void cio_eventloop_cancel(struct cio_eventloop *loop)
 {
-	loop->go_ahead = false;
+	uint64_t dummy = 1;
+	write(loop->stop_ev.fd, &dummy, sizeof(dummy));
 }
