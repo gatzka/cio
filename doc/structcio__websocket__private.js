@@ -21,7 +21,7 @@ var structcio__websocket__private =
     [ "read_handler_context", "structcio__websocket__private.html#a1962b07487645e896c1ca63daad14d2e", null ],
     [ "received_mask", "structcio__websocket__private.html#a62f8cd2e77449db411e02638832c83a6", null ],
     [ "self_initiated_close", "structcio__websocket__private.html#a3fe66dbffbc5032fe80b323d027901a8", null ],
-    [ "to_be_closed", "structcio__websocket__private.html#a60e39c7099d7dfec21303a69a2a8141c", null ],
+    [ "to_be_closed", "structcio__websocket__private.html#a7f287e91621d4b46f9b70fff6a8dbb7c", null ],
     [ "utf8_state", "structcio__websocket__private.html#a4db49931fb1dd4dbc4da22ded5f01678", null ],
     [ "write_close_job", "structcio__websocket__private.html#a64848421972153cf531ef13efa4efad9", null ],
     [ "write_message_job", "structcio__websocket__private.html#ab4860faa72ab9d8a75a65e1376d00089", null ],

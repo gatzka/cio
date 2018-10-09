@@ -30,7 +30,7 @@
  <tr style="height: 56px;">
   <td style="padding-left: 0.5em;">
    <div id="projectname">cioall
-   &#160;<span id="projectnumber">0.0.1-1086+6e317b7</span>
+   &#160;<span id="projectnumber">0.0.1-1087+7625029</span>
    </div>
    <div id="projectbrief">An ANSI C Conformant I/O Library.</div>
   </td>
@@ -133,6 +133,8 @@ Data Fields</h2></td></tr>
 <tr class="separator:aeab3773c1a5c702fb5ce8ee7de2d3201"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ada7b458d18ab42947aa8c03f9d39f21a"><td class="memItemLeft" >&#160;&#160;&#160;unsigned int&#160;&#160;&#160;<a class="el" href="structcio__websocket__private.html#a9713b99ac7dde95ddb5f824302835809">closed_by_error</a>: 1</td></tr>
 <tr class="separator:ada7b458d18ab42947aa8c03f9d39f21a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a41deb55c68dc5f8e691172900df8385b"><td class="memItemLeft" >&#160;&#160;&#160;unsigned int&#160;&#160;&#160;<a class="el" href="structcio__websocket__private.html#a7f287e91621d4b46f9b70fff6a8dbb7c">to_be_closed</a></td></tr>
+<tr class="separator:a41deb55c68dc5f8e691172900df8385b"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a41b8d0e6181ad659a77f0cbd308dc5c6"><td class="memItemLeft" valign="top">}&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structcio__websocket__private.html#a41b8d0e6181ad659a77f0cbd308dc5c6">ws_flags</a></td></tr>
 <tr class="separator:a41b8d0e6181ad659a77f0cbd308dc5c6"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a039a8e2c5b9f72b9db0c26ff3ea9ba41"><td class="memItemLeft" align="right" valign="top"><a class="el" href="cio__websocket_8h.html#aeb18a406608a7135dcb338ea814acf81">cio_websocket_read_handler</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structcio__websocket__private.html#a039a8e2c5b9f72b9db0c26ff3ea9ba41">read_handler</a></td></tr>
@@ -141,8 +143,6 @@ Data Fields</h2></td></tr>
 <tr class="separator:a1962b07487645e896c1ca63daad14d2e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aff38ef10124ec090b6eec5b2e42324ac"><td class="memItemLeft" align="right" valign="top">unsigned int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structcio__websocket__private.html#aff38ef10124ec090b6eec5b2e42324ac">in_user_writecallback_context</a></td></tr>
 <tr class="separator:aff38ef10124ec090b6eec5b2e42324ac"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a60e39c7099d7dfec21303a69a2a8141c"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structcio__websocket__private.html#a60e39c7099d7dfec21303a69a2a8141c">to_be_closed</a></td></tr>
-<tr class="separator:a60e39c7099d7dfec21303a69a2a8141c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a358e48f079c102fad8555db5d579db67"><td class="memItemLeft" align="right" valign="top">struct <a class="el" href="structcio__buffered__stream.html">cio_buffered_stream</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structcio__websocket__private.html#a358e48f079c102fad8555db5d579db67">bs</a></td></tr>
 <tr class="separator:a358e48f079c102fad8555db5d579db67"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a4dada5b8e1c0e7eb97f0c53796f73964"><td class="memItemLeft" align="right" valign="top">struct <a class="el" href="structcio__read__buffer.html">cio_read_buffer</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structcio__websocket__private.html#a4dada5b8e1c0e7eb97f0c53796f73964">rb</a></td></tr>
@@ -425,12 +425,12 @@ Data Fields</h2></td></tr>
 
 </div>
 </div>
-<a class="anchor" id="a60e39c7099d7dfec21303a69a2a8141c"></a>
+<a class="anchor" id="a7f287e91621d4b46f9b70fff6a8dbb7c"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">bool cio_websocket_private::to_be_closed</td>
+          <td class="memname">unsigned int cio_websocket_private::to_be_closed</td>
         </tr>
       </table>
 </div><div class="memdoc">
@@ -518,7 +518,7 @@ Data Fields</h2></td></tr>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="structcio__websocket__private.html">cio_websocket_private</a></li>
-    <li class="footer">Generated on Mon Oct 8 2018 20:03:39 for cioall by
+    <li class="footer">Generated on Tue Oct 9 2018 07:55:45 for cioall by
     <a href="http://www.doxygen.org/index.html">
     <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.8.6 </li>
   </ul>
