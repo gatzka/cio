@@ -265,7 +265,7 @@ static void handle_error(struct cio_websocket *ws, enum cio_websocket_status_cod
 	}
 }
 
-static inline struct cio_websocket_write_job *get_job(struct cio_websocket *ws)
+static inline struct cio_websocket_write_job *write_jobs_popfront(struct cio_websocket *ws)
 {
 	struct cio_websocket_write_job *job = dequeue_job(ws);
 	remove_websocket_header(job);
@@ -278,7 +278,7 @@ static void message_written(struct cio_buffered_stream *bs, void *handler_contex
 {
 	(void)bs;
 	struct cio_websocket *ws = (struct cio_websocket *)handler_context;
-	struct cio_websocket_write_job *job = get_job(ws);
+	struct cio_websocket_write_job *job = write_jobs_popfront(ws);
 	struct cio_websocket_write_job *first_job = ws->ws_private.first_write_job;
 
 	ws->ws_private.in_user_writecallback_context++;
@@ -303,7 +303,7 @@ static void response_close_frame_written(struct cio_buffered_stream *bs, void *h
 	(void)err;
 
 	struct cio_websocket *ws = (struct cio_websocket *)handler_context;
-	get_job(ws);
+	write_jobs_popfront(ws);
 
 	abort_write_jobs(ws);
 	close(ws);
@@ -313,7 +313,7 @@ static void close_frame_written(struct cio_buffered_stream *bs, void *handler_co
 {
 	(void)bs;
 	struct cio_websocket *ws = (struct cio_websocket *)handler_context;
-	struct cio_websocket_write_job *job = get_job(ws);
+	struct cio_websocket_write_job *job = write_jobs_popfront(ws);
 
 	if (job->handler) {
 		ws->ws_private.in_user_writecallback_context++;
