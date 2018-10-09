@@ -202,5 +202,6 @@ out:
 void cio_eventloop_cancel(struct cio_eventloop *loop)
 {
 	uint64_t dummy = 1;
-	write(loop->stop_ev.fd, &dummy, sizeof(dummy));
+	ssize_t ret = write(loop->stop_ev.fd, &dummy, sizeof(dummy));
+	(void)ret;
 }
