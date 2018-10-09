@@ -3,7 +3,7 @@ var searchData=
   ['handle_5faccept',['handle_accept',['../cio__http__server_8c.html#ae73d3b9895eb420a8fab67452f22a269',1,'cio_http_server.c']]],
   ['handle_5fbinary_5fframe',['handle_binary_frame',['../cio__websocket_8c.html#a2418c43db4bd65e8970c3eae1fdd76bd',1,'cio_websocket.c']]],
   ['handle_5fclose_5fframe',['handle_close_frame',['../cio__websocket_8c.html#aeff66a7bddf656e571162bc5d8dbf216',1,'cio_websocket.c']]],
-  ['handle_5ferror',['handle_error',['../cio__http__server_8c.html#a3a6d2857f2657b1e2ec01aa3205f9116',1,'handle_error(struct cio_http_server *server, const char *reason):&#160;cio_http_server.c'],['../cio__websocket_8c.html#af087c08483bcd7fe7880491193a2a4dd',1,'handle_error(struct cio_websocket *ws, enum cio_websocket_status_code status_code, const char *reason):&#160;cio_websocket.c']]],
+  ['handle_5ferror',['handle_error',['../cio__http__server_8c.html#a3a6d2857f2657b1e2ec01aa3205f9116',1,'handle_error(struct cio_http_server *server, const char *reason):&#160;cio_http_server.c'],['../cio__websocket_8c.html#a03a26c2e5329cad0e141e325ddb4e8e7',1,'handle_error(struct cio_websocket *ws, enum cio_error err, enum cio_websocket_status_code status_code, const char *reason):&#160;cio_websocket.c']]],
   ['handle_5ffield',['handle_field',['../cio__websocket__location__handler_8c.html#ac89eaaa1016b08c4356e3a3f75fe6479',1,'cio_websocket_location_handler.c']]],
   ['handle_5fframe',['handle_frame',['../cio__websocket_8c.html#ace24cddbddc733319d9f704493dcba1f',1,'cio_websocket.c']]],
   ['handle_5fheaders_5fcomplete',['handle_headers_complete',['../cio__websocket__location__handler_8c.html#ad01c12cf374f7614ba9eb7c2cbd870ba',1,'cio_websocket_location_handler.c']]],

@@ -19,7 +19,7 @@ var cio__websocket_8c =
     [ "get_payload", "cio__websocket_8c.html#aafb006c7a8576be1fec08b1340774274", null ],
     [ "handle_binary_frame", "cio__websocket_8c.html#a2418c43db4bd65e8970c3eae1fdd76bd", null ],
     [ "handle_close_frame", "cio__websocket_8c.html#aeff66a7bddf656e571162bc5d8dbf216", null ],
-    [ "handle_error", "cio__websocket_8c.html#af087c08483bcd7fe7880491193a2a4dd", null ],
+    [ "handle_error", "cio__websocket_8c.html#a03a26c2e5329cad0e141e325ddb4e8e7", null ],
     [ "handle_frame", "cio__websocket_8c.html#ace24cddbddc733319d9f704493dcba1f", null ],
     [ "handle_ping_frame", "cio__websocket_8c.html#aee0d52030c5027515c0e8c03978bf100", null ],
     [ "handle_pong_frame", "cio__websocket_8c.html#ae6d975637b8f4805918c741111cb215d", null ],
