@@ -10,6 +10,7 @@ var searchData=
   ['write_5fclose_5fjob',['write_close_job',['../structcio__websocket__private.html#a64848421972153cf531ef13efa4efad9',1,'cio_websocket_private']]],
   ['write_5fclose_5fmessage',['write_close_message',['../cio__websocket_8c.html#ace003a2bac6b2bea614e75636b698832',1,'cio_websocket.c']]],
   ['write_5fheader',['write_header',['../structcio__http__client.html#adc1a5a87e3e01609dc4feaba730d860b',1,'cio_http_client::write_header()'],['../cio__http__server_8c.html#ab461e02391fd15a3d5cda3d1fbff7b99',1,'write_header():&#160;cio_http_server.c']]],
+  ['write_5fjobs_5fpopfront',['write_jobs_popfront',['../cio__websocket_8c.html#ac51805d10bd402402e0b83534f300066',1,'cio_websocket.c']]],
   ['write_5fmessage',['write_message',['../structcio__websocket.html#a849230533b51bc629fa34f132d0ecf90',1,'cio_websocket::write_message()'],['../cio__websocket_8c.html#ae33d4e37cd7e0011fd4f163c52ad5ff8',1,'write_message():&#160;cio_websocket.c']]],
   ['write_5fmessage_5fjob',['write_message_job',['../structcio__websocket__private.html#ab4860faa72ab9d8a75a65e1376d00089',1,'cio_websocket_private']]],
   ['write_5fping',['write_ping',['../structcio__websocket.html#ab8f6c7f22dd53f96ae96657a2d133358',1,'cio_websocket']]],

@@ -30,7 +30,7 @@
  <tr style="height: 56px;">
   <td style="padding-left: 0.5em;">
    <div id="projectname">cioall
-   &#160;<span id="projectnumber">0.0.1-1087+7625029</span>
+   &#160;<span id="projectnumber">0.0.1-1089+44f6965</span>
    </div>
    <div id="projectbrief">An ANSI C Conformant I/O Library.</div>
   </td>
@@ -162,9 +162,9 @@ Functions</h2></td></tr>
 <tr class="separator:af1079e0627882fc76da53839932dbc9a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ad54662c4284ea4ce5eb8b25e23dd599a"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="cio__websocket_8c.html#ad54662c4284ea4ce5eb8b25e23dd599a">close_frame_written_immediate_close</a> (struct <a class="el" href="structcio__buffered__stream.html">cio_buffered_stream</a> *bs, void *handler_context, enum <a class="el" href="cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afe">cio_error</a> err)</td></tr>
 <tr class="separator:ad54662c4284ea4ce5eb8b25e23dd599a"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aacfdf739f80bbe19f6f7887e1a7e15ea"><td class="memItemLeft" align="right" valign="top">static struct <br class="typebreak"/>
-<a class="el" href="structcio__websocket__write__job.html">cio_websocket_write_job</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="cio__websocket_8c.html#aacfdf739f80bbe19f6f7887e1a7e15ea">get_job</a> (struct <a class="el" href="structcio__websocket.html">cio_websocket</a> *ws)</td></tr>
-<tr class="separator:aacfdf739f80bbe19f6f7887e1a7e15ea"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac51805d10bd402402e0b83534f300066"><td class="memItemLeft" align="right" valign="top">static struct <br class="typebreak"/>
+<a class="el" href="structcio__websocket__write__job.html">cio_websocket_write_job</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="cio__websocket_8c.html#ac51805d10bd402402e0b83534f300066">write_jobs_popfront</a> (struct <a class="el" href="structcio__websocket.html">cio_websocket</a> *ws)</td></tr>
+<tr class="separator:ac51805d10bd402402e0b83534f300066"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a04918b19c3af736b84d1a244002e77c0"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="cio__websocket_8c.html#a04918b19c3af736b84d1a244002e77c0">message_written</a> (struct <a class="el" href="structcio__buffered__stream.html">cio_buffered_stream</a> *bs, void *handler_context, enum <a class="el" href="cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afe">cio_error</a> err)</td></tr>
 <tr class="separator:a04918b19c3af736b84d1a244002e77c0"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a20c0f2320140712162a2a7799eb6966d"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="cio__websocket_8c.html#a20c0f2320140712162a2a7799eb6966d">response_close_frame_written</a> (struct <a class="el" href="structcio__buffered__stream.html">cio_buffered_stream</a> *bs, void *handler_context, enum <a class="el" href="cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afe">cio_error</a> err)</td></tr>
@@ -630,30 +630,6 @@ Variables</h2></td></tr>
           <td></td>
           <td>)</td>
           <td></td><td></td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">static</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-
-</div>
-</div>
-<a class="anchor" id="aacfdf739f80bbe19f6f7887e1a7e15ea"></a>
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">static struct <a class="el" href="structcio__websocket__write__job.html">cio_websocket_write_job</a>* get_job </td>
-          <td>(</td>
-          <td class="paramtype">struct <a class="el" href="structcio__websocket.html">cio_websocket</a> *&#160;</td>
-          <td class="paramname"><em>ws</em></td><td>)</td>
-          <td></td>
         </tr>
       </table>
   </td>
@@ -1837,6 +1813,30 @@ Variables</h2></td></tr>
 
 </div>
 </div>
+<a class="anchor" id="ac51805d10bd402402e0b83534f300066"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static struct <a class="el" href="structcio__websocket__write__job.html">cio_websocket_write_job</a>* write_jobs_popfront </td>
+          <td>(</td>
+          <td class="paramtype">struct <a class="el" href="structcio__websocket.html">cio_websocket</a> *&#160;</td>
+          <td class="paramname"><em>ws</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
 <a class="anchor" id="ae33d4e37cd7e0011fd4f163c52ad5ff8"></a>
 <div class="memitem">
 <div class="memproto">
@@ -2132,7 +2132,7 @@ Variables</h2></td></tr>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="cio__websocket_8c.html">cio_websocket.c</a></li>
-    <li class="footer">Generated on Tue Oct 9 2018 07:55:45 for cioall by
+    <li class="footer">Generated on Tue Oct 9 2018 08:35:58 for cioall by
     <a href="http://www.doxygen.org/index.html">
     <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.8.6 </li>
   </ul>
