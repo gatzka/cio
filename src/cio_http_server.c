@@ -524,7 +524,7 @@ static void handle_accept(struct cio_server_socket *ss, void *handler_context, e
 		goto init_err;
 	}
 
-	err = client->http_private.read_timer.expires_from_now(&client->http_private.read_timer, server->read_timeout_ns, client_timeout_handler, client);
+	err = client->http_private.read_timer.expires_from_now(&client->http_private.read_timer, server->read_header_timeout_ns, client_timeout_handler, client);
 	if (cio_unlikely(err != CIO_SUCCESS)) {
 		goto init_err;
 	}
@@ -588,11 +588,11 @@ enum cio_error cio_http_server_init(struct cio_http_server *server,
                                     uint16_t port,
                                     struct cio_eventloop *loop,
                                     cio_http_serve_on_error on_error,
-                                    uint64_t read_timeout_ns,
+                                    uint64_t read_header_timeout_ns,
                                     cio_alloc_client alloc_client,
                                     cio_free_client free_client)
 {
-	if (cio_unlikely((server == NULL) || (loop == NULL) || (alloc_client == NULL) || (free_client == NULL) || (read_timeout_ns == 0))) {
+	if (cio_unlikely((server == NULL) || (loop == NULL) || (alloc_client == NULL) || (free_client == NULL) || (read_header_timeout_ns == 0))) {
 		return CIO_INVALID_ARGUMENT;
 	}
 
@@ -605,6 +605,6 @@ enum cio_error cio_http_server_init(struct cio_http_server *server,
 	server->first_handler = NULL;
 	server->num_handlers = 0;
 	server->on_error = on_error;
-	server->read_timeout_ns = read_timeout_ns;
+	server->read_header_timeout_ns = read_header_timeout_ns;
 	return CIO_SUCCESS;
 }
