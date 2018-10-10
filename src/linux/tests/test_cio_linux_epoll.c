@@ -302,7 +302,7 @@ static void test_createloop_epoll_eventfd_fails(void)
 
 static void test_createloop_epoll_eventloop_add_fails(void)
 {
-	epoll_ctl_fake .custom_fake = epoll_ctl_fail;
+	epoll_ctl_fake.custom_fake = epoll_ctl_fail;
 
 	struct cio_eventloop loop;
 	enum cio_error err = cio_eventloop_init(&loop);
@@ -358,7 +358,7 @@ static void test_add_event(void)
 
 static void test_cancel(void)
 {
-	epoll_ctl_fake .custom_fake = epoll_ctl_save;
+	epoll_ctl_fake.custom_fake = epoll_ctl_save;
 	epoll_wait_fake.custom_fake = notify_single_fd;
 
 	struct cio_eventloop loop;

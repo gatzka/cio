@@ -331,7 +331,7 @@ static void read_handler_save_data(struct cio_websocket *websocket, void *handle
 	}
 }
 
-static void on_control_save_data(const struct cio_websocket *websocket, enum cio_websocket_frame_type type,  const uint8_t *data, uint_fast8_t length)
+static void on_control_save_data(const struct cio_websocket *websocket, enum cio_websocket_frame_type type, const uint8_t *data, uint_fast8_t length)
 {
 	(void)websocket;
 	(void)type;
@@ -346,7 +346,7 @@ static void on_error_save_data(const struct cio_websocket *websocket, enum cio_e
 	(void)websocket;
 	(void)err;
 	size_t free_space = sizeof(read_back_buffer) - read_back_buffer_pos;
-	strncpy((char *)&read_back_buffer[read_back_buffer_pos], reason, free_space -1);
+	strncpy((char *)&read_back_buffer[read_back_buffer_pos], reason, free_space - 1);
 	read_back_buffer_pos += strlen(reason);
 }
 
@@ -402,8 +402,8 @@ static void test_client_read_frame(void)
 	char data[76] = {'a'};
 
 	struct ws_frame frames[] = {
-		{.frame_type = CIO_WEBSOCKET_TEXT_FRAME, .direction = FROM_SERVER, .data = data, .data_length = sizeof(data), .last_frame = true, .rsv = false},
-		{.frame_type = CIO_WEBSOCKET_CLOSE_FRAME, .direction = FROM_SERVER, .data = NULL, .data_length = 0, .last_frame = true, .rsv = false},
+	    {.frame_type = CIO_WEBSOCKET_TEXT_FRAME, .direction = FROM_SERVER, .data = data, .data_length = sizeof(data), .last_frame = true, .rsv = false},
+	    {.frame_type = CIO_WEBSOCKET_CLOSE_FRAME, .direction = FROM_SERVER, .data = NULL, .data_length = 0, .last_frame = true, .rsv = false},
 	};
 
 	serialize_frames(frames, ARRAY_SIZE(frames));
@@ -436,15 +436,15 @@ static void test_client_immediate_read_error_for_get_payload(void)
 	char data[5];
 	memset(data, 'a', sizeof(data));
 	struct ws_frame frames[] = {
-		{.frame_type = frame_type, .direction = FROM_CLIENT, .data = data, .data_length = sizeof(data), .last_frame = true, .rsv = false},
-		{.frame_type = CIO_WEBSOCKET_CLOSE_FRAME, .direction = FROM_CLIENT, .data = NULL, .data_length = 0, .last_frame = true, .rsv = false},
+	    {.frame_type = frame_type, .direction = FROM_CLIENT, .data = data, .data_length = sizeof(data), .last_frame = true, .rsv = false},
+	    {.frame_type = CIO_WEBSOCKET_CLOSE_FRAME, .direction = FROM_CLIENT, .data = NULL, .data_length = 0, .last_frame = true, .rsv = false},
 	};
 
 	serialize_frames(frames, ARRAY_SIZE(frames));
 	enum cio_error (*read_exactly_fakes[])(struct cio_buffered_stream *, struct cio_read_buffer *, size_t, cio_buffered_stream_read_handler, void *) = {
-		bs_read_exactly_from_buffer,
-		bs_read_exactly_from_buffer,
-		bs_read_exactly_immediate_error};
+	    bs_read_exactly_from_buffer,
+	    bs_read_exactly_from_buffer,
+	    bs_read_exactly_immediate_error};
 
 	SET_CUSTOM_FAKE_SEQ(read_exactly, read_exactly_fakes, ARRAY_SIZE(read_exactly_fakes));
 
@@ -477,7 +477,7 @@ static void test_client_send_text_binary_frame(void)
 			memset(check_data, 'a', frame_size);
 
 			struct ws_frame frames[] = {
-				{.frame_type = CIO_WEBSOCKET_CLOSE_FRAME, .direction = FROM_CLIENT, .data = NULL, .data_length = 0, .last_frame = true, .rsv = false},
+			    {.frame_type = CIO_WEBSOCKET_CLOSE_FRAME, .direction = FROM_CLIENT, .data = NULL, .data_length = 0, .last_frame = true, .rsv = false},
 			};
 
 			serialize_frames(frames, ARRAY_SIZE(frames));
@@ -545,9 +545,9 @@ static void test_client_send_fragmented_frames(void)
 				char *last_data = malloc(second_frame_size);
 				memset(last_data, 'b', second_frame_size);
 				struct ws_frame frames[] = {
-					{.frame_type = frame_type, .direction = FROM_SERVER, .data = first_data, .data_length = first_frame_size, .last_frame = false},
-					{.frame_type = CIO_WEBSOCKET_CONTINUATION_FRAME, .direction = FROM_SERVER, .data = last_data, .data_length = second_frame_size, .last_frame = true, .rsv = false},
-					{.frame_type = CIO_WEBSOCKET_CLOSE_FRAME, .direction = FROM_SERVER, .data = NULL, .data_length = 0, .last_frame = true, .rsv = false},
+				    {.frame_type = frame_type, .direction = FROM_SERVER, .data = first_data, .data_length = first_frame_size, .last_frame = false},
+				    {.frame_type = CIO_WEBSOCKET_CONTINUATION_FRAME, .direction = FROM_SERVER, .data = last_data, .data_length = second_frame_size, .last_frame = true, .rsv = false},
+				    {.frame_type = CIO_WEBSOCKET_CLOSE_FRAME, .direction = FROM_SERVER, .data = NULL, .data_length = 0, .last_frame = true, .rsv = false},
 				};
 
 				serialize_frames(frames, ARRAY_SIZE(frames));
@@ -569,7 +569,7 @@ static void test_client_send_fragmented_frames(void)
 							TEST_ASSERT_EQUAL_MESSAGE(second_frame_size, read_handler_fake.arg4_history[read_cnt], "length parameter of read_handler not equal to frame_size");
 							TEST_ASSERT_TRUE_MESSAGE(read_handler_fake.arg5_history[read_cnt], "last_frame parameter of read_handler for last fragment not false");
 						}
-						TEST_ASSERT_EQUAL_MESSAGE((frame_type == CIO_WEBSOCKET_BINARY_FRAME), read_handler_fake.arg6_history[read_cnt],"is_binary parameter of read_handler for first fragment not correct" );
+						TEST_ASSERT_EQUAL_MESSAGE((frame_type == CIO_WEBSOCKET_BINARY_FRAME), read_handler_fake.arg6_history[read_cnt], "is_binary parameter of read_handler for first fragment not correct");
 					} else {
 						TEST_ASSERT_EQUAL_MESSAGE(CIO_EOF, read_handler_fake.arg2_history[read_cnt], "err parameter of read_handler not correct");
 					}

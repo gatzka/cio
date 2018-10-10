@@ -39,7 +39,6 @@ extern "C" {
 #include <stddef.h>
 #include <stdint.h>
 
-
 /**
  * @brief <a href="https://en.wikipedia.org/wiki/Base64" target="_blank">Base64</a>-encodes a buffer
  *

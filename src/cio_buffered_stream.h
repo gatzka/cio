@@ -89,7 +89,7 @@ enum cio_bs_state {
 /**
  * @private
  */
-union cio_read_info{
+union cio_read_info {
 	size_t bytes_to_read;
 	struct {
 		const char *delim;

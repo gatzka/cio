@@ -84,7 +84,7 @@ static enum cio_error bs_close(struct cio_buffered_stream *bs);
 FAKE_VALUE_FUNC(enum cio_error, bs_close, struct cio_buffered_stream *)
 
 static enum cio_error bs_write(struct cio_buffered_stream *bs, struct cio_write_buffer *buffer, cio_buffered_stream_write_handler handler, void *handler_context);
-FAKE_VALUE_FUNC(enum cio_error, bs_write, struct cio_buffered_stream *, struct cio_write_buffer *,cio_buffered_stream_write_handler, void *)
+FAKE_VALUE_FUNC(enum cio_error, bs_write, struct cio_buffered_stream *, struct cio_write_buffer *, cio_buffered_stream_write_handler, void *)
 
 FAKE_VALUE_FUNC(enum cio_error, cio_timer_init, struct cio_timer *, struct cio_eventloop *, cio_timer_close_hook)
 

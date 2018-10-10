@@ -49,7 +49,6 @@ extern "C" {
  * @brief The interface to an HTTP client connection.
  */
 
-
 struct cio_http_client;
 
 struct cio_http_client_private {
