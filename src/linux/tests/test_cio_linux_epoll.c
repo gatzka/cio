@@ -36,6 +36,7 @@
 DEFINE_FFF_GLOBALS
 
 FAKE_VALUE_FUNC(int, epoll_create1, int)
+FAKE_VALUE_FUNC(int, eventfd, unsigned int, int)
 FAKE_VALUE_FUNC(int, epoll_ctl, int, int, int, struct epoll_event *)
 FAKE_VALUE_FUNC(int, epoll_wait, int, struct epoll_event *, int, int)
 FAKE_VALUE_FUNC(int, close, int)
@@ -67,6 +68,7 @@ void setUp(void)
 	FFF_RESET_HISTORY();
 
 	RESET_FAKE(epoll_create1);
+	RESET_FAKE(eventfd);
 	RESET_FAKE(epoll_ctl);
 	RESET_FAKE(epoll_wait);
 	RESET_FAKE(close);
@@ -111,6 +113,16 @@ static void unregister_read_event(void *context)
 static int epoll_create_fail(int size)
 {
 	(void)size;
+
+	errno = EMFILE;
+
+	return -1;
+}
+
+static int eventfd_fail(unsigned int initval, int flags)
+{
+	(void)initval;
+	(void)flags;
 
 	errno = EMFILE;
 
@@ -265,7 +277,7 @@ static void test_create_loop(void)
 	TEST_ASSERT_EQUAL(2, close_fake.call_count);
 }
 
-static void test_create_loop_fails(void)
+static void test_createloop_epoll_create1_fails(void)
 {
 	epoll_create1_fake.custom_fake = epoll_create_fail;
 
@@ -273,6 +285,45 @@ static void test_create_loop_fails(void)
 	enum cio_error err = cio_eventloop_init(&loop);
 	TEST_ASSERT(err != CIO_SUCCESS);
 	TEST_ASSERT_EQUAL(1, epoll_create1_fake.call_count);
+}
+
+static void test_createloop_epoll_eventfd_fails(void)
+{
+	eventfd_fake.custom_fake = eventfd_fail;
+
+	struct cio_eventloop loop;
+	enum cio_error err = cio_eventloop_init(&loop);
+	TEST_ASSERT_NOT_EQUAL_MESSAGE(CIO_SUCCESS, err, "eventloop_init did not fail");
+	TEST_ASSERT_EQUAL_MESSAGE(1, epoll_create1_fake.call_count, "epoll_create1 was not called");
+	TEST_ASSERT_EQUAL_MESSAGE(1, eventfd_fake.call_count, "eventfd was not called");
+	TEST_ASSERT_EQUAL_MESSAGE(1, close_fake.call_count, "close() was not called");
+}
+
+static void test_createloop_epoll_eventloop_add_fails(void)
+{
+	epoll_ctl_fake .custom_fake = epoll_ctl_fail;
+
+	struct cio_eventloop loop;
+	enum cio_error err = cio_eventloop_init(&loop);
+	TEST_ASSERT_NOT_EQUAL_MESSAGE(CIO_SUCCESS, err, "eventloop_init did not fail");
+	TEST_ASSERT_EQUAL_MESSAGE(1, epoll_create1_fake.call_count, "epoll_create1 was not called");
+	TEST_ASSERT_EQUAL_MESSAGE(1, eventfd_fake.call_count, "eventfd was not called");
+	TEST_ASSERT_EQUAL_MESSAGE(1, epoll_ctl_fake.call_count, "epoll_ctl was not called");
+	TEST_ASSERT_EQUAL_MESSAGE(2, close_fake.call_count, "close() was not called twice (for epoll fd and stop event fd)");
+}
+
+static void test_createloop_epoll_eventloop_register_read_fails(void)
+{
+	int (*epoll_ctrl_fakes[])(int, int, int, struct epoll_event *) = {epoll_ctl_save, epoll_ctl_fail};
+	SET_CUSTOM_FAKE_SEQ(epoll_ctl, epoll_ctrl_fakes, ARRAY_SIZE(epoll_ctrl_fakes));
+
+	struct cio_eventloop loop;
+	enum cio_error err = cio_eventloop_init(&loop);
+	TEST_ASSERT_NOT_EQUAL_MESSAGE(CIO_SUCCESS, err, "eventloop_init did not fail");
+	TEST_ASSERT_EQUAL_MESSAGE(1, epoll_create1_fake.call_count, "epoll_create1 was not called");
+	TEST_ASSERT_EQUAL_MESSAGE(1, eventfd_fake.call_count, "eventfd was not called");
+	TEST_ASSERT_EQUAL_MESSAGE(3, epoll_ctl_fake.call_count, "epoll_ctl was not called");
+	TEST_ASSERT_EQUAL_MESSAGE(2, close_fake.call_count, "close() was not called twice (for epoll fd and stop event fd)");
 }
 
 static void test_add_event(void)
@@ -725,7 +776,10 @@ int main(void)
 {
 	UNITY_BEGIN();
 	RUN_TEST(test_create_loop);
-	RUN_TEST(test_create_loop_fails);
+	RUN_TEST(test_createloop_epoll_create1_fails);
+	RUN_TEST(test_createloop_epoll_eventfd_fails);
+	RUN_TEST(test_createloop_epoll_eventloop_add_fails);
+	RUN_TEST(test_createloop_epoll_eventloop_register_read_fails);
 	RUN_TEST(test_add_event);
 	RUN_TEST(test_add_event_fails);
 	RUN_TEST(test_cancel);
