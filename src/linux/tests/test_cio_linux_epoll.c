@@ -40,6 +40,7 @@ FAKE_VALUE_FUNC(int, eventfd, unsigned int, int)
 FAKE_VALUE_FUNC(int, epoll_ctl, int, int, int, struct epoll_event *)
 FAKE_VALUE_FUNC(int, epoll_wait, int, struct epoll_event *, int, int)
 FAKE_VALUE_FUNC(int, close, int)
+FAKE_VALUE_FUNC(ssize_t, write, int, const void *, size_t)
 
 void epoll_callback(void *);
 FAKE_VOID_FUNC(epoll_callback, void *)
@@ -357,12 +358,15 @@ static void test_add_event(void)
 
 static void test_cancel(void)
 {
+	epoll_wait_fake.custom_fake = notify_single_fd;
+
 	struct cio_eventloop loop;
 	enum cio_error err = cio_eventloop_init(&loop);
 	TEST_ASSERT_EQUAL(CIO_SUCCESS, err);
 	TEST_ASSERT_EQUAL(1, epoll_create1_fake.call_count);
 
 	cio_eventloop_cancel(&loop);
+	cio_eventloop_run(&loop);
 	cio_eventloop_destroy(&loop);
 	TEST_ASSERT_EQUAL(2, close_fake.call_count);
 }
