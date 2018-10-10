@@ -64,6 +64,11 @@ static enum cio_error epoll_mod(const struct cio_eventloop *loop, struct cio_eve
 enum cio_error cio_eventloop_init(struct cio_eventloop *loop)
 {
 	enum cio_error err;
+
+	loop->num_events = 0;
+	loop->event_counter = 0;
+	loop->current_ev = NULL;
+
 	loop->epoll_fd = epoll_create1(EPOLL_CLOEXEC);
 	if (cio_unlikely(loop->epoll_fd == -1)) {
 		return (enum cio_error)(-errno);
@@ -84,10 +89,6 @@ enum cio_error cio_eventloop_init(struct cio_eventloop *loop)
 	if (cio_unlikely(err != CIO_SUCCESS)) {
 		goto ev_register_read_failed;
 	}
-
-	loop->num_events = 0;
-	loop->event_counter = 0;
-	loop->current_ev = NULL;
 
 	return CIO_SUCCESS;
 
