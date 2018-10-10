@@ -358,6 +358,7 @@ static void test_add_event(void)
 
 static void test_cancel(void)
 {
+	epoll_ctl_fake .custom_fake = epoll_ctl_save;
 	epoll_wait_fake.custom_fake = notify_single_fd;
 
 	struct cio_eventloop loop;
