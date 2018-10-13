@@ -168,6 +168,16 @@ static enum cio_error cio_timer_init_ok(struct cio_timer *timer, struct cio_even
 	return CIO_SUCCESS;
 }
 
+static enum cio_error cio_timer_init_failed(struct cio_timer *timer, struct cio_eventloop *l, cio_timer_close_hook hook)
+{
+	(void)l;
+	timer->cancel = timer_cancel;
+	timer->close = timer_close;
+	timer->close_hook = hook;
+	timer->expires_from_now = timer_expires_from_now;
+	return CIO_INVALID_ARGUMENT;
+}
+
 static enum cio_error cio_buffered_stream_init_ok(struct cio_buffered_stream *bs,
                                                   struct cio_io_stream *stream)
 {
@@ -202,7 +212,7 @@ static struct cio_http_location_handler *alloc_websocket_handler(const void *con
 		return NULL;
 	} else {
 		static const char *subprotocols[2] = {"echo", "jet"};
-		cio_websocket_location_handler_init(&handler->ws_handler, subprotocols, ARRAY_SIZE(subprotocols), on_connect);
+		cio_websocket_location_handler_init(&handler->ws_handler, &loop, subprotocols, ARRAY_SIZE(subprotocols), on_connect);
 		handler->ws_handler.http_location.free = free_websocket_handler;
 		handler->ws_handler.websocket.on_control = on_control;
 		return &handler->ws_handler.http_location;
@@ -216,7 +226,7 @@ static struct cio_http_location_handler *alloc_websocket_handler_no_subprotocol(
 	if (cio_unlikely(handler == NULL)) {
 		return NULL;
 	} else {
-		cio_websocket_location_handler_init(&handler->ws_handler, NULL, 0, on_connect);
+		cio_websocket_location_handler_init(&handler->ws_handler, &loop, NULL, 0, on_connect);
 		handler->ws_handler.http_location.free = free_websocket_handler;
 		return &handler->ws_handler.http_location;
 	}
@@ -940,6 +950,14 @@ static void test_ws_location_wrong_key_length(void)
 	check_http_response(400);
 }
 
+static void test_init_timer_init_failed(void)
+{
+	cio_timer_init_fake.custom_fake = cio_timer_init_failed;
+	struct cio_websocket_location_handler handler;
+	enum cio_error err = cio_websocket_location_handler_init(&handler, NULL, NULL, 0, NULL);
+	TEST_ASSERT_EQUAL_MESSAGE(CIO_INVALID_ARGUMENT, err, "web socket handler initialization did not failed!");
+}
+
 int main(void)
 {
 	UNITY_BEGIN();
@@ -953,5 +971,6 @@ int main(void)
 	RUN_TEST(test_ws_location_wrong_key_length);
 	RUN_TEST(test_ws_location_subprotocols);
 	RUN_TEST(test_ws_location_write_error);
+	RUN_TEST(test_init_timer_init_failed);
 	return UNITY_END();
 }

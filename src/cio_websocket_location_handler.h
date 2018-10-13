@@ -34,6 +34,7 @@ extern "C" {
 #include <stdint.h>
 
 #include "cio_http_location_handler.h"
+#include "cio_timer.h"
 #include "cio_websocket.h"
 #include "cio_write_buffer.h"
 
@@ -65,12 +66,15 @@ struct cio_websocket_location_handler {
 	struct cio_write_buffer wb_protocol_value;
 	struct cio_write_buffer wb_protocol_end;
 
+	struct cio_timer write_response_timer;
+
 	struct cio_websocket websocket;
 };
 
 /**
  * @brief Initializes a websocket handler.
  * @param handler The handler to initialize.
+ * @param loop Pointer to the eventloop to be used.
  * @param subprotocols An array of strings containing the supported subprotocols.
  * Please note that the functions will not copy this array, this array must be
  * available as long as this cio_websocket_location_handler exists!
@@ -78,7 +82,7 @@ struct cio_websocket_location_handler {
  * @param on_connect Function that will be called if websocket is connected.
  * @return CIO_SUCCESS if no error occured.
  */
-enum cio_error cio_websocket_location_handler_init(struct cio_websocket_location_handler *handler, const char *subprotocols[], unsigned int num_subprotocols, cio_websocket_on_connect on_connect);
+enum cio_error cio_websocket_location_handler_init(struct cio_websocket_location_handler *handler, struct cio_eventloop *loop, const char *subprotocols[], unsigned int num_subprotocols, cio_websocket_on_connect on_connect);
 
 #ifdef __cplusplus
 }

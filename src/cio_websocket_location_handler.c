@@ -32,11 +32,13 @@
 
 #include "cio_base64.h"
 #include "cio_compiler.h"
+#include "cio_eventloop.h"
 #include "cio_http_client.h"
 #include "cio_http_location_handler.h"
 #include "cio_http_method.h"
 #include "cio_http_status_code.h"
 #include "cio_string.h"
+#include "cio_timer.h"
 #include "cio_util.h"
 #include "cio_websocket.h"
 #include "cio_websocket_location_handler.h"
@@ -289,7 +291,7 @@ static void close_server_websocket(struct cio_websocket *s)
 	client->close(client);
 }
 
-enum cio_error cio_websocket_location_handler_init(struct cio_websocket_location_handler *handler, const char *subprotocols[], unsigned int num_subprotocols, cio_websocket_on_connect on_connect)
+enum cio_error cio_websocket_location_handler_init(struct cio_websocket_location_handler *handler, struct cio_eventloop *loop, const char *subprotocols[], unsigned int num_subprotocols, cio_websocket_on_connect on_connect)
 {
 	handler->flags.current_header_field = 0;
 	handler->flags.ws_version_ok = 0;
@@ -303,5 +305,11 @@ enum cio_error cio_websocket_location_handler_init(struct cio_websocket_location
 	handler->http_location.on_header_field = handle_field;
 	handler->http_location.on_header_value = handle_value;
 	handler->http_location.on_headers_complete = handle_headers_complete;
+
+	enum cio_error err = cio_timer_init(&handler->write_response_timer, loop, NULL);
+	if (cio_unlikely(err != CIO_SUCCESS)) {
+		return err;
+	}
+
 	return cio_websocket_init(&handler->websocket, true, on_connect, close_server_websocket);
 }

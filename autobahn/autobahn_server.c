@@ -115,7 +115,7 @@ static struct cio_http_location_handler *alloc_autobahn_handler(const void *conf
 		return NULL;
 	}
 
-	cio_websocket_location_handler_init(&handler->ws_handler, NULL, 0, on_connect);
+	cio_websocket_location_handler_init(&handler->ws_handler, &loop, NULL, 0, on_connect);
 	handler->ws_handler.websocket.on_error = on_error;
 	handler->ws_handler.http_location.free = free_autobahn_handler;
 	return &handler->ws_handler.http_location;

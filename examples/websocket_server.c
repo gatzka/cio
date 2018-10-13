@@ -235,7 +235,7 @@ static struct cio_http_location_handler *alloc_websocket_handler(const void *con
 	}
 
 	static const char *subprotocols[2] = {"echo", "jet"};
-	cio_websocket_location_handler_init(&handler->ws_handler, subprotocols, ARRAY_SIZE(subprotocols), on_connect);
+	cio_websocket_location_handler_init(&handler->ws_handler, &loop, subprotocols, ARRAY_SIZE(subprotocols), on_connect);
 	handler->ws_handler.websocket.on_control = on_control;
 	handler->ws_handler.http_location.free = free_websocket_handler;
 	return &handler->ws_handler.http_location;
