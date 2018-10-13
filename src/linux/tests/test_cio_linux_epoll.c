@@ -26,7 +26,6 @@
 
 #include <stdlib.h>
 #include <sys/epoll.h>
-#include <sys/eventfd.h>
 #include <unistd.h>
 
 #include "fff.h"
@@ -37,6 +36,8 @@
 DEFINE_FFF_GLOBALS
 
 FAKE_VALUE_FUNC(int, epoll_create1, int)
+
+extern int eventfd(unsigned int initval, int flags);
 FAKE_VALUE_FUNC(int, eventfd, unsigned int, int)
 FAKE_VALUE_FUNC(int, epoll_ctl, int, int, int, struct epoll_event *)
 FAKE_VALUE_FUNC(int, epoll_wait, int, struct epoll_event *, int, int)
