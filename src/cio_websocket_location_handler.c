@@ -203,6 +203,7 @@ static void response_written(struct cio_buffered_stream *bs, void *handler_conte
 	}
 
 	struct cio_websocket_location_handler *wslh = container_of(client->handler, struct cio_websocket_location_handler, http_location);
+	wslh->write_response_timer.close(&wslh->write_response_timer);
 
 	struct cio_websocket *ws = &wslh->websocket;
 	ws->ws_private.bs = bs;
@@ -252,6 +253,16 @@ static void send_upgrade_response(struct cio_http_client *client)
 	client->flush(client, response_written);
 }
 
+static void write_response_timeout(struct cio_timer *timer, void *handler_context, enum cio_error err)
+{
+	(void)timer;
+
+	if (err == CIO_SUCCESS) {
+		struct cio_http_client *client = handler_context;
+		client->close(client);
+	}
+}
+
 static enum cio_http_cb_return handle_headers_complete(struct cio_http_client *client)
 {
 	if (cio_unlikely(!check_http_version(client))) {
@@ -279,6 +290,13 @@ static enum cio_http_cb_return handle_headers_complete(struct cio_http_client *c
 		return CIO_HTTP_CB_ERROR;
 	}
 
+
+	struct cio_websocket_location_handler *handler = container_of(client->handler, struct cio_websocket_location_handler, http_location);
+	if (cio_unlikely(handler->write_response_timer.expires_from_now(&handler->write_response_timer, handler->write_response_timeout,
+	    write_response_timeout, client) != CIO_SUCCESS)) {
+		return CIO_HTTP_CB_ERROR;
+	}
+
 	send_upgrade_response(client);
 
 	return CIO_HTTP_CB_SKIP_BODY;
@@ -291,7 +309,7 @@ static void close_server_websocket(struct cio_websocket *s)
 	client->close(client);
 }
 
-enum cio_error cio_websocket_location_handler_init(struct cio_websocket_location_handler *handler, struct cio_eventloop *loop, const char *subprotocols[], unsigned int num_subprotocols, cio_websocket_on_connect on_connect)
+enum cio_error cio_websocket_location_handler_init(struct cio_websocket_location_handler *handler, uint64_t upgrade_response_timeout, struct cio_eventloop *loop, const char *subprotocols[], unsigned int num_subprotocols, cio_websocket_on_connect on_connect)
 {
 	handler->flags.current_header_field = 0;
 	handler->flags.ws_version_ok = 0;
@@ -310,6 +328,8 @@ enum cio_error cio_websocket_location_handler_init(struct cio_websocket_location
 	if (cio_unlikely(err != CIO_SUCCESS)) {
 		return err;
 	}
+
+	handler->write_response_timeout = upgrade_response_timeout;
 
 	return cio_websocket_init(&handler->websocket, true, on_connect, close_server_websocket);
 }
