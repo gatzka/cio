@@ -123,6 +123,20 @@ static uint8_t *bs_read_exactly_buffer;
 static size_t bs_read_exactly_buffer_size;
 static size_t bs_read_exactly_buffer_pos;
 
+static struct cio_timer *saved_timer;
+static timer_handler saved_handler;
+static void *saved_handler_context;
+
+static enum cio_error timer_expires_from_now_save(struct cio_timer *t, uint64_t timeout_ns, timer_handler handler, void *handler_context)
+{
+	(void)timeout_ns;
+	saved_timer = t;
+	saved_handler = handler;
+	saved_handler_context = handler_context;
+
+	return CIO_SUCCESS;
+}
+
 static void free_dummy_client(struct cio_socket *socket)
 {
 	struct cio_http_client *client = container_of(socket, struct cio_http_client, socket);
@@ -349,6 +363,16 @@ static enum cio_error bs_fake_write_error(struct cio_buffered_stream *bs, struct
 	return CIO_SUCCESS;
 }
 
+static enum cio_error bs_fake_write_later(struct cio_buffered_stream *bs, struct cio_write_buffer *buffer, cio_buffered_stream_write_handler handler, void *handler_context)
+{
+	(void)bs;
+	(void)buffer;
+	(void)handler;
+	(void)handler_context;
+
+	return CIO_SUCCESS;
+}
+
 static void init_request(const char **request, size_t lines)
 {
 	request_lines = request;
@@ -410,6 +434,8 @@ void setUp(void)
 
 	bs_close_fake.custom_fake = bs_close_ok;
 	bs_read_exactly_buffer_pos = 0;
+
+	timer_expires_from_now_fake.custom_fake = timer_expires_from_now_save;
 }
 
 void tearDown(void)
@@ -492,6 +518,51 @@ static void test_ws_location_write_error(void)
 	TEST_ASSERT_EQUAL_MESSAGE(1, bs_close_fake.call_count, "Stream was not closed in case of error!");
 }
 
+static void test_ws_location_response_write_timeout(void)
+{
+	uint8_t *close_frame;
+	uint8_t mask[4] = {0x1, 0x2, 0x3, 0x4};
+	uint8_t data[2] = {0x3, 0xe8};
+	bs_read_exactly_buffer_size = assemble_frame(WS_HEADER_FIN | CIO_WEBSOCKET_CLOSE_FRAME, mask, data, sizeof(data), &close_frame);
+
+	bs_read_exactly_buffer = close_frame;
+	bs_write_fake.custom_fake = bs_fake_write_later;
+
+	bs_read_exactly_fake.custom_fake = bs_read_exactly_from_buffer;
+
+	struct cio_http_server server;
+	enum cio_error err = cio_http_server_init(&server, 8080, &loop, serve_error, read_timeout, alloc_dummy_client, free_dummy_client);
+	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Server initialization failed!");
+
+	struct cio_http_location target;
+	err = cio_http_location_init(&target, REQUEST_TARGET, NULL, alloc_websocket_handler);
+	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Request target initialization failed!");
+
+	err = server.register_location(&server, &target);
+	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Register request target failed!");
+
+	err = server.serve(&server);
+	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Serving http failed!");
+
+	struct cio_socket *s = server.alloc_client();
+
+	const char *request[] = {
+	    "GET " REQUEST_TARGET " HTTP/1.1" CRLF,
+	    "Upgrade: websocket" CRLF,
+	    "Connection: Upgrade" CRLF,
+	    "Sec-WebSocket-Version: 13" CRLF,
+	    "Sec-WebSocket-Key: dGhlIHNhbXBsZSBub25jZQ==" CRLF,
+	    "Sec-WebSocket-Protocol: jet" CRLF,
+	    CRLF};
+
+	init_request(request, ARRAY_SIZE(request));
+	server.server_socket.handler(&server.server_socket, server.server_socket.handler_context, CIO_SUCCESS, s);
+	saved_handler(saved_timer, saved_handler_context, CIO_SUCCESS);
+
+	TEST_ASSERT_EQUAL_MESSAGE(1, timer_cancel_fake.call_count, "write timeout timer not cancelled!");
+	free(close_frame);
+}
+
 static void test_ws_location_close_in_onconnect(void)
 {
 	uint8_t *close_frame;
@@ -538,6 +609,8 @@ static void test_ws_location_close_in_onconnect(void)
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_WEBSOCKET_CLOSE_FRAME, on_control_fake.arg1_val, "websocket parameter of control callback is NULL");
 	TEST_ASSERT_EQUAL_MESSAGE(sizeof(data), on_control_fake.arg3_val, "data length parameter of control callback is not correct");
 	TEST_ASSERT_EQUAL_MESSAGE(1, read_handler_fake.call_count, "read callback was not called for last close frame");
+
+	TEST_ASSERT_EQUAL_MESSAGE(2, timer_cancel_fake.call_count, "write timeout timer not cancelled!");
 	free(close_frame);
 }
 
@@ -964,6 +1037,7 @@ static void test_init_timer_init_failed(void)
 int main(void)
 {
 	UNITY_BEGIN();
+	RUN_TEST(test_ws_location_response_write_timeout);
 	RUN_TEST(test_ws_location_close_in_onconnect);
 	RUN_TEST(test_ws_location_wrong_http_version);
 	RUN_TEST(test_ws_location_wrong_http_method);
