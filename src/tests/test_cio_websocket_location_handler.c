@@ -604,7 +604,7 @@ static void test_ws_location_write_timeout_expires_failure(void)
 	init_request(request, ARRAY_SIZE(request));
 	server.server_socket.handler(&server.server_socket, server.server_socket.handler_context, CIO_SUCCESS, s);
 
-	TEST_ASSERT_EQUAL_MESSAGE(2, timer_cancel_fake.call_count, "write timeout timer not cancelled!");
+	TEST_ASSERT_EQUAL_MESSAGE(1, timer_cancel_fake.call_count, "write timeout timer not cancelled!");
 	TEST_ASSERT_EQUAL_MESSAGE(2, timer_close_fake.call_count, "write timeout timer not closed!");
 	free(close_frame);
 }
