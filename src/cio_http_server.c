@@ -202,19 +202,13 @@ static int on_headers_complete(http_parser *parser)
 	struct cio_http_client *client = container_of(parser, struct cio_http_client, parser);
 	client->http_private.headers_complete = true;
 	client->content_length = parser->content_length;
-	if (parser->upgrade) {
-		enum cio_error err = client->http_private.read_header_timer.cancel(&client->http_private.read_header_timer);
-		if (cio_unlikely(err != CIO_SUCCESS)) {
-			struct cio_http_server *server = (struct cio_http_server *)parser->data;
-			handle_error(server, "Cancelling read timer in on_headers_complete failed, maybe not armed?");
-			client->write_header(client, CIO_HTTP_STATUS_INTERNAL_SERVER_ERROR);
-			return CIO_HTTP_CB_ERROR;
-		}
 
-		if (cio_unlikely(client->handler->on_headers_complete == NULL)) {
-			client->write_header(client, CIO_HTTP_STATUS_INTERNAL_SERVER_ERROR);
-			return 0;
-		}
+	enum cio_error err = client->http_private.read_header_timer.cancel(&client->http_private.read_header_timer);
+	if (cio_unlikely(err != CIO_SUCCESS)) {
+		struct cio_http_server *server = (struct cio_http_server *)parser->data;
+		handle_error(server, "Cancelling read timer in on_headers_complete failed, maybe not armed?");
+		client->write_header(client, CIO_HTTP_STATUS_INTERNAL_SERVER_ERROR);
+		return CIO_HTTP_CB_ERROR;
 	}
 
 	if (client->handler->on_headers_complete != NULL) {
@@ -239,18 +233,6 @@ static int on_header_value(http_parser *parser, const char *at, size_t length)
 static int on_message_complete(http_parser *parser)
 {
 	struct cio_http_client *client = container_of(parser, struct cio_http_client, parser);
-	if (parser->upgrade == 0) {
-		// In case of an upgraded connection, the read timeout timer was
-		// already cancelled in on_headers_complete.
-		enum cio_error err = client->http_private.read_header_timer.cancel(&client->http_private.read_header_timer);
-		if (cio_unlikely(err != CIO_SUCCESS)) {
-			struct cio_http_server *server = (struct cio_http_server *)parser->data;
-			handle_error(server, "Cancelling read timer in on_message_complete failed, maybe not armed?");
-			client->write_header(client, CIO_HTTP_STATUS_INTERNAL_SERVER_ERROR);
-			return CIO_HTTP_CB_ERROR;
-		}
-	}
-
 	return client->handler->on_message_complete(client);
 }
 
