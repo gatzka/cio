@@ -526,17 +526,20 @@ static void handle_accept(struct cio_server_socket *ss, void *handler_context, e
 
 	err = client->http_private.read_header_timer.expires_from_now(&client->http_private.read_header_timer, server->read_header_timeout_ns, client_timeout_handler, client);
 	if (cio_unlikely(err != CIO_SUCCESS)) {
-		goto init_err;
+		goto expires_fail;
 	}
 
 	client->http_private.finish_func = finish_request_line;
 	err = client->bs.read_until(&client->bs, &client->rb, CIO_CRLF, parse, client);
 	if (cio_unlikely(err != CIO_SUCCESS)) {
-		goto init_err;
+		goto read_until_fail;
 	}
 
 	return;
 
+read_until_fail:
+expires_fail:
+	client->http_private.read_header_timer.close(&client->http_private.read_header_timer);
 init_err:
 	handle_error(server, "client initialization failed");
 
