@@ -54,7 +54,7 @@ struct cio_http_client;
 struct cio_http_client_private {
 	struct cio_write_buffer wb_http_response_statusline;
 	struct cio_write_buffer wb_http_response_header_end;
-	struct cio_timer read_timer;
+	struct cio_timer read_header_timer;
 
 	bool headers_complete;
 	bool to_be_closed;
