@@ -137,7 +137,7 @@ static enum cio_http_cb_return handle_field(struct cio_http_client *client, cons
 	static const char ws_version[] = "Sec-WebSocket-Version";
 	static const char ws_protocol[] = "Sec-WebSocket-Protocol";
 
-	struct cio_websocket_location_handler *ws = container_of(client->handler, struct cio_websocket_location_handler, http_location);
+struct cio_websocket_location_handler *ws = container_of(client->handler, struct cio_websocket_location_handler, http_location);
 
 	if ((sizeof(sec_key) - 1 == length) && (cio_strncasecmp(at, sec_key, length) == 0)) {
 		ws->flags.current_header_field = CIO_WS_HEADER_SEC_WEBSOCKET_KEY;
@@ -309,7 +309,22 @@ static void close_server_websocket(struct cio_websocket *s)
 	client->close(client);
 }
 
-enum cio_error cio_websocket_location_handler_init(struct cio_websocket_location_handler *handler, uint64_t upgrade_response_timeout, struct cio_eventloop *loop, const char *subprotocols[], unsigned int num_subprotocols, cio_websocket_on_connect on_connect)
+static void free_resources(struct cio_http_location_handler *handler)
+{
+	struct cio_websocket_location_handler *wslh = container_of(handler, struct cio_websocket_location_handler, http_location);
+	wslh->write_response_timer.close(&wslh->write_response_timer);
+	if (wslh->location_handler_free != NULL) {
+		wslh->location_handler_free(wslh);
+	}
+}
+
+enum cio_error cio_websocket_location_handler_init(struct cio_websocket_location_handler *handler,
+												   uint64_t upgrade_response_timeout,
+												   struct cio_eventloop *loop,
+												   const char *subprotocols[],
+												   unsigned int num_subprotocols,
+												   cio_websocket_on_connect on_connect,
+												   void (*location_handler_free)(struct cio_websocket_location_handler *))
 {
 	handler->flags.current_header_field = 0;
 	handler->flags.ws_version_ok = 0;
@@ -318,11 +333,13 @@ enum cio_error cio_websocket_location_handler_init(struct cio_websocket_location
 	handler->subprotocols = subprotocols;
 	handler->number_subprotocols = num_subprotocols;
 	handler->sec_websocket_key[0] = 0;
+	handler->location_handler_free = location_handler_free;
 
 	cio_http_location_handler_init(&handler->http_location);
 	handler->http_location.on_header_field = handle_field;
 	handler->http_location.on_header_value = handle_value;
 	handler->http_location.on_headers_complete = handle_headers_complete;
+	handler->http_location.free = free_resources;
 
 	enum cio_error err = cio_timer_init(&handler->write_response_timer, loop, NULL);
 	if (cio_unlikely(err != CIO_SUCCESS)) {

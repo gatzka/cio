@@ -205,9 +205,9 @@ static enum cio_error cio_buffered_stream_init_ok(struct cio_buffered_stream *bs
 	return CIO_SUCCESS;
 }
 
-static void free_websocket_handler(struct cio_http_location_handler *handler)
+static void free_websocket_handler(struct cio_websocket_location_handler *wslh)
 {
-	struct ws_test_handler *h = container_of(handler, struct ws_test_handler, ws_handler);
+	struct ws_test_handler *h = container_of(wslh, struct ws_test_handler, ws_handler);
 	free(h);
 }
 
@@ -227,8 +227,7 @@ static struct cio_http_location_handler *alloc_websocket_handler(const void *con
 	} else {
 		static const char *subprotocols[2] = {"echo", "jet"};
 		static const uint64_t upgrade_timeout = UINT64_C(1000000000);
-		cio_websocket_location_handler_init(&handler->ws_handler, upgrade_timeout, &loop, subprotocols, ARRAY_SIZE(subprotocols), on_connect);
-		handler->ws_handler.http_location.free = free_websocket_handler;
+		cio_websocket_location_handler_init(&handler->ws_handler, upgrade_timeout, &loop, subprotocols, ARRAY_SIZE(subprotocols), on_connect, free_websocket_handler);
 		handler->ws_handler.websocket.on_control = on_control;
 		return &handler->ws_handler.http_location;
 	}
@@ -242,8 +241,7 @@ static struct cio_http_location_handler *alloc_websocket_handler_no_subprotocol(
 		return NULL;
 	} else {
 		static const uint64_t upgrade_timeout = UINT64_C(1000000000);
-		cio_websocket_location_handler_init(&handler->ws_handler, upgrade_timeout, &loop, NULL, 0, on_connect);
-		handler->ws_handler.http_location.free = free_websocket_handler;
+		cio_websocket_location_handler_init(&handler->ws_handler, upgrade_timeout, &loop, NULL, 0, on_connect, free_websocket_handler);
 		return &handler->ws_handler.http_location;
 	}
 }
@@ -1078,7 +1076,7 @@ static void test_init_timer_init_failed(void)
 	cio_timer_init_fake.custom_fake = cio_timer_init_failed;
 	struct cio_websocket_location_handler handler;
 	static const uint64_t upgrade_timeout = UINT64_C(1000000000);
-	enum cio_error err = cio_websocket_location_handler_init(&handler, upgrade_timeout, NULL, NULL, 0, NULL);
+	enum cio_error err = cio_websocket_location_handler_init(&handler, upgrade_timeout, NULL, NULL, 0, NULL, NULL);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_INVALID_ARGUMENT, err, "web socket handler initialization did not failed!");
 }
 

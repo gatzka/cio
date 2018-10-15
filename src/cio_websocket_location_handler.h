@@ -48,6 +48,8 @@ struct cio_websocket_location_handler {
 	 */
 	struct cio_http_location_handler http_location;
 
+	void (*location_handler_free)(struct cio_websocket_location_handler *);
+
 	uint8_t sec_websocket_key[SEC_WEB_SOCKET_KEY_LENGTH + SEC_WEB_SOCKET_GUID_LENGTH];
 
 	const char **subprotocols;
@@ -84,7 +86,13 @@ struct cio_websocket_location_handler {
  * @param on_connect Function that will be called if websocket is connected.
  * @return CIO_SUCCESS if no error occured.
  */
-enum cio_error cio_websocket_location_handler_init(struct cio_websocket_location_handler *handler, uint64_t upgrade_response_timeout, struct cio_eventloop *loop, const char *subprotocols[], unsigned int num_subprotocols, cio_websocket_on_connect on_connect);
+enum cio_error cio_websocket_location_handler_init(struct cio_websocket_location_handler *handler,
+												   uint64_t upgrade_response_timeout,
+												   struct cio_eventloop *loop, const char *subprotocols[],
+												   unsigned int num_subprotocols,
+												   cio_websocket_on_connect on_connect,
+												   void (*location_handler_free)(struct cio_websocket_location_handler *));
+
 
 #ifdef __cplusplus
 }
