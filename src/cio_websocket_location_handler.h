@@ -84,6 +84,9 @@ struct cio_websocket_location_handler {
  * available as long as this cio_websocket_location_handler exists!
  * @param num_subprotocols The number of entries @p subprotocols contains.
  * @param on_connect Function that will be called if websocket is connected.
+ * @param location_handler_free This Function will be called if the client connection for this handler is closed.
+ * After this function is called, the memory @p handler points to will no longer be accessed.
+ * Could be @c NULL.
  * @return CIO_SUCCESS if no error occured.
  */
 enum cio_error cio_websocket_location_handler_init(struct cio_websocket_location_handler *handler,
