@@ -563,6 +563,54 @@ static void test_ws_location_response_write_timeout(void)
 	free(close_frame);
 }
 
+static void test_ws_location_write_timeout_expires_failure(void)
+{
+	uint8_t *close_frame;
+	uint8_t mask[4] = {0x1, 0x2, 0x3, 0x4};
+	uint8_t data[2] = {0x3, 0xe8};
+	bs_read_exactly_buffer_size = assemble_frame(WS_HEADER_FIN | CIO_WEBSOCKET_CLOSE_FRAME, mask, data, sizeof(data), &close_frame);
+
+	bs_read_exactly_buffer = close_frame;
+	bs_write_fake.custom_fake = bs_fake_write;
+	bs_read_exactly_fake.custom_fake = bs_read_exactly_from_buffer;
+	timer_expires_from_now_fake.custom_fake = NULL;
+
+	enum cio_error error_seq[] = {CIO_SUCCESS, CIO_INVALID_ARGUMENT};
+	SET_RETURN_SEQ(timer_expires_from_now, error_seq, ARRAY_SIZE(error_seq));
+
+	struct cio_http_server server;
+	enum cio_error err = cio_http_server_init(&server, 8080, &loop, serve_error, read_timeout, alloc_dummy_client, free_dummy_client);
+	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Server initialization failed!");
+
+	struct cio_http_location target;
+	err = cio_http_location_init(&target, REQUEST_TARGET, NULL, alloc_websocket_handler);
+	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Request target initialization failed!");
+
+	err = server.register_location(&server, &target);
+	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Register request target failed!");
+
+	err = server.serve(&server);
+	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Serving http failed!");
+
+	struct cio_socket *s = server.alloc_client();
+
+	const char *request[] = {
+		"GET " REQUEST_TARGET " HTTP/1.1" CRLF,
+		"Upgrade: websocket" CRLF,
+		"Connection: Upgrade" CRLF,
+		"Sec-WebSocket-Version: 13" CRLF,
+		"Sec-WebSocket-Key: dGhlIHNhbXBsZSBub25jZQ==" CRLF,
+		"Sec-WebSocket-Protocol: jet" CRLF,
+		CRLF};
+
+	init_request(request, ARRAY_SIZE(request));
+	server.server_socket.handler(&server.server_socket, server.server_socket.handler_context, CIO_SUCCESS, s);
+
+	TEST_ASSERT_EQUAL_MESSAGE(2, timer_cancel_fake.call_count, "write timeout timer not cancelled!");
+	TEST_ASSERT_EQUAL_MESSAGE(2, timer_close_fake.call_count, "write timeout timer not closed!");
+	free(close_frame);
+}
+
 static void test_ws_location_close_in_onconnect(void)
 {
 	uint8_t *close_frame;
@@ -682,8 +730,8 @@ static void test_ws_location_wrong_http_version(void)
 
 struct protocol_test {
 	const char *protocol_line;
-	int status_code;
 	cio_http_alloc_handler handler;
+	int status_code;
 };
 
 static void test_ws_location_subprotocols(void)
@@ -1037,6 +1085,7 @@ static void test_init_timer_init_failed(void)
 int main(void)
 {
 	UNITY_BEGIN();
+	RUN_TEST(test_ws_location_write_timeout_expires_failure);
 	RUN_TEST(test_ws_location_response_write_timeout);
 	RUN_TEST(test_ws_location_close_in_onconnect);
 	RUN_TEST(test_ws_location_wrong_http_version);

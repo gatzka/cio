@@ -70,11 +70,11 @@ static void close_bs(struct cio_http_client *client)
 
 static void close_client(struct cio_http_client *client)
 {
-	if (cio_likely(client->handler != NULL)) {
+	client->http_private.read_header_timer.close(&client->http_private.read_header_timer);
+	if (cio_likely(client->handler != NULL && (client->handler->free != NULL))) {
 		client->handler->free(client->handler);
 	}
 
-	client->http_private.read_header_timer.close(&client->http_private.read_header_timer);
 	close_bs(client);
 }
 
@@ -203,19 +203,23 @@ static int on_headers_complete(http_parser *parser)
 	client->http_private.headers_complete = true;
 	client->content_length = parser->content_length;
 
+	int ret;
 	enum cio_error err = client->http_private.read_header_timer.cancel(&client->http_private.read_header_timer);
 	if (cio_unlikely(err != CIO_SUCCESS)) {
 		struct cio_http_server *server = (struct cio_http_server *)parser->data;
 		handle_error(server, "Cancelling read timer in on_headers_complete failed, maybe not armed?");
 		client->write_header(client, CIO_HTTP_STATUS_INTERNAL_SERVER_ERROR);
-		return CIO_HTTP_CB_ERROR;
+		ret = CIO_HTTP_CB_ERROR;
+	} else {
+		if (client->handler->on_headers_complete != NULL) {
+			ret = client->handler->on_headers_complete(client);
+		} else {
+			ret = 0;
+		}
 	}
 
-	if (client->handler->on_headers_complete != NULL) {
-		return client->handler->on_headers_complete(client);
-	}
-
-	return 0;
+	client->http_private.read_header_timer.close(&client->http_private.read_header_timer);
+	return ret;
 }
 
 static int on_header_field(http_parser *parser, const char *at, size_t length)
