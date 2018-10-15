@@ -218,7 +218,6 @@ static int on_headers_complete(http_parser *parser)
 		}
 	}
 
-	client->http_private.read_header_timer.close(&client->http_private.read_header_timer);
 	return ret;
 }
 
