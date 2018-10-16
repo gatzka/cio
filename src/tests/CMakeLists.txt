@@ -6,8 +6,10 @@ include(compiler_settings)
 include(generateVersion)
 include(sanitizer)
 
-GenerateVersion(../version ${PROJECT_NAME})
-configure_file(../cio_version.h.in ${PROJECT_BINARY_DIR}/generated/cio_version.h)
+if (NOT DEFINED VERSION_FILE_CONFIGURED)
+    GenerateVersion(../version ${PROJECT_NAME})
+    configure_file(../cio_version.h.in ${CMAKE_BINARY_DIR}/generated/cio_version.h)
+endif()
 
 string(COMPARE EQUAL "${CMAKE_SYSTEM_NAME}" "Linux" is_linux)
 string(COMPARE EQUAL "${CMAKE_SYSTEM_NAME}" "Windows" is_windows)
@@ -26,7 +28,7 @@ endif()
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../fff/)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../unity/src/)
-include_directories(${PROJECT_BINARY_DIR}/generated/)
+include_directories(${CMAKE_BINARY_DIR}/generated/)
 
 if(CMAKE_C_COMPILER_ID STREQUAL "GNU")
 	if(CMAKE_BUILD_TYPE MATCHES Debug)
