@@ -605,8 +605,8 @@ static void test_ws_location_write_timeout_expires_failure(void)
 	bs_read_exactly_fake.custom_fake = bs_read_exactly_from_buffer;
 
 	enum cio_error (*expires_fakes[])(struct cio_timer *, uint64_t, timer_handler, void *) = {
-		timer_expires_from_now_save,
-		timer_expires_from_error,
+	    timer_expires_from_now_save,
+	    timer_expires_from_error,
 	};
 
 	timer_expires_from_now_fake.custom_fake = NULL;
@@ -725,13 +725,13 @@ static void test_static_ws_location_close_in_onconnect(void)
 	struct cio_socket *s = server.alloc_client();
 
 	const char *request[] = {
-		"GET " REQUEST_TARGET " HTTP/1.1" CRLF,
-		"Upgrade: websocket" CRLF,
-		"Connection: Upgrade" CRLF,
-		"Sec-WebSocket-Version: 13" CRLF,
-		"Sec-WebSocket-Key: dGhlIHNhbXBsZSBub25jZQ==" CRLF,
-		"Sec-WebSocket-Protocol: jet" CRLF,
-		CRLF};
+	    "GET " REQUEST_TARGET " HTTP/1.1" CRLF,
+	    "Upgrade: websocket" CRLF,
+	    "Connection: Upgrade" CRLF,
+	    "Sec-WebSocket-Version: 13" CRLF,
+	    "Sec-WebSocket-Key: dGhlIHNhbXBsZSBub25jZQ==" CRLF,
+	    "Sec-WebSocket-Protocol: jet" CRLF,
+	    CRLF};
 
 	init_request(request, ARRAY_SIZE(request));
 	server.server_socket.handler(&server.server_socket, server.server_socket.handler_context, CIO_SUCCESS, s);
