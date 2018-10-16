@@ -90,12 +90,11 @@ struct cio_websocket_location_handler {
  * @return CIO_SUCCESS if no error occured.
  */
 enum cio_error cio_websocket_location_handler_init(struct cio_websocket_location_handler *handler,
-												   uint64_t upgrade_response_timeout,
-												   struct cio_eventloop *loop, const char *subprotocols[],
-												   unsigned int num_subprotocols,
-												   cio_websocket_on_connect on_connect,
-												   void (*location_handler_free)(struct cio_websocket_location_handler *));
-
+                                                   uint64_t upgrade_response_timeout,
+                                                   struct cio_eventloop *loop, const char *subprotocols[],
+                                                   unsigned int num_subprotocols,
+                                                   cio_websocket_on_connect on_connect,
+                                                   void (*location_handler_free)(struct cio_websocket_location_handler *));
 
 #ifdef __cplusplus
 }

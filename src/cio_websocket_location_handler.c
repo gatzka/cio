@@ -137,7 +137,7 @@ static enum cio_http_cb_return handle_field(struct cio_http_client *client, cons
 	static const char ws_version[] = "Sec-WebSocket-Version";
 	static const char ws_protocol[] = "Sec-WebSocket-Protocol";
 
-struct cio_websocket_location_handler *ws = container_of(client->handler, struct cio_websocket_location_handler, http_location);
+	struct cio_websocket_location_handler *ws = container_of(client->handler, struct cio_websocket_location_handler, http_location);
 
 	if ((sizeof(sec_key) - 1 == length) && (cio_strncasecmp(at, sec_key, length) == 0)) {
 		ws->flags.current_header_field = CIO_WS_HEADER_SEC_WEBSOCKET_KEY;
@@ -290,10 +290,9 @@ static enum cio_http_cb_return handle_headers_complete(struct cio_http_client *c
 		return CIO_HTTP_CB_ERROR;
 	}
 
-
 	struct cio_websocket_location_handler *handler = container_of(client->handler, struct cio_websocket_location_handler, http_location);
 	if (cio_unlikely(handler->write_response_timer.expires_from_now(&handler->write_response_timer, handler->write_response_timeout,
-	    write_response_timeout, client) != CIO_SUCCESS)) {
+	                                                                write_response_timeout, client) != CIO_SUCCESS)) {
 		return CIO_HTTP_CB_ERROR;
 	}
 
@@ -319,12 +318,12 @@ static void free_resources(struct cio_http_location_handler *handler)
 }
 
 enum cio_error cio_websocket_location_handler_init(struct cio_websocket_location_handler *handler,
-												   uint64_t upgrade_response_timeout,
-												   struct cio_eventloop *loop,
-												   const char *subprotocols[],
-												   unsigned int num_subprotocols,
-												   cio_websocket_on_connect on_connect,
-												   void (*location_handler_free)(struct cio_websocket_location_handler *))
+                                                   uint64_t upgrade_response_timeout,
+                                                   struct cio_eventloop *loop,
+                                                   const char *subprotocols[],
+                                                   unsigned int num_subprotocols,
+                                                   cio_websocket_on_connect on_connect,
+                                                   void (*location_handler_free)(struct cio_websocket_location_handler *))
 {
 	handler->flags.current_header_field = 0;
 	handler->flags.ws_version_ok = 0;

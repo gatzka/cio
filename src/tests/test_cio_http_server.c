@@ -254,7 +254,6 @@ static enum cio_http_cb_return header_complete_write_response(struct cio_http_cl
 	return CIO_HTTP_CB_SUCCESS;
 }
 
-
 static enum cio_http_cb_return message_complete_write_header(struct cio_http_client *c)
 {
 	c->write_header(c, CIO_HTTP_STATUS_OK);

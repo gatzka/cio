@@ -593,13 +593,13 @@ static void test_ws_location_write_timeout_expires_failure(void)
 	struct cio_socket *s = server.alloc_client();
 
 	const char *request[] = {
-		"GET " REQUEST_TARGET " HTTP/1.1" CRLF,
-		"Upgrade: websocket" CRLF,
-		"Connection: Upgrade" CRLF,
-		"Sec-WebSocket-Version: 13" CRLF,
-		"Sec-WebSocket-Key: dGhlIHNhbXBsZSBub25jZQ==" CRLF,
-		"Sec-WebSocket-Protocol: jet" CRLF,
-		CRLF};
+	    "GET " REQUEST_TARGET " HTTP/1.1" CRLF,
+	    "Upgrade: websocket" CRLF,
+	    "Connection: Upgrade" CRLF,
+	    "Sec-WebSocket-Version: 13" CRLF,
+	    "Sec-WebSocket-Key: dGhlIHNhbXBsZSBub25jZQ==" CRLF,
+	    "Sec-WebSocket-Protocol: jet" CRLF,
+	    CRLF};
 
 	init_request(request, ARRAY_SIZE(request));
 	server.server_socket.handler(&server.server_socket, server.server_socket.handler_context, CIO_SUCCESS, s);
