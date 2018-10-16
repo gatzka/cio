@@ -90,6 +90,13 @@ struct cio_http_server {
 	 */
 	enum cio_error (*register_location)(struct cio_http_server *server, struct cio_http_location *location);
 
+	/**
+	 * @anchor cio_http_server_shutdown
+	 * @brief Shuts down the HTTP server, including the underlying server socket.
+	 *
+	 * @param server The HTTP server which should be shut down.
+	 * @return ::CIO_SUCCESS if the @p location was registered correctly.
+	 */
 	enum cio_error (*shutdown)(struct cio_http_server *server);
 
 	/**
