@@ -1,5 +1,6 @@
 var NAVTREEINDEX1 =
 {
+"cio__websocket_8c.html#a83e7355c03e5be2bcd43002a480fa19d":[1,0,28,47],
 "cio__websocket_8c.html#a85f03002fbf771a41928d5a1b5cb4851":[1,0,28,25],
 "cio__websocket_8c.html#a8ce63f0697fc1e3063d9111957342c81":[1,0,28,46],
 "cio__websocket_8c.html#a9535efa920691dfc80882d2c56430b08":[1,0,28,10],
@@ -110,8 +111,8 @@ var NAVTREEINDEX1 =
 "files.html":[1,0],
 "functions.html":[0,2,0],
 "functions_vars.html":[0,2,1],
-"globals.html":[1,1,0,0],
 "globals.html":[1,1,0],
+"globals.html":[1,1,0,0],
 "globals_b.html":[1,1,0,1],
 "globals_c.html":[1,1,0,2],
 "globals_d.html":[1,1,0,3],
@@ -185,6 +186,7 @@ var NAVTREEINDEX1 =
 "structcio__http__server.html":[0,0,5],
 "structcio__http__server.html#a11bc709795ea6922bc94f6090a651ecb":[0,0,5,1],
 "structcio__http__server.html#ae4f8a7e10057f59c881f264b205e68ba":[0,0,5,0],
+"structcio__http__server.html#af73785c71e3b0078b5480ae7006bf744":[0,0,5,2],
 "structcio__io__stream.html":[0,0,6],
 "structcio__io__stream.html#a10b56600fd43cb7f5f1a16c5e37c1c9a":[0,0,6,2],
 "structcio__io__stream.html#aa24c47612ee31a0aa9d12dfecb9f6567":[0,0,6,1],
@@ -247,7 +249,5 @@ var NAVTREEINDEX1 =
 "structcio__websocket__private.html#a9713b99ac7dde95ddb5f824302835809":[0,0,15,4],
 "structcio__websocket__private.html#ab0bcb7ddd9193551f9d521cf5e661b13":[0,0,15,11],
 "structcio__websocket__private.html#ab4860faa72ab9d8a75a65e1376d00089":[0,0,15,24],
-"structcio__websocket__private.html#abce150c320dfcf5ec94981c6f689049f":[0,0,15,16],
-"structcio__websocket__private.html#ac1cbc7eecf661374affbda8bcf93fc96":[0,0,15,13],
-"structcio__websocket__private.html#ac449ba2534bcd9691cedd3d4667f827f":[0,0,15,3]
+"structcio__websocket__private.html#abce150c320dfcf5ec94981c6f689049f":[0,0,15,16]
 };

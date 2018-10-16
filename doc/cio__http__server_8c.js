@@ -30,6 +30,7 @@ var cio__http__server_8c =
     [ "register_handler", "cio__http__server_8c.html#a13cf7e5d7190f56b738755cae1c2e88f", null ],
     [ "response_written", "cio__http__server_8c.html#acb841cfd1b5e4639942d9aea132dd95e", null ],
     [ "serve", "cio__http__server_8c.html#a352acab6b89b39f3b0fa3f9df80a142a", null ],
+    [ "shutdown_server", "cio__http__server_8c.html#a5470e5c86a087962f3d035af64ab4361", null ],
     [ "write_header", "cio__http__server_8c.html#ab461e02391fd15a3d5cda3d1fbff7b99", null ],
     [ "write_response", "cio__http__server_8c.html#a986951bc36efbbe39bfa91781cab7b52", null ]
 ];
