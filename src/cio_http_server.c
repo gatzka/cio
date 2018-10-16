@@ -60,7 +60,6 @@ static void handle_error(struct cio_http_server *server, const char *reason)
 
 static void close_bs(struct cio_http_client *client)
 {
-
 	enum cio_error err = client->bs.close(&client->bs);
 	if (cio_unlikely(err != CIO_SUCCESS)) {
 		struct cio_http_server *server = (struct cio_http_server *)client->parser.data;
@@ -533,12 +532,7 @@ init_err:
 
 static enum cio_error serve(struct cio_http_server *server)
 {
-	enum cio_error err = cio_server_socket_init(&server->server_socket, server->loop, 5, server->alloc_client, server->free_client, NULL);
-	if (cio_unlikely(err != CIO_SUCCESS)) {
-		return err;
-	}
-
-	err = server->server_socket.set_reuse_address(&server->server_socket, true);
+	enum cio_error err = server->server_socket.set_reuse_address(&server->server_socket, true);
 	if (cio_unlikely(err != CIO_SUCCESS)) {
 		goto close_socket;
 	}
@@ -572,6 +566,12 @@ static enum cio_error register_handler(struct cio_http_server *server, struct ci
 	return CIO_SUCCESS;
 }
 
+static enum cio_error shutdown_server(struct cio_http_server *server)
+{
+	server->server_socket.close(&server->server_socket);
+	return CIO_SUCCESS;
+}
+
 enum cio_error cio_http_server_init(struct cio_http_server *server,
                                     uint16_t port,
                                     struct cio_eventloop *loop,
@@ -593,6 +593,8 @@ enum cio_error cio_http_server_init(struct cio_http_server *server,
 	server->first_handler = NULL;
 	server->num_handlers = 0;
 	server->on_error = on_error;
+	server->shutdown = shutdown_server;
 	server->read_header_timeout_ns = read_header_timeout_ns;
-	return CIO_SUCCESS;
+
+	return cio_server_socket_init(&server->server_socket, server->loop, 5, server->alloc_client, server->free_client, NULL);
 }

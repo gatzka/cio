@@ -43,6 +43,7 @@
 #endif
 
 static struct cio_eventloop loop;
+static struct cio_http_server server;
 
 static const size_t read_buffer_size = 2000;
 
@@ -261,13 +262,14 @@ static void free_http_client(struct cio_socket *socket)
 static void sighandler(int signum)
 {
 	(void)signum;
+	server.shutdown(&server);
 	cio_eventloop_cancel(&loop);
 }
 
-static void serve_error(struct cio_http_server *server, const char *reason)
+static void serve_error(struct cio_http_server *s, const char *reason)
 {
 	fprintf(stderr, "http server error: %s\n", reason);
-	server->server_socket.close(&server->server_socket);
+	s->server_socket.close(&s->server_socket);
 }
 
 int main(void)
@@ -287,7 +289,6 @@ int main(void)
 		return EXIT_FAILURE;
 	}
 
-	struct cio_http_server server;
 	err = cio_http_server_init(&server, 8080, &loop, serve_error, read_timeout, alloc_http_client, free_http_client);
 	if (err != CIO_SUCCESS) {
 		ret = EXIT_FAILURE;

@@ -38,6 +38,7 @@
 #include "cio_util.h"
 
 static struct cio_eventloop loop;
+struct cio_http_server http_server;
 
 #define read_buffer_size (16 * 1024 * 1024)
 
@@ -167,8 +168,7 @@ int main(void)
 		return EXIT_FAILURE;
 	}
 
-	struct cio_http_server server;
-	err = cio_http_server_init(&server, 9001, &loop, serve_error, read_timeout, alloc_http_client, free_http_client);
+	err = cio_http_server_init(&http_server, 9001, &loop, serve_error, read_timeout, alloc_http_client, free_http_client);
 	if (err != CIO_SUCCESS) {
 		ret = EXIT_FAILURE;
 		goto destroy_loop;
@@ -176,9 +176,9 @@ int main(void)
 
 	struct cio_http_location autobahn_target;
 	cio_http_location_init(&autobahn_target, "/", NULL, alloc_autobahn_handler);
-	server.register_location(&server, &autobahn_target);
+	http_server.register_location(&http_server, &autobahn_target);
 
-	err = server.serve(&server);
+	err = http_server.serve(&http_server);
 	if (err != CIO_SUCCESS) {
 		ret = EXIT_FAILURE;
 		goto destroy_loop;

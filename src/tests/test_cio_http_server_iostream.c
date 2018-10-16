@@ -830,23 +830,13 @@ static void test_serve_timer_init_fails_no_serve_error_cb(void)
 	TEST_ASSERT_EQUAL_MESSAGE(1, client_socket_close_fake.call_count, "Client socket was not closed!");
 }
 
-static void test_serve_init_fails(void)
+static void test_server_init_fails(void)
 {
 	cio_server_socket_init_fake.custom_fake = cio_server_socket_init_fails;
 
 	struct cio_http_server server;
 	enum cio_error err = cio_http_server_init(&server, 8080, &loop, serve_error, read_timeout, alloc_dummy_client, free_dummy_client);
-	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Server initialization failed!");
-
-	struct cio_http_location target;
-	err = cio_http_location_init(&target, "/foo", NULL, alloc_dummy_handler);
-	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Request target initialization failed!");
-
-	err = server.register_location(&server, &target);
-	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Register request target failed!");
-
-	err = server.serve(&server);
-	TEST_ASSERT_NOT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Serving http did not fail!");
+	TEST_ASSERT_NOT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Server initialization did not fail!");
 }
 
 static void test_serve_init_fails_reuse_address(void)
@@ -1122,7 +1112,7 @@ int main(void)
 	RUN_TEST(test_serve_with_wrong_header_fields);
 	RUN_TEST(test_serve_timer_init_fails);
 	RUN_TEST(test_serve_timer_init_fails_no_serve_error_cb);
-	RUN_TEST(test_serve_init_fails);
+	RUN_TEST(test_server_init_fails);
 	RUN_TEST(test_serve_init_fails_reuse_address);
 	RUN_TEST(test_serve_init_fails_bind);
 	RUN_TEST(test_serve_init_fails_accept);

@@ -559,6 +559,22 @@ void tearDown(void)
 {
 }
 
+static void test_init_and_shutdown(void)
+{
+	cio_server_socket_init_fake.custom_fake = cio_server_socket_init_ok;
+	socket_accept_fake.custom_fake = accept_save_handler;
+
+	header_complete_fake.custom_fake = header_complete_write_response;
+
+	struct cio_http_server server;
+	enum cio_error err = cio_http_server_init(&server, 8080, &loop, serve_error, read_timeout, alloc_dummy_client, free_dummy_client);
+	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Server initialization failed!");
+	err = server.serve(&server);
+	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "HTTP serving failed!");
+	err = server.shutdown(&server);
+	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Server shutdown failed!");
+}
+
 static void test_serve_first_line_fails(void)
 {
 	cio_server_socket_init_fake.custom_fake = cio_server_socket_init_ok;
@@ -1719,6 +1735,7 @@ static void test_serve_upgrade_cancel_fails(void)
 int main(void)
 {
 	UNITY_BEGIN();
+	RUN_TEST(test_init_and_shutdown);
 	RUN_TEST(test_serve_first_line_fails);
 	RUN_TEST(test_serve_first_line_fails_write_blocks);
 	RUN_TEST(test_serve_second_line_fails);
