@@ -571,6 +571,12 @@ static enum cio_error register_handler(struct cio_http_server *server, struct ci
 	return CIO_SUCCESS;
 }
 
+static enum cio_error shutdown_server(struct cio_http_server *server)
+{
+	server->server_socket.close(&server->server_socket);
+	return CIO_SUCCESS;
+}
+
 enum cio_error cio_http_server_init(struct cio_http_server *server,
                                     uint16_t port,
                                     struct cio_eventloop *loop,
@@ -592,6 +598,7 @@ enum cio_error cio_http_server_init(struct cio_http_server *server,
 	server->first_handler = NULL;
 	server->num_handlers = 0;
 	server->on_error = on_error;
+	server->shutdown = shutdown_server;
 	server->read_header_timeout_ns = read_header_timeout_ns;
 	return CIO_SUCCESS;
 }
