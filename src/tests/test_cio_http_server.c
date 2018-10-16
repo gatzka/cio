@@ -1680,10 +1680,10 @@ static void test_serve_upgrade_static_location(void)
 	struct cio_socket *s = server.alloc_client();
 
 	const char *request[] = {
-		HTTP_GET " " REQUEST_TARGET " " HTTP_11 CRLF,
-		"Upgrade: websocket" CRLF,
-		"Connection: Upgrade" CRLF,
-		CRLF};
+	    HTTP_GET " " REQUEST_TARGET " " HTTP_11 CRLF,
+	    "Upgrade: websocket" CRLF,
+	    "Connection: Upgrade" CRLF,
+	    CRLF};
 
 	init_request(request, ARRAY_SIZE(request));
 	server.server_socket.handler(&server.server_socket, server.server_socket.handler_context, CIO_SUCCESS, s);
