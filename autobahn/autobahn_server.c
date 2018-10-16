@@ -42,6 +42,7 @@ static struct cio_eventloop loop;
 #define read_buffer_size (16 * 1024 * 1024)
 
 static const uint64_t read_timeout = UINT64_C(5) * UINT64_C(1000) * UINT64_C(1000) * UINT64_C(1000);
+static const uint64_t upgrade_timeout = UINT64_C(1000000000);
 
 struct ws_autobahn_handler {
 	struct cio_websocket_location_handler ws_handler;
@@ -50,9 +51,9 @@ struct ws_autobahn_handler {
 	uint8_t echo_buffer[read_buffer_size];
 };
 
-static void free_autobahn_handler(struct cio_http_location_handler *handler)
+static void free_autobahn_handler(struct cio_websocket_location_handler *wslh)
 {
-	struct ws_autobahn_handler *h = container_of(handler, struct ws_autobahn_handler, ws_handler);
+	struct ws_autobahn_handler *h = container_of(wslh, struct ws_autobahn_handler, ws_handler);
 	free(h);
 }
 
@@ -115,9 +116,8 @@ static struct cio_http_location_handler *alloc_autobahn_handler(const void *conf
 		return NULL;
 	}
 
-	cio_websocket_location_handler_init(&handler->ws_handler, NULL, 0, on_connect);
+	cio_websocket_location_handler_init(&handler->ws_handler, upgrade_timeout, &loop, NULL, 0, on_connect, free_autobahn_handler);
 	handler->ws_handler.websocket.on_error = on_error;
-	handler->ws_handler.http_location.free = free_autobahn_handler;
 	return &handler->ws_handler.http_location;
 }
 

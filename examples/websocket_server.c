@@ -47,6 +47,7 @@ static struct cio_eventloop loop;
 static const size_t read_buffer_size = 2000;
 
 static const uint64_t read_timeout = UINT64_C(5) * UINT64_C(1000) * UINT64_C(1000) * UINT64_C(1000);
+static const uint64_t upgrade_timeout = UINT64_C(1000000000);
 static const uint64_t ping_period_ns = UINT64_C(1) * UINT64_C(1000) * UINT64_C(1000) * UINT64_C(1000);
 
 struct ws_echo_handler {
@@ -57,9 +58,9 @@ struct ws_echo_handler {
 	struct cio_timer ping_timer;
 };
 
-static void free_websocket_handler(struct cio_http_location_handler *handler)
+static void free_websocket_handler(struct cio_websocket_location_handler *wslh)
 {
-	struct ws_echo_handler *h = container_of(handler, struct ws_echo_handler, ws_handler);
+	struct ws_echo_handler *h = container_of(wslh, struct ws_echo_handler, ws_handler);
 	h->ping_timer.close(&h->ping_timer);
 	free(h);
 }
@@ -235,9 +236,8 @@ static struct cio_http_location_handler *alloc_websocket_handler(const void *con
 	}
 
 	static const char *subprotocols[2] = {"echo", "jet"};
-	cio_websocket_location_handler_init(&handler->ws_handler, subprotocols, ARRAY_SIZE(subprotocols), on_connect);
+	cio_websocket_location_handler_init(&handler->ws_handler, upgrade_timeout, &loop, subprotocols, ARRAY_SIZE(subprotocols), on_connect, free_websocket_handler);
 	handler->ws_handler.websocket.on_control = on_control;
-	handler->ws_handler.http_location.free = free_websocket_handler;
 	return &handler->ws_handler.http_location;
 }
 

@@ -70,11 +70,11 @@ static void close_bs(struct cio_http_client *client)
 
 static void close_client(struct cio_http_client *client)
 {
-	if (cio_likely(client->handler != NULL)) {
+	client->http_private.read_header_timer.close(&client->http_private.read_header_timer);
+	if (cio_likely(client->handler != NULL && (client->handler->free != NULL))) {
 		client->handler->free(client->handler);
 	}
 
-	client->http_private.read_timer.close(&client->http_private.read_timer);
 	close_bs(client);
 }
 
@@ -202,26 +202,23 @@ static int on_headers_complete(http_parser *parser)
 	struct cio_http_client *client = container_of(parser, struct cio_http_client, parser);
 	client->http_private.headers_complete = true;
 	client->content_length = parser->content_length;
-	if (parser->upgrade) {
-		enum cio_error err = client->http_private.read_timer.cancel(&client->http_private.read_timer);
-		if (cio_unlikely(err != CIO_SUCCESS)) {
-			struct cio_http_server *server = (struct cio_http_server *)parser->data;
-			handle_error(server, "Cancelling read timer in on_headers_complete failed, maybe not armed?");
-			client->write_header(client, CIO_HTTP_STATUS_INTERNAL_SERVER_ERROR);
-			return CIO_HTTP_CB_ERROR;
-		}
 
-		if (cio_unlikely(client->handler->on_headers_complete == NULL)) {
-			client->write_header(client, CIO_HTTP_STATUS_INTERNAL_SERVER_ERROR);
-			return 0;
+	int ret;
+	enum cio_error err = client->http_private.read_header_timer.cancel(&client->http_private.read_header_timer);
+	if (cio_unlikely(err != CIO_SUCCESS)) {
+		struct cio_http_server *server = (struct cio_http_server *)parser->data;
+		handle_error(server, "Cancelling read timer in on_headers_complete failed, maybe not armed?");
+		client->write_header(client, CIO_HTTP_STATUS_INTERNAL_SERVER_ERROR);
+		ret = CIO_HTTP_CB_ERROR;
+	} else {
+		if (client->handler->on_headers_complete != NULL) {
+			ret = client->handler->on_headers_complete(client);
+		} else {
+			ret = 0;
 		}
 	}
 
-	if (client->handler->on_headers_complete != NULL) {
-		return client->handler->on_headers_complete(client);
-	}
-
-	return 0;
+	return ret;
 }
 
 static int on_header_field(http_parser *parser, const char *at, size_t length)
@@ -239,18 +236,6 @@ static int on_header_value(http_parser *parser, const char *at, size_t length)
 static int on_message_complete(http_parser *parser)
 {
 	struct cio_http_client *client = container_of(parser, struct cio_http_client, parser);
-	if (parser->upgrade == 0) {
-		// In case of an upgraded connection, the read timeout timer was
-		// already cancelled in on_headers_complete.
-		enum cio_error err = client->http_private.read_timer.cancel(&client->http_private.read_timer);
-		if (cio_unlikely(err != CIO_SUCCESS)) {
-			struct cio_http_server *server = (struct cio_http_server *)parser->data;
-			handle_error(server, "Cancelling read timer in on_message_complete failed, maybe not armed?");
-			client->write_header(client, CIO_HTTP_STATUS_INTERNAL_SERVER_ERROR);
-			return CIO_HTTP_CB_ERROR;
-		}
-	}
-
 	return client->handler->on_message_complete(client);
 }
 
@@ -519,24 +504,27 @@ static void handle_accept(struct cio_server_socket *ss, void *handler_context, e
 		return;
 	}
 
-	err = cio_timer_init(&client->http_private.read_timer, server->loop, NULL);
+	err = cio_timer_init(&client->http_private.read_header_timer, server->loop, NULL);
 	if (cio_unlikely(err != CIO_SUCCESS)) {
 		goto init_err;
 	}
 
-	err = client->http_private.read_timer.expires_from_now(&client->http_private.read_timer, server->read_header_timeout_ns, client_timeout_handler, client);
+	err = client->http_private.read_header_timer.expires_from_now(&client->http_private.read_header_timer, server->read_header_timeout_ns, client_timeout_handler, client);
 	if (cio_unlikely(err != CIO_SUCCESS)) {
-		goto init_err;
+		goto expires_fail;
 	}
 
 	client->http_private.finish_func = finish_request_line;
 	err = client->bs.read_until(&client->bs, &client->rb, CIO_CRLF, parse, client);
 	if (cio_unlikely(err != CIO_SUCCESS)) {
-		goto init_err;
+		goto read_until_fail;
 	}
 
 	return;
 
+read_until_fail:
+expires_fail:
+	client->http_private.read_header_timer.close(&client->http_private.read_header_timer);
 init_err:
 	handle_error(server, "client initialization failed");
 

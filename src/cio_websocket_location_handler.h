@@ -34,6 +34,7 @@ extern "C" {
 #include <stdint.h>
 
 #include "cio_http_location_handler.h"
+#include "cio_timer.h"
 #include "cio_websocket.h"
 #include "cio_write_buffer.h"
 
@@ -46,6 +47,8 @@ struct cio_websocket_location_handler {
 	 * @privatesection
 	 */
 	struct cio_http_location_handler http_location;
+
+	void (*location_handler_free)(struct cio_websocket_location_handler *);
 
 	uint8_t sec_websocket_key[SEC_WEB_SOCKET_KEY_LENGTH + SEC_WEB_SOCKET_GUID_LENGTH];
 
@@ -65,20 +68,33 @@ struct cio_websocket_location_handler {
 	struct cio_write_buffer wb_protocol_value;
 	struct cio_write_buffer wb_protocol_end;
 
+	struct cio_timer write_response_timer;
+	uint64_t write_response_timeout;
+
 	struct cio_websocket websocket;
 };
 
 /**
  * @brief Initializes a websocket handler.
  * @param handler The handler to initialize.
+ * @param upgrade_response_timeout Timeout in ns after which the websocket upgrade response must be sent.
+ * @param loop Pointer to the eventloop to be used.
  * @param subprotocols An array of strings containing the supported subprotocols.
  * Please note that the functions will not copy this array, this array must be
  * available as long as this cio_websocket_location_handler exists!
  * @param num_subprotocols The number of entries @p subprotocols contains.
  * @param on_connect Function that will be called if websocket is connected.
+ * @param location_handler_free This Function will be called if the client connection for this handler is closed.
+ * After this function is called, the memory @p handler points to will no longer be accessed.
+ * Could be @c NULL.
  * @return CIO_SUCCESS if no error occured.
  */
-enum cio_error cio_websocket_location_handler_init(struct cio_websocket_location_handler *handler, const char *subprotocols[], unsigned int num_subprotocols, cio_websocket_on_connect on_connect);
+enum cio_error cio_websocket_location_handler_init(struct cio_websocket_location_handler *handler,
+                                                   uint64_t upgrade_response_timeout,
+                                                   struct cio_eventloop *loop, const char *subprotocols[],
+                                                   unsigned int num_subprotocols,
+                                                   cio_websocket_on_connect on_connect,
+                                                   void (*location_handler_free)(struct cio_websocket_location_handler *));
 
 #ifdef __cplusplus
 }
