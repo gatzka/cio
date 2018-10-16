@@ -19,8 +19,7 @@ file(GLOB FILES_TO_FORMAT
        ${PROJECT_SOURCE_DIR}/src/*.h
        ${PROJECT_SOURCE_DIR}/src/linux/*.c
        ${PROJECT_SOURCE_DIR}/src/linux/*.h
-       ${PROJECT_SOURCE_DIR}/src/windows/*.c
-       ${PROJECT_SOURCE_DIR}/src/windows/*.h)
+)
 
 add_custom_target(cio-files SOURCES ${FILES_TO_FORMAT})
 AddClangFormat(cio-files)
