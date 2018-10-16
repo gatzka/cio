@@ -134,7 +134,19 @@ static enum cio_error timer_expires_from_now_save(struct cio_timer *t, uint64_t 
 	saved_handler = handler;
 	saved_handler_context = handler_context;
 
+	t->handler = handler;
+	t->handler_context = handler_context;
+
 	return CIO_SUCCESS;
+}
+
+static enum cio_error timer_expires_from_error(struct cio_timer *t, uint64_t timeout_ns, timer_handler handler, void *handler_context)
+{
+	(void)t;
+	(void)handler;
+	(void)handler_context;
+	(void)timeout_ns;
+	return CIO_INVALID_ARGUMENT;
 }
 
 static void free_dummy_client(struct cio_socket *socket)
@@ -400,6 +412,13 @@ static void check_http_response(int status_code)
 	TEST_ASSERT_EQUAL_MESSAGE(status_code, parser.status_code, "http response status code not correct!");
 }
 
+static enum cio_error cancel_timer(struct cio_timer *t)
+{
+	t->handler(t, t->handler_context, CIO_OPERATION_ABORTED);
+	t->handler = NULL;
+	return CIO_SUCCESS;
+}
+
 void setUp(void)
 {
 	FFF_RESET_HISTORY();
@@ -446,6 +465,7 @@ void setUp(void)
 	bs_read_exactly_buffer_pos = 0;
 
 	timer_expires_from_now_fake.custom_fake = timer_expires_from_now_save;
+	timer_cancel_fake.custom_fake = cancel_timer;
 }
 
 void tearDown(void)
@@ -583,10 +603,14 @@ static void test_ws_location_write_timeout_expires_failure(void)
 	bs_read_exactly_buffer = close_frame;
 	bs_write_fake.custom_fake = bs_fake_write;
 	bs_read_exactly_fake.custom_fake = bs_read_exactly_from_buffer;
-	timer_expires_from_now_fake.custom_fake = NULL;
 
-	enum cio_error error_seq[] = {CIO_SUCCESS, CIO_INVALID_ARGUMENT};
-	SET_RETURN_SEQ(timer_expires_from_now, error_seq, ARRAY_SIZE(error_seq));
+	enum cio_error (*expires_fakes[])(struct cio_timer *, uint64_t, timer_handler, void *) = {
+		timer_expires_from_now_save,
+		timer_expires_from_error,
+	};
+
+	timer_expires_from_now_fake.custom_fake = NULL;
+	SET_CUSTOM_FAKE_SEQ(timer_expires_from_now, expires_fakes, ARRAY_SIZE(expires_fakes));
 
 	struct cio_http_server server;
 	enum cio_error err = cio_http_server_init(&server, 8080, &loop, serve_error, read_timeout, alloc_dummy_client, free_dummy_client);
@@ -668,7 +692,7 @@ static void test_ws_location_close_in_onconnect(void)
 	TEST_ASSERT_EQUAL_MESSAGE(sizeof(data), on_control_fake.arg3_val, "data length parameter of control callback is not correct");
 	TEST_ASSERT_EQUAL_MESSAGE(1, read_handler_fake.call_count, "read callback was not called for last close frame");
 
-	TEST_ASSERT_EQUAL_MESSAGE(2, timer_cancel_fake.call_count, "write timeout timer not cancelled!");
+	TEST_ASSERT_EQUAL_MESSAGE(3, timer_cancel_fake.call_count, "write timeout timer not cancelled!");
 	free(close_frame);
 }
 
@@ -719,7 +743,7 @@ static void test_static_ws_location_close_in_onconnect(void)
 	TEST_ASSERT_EQUAL_MESSAGE(sizeof(data), on_control_fake.arg3_val, "data length parameter of control callback is not correct");
 	TEST_ASSERT_EQUAL_MESSAGE(1, read_handler_fake.call_count, "read callback was not called for last close frame");
 
-	TEST_ASSERT_EQUAL_MESSAGE(2, timer_cancel_fake.call_count, "write timeout timer not cancelled!");
+	TEST_ASSERT_EQUAL_MESSAGE(3, timer_cancel_fake.call_count, "write timeout timer not cancelled!");
 	free(close_frame);
 }
 
