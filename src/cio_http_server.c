@@ -60,7 +60,6 @@ static void handle_error(struct cio_http_server *server, const char *reason)
 
 static void close_bs(struct cio_http_client *client)
 {
-
 	enum cio_error err = client->bs.close(&client->bs);
 	if (cio_unlikely(err != CIO_SUCCESS)) {
 		struct cio_http_server *server = (struct cio_http_server *)client->parser.data;
