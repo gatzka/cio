@@ -203,7 +203,7 @@ static void response_written(struct cio_buffered_stream *bs, void *handler_conte
 	}
 
 	struct cio_websocket_location_handler *wslh = container_of(client->handler, struct cio_websocket_location_handler, http_location);
-	wslh->write_response_timer.close(&wslh->write_response_timer);
+	wslh->write_response_timer.cancel(&wslh->write_response_timer);
 
 	struct cio_websocket *ws = &wslh->websocket;
 	ws->ws_private.bs = bs;
