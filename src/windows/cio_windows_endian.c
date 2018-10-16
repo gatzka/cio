@@ -24,7 +24,7 @@
  * SOFTWARE.
  */
 
-#include <windows.h>
+#include<windows.h>
 
 #include "cio_endian.h"
 #if REG_DWORD == REG_DWORD_LITTLE_ENDIAN
@@ -69,3 +69,5 @@ uint64_t cio_htobe64(uint64_t host_endian_64bits)
 	return host_endian_64bits;
 }
 #endif
+
+
