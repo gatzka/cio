@@ -295,6 +295,22 @@ static struct cio_http_location_handler *alloc_dummy_handler(const void *config)
 	}
 }
 
+static struct dummy_handler static_handler;
+
+static struct cio_http_location_handler *alloc_static_dummy_handler(const void *config)
+{
+	(void)config;
+	cio_http_location_handler_init(&static_handler.handler);
+	cio_write_buffer_head_init(&static_handler.wbh);
+	static_handler.handler.on_header_field = on_header_field;
+	static_handler.handler.on_header_value = on_header_value;
+	static_handler.handler.on_url = on_url;
+	static_handler.handler.on_headers_complete = header_complete;
+	static_handler.handler.on_message_complete = message_complete;
+	static_handler.handler.on_body = on_body;
+	return &static_handler.handler;
+}
+
 static struct cio_http_location_handler *alloc_dummy_handler_url_callbacks(const void *config)
 {
 	(void)config;
@@ -1626,6 +1642,43 @@ static void test_serve_upgrade(void)
 	client->close(client);
 }
 
+static void test_serve_upgrade_static_location(void)
+{
+	cio_server_socket_init_fake.custom_fake = cio_server_socket_init_ok;
+	socket_accept_fake.custom_fake = accept_save_handler;
+
+	struct cio_http_server server;
+	enum cio_error err = cio_http_server_init(&server, 8080, &loop, serve_error, read_timeout, alloc_dummy_client, free_dummy_client);
+	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Server initialization failed!");
+
+	struct cio_http_location target;
+	err = cio_http_location_init(&target, REQUEST_TARGET, NULL, alloc_static_dummy_handler);
+	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Request target initialization failed!");
+
+	err = server.register_location(&server, &target);
+	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Register request target failed!");
+
+	err = server.serve(&server);
+	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Serving http failed!");
+
+	struct cio_socket *s = server.alloc_client();
+
+	const char *request[] = {
+		HTTP_GET " " REQUEST_TARGET " " HTTP_11 CRLF,
+		"Upgrade: websocket" CRLF,
+		"Connection: Upgrade" CRLF,
+		CRLF};
+
+	init_request(request, ARRAY_SIZE(request));
+	server.server_socket.handler(&server.server_socket, server.server_socket.handler_context, CIO_SUCCESS, s);
+	TEST_ASSERT_EQUAL_MESSAGE(1, header_complete_fake.call_count, "header_complete was not called!");
+	TEST_ASSERT_EQUAL_MESSAGE(1, timer_cancel_fake.call_count, "timer_cancel for read timeout was not called!");
+	TEST_ASSERT_EQUAL_MESSAGE(0, serve_error_fake.call_count, "Serve error callback was called!");
+
+	struct cio_http_client *client = container_of(s, struct cio_http_client, socket);
+	client->close(client);
+}
+
 static void test_serve_upgrade_cancel_fails(void)
 {
 	cio_server_socket_init_fake.custom_fake = cio_server_socket_init_ok;
@@ -1691,6 +1744,7 @@ int main(void)
 	RUN_TEST(test_serve_msg_complete_only);
 	RUN_TEST(test_serve_msg_complete_only_timer_cancel_fails);
 	RUN_TEST(test_serve_upgrade);
+	RUN_TEST(test_serve_upgrade_static_location);
 	RUN_TEST(test_serve_upgrade_cancel_fails);
 	return UNITY_END();
 }
