@@ -233,6 +233,18 @@ static struct cio_http_location_handler *alloc_websocket_handler(const void *con
 	}
 }
 
+static struct ws_test_handler static_handler;
+
+static struct cio_http_location_handler *alloc_static_websocket_handler(const void *config)
+{
+	(void)config;
+	static const char *subprotocols[2] = {"echo", "jet"};
+	static const uint64_t upgrade_timeout = UINT64_C(1000000000);
+	cio_websocket_location_handler_init(&static_handler.ws_handler, upgrade_timeout, &loop, subprotocols, ARRAY_SIZE(subprotocols), on_connect, NULL);
+	static_handler.ws_handler.websocket.on_control = on_control;
+	return &static_handler.ws_handler.http_location;
+}
+
 static struct cio_http_location_handler *alloc_websocket_handler_no_subprotocol(const void *config)
 {
 	(void)config;
@@ -645,6 +657,57 @@ static void test_ws_location_close_in_onconnect(void)
 	    "Sec-WebSocket-Key: dGhlIHNhbXBsZSBub25jZQ==" CRLF,
 	    "Sec-WebSocket-Protocol: jet" CRLF,
 	    CRLF};
+
+	init_request(request, ARRAY_SIZE(request));
+	server.server_socket.handler(&server.server_socket, server.server_socket.handler_context, CIO_SUCCESS, s);
+	check_http_response(101);
+
+	TEST_ASSERT_EQUAL_MESSAGE(1, on_control_fake.call_count, "control callback was not called for last close frame");
+	TEST_ASSERT_NOT_NULL_MESSAGE(on_control_fake.arg0_val, "websocket parameter of control callback is NULL");
+	TEST_ASSERT_EQUAL_MESSAGE(CIO_WEBSOCKET_CLOSE_FRAME, on_control_fake.arg1_val, "websocket parameter of control callback is NULL");
+	TEST_ASSERT_EQUAL_MESSAGE(sizeof(data), on_control_fake.arg3_val, "data length parameter of control callback is not correct");
+	TEST_ASSERT_EQUAL_MESSAGE(1, read_handler_fake.call_count, "read callback was not called for last close frame");
+
+	TEST_ASSERT_EQUAL_MESSAGE(2, timer_cancel_fake.call_count, "write timeout timer not cancelled!");
+	free(close_frame);
+}
+
+static void test_static_ws_location_close_in_onconnect(void)
+{
+	uint8_t *close_frame;
+	uint8_t mask[4] = {0x1, 0x2, 0x3, 0x4};
+	uint8_t data[2] = {0x3, 0xe8};
+	bs_read_exactly_buffer_size = assemble_frame(WS_HEADER_FIN | CIO_WEBSOCKET_CLOSE_FRAME, mask, data, sizeof(data), &close_frame);
+
+	bs_read_exactly_buffer = close_frame;
+	bs_write_fake.custom_fake = bs_fake_write;
+
+	bs_read_exactly_fake.custom_fake = bs_read_exactly_from_buffer;
+
+	struct cio_http_server server;
+	enum cio_error err = cio_http_server_init(&server, 8080, &loop, serve_error, read_timeout, alloc_dummy_client, free_dummy_client);
+	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Server initialization failed!");
+
+	struct cio_http_location target;
+	err = cio_http_location_init(&target, REQUEST_TARGET, NULL, alloc_static_websocket_handler);
+	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Request target initialization failed!");
+
+	err = server.register_location(&server, &target);
+	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Register request target failed!");
+
+	err = server.serve(&server);
+	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Serving http failed!");
+
+	struct cio_socket *s = server.alloc_client();
+
+	const char *request[] = {
+		"GET " REQUEST_TARGET " HTTP/1.1" CRLF,
+		"Upgrade: websocket" CRLF,
+		"Connection: Upgrade" CRLF,
+		"Sec-WebSocket-Version: 13" CRLF,
+		"Sec-WebSocket-Key: dGhlIHNhbXBsZSBub25jZQ==" CRLF,
+		"Sec-WebSocket-Protocol: jet" CRLF,
+		CRLF};
 
 	init_request(request, ARRAY_SIZE(request));
 	server.server_socket.handler(&server.server_socket, server.server_socket.handler_context, CIO_SUCCESS, s);
@@ -1086,6 +1149,7 @@ int main(void)
 	RUN_TEST(test_ws_location_write_timeout_expires_failure);
 	RUN_TEST(test_ws_location_response_write_timeout);
 	RUN_TEST(test_ws_location_close_in_onconnect);
+	RUN_TEST(test_static_ws_location_close_in_onconnect);
 	RUN_TEST(test_ws_location_wrong_http_version);
 	RUN_TEST(test_ws_location_wrong_http_method);
 	RUN_TEST(test_ws_location_wrong_ws_version);
