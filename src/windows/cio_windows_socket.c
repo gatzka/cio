@@ -24,8 +24,8 @@
  * SOFTWARE.
  */
 
-#include <WinSock2.h>
 #include <Mstcpip.h>
+#include <WinSock2.h>
 #include <Windows.h>
 #include <malloc.h>
 

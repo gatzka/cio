@@ -152,8 +152,8 @@ static enum cio_error prepare_accept_socket(struct cio_windows_listen_socket *wl
 
 	DWORD bytes_received;
 	BOOL ret = wls->accept_ex((SOCKET)wls->fd, wls->accept_socket, wls->accept_buffer, 0,
-	                        sizeof(struct sockaddr_storage), sizeof(struct sockaddr_storage),
-	                        &bytes_received, &wls->en.overlapped);
+	                          sizeof(struct sockaddr_storage), sizeof(struct sockaddr_storage),
+	                          &bytes_received, &wls->en.overlapped);
 	if (ret == FALSE) {
 		int rc = WSAGetLastError();
 		if (cio_likely(rc != WSA_IO_PENDING)) {
