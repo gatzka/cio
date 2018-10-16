@@ -30,7 +30,7 @@
  <tr style="height: 56px;">
   <td style="padding-left: 0.5em;">
    <div id="projectname">cioall
-   &#160;<span id="projectnumber">0.0.1-1102+77bdc53</span>
+   &#160;<span id="projectnumber">0.0.1-1103+9d82ea0</span>
    </div>
    <div id="projectbrief">An ANSI C Conformant I/O Library.</div>
   </td>
@@ -117,11 +117,13 @@ $(document).ready(function(){initNavTree('cio__websocket__location__handler_8c.h
 <code>#include &lt;string.h&gt;</code><br/>
 <code>#include &quot;<a class="el" href="cio__base64_8h_source.html">cio_base64.h</a>&quot;</code><br/>
 <code>#include &quot;<a class="el" href="cio__compiler_8h_source.html">cio_compiler.h</a>&quot;</code><br/>
+<code>#include &quot;<a class="el" href="cio__eventloop_8h_source.html">cio_eventloop.h</a>&quot;</code><br/>
 <code>#include &quot;<a class="el" href="cio__http__client_8h_source.html">cio_http_client.h</a>&quot;</code><br/>
 <code>#include &quot;<a class="el" href="cio__http__location__handler_8h_source.html">cio_http_location_handler.h</a>&quot;</code><br/>
 <code>#include &quot;<a class="el" href="cio__http__method_8h_source.html">cio_http_method.h</a>&quot;</code><br/>
 <code>#include &quot;<a class="el" href="cio__http__status__code_8h_source.html">cio_http_status_code.h</a>&quot;</code><br/>
 <code>#include &quot;<a class="el" href="cio__string_8h_source.html">cio_string.h</a>&quot;</code><br/>
+<code>#include &quot;<a class="el" href="cio__timer_8h_source.html">cio_timer.h</a>&quot;</code><br/>
 <code>#include &quot;<a class="el" href="cio__util_8h_source.html">cio_util.h</a>&quot;</code><br/>
 <code>#include &quot;<a class="el" href="cio__websocket_8h_source.html">cio_websocket.h</a>&quot;</code><br/>
 <code>#include &quot;<a class="el" href="cio__websocket__location__handler_8h_source.html">cio_websocket_location_handler.h</a>&quot;</code><br/>
@@ -162,13 +164,17 @@ Functions</h2></td></tr>
 <tr class="separator:acb841cfd1b5e4639942d9aea132dd95e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a9ac154b3d0d7365024ca4e8c8efcd2c7"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="cio__websocket__location__handler_8c.html#a9ac154b3d0d7365024ca4e8c8efcd2c7">send_upgrade_response</a> (struct <a class="el" href="structcio__http__client.html">cio_http_client</a> *client)</td></tr>
 <tr class="separator:a9ac154b3d0d7365024ca4e8c8efcd2c7"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a34836d2d8c6a95062fa62ccdb8177afc"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="cio__websocket__location__handler_8c.html#a34836d2d8c6a95062fa62ccdb8177afc">write_response_timeout</a> (struct <a class="el" href="structcio__timer.html">cio_timer</a> *timer, void *handler_context, enum <a class="el" href="cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afe">cio_error</a> err)</td></tr>
+<tr class="separator:a34836d2d8c6a95062fa62ccdb8177afc"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ad01c12cf374f7614ba9eb7c2cbd870ba"><td class="memItemLeft" align="right" valign="top">static enum <a class="el" href="cio__http__location__handler_8h.html#a6b90057db20102dfa1e40cafc014fbde">cio_http_cb_return</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="cio__websocket__location__handler_8c.html#ad01c12cf374f7614ba9eb7c2cbd870ba">handle_headers_complete</a> (struct <a class="el" href="structcio__http__client.html">cio_http_client</a> *client)</td></tr>
 <tr class="separator:ad01c12cf374f7614ba9eb7c2cbd870ba"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a73b230df9f281df613e7013bd9ae67d1"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="cio__websocket__location__handler_8c.html#a73b230df9f281df613e7013bd9ae67d1">close_server_websocket</a> (struct <a class="el" href="structcio__websocket.html">cio_websocket</a> *s)</td></tr>
 <tr class="separator:a73b230df9f281df613e7013bd9ae67d1"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a9737188e9763f2216e2ee7d4b46d26bd"><td class="memItemLeft" align="right" valign="top">enum <a class="el" href="cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afe">cio_error</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="cio__websocket__location__handler_8c.html#a9737188e9763f2216e2ee7d4b46d26bd">cio_websocket_location_handler_init</a> (struct <a class="el" href="structcio__websocket__location__handler.html">cio_websocket_location_handler</a> *handler, const char *subprotocols[], unsigned int num_subprotocols, <a class="el" href="cio__websocket_8h.html#a1c79de7dd7f7071c4d2a8396a664b2d6">cio_websocket_on_connect</a> on_connect)</td></tr>
-<tr class="memdesc:a9737188e9763f2216e2ee7d4b46d26bd"><td class="mdescLeft">&#160;</td><td class="mdescRight">Initializes a websocket handler.  <a href="#a9737188e9763f2216e2ee7d4b46d26bd">More...</a><br/></td></tr>
-<tr class="separator:a9737188e9763f2216e2ee7d4b46d26bd"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a0b5184071a00d69381c7e7fbbed45155"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="cio__websocket__location__handler_8c.html#a0b5184071a00d69381c7e7fbbed45155">free_resources</a> (struct <a class="el" href="structcio__http__location__handler.html">cio_http_location_handler</a> *handler)</td></tr>
+<tr class="separator:a0b5184071a00d69381c7e7fbbed45155"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a4b3cdd6b70573268fd53607c408c31f5"><td class="memItemLeft" align="right" valign="top">enum <a class="el" href="cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afe">cio_error</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="cio__websocket__location__handler_8c.html#a4b3cdd6b70573268fd53607c408c31f5">cio_websocket_location_handler_init</a> (struct <a class="el" href="structcio__websocket__location__handler.html">cio_websocket_location_handler</a> *handler, uint64_t upgrade_response_timeout, struct cio_eventloop *loop, const char *subprotocols[], unsigned int num_subprotocols, <a class="el" href="cio__websocket_8h.html#a1c79de7dd7f7071c4d2a8396a664b2d6">cio_websocket_on_connect</a> on_connect, void(*location_handler_free)(struct <a class="el" href="structcio__websocket__location__handler.html">cio_websocket_location_handler</a> *))</td></tr>
+<tr class="memdesc:a4b3cdd6b70573268fd53607c408c31f5"><td class="mdescLeft">&#160;</td><td class="mdescRight">Initializes a websocket handler.  <a href="#a4b3cdd6b70573268fd53607c408c31f5">More...</a><br/></td></tr>
+<tr class="separator:a4b3cdd6b70573268fd53607c408c31f5"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <h2 class="groupheader">Macro Definition Documentation</h2>
 <a class="anchor" id="a87b26cd086f104607d0c759119ab6781"></a>
@@ -311,7 +317,7 @@ Functions</h2></td></tr>
 
 </div>
 </div>
-<a class="anchor" id="a9737188e9763f2216e2ee7d4b46d26bd"></a>
+<a class="anchor" id="a4b3cdd6b70573268fd53607c408c31f5"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
@@ -320,6 +326,18 @@ Functions</h2></td></tr>
           <td>(</td>
           <td class="paramtype">struct <a class="el" href="structcio__websocket__location__handler.html">cio_websocket_location_handler</a> *&#160;</td>
           <td class="paramname"><em>handler</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint64_t&#160;</td>
+          <td class="paramname"><em>upgrade_response_timeout</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">struct cio_eventloop *&#160;</td>
+          <td class="paramname"><em>loop</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
@@ -337,7 +355,13 @@ Functions</h2></td></tr>
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype"><a class="el" href="cio__websocket_8h.html#a1c79de7dd7f7071c4d2a8396a664b2d6">cio_websocket_on_connect</a>&#160;</td>
-          <td class="paramname"><em>on_connect</em>&#160;</td>
+          <td class="paramname"><em>on_connect</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">void(*)(struct <a class="el" href="structcio__websocket__location__handler.html">cio_websocket_location_handler</a> *)&#160;</td>
+          <td class="paramname"><em>location_handler_free</em>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -351,9 +375,12 @@ Functions</h2></td></tr>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">handler</td><td>The handler to initialize. </td></tr>
+    <tr><td class="paramname">upgrade_response_timeout</td><td>Timeout in ns after which the websocket upgrade response must be sent. </td></tr>
+    <tr><td class="paramname">loop</td><td>Pointer to the eventloop to be used. </td></tr>
     <tr><td class="paramname">subprotocols</td><td>An array of strings containing the supported subprotocols. Please note that the functions will not copy this array, this array must be available as long as this <a class="el" href="structcio__websocket__location__handler.html">cio_websocket_location_handler</a> exists! </td></tr>
     <tr><td class="paramname">num_subprotocols</td><td>The number of entries <code>subprotocols</code> contains. </td></tr>
     <tr><td class="paramname">on_connect</td><td>Function that will be called if websocket is connected. </td></tr>
+    <tr><td class="paramname">location_handler_free</td><td>This Function will be called if the client connection for this handler is closed. After this function is called, the memory <code>handler</code> points to will no longer be accessed. Could be <code>NULL</code>. </td></tr>
   </table>
   </dd>
 </dl>
@@ -414,6 +441,30 @@ Functions</h2></td></tr>
           <td></td>
           <td>)</td>
           <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="a0b5184071a00d69381c7e7fbbed45155"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static void free_resources </td>
+          <td>(</td>
+          <td class="paramtype">struct <a class="el" href="structcio__http__location__handler.html">cio_http_location_handler</a> *&#160;</td>
+          <td class="paramname"><em>handler</em></td><td>)</td>
+          <td></td>
         </tr>
       </table>
   </td>
@@ -633,13 +684,53 @@ Functions</h2></td></tr>
 
 </div>
 </div>
+<a class="anchor" id="a34836d2d8c6a95062fa62ccdb8177afc"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static void write_response_timeout </td>
+          <td>(</td>
+          <td class="paramtype">struct <a class="el" href="structcio__timer.html">cio_timer</a> *&#160;</td>
+          <td class="paramname"><em>timer</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">void *&#160;</td>
+          <td class="paramname"><em>handler_context</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">enum <a class="el" href="cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afe">cio_error</a>&#160;</td>
+          <td class="paramname"><em>err</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
 </div><!-- contents -->
 </div><!-- doc-content -->
 <!-- start footer part -->
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="cio__websocket__location__handler_8c.html">cio_websocket_location_handler.c</a></li>
-    <li class="footer">Generated on Sat Oct 13 2018 16:51:51 for cioall by
+    <li class="footer">Generated on Tue Oct 16 2018 07:41:26 for cioall by
     <a href="http://www.doxygen.org/index.html">
     <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.8.6 </li>
   </ul>

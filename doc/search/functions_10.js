@@ -7,5 +7,6 @@ var searchData=
   ['write_5fping_5fmessage',['write_ping_message',['../cio__websocket_8c.html#abd6a7a7c5f0fd2d780f74e5ddbb890fe',1,'cio_websocket.c']]],
   ['write_5fping_5for_5fpong_5fmessage',['write_ping_or_pong_message',['../cio__websocket_8c.html#a0eda457b728472c5efd90dd93bd8e065',1,'cio_websocket.c']]],
   ['write_5fpong_5fmessage',['write_pong_message',['../cio__websocket_8c.html#a47f1d8da770c97e0f4bdf4028a56604f',1,'cio_websocket.c']]],
-  ['write_5fresponse',['write_response',['../cio__http__server_8c.html#a986951bc36efbbe39bfa91781cab7b52',1,'cio_http_server.c']]]
+  ['write_5fresponse',['write_response',['../cio__http__server_8c.html#a986951bc36efbbe39bfa91781cab7b52',1,'cio_http_server.c']]],
+  ['write_5fresponse_5ftimeout',['write_response_timeout',['../cio__websocket__location__handler_8c.html#a34836d2d8c6a95062fa62ccdb8177afc',1,'cio_websocket_location_handler.c']]]
 ];

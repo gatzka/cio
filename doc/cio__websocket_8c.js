@@ -49,5 +49,5 @@ var cio__websocket_8c =
     [ "close_timeout_ns", "cio__websocket_8c.html#a8ce63f0697fc1e3063d9111957342c81", null ],
     [ "WS_HEADER_FIN", "cio__websocket_8c.html#a83e7355c03e5be2bcd43002a480fa19d", null ],
     [ "WS_MASK_SET", "cio__websocket_8c.html#ade887372b333769cf1cd2cfb4f07150f", null ],
-    [ "WS_MID_FRAME_SIZE", "cio__websocket_8c.html#a9fccc307ef55fe57f5fc0bef55274173", null ]
+    [ "WS_MID_FRAME_SIZE", "cio__websocket_8c.html#aadf9ca4d6081aff2d7c37e764c18cbc6", null ]
 ];

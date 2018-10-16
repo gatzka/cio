@@ -30,7 +30,7 @@
  <tr style="height: 56px;">
   <td style="padding-left: 0.5em;">
    <div id="projectname">cioall
-   &#160;<span id="projectnumber">0.0.1-1102+77bdc53</span>
+   &#160;<span id="projectnumber">0.0.1-1103+9d82ea0</span>
    </div>
    <div id="projectbrief">An ANSI C Conformant I/O Library.</div>
   </td>
@@ -157,7 +157,7 @@ $(document).ready(function(){initNavTree('cio__http__client_8h_source.html','');
 <div class="line"><a name="l00054"></a><span class="lineno"><a class="line" href="structcio__http__client__private.html">   54</a></span>&#160;<span class="keyword">struct </span><a class="code" href="structcio__http__client__private.html">cio_http_client_private</a> {</div>
 <div class="line"><a name="l00055"></a><span class="lineno"><a class="line" href="structcio__http__client__private.html#aeac0cb76877803781370be45509b2a46">   55</a></span>&#160;    <span class="keyword">struct </span><a class="code" href="structcio__write__buffer.html">cio_write_buffer</a> <a class="code" href="structcio__http__client__private.html#aeac0cb76877803781370be45509b2a46">wb_http_response_statusline</a>;</div>
 <div class="line"><a name="l00056"></a><span class="lineno"><a class="line" href="structcio__http__client__private.html#a4c34a91f96496674d5831b85bdf61286">   56</a></span>&#160;    <span class="keyword">struct </span><a class="code" href="structcio__write__buffer.html">cio_write_buffer</a> <a class="code" href="structcio__http__client__private.html#a4c34a91f96496674d5831b85bdf61286">wb_http_response_header_end</a>;</div>
-<div class="line"><a name="l00057"></a><span class="lineno"><a class="line" href="structcio__http__client__private.html#a7ca116ef6b3669b386baf53fedc05a70">   57</a></span>&#160;    <span class="keyword">struct </span><a class="code" href="structcio__timer.html">cio_timer</a> <a class="code" href="structcio__http__client__private.html#a7ca116ef6b3669b386baf53fedc05a70">read_timer</a>;</div>
+<div class="line"><a name="l00057"></a><span class="lineno"><a class="line" href="structcio__http__client__private.html#a135692c65547c2e49019230b24b637c8">   57</a></span>&#160;    <span class="keyword">struct </span><a class="code" href="structcio__timer.html">cio_timer</a> <a class="code" href="structcio__http__client__private.html#a135692c65547c2e49019230b24b637c8">read_header_timer</a>;</div>
 <div class="line"><a name="l00058"></a><span class="lineno">   58</span>&#160;</div>
 <div class="line"><a name="l00059"></a><span class="lineno"><a class="line" href="structcio__http__client__private.html#ad5fd3699d85d1bb18a48d8bec51493e1">   59</a></span>&#160;    <span class="keywordtype">bool</span> <a class="code" href="structcio__http__client__private.html#ad5fd3699d85d1bb18a48d8bec51493e1">headers_complete</a>;</div>
 <div class="line"><a name="l00060"></a><span class="lineno"><a class="line" href="structcio__http__client__private.html#a13105e2222fdff4f2e548da6913ac7a8">   60</a></span>&#160;    <span class="keywordtype">bool</span> <a class="code" href="structcio__http__client__private.html#a13105e2222fdff4f2e548da6913ac7a8">to_be_closed</a>;</div>
@@ -212,7 +212,6 @@ $(document).ready(function(){initNavTree('cio__http__client_8h_source.html','');
 <div class="line"><a name="l00208"></a><span class="lineno">  208</span>&#160;<span class="preprocessor">#endif</span></div>
 <div class="ttc" id="structcio__buffered__stream_html"><div class="ttname"><a href="structcio__buffered__stream.html">cio_buffered_stream</a></div><div class="ttdef"><b>Definition:</b> cio_buffered_stream.h:103</div></div>
 <div class="ttc" id="structcio__http__client__private_html_ad5fd3699d85d1bb18a48d8bec51493e1"><div class="ttname"><a href="structcio__http__client__private.html#ad5fd3699d85d1bb18a48d8bec51493e1">cio_http_client_private::headers_complete</a></div><div class="ttdeci">bool headers_complete</div><div class="ttdef"><b>Definition:</b> cio_http_client.h:59</div></div>
-<div class="ttc" id="structcio__http__client__private_html_a7ca116ef6b3669b386baf53fedc05a70"><div class="ttname"><a href="structcio__http__client__private.html#a7ca116ef6b3669b386baf53fedc05a70">cio_http_client_private::read_timer</a></div><div class="ttdeci">struct cio_timer read_timer</div><div class="ttdef"><b>Definition:</b> cio_http_client.h:57</div></div>
 <div class="ttc" id="structcio__http__client_html_a90844e5f9e1490cb15eb051c9ed11715"><div class="ttname"><a href="structcio__http__client.html#a90844e5f9e1490cb15eb051c9ed11715">cio_http_client::handler</a></div><div class="ttdeci">struct cio_http_location_handler * handler</div><div class="ttdef"><b>Definition:</b> cio_http_client.h:189</div></div>
 <div class="ttc" id="structcio__socket_html"><div class="ttname"><a href="structcio__socket.html">cio_socket</a></div><div class="ttdef"><b>Definition:</b> cio_socket.h:59</div></div>
 <div class="ttc" id="structcio__http__client__private_html_a13105e2222fdff4f2e548da6913ac7a8"><div class="ttname"><a href="structcio__http__client__private.html#a13105e2222fdff4f2e548da6913ac7a8">cio_http_client_private::to_be_closed</a></div><div class="ttdeci">bool to_be_closed</div><div class="ttdef"><b>Definition:</b> cio_http_client.h:60</div></div>
@@ -231,6 +230,7 @@ $(document).ready(function(){initNavTree('cio__http__client_8h_source.html','');
 <div class="ttc" id="structcio__http__client_html_abf722b1e31efcbc125cca2ddd3b8afe6"><div class="ttname"><a href="structcio__http__client.html#abf722b1e31efcbc125cca2ddd3b8afe6">cio_http_client::flush</a></div><div class="ttdeci">void(* flush)(struct cio_http_client *client, cio_buffered_stream_write_handler handler)</div><div class="ttdoc">Flushes the write buffer attached of this client. </div><div class="ttdef"><b>Definition:</b> cio_http_client.h:127</div></div>
 <div class="ttc" id="cio__timer_8h_html"><div class="ttname"><a href="cio__timer_8h.html">cio_timer.h</a></div><div class="ttdoc">This file contains the interface of a timer. </div></div>
 <div class="ttc" id="structcio__http__client_html_a05b7992a3ecafef5262e93bc50d00ae8"><div class="ttname"><a href="structcio__http__client.html#a05b7992a3ecafef5262e93bc50d00ae8">cio_http_client::queue_header</a></div><div class="ttdeci">void(* queue_header)(struct cio_http_client *client, enum cio_http_status_code status)</div><div class="ttdoc">Queues a response header for the requesting client without sending it. </div><div class="ttdef"><b>Definition:</b> cio_http_client.h:118</div></div>
+<div class="ttc" id="structcio__http__client__private_html_a135692c65547c2e49019230b24b637c8"><div class="ttname"><a href="structcio__http__client__private.html#a135692c65547c2e49019230b24b637c8">cio_http_client_private::read_header_timer</a></div><div class="ttdeci">struct cio_timer read_header_timer</div><div class="ttdef"><b>Definition:</b> cio_http_client.h:57</div></div>
 <div class="ttc" id="structcio__http__client_html_a54b2c729a5b04b9c81c148d18540cdb1"><div class="ttname"><a href="structcio__http__client.html#a54b2c729a5b04b9c81c148d18540cdb1">cio_http_client::socket</a></div><div class="ttdeci">struct cio_socket socket</div><div class="ttdef"><b>Definition:</b> cio_http_client.h:191</div></div>
 <div class="ttc" id="cio__http__method_8h_html_af72daec94b7eb3d7c6ba31bdb7ba0ef3"><div class="ttname"><a href="cio__http__method_8h.html#af72daec94b7eb3d7c6ba31bdb7ba0ef3">cio_http_method</a></div><div class="ttdeci">cio_http_method</div><div class="ttdoc">The cio_http_method enum lists all HTTP methods currently understood by the HTTP parser. </div><div class="ttdef"><b>Definition:</b> cio_http_method.h:45</div></div>
 <div class="ttc" id="structcio__read__buffer_html"><div class="ttname"><a href="structcio__read__buffer.html">cio_read_buffer</a></div><div class="ttdoc">An opaque structure encapsulationg a read buffer. </div><div class="ttdef"><b>Definition:</b> cio_read_buffer.h:48</div></div>
@@ -255,7 +255,7 @@ $(document).ready(function(){initNavTree('cio__http__client_8h_source.html','');
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="cio__http__client_8h.html">cio_http_client.h</a></li>
-    <li class="footer">Generated on Sat Oct 13 2018 16:51:51 for cioall by
+    <li class="footer">Generated on Tue Oct 16 2018 07:41:26 for cioall by
     <a href="http://www.doxygen.org/index.html">
     <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.8.6 </li>
   </ul>

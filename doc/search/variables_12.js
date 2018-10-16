@@ -20,6 +20,6 @@ var searchData=
   ['ws_5fflags',['ws_flags',['../structcio__websocket__private.html#a41b8d0e6181ad659a77f0cbd308dc5c6',1,'cio_websocket_private']]],
   ['ws_5fheader_5ffin',['WS_HEADER_FIN',['../cio__websocket_8c.html#a83e7355c03e5be2bcd43002a480fa19d',1,'cio_websocket.c']]],
   ['ws_5fmask_5fset',['WS_MASK_SET',['../cio__websocket_8c.html#ade887372b333769cf1cd2cfb4f07150f',1,'cio_websocket.c']]],
-  ['ws_5fmid_5fframe_5fsize',['WS_MID_FRAME_SIZE',['../cio__websocket_8c.html#a9fccc307ef55fe57f5fc0bef55274173',1,'cio_websocket.c']]],
+  ['ws_5fmid_5fframe_5fsize',['WS_MID_FRAME_SIZE',['../cio__websocket_8c.html#aadf9ca4d6081aff2d7c37e764c18cbc6',1,'cio_websocket.c']]],
   ['ws_5fversion_5fok',['ws_version_ok',['../structcio__websocket__location__handler.html#a36868d423b5fcc2c0095c2123876ff0a',1,'cio_websocket_location_handler']]]
 ];
