@@ -532,12 +532,7 @@ init_err:
 
 static enum cio_error serve(struct cio_http_server *server)
 {
-	enum cio_error err = cio_server_socket_init(&server->server_socket, server->loop, 5, server->alloc_client, server->free_client, NULL);
-	if (cio_unlikely(err != CIO_SUCCESS)) {
-		return err;
-	}
-
-	err = server->server_socket.set_reuse_address(&server->server_socket, true);
+	enum cio_error err = server->server_socket.set_reuse_address(&server->server_socket, true);
 	if (cio_unlikely(err != CIO_SUCCESS)) {
 		goto close_socket;
 	}
@@ -600,5 +595,6 @@ enum cio_error cio_http_server_init(struct cio_http_server *server,
 	server->on_error = on_error;
 	server->shutdown = shutdown_server;
 	server->read_header_timeout_ns = read_header_timeout_ns;
-	return CIO_SUCCESS;
+
+	return cio_server_socket_init(&server->server_socket, server->loop, 5, server->alloc_client, server->free_client, NULL);
 }
