@@ -24,11 +24,12 @@
  * SOFTWARE.
  */
 
+#include <windows.h>
 #include <bcrypt.h>
 #include <stddef.h>
-#include <windows.h>
 
 #include "cio_random.h"
+
 
 void cio_random_get_bytes(void *bytes, size_t num_bytes)
 {
