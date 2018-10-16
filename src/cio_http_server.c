@@ -71,7 +71,7 @@ static void close_bs(struct cio_http_client *client)
 static void close_client(struct cio_http_client *client)
 {
 	client->http_private.read_header_timer.close(&client->http_private.read_header_timer);
-	if (cio_likely(client->handler != NULL && (client->handler->free != NULL))) {
+	if (cio_likely((client->handler != NULL) && (client->handler->free != NULL))) {
 		client->handler->free(client->handler);
 	}
 
