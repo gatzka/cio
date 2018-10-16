@@ -90,6 +90,8 @@ struct cio_http_server {
 	 */
 	enum cio_error (*register_location)(struct cio_http_server *server, struct cio_http_location *location);
 
+	enum cio_error (*shutdown)(struct cio_http_server *server);
+
 	/**
 	 * @privatesection
 	 */
