@@ -9,12 +9,12 @@ include(generateVersion)
 include(sanitizer)
 include(CodeCoverage)
 
+GenerateVersion(version ${PROJECT_NAME})
+configure_file(cio_version.h.in ${CMAKE_BINARY_DIR}/generated/cio_version.h)
+set(VERSION_FILE_CONFIGURED true)
+
 enable_testing()
 add_subdirectory(tests/)
-
-GenerateVersion(version ${PROJECT_NAME})
-
-configure_file(cio_version.h.in ${PROJECT_BINARY_DIR}/generated/cio_version.h)
 
 set(remove_patterns "'*/tests/*' '*/http-parser/*' '*/sha1/*' '*/unity/*' '/usr/include/*'")
 setup_target_for_coverage(coverage coverage ${remove_patterns})
@@ -32,13 +32,13 @@ if (DOXYGEN_FOUND)
 	set(DOXYGEN_QUIET YES)
 	set(DOXYGEN_RECURSIVE NO)
 	set(DOXYGEN_STRICT_PROTO_MATCHING YES)
-	set(DOXYGEN_STRIP_FROM_PATH ${PROJECT_BINARY_DIR}/generated/ ${CMAKE_CURRENT_SOURCE_DIR})
+	set(DOXYGEN_STRIP_FROM_PATH ${CMAKE_BINARY_DIR}/generated/ ${CMAKE_CURRENT_SOURCE_DIR})
 	set(DOXYGEN_WARN_AS_ERROR YES)
     set(DOXYGEN_PROJECT_NAME ${CMAKE_PROJECT_NAME})
 
 	doxygen_add_docs(docs
 	    ${PROJECT_SOURCE_DIR}
-	    ${PROJECT_BINARY_DIR}/generated/
+	    ${CMAKE_BINARY_DIR}/generated/
         COMMENT "Generating API documentation with Doxygen"
 	)
 else (DOXYGEN_FOUND)
@@ -149,7 +149,7 @@ set_target_properties(
 )
 
 target_include_directories(target_platform_independent PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/)
-target_include_directories(target_platform_independent PUBLIC ${PROJECT_BINARY_DIR}/generated/)
+target_include_directories(target_platform_independent PUBLIC ${CMAKE_BINARY_DIR}/generated/)
 
 target_include_directories(target_platform PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/)
 
@@ -159,7 +159,7 @@ add_library(cio_static STATIC
 	$<TARGET_OBJECTS:target_third_party>
 )
 target_include_directories(cio_static PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/)
-target_include_directories(cio_static PUBLIC ${PROJECT_BINARY_DIR}/generated/)
+target_include_directories(cio_static PUBLIC ${CMAKE_BINARY_DIR}/generated/)
 
 add_library(cio SHARED
    $<TARGET_OBJECTS:target_platform_independent>
@@ -167,7 +167,7 @@ add_library(cio SHARED
    $<TARGET_OBJECTS:target_third_party>
 )
 target_include_directories(cio PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/)
-target_include_directories(cio PUBLIC ${PROJECT_BINARY_DIR}/generated/)
+target_include_directories(cio PUBLIC ${CMAKE_BINARY_DIR}/generated/)
 
 if(is_linux)
     target_include_directories(target_platform_independent PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/linux/)
@@ -245,7 +245,7 @@ if(is_linux)
         FILES ${CMAKE_CURRENT_SOURCE_DIR}/${LIB_HEADERS_LINUX} DESTINATION include/cio/linux/
     )
     install(
-        FILES ${PROJECT_BINARY_DIR}/generated/cio_version.h DESTINATION include/cio/
+        FILES ${CMAKE_BINARY_DIR}/generated/cio_version.h DESTINATION include/cio/
     )
 endif()
 
