@@ -142,13 +142,19 @@ static void free_http_client(struct cio_socket *socket)
 static void sighandler(int signum)
 {
 	(void)signum;
-	cio_eventloop_cancel(&loop);
+	http_server.shutdown(&http_server);
 }
 
 static void serve_error(struct cio_http_server *server, const char *reason)
 {
 	(void)reason;
 	server->server_socket.close(&server->server_socket);
+}
+
+static void http_server_closed(struct cio_http_server *s)
+{
+	(void)s;
+	cio_eventloop_cancel(&loop);
 }
 
 int main(void)
@@ -168,7 +174,7 @@ int main(void)
 		return EXIT_FAILURE;
 	}
 
-	err = cio_http_server_init(&http_server, 9001, &loop, serve_error, read_timeout, alloc_http_client, free_http_client);
+	err = cio_http_server_init(&http_server, 9001, &loop, serve_error, read_timeout, alloc_http_client, free_http_client, http_server_closed);
 	if (err != CIO_SUCCESS) {
 		ret = EXIT_FAILURE;
 		goto destroy_loop;
