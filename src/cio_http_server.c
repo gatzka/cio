@@ -264,7 +264,7 @@ static int on_url(http_parser *parser, const char *at, size_t length)
 		is_connect = 0;
 	}
 
-	client->http_method = client->parser.method;
+	client->http_method = (enum cio_http_method)client->parser.method;
 
 	struct http_parser_url u;
 	http_parser_url_init(&u);
