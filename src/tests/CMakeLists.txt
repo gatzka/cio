@@ -37,12 +37,15 @@ if(CMAKE_C_COMPILER_ID STREQUAL "GNU")
 	endif(CMAKE_BUILD_TYPE MATCHES Debug)
 endif()
 
-if(CMAKE_C_COMPILER_ID STREQUAL "GNU")
-    if(NOT CMAKE_C_COMPILER_VERSION VERSION_LESS 7.0.0)
-        set_property(SOURCE ../http-parser/http_parser.c  APPEND_STRING PROPERTY COMPILE_FLAGS "-Wimplicit-fallthrough=0 ")
+if(CMAKE_C_COMPILER_ID STREQUAL "GNU" OR CMAKE_C_COMPILER_ID STREQUAL "Clang")
+    if(CMAKE_C_COMPILER_ID STREQUAL "GNU")
+        if(NOT CMAKE_C_COMPILER_VERSION VERSION_LESS 7.0.0)
+            set_property(SOURCE ../http-parser/http_parser.c  APPEND_STRING PROPERTY COMPILE_FLAGS "-Wimplicit-fallthrough=0 ")
+        endif()
+        set_property(SOURCE ../unity/src/unity.c  APPEND_STRING PROPERTY COMPILE_FLAGS "-Wstrict-overflow=2 ")
     endif()
+
     set_property(SOURCE ../http-parser/http_parser.c  APPEND_STRING PROPERTY COMPILE_FLAGS "-Wstrict-overflow=2 -Wno-switch-default -Wno-shadow")
-    set_property(SOURCE ../unity/src/unity.c  APPEND_STRING PROPERTY COMPILE_FLAGS "-Wstrict-overflow=2 ")
 endif()
 
 add_executable(test_cio_base64

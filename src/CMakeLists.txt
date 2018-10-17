@@ -110,14 +110,14 @@ add_library(
 )
 set_property(TARGET target_third_party PROPERTY POSITION_INDEPENDENT_CODE 1)
 
-if(CMAKE_C_COMPILER_ID STREQUAL "GNU")
-    if(NOT CMAKE_C_COMPILER_VERSION VERSION_LESS 7.0.0)
-        set_property(SOURCE http-parser/http_parser.c  APPEND_STRING PROPERTY COMPILE_FLAGS "-Wimplicit-fallthrough=0 ")
-    endif()
-    set_property(SOURCE http-parser/http_parser.c  APPEND_STRING PROPERTY COMPILE_FLAGS "-Wstrict-overflow=2 -Wno-switch-default -Wno-shadow")
-endif()
-
 if(CMAKE_C_COMPILER_ID STREQUAL "GNU" OR CMAKE_C_COMPILER_ID STREQUAL "Clang")
+    if(CMAKE_C_COMPILER_ID STREQUAL "GNU")
+        if(NOT CMAKE_C_COMPILER_VERSION VERSION_LESS 7.0.0)
+            set_property(SOURCE http-parser/http_parser.c  APPEND_STRING PROPERTY COMPILE_FLAGS "-Wimplicit-fallthrough=0 ")
+        endif()
+    endif()
+
+    set_property(SOURCE http-parser/http_parser.c  APPEND_STRING PROPERTY COMPILE_FLAGS "-Wstrict-overflow=2 -Wno-switch-default -Wno-shadow")
 
     foreach(_file ${CIO_PLATFORM_FILES})
         file(SHA1 ${CMAKE_CURRENT_SOURCE_DIR}/${_file} checksum)
@@ -136,7 +136,6 @@ set_target_properties(
     target_third_party
     PROPERTIES C_CLANG_TIDY ""
 )
-
 
 set_target_properties(
     target_platform_independent PROPERTIES
