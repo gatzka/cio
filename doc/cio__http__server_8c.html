@@ -30,7 +30,7 @@
  <tr style="height: 56px;">
   <td style="padding-left: 0.5em;">
    <div id="projectname">cioall
-   &#160;<span id="projectnumber">0.0.1-1123+2d07255</span>
+   &#160;<span id="projectnumber">0.0.1-1125+40aedd6</span>
    </div>
    <div id="projectbrief">An ANSI C Conformant I/O Library.</div>
   </td>
@@ -198,8 +198,10 @@ Functions</h2></td></tr>
 <tr class="separator:a352acab6b89b39f3b0fa3f9df80a142a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a13cf7e5d7190f56b738755cae1c2e88f"><td class="memItemLeft" align="right" valign="top">static enum <a class="el" href="cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afe">cio_error</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="cio__http__server_8c.html#a13cf7e5d7190f56b738755cae1c2e88f">register_handler</a> (struct <a class="el" href="structcio__http__server.html">cio_http_server</a> *server, struct <a class="el" href="structcio__http__location.html">cio_http_location</a> *target)</td></tr>
 <tr class="separator:a13cf7e5d7190f56b738755cae1c2e88f"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a5470e5c86a087962f3d035af64ab4361"><td class="memItemLeft" align="right" valign="top">static enum <a class="el" href="cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afe">cio_error</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="cio__http__server_8c.html#a5470e5c86a087962f3d035af64ab4361">shutdown_server</a> (struct <a class="el" href="structcio__http__server.html">cio_http_server</a> *server)</td></tr>
-<tr class="separator:a5470e5c86a087962f3d035af64ab4361"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7bdfcebd8f60aa295fe7902fe1748d35"><td class="memItemLeft" align="right" valign="top">static enum <a class="el" href="cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afe">cio_error</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="cio__http__server_8c.html#a7bdfcebd8f60aa295fe7902fe1748d35">shutdown_server</a> (struct <a class="el" href="structcio__http__server.html">cio_http_server</a> *server, <a class="el" href="cio__http__server_8h.html#a398ecf1a0e23688dcd128181555d9e74">cio_http_server_close_hook</a> close_hook)</td></tr>
+<tr class="separator:a7bdfcebd8f60aa295fe7902fe1748d35"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a2506ae4dd0d47188b64cb8d98bc53a17"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="cio__http__server_8c.html#a2506ae4dd0d47188b64cb8d98bc53a17">server_socket_closed</a> (struct <a class="el" href="structcio__server__socket.html">cio_server_socket</a> *ss)</td></tr>
+<tr class="separator:a2506ae4dd0d47188b64cb8d98bc53a17"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:afe241919a7a24f6b87a4c98091261042"><td class="memItemLeft" align="right" valign="top">enum <a class="el" href="cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afe">cio_error</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="cio__http__server_8c.html#afe241919a7a24f6b87a4c98091261042">cio_http_server_init</a> (struct <a class="el" href="structcio__http__server.html">cio_http_server</a> *server, uint16_t port, struct cio_eventloop *loop, <a class="el" href="cio__http__server_8h.html#a8c2e5f3520fbd97f6f904bcb75be6bf3">cio_http_serve_on_error</a> on_error, uint64_t read_header_timeout_ns, <a class="el" href="cio__server__socket_8h.html#a6365344c7e5e854b40ff9a3b01e4176f">cio_alloc_client</a> alloc_client, <a class="el" href="cio__server__socket_8h.html#ad1fdf04763eef9c0a1883c9ebe833964">cio_free_client</a> free_client)</td></tr>
 <tr class="memdesc:afe241919a7a24f6b87a4c98091261042"><td class="mdescLeft">&#160;</td><td class="mdescRight">Initializes an HTTP server.  <a href="#afe241919a7a24f6b87a4c98091261042">More...</a><br/></td></tr>
 <tr class="separator:afe241919a7a24f6b87a4c98091261042"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -1183,7 +1185,31 @@ Functions</h2></td></tr>
 
 </div>
 </div>
-<a class="anchor" id="a5470e5c86a087962f3d035af64ab4361"></a>
+<a class="anchor" id="a2506ae4dd0d47188b64cb8d98bc53a17"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static void server_socket_closed </td>
+          <td>(</td>
+          <td class="paramtype">struct <a class="el" href="structcio__server__socket.html">cio_server_socket</a> *&#160;</td>
+          <td class="paramname"><em>ss</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="a7bdfcebd8f60aa295fe7902fe1748d35"></a>
 <div class="memitem">
 <div class="memproto">
 <table class="mlabels">
@@ -1194,8 +1220,18 @@ Functions</h2></td></tr>
           <td class="memname">static enum <a class="el" href="cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afe">cio_error</a> shutdown_server </td>
           <td>(</td>
           <td class="paramtype">struct <a class="el" href="structcio__http__server.html">cio_http_server</a> *&#160;</td>
-          <td class="paramname"><em>server</em></td><td>)</td>
+          <td class="paramname"><em>server</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
           <td></td>
+          <td class="paramtype"><a class="el" href="cio__http__server_8h.html#a398ecf1a0e23688dcd128181555d9e74">cio_http_server_close_hook</a>&#160;</td>
+          <td class="paramname"><em>close_hook</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
         </tr>
       </table>
   </td>
@@ -1281,7 +1317,7 @@ Functions</h2></td></tr>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="cio__http__server_8c.html">cio_http_server.c</a></li>
-    <li class="footer">Generated on Wed Oct 17 2018 08:39:30 for cioall by
+    <li class="footer">Generated on Wed Oct 17 2018 14:46:51 for cioall by
     <a href="http://www.doxygen.org/index.html">
     <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.8.6 </li>
   </ul>

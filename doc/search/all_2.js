@@ -95,6 +95,7 @@ var searchData=
   ['cio_5fhttp_5fserver',['cio_http_server',['../structcio__http__server.html',1,'']]],
   ['cio_5fhttp_5fserver_2ec',['cio_http_server.c',['../cio__http__server_8c.html',1,'']]],
   ['cio_5fhttp_5fserver_2eh',['cio_http_server.h',['../cio__http__server_8h.html',1,'']]],
+  ['cio_5fhttp_5fserver_5fclose_5fhook',['cio_http_server_close_hook',['../cio__http__server_8h.html#a398ecf1a0e23688dcd128181555d9e74',1,'cio_http_server.h']]],
   ['cio_5fhttp_5fserver_5finit',['cio_http_server_init',['../cio__http__server_8c.html#afe241919a7a24f6b87a4c98091261042',1,'cio_http_server_init(struct cio_http_server *server, uint16_t port, struct cio_eventloop *loop, cio_http_serve_on_error on_error, uint64_t read_header_timeout_ns, cio_alloc_client alloc_client, cio_free_client free_client):&#160;cio_http_server.c'],['../cio__http__server_8h.html#afe241919a7a24f6b87a4c98091261042',1,'cio_http_server_init(struct cio_http_server *server, uint16_t port, struct cio_eventloop *loop, cio_http_serve_on_error on_error, uint64_t read_header_timeout_ns, cio_alloc_client alloc_client, cio_free_client free_client):&#160;cio_http_server.c']]],
   ['cio_5fhttp_5fstatus_5fbad_5frequest',['CIO_HTTP_STATUS_BAD_REQUEST',['../cio__http__status__code_8h.html#ac968a65c0166575561fdd18b89ea580cae13412d8b25f6684f9b3e8f4d1e9be31',1,'cio_http_status_code.h']]],
   ['cio_5fhttp_5fstatus_5fcode',['cio_http_status_code',['../cio__http__status__code_8h.html#ac968a65c0166575561fdd18b89ea580c',1,'cio_http_status_code.h']]],
