@@ -97,9 +97,10 @@ struct cio_http_server {
 	 * @brief Shuts down the HTTP server, including the underlying server socket.
 	 *
 	 * @param server The HTTP server which should be shut down.
+	 * @param close_hook A user provided function that will be called after the HTTP server completed the @ref cio_http_server_shutdown "shutdown".
 	 * @return ::CIO_SUCCESS if the @p location was registered correctly.
 	 */
-	enum cio_error (*shutdown)(struct cio_http_server *server);
+	enum cio_error (*shutdown)(struct cio_http_server *server, cio_http_server_close_hook close_hook);
 
 	/**
 	 * @privatesection
@@ -131,7 +132,6 @@ struct cio_http_server {
  * @param alloc_client A user provided function responsible to allocate a cio_http_client structure.
  * @anchor cio_http_server_init_free_client
  * @param free_client A user provided function to free the client memory @ref cio_http_server_init_alloc_client "allocated".
- * @param close_hook A user provided function that will be called after the HTTP server completed the @ref cio_http_server_shutdown "shutdown".
  * @return ::CIO_SUCCESS for success.
  */
 enum cio_error cio_http_server_init(struct cio_http_server *server,
@@ -140,8 +140,7 @@ enum cio_error cio_http_server_init(struct cio_http_server *server,
                                     cio_http_serve_on_error on_error,
                                     uint64_t read_header_timeout_ns,
                                     cio_alloc_client alloc_client,
-                                    cio_free_client free_client,
-                                    cio_http_server_close_hook close_hook);
+                                    cio_free_client free_client);
 
 #ifdef __cplusplus
 }
