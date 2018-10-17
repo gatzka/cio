@@ -258,7 +258,7 @@ static int on_url(http_parser *parser, const char *at, size_t length)
 	struct cio_http_client *client = container_of(parser, struct cio_http_client, parser);
 
 	int is_connect;
-	if (cio_unlikely(parser->method == HTTP_CONNECT)) {
+	if (cio_unlikely(parser->method == (unsigned int)HTTP_CONNECT)) {
 		is_connect = 1;
 	} else {
 		is_connect = 0;
