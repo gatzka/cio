@@ -114,13 +114,18 @@ static void sighandler(int signum)
 {
 	(void)signum;
 	server.shutdown(&server);
-	cio_eventloop_cancel(&loop);
 }
 
 static void serve_error(struct cio_http_server *s, const char *reason)
 {
 	fprintf(stderr, "http server error: %s\n", reason);
 	s->server_socket.close(&s->server_socket);
+}
+
+static void http_server_closed(struct cio_http_server *s)
+{
+	(void)s;
+	cio_eventloop_cancel(&loop);
 }
 
 int main(void)
@@ -140,7 +145,7 @@ int main(void)
 		return EXIT_FAILURE;
 	}
 
-	err = cio_http_server_init(&server, 8080, &loop, serve_error, read_timeout, alloc_http_client, free_http_client);
+	err = cio_http_server_init(&server, 8080, &loop, serve_error, read_timeout, alloc_http_client, free_http_client, http_server_closed);
 	if (err != CIO_SUCCESS) {
 		ret = EXIT_FAILURE;
 		goto destroy_loop;
