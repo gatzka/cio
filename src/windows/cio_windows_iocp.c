@@ -63,7 +63,7 @@ wsa_startup_failed:
 	return err;
 }
 
-void cio_eventloop_destroy(const struct cio_eventloop *loop)
+void cio_eventloop_destroy(struct cio_eventloop *loop)
 {
 	CloseHandle(loop->loop_completion_port);
 	WSACleanup();
