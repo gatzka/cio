@@ -53,8 +53,7 @@ static struct cio_server_socket *get_server_socket(const struct cio_windows_list
 static void try_free(struct cio_windows_listen_socket *wls)
 {
 	if (wls->en.overlapped_operations_in_use == 0) {
-		int ret = closesocket((SOCKET)wls->fd);
-		(void)ret;
+		closesocket((SOCKET)wls->fd);
 		struct cio_server_socket *ss = get_server_socket(wls);
 		if ((ss->impl.listen_socket_ipv4.bound == false) && (ss->impl.listen_socket_ipv6.bound == false)) {
 			if (ss->close_hook != NULL) {
