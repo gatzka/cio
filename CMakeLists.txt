@@ -21,5 +21,5 @@ file(GLOB FILES_TO_FORMAT
        ${PROJECT_SOURCE_DIR}/src/linux/*.h
 )
 
-add_custom_target(cio-files SOURCES ${FILES_TO_FORMAT})
-AddClangFormat(cio-files)
+add_custom_target(cio-format SOURCES ${FILES_TO_FORMAT})
+AddClangFormat(cio-format)
