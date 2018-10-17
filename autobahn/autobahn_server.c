@@ -38,7 +38,7 @@
 #include "cio_util.h"
 
 static struct cio_eventloop loop;
-struct cio_http_server http_server;
+static struct cio_http_server http_server;
 
 #define read_buffer_size (16 * 1024 * 1024)
 
@@ -139,22 +139,22 @@ static void free_http_client(struct cio_socket *socket)
 	free(client);
 }
 
+static void http_server_closed(struct cio_http_server *s)
+{
+	(void)s;
+	cio_eventloop_cancel(&loop);
+}
+
 static void sighandler(int signum)
 {
 	(void)signum;
-	http_server.shutdown(&http_server);
+	http_server.shutdown(&http_server, http_server_closed);
 }
 
 static void serve_error(struct cio_http_server *server, const char *reason)
 {
 	(void)reason;
 	server->server_socket.close(&server->server_socket);
-}
-
-static void http_server_closed(struct cio_http_server *s)
-{
-	(void)s;
-	cio_eventloop_cancel(&loop);
 }
 
 int main(void)
@@ -174,7 +174,7 @@ int main(void)
 		return EXIT_FAILURE;
 	}
 
-	err = cio_http_server_init(&http_server, 9001, &loop, serve_error, read_timeout, alloc_http_client, free_http_client, http_server_closed);
+	err = cio_http_server_init(&http_server, 9001, &loop, serve_error, read_timeout, alloc_http_client, free_http_client);
 	if (err != CIO_SUCCESS) {
 		ret = EXIT_FAILURE;
 		goto destroy_loop;

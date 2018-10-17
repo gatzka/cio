@@ -518,7 +518,7 @@ static void test_ws_location_write_error(void)
 	bs_read_exactly_fake.custom_fake = bs_read_exactly_from_buffer;
 
 	struct cio_http_server server;
-	enum cio_error err = cio_http_server_init(&server, 8080, &loop, serve_error, read_timeout, alloc_dummy_client, free_dummy_client, NULL);
+	enum cio_error err = cio_http_server_init(&server, 8080, &loop, serve_error, read_timeout, alloc_dummy_client, free_dummy_client);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Server initialization failed!");
 
 	struct cio_http_location target;
@@ -561,7 +561,7 @@ static void test_ws_location_response_write_timeout(void)
 	bs_read_exactly_fake.custom_fake = bs_read_exactly_from_buffer;
 
 	struct cio_http_server server;
-	enum cio_error err = cio_http_server_init(&server, 8080, &loop, serve_error, read_timeout, alloc_dummy_client, free_dummy_client, NULL);
+	enum cio_error err = cio_http_server_init(&server, 8080, &loop, serve_error, read_timeout, alloc_dummy_client, free_dummy_client);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Server initialization failed!");
 
 	struct cio_http_location target;
@@ -613,7 +613,7 @@ static void test_ws_location_write_timeout_expires_failure(void)
 	SET_CUSTOM_FAKE_SEQ(timer_expires_from_now, expires_fakes, ARRAY_SIZE(expires_fakes));
 
 	struct cio_http_server server;
-	enum cio_error err = cio_http_server_init(&server, 8080, &loop, serve_error, read_timeout, alloc_dummy_client, free_dummy_client, NULL);
+	enum cio_error err = cio_http_server_init(&server, 8080, &loop, serve_error, read_timeout, alloc_dummy_client, free_dummy_client);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Server initialization failed!");
 
 	struct cio_http_location target;
@@ -658,7 +658,7 @@ static void test_ws_location_close_in_onconnect(void)
 	bs_read_exactly_fake.custom_fake = bs_read_exactly_from_buffer;
 
 	struct cio_http_server server;
-	enum cio_error err = cio_http_server_init(&server, 8080, &loop, serve_error, read_timeout, alloc_dummy_client, free_dummy_client, NULL);
+	enum cio_error err = cio_http_server_init(&server, 8080, &loop, serve_error, read_timeout, alloc_dummy_client, free_dummy_client);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Server initialization failed!");
 
 	struct cio_http_location target;
@@ -709,7 +709,7 @@ static void test_static_ws_location_close_in_onconnect(void)
 	bs_read_exactly_fake.custom_fake = bs_read_exactly_from_buffer;
 
 	struct cio_http_server server;
-	enum cio_error err = cio_http_server_init(&server, 8080, &loop, serve_error, read_timeout, alloc_dummy_client, free_dummy_client, NULL);
+	enum cio_error err = cio_http_server_init(&server, 8080, &loop, serve_error, read_timeout, alloc_dummy_client, free_dummy_client);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Server initialization failed!");
 
 	struct cio_http_location target;
@@ -778,7 +778,7 @@ static void test_ws_location_wrong_http_version(void)
 		bs_read_exactly_fake.custom_fake = bs_read_exactly_from_buffer;
 
 		struct cio_http_server server;
-		enum cio_error err = cio_http_server_init(&server, 8080, &loop, serve_error, read_timeout, alloc_dummy_client, free_dummy_client, NULL);
+		enum cio_error err = cio_http_server_init(&server, 8080, &loop, serve_error, read_timeout, alloc_dummy_client, free_dummy_client);
 		TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Server initialization failed!");
 
 		struct cio_http_location target;
@@ -849,7 +849,7 @@ static void test_ws_location_subprotocols(void)
 		bs_read_exactly_fake.custom_fake = bs_read_exactly_from_buffer;
 
 		struct cio_http_server server;
-		enum cio_error err = cio_http_server_init(&server, 8080, &loop, serve_error, read_timeout, alloc_dummy_client, free_dummy_client, NULL);
+		enum cio_error err = cio_http_server_init(&server, 8080, &loop, serve_error, read_timeout, alloc_dummy_client, free_dummy_client);
 		TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Server initialization failed!");
 
 		struct cio_http_location target;
@@ -891,7 +891,7 @@ static void test_ws_location_wrong_http_method(void)
 	bs_read_exactly_fake.custom_fake = bs_read_exactly_from_buffer;
 
 	struct cio_http_server server;
-	enum cio_error err = cio_http_server_init(&server, 8080, &loop, serve_error, read_timeout, alloc_dummy_client, free_dummy_client, NULL);
+	enum cio_error err = cio_http_server_init(&server, 8080, &loop, serve_error, read_timeout, alloc_dummy_client, free_dummy_client);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Server initialization failed!");
 
 	struct cio_http_location target;
@@ -932,7 +932,7 @@ static void test_ws_location_wrong_ws_version(void)
 		bs_read_exactly_fake.custom_fake = bs_read_exactly_from_buffer;
 
 		struct cio_http_server server;
-		enum cio_error err = cio_http_server_init(&server, 8080, &loop, serve_error, read_timeout, alloc_dummy_client, free_dummy_client, NULL);
+		enum cio_error err = cio_http_server_init(&server, 8080, &loop, serve_error, read_timeout, alloc_dummy_client, free_dummy_client);
 		TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Server initialization failed!");
 
 		struct cio_http_location target;
@@ -991,7 +991,7 @@ static void test_ws_version(void)
 		bs_read_exactly_fake.custom_fake = bs_read_exactly_from_buffer;
 
 		struct cio_http_server server;
-		enum cio_error err = cio_http_server_init(&server, 8080, &loop, serve_error, read_timeout, alloc_dummy_client, free_dummy_client, NULL);
+		enum cio_error err = cio_http_server_init(&server, 8080, &loop, serve_error, read_timeout, alloc_dummy_client, free_dummy_client);
 		TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Server initialization failed!");
 
 		struct cio_http_location target;
@@ -1032,7 +1032,7 @@ static void test_ws_location_no_upgrade(void)
 	bs_read_exactly_fake.custom_fake = bs_read_exactly_from_buffer;
 
 	struct cio_http_server server;
-	enum cio_error err = cio_http_server_init(&server, 8080, &loop, serve_error, read_timeout, alloc_dummy_client, free_dummy_client, NULL);
+	enum cio_error err = cio_http_server_init(&server, 8080, &loop, serve_error, read_timeout, alloc_dummy_client, free_dummy_client);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Server initialization failed!");
 
 	struct cio_http_location target;
@@ -1088,7 +1088,7 @@ static void test_ws_key(void)
 		bs_read_exactly_fake.custom_fake = bs_read_exactly_from_buffer;
 
 		struct cio_http_server server;
-		enum cio_error err = cio_http_server_init(&server, 8080, &loop, serve_error, read_timeout, alloc_dummy_client, free_dummy_client, NULL);
+		enum cio_error err = cio_http_server_init(&server, 8080, &loop, serve_error, read_timeout, alloc_dummy_client, free_dummy_client);
 		TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Server initialization failed!");
 
 		struct cio_http_location target;
@@ -1129,7 +1129,7 @@ static void test_ws_location_wrong_key_length(void)
 	bs_read_exactly_fake.custom_fake = bs_read_exactly_from_buffer;
 
 	struct cio_http_server server;
-	enum cio_error err = cio_http_server_init(&server, 8080, &loop, serve_error, read_timeout, alloc_dummy_client, free_dummy_client, NULL);
+	enum cio_error err = cio_http_server_init(&server, 8080, &loop, serve_error, read_timeout, alloc_dummy_client, free_dummy_client);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Server initialization failed!");
 
 	struct cio_http_location target;
