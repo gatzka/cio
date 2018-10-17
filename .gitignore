@@ -4,3 +4,4 @@ build*
 *.qbs.user*
 *.obj
 .vs
+CMakeLists.txt.user
