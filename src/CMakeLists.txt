@@ -121,7 +121,7 @@ if(CMAKE_C_COMPILER_ID STREQUAL "GNU" OR CMAKE_C_COMPILER_ID STREQUAL "Clang")
     endif()
 
     set_property(SOURCE http-parser/http_parser.c  APPEND_STRING PROPERTY COMPILE_FLAGS "-Wstrict-overflow=2 -Wno-switch-default -Wno-shadow")
-    set_property(SOURCE miniz/miniz.c  APPEND_STRING PROPERTY COMPILE_FLAGS "-Wno-cast-align -Wno-cast-qual -Wno-strict-prototypes -Wno-missing-prototypes -Wno-old-style-definition -Wno-switch-default")
+    set_property(SOURCE miniz/miniz.c  APPEND_STRING PROPERTY COMPILE_FLAGS "-Wno-cast-align -Wno-cast-qual -Wno-strict-prototypes -Wno-missing-prototypes -Wno-old-style-definition -Wno-switch-default -Wno-strict-overflow")
 
     foreach(_file ${CIO_PLATFORM_FILES})
         file(SHA1 ${CMAKE_CURRENT_SOURCE_DIR}/${_file} checksum)
