@@ -107,6 +107,8 @@ add_library(
     OBJECT
     "http-parser/http_parser.c"
     "http-parser/http_parser.h"
+    "miniz/miniz.c"
+    "miniz/miniz.h"
 )
 set_property(TARGET target_third_party PROPERTY POSITION_INDEPENDENT_CODE 1)
 
@@ -118,6 +120,7 @@ if(CMAKE_C_COMPILER_ID STREQUAL "GNU" OR CMAKE_C_COMPILER_ID STREQUAL "Clang")
     endif()
 
     set_property(SOURCE http-parser/http_parser.c  APPEND_STRING PROPERTY COMPILE_FLAGS "-Wstrict-overflow=2 -Wno-switch-default -Wno-shadow")
+    set_property(SOURCE miniz/miniz.c  APPEND_STRING PROPERTY COMPILE_FLAGS "-Wno-cast-align -Wno-cast-qual -Wno-strict-prototypes -Wno-missing-prototypes")
 
     foreach(_file ${CIO_PLATFORM_FILES})
         file(SHA1 ${CMAKE_CURRENT_SOURCE_DIR}/${_file} checksum)
