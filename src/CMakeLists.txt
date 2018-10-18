@@ -111,6 +111,7 @@ add_library(
     "miniz/miniz.h"
 )
 set_property(TARGET target_third_party PROPERTY POSITION_INDEPENDENT_CODE 1)
+target_compile_definitions(target_third_party PRIVATE MINIZ_NO_STDIO MINIZ_NO_ARCHIVE_APIS MINIZ_NO_TIME MINIZ_NO_ARCHIVE_WRITING_APIS MINIZ_NO_ZLIB_APIS MINIZ_NO_ZLIB_COMPATIBLE_NAME MINIZ_NO_MALLOC)
 
 if(CMAKE_C_COMPILER_ID STREQUAL "GNU" OR CMAKE_C_COMPILER_ID STREQUAL "Clang")
     if(CMAKE_C_COMPILER_ID STREQUAL "GNU")
@@ -120,7 +121,7 @@ if(CMAKE_C_COMPILER_ID STREQUAL "GNU" OR CMAKE_C_COMPILER_ID STREQUAL "Clang")
     endif()
 
     set_property(SOURCE http-parser/http_parser.c  APPEND_STRING PROPERTY COMPILE_FLAGS "-Wstrict-overflow=2 -Wno-switch-default -Wno-shadow")
-    set_property(SOURCE miniz/miniz.c  APPEND_STRING PROPERTY COMPILE_FLAGS "-Wno-cast-align -Wno-cast-qual -Wno-strict-prototypes -Wno-missing-prototypes")
+    set_property(SOURCE miniz/miniz.c  APPEND_STRING PROPERTY COMPILE_FLAGS "-Wno-cast-align -Wno-cast-qual -Wno-strict-prototypes -Wno-missing-prototypes -Wno-old-style-definition -Wno-switch-default")
 
     foreach(_file ${CIO_PLATFORM_FILES})
         file(SHA1 ${CMAKE_CURRENT_SOURCE_DIR}/${_file} checksum)
