@@ -65,7 +65,7 @@ static void try_free(struct cio_windows_listen_socket *wls)
 
 static SOCKET create_win_socket(int address_family, const struct cio_eventloop *loop, void *socket_impl)
 {
-	SOCKET s = WSASocket(address_family, SOCK_STREAM, 0, NULL, 0, WSA_FLAG_OVERLAPPED);
+	SOCKET s = WSASocketW(address_family, SOCK_STREAM, 0, NULL, 0, WSA_FLAG_OVERLAPPED);
 	if (cio_unlikely(s == INVALID_SOCKET)) {
 		return INVALID_SOCKET;
 	}
@@ -143,7 +143,7 @@ ok:
 static enum cio_error prepare_accept_socket(struct cio_windows_listen_socket *wls)
 {
 	enum cio_error err;
-	wls->accept_socket = WSASocket(wls->address_family, SOCK_STREAM, 0, NULL, 0, WSA_FLAG_OVERLAPPED);
+	wls->accept_socket = WSASocketW(wls->address_family, SOCK_STREAM, 0, NULL, 0, WSA_FLAG_OVERLAPPED);
 	if (cio_unlikely(wls->accept_socket == INVALID_SOCKET)) {
 		return (enum cio_error)(-WSAGetLastError());
 	}
