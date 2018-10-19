@@ -9,20 +9,17 @@ add_library(unity
     ../../unity/src/unity.c
     ../../unity/src/unity.h
 )
+target_include_directories(unity PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/../../unity/src/)
 
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../)
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../../)
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../../fff/)
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../../unity/src/)
+if(CMAKE_C_COMPILER_ID STREQUAL "GNU" OR CMAKE_C_COMPILER_ID STREQUAL "Clang")
+    if(CMAKE_BUILD_TYPE MATCHES Debug)
+        set(COVERAGE_FLAGS "-fprofile-arcs -ftest-coverage")
+        set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${COVERAGE_FLAGS}")
+    endif(CMAKE_BUILD_TYPE MATCHES Debug)
 
-if(CMAKE_BUILD_TYPE MATCHES Debug)
-  set(COVERAGE_FLAGS "-fprofile-arcs -ftest-coverage")
-  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${COVERAGE_FLAGS}")
-endif(CMAKE_BUILD_TYPE MATCHES Debug)
-
-if(CMAKE_C_COMPILER_ID STREQUAL "GNU")
-    set_property(SOURCE ../../unity/src/unity.c  APPEND_STRING PROPERTY COMPILE_FLAGS "-Wstrict-overflow=2 ")
+    set_target_properties(unity PROPERTIES COMPILE_FLAGS "-Wstrict-overflow=2 ")
 endif()
+
 
 add_executable(test_cio_linux_epoll
     test_cio_linux_epoll.c
@@ -59,6 +56,21 @@ add_executable(test_cio_linux_endian
     ../cio_linux_endian.c
 )
 target_link_libraries (test_cio_linux_endian unity)
+
+set_property(
+    TARGET
+        test_cio_linux_epoll
+        test_cio_linux_epoll
+        test_cio_linux_socket_utils
+        test_cio_linux_server_socket
+        test_cio_linux_timer
+        test_cio_linux_socket
+        test_cio_linux_endian
+    PROPERTY INCLUDE_DIRECTORIES
+        "${CMAKE_CURRENT_SOURCE_DIR}/../"
+        "${CMAKE_CURRENT_SOURCE_DIR}/../../"
+        "${CMAKE_CURRENT_SOURCE_DIR}/../../fff/"
+)
 
 enable_testing()
 add_test(NAME test_cio_linux_endian COMMAND test_cio_linux_endian)
