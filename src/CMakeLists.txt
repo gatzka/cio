@@ -81,7 +81,13 @@ add_library(target_platform
     OBJECT
     ${CIO_PLATFORM_FILES}
 )
-set_property(TARGET target_platform PROPERTY POSITION_INDEPENDENT_CODE 1)
+set_target_properties(
+    target_platform
+    PROPERTIES
+        C_CLANG_TIDY "${DO_CLANG_TIDY}"
+        POSITION_INDEPENDENT_CODE "1"
+        INCLUDE_DIRECTORIES "${CMAKE_CURRENT_SOURCE_DIR}/"
+)
 
 set(CIO_FILES
     "cio_base64.c"
@@ -99,8 +105,13 @@ add_library(target_platform_independent
     OBJECT
 	${CIO_FILES}
 )
-
-set_property(TARGET target_platform_independent PROPERTY POSITION_INDEPENDENT_CODE 1)
+set_target_properties(
+    target_platform_independent
+    PROPERTIES
+        C_CLANG_TIDY "${DO_CLANG_TIDY}"
+        POSITION_INDEPENDENT_CODE "1"
+        INCLUDE_DIRECTORIES "${CMAKE_CURRENT_SOURCE_DIR}/;${CMAKE_BINARY_DIR}/generated/"
+)
 
 add_library(
     target_third_party
@@ -110,8 +121,13 @@ add_library(
     "miniz/miniz.c"
     "miniz/miniz.h"
 )
-set_property(TARGET target_third_party PROPERTY POSITION_INDEPENDENT_CODE 1)
-target_compile_definitions(target_third_party PRIVATE MINIZ_NO_STDIO MINIZ_NO_ARCHIVE_APIS MINIZ_NO_TIME MINIZ_NO_ARCHIVE_WRITING_APIS MINIZ_NO_ZLIB_APIS MINIZ_NO_ZLIB_COMPATIBLE_NAME MINIZ_NO_MALLOC)
+set_target_properties(
+    target_third_party
+    PROPERTIES
+        C_CLANG_TIDY ""
+        POSITION_INDEPENDENT_CODE "1"
+        COMPILE_DEFINITIONS "MINIZ_NO_STDIO;MINIZ_NO_ARCHIVE_APIS;MINIZ_NO_TIME;MINIZ_NO_ARCHIVE_WRITING_APIS;MINIZ_NO_ZLIB_APIS;MINIZ_NO_ZLIB_COMPATIBLE_NAME;MINIZ_NO_MALLOC"
+)
 
 if(CMAKE_C_COMPILER_ID STREQUAL "GNU" OR CMAKE_C_COMPILER_ID STREQUAL "Clang")
     if(CMAKE_C_COMPILER_ID STREQUAL "GNU")
@@ -135,26 +151,6 @@ if(CMAKE_C_COMPILER_ID STREQUAL "GNU" OR CMAKE_C_COMPILER_ID STREQUAL "Clang")
         set_property(SOURCE ${_file} APPEND_STRING PROPERTY COMPILE_FLAGS "-frandom-seed=0x${checksum}")
     endforeach()
 endif()
-
-set_target_properties(
-    target_third_party
-    PROPERTIES C_CLANG_TIDY ""
-)
-
-set_target_properties(
-    target_platform_independent PROPERTIES
-    C_CLANG_TIDY "${DO_CLANG_TIDY}"
-)
-
-set_target_properties(
-    target_platform PROPERTIES
-    C_CLANG_TIDY "${DO_CLANG_TIDY}"
-)
-
-target_include_directories(target_platform_independent PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/)
-target_include_directories(target_platform_independent PUBLIC ${CMAKE_BINARY_DIR}/generated/)
-
-target_include_directories(target_platform PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/)
 
 add_library(cio_static STATIC
 	$<TARGET_OBJECTS:target_platform_independent>
