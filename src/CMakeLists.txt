@@ -252,3 +252,5 @@ if(is_linux)
     )
 endif()
 
+FILE(GLOB LibFiles "*.h" "windows/*.h" "linux/*.h" "sha1/*.h" "http-parser/*.h" "miniz/*.h")
+add_custom_target(headers SOURCES ${LibFiles})
