@@ -1,0 +1,8 @@
+var structcio__websocket__location__config =
+[
+    [ "free", "structcio__websocket__location__config.html#ae19aa0459331a07fee28162caf9de796", null ],
+    [ "num_sub_protocols", "structcio__websocket__location__config.html#a14ad8a08b651241563810a95201a2f2f", null ],
+    [ "on_connect", "structcio__websocket__location__config.html#a327e163cb520d626a66dbb263e638c49", null ],
+    [ "sub_protocols", "structcio__websocket__location__config.html#ae5d58218169261d54da46dbfb478c44a", null ],
+    [ "upgrade_response_timeout", "structcio__websocket__location__config.html#ab824b661d4abdc63f19bca6adefa9c04", null ]
+];

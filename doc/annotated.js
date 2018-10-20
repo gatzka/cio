@@ -14,6 +14,7 @@ var annotated =
     [ "cio_timer", "structcio__timer.html", "structcio__timer" ],
     [ "cio_utf8_state", "structcio__utf8__state.html", "structcio__utf8__state" ],
     [ "cio_websocket", "structcio__websocket.html", "structcio__websocket" ],
+    [ "cio_websocket_location_config", "structcio__websocket__location__config.html", "structcio__websocket__location__config" ],
     [ "cio_websocket_location_handler", "structcio__websocket__location__handler.html", "structcio__websocket__location__handler" ],
     [ "cio_websocket_private", "structcio__websocket__private.html", "structcio__websocket__private" ],
     [ "cio_websocket_write_job", "structcio__websocket__write__job.html", "structcio__websocket__write__job" ],

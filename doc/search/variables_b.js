@@ -1,7 +1,7 @@
 var searchData=
 [
   ['on_5fbody',['on_body',['../structcio__http__location__handler.html#a32a7896a868d5778338e015f6610e504',1,'cio_http_location_handler']]],
-  ['on_5fconnect',['on_connect',['../structcio__websocket.html#a1a44ecbfeb77f285ac2b66af76980fe1',1,'cio_websocket']]],
+  ['on_5fconnect',['on_connect',['../structcio__websocket.html#a1a44ecbfeb77f285ac2b66af76980fe1',1,'cio_websocket::on_connect()'],['../structcio__websocket__location__config.html#a327e163cb520d626a66dbb263e638c49',1,'cio_websocket_location_config::on_connect()']]],
   ['on_5fcontrol',['on_control',['../structcio__websocket.html#ad12d55d9988c23f5797ed3a3b45b8305',1,'cio_websocket']]],
   ['on_5ferror',['on_error',['../structcio__websocket.html#a4d8bdb2eb88d11428eea2721d86a25d5',1,'cio_websocket']]],
   ['on_5ffragment',['on_fragment',['../structcio__http__location__handler.html#a45d7a4048f22f2061f6497e78ac83fa2',1,'cio_http_location_handler']]],

@@ -13,6 +13,6 @@ var searchData=
   ['frag_5fopcode',['frag_opcode',['../structcio__websocket__private.html#a2444b6d19ae7c43fbfb7ade730c76ddc',1,'cio_websocket_private']]],
   ['fragmented_5fwrite',['fragmented_write',['../structcio__websocket__private.html#a56659e66ba0abd9c92befc6881bdd36f',1,'cio_websocket_private']]],
   ['frame_5ftype',['frame_type',['../structcio__websocket__write__job.html#aa861ea6f9fbe9270a2ca76f9faced872',1,'cio_websocket_write_job']]],
-  ['free',['free',['../structcio__http__location__handler.html#adbfcedcd1124f966a7e00a1dc8290874',1,'cio_http_location_handler']]],
+  ['free',['free',['../structcio__http__location__handler.html#adbfcedcd1124f966a7e00a1dc8290874',1,'cio_http_location_handler::free()'],['../structcio__websocket__location__config.html#ae19aa0459331a07fee28162caf9de796',1,'cio_websocket_location_config::free()']]],
   ['free_5fresources',['free_resources',['../cio__websocket__location__handler_8c.html#a0b5184071a00d69381c7e7fbbed45155',1,'cio_websocket_location_handler.c']]]
 ];

@@ -190,6 +190,7 @@ var searchData=
   ['cio_5fwebsocket_5fcontinuation_5fframe',['CIO_WEBSOCKET_CONTINUATION_FRAME',['../cio__websocket_8h.html#af33fb069400eeffde11ab324bf2245e9a268d3844949375e76864185036973bd9',1,'cio_websocket.h']]],
   ['cio_5fwebsocket_5fframe_5ftype',['cio_websocket_frame_type',['../cio__websocket_8h.html#af33fb069400eeffde11ab324bf2245e9',1,'cio_websocket.h']]],
   ['cio_5fwebsocket_5finit',['cio_websocket_init',['../cio__websocket_8c.html#acf943032bcd768ba38f15fd37655f70d',1,'cio_websocket_init(struct cio_websocket *ws, bool is_server, cio_websocket_on_connect on_connect, cio_websocket_close_hook close_hook):&#160;cio_websocket.c'],['../cio__websocket_8h.html#acf943032bcd768ba38f15fd37655f70d',1,'cio_websocket_init(struct cio_websocket *ws, bool is_server, cio_websocket_on_connect on_connect, cio_websocket_close_hook close_hook):&#160;cio_websocket.c']]],
+  ['cio_5fwebsocket_5flocation_5fconfig',['cio_websocket_location_config',['../structcio__websocket__location__config.html',1,'']]],
   ['cio_5fwebsocket_5flocation_5fhandler',['cio_websocket_location_handler',['../structcio__websocket__location__handler.html',1,'']]],
   ['cio_5fwebsocket_5flocation_5fhandler_2ec',['cio_websocket_location_handler.c',['../cio__websocket__location__handler_8c.html',1,'']]],
   ['cio_5fwebsocket_5flocation_5fhandler_2eh',['cio_websocket_location_handler.h',['../cio__websocket__location__handler_8h.html',1,'']]],

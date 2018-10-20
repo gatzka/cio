@@ -18,6 +18,7 @@ var searchData=
   ['start_5fread',['start_read',['../cio__buffered__stream_8c.html#a64173abf58ace01edbc78e16374671ad',1,'cio_buffered_stream.c']]],
   ['state',['state',['../structcio__utf8__state.html#ad5d20ff3befbecac8f36e02326e11f3c',1,'cio_utf8_state']]],
   ['stream_5fhandler',['stream_handler',['../structcio__websocket__write__job.html#ab280f25abec5056c40d480c0a03b163e',1,'cio_websocket_write_job']]],
+  ['sub_5fprotocols',['sub_protocols',['../structcio__websocket__location__config.html#ae5d58218169261d54da46dbfb478c44a',1,'cio_websocket_location_config']]],
   ['subprotocol_5frequested',['subprotocol_requested',['../structcio__websocket__location__handler.html#ac370e86d296c80479b400d08708e3cce',1,'cio_websocket_location_handler']]],
   ['swap',['swap',['../cio__websocket_8c.html#a7cb02ed5cc60ae1ccce90c898b4cfed6',1,'cio_websocket.c']]]
 ];

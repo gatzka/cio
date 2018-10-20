@@ -14,6 +14,7 @@ var searchData=
   ['cio_5ftimer',['cio_timer',['../structcio__timer.html',1,'']]],
   ['cio_5futf8_5fstate',['cio_utf8_state',['../structcio__utf8__state.html',1,'']]],
   ['cio_5fwebsocket',['cio_websocket',['../structcio__websocket.html',1,'']]],
+  ['cio_5fwebsocket_5flocation_5fconfig',['cio_websocket_location_config',['../structcio__websocket__location__config.html',1,'']]],
   ['cio_5fwebsocket_5flocation_5fhandler',['cio_websocket_location_handler',['../structcio__websocket__location__handler.html',1,'']]],
   ['cio_5fwebsocket_5fprivate',['cio_websocket_private',['../structcio__websocket__private.html',1,'']]],
   ['cio_5fwebsocket_5fwrite_5fjob',['cio_websocket_write_job',['../structcio__websocket__write__job.html',1,'']]],
