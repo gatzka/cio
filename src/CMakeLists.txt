@@ -16,7 +16,7 @@ set(VERSION_FILE_CONFIGURED true)
 enable_testing()
 add_subdirectory(tests/)
 
-set(remove_patterns "'*/tests/*' '*/http-parser/*' '*/sha1/*' '*/unity/*' '/usr/include/*'")
+set(remove_patterns "'*/tests/*' '*/http-parser/*' '*/miniz/*' '*/sha1/*' '*/unity/*' '/usr/include/*'")
 setup_target_for_coverage(coverage coverage ${remove_patterns})
 
 if (DOXYGEN_FOUND)
