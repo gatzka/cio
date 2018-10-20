@@ -74,6 +74,14 @@ struct cio_websocket_location_handler {
 	struct cio_websocket websocket;
 };
 
+struct cio_websocket_location_config {
+	uint64_t upgrade_response_timeout;
+	cio_websocket_on_connect on_connect;
+	void (*free)(struct cio_websocket_location_handler *);
+	unsigned int num_sub_protocols;
+	const char *sub_protocols[];
+};
+
 /**
  * @brief Initializes a websocket handler.
  * @param handler The handler to initialize.

@@ -18,33 +18,24 @@ add_library(cio_unity
     ../unity/src/unity.c
     ../unity/src/unity.h
 )
-
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../)
-if (is_linux)
-	include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../linux/)
-elseif(is_windows)
-	include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../windows/)
-endif()
-
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../fff/)
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../unity/src/)
-include_directories(${CMAKE_BINARY_DIR}/generated/)
+target_include_directories(cio_unity PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/../unity/src/)
 
 if(CMAKE_C_COMPILER_ID STREQUAL "GNU")
-	if(CMAKE_BUILD_TYPE MATCHES Debug)
-	set(COVERAGE_FLAGS "-fprofile-arcs -ftest-coverage")
-	set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${COVERAGE_FLAGS}")
-	endif(CMAKE_BUILD_TYPE MATCHES Debug)
 endif()
 
 if(CMAKE_C_COMPILER_ID STREQUAL "GNU" OR CMAKE_C_COMPILER_ID STREQUAL "Clang")
+    if(CMAKE_BUILD_TYPE MATCHES Debug)
+        set(COVERAGE_FLAGS "-fprofile-arcs -ftest-coverage")
+        set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${COVERAGE_FLAGS}")
+    endif(CMAKE_BUILD_TYPE MATCHES Debug)
+
     if(CMAKE_C_COMPILER_ID STREQUAL "GNU")
         if(NOT CMAKE_C_COMPILER_VERSION VERSION_LESS 7.0.0)
             set_property(SOURCE ../http-parser/http_parser.c  APPEND_STRING PROPERTY COMPILE_FLAGS "-Wimplicit-fallthrough=0 ")
         endif()
-        set_property(SOURCE ../unity/src/unity.c  APPEND_STRING PROPERTY COMPILE_FLAGS "-Wstrict-overflow=2 ")
     endif()
 
+    set_target_properties(cio_unity PROPERTIES COMPILE_FLAGS "-Wstrict-overflow=2 ")
     set_property(SOURCE ../http-parser/http_parser.c  APPEND_STRING PROPERTY COMPILE_FLAGS "-Wstrict-overflow=2 -Wno-switch-default -Wno-shadow")
 endif()
 
@@ -192,6 +183,30 @@ elseif (is_windows)
 	)
 	target_link_libraries (test_cio_websocket_client cio_unity bcrypt)
 endif()
+
+set(TEST_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/../" "${CMAKE_CURRENT_SOURCE_DIR}/../fff/" "${CMAKE_BINARY_DIR}/generated/")
+if (is_linux)
+    list(APPEND TEST_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/../linux/")
+elseif(is_windows)
+    list(APPEND TEST_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/../windows/")
+endif()
+
+set_property(
+    TARGET
+        test_cio_base64
+        test_cio_buffered_stream
+        test_cio_http_server
+        test_cio_http_server_iostream
+        test_cio_read_buffer
+        test_cio_utf8_checker
+        test_cio_websocket
+        test_cio_websocket_client
+        test_cio_websocket_location_handler
+        test_cio_websocket_mask
+        test_cio_write_buffer
+    PROPERTY INCLUDE_DIRECTORIES
+        ${TEST_INCLUDE_DIRS}
+)
 
 enable_testing()
 add_test(NAME test_cio_base64 COMMAND test_cio_base64)

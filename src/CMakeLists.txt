@@ -16,7 +16,7 @@ set(VERSION_FILE_CONFIGURED true)
 enable_testing()
 add_subdirectory(tests/)
 
-set(remove_patterns "'*/tests/*' '*/http-parser/*' '*/sha1/*' '*/unity/*' '/usr/include/*'")
+set(remove_patterns "'*/tests/*' '*/http-parser/*' '*/miniz/*' '*/sha1/*' '*/unity/*' '/usr/include/*'")
 setup_target_for_coverage(coverage coverage ${remove_patterns})
 
 if (DOXYGEN_FOUND)
@@ -81,7 +81,13 @@ add_library(target_platform
     OBJECT
     ${CIO_PLATFORM_FILES}
 )
-set_property(TARGET target_platform PROPERTY POSITION_INDEPENDENT_CODE 1)
+set_target_properties(
+    target_platform
+    PROPERTIES
+        C_CLANG_TIDY "${DO_CLANG_TIDY}"
+        POSITION_INDEPENDENT_CODE "1"
+        INCLUDE_DIRECTORIES "${CMAKE_CURRENT_SOURCE_DIR}/"
+)
 
 set(CIO_FILES
     "cio_base64.c"
@@ -99,16 +105,29 @@ add_library(target_platform_independent
     OBJECT
 	${CIO_FILES}
 )
-
-set_property(TARGET target_platform_independent PROPERTY POSITION_INDEPENDENT_CODE 1)
+set_target_properties(
+    target_platform_independent
+    PROPERTIES
+        C_CLANG_TIDY "${DO_CLANG_TIDY}"
+        POSITION_INDEPENDENT_CODE "1"
+        INCLUDE_DIRECTORIES "${CMAKE_CURRENT_SOURCE_DIR}/;${CMAKE_BINARY_DIR}/generated/"
+)
 
 add_library(
     target_third_party
     OBJECT
     "http-parser/http_parser.c"
     "http-parser/http_parser.h"
+    "miniz/miniz.c"
+    "miniz/miniz.h"
 )
-set_property(TARGET target_third_party PROPERTY POSITION_INDEPENDENT_CODE 1)
+set_target_properties(
+    target_third_party
+    PROPERTIES
+        C_CLANG_TIDY ""
+        POSITION_INDEPENDENT_CODE "1"
+        COMPILE_DEFINITIONS "MINIZ_NO_STDIO;MINIZ_NO_ARCHIVE_APIS;MINIZ_NO_TIME;MINIZ_NO_ARCHIVE_WRITING_APIS;MINIZ_NO_ZLIB_APIS;MINIZ_NO_ZLIB_COMPATIBLE_NAME;MINIZ_NO_MALLOC"
+)
 
 if(CMAKE_C_COMPILER_ID STREQUAL "GNU" OR CMAKE_C_COMPILER_ID STREQUAL "Clang")
     if(CMAKE_C_COMPILER_ID STREQUAL "GNU")
@@ -118,6 +137,7 @@ if(CMAKE_C_COMPILER_ID STREQUAL "GNU" OR CMAKE_C_COMPILER_ID STREQUAL "Clang")
     endif()
 
     set_property(SOURCE http-parser/http_parser.c  APPEND_STRING PROPERTY COMPILE_FLAGS "-Wstrict-overflow=2 -Wno-switch-default -Wno-shadow")
+    set_property(SOURCE miniz/miniz.c  APPEND_STRING PROPERTY COMPILE_FLAGS "-Wno-cast-align -Wno-cast-qual -Wno-strict-prototypes -Wno-missing-prototypes -Wno-old-style-definition -Wno-switch-default -Wno-strict-overflow")
 
     foreach(_file ${CIO_PLATFORM_FILES})
         file(SHA1 ${CMAKE_CURRENT_SOURCE_DIR}/${_file} checksum)
@@ -131,26 +151,6 @@ if(CMAKE_C_COMPILER_ID STREQUAL "GNU" OR CMAKE_C_COMPILER_ID STREQUAL "Clang")
         set_property(SOURCE ${_file} APPEND_STRING PROPERTY COMPILE_FLAGS "-frandom-seed=0x${checksum}")
     endforeach()
 endif()
-
-set_target_properties(
-    target_third_party
-    PROPERTIES C_CLANG_TIDY ""
-)
-
-set_target_properties(
-    target_platform_independent PROPERTIES
-    C_CLANG_TIDY "${DO_CLANG_TIDY}"
-)
-
-set_target_properties(
-    target_platform PROPERTIES
-    C_CLANG_TIDY "${DO_CLANG_TIDY}"
-)
-
-target_include_directories(target_platform_independent PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/)
-target_include_directories(target_platform_independent PUBLIC ${CMAKE_BINARY_DIR}/generated/)
-
-target_include_directories(target_platform PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/)
 
 add_library(cio_static STATIC
 	$<TARGET_OBJECTS:target_platform_independent>
@@ -248,3 +248,5 @@ if(is_linux)
     )
 endif()
 
+FILE(GLOB LibFiles "*.h" "windows/*.h" "linux/*.h" "sha1/*.h" "http-parser/*.h" "miniz/*.h")
+add_custom_target(headers SOURCES ${LibFiles})
