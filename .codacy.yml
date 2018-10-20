@@ -1,0 +1,6 @@
+exclude_paths:
+  - 'src/fff/**'
+  - 'src/http-parser/**'
+  - 'src/miniz/**'
+  - 'src/sha1/**'
+  - 'src/unity/**'
