@@ -43,6 +43,13 @@ add_library(${PROJECT_NAME}
     "cio_buffered_stream.c"
 )
 
+add_library(${PROJECT_NAME}:${PROJECT_NAME} ALIAS ${PROJECT_NAME})
+
+target_include_directories(${PROJECT_NAME} PUBLIC
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
+    $<INSTALL_INTERFACE:include>
+)
+
 if(${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
 	target_sources(${PROJECT_NAME} PRIVATE
         linux/cio_linux_endian.c
@@ -59,7 +66,7 @@ if(${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/linux/>  
         $<INSTALL_INTERFACE:include${PROJECT_NAME}>
     )
-elseif(if(${CMAKE_SYSTEM_NAME} STREQUAL "Windows"))
+elseif(${CMAKE_SYSTEM_NAME} STREQUAL "Windows")
     target_sources(${PROJECT_NAME} PRIVATE
         windows/cio_windows_iocp.c
         windows/cio_windows_endian.c
@@ -77,11 +84,6 @@ elseif(if(${CMAKE_SYSTEM_NAME} STREQUAL "Windows"))
 else()
     message(FATAL_ERROR "Unsupported operating system!")
 endif()
-
-target_include_directories(${PROJECT_NAME} PUBLIC
-    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
-    $<INSTALL_INTERFACE:include>
-)
 
 set_target_properties(${PROJECT_NAME}
     PROPERTIES VERSION "${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}.${PROJECT_VERSION_PATCH}" SOVERSION ${PROJECT_VERSION_MAJOR}
