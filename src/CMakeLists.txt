@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.0)
 project(cio VERSION 0.0.1 LANGUAGES C)
 
-add_library(${PROJECT_NAME} SHARED
+add_library(${PROJECT_NAME}
     "cio_base64.c"
 )
 
