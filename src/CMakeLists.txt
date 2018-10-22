@@ -1,13 +1,35 @@
 cmake_minimum_required(VERSION 3.1)
 project(cio VERSION 0.0.1 LANGUAGES C)
 
+include(CMakeDependentOption)
+
+option(SUPPORT_HTTP "Add HTTP support to the library " ON)
+cmake_dependent_option(SUPPORT_WEBSOCKETS "Add Websocket support to the library" ON "SUPPORT_HTTP" OFF)
+cmake_dependent_option(SUPPORT_WEBSOCKET_COMPRESSION "Add Websocket compression support to the library" ON "SUPPORT_WEBSOCKETS" OFF)
+
 add_library(
     target_third_party
     OBJECT
-    "http-parser/http_parser.c"
-    "miniz/miniz.c"
-    "sha1/sha1.c"
+    ""
 )
+
+if(SUPPORT_HTTP)
+    target_sources(target_third_party PRIVATE
+        http-parser/http_parser.c
+    )
+endif()
+
+if(SUPPORT_WEBSOCKETS)
+    target_sources(target_third_party PRIVATE
+        sha1/sha1.c
+    )
+endif()
+
+if(SUPPORT_WEBSOCKET_COMPRESSION)
+    target_sources(target_third_party PRIVATE
+        miniz/miniz.c
+    )
+endif()
 
 set_target_properties(
     target_third_party
@@ -18,7 +40,7 @@ set_target_properties(
 
 add_library(${PROJECT_NAME}
     $<TARGET_OBJECTS:target_third_party>
-    "cio_base64.c"
+    "cio_buffered_stream.c"
 )
 
 if(${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
@@ -48,8 +70,12 @@ elseif(if(${CMAKE_SYSTEM_NAME} STREQUAL "Windows"))
         windows/cio_windows_timer.c
     )
 
-    target_include_directories(${PROJECT_NAME} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/windows/)
+    target_include_directories(${PROJECT_NAME} PUBLIC
+        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/windows/>  
+        $<INSTALL_INTERFACE:include${PROJECT_NAME}>
+    )
 else()
+    message(FATAL_ERROR "Unsupported operating system!")
 endif()
 
 target_include_directories(${PROJECT_NAME} PUBLIC
