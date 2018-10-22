@@ -19,6 +19,14 @@ limitations (MIT).
 git submodule update --init
 ```
 
+cio lets you choose if you want to build a static or dynamic library.
+The default is static. If you want a shared library, execute:
+```
+cmake -DBUILD_SHARED_LIBS=ON <path-to-cio-project>
+```
+
+
+
 ## Documentation
 
 The generated [doxygen](https://www.stack.nl/~dimitri/doxygen/) documentation can be found
