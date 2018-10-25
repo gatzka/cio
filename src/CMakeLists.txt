@@ -1,12 +1,6 @@
 cmake_minimum_required(VERSION 3.1)
 project(cio VERSION 0.0.1 LANGUAGES C)
 
-find_package(Git REQUIRED)
-
-if(NOT GIT_FOUND)
-  message(FATAL_ERROR "git is required to generate version information!")
-endif()
-
 add_library(${PROJECT_NAME}
     "cio_buffered_stream.c"
     "cio_version.c"
@@ -15,8 +9,8 @@ add_library(${PROJECT_NAME}
 add_library(${PROJECT_NAME}:${PROJECT_NAME} ALIAS ${PROJECT_NAME})
 
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/../cmake")
-include(generateVersion)
-GenerateVersion()
+include(GenerateSemverFromGit)
+GenerateSemverInfo()
 configure_file(cio_version_private.h.in ${CMAKE_BINARY_DIR}/generated/cio_version_private.h @ONLY)
 
 include(CMakeDependentOption)
@@ -90,6 +84,7 @@ set_target_properties(${PROJECT_NAME} PROPERTIES
     SOVERSION ${PROJECT_VERSION_MAJOR}
     C_STANDARD 11
     C_STANDARD_REQUIRED ON
+    C_EXTENSIONS OFF
 )
 
 get_target_property(cio_sources cio SOURCES)

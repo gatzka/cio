@@ -1,6 +1,6 @@
-include(FindGit)
+find_package(Git QUIET REQUIRED)
 
-function(GenerateVersion)
+function(GenerateSemverInfo)
     execute_process(
         COMMAND ${GIT_EXECUTABLE} diff --shortstat
         COMMAND tail -n1
@@ -52,4 +52,4 @@ function(GenerateVersion)
 
     set(${PROJECT_NAME}_BUILDINFO "+${GIT_HASH}${${PROJECT_NAME}_VERSION_DIRTY}")
     set(${PROJECT_NAME}_LAST ${${PROJECT_NAME}_VERSION_TWEAK}${${PROJECT_NAME}_BUILDINFO} PARENT_SCOPE)
-endfunction(GenerateVersion)
+endfunction()
