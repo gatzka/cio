@@ -1,11 +1,13 @@
 cmake_minimum_required(VERSION 3.1)
 project(cio VERSION 0.0.1 LANGUAGES C)
 
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake")
+
 include(CMakeDependentOption)
 
-option(SUPPORT_HTTP "Add HTTP support to the library " ON)
-cmake_dependent_option(SUPPORT_WEBSOCKETS "Add Websocket support to the library" ON "SUPPORT_HTTP" OFF)
-cmake_dependent_option(SUPPORT_WEBSOCKET_COMPRESSION "Add Websocket compression support to the library" ON "SUPPORT_WEBSOCKETS" OFF)
+option(CIO_CONFIG_HTTP "Add HTTP support to the library " ON)
+cmake_dependent_option(CIO_CONFIG_WEBSOCKETS "Add Websocket support to the library" ON "CIO_CONFIG_HTTP" OFF)
+cmake_dependent_option(CIO_CONFIG_WEBSOCKET_COMPRESSION "Add Websocket compression support to the library" ON "CIO_CONFIG_WEBSOCKETS" OFF)
 
 add_library(
     target_third_party
@@ -13,19 +15,19 @@ add_library(
     ""
 )
 
-if(SUPPORT_HTTP)
+if(CIO_CONFIG_HTTP)
     target_sources(target_third_party PRIVATE
         http-parser/http_parser.c
     )
 endif()
 
-if(SUPPORT_WEBSOCKETS)
+if(CIO_CONFIG_WEBSOCKETS)
     target_sources(target_third_party PRIVATE
         sha1/sha1.c
     )
 endif()
 
-if(SUPPORT_WEBSOCKET_COMPRESSION)
+if(CIO_CONFIG_WEBSOCKET_COMPRESSION)
     target_sources(target_third_party PRIVATE
         miniz/miniz.c
     )
@@ -46,7 +48,7 @@ add_library(${PROJECT_NAME}
 add_library(${PROJECT_NAME}:${PROJECT_NAME} ALIAS ${PROJECT_NAME})
 
 target_include_directories(${PROJECT_NAME} PUBLIC
-    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}>
     $<INSTALL_INTERFACE:include>
 )
 
@@ -63,7 +65,7 @@ if(${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
     )
 
     target_include_directories(${PROJECT_NAME} PUBLIC
-        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/linux/>  
+        $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/linux/>  
         $<INSTALL_INTERFACE:include${PROJECT_NAME}>
     )
 elseif(${CMAKE_SYSTEM_NAME} STREQUAL "Windows")
@@ -78,7 +80,7 @@ elseif(${CMAKE_SYSTEM_NAME} STREQUAL "Windows")
     )
 
     target_include_directories(${PROJECT_NAME} PUBLIC
-        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/windows/>  
+        $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/windows/>  
         $<INSTALL_INTERFACE:include${PROJECT_NAME}>
     )
 else()
@@ -91,6 +93,16 @@ set_target_properties(${PROJECT_NAME} PROPERTIES
     C_STANDARD 99
     C_STANDARD_REQUIRED ON
 )
+
+get_target_property(cio_sources cio SOURCES)
+foreach(CIOSRC IN LISTS cio_sources)
+	if(EXISTS  ${CMAKE_CURRENT_LIST_DIR}/${CIOSRC})
+		message(STATUS "----------------- ${CIOSRC}")
+	else()
+		message(STATUS "+++++++++++++++++ ${CIOSRC}")
+	endif()
+endforeach()
+
 
 install(TARGETS ${PROJECT_NAME} EXPORT ${PROJECT_NAME}Targets
     LIBRARY DESTINATION lib
