@@ -1,7 +1,23 @@
 cmake_minimum_required(VERSION 3.1)
 project(cio VERSION 0.0.1 LANGUAGES C)
 
-list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake")
+find_package(Git REQUIRED)
+
+if(NOT GIT_FOUND)
+  message(FATAL_ERROR "git is required to generate version information!")
+endif()
+
+add_library(${PROJECT_NAME}
+    "cio_buffered_stream.c"
+    "cio_version.c"
+)
+
+add_library(${PROJECT_NAME}:${PROJECT_NAME} ALIAS ${PROJECT_NAME})
+
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/../cmake")
+include(generateVersion)
+GenerateVersion()
+configure_file(cio_version_private.h.in ${CMAKE_BINARY_DIR}/generated/cio_version_private.h @ONLY)
 
 include(CMakeDependentOption)
 
@@ -9,47 +25,37 @@ option(CIO_CONFIG_HTTP "Add HTTP support to the library " ON)
 cmake_dependent_option(CIO_CONFIG_WEBSOCKETS "Add Websocket support to the library" ON "CIO_CONFIG_HTTP" OFF)
 cmake_dependent_option(CIO_CONFIG_WEBSOCKET_COMPRESSION "Add Websocket compression support to the library" ON "CIO_CONFIG_WEBSOCKETS" OFF)
 
-add_library(
-    target_third_party
-    OBJECT
-    ""
-)
-
 if(CIO_CONFIG_HTTP)
-    target_sources(target_third_party PRIVATE
+    target_sources(${PROJECT_NAME} PRIVATE
         http-parser/http_parser.c
+        cio_http_location.c
+        cio_http_location_handler.c
+        cio_http_server.c
     )
 endif()
 
 if(CIO_CONFIG_WEBSOCKETS)
-    target_sources(target_third_party PRIVATE
+    target_sources(${PROJECT_NAME} PRIVATE
         sha1/sha1.c
-    )
+        cio_utf8_checker.c
+        cio_websocket.c
+        cio_websocket_location_handler.c
+    ) 
 endif()
 
 if(CIO_CONFIG_WEBSOCKET_COMPRESSION)
-    target_sources(target_third_party PRIVATE
-        miniz/miniz.c
+    target_sources(${PROJECT_NAME} PRIVATE miniz/miniz.c)
+    set_property(SOURCE miniz/miniz.c APPENDSTRING PROPERTY COMPILE_DEFINITIONS
+        "MINIZ_NO_STDIO;MINIZ_NO_ARCHIVE_APIS;MINIZ_NO_TIME;MINIZ_NO_ARCHIVE_WRITING_APIS;MINIZ_NO_ZLIB_APIS;MINIZ_NO_ZLIB_COMPATIBLE_NAME;MINIZ_NO_MALLOC"
     )
 endif()
 
-set_target_properties(
-    target_third_party
-    PROPERTIES
-        C_CLANG_TIDY ""
-        COMPILE_DEFINITIONS "MINIZ_NO_STDIO;MINIZ_NO_ARCHIVE_APIS;MINIZ_NO_TIME;MINIZ_NO_ARCHIVE_WRITING_APIS;MINIZ_NO_ZLIB_APIS;MINIZ_NO_ZLIB_COMPATIBLE_NAME;MINIZ_NO_MALLOC"
-)
-
-add_library(${PROJECT_NAME}
-    $<TARGET_OBJECTS:target_third_party>
-    "cio_buffered_stream.c"
-)
-
-add_library(${PROJECT_NAME}:${PROJECT_NAME} ALIAS ${PROJECT_NAME})
-
 target_include_directories(${PROJECT_NAME} PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}>
+    $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/generated/>
     $<INSTALL_INTERFACE:include>
+	$<$<PLATFORM_ID:Linux>:$<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/linux/>>
+	$<$<PLATFORM_ID:Windows>:$<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/windows/>>
 )
 
 if(${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
@@ -64,10 +70,6 @@ if(${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
         linux/cio_linux_timer.c
     )
 
-    target_include_directories(${PROJECT_NAME} PUBLIC
-        $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/linux/>  
-        $<INSTALL_INTERFACE:include${PROJECT_NAME}>
-    )
 elseif(${CMAKE_SYSTEM_NAME} STREQUAL "Windows")
     target_sources(${PROJECT_NAME} PRIVATE
         windows/cio_windows_iocp.c
@@ -79,10 +81,6 @@ elseif(${CMAKE_SYSTEM_NAME} STREQUAL "Windows")
         windows/cio_windows_timer.c
     )
 
-    target_include_directories(${PROJECT_NAME} PUBLIC
-        $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/windows/>  
-        $<INSTALL_INTERFACE:include${PROJECT_NAME}>
-    )
 else()
     message(FATAL_ERROR "Unsupported operating system!")
 endif()
@@ -90,7 +88,7 @@ endif()
 set_target_properties(${PROJECT_NAME} PROPERTIES
     VERSION "${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}.${PROJECT_VERSION_PATCH}"
     SOVERSION ${PROJECT_VERSION_MAJOR}
-    C_STANDARD 99
+    C_STANDARD 11
     C_STANDARD_REQUIRED ON
 )
 

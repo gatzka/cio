@@ -42,7 +42,7 @@
 #include "cio_socket.h"
 #include "cio_timer.h"
 #include "cio_util.h"
-#include "cio_version.h"
+#include "cio_version_private.h"
 #include "cio_write_buffer.h"
 #include "http-parser/http_parser.h"
 

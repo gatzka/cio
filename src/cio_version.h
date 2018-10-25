@@ -36,10 +36,11 @@ extern "C" {
  * @brief This file contains version information.
  */
 
-/**
- * @brief The version of cio you are currently using.
- */
-#define CIO_VERSION "${CIO_VERSION}" "${CIO_LAST}"
+
+const char *cio_get_version_string(void);
+unsigned int cio_get_version_major(void);
+unsigned int cio_get_version_minor(void);
+unsigned int cio_get_version_patch(void);
 
 #ifdef __cplusplus
 }
