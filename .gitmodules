@@ -1,9 +1,9 @@
 [submodule "src/unity"]
-	path = src/unity
+	path = library/src/unity
 	url = https://github.com/ThrowTheSwitch/Unity.git
 [submodule "src/fff"]
-	path = src/fff
+	path = library/src/fff
 	url = https://github.com/meekrosoft/fff.git
 [submodule "src/http-parser"]
-	path = src/http-parser
+	path = library/src/http-parser
 	url = https://github.com/nodejs/http-parser.git
