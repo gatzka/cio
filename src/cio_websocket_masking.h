@@ -38,7 +38,6 @@ extern "C" {
 static inline void cio_websocket_mask(uint8_t *buffer, size_t length, const uint8_t mask[4])
 {
 	uint_fast32_t aligned_mask;
-	static_assert(sizeof(aligned_mask) % 4 == 0, "This algorithm works only if the mask is a multiple of 4 bytes!");
 
 	if (length < sizeof(aligned_mask)) {
 		for (size_t i = 0; i < length; i++) {

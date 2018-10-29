@@ -1,6 +1,20 @@
 cmake_minimum_required(VERSION 3.1)
 project(cio VERSION 0.0.1 LANGUAGES C)
 
+include(CheckTypeSize)
+CHECK_TYPE_SIZE(uint_fast32_t fast32_t LANGUAGE C)
+if (NOT ${HAVE_fast32_t})
+	message(FATAL_ERROR "Type uint_fast32_t is not available!")
+endif()
+
+if (NOT ${HAVE_fast32_t})
+	message(FATAL_ERROR "Type uint_fast32_t is not available!")
+endif()
+math(EXPR mod_uint_fast32_t "${fast32_t} % 4")
+if (NOT mod_uint_fast32_t EQUAL 0)
+	message(FATAL_ERROR "Size of type uint_fast32_t is not a multiple of 4!")
+endif()
+
 add_library(${PROJECT_NAME}
     "cio_buffered_stream.c"
     "cio_version.c"
@@ -79,10 +93,10 @@ else()
     message(FATAL_ERROR "Unsupported operating system!")
 endif()
 
+target_compile_features(${PROJECT_NAME} PUBLIC c_std_99)
 set_target_properties(${PROJECT_NAME} PROPERTIES
     VERSION "${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}.${PROJECT_VERSION_PATCH}"
     SOVERSION ${PROJECT_VERSION_MAJOR}
-    C_STANDARD 11
     C_STANDARD_REQUIRED ON
     C_EXTENSIONS OFF
 )
