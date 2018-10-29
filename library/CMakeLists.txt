@@ -38,11 +38,9 @@ if(CIO_CONFIG_HTTP)
 	add_library(http-parser OBJECT
         src/http-parser/http_parser.c
 	)
-
 	install(FILES "${CMAKE_CURRENT_LIST_DIR}/src/http-parser/http_parser.h"
 		DESTINATION include/cio/http-parser/
 	)
-
     target_sources(${PROJECT_NAME} PRIVATE
 		$<TARGET_OBJECTS:http-parser>
         src/cio_http_location.c
@@ -52,20 +50,24 @@ if(CIO_CONFIG_HTTP)
 endif()
 
 if(CIO_CONFIG_WEBSOCKETS)
+	add_library(sha OBJECT
+        src/sha1/sha1.c
+	)
     target_sources(${PROJECT_NAME} PRIVATE
+		$<TARGET_OBJECTS:sha>
 		src/cio_base64.c
         src/cio_utf8_checker.c
         src/cio_websocket.c
         src/cio_websocket_location_handler.c
-        src/sha1/sha1.c
     ) 
 endif()
 
 if(CIO_CONFIG_WEBSOCKET_COMPRESSION)
-    target_sources(${PROJECT_NAME} PRIVATE src/miniz/miniz.c)
-    set_property(SOURCE src/miniz/miniz.c APPENDSTRING PROPERTY COMPILE_DEFINITIONS
-        "MINIZ_NO_STDIO;MINIZ_NO_ARCHIVE_APIS;MINIZ_NO_TIME;MINIZ_NO_ARCHIVE_WRITING_APIS;MINIZ_NO_ZLIB_APIS;MINIZ_NO_ZLIB_COMPATIBLE_NAME;MINIZ_NO_MALLOC"
-    )
+	add_library(miniz OBJECT
+        src/miniz/miniz.c
+	)
+    target_compile_definitions(miniz PRIVATE MINIZ_NO_STDIO MINIZ_NO_ARCHIVE_APIS MINIZ_NO_TIME MINIZ_NO_ARCHIVE_WRITING_APIS MINIZ_NO_ZLIB_APIS MINIZ_NO_ZLIB_COMPATIBLE_NAME MINIZ_NO_MALLOC)
+    target_sources(${PROJECT_NAME} PRIVATE $<TARGET_OBJECTS:miniz>)
 endif()
 
 target_include_directories(${PROJECT_NAME} PUBLIC
