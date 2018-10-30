@@ -24,7 +24,6 @@
  * SOFTWARE.
  */
 
-#define _GNU_SOURCE
 #include <errno.h>
 #include <netinet/in.h>
 #include <netinet/tcp.h>
