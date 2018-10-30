@@ -13,6 +13,18 @@ if (NOT mod_uint_fast32_t EQUAL 0)
 	message(FATAL_ERROR "Size of type uint_fast32_t is not a multiple of 4!")
 endif()
 
+add_custom_target(generate_semver
+    COMMAND ${CMAKE_COMMAND}
+        -DPROJECT_NAME=${PROJECT_NAME}
+        -DPROJECT_VERSION_MAJOR=${${PROJECT_NAME}_VERSION_MAJOR}
+        -DPROJECT_VERSION_MINOR=${${PROJECT_NAME}_VERSION_MINOR}
+        -DPROJECT_VERSION_PATCH=${${PROJECT_NAME}_VERSION_PATCH}
+        -DGIT_WORK_DIR=${CMAKE_CURRENT_LIST_DIR}
+        -DINPUT_FILE=${CMAKE_CURRENT_LIST_DIR}/include/cio_version_private.h.in
+        -DOUTPUT_FILE=${CMAKE_BINARY_DIR}/generated/cio_version_private.h
+		-P ${CMAKE_CURRENT_SOURCE_DIR}/generate_version.cmake
+)
+
 add_library(${PROJECT_NAME}
     "src/cio_buffered_stream.c"
     "src/cio_version.c"
@@ -21,11 +33,12 @@ add_library(${PROJECT_NAME}
 add_library(${PROJECT_NAME}:${PROJECT_NAME} ALIAS ${PROJECT_NAME})
 target_link_libraries(${PROJECT_NAME} $<$<PLATFORM_ID:Linux>:bsd>)
 target_link_libraries(${PROJECT_NAME} $<$<PLATFORM_ID:Windows>:bcrypt ws2_32>)
+add_dependencies(${PROJECT_NAME} generate_semver)
 
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/../cmake")
-include(GenerateSemverFromGit)
-GenerateSemverInfo()
-configure_file(include/cio_version_private.h.in ${CMAKE_BINARY_DIR}/generated/cio_version_private.h @ONLY)
+#include(GenerateSemverFromGit)
+#GenerateSemverInfo()
+#configure_file(include/cio_version_private.h.in ${CMAKE_BINARY_DIR}/generated/cio_version_private.h @ONLY)
 
 include(CMakeDependentOption)
 
