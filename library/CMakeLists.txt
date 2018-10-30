@@ -36,9 +36,6 @@ target_link_libraries(${PROJECT_NAME} $<$<PLATFORM_ID:Windows>:bcrypt ws2_32>)
 add_dependencies(${PROJECT_NAME} generate_semver)
 
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/../cmake")
-#include(GenerateSemverFromGit)
-#GenerateSemverInfo()
-#configure_file(include/cio_version_private.h.in ${CMAKE_BINARY_DIR}/generated/cio_version_private.h @ONLY)
 
 include(CMakeDependentOption)
 
@@ -120,46 +117,6 @@ target_include_directories(platform PRIVATE
 target_compile_definitions(platform PRIVATE $<$<PLATFORM_ID:Linux>:_GNU_SOURCE>)
 
 target_sources(${PROJECT_NAME} PRIVATE $<$<PLATFORM_ID:Linux>:$<TARGET_OBJECTS:platform>>)
-
-# add_library(windows-files OBJECT
-#     src/windows/cio_windows_iocp.c
-#     src/windows/cio_windows_endian.c
-#     src/windows/cio_windows_random.c
-#     src/windows/cio_windows_server_socket.c
-#     src/windows/cio_windows_socket.c
-#     src/windows/cio_windows_string.c
-#     src/windows/cio_windows_timer.c
-# )
-# target_sources(${PROJECT_NAME} PRIVATE $<$<PLATFORM_ID:Windows>:windows-files>)
-
-# if(${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
-# 	target_sources(${PROJECT_NAME} PRIVATE
-#         src/linux/cio_linux_endian.c
-#         src/linux/cio_linux_epoll.c
-#         src/linux/cio_linux_random.c
-#         src/linux/cio_linux_server_socket.c
-#         src/linux/cio_linux_socket.c
-#         src/linux/cio_linux_socket_utils.c
-#         src/linux/cio_linux_string.c
-#         src/linux/cio_linux_timer.c
-#     )
-# 
-# 	target_link_libraries(${PROJECT_NAME} bsd)
-# elseif(${CMAKE_SYSTEM_NAME} STREQUAL "Windows")
-#     target_sources(${PROJECT_NAME} PRIVATE
-#         src/windows/cio_windows_iocp.c
-#         src/windows/cio_windows_endian.c
-#         src/windows/cio_windows_random.c
-#         src/windows/cio_windows_server_socket.c
-#         src/windows/cio_windows_socket.c
-#         src/windows/cio_windows_string.c
-#         src/windows/cio_windows_timer.c
-#     )
-# 
-# 	target_link_libraries(cio bcrypt ws2_32)
-# else()
-#     message(FATAL_ERROR "Unsupported operating system!")
-# endif()
 
 target_compile_features(${PROJECT_NAME} PUBLIC c_std_99)
 set_target_properties(${PROJECT_NAME} PROPERTIES
