@@ -2,12 +2,9 @@ cmake_minimum_required(VERSION 3.8)
 project(cio VERSION 0.0.1 LANGUAGES C)
 
 include(CMakePackageConfigHelpers)
+
 include(CheckTypeSize)
 CHECK_TYPE_SIZE(uint_fast32_t fast32_t LANGUAGE C)
-if (NOT ${HAVE_fast32_t})
-	message(FATAL_ERROR "Type uint_fast32_t is not available!")
-endif()
-
 if (NOT ${HAVE_fast32_t})
 	message(FATAL_ERROR "Type uint_fast32_t is not available!")
 endif()
