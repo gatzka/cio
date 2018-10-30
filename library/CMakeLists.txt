@@ -32,7 +32,7 @@ add_library(${PROJECT_NAME}
 
 add_library(${PROJECT_NAME}:${PROJECT_NAME} ALIAS ${PROJECT_NAME})
 target_link_libraries(${PROJECT_NAME} $<$<PLATFORM_ID:Linux>:bsd>)
-target_link_libraries(${PROJECT_NAME} $<$<PLATFORM_ID:Windows>:bcrypt ws2_32>)
+target_link_libraries(${PROJECT_NAME} $<$<PLATFORM_ID:Windows>:"bcrypt ws2_32">)
 add_dependencies(${PROJECT_NAME} generate_semver)
 
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/../cmake")
@@ -47,6 +47,7 @@ if(CIO_CONFIG_HTTP)
 	add_library(http-parser OBJECT
         src/http-parser/http_parser.c
 	)
+	set_property(TARGET http-parser PROPERTY POSITION_INDEPENDENT_CODE ON)
 	install(FILES "${CMAKE_CURRENT_LIST_DIR}/src/http-parser/http_parser.h"
 		DESTINATION include/cio/http-parser/
 	)
@@ -62,6 +63,7 @@ if(CIO_CONFIG_WEBSOCKETS)
 	add_library(sha OBJECT
         src/sha1/sha1.c
 	)
+	set_property(TARGET sha PROPERTY POSITION_INDEPENDENT_CODE ON)
     target_sources(${PROJECT_NAME} PRIVATE
 		$<TARGET_OBJECTS:sha>
 		src/cio_base64.c
@@ -75,6 +77,7 @@ if(CIO_CONFIG_WEBSOCKET_COMPRESSION)
 	add_library(miniz OBJECT
         src/miniz/miniz.c
 	)
+	set_property(TARGET miniz PROPERTY POSITION_INDEPENDENT_CODE ON)
     target_compile_definitions(miniz PRIVATE MINIZ_NO_STDIO MINIZ_NO_ARCHIVE_APIS MINIZ_NO_TIME MINIZ_NO_ARCHIVE_WRITING_APIS MINIZ_NO_ZLIB_APIS MINIZ_NO_ZLIB_COMPATIBLE_NAME MINIZ_NO_MALLOC)
     target_sources(${PROJECT_NAME} PRIVATE $<TARGET_OBJECTS:miniz>)
 endif()
@@ -114,6 +117,7 @@ target_include_directories(platform PRIVATE
 	$<$<PLATFORM_ID:Linux>:${CMAKE_CURRENT_LIST_DIR}/include/linux/>
 	$<$<PLATFORM_ID:Windows>:${CMAKE_CURRENT_LIST_DIR}/include/windows/>
 )
+set_property(TARGET platform PROPERTY POSITION_INDEPENDENT_CODE ON)
 target_compile_definitions(platform PRIVATE $<$<PLATFORM_ID:Linux>:_GNU_SOURCE>)
 
 target_sources(${PROJECT_NAME} PRIVATE $<$<PLATFORM_ID:Linux>:$<TARGET_OBJECTS:platform>>)
