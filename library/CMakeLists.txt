@@ -122,7 +122,7 @@ target_compile_definitions(platform PRIVATE $<$<PLATFORM_ID:Linux>:_GNU_SOURCE>)
 
 target_sources(${PROJECT_NAME} PRIVATE $<$<PLATFORM_ID:Linux>:$<TARGET_OBJECTS:platform>>)
 
-target_compile_features(${PROJECT_NAME} PUBLIC c_std_99)
+target_compile_features(${PROJECT_NAME} PUBLIC $<$<NOT:$<C_COMPILER_ID:MSVC>>:c_std_11>)
 set_target_properties(${PROJECT_NAME} PROPERTIES
     VERSION "${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}.${PROJECT_VERSION_PATCH}"
     SOVERSION ${PROJECT_VERSION_MAJOR}
