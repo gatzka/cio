@@ -144,7 +144,7 @@ set_target_properties(${PROJECT_NAME} PROPERTIES
 )
 
 include(GenerateExportHeader)
-generate_export_header(${PROJECT_NAME})
+generate_export_header(${PROJECT_NAME} EXPORT_FILE_NAME ${PROJECT_BINARY_DIR}/generated/${PROJECT_NAME}_export.h)
 
 # get_target_property(cio_sources cio SOURCES)
 # foreach(CIOSRC IN LISTS cio_sources)
