@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.8)
-project(cio VERSION 0.0.1 LANGUAGES C)
+project(cio VERSION 0.0.1 LANGUAGES C CXX)
 
 include(CMakePackageConfigHelpers)
 
@@ -47,7 +47,10 @@ if(CIO_CONFIG_HTTP)
 	add_library(http-parser OBJECT
         src/http-parser/http_parser.c
 	)
-	set_property(TARGET http-parser PROPERTY POSITION_INDEPENDENT_CODE ON)
+	set_target_properties(http-parser PROPERTIES
+		POSITION_INDEPENDENT_CODE ON
+		C_VISIBILITY_PRESET hidden
+	)
 	install(FILES "${CMAKE_CURRENT_LIST_DIR}/src/http-parser/http_parser.h"
 		DESTINATION include/cio/http-parser/
 	)
@@ -63,7 +66,10 @@ if(CIO_CONFIG_WEBSOCKETS)
 	add_library(sha OBJECT
         src/sha1/sha1.c
 	)
-	set_property(TARGET sha PROPERTY POSITION_INDEPENDENT_CODE ON)
+	set_target_properties(sha PROPERTIES
+		POSITION_INDEPENDENT_CODE ON
+		C_VISIBILITY_PRESET hidden
+	)
     target_sources(${PROJECT_NAME} PRIVATE
 		$<TARGET_OBJECTS:sha>
 		src/cio_base64.c
@@ -77,7 +83,10 @@ if(CIO_CONFIG_WEBSOCKET_COMPRESSION)
 	add_library(miniz OBJECT
         src/miniz/miniz.c
 	)
-	set_property(TARGET miniz PROPERTY POSITION_INDEPENDENT_CODE ON)
+	set_target_properties(miniz PROPERTIES
+		POSITION_INDEPENDENT_CODE ON
+		C_VISIBILITY_PRESET hidden
+	)
     target_compile_definitions(miniz PRIVATE MINIZ_NO_STDIO MINIZ_NO_ARCHIVE_APIS MINIZ_NO_TIME MINIZ_NO_ARCHIVE_WRITING_APIS MINIZ_NO_ZLIB_APIS MINIZ_NO_ZLIB_COMPATIBLE_NAME MINIZ_NO_MALLOC)
     target_sources(${PROJECT_NAME} PRIVATE $<TARGET_OBJECTS:miniz>)
 endif()
@@ -117,7 +126,10 @@ target_include_directories(platform PRIVATE
 	$<$<PLATFORM_ID:Linux>:${CMAKE_CURRENT_LIST_DIR}/include/linux/>
 	$<$<PLATFORM_ID:Windows>:${CMAKE_CURRENT_LIST_DIR}/include/windows/>
 )
-set_property(TARGET platform PROPERTY POSITION_INDEPENDENT_CODE ON)
+set_target_properties(platform PROPERTIES
+	POSITION_INDEPENDENT_CODE ON
+	C_VISIBILITY_PRESET hidden
+)
 target_compile_definitions(platform PRIVATE $<$<PLATFORM_ID:Linux>:_GNU_SOURCE>)
 
 target_sources(${PROJECT_NAME} PRIVATE $<$<PLATFORM_ID:Linux>:$<TARGET_OBJECTS:platform>>)
@@ -128,7 +140,11 @@ set_target_properties(${PROJECT_NAME} PROPERTIES
     SOVERSION ${PROJECT_VERSION_MAJOR}
     C_STANDARD_REQUIRED ON
     C_EXTENSIONS OFF
+	C_VISIBILITY_PRESET hidden
 )
+
+include(GenerateExportHeader)
+generate_export_header(${PROJECT_NAME})
 
 # get_target_property(cio_sources cio SOURCES)
 # foreach(CIOSRC IN LISTS cio_sources)
