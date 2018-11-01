@@ -32,6 +32,7 @@
 #include <stdint.h>
 
 #include "cio_error_code.h"
+#include "cio_export.h"
 #include "cio_io_stream.h"
 #include "cio_read_buffer.h"
 #include "cio_write_buffer.h"
@@ -206,8 +207,8 @@ struct cio_buffered_stream {
  *
  * @return ::CIO_SUCCESS for success.
  */
-enum cio_error cio_buffered_stream_init(struct cio_buffered_stream *bs,
-                                        struct cio_io_stream *stream);
+CIO_EXPORT enum cio_error cio_buffered_stream_init(struct cio_buffered_stream *bs,
+                                                   struct cio_io_stream *stream);
 
 #ifdef __cplusplus
 }

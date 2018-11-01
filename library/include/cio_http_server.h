@@ -32,6 +32,7 @@
 
 #include "cio_error_code.h"
 #include "cio_eventloop.h"
+#include "cio_export.h"
 #include "cio_http_location.h"
 #include "cio_server_socket.h"
 
@@ -134,13 +135,13 @@ struct cio_http_server {
  * @param free_client A user provided function to free the client memory @ref cio_http_server_init_alloc_client "allocated".
  * @return ::CIO_SUCCESS for success.
  */
-enum cio_error cio_http_server_init(struct cio_http_server *server,
-                                    uint16_t port,
-                                    struct cio_eventloop *loop,
-                                    cio_http_serve_on_error on_error,
-                                    uint64_t read_header_timeout_ns,
-                                    cio_alloc_client alloc_client,
-                                    cio_free_client free_client);
+CIO_EXPORT enum cio_error cio_http_server_init(struct cio_http_server *server,
+                                               uint16_t port,
+                                               struct cio_eventloop *loop,
+                                               cio_http_serve_on_error on_error,
+                                               uint64_t read_header_timeout_ns,
+                                               cio_alloc_client alloc_client,
+                                               cio_free_client free_client);
 
 #ifdef __cplusplus
 }

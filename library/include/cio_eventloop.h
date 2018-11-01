@@ -29,6 +29,7 @@
 
 #include "cio_error_code.h"
 #include "cio_eventloop_impl.h"
+#include "cio_export.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -39,10 +40,10 @@ extern "C" {
  * @brief This file describes the interface to an eventloop.
  */
 
-enum cio_error cio_eventloop_init(struct cio_eventloop *loop);
-void cio_eventloop_destroy(struct cio_eventloop *loop);
-enum cio_error cio_eventloop_run(struct cio_eventloop *loop);
-void cio_eventloop_cancel(struct cio_eventloop *loop);
+CIO_EXPORT enum cio_error cio_eventloop_init(struct cio_eventloop *loop);
+CIO_EXPORT void cio_eventloop_destroy(struct cio_eventloop *loop);
+CIO_EXPORT enum cio_error cio_eventloop_run(struct cio_eventloop *loop);
+CIO_EXPORT void cio_eventloop_cancel(struct cio_eventloop *loop);
 
 #ifdef __cplusplus
 }

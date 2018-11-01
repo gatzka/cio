@@ -30,6 +30,8 @@
 #include <stddef.h>
 #include <stdint.h>
 
+#include "cio_export.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -44,8 +46,8 @@ struct cio_utf8_state {
 	uint8_t state;
 };
 
-void cio_utf8_init(struct cio_utf8_state *state);
-uint8_t cio_check_utf8(struct cio_utf8_state *state, const uint8_t *s, size_t count);
+CIO_EXPORT void cio_utf8_init(struct cio_utf8_state *state);
+CIO_EXPORT uint8_t cio_check_utf8(struct cio_utf8_state *state, const uint8_t *s, size_t count);
 
 #ifdef __cplusplus
 }

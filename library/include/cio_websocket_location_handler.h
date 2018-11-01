@@ -33,6 +33,7 @@ extern "C" {
 
 #include <stdint.h>
 
+#include "cio_export.h"
 #include "cio_http_location_handler.h"
 #include "cio_timer.h"
 #include "cio_websocket.h"
@@ -97,12 +98,12 @@ struct cio_websocket_location_config {
  * Could be @c NULL.
  * @return CIO_SUCCESS if no error occured.
  */
-enum cio_error cio_websocket_location_handler_init(struct cio_websocket_location_handler *handler,
-                                                   uint64_t upgrade_response_timeout,
-                                                   struct cio_eventloop *loop, const char *subprotocols[],
-                                                   unsigned int num_subprotocols,
-                                                   cio_websocket_on_connect on_connect,
-                                                   void (*location_handler_free)(struct cio_websocket_location_handler *));
+CIO_EXPORT enum cio_error cio_websocket_location_handler_init(struct cio_websocket_location_handler *handler,
+                                                              uint64_t upgrade_response_timeout,
+                                                              struct cio_eventloop *loop, const char *subprotocols[],
+                                                              unsigned int num_subprotocols,
+                                                              cio_websocket_on_connect on_connect,
+                                                              void (*location_handler_free)(struct cio_websocket_location_handler *));
 
 #ifdef __cplusplus
 }

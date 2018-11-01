@@ -33,7 +33,9 @@ extern "C" {
 
 #include <stddef.h>
 
-void cio_random_get_bytes(void *bytes, size_t num_bytes);
+#include "cio_export.h"
+
+CIO_EXPORT void cio_random_get_bytes(void *bytes, size_t num_bytes);
 
 #ifdef __cplusplus
 }

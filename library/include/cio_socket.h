@@ -31,6 +31,7 @@
 
 #include "cio_error_code.h"
 #include "cio_eventloop.h"
+#include "cio_export.h"
 #include "cio_io_stream.h"
 #include "cio_socket_impl.h"
 
@@ -129,9 +130,9 @@ struct cio_socket {
  * the hook could be used to free the memory of the server socket.
  * @return ::CIO_SUCCESS for success.
  */
-enum cio_error cio_socket_init(struct cio_socket *s,
-                               struct cio_eventloop *loop,
-                               cio_socket_close_hook close_hook);
+CIO_EXPORT enum cio_error cio_socket_init(struct cio_socket *s,
+                                          struct cio_eventloop *loop,
+                                          cio_socket_close_hook close_hook);
 
 #ifdef __cplusplus
 }

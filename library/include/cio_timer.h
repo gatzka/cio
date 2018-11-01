@@ -32,6 +32,7 @@
 
 #include "cio_error_code.h"
 #include "cio_eventloop.h"
+#include "cio_export.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -127,8 +128,8 @@ struct cio_timer {
  * the hook could be used to free the memory of the timer struct.
  * @return ::CIO_SUCCESS for success.
  */
-enum cio_error cio_timer_init(struct cio_timer *timer, struct cio_eventloop *loop,
-                              cio_timer_close_hook close_hook);
+CIO_EXPORT enum cio_error cio_timer_init(struct cio_timer *timer, struct cio_eventloop *loop,
+                                         cio_timer_close_hook close_hook);
 
 #ifdef __cplusplus
 }

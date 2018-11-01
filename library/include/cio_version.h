@@ -31,16 +31,17 @@
 extern "C" {
 #endif
 
+#include "cio_export.h"
+
 /**
  * @file
  * @brief This file contains version information.
  */
 
-
-const char *cio_get_version_string(void);
-unsigned int cio_get_version_major(void);
-unsigned int cio_get_version_minor(void);
-unsigned int cio_get_version_patch(void);
+CIO_EXPORT const char *cio_get_version_string(void);
+CIO_EXPORT unsigned int cio_get_version_major(void);
+CIO_EXPORT unsigned int cio_get_version_minor(void);
+CIO_EXPORT unsigned int cio_get_version_patch(void);
 
 #ifdef __cplusplus
 }
