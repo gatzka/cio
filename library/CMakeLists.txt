@@ -123,6 +123,7 @@ add_library(platform OBJECT
 )
 target_include_directories(platform PRIVATE
 	${CMAKE_CURRENT_LIST_DIR}/include/
+    $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/generated/>
 	$<$<PLATFORM_ID:Linux>:${CMAKE_CURRENT_LIST_DIR}/include/linux/>
 	$<$<PLATFORM_ID:Windows>:${CMAKE_CURRENT_LIST_DIR}/include/windows/>
 )
@@ -182,6 +183,9 @@ write_basic_package_version_file("${PROJECT_NAME}ConfigVersion.cmake"
 
 install(FILES "${CMAKE_BINARY_DIR}/${PROJECT_NAME}ConfigVersion.cmake"
     DESTINATION lib/cmake/${PROJECT_NAME}
+)
+install(FILES "${CMAKE_BINARY_DIR}/generated/${PROJECT_NAME}_export.h"
+    DESTINATION include/cio/
 )
 
 install(EXPORT ${PROJECT_NAME}
