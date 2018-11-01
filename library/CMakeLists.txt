@@ -32,7 +32,8 @@ add_library(${PROJECT_NAME}
 
 add_library(${PROJECT_NAME}:${PROJECT_NAME} ALIAS ${PROJECT_NAME})
 target_link_libraries(${PROJECT_NAME} $<$<PLATFORM_ID:Linux>:bsd>)
-target_link_libraries(${PROJECT_NAME} $<$<PLATFORM_ID:Windows>:"bcrypt ws2_32">)
+target_link_libraries(${PROJECT_NAME} $<$<PLATFORM_ID:Windows>:bcrypt>)
+target_link_libraries(${PROJECT_NAME} $<$<PLATFORM_ID:Windows>:ws2_32>)
 add_dependencies(${PROJECT_NAME} generate_semver)
 
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/../cmake")
@@ -131,9 +132,10 @@ set_target_properties(platform PROPERTIES
 	POSITION_INDEPENDENT_CODE ON
 	C_VISIBILITY_PRESET hidden
 )
+target_compile_definitions(platform PRIVATE ${PROJECT_NAME}_EXPORTS)
 target_compile_definitions(platform PRIVATE $<$<PLATFORM_ID:Linux>:_GNU_SOURCE>)
 
-target_sources(${PROJECT_NAME} PRIVATE $<$<PLATFORM_ID:Linux>:$<TARGET_OBJECTS:platform>>)
+target_sources(${PROJECT_NAME} PRIVATE $<TARGET_OBJECTS:platform>)
 
 target_compile_features(${PROJECT_NAME} PUBLIC $<$<NOT:$<C_COMPILER_ID:MSVC>>:c_std_11>)
 set_target_properties(${PROJECT_NAME} PROPERTIES
