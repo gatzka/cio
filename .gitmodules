@@ -5,5 +5,5 @@
 	path = library/src/fff
 	url = https://github.com/meekrosoft/fff.git
 [submodule "src/http-parser"]
-	path = library/src/http-parser
+	path = src/http-parser
 	url = https://github.com/nodejs/http-parser.git
