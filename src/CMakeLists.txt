@@ -31,9 +31,7 @@ add_library(${PROJECT_NAME}
 )
 
 add_library(${PROJECT_NAME}:${PROJECT_NAME} ALIAS ${PROJECT_NAME})
-target_link_libraries(${PROJECT_NAME} $<$<PLATFORM_ID:Linux>:bsd>)
-target_link_libraries(${PROJECT_NAME} $<$<PLATFORM_ID:Windows>:bcrypt>)
-target_link_libraries(${PROJECT_NAME} $<$<PLATFORM_ID:Windows>:ws2_32>)
+
 add_dependencies(${PROJECT_NAME} generate_semver)
 
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/../cmake")
@@ -106,45 +104,13 @@ target_include_directories(${PROJECT_NAME} PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}>
     $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/generated/>
     $<INSTALL_INTERFACE:include/cio/>
-    $<$<PLATFORM_ID:Linux>:$<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/linux/>>
-    $<$<PLATFORM_ID:Windows>:$<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/windows/>>
 )
 
-add_library(platform OBJECT
-    $<$<PLATFORM_ID:Linux>:
-        linux/cio_linux_endian.c;
-        linux/cio_linux_epoll.c;
-        linux/cio_linux_random.c;
-        linux/cio_linux_server_socket.c;
-        linux/cio_linux_socket.c;
-        linux/cio_linux_socket_utils.c;
-        linux/cio_linux_string.c;
-        linux/cio_linux_timer.c
-    >
-    $<$<PLATFORM_ID:Windows>:
-        windows/cio_windows_iocp.c;
-        windows/cio_windows_endian.c;
-        windows/cio_windows_random.c;
-        windows/cio_windows_server_socket.c;
-        windows/cio_windows_socket.c;
-        windows/cio_windows_string.c;
-        windows/cio_windows_timer.c
-    >
-)
-target_include_directories(platform PRIVATE
-    ${CMAKE_CURRENT_LIST_DIR}
-    $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/generated/>
-    $<$<PLATFORM_ID:Linux>:${CMAKE_CURRENT_LIST_DIR}/linux/>
-    $<$<PLATFORM_ID:Windows>:${CMAKE_CURRENT_LIST_DIR}/windows/>
-)
-set_target_properties(platform PROPERTIES
-    POSITION_INDEPENDENT_CODE ON
-    C_VISIBILITY_PRESET hidden
-)
-target_compile_definitions(platform PRIVATE ${PROJECT_NAME}_EXPORTS)
-target_compile_definitions(platform PRIVATE $<$<PLATFORM_ID:Linux>:_GNU_SOURCE>)
-
-target_sources(${PROJECT_NAME} PRIVATE $<TARGET_OBJECTS:platform>)
+if(${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
+    include(linux/CMakeLists.txt)
+elseif(${CMAKE_SYSTEM_NAME} STREQUAL "Windows")
+    add_subdirectory(windows/CMakeLists.txt)
+endif()
 
 target_compile_features(${PROJECT_NAME} PUBLIC $<$<NOT:$<C_COMPILER_ID:MSVC>>:c_std_11>)
 set_target_properties(${PROJECT_NAME} PROPERTIES
@@ -171,18 +137,6 @@ generate_export_header(${PROJECT_NAME} EXPORT_FILE_NAME ${PROJECT_BINARY_DIR}/ge
 #       message(STATUS "+++++++++++++++++ ${CIOSRC}")
 #   endif()
 # endforeach()
-
-if(${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
-    set_property(TARGET ${PROJECT_NAME}
-        APPEND
-        PROPERTY PUBLIC_HEADER "linux/cio_error_code_impl.h;linux/cio_eventloop_impl.h;linux/cio_linux_socket.h;linux/cio_linux_socket_utils.h;linux/cio_server_socket_impl.h;linux/cio_socket_impl.h"
-    )
-elseif(${CMAKE_SYSTEM_NAME} STREQUAL "Windows")
-    set_property(TARGET ${PROJECT_NAME}
-        APPEND
-        PROPERTY PUBLIC_HEADER "windows/cio_error_code_impl.h;windows/cio_eventloop_impl.h;windows/cio_server_socket_impl.h;windows/cio_socket_impl.h;windows/cio_windows_socket.h"
-    )
-endif()
 
 install(TARGETS ${PROJECT_NAME} EXPORT ${PROJECT_NAME}
     LIBRARY DESTINATION lib
