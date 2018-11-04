@@ -107,7 +107,7 @@ target_include_directories(${PROJECT_NAME} PUBLIC
 if(${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
     include(linux/CMakeLists.txt)
 elseif(${CMAKE_SYSTEM_NAME} STREQUAL "Windows")
-    add_subdirectory(windows/CMakeLists.txt)
+    include(windows/CMakeLists.txt)
 endif()
 
 target_compile_features(${PROJECT_NAME} PUBLIC $<$<NOT:$<C_COMPILER_ID:MSVC>>:c_std_11>)
