@@ -34,8 +34,6 @@ add_library(${PROJECT_NAME}:${PROJECT_NAME} ALIAS ${PROJECT_NAME})
 
 add_dependencies(${PROJECT_NAME} generate_semver)
 
-list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/../cmake")
-
 include(CMakeDependentOption)
 
 option(CIO_CONFIG_HTTP "Add HTTP support to the library " ON)
