@@ -159,3 +159,32 @@ install(EXPORT ${PROJECT_NAME}
     DESTINATION lib/cmake/${PROJECT_NAME}
     FILE ${PROJECT_NAME}Config.cmake
 )
+
+include(FindDoxygen)
+
+if (DOXYGEN_FOUND)
+	set(DOXYGEN_EXTRACT_ALL YES)
+	set(DOXYGEN_EXTRACT_STATIC YES)
+	set(DOXYGEN_GENERATE_HTML YES)
+	set(DOXYGEN_GENERATE_TREEVIEW YES)
+	set(DOXYGEN_HAVE_DOT NO)
+	set(DOXYGEN_OPTIMIZE_OUTPUT_FOR_C YES)
+	set(DOXYGEN_OUTPUT_DIRECTORY docs/)
+	set(DOXYGEN_PROJECT_BRIEF "An ANSI C Conformant I/O Library.")
+	set(DOXYGEN_PROJECT_NUMBER ${CIO_VERSION})
+	set(DOXYGEN_QUIET YES)
+	set(DOXYGEN_RECURSIVE NO)
+	set(DOXYGEN_STRICT_PROTO_MATCHING YES)
+	set(DOXYGEN_STRIP_FROM_PATH ${CMAKE_BINARY_DIR}/generated/ ${CMAKE_CURRENT_SOURCE_DIR})
+	set(DOXYGEN_WARN_AS_ERROR YES)
+    set(DOXYGEN_PROJECT_NAME ${CMAKE_PROJECT_NAME})
+	set(DOXYGEN_EXCLUDE_PATTERNS "*private*;*.c")
+
+	doxygen_add_docs(docs
+	    ${PROJECT_SOURCE_DIR}
+	    ${CMAKE_BINARY_DIR}/generated/
+        COMMENT "Generating API documentation with Doxygen"
+	)
+else (DOXYGEN_FOUND)
+	message(STATUS "Doxygen need to be installed to generate the doxygen documentation")
+endif (DOXYGEN_FOUND)
