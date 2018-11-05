@@ -21,7 +21,7 @@ add_custom_target(generate_semver
         -DPROJECT_VERSION_PATCH=${${PROJECT_NAME}_VERSION_PATCH}
         -DGIT_WORK_DIR=${CMAKE_CURRENT_LIST_DIR}
         -DINPUT_FILE=${CMAKE_CURRENT_LIST_DIR}/cio_version_private.h.in
-        -DOUTPUT_FILE=${CMAKE_BINARY_DIR}/generated/cio_version_private.h
+		-DOUTPUT_FILE=${CMAKE_CURRENT_BINARY_DIR}/generated/cio_version_private.h
         -P ${CMAKE_CURRENT_SOURCE_DIR}/generate_version.cmake
 )
 
@@ -100,7 +100,7 @@ endif()
 
 target_include_directories(${PROJECT_NAME} PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}>
-    $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/generated/>
+	$<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/generated/>
     $<INSTALL_INTERFACE:include/cio/>
 )
 
@@ -125,7 +125,7 @@ set_property(TARGET ${PROJECT_NAME}
 )
 
 include(GenerateExportHeader)
-generate_export_header(${PROJECT_NAME} EXPORT_FILE_NAME ${CMAKE_BINARY_DIR}/generated/${PROJECT_NAME}_export.h)
+generate_export_header(${PROJECT_NAME} EXPORT_FILE_NAME ${CMAKE_CURRENT_BINARY_DIR}/generated/${PROJECT_NAME}_export.h)
 
 # get_target_property(cio_sources cio SOURCES)
 # foreach(CIOSRC IN LISTS cio_sources)
@@ -150,7 +150,7 @@ write_basic_package_version_file("${PROJECT_NAME}ConfigVersion.cmake"
 install(FILES "${CMAKE_BINARY_DIR}/${PROJECT_NAME}ConfigVersion.cmake"
     DESTINATION lib/cmake/${PROJECT_NAME}
 )
-install(FILES "${CMAKE_BINARY_DIR}/generated/${PROJECT_NAME}_export.h"
+install(FILES "${CMAKE_CURRENT_BINARY_DIR}/generated/${PROJECT_NAME}_export.h"
     DESTINATION include/cio/
 )
 
@@ -175,14 +175,14 @@ if (DOXYGEN_FOUND)
 	set(DOXYGEN_QUIET YES)
 	set(DOXYGEN_RECURSIVE NO)
 	set(DOXYGEN_STRICT_PROTO_MATCHING YES)
-	set(DOXYGEN_STRIP_FROM_PATH ${CMAKE_BINARY_DIR}/generated/ ${CMAKE_CURRENT_SOURCE_DIR})
+	set(DOXYGEN_STRIP_FROM_PATH ${CMAKE_CURRENT_BINARY_DIR}/generated/ ${CMAKE_CURRENT_SOURCE_DIR})
 	set(DOXYGEN_WARN_AS_ERROR YES)
     set(DOXYGEN_PROJECT_NAME ${CMAKE_PROJECT_NAME})
 	set(DOXYGEN_EXCLUDE_PATTERNS "*private*;*.c")
 
 	doxygen_add_docs(docs
 	    ${PROJECT_SOURCE_DIR}
-	    ${CMAKE_BINARY_DIR}/generated/
+		${CMAKE_CURRENT_BINARY_DIR}/generated/
         COMMENT "Generating API documentation with Doxygen"
 	)
 else (DOXYGEN_FOUND)
