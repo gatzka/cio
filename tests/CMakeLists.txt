@@ -54,3 +54,7 @@ add_test(NAME cio.test_websocket_mask COMMAND cio_test_websocket_mask)
 add_executable(cio_test_write_buffer test_cio_write_buffer.c)
 target_link_libraries(cio_test_write_buffer fff unity cio:cio)
 add_test(NAME cio.test_write_buffer COMMAND cio_test_write_buffer)
+
+if(${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
+    add_subdirectory(linux)
+endif()
