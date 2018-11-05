@@ -41,12 +41,12 @@ static struct cio_server_socket *get_server_socket(const struct cio_windows_list
 {
 	struct cio_server_socket_imp *impl;
 	if (wls->address_family == AF_INET) {
-		impl = container_of(wls, struct cio_server_socket_impl, listen_socket_ipv4);
+		impl = cio_container_of(wls, struct cio_server_socket_impl, listen_socket_ipv4);
 	} else {
-		impl = container_of(wls, struct cio_server_socket_impl, listen_socket_ipv6);
+		impl = cio_container_of(wls, struct cio_server_socket_impl, listen_socket_ipv6);
 	}
 
-	struct cio_server_socket *ss = container_of(impl, struct cio_server_socket, impl);
+	struct cio_server_socket *ss = cio_container_of(impl, struct cio_server_socket, impl);
 	return ss;
 }
 
@@ -81,7 +81,7 @@ static SOCKET create_win_socket(int address_family, const struct cio_eventloop *
 
 static void accept_callback(struct cio_event_notifier *ev)
 {
-	struct cio_windows_listen_socket *wls = container_of(ev, struct cio_windows_listen_socket, en);
+	struct cio_windows_listen_socket *wls = cio_container_of(ev, struct cio_windows_listen_socket, en);
 	struct cio_server_socket *ss = get_server_socket(wls);
 
 	struct cio_socket *s;

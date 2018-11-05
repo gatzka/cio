@@ -31,15 +31,12 @@
 #include "cio_error_code.h"
 #include "cio_io_stream.h"
 #include "cio_read_buffer.h"
+#include "cio_util.h"
 #include "cio_write_buffer.h"
 #include "fff.h"
 #include "unity.h"
 
 DEFINE_FFF_GLOBALS
-
-#undef container_of
-#define container_of(ptr, type, member) ( \
-    (void *)((char *)ptr - offsetof(type, member)))
 
 #undef MIN
 #define MIN(X, Y) (((X) < (Y)) ? (X) : (Y))
@@ -93,10 +90,10 @@ static void memory_stream_deinit(struct memory_stream *ms)
 
 static enum cio_error client_close(struct cio_io_stream *ios)
 {
-	struct memory_stream *memory_stream = container_of(ios, struct memory_stream, ios);
+	struct memory_stream *memory_stream = cio_container_of(ios, struct memory_stream, ios);
 	memory_stream_deinit(memory_stream);
 
-	struct client *client = container_of(memory_stream, struct client, ms);
+	struct client *client = cio_container_of(memory_stream, struct client, ms);
 
 	close(ios);
 	free(client);
@@ -322,7 +319,7 @@ static void save_to_check_buffer_and_read_again(struct cio_buffered_stream *bs, 
 
 static enum cio_error read_some_max(struct cio_io_stream *ios, struct cio_read_buffer *buffer, cio_io_stream_read_handler handler, void *context)
 {
-	struct memory_stream *memory_stream = container_of(ios, struct memory_stream, ios);
+	struct memory_stream *memory_stream = cio_container_of(ios, struct memory_stream, ios);
 	size_t len = MIN(cio_read_buffer_size(buffer), memory_stream->size - memory_stream->read_pos);
 	memcpy(buffer->data, &((uint8_t *)memory_stream->mem)[memory_stream->read_pos], len);
 	memory_stream->read_pos += len;
@@ -334,7 +331,7 @@ static enum cio_error read_some_max(struct cio_io_stream *ios, struct cio_read_b
 
 static enum cio_error read_some_chunks(struct cio_io_stream *ios, struct cio_read_buffer *buffer, cio_io_stream_read_handler handler, void *context)
 {
-	struct memory_stream *memory_stream = container_of(ios, struct memory_stream, ios);
+	struct memory_stream *memory_stream = cio_container_of(ios, struct memory_stream, ios);
 	size_t string_len = strlen(memory_stream->mem);
 	if (read_some_fake.call_count == 1) {
 		string_len = string_len / 2;

@@ -93,14 +93,14 @@ static struct cio_io_stream *socket_get_io_stream(struct cio_socket *s)
 
 static enum cio_error stream_close(struct cio_io_stream *stream)
 {
-	struct cio_socket *s = container_of(stream, struct cio_socket, stream);
+	struct cio_socket *s = cio_container_of(stream, struct cio_socket, stream);
 	return socket_close(s);
 }
 
 static void read_callback(struct cio_event_notifier *ev)
 {
-	struct cio_socket_impl *impl = container_of(ev, struct cio_socket_impl, read_event);
-	struct cio_socket *s = container_of(impl, struct cio_socket, impl);
+	struct cio_socket_impl *impl = cio_container_of(ev, struct cio_socket_impl, read_event);
+	struct cio_socket *s = cio_container_of(impl, struct cio_socket, impl);
 
 	DWORD recv_bytes;
 	DWORD flags = 0;
@@ -134,7 +134,7 @@ static enum cio_error stream_read(struct cio_io_stream *stream, struct cio_read_
 		return CIO_INVALID_ARGUMENT;
 	}
 
-	struct cio_socket *s = container_of(stream, struct cio_socket, stream);
+	struct cio_socket *s = cio_container_of(stream, struct cio_socket, stream);
 
 	s->stream.read_buffer = buffer;
 	s->stream.read_handler = handler;
@@ -161,8 +161,8 @@ static enum cio_error stream_read(struct cio_io_stream *stream, struct cio_read_
 
 static void write_callback(struct cio_event_notifier *ev)
 {
-	struct cio_socket_impl *impl = container_of(ev, struct cio_socket_impl, write_event);
-	struct cio_socket *s = container_of(impl, struct cio_socket, impl);
+	struct cio_socket_impl *impl = cio_container_of(ev, struct cio_socket_impl, write_event);
+	struct cio_socket *s = cio_container_of(impl, struct cio_socket, impl);
 
 	DWORD bytes_sent;
 	DWORD flags = 0;
@@ -189,7 +189,7 @@ static enum cio_error stream_write(struct cio_io_stream *stream, const struct ci
 		return CIO_INVALID_ARGUMENT;
 	}
 
-	struct cio_socket *s = container_of(stream, struct cio_socket, stream);
+	struct cio_socket *s = cio_container_of(stream, struct cio_socket, stream);
 	s->stream.write_handler = handler;
 	s->stream.write_handler_context = handler_context;
 	s->stream.write_buffer = buffer;

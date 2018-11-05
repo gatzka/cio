@@ -151,7 +151,7 @@ static enum cio_error timer_expires_from_error(struct cio_timer *t, uint64_t tim
 
 static void free_dummy_client(struct cio_socket *socket)
 {
-	struct cio_http_client *client = container_of(socket, struct cio_http_client, socket);
+	struct cio_http_client *client = cio_container_of(socket, struct cio_http_client, socket);
 	free(client);
 }
 
@@ -219,7 +219,7 @@ static enum cio_error cio_buffered_stream_init_ok(struct cio_buffered_stream *bs
 
 static void free_websocket_handler(struct cio_websocket_location_handler *wslh)
 {
-	struct ws_test_handler *h = container_of(wslh, struct ws_test_handler, ws_handler);
+	struct ws_test_handler *h = cio_container_of(wslh, struct ws_test_handler, ws_handler);
 	free(h);
 }
 
@@ -312,7 +312,7 @@ static void close_client(struct cio_http_client *client)
 
 static enum cio_error bs_close_ok(struct cio_buffered_stream *bs)
 {
-	struct cio_http_client *client = container_of(bs, struct cio_http_client, bs);
+	struct cio_http_client *client = cio_container_of(bs, struct cio_http_client, bs);
 	close_client(client);
 	return CIO_SUCCESS;
 }

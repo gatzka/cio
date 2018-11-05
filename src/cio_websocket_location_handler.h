@@ -39,8 +39,8 @@ extern "C" {
 #include "cio_websocket.h"
 #include "cio_write_buffer.h"
 
-#define SEC_WEB_SOCKET_KEY_LENGTH 24
-#define SEC_WEB_SOCKET_GUID_LENGTH 36
+#define CIO_SEC_WEB_SOCKET_KEY_LENGTH 24
+#define CIO_SEC_WEB_SOCKET_GUID_LENGTH 36
 
 struct cio_websocket_location_handler {
 
@@ -51,7 +51,7 @@ struct cio_websocket_location_handler {
 
 	void (*location_handler_free)(struct cio_websocket_location_handler *);
 
-	uint8_t sec_websocket_key[SEC_WEB_SOCKET_KEY_LENGTH + SEC_WEB_SOCKET_GUID_LENGTH];
+	uint8_t sec_websocket_key[CIO_SEC_WEB_SOCKET_KEY_LENGTH + CIO_SEC_WEB_SOCKET_GUID_LENGTH];
 
 	const char **subprotocols;
 	unsigned int number_subprotocols;

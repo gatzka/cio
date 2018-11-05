@@ -198,7 +198,7 @@ static const struct cio_http_location *find_handler(const struct cio_http_server
 
 static int on_headers_complete(http_parser *parser)
 {
-	struct cio_http_client *client = container_of(parser, struct cio_http_client, parser);
+	struct cio_http_client *client = cio_container_of(parser, struct cio_http_client, parser);
 	client->http_private.headers_complete = true;
 	client->content_length = parser->content_length;
 
@@ -222,25 +222,25 @@ static int on_headers_complete(http_parser *parser)
 
 static int on_header_field(http_parser *parser, const char *at, size_t length)
 {
-	struct cio_http_client *client = container_of(parser, struct cio_http_client, parser);
+	struct cio_http_client *client = cio_container_of(parser, struct cio_http_client, parser);
 	return client->handler->on_header_field(client, at, length);
 }
 
 static int on_header_value(http_parser *parser, const char *at, size_t length)
 {
-	struct cio_http_client *client = container_of(parser, struct cio_http_client, parser);
+	struct cio_http_client *client = cio_container_of(parser, struct cio_http_client, parser);
 	return client->handler->on_header_value(client, at, length);
 }
 
 static int on_message_complete(http_parser *parser)
 {
-	struct cio_http_client *client = container_of(parser, struct cio_http_client, parser);
+	struct cio_http_client *client = cio_container_of(parser, struct cio_http_client, parser);
 	return client->handler->on_message_complete(client);
 }
 
 static int on_body(http_parser *parser, const char *at, size_t length)
 {
-	struct cio_http_client *client = container_of(parser, struct cio_http_client, parser);
+	struct cio_http_client *client = cio_container_of(parser, struct cio_http_client, parser);
 	return client->handler->on_body(client, at, length);
 }
 
@@ -255,7 +255,7 @@ static enum cio_http_cb_return call_url_parts_callback(const struct http_parser_
 
 static int on_url(http_parser *parser, const char *at, size_t length)
 {
-	struct cio_http_client *client = container_of(parser, struct cio_http_client, parser);
+	struct cio_http_client *client = cio_container_of(parser, struct cio_http_client, parser);
 
 	int is_connect;
 	if (cio_unlikely(parser->method == (unsigned int)HTTP_CONNECT)) {
@@ -471,7 +471,7 @@ static void handle_accept(struct cio_server_socket *ss, void *handler_context, e
 		return;
 	}
 
-	struct cio_http_client *client = container_of(socket, struct cio_http_client, socket);
+	struct cio_http_client *client = cio_container_of(socket, struct cio_http_client, socket);
 
 	client->http_private.headers_complete = false;
 	client->content_length = 0;
@@ -576,7 +576,7 @@ static enum cio_error shutdown_server(struct cio_http_server *server,
 
 static void server_socket_closed(struct cio_server_socket *ss)
 {
-	struct cio_http_server *server = container_of(ss, struct cio_http_server, server_socket);
+	struct cio_http_server *server = cio_container_of(ss, struct cio_http_server, server_socket);
 	if (server->close_hook != NULL) {
 		server->close_hook(server);
 	}
