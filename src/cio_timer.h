@@ -66,7 +66,7 @@ typedef void (*cio_timer_close_hook)(struct cio_timer *timer);
  * @param err If err == ::CIO_SUCCESS, the timer expired.
  *            If err == ::CIO_OPERATION_ABORTED, the timer was @ref cio_timer_cancel "cancelled".
  */
-typedef void (*timer_handler)(struct cio_timer *timer, void *handler_context, enum cio_error err);
+typedef void (*cio_timer_handler)(struct cio_timer *timer, void *handler_context, enum cio_error err);
 
 struct cio_timer {
 
@@ -82,7 +82,7 @@ struct cio_timer {
 	 *                        useful inside @p handler.
 	 * @return ::CIO_SUCCESS if @p timer was armed successfully.
 	 */
-	enum cio_error (*expires_from_now)(struct cio_timer *timer, uint64_t timeout_ns, timer_handler handler, void *handler_context);
+	enum cio_error (*expires_from_now)(struct cio_timer *timer, uint64_t timeout_ns, cio_timer_handler handler, void *handler_context);
 
 	/**
 	 * @anchor cio_timer_cancel
@@ -109,7 +109,7 @@ struct cio_timer {
 	 * @privatesection
 	 */
 	cio_timer_close_hook close_hook;
-	timer_handler handler;
+	cio_timer_handler handler;
 	void *handler_context;
 	struct cio_event_notifier ev;
 	struct cio_eventloop *loop;

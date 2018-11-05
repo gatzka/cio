@@ -114,8 +114,8 @@ FAKE_VALUE_FUNC(enum cio_error, timer_cancel, struct cio_timer *)
 static void timer_close(struct cio_timer *t);
 FAKE_VOID_FUNC(timer_close, struct cio_timer *)
 
-static enum cio_error timer_expires_from_now(struct cio_timer *t, uint64_t timeout_ns, timer_handler handler, void *handler_context);
-FAKE_VALUE_FUNC(enum cio_error, timer_expires_from_now, struct cio_timer *, uint64_t, timer_handler, void *)
+static enum cio_error timer_expires_from_now(struct cio_timer *t, uint64_t timeout_ns, cio_timer_handler handler, void *handler_context);
+FAKE_VALUE_FUNC(enum cio_error, timer_expires_from_now, struct cio_timer *, uint64_t, cio_timer_handler, void *)
 
 FAKE_VALUE_FUNC(enum cio_error, cio_timer_init, struct cio_timer *, struct cio_eventloop *, cio_timer_close_hook)
 
@@ -135,7 +135,7 @@ static enum cio_error cancel_timer(struct cio_timer *t)
 	return CIO_SUCCESS;
 }
 
-static enum cio_error expires(struct cio_timer *t, uint64_t timeout_ns, timer_handler handler, void *handler_context)
+static enum cio_error expires(struct cio_timer *t, uint64_t timeout_ns, cio_timer_handler handler, void *handler_context)
 {
 	(void)timeout_ns;
 	t->handler = handler;
@@ -586,7 +586,7 @@ static void test_serve_timeout(void)
 
 	server.server_socket.handler(&server.server_socket, server.server_socket.handler_context, CIO_SUCCESS, s);
 	struct cio_timer *timer = timer_expires_from_now_fake.arg0_val;
-	timer_handler handler = timer_expires_from_now_fake.arg2_val;
+	cio_timer_handler handler = timer_expires_from_now_fake.arg2_val;
 	void *context = timer_expires_from_now_fake.arg3_val;
 	handler(timer, context, CIO_SUCCESS);
 	TEST_ASSERT_EQUAL_MESSAGE(0, header_complete_fake.call_count, "header_complete was not called!");

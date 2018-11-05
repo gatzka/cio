@@ -94,13 +94,13 @@ static void timer_read(void *context)
 			t->handler(t, t->handler_context, (enum cio_error)(-errno));
 		}
 	} else {
-		timer_handler handler = t->handler;
+		cio_timer_handler handler = t->handler;
 		t->handler = NULL;
 		handler(t, t->handler_context, CIO_SUCCESS);
 	}
 }
 
-static enum cio_error timer_expires_from_now(struct cio_timer *t, uint64_t timeout_ns, timer_handler handler, void *handler_context)
+static enum cio_error timer_expires_from_now(struct cio_timer *t, uint64_t timeout_ns, cio_timer_handler handler, void *handler_context)
 {
 	struct itimerspec timeout = convert_timeoutns_to_itimerspec(timeout_ns);
 	int ret;
