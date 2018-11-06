@@ -67,6 +67,8 @@ if(CIO_CONFIG_WEBSOCKETS)
     add_library(sha OBJECT
         sha1/sha1.c
     )
+	target_compile_features(sha PRIVATE $<$<NOT:$<C_COMPILER_ID:MSVC>>:c_std_99>)
+
     set_target_properties(sha PROPERTIES
         POSITION_INDEPENDENT_CODE ON
         C_VISIBILITY_PRESET hidden
