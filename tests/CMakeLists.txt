@@ -60,8 +60,8 @@ add_test(NAME cio.test_write_buffer COMMAND cio_test_write_buffer)
 
 
 if(LCOV_PATH AND GENHTML_PATH)
-    add_test(NAME clean_coverage COMMAND ${CMAKE_COMMAND} -DBINARY_DIR=${CMAKE_CURRENT_BINARY_DIR} -P ${CMAKE_CURRENT_LIST_DIR}/reset_coverage.cmake)
-    add_test(NAME collect_coverage COMMAND ${CMAKE_COMMAND} -DBINARY_DIR=${CMAKE_CURRENT_BINARY_DIR} -P ${CMAKE_CURRENT_LIST_DIR}/collect_coverage.cmake)
+    add_test(NAME clean_coverage COMMAND ${CMAKE_COMMAND} -DLCOV_PATH=${LCOV_PATH} -DBINARY_DIR=${CMAKE_BINARY_DIR} -P ${CMAKE_CURRENT_LIST_DIR}/reset_coverage.cmake)
+    add_test(NAME collect_coverage COMMAND ${CMAKE_COMMAND} -DLCOV_PATH=${LCOV_PATH} -DGENHTML_PATH=${GENHTML_PATH} -DBINARY_DIR=${CMAKE_BINARY_DIR} -P ${CMAKE_CURRENT_LIST_DIR}/collect_coverage.cmake)
 
     set_tests_properties(clean_coverage PROPERTIES FIXTURES_SETUP coverage)
     set_tests_properties(
