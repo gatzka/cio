@@ -220,5 +220,5 @@ script:
 after_success:
 - "../scripts/push-doxygen-to-gh-pages.sh"
 - if [ -n "${COVERAGE_INFO}" ]; then cd ${TRAVIS_BUILD_DIR}/build_release/; ls -l; make coverage ;
-  bash <(curl -s https://codecov.io/bash) -f coverage.info.cleaned || echo "Codecov did not collect coverage reports"; fi
+  bash <(curl -s https://codecov.io/bash) -f coverage.cleaned.info || echo "Codecov did not collect coverage reports"; fi
 

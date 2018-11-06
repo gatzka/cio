@@ -33,11 +33,13 @@ extern "C" {
 
 #include <stdint.h>
 
-uint16_t cio_be16toh(uint16_t big_endian_16bits);
-uint64_t cio_be64toh(uint64_t big_endian_64bits);
+#include "cio_export.h"
 
-uint16_t cio_htobe16(uint16_t host_endian_16bits);
-uint64_t cio_htobe64(uint64_t host_endian_64bits);
+CIO_EXPORT uint16_t cio_be16toh(uint16_t big_endian_16bits);
+CIO_EXPORT uint64_t cio_be64toh(uint64_t big_endian_64bits);
+
+CIO_EXPORT uint16_t cio_htobe16(uint16_t host_endian_16bits);
+CIO_EXPORT uint64_t cio_htobe64(uint64_t host_endian_64bits);
 
 #ifdef __cplusplus
 }

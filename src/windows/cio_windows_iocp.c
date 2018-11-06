@@ -91,7 +91,7 @@ enum cio_error cio_eventloop_run(struct cio_eventloop *loop)
 				// An unrecoverable error occurred in the completion port. Wait for the next notification.
 				continue;
 			} else {
-				struct cio_event_notifier *ev = container_of(overlapped, struct cio_event_notifier, overlapped);
+				struct cio_event_notifier *ev = cio_container_of(overlapped, struct cio_event_notifier, overlapped);
 				ev->callback(ev);
 				continue;
 			}
@@ -101,7 +101,7 @@ enum cio_error cio_eventloop_run(struct cio_eventloop *loop)
 			break;
 		}
 
-		struct cio_event_notifier *ev = container_of(overlapped, struct cio_event_notifier, overlapped);
+		struct cio_event_notifier *ev = cio_container_of(overlapped, struct cio_event_notifier, overlapped);
 		ev->callback(ev);
 	}
 

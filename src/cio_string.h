@@ -33,6 +33,8 @@ extern "C" {
 
 #include <stddef.h>
 
+#include "cio_export.h"
+
 /**
  * @file
  * @brief Wrapper functions for non-ANSI-C conformant string functions.
@@ -46,7 +48,7 @@ extern "C" {
  * @param needlelen The length of the substring to be searched for.
  * @return Pointer to the beginning of the substring, @c NULL otherwise.
  */
-void *cio_memmem(const void *haystack, size_t haystacklen, const void *needle, size_t needlelen);
+CIO_EXPORT void *cio_memmem(const void *haystack, size_t haystacklen, const void *needle, size_t needlelen);
 
 /**
  * @brief Compare two strings ignoring case.
@@ -56,7 +58,7 @@ void *cio_memmem(const void *haystack, size_t haystacklen, const void *needle, s
  * @return an integer less than, equal to, or greater than zero if @p s1 is, after ignoring case,
  * found to be less than, to match, or be greater than @p s2, respectively
  */
-int cio_strncasecmp(const char *s1, const char *s2, size_t n);
+CIO_EXPORT int cio_strncasecmp(const char *s1, const char *s2, size_t n);
 
 #ifdef __cplusplus
 }

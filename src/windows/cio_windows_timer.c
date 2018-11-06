@@ -70,13 +70,13 @@ static void CALLBACK timer_callback(void *context, BOOLEAN fired)
 
 static void timer_event_callback(struct cio_event_notifier *ev)
 {
-	struct cio_timer *t = container_of(ev, struct cio_timer, ev);
-	timer_handler handler = t->handler;
+	struct cio_timer *t = cio_container_of(ev, struct cio_timer, ev);
+	cio_timer_handler handler = t->handler;
 	t->handler = NULL;
 	handler(t, t->handler_context, CIO_SUCCESS);
 }
 
-static enum cio_error timer_expires_from_now(struct cio_timer *t, uint64_t timeout_ns, timer_handler handler, void *handler_context)
+static enum cio_error timer_expires_from_now(struct cio_timer *t, uint64_t timeout_ns, cio_timer_handler handler, void *handler_context)
 {
 	t->handler = handler;
 	t->handler_context = handler_context;

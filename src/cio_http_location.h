@@ -32,6 +32,7 @@ extern "C" {
 #endif
 
 #include "cio_error_code.h"
+#include "cio_export.h"
 #include "cio_http_location_handler.h"
 
 /**
@@ -77,7 +78,7 @@ struct cio_http_location {
  * @param handler The allocation handler which is called an HTTP request matches the location.
  * @return ::CIO_SUCCESS if no error occured
  */
-enum cio_error cio_http_location_init(struct cio_http_location *location, const char *path, const void *config, cio_http_alloc_handler handler);
+CIO_EXPORT enum cio_error cio_http_location_init(struct cio_http_location *location, const char *path, const void *config, cio_http_alloc_handler handler);
 
 #ifdef __cplusplus
 }

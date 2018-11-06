@@ -94,8 +94,8 @@ FAKE_VALUE_FUNC(enum cio_error, timer_cancel, struct cio_timer *)
 static void timer_close(struct cio_timer *t);
 FAKE_VOID_FUNC(timer_close, struct cio_timer *)
 
-static enum cio_error timer_expires_from_now(struct cio_timer *t, uint64_t timeout_ns, timer_handler handler, void *handler_context);
-FAKE_VALUE_FUNC(enum cio_error, timer_expires_from_now, struct cio_timer *, uint64_t, timer_handler, void *)
+static enum cio_error timer_expires_from_now(struct cio_timer *t, uint64_t timeout_ns, cio_timer_handler handler, void *handler_context);
+FAKE_VALUE_FUNC(enum cio_error, timer_expires_from_now, struct cio_timer *, uint64_t, cio_timer_handler, void *)
 
 enum cio_error cio_server_socket_init(struct cio_server_socket *ss,
                                       struct cio_eventloop *loop,
@@ -124,10 +124,10 @@ static size_t bs_read_exactly_buffer_size;
 static size_t bs_read_exactly_buffer_pos;
 
 static struct cio_timer *saved_timer;
-static timer_handler saved_handler;
+static cio_timer_handler saved_handler;
 static void *saved_handler_context;
 
-static enum cio_error timer_expires_from_now_save(struct cio_timer *t, uint64_t timeout_ns, timer_handler handler, void *handler_context)
+static enum cio_error timer_expires_from_now_save(struct cio_timer *t, uint64_t timeout_ns, cio_timer_handler handler, void *handler_context)
 {
 	(void)timeout_ns;
 	saved_timer = t;
@@ -140,7 +140,7 @@ static enum cio_error timer_expires_from_now_save(struct cio_timer *t, uint64_t 
 	return CIO_SUCCESS;
 }
 
-static enum cio_error timer_expires_from_error(struct cio_timer *t, uint64_t timeout_ns, timer_handler handler, void *handler_context)
+static enum cio_error timer_expires_from_error(struct cio_timer *t, uint64_t timeout_ns, cio_timer_handler handler, void *handler_context)
 {
 	(void)t;
 	(void)handler;
@@ -151,7 +151,7 @@ static enum cio_error timer_expires_from_error(struct cio_timer *t, uint64_t tim
 
 static void free_dummy_client(struct cio_socket *socket)
 {
-	struct cio_http_client *client = container_of(socket, struct cio_http_client, socket);
+	struct cio_http_client *client = cio_container_of(socket, struct cio_http_client, socket);
 	free(client);
 }
 
@@ -219,7 +219,7 @@ static enum cio_error cio_buffered_stream_init_ok(struct cio_buffered_stream *bs
 
 static void free_websocket_handler(struct cio_websocket_location_handler *wslh)
 {
-	struct ws_test_handler *h = container_of(wslh, struct ws_test_handler, ws_handler);
+	struct ws_test_handler *h = cio_container_of(wslh, struct ws_test_handler, ws_handler);
 	free(h);
 }
 
@@ -312,7 +312,7 @@ static void close_client(struct cio_http_client *client)
 
 static enum cio_error bs_close_ok(struct cio_buffered_stream *bs)
 {
-	struct cio_http_client *client = container_of(bs, struct cio_http_client, bs);
+	struct cio_http_client *client = cio_container_of(bs, struct cio_http_client, bs);
 	close_client(client);
 	return CIO_SUCCESS;
 }
@@ -604,7 +604,7 @@ static void test_ws_location_write_timeout_expires_failure(void)
 	bs_write_fake.custom_fake = bs_fake_write;
 	bs_read_exactly_fake.custom_fake = bs_read_exactly_from_buffer;
 
-	enum cio_error (*expires_fakes[])(struct cio_timer *, uint64_t, timer_handler, void *) = {
+	enum cio_error (*expires_fakes[])(struct cio_timer *, uint64_t, cio_timer_handler, void *) = {
 	    timer_expires_from_now_save,
 	    timer_expires_from_error,
 	};

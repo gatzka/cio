@@ -1,8 +1,8 @@
 [submodule "src/unity"]
-	path = src/unity
+	path = tests/unity
 	url = https://github.com/ThrowTheSwitch/Unity.git
 [submodule "src/fff"]
-	path = src/fff
+	path = tests/fff
 	url = https://github.com/meekrosoft/fff.git
 [submodule "src/http-parser"]
 	path = src/http-parser

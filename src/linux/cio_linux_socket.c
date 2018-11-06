@@ -24,7 +24,6 @@
  * SOFTWARE.
  */
 
-#define _GNU_SOURCE
 #include <errno.h>
 #include <netinet/in.h>
 #include <netinet/tcp.h>
@@ -110,7 +109,7 @@ static void read_callback(void *context)
 {
 	struct cio_io_stream *stream = context;
 	struct cio_read_buffer *rb = stream->read_buffer;
-	struct cio_socket *s = container_of(stream, struct cio_socket, stream);
+	struct cio_socket *s = cio_container_of(stream, struct cio_socket, stream);
 	ssize_t ret = read(s->impl.ev.fd, rb->add_ptr, cio_read_buffer_space_available(rb));
 	if (ret == -1) {
 		if (cio_unlikely((errno != EWOULDBLOCK) && (errno != EAGAIN))) {
@@ -137,7 +136,7 @@ static enum cio_error stream_read(struct cio_io_stream *stream, struct cio_read_
 		return CIO_INVALID_ARGUMENT;
 	}
 
-	struct cio_socket *s = container_of(stream, struct cio_socket, stream);
+	struct cio_socket *s = cio_container_of(stream, struct cio_socket, stream);
 	s->impl.ev.context = stream;
 	s->impl.ev.read_callback = read_callback;
 	s->stream.read_buffer = buffer;
@@ -158,7 +157,7 @@ static enum cio_error stream_write(struct cio_io_stream *stream, const struct ci
 		return CIO_INVALID_ARGUMENT;
 	}
 
-	struct cio_socket *s = container_of(stream, struct cio_socket, stream);
+	struct cio_socket *s = cio_container_of(stream, struct cio_socket, stream);
 	size_t chain_length = cio_write_buffer_get_number_of_elements(buffer);
 	struct iovec msg_iov[chain_length];
 	struct msghdr msg;
@@ -201,7 +200,7 @@ static enum cio_error stream_write(struct cio_io_stream *stream, const struct ci
 
 static enum cio_error stream_close(struct cio_io_stream *stream)
 {
-	struct cio_socket *s = container_of(stream, struct cio_socket, stream);
+	struct cio_socket *s = cio_container_of(stream, struct cio_socket, stream);
 	return socket_close(s);
 }
 

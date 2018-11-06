@@ -33,6 +33,7 @@ extern "C" {
 
 #include <stddef.h>
 
+#include "cio_export.h"
 #include "cio_http_client.h"
 
 /**
@@ -178,7 +179,7 @@ struct cio_http_location_handler {
  * After the initialization, you are allowed to set any member of cio_http_location_handler.
  * @param handler The handler to be initialized.
  */
-void cio_http_location_handler_init(struct cio_http_location_handler *handler);
+CIO_EXPORT void cio_http_location_handler_init(struct cio_http_location_handler *handler);
 
 #ifdef __cplusplus
 }

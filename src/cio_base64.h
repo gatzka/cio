@@ -39,6 +39,8 @@ extern "C" {
 #include <stddef.h>
 #include <stdint.h>
 
+#include "cio_export.h"
+
 /**
  * @brief <a href="https://en.wikipedia.org/wiki/Base64" target="_blank">Base64</a>-encodes a buffer
  *
@@ -48,7 +50,7 @@ extern "C" {
  *
  * @warning The memory @p in and @p out points to must not overlap.
  */
-void cio_b64_encode_buffer(const uint8_t *__restrict in, size_t in_length, char *__restrict out);
+CIO_EXPORT void cio_b64_encode_buffer(const uint8_t *__restrict in, size_t in_length, char *__restrict out);
 
 #ifdef __cplusplus
 }

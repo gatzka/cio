@@ -24,56 +24,24 @@
  * SOFTWARE.
  */
 
-#ifndef CIO_WEBSOCKET_MASKING_H
-#define CIO_WEBSOCKET_MASKING_H
+#ifndef CIO_VERSION_H
+#define CIO_VERSION_H
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-#include <stddef.h>
-#include <stdint.h>
+#include "cio_export.h"
 
-static inline void cio_websocket_mask(uint8_t *buffer, size_t length, const uint8_t mask[4])
-{
-	uint_fast32_t aligned_mask;
+/**
+ * @file
+ * @brief This file contains version information.
+ */
 
-	if (length < sizeof(aligned_mask)) {
-		for (size_t i = 0; i < length; i++) {
-			buffer[i] = buffer[i] ^ (mask[i % 4]);
-		}
-
-		return;
-	}
-
-	unsigned int pre_length = ((uintptr_t)buffer) % sizeof(aligned_mask);
-	pre_length = (sizeof(aligned_mask) - pre_length) % sizeof(aligned_mask);
-
-	size_t main_length = (length - pre_length) / sizeof(aligned_mask);
-	unsigned int post_length = (unsigned int)(length - pre_length - (main_length * sizeof(aligned_mask)));
-
-	uint_fast32_t *buffer_aligned = (void *)(buffer + pre_length);
-
-	uint8_t *aligned_mask_filler = (uint8_t *)&aligned_mask;
-	for (unsigned int i = 0; i < sizeof(aligned_mask); i++) {
-		*aligned_mask_filler++ = mask[(i + pre_length) % 4];
-	}
-
-	unsigned int i_p = 0;
-	while (pre_length-- > 0) {
-		buffer[i_p] ^= (mask[i_p % 4]);
-		i_p++;
-	}
-
-	while (main_length-- > 0) {
-		*buffer_aligned ^= aligned_mask;
-		buffer_aligned++;
-	}
-
-	for (size_t i = length - post_length; i < length; i++) {
-		buffer[i] ^= (mask[i % 4]);
-	}
-}
+CIO_EXPORT const char *cio_get_version_string(void);
+CIO_EXPORT unsigned int cio_get_version_major(void);
+CIO_EXPORT unsigned int cio_get_version_minor(void);
+CIO_EXPORT unsigned int cio_get_version_patch(void);
 
 #ifdef __cplusplus
 }

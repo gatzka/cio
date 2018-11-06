@@ -36,16 +36,13 @@
 #include "cio_http_server.h"
 #include "cio_server_socket.h"
 #include "cio_timer.h"
+#include "cio_util.h"
 #include "cio_write_buffer.h"
 
 #include "http-parser/http_parser.h"
 
 #undef MIN
 #define MIN(X, Y) (((X) < (Y)) ? (X) : (Y))
-
-#undef container_of
-#define container_of(ptr, type, member) ( \
-    (void *)((char *)ptr - offsetof(type, member)))
 
 #define HTTP_GET "GET"
 #define HTTP_CONNECT "CONNECT"
@@ -114,8 +111,8 @@ FAKE_VALUE_FUNC(enum cio_error, timer_cancel, struct cio_timer *)
 static void timer_close(struct cio_timer *t);
 FAKE_VOID_FUNC(timer_close, struct cio_timer *)
 
-static enum cio_error timer_expires_from_now(struct cio_timer *t, uint64_t timeout_ns, timer_handler handler, void *handler_context);
-FAKE_VALUE_FUNC(enum cio_error, timer_expires_from_now, struct cio_timer *, uint64_t, timer_handler, void *)
+static enum cio_error timer_expires_from_now(struct cio_timer *t, uint64_t timeout_ns, cio_timer_handler handler, void *handler_context);
+FAKE_VALUE_FUNC(enum cio_error, timer_expires_from_now, struct cio_timer *, uint64_t, cio_timer_handler, void *)
 
 FAKE_VALUE_FUNC(enum cio_error, cio_timer_init, struct cio_timer *, struct cio_eventloop *, cio_timer_close_hook)
 
@@ -135,7 +132,7 @@ static enum cio_error cancel_timer(struct cio_timer *t)
 	return CIO_SUCCESS;
 }
 
-static enum cio_error expires(struct cio_timer *t, uint64_t timeout_ns, timer_handler handler, void *handler_context)
+static enum cio_error expires(struct cio_timer *t, uint64_t timeout_ns, cio_timer_handler handler, void *handler_context)
 {
 	(void)timeout_ns;
 	t->handler = handler;
@@ -239,7 +236,7 @@ static struct cio_io_stream *get_mem_io_stream(struct cio_socket *context)
 
 static void free_dummy_client(struct cio_socket *socket)
 {
-	struct cio_http_client *client = container_of(socket, struct cio_http_client, socket);
+	struct cio_http_client *client = cio_container_of(socket, struct cio_http_client, socket);
 	free(client);
 }
 
@@ -254,7 +251,7 @@ static struct cio_socket *alloc_dummy_client(void)
 
 static void free_dummy_handler(struct cio_http_location_handler *handler)
 {
-	struct dummy_handler *dh = container_of(handler, struct dummy_handler, handler);
+	struct dummy_handler *dh = cio_container_of(handler, struct dummy_handler, handler);
 	free(dh);
 }
 
@@ -268,7 +265,7 @@ static enum cio_http_cb_return header_complete_write_response(struct cio_http_cl
 {
 	static const char data[] = "Hello World!";
 	struct cio_http_location_handler *handler = c->handler;
-	struct dummy_handler *dh = container_of(handler, struct dummy_handler, handler);
+	struct dummy_handler *dh = cio_container_of(handler, struct dummy_handler, handler);
 	cio_write_buffer_const_element_init(&dh->wb, data, sizeof(data));
 	cio_write_buffer_queue_tail(&dh->wbh, &dh->wb);
 	c->write_response(c, &dh->wbh);
@@ -342,7 +339,7 @@ static http_parser_settings parser_settings;
 static enum cio_error read_some_max(struct cio_io_stream *ios, struct cio_read_buffer *buffer, cio_io_stream_read_handler handler, void *context)
 {
 	enum cio_error error;
-	struct memory_stream *memory_stream = container_of(ios, struct memory_stream, ios);
+	struct memory_stream *memory_stream = cio_container_of(ios, struct memory_stream, ios);
 	size_t len = MIN(cio_read_buffer_size(buffer), memory_stream->size - memory_stream->read_pos);
 	memcpy(buffer->data, &((uint8_t *)memory_stream->mem)[memory_stream->read_pos], len);
 	memory_stream->read_pos += len;
@@ -379,7 +376,7 @@ static enum cio_error mem_close(struct cio_io_stream *io_stream)
 
 static enum cio_error write_all(struct cio_io_stream *ios, const struct cio_write_buffer *buf, cio_io_stream_write_handler handler, void *handler_context)
 {
-	struct memory_stream *memory_stream = container_of(ios, struct memory_stream, ios);
+	struct memory_stream *memory_stream = cio_container_of(ios, struct memory_stream, ios);
 
 	size_t bytes_transferred = 0;
 	size_t buffer_len = cio_write_buffer_get_number_of_elements(buf);
@@ -586,7 +583,7 @@ static void test_serve_timeout(void)
 
 	server.server_socket.handler(&server.server_socket, server.server_socket.handler_context, CIO_SUCCESS, s);
 	struct cio_timer *timer = timer_expires_from_now_fake.arg0_val;
-	timer_handler handler = timer_expires_from_now_fake.arg2_val;
+	cio_timer_handler handler = timer_expires_from_now_fake.arg2_val;
 	void *context = timer_expires_from_now_fake.arg3_val;
 	handler(timer, context, CIO_SUCCESS);
 	TEST_ASSERT_EQUAL_MESSAGE(0, header_complete_fake.call_count, "header_complete was not called!");
@@ -735,7 +732,7 @@ static void test_serve_correctly_with_header_fields(void)
 	TEST_ASSERT_MESSAGE(memcmp(header_field_history[1], DNT_FIELD, strlen(DNT_FIELD)) == 0, "Header field is not correct!");
 	TEST_ASSERT_MESSAGE(memcmp(header_value_history[1], DNT_VALUE, strlen(DNT_VALUE)) == 0, "Header value is not correct!");
 
-	struct cio_http_client *client = container_of(s, struct cio_http_client, socket);
+	struct cio_http_client *client = cio_container_of(s, struct cio_http_client, socket);
 	close_client(client);
 	TEST_ASSERT_EQUAL_MESSAGE(1, client_socket_close_fake.call_count, "Client socket was not closed!");
 	TEST_ASSERT_EQUAL_MESSAGE(0, serve_error_fake.call_count, "Serve error callback was called!");

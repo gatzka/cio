@@ -36,16 +36,13 @@
 #include "cio_http_server.h"
 #include "cio_server_socket.h"
 #include "cio_timer.h"
+#include "cio_util.h"
 #include "cio_write_buffer.h"
 
 #include "http-parser/http_parser.h"
 
 #undef ARRAY_SIZE
 #define ARRAY_SIZE(a) (sizeof(a) / sizeof((a)[0]))
-
-#undef container_of
-#define container_of(ptr, type, member) ( \
-    (void *)((char *)ptr - offsetof(type, member)))
 
 #define HTTP_GET "GET"
 #define HTTP_POST "POST"
@@ -107,8 +104,8 @@ FAKE_VALUE_FUNC(enum cio_error, timer_cancel, struct cio_timer *)
 static void timer_close(struct cio_timer *t);
 FAKE_VOID_FUNC(timer_close, struct cio_timer *)
 
-static enum cio_error timer_expires_from_now(struct cio_timer *t, uint64_t timeout_ns, timer_handler handler, void *handler_context);
-FAKE_VALUE_FUNC(enum cio_error, timer_expires_from_now, struct cio_timer *, uint64_t, timer_handler, void *)
+static enum cio_error timer_expires_from_now(struct cio_timer *t, uint64_t timeout_ns, cio_timer_handler handler, void *handler_context);
+FAKE_VALUE_FUNC(enum cio_error, timer_expires_from_now, struct cio_timer *, uint64_t, cio_timer_handler, void *)
 
 FAKE_VALUE_FUNC(enum cio_error, cio_timer_init, struct cio_timer *, struct cio_eventloop *, cio_timer_close_hook)
 
@@ -125,7 +122,7 @@ static enum cio_error cancel_timer(struct cio_timer *t)
 	return CIO_SUCCESS;
 }
 
-static enum cio_error expires(struct cio_timer *t, uint64_t timeout_ns, timer_handler handler, void *handler_context)
+static enum cio_error expires(struct cio_timer *t, uint64_t timeout_ns, cio_timer_handler handler, void *handler_context)
 {
 	(void)timeout_ns;
 	t->handler = handler;
@@ -215,7 +212,7 @@ FAKE_VALUE_FUNC(enum cio_error, bs_close, struct cio_buffered_stream *)
 
 static void free_dummy_client(struct cio_socket *socket)
 {
-	struct cio_http_client *client = container_of(socket, struct cio_http_client, socket);
+	struct cio_http_client *client = cio_container_of(socket, struct cio_http_client, socket);
 	free(client);
 }
 
@@ -241,7 +238,7 @@ static struct cio_socket *alloc_dummy_client_no_buffer(void)
 
 static void free_dummy_handler(struct cio_http_location_handler *handler)
 {
-	struct dummy_handler *dh = container_of(handler, struct dummy_handler, handler);
+	struct dummy_handler *dh = cio_container_of(handler, struct dummy_handler, handler);
 	free(dh);
 }
 
@@ -249,7 +246,7 @@ static enum cio_http_cb_return header_complete_write_response(struct cio_http_cl
 {
 	static const char data[] = "Hello World!";
 	struct cio_http_location_handler *handler = c->handler;
-	struct dummy_handler *dh = container_of(handler, struct dummy_handler, handler);
+	struct dummy_handler *dh = cio_container_of(handler, struct dummy_handler, handler);
 	cio_write_buffer_const_element_init(&dh->wb, data, sizeof(data));
 	cio_write_buffer_queue_tail(&dh->wbh, &dh->wb);
 	c->write_response(c, &dh->wbh);
@@ -434,7 +431,7 @@ static void close_client(struct cio_http_client *client)
 
 static enum cio_error bs_close_ok(struct cio_buffered_stream *bs)
 {
-	struct cio_http_client *client = container_of(bs, struct cio_http_client, bs);
+	struct cio_http_client *client = cio_container_of(bs, struct cio_http_client, bs);
 	close_client(client);
 	return CIO_SUCCESS;
 }
@@ -1682,7 +1679,7 @@ static void test_serve_upgrade(void)
 	TEST_ASSERT_EQUAL_MESSAGE(1, timer_cancel_fake.call_count, "timer_cancel for read timeout was not called!");
 	TEST_ASSERT_EQUAL_MESSAGE(0, serve_error_fake.call_count, "Serve error callback was called!");
 
-	struct cio_http_client *client = container_of(s, struct cio_http_client, socket);
+	struct cio_http_client *client = cio_container_of(s, struct cio_http_client, socket);
 	client->close(client);
 }
 
@@ -1719,7 +1716,7 @@ static void test_serve_upgrade_static_location(void)
 	TEST_ASSERT_EQUAL_MESSAGE(1, timer_cancel_fake.call_count, "timer_cancel for read timeout was not called!");
 	TEST_ASSERT_EQUAL_MESSAGE(0, serve_error_fake.call_count, "Serve error callback was called!");
 
-	struct cio_http_client *client = container_of(s, struct cio_http_client, socket);
+	struct cio_http_client *client = cio_container_of(s, struct cio_http_client, socket);
 	client->close(client);
 }
 

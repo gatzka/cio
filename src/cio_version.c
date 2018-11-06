@@ -24,25 +24,25 @@
  * SOFTWARE.
  */
 
-#ifndef CIO_VERSION_H
-#define CIO_VERSION_H
+#include "cio_version.h"
+#include "cio_version_private.h"
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-/**
- * @file
- * @brief This file contains version information.
- */
-
-/**
- * @brief The version of cio you are currently using.
- */
-#define CIO_VERSION "${CIO_VERSION}" "${CIO_LAST}"
-
-#ifdef __cplusplus
+const char *cio_get_version_string(void)
+{
+	return CIO_VERSION;
 }
-#endif
 
-#endif
+unsigned int cio_get_version_major(void)
+{
+	return CIO_VERSION_MAJOR;
+}
+
+unsigned int cio_get_version_minor(void)
+{
+	return CIO_VERSION_MINOR;
+}
+unsigned int cio_get_version_patch(void)
+{
+	return CIO_VERSION_PATCH;
+}
+
