@@ -30,7 +30,7 @@
  <tr style="height: 56px;">
   <td style="padding-left: 0.5em;">
    <div id="projectname">cioall
-   &#160;<span id="projectnumber">0.0.1-1132+7d4c3f6</span>
+   &#160;<span id="projectnumber">0.0.1</span>
    </div>
    <div id="projectbrief">An ANSI C Conformant I/O Library.</div>
   </td>
@@ -117,6 +117,7 @@ $(document).ready(function(){initNavTree('cio__server__socket_8h.html','');});
 <code>#include &lt;stdint.h&gt;</code><br/>
 <code>#include &quot;<a class="el" href="cio__error__code_8h_source.html">cio_error_code.h</a>&quot;</code><br/>
 <code>#include &quot;<a class="el" href="cio__eventloop_8h_source.html">cio_eventloop.h</a>&quot;</code><br/>
+<code>#include &quot;<a class="el" href="cio__export_8h_source.html">cio_export.h</a>&quot;</code><br/>
 <code>#include &quot;cio_server_socket_impl.h&quot;</code><br/>
 <code>#include &quot;<a class="el" href="cio__socket_8h_source.html">cio_socket.h</a>&quot;</code><br/>
 </div>
@@ -143,13 +144,13 @@ Typedefs</h2></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="func-members"></a>
 Functions</h2></td></tr>
-<tr class="memitem:a4f99185f36b9b6f81eddb5866310144a"><td class="memItemLeft" align="right" valign="top">enum <a class="el" href="cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afe">cio_error</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="cio__server__socket_8h.html#a4f99185f36b9b6f81eddb5866310144a">cio_server_socket_init</a> (struct <a class="el" href="structcio__server__socket.html">cio_server_socket</a> *ss, struct cio_eventloop *loop, unsigned int backlog, <a class="el" href="cio__server__socket_8h.html#a6365344c7e5e854b40ff9a3b01e4176f">cio_alloc_client</a> alloc_client, <a class="el" href="cio__server__socket_8h.html#ad1fdf04763eef9c0a1883c9ebe833964">cio_free_client</a> free_client, <a class="el" href="cio__server__socket_8h.html#af0698e491abc9441583116ec7023d868">cio_server_socket_close_hook</a> close_hook)</td></tr>
-<tr class="memdesc:a4f99185f36b9b6f81eddb5866310144a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Initializes a <a class="el" href="structcio__server__socket.html" title="The cio_server_socket struct describes a server socket. ">cio_server_socket</a>.  <a href="#a4f99185f36b9b6f81eddb5866310144a">More...</a><br/></td></tr>
-<tr class="separator:a4f99185f36b9b6f81eddb5866310144a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a96319a40aadf741147a8e2980ce0873a"><td class="memItemLeft" align="right" valign="top"><a class="el" href="cio__export_8h.html#ab971b12fa232c415369be66dfaca507a">CIO_EXPORT</a> enum <a class="el" href="cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afe">cio_error</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="cio__server__socket_8h.html#a96319a40aadf741147a8e2980ce0873a">cio_server_socket_init</a> (struct <a class="el" href="structcio__server__socket.html">cio_server_socket</a> *ss, struct cio_eventloop *loop, unsigned int backlog, <a class="el" href="cio__server__socket_8h.html#a6365344c7e5e854b40ff9a3b01e4176f">cio_alloc_client</a> alloc_client, <a class="el" href="cio__server__socket_8h.html#ad1fdf04763eef9c0a1883c9ebe833964">cio_free_client</a> free_client, <a class="el" href="cio__server__socket_8h.html#af0698e491abc9441583116ec7023d868">cio_server_socket_close_hook</a> close_hook)</td></tr>
+<tr class="memdesc:a96319a40aadf741147a8e2980ce0873a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Initializes a <a class="el" href="structcio__server__socket.html" title="The cio_server_socket struct describes a server socket. ">cio_server_socket</a>.  <a href="#a96319a40aadf741147a8e2980ce0873a">More...</a><br/></td></tr>
+<tr class="separator:a96319a40aadf741147a8e2980ce0873a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>This file contains the interface of a server socket. </p>
-<p>A server socket can be <a class="el" href="cio__server__socket_8h.html#a4f99185f36b9b6f81eddb5866310144a">initialized</a>, <a class="el" href="structcio__server__socket.html#cio_server_socket_accept">accept connections</a> and can be <a class="el" href="structcio__server__socket.html#cio_server_socket_close">closed</a>. </p>
+<p>A server socket can be <a class="el" href="cio__server__socket_8h.html#a96319a40aadf741147a8e2980ce0873a">initialized</a>, <a class="el" href="structcio__server__socket.html#cio_server_socket_accept">accept connections</a> and can be <a class="el" href="structcio__server__socket.html#cio_server_socket_close">closed</a>. </p>
 </div><h2 class="groupheader">Typedef Documentation</h2>
 <a class="anchor" id="a10906148e56952d4013273ea34b3d2f7"></a>
 <div class="memitem">
@@ -219,12 +220,12 @@ Functions</h2></td></tr>
 </div>
 </div>
 <h2 class="groupheader">Function Documentation</h2>
-<a class="anchor" id="a4f99185f36b9b6f81eddb5866310144a"></a>
+<a class="anchor" id="a96319a40aadf741147a8e2980ce0873a"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">enum <a class="el" href="cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afe">cio_error</a> cio_server_socket_init </td>
+          <td class="memname"><a class="el" href="cio__export_8h.html#ab971b12fa232c415369be66dfaca507a">CIO_EXPORT</a> enum <a class="el" href="cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afe">cio_error</a> cio_server_socket_init </td>
           <td>(</td>
           <td class="paramtype">struct <a class="el" href="structcio__server__socket.html">cio_server_socket</a> *&#160;</td>
           <td class="paramname"><em>ss</em>, </td>
@@ -289,7 +290,7 @@ Functions</h2></td></tr>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="cio__server__socket_8h.html">cio_server_socket.h</a></li>
-    <li class="footer">Generated on Sat Oct 20 2018 11:26:46 for cioall by
+    <li class="footer">Generated on Tue Nov 6 2018 12:51:32 for cioall by
     <a href="http://www.doxygen.org/index.html">
     <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.8.6 </li>
   </ul>

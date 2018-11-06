@@ -30,7 +30,7 @@
  <tr style="height: 56px;">
   <td style="padding-left: 0.5em;">
    <div id="projectname">cioall
-   &#160;<span id="projectnumber">0.0.1-1132+7d4c3f6</span>
+   &#160;<span id="projectnumber">0.0.1</span>
    </div>
    <div id="projectbrief">An ANSI C Conformant I/O Library.</div>
   </td>
@@ -114,6 +114,7 @@ $(document).ready(function(){initNavTree('cio__http__location_8h.html','');});
 <p>This file contains the declarations for initializing an location in an HTTP server.  
 <a href="#details">More...</a></p>
 <div class="textblock"><code>#include &quot;<a class="el" href="cio__error__code_8h_source.html">cio_error_code.h</a>&quot;</code><br/>
+<code>#include &quot;<a class="el" href="cio__export_8h_source.html">cio_export.h</a>&quot;</code><br/>
 <code>#include &quot;<a class="el" href="cio__http__location__handler_8h_source.html">cio_http_location_handler.h</a>&quot;</code><br/>
 </div>
 <p><a href="cio__http__location_8h_source.html">Go to the source code of this file.</a></p>
@@ -133,9 +134,9 @@ Typedefs</h2></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="func-members"></a>
 Functions</h2></td></tr>
-<tr class="memitem:ab96d6fc337da1b603266f240ecb98c62"><td class="memItemLeft" align="right" valign="top">enum <a class="el" href="cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afe">cio_error</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="cio__http__location_8h.html#ab96d6fc337da1b603266f240ecb98c62">cio_http_location_init</a> (struct <a class="el" href="structcio__http__location.html">cio_http_location</a> *location, const char *path, const void *config, <a class="el" href="cio__http__location_8h.html#a74814830449f39d9b203bf1b8a0422d1">cio_http_alloc_handler</a> handler)</td></tr>
-<tr class="memdesc:ab96d6fc337da1b603266f240ecb98c62"><td class="mdescLeft">&#160;</td><td class="mdescRight">Initializes a <a class="el" href="structcio__http__location.html" title="An opaque structure encapsulating the information of an HTTP location. ">cio_http_location</a>.  <a href="#ab96d6fc337da1b603266f240ecb98c62">More...</a><br/></td></tr>
-<tr class="separator:ab96d6fc337da1b603266f240ecb98c62"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa67584fc5cde0ad042e2644579ca5e55"><td class="memItemLeft" align="right" valign="top"><a class="el" href="cio__export_8h.html#ab971b12fa232c415369be66dfaca507a">CIO_EXPORT</a> enum <a class="el" href="cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afe">cio_error</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="cio__http__location_8h.html#aa67584fc5cde0ad042e2644579ca5e55">cio_http_location_init</a> (struct <a class="el" href="structcio__http__location.html">cio_http_location</a> *location, const char *path, const void *config, <a class="el" href="cio__http__location_8h.html#a74814830449f39d9b203bf1b8a0422d1">cio_http_alloc_handler</a> handler)</td></tr>
+<tr class="memdesc:aa67584fc5cde0ad042e2644579ca5e55"><td class="mdescLeft">&#160;</td><td class="mdescRight">Initializes a <a class="el" href="structcio__http__location.html" title="An opaque structure encapsulating the information of an HTTP location. ">cio_http_location</a>.  <a href="#aa67584fc5cde0ad042e2644579ca5e55">More...</a><br/></td></tr>
+<tr class="separator:aa67584fc5cde0ad042e2644579ca5e55"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>This file contains the declarations for initializing an location in an HTTP server. </p>
@@ -154,7 +155,7 @@ Functions</h2></td></tr>
 <p>The type of a function which allocates a <a class="el" href="structcio__http__location__handler.html">cio_http_location_handler</a>. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">config</td><td>A configuration which is interpreted specifically in the allocated handler. See also the documentation of the <a class="el" href="cio__http__location_8h.html#cio_http_location_init_config">config</a> parameter in <a class="el" href="cio__http__location_8h.html#ab96d6fc337da1b603266f240ecb98c62" title="Initializes a cio_http_location. ">cio_http_location_init</a>.</td></tr>
+    <tr><td class="paramname">config</td><td>A configuration which is interpreted specifically in the allocated handler. See also the documentation of the <a class="el" href="cio__http__location_8h.html#cio_http_location_init_config">config</a> parameter in <a class="el" href="cio__http__location_8h.html#aa67584fc5cde0ad042e2644579ca5e55" title="Initializes a cio_http_location. ">cio_http_location_init</a>.</td></tr>
   </table>
   </dd>
 </dl>
@@ -163,12 +164,12 @@ Functions</h2></td></tr>
 </div>
 </div>
 <h2 class="groupheader">Function Documentation</h2>
-<a class="anchor" id="ab96d6fc337da1b603266f240ecb98c62"></a>
+<a class="anchor" id="aa67584fc5cde0ad042e2644579ca5e55"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">enum <a class="el" href="cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afe">cio_error</a> cio_http_location_init </td>
+          <td class="memname"><a class="el" href="cio__export_8h.html#ab971b12fa232c415369be66dfaca507a">CIO_EXPORT</a> enum <a class="el" href="cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afe">cio_error</a> cio_http_location_init </td>
           <td>(</td>
           <td class="paramtype">struct <a class="el" href="structcio__http__location.html">cio_http_location</a> *&#160;</td>
           <td class="paramname"><em>location</em>, </td>
@@ -219,7 +220,7 @@ Functions</h2></td></tr>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="cio__http__location_8h.html">cio_http_location.h</a></li>
-    <li class="footer">Generated on Sat Oct 20 2018 11:26:46 for cioall by
+    <li class="footer">Generated on Tue Nov 6 2018 12:51:32 for cioall by
     <a href="http://www.doxygen.org/index.html">
     <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.8.6 </li>
   </ul>

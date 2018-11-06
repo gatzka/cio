@@ -30,7 +30,7 @@
  <tr style="height: 56px;">
   <td style="padding-left: 0.5em;">
    <div id="projectname">cioall
-   &#160;<span id="projectnumber">0.0.1-1132+7d4c3f6</span>
+   &#160;<span id="projectnumber">0.0.1</span>
    </div>
    <div id="projectbrief">An ANSI C Conformant I/O Library.</div>
   </td>
@@ -103,7 +103,7 @@ $(document).ready(function(){initNavTree('cio__version_8h.html','');});
 
 <div class="header">
   <div class="summary">
-<a href="#define-members">Macros</a>  </div>
+<a href="#func-members">Functions</a>  </div>
   <div class="headertitle">
 <div class="title">cio_version.h File Reference</div>  </div>
 </div><!--header-->
@@ -111,29 +111,85 @@ $(document).ready(function(){initNavTree('cio__version_8h.html','');});
 
 <p>This file contains version information.  
 <a href="#details">More...</a></p>
-
+<div class="textblock"><code>#include &quot;<a class="el" href="cio__export_8h_source.html">cio_export.h</a>&quot;</code><br/>
+</div>
 <p><a href="cio__version_8h_source.html">Go to the source code of this file.</a></p>
 <table class="memberdecls">
-<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="define-members"></a>
-Macros</h2></td></tr>
-<tr class="memitem:a2ad4f41eb192668c7f7f611746c4c15c"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="cio__version_8h.html#a2ad4f41eb192668c7f7f611746c4c15c">CIO_VERSION</a>&#160;&#160;&#160;&quot;0.0.1&quot; &quot;-1132+7d4c3f6&quot;</td></tr>
-<tr class="memdesc:a2ad4f41eb192668c7f7f611746c4c15c"><td class="mdescLeft">&#160;</td><td class="mdescRight">The version of cio you are currently using.  <a href="#a2ad4f41eb192668c7f7f611746c4c15c">More...</a><br/></td></tr>
-<tr class="separator:a2ad4f41eb192668c7f7f611746c4c15c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="func-members"></a>
+Functions</h2></td></tr>
+<tr class="memitem:a7e8a146e3aff194c29941d5ec0757af3"><td class="memItemLeft" align="right" valign="top"><a class="el" href="cio__export_8h.html#ab971b12fa232c415369be66dfaca507a">CIO_EXPORT</a> const char *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="cio__version_8h.html#a7e8a146e3aff194c29941d5ec0757af3">cio_get_version_string</a> (void)</td></tr>
+<tr class="separator:a7e8a146e3aff194c29941d5ec0757af3"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad570197a00e506a7b6ab825990c966b5"><td class="memItemLeft" align="right" valign="top"><a class="el" href="cio__export_8h.html#ab971b12fa232c415369be66dfaca507a">CIO_EXPORT</a> unsigned int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="cio__version_8h.html#ad570197a00e506a7b6ab825990c966b5">cio_get_version_major</a> (void)</td></tr>
+<tr class="separator:ad570197a00e506a7b6ab825990c966b5"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a9c835b214265c77b6e9bbce4c4719852"><td class="memItemLeft" align="right" valign="top"><a class="el" href="cio__export_8h.html#ab971b12fa232c415369be66dfaca507a">CIO_EXPORT</a> unsigned int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="cio__version_8h.html#a9c835b214265c77b6e9bbce4c4719852">cio_get_version_minor</a> (void)</td></tr>
+<tr class="separator:a9c835b214265c77b6e9bbce4c4719852"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aad2d1695adb63fc0240d88aff9a4ffca"><td class="memItemLeft" align="right" valign="top"><a class="el" href="cio__export_8h.html#ab971b12fa232c415369be66dfaca507a">CIO_EXPORT</a> unsigned int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="cio__version_8h.html#aad2d1695adb63fc0240d88aff9a4ffca">cio_get_version_patch</a> (void)</td></tr>
+<tr class="separator:aad2d1695adb63fc0240d88aff9a4ffca"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>This file contains version information. </p>
-</div><h2 class="groupheader">Macro Definition Documentation</h2>
-<a class="anchor" id="a2ad4f41eb192668c7f7f611746c4c15c"></a>
+</div><h2 class="groupheader">Function Documentation</h2>
+<a class="anchor" id="ad570197a00e506a7b6ab825990c966b5"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">#define CIO_VERSION&#160;&#160;&#160;&quot;0.0.1&quot; &quot;-1132+7d4c3f6&quot;</td>
+          <td class="memname"><a class="el" href="cio__export_8h.html#ab971b12fa232c415369be66dfaca507a">CIO_EXPORT</a> unsigned int cio_get_version_major </td>
+          <td>(</td>
+          <td class="paramtype">void&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
         </tr>
       </table>
 </div><div class="memdoc">
 
-<p>The version of cio you are currently using. </p>
+</div>
+</div>
+<a class="anchor" id="a9c835b214265c77b6e9bbce4c4719852"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="cio__export_8h.html#ab971b12fa232c415369be66dfaca507a">CIO_EXPORT</a> unsigned int cio_get_version_minor </td>
+          <td>(</td>
+          <td class="paramtype">void&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="aad2d1695adb63fc0240d88aff9a4ffca"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="cio__export_8h.html#ab971b12fa232c415369be66dfaca507a">CIO_EXPORT</a> unsigned int cio_get_version_patch </td>
+          <td>(</td>
+          <td class="paramtype">void&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="a7e8a146e3aff194c29941d5ec0757af3"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="cio__export_8h.html#ab971b12fa232c415369be66dfaca507a">CIO_EXPORT</a> const char* cio_get_version_string </td>
+          <td>(</td>
+          <td class="paramtype">void&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
 
 </div>
 </div>
@@ -143,7 +199,7 @@ Macros</h2></td></tr>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="cio__version_8h.html">cio_version.h</a></li>
-    <li class="footer">Generated on Sat Oct 20 2018 11:26:46 for cioall by
+    <li class="footer">Generated on Tue Nov 6 2018 12:51:32 for cioall by
     <a href="http://www.doxygen.org/index.html">
     <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.8.6 </li>
   </ul>

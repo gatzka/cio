@@ -30,7 +30,7 @@
  <tr style="height: 56px;">
   <td style="padding-left: 0.5em;">
    <div id="projectname">cioall
-   &#160;<span id="projectnumber">0.0.1-1132+7d4c3f6</span>
+   &#160;<span id="projectnumber">0.0.1</span>
    </div>
    <div id="projectbrief">An ANSI C Conformant I/O Library.</div>
   </td>
@@ -141,28 +141,32 @@ $(document).ready(function(){initNavTree('cio__endian_8h_source.html','');});
 <div class="line"><a name="l00033"></a><span class="lineno">   33</span>&#160;<span class="preprocessor"></span></div>
 <div class="line"><a name="l00034"></a><span class="lineno">   34</span>&#160;<span class="preprocessor">#include &lt;stdint.h&gt;</span></div>
 <div class="line"><a name="l00035"></a><span class="lineno">   35</span>&#160;</div>
-<div class="line"><a name="l00036"></a><span class="lineno">   36</span>&#160;uint16_t <a class="code" href="cio__endian_8h.html#a3fde2677ce076a9ddb5631bc01263dc9">cio_be16toh</a>(uint16_t big_endian_16bits);</div>
-<div class="line"><a name="l00037"></a><span class="lineno">   37</span>&#160;uint64_t <a class="code" href="cio__endian_8h.html#ad83673a31b557bfb6cb651a2838e3649">cio_be64toh</a>(uint64_t big_endian_64bits);</div>
-<div class="line"><a name="l00038"></a><span class="lineno">   38</span>&#160;</div>
-<div class="line"><a name="l00039"></a><span class="lineno">   39</span>&#160;uint16_t <a class="code" href="cio__endian_8h.html#af61d141f11ba2847323a03e5b144452d">cio_htobe16</a>(uint16_t host_endian_16bits);</div>
-<div class="line"><a name="l00040"></a><span class="lineno">   40</span>&#160;uint64_t <a class="code" href="cio__endian_8h.html#a1cf2a726c38163a8cf6cad9ed5afe042">cio_htobe64</a>(uint64_t host_endian_64bits);</div>
-<div class="line"><a name="l00041"></a><span class="lineno">   41</span>&#160;</div>
-<div class="line"><a name="l00042"></a><span class="lineno">   42</span>&#160;<span class="preprocessor">#ifdef __cplusplus</span></div>
-<div class="line"><a name="l00043"></a><span class="lineno">   43</span>&#160;<span class="preprocessor"></span>}</div>
-<div class="line"><a name="l00044"></a><span class="lineno">   44</span>&#160;<span class="preprocessor">#endif</span></div>
-<div class="line"><a name="l00045"></a><span class="lineno">   45</span>&#160;<span class="preprocessor"></span></div>
+<div class="line"><a name="l00036"></a><span class="lineno">   36</span>&#160;<span class="preprocessor">#include &quot;<a class="code" href="cio__export_8h.html">cio_export.h</a>&quot;</span></div>
+<div class="line"><a name="l00037"></a><span class="lineno">   37</span>&#160;</div>
+<div class="line"><a name="l00038"></a><span class="lineno">   38</span>&#160;<a class="code" href="cio__export_8h.html#ab971b12fa232c415369be66dfaca507a">CIO_EXPORT</a> uint16_t <a class="code" href="cio__endian_8h.html#adf92fc0f75597970c351d0788a6cad43">cio_be16toh</a>(uint16_t big_endian_16bits);</div>
+<div class="line"><a name="l00039"></a><span class="lineno">   39</span>&#160;<a class="code" href="cio__export_8h.html#ab971b12fa232c415369be66dfaca507a">CIO_EXPORT</a> uint64_t <a class="code" href="cio__endian_8h.html#ac8b0b9a68e3d4036c8b576772aabc85e">cio_be64toh</a>(uint64_t big_endian_64bits);</div>
+<div class="line"><a name="l00040"></a><span class="lineno">   40</span>&#160;</div>
+<div class="line"><a name="l00041"></a><span class="lineno">   41</span>&#160;<a class="code" href="cio__export_8h.html#ab971b12fa232c415369be66dfaca507a">CIO_EXPORT</a> uint16_t <a class="code" href="cio__endian_8h.html#ac7203a7d49272a3021b301e9dd522364">cio_htobe16</a>(uint16_t host_endian_16bits);</div>
+<div class="line"><a name="l00042"></a><span class="lineno">   42</span>&#160;<a class="code" href="cio__export_8h.html#ab971b12fa232c415369be66dfaca507a">CIO_EXPORT</a> uint64_t <a class="code" href="cio__endian_8h.html#a8d2e1e878c51b1671cf116a77b61fe32">cio_htobe64</a>(uint64_t host_endian_64bits);</div>
+<div class="line"><a name="l00043"></a><span class="lineno">   43</span>&#160;</div>
+<div class="line"><a name="l00044"></a><span class="lineno">   44</span>&#160;<span class="preprocessor">#ifdef __cplusplus</span></div>
+<div class="line"><a name="l00045"></a><span class="lineno">   45</span>&#160;<span class="preprocessor"></span>}</div>
 <div class="line"><a name="l00046"></a><span class="lineno">   46</span>&#160;<span class="preprocessor">#endif</span></div>
-<div class="ttc" id="cio__endian_8h_html_af61d141f11ba2847323a03e5b144452d"><div class="ttname"><a href="cio__endian_8h.html#af61d141f11ba2847323a03e5b144452d">cio_htobe16</a></div><div class="ttdeci">uint16_t cio_htobe16(uint16_t host_endian_16bits)</div></div>
-<div class="ttc" id="cio__endian_8h_html_a1cf2a726c38163a8cf6cad9ed5afe042"><div class="ttname"><a href="cio__endian_8h.html#a1cf2a726c38163a8cf6cad9ed5afe042">cio_htobe64</a></div><div class="ttdeci">uint64_t cio_htobe64(uint64_t host_endian_64bits)</div></div>
-<div class="ttc" id="cio__endian_8h_html_ad83673a31b557bfb6cb651a2838e3649"><div class="ttname"><a href="cio__endian_8h.html#ad83673a31b557bfb6cb651a2838e3649">cio_be64toh</a></div><div class="ttdeci">uint64_t cio_be64toh(uint64_t big_endian_64bits)</div></div>
-<div class="ttc" id="cio__endian_8h_html_a3fde2677ce076a9ddb5631bc01263dc9"><div class="ttname"><a href="cio__endian_8h.html#a3fde2677ce076a9ddb5631bc01263dc9">cio_be16toh</a></div><div class="ttdeci">uint16_t cio_be16toh(uint16_t big_endian_16bits)</div></div>
+<div class="line"><a name="l00047"></a><span class="lineno">   47</span>&#160;<span class="preprocessor"></span></div>
+<div class="line"><a name="l00048"></a><span class="lineno">   48</span>&#160;<span class="preprocessor">#endif</span></div>
+<div class="ttc" id="cio__endian_8h_html_ac7203a7d49272a3021b301e9dd522364"><div class="ttname"><a href="cio__endian_8h.html#ac7203a7d49272a3021b301e9dd522364">cio_htobe16</a></div><div class="ttdeci">CIO_EXPORT uint16_t cio_htobe16(uint16_t host_endian_16bits)</div></div>
+<div class="ttc" id="cio__endian_8h_html_adf92fc0f75597970c351d0788a6cad43"><div class="ttname"><a href="cio__endian_8h.html#adf92fc0f75597970c351d0788a6cad43">cio_be16toh</a></div><div class="ttdeci">CIO_EXPORT uint16_t cio_be16toh(uint16_t big_endian_16bits)</div></div>
+<div class="ttc" id="cio__endian_8h_html_a8d2e1e878c51b1671cf116a77b61fe32"><div class="ttname"><a href="cio__endian_8h.html#a8d2e1e878c51b1671cf116a77b61fe32">cio_htobe64</a></div><div class="ttdeci">CIO_EXPORT uint64_t cio_htobe64(uint64_t host_endian_64bits)</div></div>
+<div class="ttc" id="cio__export_8h_html"><div class="ttname"><a href="cio__export_8h.html">cio_export.h</a></div></div>
+<div class="ttc" id="cio__export_8h_html_ab971b12fa232c415369be66dfaca507a"><div class="ttname"><a href="cio__export_8h.html#ab971b12fa232c415369be66dfaca507a">CIO_EXPORT</a></div><div class="ttdeci">#define CIO_EXPORT</div><div class="ttdef"><b>Definition:</b> cio_export.h:15</div></div>
+<div class="ttc" id="cio__endian_8h_html_ac8b0b9a68e3d4036c8b576772aabc85e"><div class="ttname"><a href="cio__endian_8h.html#ac8b0b9a68e3d4036c8b576772aabc85e">cio_be64toh</a></div><div class="ttdeci">CIO_EXPORT uint64_t cio_be64toh(uint64_t big_endian_64bits)</div></div>
 </div><!-- fragment --></div><!-- contents -->
 </div><!-- doc-content -->
 <!-- start footer part -->
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="cio__endian_8h.html">cio_endian.h</a></li>
-    <li class="footer">Generated on Sat Oct 20 2018 11:26:46 for cioall by
+    <li class="footer">Generated on Tue Nov 6 2018 12:51:32 for cioall by
     <a href="http://www.doxygen.org/index.html">
     <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.8.6 </li>
   </ul>

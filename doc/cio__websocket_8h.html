@@ -30,7 +30,7 @@
  <tr style="height: 56px;">
   <td style="padding-left: 0.5em;">
    <div id="projectname">cioall
-   &#160;<span id="projectnumber">0.0.1-1132+7d4c3f6</span>
+   &#160;<span id="projectnumber">0.0.1</span>
    </div>
    <div id="projectbrief">An ANSI C Conformant I/O Library.</div>
   </td>
@@ -121,6 +121,7 @@ $(document).ready(function(){initNavTree('cio__websocket_8h.html','');});
 <code>#include &quot;<a class="el" href="cio__buffered__stream_8h_source.html">cio_buffered_stream.h</a>&quot;</code><br/>
 <code>#include &quot;<a class="el" href="cio__error__code_8h_source.html">cio_error_code.h</a>&quot;</code><br/>
 <code>#include &quot;<a class="el" href="cio__eventloop_8h_source.html">cio_eventloop.h</a>&quot;</code><br/>
+<code>#include &quot;<a class="el" href="cio__export_8h_source.html">cio_export.h</a>&quot;</code><br/>
 <code>#include &quot;<a class="el" href="cio__timer_8h_source.html">cio_timer.h</a>&quot;</code><br/>
 <code>#include &quot;<a class="el" href="cio__utf8__checker_8h_source.html">cio_utf8_checker.h</a>&quot;</code><br/>
 <code>#include &quot;<a class="el" href="cio__write__buffer_8h_source.html">cio_write_buffer.h</a>&quot;</code><br/>
@@ -192,8 +193,8 @@ Enumerations</h2></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="func-members"></a>
 Functions</h2></td></tr>
-<tr class="memitem:acf943032bcd768ba38f15fd37655f70d"><td class="memItemLeft" align="right" valign="top">enum <a class="el" href="cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afe">cio_error</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="cio__websocket_8h.html#acf943032bcd768ba38f15fd37655f70d">cio_websocket_init</a> (struct <a class="el" href="structcio__websocket.html">cio_websocket</a> *ws, bool is_server, <a class="el" href="cio__websocket_8h.html#a1c79de7dd7f7071c4d2a8396a664b2d6">cio_websocket_on_connect</a> on_connect, <a class="el" href="cio__websocket_8h.html#ae80b8348fc58df39d6c0d8bd35d5c607">cio_websocket_close_hook</a> close_hook)</td></tr>
-<tr class="separator:acf943032bcd768ba38f15fd37655f70d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a4b09cc7f9b2e87099efe8bc30d2a4828"><td class="memItemLeft" align="right" valign="top"><a class="el" href="cio__export_8h.html#ab971b12fa232c415369be66dfaca507a">CIO_EXPORT</a> enum <a class="el" href="cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afe">cio_error</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="cio__websocket_8h.html#a4b09cc7f9b2e87099efe8bc30d2a4828">cio_websocket_init</a> (struct <a class="el" href="structcio__websocket.html">cio_websocket</a> *ws, bool is_server, <a class="el" href="cio__websocket_8h.html#a1c79de7dd7f7071c4d2a8396a664b2d6">cio_websocket_on_connect</a> on_connect, <a class="el" href="cio__websocket_8h.html#ae80b8348fc58df39d6c0d8bd35d5c607">cio_websocket_close_hook</a> close_hook)</td></tr>
+<tr class="separator:a4b09cc7f9b2e87099efe8bc30d2a4828"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>This file contains the declarations all users of a <a class="el" href="structcio__websocket.html">cio_websocket</a> need to know. </p>
@@ -332,12 +333,12 @@ Functions</h2></td></tr>
 </div>
 </div>
 <h2 class="groupheader">Function Documentation</h2>
-<a class="anchor" id="acf943032bcd768ba38f15fd37655f70d"></a>
+<a class="anchor" id="a4b09cc7f9b2e87099efe8bc30d2a4828"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">enum <a class="el" href="cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afe">cio_error</a> cio_websocket_init </td>
+          <td class="memname"><a class="el" href="cio__export_8h.html#ab971b12fa232c415369be66dfaca507a">CIO_EXPORT</a> enum <a class="el" href="cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afe">cio_error</a> cio_websocket_init </td>
           <td>(</td>
           <td class="paramtype">struct <a class="el" href="structcio__websocket.html">cio_websocket</a> *&#160;</td>
           <td class="paramname"><em>ws</em>, </td>
@@ -376,7 +377,7 @@ Functions</h2></td></tr>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="cio__websocket_8h.html">cio_websocket.h</a></li>
-    <li class="footer">Generated on Sat Oct 20 2018 11:26:46 for cioall by
+    <li class="footer">Generated on Tue Nov 6 2018 12:51:32 for cioall by
     <a href="http://www.doxygen.org/index.html">
     <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.8.6 </li>
   </ul>

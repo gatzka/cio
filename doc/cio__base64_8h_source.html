@@ -30,7 +30,7 @@
  <tr style="height: 56px;">
   <td style="padding-left: 0.5em;">
    <div id="projectname">cioall
-   &#160;<span id="projectnumber">0.0.1-1132+7d4c3f6</span>
+   &#160;<span id="projectnumber">0.0.1</span>
    </div>
    <div id="projectbrief">An ANSI C Conformant I/O Library.</div>
   </td>
@@ -142,21 +142,25 @@ $(document).ready(function(){initNavTree('cio__base64_8h_source.html','');});
 <div class="line"><a name="l00039"></a><span class="lineno">   39</span>&#160;<span class="preprocessor">#include &lt;stddef.h&gt;</span></div>
 <div class="line"><a name="l00040"></a><span class="lineno">   40</span>&#160;<span class="preprocessor">#include &lt;stdint.h&gt;</span></div>
 <div class="line"><a name="l00041"></a><span class="lineno">   41</span>&#160;</div>
-<div class="line"><a name="l00051"></a><span class="lineno">   51</span>&#160;<span class="keywordtype">void</span> <a class="code" href="cio__base64_8h.html#a21b685b510d66c0866e65d6df12530cb">cio_b64_encode_buffer</a>(<span class="keyword">const</span> uint8_t *__restrict in, <span class="keywordtype">size_t</span> in_length, <span class="keywordtype">char</span> *__restrict out);</div>
-<div class="line"><a name="l00052"></a><span class="lineno">   52</span>&#160;</div>
-<div class="line"><a name="l00053"></a><span class="lineno">   53</span>&#160;<span class="preprocessor">#ifdef __cplusplus</span></div>
-<div class="line"><a name="l00054"></a><span class="lineno">   54</span>&#160;<span class="preprocessor"></span>}</div>
-<div class="line"><a name="l00055"></a><span class="lineno">   55</span>&#160;<span class="preprocessor">#endif</span></div>
-<div class="line"><a name="l00056"></a><span class="lineno">   56</span>&#160;<span class="preprocessor"></span></div>
+<div class="line"><a name="l00042"></a><span class="lineno">   42</span>&#160;<span class="preprocessor">#include &quot;<a class="code" href="cio__export_8h.html">cio_export.h</a>&quot;</span></div>
+<div class="line"><a name="l00043"></a><span class="lineno">   43</span>&#160;</div>
+<div class="line"><a name="l00053"></a><span class="lineno">   53</span>&#160;<a class="code" href="cio__export_8h.html#ab971b12fa232c415369be66dfaca507a">CIO_EXPORT</a> <span class="keywordtype">void</span> <a class="code" href="cio__base64_8h.html#a918a023f117f2762660fcfd44f5babb3">cio_b64_encode_buffer</a>(<span class="keyword">const</span> uint8_t *__restrict in, <span class="keywordtype">size_t</span> in_length, <span class="keywordtype">char</span> *__restrict out);</div>
+<div class="line"><a name="l00054"></a><span class="lineno">   54</span>&#160;</div>
+<div class="line"><a name="l00055"></a><span class="lineno">   55</span>&#160;<span class="preprocessor">#ifdef __cplusplus</span></div>
+<div class="line"><a name="l00056"></a><span class="lineno">   56</span>&#160;<span class="preprocessor"></span>}</div>
 <div class="line"><a name="l00057"></a><span class="lineno">   57</span>&#160;<span class="preprocessor">#endif</span></div>
-<div class="ttc" id="cio__base64_8h_html_a21b685b510d66c0866e65d6df12530cb"><div class="ttname"><a href="cio__base64_8h.html#a21b685b510d66c0866e65d6df12530cb">cio_b64_encode_buffer</a></div><div class="ttdeci">void cio_b64_encode_buffer(const uint8_t *__restrict in, size_t in_length, char *__restrict out)</div><div class="ttdoc">Base64-encodes a buffer </div><div class="ttdef"><b>Definition:</b> cio_base64.c:36</div></div>
+<div class="line"><a name="l00058"></a><span class="lineno">   58</span>&#160;<span class="preprocessor"></span></div>
+<div class="line"><a name="l00059"></a><span class="lineno">   59</span>&#160;<span class="preprocessor">#endif</span></div>
+<div class="ttc" id="cio__base64_8h_html_a918a023f117f2762660fcfd44f5babb3"><div class="ttname"><a href="cio__base64_8h.html#a918a023f117f2762660fcfd44f5babb3">cio_b64_encode_buffer</a></div><div class="ttdeci">CIO_EXPORT void cio_b64_encode_buffer(const uint8_t *__restrict in, size_t in_length, char *__restrict out)</div><div class="ttdoc">Base64-encodes a buffer </div></div>
+<div class="ttc" id="cio__export_8h_html"><div class="ttname"><a href="cio__export_8h.html">cio_export.h</a></div></div>
+<div class="ttc" id="cio__export_8h_html_ab971b12fa232c415369be66dfaca507a"><div class="ttname"><a href="cio__export_8h.html#ab971b12fa232c415369be66dfaca507a">CIO_EXPORT</a></div><div class="ttdeci">#define CIO_EXPORT</div><div class="ttdef"><b>Definition:</b> cio_export.h:15</div></div>
 </div><!-- fragment --></div><!-- contents -->
 </div><!-- doc-content -->
 <!-- start footer part -->
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="cio__base64_8h.html">cio_base64.h</a></li>
-    <li class="footer">Generated on Sat Oct 20 2018 11:26:46 for cioall by
+    <li class="footer">Generated on Tue Nov 6 2018 12:51:32 for cioall by
     <a href="http://www.doxygen.org/index.html">
     <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.8.6 </li>
   </ul>

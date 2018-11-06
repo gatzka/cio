@@ -30,7 +30,7 @@
  <tr style="height: 56px;">
   <td style="padding-left: 0.5em;">
    <div id="projectname">cioall
-   &#160;<span id="projectnumber">0.0.1-1132+7d4c3f6</span>
+   &#160;<span id="projectnumber">0.0.1</span>
    </div>
    <div id="projectbrief">An ANSI C Conformant I/O Library.</div>
   </td>
@@ -138,43 +138,47 @@ $(document).ready(function(){initNavTree('cio__utf8__checker_8h_source.html','')
 <div class="line"><a name="l00030"></a><span class="lineno">   30</span>&#160;<span class="preprocessor">#include &lt;stddef.h&gt;</span></div>
 <div class="line"><a name="l00031"></a><span class="lineno">   31</span>&#160;<span class="preprocessor">#include &lt;stdint.h&gt;</span></div>
 <div class="line"><a name="l00032"></a><span class="lineno">   32</span>&#160;</div>
-<div class="line"><a name="l00033"></a><span class="lineno">   33</span>&#160;<span class="preprocessor">#ifdef __cplusplus</span></div>
-<div class="line"><a name="l00034"></a><span class="lineno">   34</span>&#160;<span class="preprocessor"></span><span class="keyword">extern</span> <span class="stringliteral">&quot;C&quot;</span> {</div>
-<div class="line"><a name="l00035"></a><span class="lineno">   35</span>&#160;<span class="preprocessor">#endif</span></div>
-<div class="line"><a name="l00036"></a><span class="lineno">   36</span>&#160;<span class="preprocessor"></span></div>
-<div class="line"><a name="l00037"></a><span class="lineno"><a class="line" href="cio__utf8__checker_8h.html#a8cc342c473ef83b38ab4e96678d4d63e">   37</a></span>&#160;<span class="keyword">enum</span> <a class="code" href="cio__utf8__checker_8h.html#a8cc342c473ef83b38ab4e96678d4d63e">cio_utf8_status</a> {</div>
-<div class="line"><a name="l00038"></a><span class="lineno"><a class="line" href="cio__utf8__checker_8h.html#a8cc342c473ef83b38ab4e96678d4d63ea2375a85acbf1e6af16060d7d0d91eb11">   38</a></span>&#160;    <a class="code" href="cio__utf8__checker_8h.html#a8cc342c473ef83b38ab4e96678d4d63ea2375a85acbf1e6af16060d7d0d91eb11">CIO_UTF8_ACCEPT</a> = 0,</div>
-<div class="line"><a name="l00039"></a><span class="lineno"><a class="line" href="cio__utf8__checker_8h.html#a8cc342c473ef83b38ab4e96678d4d63ea0b2a76047615923429dfe58732314818">   39</a></span>&#160;    <a class="code" href="cio__utf8__checker_8h.html#a8cc342c473ef83b38ab4e96678d4d63ea0b2a76047615923429dfe58732314818">CIO_UTF8_REJECT</a> = 12</div>
-<div class="line"><a name="l00040"></a><span class="lineno">   40</span>&#160;};</div>
-<div class="line"><a name="l00041"></a><span class="lineno">   41</span>&#160;</div>
-<div class="line"><a name="l00042"></a><span class="lineno"><a class="line" href="structcio__utf8__state.html">   42</a></span>&#160;<span class="keyword">struct </span><a class="code" href="structcio__utf8__state.html">cio_utf8_state</a> {</div>
-<div class="line"><a name="l00043"></a><span class="lineno"><a class="line" href="structcio__utf8__state.html#a5e66194d8cc9ec2b85acd00e4b4fccfb">   43</a></span>&#160;    uint8_t <a class="code" href="structcio__utf8__state.html#a5e66194d8cc9ec2b85acd00e4b4fccfb">codepoint</a>;</div>
-<div class="line"><a name="l00044"></a><span class="lineno"><a class="line" href="structcio__utf8__state.html#ad5d20ff3befbecac8f36e02326e11f3c">   44</a></span>&#160;    uint8_t <a class="code" href="structcio__utf8__state.html#ad5d20ff3befbecac8f36e02326e11f3c">state</a>;</div>
-<div class="line"><a name="l00045"></a><span class="lineno">   45</span>&#160;};</div>
-<div class="line"><a name="l00046"></a><span class="lineno">   46</span>&#160;</div>
-<div class="line"><a name="l00047"></a><span class="lineno">   47</span>&#160;<span class="keywordtype">void</span> <a class="code" href="cio__utf8__checker_8h.html#ac348d62f7d6eb6adb663f139187283c6">cio_utf8_init</a>(<span class="keyword">struct</span> <a class="code" href="structcio__utf8__state.html">cio_utf8_state</a> *state);</div>
-<div class="line"><a name="l00048"></a><span class="lineno">   48</span>&#160;uint8_t <a class="code" href="cio__utf8__checker_8h.html#a6533469466509391a2c495f34ba76bdb">cio_check_utf8</a>(<span class="keyword">struct</span> <a class="code" href="structcio__utf8__state.html">cio_utf8_state</a> *state, <span class="keyword">const</span> uint8_t *s, <span class="keywordtype">size_t</span> count);</div>
-<div class="line"><a name="l00049"></a><span class="lineno">   49</span>&#160;</div>
-<div class="line"><a name="l00050"></a><span class="lineno">   50</span>&#160;<span class="preprocessor">#ifdef __cplusplus</span></div>
-<div class="line"><a name="l00051"></a><span class="lineno">   51</span>&#160;<span class="preprocessor"></span>}</div>
-<div class="line"><a name="l00052"></a><span class="lineno">   52</span>&#160;<span class="preprocessor">#endif</span></div>
-<div class="line"><a name="l00053"></a><span class="lineno">   53</span>&#160;<span class="preprocessor"></span></div>
+<div class="line"><a name="l00033"></a><span class="lineno">   33</span>&#160;<span class="preprocessor">#include &quot;<a class="code" href="cio__export_8h.html">cio_export.h</a>&quot;</span></div>
+<div class="line"><a name="l00034"></a><span class="lineno">   34</span>&#160;</div>
+<div class="line"><a name="l00035"></a><span class="lineno">   35</span>&#160;<span class="preprocessor">#ifdef __cplusplus</span></div>
+<div class="line"><a name="l00036"></a><span class="lineno">   36</span>&#160;<span class="preprocessor"></span><span class="keyword">extern</span> <span class="stringliteral">&quot;C&quot;</span> {</div>
+<div class="line"><a name="l00037"></a><span class="lineno">   37</span>&#160;<span class="preprocessor">#endif</span></div>
+<div class="line"><a name="l00038"></a><span class="lineno">   38</span>&#160;<span class="preprocessor"></span></div>
+<div class="line"><a name="l00039"></a><span class="lineno"><a class="line" href="cio__utf8__checker_8h.html#a8cc342c473ef83b38ab4e96678d4d63e">   39</a></span>&#160;<span class="keyword">enum</span> <a class="code" href="cio__utf8__checker_8h.html#a8cc342c473ef83b38ab4e96678d4d63e">cio_utf8_status</a> {</div>
+<div class="line"><a name="l00040"></a><span class="lineno"><a class="line" href="cio__utf8__checker_8h.html#a8cc342c473ef83b38ab4e96678d4d63ea2375a85acbf1e6af16060d7d0d91eb11">   40</a></span>&#160;    <a class="code" href="cio__utf8__checker_8h.html#a8cc342c473ef83b38ab4e96678d4d63ea2375a85acbf1e6af16060d7d0d91eb11">CIO_UTF8_ACCEPT</a> = 0,</div>
+<div class="line"><a name="l00041"></a><span class="lineno"><a class="line" href="cio__utf8__checker_8h.html#a8cc342c473ef83b38ab4e96678d4d63ea0b2a76047615923429dfe58732314818">   41</a></span>&#160;    <a class="code" href="cio__utf8__checker_8h.html#a8cc342c473ef83b38ab4e96678d4d63ea0b2a76047615923429dfe58732314818">CIO_UTF8_REJECT</a> = 12</div>
+<div class="line"><a name="l00042"></a><span class="lineno">   42</span>&#160;};</div>
+<div class="line"><a name="l00043"></a><span class="lineno">   43</span>&#160;</div>
+<div class="line"><a name="l00044"></a><span class="lineno"><a class="line" href="structcio__utf8__state.html">   44</a></span>&#160;<span class="keyword">struct </span><a class="code" href="structcio__utf8__state.html">cio_utf8_state</a> {</div>
+<div class="line"><a name="l00045"></a><span class="lineno"><a class="line" href="structcio__utf8__state.html#a5e66194d8cc9ec2b85acd00e4b4fccfb">   45</a></span>&#160;    uint8_t <a class="code" href="structcio__utf8__state.html#a5e66194d8cc9ec2b85acd00e4b4fccfb">codepoint</a>;</div>
+<div class="line"><a name="l00046"></a><span class="lineno"><a class="line" href="structcio__utf8__state.html#ad5d20ff3befbecac8f36e02326e11f3c">   46</a></span>&#160;    uint8_t <a class="code" href="structcio__utf8__state.html#ad5d20ff3befbecac8f36e02326e11f3c">state</a>;</div>
+<div class="line"><a name="l00047"></a><span class="lineno">   47</span>&#160;};</div>
+<div class="line"><a name="l00048"></a><span class="lineno">   48</span>&#160;</div>
+<div class="line"><a name="l00049"></a><span class="lineno">   49</span>&#160;<a class="code" href="cio__export_8h.html#ab971b12fa232c415369be66dfaca507a">CIO_EXPORT</a> <span class="keywordtype">void</span> <a class="code" href="cio__utf8__checker_8h.html#ac34158d7e222466a9368c14bd8d342a1">cio_utf8_init</a>(<span class="keyword">struct</span> <a class="code" href="structcio__utf8__state.html">cio_utf8_state</a> *state);</div>
+<div class="line"><a name="l00050"></a><span class="lineno">   50</span>&#160;<a class="code" href="cio__export_8h.html#ab971b12fa232c415369be66dfaca507a">CIO_EXPORT</a> uint8_t <a class="code" href="cio__utf8__checker_8h.html#a5c0dd74d77825c00d6cdea16735af864">cio_check_utf8</a>(<span class="keyword">struct</span> <a class="code" href="structcio__utf8__state.html">cio_utf8_state</a> *state, <span class="keyword">const</span> uint8_t *s, <span class="keywordtype">size_t</span> count);</div>
+<div class="line"><a name="l00051"></a><span class="lineno">   51</span>&#160;</div>
+<div class="line"><a name="l00052"></a><span class="lineno">   52</span>&#160;<span class="preprocessor">#ifdef __cplusplus</span></div>
+<div class="line"><a name="l00053"></a><span class="lineno">   53</span>&#160;<span class="preprocessor"></span>}</div>
 <div class="line"><a name="l00054"></a><span class="lineno">   54</span>&#160;<span class="preprocessor">#endif</span></div>
-<div class="ttc" id="cio__utf8__checker_8h_html_a8cc342c473ef83b38ab4e96678d4d63e"><div class="ttname"><a href="cio__utf8__checker_8h.html#a8cc342c473ef83b38ab4e96678d4d63e">cio_utf8_status</a></div><div class="ttdeci">cio_utf8_status</div><div class="ttdef"><b>Definition:</b> cio_utf8_checker.h:37</div></div>
-<div class="ttc" id="cio__utf8__checker_8h_html_a6533469466509391a2c495f34ba76bdb"><div class="ttname"><a href="cio__utf8__checker_8h.html#a6533469466509391a2c495f34ba76bdb">cio_check_utf8</a></div><div class="ttdeci">uint8_t cio_check_utf8(struct cio_utf8_state *state, const uint8_t *s, size_t count)</div><div class="ttdef"><b>Definition:</b> cio_utf8_checker.c:391</div></div>
-<div class="ttc" id="cio__utf8__checker_8h_html_ac348d62f7d6eb6adb663f139187283c6"><div class="ttname"><a href="cio__utf8__checker_8h.html#ac348d62f7d6eb6adb663f139187283c6">cio_utf8_init</a></div><div class="ttdeci">void cio_utf8_init(struct cio_utf8_state *state)</div><div class="ttdef"><b>Definition:</b> cio_utf8_checker.c:445</div></div>
-<div class="ttc" id="structcio__utf8__state_html"><div class="ttname"><a href="structcio__utf8__state.html">cio_utf8_state</a></div><div class="ttdef"><b>Definition:</b> cio_utf8_checker.h:42</div></div>
-<div class="ttc" id="cio__utf8__checker_8h_html_a8cc342c473ef83b38ab4e96678d4d63ea0b2a76047615923429dfe58732314818"><div class="ttname"><a href="cio__utf8__checker_8h.html#a8cc342c473ef83b38ab4e96678d4d63ea0b2a76047615923429dfe58732314818">CIO_UTF8_REJECT</a></div><div class="ttdef"><b>Definition:</b> cio_utf8_checker.h:39</div></div>
-<div class="ttc" id="structcio__utf8__state_html_a5e66194d8cc9ec2b85acd00e4b4fccfb"><div class="ttname"><a href="structcio__utf8__state.html#a5e66194d8cc9ec2b85acd00e4b4fccfb">cio_utf8_state::codepoint</a></div><div class="ttdeci">uint8_t codepoint</div><div class="ttdef"><b>Definition:</b> cio_utf8_checker.h:43</div></div>
-<div class="ttc" id="structcio__utf8__state_html_ad5d20ff3befbecac8f36e02326e11f3c"><div class="ttname"><a href="structcio__utf8__state.html#ad5d20ff3befbecac8f36e02326e11f3c">cio_utf8_state::state</a></div><div class="ttdeci">uint8_t state</div><div class="ttdef"><b>Definition:</b> cio_utf8_checker.h:44</div></div>
-<div class="ttc" id="cio__utf8__checker_8h_html_a8cc342c473ef83b38ab4e96678d4d63ea2375a85acbf1e6af16060d7d0d91eb11"><div class="ttname"><a href="cio__utf8__checker_8h.html#a8cc342c473ef83b38ab4e96678d4d63ea2375a85acbf1e6af16060d7d0d91eb11">CIO_UTF8_ACCEPT</a></div><div class="ttdef"><b>Definition:</b> cio_utf8_checker.h:38</div></div>
+<div class="line"><a name="l00055"></a><span class="lineno">   55</span>&#160;<span class="preprocessor"></span></div>
+<div class="line"><a name="l00056"></a><span class="lineno">   56</span>&#160;<span class="preprocessor">#endif</span></div>
+<div class="ttc" id="cio__utf8__checker_8h_html_a5c0dd74d77825c00d6cdea16735af864"><div class="ttname"><a href="cio__utf8__checker_8h.html#a5c0dd74d77825c00d6cdea16735af864">cio_check_utf8</a></div><div class="ttdeci">CIO_EXPORT uint8_t cio_check_utf8(struct cio_utf8_state *state, const uint8_t *s, size_t count)</div></div>
+<div class="ttc" id="cio__utf8__checker_8h_html_a8cc342c473ef83b38ab4e96678d4d63e"><div class="ttname"><a href="cio__utf8__checker_8h.html#a8cc342c473ef83b38ab4e96678d4d63e">cio_utf8_status</a></div><div class="ttdeci">cio_utf8_status</div><div class="ttdef"><b>Definition:</b> cio_utf8_checker.h:39</div></div>
+<div class="ttc" id="cio__utf8__checker_8h_html_ac34158d7e222466a9368c14bd8d342a1"><div class="ttname"><a href="cio__utf8__checker_8h.html#ac34158d7e222466a9368c14bd8d342a1">cio_utf8_init</a></div><div class="ttdeci">CIO_EXPORT void cio_utf8_init(struct cio_utf8_state *state)</div></div>
+<div class="ttc" id="cio__export_8h_html"><div class="ttname"><a href="cio__export_8h.html">cio_export.h</a></div></div>
+<div class="ttc" id="cio__export_8h_html_ab971b12fa232c415369be66dfaca507a"><div class="ttname"><a href="cio__export_8h.html#ab971b12fa232c415369be66dfaca507a">CIO_EXPORT</a></div><div class="ttdeci">#define CIO_EXPORT</div><div class="ttdef"><b>Definition:</b> cio_export.h:15</div></div>
+<div class="ttc" id="structcio__utf8__state_html"><div class="ttname"><a href="structcio__utf8__state.html">cio_utf8_state</a></div><div class="ttdef"><b>Definition:</b> cio_utf8_checker.h:44</div></div>
+<div class="ttc" id="cio__utf8__checker_8h_html_a8cc342c473ef83b38ab4e96678d4d63ea0b2a76047615923429dfe58732314818"><div class="ttname"><a href="cio__utf8__checker_8h.html#a8cc342c473ef83b38ab4e96678d4d63ea0b2a76047615923429dfe58732314818">CIO_UTF8_REJECT</a></div><div class="ttdef"><b>Definition:</b> cio_utf8_checker.h:41</div></div>
+<div class="ttc" id="structcio__utf8__state_html_a5e66194d8cc9ec2b85acd00e4b4fccfb"><div class="ttname"><a href="structcio__utf8__state.html#a5e66194d8cc9ec2b85acd00e4b4fccfb">cio_utf8_state::codepoint</a></div><div class="ttdeci">uint8_t codepoint</div><div class="ttdef"><b>Definition:</b> cio_utf8_checker.h:45</div></div>
+<div class="ttc" id="structcio__utf8__state_html_ad5d20ff3befbecac8f36e02326e11f3c"><div class="ttname"><a href="structcio__utf8__state.html#ad5d20ff3befbecac8f36e02326e11f3c">cio_utf8_state::state</a></div><div class="ttdeci">uint8_t state</div><div class="ttdef"><b>Definition:</b> cio_utf8_checker.h:46</div></div>
+<div class="ttc" id="cio__utf8__checker_8h_html_a8cc342c473ef83b38ab4e96678d4d63ea2375a85acbf1e6af16060d7d0d91eb11"><div class="ttname"><a href="cio__utf8__checker_8h.html#a8cc342c473ef83b38ab4e96678d4d63ea2375a85acbf1e6af16060d7d0d91eb11">CIO_UTF8_ACCEPT</a></div><div class="ttdef"><b>Definition:</b> cio_utf8_checker.h:40</div></div>
 </div><!-- fragment --></div><!-- contents -->
 </div><!-- doc-content -->
 <!-- start footer part -->
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="cio__utf8__checker_8h.html">cio_utf8_checker.h</a></li>
-    <li class="footer">Generated on Sat Oct 20 2018 11:26:46 for cioall by
+    <li class="footer">Generated on Tue Nov 6 2018 12:51:32 for cioall by
     <a href="http://www.doxygen.org/index.html">
     <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.8.6 </li>
   </ul>

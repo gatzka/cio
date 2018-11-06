@@ -8,5 +8,5 @@ var cio__buffered__stream_8h =
       [ "CIO_BS_CLOSED", "cio__buffered__stream_8h.html#a78aa67d350ee50928e889143bc042bc7a11d6ee42955cd51759ef05481da4b9df", null ],
       [ "CIO_BS_AGAIN", "cio__buffered__stream_8h.html#a78aa67d350ee50928e889143bc042bc7abbac42171fbffee5fd8c4e6d682ddd89", null ]
     ] ],
-    [ "cio_buffered_stream_init", "cio__buffered__stream_8h.html#a2e92bc0f797448c5a6486be3b0feb43b", null ]
+    [ "cio_buffered_stream_init", "cio__buffered__stream_8h.html#ad7a2b4ecadbc810eaada7e14292bb1bd", null ]
 ];

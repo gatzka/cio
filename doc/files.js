@@ -1,9 +1,7 @@
 var files =
 [
-    [ "cio_version.h", "cio__version_8h.html", "cio__version_8h" ],
-    [ "cio_base64.c", "cio__base64_8c.html", "cio__base64_8c" ],
+    [ "cio_export.h", "cio__export_8h.html", "cio__export_8h" ],
     [ "cio_base64.h", "cio__base64_8h.html", "cio__base64_8h" ],
-    [ "cio_buffered_stream.c", "cio__buffered__stream_8c.html", "cio__buffered__stream_8c" ],
     [ "cio_buffered_stream.h", "cio__buffered__stream_8h.html", "cio__buffered__stream_8h" ],
     [ "cio_compiler.h", "cio__compiler_8h.html", null ],
     [ "cio_endian.h", "cio__endian_8h.html", "cio__endian_8h" ],
@@ -13,12 +11,9 @@ var files =
       [ "cio_http_client_private", "structcio__http__client__private.html", "structcio__http__client__private" ],
       [ "cio_http_client", "structcio__http__client.html", "structcio__http__client" ]
     ] ],
-    [ "cio_http_location.c", "cio__http__location_8c.html", "cio__http__location_8c" ],
     [ "cio_http_location.h", "cio__http__location_8h.html", "cio__http__location_8h" ],
-    [ "cio_http_location_handler.c", "cio__http__location__handler_8c.html", "cio__http__location__handler_8c" ],
     [ "cio_http_location_handler.h", "cio__http__location__handler_8h.html", "cio__http__location__handler_8h" ],
     [ "cio_http_method.h", "cio__http__method_8h.html", "cio__http__method_8h" ],
-    [ "cio_http_server.c", "cio__http__server_8c.html", "cio__http__server_8c" ],
     [ "cio_http_server.h", "cio__http__server_8h.html", "cio__http__server_8h" ],
     [ "cio_http_status_code.h", "cio__http__status__code_8h.html", "cio__http__status__code_8h" ],
     [ "cio_io_stream.h", "cio__io__stream_8h.html", "cio__io__stream_8h" ],
@@ -28,12 +23,10 @@ var files =
     [ "cio_socket.h", "cio__socket_8h.html", "cio__socket_8h" ],
     [ "cio_string.h", "cio__string_8h.html", "cio__string_8h" ],
     [ "cio_timer.h", "cio__timer_8h.html", "cio__timer_8h" ],
-    [ "cio_utf8_checker.c", "cio__utf8__checker_8c.html", "cio__utf8__checker_8c" ],
     [ "cio_utf8_checker.h", "cio__utf8__checker_8h.html", "cio__utf8__checker_8h" ],
     [ "cio_util.h", "cio__util_8h.html", "cio__util_8h" ],
-    [ "cio_websocket.c", "cio__websocket_8c.html", "cio__websocket_8c" ],
+    [ "cio_version.h", "cio__version_8h.html", "cio__version_8h" ],
     [ "cio_websocket.h", "cio__websocket_8h.html", "cio__websocket_8h" ],
-    [ "cio_websocket_location_handler.c", "cio__websocket__location__handler_8c.html", "cio__websocket__location__handler_8c" ],
     [ "cio_websocket_location_handler.h", "cio__websocket__location__handler_8h.html", "cio__websocket__location__handler_8h" ],
     [ "cio_websocket_masking.h", "cio__websocket__masking_8h.html", "cio__websocket__masking_8h" ],
     [ "cio_write_buffer.h", "cio__write__buffer_8h.html", "cio__write__buffer_8h" ]

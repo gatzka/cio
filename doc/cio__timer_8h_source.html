@@ -30,7 +30,7 @@
  <tr style="height: 56px;">
   <td style="padding-left: 0.5em;">
    <div id="projectname">cioall
-   &#160;<span id="projectnumber">0.0.1-1132+7d4c3f6</span>
+   &#160;<span id="projectnumber">0.0.1</span>
    </div>
    <div id="projectbrief">An ANSI C Conformant I/O Library.</div>
   </td>
@@ -140,57 +140,60 @@ $(document).ready(function(){initNavTree('cio__timer_8h_source.html','');});
 <div class="line"><a name="l00032"></a><span class="lineno">   32</span>&#160;</div>
 <div class="line"><a name="l00033"></a><span class="lineno">   33</span>&#160;<span class="preprocessor">#include &quot;<a class="code" href="cio__error__code_8h.html">cio_error_code.h</a>&quot;</span></div>
 <div class="line"><a name="l00034"></a><span class="lineno">   34</span>&#160;<span class="preprocessor">#include &quot;<a class="code" href="cio__eventloop_8h.html">cio_eventloop.h</a>&quot;</span></div>
-<div class="line"><a name="l00035"></a><span class="lineno">   35</span>&#160;</div>
-<div class="line"><a name="l00036"></a><span class="lineno">   36</span>&#160;<span class="preprocessor">#ifdef __cplusplus</span></div>
-<div class="line"><a name="l00037"></a><span class="lineno">   37</span>&#160;<span class="preprocessor"></span><span class="keyword">extern</span> <span class="stringliteral">&quot;C&quot;</span> {</div>
-<div class="line"><a name="l00038"></a><span class="lineno">   38</span>&#160;<span class="preprocessor">#endif</span></div>
-<div class="line"><a name="l00039"></a><span class="lineno">   39</span>&#160;<span class="preprocessor"></span></div>
-<div class="line"><a name="l00049"></a><span class="lineno">   49</span>&#160;<span class="keyword">struct </span><a class="code" href="structcio__timer.html">cio_timer</a>;</div>
-<div class="line"><a name="l00050"></a><span class="lineno">   50</span>&#160;</div>
-<div class="line"><a name="l00056"></a><span class="lineno"><a class="line" href="cio__timer_8h.html#a7cbe58df3a75c89662569743cfc2b40d">   56</a></span>&#160;<span class="keyword">typedef</span> void (*<a class="code" href="cio__timer_8h.html#a7cbe58df3a75c89662569743cfc2b40d">cio_timer_close_hook</a>)(<span class="keyword">struct </span><a class="code" href="structcio__timer.html">cio_timer</a> *timer);</div>
-<div class="line"><a name="l00057"></a><span class="lineno">   57</span>&#160;</div>
-<div class="line"><a name="l00068"></a><span class="lineno"><a class="line" href="cio__timer_8h.html#a5f39123edfcb6b2b61b55a4444b26978">   68</a></span>&#160;<span class="keyword">typedef</span> void (*<a class="code" href="cio__timer_8h.html#a5f39123edfcb6b2b61b55a4444b26978">timer_handler</a>)(<span class="keyword">struct </span><a class="code" href="structcio__timer.html">cio_timer</a> *timer, <span class="keywordtype">void</span> *handler_context, <span class="keyword">enum</span> <a class="code" href="cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afe">cio_error</a> err);</div>
-<div class="line"><a name="l00069"></a><span class="lineno">   69</span>&#160;</div>
-<div class="line"><a name="l00070"></a><span class="lineno"><a class="line" href="structcio__timer.html">   70</a></span>&#160;<span class="keyword">struct </span><a class="code" href="structcio__timer.html">cio_timer</a> {</div>
-<div class="line"><a name="l00071"></a><span class="lineno">   71</span>&#160;</div>
-<div class="line"><a name="l00084"></a><span class="lineno"><a class="line" href="structcio__timer.html#ab7de1507254b6b4fe5216615c0cbb333">   84</a></span>&#160;    <span class="keyword">enum</span> <a class="code" href="cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afe">cio_error</a> (*<a class="code" href="structcio__timer.html#ab7de1507254b6b4fe5216615c0cbb333">expires_from_now</a>)(<span class="keyword">struct </span><a class="code" href="structcio__timer.html">cio_timer</a> *timer, uint64_t timeout_ns, <a class="code" href="cio__timer_8h.html#a5f39123edfcb6b2b61b55a4444b26978">timer_handler</a> handler, <span class="keywordtype">void</span> *handler_context);</div>
-<div class="line"><a name="l00085"></a><span class="lineno">   85</span>&#160;</div>
-<div class="line"><a name="l00094"></a><span class="lineno"><a class="line" href="structcio__timer.html#a8e83f28b2eb60b637d517c7f1dd8f347">   94</a></span>&#160;    <span class="keyword">enum</span> <a class="code" href="cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afe">cio_error</a> (*<a class="code" href="structcio__timer.html#a8e83f28b2eb60b637d517c7f1dd8f347">cancel</a>)(<span class="keyword">struct </span><a class="code" href="structcio__timer.html">cio_timer</a> *timer);</div>
-<div class="line"><a name="l00095"></a><span class="lineno">   95</span>&#160;</div>
-<div class="line"><a name="l00105"></a><span class="lineno"><a class="line" href="structcio__timer.html#a9415fa7ec48bc6edaf1baa144ad479e2">  105</a></span>&#160;    void (*<a class="code" href="structcio__timer.html#a9415fa7ec48bc6edaf1baa144ad479e2">close</a>)(<span class="keyword">struct </span><a class="code" href="structcio__timer.html">cio_timer</a> *timer);</div>
-<div class="line"><a name="l00106"></a><span class="lineno">  106</span>&#160;</div>
-<div class="line"><a name="l00110"></a><span class="lineno">  110</span>&#160;    <a class="code" href="cio__timer_8h.html#a7cbe58df3a75c89662569743cfc2b40d">cio_timer_close_hook</a> close_hook;</div>
-<div class="line"><a name="l00111"></a><span class="lineno">  111</span>&#160;    <a class="code" href="cio__timer_8h.html#a5f39123edfcb6b2b61b55a4444b26978">timer_handler</a> handler;</div>
-<div class="line"><a name="l00112"></a><span class="lineno">  112</span>&#160;    <span class="keywordtype">void</span> *handler_context;</div>
-<div class="line"><a name="l00113"></a><span class="lineno">  113</span>&#160;    <span class="keyword">struct </span>cio_event_notifier ev;</div>
-<div class="line"><a name="l00114"></a><span class="lineno">  114</span>&#160;    <span class="keyword">struct </span>cio_eventloop *loop;</div>
-<div class="line"><a name="l00115"></a><span class="lineno">  115</span>&#160;};</div>
-<div class="line"><a name="l00116"></a><span class="lineno">  116</span>&#160;</div>
-<div class="line"><a name="l00130"></a><span class="lineno">  130</span>&#160;<span class="keyword">enum</span> <a class="code" href="cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afe">cio_error</a> <a class="code" href="cio__timer_8h.html#a4a48048d3b6e5d9860cb04f1d84ac1e3">cio_timer_init</a>(<span class="keyword">struct</span> <a class="code" href="structcio__timer.html">cio_timer</a> *timer, <span class="keyword">struct</span> cio_eventloop *loop,</div>
-<div class="line"><a name="l00131"></a><span class="lineno">  131</span>&#160;                              <a class="code" href="cio__timer_8h.html#a7cbe58df3a75c89662569743cfc2b40d">cio_timer_close_hook</a> close_hook);</div>
-<div class="line"><a name="l00132"></a><span class="lineno">  132</span>&#160;</div>
-<div class="line"><a name="l00133"></a><span class="lineno">  133</span>&#160;<span class="preprocessor">#ifdef __cplusplus</span></div>
-<div class="line"><a name="l00134"></a><span class="lineno">  134</span>&#160;<span class="preprocessor"></span>}</div>
-<div class="line"><a name="l00135"></a><span class="lineno">  135</span>&#160;<span class="preprocessor">#endif</span></div>
-<div class="line"><a name="l00136"></a><span class="lineno">  136</span>&#160;<span class="preprocessor"></span></div>
-<div class="line"><a name="l00137"></a><span class="lineno">  137</span>&#160;<span class="preprocessor">#endif</span></div>
-<div class="ttc" id="structcio__timer_html_a8e83f28b2eb60b637d517c7f1dd8f347"><div class="ttname"><a href="structcio__timer.html#a8e83f28b2eb60b637d517c7f1dd8f347">cio_timer::cancel</a></div><div class="ttdeci">enum cio_error(* cancel)(struct cio_timer *timer)</div><div class="ttdoc">Cancels an armed timer. </div><div class="ttdef"><b>Definition:</b> cio_timer.h:94</div></div>
-<div class="ttc" id="cio__timer_8h_html_a4a48048d3b6e5d9860cb04f1d84ac1e3"><div class="ttname"><a href="cio__timer_8h.html#a4a48048d3b6e5d9860cb04f1d84ac1e3">cio_timer_init</a></div><div class="ttdeci">enum cio_error cio_timer_init(struct cio_timer *timer, struct cio_eventloop *loop, cio_timer_close_hook close_hook)</div><div class="ttdoc">Initializes a cio_timer. </div></div>
-<div class="ttc" id="structcio__timer_html"><div class="ttname"><a href="structcio__timer.html">cio_timer</a></div><div class="ttdef"><b>Definition:</b> cio_timer.h:70</div></div>
-<div class="ttc" id="structcio__timer_html_a9415fa7ec48bc6edaf1baa144ad479e2"><div class="ttname"><a href="structcio__timer.html#a9415fa7ec48bc6edaf1baa144ad479e2">cio_timer::close</a></div><div class="ttdeci">void(* close)(struct cio_timer *timer)</div><div class="ttdoc">Closes a timer and frees underlying resources. </div><div class="ttdef"><b>Definition:</b> cio_timer.h:105</div></div>
-<div class="ttc" id="cio__timer_8h_html_a5f39123edfcb6b2b61b55a4444b26978"><div class="ttname"><a href="cio__timer_8h.html#a5f39123edfcb6b2b61b55a4444b26978">timer_handler</a></div><div class="ttdeci">void(* timer_handler)(struct cio_timer *timer, void *handler_context, enum cio_error err)</div><div class="ttdoc">The type of a timer callback function. </div><div class="ttdef"><b>Definition:</b> cio_timer.h:68</div></div>
+<div class="line"><a name="l00035"></a><span class="lineno">   35</span>&#160;<span class="preprocessor">#include &quot;<a class="code" href="cio__export_8h.html">cio_export.h</a>&quot;</span></div>
+<div class="line"><a name="l00036"></a><span class="lineno">   36</span>&#160;</div>
+<div class="line"><a name="l00037"></a><span class="lineno">   37</span>&#160;<span class="preprocessor">#ifdef __cplusplus</span></div>
+<div class="line"><a name="l00038"></a><span class="lineno">   38</span>&#160;<span class="preprocessor"></span><span class="keyword">extern</span> <span class="stringliteral">&quot;C&quot;</span> {</div>
+<div class="line"><a name="l00039"></a><span class="lineno">   39</span>&#160;<span class="preprocessor">#endif</span></div>
+<div class="line"><a name="l00040"></a><span class="lineno">   40</span>&#160;<span class="preprocessor"></span></div>
+<div class="line"><a name="l00050"></a><span class="lineno">   50</span>&#160;<span class="keyword">struct </span><a class="code" href="structcio__timer.html">cio_timer</a>;</div>
+<div class="line"><a name="l00051"></a><span class="lineno">   51</span>&#160;</div>
+<div class="line"><a name="l00057"></a><span class="lineno"><a class="line" href="cio__timer_8h.html#a7cbe58df3a75c89662569743cfc2b40d">   57</a></span>&#160;<span class="keyword">typedef</span> void (*<a class="code" href="cio__timer_8h.html#a7cbe58df3a75c89662569743cfc2b40d">cio_timer_close_hook</a>)(<span class="keyword">struct </span><a class="code" href="structcio__timer.html">cio_timer</a> *timer);</div>
+<div class="line"><a name="l00058"></a><span class="lineno">   58</span>&#160;</div>
+<div class="line"><a name="l00069"></a><span class="lineno"><a class="line" href="cio__timer_8h.html#ae4551f5e0cd89cb540db504c90fdf3a2">   69</a></span>&#160;<span class="keyword">typedef</span> void (*<a class="code" href="cio__timer_8h.html#ae4551f5e0cd89cb540db504c90fdf3a2">cio_timer_handler</a>)(<span class="keyword">struct </span><a class="code" href="structcio__timer.html">cio_timer</a> *timer, <span class="keywordtype">void</span> *handler_context, <span class="keyword">enum</span> <a class="code" href="cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afe">cio_error</a> err);</div>
+<div class="line"><a name="l00070"></a><span class="lineno">   70</span>&#160;</div>
+<div class="line"><a name="l00071"></a><span class="lineno"><a class="line" href="structcio__timer.html">   71</a></span>&#160;<span class="keyword">struct </span><a class="code" href="structcio__timer.html">cio_timer</a> {</div>
+<div class="line"><a name="l00072"></a><span class="lineno">   72</span>&#160;</div>
+<div class="line"><a name="l00085"></a><span class="lineno"><a class="line" href="structcio__timer.html#a7fc7126e686906071e9e6d87c60e5f7b">   85</a></span>&#160;    <span class="keyword">enum</span> <a class="code" href="cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afe">cio_error</a> (*<a class="code" href="structcio__timer.html#a7fc7126e686906071e9e6d87c60e5f7b">expires_from_now</a>)(<span class="keyword">struct </span><a class="code" href="structcio__timer.html">cio_timer</a> *timer, uint64_t timeout_ns, <a class="code" href="cio__timer_8h.html#ae4551f5e0cd89cb540db504c90fdf3a2">cio_timer_handler</a> handler, <span class="keywordtype">void</span> *handler_context);</div>
+<div class="line"><a name="l00086"></a><span class="lineno">   86</span>&#160;</div>
+<div class="line"><a name="l00095"></a><span class="lineno"><a class="line" href="structcio__timer.html#a8e83f28b2eb60b637d517c7f1dd8f347">   95</a></span>&#160;    <span class="keyword">enum</span> <a class="code" href="cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afe">cio_error</a> (*<a class="code" href="structcio__timer.html#a8e83f28b2eb60b637d517c7f1dd8f347">cancel</a>)(<span class="keyword">struct </span><a class="code" href="structcio__timer.html">cio_timer</a> *timer);</div>
+<div class="line"><a name="l00096"></a><span class="lineno">   96</span>&#160;</div>
+<div class="line"><a name="l00106"></a><span class="lineno"><a class="line" href="structcio__timer.html#a9415fa7ec48bc6edaf1baa144ad479e2">  106</a></span>&#160;    void (*<a class="code" href="structcio__timer.html#a9415fa7ec48bc6edaf1baa144ad479e2">close</a>)(<span class="keyword">struct </span><a class="code" href="structcio__timer.html">cio_timer</a> *timer);</div>
+<div class="line"><a name="l00107"></a><span class="lineno">  107</span>&#160;</div>
+<div class="line"><a name="l00111"></a><span class="lineno">  111</span>&#160;    <a class="code" href="cio__timer_8h.html#a7cbe58df3a75c89662569743cfc2b40d">cio_timer_close_hook</a> close_hook;</div>
+<div class="line"><a name="l00112"></a><span class="lineno">  112</span>&#160;    <a class="code" href="cio__timer_8h.html#ae4551f5e0cd89cb540db504c90fdf3a2">cio_timer_handler</a> handler;</div>
+<div class="line"><a name="l00113"></a><span class="lineno">  113</span>&#160;    <span class="keywordtype">void</span> *handler_context;</div>
+<div class="line"><a name="l00114"></a><span class="lineno">  114</span>&#160;    <span class="keyword">struct </span>cio_event_notifier ev;</div>
+<div class="line"><a name="l00115"></a><span class="lineno">  115</span>&#160;    <span class="keyword">struct </span>cio_eventloop *loop;</div>
+<div class="line"><a name="l00116"></a><span class="lineno">  116</span>&#160;};</div>
+<div class="line"><a name="l00117"></a><span class="lineno">  117</span>&#160;</div>
+<div class="line"><a name="l00131"></a><span class="lineno">  131</span>&#160;<a class="code" href="cio__export_8h.html#ab971b12fa232c415369be66dfaca507a">CIO_EXPORT</a> <span class="keyword">enum</span> <a class="code" href="cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afe">cio_error</a> <a class="code" href="cio__timer_8h.html#a8854b02ed97089c8c3569e77254ddb58">cio_timer_init</a>(<span class="keyword">struct</span> <a class="code" href="structcio__timer.html">cio_timer</a> *timer, <span class="keyword">struct</span> cio_eventloop *loop,</div>
+<div class="line"><a name="l00132"></a><span class="lineno">  132</span>&#160;                                         <a class="code" href="cio__timer_8h.html#a7cbe58df3a75c89662569743cfc2b40d">cio_timer_close_hook</a> close_hook);</div>
+<div class="line"><a name="l00133"></a><span class="lineno">  133</span>&#160;</div>
+<div class="line"><a name="l00134"></a><span class="lineno">  134</span>&#160;<span class="preprocessor">#ifdef __cplusplus</span></div>
+<div class="line"><a name="l00135"></a><span class="lineno">  135</span>&#160;<span class="preprocessor"></span>}</div>
+<div class="line"><a name="l00136"></a><span class="lineno">  136</span>&#160;<span class="preprocessor">#endif</span></div>
+<div class="line"><a name="l00137"></a><span class="lineno">  137</span>&#160;<span class="preprocessor"></span></div>
+<div class="line"><a name="l00138"></a><span class="lineno">  138</span>&#160;<span class="preprocessor">#endif</span></div>
+<div class="ttc" id="structcio__timer_html_a7fc7126e686906071e9e6d87c60e5f7b"><div class="ttname"><a href="structcio__timer.html#a7fc7126e686906071e9e6d87c60e5f7b">cio_timer::expires_from_now</a></div><div class="ttdeci">enum cio_error(* expires_from_now)(struct cio_timer *timer, uint64_t timeout_ns, cio_timer_handler handler, void *handler_context)</div><div class="ttdoc">Set the timer&#39;s expiration time relative to now and arms the timer. </div><div class="ttdef"><b>Definition:</b> cio_timer.h:85</div></div>
+<div class="ttc" id="structcio__timer_html_a8e83f28b2eb60b637d517c7f1dd8f347"><div class="ttname"><a href="structcio__timer.html#a8e83f28b2eb60b637d517c7f1dd8f347">cio_timer::cancel</a></div><div class="ttdeci">enum cio_error(* cancel)(struct cio_timer *timer)</div><div class="ttdoc">Cancels an armed timer. </div><div class="ttdef"><b>Definition:</b> cio_timer.h:95</div></div>
+<div class="ttc" id="cio__timer_8h_html_a8854b02ed97089c8c3569e77254ddb58"><div class="ttname"><a href="cio__timer_8h.html#a8854b02ed97089c8c3569e77254ddb58">cio_timer_init</a></div><div class="ttdeci">CIO_EXPORT enum cio_error cio_timer_init(struct cio_timer *timer, struct cio_eventloop *loop, cio_timer_close_hook close_hook)</div><div class="ttdoc">Initializes a cio_timer. </div></div>
+<div class="ttc" id="structcio__timer_html"><div class="ttname"><a href="structcio__timer.html">cio_timer</a></div><div class="ttdef"><b>Definition:</b> cio_timer.h:71</div></div>
+<div class="ttc" id="structcio__timer_html_a9415fa7ec48bc6edaf1baa144ad479e2"><div class="ttname"><a href="structcio__timer.html#a9415fa7ec48bc6edaf1baa144ad479e2">cio_timer::close</a></div><div class="ttdeci">void(* close)(struct cio_timer *timer)</div><div class="ttdoc">Closes a timer and frees underlying resources. </div><div class="ttdef"><b>Definition:</b> cio_timer.h:106</div></div>
+<div class="ttc" id="cio__export_8h_html"><div class="ttname"><a href="cio__export_8h.html">cio_export.h</a></div></div>
 <div class="ttc" id="cio__error__code_8h_html_ac512c4abcb0c1e747cdaaf3b917d4afe"><div class="ttname"><a href="cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afe">cio_error</a></div><div class="ttdeci">cio_error</div><div class="ttdoc">All error codes used inside the cio libary. </div><div class="ttdef"><b>Definition:</b> cio_error_code.h:47</div></div>
 <div class="ttc" id="cio__error__code_8h_html"><div class="ttname"><a href="cio__error__code_8h.html">cio_error_code.h</a></div><div class="ttdoc">This file contains the declaration of the enumeration for all error codes. </div></div>
+<div class="ttc" id="cio__timer_8h_html_ae4551f5e0cd89cb540db504c90fdf3a2"><div class="ttname"><a href="cio__timer_8h.html#ae4551f5e0cd89cb540db504c90fdf3a2">cio_timer_handler</a></div><div class="ttdeci">void(* cio_timer_handler)(struct cio_timer *timer, void *handler_context, enum cio_error err)</div><div class="ttdoc">The type of a timer callback function. </div><div class="ttdef"><b>Definition:</b> cio_timer.h:69</div></div>
 <div class="ttc" id="cio__eventloop_8h_html"><div class="ttname"><a href="cio__eventloop_8h.html">cio_eventloop.h</a></div><div class="ttdoc">This file describes the interface to an eventloop. </div></div>
-<div class="ttc" id="structcio__timer_html_ab7de1507254b6b4fe5216615c0cbb333"><div class="ttname"><a href="structcio__timer.html#ab7de1507254b6b4fe5216615c0cbb333">cio_timer::expires_from_now</a></div><div class="ttdeci">enum cio_error(* expires_from_now)(struct cio_timer *timer, uint64_t timeout_ns, timer_handler handler, void *handler_context)</div><div class="ttdoc">Set the timer&#39;s expiration time relative to now and arms the timer. </div><div class="ttdef"><b>Definition:</b> cio_timer.h:84</div></div>
-<div class="ttc" id="cio__timer_8h_html_a7cbe58df3a75c89662569743cfc2b40d"><div class="ttname"><a href="cio__timer_8h.html#a7cbe58df3a75c89662569743cfc2b40d">cio_timer_close_hook</a></div><div class="ttdeci">void(* cio_timer_close_hook)(struct cio_timer *timer)</div><div class="ttdoc">The type of a close hook function. </div><div class="ttdef"><b>Definition:</b> cio_timer.h:56</div></div>
+<div class="ttc" id="cio__export_8h_html_ab971b12fa232c415369be66dfaca507a"><div class="ttname"><a href="cio__export_8h.html#ab971b12fa232c415369be66dfaca507a">CIO_EXPORT</a></div><div class="ttdeci">#define CIO_EXPORT</div><div class="ttdef"><b>Definition:</b> cio_export.h:15</div></div>
+<div class="ttc" id="cio__timer_8h_html_a7cbe58df3a75c89662569743cfc2b40d"><div class="ttname"><a href="cio__timer_8h.html#a7cbe58df3a75c89662569743cfc2b40d">cio_timer_close_hook</a></div><div class="ttdeci">void(* cio_timer_close_hook)(struct cio_timer *timer)</div><div class="ttdoc">The type of a close hook function. </div><div class="ttdef"><b>Definition:</b> cio_timer.h:57</div></div>
 </div><!-- fragment --></div><!-- contents -->
 </div><!-- doc-content -->
 <!-- start footer part -->
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="cio__timer_8h.html">cio_timer.h</a></li>
-    <li class="footer">Generated on Sat Oct 20 2018 11:26:46 for cioall by
+    <li class="footer">Generated on Tue Nov 6 2018 12:51:32 for cioall by
     <a href="http://www.doxygen.org/index.html">
     <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.8.6 </li>
   </ul>

@@ -30,7 +30,7 @@
  <tr style="height: 56px;">
   <td style="padding-left: 0.5em;">
    <div id="projectname">cioall
-   &#160;<span id="projectnumber">0.0.1-1132+7d4c3f6</span>
+   &#160;<span id="projectnumber">0.0.1</span>
    </div>
    <div id="projectbrief">An ANSI C Conformant I/O Library.</div>
   </td>
@@ -112,27 +112,28 @@ $(document).ready(function(){initNavTree('cio__string_8h.html','');});
 <p>Wrapper functions for non-ANSI-C conformant string functions.  
 <a href="#details">More...</a></p>
 <div class="textblock"><code>#include &lt;stddef.h&gt;</code><br/>
+<code>#include &quot;<a class="el" href="cio__export_8h_source.html">cio_export.h</a>&quot;</code><br/>
 </div>
 <p><a href="cio__string_8h_source.html">Go to the source code of this file.</a></p>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="func-members"></a>
 Functions</h2></td></tr>
-<tr class="memitem:aa98e3cf3ccb2a8598da835e873afea3f"><td class="memItemLeft" align="right" valign="top">void *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="cio__string_8h.html#aa98e3cf3ccb2a8598da835e873afea3f">cio_memmem</a> (const void *haystack, size_t haystacklen, const void *needle, size_t needlelen)</td></tr>
-<tr class="memdesc:aa98e3cf3ccb2a8598da835e873afea3f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Finds the start of the first occurence of <code>needle</code> in <code>haystack</code>.  <a href="#aa98e3cf3ccb2a8598da835e873afea3f">More...</a><br/></td></tr>
-<tr class="separator:aa98e3cf3ccb2a8598da835e873afea3f"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aaf7d79996ced7b024dd2ae714d07befa"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="cio__string_8h.html#aaf7d79996ced7b024dd2ae714d07befa">cio_strncasecmp</a> (const char *s1, const char *s2, size_t n)</td></tr>
-<tr class="memdesc:aaf7d79996ced7b024dd2ae714d07befa"><td class="mdescLeft">&#160;</td><td class="mdescRight">Compare two strings ignoring case.  <a href="#aaf7d79996ced7b024dd2ae714d07befa">More...</a><br/></td></tr>
-<tr class="separator:aaf7d79996ced7b024dd2ae714d07befa"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a15c5a92b8872b62342ef86fa20d1e8d8"><td class="memItemLeft" align="right" valign="top"><a class="el" href="cio__export_8h.html#ab971b12fa232c415369be66dfaca507a">CIO_EXPORT</a> void *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="cio__string_8h.html#a15c5a92b8872b62342ef86fa20d1e8d8">cio_memmem</a> (const void *haystack, size_t haystacklen, const void *needle, size_t needlelen)</td></tr>
+<tr class="memdesc:a15c5a92b8872b62342ef86fa20d1e8d8"><td class="mdescLeft">&#160;</td><td class="mdescRight">Finds the start of the first occurence of <code>needle</code> in <code>haystack</code>.  <a href="#a15c5a92b8872b62342ef86fa20d1e8d8">More...</a><br/></td></tr>
+<tr class="separator:a15c5a92b8872b62342ef86fa20d1e8d8"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af707c0efef3a5212113b370078e608fa"><td class="memItemLeft" align="right" valign="top"><a class="el" href="cio__export_8h.html#ab971b12fa232c415369be66dfaca507a">CIO_EXPORT</a> int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="cio__string_8h.html#af707c0efef3a5212113b370078e608fa">cio_strncasecmp</a> (const char *s1, const char *s2, size_t n)</td></tr>
+<tr class="memdesc:af707c0efef3a5212113b370078e608fa"><td class="mdescLeft">&#160;</td><td class="mdescRight">Compare two strings ignoring case.  <a href="#af707c0efef3a5212113b370078e608fa">More...</a><br/></td></tr>
+<tr class="separator:af707c0efef3a5212113b370078e608fa"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Wrapper functions for non-ANSI-C conformant string functions. </p>
 </div><h2 class="groupheader">Function Documentation</h2>
-<a class="anchor" id="aa98e3cf3ccb2a8598da835e873afea3f"></a>
+<a class="anchor" id="a15c5a92b8872b62342ef86fa20d1e8d8"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">void* cio_memmem </td>
+          <td class="memname"><a class="el" href="cio__export_8h.html#ab971b12fa232c415369be66dfaca507a">CIO_EXPORT</a> void* cio_memmem </td>
           <td>(</td>
           <td class="paramtype">const void *&#160;</td>
           <td class="paramname"><em>haystack</em>, </td>
@@ -177,12 +178,12 @@ Functions</h2></td></tr>
 
 </div>
 </div>
-<a class="anchor" id="aaf7d79996ced7b024dd2ae714d07befa"></a>
+<a class="anchor" id="af707c0efef3a5212113b370078e608fa"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">int cio_strncasecmp </td>
+          <td class="memname"><a class="el" href="cio__export_8h.html#ab971b12fa232c415369be66dfaca507a">CIO_EXPORT</a> int cio_strncasecmp </td>
           <td>(</td>
           <td class="paramtype">const char *&#160;</td>
           <td class="paramname"><em>s1</em>, </td>
@@ -226,7 +227,7 @@ Functions</h2></td></tr>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="cio__string_8h.html">cio_string.h</a></li>
-    <li class="footer">Generated on Sat Oct 20 2018 11:26:46 for cioall by
+    <li class="footer">Generated on Tue Nov 6 2018 12:51:32 for cioall by
     <a href="http://www.doxygen.org/index.html">
     <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.8.6 </li>
   </ul>

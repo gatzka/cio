@@ -30,7 +30,7 @@
  <tr style="height: 56px;">
   <td style="padding-left: 0.5em;">
    <div id="projectname">cioall
-   &#160;<span id="projectnumber">0.0.1-1132+7d4c3f6</span>
+   &#160;<span id="projectnumber">0.0.1</span>
    </div>
    <div id="projectbrief">An ANSI C Conformant I/O Library.</div>
   </td>
@@ -114,9 +114,9 @@ $(document).ready(function(){initNavTree('structcio__timer.html','');});
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-attribs"></a>
 Data Fields</h2></td></tr>
-<tr class="memitem:ab7de1507254b6b4fe5216615c0cbb333"><td class="memItemLeft" align="right" valign="top">enum <a class="el" href="cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afe">cio_error</a>(*&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structcio__timer.html#ab7de1507254b6b4fe5216615c0cbb333">expires_from_now</a> )(struct <a class="el" href="structcio__timer.html">cio_timer</a> *timer, uint64_t timeout_ns, <a class="el" href="cio__timer_8h.html#a5f39123edfcb6b2b61b55a4444b26978">timer_handler</a> handler, void *handler_context)</td></tr>
-<tr class="memdesc:ab7de1507254b6b4fe5216615c0cbb333"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set the timer's expiration time relative to now and arms the timer.  <a href="#ab7de1507254b6b4fe5216615c0cbb333">More...</a><br/></td></tr>
-<tr class="separator:ab7de1507254b6b4fe5216615c0cbb333"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7fc7126e686906071e9e6d87c60e5f7b"><td class="memItemLeft" align="right" valign="top">enum <a class="el" href="cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afe">cio_error</a>(*&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structcio__timer.html#a7fc7126e686906071e9e6d87c60e5f7b">expires_from_now</a> )(struct <a class="el" href="structcio__timer.html">cio_timer</a> *timer, uint64_t timeout_ns, <a class="el" href="cio__timer_8h.html#ae4551f5e0cd89cb540db504c90fdf3a2">cio_timer_handler</a> handler, void *handler_context)</td></tr>
+<tr class="memdesc:a7fc7126e686906071e9e6d87c60e5f7b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set the timer's expiration time relative to now and arms the timer.  <a href="#a7fc7126e686906071e9e6d87c60e5f7b">More...</a><br/></td></tr>
+<tr class="separator:a7fc7126e686906071e9e6d87c60e5f7b"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a8e83f28b2eb60b637d517c7f1dd8f347"><td class="memItemLeft" align="right" valign="top">enum <a class="el" href="cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afe">cio_error</a>(*&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structcio__timer.html#a8e83f28b2eb60b637d517c7f1dd8f347">cancel</a> )(struct <a class="el" href="structcio__timer.html">cio_timer</a> *timer)</td></tr>
 <tr class="memdesc:a8e83f28b2eb60b637d517c7f1dd8f347"><td class="mdescLeft">&#160;</td><td class="mdescRight">Cancels an armed timer.  <a href="#a8e83f28b2eb60b637d517c7f1dd8f347">More...</a><br/></td></tr>
 <tr class="separator:a8e83f28b2eb60b637d517c7f1dd8f347"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -158,7 +158,7 @@ Data Fields</h2></td></tr>
 </div><div class="memdoc">
 
 <p>Closes a timer and frees underlying resources. </p>
-<p><a class="anchor" id="cio_timer_close"></a>If the timer is armed and has not expired yet, the timer will be canceled and the timer callback will be called. If a close_hook was given in <a class="el" href="cio__timer_8h.html#a4a48048d3b6e5d9860cb04f1d84ac1e3" title="Initializes a cio_timer. ">cio_timer_init</a>, the hook is called.</p>
+<p><a class="anchor" id="cio_timer_close"></a>If the timer is armed and has not expired yet, the timer will be canceled and the timer callback will be called. If a close_hook was given in <a class="el" href="cio__timer_8h.html#a8854b02ed97089c8c3569e77254ddb58" title="Initializes a cio_timer. ">cio_timer_init</a>, the hook is called.</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">timer</td><td>A pointer to a struct <a class="el" href="structcio__timer.html">cio_timer</a> which shall be closed. </td></tr>
@@ -168,12 +168,12 @@ Data Fields</h2></td></tr>
 
 </div>
 </div>
-<a class="anchor" id="ab7de1507254b6b4fe5216615c0cbb333"></a>
+<a class="anchor" id="a7fc7126e686906071e9e6d87c60e5f7b"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">enum <a class="el" href="cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afe">cio_error</a>(* cio_timer::expires_from_now)(struct <a class="el" href="structcio__timer.html">cio_timer</a> *timer, uint64_t timeout_ns, <a class="el" href="cio__timer_8h.html#a5f39123edfcb6b2b61b55a4444b26978">timer_handler</a> handler, void *handler_context)</td>
+          <td class="memname">enum <a class="el" href="cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afe">cio_error</a>(* cio_timer::expires_from_now)(struct <a class="el" href="structcio__timer.html">cio_timer</a> *timer, uint64_t timeout_ns, <a class="el" href="cio__timer_8h.html#ae4551f5e0cd89cb540db504c90fdf3a2">cio_timer_handler</a> handler, void *handler_context)</td>
         </tr>
       </table>
 </div><div class="memdoc">
@@ -202,7 +202,7 @@ Data Fields</h2></td></tr>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="structcio__timer.html">cio_timer</a></li>
-    <li class="footer">Generated on Sat Oct 20 2018 11:26:46 for cioall by
+    <li class="footer">Generated on Tue Nov 6 2018 12:51:32 for cioall by
     <a href="http://www.doxygen.org/index.html">
     <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.8.6 </li>
   </ul>

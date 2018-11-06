@@ -1,9 +1,13 @@
 var searchData=
 [
-  ['cio_5fcrlf',['CIO_CRLF',['../cio__http__server_8c.html#a87b26cd086f104607d0c759119ab6781',1,'CIO_CRLF():&#160;cio_http_server.c'],['../cio__websocket__location__handler_8c.html#a87b26cd086f104607d0c759119ab6781',1,'CIO_CRLF():&#160;cio_websocket_location_handler.c']]],
-  ['cio_5fhttp_5fversion',['CIO_HTTP_VERSION',['../cio__http__server_8c.html#a0006b2301960654c86e6e18dd8a6be2e',1,'cio_http_server.c']]],
-  ['cio_5fversion',['CIO_VERSION',['../cio__version_8h.html#a2ad4f41eb192668c7f7f611746c4c15c',1,'cio_version.h']]],
-  ['cio_5fwebsocket_5fsmall_5fframe_5fsize',['CIO_WEBSOCKET_SMALL_FRAME_SIZE',['../cio__websocket_8h.html#a6092b5c3a185ea1e9ca81b41026a2aea',1,'cio_websocket.h']]],
-  ['const_5fcontainer_5fof',['const_container_of',['../cio__util_8h.html#a3bcbc65c9b578e7d4b79466d0f339ccd',1,'cio_util.h']]],
-  ['container_5fof',['container_of',['../cio__util_8h.html#af8c317a42292b61c93aae91e59118a46',1,'cio_util.h']]]
+  ['cio_5fconst_5fcontainer_5fof',['cio_const_container_of',['../cio__util_8h.html#ada457a697a09d60689684d6b367727c5',1,'cio_util.h']]],
+  ['cio_5fcontainer_5fof',['cio_container_of',['../cio__util_8h.html#aefcf9134fdae6f58711449d4fac85412',1,'cio_util.h']]],
+  ['cio_5fdeprecated',['CIO_DEPRECATED',['../cio__export_8h.html#ad4ad44c1ca26ed71a80862ee1508c573',1,'cio_export.h']]],
+  ['cio_5fdeprecated_5fexport',['CIO_DEPRECATED_EXPORT',['../cio__export_8h.html#ac110ac9534ec5731545e06c3f401ba52',1,'cio_export.h']]],
+  ['cio_5fdeprecated_5fno_5fexport',['CIO_DEPRECATED_NO_EXPORT',['../cio__export_8h.html#afd72c82b86b5a4b70be3ec592a6f21c3',1,'cio_export.h']]],
+  ['cio_5fexport',['CIO_EXPORT',['../cio__export_8h.html#ab971b12fa232c415369be66dfaca507a',1,'cio_export.h']]],
+  ['cio_5fno_5fexport',['CIO_NO_EXPORT',['../cio__export_8h.html#aa25060e832be10f3bfb72f134ef73580',1,'cio_export.h']]],
+  ['cio_5fsec_5fweb_5fsocket_5fguid_5flength',['CIO_SEC_WEB_SOCKET_GUID_LENGTH',['../cio__websocket__location__handler_8h.html#aac893e9e1f29db825224a1fe4ba2c714',1,'cio_websocket_location_handler.h']]],
+  ['cio_5fsec_5fweb_5fsocket_5fkey_5flength',['CIO_SEC_WEB_SOCKET_KEY_LENGTH',['../cio__websocket__location__handler_8h.html#a5fc04d72ef6413438dfc2a25cf679236',1,'cio_websocket_location_handler.h']]],
+  ['cio_5fwebsocket_5fsmall_5fframe_5fsize',['CIO_WEBSOCKET_SMALL_FRAME_SIZE',['../cio__websocket_8h.html#a6092b5c3a185ea1e9ca81b41026a2aea',1,'cio_websocket.h']]]
 ];

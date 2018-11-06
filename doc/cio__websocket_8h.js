@@ -34,5 +34,5 @@ var cio__websocket_8h =
       [ "CIO_WEBSOCKET_CLOSE_RESERVED_LOWER_BOUND", "cio__websocket_8h.html#aa24c9894ba2ee9dc5b0ebbc1c8809701a174e73826b58a9e38b3d84aad7855638", null ],
       [ "CIO_WEBSOCKET_CLOSE_RESERVED_UPPER_BOUND", "cio__websocket_8h.html#aa24c9894ba2ee9dc5b0ebbc1c8809701af96f1ba0788e17c59249f12a74defd2d", null ]
     ] ],
-    [ "cio_websocket_init", "cio__websocket_8h.html#acf943032bcd768ba38f15fd37655f70d", null ]
+    [ "cio_websocket_init", "cio__websocket_8h.html#a4b09cc7f9b2e87099efe8bc30d2a4828", null ]
 ];

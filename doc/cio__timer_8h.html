@@ -30,7 +30,7 @@
  <tr style="height: 56px;">
   <td style="padding-left: 0.5em;">
    <div id="projectname">cioall
-   &#160;<span id="projectnumber">0.0.1-1132+7d4c3f6</span>
+   &#160;<span id="projectnumber">0.0.1</span>
    </div>
    <div id="projectbrief">An ANSI C Conformant I/O Library.</div>
   </td>
@@ -117,6 +117,7 @@ $(document).ready(function(){initNavTree('cio__timer_8h.html','');});
 <code>#include &lt;stdint.h&gt;</code><br/>
 <code>#include &quot;<a class="el" href="cio__error__code_8h_source.html">cio_error_code.h</a>&quot;</code><br/>
 <code>#include &quot;<a class="el" href="cio__eventloop_8h_source.html">cio_eventloop.h</a>&quot;</code><br/>
+<code>#include &quot;<a class="el" href="cio__export_8h_source.html">cio_export.h</a>&quot;</code><br/>
 </div>
 <p><a href="cio__timer_8h_source.html">Go to the source code of this file.</a></p>
 <table class="memberdecls">
@@ -130,15 +131,15 @@ Typedefs</h2></td></tr>
 <tr class="memitem:a7cbe58df3a75c89662569743cfc2b40d"><td class="memItemLeft" align="right" valign="top">typedef void(*&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="cio__timer_8h.html#a7cbe58df3a75c89662569743cfc2b40d">cio_timer_close_hook</a> )(struct <a class="el" href="structcio__timer.html">cio_timer</a> *timer)</td></tr>
 <tr class="memdesc:a7cbe58df3a75c89662569743cfc2b40d"><td class="mdescLeft">&#160;</td><td class="mdescRight">The type of a close hook function.  <a href="#a7cbe58df3a75c89662569743cfc2b40d">More...</a><br/></td></tr>
 <tr class="separator:a7cbe58df3a75c89662569743cfc2b40d"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a5f39123edfcb6b2b61b55a4444b26978"><td class="memItemLeft" align="right" valign="top">typedef void(*&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="cio__timer_8h.html#a5f39123edfcb6b2b61b55a4444b26978">timer_handler</a> )(struct <a class="el" href="structcio__timer.html">cio_timer</a> *timer, void *handler_context, enum <a class="el" href="cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afe">cio_error</a> err)</td></tr>
-<tr class="memdesc:a5f39123edfcb6b2b61b55a4444b26978"><td class="mdescLeft">&#160;</td><td class="mdescRight">The type of a timer callback function.  <a href="#a5f39123edfcb6b2b61b55a4444b26978">More...</a><br/></td></tr>
-<tr class="separator:a5f39123edfcb6b2b61b55a4444b26978"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae4551f5e0cd89cb540db504c90fdf3a2"><td class="memItemLeft" align="right" valign="top">typedef void(*&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="cio__timer_8h.html#ae4551f5e0cd89cb540db504c90fdf3a2">cio_timer_handler</a> )(struct <a class="el" href="structcio__timer.html">cio_timer</a> *timer, void *handler_context, enum <a class="el" href="cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afe">cio_error</a> err)</td></tr>
+<tr class="memdesc:ae4551f5e0cd89cb540db504c90fdf3a2"><td class="mdescLeft">&#160;</td><td class="mdescRight">The type of a timer callback function.  <a href="#ae4551f5e0cd89cb540db504c90fdf3a2">More...</a><br/></td></tr>
+<tr class="separator:ae4551f5e0cd89cb540db504c90fdf3a2"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="func-members"></a>
 Functions</h2></td></tr>
-<tr class="memitem:a4a48048d3b6e5d9860cb04f1d84ac1e3"><td class="memItemLeft" align="right" valign="top">enum <a class="el" href="cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afe">cio_error</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="cio__timer_8h.html#a4a48048d3b6e5d9860cb04f1d84ac1e3">cio_timer_init</a> (struct <a class="el" href="structcio__timer.html">cio_timer</a> *timer, struct cio_eventloop *loop, <a class="el" href="cio__timer_8h.html#a7cbe58df3a75c89662569743cfc2b40d">cio_timer_close_hook</a> close_hook)</td></tr>
-<tr class="memdesc:a4a48048d3b6e5d9860cb04f1d84ac1e3"><td class="mdescLeft">&#160;</td><td class="mdescRight">Initializes a <a class="el" href="structcio__timer.html">cio_timer</a>.  <a href="#a4a48048d3b6e5d9860cb04f1d84ac1e3">More...</a><br/></td></tr>
-<tr class="separator:a4a48048d3b6e5d9860cb04f1d84ac1e3"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a8854b02ed97089c8c3569e77254ddb58"><td class="memItemLeft" align="right" valign="top"><a class="el" href="cio__export_8h.html#ab971b12fa232c415369be66dfaca507a">CIO_EXPORT</a> enum <a class="el" href="cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afe">cio_error</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="cio__timer_8h.html#a8854b02ed97089c8c3569e77254ddb58">cio_timer_init</a> (struct <a class="el" href="structcio__timer.html">cio_timer</a> *timer, struct cio_eventloop *loop, <a class="el" href="cio__timer_8h.html#a7cbe58df3a75c89662569743cfc2b40d">cio_timer_close_hook</a> close_hook)</td></tr>
+<tr class="memdesc:a8854b02ed97089c8c3569e77254ddb58"><td class="mdescLeft">&#160;</td><td class="mdescRight">Initializes a <a class="el" href="structcio__timer.html">cio_timer</a>.  <a href="#a8854b02ed97089c8c3569e77254ddb58">More...</a><br/></td></tr>
+<tr class="separator:a8854b02ed97089c8c3569e77254ddb58"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>This file contains the interface of a timer. </p>
@@ -164,12 +165,12 @@ Functions</h2></td></tr>
 
 </div>
 </div>
-<a class="anchor" id="a5f39123edfcb6b2b61b55a4444b26978"></a>
+<a class="anchor" id="ae4551f5e0cd89cb540db504c90fdf3a2"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">typedef void(* timer_handler)(struct <a class="el" href="structcio__timer.html">cio_timer</a> *timer, void *handler_context, enum <a class="el" href="cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afe">cio_error</a> err)</td>
+          <td class="memname">typedef void(* cio_timer_handler)(struct <a class="el" href="structcio__timer.html">cio_timer</a> *timer, void *handler_context, enum <a class="el" href="cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afe">cio_error</a> err)</td>
         </tr>
       </table>
 </div><div class="memdoc">
@@ -187,12 +188,12 @@ Functions</h2></td></tr>
 </div>
 </div>
 <h2 class="groupheader">Function Documentation</h2>
-<a class="anchor" id="a4a48048d3b6e5d9860cb04f1d84ac1e3"></a>
+<a class="anchor" id="a8854b02ed97089c8c3569e77254ddb58"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">enum <a class="el" href="cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afe">cio_error</a> cio_timer_init </td>
+          <td class="memname"><a class="el" href="cio__export_8h.html#ab971b12fa232c415369be66dfaca507a">CIO_EXPORT</a> enum <a class="el" href="cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afe">cio_error</a> cio_timer_init </td>
           <td>(</td>
           <td class="paramtype">struct <a class="el" href="structcio__timer.html">cio_timer</a> *&#160;</td>
           <td class="paramname"><em>timer</em>, </td>
@@ -236,7 +237,7 @@ Functions</h2></td></tr>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="cio__timer_8h.html">cio_timer.h</a></li>
-    <li class="footer">Generated on Sat Oct 20 2018 11:26:46 for cioall by
+    <li class="footer">Generated on Tue Nov 6 2018 12:51:32 for cioall by
     <a href="http://www.doxygen.org/index.html">
     <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.8.6 </li>
   </ul>

@@ -9,5 +9,5 @@ var cio__http__location__handler_8h =
       [ "CIO_HTTP_CB_ERROR", "cio__http__location__handler_8h.html#a6b90057db20102dfa1e40cafc014fbdea009efa1646e481495db34fe3bc52fd06", null ],
       [ "CIO_HTTP_CB_UNHANDLED", "cio__http__location__handler_8h.html#a6b90057db20102dfa1e40cafc014fbdea4405af8e9f48fd54793b96562ba459e2", null ]
     ] ],
-    [ "cio_http_location_handler_init", "cio__http__location__handler_8h.html#ab35cfff4a299f8af85c545452d3035d8", null ]
+    [ "cio_http_location_handler_init", "cio__http__location__handler_8h.html#acd33a9c2b0ee1c8688f920dc0794b06d", null ]
 ];
