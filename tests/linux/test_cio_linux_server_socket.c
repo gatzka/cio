@@ -115,6 +115,19 @@ static int getaddrinfo_fail(const char *node, const char *service,
 	return EAI_FAIL;
 }
 
+static int getaddrinfo_fail_eaisystem(const char *node, const char *service,
+                                      const struct addrinfo *hints,
+                                      struct addrinfo **res)
+{
+	(void)node;
+	(void)service;
+	(void)hints;
+	(void)res;
+
+	errno = EINVAL;
+	return EAI_SYSTEM;
+}
+
 static void freeaddrinfo_success(struct addrinfo *res)
 {
 	free(res);
@@ -595,6 +608,26 @@ static void test_bind_getaddrinfofails(void)
 	TEST_ASSERT_EQUAL(1, close_fake.call_count);
 }
 
+static void test_bind_getaddrinfofails_eaisystem(void)
+{
+	getaddrinfo_fake.custom_fake = getaddrinfo_fail_eaisystem;
+
+	struct cio_eventloop loop;
+	struct cio_server_socket ss;
+
+	alloc_client_fake.custom_fake = alloc_success;
+	free_client_fake.custom_fake = free_success;
+
+	enum cio_error err = cio_server_socket_init(&ss, &loop, 5, alloc_client, free_client, on_close);
+	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Initialization of server socket failed!");
+
+	err = ss.bind(&ss, NULL, 12345);
+	TEST_ASSERT_EQUAL_MESSAGE(CIO_INVALID_ARGUMENT, err, "bind did not failed when getaddrinfo failes");
+	TEST_ASSERT_EQUAL(0, close_fake.call_count);
+	ss.close(&ss);
+	TEST_ASSERT_EQUAL(1, close_fake.call_count);
+}
+
 static void test_accept_malloc_fails(void)
 {
 	accept4_fake.custom_fake = accept_wouldblock_second;
@@ -690,6 +723,7 @@ int main(void)
 	RUN_TEST(test_init_setsockopt_fails);
 	RUN_TEST(test_init_bind_fails);
 	RUN_TEST(test_bind_getaddrinfofails);
+	RUN_TEST(test_bind_getaddrinfofails_eaisystem);
 	RUN_TEST(test_accept_malloc_fails);
 	RUN_TEST(test_enable_reuse_address);
 	RUN_TEST(test_disable_reuse_address);
