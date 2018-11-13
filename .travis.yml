@@ -59,7 +59,6 @@ matrix:
         packages:
         - cmake
         - cmake-data
-        - lcov
         - libbsd-dev
 
   - compiler: gcc
@@ -72,7 +71,6 @@ matrix:
         - cmake
         - cmake-data
         - doxygen
-        - lcov
         - libbsd-dev
 
   - compiler: gcc
@@ -86,7 +84,6 @@ matrix:
         - gcc-7
         - cmake
         - cmake-data
-        - lcov
         - libbsd-dev
 
   - compiler: gcc
@@ -100,7 +97,6 @@ matrix:
         - gcc-7
         - cmake
         - cmake-data
-        - lcov
         - libbsd-dev
 
   - compiler: clang
@@ -111,7 +107,6 @@ matrix:
         packages:
         - cmake
         - cmake-data
-        - lcov
         - libbsd-dev
 
   - compiler: clang
@@ -123,7 +118,6 @@ matrix:
         - cmake
         - cmake-data
         - libbsd-dev
-        - lcov
 
   - compiler: clang
     env:
@@ -137,7 +131,6 @@ matrix:
         - cmake
         - cmake-data
         - libbsd-dev
-        - lcov
         - clang-5.0
 
   - compiler: clang
@@ -152,7 +145,6 @@ matrix:
         - cmake
         - cmake-data
         - libbsd-dev
-        - lcov
         - clang-5.0
 
   - compiler: clang
@@ -167,7 +159,6 @@ matrix:
         - cmake
         - cmake-data
         - libbsd-dev
-        - lcov
         - clang-tidy-6.0
         - clang-6.0
 
@@ -183,7 +174,6 @@ matrix:
         - cmake
         - cmake-data
         - libbsd-dev
-        - lcov
         - clang-6.0
 
   - compiler: clang
@@ -199,7 +189,6 @@ matrix:
         - cmake
         - cmake-data
         - libbsd-dev
-        - lcov
         - clang-6.0
         - clang-tools-6.0
 
