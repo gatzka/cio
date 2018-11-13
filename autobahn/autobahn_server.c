@@ -54,7 +54,7 @@ struct ws_autobahn_handler {
 
 static void free_autobahn_handler(struct cio_websocket_location_handler *wslh)
 {
-	struct ws_autobahn_handler *h = container_of(wslh, struct ws_autobahn_handler, ws_handler);
+	struct ws_autobahn_handler *h = cio_container_of(wslh, struct ws_autobahn_handler, ws_handler);
 	free(h);
 }
 
@@ -76,8 +76,8 @@ static void read_handler(struct cio_websocket *ws, void *handler_context, enum c
 	(void)handler_context;
 
 	if (err == CIO_SUCCESS) {
-		struct cio_websocket_location_handler *handler = container_of(ws, struct cio_websocket_location_handler, websocket);
-		struct ws_autobahn_handler *eh = container_of(handler, struct ws_autobahn_handler, ws_handler);
+		struct cio_websocket_location_handler *handler = cio_container_of(ws, struct cio_websocket_location_handler, websocket);
+		struct ws_autobahn_handler *eh = cio_container_of(handler, struct ws_autobahn_handler, ws_handler);
 
 		if (length > 0) {
 			memcpy(eh->echo_buffer, data, length);
@@ -135,7 +135,7 @@ static struct cio_socket *alloc_http_client(void)
 
 static void free_http_client(struct cio_socket *socket)
 {
-	struct cio_http_client *client = container_of(socket, struct cio_http_client, socket);
+	struct cio_http_client *client = cio_container_of(socket, struct cio_http_client, socket);
 	free(client);
 }
 
