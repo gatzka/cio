@@ -53,6 +53,9 @@ FAKE_VOID_FUNC(cio_linux_eventloop_remove, struct cio_eventloop *, const struct 
 void on_close(struct cio_server_socket *ss);
 FAKE_VOID_FUNC(on_close, struct cio_server_socket *)
 
+FAKE_VALUE_FUNC(int, getaddrinfo, const char *, const char *, const struct addrinfo *, struct addrinfo **)
+FAKE_VOID_FUNC(freeaddrinfo, struct addrinfo *)
+
 FAKE_VALUE_FUNC(int, setsockopt, int, int, int, const void *, socklen_t)
 FAKE_VALUE_FUNC(int, bind, int, const struct sockaddr *, socklen_t)
 FAKE_VALUE_FUNC(int, listen, int, int)
@@ -86,6 +89,25 @@ static void free_success(struct cio_socket *socket)
 	free(socket);
 }
 
+static int getaddrinfo_success(const char *node, const char *service,
+							   const struct addrinfo *hints,
+							   struct addrinfo **res)
+{
+	(void)node;
+	(void)service;
+	(void)hints;
+
+	struct addrinfo *mem = malloc(sizeof(*mem));
+	mem->ai_next = NULL;
+	*res = mem;
+	return 0;
+}
+
+static void freeaddrinfo_success(struct addrinfo *res)
+{
+	free(res);
+}
+
 void setUp(void)
 {
 	FFF_RESET_HISTORY();
@@ -100,6 +122,10 @@ void setUp(void)
 
 	RESET_FAKE(on_close);
 
+	RESET_FAKE(getaddrinfo);
+	getaddrinfo_fake.custom_fake = getaddrinfo_success;
+	RESET_FAKE(freeaddrinfo);
+	freeaddrinfo_fake.custom_fake = freeaddrinfo_success;
 	RESET_FAKE(setsockopt);
 	RESET_FAKE(bind);
 	RESET_FAKE(listen);
