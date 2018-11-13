@@ -55,14 +55,14 @@ struct dummy_handler {
 
 static void free_dummy_handler(struct cio_http_location_handler *handler)
 {
-	struct dummy_handler *dh = container_of(handler, struct dummy_handler, handler);
+	struct dummy_handler *dh = cio_container_of(handler, struct dummy_handler, handler);
 	free(dh);
 }
 
 static enum cio_http_cb_return dummy_on_message_complete(struct cio_http_client *client)
 {
 	struct cio_http_location_handler *handler = client->handler;
-	struct dummy_handler *dh = container_of(handler, struct dummy_handler, handler);
+	struct dummy_handler *dh = cio_container_of(handler, struct dummy_handler, handler);
 	cio_write_buffer_const_element_init(&dh->wb, data, sizeof(data));
 	cio_write_buffer_queue_tail(&dh->wbh, &dh->wb);
 	client->write_response(client, &dh->wbh);
@@ -106,7 +106,7 @@ static struct cio_socket *alloc_http_client(void)
 
 static void free_http_client(struct cio_socket *socket)
 {
-	struct cio_http_client *client = container_of(socket, struct cio_http_client, socket);
+	struct cio_http_client *client = cio_container_of(socket, struct cio_http_client, socket);
 	free(client);
 }
 

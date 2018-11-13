@@ -61,7 +61,7 @@ struct ws_echo_handler {
 
 static void free_websocket_handler(struct cio_websocket_location_handler *wslh)
 {
-	struct ws_echo_handler *h = container_of(wslh, struct ws_echo_handler, ws_handler);
+	struct ws_echo_handler *h = cio_container_of(wslh, struct ws_echo_handler, ws_handler);
 	h->ping_timer.close(&h->ping_timer);
 	free(h);
 }
@@ -95,8 +95,8 @@ static void send_ping(struct cio_timer *timer, void *handler_context, enum cio_e
 	if (err == CIO_SUCCESS) {
 		fprintf(stdout, "Sending ping!\n");
 
-		struct cio_websocket_location_handler *handler = container_of(ws, struct cio_websocket_location_handler, websocket);
-		struct ws_echo_handler *eh = container_of(handler, struct ws_echo_handler, ws_handler);
+		struct cio_websocket_location_handler *handler = cio_container_of(ws, struct cio_websocket_location_handler, websocket);
+		struct ws_echo_handler *eh = cio_container_of(handler, struct ws_echo_handler, ws_handler);
 
 		struct cio_write_buffer wbh;
 		cio_write_buffer_head_init(&wbh);
@@ -173,8 +173,8 @@ static void read_handler(struct cio_websocket *ws, void *handler_context, enum c
 {
 	(void)handler_context;
 	if (err == CIO_SUCCESS) {
-		struct cio_websocket_location_handler *handler = container_of(ws, struct cio_websocket_location_handler, websocket);
-		struct ws_echo_handler *eh = container_of(handler, struct ws_echo_handler, ws_handler);
+		struct cio_websocket_location_handler *handler = cio_container_of(ws, struct cio_websocket_location_handler, websocket);
+		struct ws_echo_handler *eh = cio_container_of(handler, struct ws_echo_handler, ws_handler);
 
 		fprintf(stdout, "Got text message (last frame: %s):", last_frame ? "true" : "false");
 		fwrite(data, length, 1, stdout);
@@ -198,8 +198,8 @@ static void on_connect(struct cio_websocket *ws)
 {
 	fprintf(stdout, "Websocket connected!\n");
 
-	struct cio_websocket_location_handler *handler = container_of(ws, struct cio_websocket_location_handler, websocket);
-	struct ws_echo_handler *eh = container_of(handler, struct ws_echo_handler, ws_handler);
+	struct cio_websocket_location_handler *handler = cio_container_of(ws, struct cio_websocket_location_handler, websocket);
+	struct ws_echo_handler *eh = cio_container_of(handler, struct ws_echo_handler, ws_handler);
 	enum cio_error err = cio_timer_init(&eh->ping_timer, &loop, NULL);
 	if (err != CIO_SUCCESS) {
 		fprintf(stderr, "Could not initialize ping timer!\n");
@@ -255,7 +255,7 @@ static struct cio_socket *alloc_http_client(void)
 
 static void free_http_client(struct cio_socket *socket)
 {
-	struct cio_http_client *client = container_of(socket, struct cio_http_client, socket);
+	struct cio_http_client *client = cio_container_of(socket, struct cio_http_client, socket);
 	free(client);
 }
 

@@ -59,7 +59,7 @@ static struct cio_socket *alloc_echo_client(void)
 
 static void free_echo_client(struct cio_socket *socket)
 {
-	struct echo_client *client = container_of(socket, struct echo_client, socket);
+	struct echo_client *client = cio_container_of(socket, struct echo_client, socket);
 	free(client);
 }
 
@@ -112,7 +112,7 @@ static void handle_accept(struct cio_server_socket *ss, void *handler_context, e
 {
 	(void)handler_context;
 
-	struct echo_client *client = container_of(socket, struct echo_client, socket);
+	struct echo_client *client = cio_container_of(socket, struct echo_client, socket);
 
 	if (err != CIO_SUCCESS) {
 		fprintf(stderr, "accept error!\n");
