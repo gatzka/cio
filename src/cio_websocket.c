@@ -418,7 +418,7 @@ static void handle_close_frame(struct cio_websocket *ws, uint8_t *data, uint_fas
 			return;
 		}
 
-		length -= sizeof(status_code);
+		length = (uint_fast8_t)(length - sizeof(status_code));
 	} else {
 		status_code = CIO_WEBSOCKET_CLOSE_NORMAL;
 	}
@@ -426,7 +426,7 @@ static void handle_close_frame(struct cio_websocket *ws, uint8_t *data, uint_fas
 	if (length > 0) {
 		struct cio_utf8_state state;
 		cio_utf8_init(&state);
-		if (cio_unlikely(cio_check_utf8(&state, data + 2, length - 2) != CIO_UTF8_ACCEPT)) {
+		if (cio_unlikely(cio_check_utf8(&state, data + 2, (size_t)(length - 2)) != CIO_UTF8_ACCEPT)) {
 			handle_error(ws, CIO_PROTOCOL_NOT_SUPPORTED, CIO_WEBSOCKET_CLOSE_UNSUPPORTED_DATA, "reason in close frame not utf8 valid");
 			return;
 		}
@@ -710,7 +710,7 @@ static void get_header(struct cio_buffered_stream *bs, void *handler_context, en
 				return;
 			}
 
-			ws->ws_private.ws_flags.opcode = field;
+			ws->ws_private.ws_flags.opcode = (unsigned char)(field & 0xf);
 		} else {
 			if (cio_unlikely(!ws->ws_private.ws_flags.frag_opcode)) {
 				handle_error(ws, CIO_PROTOCOL_NOT_SUPPORTED, CIO_WEBSOCKET_CLOSE_PROTOCOL_ERROR, "got continuation frame without correct start frame");
@@ -727,8 +727,8 @@ static void get_header(struct cio_buffered_stream *bs, void *handler_context, en
 				return;
 			}
 
-			ws->ws_private.ws_flags.frag_opcode = field;
-			ws->ws_private.ws_flags.opcode = field;
+			ws->ws_private.ws_flags.frag_opcode = (unsigned char)(field & 0xf);
+			ws->ws_private.ws_flags.opcode = (unsigned char)(field & 0xf);
 		} else {
 			if (cio_unlikely(!ws->ws_private.ws_flags.frag_opcode)) {
 				handle_error(ws, CIO_PROTOCOL_NOT_SUPPORTED, CIO_WEBSOCKET_CLOSE_PROTOCOL_ERROR, "got continuation frame without correct start frame");
