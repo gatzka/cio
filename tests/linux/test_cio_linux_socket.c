@@ -122,7 +122,7 @@ static ssize_t send_all(int fd, const struct msghdr *msg, int flags)
 	ssize_t len = 0;
 	for (unsigned int i = 0; i < msg->msg_iovlen; i++) {
 		memcpy(&send_buffer[len], msg->msg_iov[i].iov_base, msg->msg_iov[i].iov_len);
-		len += msg->msg_iov[i].iov_len;
+		len +=(ssize_t)msg->msg_iov[i].iov_len;
 	}
 
 	return len;
@@ -146,7 +146,7 @@ static ssize_t send_parts(int fd, const struct msghdr *msg, int flags)
 	for (unsigned int i = 0; i < msg->msg_iovlen; i++) {
 		size_t minimum = MIN(remaining_bytes, msg->msg_iov[i].iov_len);
 		memcpy(&send_buffer[len], msg->msg_iov[i].iov_base, minimum);
-		len += minimum;
+		len += (unsigned int)minimum;
 		remaining_bytes -= minimum;
 		if (remaining_bytes == 0) {
 			return (ssize_t)bytes_to_send;
