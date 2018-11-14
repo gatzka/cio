@@ -58,6 +58,14 @@ add_executable(cio_test_write_buffer test_cio_write_buffer.c)
 target_link_libraries(cio_test_write_buffer fff unity cio:cio)
 add_test(NAME cio.test_write_buffer COMMAND cio_test_write_buffer)
 
+get_property(targets DIRECTORY "${CMAKE_CURRENT_LIST_DIR}" PROPERTY BUILDSYSTEM_TARGETS)
+foreach(tgt ${targets})
+    target_compile_options(${tgt} INTERFACE $<$<OR:$<C_COMPILER_ID:GNU>,$<C_COMPILER_ID:Clang>>:-Wall;-Wextra;-Wshadow;-Winit-self;-Wcast-qual;-Wcast-align;-Wformat=2;-Wwrite-strings;-Wmissing-prototypes;-Wstrict-prototypes;-Wold-style-definition;-Wstrict-overflow=5;-Wdisabled-optimization;-Wmissing-include-dirs;-Wswitch-default;-Wundef;-Wconversion;-pedantic;-pedantic-errors>)
+    target_compile_options(${tgt} INTERFACE $<$<AND:$<C_COMPILER_ID:GNU>,$<VERSION_GREATER:$<C_COMPILER_VERSION>,7.0.0>>:-Wformat-truncation -Wstringop-overflow -Wformat-overflow=2>)
+    target_compile_options(${tgt} INTERFACE $<$<AND:$<C_COMPILER_ID:GNU>,$<VERSION_GREATER:$<C_COMPILER_VERSION>,8.0.0>>:-Wstringop-truncation>)
+    
+    target_compile_options(${tgt} INTERFACE $<$<C_COMPILER_ID:Clang>:-Wdocumentation>)
+endforeach()
 
 if(LCOV_PATH AND GENHTML_PATH)
     add_test(NAME clean_coverage COMMAND ${CMAKE_COMMAND} -DLCOV_PATH=${LCOV_PATH} -DBINARY_DIR=${CMAKE_BINARY_DIR} -P ${CMAKE_CURRENT_LIST_DIR}/reset_coverage.cmake)

@@ -21,7 +21,7 @@ add_custom_target(generate_semver
         -DPROJECT_VERSION_PATCH=${${PROJECT_NAME}_VERSION_PATCH}
         -DGIT_WORK_DIR=${CMAKE_CURRENT_LIST_DIR}
         -DINPUT_FILE=${CMAKE_CURRENT_LIST_DIR}/cio_version_private.h.in
-		-DOUTPUT_FILE=${CMAKE_CURRENT_BINARY_DIR}/generated/cio_version_private.h
+        -DOUTPUT_FILE=${CMAKE_CURRENT_BINARY_DIR}/generated/cio_version_private.h
         -P ${CMAKE_CURRENT_SOURCE_DIR}/generate_version.cmake
 )
 
@@ -30,15 +30,11 @@ add_library(${PROJECT_NAME}
     "cio_version.c"
 )
 
-target_compile_options(${PROJECT_NAME} PRIVATE $<$<OR:$<CXX_COMPILER_ID:GNU>,$<CXX_COMPILER_ID:Clang>>:-Wall;-Wextra;-Wshadow;-Winit-self;-Wcast-qual;-Wcast-align;-Wformat=2;-Wwrite-strings;-Wmissing-prototypes;-Wstrict-prototypes;-Wold-style-definition;-Wstrict-overflow=5;-Wdisabled-optimization;-Wmissing-include-dirs;-Wswitch-default;-Wundef;-Wconversion;-pedantic;-pedantic-errors>)
-target_compile_options(${PROJECT_NAME} PRIVATE $<$<AND:$<CXX_COMPILER_ID:GNU>,$<VERSION_GREATER:$<C_COMPILER_VERSION>,7.0.0>>:-Wformat-truncation -Wstringop-overflow -Wformat-overflow=2>)
-target_compile_options(${PROJECT_NAME} PRIVATE $<$<AND:$<CXX_COMPILER_ID:GNU>,$<VERSION_GREATER:$<C_COMPILER_VERSION>,8.0.0>>:-Wstringop-truncation>)
-
-target_compile_options(${PROJECT_NAME} PRIVATE $<$<CXX_COMPILER_ID:Clang>:-Wdocumentation>)
-	
-	
-#	$<$<CXX_COMPILER_ID:GNU>:-Wformat-truncation;-Wstringop-overflow;-Wformat-overflow=2;-Wstringop-truncation>)
-	
+target_compile_options(${PROJECT_NAME} PRIVATE $<$<OR:$<C_COMPILER_ID:GNU>,$<C_COMPILER_ID:Clang>>:-Wall;-Wextra;-Wshadow;-Winit-self;-Wcast-qual;-Wcast-align;-Wformat=2;-Wwrite-strings;-Wmissing-prototypes;-Wstrict-prototypes;-Wold-style-definition;-Wstrict-overflow=5;-Wdisabled-optimization;-Wmissing-include-dirs;-Wswitch-default;-Wundef;-Wconversion;-pedantic;-pedantic-errors>)
+target_compile_options(${PROJECT_NAME} PRIVATE $<$<AND:$<C_COMPILER_ID:GNU>,$<VERSION_GREATER:$<C_COMPILER_VERSION>,7.0.0>>:-Wformat-truncation -Wstringop-overflow -Wformat-overflow=2>)
+target_compile_options(${PROJECT_NAME} PRIVATE $<$<AND:$<C_COMPILER_ID:GNU>,$<VERSION_GREATER:$<C_COMPILER_VERSION>,8.0.0>>:-Wstringop-truncation>)
+target_compile_options(${PROJECT_NAME} PRIVATE $<$<C_COMPILER_ID:Clang>:-Wdocumentation>)
+    
 add_library(${PROJECT_NAME}:${PROJECT_NAME} ALIAS ${PROJECT_NAME})
 
 add_dependencies(${PROJECT_NAME} generate_semver)
@@ -76,7 +72,7 @@ if(CIO_CONFIG_WEBSOCKETS)
     add_library(sha OBJECT
         sha1/sha1.c
     )
-	target_compile_features(sha PRIVATE $<$<NOT:$<C_COMPILER_ID:MSVC>>:c_std_99>)
+    target_compile_features(sha PRIVATE $<$<NOT:$<C_COMPILER_ID:MSVC>>:c_std_99>)
 
     set_target_properties(sha PROPERTIES
         POSITION_INDEPENDENT_CODE ON
@@ -111,7 +107,7 @@ endif()
 
 target_include_directories(${PROJECT_NAME} PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}>
-	$<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/generated/>
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/generated/>
     $<INSTALL_INTERFACE:include/cio/>
 )
 
@@ -174,28 +170,28 @@ install(EXPORT ${PROJECT_NAME}
 include(FindDoxygen)
 
 if (DOXYGEN_FOUND)
-	set(DOXYGEN_EXTRACT_ALL YES)
-	set(DOXYGEN_EXTRACT_STATIC YES)
-	set(DOXYGEN_GENERATE_HTML YES)
-	set(DOXYGEN_GENERATE_TREEVIEW YES)
-	set(DOXYGEN_HAVE_DOT NO)
-	set(DOXYGEN_OPTIMIZE_OUTPUT_FOR_C YES)
-	set(DOXYGEN_OUTPUT_DIRECTORY docs/)
-	set(DOXYGEN_PROJECT_BRIEF "An ANSI C Conformant I/O Library.")
-	set(DOXYGEN_PROJECT_NUMBER ${CIO_VERSION})
-	set(DOXYGEN_QUIET YES)
-	set(DOXYGEN_RECURSIVE NO)
-	set(DOXYGEN_STRICT_PROTO_MATCHING YES)
-	set(DOXYGEN_STRIP_FROM_PATH ${CMAKE_CURRENT_BINARY_DIR}/generated/ ${CMAKE_CURRENT_SOURCE_DIR})
-	set(DOXYGEN_WARN_AS_ERROR YES)
+    set(DOXYGEN_EXTRACT_ALL YES)
+    set(DOXYGEN_EXTRACT_STATIC YES)
+    set(DOXYGEN_GENERATE_HTML YES)
+    set(DOXYGEN_GENERATE_TREEVIEW YES)
+    set(DOXYGEN_HAVE_DOT NO)
+    set(DOXYGEN_OPTIMIZE_OUTPUT_FOR_C YES)
+    set(DOXYGEN_OUTPUT_DIRECTORY docs/)
+    set(DOXYGEN_PROJECT_BRIEF "An ANSI C Conformant I/O Library.")
+    set(DOXYGEN_PROJECT_NUMBER ${CIO_VERSION})
+    set(DOXYGEN_QUIET YES)
+    set(DOXYGEN_RECURSIVE NO)
+    set(DOXYGEN_STRICT_PROTO_MATCHING YES)
+    set(DOXYGEN_STRIP_FROM_PATH ${CMAKE_CURRENT_BINARY_DIR}/generated/ ${CMAKE_CURRENT_SOURCE_DIR})
+    set(DOXYGEN_WARN_AS_ERROR YES)
     set(DOXYGEN_PROJECT_NAME ${CMAKE_PROJECT_NAME})
-	set(DOXYGEN_EXCLUDE_PATTERNS "*private*;*.c")
+    set(DOXYGEN_EXCLUDE_PATTERNS "*private*;*.c")
 
-	doxygen_add_docs(docs
-	    ${PROJECT_SOURCE_DIR}
-		${CMAKE_CURRENT_BINARY_DIR}/generated/
+    doxygen_add_docs(docs
+        ${PROJECT_SOURCE_DIR}
+        ${CMAKE_CURRENT_BINARY_DIR}/generated/
         COMMENT "Generating API documentation with Doxygen"
-	)
+    )
 else (DOXYGEN_FOUND)
-	message(STATUS "Doxygen need to be installed to generate the doxygen documentation")
+    message(STATUS "Doxygen need to be installed to generate the doxygen documentation")
 endif (DOXYGEN_FOUND)
