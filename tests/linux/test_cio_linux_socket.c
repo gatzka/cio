@@ -115,6 +115,15 @@ static ssize_t read_fails(int fd, void *buf, size_t count)
 	return -1;
 }
 
+static ssize_t read_eof(int fd, void *buf, size_t count)
+{
+	(void)fd;
+	(void)buf;
+	(void)count;
+
+	return 0;
+}
+
 static ssize_t send_all(int fd, const struct msghdr *msg, int flags)
 {
 	(void)fd;
@@ -550,6 +559,30 @@ static void test_socket_readsome_read_fails(void)
 	TEST_ASSERT_EQUAL_MESSAGE(&rb, read_handler_fake.arg3_val, "Original buffer was not passed to read handler!");
 }
 
+static void test_socket_readsome_read_eof(void)
+{
+	read_fake.custom_fake = read_eof;
+
+	struct cio_socket s;
+	enum cio_error err = cio_socket_init(&s, &loop, on_close);
+	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Return value of cio_socket_init not correct!");
+
+	struct cio_read_buffer rb;
+	cio_read_buffer_init(&rb, readback_buffer, sizeof(readback_buffer));
+	struct cio_io_stream *stream = s.get_io_stream(&s);
+
+	err = stream->read_some(stream, &rb, read_handler, NULL);
+	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Return value not correct!");
+
+	s.impl.ev.read_callback(s.impl.ev.context);
+
+	TEST_ASSERT_EQUAL_MESSAGE(1, read_handler_fake.call_count, "Read handler was not called!");
+	TEST_ASSERT_EQUAL_MESSAGE(stream, read_handler_fake.arg0_val, "Original stream was not passed to read handler!");
+	TEST_ASSERT_EQUAL_MESSAGE(NULL, read_handler_fake.arg1_val, "Context parameter for read handler is not correct!");
+	TEST_ASSERT_EQUAL_MESSAGE(CIO_EOF, read_handler_fake.arg2_val, "Read handler was called with CIO_SUCCESS for a failing read!");
+	TEST_ASSERT_EQUAL_MESSAGE(&rb, read_handler_fake.arg3_val, "Original buffer was not passed to read handler!");
+}
+
 static void test_socket_readsome_no_stream(void)
 {
 	static const size_t data_to_read = 12;
@@ -850,6 +883,7 @@ int main(void)
 	RUN_TEST(test_socket_readsome_register_read_fails);
 	RUN_TEST(test_socket_readsome_read_blocks);
 	RUN_TEST(test_socket_readsome_read_fails);
+	RUN_TEST(test_socket_readsome_read_eof);
 	RUN_TEST(test_socket_readsome_no_stream);
 	RUN_TEST(test_socket_readsome_no_buffer);
 	RUN_TEST(test_socket_readsome_no_handler);
