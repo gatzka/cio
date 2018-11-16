@@ -18,7 +18,7 @@ ctest_empty_binary_directory(${CTEST_BINARY_DIRECTORY})
 
 set(ENV{CFLAGS} "--coverage")
 set(CTEST_CMAKE_GENERATOR "Ninja")
-set(CTEST_USE_LAUNCHERS 1)
+#set(CTEST_USE_LAUNCHERS 1)
 
 set(CTEST_CUSTOM_POST_TEST
     "mkdir ${CTEST_BINARY_DIRECTORY}/cov-html/"
@@ -33,13 +33,16 @@ ${CTEST_CUSTOM_COVERAGE_EXCLUDE}
     ".*/src/http-parser/.*"
     ".*/src/sha1/.*"
 )
-set(CTEST_MEMORYCHECK_COMMAND "valgrind")
 #set(CTEST_MEMORYCHECK_TYPE "ThreadSanitizer")
+find_program(CTEST_MEMORYCHECK_COMMAND NAMES valgrind)
+#set(CTEST_MEMORYCHECK_SUPPRESSIONS_FILE ${CTEST_SOURCE_DIRECTORY}/tests/valgrind.supp)
+
 ctest_start("Experimental")
 #ctest_start("Continuous")
 ctest_configure()
 ctest_build()
 ctest_test()
+ctest_memcheck()
 ctest_coverage()
 
 include(CTestCoverageCollectGCOV)
@@ -54,5 +57,4 @@ ctest_coverage_collect_gcov(
 #     CDASH_UPLOAD_TYPE GcovTar)
 # endif()
 
-#ctest_memcheck()
 #ctest_submit()
