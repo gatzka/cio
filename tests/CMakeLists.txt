@@ -55,6 +55,10 @@ add_executable(cio_test_write_buffer test_cio_write_buffer.c)
 target_link_libraries(cio_test_write_buffer fff unity cio:cio)
 add_test(NAME cio.test_write_buffer COMMAND cio_test_write_buffer)
 
+add_executable(cio_test_version test_cio_version.c)
+target_link_libraries(cio_test_version fff unity cio:cio)
+add_test(NAME cio.test_version COMMAND cio_test_version)
+
 get_property(targets DIRECTORY "${CMAKE_CURRENT_LIST_DIR}" PROPERTY BUILDSYSTEM_TARGETS)
 foreach(tgt ${targets})
     target_compile_options(${tgt} INTERFACE $<$<OR:$<C_COMPILER_ID:GNU>,$<C_COMPILER_ID:Clang>>:-Wall;-Wextra;-Wshadow;-Winit-self;-Wcast-qual;-Wcast-align;-Wformat=2;-Wwrite-strings;-Wmissing-prototypes;-Wstrict-prototypes;-Wold-style-definition;-Wstrict-overflow=5;-Wdisabled-optimization;-Wmissing-include-dirs;-Wswitch-default;-Wundef;-Wconversion;-pedantic;-pedantic-errors>)
