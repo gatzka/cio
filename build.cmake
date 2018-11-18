@@ -48,6 +48,7 @@ ctest_build()
 ctest_test()
 ctest_memcheck()
 ctest_coverage()
+message(" -- Open ${CTEST_BINARY_DIRECTORY}cov-html/index.html to see collected coverage")
 
 # include(CTestCoverageCollectGCOV)
 # ctest_coverage_collect_gcov(
