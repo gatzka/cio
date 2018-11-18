@@ -26,7 +26,7 @@ string(SUBSTRING ${CTEST_BINARY_DIRECTORY} 0 ${CTEST_BINARY_DIRECTORY_LEN} CIO_O
 
 set(CTEST_CUSTOM_POST_TEST
     "mkdir ${CTEST_BINARY_DIRECTORY}/cov-html/"
-    "gcovr --html --html-details -f ${CTEST_SCRIPT_DIRECTORY}/src/\\* -e ${CTEST_SCRIPT_DIRECTORY}/src/http-parser/\\* -e ${CTEST_SCRIPT_DIRECTORY}/src/miniz/\\* -e ${CTEST_SCRIPT_DIRECTORY}/src/sha1/\\* -r ${CTEST_SCRIPT_DIRECTORY} --object-directory=${CIO_OBJECT_DIRECTORY} -o ${CTEST_BINARY_DIRECTORY}/cov-html/index.html"
+    "gcovr --html --html-details -f ${CTEST_SCRIPT_DIRECTORY}/src/\\* -e ${CTEST_SCRIPT_DIRECTORY}/src/http-parser/\\* -e ${CTEST_SCRIPT_DIRECTORY}/src/miniz/\\* -e ${CTEST_SCRIPT_DIRECTORY}/src/sha1/\\* --exclude-directories .\\*CompilerIdC\\* -r ${CTEST_SCRIPT_DIRECTORY} --object-directory=${CIO_OBJECT_DIRECTORY} -o ${CTEST_BINARY_DIRECTORY}/cov-html/index.html"
 )
 
 set(CTEST_COVERAGE_COMMAND "gcov")
@@ -46,7 +46,7 @@ ctest_start("Experimental")
 ctest_configure()
 ctest_build()
 ctest_test()
-#ctest_memcheck()
+ctest_memcheck()
 ctest_coverage()
 
 # include(CTestCoverageCollectGCOV)
