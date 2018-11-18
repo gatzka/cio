@@ -24,10 +24,13 @@ string(LENGTH ${CTEST_BINARY_DIRECTORY} CTEST_BINARY_DIRECTORY_LEN)
 MATH(EXPR CTEST_BINARY_DIRECTORY_LEN "${CTEST_BINARY_DIRECTORY_LEN}-1")
 string(SUBSTRING ${CTEST_BINARY_DIRECTORY} 0 ${CTEST_BINARY_DIRECTORY_LEN} CIO_OBJECT_DIRECTORY)
 
-set(CTEST_CUSTOM_POST_TEST
-    "mkdir ${CTEST_BINARY_DIRECTORY}/cov-html/"
-    "gcovr --html --html-details -f ${CTEST_SCRIPT_DIRECTORY}/src/\\* -e ${CTEST_SCRIPT_DIRECTORY}/src/http-parser/\\* -e ${CTEST_SCRIPT_DIRECTORY}/src/miniz/\\* -e ${CTEST_SCRIPT_DIRECTORY}/src/sha1/\\* --exclude-directories .\\*CompilerIdC\\* -r ${CTEST_SCRIPT_DIRECTORY} --object-directory=${CIO_OBJECT_DIRECTORY} -o ${CTEST_BINARY_DIRECTORY}/cov-html/index.html"
-)
+find_program(GCOVR_BIN gcovr)
+if(GCOVR_BIN)
+    set(CTEST_CUSTOM_POST_TEST
+        "mkdir ${CTEST_BINARY_DIRECTORY}/cov-html/"
+        "${GCOVR_BIN} --html --html-details -f ${CTEST_SCRIPT_DIRECTORY}/src/\\* -e ${CTEST_SCRIPT_DIRECTORY}/src/http-parser/\\* -e ${CTEST_SCRIPT_DIRECTORY}/src/miniz/\\* -e ${CTEST_SCRIPT_DIRECTORY}/src/sha1/\\* --exclude-directories .\\*CompilerIdC\\* -r ${CTEST_SCRIPT_DIRECTORY} --object-directory=${CIO_OBJECT_DIRECTORY} -o ${CTEST_BINARY_DIRECTORY}/cov-html/index.html"
+    )
+endif()
 
 set(CTEST_COVERAGE_COMMAND "gcov")
 #set(CTEST_COVERAGE_EXTRA_FLAGS "-b -c")
@@ -48,7 +51,9 @@ ctest_build()
 ctest_test()
 ctest_memcheck()
 ctest_coverage()
-message(" -- Open ${CTEST_BINARY_DIRECTORY}cov-html/index.html to see collected coverage")
+if(GCOVR_BIN)
+    message(" -- Open ${CTEST_BINARY_DIRECTORY}cov-html/index.html to see collected coverage")
+endif()
 
 # include(CTestCoverageCollectGCOV)
 # ctest_coverage_collect_gcov(
