@@ -22,7 +22,7 @@ set(CTEST_CMAKE_GENERATOR "Ninja")
 
 set(CTEST_CUSTOM_POST_TEST
     "mkdir ${CTEST_BINARY_DIRECTORY}/cov-html/"
-    "gcovr --html --html-details -f ${CTEST_SCRIPT_DIRECTORY}/src/.* -e ${CTEST_SCRIPT_DIRECTORY}/src/http-parser/.* -e ${CTEST_SCRIPT_DIRECTORY}/src/miniz/.* -e ${CTEST_SCRIPT_DIRECTORY}/src/sha1/.* -r ${CTEST_SCRIPT_DIRECTORY} --object-directory=${CTEST_BINARY_DIRECTORY} -o ${CTEST_BINARY_DIRECTORY}/cov-html/index.html"
+    "gcovr --html --html-details -f ${CTEST_SCRIPT_DIRECTORY}/src/\\* -e ${CTEST_SCRIPT_DIRECTORY}/src/http-parser/\\* -e ${CTEST_SCRIPT_DIRECTORY}/src/miniz/\\* -e ${CTEST_SCRIPT_DIRECTORY}/src/sha1/\\* -r ${CTEST_SCRIPT_DIRECTORY} --object-directory=${CTEST_BINARY_DIRECTORY} -o ${CTEST_BINARY_DIRECTORY}/cov-html/index.html"
 )
 
 set(CTEST_COVERAGE_COMMAND "gcov")
@@ -42,16 +42,16 @@ ctest_start("Experimental")
 ctest_configure()
 ctest_build()
 ctest_test()
-ctest_memcheck()
+#ctest_memcheck()
 ctest_coverage()
 
-include(CTestCoverageCollectGCOV)
-ctest_coverage_collect_gcov(
-    TARBALL gcov.tar
-    SOURCE ${CTEST_SOURCE_DIRECTORY}
-    BUILD ${CTEST_BINARY_DIRECTORY}
-    GCOV_COMMAND ${CTEST_COVERAGE_COMMAND}
-)
+# include(CTestCoverageCollectGCOV)
+# ctest_coverage_collect_gcov(
+#     TARBALL gcov.tar
+#     SOURCE ${CTEST_SOURCE_DIRECTORY}
+#     BUILD ${CTEST_BINARY_DIRECTORY}
+#     GCOV_COMMAND ${CTEST_COVERAGE_COMMAND}
+# )
 # if(EXISTS "${CTEST_BINARY_DIRECTORY}/gcov.tar")
 #     ctest_submit(CDASH_UPLOAD "${CTEST_BINARY_DIRECTORY}/gcov.tar"
 #     CDASH_UPLOAD_TYPE GcovTar)
