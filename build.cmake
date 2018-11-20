@@ -43,10 +43,10 @@ string(SUBSTRING ${CTEST_BINARY_DIRECTORY} 0 ${CTEST_BINARY_DIRECTORY_LEN} CIO_O
 
 find_program(GCOVR_BIN gcovr)
 if(GCOVR_BIN)
+	set(CIO_CTEST_COVERAGE_DIR "${CTEST_BINARY_DIRECTORY}/cov-html/${CIO_CTEST_TIMESTAMP}")
     set(CTEST_CUSTOM_POST_TEST
-        "mkdir -p ${CTEST_BINARY_DIRECTORY}/cov-html/${CIO_CTEST_TIMESTAMP}/"
-        "${GCOVR_BIN} --gcov-executable=gcov-8 --html --html-details --html-title cio -f ${CTEST_SCRIPT_DIRECTORY}/src/\\* -e ${CTEST_SCRIPT_DIRECTORY}/src/http-parser/\\* -e ${CTEST_SCRIPT_DIRECTORY}/src/miniz/\\* -e ${CTEST_SCRIPT_DIRECTORY}/src/sha1/\\* --exclude-directories .\\*CompilerIdC\\* -r ${CTEST_SCRIPT_DIRECTORY} --object-directory=${CIO_OBJECT_DIRECTORY} -o ${CTEST_BINARY_DIRECTORY}/cov-html/${CIO_CTEST_TIMESTAMP}/index.html"
-    )
+		"cmake -E make_directory ${CIO_CTEST_COVERAGE_DIR}"
+		"${GCOVR_BIN} --gcov-executable=gcov-8 --html --html-details --html-title cio -f ${CTEST_SCRIPT_DIRECTORY}/src/\\* -e ${CTEST_SCRIPT_DIRECTORY}/src/http-parser/\\* -e ${CTEST_SCRIPT_DIRECTORY}/src/miniz/\\* -e ${CTEST_SCRIPT_DIRECTORY}/src/sha1/\\* --exclude-directories .\\*CompilerIdC\\* -r ${CTEST_SCRIPT_DIRECTORY} --object-directory=${CIO_OBJECT_DIRECTORY} -o ${CIO_CTEST_COVERAGE_DIR}/index.html")
 endif()
 
 set(CTEST_COVERAGE_COMMAND "gcov-8")
@@ -64,7 +64,7 @@ ctest_build()
 ctest_test(PARALLEL_LEVEL ${NUMBER_OF_CORES})
 ctest_coverage()
 if(GCOVR_BIN)
-    message(" -- Open ${CTEST_BINARY_DIRECTORY}cov-html/${CIO_CTEST_TIMESTAMP}/index.html to see collected coverage")
+	message(" -- Open ${CIO_CTEST_COVERAGE_DIR}/index.html to see collected coverage")
 endif()
 
 
