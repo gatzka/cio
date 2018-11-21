@@ -35,7 +35,6 @@ static const char encode_table[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqr
 
 void cio_b64_encode_buffer(const uint8_t *__restrict in, size_t in_length, char *__restrict out)
 {
-
 	while (in_length) {
 		unsigned int len = 0;
 		unsigned int triple[3];
