@@ -1,5 +1,21 @@
+#
+# This file is supposed to run in ctest script mode:
+# ctest -S <path-to-this-file>/build.cmake
+#
+# You can set some command line variables to change the
+# behaviour of this script:
+# CIO_CTEST_CONFIGURATION_TYPE:STRING=Debug|Release
+# CIO_CTEST_MODEL:STRING=Experimental|Nightly|Continuous
+# CIO_CTEST_COVERAGE:BOOL=OFF|ON
+
+set(CTEST_USE_LAUNCHERS 1)
+
 if(NOT DEFINED CIO_CTEST_MODEL)
     set(CIO_CTEST_MODEL "Experimental")
+endif()
+
+if(NOT DEFINED CIO_CTEST_COVERAGE)
+    set(CIO_CTEST_COVERAGE OFF)
 endif()
 
 set(CTEST_SOURCE_DIRECTORY "${CTEST_SCRIPT_DIRECTORY}")
@@ -9,7 +25,11 @@ cmake_host_system_information(RESULT FQDN QUERY FQDN)
 
 set(CTEST_BUILD_NAME "${FQDN}")
 set(CTEST_SITE "${FQDN}")
-set(CTEST_CONFIGURATION_TYPE Debug)
+
+if (NOT DEFINED CIO_CTEST_CONFIGURATION_TYPE)
+    set(CIO_CTEST_CONFIGURATION_TYPE "Debug")
+endif()
+set(CTEST_CONFIGURATION_TYPE ${CIO_CTEST_CONFIGURATION_TYPE})
 
 #SET (CTEST_ENVIRONMENT "PATH=c:/WINDOWS/system32\;c:/WINDOWS\;c:/Programs/Borland/Bcc55/Bin")
 
@@ -17,7 +37,6 @@ if(NOT CIO_CTEST_MODEL STREQUAL "Experimental")
     ctest_empty_binary_directory(${CTEST_BINARY_DIRECTORY})
 endif()
 
-string(TIMESTAMP CIO_CTEST_TIMESTAMP UTC)
 
 include(ProcessorCount)
 ProcessorCount(NUMBER_OF_CORES)
@@ -29,44 +48,48 @@ ctest_start(${CIO_CTEST_MODEL})
 
 set(CTEST_CMAKE_GENERATOR "Ninja")
 set(COVERAGE_OPTIONS
-  "-DCMAKE_TOOLCHAIN_FILE=${CTEST_SCRIPT_DIRECTORY}/cmake/gcc8.cmake"
-  "-DCMAKE_C_FLAGS=--coverage"
+    "-DCMAKE_CXX_COMPILER=g++-8"
+    "-DCMAKE_C_COMPILER=gcc-8"
+    "-DCMAKE_C_FLAGS_INIT=pipe -fno-common"
+    "-DCMAKE_C_FLAGS=--coverage"
 )
 
 ctest_configure(OPTIONS "${COVERAGE_OPTIONS}")
 
-#set(CTEST_USE_LAUNCHERS 1)
 
-string(LENGTH ${CTEST_BINARY_DIRECTORY} CTEST_BINARY_DIRECTORY_LEN)
-MATH(EXPR CTEST_BINARY_DIRECTORY_LEN "${CTEST_BINARY_DIRECTORY_LEN}-1")
-string(SUBSTRING ${CTEST_BINARY_DIRECTORY} 0 ${CTEST_BINARY_DIRECTORY_LEN} CIO_OBJECT_DIRECTORY)
+# Test/Coverage step
 
 find_program(GCOVR_BIN gcovr)
-if(GCOVR_BIN)
-	set(CIO_CTEST_COVERAGE_DIR "${CTEST_BINARY_DIRECTORY}/cov-html/${CIO_CTEST_TIMESTAMP}")
+if(CIO_CTEST_COVERAGE AND GCOVR_BIN)
+    string(LENGTH ${CTEST_BINARY_DIRECTORY} CTEST_BINARY_DIRECTORY_LEN)
+    MATH(EXPR CTEST_BINARY_DIRECTORY_LEN "${CTEST_BINARY_DIRECTORY_LEN}-1")
+    string(SUBSTRING ${CTEST_BINARY_DIRECTORY} 0 ${CTEST_BINARY_DIRECTORY_LEN} CIO_OBJECT_DIRECTORY)
+    
+    string(TIMESTAMP CIO_CTEST_TIMESTAMP UTC)
+    set(CIO_CTEST_COVERAGE_DIR "${CTEST_BINARY_DIRECTORY}cov-html/${CIO_CTEST_TIMESTAMP}")
     set(CTEST_CUSTOM_POST_TEST
-		"cmake -E make_directory ${CIO_CTEST_COVERAGE_DIR}"
-		"${GCOVR_BIN} --gcov-executable=gcov-8 --html --html-details --html-title cio -f ${CTEST_SCRIPT_DIRECTORY}/src/\\* -e ${CTEST_SCRIPT_DIRECTORY}/src/http-parser/\\* -e ${CTEST_SCRIPT_DIRECTORY}/src/miniz/\\* -e ${CTEST_SCRIPT_DIRECTORY}/src/sha1/\\* --exclude-directories .\\*CompilerIdC\\* -r ${CTEST_SCRIPT_DIRECTORY} --object-directory=${CIO_OBJECT_DIRECTORY} -o ${CIO_CTEST_COVERAGE_DIR}/index.html")
+        "cmake -E make_directory ${CIO_CTEST_COVERAGE_DIR}"
+        "${GCOVR_BIN} --gcov-executable=gcov-8 --html --html-details --html-title cio -f ${CTEST_SCRIPT_DIRECTORY}/src/\\* -e ${CTEST_SCRIPT_DIRECTORY}/src/http-parser/\\* -e ${CTEST_SCRIPT_DIRECTORY}/src/miniz/\\* -e ${CTEST_SCRIPT_DIRECTORY}/src/sha1/\\* --exclude-directories .\\*CompilerIdC\\* -r ${CTEST_SCRIPT_DIRECTORY} --object-directory=${CIO_OBJECT_DIRECTORY} -o ${CIO_CTEST_COVERAGE_DIR}/index.html")
+    
+    set(CTEST_COVERAGE_COMMAND "gcov-8")
+    set(CTEST_CUSTOM_COVERAGE_EXCLUDE
+    ${CTEST_CUSTOM_COVERAGE_EXCLUDE}
+        ".*/tests/.*"
+        ".*/src/http-parser/.*"
+        ".*/src/sha1/.*"
+    )
 endif()
-
-set(CTEST_COVERAGE_COMMAND "gcov-8")
-set(CTEST_CUSTOM_COVERAGE_EXCLUDE
-${CTEST_CUSTOM_COVERAGE_EXCLUDE}
-    ".*/tests/.*"
-    ".*/src/http-parser/.*"
-    ".*/src/sha1/.*"
-)
 
 if(CTEST_CMAKE_GENERATOR STREQUAL "Unix Makefiles")
     set(CTEST_BUILD_FLAGS -j${NUMBER_OF_CORES})
 endif()
 ctest_build()
 ctest_test(PARALLEL_LEVEL ${NUMBER_OF_CORES})
-ctest_coverage()
-if(GCOVR_BIN)
-	message(" -- Open ${CIO_CTEST_COVERAGE_DIR}/index.html to see collected coverage")
-endif()
 
+if(CIO_CTEST_COVERAGE AND GCOVR_BIN)
+    ctest_coverage()
+    message(" -- Open ${CIO_CTEST_COVERAGE_DIR}/index.html to see collected coverage")
+endif()
 
 find_program(CTEST_MEMORYCHECK_COMMAND NAMES valgrind)
 set(CTEST_MEMORYCHECK_TYPE Valgrind)
