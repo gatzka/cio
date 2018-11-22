@@ -41,6 +41,8 @@
 #define MIN(a, b) ((a) < (b) ? (a) : (b))
 #endif
 
+#define OPCODE_MASK 0xfU
+
 static const uint8_t WS_MASK_SET = 0x80;
 static const uint8_t WS_HEADER_FIN = 0x80;
 static const size_t WS_MID_FRAME_SIZE = 65535;
@@ -695,7 +697,6 @@ static void get_header(struct cio_buffered_stream *bs, void *handler_context, en
 		return;
 	}
 
-	static const uint8_t OPCODE_MASK = 0x0f;
 	field = field & OPCODE_MASK;
 
 	if (cio_unlikely((ws->ws_private.ws_flags.fin == 0) && (field >= CIO_WEBSOCKET_CLOSE_FRAME))) {
@@ -710,7 +711,7 @@ static void get_header(struct cio_buffered_stream *bs, void *handler_context, en
 				return;
 			}
 
-			ws->ws_private.ws_flags.opcode = (unsigned char)(field & 0xf);
+			ws->ws_private.ws_flags.opcode = (unsigned char)(field & OPCODE_MASK);
 		} else {
 			if (cio_unlikely(!ws->ws_private.ws_flags.frag_opcode)) {
 				handle_error(ws, CIO_PROTOCOL_NOT_SUPPORTED, CIO_WEBSOCKET_CLOSE_PROTOCOL_ERROR, "got continuation frame without correct start frame");
@@ -727,8 +728,8 @@ static void get_header(struct cio_buffered_stream *bs, void *handler_context, en
 				return;
 			}
 
-			ws->ws_private.ws_flags.frag_opcode = (unsigned char)(field & 0xf);
-			ws->ws_private.ws_flags.opcode = (unsigned char)(field & 0xf);
+			ws->ws_private.ws_flags.frag_opcode = field & OPCODE_MASK;
+			ws->ws_private.ws_flags.opcode = field & OPCODE_MASK;
 		} else {
 			if (cio_unlikely(!ws->ws_private.ws_flags.frag_opcode)) {
 				handle_error(ws, CIO_PROTOCOL_NOT_SUPPORTED, CIO_WEBSOCKET_CLOSE_PROTOCOL_ERROR, "got continuation frame without correct start frame");
