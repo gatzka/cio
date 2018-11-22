@@ -170,7 +170,7 @@ static enum cio_error stream_write(struct cio_io_stream *stream, const struct ci
 	msg.msg_iovlen = chain_length;
 
 	struct cio_write_buffer *wb = buffer->next;
-	for (unsigned int i = 0; i < chain_length; i++) {
+	for (size_t i = 0; i < chain_length; i++) {
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wcast-qual"
 		msg_iov[i].iov_base = (void *)wb->data.element.const_data;
