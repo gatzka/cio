@@ -52,6 +52,7 @@ if(CIO_CONFIG_HTTP)
     set_target_properties(http-parser PROPERTIES
         POSITION_INDEPENDENT_CODE ON
         C_VISIBILITY_PRESET hidden
+		C_CLANG_TIDY ""
     )
     install(FILES "${CMAKE_CURRENT_LIST_DIR}/http-parser/http_parser.h"
         DESTINATION include/cio/http-parser/
@@ -62,6 +63,7 @@ if(CIO_CONFIG_HTTP)
         cio_http_location_handler.c
         cio_http_server.c
     )
+
     set_property(TARGET ${PROJECT_NAME}
         APPEND
         PROPERTY PUBLIC_HEADER "cio_http_client.h;cio_http_location.h;cio_http_location_handler.h;cio_http_method.h;cio_http_server.h;cio_http_status_code.h"
@@ -77,6 +79,7 @@ if(CIO_CONFIG_WEBSOCKETS)
     set_target_properties(sha PROPERTIES
         POSITION_INDEPENDENT_CODE ON
         C_VISIBILITY_PRESET hidden
+		C_CLANG_TIDY ""
     )
     target_sources(${PROJECT_NAME} PRIVATE
         $<TARGET_OBJECTS:sha>
@@ -100,6 +103,7 @@ if(CIO_CONFIG_WEBSOCKET_COMPRESSION)
     set_target_properties(miniz PROPERTIES
         POSITION_INDEPENDENT_CODE ON
         C_VISIBILITY_PRESET hidden
+		C_CLANG_TIDY ""
     )
     target_compile_definitions(miniz PRIVATE MINIZ_NO_STDIO MINIZ_NO_ARCHIVE_APIS MINIZ_NO_TIME MINIZ_NO_ARCHIVE_WRITING_APIS MINIZ_NO_ZLIB_APIS MINIZ_NO_ZLIB_COMPATIBLE_NAME MINIZ_NO_MALLOC)
     target_sources(${PROJECT_NAME} PRIVATE $<TARGET_OBJECTS:miniz>)
