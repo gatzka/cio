@@ -7,7 +7,7 @@
 # -DCIO_CTEST_CONFIGURATION_TYPE:STRING=Debug|Release
 # -DCIO_CTEST_MODEL:STRING=Experimental|Nightly|Continuous
 # -DCIO_CTEST_COVERAGE:BOOL=OFF|ON
-# -DCIO_CTEST_COMPILER:STRING=gcc|gcc-<version-number>|clang|clang-<version-number>
+# -DCIO_CTEST_COMPILER:STRING=gcc|gcc-<version-number>|clang|clang-<version-number>|scan-build-<version-number>
 
 set(CTEST_USE_LAUNCHERS 1)
 
@@ -27,8 +27,6 @@ if (NOT DEFINED CIO_CTEST_CONFIGURATION_TYPE)
 endif()
 set(CTEST_CONFIGURATION_TYPE ${CIO_CTEST_CONFIGURATION_TYPE})
 
-#SET (CTEST_ENVIRONMENT "PATH=c:/WINDOWS/system32\;c:/WINDOWS\;c:/Programs/Borland/Bcc55/Bin")
-
 if(NOT CIO_CTEST_MODEL STREQUAL "Experimental")
     ctest_empty_binary_directory(${CTEST_BINARY_DIRECTORY})
 endif()
@@ -37,15 +35,27 @@ if(NOT DEFINED CIO_CTEST_COMPILER)
     set(CIO_CTEST_COMPILER "gcc")
 endif()
 
-string(REGEX MATCH "^gcc|^clang" C_COMPILER_TYPE ${CIO_CTEST_COMPILER})
+string(REGEX MATCH "^gcc|^clang|scan-build" C_COMPILER_TYPE ${CIO_CTEST_COMPILER})
 string(REPLACE ${C_COMPILER_TYPE} "" COMPILER_VERSION ${CIO_CTEST_COMPILER})
 if(C_COMPILER_TYPE STREQUAL "gcc")
     set(CXX_COMPILER_TYPE "g++")
     set(COVERAGE_TOOL "gcov${COMPILER_VERSION}")
-else()
+elseif(C_COMPILER_TYPE STREQUAL "clang")
     set(CXX_COMPILER_TYPE "clang++")
     set(COVERAGE_TOOL "llvm-cov${COMPILER_VERSION}")
     set(CTEST_COVERAGE_EXTRA_FLAGS "gcov")
+else()
+    set(C_COMPILER_TYPE "clang")
+    set(CXX_COMPILER_TYPE "clang++")
+    set(COVERAGE_TOOL "llvm-cov${COMPILER_VERSION}")
+
+	set(ENV{CCC_CC} "${C_COMPILER_TYPE}${COMPILER_VERSION}")
+	set(ENV{CCC_CXX} "${CXX_COMPILER_TYPE}${COMPILER_VERSION}")
+    set(CTEST_COVERAGE_EXTRA_FLAGS "gcov")
+	set(CTEST_CONFIGURE_COMMAND "scan-build${COMPILER_VERSION} ${CMAKE_COMMAND} -DCMAKE_C_FLAGS=--coverage ${CTEST_SOURCE_DIRECTORY}")
+    set(ANALYZER_REPORT_DIR "${CTEST_BINARY_DIRECTORY}analyzer-scan/")
+    set(CTEST_BUILD_COMMAND "scan-build${COMPILER_VERSION} --status-bugs -o ${ANALYZER_REPORT_DIR} ${CMAKE_COMMAND} --build ${CTEST_BINARY_DIRECTORY}")
+    set(IS_CLANG_STATIC_ANALYZER TRUE)
 endif()
 
 set(CONFIGURE_OPTIONS
@@ -105,6 +115,9 @@ endif()
 ctest_build(NUMBER_ERRORS CIO_NUMBER_OF_ERRORS NUMBER_WARNINGS CIO_NUMBER_OF_WARNING)
 if(CIO_NUMBER_OF_ERRORS OR CIO_NUMBER_OF_WARNING)
     message(" -- Error or warning occured while building!")
+    if (IS_CLANG_STATIC_ANALYZER )
+        message(" -- Look into ${ANALYZER_REPORT_DIR} to see clang static analyzer report!")
+    endif()
     return()
 endif()
 
