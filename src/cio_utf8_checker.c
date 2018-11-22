@@ -382,9 +382,9 @@ static inline uint8_t decode(uint8_t *state, uint8_t *codep, uint8_t byte)
 {
 	uint8_t type = utf8d[byte];
 
-	*codep = (uint8_t)((*state != CIO_UTF8_ACCEPT) ? ((byte & 0x3fU) | (uint8_t)(*codep << 6U)) : ((0xffU >> type) & (byte)));
+	*codep = (uint8_t)((*state != CIO_UTF8_ACCEPT) ? ((byte & 0x3fU) | (uint8_t)(*codep << 6U)) : ((0xffU >> type) & (byte))); // NOLINT
 
-	*state = utf8d[256 + *state + type];
+	*state = utf8d[256 + *state + type]; // NOLINT
 	return *state;
 }
 
@@ -422,7 +422,7 @@ uint8_t cio_check_utf8(struct cio_utf8_state *state, const uint8_t *s, size_t co
 		uint_fast32_t buffer = *s_aligned;
 		s_aligned++;
 		for (uint_fast8_t i = 0; i < (uint_fast8_t)sizeof(buffer); i++) {
-			uint8_t character = (buffer >> (i * 8U)) & 0xffU;
+			uint8_t character = (buffer >> (i * 8U)) & 0xffU; // NOLINT
 			if (decode(&state->state, &state->codepoint, character) == CIO_UTF8_REJECT) {
 				return CIO_UTF8_REJECT;
 			}
