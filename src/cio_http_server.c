@@ -582,6 +582,8 @@ static void server_socket_closed(struct cio_server_socket *ss)
 	}
 }
 
+static const unsigned int DEFAULT_BACKLOG = 5;
+
 enum cio_error cio_http_server_init(struct cio_http_server *server,
                                     uint16_t port,
                                     struct cio_eventloop *loop,
@@ -607,5 +609,5 @@ enum cio_error cio_http_server_init(struct cio_http_server *server,
 	server->read_header_timeout_ns = read_header_timeout_ns;
 	server->close_hook = NULL;
 
-	return cio_server_socket_init(&server->server_socket, server->loop, 5, server->alloc_client, server->free_client, server_socket_closed);
+	return cio_server_socket_init(&server->server_socket, server->loop, DEFAULT_BACKLOG, server->alloc_client, server->free_client, server_socket_closed);
 }
