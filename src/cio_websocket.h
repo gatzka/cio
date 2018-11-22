@@ -88,12 +88,13 @@ enum cio_websocket_frame_type {
 };
 
 #define CIO_WEBSOCKET_SMALL_FRAME_SIZE 125
+#define CIO_WEBSOCKET_MAX_HEADER_SIZE 14
 
 struct cio_websocket_write_job {
 	struct cio_websocket_write_job *next;
 	struct cio_write_buffer *wbh;
 	struct cio_write_buffer websocket_header;
-	uint8_t send_header[14];
+	uint8_t send_header[CIO_WEBSOCKET_MAX_HEADER_SIZE];
 	cio_websocket_write_handler handler;
 	void *handler_context;
 	enum cio_websocket_frame_type frame_type;
