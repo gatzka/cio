@@ -31,7 +31,7 @@
 
 int cio_linux_socket_create(void)
 {
-	int fd = socket(AF_INET6, SOCK_STREAM | SOCK_CLOEXEC | SOCK_NONBLOCK, 0);
+	int fd = socket(AF_INET6, (unsigned int)SOCK_STREAM | (unsigned int)SOCK_CLOEXEC | (unsigned int)SOCK_NONBLOCK, 0U);
 	if (cio_unlikely(fd == -1)) {
 		return -1;
 	}
