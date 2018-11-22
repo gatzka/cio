@@ -223,8 +223,8 @@ static void send_upgrade_response(struct cio_http_client *client)
 	uint8_t sha1_buffer[SHA1HashSize];
 	SHA1Result(&context, sha1_buffer);
 	cio_b64_encode_buffer(sha1_buffer, SHA1HashSize, ws->accept_value);
-	ws->accept_value[28] = '\r';
-	ws->accept_value[29] = '\n';
+	ws->accept_value[CIO_SEC_WEBSOCKET_ACCEPT_LENGTH - 2] = '\r';
+	ws->accept_value[CIO_SEC_WEBSOCKET_ACCEPT_LENGTH - 1] = '\n';
 
 	client->queue_header(client, CIO_HTTP_SWITCHING_PROTOCOLS);
 
