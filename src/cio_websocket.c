@@ -665,9 +665,9 @@ static void get_first_length(struct cio_buffered_stream *bs, void *handler_conte
 		}
 
 		if (field == CIO_WEBSOCKET_SMALL_FRAME_SIZE + 1) {
-			err = bs->read_exactly(bs, buffer, 2, get_length16, ws);
+			err = bs->read_exactly(bs, buffer, sizeof(uint16_t), get_length16, ws);
 		} else {
-			err = bs->read_exactly(bs, buffer, 8, get_length64, ws);
+			err = bs->read_exactly(bs, buffer, sizeof(uint64_t), get_length64, ws);
 		}
 	}
 
