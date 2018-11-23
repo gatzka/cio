@@ -8,8 +8,10 @@ target_include_directories(fff INTERFACE fff)
 add_library(unity
     unity/src/unity.c
 )
+set_target_properties(unity PROPERTIES
+	C_CLANG_TIDY ""
+)
 target_include_directories(unity PUBLIC ${CMAKE_CURRENT_LIST_DIR}/unity/src/)
-
 
 add_executable(cio_test_base64 test_cio_base64.c)
 add_test(NAME cio.test_base64 COMMAND cio_test_base64)
