@@ -34,9 +34,9 @@
 #include "cio_http_location_handler.h"
 #include "cio_http_server.h"
 #include "cio_timer.h"
-#include "cio_write_buffer.h"
-#include "cio_websocket_location_handler.h"
 #include "cio_util.h"
+#include "cio_websocket_location_handler.h"
+#include "cio_write_buffer.h"
 
 #ifndef ARRAY_SIZE
 #define ARRAY_SIZE(a) (sizeof(a) / sizeof((a)[0]))
