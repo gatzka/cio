@@ -7,7 +7,7 @@
 # -DCIO_CTEST_CONFIGURATION_TYPE:STRING=Debug|Release
 # -DCIO_CTEST_MODEL:STRING=Experimental|Nightly|Continuous
 # -DCIO_CTEST_COVERAGE:BOOL=OFF|ON
-# -DCIO_CTEST_COMPILER:STRING=gcc|gcc-<version-number>|clang|clang-<version-number>|scan-build-<version-number>
+# -DCIO_CTEST_COMPILER:STRING=gcc|gcc-<version-number>|clang|clang-<version-number>|scan-build-<version-number>|clang-tidy-<version-number>
 
 set(CTEST_USE_LAUNCHERS 1)
 
@@ -35,7 +35,7 @@ if(NOT DEFINED CIO_CTEST_COMPILER)
     set(CIO_CTEST_COMPILER "gcc")
 endif()
 
-string(REGEX MATCH "^gcc|^clang|^scan-build" C_COMPILER_TYPE ${CIO_CTEST_COMPILER})
+string(REGEX MATCH "^gcc|^clang-tidy|^scan-build|^clang" C_COMPILER_TYPE ${CIO_CTEST_COMPILER})
 string(REPLACE ${C_COMPILER_TYPE} "" COMPILER_VERSION ${CIO_CTEST_COMPILER})
 if(C_COMPILER_TYPE STREQUAL "gcc")
     set(CXX_COMPILER_TYPE "g++")
@@ -44,6 +44,12 @@ elseif(C_COMPILER_TYPE STREQUAL "clang")
     set(CXX_COMPILER_TYPE "clang++")
     set(COVERAGE_TOOL "llvm-cov${COMPILER_VERSION}")
     set(CTEST_COVERAGE_EXTRA_FLAGS "gcov")
+elseif(C_COMPILER_TYPE STREQUAL "clang-tidy")
+	set(CONFIGURE_OPTIONS ${CONFIGURE_OPTIONS} "-DCMAKE_C_CLANG_TIDY=${C_COMPILER_TYPE}${COMPILER_VERSION}")
+	set(CXX_COMPILER_TYPE "g++")
+	set(C_COMPILER_TYPE "gcc")
+    set(COVERAGE_TOOL "gcov")
+	unset(COMPILER_VERSION)
 else()
     set(C_COMPILER_TYPE "clang")
     set(CXX_COMPILER_TYPE "clang++")
@@ -59,6 +65,7 @@ else()
 endif()
 
 set(CONFIGURE_OPTIONS
+	${CONFIGURE_OPTIONS}
     "-DCMAKE_CXX_COMPILER=${CXX_COMPILER_TYPE}${COMPILER_VERSION}"
     "-DCMAKE_C_COMPILER=${C_COMPILER_TYPE}${COMPILER_VERSION}"
     "-DCMAKE_C_FLAGS_INIT=-pipe -fno-common"
