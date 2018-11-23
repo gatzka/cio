@@ -35,6 +35,7 @@
 
 static const uint64_t FIVE_S = 5000000000;
 static uint_fast8_t expirations = 0;
+static const uint_fast8_t MAX_EXPIRATIONS = 5;
 
 static struct cio_eventloop loop;
 
@@ -49,7 +50,7 @@ static void handle_timeout(struct cio_timer *timer, void *handler_context, enum 
 	(void)handler_context;
 	if (err == CIO_SUCCESS) {
 		fprintf(stdout, "timer expired!\n");
-		if (expirations++ < 5) {
+		if (expirations++ < MAX_EXPIRATIONS) {
 			if (timer->expires_from_now(timer, FIVE_S, handle_timeout, NULL) != CIO_SUCCESS) {
 				fprintf(stderr, "arming timer failed!\n");
 			}
