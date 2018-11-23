@@ -172,17 +172,6 @@ if(DEFINED CIO_CTEST_SANITIZER)
 	endif()
 endif()
 
-find_program(CTEST_MEMORYCHECK_COMMAND NAMES valgrind)
-set(CTEST_MEMORYCHECK_TYPE Valgrind)
-set(CTEST_MEMORYCHECK_COMMAND_OPTIONS "--errors-for-leak-kinds=all --show-leak-kinds=all --leak-check=full --error-exitcode=1")
-#set(CTEST_MEMORYCHECK_SUPPRESSIONS_FILE ${CTEST_SOURCE_DIRECTORY}/tests/valgrind.supp)
-
-# unset(CTEST_MEMORYCHECK_COMMAND)
-# unset(CTEST_MEMORYCHECK_COMMAND_OPTIONS)
-# set(CTEST_MEMORYCHECK_TYPE UndefinedBehaviorSanitizer)
-# ctest_memcheck(PARALLEL_LEVEL ${NUMBER_OF_CORES})
-
-
 # include(CTestCoverageCollectGCOV)
 # ctest_coverage_collect_gcov(
 #     TARBALL gcov.tar
