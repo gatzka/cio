@@ -38,10 +38,13 @@
 #include "cio_write_buffer.h"
 
 static struct cio_eventloop loop;
+static const unsigned int SERVERSOCKET_BACKLOG = 5;
+static const uint16_t SERVERSOCKET_LISTEN_PORT = 12345;
+enum {BUFFER_SIZE = 100};
 
 struct echo_client {
 	struct cio_socket socket;
-	uint8_t buffer[100];
+	uint8_t buffer[BUFFER_SIZE];
 	struct cio_write_buffer wb;
 	struct cio_write_buffer wbh;
 	struct cio_read_buffer rb;
@@ -144,7 +147,7 @@ int main(void)
 	}
 
 	struct cio_server_socket ss;
-	err = cio_server_socket_init(&ss, &loop, 5, alloc_echo_client, free_echo_client, NULL);
+	err = cio_server_socket_init(&ss, &loop, SERVERSOCKET_BACKLOG, alloc_echo_client, free_echo_client, NULL);
 	if (err != CIO_SUCCESS) {
 		ret = EXIT_FAILURE;
 		goto destroy_loop;
@@ -156,7 +159,7 @@ int main(void)
 		goto close_socket;
 	}
 
-	err = ss.bind(&ss, NULL, 12345);
+	err = ss.bind(&ss, NULL, SERVERSOCKET_LISTEN_PORT);
 	if (err != CIO_SUCCESS) {
 		ret = EXIT_FAILURE;
 		goto close_socket;
