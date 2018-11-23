@@ -54,7 +54,7 @@ static void fill_random(uint8_t *buffer, size_t length)
 	cio_random_get_bytes(buffer, length);
 }
 
-static void check_masking(uint8_t *buffer, size_t length, uint8_t mask[4])
+static void check_masking(uint8_t *buffer, size_t length, const uint8_t mask[4])
 {
 	for (size_t i = 0; i < length; i++) {
 		buffer[i] = buffer[i] ^ (mask[i % 4]);
