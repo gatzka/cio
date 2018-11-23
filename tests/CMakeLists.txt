@@ -9,7 +9,7 @@ add_library(unity
     unity/src/unity.c
 )
 set_target_properties(unity PROPERTIES
-	C_CLANG_TIDY ""
+    C_CLANG_TIDY ""
 )
 target_include_directories(unity PUBLIC ${CMAKE_CURRENT_LIST_DIR}/unity/src/)
 
@@ -56,10 +56,13 @@ foreach(tgt ${targets})
     target_compile_options(${tgt} INTERFACE $<$<AND:$<C_COMPILER_ID:GNU>,$<VERSION_GREATER:$<C_COMPILER_VERSION>,8.0.0>>:-Wstringop-truncation>)
     
     target_compile_options(${tgt} INTERFACE $<$<C_COMPILER_ID:Clang>:-Wdocumentation>)
-	get_target_property(target_type ${tgt} TYPE)
-	if (target_type STREQUAL "EXECUTABLE")
-		target_link_libraries(${tgt} fff unity cio:cio)
-	endif ()
+    get_target_property(target_type ${tgt} TYPE)
+    if (target_type STREQUAL "EXECUTABLE")
+        target_link_libraries(${tgt} fff unity cio:cio)
+        set_target_properties(${tgt} PROPERTIES
+            C_CLANG_TIDY ""
+        )
+    endif()
 endforeach()
 
 if(${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
