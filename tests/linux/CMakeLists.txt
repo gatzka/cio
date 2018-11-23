@@ -3,38 +3,35 @@ project(cio_linux_unit_test C)
 enable_testing()
 
 add_executable(test_cio_linux_endian test_cio_linux_endian.c)
-target_link_libraries(test_cio_linux_endian fff unity cio:cio)
 add_test(NAME cio.linux.test_endian COMMAND test_cio_linux_endian)
 
 add_executable(test_cio_linux_epoll test_cio_linux_epoll.c)
-target_link_libraries(test_cio_linux_epoll fff unity cio:cio)
 add_test(NAME cio.linux.test_epoll COMMAND test_cio_linux_epoll)
 
 add_executable(test_cio_linux_server_socket test_cio_linux_server_socket.c)
-target_link_libraries(test_cio_linux_server_socket fff unity cio:cio)
 add_test(NAME cio.linux.test_server_socket COMMAND test_cio_linux_server_socket)
 
 add_executable(test_cio_linux_socket test_cio_linux_socket.c)
-target_link_libraries(test_cio_linux_socket fff unity cio:cio)
 add_test(NAME cio.linux.test_socket COMMAND test_cio_linux_socket)
 
 add_executable(test_cio_linux_socket_utils test_cio_linux_socket_utils.c)
-target_link_libraries(test_cio_linux_socket_utils fff unity cio:cio)
 add_test(NAME cio.linux.test_socket_utils COMMAND test_cio_linux_socket_utils)
 
 add_executable(test_cio_linux_timer test_cio_linux_timer.c)
-target_link_libraries(test_cio_linux_timer fff unity cio:cio)
 add_test(NAME cio.linux.test_timer COMMAND test_cio_linux_timer)
 
-
-if(LCOV_PATH AND GENHTML_PATH)
-    set_tests_properties(
-        cio.linux.test_endian
-        cio.linux.test_epoll
-        cio.linux.test_server_socket
-        cio.linux.test_socket
-        cio.linux.test_socket_utils
-        cio.linux.test_timer
-        PROPERTIES FIXTURES_REQUIRED coverage
-    )
-endif()
+get_property(targets DIRECTORY "${CMAKE_CURRENT_LIST_DIR}" PROPERTY BUILDSYSTEM_TARGETS)
+foreach(tgt ${targets})
+     get_target_property(target_type ${tgt} TYPE)
+     if (target_type STREQUAL "EXECUTABLE")
+         target_compile_options(${tgt} INTERFACE $<$<OR:$<C_COMPILER_ID:GNU>,$<C_COMPILER_ID:Clang>>:-Wall;-Wextra;-Wshadow;-Winit-self;-Wcast-qual;-Wcast-align;-Wformat=2;-Wwrite-strings;-Wmissing-prototypes;-Wstrict-prototypes;-Wold-style-definition;-Wstrict-overflow=5;-Wdisabled-optimization;-Wmissing-include-dirs;-Wswitch-default;-Wundef;-Wconversion;-pedantic;-pedantic-errors>)
+         target_compile_options(${tgt} INTERFACE $<$<AND:$<C_COMPILER_ID:GNU>,$<VERSION_GREATER:$<C_COMPILER_VERSION>,7.0.0>>:-Wformat-truncation -Wstringop-overflow -Wformat-overflow=2>)
+         target_compile_options(${tgt} INTERFACE $<$<AND:$<C_COMPILER_ID:GNU>,$<VERSION_GREATER:$<C_COMPILER_VERSION>,8.0.0>>:-Wstringop-truncation>)
+         
+         target_compile_options(${tgt} INTERFACE $<$<C_COMPILER_ID:Clang>:-Wdocumentation>)
+         target_link_libraries(${tgt} fff unity cio:cio)
+         set_target_properties(${tgt} PROPERTIES
+             C_CLANG_TIDY ""
+         )
+     endif()
+endforeach()
