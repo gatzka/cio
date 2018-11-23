@@ -8,6 +8,7 @@
 # -DCIO_CTEST_MODEL:STRING=Experimental|Nightly|Continuous
 # -DCIO_CTEST_COVERAGE:BOOL=OFF|ON
 # -DCIO_CTEST_COMPILER:STRING=gcc|gcc-<version-number>|clang|clang-<version-number>|scan-build-<version-number>|clang-tidy-<version-number>
+# -DCIO_CTEST_SANITIZER:STRING=AddressSanitizer|MemorySanitizer|UndefinedBehaviorSanitizer|LeakSanitizer|Valgrind
 
 set(CTEST_USE_LAUNCHERS 1)
 
@@ -45,27 +46,36 @@ elseif(C_COMPILER_TYPE STREQUAL "clang")
     set(COVERAGE_TOOL "llvm-cov${COMPILER_VERSION}")
     set(CTEST_COVERAGE_EXTRA_FLAGS "gcov")
 elseif(C_COMPILER_TYPE STREQUAL "clang-tidy")
-	set(CONFIGURE_OPTIONS ${CONFIGURE_OPTIONS} "-DCMAKE_C_CLANG_TIDY=${C_COMPILER_TYPE}${COMPILER_VERSION}")
-	set(CXX_COMPILER_TYPE "g++")
-	set(C_COMPILER_TYPE "gcc")
+    set(CONFIGURE_OPTIONS ${CONFIGURE_OPTIONS} "-DCMAKE_C_CLANG_TIDY=${C_COMPILER_TYPE}${COMPILER_VERSION}")
+    set(CXX_COMPILER_TYPE "g++")
+    set(C_COMPILER_TYPE "gcc")
     set(COVERAGE_TOOL "gcov")
-	unset(COMPILER_VERSION)
+    unset(COMPILER_VERSION)
 else()
     set(C_COMPILER_TYPE "clang")
     set(CXX_COMPILER_TYPE "clang++")
     set(COVERAGE_TOOL "llvm-cov${COMPILER_VERSION}")
 
-	set(ENV{CCC_CC} "${C_COMPILER_TYPE}${COMPILER_VERSION}")
-	set(ENV{CCC_CXX} "${CXX_COMPILER_TYPE}${COMPILER_VERSION}")
+    set(ENV{CCC_CC} "${C_COMPILER_TYPE}${COMPILER_VERSION}")
+    set(ENV{CCC_CXX} "${CXX_COMPILER_TYPE}${COMPILER_VERSION}")
     set(CTEST_COVERAGE_EXTRA_FLAGS "gcov")
-	set(CTEST_CONFIGURE_COMMAND "scan-build${COMPILER_VERSION} ${CMAKE_COMMAND} -DCMAKE_C_FLAGS=--coverage ${CTEST_SOURCE_DIRECTORY}")
+    set(CTEST_CONFIGURE_COMMAND "scan-build${COMPILER_VERSION} ${CMAKE_COMMAND} -DCMAKE_C_FLAGS=--coverage ${CTEST_SOURCE_DIRECTORY}")
     set(ANALYZER_REPORT_DIR "${CTEST_BINARY_DIRECTORY}analyzer-scan/")
     set(CTEST_BUILD_COMMAND "scan-build${COMPILER_VERSION} --status-bugs -o ${ANALYZER_REPORT_DIR} ${CMAKE_COMMAND} --build ${CTEST_BINARY_DIRECTORY}")
     set(IS_CLANG_STATIC_ANALYZER TRUE)
 endif()
 
+if(DEFINED CIO_CTEST_SANITIZER)
+    if (CIO_CTEST_SANITIZER STREQUAL "Valgrind")
+        find_program(CTEST_MEMORYCHECK_COMMAND NAMES valgrind)
+        set(CTEST_MEMORYCHECK_TYPE Valgrind)
+        set(CTEST_MEMORYCHECK_COMMAND_OPTIONS "--errors-for-leak-kinds=all --show-leak-kinds=all --leak-check=full --error-exitcode=1")
+        #set(CTEST_MEMORYCHECK_SUPPRESSIONS_FILE ${CTEST_SOURCE_DIRECTORY}/tests/valgrind.supp)
+    endif()
+endif()
+
 set(CONFIGURE_OPTIONS
-	${CONFIGURE_OPTIONS}
+    ${CONFIGURE_OPTIONS}
     "-DCMAKE_CXX_COMPILER=${CXX_COMPILER_TYPE}${COMPILER_VERSION}"
     "-DCMAKE_C_COMPILER=${C_COMPILER_TYPE}${COMPILER_VERSION}"
     "-DCMAKE_C_FLAGS_INIT=-pipe -fno-common"
@@ -135,11 +145,15 @@ if(CIO_CTEST_COVERAGE AND GCOVR_BIN)
     message(" -- Open ${CIO_CTEST_COVERAGE_DIR}/index.html to see collected coverage")
 endif()
 
+
+if(DEFINED CIO_CTEST_SANITIZER)
+    ctest_memcheck(PARALLEL_LEVEL ${NUMBER_OF_CORES})
+endif()
+
 find_program(CTEST_MEMORYCHECK_COMMAND NAMES valgrind)
 set(CTEST_MEMORYCHECK_TYPE Valgrind)
 set(CTEST_MEMORYCHECK_COMMAND_OPTIONS "--errors-for-leak-kinds=all --show-leak-kinds=all --leak-check=full --error-exitcode=1")
 #set(CTEST_MEMORYCHECK_SUPPRESSIONS_FILE ${CTEST_SOURCE_DIRECTORY}/tests/valgrind.supp)
-#ctest_memcheck(PARALLEL_LEVEL ${NUMBER_OF_CORES})
 
 # unset(CTEST_MEMORYCHECK_COMMAND)
 # unset(CTEST_MEMORYCHECK_COMMAND_OPTIONS)
