@@ -25,11 +25,28 @@ matrix:
 
   - os: linux
     dist: xenial
+    compiler: gcc-6
+    sudo: required
+    env:
+    - MATRIX_EVAL="-DCIO_CTEST_COMPILER:STRING=gcc-6 -DCIO_CTEST_CONFIGURATION_TYPE:STRING=Debug -DCIO_CTEST_COVERAGE:BOOL=ON"
+    addons:
+      apt:
+        sources:
+        - ubuntu-toolchain-r-test
+        packages:
+        - cmake
+        - cmake-data
+        - gcc-6
+        - g++-6
+        - libbsd-dev
+        - ninja-build
+
+  - os: linux
+    dist: xenial
     compiler: gcc-7
     sudo: required
     env:
     - MATRIX_EVAL="-DCIO_CTEST_COMPILER:STRING=gcc-7 -DCIO_CTEST_CONFIGURATION_TYPE:STRING=Debug -DCIO_CTEST_COVERAGE:BOOL=ON"
-    - BUILD_WITH_COVERAGE_INFO=1
     addons:
       apt:
         sources:
@@ -39,6 +56,25 @@ matrix:
         - cmake-data
         - gcc-7
         - g++-7
+        - libbsd-dev
+        - ninja-build
+
+  - os: linux
+    dist: xenial
+    compiler: gcc-8
+    sudo: required
+    env:
+    - MATRIX_EVAL="-DCIO_CTEST_COMPILER:STRING=gcc-8 -DCIO_CTEST_CONFIGURATION_TYPE:STRING=Debug -DCIO_CTEST_COVERAGE:BOOL=ON"
+    - BUILD_WITH_COVERAGE_INFO=1
+    addons:
+      apt:
+        sources:
+        - ubuntu-toolchain-r-test
+        packages:
+        - cmake
+        - cmake-data
+        - gcc-8
+        - g++-8
         - libbsd-dev
         - ninja-build
 
