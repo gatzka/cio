@@ -21,6 +21,7 @@ matrix:
         - cmake-data
         - gcovr
         - libbsd-dev
+        - ninja 
 
 script:
 - if [ "$COVERITY_SCAN_BRANCH" != 1 ]; then
