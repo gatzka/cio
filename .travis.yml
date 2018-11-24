@@ -4,7 +4,6 @@ branches:
   - "/^feature.*$/"
   - "/^fix.*$/"
   - "gh-pages"
-sudo: true
 git:
   depth: 9999999
 matrix:
