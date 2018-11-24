@@ -23,7 +23,8 @@ matrix:
         - ninja-build
 
 install:
-- pip install gcovr
+- pip install --user gcovr
+
 script:
 - if [ "$COVERITY_SCAN_BRANCH" != 1 ]; then
     ctest -VV -S build.cmake ${MATRIX_EVAL};
