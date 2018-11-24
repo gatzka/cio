@@ -14,12 +14,26 @@ matrix:
     sudo: required
     env:
     - MATRIX_EVAL="-DCIO_CTEST_COMPILER:STRING=gcc -DCIO_CTEST_CONFIGURATION_TYPE:STRING=Debug -DCIO_CTEST_COVERAGE:BOOL=ON"
-    - BUILD_WITH_COVERAGE_INFO="-DCIO_CTEST_COMPILER:STRING=gcc -DCIO_CTEST_CONFIGURATION_TYPE:STRING=Debug -DCIO_CTEST_COVERAGE:BOOL=ON"
+    - BUILD_WITH_COVERAGE_INFO=1
     addons:
       apt:
         packages:
         - cmake
         - cmake-data
+        - libbsd-dev
+        - ninja-build
+
+  - os: linux
+    dist: xenial
+    sudo: required
+    env:
+    - MATRIX_EVAL="-DCIO_CTEST_COMPILER:STRING=gcc-7 -DCIO_CTEST_CONFIGURATION_TYPE:STRING=Debug -DCIO_CTEST_COVERAGE:BOOL=ON"
+    addons:
+      apt:
+        packages:
+        - cmake
+        - cmake-data
+        - gcc-7
         - libbsd-dev
         - ninja-build
 
