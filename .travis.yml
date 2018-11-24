@@ -22,6 +22,7 @@ matrix:
         - gcovr
         - libbsd-dev
 
+script:
 - if [ "$COVERITY_SCAN_BRANCH" != 1 ]; then mkdir build_release; cd build_release;
     ctest -S build.cmake ${MATRIX_EVAL}
   fi
