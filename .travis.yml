@@ -11,6 +11,7 @@ matrix:
 
   - os: linux
     dist: xenial
+    compiler: gcc
     sudo: required
     env:
     - MATRIX_EVAL="-DCIO_CTEST_COMPILER:STRING=gcc -DCIO_CTEST_CONFIGURATION_TYPE:STRING=Debug -DCIO_CTEST_COVERAGE:BOOL=ON"
@@ -25,6 +26,7 @@ matrix:
 
   - os: linux
     dist: xenial
+    compiler: gcc-7
     sudo: required
     env:
     - MATRIX_EVAL="-DCIO_CTEST_COMPILER:STRING=gcc-7 -DCIO_CTEST_CONFIGURATION_TYPE:STRING=Debug -DCIO_CTEST_COVERAGE:BOOL=ON"
