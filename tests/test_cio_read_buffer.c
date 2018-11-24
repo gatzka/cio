@@ -66,11 +66,20 @@ static void test_init_no_buffer(void)
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_INVALID_ARGUMENT, err, "Return value for initialization with no buffer provided is not correct!");
 }
 
+static void test_init_no_buffer_size_zero(void)
+{
+	uint32_t buffer;
+	struct cio_read_buffer rb;
+	enum cio_error err = cio_read_buffer_init(&rb, &buffer, 0);
+	TEST_ASSERT_EQUAL_MESSAGE(CIO_INVALID_ARGUMENT, err, "Return value for initialization with buffer size \"0\" not correct!");
+}
+
 int main(void)
 {
 	UNITY_BEGIN();
 	RUN_TEST(test_init_read_buffer);
 	RUN_TEST(test_init_no_read_buffer);
 	RUN_TEST(test_init_no_buffer);
+	RUN_TEST(test_init_no_buffer_size_zero);
 	return UNITY_END();
 }
