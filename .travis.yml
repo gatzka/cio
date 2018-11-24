@@ -19,10 +19,11 @@ matrix:
         packages:
         - cmake
         - cmake-data
-        - gcovr
         - libbsd-dev
         - ninja-build
 
+install:
+- pip install gcovr
 script:
 - if [ "$COVERITY_SCAN_BRANCH" != 1 ]; then
     ctest -VV -S build.cmake ${MATRIX_EVAL};
