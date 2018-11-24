@@ -32,7 +32,8 @@ script:
   fi
 
 after_success:
-- if [ -n "${BUILD_WITH_COVERAGE_INFO=}" ]; then cd /tmp/cio/; bash <(curl -s https://codecov.io/bash) -X gcov || echo "Codecov did not collect coverage reports";
+- if [ -n "${BUILD_WITH_COVERAGE_INFO=}" ]; then
+    bash <(curl -s https://codecov.io/bash) -X gcov -s /tmp/cio/ || echo "Codecov did not collect coverage reports";
   fi
 
 env:
