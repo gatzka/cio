@@ -8,7 +8,6 @@ git:
   depth: 9999999
 matrix:
   include:
-
   - os: linux
     dist: xenial
     compiler: gcc
@@ -143,6 +142,34 @@ matrix:
         - cmake-data
         - gcc-8
         - g++-8
+        - libbsd-dev
+        - ninja-build
+
+  - os: linux
+    dist: xenial
+    compiler: clang
+    sudo: required
+    env:
+    - MATRIX_EVAL="-DCIO_CTEST_COMPILER:STRING=clang -DCIO_CTEST_CONFIGURATION_TYPE:STRING=Debug -DCIO_CTEST_COVERAGE:BOOL=OFF"
+    addons:
+      apt:
+        packages:
+        - cmake
+        - cmake-data
+        - libbsd-dev
+        - ninja-build
+
+  - os: linux
+    dist: xenial
+    compiler: clang
+    sudo: required
+    env:
+    - MATRIX_EVAL="-DCIO_CTEST_COMPILER:STRING=clang -DCIO_CTEST_CONFIGURATION_TYPE:STRING=Release -DCIO_CTEST_COVERAGE:BOOL=OFF"
+    addons:
+      apt:
+        packages:
+        - cmake
+        - cmake-data
         - libbsd-dev
         - ninja-build
 
