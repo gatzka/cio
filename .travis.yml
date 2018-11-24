@@ -30,6 +30,8 @@ matrix:
     - MATRIX_EVAL="-DCIO_CTEST_COMPILER:STRING=gcc-7 -DCIO_CTEST_CONFIGURATION_TYPE:STRING=Debug -DCIO_CTEST_COVERAGE:BOOL=ON"
     addons:
       apt:
+        sources:
+        - ubuntu-toolchain-r-test
         packages:
         - cmake
         - cmake-data
