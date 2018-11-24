@@ -1,6 +1,4 @@
 language: c
-os: linux
-dist: xenial
 branches:
   except:
   - "/^feature.*$/"
@@ -12,202 +10,25 @@ git:
 matrix:
   include:
 
-# Coverity build, must be the first!
-  - compiler: gcc
+  - os: linux
+    dist: xenial
+    sudo: required
     env:
-    - MATRIX_EVAL="CMAKE_C_COMPILER=gcc && CMAKE_BUILD_TYPE=Debug && COVERAGE_INFO=1 && CIO_SANITIZE=ON"
-    addons:
-      coverity_scan:
-        project:
-          name: gatzka/cio
-          description: Build submitted via Travis CI
-        notification_email: stephan.gatzka@gmail.com
-        build_script_url: https://raw.githubusercontent.com/gatzka/cio/coverity_scan/.travisci_build_coverity_scan.sh
-        build_command_prepend: cmake ./
-        build_command: make -j
-        branch_pattern: coverity_scan
-      apt:
-        packages:
-        - cmake
-        - cmake-data
-        - lcov
-        - libbsd-dev
-
-# Sonarcloud build
-  - compiler: gcc
-    env:
-    - BUILD_NAME="linux-sonar-analysis"
-    - MATRIX_EVAL="CMAKE_C_COMPILER=gcc && CMAKE_BUILD_TYPE=Debug && CIO_SANITIZE=ON"
-    script:
-    - cmake ./
-    - build-wrapper-linux-x86-64 --out-dir bw-output make
-    - sonar-scanner
-    addons:
-      sonarcloud:
-        organization: "gatzka-github"
-        branches:
-          - master
-          - sonarcloud
-        token:
-          secure: "kkXwc7Ysk8DiyP2laG7u416+AFxDs0iVgy64s9bE+kMHnYt4BUgqh96chovoI1DyX+u5dAaxo5AXtGs89gg6RhmrVPger7awfqf74TzqiXgSCSVVeXT7uL6MJULXKNRRGM/ydUvRRA3xpDaFW1yWWymCEJO+dIs/+OcDQl+w9/dlabGgW8KMYG7ZlABUyVKlzFldswYOH3Q4rgboEMqDbvl9BAqMnHDhTX3tV+9eRW1u6K2xnH1FMBeIEy2WxhPgRUp9s2RlwVrOJjKxCV0xO66a6TCMk33zo+0TcUY0m9DCZZT13PkXo1Wr5aoxcUaxkUfkgJIT7IzJ429Cn4dIxQT4HFTWbnaqSat6puHEFGnOUQWf84COxotd7pCBXmqiTQXKmP7wvB95G1kFCq0y6kkuTI9SNPE28k0vrE9CPE/SgWtS7Acm5LVT8ou3Tcn4BqlmkRygMGlIXzdP6jNbSQ+JSS6exwliLRfRHzzR+h41NrD1qkyvxmEUZb5Y9oIKbunXnVgWRsJDToUMWKkh/4IbwkwWPhEKknnb3zNVp6eBrOUr8O/Rzq7vKKaFiZje9nMvXfZ9pEZX+9APtcY31N4SKFNoYAcvGvbFrnUPx5q3XsVrQ74peq0NXJQw3UDe+pEOSvoWwtbs/49TXLJ/N1MGOhjgyPMBKRv8yPevlfY="
-        github_token:
-          secure: "iehzF8xduCnk2NZIcV0JzAQKqqYeUVzcdt6Qyon8DdiDa6fnCz5KzDOo2oCJpumivaZuqmAualjWG4UupXo01Rb+UIX0Z69K5MPAGjUmsakxNiIZ3tL2Zi72XC87EJYceNzOalGdSZundflRqohkLlzVlzEfVHPcFVG36D1YiIxGe8PB4ChHOR40CKUDuz5EA4Iwuwag7vl1LfH+7CT5XCWvisYfSfmohFxWtTGSxcL8aDK317ju38uaoE8iaLXo8sJ0Pz0CuAS01DAFFfDXIURbZw3h81/bo4XQDvlWQ8GCffgtXKkqPAp6PVzuFx06eVMd5YzQeZKbWc+WdC/2RqPpF4V9YqAHKS3JzuQBGT1k1D84YDSzuWvDhqkmLlcn+052voO1QbeGU7ZCGdqcaKjexGVyl6VRB55+RdpmClTHBaCj6eAE7DiDL77pu54hNSRZUsdeHcZNYE37OIoblJwfvh5aIHr4clTvwEgyb951Fp8NFPikqYrR+g+jRYNPhKhA0ix8gf2s8Bzop4PE60W7ZXVMUqi4xorSMsXDI2iAscrj3od2uppy4hMPO+Uuz1VzQk3mEv12BDEqDh47uxcLfSlulLVO1r1ZLu5iOjT19bGZZ+cC+F4mTAvUEgrU+xo/OOBRntlsRdSW6+jh6TJw70REG6kUAOewwjb7fjk="
-      cache:
-        directories:
-          - '$HOME/.sonar/cache'
-      apt:
-        packages:
-        - cmake
-        - cmake-data
-        - libbsd-dev
-
-  - compiler: gcc
-    env:
-    - MATRIX_EVAL="CMAKE_C_COMPILER=gcc && CMAKE_BUILD_TYPE=Release && CIO_SANITIZE=ON"
-    - CREATE_DOXY=true
+    - MATRIX_EVAL="-DCIO_CTEST_COMPILER:STRING=gcc -DCIO_CTEST_CONFIGURATION_TYPE:STRING=Debug -DCIO_CTEST_COVERAGE:BOOL=ON"
     addons:
       apt:
         packages:
         - cmake
         - cmake-data
-        - doxygen
+        - gcovr
         - libbsd-dev
 
-  - compiler: gcc
-    env:
-    - MATRIX_EVAL="CMAKE_C_COMPILER=gcc-7 && CMAKE_BUILD_TYPE=Debug && CIO_SANITIZE=ON"
-    addons:
-      apt:
-        sources:
-        - ubuntu-toolchain-r-test
-        packages:
-        - gcc-7
-        - cmake
-        - cmake-data
-        - libbsd-dev
+- if [ "$COVERITY_SCAN_BRANCH" != 1 ]; then mkdir build_release; cd build_release;
+    ctest -S build.cmake ${MATRIX_EVAL}
+  fi
 
-  - compiler: gcc
-    env:
-    - MATRIX_EVAL="CMAKE_C_COMPILER=gcc-7 && CMAKE_BUILD_TYPE=Release && CIO_SANITIZE=ON"
-    addons:
-      apt:
-        sources:
-        - ubuntu-toolchain-r-test
-        packages:
-        - gcc-7
-        - cmake
-        - cmake-data
-        - libbsd-dev
-
-  - compiler: clang
-    env:
-    - MATRIX_EVAL="CMAKE_C_COMPILER=clang && CMAKE_BUILD_TYPE=Debug && CIO_SANITIZE=ON"
-    addons:
-      apt:
-        packages:
-        - cmake
-        - cmake-data
-        - libbsd-dev
-
-  - compiler: clang
-    env:
-    - MATRIX_EVAL="CMAKE_C_COMPILER=clang && CMAKE_BUILD_TYPE=Release && CIO_SANITIZE=ON"
-    addons:
-      apt:
-        packages:
-        - cmake
-        - cmake-data
-        - libbsd-dev
-
-  - compiler: clang
-    env:
-    - MATRIX_EVAL="CMAKE_C_COMPILER=clang-5.0 && CMAKE_BUILD_TYPE=Debug && CIO_SANITIZE=ON"
-    addons:
-      apt:
-        sources:
-        - ubuntu-toolchain-r-test
-        - llvm-toolchain-trusty-5.0
-        packages:
-        - cmake
-        - cmake-data
-        - libbsd-dev
-        - clang-5.0
-
-  - compiler: clang
-    env:
-    - MATRIX_EVAL="CMAKE_C_COMPILER=clang-5.0 && CMAKE_BUILD_TYPE=Release && CIO_SANITIZE=ON"
-    addons:
-      apt:
-        sources:
-        - ubuntu-toolchain-r-test
-        - llvm-toolchain-trusty-5.0
-        packages:
-        - cmake
-        - cmake-data
-        - libbsd-dev
-        - clang-5.0
-
-  - compiler: clang
-    env:
-    - MATRIX_EVAL="CMAKE_C_COMPILER=clang-6.0 && CMAKE_BUILD_TYPE=Debug && CIO_SANITIZE=ON && CIO_C_CLANG_TIDY=clang-tidy-6.0"
-    addons:
-      apt:
-        sources:
-        - ubuntu-toolchain-r-test
-        - llvm-toolchain-trusty-6.0
-        packages:
-        - cmake
-        - cmake-data
-        - libbsd-dev
-        - clang-tidy-6.0
-        - clang-6.0
-
-  - compiler: clang
-    env:
-    - MATRIX_EVAL="CMAKE_C_COMPILER=clang-6.0 && CMAKE_BUILD_TYPE=Release && CIO_SANITIZE=ON"
-    addons:
-      apt:
-        sources:
-        - ubuntu-toolchain-r-test
-        - llvm-toolchain-trusty-6.0
-        packages:
-        - cmake
-        - cmake-data
-        - libbsd-dev
-        - clang-6.0
-
-  - compiler: clang
-    env:
-    - MATRIX_EVAL="CMAKE_C_COMPILER=/usr/share/clang/scan-build-6.0/libexec/ccc-analyzer
-      && CMAKE_BUILD_TYPE=Debug && SCAN_BUILD=1 && CIO_SANITIZE=ON"
-    addons:
-      apt:
-        sources:
-        - ubuntu-toolchain-r-test
-        - llvm-toolchain-trusty-6.0
-        packages:
-        - cmake
-        - cmake-data
-        - libbsd-dev
-        - clang-6.0
-        - clang-tools-6.0
-
-before_install:
-- eval "${MATRIX_EVAL}"
 env:
   global:
   - secure: kMI8djmAytx80YQ8MRmXU2X90hV9bXHp9DEUdFplJZE1spTO6p4yl8kb57/nXUZoits70AnNVt93GlZ3FGxCBdzBFdOAhvzMXkWnqjed1JCPS9Kh9b+tlOCPIFzJ6mXn9aBYLHMxACrtqAbTSm8XEri7+aEMdy471PYWD3uf6xIo7wAqscO5tzJOTzPoGhEjvl6eZHr24jemWRBUAvL7al4NcutE7bHeHc3znzo1aQhx5jtL/ukofzXXPwrFUBOj9ujQsMb32lNAdxhNEyCDL1c73p7tf143ZuJ0nJoDEEXfvHxRIPkPQ2g8e5APiJEyIqVzcHugq9KPMjnMpMSDBMyPaY8cgXFcbbRzuWQfsw4OY+Bd3/Lud3iXUeZsVZazGDHolzZWemebz8VvEuVdPOmSei5wCUhkgSnM7rutU4Fsdb5zwG0ZNePh3YBYZy99DBfTUejKXboAHQxxvMJm63RrHb3kGM5jzxXMWL3Xfiaii0cqfctDJ4EIOLnD8HJu+6v0Xw9fZCjx4eFYD9z5uFxjLhXCBGXFEfQ0sGAxf97TJ2RR08/SrG4eRnK4oU0dqU1NKd7I7+wjCY8sOOpuWidXI9wNcqkJpcfmTEbqhr47Co/ojlUSegwxk1FMnd3qMnnKZR4jqTLtAZdsz9fYLgQAhk+Cuk5QVH5pyCGnOrw=
   - secure: kMAAzWLvoiczf17zLmgfd1ILG3qUOXVuDYDi4w5KdweeFHWCQS1AhJcVEpBD/Flbszx4oDv3Z/MH31Ko+ugRSRPlV3SIspk8D1Szq4tuJ39opgU/bZQI6dMnyBSCrjKNoCGHJWR5v7YEMQD0VjYRKQQRziubbyhBbDKrvJQy4ofWlhrRTOeh5pHa6XRpEw/DsMJM0aIu5lTMxH82O6V+QYz07r3gOG3xcfy+WYORIRJDWQJ0Sam7Cw8OZu0cz80dYSXP8JSihHZc0cF8i7qOgBLY56v1huiVLbka/ZRM7+BD44vTEIkx4iDOBJ6Dxf0Sgju8ECIEdiToMoceFPRMX7m1xEC9GD3GchLDoJmy4gic2TjZFtN94X4lM0oGOQayRYtlsUAJrHxDh1GiVvZPXObx9XxFf2ajmotdn0FFKRp70j6OKUaBF7t3nNTVZhnKRfkLgSMnWb0p3CxpNkCMPss1soozgX2cBjqyg2i936eeI6rPPxcDQeRRQjMsUhXv+f6eTVtIZjARoq9UxYMsA8DF6upR+c9KtA7q/KENu0x+ZgoRsM2ej/FFgQrIziyOSMKZJEvzgytViwZpU020k0rsCtu2uo0ERh7Ar8eEUH4h7H1ATcT6zd5db2o2mMjgpxIHX79nleWZbhJ34l14v1qUHGBh4n5hldpB/ScDIqA=
-script:
-- if [ "$COVERITY_SCAN_BRANCH" != 1 ]; then mkdir build_release; cd build_release;
-  CMAKE_CMD_OPTION="-DCMAKE_C_COMPILER=${CMAKE_C_COMPILER} -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE} -DCIO_SANITIZE=${CIO_SANITIZE} -DCIO_C_CLANG_TIDY=${CIO_C_CLANG_TIDY}";
-  echo $CMAKE_CMD_OPTION; cmake $CMAKE_CMD_OPTION ../;
-  if [ -n "${SCAN_BUILD}" ];
-    then /usr/lib/llvm-6.0/bin/scan-build --status-bugs make -j;
-  else make -j; make docs; fi; LSAN_OPTIONS=verbosity=1:log_threads=1 ASAN_OPTIONS=check_initialization_order=true:detect_stack_use_after_return=true:strict_init_order=true:detect_invalid_pointer_pairs=10:strict_string_checks=true ctest -V . ;
-  fi
-after_success:
-- "../scripts/push-doxygen-to-gh-pages.sh"
-- if [ -n "${COVERAGE_INFO}" ]; then cd ${TRAVIS_BUILD_DIR}/build_release/; ls -l; make coverage ;
-  bash <(curl -s https://codecov.io/bash) -f coverage.cleaned.info || echo "Codecov did not collect coverage reports"; fi
 
