@@ -1,6 +1,6 @@
 cscope.*
 *.swp
-build*
+build/*
 *.qbs.user*
 *.obj
 .vs

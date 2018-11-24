@@ -125,7 +125,7 @@ enum cio_error cio_linux_eventloop_add(const struct cio_eventloop *loop, struct 
 
 enum cio_error cio_linux_eventloop_register_read(const struct cio_eventloop *loop, struct cio_event_notifier *ev)
 {
-	ev->registered_events |= EPOLLIN;
+	ev->registered_events |= (uint32_t)EPOLLIN;
 	return epoll_mod(loop, ev, ev->registered_events);
 }
 
@@ -137,7 +137,7 @@ enum cio_error cio_linux_eventloop_unregister_read(const struct cio_eventloop *l
 
 enum cio_error cio_linux_eventloop_register_write(const struct cio_eventloop *loop, struct cio_event_notifier *ev)
 {
-	ev->registered_events |= EPOLLOUT;
+	ev->registered_events |= (uint32_t)EPOLLOUT;
 	return epoll_mod(loop, ev, ev->registered_events);
 }
 

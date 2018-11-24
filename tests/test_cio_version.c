@@ -26,19 +26,16 @@
 
 #include <stdint.h>
 #include <stdlib.h>
-#include <string.h>
-#include <sys/types.h>
-#include <time.h>
 
-#include "cio_random.h"
-#include "cio_websocket_masking.h"
-
+#include "cio_version.h"
+#include "cio_version_private.h"
 #include "fff.h"
 #include "unity.h"
 
-#define MIN(x, y) (((x) < (y)) ? (x) : (y))
-
 DEFINE_FFF_GLOBALS
+
+#undef ARRAY_SIZE
+#define ARRAY_SIZE(a) (sizeof(a) / sizeof((a)[0]))
 
 void setUp(void)
 {
@@ -49,45 +46,34 @@ void tearDown(void)
 {
 }
 
-static void fill_random(uint8_t *buffer, size_t length)
+static void test_get_version_string(void)
 {
-	cio_random_get_bytes(buffer, length);
+	const char *version = cio_get_version_string();
+	TEST_ASSERT_NOT_NULL_MESSAGE(version, "No version string delivered");
+	TEST_ASSERT_EQUAL_STRING_MESSAGE(CIO_VERSION, version, "Version string not correct!");
 }
 
-static void check_masking(uint8_t *buffer, size_t length, const uint8_t mask[4])
+static void test_get_version_major(void)
 {
-	for (size_t i = 0; i < length; i++) {
-		buffer[i] = buffer[i] ^ (mask[i % 4]);
-	}
+	TEST_ASSERT_EQUAL_MESSAGE(CIO_VERSION_MAJOR, cio_get_version_major(), "Major version not correct!");
 }
 
-static void test_aligned_buffer(void)
+static void test_get_version_minor(void)
 {
-#define buffer_size 16
-#define max_align 8
+	TEST_ASSERT_EQUAL_MESSAGE(CIO_VERSION_MINOR, cio_get_version_minor(), "Minor version not correct!");
+}
 
-	for (unsigned int align_counter = 0; align_counter < max_align; align_counter++) {
-		for (unsigned int length_counter = 1; length_counter < buffer_size; length_counter++) {
-			uint8_t buffer[buffer_size + max_align];
-			fill_random(buffer, sizeof(buffer));
-
-			uint8_t check_buffer[buffer_size + max_align];
-			memcpy(check_buffer, buffer, sizeof(buffer));
-
-			uint8_t mask[4];
-			fill_random(mask, sizeof(mask));
-
-			cio_websocket_mask(buffer + align_counter, length_counter, mask);
-			check_masking(check_buffer + align_counter, length_counter, mask);
-
-			TEST_ASSERT_MESSAGE(memcmp(check_buffer + align_counter, buffer + align_counter, length_counter) == 0, "Message masking not correct!");
-		}
-	}
+static void test_get_version_patch(void)
+{
+	TEST_ASSERT_EQUAL_MESSAGE(CIO_VERSION_PATCH, cio_get_version_patch(), "Patch version not correct!");
 }
 
 int main(void)
 {
 	UNITY_BEGIN();
-	RUN_TEST(test_aligned_buffer);
+	RUN_TEST(test_get_version_string);
+	RUN_TEST(test_get_version_major);
+	RUN_TEST(test_get_version_minor);
+	RUN_TEST(test_get_version_patch);
 	return UNITY_END();
 }

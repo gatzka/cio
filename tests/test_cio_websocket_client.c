@@ -121,7 +121,7 @@ static bool check_frame(enum cio_websocket_frame_type opcode, const char *payloa
 
 	uint8_t first_length = write_buffer[write_buffer_parse_pos++];
 	bool is_masked = ((first_length & WS_MASK_SET) == WS_MASK_SET);
-	first_length = first_length & ~WS_MASK_SET;
+	first_length = (uint8_t)(first_length & ~WS_MASK_SET);
 
 	uint64_t length;
 	if (first_length == 126) {
@@ -178,7 +178,7 @@ static bool is_close_frame(uint16_t status_code, bool status_code_required)
 
 	uint8_t first_length = write_buffer[write_buffer_parse_pos++];
 	bool is_masked = ((first_length & WS_MASK_SET) == WS_MASK_SET);
-	first_length = first_length & ~WS_MASK_SET;
+	first_length = (uint8_t)(first_length & ~WS_MASK_SET);
 
 	if (first_length > CIO_WEBSOCKET_SMALL_FRAME_SIZE) {
 		return false;
@@ -204,7 +204,7 @@ static bool is_close_frame(uint16_t status_code, bool status_code_required)
 		memcpy(&sc, &write_buffer[write_buffer_parse_pos], sizeof(sc));
 		sc = cio_be16toh(sc);
 		write_buffer_parse_pos += sizeof(sc);
-		first_length -= sizeof(sc);
+		first_length = (uint8_t)(first_length - sizeof(sc));
 		write_buffer_parse_pos += first_length;
 		if (status_code != sc) {
 			return false;
@@ -229,7 +229,8 @@ static void serialize_frames(struct ws_frame frames[], size_t num_frames)
 			frame_buffer[buffer_pos] |= 0x70;
 		}
 
-		frame_buffer[buffer_pos++] |= frame.frame_type;
+		frame_buffer[buffer_pos] = (uint8_t)(frame_buffer[buffer_pos] | frame.frame_type);
+		buffer_pos++;
 
 		if (frame.direction == FROM_CLIENT) {
 			frame_buffer[buffer_pos] = WS_MASK_SET;

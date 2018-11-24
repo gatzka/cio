@@ -41,6 +41,7 @@ extern "C" {
 
 #define CIO_SEC_WEB_SOCKET_KEY_LENGTH 24
 #define CIO_SEC_WEB_SOCKET_GUID_LENGTH 36
+#define CIO_SEC_WEBSOCKET_ACCEPT_LENGTH 30
 
 struct cio_websocket_location_handler {
 
@@ -62,7 +63,7 @@ struct cio_websocket_location_handler {
 	} flags;
 
 	signed int chosen_subprotocol;
-	char accept_value[30];
+	char accept_value[CIO_SEC_WEBSOCKET_ACCEPT_LENGTH];
 	struct cio_write_buffer wb_upgrade_header;
 	struct cio_write_buffer wb_accept_value;
 	struct cio_write_buffer wb_protocol_field;

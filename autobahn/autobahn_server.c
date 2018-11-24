@@ -33,12 +33,14 @@
 #include "cio_eventloop.h"
 #include "cio_http_location_handler.h"
 #include "cio_http_server.h"
-#include "cio_write_buffer.h"
-#include "cio_websocket_location_handler.h"
 #include "cio_util.h"
+#include "cio_websocket_location_handler.h"
+#include "cio_write_buffer.h"
 
 static struct cio_eventloop loop;
 static struct cio_http_server http_server;
+
+static const uint16_t AUTOBAHN_SERVER_PORT = 9001;
 
 #define read_buffer_size (16 * 1024 * 1024)
 
@@ -174,7 +176,7 @@ int main(void)
 		return EXIT_FAILURE;
 	}
 
-	err = cio_http_server_init(&http_server, 9001, &loop, serve_error, read_timeout, alloc_http_client, free_http_client);
+	err = cio_http_server_init(&http_server, AUTOBAHN_SERVER_PORT, &loop, serve_error, read_timeout, alloc_http_client, free_http_client);
 	if (err != CIO_SUCCESS) {
 		ret = EXIT_FAILURE;
 		goto destroy_loop;

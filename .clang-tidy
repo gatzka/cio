@@ -1,3 +1,5 @@
-Checks:          '*'
-WarningsAsErrors: '*'
-HeaderFilter: '*'
+{
+  "Checks": "*,-llvm-header-guard",
+  "WarningsAsErrors": "",
+  "HeaderFilterRegex": "cio_.*"
+}

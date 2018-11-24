@@ -62,7 +62,7 @@ static void accept_callback(void *context)
 	int client_fd;
 	memset(&addr, 0, sizeof(addr));
 	addrlen = sizeof(addr);
-	client_fd = accept4(fd, (struct sockaddr *)&addr, &addrlen, SOCK_NONBLOCK | SOCK_CLOEXEC);
+	client_fd = accept4(fd, (struct sockaddr *)&addr, &addrlen, (unsigned int)SOCK_NONBLOCK | (unsigned int)SOCK_CLOEXEC);
 	if (cio_unlikely(client_fd == -1)) {
 		if ((errno != EAGAIN) && (errno != EWOULDBLOCK) && (errno != EBADF)) {
 			ss->handler(ss, ss->handler_context, (enum cio_error)(-errno), NULL);
@@ -132,8 +132,9 @@ static enum cio_error socket_set_reuse_address(struct cio_server_socket *ss, boo
 
 static enum cio_error socket_bind(struct cio_server_socket *ss, const char *bind_address, uint16_t port)
 {
+	static const unsigned int MAX_PORT_LENGTH = 6;
 	struct addrinfo hints;
-	char server_port_string[6];
+	char server_port_string[MAX_PORT_LENGTH];
 	struct addrinfo *servinfo;
 	int ret;
 	struct addrinfo *rp;
@@ -141,7 +142,7 @@ static enum cio_error socket_bind(struct cio_server_socket *ss, const char *bind
 	memset(&hints, 0, sizeof(hints));
 	hints.ai_family = AF_INET6;
 	hints.ai_socktype = SOCK_STREAM;
-	hints.ai_flags = AI_PASSIVE | AI_V4MAPPED | AI_NUMERICHOST;
+	hints.ai_flags = (unsigned int)AI_PASSIVE | (unsigned int)AI_V4MAPPED | (unsigned int)AI_NUMERICHOST;
 
 	snprintf(server_port_string, sizeof(server_port_string), "%d", port);
 
