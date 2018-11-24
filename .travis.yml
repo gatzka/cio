@@ -36,6 +36,7 @@ matrix:
         - cmake
         - cmake-data
         - gcc-7
+        - g++-7
         - libbsd-dev
         - ninja-build
 
