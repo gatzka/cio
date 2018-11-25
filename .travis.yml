@@ -269,8 +269,8 @@ after_success:
   fi
 
 - if [ -n "${CREATE_DOXY}" ]; then
-    ls -l $HOME ;
-    $HOME/gatzka/cio/scripts/push-doxygen-to-gh-pages.sh ;
+    ls -l $TRAVIS_BUILD_DIR ;
+    $TRAVIS_BUILD_DIR/scripts/push-doxygen-to-gh-pages.sh ;
   fi
 
 env:
