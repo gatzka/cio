@@ -1,6 +1,6 @@
 var structcio__http__location__handler =
 [
-    [ "free", "structcio__http__location__handler.html#adbfcedcd1124f966a7e00a1dc8290874", null ],
+    [ "free", "structcio__http__location__handler.html#a0bd3bed591b1ccf4fb7f16364e5b325b", null ],
     [ "on_body", "structcio__http__location__handler.html#a32a7896a868d5778338e015f6610e504", null ],
     [ "on_fragment", "structcio__http__location__handler.html#a45d7a4048f22f2061f6497e78ac83fa2", null ],
     [ "on_header_field", "structcio__http__location__handler.html#a4d075f82eb121f4cf2a79aac878bea37", null ],

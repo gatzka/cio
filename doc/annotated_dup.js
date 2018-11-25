@@ -1,4 +1,4 @@
-var annotated =
+var annotated_dup =
 [
     [ "cio_buffered_stream", "structcio__buffered__stream.html", "structcio__buffered__stream" ],
     [ "cio_http_client", "structcio__http__client.html", "structcio__http__client" ],

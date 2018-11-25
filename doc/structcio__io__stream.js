@@ -1,6 +1,6 @@
 var structcio__io__stream =
 [
-    [ "close", "structcio__io__stream.html#ab742a17e8d2cee073ea31f1f09e8dd08", null ],
-    [ "read_some", "structcio__io__stream.html#aa24c47612ee31a0aa9d12dfecb9f6567", null ],
-    [ "write_some", "structcio__io__stream.html#a10b56600fd43cb7f5f1a16c5e37c1c9a", null ]
+    [ "close", "structcio__io__stream.html#abd9b27a72fea1c39e54a88f3d7251db8", null ],
+    [ "read_some", "structcio__io__stream.html#aec8934d6e4ac112c217c72eb16509b43", null ],
+    [ "write_some", "structcio__io__stream.html#ab173b100937d1e1d9d601ea3156624e3", null ]
 ];

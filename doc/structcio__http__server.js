@@ -1,6 +1,6 @@
 var structcio__http__server =
 [
-    [ "register_location", "structcio__http__server.html#ae4f8a7e10057f59c881f264b205e68ba", null ],
-    [ "serve", "structcio__http__server.html#a11bc709795ea6922bc94f6090a651ecb", null ],
-    [ "shutdown", "structcio__http__server.html#a55d51f58e63bee5e50622d1b7e21e042", null ]
+    [ "register_location", "structcio__http__server.html#a58101d627babd140a2647b9f4ec91814", null ],
+    [ "serve", "structcio__http__server.html#a880f52a1ca19eb235fec310977e0a22d", null ],
+    [ "shutdown", "structcio__http__server.html#a9ed45a349231c5ccf08a2dd978935865", null ]
 ];

@@ -1,6 +1,5 @@
 var files =
 [
-    [ "cio_export.h", "cio__export_8h.html", "cio__export_8h" ],
     [ "cio_base64.h", "cio__base64_8h.html", "cio__base64_8h" ],
     [ "cio_buffered_stream.h", "cio__buffered__stream_8h.html", "cio__buffered__stream_8h" ],
     [ "cio_compiler.h", "cio__compiler_8h.html", null ],
@@ -29,5 +28,6 @@ var files =
     [ "cio_websocket.h", "cio__websocket_8h.html", "cio__websocket_8h" ],
     [ "cio_websocket_location_handler.h", "cio__websocket__location__handler_8h.html", "cio__websocket__location__handler_8h" ],
     [ "cio_websocket_masking.h", "cio__websocket__masking_8h.html", "cio__websocket__masking_8h" ],
-    [ "cio_write_buffer.h", "cio__write__buffer_8h.html", "cio__write__buffer_8h" ]
+    [ "cio_write_buffer.h", "cio__write__buffer_8h.html", "cio__write__buffer_8h" ],
+    [ "cio_export.h", "cio__export_8h.html", "cio__export_8h" ]
 ];
