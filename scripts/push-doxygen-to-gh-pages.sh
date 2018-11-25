@@ -4,7 +4,7 @@ if [ "$TRAVIS_REPO_SLUG" == "gatzka/cio" ] && [ "$CREATE_DOXY" = "true" ] && [ "
 
   echo -e "Publishing doxygen...\n"
 
-  cp -R src/docs/html/ $HOME/doxygen-latest
+  cp -R /tmp/cio/src/docs/html/ $HOME/doxygen-latest
 
   cd $HOME
   git config --global user.email "travis@travis-ci.org"

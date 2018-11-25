@@ -62,15 +62,17 @@ matrix:
 
   - os: linux
     dist: xenial
-    compiler: gcc
+    compiler: gcc + doxygen documentation
     sudo: required
     env:
-    - MATRIX_EVAL="-DCIO_CTEST_COMPILER:STRING=gcc -DCIO_CTEST_CONFIGURATION_TYPE:STRING=Debug -DCIO_CTEST_COVERAGE:BOOL=OFF"
+    - MATRIX_EVAL="-DCIO_CTEST_COMPILER:STRING=gcc -DCIO_CTEST_CONFIGURATION_TYPE:STRING=Debug -DCIO_CTEST_COVERAGE:BOOL=OFF -DCIO_CTEST_DOCUMENTATION:BOOL=ON"
+    - CREATE_DOXY=true
     addons:
       apt:
         packages:
         - cmake
         - cmake-data
+        - doxygen
         - libbsd-dev
         - ninja-build
 
@@ -262,8 +264,12 @@ script:
   fi
 
 after_success:
-- if [ -n "${BUILD_WITH_COVERAGE_INFO=}" ]; then
+- if [ -n "${BUILD_WITH_COVERAGE_INFO}" ]; then
     bash <(curl -s https://codecov.io/bash) -X gcov -s /tmp/cio/ || echo "Codecov did not collect coverage reports";
+  fi
+
+- if [ -n "${CREATE_DOXY}" ]; then
+    $HOME/scripts/push-doxygen-to-gh-pages.sh
   fi
 
 env:
