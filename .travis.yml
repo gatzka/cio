@@ -10,7 +10,12 @@ matrix:
   include:
 
 # Coverity build, must be the first!
-  - compiler: gcc coverity scan
+  - os: linux
+    dist: xenial
+    compiler: gcc coverity scan
+    sudo: required
+    env:
+    - MATRIX_EVAL="-DCIO_CTEST_COMPILER:STRING=gcc -DCIO_CTEST_CONFIGURATION_TYPE:STRING=Debug -DCIO_CTEST_COVERAGE:BOOL=OFF"
     addons:
       coverity_scan:
         project:
