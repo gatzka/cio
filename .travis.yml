@@ -62,7 +62,7 @@ matrix:
 
   - os: linux
     dist: xenial
-    compiler: gcc + doxygen documentation
+    compiler: gcc with doxygen documentation
     sudo: required
     env:
     - MATRIX_EVAL="-DCIO_CTEST_COMPILER:STRING=gcc -DCIO_CTEST_CONFIGURATION_TYPE:STRING=Debug -DCIO_CTEST_COVERAGE:BOOL=OFF -DCIO_CTEST_DOCUMENTATION:BOOL=ON"
@@ -269,7 +269,7 @@ after_success:
   fi
 
 - if [ -n "${CREATE_DOXY}" ]; then
-    $HOME/scripts/push-doxygen-to-gh-pages.sh ;
+    $HOME/gatzka/cio/scripts/push-doxygen-to-gh-pages.sh ;
   fi
 
 env:
