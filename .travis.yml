@@ -173,6 +173,34 @@ matrix:
         - libbsd-dev
         - ninja-build
 
+  - os: linux
+    dist: xenial
+    compiler: clang static analyzer
+    sudo: required
+    env:
+    - MATRIX_EVAL="-DCIO_CTEST_COMPILER:STRING=scan-build -DCIO_CTEST_CONFIGURATION_TYPE:STRING=Debug -DCIO_CTEST_COVERAGE:BOOL=OFF"
+    addons:
+      apt:
+        packages:
+        - cmake
+        - cmake-data
+        - libbsd-dev
+        - ninja-build
+
+  - os: linux
+    dist: xenial
+    compiler: clang-tidy
+    sudo: required
+    env:
+    - MATRIX_EVAL="-DCIO_CTEST_COMPILER:STRING=clang-tidy -DCIO_CTEST_CONFIGURATION_TYPE:STRING=Debug -DCIO_CTEST_COVERAGE:BOOL=OFF"
+    addons:
+      apt:
+        packages:
+        - cmake
+        - cmake-data
+        - libbsd-dev
+        - ninja-build
+
 install:
 - pip install --user gcovr
 
