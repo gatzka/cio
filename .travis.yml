@@ -269,7 +269,7 @@ after_success:
   fi
 
 - if [ -n "${CREATE_DOXY}" ]; then
-    $HOME/scripts/push-doxygen-to-gh-pages.sh
+    $HOME/scripts/push-doxygen-to-gh-pages.sh ;
   fi
 
 env:
