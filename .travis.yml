@@ -260,7 +260,7 @@ install:
 
 script:
 - if [ "$COVERITY_SCAN_BRANCH" != 1 ]; then
-    ctest -VV -S build.cmake ${MATRIX_EVAL};
+    ctest -S build.cmake ${MATRIX_EVAL};
   fi
 
 after_success:
@@ -269,7 +269,6 @@ after_success:
   fi
 
 - if [ -n "${CREATE_DOXY}" ]; then
-    ls -l $TRAVIS_BUILD_DIR ;
     $TRAVIS_BUILD_DIR/scripts/push-doxygen-to-gh-pages.sh ;
   fi
 
