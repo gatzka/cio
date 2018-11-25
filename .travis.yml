@@ -31,6 +31,7 @@ matrix:
         - cmake
         - cmake-data
         - libbsd-dev
+        - ninja-build
 
   - os: linux
     dist: xenial
