@@ -7,6 +7,7 @@
 # -DCIO_CTEST_CONFIGURATION_TYPE:STRING=Debug|Release
 # -DCIO_CTEST_MODEL:STRING=Experimental|Nightly|Continuous
 # -DCIO_CTEST_COVERAGE:BOOL=OFF|ON
+# -DCIO_CTEST_DOCUMENTATION:BOOL=OFF|ON
 # -DCIO_CTEST_COMPILER:STRING=gcc|gcc-<version-number>|clang|clang-<version-number>|scan-build-<version-number>|clang-tidy-<version-number>
 # -DCIO_CTEST_SANITIZER:STRING=AddressSanitizer|MemorySanitizer|UndefinedBehaviorSanitizer|LeakSanitizer|Valgrind
 
@@ -18,6 +19,10 @@ endif()
 
 if(NOT DEFINED CIO_CTEST_COVERAGE)
     set(CIO_CTEST_COVERAGE OFF)
+endif()
+
+if(NOT DEFINED CIO_CTEST_DOCUMENTATION)
+    set(CIO_CTEST_DOCUMENTATION OFF)
 endif()
 
 set(CTEST_SOURCE_DIRECTORY "${CTEST_SCRIPT_DIRECTORY}")
@@ -154,6 +159,11 @@ if(CIO_NUMBER_OF_ERRORS OR CIO_NUMBER_OF_WARNING)
     endif()
     message(FATAL_ERROR " -- Error or warning occured while building!")
     return()
+endif()
+
+if(CIO_CTEST_DOCUMENTATION)
+    ctest_build(TARGET docs)
+    message(" -- Open ${CTEST_BINARY_DIRECTORY}src/docs/html/index.html to see generated documentation")
 endif()
 
 ctest_test(RETURN_VALUE TEST_RETURN PARALLEL_LEVEL ${NUMBER_OF_CORES})
