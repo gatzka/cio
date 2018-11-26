@@ -45,4 +45,3 @@ unsigned int cio_get_version_patch(void)
 {
 	return CIO_VERSION_PATCH;
 }
-

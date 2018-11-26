@@ -57,9 +57,9 @@ enum header_field {
 static enum cio_http_cb_return save_websocket_key(struct cio_websocket_location_handler *wslh, const char *at, size_t length)
 {
 	static const char ws_guid[CIO_SEC_WEB_SOCKET_GUID_LENGTH] = {'2', '5', '8', 'E', 'A', 'F', 'A', '5', '-',
-	                                                         'E', '9', '1', '4', '-', '4', '7', 'D', 'A', '-',
-	                                                         '9', '5', 'C', 'A', '-',
-	                                                         'C', '5', 'A', 'B', '0', 'D', 'C', '8', '5', 'B', '1', '1'};
+	                                                             'E', '9', '1', '4', '-', '4', '7', 'D', 'A', '-',
+	                                                             '9', '5', 'C', 'A', '-',
+	                                                             'C', '5', 'A', 'B', '0', 'D', 'C', '8', '5', 'B', '1', '1'};
 
 	if (cio_likely(length == CIO_SEC_WEB_SOCKET_KEY_LENGTH)) {
 		memcpy(wslh->sec_websocket_key, at, length);
