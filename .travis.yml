@@ -257,10 +257,52 @@ matrix:
 
   - os: linux
     dist: xenial
-    compiler: clang undefined behavior analyzer
+    compiler: clang undefined behavior sanitizer
     sudo: required
     env:
     - MATRIX_EVAL="-DCIO_CTEST_COMPILER:STRING=clang -DCIO_CTEST_CONFIGURATION_TYPE:STRING=Release -DCIO_CTEST_SANITIZER:STRING=UndefinedBehaviorSanitizer -DCIO_CTEST_COVERAGE:BOOL=OFF"
+    addons:
+      apt:
+        packages:
+        - cmake
+        - cmake-data
+        - libbsd-dev
+        - ninja-build
+
+  - os: linux
+    dist: xenial
+    compiler: clang leak sanitizer
+    sudo: required
+    env:
+    - MATRIX_EVAL="-DCIO_CTEST_COMPILER:STRING=clang -DCIO_CTEST_CONFIGURATION_TYPE:STRING=Release -DCIO_CTEST_SANITIZER:STRING=LeakSanitizer -DCIO_CTEST_COVERAGE:BOOL=OFF"
+    addons:
+      apt:
+        packages:
+        - cmake
+        - cmake-data
+        - libbsd-dev
+        - ninja-build
+
+  - os: linux
+    dist: xenial
+    compiler: clang memory sanitizer
+    sudo: required
+    env:
+    - MATRIX_EVAL="-DCIO_CTEST_COMPILER:STRING=clang -DCIO_CTEST_CONFIGURATION_TYPE:STRING=Release -DCIO_CTEST_SANITIZER:STRING=MemorySanitizer -DCIO_CTEST_COVERAGE:BOOL=OFF"
+    addons:
+      apt:
+        packages:
+        - cmake
+        - cmake-data
+        - libbsd-dev
+        - ninja-build
+
+  - os: linux
+    dist: xenial
+    compiler: clang address sanitizer
+    sudo: required
+    env:
+    - MATRIX_EVAL="-DCIO_CTEST_COMPILER:STRING=clang -DCIO_CTEST_CONFIGURATION_TYPE:STRING=Release -DCIO_CTEST_SANITIZER:STRING=AddressSanitizer -DCIO_CTEST_COVERAGE:BOOL=OFF"
     addons:
       apt:
         packages:
