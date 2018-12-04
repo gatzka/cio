@@ -102,6 +102,7 @@ static void response_written(struct cio_buffered_stream *bs, void *handler_conte
 	(void)err;
 
 	struct cio_http_client *client = (struct cio_http_client *)handler_context;
+	//TODO: if keepalive, then don't close and start keepalive timer
 	client->close(client);
 }
 
@@ -200,6 +201,7 @@ static int on_headers_complete(http_parser *parser)
 {
 	struct cio_http_client *client = cio_container_of(parser, struct cio_http_client, parser);
 	client->http_private.headers_complete = true;
+	client->http_private.should_keepalive = http_should_keep_alive(parser);
 	client->content_length = parser->content_length;
 
 	int ret;
@@ -476,6 +478,7 @@ static void handle_accept(struct cio_server_socket *ss, void *handler_context, e
 	client->http_private.headers_complete = false;
 	client->content_length = 0;
 	client->http_private.to_be_closed = false;
+	client->http_private.should_keepalive = 0;
 	client->http_private.parsing = 0;
 	client->close = mark_to_be_closed;
 	client->write_header = write_header;
