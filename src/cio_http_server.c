@@ -27,6 +27,7 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
+#include <stdio.h>
 #include <string.h>
 
 #include "cio_buffered_stream.h"
@@ -50,6 +51,8 @@
 #define HTTP_SERVER_ID "Server: cio http/"
 
 #define CIO_HTTP_VERSION "HTTP/1.1"
+
+static void parse(struct cio_buffered_stream *stream, void *handler_context, enum cio_error err, struct cio_read_buffer *read_buffer);
 
 static void handle_error(struct cio_http_server *server, const char *reason)
 {
@@ -99,10 +102,29 @@ static void mark_to_be_closed(struct cio_http_client *client)
 static void response_written(struct cio_buffered_stream *bs, void *handler_context, enum cio_error err)
 {
 	(void)bs;
-	(void)err;
-
 	struct cio_http_client *client = (struct cio_http_client *)handler_context;
-	//TODO: if keepalive, then don't close and start keepalive timer
+
+	if (cio_unlikely(err != CIO_SUCCESS)) {
+		goto out;
+	}
+
+	if (cio_unlikely(!client->http_private.should_keepalive)) {
+		goto out;
+	}
+
+	// TODO restart keepalive timer.
+
+	struct cio_http_server *server = (struct cio_http_server *)client->parser.data;
+	err = client->http_private.read_header_timer.expires_from_now(&client->http_private.read_header_timer, server->read_header_timeout_ns, client_timeout_handler, client);
+	if (cio_unlikely(err != CIO_SUCCESS)) {
+		goto out;
+	}
+	err = client->bs.read_until(&client->bs, &client->rb, CIO_CRLF, parse, client);
+	if (cio_likely(err == CIO_SUCCESS)) {
+		return;
+	}
+
+out:
 	client->close(client);
 }
 
@@ -122,14 +144,25 @@ static const char *get_response_statusline(enum cio_http_status_code status_code
 	}
 }
 
-static void queue_header(struct cio_http_client *client, enum cio_http_status_code status_code)
+#define KEEPALIVE_HEADER "Connection: keep-alive" CIO_CRLF
+
+static void start_response_header(struct cio_http_client *client, enum cio_http_status_code status_code)
 {
 	const char *response = get_response_statusline(status_code);
 	cio_write_buffer_head_init(&client->wbh);
 	cio_write_buffer_const_element_init(&client->http_private.wb_http_response_statusline, response, strlen(response));
 	cio_write_buffer_queue_tail(&client->wbh, &client->http_private.wb_http_response_statusline);
+}
+
+static void end_response_header(struct cio_http_client *client)
+{
 	cio_write_buffer_const_element_init(&client->http_private.wb_http_response_header_end, CIO_CRLF, strlen(CIO_CRLF));
 	cio_write_buffer_queue_tail(&client->wbh, &client->http_private.wb_http_response_header_end);
+}
+
+static void add_response_header(struct cio_http_client *client, struct cio_write_buffer *wbh)
+{
+	cio_write_buffer_queue_tail(&client->wbh, wbh);
 }
 
 static void flush(struct cio_http_client *client, cio_buffered_stream_write_handler handler)
@@ -144,13 +177,34 @@ static void flush(struct cio_http_client *client, cio_buffered_stream_write_hand
 
 static void write_header(struct cio_http_client *client, enum cio_http_status_code status_code)
 {
-	queue_header(client, status_code);
+	start_response_header(client, status_code);
+	end_response_header(client);
 	flush(client, response_written);
 }
 
 static void write_response(struct cio_http_client *client, struct cio_write_buffer *wbh)
 {
-	queue_header(client, CIO_HTTP_STATUS_OK);
+	start_response_header(client, CIO_HTTP_STATUS_OK);
+
+	size_t content_length = 0;
+	size_t elements = wbh->data.q_len;
+	struct cio_write_buffer *wb = wbh;
+	for (size_t i = 0; i < elements; i++) {
+		wb = wbh->next;
+		content_length += wb->data.element.length;
+	}
+	if (content_length > 0) {
+		int written = snprintf(client->http_private.content_length_buffer, sizeof(client->http_private.content_length_buffer) - 1, "Content-Length: %zu" CIO_CRLF, content_length);
+		cio_write_buffer_element_init(&client->http_private.wb_http_content_length, client->http_private.content_length_buffer, (size_t)written);
+		add_response_header(client, &client->http_private.wb_http_content_length);
+	}
+
+	if (cio_likely(client->http_private.should_keepalive)) {
+		cio_write_buffer_const_element_init(&client->http_private.wb_http_response_keepalive, KEEPALIVE_HEADER, strlen(KEEPALIVE_HEADER));
+		add_response_header(client, &client->http_private.wb_http_response_keepalive);
+	}
+
+	end_response_header(client);
 	cio_write_buffer_splice(wbh, &client->wbh);
 	flush(client, response_written);
 }
@@ -482,7 +536,9 @@ static void handle_accept(struct cio_server_socket *ss, void *handler_context, e
 	client->http_private.parsing = 0;
 	client->close = mark_to_be_closed;
 	client->write_header = write_header;
-	client->queue_header = queue_header;
+	client->start_response_header = start_response_header;
+	client->end_response_header = end_response_header;
+	client->add_response_header = add_response_header;
 	client->write_response = write_response;
 	client->flush = flush;
 

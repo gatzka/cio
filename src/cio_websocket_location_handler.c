@@ -226,7 +226,7 @@ static void send_upgrade_response(struct cio_http_client *client)
 	ws->accept_value[CIO_SEC_WEBSOCKET_ACCEPT_LENGTH - 2] = '\r';
 	ws->accept_value[CIO_SEC_WEBSOCKET_ACCEPT_LENGTH - 1] = '\n';
 
-	client->queue_header(client, CIO_HTTP_SWITCHING_PROTOCOLS);
+	client->start_response_header(client, CIO_HTTP_SWITCHING_PROTOCOLS);
 
 	static const char upgrade_header[] =
 	    "Upgrade: websocket" CIO_CRLF
@@ -234,9 +234,9 @@ static void send_upgrade_response(struct cio_http_client *client)
 	    "Sec-WebSocket-Accept: ";
 
 	cio_write_buffer_const_element_init(&ws->wb_upgrade_header, upgrade_header, sizeof(upgrade_header) - 1);
+	client->add_response_header(client, &ws->wb_upgrade_header);
 	cio_write_buffer_const_element_init(&ws->wb_accept_value, &ws->accept_value, sizeof(ws->accept_value));
-	cio_write_buffer_queue_before(&client->wbh, &client->http_private.wb_http_response_header_end, &ws->wb_upgrade_header);
-	cio_write_buffer_queue_before(&client->wbh, &client->http_private.wb_http_response_header_end, &ws->wb_accept_value);
+	client->add_response_header(client, &ws->wb_accept_value);
 
 	if (ws->chosen_subprotocol != -1) {
 		static const char ws_protocol[] =
@@ -244,12 +244,11 @@ static void send_upgrade_response(struct cio_http_client *client)
 		cio_write_buffer_const_element_init(&ws->wb_protocol_field, ws_protocol, sizeof(ws_protocol) - 1);
 		const char *chosen_subprotocol = ws->subprotocols[ws->chosen_subprotocol];
 		cio_write_buffer_const_element_init(&ws->wb_protocol_value, chosen_subprotocol, strlen(chosen_subprotocol));
-		cio_write_buffer_queue_before(&client->wbh, &client->http_private.wb_http_response_header_end, &ws->wb_protocol_field);
-		cio_write_buffer_queue_before(&client->wbh, &client->http_private.wb_http_response_header_end, &ws->wb_protocol_value);
-		cio_write_buffer_const_element_init(&ws->wb_protocol_end, CIO_CRLF, strlen(CIO_CRLF));
-		cio_write_buffer_queue_before(&client->wbh, &client->http_private.wb_http_response_header_end, &ws->wb_protocol_end);
+		client->add_response_header(client, &ws->wb_protocol_field);
+		client->add_response_header(client, &ws->wb_protocol_value);
 	}
 
+	client->end_response_header(client);
 	client->flush(client, response_written);
 }
 

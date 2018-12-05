@@ -64,7 +64,7 @@ static enum cio_http_cb_return dummy_on_message_complete(struct cio_http_client 
 {
 	struct cio_http_location_handler *handler = client->handler;
 	struct dummy_handler *dh = cio_container_of(handler, struct dummy_handler, handler);
-	cio_write_buffer_const_element_init(&dh->wb, data, sizeof(data));
+	cio_write_buffer_const_element_init(&dh->wb, data, sizeof(data) - 1);
 	cio_write_buffer_queue_tail(&dh->wbh, &dh->wb);
 	client->write_response(client, &dh->wbh);
 	return CIO_HTTP_CB_SUCCESS;

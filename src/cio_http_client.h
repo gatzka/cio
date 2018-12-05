@@ -53,6 +53,8 @@ struct cio_http_client;
 
 struct cio_http_client_private {
 	struct cio_write_buffer wb_http_response_statusline;
+	struct cio_write_buffer wb_http_response_keepalive;
+	struct cio_write_buffer wb_http_content_length;
 	struct cio_write_buffer wb_http_response_header_end;
 	struct cio_timer read_header_timer;
 
@@ -62,6 +64,7 @@ struct cio_http_client_private {
 	unsigned int parsing;
 
 	void (*finish_func)(struct cio_http_client *client);
+	char content_length_buffer[30];
 };
 
 /**
@@ -109,6 +112,9 @@ struct cio_http_client {
 	 */
 	void (*write_header)(struct cio_http_client *client, enum cio_http_status_code status);
 
+	void (*start_response_header)(struct cio_http_client *client, enum cio_http_status_code status_code);
+	void (*end_response_header)(struct cio_http_client *client);
+	void (*add_response_header)(struct cio_http_client *client, struct cio_write_buffer *wbh);
 	/**
 	 * @anchor cio_http_client_queue_header
 	 * @brief Queues a response header for the requesting client without sending it.
