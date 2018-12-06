@@ -96,21 +96,11 @@ struct cio_http_client {
 	 * The HTTP connection is closed after the response was written.
 	 *
 	 * @param client The client which shall get the response.
+	 * @param stattus_code The http status code of the response.
 	 * @param wbh The write buffer head containing the data which should be written after
-	 * the HTTP response header to the client.
+	 * the HTTP response header to the client (the http body).
 	 */
-	void (*write_response)(struct cio_http_client *client, struct cio_write_buffer *wbh);
-
-	/**
-	 * @anchor cio_http_client_write_header
-	 * @brief Writes a response header to the requesting client.
-	 *
-	 * The HTTP connection is closed after the header was written.
-	 *
-	 * @param client The client which shall get the header.
-	 * @param status The status code (like 404, or 400) of the response header.
-	 */
-	void (*write_header)(struct cio_http_client *client, enum cio_http_status_code status);
+	void (*write_response)(struct cio_http_client *client, enum cio_http_status_code status_code, struct cio_write_buffer *wbh);
 
 	void (*start_response_header)(struct cio_http_client *client, enum cio_http_status_code status_code);
 	void (*end_response_header)(struct cio_http_client *client);
