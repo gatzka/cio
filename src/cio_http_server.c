@@ -53,6 +53,8 @@
 #define CIO_HTTP_VERSION "HTTP/1.1"
 
 static void parse(struct cio_buffered_stream *stream, void *handler_context, enum cio_error err, struct cio_read_buffer *read_buffer);
+static int on_url(http_parser *parser, const char *at, size_t length);
+static void finish_request_line(struct cio_http_client *client);
 
 static void handle_error(struct cio_http_server *server, const char *reason)
 {
@@ -70,14 +72,19 @@ static void close_bs(struct cio_http_client *client)
 	}
 }
 
-static void close_client(struct cio_http_client *client)
+static void notify_free_handler_and_close_stream(struct cio_http_client *client)
 {
-	client->http_private.read_header_timer.close(&client->http_private.read_header_timer);
 	if (cio_likely((client->handler != NULL) && (client->handler->free != NULL))) {
 		client->handler->free(client->handler);
 	}
 
 	close_bs(client);
+}
+
+static void close_client(struct cio_http_client *client)
+{
+	client->http_private.read_header_timer.close(&client->http_private.read_header_timer);
+	notify_free_handler_and_close_stream(client);
 }
 
 static void client_timeout_handler(struct cio_timer *timer, void *handler_context, enum cio_error err)
@@ -112,27 +119,7 @@ static void response_written(struct cio_buffered_stream *bs, void *handler_conte
 		goto out;
 	}
 
-	// TODO restart keepalive timer.
-
-	client->parser_settings.on_body = NULL;
-	client->parser_settings.on_chunk_complete = NULL;
-	client->parser_settings.on_chunk_header = NULL;
-	client->parser_settings.on_header_field = NULL;
-	client->parser_settings.on_header_value = NULL;
-	client->parser_settings.on_headers_complete = NULL;
-	client->parser_settings.on_message_begin = NULL;
-	client->parser_settings.on_message_complete = NULL;
-	client->parser_settings.on_status = NULL;
-	struct cio_http_server *server = (struct cio_http_server *)client->parser.data;
-	err = client->http_private.read_header_timer.expires_from_now(&client->http_private.read_header_timer, server->read_header_timeout_ns, client_timeout_handler, client);
-	if (cio_unlikely(err != CIO_SUCCESS)) {
-		goto out;
-	}
-	err = client->bs.read_until(&client->bs, &client->rb, CIO_CRLF, parse, client);
-	if (cio_likely(err == CIO_SUCCESS)) {
-		return;
-	}
-
+	return;
 out:
 	client->close(client);
 }
@@ -296,7 +283,24 @@ static int on_header_value(http_parser *parser, const char *at, size_t length)
 static int on_message_complete(http_parser *parser)
 {
 	struct cio_http_client *client = cio_container_of(parser, struct cio_http_client, parser);
-	return client->handler->on_message_complete(client);
+	enum cio_http_cb_return ret = client->handler->on_message_complete(client);
+	struct cio_http_server *server = (struct cio_http_server *)client->parser.data;
+	enum cio_error err = client->http_private.read_header_timer.expires_from_now(&client->http_private.read_header_timer, server->read_header_timeout_ns, client_timeout_handler, client);
+	if (cio_unlikely(err != CIO_SUCCESS)) {
+		return (int)CIO_HTTP_CB_ERROR;
+	}
+
+	http_parser_settings_init(&client->parser_settings);
+	client->parser_settings.on_url = on_url;
+	http_parser_init(&client->parser, HTTP_REQUEST);
+
+	client->http_private.finish_func = finish_request_line;
+	err = client->bs.read_until(&client->bs, &client->rb, CIO_CRLF, parse, client);
+	if (cio_unlikely(err != CIO_SUCCESS)) {
+		return (int)CIO_HTTP_CB_ERROR;
+	}
+
+	return (int)ret;
 }
 
 static int on_body(http_parser *parser, const char *at, size_t length)
@@ -589,8 +593,7 @@ expires_fail:
 	client->http_private.read_header_timer.close(&client->http_private.read_header_timer);
 init_err:
 	handle_error(server, "client initialization failed");
-
-	close_bs(client);
+	notify_free_handler_and_close_stream(client);
 }
 
 static enum cio_error serve(struct cio_http_server *server)
