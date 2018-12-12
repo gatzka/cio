@@ -99,7 +99,7 @@ struct cio_http_server {
 	 *
 	 * @param server The HTTP server which should be shut down.
 	 * @param close_hook A user provided function that will be called after the HTTP server completed the @ref cio_http_server_shutdown "shutdown".
-	 * @return ::CIO_SUCCESS if the @p location was registered correctly.
+	 * @return ::CIO_SUCCESS if the shutdown operation succeeded.
 	 */
 	enum cio_error (*shutdown)(struct cio_http_server *server, cio_http_server_close_hook close_hook);
 
