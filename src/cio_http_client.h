@@ -105,14 +105,6 @@ struct cio_http_client {
 	void (*start_response_header)(struct cio_http_client *client, enum cio_http_status_code status_code);
 	void (*end_response_header)(struct cio_http_client *client);
 	void (*add_response_header)(struct cio_http_client *client, struct cio_write_buffer *wbh);
-	/**
-	 * @anchor cio_http_client_queue_header
-	 * @brief Queues a response header for the requesting client without sending it.
-	 *
-	 * @param client The client which shall get the header.
-	 * @param status The status code (like 404, or 400) of the response header.
-	 */
-	void (*queue_header)(struct cio_http_client *client, enum cio_http_status_code status);
 
 	/**
 	 * @anchor cio_http_client_flush
