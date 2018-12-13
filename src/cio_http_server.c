@@ -323,7 +323,7 @@ static int on_body(http_parser *parser, const char *at, size_t length)
 
 static enum cio_http_cb_return call_url_parts_callback(const struct http_parser_url *u, enum http_parser_url_fields url_field, cio_http_data_cb callback, struct cio_http_client *client, const char *at)
 {
-	if (((u->field_set & (1U << url_field)) == (1U << url_field)) && (callback != NULL)) {
+	if ((callback != NULL) && ((u->field_set & (1U << url_field)) == (1U << url_field))) {
 		return callback(client, at + u->field_data[url_field].off, u->field_data[url_field].len);
 	}
 
