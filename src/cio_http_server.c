@@ -49,6 +49,7 @@
 
 #define CIO_CRLF "\r\n"
 #define HTTP_SERVER_ID "Server: cio http/"
+#define CIO_HTTP_CONNECTION_CLOSE "Connection: close" CIO_CRLF
 
 #define CIO_HTTP_VERSION "HTTP/1.1"
 
@@ -192,6 +193,12 @@ static void write_response(struct cio_http_client *client, enum cio_http_status_
 	int written = snprintf(client->http_private.content_length_buffer, sizeof(client->http_private.content_length_buffer) - 1, "Content-Length: %zu" CIO_CRLF, content_length);
 	cio_write_buffer_element_init(&client->http_private.wb_http_content_length, client->http_private.content_length_buffer, (size_t)written);
 	add_response_header(client, &client->http_private.wb_http_content_length);
+
+	if (status_code == CIO_HTTP_STATUS_BAD_REQUEST ||(status_code == CIO_HTTP_STATUS_TIMEOUT)) {
+		client->http_private.should_keepalive = 0;
+		cio_write_buffer_const_element_init(&client->http_private.wb_http_connection_close, CIO_HTTP_CONNECTION_CLOSE, strlen(CIO_HTTP_CONNECTION_CLOSE));
+		add_response_header(client, &client->http_private.wb_http_connection_close);
+	}
 
 	end_response_header(client);
 	if (wbh) {
