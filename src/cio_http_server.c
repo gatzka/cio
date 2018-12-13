@@ -50,6 +50,7 @@
 #define CIO_CRLF "\r\n"
 #define HTTP_SERVER_ID "Server: cio http/"
 #define CIO_HTTP_CONNECTION_CLOSE "Connection: close" CIO_CRLF
+#define CIO_HTTP_CONNECTION_KEEPALIVE "Connection: keep-alive" CIO_CRLF
 
 #define CIO_HTTP_VERSION "HTTP/1.1"
 
@@ -148,8 +149,6 @@ static void add_response_header(struct cio_http_client *client, struct cio_write
 	cio_write_buffer_queue_tail(&client->wbh, wbh);
 }
 
-#define KEEPALIVE_HEADER "Connection: keep-alive" CIO_CRLF
-
 static void start_response_header(struct cio_http_client *client, enum cio_http_status_code status_code)
 {
 	const char *response = get_response_statusline(status_code);
@@ -158,9 +157,12 @@ static void start_response_header(struct cio_http_client *client, enum cio_http_
 	cio_write_buffer_queue_tail(&client->wbh, &client->http_private.wb_http_response_statusline);
 
 	if (cio_likely(client->http_private.should_keepalive)) {
-		cio_write_buffer_const_element_init(&client->http_private.wb_http_response_keepalive, KEEPALIVE_HEADER, strlen(KEEPALIVE_HEADER));
-		add_response_header(client, &client->http_private.wb_http_response_keepalive);
+		cio_write_buffer_const_element_init(&client->http_private.wb_http_connection_header, CIO_HTTP_CONNECTION_KEEPALIVE, strlen(CIO_HTTP_CONNECTION_KEEPALIVE));
+	} else {
+		cio_write_buffer_const_element_init(&client->http_private.wb_http_connection_header, CIO_HTTP_CONNECTION_CLOSE, strlen(CIO_HTTP_CONNECTION_CLOSE));
 	}
+
+	add_response_header(client, &client->http_private.wb_http_connection_header);
 }
 
 static void end_response_header(struct cio_http_client *client)
@@ -191,7 +193,7 @@ static void write_response(struct cio_http_client *client, enum cio_http_status_
 		}
 	}
 
-	if (status_code == CIO_HTTP_STATUS_BAD_REQUEST ||(status_code == CIO_HTTP_STATUS_TIMEOUT)) {
+	if ((status_code == CIO_HTTP_STATUS_BAD_REQUEST) || (status_code == CIO_HTTP_STATUS_TIMEOUT) || (status_code == CIO_HTTP_STATUS_INTERNAL_SERVER_ERROR)) {
 		client->http_private.should_keepalive = 0;
 	}
 
@@ -199,11 +201,6 @@ static void write_response(struct cio_http_client *client, enum cio_http_status_
 	int written = snprintf(client->http_private.content_length_buffer, sizeof(client->http_private.content_length_buffer) - 1, "Content-Length: %zu" CIO_CRLF, content_length);
 	cio_write_buffer_element_init(&client->http_private.wb_http_content_length, client->http_private.content_length_buffer, (size_t)written);
 	add_response_header(client, &client->http_private.wb_http_content_length);
-
-	if (client->http_private.should_keepalive == 0) {
-		cio_write_buffer_const_element_init(&client->http_private.wb_http_connection_close, CIO_HTTP_CONNECTION_CLOSE, strlen(CIO_HTTP_CONNECTION_CLOSE));
-		add_response_header(client, &client->http_private.wb_http_connection_close);
-	}
 
 	end_response_header(client);
 	if (wbh) {
