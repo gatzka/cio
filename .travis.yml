@@ -316,7 +316,7 @@ install:
 
 script:
 - if [ "$COVERITY_SCAN_BRANCH" != 1 ]; then
-    ctest -S build.cmake ${MATRIX_EVAL};
+    ctest -VV -S build.cmake ${MATRIX_EVAL};
   fi
 
 after_success:
