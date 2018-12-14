@@ -798,6 +798,10 @@ static void test_serve_locations(void)
 			TEST_ASSERT_EQUAL_MESSAGE(1, header_complete_fake.call_count, "header_complete was not called!");
 		}
 
+		// emulate close via keep-alive timeout
+		struct cio_http_client *client = cio_container_of(s, struct cio_http_client, socket);
+		client->http_private.read_header_timer.handler(&client->http_private.read_header_timer, client->http_private.read_header_timer.handler_context, CIO_SUCCESS);
+
 		setUp();
 	}
 }
@@ -863,6 +867,10 @@ static void test_serve_locations_best_match(void)
 		TEST_ASSERT_EQUAL_MESSAGE(0, serve_error_fake.call_count, "Serve error callback was called!");
 		check_http_response(200);
 
+		// emulate close via keep-alive timeout
+		struct cio_http_client *client = cio_container_of(s, struct cio_http_client, socket);
+		client->http_private.read_header_timer.handler(&client->http_private.read_header_timer, client->http_private.read_header_timer.handler_context, CIO_SUCCESS);
+
 		setUp();
 	}
 }
@@ -906,6 +914,10 @@ static void test_serve_post_with_body(void)
 	TEST_ASSERT_MESSAGE(on_body_fake.call_count > 0, "on_body was not called!");
 	TEST_ASSERT_EQUAL_MESSAGE(0, serve_error_fake.call_count, "Serve error callback was called!");
 	check_http_response(200);
+
+	// emulate close via keep-alive timeout
+	struct cio_http_client *client = cio_container_of(s, struct cio_http_client, socket);
+	client->http_private.read_header_timer.handler(&client->http_private.read_header_timer, client->http_private.read_header_timer.handler_context, CIO_SUCCESS);
 }
 
 static void test_serve_complete_url_onschema_fails(void)
@@ -988,6 +1000,10 @@ static void test_serve_complete_url(void)
 	TEST_ASSERT_EQUAL_MESSAGE(1, on_fragment_fake.call_count, "on_fragment was not called!");
 	TEST_ASSERT_EQUAL_MESSAGE(0, serve_error_fake.call_count, "Serve error callback was called!");
 	check_http_response(200);
+
+	// emulate close via keep-alive timeout
+	struct cio_http_client *client = cio_container_of(s, struct cio_http_client, socket);
+	client->http_private.read_header_timer.handler(&client->http_private.read_header_timer, client->http_private.read_header_timer.handler_context, CIO_SUCCESS);
 }
 
 static void test_serve_complete_url_readbuffer_init_fails(void)
@@ -1577,6 +1593,10 @@ static void test_serve_msg_complete_only(void)
 	TEST_ASSERT_EQUAL_MESSAGE(1, message_complete_fake.call_count, "message_complete was called!");
 	TEST_ASSERT_EQUAL_MESSAGE(0, serve_error_fake.call_count, "Serve error callback was called!");
 	check_http_response(200);
+
+	// emulate close via keep-alive timeout
+	struct cio_http_client *client = cio_container_of(s, struct cio_http_client, socket);
+	client->http_private.read_header_timer.handler(&client->http_private.read_header_timer, client->http_private.read_header_timer.handler_context, CIO_SUCCESS);
 }
 
 static void test_serve_msg_complete_write_fails(void)
