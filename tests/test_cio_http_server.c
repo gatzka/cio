@@ -748,13 +748,13 @@ static void test_serve_locations(void)
 {
 	static struct location_test location_tests[] = {
 	    {.location = "/foo", .request_target = "/foo", .expected_response = 200},
-	    {.location = "/foo", .request_target = "/foo/", .expected_response = 200},
-	    {.location = "/foo", .request_target = "/foo/bar", .expected_response = 200},
-	    {.location = "/foo", .request_target = "/foo2", .expected_response = 404},
-	    {.location = "/foo/", .request_target = "/foo", .expected_response = 404},
-	    {.location = "/foo/", .request_target = "/foo/", .expected_response = 200},
-	    {.location = "/foo/", .request_target = "/foo/bar", .expected_response = 200},
-	    {.location = "/foo/", .request_target = "/foo2", .expected_response = 404},
+		{.location = "/foo", .request_target = "/foo/", .expected_response = 200},
+		{.location = "/foo", .request_target = "/foo/bar", .expected_response = 200},
+		{.location = "/foo", .request_target = "/foo2", .expected_response = 404},
+		{.location = "/foo/", .request_target = "/foo", .expected_response = 404},
+		{.location = "/foo/", .request_target = "/foo/", .expected_response = 200},
+		{.location = "/foo/", .request_target = "/foo/bar", .expected_response = 200},
+		{.location = "/foo/", .request_target = "/foo2", .expected_response = 404},
 	};
 
 	for (unsigned int i = 0; i < ARRAY_SIZE(location_tests); i++) {
@@ -792,9 +792,10 @@ static void test_serve_locations(void)
 		server.server_socket.handler(&server.server_socket, server.server_socket.handler_context, CIO_SUCCESS, s);
 		TEST_ASSERT_EQUAL_MESSAGE(0, serve_error_fake.call_count, "Serve error callback was called!");
 		check_http_response(location_test.expected_response);
+		// Because the response is written in on_headers_complete, on_message_complete will not be called
+		TEST_ASSERT_EQUAL_MESSAGE(0, message_complete_fake.call_count, "message_complete was not called!");
 		if (location_test.expected_response == 200) {
 			TEST_ASSERT_EQUAL_MESSAGE(1, header_complete_fake.call_count, "header_complete was not called!");
-			TEST_ASSERT_EQUAL_MESSAGE(1, message_complete_fake.call_count, "message_complete was not called!");
 		}
 
 		setUp();
@@ -1134,7 +1135,8 @@ static void test_serve_complete_url_close_fails(void)
 
 	const char *request[] = {
 	    HTTP_GET " " SCHEME "://" HOST ":" PORT REQUEST_TARGET "?" QUERY "#" FRAGMENT " " HTTP_11 CRLF,
-	    CRLF};
+		"Connection: close" CRLF,
+		CRLF};
 
 	init_request(request, ARRAY_SIZE(request));
 	server.server_socket.handler(&server.server_socket, server.server_socket.handler_context, CIO_SUCCESS, s);

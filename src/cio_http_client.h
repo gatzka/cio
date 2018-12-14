@@ -62,6 +62,7 @@ struct cio_http_client_private {
 	bool headers_complete;
 	bool to_be_closed;
 	unsigned int parsing;
+	bool response_written;
 
 	void (*finish_func)(struct cio_http_client *client);
 	char content_length_buffer[30];

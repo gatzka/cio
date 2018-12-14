@@ -614,7 +614,7 @@ static void test_serve_correctly(void)
 
 	struct cio_socket *s = server.alloc_client();
 
-	const char request[] = HTTP_GET " " REQUEST_TARGET1 " " HTTP_11 CRLF CRLF;
+	const char request[] = HTTP_GET " " REQUEST_TARGET1 " " HTTP_11 CRLF "Connection: close" CRLF CRLF;
 	memory_stream_init(&ms, request, s);
 
 	server.server_socket.handler(&server.server_socket, server.server_socket.handler_context, CIO_SUCCESS, s);
