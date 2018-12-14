@@ -283,9 +283,9 @@ static int on_header_field(http_parser *parser, const char *at, size_t length)
 	struct cio_http_client *client = cio_container_of(parser, struct cio_http_client, parser);
 	if (client->handler->on_header_field && !client->http_private.response_written) {
 		return client->handler->on_header_field(client, at, length);
-	} else {
-		return 0;
 	}
+
+	return 0;
 }
 
 static int on_header_value(http_parser *parser, const char *at, size_t length)
@@ -293,9 +293,9 @@ static int on_header_value(http_parser *parser, const char *at, size_t length)
 	struct cio_http_client *client = cio_container_of(parser, struct cio_http_client, parser);
 	if (client->handler->on_header_value && !client->http_private.response_written) {
 		return client->handler->on_header_value(client, at, length);
-	} else {
-		return 0;
 	}
+
+	return 0;
 }
 
 static int on_message_complete(http_parser *parser)
@@ -311,7 +311,7 @@ static int on_message_complete(http_parser *parser)
 	struct cio_http_server *server = (struct cio_http_server *)client->parser.data;
 	enum cio_error err = client->http_private.read_header_timer.expires_from_now(&client->http_private.read_header_timer, server->read_header_timeout_ns, client_timeout_handler, client);
 	if (cio_unlikely(err != CIO_SUCCESS)) {
-		return (int)CIO_HTTP_CB_ERROR;
+		return CIO_HTTP_CB_ERROR;
 	}
 
 	http_parser_settings_init(&client->parser_settings);
@@ -321,7 +321,7 @@ static int on_message_complete(http_parser *parser)
 	client->http_private.finish_func = finish_request_line;
 	client->http_private.response_written = false;
 
-	return (int)ret;
+	return ret;
 }
 
 static int on_body(http_parser *parser, const char *at, size_t length)
@@ -329,9 +329,9 @@ static int on_body(http_parser *parser, const char *at, size_t length)
 	struct cio_http_client *client = cio_container_of(parser, struct cio_http_client, parser);
 	if (client->handler->on_body && !client->http_private.response_written) {
 		return client->handler->on_body(client, at, length);
-	} else {
-		return 0;
 	}
+
+	return 0;
 }
 
 static enum cio_http_cb_return call_url_parts_callback(const struct http_parser_url *u, enum http_parser_url_fields url_field, cio_http_data_cb callback, struct cio_http_client *client, const char *at)
