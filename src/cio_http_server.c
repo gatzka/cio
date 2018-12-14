@@ -304,10 +304,6 @@ static int on_message_complete(http_parser *parser)
 	http_parser_init(&client->parser, HTTP_REQUEST);
 
 	client->http_private.finish_func = finish_request_line;
-	err = client->bs.read_until(&client->bs, &client->rb, CIO_CRLF, parse, client);
-	if (cio_unlikely(err != CIO_SUCCESS)) {
-		return (int)CIO_HTTP_CB_ERROR;
-	}
 
 	return (int)ret;
 }
