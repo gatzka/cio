@@ -130,19 +130,6 @@ struct cio_http_client {
 	struct cio_read_buffer rb;
 
 	/**
-	 * @brief A write buffer head to write data to an HTTP client.
-	 *
-	 * Typically you will not need direct access to the write buffer,
-	 * use @ref cio_http_client_write_header "write_header" and
-	 * @ref cio_http_client_write_response "write_response" to send "normal"
-	 * HTTP responses to a client.
-	 *
-	 * If you have an upgraded HTTP connection (i.e. web sockets), you are encouraged
-	 * to use this write buffer.
-	 */
-	struct cio_write_buffer wbh;
-
-	/**
 	 * @brief The HTTP major version of the client request.
 	 *
 	 * Reading the HTTP major version is only valid after the HTTP start line is read,
@@ -181,6 +168,9 @@ struct cio_http_client {
 	struct cio_socket socket;
 
 	/*! @cond PRIVATE */
+
+	struct cio_write_buffer wbh;
+
 	struct cio_http_client_private http_private;
 
 	http_parser parser;

@@ -45,9 +45,8 @@ extern "C" {
  * @ref ::CIO_HTTP_STATUS_INTERNAL_SERVER_ERROR "\"500 Internal server error\"" to the requesting client.
  *
  * Inside the callback functions you have access to the @ref cio_http_client "HTTP client" which performed
- * the request. You have to use the client functions @ref cio_http_client_write_response "write_response"
- * and @ref cio_http_client_write_header "write_header" to write HTTP responses (including a body)
- * or just a simple response header, respectively.
+ * the request. You have to use the client function @ref cio_http_client_write_response "write_response"
+ * to write HTTP responses (optionally including a body)
  *
  * In case of an upgraded HTTP connection, callback have access to the @ref cio_http_client_bs "buffered stream" used
  * by the @ref cio_http_client "HTTP client" and the companion @ref cio_http_client_rb "read buffer". This provides a
