@@ -146,7 +146,7 @@ static enum cio_error send_frame(struct cio_websocket *ws, struct cio_websocket_
 		first_len = CIO_WEBSOCKET_SMALL_FRAME_SIZE + 2;
 	}
 
-	if (ws->ws_private.ws_flags.is_server == 0) {
+	if (ws->ws_private.ws_flags.is_server == 0U) {
 		first_len |= WS_MASK_SET;
 		uint8_t mask[4];
 		cio_random_get_bytes(mask, sizeof(mask));
@@ -253,7 +253,7 @@ static void close_frame_written_immediate_close(struct cio_buffered_stream *bs, 
 
 static void handle_error(struct cio_websocket *ws, enum cio_error err, enum cio_websocket_status_code status_code, const char *reason)
 {
-	if (ws->ws_private.ws_flags.closed_by_error == 0) {
+	if (ws->ws_private.ws_flags.closed_by_error == 0U) {
 		ws->ws_private.ws_flags.closed_by_error = 1;
 		if (ws->on_error != NULL) {
 			ws->on_error(ws, err, reason);
@@ -438,7 +438,7 @@ static void handle_close_frame(struct cio_websocket *ws, uint8_t *data, uint_fas
 		ws->on_control(ws, CIO_WEBSOCKET_CLOSE_FRAME, data, len);
 	}
 
-	if (ws->ws_private.ws_flags.self_initiated_close == 1) {
+	if (ws->ws_private.ws_flags.self_initiated_close == 1U) {
 		ws->ws_private.close_timer.cancel(&ws->ws_private.close_timer);
 		ws->ws_private.close_timer.close(&ws->ws_private.close_timer);
 		close(ws);
@@ -500,17 +500,18 @@ static void handle_pong_frame(struct cio_websocket *ws, uint8_t *data, uint_fast
 
 static void handle_frame(struct cio_websocket *ws, uint8_t *data, uint64_t length)
 {
-	if (ws->ws_private.ws_flags.is_server == 1) {
+	if (ws->ws_private.ws_flags.is_server == 1U) {
 		cio_websocket_mask(data, (size_t)length, ws->ws_private.received_mask);
 	}
 
-	switch (ws->ws_private.ws_flags.opcode) {
+	unsigned char opcode = ws->ws_private.ws_flags.opcode;
+	switch (opcode) {
 	case CIO_WEBSOCKET_BINARY_FRAME:
-		handle_binary_frame(ws, data, length, ws->ws_private.ws_flags.fin == 1);
+		handle_binary_frame(ws, data, length, ws->ws_private.ws_flags.fin == 1U);
 		break;
 
 	case CIO_WEBSOCKET_TEXT_FRAME:
-		handle_text_frame(ws, data, length, ws->ws_private.ws_flags.fin == 1);
+		handle_text_frame(ws, data, length, ws->ws_private.ws_flags.fin == 1U);
 		break;
 
 	case CIO_WEBSOCKET_PING_FRAME:
@@ -594,7 +595,7 @@ static void get_mask(struct cio_buffered_stream *bs, void *handler_context, enum
 static void get_mask_or_payload(struct cio_websocket *ws, struct cio_buffered_stream *bs, struct cio_read_buffer *buffer)
 {
 	enum cio_error err;
-	if (ws->ws_private.ws_flags.is_server == 1) {
+	if (ws->ws_private.ws_flags.is_server == 1U) {
 		err = bs->read_exactly(bs, buffer, sizeof(ws->ws_private.received_mask), get_mask, ws);
 		if (cio_unlikely(err != CIO_SUCCESS)) {
 			handle_error(ws, err, CIO_WEBSOCKET_CLOSE_INTERNAL_ERROR, "error while start reading websocket mask");
@@ -651,7 +652,7 @@ static void get_first_length(struct cio_buffered_stream *bs, void *handler_conte
 	uint8_t *ptr = cio_read_buffer_get_read_ptr(buffer);
 	uint8_t field = *ptr;
 
-	if (((field & WS_MASK_SET) == 0) && (ws->ws_private.ws_flags.is_server == 1)) {
+	if (((field & WS_MASK_SET) == 0) && (ws->ws_private.ws_flags.is_server == 1U)) {
 		handle_error(ws, CIO_PROTOCOL_NOT_SUPPORTED, CIO_WEBSOCKET_CLOSE_PROTOCOL_ERROR, "received unmasked frame on server websocket");
 		return;
 	}
@@ -704,7 +705,7 @@ static void get_header(struct cio_buffered_stream *bs, void *handler_context, en
 		return;
 	}
 
-	if (ws->ws_private.ws_flags.fin == 1) {
+	if (ws->ws_private.ws_flags.fin == 1U) {
 		if (field != CIO_WEBSOCKET_CONTINUATION_FRAME) {
 			if (cio_unlikely(ws->ws_private.ws_flags.frag_opcode && !is_control_frame(field))) {
 				handle_error(ws, CIO_PROTOCOL_NOT_SUPPORTED, CIO_WEBSOCKET_CLOSE_PROTOCOL_ERROR, "got non-continuation frame within fragmented stream");
@@ -774,7 +775,7 @@ static enum cio_error write_message(struct cio_websocket *ws, struct cio_write_b
 
 	enum cio_websocket_frame_type kind;
 
-	if (ws->ws_private.ws_flags.fragmented_write == 1) {
+	if (ws->ws_private.ws_flags.fragmented_write == 1U) {
 		if (is_binary) {
 			kind = CIO_WEBSOCKET_BINARY_FRAME;
 		} else {
