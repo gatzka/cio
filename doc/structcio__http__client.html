@@ -122,15 +122,15 @@ Data Fields</h2></td></tr>
 <tr class="memitem:a99ea764a1678b2390fb83cbb255b36b1"><td class="memItemLeft" align="right" valign="top">void(*&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structcio__http__client.html#a99ea764a1678b2390fb83cbb255b36b1">close</a> )(struct <a class="el" href="structcio__http__client.html">cio_http_client</a> *client)</td></tr>
 <tr class="memdesc:a99ea764a1678b2390fb83cbb255b36b1"><td class="mdescLeft">&#160;</td><td class="mdescRight">Closes the HTTP client connection.  <a href="#a99ea764a1678b2390fb83cbb255b36b1">More...</a><br /></td></tr>
 <tr class="separator:a99ea764a1678b2390fb83cbb255b36b1"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a42c722ccc986c6b849ca2d16b1acdb4f"><td class="memItemLeft" align="right" valign="top">void(*&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structcio__http__client.html#a42c722ccc986c6b849ca2d16b1acdb4f">write_response</a> )(struct <a class="el" href="structcio__http__client.html">cio_http_client</a> *client, struct <a class="el" href="structcio__write__buffer.html">cio_write_buffer</a> *<a class="el" href="structcio__http__client.html#a5c18d4350ac8432cc939e5e3cdc6fcfd">wbh</a>)</td></tr>
-<tr class="memdesc:a42c722ccc986c6b849ca2d16b1acdb4f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Writes a success response (200) to the requesting client.  <a href="#a42c722ccc986c6b849ca2d16b1acdb4f">More...</a><br /></td></tr>
-<tr class="separator:a42c722ccc986c6b849ca2d16b1acdb4f"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:abb0c6855030e4ca67a616b9cc584e703"><td class="memItemLeft" align="right" valign="top">void(*&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structcio__http__client.html#abb0c6855030e4ca67a616b9cc584e703">write_header</a> )(struct <a class="el" href="structcio__http__client.html">cio_http_client</a> *client, enum <a class="el" href="cio__http__status__code_8h.html#ac968a65c0166575561fdd18b89ea580c">cio_http_status_code</a> status)</td></tr>
-<tr class="memdesc:abb0c6855030e4ca67a616b9cc584e703"><td class="mdescLeft">&#160;</td><td class="mdescRight">Writes a response header to the requesting client.  <a href="#abb0c6855030e4ca67a616b9cc584e703">More...</a><br /></td></tr>
-<tr class="separator:abb0c6855030e4ca67a616b9cc584e703"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a441d46c3d3aff526460353acfbaac00e"><td class="memItemLeft" align="right" valign="top">void(*&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structcio__http__client.html#a441d46c3d3aff526460353acfbaac00e">queue_header</a> )(struct <a class="el" href="structcio__http__client.html">cio_http_client</a> *client, enum <a class="el" href="cio__http__status__code_8h.html#ac968a65c0166575561fdd18b89ea580c">cio_http_status_code</a> status)</td></tr>
-<tr class="memdesc:a441d46c3d3aff526460353acfbaac00e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Queues a response header for the requesting client without sending it.  <a href="#a441d46c3d3aff526460353acfbaac00e">More...</a><br /></td></tr>
-<tr class="separator:a441d46c3d3aff526460353acfbaac00e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac4802e6cf4c5e7f3baa5d094c5d27c0e"><td class="memItemLeft" align="right" valign="top">void(*&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structcio__http__client.html#ac4802e6cf4c5e7f3baa5d094c5d27c0e">write_response</a> )(struct <a class="el" href="structcio__http__client.html">cio_http_client</a> *client, enum <a class="el" href="cio__http__status__code_8h.html#ac968a65c0166575561fdd18b89ea580c">cio_http_status_code</a> status_code, struct <a class="el" href="structcio__write__buffer.html">cio_write_buffer</a> *wbh)</td></tr>
+<tr class="memdesc:ac4802e6cf4c5e7f3baa5d094c5d27c0e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Writes a success response (200) to the requesting client.  <a href="#ac4802e6cf4c5e7f3baa5d094c5d27c0e">More...</a><br /></td></tr>
+<tr class="separator:ac4802e6cf4c5e7f3baa5d094c5d27c0e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a1e41fcb58ad9014d9fed0b22ae7a148b"><td class="memItemLeft" align="right" valign="top">void(*&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structcio__http__client.html#a1e41fcb58ad9014d9fed0b22ae7a148b">start_response_header</a> )(struct <a class="el" href="structcio__http__client.html">cio_http_client</a> *client, enum <a class="el" href="cio__http__status__code_8h.html#ac968a65c0166575561fdd18b89ea580c">cio_http_status_code</a> status_code)</td></tr>
+<tr class="separator:a1e41fcb58ad9014d9fed0b22ae7a148b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aacbabf432193fdb92f55e0c2a0e8415d"><td class="memItemLeft" align="right" valign="top">void(*&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structcio__http__client.html#aacbabf432193fdb92f55e0c2a0e8415d">end_response_header</a> )(struct <a class="el" href="structcio__http__client.html">cio_http_client</a> *client)</td></tr>
+<tr class="separator:aacbabf432193fdb92f55e0c2a0e8415d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ade1524f3104e42fd3096973d08c482c9"><td class="memItemLeft" align="right" valign="top">void(*&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structcio__http__client.html#ade1524f3104e42fd3096973d08c482c9">add_response_header</a> )(struct <a class="el" href="structcio__http__client.html">cio_http_client</a> *client, struct <a class="el" href="structcio__write__buffer.html">cio_write_buffer</a> *wbh)</td></tr>
+<tr class="separator:ade1524f3104e42fd3096973d08c482c9"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a08515712ea0111937f5bf96dbe204b14"><td class="memItemLeft" align="right" valign="top">void(*&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structcio__http__client.html#a08515712ea0111937f5bf96dbe204b14">flush</a> )(struct <a class="el" href="structcio__http__client.html">cio_http_client</a> *client, <a class="el" href="cio__buffered__stream_8h.html#a9e8c29e50483b6203e5ec9bb0f87ab85">cio_buffered_stream_write_handler</a> <a class="el" href="structcio__http__client.html#a90844e5f9e1490cb15eb051c9ed11715">handler</a>)</td></tr>
 <tr class="memdesc:a08515712ea0111937f5bf96dbe204b14"><td class="mdescLeft">&#160;</td><td class="mdescRight">Flushes the write buffer attached of this client.  <a href="#a08515712ea0111937f5bf96dbe204b14">More...</a><br /></td></tr>
 <tr class="separator:a08515712ea0111937f5bf96dbe204b14"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -140,9 +140,6 @@ Data Fields</h2></td></tr>
 <tr class="memitem:a334814ff33851c173b657e37ec95ea69"><td class="memItemLeft" align="right" valign="top">struct <a class="el" href="structcio__read__buffer.html">cio_read_buffer</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structcio__http__client.html#a334814ff33851c173b657e37ec95ea69">rb</a></td></tr>
 <tr class="memdesc:a334814ff33851c173b657e37ec95ea69"><td class="mdescLeft">&#160;</td><td class="mdescRight">The companion read buffer which is used by the <a class="el" href="structcio__http__client.html#cio_http_client_bs">buffered stream</a>.  <a href="#a334814ff33851c173b657e37ec95ea69">More...</a><br /></td></tr>
 <tr class="separator:a334814ff33851c173b657e37ec95ea69"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a5c18d4350ac8432cc939e5e3cdc6fcfd"><td class="memItemLeft" align="right" valign="top">struct <a class="el" href="structcio__write__buffer.html">cio_write_buffer</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structcio__http__client.html#a5c18d4350ac8432cc939e5e3cdc6fcfd">wbh</a></td></tr>
-<tr class="memdesc:a5c18d4350ac8432cc939e5e3cdc6fcfd"><td class="mdescLeft">&#160;</td><td class="mdescRight">A write buffer head to write data to an HTTP client.  <a href="#a5c18d4350ac8432cc939e5e3cdc6fcfd">More...</a><br /></td></tr>
-<tr class="separator:a5c18d4350ac8432cc939e5e3cdc6fcfd"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a44731b52ebf1a6e23d4be67549b36c0f"><td class="memItemLeft" align="right" valign="top">uint16_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structcio__http__client.html#a44731b52ebf1a6e23d4be67549b36c0f">http_major</a></td></tr>
 <tr class="memdesc:a44731b52ebf1a6e23d4be67549b36c0f"><td class="mdescLeft">&#160;</td><td class="mdescRight">The HTTP major version of the client request.  <a href="#a44731b52ebf1a6e23d4be67549b36c0f">More...</a><br /></td></tr>
 <tr class="separator:a44731b52ebf1a6e23d4be67549b36c0f"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -164,6 +161,18 @@ Data Fields</h2></td></tr>
 <div class="textblock"><p>A <a class="el" href="structcio__http__client.html" title="A cio_http_client struct represents an HTTP client connection. ">cio_http_client</a> struct represents an HTTP client connection. </p>
 <p>A <a class="el" href="structcio__http__client.html" title="A cio_http_client struct represents an HTTP client connection. ">cio_http_client</a> is automatically created by the <a class="el" href="structcio__http__server.html" title="The cio_http_server structure provides the implementation of a simple HTTP server. ">cio_http_server</a> after a successfully established TCP connection. The memory allocation is done by the <a class="el" href="cio__http__server_8h.html#cio_http_server_init_alloc_client">alloc_client</a> function provided during <a class="el" href="cio__http__server_8h.html#a812916558a5fedbc3cd2906f671c87c3">initialization</a> of a <a class="el" href="structcio__http__server.html" title="The cio_http_server structure provides the implementation of a simple HTTP server. ">cio_http_server</a>. The resources allocated for the HTTP client are automatically freed when the client connection is <a class="el" href="structcio__http__client.html#cio_http_client_close">closed</a> by using the <a class="el" href="cio__http__server_8h.html#cio_http_server_init_free_client">free_client</a> function provided during <a class="el" href="cio__http__server_8h.html#a812916558a5fedbc3cd2906f671c87c3">initialization</a> of a <a class="el" href="structcio__http__server.html" title="The cio_http_server structure provides the implementation of a simple HTTP server. ">cio_http_server</a>. </p>
 </div><h2 class="groupheader">Field Documentation</h2>
+<a class="anchor" id="ade1524f3104e42fd3096973d08c482c9"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void(* cio_http_client::add_response_header) (struct <a class="el" href="structcio__http__client.html">cio_http_client</a> *client, struct <a class="el" href="structcio__write__buffer.html">cio_write_buffer</a> *wbh)</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
 <a class="anchor" id="a3a185f7fadbf330a176bbe7041f77474"></a>
 <div class="memitem">
 <div class="memproto">
@@ -211,6 +220,18 @@ Data Fields</h2></td></tr>
 
 <p>The <a href="https://tools.ietf.org/html/rfc7230#section-3.3.2">content length</a> of the client request. </p>
 <p>Reading the content length is only possible after the corresponding header fields were read by the HTTP parser. After you got the <a class="el" href="structcio__http__location__handler.html#cio_http_location_handler_on_headers_complete">on_headers_complete callback</a> you can rely on the field being set. </p>
+
+</div>
+</div>
+<a class="anchor" id="aacbabf432193fdb92f55e0c2a0e8415d"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void(* cio_http_client::end_response_header) (struct <a class="el" href="structcio__http__client.html">cio_http_client</a> *client)</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
 
 </div>
 </div>
@@ -292,27 +313,6 @@ Data Fields</h2></td></tr>
 
 </div>
 </div>
-<a class="anchor" id="a441d46c3d3aff526460353acfbaac00e"></a>
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">void(* cio_http_client::queue_header) (struct <a class="el" href="structcio__http__client.html">cio_http_client</a> *client, enum <a class="el" href="cio__http__status__code_8h.html#ac968a65c0166575561fdd18b89ea580c">cio_http_status_code</a> status)</td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Queues a response header for the requesting client without sending it. </p>
-<p><a class="anchor" id="cio_http_client_queue_header"></a></p><dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">client</td><td>The client which shall get the header. </td></tr>
-    <tr><td class="paramname">status</td><td>The status code (like 404, or 400) of the response header. </td></tr>
-  </table>
-  </dd>
-</dl>
-
-</div>
-</div>
 <a class="anchor" id="a334814ff33851c173b657e37ec95ea69"></a>
 <div class="memitem">
 <div class="memproto">
@@ -340,50 +340,24 @@ Data Fields</h2></td></tr>
 
 </div>
 </div>
-<a class="anchor" id="a5c18d4350ac8432cc939e5e3cdc6fcfd"></a>
+<a class="anchor" id="a1e41fcb58ad9014d9fed0b22ae7a148b"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">struct <a class="el" href="structcio__write__buffer.html">cio_write_buffer</a> cio_http_client::wbh</td>
+          <td class="memname">void(* cio_http_client::start_response_header) (struct <a class="el" href="structcio__http__client.html">cio_http_client</a> *client, enum <a class="el" href="cio__http__status__code_8h.html#ac968a65c0166575561fdd18b89ea580c">cio_http_status_code</a> status_code)</td>
         </tr>
       </table>
 </div><div class="memdoc">
 
-<p>A write buffer head to write data to an HTTP client. </p>
-<p>Typically you will not need direct access to the write buffer, use <a class="el" href="structcio__http__client.html#cio_http_client_write_header">write_header</a> and <a class="el" href="structcio__http__client.html#cio_http_client_write_response">write_response</a> to send "normal" HTTP responses to a client.</p>
-<p>If you have an upgraded HTTP connection (i.e. web sockets), you are encouraged to use this write buffer. </p>
-
 </div>
 </div>
-<a class="anchor" id="abb0c6855030e4ca67a616b9cc584e703"></a>
+<a class="anchor" id="ac4802e6cf4c5e7f3baa5d094c5d27c0e"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">void(* cio_http_client::write_header) (struct <a class="el" href="structcio__http__client.html">cio_http_client</a> *client, enum <a class="el" href="cio__http__status__code_8h.html#ac968a65c0166575561fdd18b89ea580c">cio_http_status_code</a> status)</td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Writes a response header to the requesting client. </p>
-<p><a class="anchor" id="cio_http_client_write_header"></a>The HTTP connection is closed after the header was written.</p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">client</td><td>The client which shall get the header. </td></tr>
-    <tr><td class="paramname">status</td><td>The status code (like 404, or 400) of the response header. </td></tr>
-  </table>
-  </dd>
-</dl>
-
-</div>
-</div>
-<a class="anchor" id="a42c722ccc986c6b849ca2d16b1acdb4f"></a>
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">void(* cio_http_client::write_response) (struct <a class="el" href="structcio__http__client.html">cio_http_client</a> *client, struct <a class="el" href="structcio__write__buffer.html">cio_write_buffer</a> *<a class="el" href="structcio__http__client.html#a5c18d4350ac8432cc939e5e3cdc6fcfd">wbh</a>)</td>
+          <td class="memname">void(* cio_http_client::write_response) (struct <a class="el" href="structcio__http__client.html">cio_http_client</a> *client, enum <a class="el" href="cio__http__status__code_8h.html#ac968a65c0166575561fdd18b89ea580c">cio_http_status_code</a> status_code, struct <a class="el" href="structcio__write__buffer.html">cio_write_buffer</a> *wbh)</td>
         </tr>
       </table>
 </div><div class="memdoc">
@@ -393,7 +367,8 @@ Data Fields</h2></td></tr>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">client</td><td>The client which shall get the response. </td></tr>
-    <tr><td class="paramname">wbh</td><td>The write buffer head containing the data which should be written after the HTTP response header to the client. </td></tr>
+    <tr><td class="paramname">stattus_code</td><td>The http status code of the response. </td></tr>
+    <tr><td class="paramname">wbh</td><td>The write buffer head containing the data which should be written after the HTTP response header to the client (the http body). </td></tr>
   </table>
   </dd>
 </dl>

@@ -41,6 +41,7 @@ var searchData=
   ['cio_5fhttp_5fstatus_5finternal_5fserver_5ferror',['CIO_HTTP_STATUS_INTERNAL_SERVER_ERROR',['../cio__http__status__code_8h.html#ac968a65c0166575561fdd18b89ea580ca202e7585b0e3b59cf470136f8568ecc1',1,'cio_http_status_code.h']]],
   ['cio_5fhttp_5fstatus_5fnot_5ffound',['CIO_HTTP_STATUS_NOT_FOUND',['../cio__http__status__code_8h.html#ac968a65c0166575561fdd18b89ea580ca45d9862f55b50665ffe6f9ef36f46f74',1,'cio_http_status_code.h']]],
   ['cio_5fhttp_5fstatus_5fok',['CIO_HTTP_STATUS_OK',['../cio__http__status__code_8h.html#ac968a65c0166575561fdd18b89ea580ca9d5651e80549086871611198767e97ce',1,'cio_http_status_code.h']]],
+  ['cio_5fhttp_5fstatus_5ftimeout',['CIO_HTTP_STATUS_TIMEOUT',['../cio__http__status__code_8h.html#ac968a65c0166575561fdd18b89ea580ca5139b8f2b429062e632b7915e7fb5b4e',1,'cio_http_status_code.h']]],
   ['cio_5fhttp_5fsubscribe',['CIO_HTTP_SUBSCRIBE',['../cio__http__method_8h.html#af72daec94b7eb3d7c6ba31bdb7ba0ef3aa5d535a902b5d4a87a5cc9cd0058cc91',1,'cio_http_method.h']]],
   ['cio_5fhttp_5fswitching_5fprotocols',['CIO_HTTP_SWITCHING_PROTOCOLS',['../cio__http__status__code_8h.html#ac968a65c0166575561fdd18b89ea580cae9a837bc3ea1435e24581a381f572d83',1,'cio_http_status_code.h']]],
   ['cio_5fhttp_5ftrace',['CIO_HTTP_TRACE',['../cio__http__method_8h.html#af72daec94b7eb3d7c6ba31bdb7ba0ef3a51a8d5fb42385e8e61b355114112ed65',1,'cio_http_method.h']]],

@@ -1,4 +1,5 @@
 var searchData=
 [
-  ['accept',['accept',['../structcio__server__socket.html#ad2e5d40a90799d1271de538a320f46a5',1,'cio_server_socket']]]
+  ['accept',['accept',['../structcio__server__socket.html#ad2e5d40a90799d1271de538a320f46a5',1,'cio_server_socket']]],
+  ['add_5fresponse_5fheader',['add_response_header',['../structcio__http__client.html#ade1524f3104e42fd3096973d08c482c9',1,'cio_http_client']]]
 ];

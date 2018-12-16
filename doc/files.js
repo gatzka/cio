@@ -6,10 +6,7 @@ var files =
     [ "cio_endian.h", "cio__endian_8h.html", "cio__endian_8h" ],
     [ "cio_error_code.h", "cio__error__code_8h.html", "cio__error__code_8h" ],
     [ "cio_eventloop.h", "cio__eventloop_8h.html", "cio__eventloop_8h" ],
-    [ "cio_http_client.h", "cio__http__client_8h.html", [
-      [ "cio_http_client_private", "structcio__http__client__private.html", "structcio__http__client__private" ],
-      [ "cio_http_client", "structcio__http__client.html", "structcio__http__client" ]
-    ] ],
+    [ "cio_http_client.h", "cio__http__client_8h.html", "cio__http__client_8h" ],
     [ "cio_http_location.h", "cio__http__location_8h.html", "cio__http__location_8h" ],
     [ "cio_http_location_handler.h", "cio__http__location__handler_8h.html", "cio__http__location__handler_8h" ],
     [ "cio_http_method.h", "cio__http__method_8h.html", "cio__http__method_8h" ],
