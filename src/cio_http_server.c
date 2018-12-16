@@ -27,6 +27,7 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
+#include <stdio.h>
 #include <string.h>
 
 #include "cio_buffered_stream.h"
@@ -48,8 +49,14 @@
 
 #define CIO_CRLF "\r\n"
 #define HTTP_SERVER_ID "Server: cio http/"
+#define CIO_HTTP_CONNECTION_CLOSE "Connection: close" CIO_CRLF
+#define CIO_HTTP_CONNECTION_KEEPALIVE "Connection: keep-alive" CIO_CRLF
 
 #define CIO_HTTP_VERSION "HTTP/1.1"
+
+static void parse(struct cio_buffered_stream *stream, void *handler_context, enum cio_error err, struct cio_read_buffer *read_buffer);
+static int on_url(http_parser *parser, const char *at, size_t length);
+static void finish_request_line(struct cio_http_client *client);
 
 static void handle_error(struct cio_http_server *server, const char *reason)
 {
@@ -67,14 +74,19 @@ static void close_bs(struct cio_http_client *client)
 	}
 }
 
-static void close_client(struct cio_http_client *client)
+static void notify_free_handler_and_close_stream(struct cio_http_client *client)
 {
-	client->http_private.read_header_timer.close(&client->http_private.read_header_timer);
 	if (cio_likely((client->handler != NULL) && (client->handler->free != NULL))) {
 		client->handler->free(client->handler);
 	}
 
 	close_bs(client);
+}
+
+static void close_client(struct cio_http_client *client)
+{
+	client->http_private.read_header_timer.close(&client->http_private.read_header_timer);
+	notify_free_handler_and_close_stream(client);
 }
 
 static void client_timeout_handler(struct cio_timer *timer, void *handler_context, enum cio_error err)
@@ -83,7 +95,7 @@ static void client_timeout_handler(struct cio_timer *timer, void *handler_contex
 
 	if (err == CIO_SUCCESS) {
 		struct cio_http_client *client = handler_context;
-		close_client(client);
+		client->write_response(client, CIO_HTTP_STATUS_TIMEOUT, NULL);
 	}
 }
 
@@ -99,9 +111,18 @@ static void mark_to_be_closed(struct cio_http_client *client)
 static void response_written(struct cio_buffered_stream *bs, void *handler_context, enum cio_error err)
 {
 	(void)bs;
-	(void)err;
-
 	struct cio_http_client *client = (struct cio_http_client *)handler_context;
+
+	if (cio_unlikely(err != CIO_SUCCESS)) {
+		goto out;
+	}
+
+	if (cio_unlikely(!client->http_private.should_keepalive)) {
+		goto out;
+	}
+
+	return;
+out:
 	client->close(client);
 }
 
@@ -116,17 +137,36 @@ static const char *get_response_statusline(enum cio_http_status_code status_code
 		return CIO_HTTP_VERSION " 400 Bad Request" CIO_CRLF HTTP_SERVER_ID CIO_VERSION CIO_CRLF;
 	case CIO_HTTP_STATUS_NOT_FOUND:
 		return CIO_HTTP_VERSION " 404 Not Found" CIO_CRLF HTTP_SERVER_ID CIO_VERSION CIO_CRLF;
+	case CIO_HTTP_STATUS_TIMEOUT:
+		return CIO_HTTP_VERSION " 408 Request Timeout" CIO_CRLF HTTP_SERVER_ID CIO_VERSION CIO_CRLF;
 	default:
 		return CIO_HTTP_VERSION " 500 Internal Server Error" CIO_CRLF HTTP_SERVER_ID CIO_VERSION CIO_CRLF;
 	}
 }
 
-static void queue_header(struct cio_http_client *client, enum cio_http_status_code status_code)
+static void add_response_header(struct cio_http_client *client, struct cio_write_buffer *wbh)
+{
+	cio_write_buffer_queue_tail(&client->wbh, wbh);
+}
+
+static void start_response_header(struct cio_http_client *client, enum cio_http_status_code status_code)
 {
 	const char *response = get_response_statusline(status_code);
 	cio_write_buffer_head_init(&client->wbh);
 	cio_write_buffer_const_element_init(&client->http_private.wb_http_response_statusline, response, strlen(response));
 	cio_write_buffer_queue_tail(&client->wbh, &client->http_private.wb_http_response_statusline);
+
+	if (cio_likely(client->http_private.should_keepalive)) {
+		cio_write_buffer_const_element_init(&client->http_private.wb_http_connection_header, CIO_HTTP_CONNECTION_KEEPALIVE, strlen(CIO_HTTP_CONNECTION_KEEPALIVE));
+	} else {
+		cio_write_buffer_const_element_init(&client->http_private.wb_http_connection_header, CIO_HTTP_CONNECTION_CLOSE, strlen(CIO_HTTP_CONNECTION_CLOSE));
+	}
+
+	add_response_header(client, &client->http_private.wb_http_connection_header);
+}
+
+static void end_response_header(struct cio_http_client *client)
+{
 	cio_write_buffer_const_element_init(&client->http_private.wb_http_response_header_end, CIO_CRLF, strlen(CIO_CRLF));
 	cio_write_buffer_queue_tail(&client->wbh, &client->http_private.wb_http_response_header_end);
 }
@@ -141,16 +181,33 @@ static void flush(struct cio_http_client *client, cio_buffered_stream_write_hand
 	}
 }
 
-static void write_header(struct cio_http_client *client, enum cio_http_status_code status_code)
+static void write_response(struct cio_http_client *client, enum cio_http_status_code status_code, struct cio_write_buffer *wbh)
 {
-	queue_header(client, status_code);
-	flush(client, response_written);
-}
+	client->http_private.response_written = true;
+	size_t content_length = 0;
+	if (wbh) {
+		size_t elements = wbh->data.q_len;
+		struct cio_write_buffer *wb = wbh;
+		for (size_t i = 0; i < elements; i++) {
+			wb = wbh->next;
+			content_length += wb->data.element.length;
+		}
+	}
 
-static void write_response(struct cio_http_client *client, struct cio_write_buffer *wbh)
-{
-	queue_header(client, CIO_HTTP_STATUS_OK);
-	cio_write_buffer_splice(wbh, &client->wbh);
+	if ((status_code == CIO_HTTP_STATUS_BAD_REQUEST) || (status_code == CIO_HTTP_STATUS_TIMEOUT) || (status_code == CIO_HTTP_STATUS_INTERNAL_SERVER_ERROR)) {
+		client->http_private.should_keepalive = 0;
+	}
+
+	start_response_header(client, status_code);
+	int written = snprintf(client->http_private.content_length_buffer, sizeof(client->http_private.content_length_buffer) - 1, "Content-Length: %zu" CIO_CRLF, content_length);
+	cio_write_buffer_element_init(&client->http_private.wb_http_content_length, client->http_private.content_length_buffer, (size_t)written);
+	add_response_header(client, &client->http_private.wb_http_content_length);
+
+	end_response_header(client);
+	if (wbh) {
+		cio_write_buffer_splice(wbh, &client->wbh);
+	}
+
 	flush(client, response_written);
 }
 
@@ -200,6 +257,7 @@ static int on_headers_complete(http_parser *parser)
 {
 	struct cio_http_client *client = cio_container_of(parser, struct cio_http_client, parser);
 	client->http_private.headers_complete = true;
+	client->http_private.should_keepalive = http_should_keep_alive(parser);
 	client->content_length = parser->content_length;
 
 	int ret;
@@ -207,10 +265,10 @@ static int on_headers_complete(http_parser *parser)
 	if (cio_unlikely(err != CIO_SUCCESS)) {
 		struct cio_http_server *server = (struct cio_http_server *)parser->data;
 		handle_error(server, "Cancelling read timer in on_headers_complete failed, maybe not armed?");
-		client->write_header(client, CIO_HTTP_STATUS_INTERNAL_SERVER_ERROR);
-		ret = CIO_HTTP_CB_ERROR;
+		client->write_response(client, CIO_HTTP_STATUS_INTERNAL_SERVER_ERROR, NULL);
+		ret = CIO_HTTP_CB_SUCCESS;
 	} else {
-		if (client->handler->on_headers_complete != NULL) {
+		if (client->handler->on_headers_complete && !client->http_private.response_written) {
 			ret = client->handler->on_headers_complete(client);
 		} else {
 			ret = 0;
@@ -223,30 +281,62 @@ static int on_headers_complete(http_parser *parser)
 static int on_header_field(http_parser *parser, const char *at, size_t length)
 {
 	struct cio_http_client *client = cio_container_of(parser, struct cio_http_client, parser);
-	return client->handler->on_header_field(client, at, length);
+	if (client->handler->on_header_field && !client->http_private.response_written) {
+		return client->handler->on_header_field(client, at, length);
+	}
+
+	return 0;
 }
 
 static int on_header_value(http_parser *parser, const char *at, size_t length)
 {
 	struct cio_http_client *client = cio_container_of(parser, struct cio_http_client, parser);
-	return client->handler->on_header_value(client, at, length);
+	if (client->handler->on_header_value && !client->http_private.response_written) {
+		return client->handler->on_header_value(client, at, length);
+	}
+
+	return 0;
 }
 
 static int on_message_complete(http_parser *parser)
 {
+	enum cio_http_cb_return ret;
 	struct cio_http_client *client = cio_container_of(parser, struct cio_http_client, parser);
-	return client->handler->on_message_complete(client);
+	if (client->handler->on_message_complete && !client->http_private.response_written) {
+		ret = client->handler->on_message_complete(client);
+	} else {
+		ret = CIO_HTTP_CB_SUCCESS;
+	}
+
+	struct cio_http_server *server = (struct cio_http_server *)client->parser.data;
+	enum cio_error err = client->http_private.read_header_timer.expires_from_now(&client->http_private.read_header_timer, server->read_header_timeout_ns, client_timeout_handler, client);
+	if (cio_unlikely(err != CIO_SUCCESS)) {
+		return CIO_HTTP_CB_ERROR;
+	}
+
+	http_parser_settings_init(&client->parser_settings);
+	client->parser_settings.on_url = on_url;
+	http_parser_init(&client->parser, HTTP_REQUEST);
+
+	client->http_private.finish_func = finish_request_line;
+	client->http_private.response_written = false;
+
+	return ret;
 }
 
 static int on_body(http_parser *parser, const char *at, size_t length)
 {
 	struct cio_http_client *client = cio_container_of(parser, struct cio_http_client, parser);
-	return client->handler->on_body(client, at, length);
+	if (client->handler->on_body && !client->http_private.response_written) {
+		return client->handler->on_body(client, at, length);
+	}
+
+	return 0;
 }
 
 static enum cio_http_cb_return call_url_parts_callback(const struct http_parser_url *u, enum http_parser_url_fields url_field, cio_http_data_cb callback, struct cio_http_client *client, const char *at)
 {
-	if (((u->field_set & (1U << url_field)) == (1U << url_field)) && (callback != NULL)) {
+	if ((callback != NULL) && ((u->field_set & (1U << url_field)) == (1U << url_field))) {
 		return callback(client, at + u->field_data[url_field].off, u->field_data[url_field].len);
 	}
 
@@ -275,13 +365,13 @@ static int on_url(http_parser *parser, const char *at, size_t length)
 
 	const struct cio_http_location *target = find_handler(parser->data, at + u.field_data[UF_PATH].off, u.field_data[UF_PATH].len);
 	if (cio_unlikely(target == NULL)) {
-		client->write_header(client, CIO_HTTP_STATUS_NOT_FOUND);
+		client->write_response(client, CIO_HTTP_STATUS_NOT_FOUND, NULL);
 		return 0;
 	}
 
 	struct cio_http_location_handler *handler = target->alloc_handler(target->config);
 	if (cio_unlikely(handler == NULL)) {
-		client->write_header(client, CIO_HTTP_STATUS_INTERNAL_SERVER_ERROR);
+		client->write_response(client, CIO_HTTP_STATUS_INTERNAL_SERVER_ERROR, NULL);
 		return 0;
 	}
 
@@ -346,32 +436,32 @@ static int on_url(http_parser *parser, const char *at, size_t length)
 
 	client->parser_settings.on_headers_complete = on_headers_complete;
 
+	client->parser_settings.on_header_field = on_header_field;
 	if (handler->on_header_field != NULL) {
-		client->parser_settings.on_header_field = on_header_field;
 		user_handler = 1;
 	}
 
+	client->parser_settings.on_header_value = on_header_value;
 	if (handler->on_header_value != NULL) {
-		client->parser_settings.on_header_value = on_header_value;
 		user_handler = 1;
 	}
 
-	if (handler->on_body != NULL) {
-		client->parser_settings.on_body = on_body;
+	client->parser_settings.on_body = on_body;
+	if (handler->on_body) {
 		user_handler = 1;
 	}
 
-	if (handler->on_message_complete != NULL) {
-		client->parser_settings.on_message_complete = on_message_complete;
+	client->parser_settings.on_message_complete = on_message_complete;
+	if (handler->on_message_complete) {
 		user_handler = 1;
 	}
 
-	if (handler->on_url != NULL) {
+	if (handler->on_url && !client->http_private.response_written) {
 		return handler->on_url(client, at, length);
 	}
 
 	if (user_handler == 0) {
-		client->write_header(client, CIO_HTTP_STATUS_INTERNAL_SERVER_ERROR);
+		client->write_response(client, CIO_HTTP_STATUS_INTERNAL_SERVER_ERROR, NULL);
 	}
 
 	return 0;
@@ -389,7 +479,7 @@ static void parse(struct cio_buffered_stream *stream, void *handler_context, enu
 	struct cio_http_client *client = (struct cio_http_client *)handler_context;
 
 	if (cio_unlikely(cio_is_error(err))) {
-		client->write_header(client, CIO_HTTP_STATUS_INTERNAL_SERVER_ERROR);
+		client->write_response(client, CIO_HTTP_STATUS_INTERNAL_SERVER_ERROR, NULL);
 		return;
 	}
 
@@ -401,7 +491,7 @@ static void parse(struct cio_buffered_stream *stream, void *handler_context, enu
 	client->http_private.parsing--;
 
 	if (cio_unlikely(nparsed != bytes_transfered)) {
-		client->write_header(client, CIO_HTTP_STATUS_BAD_REQUEST);
+		client->write_response(client, CIO_HTTP_STATUS_BAD_REQUEST, NULL);
 		return;
 	}
 
@@ -425,7 +515,7 @@ static void finish_bytes(struct cio_http_client *client)
 	if (cio_unlikely(err != CIO_SUCCESS)) {
 		struct cio_http_server *server = (struct cio_http_server *)client->parser.data;
 		handle_error(server, "Reading of bytes failed");
-		client->write_header(client, CIO_HTTP_STATUS_INTERNAL_SERVER_ERROR);
+		client->write_response(client, CIO_HTTP_STATUS_INTERNAL_SERVER_ERROR, NULL);
 	}
 }
 
@@ -443,7 +533,7 @@ static void finish_header_line(struct cio_http_client *client)
 	if (cio_unlikely(err != CIO_SUCCESS)) {
 		struct cio_http_server *server = (struct cio_http_server *)client->parser.data;
 		handle_error(server, "Reading of bytes/header line failed");
-		client->write_header(client, CIO_HTTP_STATUS_INTERNAL_SERVER_ERROR);
+		client->write_response(client, CIO_HTTP_STATUS_INTERNAL_SERVER_ERROR, NULL);
 	}
 }
 
@@ -456,7 +546,7 @@ static void finish_request_line(struct cio_http_client *client)
 	if (cio_unlikely(err != CIO_SUCCESS)) {
 		struct cio_http_server *server = (struct cio_http_server *)client->parser.data;
 		handle_error(server, "Reading of header line failed");
-		client->write_header(client, CIO_HTTP_STATUS_INTERNAL_SERVER_ERROR);
+		client->write_response(client, CIO_HTTP_STATUS_INTERNAL_SERVER_ERROR, NULL);
 	}
 }
 
@@ -476,10 +566,13 @@ static void handle_accept(struct cio_server_socket *ss, void *handler_context, e
 	client->http_private.headers_complete = false;
 	client->content_length = 0;
 	client->http_private.to_be_closed = false;
+	client->http_private.should_keepalive = 1;
 	client->http_private.parsing = 0;
+	client->http_private.response_written = false;
 	client->close = mark_to_be_closed;
-	client->write_header = write_header;
-	client->queue_header = queue_header;
+	client->start_response_header = start_response_header;
+	client->end_response_header = end_response_header;
+	client->add_response_header = add_response_header;
 	client->write_response = write_response;
 	client->flush = flush;
 
@@ -526,8 +619,7 @@ expires_fail:
 	client->http_private.read_header_timer.close(&client->http_private.read_header_timer);
 init_err:
 	handle_error(server, "client initialization failed");
-
-	close_bs(client);
+	notify_free_handler_and_close_stream(client);
 }
 
 static enum cio_error serve(struct cio_http_server *server)

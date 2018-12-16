@@ -29,6 +29,7 @@
 void cio_http_location_handler_init(struct cio_http_location_handler *handler)
 {
 	handler->on_url = NULL;
+	handler->on_port = NULL;
 	handler->on_schema = NULL;
 	handler->on_host = NULL;
 	handler->on_path = NULL;

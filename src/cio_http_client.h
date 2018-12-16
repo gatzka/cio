@@ -51,16 +51,22 @@ extern "C" {
 
 struct cio_http_client;
 
+#define CIO_HTTP_CLIENT_CONTENT_LENGTH_BUFFER_LENGTH 30
 struct cio_http_client_private {
 	struct cio_write_buffer wb_http_response_statusline;
+	struct cio_write_buffer wb_http_content_length;
+	struct cio_write_buffer wb_http_connection_header;
 	struct cio_write_buffer wb_http_response_header_end;
 	struct cio_timer read_header_timer;
 
+	int should_keepalive;
 	bool headers_complete;
 	bool to_be_closed;
 	unsigned int parsing;
+	bool response_written;
 
 	void (*finish_func)(struct cio_http_client *client);
+	char content_length_buffer[CIO_HTTP_CLIENT_CONTENT_LENGTH_BUFFER_LENGTH];
 };
 
 /**
@@ -92,30 +98,15 @@ struct cio_http_client {
 	 * The HTTP connection is closed after the response was written.
 	 *
 	 * @param client The client which shall get the response.
+	 * @param stattus_code The http status code of the response.
 	 * @param wbh The write buffer head containing the data which should be written after
-	 * the HTTP response header to the client.
+	 * the HTTP response header to the client (the http body).
 	 */
-	void (*write_response)(struct cio_http_client *client, struct cio_write_buffer *wbh);
+	void (*write_response)(struct cio_http_client *client, enum cio_http_status_code status_code, struct cio_write_buffer *wbh);
 
-	/**
-	 * @anchor cio_http_client_write_header
-	 * @brief Writes a response header to the requesting client.
-	 *
-	 * The HTTP connection is closed after the header was written.
-	 *
-	 * @param client The client which shall get the header.
-	 * @param status The status code (like 404, or 400) of the response header.
-	 */
-	void (*write_header)(struct cio_http_client *client, enum cio_http_status_code status);
-
-	/**
-	 * @anchor cio_http_client_queue_header
-	 * @brief Queues a response header for the requesting client without sending it.
-	 *
-	 * @param client The client which shall get the header.
-	 * @param status The status code (like 404, or 400) of the response header.
-	 */
-	void (*queue_header)(struct cio_http_client *client, enum cio_http_status_code status);
+	void (*start_response_header)(struct cio_http_client *client, enum cio_http_status_code status_code);
+	void (*end_response_header)(struct cio_http_client *client);
+	void (*add_response_header)(struct cio_http_client *client, struct cio_write_buffer *wbh);
 
 	/**
 	 * @anchor cio_http_client_flush
@@ -138,19 +129,6 @@ struct cio_http_client {
 	 * @anchor cio_http_client_rb
 	 */
 	struct cio_read_buffer rb;
-
-	/**
-	 * @brief A write buffer head to write data to an HTTP client.
-	 *
-	 * Typically you will not need direct access to the write buffer,
-	 * use @ref cio_http_client_write_header "write_header" and
-	 * @ref cio_http_client_write_response "write_response" to send "normal"
-	 * HTTP responses to a client.
-	 *
-	 * If you have an upgraded HTTP connection (i.e. web sockets), you are encouraged
-	 * to use this write buffer.
-	 */
-	struct cio_write_buffer wbh;
 
 	/**
 	 * @brief The HTTP major version of the client request.
@@ -191,6 +169,9 @@ struct cio_http_client {
 	struct cio_socket socket;
 
 	/*! @cond PRIVATE */
+
+	struct cio_write_buffer wbh;
+
 	struct cio_http_client_private http_private;
 
 	http_parser parser;

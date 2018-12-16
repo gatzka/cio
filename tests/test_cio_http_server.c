@@ -62,6 +62,12 @@
 #define DNT_VALUE "1"
 #define CRLF "\r\n"
 
+static void fire_keepalive_timeout(struct cio_socket *s)
+{
+	struct cio_http_client *client = cio_container_of(s, struct cio_http_client, socket);
+	client->http_private.read_header_timer.handler(&client->http_private.read_header_timer, client->http_private.read_header_timer.handler_context, CIO_SUCCESS);
+}
+
 static const uint64_t read_timeout = UINT64_C(5) * UINT64_C(1000) * UINT64_C(1000) * UINT64_C(1000);
 
 struct dummy_handler {
@@ -249,13 +255,13 @@ static enum cio_http_cb_return header_complete_write_response(struct cio_http_cl
 	struct dummy_handler *dh = cio_container_of(handler, struct dummy_handler, handler);
 	cio_write_buffer_const_element_init(&dh->wb, data, sizeof(data));
 	cio_write_buffer_queue_tail(&dh->wbh, &dh->wb);
-	c->write_response(c, &dh->wbh);
+	c->write_response(c, CIO_HTTP_STATUS_OK, &dh->wbh);
 	return CIO_HTTP_CB_SUCCESS;
 }
 
 static enum cio_http_cb_return message_complete_write_header(struct cio_http_client *c)
 {
-	c->write_header(c, CIO_HTTP_STATUS_OK);
+	c->write_response(c, CIO_HTTP_STATUS_OK, NULL);
 	return CIO_HTTP_CB_SUCCESS;
 }
 
@@ -748,13 +754,13 @@ static void test_serve_locations(void)
 {
 	static struct location_test location_tests[] = {
 	    {.location = "/foo", .request_target = "/foo", .expected_response = 200},
-	    {.location = "/foo", .request_target = "/foo/", .expected_response = 200},
-	    {.location = "/foo", .request_target = "/foo/bar", .expected_response = 200},
-	    {.location = "/foo", .request_target = "/foo2", .expected_response = 404},
-	    {.location = "/foo/", .request_target = "/foo", .expected_response = 404},
-	    {.location = "/foo/", .request_target = "/foo/", .expected_response = 200},
-	    {.location = "/foo/", .request_target = "/foo/bar", .expected_response = 200},
-	    {.location = "/foo/", .request_target = "/foo2", .expected_response = 404},
+		{.location = "/foo", .request_target = "/foo/", .expected_response = 200},
+		{.location = "/foo", .request_target = "/foo/bar", .expected_response = 200},
+		{.location = "/foo", .request_target = "/foo2", .expected_response = 404},
+		{.location = "/foo/", .request_target = "/foo", .expected_response = 404},
+		{.location = "/foo/", .request_target = "/foo/", .expected_response = 200},
+		{.location = "/foo/", .request_target = "/foo/bar", .expected_response = 200},
+		{.location = "/foo/", .request_target = "/foo2", .expected_response = 404},
 	};
 
 	for (unsigned int i = 0; i < ARRAY_SIZE(location_tests); i++) {
@@ -792,11 +798,13 @@ static void test_serve_locations(void)
 		server.server_socket.handler(&server.server_socket, server.server_socket.handler_context, CIO_SUCCESS, s);
 		TEST_ASSERT_EQUAL_MESSAGE(0, serve_error_fake.call_count, "Serve error callback was called!");
 		check_http_response(location_test.expected_response);
+		// Because the response is written in on_headers_complete, on_message_complete will not be called
+		TEST_ASSERT_EQUAL_MESSAGE(0, message_complete_fake.call_count, "message_complete was not called!");
 		if (location_test.expected_response == 200) {
 			TEST_ASSERT_EQUAL_MESSAGE(1, header_complete_fake.call_count, "header_complete was not called!");
-			TEST_ASSERT_EQUAL_MESSAGE(1, message_complete_fake.call_count, "message_complete was not called!");
 		}
 
+		fire_keepalive_timeout(s);
 		setUp();
 	}
 }
@@ -862,6 +870,7 @@ static void test_serve_locations_best_match(void)
 		TEST_ASSERT_EQUAL_MESSAGE(0, serve_error_fake.call_count, "Serve error callback was called!");
 		check_http_response(200);
 
+		fire_keepalive_timeout(s);
 		setUp();
 	}
 }
@@ -905,6 +914,8 @@ static void test_serve_post_with_body(void)
 	TEST_ASSERT_MESSAGE(on_body_fake.call_count > 0, "on_body was not called!");
 	TEST_ASSERT_EQUAL_MESSAGE(0, serve_error_fake.call_count, "Serve error callback was called!");
 	check_http_response(200);
+
+	fire_keepalive_timeout(s);
 }
 
 static void test_serve_complete_url_onschema_fails(void)
@@ -987,6 +998,8 @@ static void test_serve_complete_url(void)
 	TEST_ASSERT_EQUAL_MESSAGE(1, on_fragment_fake.call_count, "on_fragment was not called!");
 	TEST_ASSERT_EQUAL_MESSAGE(0, serve_error_fake.call_count, "Serve error callback was called!");
 	check_http_response(200);
+
+	fire_keepalive_timeout(s);
 }
 
 static void test_serve_complete_url_readbuffer_init_fails(void)
@@ -1134,7 +1147,8 @@ static void test_serve_complete_url_close_fails(void)
 
 	const char *request[] = {
 	    HTTP_GET " " SCHEME "://" HOST ":" PORT REQUEST_TARGET "?" QUERY "#" FRAGMENT " " HTTP_11 CRLF,
-	    CRLF};
+		"Connection: close" CRLF,
+		CRLF};
 
 	init_request(request, ARRAY_SIZE(request));
 	server.server_socket.handler(&server.server_socket, server.server_socket.handler_context, CIO_SUCCESS, s);
@@ -1575,6 +1589,8 @@ static void test_serve_msg_complete_only(void)
 	TEST_ASSERT_EQUAL_MESSAGE(1, message_complete_fake.call_count, "message_complete was called!");
 	TEST_ASSERT_EQUAL_MESSAGE(0, serve_error_fake.call_count, "Serve error callback was called!");
 	check_http_response(200);
+
+	fire_keepalive_timeout(s);
 }
 
 static void test_serve_msg_complete_write_fails(void)

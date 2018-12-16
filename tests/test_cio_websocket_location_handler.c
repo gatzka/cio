@@ -123,16 +123,9 @@ static uint8_t *bs_read_exactly_buffer;
 static size_t bs_read_exactly_buffer_size;
 static size_t bs_read_exactly_buffer_pos;
 
-static struct cio_timer *saved_timer;
-static cio_timer_handler saved_handler;
-static void *saved_handler_context;
-
-static enum cio_error timer_expires_from_now_save(struct cio_timer *t, uint64_t timeout_ns, cio_timer_handler handler, void *handler_context)
+static enum cio_error timer_expires_from_now_ok(struct cio_timer *t, uint64_t timeout_ns, cio_timer_handler handler, void *handler_context)
 {
 	(void)timeout_ns;
-	saved_timer = t;
-	saved_handler = handler;
-	saved_handler_context = handler_context;
 
 	t->handler = handler;
 	t->handler_context = handler_context;
@@ -464,7 +457,7 @@ void setUp(void)
 	bs_close_fake.custom_fake = bs_close_ok;
 	bs_read_exactly_buffer_pos = 0;
 
-	timer_expires_from_now_fake.custom_fake = timer_expires_from_now_save;
+	timer_expires_from_now_fake.custom_fake = timer_expires_from_now_ok;
 	timer_cancel_fake.custom_fake = cancel_timer;
 }
 
@@ -587,9 +580,14 @@ static void test_ws_location_response_write_timeout(void)
 
 	init_request(request, ARRAY_SIZE(request));
 	server.server_socket.handler(&server.server_socket, server.server_socket.handler_context, CIO_SUCCESS, s);
-	saved_handler(saved_timer, saved_handler_context, CIO_SUCCESS);
 
 	TEST_ASSERT_EQUAL_MESSAGE(1, timer_cancel_fake.call_count, "write timeout timer not cancelled!");
+
+	struct cio_http_client *client = cio_container_of(s, struct cio_http_client, socket);
+	struct cio_http_location_handler *handler = client->handler;
+	struct cio_websocket_location_handler *wslh = cio_container_of(handler, struct cio_websocket_location_handler, http_location);
+	wslh->write_response_timer.handler(&wslh->write_response_timer, wslh->write_response_timer.handler_context, CIO_SUCCESS);
+
 	free(close_frame);
 }
 
@@ -605,7 +603,7 @@ static void test_ws_location_write_timeout_expires_failure(void)
 	bs_read_exactly_fake.custom_fake = bs_read_exactly_from_buffer;
 
 	enum cio_error (*expires_fakes[])(struct cio_timer *, uint64_t, cio_timer_handler, void *) = {
-	    timer_expires_from_now_save,
+		timer_expires_from_now_ok,
 	    timer_expires_from_error,
 	};
 

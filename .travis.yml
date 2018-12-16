@@ -12,7 +12,7 @@ matrix:
 # Coverity build, must be the first!
   - os: linux
     dist: xenial
-    compiler: gcc coverity scan
+    compiler: gcc
     sudo: required
     env:
     - MATRIX_EVAL="-DCIO_CTEST_COMPILER:STRING=gcc -DCIO_CTEST_CONFIGURATION_TYPE:STRING=Debug -DCIO_CTEST_COVERAGE:BOOL=OFF"
@@ -35,7 +35,7 @@ matrix:
 
   - os: linux
     dist: xenial
-    compiler: gcc linux sonar analysis
+    compiler: gcc
     sudo: required
     script:
     - cmake -DCMAKE_C_COMPILER:STRING=gcc -DCMAKE_CXX_COMPILER:STRING=g++ -DCMAKE_BUILD_TYPE:STRING=Debug ./
@@ -62,7 +62,7 @@ matrix:
 
   - os: linux
     dist: xenial
-    compiler: gcc with doxygen documentation
+    compiler: gcc
     sudo: required
     env:
     - MATRIX_EVAL="-DCIO_CTEST_COMPILER:STRING=gcc -DCIO_CTEST_CONFIGURATION_TYPE:STRING=Debug -DCIO_CTEST_COVERAGE:BOOL=OFF -DCIO_CTEST_DOCUMENTATION:BOOL=ON"
@@ -229,7 +229,7 @@ matrix:
 
   - os: linux
     dist: xenial
-    compiler: clang static analyzer
+    compiler: clang
     sudo: required
     env:
     - MATRIX_EVAL="-DCIO_CTEST_COMPILER:STRING=scan-build -DCIO_CTEST_CONFIGURATION_TYPE:STRING=Debug -DCIO_CTEST_COVERAGE:BOOL=OFF"
@@ -257,7 +257,7 @@ matrix:
 
   - os: linux
     dist: xenial
-    compiler: clang undefined behavior sanitizer
+    compiler: clang
     sudo: required
     env:
     - MATRIX_EVAL="-DCIO_CTEST_COMPILER:STRING=clang -DCIO_CTEST_CONFIGURATION_TYPE:STRING=Release -DCIO_CTEST_SANITIZER:STRING=UndefinedBehaviorSanitizer -DCIO_CTEST_COVERAGE:BOOL=OFF"
@@ -271,7 +271,7 @@ matrix:
 
   - os: linux
     dist: xenial
-    compiler: clang leak sanitizer
+    compiler: clang
     sudo: required
     env:
     - MATRIX_EVAL="-DCIO_CTEST_COMPILER:STRING=clang -DCIO_CTEST_CONFIGURATION_TYPE:STRING=Release -DCIO_CTEST_SANITIZER:STRING=LeakSanitizer -DCIO_CTEST_COVERAGE:BOOL=OFF"
@@ -285,7 +285,7 @@ matrix:
 
   - os: linux
     dist: xenial
-    compiler: clang memory sanitizer
+    compiler: clang
     sudo: required
     env:
     - MATRIX_EVAL="-DCIO_CTEST_COMPILER:STRING=clang -DCIO_CTEST_CONFIGURATION_TYPE:STRING=Release -DCIO_CTEST_SANITIZER:STRING=MemorySanitizer -DCIO_CTEST_COVERAGE:BOOL=OFF"
@@ -299,7 +299,7 @@ matrix:
 
   - os: linux
     dist: xenial
-    compiler: clang address sanitizer
+    compiler: clang
     sudo: required
     env:
     - MATRIX_EVAL="-DCIO_CTEST_COMPILER:STRING=clang -DCIO_CTEST_CONFIGURATION_TYPE:STRING=Release -DCIO_CTEST_SANITIZER:STRING=AddressSanitizer -DCIO_CTEST_COVERAGE:BOOL=OFF"
@@ -316,7 +316,7 @@ install:
 
 script:
 - if [ "$COVERITY_SCAN_BRANCH" != 1 ]; then
-    ctest -S build.cmake ${MATRIX_EVAL};
+    ctest -VV -S build.cmake ${MATRIX_EVAL};
   fi
 
 after_success:
