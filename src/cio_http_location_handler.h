@@ -31,6 +31,7 @@
 extern "C" {
 #endif
 
+#include <stdbool.h>
 #include <stddef.h>
 
 #include "cio_export.h"
@@ -179,6 +180,8 @@ struct cio_http_location_handler {
  * @param handler The handler to be initialized.
  */
 CIO_EXPORT void cio_http_location_handler_init(struct cio_http_location_handler *handler);
+
+bool cio_http_location_handler_no_callbacks(const struct cio_http_location_handler *handler);
 
 #ifdef __cplusplus
 }
