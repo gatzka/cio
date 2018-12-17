@@ -128,10 +128,6 @@ struct cio_websocket_private {
 
 	unsigned int in_user_writecallback_context;
 
-	struct cio_eventloop *loop;
-	struct cio_buffered_stream *bs;
-	struct cio_read_buffer *rb;
-
 	struct cio_http_client *http_client;
 
 	struct cio_timer close_timer;

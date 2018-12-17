@@ -45,8 +45,7 @@ DEFINE_FFF_GLOBALS
 FAKE_VALUE_FUNC(enum cio_error, cio_timer_init, struct cio_timer *, struct cio_eventloop *, cio_timer_close_hook)
 
 static struct cio_websocket *ws;
-static struct cio_buffered_stream buffered_stream;
-static struct cio_read_buffer rb;
+static struct cio_http_client http_client;
 
 enum frame_direction {
 	FROM_CLIENT,
@@ -366,11 +365,10 @@ void setUp(void)
 
 	RESET_FAKE(write_handler);
 
-	cio_read_buffer_init(&rb, read_buffer, sizeof(read_buffer));
+	cio_read_buffer_init(&http_client.rb, read_buffer, sizeof(read_buffer));
 	ws = malloc(sizeof(*ws));
 	cio_websocket_init(ws, false, on_connect, NULL);
-	ws->ws_private.rb = &rb;
-	ws->ws_private.bs = &buffered_stream;
+	ws->ws_private.http_client = &http_client;
 	ws->on_control = on_control;
 	ws->on_error = on_error;
 
@@ -380,8 +378,8 @@ void setUp(void)
 	on_control_fake.custom_fake = on_control_save_data;
 	on_error_fake.custom_fake = on_error_save_data;
 
-	buffered_stream.read_exactly = read_exactly;
-	buffered_stream.write = bs_write;
+	http_client.bs.read_exactly = read_exactly;
+	http_client.bs.write = bs_write;
 	frame_buffer_read_pos = 0;
 	frame_buffer_fill_pos = 0;
 

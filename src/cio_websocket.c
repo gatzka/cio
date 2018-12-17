@@ -159,7 +159,8 @@ static enum cio_error send_frame(struct cio_websocket *ws, struct cio_websocket_
 
 	cio_write_buffer_element_init(&job->websocket_header, job->send_header, header_index);
 	add_websocket_header(job);
-	return ws->ws_private.bs->write(ws->ws_private.bs, job->wbh, job->stream_handler, ws);
+	struct cio_http_client *c = ws->ws_private.http_client;
+	return c->bs.write(&c->bs, job->wbh, job->stream_handler, ws);
 }
 
 static enum cio_error enqueue_job(struct cio_websocket *ws, struct cio_websocket_write_job *job)
@@ -460,7 +461,8 @@ static void pong_frame_written(struct cio_websocket *ws, void *handler_context, 
 	(void)handler_context;
 
 	if (cio_likely(err == CIO_SUCCESS)) {
-		ws->ws_private.bs->read_exactly(ws->ws_private.bs, ws->ws_private.rb, 1, get_header, ws);
+		struct cio_http_client *c = ws->ws_private.http_client;
+		c->bs.read_exactly(&c->bs, &c->rb, 1, get_header, ws);
 	} else {
 		handle_error(ws, err, CIO_WEBSOCKET_CLOSE_INTERNAL_ERROR, "pong frame not written correctly");
 	}
@@ -495,7 +497,8 @@ static void handle_pong_frame(struct cio_websocket *ws, uint8_t *data, uint_fast
 		ws->on_control(ws, CIO_WEBSOCKET_PONG_FRAME, data, length);
 	}
 
-	ws->ws_private.bs->read_exactly(ws->ws_private.bs, ws->ws_private.rb, 1, get_header, ws);
+	struct cio_http_client *c = ws->ws_private.http_client;
+	c->bs.read_exactly(&c->bs, &c->rb, 1, get_header, ws);
 }
 
 static void handle_frame(struct cio_websocket *ws, uint8_t *data, uint64_t length)
@@ -755,7 +758,8 @@ static enum cio_error read_message(struct cio_websocket *ws, cio_websocket_read_
 
 	ws->ws_private.read_handler = handler;
 	ws->ws_private.read_handler_context = handler_context;
-	enum cio_error err = ws->ws_private.bs->read_exactly(ws->ws_private.bs, ws->ws_private.rb, 1, get_header, ws);
+	struct cio_http_client *c = ws->ws_private.http_client;
+	enum cio_error err = c->bs.read_exactly(&c->bs, &c->rb, 1, get_header, ws);
 	if (cio_unlikely(err != CIO_SUCCESS)) {
 		handle_error(ws, err, CIO_WEBSOCKET_CLOSE_INTERNAL_ERROR, "error while start reading websocket header");
 	}
@@ -851,7 +855,8 @@ static enum cio_error write_close_message(struct cio_websocket *ws, enum cio_web
 
 	prepare_close_job_string(ws, status_code, reason, handler, handler_context, close_frame_written);
 
-	enum cio_error err = cio_timer_init(&ws->ws_private.close_timer, ws->ws_private.loop, NULL);
+	struct cio_http_client *c = ws->ws_private.http_client;
+	enum cio_error err = cio_timer_init(&ws->ws_private.close_timer, c->socket.impl.loop, NULL);
 	if (cio_unlikely(err != CIO_SUCCESS)) {
 		return err;
 	}

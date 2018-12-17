@@ -197,6 +197,8 @@ static bool check_http_version(const struct cio_http_client *client)
 
 static void response_written(struct cio_buffered_stream *bs, void *handler_context, enum cio_error err)
 {
+	(void)bs;
+
 	struct cio_http_client *client = (struct cio_http_client *)handler_context;
 
 	if (cio_unlikely(err != CIO_SUCCESS)) {
@@ -209,9 +211,6 @@ static void response_written(struct cio_buffered_stream *bs, void *handler_conte
 
 	struct cio_websocket *ws = &wslh->websocket;
 	ws->ws_private.http_client = client;
-	ws->ws_private.bs = bs;
-	ws->ws_private.rb = &client->rb;
-	ws->ws_private.loop = client->socket.impl.loop;
 
 	ws->on_connect(ws);
 }
