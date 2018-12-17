@@ -53,6 +53,9 @@ extern "C" {
  * @ref cio_http_location_handler_on_header_field "on_header_field" or
  * @ref cio_http_location_handler_on_body "on_body" which will be called automatically
  * when an HTTP request is processed by the HTTP server.
+ *
+ * @note Please note that after you've sent a @ref cio_http_client_write_response, callbacks you've registered
+ * in a @ref cio_http_location_handler "request handler"!
  */
 
 struct cio_http_server;
