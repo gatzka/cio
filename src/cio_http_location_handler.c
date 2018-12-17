@@ -24,6 +24,8 @@
  * SOFTWARE.
  */
 
+#include <stdbool.h>
+
 #include "cio_http_location_handler.h"
 
 void cio_http_location_handler_init(struct cio_http_location_handler *handler)
@@ -41,4 +43,24 @@ void cio_http_location_handler_init(struct cio_http_location_handler *handler)
 	handler->on_body = NULL;
 	handler->on_message_complete = NULL;
 	handler->free = NULL;
+}
+
+bool cio_http_location_handler_no_callbacks(const struct cio_http_location_handler *handler)
+{
+	if (handler->on_url ||
+	    handler->on_headers_complete ||
+	    handler->on_message_complete ||
+	    handler->on_header_field ||
+	    handler->on_header_value ||
+	    handler->on_port ||
+	    handler->on_host ||
+	    handler->on_path ||
+	    handler->on_port ||
+	    handler->on_query ||
+	    handler->on_schema ||
+	    handler->on_fragment) {
+		return true;
+	}
+
+	return false;
 }
