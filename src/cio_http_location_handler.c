@@ -59,8 +59,8 @@ bool cio_http_location_handler_no_callbacks(const struct cio_http_location_handl
 	    handler->on_query ||
 	    handler->on_schema ||
 	    handler->on_fragment) {
-		return true;
+		return false;
 	}
 
-	return false;
+	return true;
 }
