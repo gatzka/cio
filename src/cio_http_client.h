@@ -93,12 +93,12 @@ struct cio_http_client {
 
 	/**
 	 * @anchor cio_http_client_write_response
-	 * @brief Writes a success response (200) to the requesting client.
+	 * @brief Writes a response to the requesting client.
 	 *
 	 * The HTTP connection is closed after the response was written.
 	 *
 	 * @param client The client which shall get the response.
-	 * @param stattus_code The http status code of the response.
+	 * @param status_code The http status code of the response.
 	 * @param wbh The write buffer head containing the data which should be written after
 	 * the HTTP response header to the client (the http body).
 	 */
