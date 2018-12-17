@@ -118,8 +118,6 @@ $(document).ready(function(){initNavTree('structcio__websocket__private.html',''
 Data Fields</h2></td></tr>
 <tr class="memitem:abce150c320dfcf5ec94981c6f689049f"><td class="memItemLeft" align="right" valign="top">uint64_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structcio__websocket__private.html#abce150c320dfcf5ec94981c6f689049f">read_frame_length</a></td></tr>
 <tr class="separator:abce150c320dfcf5ec94981c6f689049f"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a4dc6147686e174b03cca88b6799fdb65"><td class="memItemLeft" align="right" valign="top">struct cio_eventloop *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structcio__websocket__private.html#a4dc6147686e174b03cca88b6799fdb65">loop</a></td></tr>
-<tr class="separator:a4dc6147686e174b03cca88b6799fdb65"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a41b8d0e6181ad659a77f0cbd308dc5c6"><td class="memItemLeft" >struct {</td></tr>
 <tr class="memitem:a0688e986be7dcb497a4b76fbfd787a72"><td class="memItemLeft" >&#160;&#160;&#160;unsigned int&#160;&#160;&#160;<a class="el" href="structcio__websocket__private.html#a05244ed7d203d3a1dc63b72bb726583e">fin</a>: 1</td></tr>
 <tr class="separator:a0688e986be7dcb497a4b76fbfd787a72"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -145,10 +143,8 @@ Data Fields</h2></td></tr>
 <tr class="separator:a1962b07487645e896c1ca63daad14d2e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aff38ef10124ec090b6eec5b2e42324ac"><td class="memItemLeft" align="right" valign="top">unsigned int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structcio__websocket__private.html#aff38ef10124ec090b6eec5b2e42324ac">in_user_writecallback_context</a></td></tr>
 <tr class="separator:aff38ef10124ec090b6eec5b2e42324ac"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a358e48f079c102fad8555db5d579db67"><td class="memItemLeft" align="right" valign="top">struct <a class="el" href="structcio__buffered__stream.html">cio_buffered_stream</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structcio__websocket__private.html#a358e48f079c102fad8555db5d579db67">bs</a></td></tr>
-<tr class="separator:a358e48f079c102fad8555db5d579db67"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a4dada5b8e1c0e7eb97f0c53796f73964"><td class="memItemLeft" align="right" valign="top">struct <a class="el" href="structcio__read__buffer.html">cio_read_buffer</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structcio__websocket__private.html#a4dada5b8e1c0e7eb97f0c53796f73964">rb</a></td></tr>
-<tr class="separator:a4dada5b8e1c0e7eb97f0c53796f73964"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a766333170534377715371b3304a5133f"><td class="memItemLeft" align="right" valign="top">struct <a class="el" href="structcio__http__client.html">cio_http_client</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structcio__websocket__private.html#a766333170534377715371b3304a5133f">http_client</a></td></tr>
+<tr class="separator:a766333170534377715371b3304a5133f"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ac449ba2534bcd9691cedd3d4667f827f"><td class="memItemLeft" align="right" valign="top">struct <a class="el" href="structcio__timer.html">cio_timer</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structcio__websocket__private.html#ac449ba2534bcd9691cedd3d4667f827f">close_timer</a></td></tr>
 <tr class="separator:ac449ba2534bcd9691cedd3d4667f827f"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a4db49931fb1dd4dbc4da22ded5f01678"><td class="memItemLeft" align="right" valign="top">struct <a class="el" href="structcio__utf8__state.html">cio_utf8_state</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structcio__websocket__private.html#a4db49931fb1dd4dbc4da22ded5f01678">utf8_state</a></td></tr>
@@ -175,18 +171,6 @@ Data Fields</h2></td></tr>
 <tr class="separator:afba2373519a3ecbd553f4c26b85c6a32"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <h2 class="groupheader">Field Documentation</h2>
-<a class="anchor" id="a358e48f079c102fad8555db5d579db67"></a>
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">struct <a class="el" href="structcio__buffered__stream.html">cio_buffered_stream</a>* cio_websocket_private::bs</td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-</div>
-</div>
 <a class="anchor" id="acff869ea3c3f402492d30102abe8655d"></a>
 <div class="memitem">
 <div class="memproto">
@@ -283,6 +267,18 @@ Data Fields</h2></td></tr>
 
 </div>
 </div>
+<a class="anchor" id="a766333170534377715371b3304a5133f"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">struct <a class="el" href="structcio__http__client.html">cio_http_client</a>* cio_websocket_private::http_client</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
 <a class="anchor" id="aff38ef10124ec090b6eec5b2e42324ac"></a>
 <div class="memitem">
 <div class="memproto">
@@ -319,18 +315,6 @@ Data Fields</h2></td></tr>
 
 </div>
 </div>
-<a class="anchor" id="a4dc6147686e174b03cca88b6799fdb65"></a>
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">struct cio_eventloop* cio_websocket_private::loop</td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-</div>
-</div>
 <a class="anchor" id="ac1cbc7eecf661374affbda8bcf93fc96"></a>
 <div class="memitem">
 <div class="memproto">
@@ -349,18 +333,6 @@ Data Fields</h2></td></tr>
       <table class="memname">
         <tr>
           <td class="memname">struct <a class="el" href="structcio__response__buffer.html">cio_response_buffer</a> cio_websocket_private::ping_buffer</td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-</div>
-</div>
-<a class="anchor" id="a4dada5b8e1c0e7eb97f0c53796f73964"></a>
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">struct <a class="el" href="structcio__read__buffer.html">cio_read_buffer</a>* cio_websocket_private::rb</td>
         </tr>
       </table>
 </div><div class="memdoc">

@@ -1,6 +1,6 @@
 var searchData=
 [
-  ['rb',['rb',['../structcio__http__client.html#a334814ff33851c173b657e37ec95ea69',1,'cio_http_client::rb()'],['../structcio__websocket__private.html#a4dada5b8e1c0e7eb97f0c53796f73964',1,'cio_websocket_private::rb()']]],
+  ['rb',['rb',['../structcio__http__client.html#a334814ff33851c173b657e37ec95ea69',1,'cio_http_client']]],
   ['read',['read',['../structcio__buffered__stream.html#a0e0fece4cd7564e989e260169d96a945',1,'cio_buffered_stream']]],
   ['read_5fexactly',['read_exactly',['../structcio__buffered__stream.html#a0a0e03dfae096ca683e46d40cc6f4992',1,'cio_buffered_stream']]],
   ['read_5fframe_5flength',['read_frame_length',['../structcio__websocket__private.html#abce150c320dfcf5ec94981c6f689049f',1,'cio_websocket_private']]],

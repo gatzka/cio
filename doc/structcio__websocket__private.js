@@ -1,6 +1,5 @@
 var structcio__websocket__private =
 [
-    [ "bs", "structcio__websocket__private.html#a358e48f079c102fad8555db5d579db67", null ],
     [ "close_buffer", "structcio__websocket__private.html#acff869ea3c3f402492d30102abe8655d", null ],
     [ "close_hook", "structcio__websocket__private.html#a51feb81058faa2b6380050e5a5f9b064", null ],
     [ "close_timer", "structcio__websocket__private.html#ac449ba2534bcd9691cedd3d4667f827f", null ],
@@ -9,13 +8,12 @@ var structcio__websocket__private =
     [ "first_write_job", "structcio__websocket__private.html#a310adbcfc73e6d38444475531458c425", null ],
     [ "frag_opcode", "structcio__websocket__private.html#a2444b6d19ae7c43fbfb7ade730c76ddc", null ],
     [ "fragmented_write", "structcio__websocket__private.html#a56659e66ba0abd9c92befc6881bdd36f", null ],
+    [ "http_client", "structcio__websocket__private.html#a766333170534377715371b3304a5133f", null ],
     [ "in_user_writecallback_context", "structcio__websocket__private.html#aff38ef10124ec090b6eec5b2e42324ac", null ],
     [ "is_server", "structcio__websocket__private.html#a0163f940ff3512c8d11f65237d673b86", null ],
     [ "last_write_job", "structcio__websocket__private.html#ab0bcb7ddd9193551f9d521cf5e661b13", null ],
-    [ "loop", "structcio__websocket__private.html#a4dc6147686e174b03cca88b6799fdb65", null ],
     [ "opcode", "structcio__websocket__private.html#ac1cbc7eecf661374affbda8bcf93fc96", null ],
     [ "ping_buffer", "structcio__websocket__private.html#afba2373519a3ecbd553f4c26b85c6a32", null ],
-    [ "rb", "structcio__websocket__private.html#a4dada5b8e1c0e7eb97f0c53796f73964", null ],
     [ "read_frame_length", "structcio__websocket__private.html#abce150c320dfcf5ec94981c6f689049f", null ],
     [ "read_handler", "structcio__websocket__private.html#a039a8e2c5b9f72b9db0c26ff3ea9ba41", null ],
     [ "read_handler_context", "structcio__websocket__private.html#a1962b07487645e896c1ca63daad14d2e", null ],
