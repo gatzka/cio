@@ -166,11 +166,6 @@ struct cio_http_location_handler {
 	 * connection is @ref cio_http_client_close "closed".
 	 */
 	void (*free)(struct cio_http_location_handler *handler);
-
-	/**
-	 * @privatesection
-	 */
-	struct cio_http_client *client;
 };
 
 /**
@@ -181,9 +176,9 @@ struct cio_http_location_handler {
  */
 CIO_EXPORT void cio_http_location_handler_init(struct cio_http_location_handler *handler);
 
-/// @cond DO_NOT_DOC
+/*! @cond PRIVATE */
 bool cio_http_location_handler_no_callbacks(const struct cio_http_location_handler *handler);
-/// @endcond
+/*! @endcond */
 
 #ifdef __cplusplus
 }

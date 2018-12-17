@@ -208,6 +208,7 @@ static void response_written(struct cio_buffered_stream *bs, void *handler_conte
 	wslh->write_response_timer.cancel(&wslh->write_response_timer);
 
 	struct cio_websocket *ws = &wslh->websocket;
+	ws->ws_private.http_client = client;
 	ws->ws_private.bs = bs;
 	ws->ws_private.rb = &client->rb;
 	ws->ws_private.loop = client->socket.impl.loop;
@@ -302,11 +303,9 @@ static enum cio_http_cb_return handle_headers_complete(struct cio_http_client *c
 	return CIO_HTTP_CB_SKIP_BODY;
 }
 
-static void close_server_websocket(struct cio_websocket *s)
+static void close_server_websocket(struct cio_websocket *ws)
 {
-	struct cio_websocket_location_handler *wslh = cio_container_of(s, struct cio_websocket_location_handler, websocket);
-	struct cio_http_client *client = wslh->http_location.client;
-	client->close(client);
+	ws->ws_private.http_client->close(ws->ws_private.http_client);
 }
 
 static void free_resources(struct cio_http_location_handler *handler)
