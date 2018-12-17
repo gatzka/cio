@@ -123,7 +123,7 @@ Data Fields</h2></td></tr>
 <tr class="memdesc:a99ea764a1678b2390fb83cbb255b36b1"><td class="mdescLeft">&#160;</td><td class="mdescRight">Closes the HTTP client connection.  <a href="#a99ea764a1678b2390fb83cbb255b36b1">More...</a><br /></td></tr>
 <tr class="separator:a99ea764a1678b2390fb83cbb255b36b1"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ac4802e6cf4c5e7f3baa5d094c5d27c0e"><td class="memItemLeft" align="right" valign="top">void(*&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structcio__http__client.html#ac4802e6cf4c5e7f3baa5d094c5d27c0e">write_response</a> )(struct <a class="el" href="structcio__http__client.html">cio_http_client</a> *client, enum <a class="el" href="cio__http__status__code_8h.html#ac968a65c0166575561fdd18b89ea580c">cio_http_status_code</a> status_code, struct <a class="el" href="structcio__write__buffer.html">cio_write_buffer</a> *wbh)</td></tr>
-<tr class="memdesc:ac4802e6cf4c5e7f3baa5d094c5d27c0e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Writes a success response (200) to the requesting client.  <a href="#ac4802e6cf4c5e7f3baa5d094c5d27c0e">More...</a><br /></td></tr>
+<tr class="memdesc:ac4802e6cf4c5e7f3baa5d094c5d27c0e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Writes a response to the requesting client.  <a href="#ac4802e6cf4c5e7f3baa5d094c5d27c0e">More...</a><br /></td></tr>
 <tr class="separator:ac4802e6cf4c5e7f3baa5d094c5d27c0e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a1e41fcb58ad9014d9fed0b22ae7a148b"><td class="memItemLeft" align="right" valign="top">void(*&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structcio__http__client.html#a1e41fcb58ad9014d9fed0b22ae7a148b">start_response_header</a> )(struct <a class="el" href="structcio__http__client.html">cio_http_client</a> *client, enum <a class="el" href="cio__http__status__code_8h.html#ac968a65c0166575561fdd18b89ea580c">cio_http_status_code</a> status_code)</td></tr>
 <tr class="separator:a1e41fcb58ad9014d9fed0b22ae7a148b"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -362,12 +362,12 @@ Data Fields</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>Writes a success response (200) to the requesting client. </p>
+<p>Writes a response to the requesting client. </p>
 <p><a class="anchor" id="cio_http_client_write_response"></a>The HTTP connection is closed after the response was written.</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">client</td><td>The client which shall get the response. </td></tr>
-    <tr><td class="paramname">stattus_code</td><td>The http status code of the response. </td></tr>
+    <tr><td class="paramname">status_code</td><td>The http status code of the response. </td></tr>
     <tr><td class="paramname">wbh</td><td>The write buffer head containing the data which should be written after the HTTP response header to the client (the http body). </td></tr>
   </table>
   </dd>
