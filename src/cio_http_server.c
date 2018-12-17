@@ -376,7 +376,6 @@ static int on_url(http_parser *parser, const char *at, size_t length)
 	}
 
 	client->handler = handler;
-	handler->client = client;
 
 	if (cio_unlikely(cio_http_location_handler_no_callbacks(handler))) {
 		client->write_response(client, CIO_HTTP_STATUS_INTERNAL_SERVER_ERROR, NULL);

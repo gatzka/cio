@@ -49,6 +49,7 @@ extern "C" {
 #include "cio_error_code.h"
 #include "cio_eventloop.h"
 #include "cio_export.h"
+#include "cio_http_client.h"
 #include "cio_timer.h"
 #include "cio_utf8_checker.h"
 #include "cio_write_buffer.h"
@@ -110,7 +111,6 @@ struct cio_response_buffer {
 
 struct cio_websocket_private {
 	uint64_t read_frame_length;
-	struct cio_eventloop *loop;
 
 	struct {
 		unsigned int fin : 1;
@@ -128,8 +128,12 @@ struct cio_websocket_private {
 
 	unsigned int in_user_writecallback_context;
 
+	struct cio_eventloop *loop;
 	struct cio_buffered_stream *bs;
 	struct cio_read_buffer *rb;
+
+	struct cio_http_client *http_client;
+
 	struct cio_timer close_timer;
 	struct cio_utf8_state utf8_state;
 	cio_websocket_close_hook close_hook;
