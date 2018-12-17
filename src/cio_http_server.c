@@ -378,15 +378,14 @@ static int on_url(http_parser *parser, const char *at, size_t length)
 	client->handler = handler;
 	handler->client = client;
 
-	int user_handler = 0;
+	if (cio_unlikely(cio_http_location_handler_no_callbacks(handler))) {
+		client->write_response(client, CIO_HTTP_STATUS_INTERNAL_SERVER_ERROR, NULL);
+		return 0;
+	}
 
 	enum cio_http_cb_return cb_ret = call_url_parts_callback(&u, UF_SCHEMA, handler->on_schema, client, at);
 	if (cio_unlikely(cb_ret == CIO_HTTP_CB_ERROR)) {
 		return -1;
-	}
-
-	if (cb_ret != CIO_HTTP_CB_UNHANDLED) {
-		user_handler = 1;
 	}
 
 	cb_ret = call_url_parts_callback(&u, UF_HOST, handler->on_host, client, at);
@@ -394,17 +393,9 @@ static int on_url(http_parser *parser, const char *at, size_t length)
 		return -1;
 	}
 
-	if (cb_ret != CIO_HTTP_CB_UNHANDLED) {
-		user_handler = 1;
-	}
-
 	cb_ret = call_url_parts_callback(&u, UF_PORT, handler->on_port, client, at);
 	if (cio_unlikely(cb_ret == CIO_HTTP_CB_ERROR)) {
 		return -1;
-	}
-
-	if (cb_ret != CIO_HTTP_CB_UNHANDLED) {
-		user_handler = 1;
 	}
 
 	cb_ret = call_url_parts_callback(&u, UF_PATH, handler->on_path, client, at);
@@ -412,17 +403,9 @@ static int on_url(http_parser *parser, const char *at, size_t length)
 		return -1;
 	}
 
-	if (cb_ret != CIO_HTTP_CB_UNHANDLED) {
-		user_handler = 1;
-	}
-
 	cb_ret = call_url_parts_callback(&u, UF_QUERY, handler->on_query, client, at);
 	if (cio_unlikely(cb_ret == CIO_HTTP_CB_ERROR)) {
 		return -1;
-	}
-
-	if (cb_ret != CIO_HTTP_CB_UNHANDLED) {
-		user_handler = 1;
 	}
 
 	cb_ret = call_url_parts_callback(&u, UF_FRAGMENT, handler->on_fragment, client, at);
@@ -430,38 +413,14 @@ static int on_url(http_parser *parser, const char *at, size_t length)
 		return -1;
 	}
 
-	if (cb_ret != CIO_HTTP_CB_UNHANDLED) {
-		user_handler = 1;
-	}
-
 	client->parser_settings.on_headers_complete = on_headers_complete;
-
 	client->parser_settings.on_header_field = on_header_field;
-	if (handler->on_header_field != NULL) {
-		user_handler = 1;
-	}
-
 	client->parser_settings.on_header_value = on_header_value;
-	if (handler->on_header_value != NULL) {
-		user_handler = 1;
-	}
-
 	client->parser_settings.on_body = on_body;
-	if (handler->on_body) {
-		user_handler = 1;
-	}
-
 	client->parser_settings.on_message_complete = on_message_complete;
-	if (handler->on_message_complete) {
-		user_handler = 1;
-	}
 
 	if (handler->on_url && !client->http_private.response_written) {
 		return handler->on_url(client, at, length);
-	}
-
-	if (user_handler == 0) {
-		client->write_response(client, CIO_HTTP_STATUS_INTERNAL_SERVER_ERROR, NULL);
 	}
 
 	return 0;
