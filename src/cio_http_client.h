@@ -99,10 +99,10 @@ struct cio_http_client {
 	 *
 	 * @param client The client which shall get the response.
 	 * @param status_code The http status code of the response.
-	 * @param wbh The write buffer head containing the data which should be written after
+	 * @param wbh_body The write buffer head containing the data which should be written after
 	 * the HTTP response header to the client (the http body).
 	 */
-	void (*write_response)(struct cio_http_client *client, enum cio_http_status_code status_code, struct cio_write_buffer *wbh);
+	void (*write_response)(struct cio_http_client *client, enum cio_http_status_code status_code, struct cio_write_buffer *wbh_body);
 
 	void (*start_response_header)(struct cio_http_client *client, enum cio_http_status_code status_code);
 	void (*end_response_header)(struct cio_http_client *client);
@@ -115,7 +115,7 @@ struct cio_http_client {
 	 * @param client The client which shall be flushed.
 	 * @param handler The handler to be called when flusing completed.
      */
-	void (*flush)(struct cio_http_client *client, cio_buffered_stream_write_handler current_handler);
+	void (*flush)(struct cio_http_client *client, cio_buffered_stream_write_handler handler);
 
 	/**
 	 * @anchor cio_http_client_bs
@@ -164,7 +164,7 @@ struct cio_http_client {
 	 */
 	enum cio_http_method http_method;
 
-	struct cio_http_location_handler *current_handler;
+	struct cio_http_location_handler *handler;
 
 	struct cio_socket socket;
 
