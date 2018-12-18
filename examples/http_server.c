@@ -70,14 +70,6 @@ static enum cio_http_cb_return dummy_on_message_complete(struct cio_http_client 
 	return CIO_HTTP_CB_SUCCESS;
 }
 
-static enum cio_http_cb_return dummy_on_body(struct cio_http_client *client, const char *at, size_t length)
-{
-	(void)client;
-	(void)at;
-	(void)length;
-	return CIO_HTTP_CB_SUCCESS;
-}
-
 static struct cio_http_location_handler *alloc_dummy_handler(const void *config)
 {
 	(void)config;
@@ -89,7 +81,6 @@ static struct cio_http_location_handler *alloc_dummy_handler(const void *config)
 	cio_http_location_handler_init(&handler->handler);
 	cio_write_buffer_head_init(&handler->wbh);
 	handler->handler.free = free_dummy_handler;
-	handler->handler.on_body = dummy_on_body;
 	handler->handler.on_message_complete = dummy_on_message_complete;
 	return &handler->handler;
 }
