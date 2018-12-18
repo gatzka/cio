@@ -95,7 +95,7 @@ static void client_timeout_handler(struct cio_timer *timer, void *handler_contex
 
 	if (err == CIO_SUCCESS) {
 		struct cio_http_client *client = handler_context;
-		client->write_response(client, CIO_HTTP_STATUS_TIMEOUT, NULL);
+		client->write_response(client, CIO_HTTP_STATUS_TIMEOUT, NULL, NULL);
 	}
 }
 
@@ -181,8 +181,9 @@ static void flush(struct cio_http_client *client, cio_buffered_stream_write_hand
 	}
 }
 
-static void write_response(struct cio_http_client *client, enum cio_http_status_code status_code, struct cio_write_buffer *wbh)
+static void write_response(struct cio_http_client *client, enum cio_http_status_code status_code, struct cio_write_buffer *wbh, void (*response_written_cb)(struct cio_http_client *client, enum cio_error err))
 {
+	client->response_written_cb = response_written_cb;
 	client->http_private.response_written = true;
 	size_t content_length = 0;
 	if (wbh) {
@@ -265,7 +266,7 @@ static int on_headers_complete(http_parser *parser)
 	if (cio_unlikely(err != CIO_SUCCESS)) {
 		struct cio_http_server *server = (struct cio_http_server *)parser->data;
 		handle_error(server, "Cancelling read timer in on_headers_complete failed, maybe not armed?");
-		client->write_response(client, CIO_HTTP_STATUS_INTERNAL_SERVER_ERROR, NULL);
+		client->write_response(client, CIO_HTTP_STATUS_INTERNAL_SERVER_ERROR, NULL, NULL);
 		ret = CIO_HTTP_CB_SUCCESS;
 	} else {
 		if (client->current_handler->on_headers_complete && !client->http_private.response_written) {
@@ -365,20 +366,20 @@ static int on_url(http_parser *parser, const char *at, size_t length)
 
 	const struct cio_http_location *target = find_handler(parser->data, at + u.field_data[UF_PATH].off, u.field_data[UF_PATH].len);
 	if (cio_unlikely(target == NULL)) {
-		client->write_response(client, CIO_HTTP_STATUS_NOT_FOUND, NULL);
+		client->write_response(client, CIO_HTTP_STATUS_NOT_FOUND, NULL, NULL);
 		return 0;
 	}
 
 	struct cio_http_location_handler *handler = target->alloc_handler(target->config);
 	if (cio_unlikely(handler == NULL)) {
-		client->write_response(client, CIO_HTTP_STATUS_INTERNAL_SERVER_ERROR, NULL);
+		client->write_response(client, CIO_HTTP_STATUS_INTERNAL_SERVER_ERROR, NULL, NULL);
 		return 0;
 	}
 
 	client->current_handler = handler;
 
 	if (cio_unlikely(cio_http_location_handler_no_callbacks(handler))) {
-		client->write_response(client, CIO_HTTP_STATUS_INTERNAL_SERVER_ERROR, NULL);
+		client->write_response(client, CIO_HTTP_STATUS_INTERNAL_SERVER_ERROR, NULL, NULL);
 		return 0;
 	}
 
@@ -437,7 +438,7 @@ static void parse(struct cio_buffered_stream *stream, void *handler_context, enu
 	struct cio_http_client *client = (struct cio_http_client *)handler_context;
 
 	if (cio_unlikely(cio_is_error(err))) {
-		client->write_response(client, CIO_HTTP_STATUS_INTERNAL_SERVER_ERROR, NULL);
+		client->write_response(client, CIO_HTTP_STATUS_INTERNAL_SERVER_ERROR, NULL, NULL);
 		return;
 	}
 
@@ -449,7 +450,7 @@ static void parse(struct cio_buffered_stream *stream, void *handler_context, enu
 	client->http_private.parsing--;
 
 	if (cio_unlikely(nparsed != bytes_transfered)) {
-		client->write_response(client, CIO_HTTP_STATUS_BAD_REQUEST, NULL);
+		client->write_response(client, CIO_HTTP_STATUS_BAD_REQUEST, NULL, NULL);
 		return;
 	}
 
@@ -473,7 +474,7 @@ static void finish_bytes(struct cio_http_client *client)
 	if (cio_unlikely(err != CIO_SUCCESS)) {
 		struct cio_http_server *server = (struct cio_http_server *)client->parser.data;
 		handle_error(server, "Reading of bytes failed");
-		client->write_response(client, CIO_HTTP_STATUS_INTERNAL_SERVER_ERROR, NULL);
+		client->write_response(client, CIO_HTTP_STATUS_INTERNAL_SERVER_ERROR, NULL, NULL);
 	}
 }
 
@@ -491,7 +492,7 @@ static void finish_header_line(struct cio_http_client *client)
 	if (cio_unlikely(err != CIO_SUCCESS)) {
 		struct cio_http_server *server = (struct cio_http_server *)client->parser.data;
 		handle_error(server, "Reading of bytes/header line failed");
-		client->write_response(client, CIO_HTTP_STATUS_INTERNAL_SERVER_ERROR, NULL);
+		client->write_response(client, CIO_HTTP_STATUS_INTERNAL_SERVER_ERROR, NULL, NULL);
 	}
 }
 
@@ -504,7 +505,7 @@ static void finish_request_line(struct cio_http_client *client)
 	if (cio_unlikely(err != CIO_SUCCESS)) {
 		struct cio_http_server *server = (struct cio_http_server *)client->parser.data;
 		handle_error(server, "Reading of header line failed");
-		client->write_response(client, CIO_HTTP_STATUS_INTERNAL_SERVER_ERROR, NULL);
+		client->write_response(client, CIO_HTTP_STATUS_INTERNAL_SERVER_ERROR, NULL, NULL);
 	}
 }
 
@@ -533,6 +534,7 @@ static void handle_accept(struct cio_server_socket *ss, void *handler_context, e
 	client->add_response_header = add_response_header;
 	client->write_response = write_response;
 	client->flush = flush;
+	client->response_written_cb = NULL;
 
 	client->current_handler = NULL;
 	http_parser_settings_init(&client->parser_settings);

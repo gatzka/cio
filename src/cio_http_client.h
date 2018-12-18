@@ -102,7 +102,7 @@ struct cio_http_client {
 	 * @param wbh_body The write buffer head containing the data which should be written after
 	 * the HTTP response header to the client (the http body).
 	 */
-	void (*write_response)(struct cio_http_client *client, enum cio_http_status_code status_code, struct cio_write_buffer *wbh_body);
+	void (*write_response)(struct cio_http_client *client, enum cio_http_status_code status_code, struct cio_write_buffer *wbh_body, void (*response_written)(struct cio_http_client *client, enum cio_error err));
 
 	void (*start_response_header)(struct cio_http_client *client, enum cio_http_status_code status_code);
 	void (*end_response_header)(struct cio_http_client *client);
@@ -164,15 +164,12 @@ struct cio_http_client {
 	 */
 	enum cio_http_method http_method;
 
-	struct cio_http_location_handler *handler;
-
-	struct cio_socket socket;
-
 	/*! @cond PRIVATE */
-
+	struct cio_http_location_handler *current_handler;
+	struct cio_socket socket;
 	struct cio_write_buffer wbh;
-
 	struct cio_http_client_private http_private;
+	void (*response_written_cb)(struct cio_http_client *client, enum cio_error err);
 
 	http_parser parser;
 	http_parser_settings parser_settings;

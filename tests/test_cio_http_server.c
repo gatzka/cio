@@ -255,13 +255,13 @@ static enum cio_http_cb_return header_complete_write_response(struct cio_http_cl
 	struct dummy_handler *dh = cio_container_of(handler, struct dummy_handler, handler);
 	cio_write_buffer_const_element_init(&dh->wb, data, sizeof(data));
 	cio_write_buffer_queue_tail(&dh->wbh, &dh->wb);
-	c->write_response(c, CIO_HTTP_STATUS_OK, &dh->wbh);
+	c->write_response(c, CIO_HTTP_STATUS_OK, &dh->wbh, NULL);
 	return CIO_HTTP_CB_SUCCESS;
 }
 
 static enum cio_http_cb_return message_complete_write_header(struct cio_http_client *c)
 {
-	c->write_response(c, CIO_HTTP_STATUS_OK, NULL);
+	c->write_response(c, CIO_HTTP_STATUS_OK, NULL, NULL);
 	return CIO_HTTP_CB_SUCCESS;
 }
 
