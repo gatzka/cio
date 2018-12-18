@@ -101,8 +101,10 @@ struct cio_http_client {
 	 * @param status_code The http status code of the response.
 	 * @param wbh_body The write buffer head containing the data which should be written after
 	 * the HTTP response header to the client (the http body).
+	 * @param response_written An optional callback that will be called whe the response was written.
+	 * @return ::CIO_SUCCESS for success.
 	 */
-	void (*write_response)(struct cio_http_client *client, enum cio_http_status_code status_code, struct cio_write_buffer *wbh_body, void (*response_written)(struct cio_http_client *client, enum cio_error err));
+	enum cio_error (*write_response)(struct cio_http_client *client, enum cio_http_status_code status_code, struct cio_write_buffer *wbh_body, void (*response_written)(struct cio_http_client *client, enum cio_error err));
 
 	void (*start_response_header)(struct cio_http_client *client, enum cio_http_status_code status_code);
 	void (*end_response_header)(struct cio_http_client *client);

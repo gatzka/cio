@@ -181,7 +181,7 @@ static void flush(struct cio_http_client *client, cio_buffered_stream_write_hand
 	}
 }
 
-static void write_response(struct cio_http_client *client, enum cio_http_status_code status_code, struct cio_write_buffer *wbh, void (*response_written_cb)(struct cio_http_client *client, enum cio_error err))
+static enum cio_error write_response(struct cio_http_client *client, enum cio_http_status_code status_code, struct cio_write_buffer *wbh, void (*response_written_cb)(struct cio_http_client *client, enum cio_error err))
 {
 	client->response_written_cb = response_written_cb;
 	client->http_private.response_written = true;
@@ -210,6 +210,8 @@ static void write_response(struct cio_http_client *client, enum cio_http_status_
 	}
 
 	flush(client, response_written);
+
+	return CIO_SUCCESS;
 }
 
 static bool location_match(const char *location, size_t location_length, const char *request_target, size_t request_target_length)
