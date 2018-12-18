@@ -195,12 +195,8 @@ static bool check_http_version(const struct cio_http_client *client)
 	return false;
 }
 
-static void response_written(struct cio_buffered_stream *bs, void *handler_context, enum cio_error err)
+static void response_written(struct cio_http_client *client, enum cio_error err)
 {
-	(void)bs;
-
-	struct cio_http_client *client = (struct cio_http_client *)handler_context;
-
 	if (cio_unlikely(err != CIO_SUCCESS)) {
 		client->close(client);
 		return;
@@ -228,8 +224,6 @@ static void send_upgrade_response(struct cio_http_client *client)
 	ws->accept_value[CIO_SEC_WEBSOCKET_ACCEPT_LENGTH - 2] = '\r';
 	ws->accept_value[CIO_SEC_WEBSOCKET_ACCEPT_LENGTH - 1] = '\n';
 
-	client->start_response_header(client, CIO_HTTP_SWITCHING_PROTOCOLS);
-
 	static const char upgrade_header[] =
 	    "Upgrade: websocket" CIO_CRLF
 	    "Connection: Upgrade" CIO_CRLF
@@ -250,8 +244,7 @@ static void send_upgrade_response(struct cio_http_client *client)
 		client->add_response_header(client, &ws->wb_protocol_value);
 	}
 
-	client->end_response_header(client);
-	client->flush(client, response_written);
+	client->write_response(client, CIO_HTTP_SWITCHING_PROTOCOLS, NULL, response_written);
 }
 
 static void write_response_timeout(struct cio_timer *timer, void *handler_context, enum cio_error err)

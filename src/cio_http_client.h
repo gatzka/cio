@@ -59,7 +59,8 @@ struct cio_http_client_private {
 	struct cio_write_buffer wb_http_response_header_end;
 	struct cio_timer read_header_timer;
 
-	int should_keepalive;
+	bool should_keepalive;
+	bool close_immediately;
 	bool headers_complete;
 	bool to_be_closed;
 	unsigned int parsing;
@@ -95,7 +96,8 @@ struct cio_http_client {
 	 * @anchor cio_http_client_write_response
 	 * @brief Writes a non-chunked response to the requesting client.
 	 *
-	 * This function writes a non-chunked response to the requesting client. Additional header fields can
+	 * This function writes a non-chunked response to the requesting client. This function takes care itself to
+	 * add @c Content-Length and @c Connection header fields. Additional header fields can
 	 * be added by calling @ref cio_http_client_add_response_header "add_response_header".
 	 *
 	 * @warning Any data belonging to response (namely the body data @p wbh_body points to and all header lines added
@@ -107,13 +109,11 @@ struct cio_http_client {
 	 * @param status_code The http status code of the response.
 	 * @param wbh_body The write buffer head containing the data which should be written after
 	 * the HTTP response header to the client (the http body).
-	 * @param response_written An optional callback that will be called whe the response was written.
+	 * @param response_written An optional callback that will be called whe the response was written. If @p err != ::CIO:SUCCESS,
+	 * the client will be automatically closed.
 	 * @return ::CIO_SUCCESS for success.
 	 */
 	enum cio_error (*write_response)(struct cio_http_client *client, enum cio_http_status_code status_code, struct cio_write_buffer *wbh_body, void (*response_written)(struct cio_http_client *client, enum cio_error err));
-
-	void (*start_response_header)(struct cio_http_client *client, enum cio_http_status_code status_code);
-	void (*end_response_header)(struct cio_http_client *client);
 
 	/**
 	 * @anchor cio_http_client_add_response_header
@@ -134,15 +134,6 @@ struct cio_http_client {
 	 * @param wbh The write buffer head pointing to the data of the header line.
 	 */
 	void (*add_response_header)(struct cio_http_client *client, struct cio_write_buffer *wbh);
-
-	/**
-	 * @anchor cio_http_client_flush
-	 * @brief Flushes the write buffer attached of this client.
-     *
-	 * @param client The client which shall be flushed.
-	 * @param handler The handler to be called when flusing completed.
-     */
-	void (*flush)(struct cio_http_client *client, cio_buffered_stream_write_handler handler);
 
 	/**
 	 * @anchor cio_http_client_bs
@@ -194,7 +185,7 @@ struct cio_http_client {
 	/*! @cond PRIVATE */
 	struct cio_http_location_handler *current_handler;
 	struct cio_socket socket;
-	struct cio_write_buffer wbh;
+	struct cio_write_buffer response_wbh;
 	struct cio_http_client_private http_private;
 	void (*response_written_cb)(struct cio_http_client *client, enum cio_error err);
 
