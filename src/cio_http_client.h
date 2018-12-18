@@ -93,9 +93,15 @@ struct cio_http_client {
 
 	/**
 	 * @anchor cio_http_client_write_response
-	 * @brief Writes a response to the requesting client.
+	 * @brief Writes a non-chunked response to the requesting client.
 	 *
-	 * The HTTP connection is closed after the response was written.
+	 * This function writes a non-chunked response to the requesting client. Additional header fields can
+	 * be added by calling @ref cio_http_client_add_response_header "add_response_header".
+	 *
+	 * @warning Any data belonging to response (namely the body data @p wbh_body points to and all header lines added
+	 * by @ref cio_http_client_add_response_header "add_response_header") must be available and valid until the complete
+	 * HTTP response was sent or the connection to the client @ref cio_http_client_close "is closed".
+	 * The response was sent when the @p response_written callback function was called.
 	 *
 	 * @param client The client which shall get the response.
 	 * @param status_code The http status code of the response.
@@ -108,6 +114,25 @@ struct cio_http_client {
 
 	void (*start_response_header)(struct cio_http_client *client, enum cio_http_status_code status_code);
 	void (*end_response_header)(struct cio_http_client *client);
+
+	/**
+	 * @anchor cio_http_client_add_response_header
+	 * @brief Queues an additional HTTP header entry.
+	 *
+	 * This function queues an additional HTTP header entry which will be sent when an @ref cio_http_client_write_response "HTTP response is sent".
+	 * Calling this function does not cause any data sent to the client!
+	 *
+	 * @warning The user of this function must take care that a complete header line is given in @p wbh! Otherwise the whole header might not
+	 * be valid HTTP!
+	 *
+	 * @warning The data @p wbh points to must be available and valid until the complete @ref cio_http_client_write_response "HTTP reponse was sent"
+	 * or the connection to the client @ref cio_http_client_close "is closed". The response was sent when the @p response_written callback function
+	 * of @ref cio_http_client_write_response "write_response" was called.
+	 *
+	 *
+	 * @param client The client which shall get the HTTP header response entry.
+	 * @param wbh The write buffer head pointing to the data of the header line.
+	 */
 	void (*add_response_header)(struct cio_http_client *client, struct cio_write_buffer *wbh);
 
 	/**
