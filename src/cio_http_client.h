@@ -64,7 +64,7 @@ struct cio_http_client_private {
 	bool headers_complete;
 	bool to_be_closed;
 	unsigned int parsing;
-	bool response_written;
+	bool response_fired;
 
 	void (*finish_func)(struct cio_http_client *client);
 	char content_length_buffer[CIO_HTTP_CLIENT_CONTENT_LENGTH_BUFFER_LENGTH];
@@ -188,6 +188,8 @@ struct cio_http_client {
 	struct cio_write_buffer response_wbh;
 	struct cio_http_client_private http_private;
 	void (*response_written_cb)(struct cio_http_client *client, enum cio_error err);
+	bool request_complete;
+	bool response_written;
 
 	http_parser parser;
 	http_parser_settings parser_settings;
