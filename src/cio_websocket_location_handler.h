@@ -70,9 +70,6 @@ struct cio_websocket_location_handler {
 	struct cio_write_buffer wb_protocol_value;
 	struct cio_write_buffer wb_protocol_end;
 
-	struct cio_timer write_response_timer;
-	uint64_t write_response_timeout;
-
 	struct cio_websocket websocket;
 };
 
@@ -87,8 +84,6 @@ struct cio_websocket_location_config {
 /**
  * @brief Initializes a websocket handler.
  * @param handler The handler to initialize.
- * @param upgrade_response_timeout Timeout in ns after which the websocket upgrade response must be sent.
- * @param loop Pointer to the eventloop to be used.
  * @param subprotocols An array of strings containing the supported subprotocols.
  * Please note that the functions will not copy this array, this array must be
  * available as long as this cio_websocket_location_handler exists!
@@ -100,8 +95,7 @@ struct cio_websocket_location_config {
  * @return CIO_SUCCESS if no error occured.
  */
 CIO_EXPORT enum cio_error cio_websocket_location_handler_init(struct cio_websocket_location_handler *handler,
-                                                              uint64_t upgrade_response_timeout,
-                                                              struct cio_eventloop *loop, const char *subprotocols[],
+                                                              const char *subprotocols[],
                                                               unsigned int num_subprotocols,
                                                               cio_websocket_on_connect on_connect,
                                                               void (*location_handler_free)(struct cio_websocket_location_handler *));
