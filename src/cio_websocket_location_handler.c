@@ -244,16 +244,6 @@ static void send_upgrade_response(struct cio_http_client *client)
 	client->write_response(client, CIO_HTTP_SWITCHING_PROTOCOLS, NULL, response_written);
 }
 
-static void write_response_timeout(struct cio_timer *timer, void *handler_context, enum cio_error err)
-{
-	(void)timer;
-
-	if (err == CIO_SUCCESS) {
-		struct cio_http_client *client = handler_context;
-		client->close(client);
-	}
-}
-
 static enum cio_http_cb_return handle_headers_complete(struct cio_http_client *client)
 {
 	if (cio_unlikely(!check_http_version(client))) {
