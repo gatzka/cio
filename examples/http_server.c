@@ -62,7 +62,7 @@ static void free_dummy_handler(struct cio_http_location_handler *handler)
 
 static enum cio_http_cb_return dummy_on_message_complete(struct cio_http_client *client)
 {
-	struct cio_http_location_handler *handler = client->handler;
+	struct cio_http_location_handler *handler = client->current_handler;
 	struct dummy_handler *dh = cio_container_of(handler, struct dummy_handler, handler);
 	cio_write_buffer_const_element_init(&dh->wb, data, sizeof(data) - 1);
 	cio_write_buffer_queue_tail(&dh->wbh, &dh->wb);

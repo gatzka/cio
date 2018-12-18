@@ -115,7 +115,7 @@ struct cio_http_client {
 	 * @param client The client which shall be flushed.
 	 * @param handler The handler to be called when flusing completed.
      */
-	void (*flush)(struct cio_http_client *client, cio_buffered_stream_write_handler handler);
+	void (*flush)(struct cio_http_client *client, cio_buffered_stream_write_handler current_handler);
 
 	/**
 	 * @anchor cio_http_client_bs
@@ -164,7 +164,7 @@ struct cio_http_client {
 	 */
 	enum cio_http_method http_method;
 
-	struct cio_http_location_handler *handler;
+	struct cio_http_location_handler *current_handler;
 
 	struct cio_socket socket;
 

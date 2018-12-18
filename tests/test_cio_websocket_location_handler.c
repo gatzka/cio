@@ -584,7 +584,7 @@ static void test_ws_location_response_write_timeout(void)
 	TEST_ASSERT_EQUAL_MESSAGE(1, timer_cancel_fake.call_count, "write timeout timer not cancelled!");
 
 	struct cio_http_client *client = cio_container_of(s, struct cio_http_client, socket);
-	struct cio_http_location_handler *handler = client->handler;
+	struct cio_http_location_handler *handler = client->current_handler;
 	struct cio_websocket_location_handler *wslh = cio_container_of(handler, struct cio_websocket_location_handler, http_location);
 	wslh->write_response_timer.handler(&wslh->write_response_timer, wslh->write_response_timer.handler_context, CIO_SUCCESS);
 

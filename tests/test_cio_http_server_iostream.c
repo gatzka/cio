@@ -118,8 +118,8 @@ FAKE_VALUE_FUNC(enum cio_error, cio_timer_init, struct cio_timer *, struct cio_e
 
 static void close_client(struct cio_http_client *client)
 {
-	if (cio_likely(client->handler != NULL)) {
-		client->handler->free(client->handler);
+	if (cio_likely(client->current_handler != NULL)) {
+		client->current_handler->free(client->current_handler);
 	}
 
 	client->http_private.read_header_timer.close(&client->http_private.read_header_timer);
@@ -264,7 +264,7 @@ static enum cio_http_cb_return header_complete_close(struct cio_http_client *c)
 static enum cio_http_cb_return header_complete_write_response(struct cio_http_client *c)
 {
 	static const char data[] = "Hello World!";
-	struct cio_http_location_handler *handler = c->handler;
+	struct cio_http_location_handler *handler = c->current_handler;
 	struct dummy_handler *dh = cio_container_of(handler, struct dummy_handler, handler);
 	cio_write_buffer_const_element_init(&dh->wb, data, sizeof(data));
 	cio_write_buffer_queue_tail(&dh->wbh, &dh->wb);

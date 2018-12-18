@@ -137,7 +137,7 @@ static enum cio_http_cb_return handle_field(struct cio_http_client *client, cons
 	static const char ws_version[] = "Sec-WebSocket-Version";
 	static const char ws_protocol[] = "Sec-WebSocket-Protocol";
 
-	struct cio_websocket_location_handler *ws = cio_container_of(client->handler, struct cio_websocket_location_handler, http_location);
+	struct cio_websocket_location_handler *ws = cio_container_of(client->current_handler, struct cio_websocket_location_handler, http_location);
 
 	if ((sizeof(sec_key) - 1 == length) && (cio_strncasecmp(at, sec_key, length) == 0)) {
 		ws->flags.current_header_field = CIO_WS_HEADER_SEC_WEBSOCKET_KEY;
@@ -154,7 +154,7 @@ static enum cio_http_cb_return handle_value(struct cio_http_client *client, cons
 {
 	enum cio_http_cb_return ret;
 
-	struct cio_websocket_location_handler *wslh = cio_container_of(client->handler, struct cio_websocket_location_handler, http_location);
+	struct cio_websocket_location_handler *wslh = cio_container_of(client->current_handler, struct cio_websocket_location_handler, http_location);
 
 	unsigned char header_field = wslh->flags.current_header_field;
 
@@ -206,7 +206,7 @@ static void response_written(struct cio_buffered_stream *bs, void *handler_conte
 		return;
 	}
 
-	struct cio_websocket_location_handler *wslh = cio_container_of(client->handler, struct cio_websocket_location_handler, http_location);
+	struct cio_websocket_location_handler *wslh = cio_container_of(client->current_handler, struct cio_websocket_location_handler, http_location);
 	wslh->write_response_timer.cancel(&wslh->write_response_timer);
 
 	struct cio_websocket *ws = &wslh->websocket;
@@ -220,7 +220,7 @@ static void send_upgrade_response(struct cio_http_client *client)
 	struct SHA1Context context;
 	SHA1Reset(&context);
 
-	struct cio_websocket_location_handler *ws = cio_container_of(client->handler, struct cio_websocket_location_handler, http_location);
+	struct cio_websocket_location_handler *ws = cio_container_of(client->current_handler, struct cio_websocket_location_handler, http_location);
 	SHA1Input(&context, ws->sec_websocket_key, CIO_SEC_WEB_SOCKET_GUID_LENGTH + CIO_SEC_WEB_SOCKET_KEY_LENGTH);
 	uint8_t sha1_buffer[SHA1HashSize];
 	SHA1Result(&context, sha1_buffer);
@@ -278,7 +278,7 @@ static enum cio_http_cb_return handle_headers_complete(struct cio_http_client *c
 		return CIO_HTTP_CB_ERROR;
 	}
 
-	struct cio_websocket_location_handler *wslh = cio_container_of(client->handler, struct cio_websocket_location_handler, http_location);
+	struct cio_websocket_location_handler *wslh = cio_container_of(client->current_handler, struct cio_websocket_location_handler, http_location);
 	if (cio_unlikely((wslh->flags.subprotocol_requested == 1) && (wslh->chosen_subprotocol == -1))) {
 		return CIO_HTTP_CB_ERROR;
 	}
@@ -291,7 +291,7 @@ static enum cio_http_cb_return handle_headers_complete(struct cio_http_client *c
 		return CIO_HTTP_CB_ERROR;
 	}
 
-	struct cio_websocket_location_handler *handler = cio_container_of(client->handler, struct cio_websocket_location_handler, http_location);
+	struct cio_websocket_location_handler *handler = cio_container_of(client->current_handler, struct cio_websocket_location_handler, http_location);
 	if (cio_unlikely(handler->write_response_timer.expires_from_now(&handler->write_response_timer, handler->write_response_timeout,
 	                                                                write_response_timeout, client) != CIO_SUCCESS)) {
 		return CIO_HTTP_CB_ERROR;
