@@ -44,7 +44,8 @@ static struct cio_http_server server;
 static const uint16_t HTTPSERVER_LISTEN_PORT = 8080;
 static const size_t read_buffer_size = 2000;
 
-static const uint64_t read_timeout = UINT64_C(5) * UINT64_C(1000) * UINT64_C(1000) * UINT64_C(1000);
+static const uint64_t header_read_timeout = UINT64_C(5) * UINT64_C(1000) * UINT64_C(1000) * UINT64_C(1000);
+static const uint64_t body_read_timeout = UINT64_C(5) * UINT64_C(1000) * UINT64_C(1000) * UINT64_C(1000);
 
 static const char data[] = "<html><body><h1>Hello, World!</h1></body></html>";
 
@@ -137,7 +138,7 @@ int main(void)
 		return EXIT_FAILURE;
 	}
 
-	err = cio_http_server_init(&server, HTTPSERVER_LISTEN_PORT, &loop, serve_error, read_timeout, alloc_http_client, free_http_client);
+	err = cio_http_server_init(&server, HTTPSERVER_LISTEN_PORT, &loop, serve_error, header_read_timeout, body_read_timeout, alloc_http_client, free_http_client);
 	if (err != CIO_SUCCESS) {
 		ret = EXIT_FAILURE;
 		goto destroy_loop;
