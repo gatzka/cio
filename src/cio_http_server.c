@@ -323,18 +323,25 @@ static int on_headers_complete(http_parser *parser)
 		struct cio_http_server *server = (struct cio_http_server *)parser->data;
 		handle_error(server, "Cancelling read timer in on_headers_complete failed, maybe not armed?");
 		write_response(client, CIO_HTTP_STATUS_INTERNAL_SERVER_ERROR, NULL, NULL);
-		return CIO_HTTP_CB_SUCCESS;
-	} else {
-		if (!client->http_private.response_fired && client->current_handler->on_headers_complete) {
-			ret = client->current_handler->on_headers_complete(client);
-			if (cio_unlikely(ret != CIO_HTTP_CB_SUCCESS)) {
-				return ret;
-			}
-		}
+		return 0;
+	}
 
-		if (client->content_length > 0) {
-			client->http_private.finish_func = finish_bytes;
+	if (!client->http_private.response_fired && client->current_handler->on_headers_complete) {
+		ret = client->current_handler->on_headers_complete(client);
+		if (cio_unlikely(ret != CIO_HTTP_CB_SUCCESS)) {
+			return ret;
 		}
+	}
+
+	struct cio_http_server *server = (struct cio_http_server *)client->parser.data;
+	err = client->http_private.request_timer.expires_from_now(&client->http_private.request_timer, server->read_body_timeout_ns, client_timeout_handler, client);
+	if (cio_unlikely(err != CIO_SUCCESS)) {
+		write_response(client, CIO_HTTP_STATUS_INTERNAL_SERVER_ERROR, NULL, NULL);
+		return 0;
+	}
+
+	if (client->content_length > 0) {
+		client->http_private.finish_func = finish_bytes;
 	}
 
 	return 0;
@@ -363,6 +370,15 @@ static int on_header_value(http_parser *parser, const char *at, size_t length)
 static int on_message_complete(http_parser *parser)
 {
 	struct cio_http_client *client = cio_container_of(parser, struct cio_http_client, parser);
+
+	enum cio_error err = client->http_private.request_timer.cancel(&client->http_private.request_timer);
+	if (cio_unlikely(err != CIO_SUCCESS)) {
+		struct cio_http_server *server = (struct cio_http_server *)parser->data;
+		handle_error(server, "Cancelling read timer in on_message_complete failed, maybe not armed?");
+		write_response(client, CIO_HTTP_STATUS_INTERNAL_SERVER_ERROR, NULL, NULL);
+		return 0;
+	}
+
 	client->http_private.finish_func = restart_read_request;
 
 	enum cio_http_cb_return ret;
@@ -370,6 +386,13 @@ static int on_message_complete(http_parser *parser)
 		ret = client->current_handler->on_message_complete(client);
 	} else {
 		ret = CIO_HTTP_CB_SUCCESS;
+	}
+
+	if (cio_unlikely(!client->response_written)) {
+		struct cio_http_server *server = (struct cio_http_server *)parser->data;
+		handle_error(server, "After receiving the complete message, no response was written!");
+		write_response(client, CIO_HTTP_STATUS_INTERNAL_SERVER_ERROR, NULL, NULL);
+		return 0;
 	}
 
 	client->request_complete = true;
@@ -676,10 +699,11 @@ enum cio_error cio_http_server_init(struct cio_http_server *server,
                                     struct cio_eventloop *loop,
                                     cio_http_serve_on_error on_error,
                                     uint64_t read_header_timeout_ns,
+                                    uint64_t read_body_timeout_ns,
                                     cio_alloc_client alloc_client,
                                     cio_free_client free_client)
 {
-	if (cio_unlikely((server == NULL) || (loop == NULL) || (alloc_client == NULL) || (free_client == NULL) || (read_header_timeout_ns == 0))) {
+	if (cio_unlikely((server == NULL) || (loop == NULL) || (alloc_client == NULL) || (free_client == NULL) || (read_header_timeout_ns == 0) || (read_body_timeout_ns == 0))) {
 		return CIO_INVALID_ARGUMENT;
 	}
 
@@ -694,6 +718,7 @@ enum cio_error cio_http_server_init(struct cio_http_server *server,
 	server->on_error = on_error;
 	server->shutdown = shutdown_server;
 	server->read_header_timeout_ns = read_header_timeout_ns;
+	server->read_body_timeout_ns = read_body_timeout_ns;
 	server->close_hook = NULL;
 
 	return cio_server_socket_init(&server->server_socket, server->loop, DEFAULT_BACKLOG, server->alloc_client, server->free_client, server_socket_closed);
