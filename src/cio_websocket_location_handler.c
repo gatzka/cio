@@ -223,7 +223,6 @@ static void send_upgrade_response(struct cio_http_client *client)
 
 	static const char upgrade_header[] =
 	    "Upgrade: websocket" CIO_CRLF
-	    "Connection: Upgrade" CIO_CRLF
 	    "Sec-WebSocket-Accept: ";
 
 	cio_write_buffer_const_element_init(&ws->wb_upgrade_header, upgrade_header, sizeof(upgrade_header) - 1);

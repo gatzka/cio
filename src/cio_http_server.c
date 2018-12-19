@@ -51,6 +51,7 @@
 #define HTTP_SERVER_ID "Server: cio http/"
 #define CIO_HTTP_CONNECTION_CLOSE "Connection: close" CIO_CRLF
 #define CIO_HTTP_CONNECTION_KEEPALIVE "Connection: keep-alive" CIO_CRLF
+#define CIO_HTTP_CONNECTION_UPGRADE "Connection: Upgrade" CIO_CRLF
 
 #define CIO_HTTP_VERSION "HTTP/1.1"
 
@@ -193,10 +194,15 @@ static void start_response_header(struct cio_http_client *client, enum cio_http_
 	cio_write_buffer_const_element_init(&client->http_private.wb_http_response_statusline, response, strlen(response));
 	cio_write_buffer_queue_head(&client->response_wbh, &client->http_private.wb_http_response_statusline);
 
-	if (cio_likely(client->http_private.should_keepalive && !client->http_private.close_immediately)) {
-		cio_write_buffer_const_element_init(&client->http_private.wb_http_connection_header, CIO_HTTP_CONNECTION_KEEPALIVE, strlen(CIO_HTTP_CONNECTION_KEEPALIVE));
+	if (status_code != CIO_HTTP_SWITCHING_PROTOCOLS) {
+		if (cio_likely(client->http_private.should_keepalive && !client->http_private.close_immediately)) {
+			cio_write_buffer_const_element_init(&client->http_private.wb_http_connection_header, CIO_HTTP_CONNECTION_KEEPALIVE, strlen(CIO_HTTP_CONNECTION_KEEPALIVE));
+		} else {
+			cio_write_buffer_const_element_init(&client->http_private.wb_http_connection_header, CIO_HTTP_CONNECTION_CLOSE, strlen(CIO_HTTP_CONNECTION_CLOSE));
+		}
+
 	} else {
-		cio_write_buffer_const_element_init(&client->http_private.wb_http_connection_header, CIO_HTTP_CONNECTION_CLOSE, strlen(CIO_HTTP_CONNECTION_CLOSE));
+		cio_write_buffer_const_element_init(&client->http_private.wb_http_connection_header, CIO_HTTP_CONNECTION_UPGRADE, strlen(CIO_HTTP_CONNECTION_UPGRADE));
 	}
 
 	add_response_header(client, &client->http_private.wb_http_connection_header);
