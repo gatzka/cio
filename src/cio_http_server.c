@@ -77,16 +77,15 @@ static void close_bs(struct cio_http_client *client)
 
 static void free_handler(struct cio_http_client *client)
 {
-	client->current_handler->free(client->current_handler);
-	client->current_handler = NULL;
+	if (cio_likely((client->current_handler != NULL) && (client->current_handler->free != NULL))) {
+		client->current_handler->free(client->current_handler);
+		client->current_handler = NULL;
+	}
 }
 
 static void notify_free_handler_and_close_stream(struct cio_http_client *client)
 {
-	if (cio_likely((client->current_handler != NULL) && (client->current_handler->free != NULL))) {
-		free_handler(client);
-	}
-
+	free_handler(client);
 	close_bs(client);
 }
 
@@ -320,7 +319,7 @@ static int on_headers_complete(http_parser *parser)
 		write_response(client, CIO_HTTP_STATUS_INTERNAL_SERVER_ERROR, NULL, NULL);
 		return CIO_HTTP_CB_SUCCESS;
 	} else {
-		if (client->current_handler->on_headers_complete && !client->http_private.response_fired) {
+		if (!client->http_private.response_fired && client->current_handler->on_headers_complete) {
 			ret = client->current_handler->on_headers_complete(client);
 			if (cio_unlikely(ret != CIO_HTTP_CB_SUCCESS)) {
 				return ret;
@@ -338,7 +337,7 @@ static int on_headers_complete(http_parser *parser)
 static int on_header_field(http_parser *parser, const char *at, size_t length)
 {
 	struct cio_http_client *client = cio_container_of(parser, struct cio_http_client, parser);
-	if (client->current_handler->on_header_field && !client->http_private.response_fired) {
+	if (!client->http_private.response_fired && client->current_handler->on_header_field) {
 		return client->current_handler->on_header_field(client, at, length);
 	}
 
@@ -348,7 +347,7 @@ static int on_header_field(http_parser *parser, const char *at, size_t length)
 static int on_header_value(http_parser *parser, const char *at, size_t length)
 {
 	struct cio_http_client *client = cio_container_of(parser, struct cio_http_client, parser);
-	if (client->current_handler->on_header_value && !client->http_private.response_fired) {
+	if (!client->http_private.response_fired && client->current_handler->on_header_value) {
 		return client->current_handler->on_header_value(client, at, length);
 	}
 
@@ -361,7 +360,7 @@ static int on_message_complete(http_parser *parser)
 	client->http_private.finish_func = restart_read_request;
 
 	enum cio_http_cb_return ret;
-	if (client->current_handler->on_message_complete && !client->http_private.response_fired) {
+	if (!client->http_private.response_fired && client->current_handler->on_message_complete) {
 		ret = client->current_handler->on_message_complete(client);
 	} else {
 		ret = CIO_HTTP_CB_SUCCESS;
@@ -374,7 +373,7 @@ static int on_message_complete(http_parser *parser)
 static int on_body(http_parser *parser, const char *at, size_t length)
 {
 	struct cio_http_client *client = cio_container_of(parser, struct cio_http_client, parser);
-	if (client->current_handler->on_body && !client->http_private.response_fired) {
+	if (!client->http_private.response_fired && client->current_handler->on_body) {
 		return client->current_handler->on_body(client, at, length);
 	}
 
@@ -409,6 +408,12 @@ static int on_url(http_parser *parser, const char *at, size_t length)
 	if ((cio_unlikely(ret != 0)) || !((u.field_set & (1U << (unsigned int)UF_PATH)) == (1U << (unsigned int)UF_PATH))) {
 		return -1;
 	}
+
+	client->parser_settings.on_headers_complete = on_headers_complete;
+	client->parser_settings.on_header_field = on_header_field;
+	client->parser_settings.on_header_value = on_header_value;
+	client->parser_settings.on_body = on_body;
+	client->parser_settings.on_message_complete = on_message_complete;
 
 	const struct cio_http_location *target = find_handler(parser->data, at + u.field_data[UF_PATH].off, u.field_data[UF_PATH].len);
 	if (cio_unlikely(target == NULL)) {
@@ -459,12 +464,6 @@ static int on_url(http_parser *parser, const char *at, size_t length)
 		return -1;
 	}
 
-	client->parser_settings.on_headers_complete = on_headers_complete;
-	client->parser_settings.on_header_field = on_header_field;
-	client->parser_settings.on_header_value = on_header_value;
-	client->parser_settings.on_body = on_body;
-	client->parser_settings.on_message_complete = on_message_complete;
-
 	if (handler->on_url && !client->http_private.response_fired) {
 		return handler->on_url(client, at, length);
 	}
@@ -477,9 +476,9 @@ static inline bool cio_is_error(enum cio_error error)
 	return error < CIO_SUCCESS;
 }
 
-static void parse(struct cio_buffered_stream *stream, void *handler_context, enum cio_error err, struct cio_read_buffer *read_buffer)
+static void parse(struct cio_buffered_stream *bs, void *handler_context, enum cio_error err, struct cio_read_buffer *read_buffer)
 {
-	(void)stream;
+	(void)bs;
 
 	struct cio_http_client *client = (struct cio_http_client *)handler_context;
 
