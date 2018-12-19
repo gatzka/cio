@@ -59,6 +59,7 @@
 
 static const uint64_t header_read_timeout = UINT64_C(5) * UINT64_C(1000) * UINT64_C(1000) * UINT64_C(1000);
 static const uint64_t body_read_timeout = UINT64_C(5) * UINT64_C(1000) * UINT64_C(1000) * UINT64_C(1000);
+static const uint64_t response_timeout = UINT64_C(5) * UINT64_C(1000) * UINT64_C(1000) * UINT64_C(1000);
 
 struct memory_stream {
 	struct cio_socket *socket;
@@ -452,41 +453,41 @@ void tearDown(void)
 static void test_server_init_correctly(void)
 {
 	struct cio_http_server server;
-	enum cio_error err = cio_http_server_init(&server, 8080, &loop, serve_error, header_read_timeout, body_read_timeout, alloc_dummy_client, free_dummy_client);
+	enum cio_error err = cio_http_server_init(&server, 8080, &loop, serve_error, header_read_timeout, body_read_timeout, response_timeout, alloc_dummy_client, free_dummy_client);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Initialization failed!");
 }
 
 static void test_server_init_no_server(void)
 {
-	enum cio_error err = cio_http_server_init(NULL, 8080, &loop, serve_error, header_read_timeout, body_read_timeout, alloc_dummy_client, free_dummy_client);
+	enum cio_error err = cio_http_server_init(NULL, 8080, &loop, serve_error, header_read_timeout, body_read_timeout, response_timeout, alloc_dummy_client, free_dummy_client);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_INVALID_ARGUMENT, err, "Initialization did not fail!");
 }
 
 static void test_server_init_no_loop(void)
 {
 	struct cio_http_server server;
-	enum cio_error err = cio_http_server_init(&server, 8080, NULL, serve_error, header_read_timeout, body_read_timeout, alloc_dummy_client, free_dummy_client);
+	enum cio_error err = cio_http_server_init(&server, 8080, NULL, serve_error, header_read_timeout, body_read_timeout, response_timeout, alloc_dummy_client, free_dummy_client);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_INVALID_ARGUMENT, err, "Initialization did not fail!");
 }
 
 static void test_server_init_no_alloc(void)
 {
 	struct cio_http_server server;
-	enum cio_error err = cio_http_server_init(&server, 8080, &loop, serve_error, header_read_timeout, body_read_timeout, NULL, free_dummy_client);
+	enum cio_error err = cio_http_server_init(&server, 8080, &loop, serve_error, header_read_timeout, body_read_timeout, response_timeout, NULL, free_dummy_client);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_INVALID_ARGUMENT, err, "Initialization did not fail!");
 }
 
 static void test_server_init_no_free(void)
 {
 	struct cio_http_server server;
-	enum cio_error err = cio_http_server_init(&server, 8080, &loop, serve_error, header_read_timeout, body_read_timeout, alloc_dummy_client, NULL);
+	enum cio_error err = cio_http_server_init(&server, 8080, &loop, serve_error, header_read_timeout, body_read_timeout, response_timeout, alloc_dummy_client, NULL);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_INVALID_ARGUMENT, err, "Initialization did not fail!");
 }
 
 static void test_server_init_no_timeout(void)
 {
 	struct cio_http_server server;
-	enum cio_error err = cio_http_server_init(&server, 8080, &loop, serve_error, 0, body_read_timeout, alloc_dummy_client, free_dummy_client);
+	enum cio_error err = cio_http_server_init(&server, 8080, &loop, serve_error, 0, body_read_timeout, response_timeout, alloc_dummy_client, free_dummy_client);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_INVALID_ARGUMENT, err, "Initialization with 0 timeout did not fail!");
 }
 
@@ -520,7 +521,7 @@ static void test_request_target_init_no_alloc_handler(void)
 static void test_register_request_target_correctly(void)
 {
 	struct cio_http_server server;
-	enum cio_error err = cio_http_server_init(&server, 8080, &loop, serve_error, header_read_timeout, body_read_timeout, alloc_dummy_client, free_dummy_client);
+	enum cio_error err = cio_http_server_init(&server, 8080, &loop, serve_error, header_read_timeout, body_read_timeout, response_timeout, alloc_dummy_client, free_dummy_client);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Server initialization failed!");
 
 	struct cio_http_location target;
@@ -534,7 +535,7 @@ static void test_register_request_target_correctly(void)
 static void test_register_request_target_no_server(void)
 {
 	struct cio_http_server server;
-	enum cio_error err = cio_http_server_init(&server, 8080, &loop, serve_error, header_read_timeout, body_read_timeout, alloc_dummy_client, free_dummy_client);
+	enum cio_error err = cio_http_server_init(&server, 8080, &loop, serve_error, header_read_timeout, body_read_timeout, response_timeout, alloc_dummy_client, free_dummy_client);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Server initialization failed!");
 
 	struct cio_http_location target;
@@ -548,7 +549,7 @@ static void test_register_request_target_no_server(void)
 static void test_register_request_target_no_target(void)
 {
 	struct cio_http_server server;
-	enum cio_error err = cio_http_server_init(&server, 8080, &loop, serve_error, header_read_timeout, body_read_timeout, alloc_dummy_client, free_dummy_client);
+	enum cio_error err = cio_http_server_init(&server, 8080, &loop, serve_error, header_read_timeout, body_read_timeout, response_timeout, alloc_dummy_client, free_dummy_client);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Server initialization failed!");
 
 	err = server.register_location(&server, NULL);
@@ -563,7 +564,7 @@ static void test_serve_timeout(void)
 	header_complete_fake.custom_fake = header_complete_write_response;
 
 	struct cio_http_server server;
-	enum cio_error err = cio_http_server_init(&server, 8080, &loop, serve_error, header_read_timeout, body_read_timeout, alloc_dummy_client, free_dummy_client);
+	enum cio_error err = cio_http_server_init(&server, 8080, &loop, serve_error, header_read_timeout, body_read_timeout, response_timeout, alloc_dummy_client, free_dummy_client);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Server initialization failed!");
 
 	struct cio_http_location target;
@@ -600,7 +601,7 @@ static void test_serve_correctly(void)
 	header_complete_fake.custom_fake = header_complete_write_response;
 
 	struct cio_http_server server;
-	enum cio_error err = cio_http_server_init(&server, 8080, &loop, serve_error, header_read_timeout, body_read_timeout, alloc_dummy_client, free_dummy_client);
+	enum cio_error err = cio_http_server_init(&server, 8080, &loop, serve_error, header_read_timeout, body_read_timeout, response_timeout, alloc_dummy_client, free_dummy_client);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Server initialization failed!");
 
 	struct cio_http_location target;
@@ -634,7 +635,7 @@ static void test_serve_alloc_handler_with_no_callbacks(void)
 	header_complete_fake.custom_fake = header_complete_close;
 
 	struct cio_http_server server;
-	enum cio_error err = cio_http_server_init(&server, 8080, &loop, serve_error, header_read_timeout, body_read_timeout, alloc_dummy_client, free_dummy_client);
+	enum cio_error err = cio_http_server_init(&server, 8080, &loop, serve_error, header_read_timeout, body_read_timeout, response_timeout, alloc_dummy_client, free_dummy_client);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Server initialization failed!");
 
 	struct cio_http_location target;
@@ -668,7 +669,7 @@ static void test_serve_alloc_handler_fails(void)
 	header_complete_fake.custom_fake = header_complete_close;
 
 	struct cio_http_server server;
-	enum cio_error err = cio_http_server_init(&server, 8080, &loop, serve_error, header_read_timeout, body_read_timeout, alloc_dummy_client, free_dummy_client);
+	enum cio_error err = cio_http_server_init(&server, 8080, &loop, serve_error, header_read_timeout, body_read_timeout, response_timeout, alloc_dummy_client, free_dummy_client);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Server initialization failed!");
 
 	struct cio_http_location target;
@@ -702,7 +703,7 @@ static void test_serve_correctly_with_header_fields(void)
 	header_complete_fake.custom_fake = header_complete_no_close;
 
 	struct cio_http_server server;
-	enum cio_error err = cio_http_server_init(&server, 8080, &loop, serve_error, header_read_timeout, body_read_timeout, alloc_dummy_client, free_dummy_client);
+	enum cio_error err = cio_http_server_init(&server, 8080, &loop, serve_error, header_read_timeout, body_read_timeout, response_timeout, alloc_dummy_client, free_dummy_client);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Server initialization failed!");
 
 	struct cio_http_location target;
@@ -747,7 +748,7 @@ static void test_serve_with_wrong_header_fields(void)
 	header_complete_fake.custom_fake = header_complete_no_close;
 
 	struct cio_http_server server;
-	enum cio_error err = cio_http_server_init(&server, 8080, &loop, serve_error, header_read_timeout, body_read_timeout, alloc_dummy_client, free_dummy_client);
+	enum cio_error err = cio_http_server_init(&server, 8080, &loop, serve_error, header_read_timeout, body_read_timeout, response_timeout, alloc_dummy_client, free_dummy_client);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Server initialization failed!");
 
 	struct cio_http_location target;
@@ -789,7 +790,7 @@ static void test_serve_timer_init_fails(void)
 	cio_timer_init_fake.custom_fake = cio_timer_init_fails;
 
 	struct cio_http_server server;
-	enum cio_error err = cio_http_server_init(&server, 8080, &loop, serve_error, header_read_timeout, body_read_timeout, alloc_dummy_client, free_dummy_client);
+	enum cio_error err = cio_http_server_init(&server, 8080, &loop, serve_error, header_read_timeout, body_read_timeout, response_timeout, alloc_dummy_client, free_dummy_client);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Server initialization failed!");
 
 	err = server.serve(&server);
@@ -812,7 +813,7 @@ static void test_serve_timer_init_fails_no_serve_error_cb(void)
 	cio_timer_init_fake.custom_fake = cio_timer_init_fails;
 
 	struct cio_http_server server;
-	enum cio_error err = cio_http_server_init(&server, 8080, &loop, NULL, header_read_timeout, body_read_timeout, alloc_dummy_client, free_dummy_client);
+	enum cio_error err = cio_http_server_init(&server, 8080, &loop, NULL, header_read_timeout, body_read_timeout, response_timeout, alloc_dummy_client, free_dummy_client);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Server initialization failed!");
 
 	err = server.serve(&server);
@@ -833,7 +834,7 @@ static void test_server_init_fails(void)
 	cio_server_socket_init_fake.custom_fake = cio_server_socket_init_fails;
 
 	struct cio_http_server server;
-	enum cio_error err = cio_http_server_init(&server, 8080, &loop, serve_error, header_read_timeout, body_read_timeout, alloc_dummy_client, free_dummy_client);
+	enum cio_error err = cio_http_server_init(&server, 8080, &loop, serve_error, header_read_timeout, body_read_timeout, response_timeout, alloc_dummy_client, free_dummy_client);
 	TEST_ASSERT_NOT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Server initialization did not fail!");
 }
 
@@ -843,7 +844,7 @@ static void test_serve_init_fails_reuse_address(void)
 	socket_set_reuse_address_fake.return_val = CIO_INVALID_ARGUMENT;
 
 	struct cio_http_server server;
-	enum cio_error err = cio_http_server_init(&server, 8080, &loop, serve_error, header_read_timeout, body_read_timeout, alloc_dummy_client, free_dummy_client);
+	enum cio_error err = cio_http_server_init(&server, 8080, &loop, serve_error, header_read_timeout, body_read_timeout, response_timeout, alloc_dummy_client, free_dummy_client);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Server initialization failed!");
 
 	struct cio_http_location target;
@@ -865,7 +866,7 @@ static void test_serve_init_fails_bind(void)
 	socket_bind_fake.return_val = CIO_INVALID_ARGUMENT;
 
 	struct cio_http_server server;
-	enum cio_error err = cio_http_server_init(&server, 8080, &loop, serve_error, header_read_timeout, body_read_timeout, alloc_dummy_client, free_dummy_client);
+	enum cio_error err = cio_http_server_init(&server, 8080, &loop, serve_error, header_read_timeout, body_read_timeout, response_timeout, alloc_dummy_client, free_dummy_client);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Server initialization failed!");
 
 	struct cio_http_location target;
@@ -887,7 +888,7 @@ static void test_serve_init_fails_accept(void)
 	socket_accept_fake.return_val = CIO_INVALID_ARGUMENT;
 
 	struct cio_http_server server;
-	enum cio_error err = cio_http_server_init(&server, 8080, &loop, serve_error, header_read_timeout, body_read_timeout, alloc_dummy_client, free_dummy_client);
+	enum cio_error err = cio_http_server_init(&server, 8080, &loop, serve_error, header_read_timeout, body_read_timeout, response_timeout, alloc_dummy_client, free_dummy_client);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Server initialization failed!");
 
 	struct cio_http_location target;
@@ -911,7 +912,7 @@ static void test_serve_accept_fails(void)
 	header_complete_fake.custom_fake = header_complete_close;
 
 	struct cio_http_server server;
-	enum cio_error err = cio_http_server_init(&server, 8080, &loop, serve_error, header_read_timeout, body_read_timeout, alloc_dummy_client, free_dummy_client);
+	enum cio_error err = cio_http_server_init(&server, 8080, &loop, serve_error, header_read_timeout, body_read_timeout, response_timeout, alloc_dummy_client, free_dummy_client);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Server initialization failed!");
 
 	struct cio_http_location target;
@@ -937,7 +938,7 @@ static void test_serve_accept_fails_no_error_callback(void)
 	header_complete_fake.custom_fake = header_complete_close;
 
 	struct cio_http_server server;
-	enum cio_error err = cio_http_server_init(&server, 8080, &loop, NULL, header_read_timeout, body_read_timeout, alloc_dummy_client, free_dummy_client);
+	enum cio_error err = cio_http_server_init(&server, 8080, &loop, NULL, header_read_timeout, body_read_timeout, response_timeout, alloc_dummy_client, free_dummy_client);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Server initialization failed!");
 
 	struct cio_http_location target;
@@ -963,7 +964,7 @@ static void test_serve_illegal_start_line(void)
 	header_complete_fake.custom_fake = header_complete_close;
 
 	struct cio_http_server server;
-	enum cio_error err = cio_http_server_init(&server, 8080, &loop, serve_error, header_read_timeout, body_read_timeout, alloc_dummy_client, free_dummy_client);
+	enum cio_error err = cio_http_server_init(&server, 8080, &loop, serve_error, header_read_timeout, body_read_timeout, response_timeout, alloc_dummy_client, free_dummy_client);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Server initialization failed!");
 
 	struct cio_http_location target;
@@ -996,7 +997,7 @@ static void test_serve_connect_method(void)
 	header_complete_fake.custom_fake = header_complete_close;
 
 	struct cio_http_server server;
-	enum cio_error err = cio_http_server_init(&server, 8080, &loop, serve_error, header_read_timeout, body_read_timeout, alloc_dummy_client, free_dummy_client);
+	enum cio_error err = cio_http_server_init(&server, 8080, &loop, serve_error, header_read_timeout, body_read_timeout, response_timeout, alloc_dummy_client, free_dummy_client);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Server initialization failed!");
 
 	struct cio_http_location target;
@@ -1029,7 +1030,7 @@ static void test_serve_illegal_url(void)
 	header_complete_fake.custom_fake = header_complete_close;
 
 	struct cio_http_server server;
-	enum cio_error err = cio_http_server_init(&server, 8080, &loop, serve_error, header_read_timeout, body_read_timeout, alloc_dummy_client, free_dummy_client);
+	enum cio_error err = cio_http_server_init(&server, 8080, &loop, serve_error, header_read_timeout, body_read_timeout, response_timeout, alloc_dummy_client, free_dummy_client);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Server initialization failed!");
 
 	struct cio_http_location target;
@@ -1062,7 +1063,7 @@ static void test_serve_correctly_on_url_close(void)
 	on_url_fake.custom_fake = on_url_close;
 
 	struct cio_http_server server;
-	enum cio_error err = cio_http_server_init(&server, 8080, &loop, serve_error, header_read_timeout, body_read_timeout, alloc_dummy_client, free_dummy_client);
+	enum cio_error err = cio_http_server_init(&server, 8080, &loop, serve_error, header_read_timeout, body_read_timeout, response_timeout, alloc_dummy_client, free_dummy_client);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Server initialization failed!");
 
 	struct cio_http_location target;

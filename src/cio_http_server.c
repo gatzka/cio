@@ -695,10 +695,13 @@ enum cio_error cio_http_server_init(struct cio_http_server *server,
                                     cio_http_serve_on_error on_error,
                                     uint64_t read_header_timeout_ns,
                                     uint64_t read_body_timeout_ns,
+                                    uint64_t response_timeout_ns,
                                     cio_alloc_client alloc_client,
                                     cio_free_client free_client)
 {
-	if (cio_unlikely((server == NULL) || (loop == NULL) || (alloc_client == NULL) || (free_client == NULL) || (read_header_timeout_ns == 0) || (read_body_timeout_ns == 0))) {
+	if (cio_unlikely((server == NULL) ||
+		(loop == NULL) || (alloc_client == NULL) || (free_client == NULL) ||
+		(read_header_timeout_ns == 0) || (read_body_timeout_ns == 0) || (response_timeout_ns == 0))) {
 		return CIO_INVALID_ARGUMENT;
 	}
 
@@ -714,6 +717,7 @@ enum cio_error cio_http_server_init(struct cio_http_server *server,
 	server->shutdown = shutdown_server;
 	server->read_header_timeout_ns = read_header_timeout_ns;
 	server->read_body_timeout_ns = read_body_timeout_ns;
+	server->response_timeout_ns = response_timeout_ns;
 	server->close_hook = NULL;
 
 	return cio_server_socket_init(&server->server_socket, server->loop, DEFAULT_BACKLOG, server->alloc_client, server->free_client, server_socket_closed);
