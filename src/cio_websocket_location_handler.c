@@ -237,8 +237,10 @@ static void send_upgrade_response(struct cio_http_client *client)
 		cio_write_buffer_const_element_init(&ws->wb_protocol_field, ws_protocol, sizeof(ws_protocol) - 1);
 		const char *chosen_subprotocol = ws->subprotocols[ws->chosen_subprotocol];
 		cio_write_buffer_const_element_init(&ws->wb_protocol_value, chosen_subprotocol, strlen(chosen_subprotocol));
+		cio_write_buffer_const_element_init(&ws->wb_protocol_end, CIO_CRLF, strlen(CIO_CRLF));
 		client->add_response_header(client, &ws->wb_protocol_field);
 		client->add_response_header(client, &ws->wb_protocol_value);
+		client->add_response_header(client, &ws->wb_protocol_end);
 	}
 
 	client->write_response(client, CIO_HTTP_SWITCHING_PROTOCOLS, NULL, response_written);
