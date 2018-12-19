@@ -97,22 +97,26 @@ static void close_client(struct cio_http_client *client)
 	notify_free_handler_and_close_stream(client);
 }
 
-static void client_timeout_handler(struct cio_timer *timer, void *handler_context, enum cio_error err)
-{
-	(void)timer;
-
-	if (err == CIO_SUCCESS) {
-		struct cio_http_client *client = handler_context;
-		write_response(client, CIO_HTTP_STATUS_TIMEOUT, NULL, NULL);
-	}
-}
-
 static void mark_to_be_closed(struct cio_http_client *client)
 {
 	if (client->http_private.parsing == 0) {
 		close_client(client);
 	} else {
 		client->http_private.to_be_closed = true;
+	}
+}
+
+static void client_timeout_handler(struct cio_timer *timer, void *handler_context, enum cio_error err)
+{
+	(void)timer;
+
+	if (err == CIO_SUCCESS) {
+		struct cio_http_client *client = handler_context;
+		if (cio_unlikely(client->response_written)) {
+			mark_to_be_closed(client);
+		} else {
+			write_response(client, CIO_HTTP_STATUS_TIMEOUT, NULL, NULL);
+		}
 	}
 }
 
@@ -227,6 +231,10 @@ static void flush(struct cio_http_client *client, cio_buffered_stream_write_hand
 
 static enum cio_error write_response(struct cio_http_client *client, enum cio_http_status_code status_code, struct cio_write_buffer *wbh_body, void (*response_written_cb)(struct cio_http_client *client, enum cio_error err))
 {
+	if (cio_unlikely(client->response_written)) {
+		return CIO_OPERATION_NOT_PERMITTED;
+	}
+
 	client->response_written_cb = response_written_cb;
 	client->http_private.response_fired = true;
 	size_t content_length = 0;
@@ -305,7 +313,11 @@ static void handle_server_error(struct cio_http_client *client, const char *msg)
 {
 	struct cio_http_server *server = (struct cio_http_server *)client->parser.data;
 	handle_error(server, msg);
-	write_response(client, CIO_HTTP_STATUS_INTERNAL_SERVER_ERROR, NULL, NULL);
+	if (cio_unlikely(client->response_written)) {
+		mark_to_be_closed(client);
+	} else {
+		write_response(client, CIO_HTTP_STATUS_INTERNAL_SERVER_ERROR, NULL, NULL);
+	}
 }
 
 static void finish_bytes(struct cio_http_client *client)
@@ -431,18 +443,18 @@ static int on_url(http_parser *parser, const char *at, size_t length)
 
 	client->http_method = (enum cio_http_method)client->parser.method;
 
+	client->parser_settings.on_headers_complete = on_headers_complete;
+	client->parser_settings.on_header_field = on_header_field;
+	client->parser_settings.on_header_value = on_header_value;
+	client->parser_settings.on_body = on_body;
+	client->parser_settings.on_message_complete = on_message_complete;
+
 	struct http_parser_url u;
 	http_parser_url_init(&u);
 	int ret = http_parser_parse_url(at, length, is_connect, &u);
 	if ((cio_unlikely(ret != 0)) || !((u.field_set & (1U << (unsigned int)UF_PATH)) == (1U << (unsigned int)UF_PATH))) {
 		return -1;
 	}
-
-	client->parser_settings.on_headers_complete = on_headers_complete;
-	client->parser_settings.on_header_field = on_header_field;
-	client->parser_settings.on_header_value = on_header_value;
-	client->parser_settings.on_body = on_body;
-	client->parser_settings.on_message_complete = on_message_complete;
 
 	const struct cio_http_location *target = find_handler(parser->data, at + u.field_data[UF_PATH].off, u.field_data[UF_PATH].len);
 	if (cio_unlikely(target == NULL)) {
@@ -524,7 +536,12 @@ static void parse(struct cio_buffered_stream *bs, void *handler_context, enum ci
 	client->http_private.parsing--;
 
 	if (cio_unlikely(nparsed != bytes_transfered)) {
-		write_response(client, CIO_HTTP_STATUS_BAD_REQUEST, NULL, NULL);
+		if (cio_unlikely(client->response_written)) {
+			mark_to_be_closed(client);
+		} else {
+			write_response(client, CIO_HTTP_STATUS_BAD_REQUEST, NULL, NULL);
+		}
+
 		return;
 	}
 

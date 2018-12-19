@@ -112,7 +112,8 @@ struct cio_http_client {
 	 * the HTTP response header to the client (the http body).
 	 * @param response_written An optional callback that will be called whe the response was written. If @p err != ::CIO:SUCCESS,
 	 * the client will be automatically closed.
-	 * @return ::CIO_SUCCESS for success.
+	 * @return ::CIO_SUCCESS for success. If return value not ::CIO_SUCCESS, this typically means that you tried
+	 * to send two responses per request.
 	 */
 	enum cio_error (*write_response)(struct cio_http_client *client, enum cio_http_status_code status_code, struct cio_write_buffer *wbh_body, void (*response_written)(struct cio_http_client *client, enum cio_error err));
 
