@@ -75,10 +75,16 @@ static void close_bs(struct cio_http_client *client)
 	}
 }
 
+static void free_handler(struct cio_http_client *client)
+{
+	client->current_handler->free(client->current_handler);
+	client->current_handler = NULL;
+}
+
 static void notify_free_handler_and_close_stream(struct cio_http_client *client)
 {
 	if (cio_likely((client->current_handler != NULL) && (client->current_handler->free != NULL))) {
-		client->current_handler->free(client->current_handler);
+		free_handler(client);
 	}
 
 	close_bs(client);
@@ -112,10 +118,11 @@ static void mark_to_be_closed(struct cio_http_client *client)
 static void restart_read_request(struct cio_http_client *client)
 {
 	if (client->response_written && client->request_complete) {
+		free_handler(client);
 		struct cio_http_server *server = (struct cio_http_server *)client->parser.data;
 		enum cio_error err = client->http_private.read_header_timer.expires_from_now(&client->http_private.read_header_timer, server->read_header_timeout_ns, client_timeout_handler, client);
 		if (cio_unlikely(err != CIO_SUCCESS)) {
-			close_client(client);
+			mark_to_be_closed(client);
 		}
 
 		cio_write_buffer_head_init(&client->response_wbh);
@@ -130,7 +137,7 @@ static void restart_read_request(struct cio_http_client *client)
 		client->http_private.finish_func = finish_request_line;
 		err = client->bs.read_until(&client->bs, &client->rb, CIO_CRLF, parse, client);
 		if (cio_unlikely(err != CIO_SUCCESS)) {
-			close_client(client);
+			mark_to_be_closed(client);
 		}
 	}
 }
