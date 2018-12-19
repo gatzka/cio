@@ -228,13 +228,13 @@ static void flush(struct cio_http_client *client, cio_buffered_stream_write_hand
 	}
 }
 
-static enum cio_error write_response(struct cio_http_client *client, enum cio_http_status_code status_code, struct cio_write_buffer *wbh_body, void (*response_written_cb)(struct cio_http_client *client, enum cio_error err))
+static enum cio_error write_response(struct cio_http_client *client, enum cio_http_status_code status_code, struct cio_write_buffer *wbh_body, cio_response_written_cb written_cb)
 {
 	if (cio_unlikely(client->response_written)) {
 		return CIO_OPERATION_NOT_PERMITTED;
 	}
 
-	client->response_written_cb = response_written_cb;
+	client->response_written_cb = written_cb;
 	client->http_private.response_fired = true;
 	size_t content_length = 0;
 	if (wbh_body) {

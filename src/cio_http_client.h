@@ -51,6 +51,16 @@ extern "C" {
 
 struct cio_http_client;
 
+/**
+ * @brief The type of a response callback function passed to the @ref cio_http_client_write_response "write_response" function.
+ *
+ * @param client The cio_http_client that wrote the response.
+ * @param err An error code. If @c err != ::CIO_SUCCESS, the client will be closed automatically. So please don't
+ * @ref cio_http_client_close "close" the client in the callback function. Any other resources not associated with @c client should
+ * be cleaned up here.
+ */
+typedef void (*cio_response_written_cb)(struct cio_http_client *client, enum cio_error err);
+
 #define CIO_HTTP_CLIENT_CONTENT_LENGTH_BUFFER_LENGTH 30
 struct cio_http_client_private {
 	struct cio_write_buffer wb_http_response_statusline;
@@ -110,12 +120,12 @@ struct cio_http_client {
 	 * @param status_code The http status code of the response.
 	 * @param wbh_body The write buffer head containing the data which should be written after
 	 * the HTTP response header to the client (the http body).
-	 * @param response_written An optional callback that will be called whe the response was written. If @p err != ::CIO:SUCCESS,
+	 * @param response_written An optional callback that will be called whe the response was written. If @p err != ::CIO_SUCCESS,
 	 * the client will be automatically closed.
 	 * @return ::CIO_SUCCESS for success. If return value not ::CIO_SUCCESS, this typically means that you tried
 	 * to send two responses per request.
 	 */
-	enum cio_error (*write_response)(struct cio_http_client *client, enum cio_http_status_code status_code, struct cio_write_buffer *wbh_body, void (*response_written)(struct cio_http_client *client, enum cio_error err));
+	enum cio_error (*write_response)(struct cio_http_client *client, enum cio_http_status_code status_code, struct cio_write_buffer *wbh_body, cio_response_written_cb written_cb);
 
 	/**
 	 * @anchor cio_http_client_add_response_header
@@ -189,7 +199,7 @@ struct cio_http_client {
 	struct cio_socket socket;
 	struct cio_write_buffer response_wbh;
 	struct cio_http_client_private http_private;
-	void (*response_written_cb)(struct cio_http_client *client, enum cio_error err);
+	cio_response_written_cb response_written_cb;
 	bool request_complete;
 	bool response_written;
 
