@@ -112,10 +112,9 @@ static void client_timeout_handler(struct cio_timer *timer, void *handler_contex
 
 	if (err == CIO_SUCCESS) {
 		struct cio_http_client *client = handler_context;
-		if (cio_unlikely(client->response_written)) {
+		err = write_response(client, CIO_HTTP_STATUS_TIMEOUT, NULL, NULL);
+		if (cio_unlikely(err != CIO_SUCCESS)) {
 			mark_to_be_closed(client);
-		} else {
-			write_response(client, CIO_HTTP_STATUS_TIMEOUT, NULL, NULL);
 		}
 	}
 }
@@ -313,10 +312,9 @@ static void handle_server_error(struct cio_http_client *client, const char *msg)
 {
 	struct cio_http_server *server = (struct cio_http_server *)client->parser.data;
 	handle_error(server, msg);
-	if (cio_unlikely(client->response_written)) {
+	enum cio_error err = write_response(client, CIO_HTTP_STATUS_INTERNAL_SERVER_ERROR, NULL, NULL);
+	if (cio_unlikely(err != CIO_SUCCESS)) {
 		mark_to_be_closed(client);
-	} else {
-		write_response(client, CIO_HTTP_STATUS_INTERNAL_SERVER_ERROR, NULL, NULL);
 	}
 }
 
@@ -536,10 +534,9 @@ static void parse(struct cio_buffered_stream *bs, void *handler_context, enum ci
 	client->http_private.parsing--;
 
 	if (cio_unlikely(nparsed != bytes_transfered)) {
-		if (cio_unlikely(client->response_written)) {
+		err = write_response(client, CIO_HTTP_STATUS_BAD_REQUEST, NULL, NULL);
+		if (cio_unlikely(err != CIO_SUCCESS)) {
 			mark_to_be_closed(client);
-		} else {
-			write_response(client, CIO_HTTP_STATUS_BAD_REQUEST, NULL, NULL);
 		}
 
 		return;
