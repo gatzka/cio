@@ -261,6 +261,14 @@ static enum cio_error write_response(struct cio_http_client *client, enum cio_ht
 		cio_write_buffer_splice(wbh_body, &client->response_wbh);
 	}
 
+	struct cio_http_server *server = (struct cio_http_server *)client->parser.data;
+	enum cio_error err = client->http_private.response_timer.expires_from_now(&client->http_private.response_timer, server->response_timeout_ns, client_timeout_handler, client);
+	if (cio_unlikely(err != CIO_SUCCESS)) {
+		handle_error(server, "Arming of response timer failed!");
+		mark_to_be_closed(client);
+		return 0;
+	}
+
 	flush(client, response_written);
 
 	return CIO_SUCCESS;
@@ -350,7 +358,7 @@ static int on_headers_complete(http_parser *parser)
 	struct cio_http_server *server = (struct cio_http_server *)client->parser.data;
 	err = client->http_private.request_timer.expires_from_now(&client->http_private.request_timer, server->read_body_timeout_ns, client_timeout_handler, client);
 	if (cio_unlikely(err != CIO_SUCCESS)) {
-		handle_server_error(client, "Cancel of read header timer failed!");
+		handle_server_error(client, "Arming of body read timer failed!");
 		return 0;
 	}
 
