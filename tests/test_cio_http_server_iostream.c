@@ -122,7 +122,7 @@ static void close_client(struct cio_http_client *client)
 		client->current_handler->free(client->current_handler);
 	}
 
-	client->http_private.read_header_timer.close(&client->http_private.read_header_timer);
+	client->http_private.request_timer.close(&client->http_private.request_timer);
 	client->bs.close(&client->bs);
 }
 

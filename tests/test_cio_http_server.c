@@ -65,7 +65,7 @@
 static void fire_keepalive_timeout(struct cio_socket *s)
 {
 	struct cio_http_client *client = cio_container_of(s, struct cio_http_client, socket);
-	client->http_private.read_header_timer.handler(&client->http_private.read_header_timer, client->http_private.read_header_timer.handler_context, CIO_SUCCESS);
+	client->http_private.request_timer.handler(&client->http_private.request_timer, client->http_private.request_timer.handler_context, CIO_SUCCESS);
 }
 
 static const uint64_t read_timeout = UINT64_C(5) * UINT64_C(1000) * UINT64_C(1000) * UINT64_C(1000);

@@ -92,7 +92,7 @@ static void notify_free_handler_and_close_stream(struct cio_http_client *client)
 
 static void close_client(struct cio_http_client *client)
 {
-	client->http_private.read_header_timer.close(&client->http_private.read_header_timer);
+	client->http_private.request_timer.close(&client->http_private.request_timer);
 	notify_free_handler_and_close_stream(client);
 }
 
@@ -120,7 +120,7 @@ static void restart_read_request(struct cio_http_client *client)
 	if (client->response_written && client->request_complete) {
 		free_handler(client);
 		struct cio_http_server *server = (struct cio_http_server *)client->parser.data;
-		enum cio_error err = client->http_private.read_header_timer.expires_from_now(&client->http_private.read_header_timer, server->read_header_timeout_ns, client_timeout_handler, client);
+		enum cio_error err = client->http_private.request_timer.expires_from_now(&client->http_private.request_timer, server->read_header_timeout_ns, client_timeout_handler, client);
 		if (cio_unlikely(err != CIO_SUCCESS)) {
 			mark_to_be_closed(client);
 		}
@@ -318,7 +318,7 @@ static int on_headers_complete(http_parser *parser)
 	client->content_length = parser->content_length;
 
 	int ret;
-	enum cio_error err = client->http_private.read_header_timer.cancel(&client->http_private.read_header_timer);
+	enum cio_error err = client->http_private.request_timer.cancel(&client->http_private.request_timer);
 	if (cio_unlikely(err != CIO_SUCCESS)) {
 		struct cio_http_server *server = (struct cio_http_server *)parser->data;
 		handle_error(server, "Cancelling read timer in on_headers_complete failed, maybe not armed?");
@@ -591,12 +591,12 @@ static void handle_accept(struct cio_server_socket *ss, void *handler_context, e
 		return;
 	}
 
-	err = cio_timer_init(&client->http_private.read_header_timer, server->loop, NULL);
+	err = cio_timer_init(&client->http_private.request_timer, server->loop, NULL);
 	if (cio_unlikely(err != CIO_SUCCESS)) {
 		goto init_err;
 	}
 
-	err = client->http_private.read_header_timer.expires_from_now(&client->http_private.read_header_timer, server->read_header_timeout_ns, client_timeout_handler, client);
+	err = client->http_private.request_timer.expires_from_now(&client->http_private.request_timer, server->read_header_timeout_ns, client_timeout_handler, client);
 	if (cio_unlikely(err != CIO_SUCCESS)) {
 		goto expires_fail;
 	}
@@ -611,7 +611,7 @@ static void handle_accept(struct cio_server_socket *ss, void *handler_context, e
 
 read_until_fail:
 expires_fail:
-	client->http_private.read_header_timer.close(&client->http_private.read_header_timer);
+	client->http_private.request_timer.close(&client->http_private.request_timer);
 init_err:
 	handle_error(server, "client initialization failed");
 	notify_free_handler_and_close_stream(client);
