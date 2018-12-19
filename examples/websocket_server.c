@@ -276,8 +276,7 @@ static void sighandler(int signum)
 static void serve_error(struct cio_http_server *s, const char *reason)
 {
 	fprintf(stderr, "http server error: %s\n", reason);
-	s->server_socket.close(&s->server_socket);
-
+	s->shutdown(s, http_server_closed);
 }
 
 int main(void)

@@ -157,7 +157,7 @@ static void sighandler(int signum)
 static void serve_error(struct cio_http_server *server, const char *reason)
 {
 	(void)reason;
-	server->server_socket.close(&server->server_socket);
+	server->shutdown(server, http_server_closed);
 }
 
 int main(void)

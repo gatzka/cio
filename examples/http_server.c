@@ -71,7 +71,9 @@ static enum cio_http_cb_return dummy_on_message_complete(struct cio_http_client 
 	enum cio_error err = client->write_response(client, CIO_HTTP_STATUS_OK, &dh->wbh, NULL);
 	if (cio_unlikely(err != CIO_SUCCESS)) {
 		fprintf(stderr, "writing response not allowed!");
+		client->close(client);
 	}
+
 	return CIO_HTTP_CB_SUCCESS;
 }
 
@@ -122,7 +124,7 @@ static void sighandler(int signum)
 static void serve_error(struct cio_http_server *s, const char *reason)
 {
 	fprintf(stderr, "http server error: %s\n", reason);
-	s->server_socket.close(&s->server_socket);
+	s->shutdown(s, http_server_closed);
 }
 
 int main(void)
