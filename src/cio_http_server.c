@@ -93,6 +93,7 @@ static void notify_free_handler_and_close_stream(struct cio_http_client *client)
 static void close_client(struct cio_http_client *client)
 {
 	client->http_private.request_timer.close(&client->http_private.request_timer);
+	client->http_private.response_timer.close(&client->http_private.response_timer);
 	notify_free_handler_and_close_stream(client);
 }
 
@@ -609,9 +610,14 @@ static void handle_accept(struct cio_server_socket *ss, void *handler_context, e
 		return;
 	}
 
+	err = cio_timer_init(&client->http_private.response_timer, server->loop, NULL);
+	if (cio_unlikely(err != CIO_SUCCESS)) {
+		goto response_timer_init_err;
+	}
+
 	err = cio_timer_init(&client->http_private.request_timer, server->loop, NULL);
 	if (cio_unlikely(err != CIO_SUCCESS)) {
-		goto init_err;
+		goto request_timer_init_err;
 	}
 
 	err = client->http_private.request_timer.expires_from_now(&client->http_private.request_timer, server->read_header_timeout_ns, client_timeout_handler, client);
@@ -630,7 +636,9 @@ static void handle_accept(struct cio_server_socket *ss, void *handler_context, e
 read_until_fail:
 expires_fail:
 	client->http_private.request_timer.close(&client->http_private.request_timer);
-init_err:
+request_timer_init_err:
+	client->http_private.response_timer.close(&client->http_private.response_timer);
+response_timer_init_err:
 	handle_error(server, "client initialization failed");
 	notify_free_handler_and_close_stream(client);
 }
