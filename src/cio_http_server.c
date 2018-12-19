@@ -168,7 +168,7 @@ out:
 static const char *get_response_statusline(enum cio_http_status_code status_code)
 {
 	switch (status_code) {
-	case CIO_HTTP_SWITCHING_PROTOCOLS:
+	case CIO_HTTP_STATUS_SWITCHING_PROTOCOLS:
 		return CIO_HTTP_VERSION " 101 Switching Protocols" CIO_CRLF HTTP_SERVER_ID CIO_VERSION CIO_CRLF;
 	case CIO_HTTP_STATUS_OK:
 		return CIO_HTTP_VERSION " 200 OK" CIO_CRLF HTTP_SERVER_ID CIO_VERSION CIO_CRLF;
@@ -194,7 +194,7 @@ static void start_response_header(struct cio_http_client *client, enum cio_http_
 	cio_write_buffer_const_element_init(&client->http_private.wb_http_response_statusline, response, strlen(response));
 	cio_write_buffer_queue_head(&client->response_wbh, &client->http_private.wb_http_response_statusline);
 
-	if (status_code != CIO_HTTP_SWITCHING_PROTOCOLS) {
+	if (status_code != CIO_HTTP_STATUS_SWITCHING_PROTOCOLS) {
 		if (cio_likely(client->http_private.should_keepalive && !client->http_private.close_immediately)) {
 			cio_write_buffer_const_element_init(&client->http_private.wb_http_connection_header, CIO_HTTP_CONNECTION_KEEPALIVE, strlen(CIO_HTTP_CONNECTION_KEEPALIVE));
 		} else {

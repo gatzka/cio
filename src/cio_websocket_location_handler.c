@@ -242,7 +242,7 @@ static void send_upgrade_response(struct cio_http_client *client)
 		client->add_response_header(client, &ws->wb_protocol_end);
 	}
 
-	client->write_response(client, CIO_HTTP_SWITCHING_PROTOCOLS, NULL, response_written);
+	client->write_response(client, CIO_HTTP_STATUS_SWITCHING_PROTOCOLS, NULL, response_written);
 }
 
 static enum cio_http_cb_return handle_headers_complete(struct cio_http_client *client)
