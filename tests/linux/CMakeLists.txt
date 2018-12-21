@@ -17,6 +17,9 @@ add_test(NAME cio.linux.test_socket COMMAND test_cio_linux_socket)
 add_executable(test_cio_linux_socket_utils test_cio_linux_socket_utils.c)
 add_test(NAME cio.linux.test_socket_utils COMMAND test_cio_linux_socket_utils)
 
+add_executable(test_cio_linux_string test_cio_linux_string.c)
+add_test(NAME cio.linux.test_string COMMAND test_cio_linux_string)
+
 add_executable(test_cio_linux_timer test_cio_linux_timer.c)
 add_test(NAME cio.linux.test_timer COMMAND test_cio_linux_timer)
 
