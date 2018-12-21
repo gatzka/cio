@@ -50,6 +50,8 @@ static void test_init_read_buffer(void)
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Read buffer was not initialized correctly!");
 	TEST_ASSERT_EQUAL_MESSAGE(sizeof(buffer), cio_read_buffer_space_available(&rb), "Available space not initialized correctly!");
 	TEST_ASSERT_EQUAL_MESSAGE(0, cio_read_buffer_unread_bytes(&rb), "Unread bytes was not initialized correctly!");
+
+	TEST_ASSERT_EQUAL_MESSAGE(sizeof(buffer), cio_read_buffer_size(&rb), "Size of read buffer not initialized correctly!");
 }
 
 static void test_init_no_read_buffer(void)
