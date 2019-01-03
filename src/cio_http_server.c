@@ -729,7 +729,7 @@ enum cio_error cio_http_server_init(struct cio_http_server *server,
                                     cio_alloc_client alloc_client,
                                     cio_free_client free_client)
 {
-	if (cio_unlikely((server == NULL) ||
+	if (cio_unlikely((server == NULL) || (port == 0) ||
 		(loop == NULL) || (alloc_client == NULL) || (free_client == NULL) ||
 		(read_header_timeout_ns == 0) || (read_body_timeout_ns == 0) || (response_timeout_ns == 0))) {
 		return CIO_INVALID_ARGUMENT;
