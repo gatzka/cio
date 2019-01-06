@@ -589,8 +589,16 @@ static void handle_accept(struct cio_server_socket *ss, void *handler_context, e
 
 	struct cio_http_server *server = (struct cio_http_server *)handler_context;
 
+	struct cio_io_stream *stream = socket->get_io_stream(socket);
+	if (cio_unlikely((stream == NULL) && (err == CIO_SUCCESS))) {
+		server->free_client(socket);
+		handle_error(server, "accept failed");
+		return;
+	}
+
 	if (cio_unlikely(err != CIO_SUCCESS)) {
 		handle_error(server, "accept failed");
+		stream->close(stream);
 		return;
 	}
 
@@ -621,16 +629,12 @@ static void handle_accept(struct cio_server_socket *ss, void *handler_context, e
 	err = cio_read_buffer_init(&client->rb, client->buffer, client->buffer_size);
 	if (cio_unlikely(err != CIO_SUCCESS)) {
 		handle_error(server, "read buffer init failed");
-		server->free_client(socket);
+		stream->close(stream);
 		return;
 	}
 
-	err = cio_buffered_stream_init(&client->bs, socket->get_io_stream(socket));
-	if (cio_unlikely(err != CIO_SUCCESS)) {
-		handle_error(server, "buffered stream init failed");
-		server->free_client(socket);
-		return;
-	}
+	// Deliberatly no check for return value. bs is part of client and the check for stream != NULL was done before.
+	cio_buffered_stream_init(&client->bs, stream);
 
 	err = cio_timer_init(&client->http_private.response_timer, server->loop, NULL);
 	if (cio_unlikely(err != CIO_SUCCESS)) {
@@ -648,14 +652,11 @@ static void handle_accept(struct cio_server_socket *ss, void *handler_context, e
 	}
 
 	client->http_private.finish_func = finish_request_line;
-	err = client->bs.read_until(&client->bs, &client->rb, CIO_CRLF, parse, client);
-	if (cio_unlikely(err != CIO_SUCCESS)) {
-		goto read_until_fail;
-	}
+	// Deliberatly no check for return value. bs and rb are part of client, a delimiter is given and also a callback.
+	client->bs.read_until(&client->bs, &client->rb, CIO_CRLF, parse, client);
 
 	return;
 
-read_until_fail:
 expires_fail:
 	client->http_private.request_timer.close(&client->http_private.request_timer);
 request_timer_init_err:

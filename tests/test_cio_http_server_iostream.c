@@ -156,14 +156,15 @@ static void close_client(struct cio_http_client *client)
 	client->bs.close(&client->bs);
 }
 
-static enum cio_error cio_timer_init_fails(struct cio_timer *timer, struct cio_eventloop *loop, cio_timer_close_hook hook)
+*/
+
+static enum cio_error cio_timer_init_fails(struct cio_timer *timer, struct cio_eventloop *l, cio_timer_close_hook hook)
 {
-	(void)loop;
+	(void)l;
 	(void)timer;
 	(void)hook;
 	return CIO_INVALID_ARGUMENT;
 }
-*/
 
 static enum cio_error cio_timer_init_ok(struct cio_timer *timer, struct cio_eventloop *l, cio_timer_close_hook hook)
 {
@@ -187,6 +188,14 @@ static enum cio_error expires(struct cio_timer *t, uint64_t timeout_ns, cio_time
 	t->handler = handler;
 	t->handler_context = handler_context;
 	return CIO_SUCCESS;
+}
+
+static enum cio_error expires_error(struct cio_timer *t, uint64_t timeout_ns, cio_timer_handler handler, void *handler_context)
+{
+	(void)timeout_ns;
+	t->handler = handler;
+	t->handler_context = handler_context;
+	return CIO_INVALID_ARGUMENT;
 }
 
 static enum cio_error cio_server_socket_init_ok(struct cio_server_socket *ss,
@@ -262,6 +271,12 @@ static struct cio_io_stream *get_mem_io_stream(struct cio_socket *context)
 	return &ms.ios;
 }
 
+static struct cio_io_stream *get_null_io_stream(struct cio_socket *context)
+{
+	(void)context;
+	return NULL;
+}
+
 static void free_dummy_client(struct cio_socket *socket)
 {
 	struct cio_http_client *client = cio_container_of(socket, struct cio_http_client, socket);
@@ -272,7 +287,28 @@ static struct cio_socket *alloc_dummy_client(void)
 {
 	struct cio_http_client *client = malloc(sizeof(*client) + read_buffer_size);
 	memset(client, 0xaf, sizeof(*client));
+	client->buffer_size = read_buffer_size;
 	client->socket.get_io_stream = get_mem_io_stream;
+	client->socket.close_hook = free_dummy_client;
+	return &client->socket;
+}
+
+static struct cio_socket *alloc_dummy_client_no_buffer(void)
+{
+	struct cio_http_client *client = malloc(sizeof(*client) + 0);
+	memset(client, 0xaf, sizeof(*client));
+	client->buffer_size = 0;
+	client->socket.get_io_stream = get_mem_io_stream;
+	client->socket.close_hook = free_dummy_client;
+	return &client->socket;
+}
+
+static struct cio_socket *alloc_dummy_client_no_iostream(void)
+{
+	struct cio_http_client *client = malloc(sizeof(*client) + read_buffer_size);
+	memset(client, 0xaf, sizeof(*client));
+	client->buffer_size = read_buffer_size;
+	client->socket.get_io_stream = get_null_io_stream;
 	client->socket.close_hook = free_dummy_client;
 	return &client->socket;
 }
@@ -343,6 +379,7 @@ static struct cio_http_location_handler *alloc_dummy_handler(const void *config)
 		return &handler->handler;
 	}
 }
+
 /*
 static struct cio_http_location_handler *alloc_handler_no_callbacks(const void *config)
 {
@@ -363,7 +400,6 @@ static struct cio_http_location_handler *alloc_failing_handler(const void *confi
 	(void)config;
 	return NULL;
 }
-
 */
 static enum cio_error accept_save_handler(struct cio_server_socket *ss, cio_accept_handler handler, void *handler_context)
 {
@@ -485,6 +521,8 @@ void setUp(void)
 	RESET_FAKE(timer_cancel);
 	RESET_FAKE(timer_close);
 	RESET_FAKE(cio_timer_init);
+
+   	SET_CUSTOM_FAKE_SEQ(cio_timer_init, NULL, 0);
 	cio_timer_init_fake.custom_fake = cio_timer_init_ok;
 	timer_cancel_fake.custom_fake = cancel_timer;
 	timer_expires_from_now_fake.custom_fake = expires;
@@ -772,6 +810,109 @@ static void test_errors_in_serve(void)
 	}
 }
 
+static void test_errors_in_accept(void)
+{
+	struct accept_test {
+		struct cio_socket *(*alloc_client)(void);
+		enum cio_error (*response_timer_init)(struct cio_timer *timer, struct cio_eventloop *l, cio_timer_close_hook hook);
+		enum cio_error (*request_timer_init)(struct cio_timer *timer, struct cio_eventloop *l, cio_timer_close_hook hook);
+		enum cio_error (*timer_expires)(struct cio_timer *t, uint64_t timeout_ns, cio_timer_handler handler, void *handler_context);
+		enum cio_error accept_error_parameter;
+		const char *request;
+	};
+
+	static const struct accept_test accept_tests[] = {
+		{
+			.accept_error_parameter = CIO_INVALID_ARGUMENT,
+			.alloc_client = alloc_dummy_client,
+			.response_timer_init = cio_timer_init_ok,
+			.request_timer_init = cio_timer_init_ok,
+			.timer_expires = expires,
+			.request = "GET /foo HTTP/1.1" CRLF CRLF
+		},
+		{
+			.accept_error_parameter = CIO_SUCCESS,
+			.alloc_client = alloc_dummy_client_no_buffer,
+			.response_timer_init = cio_timer_init_ok,
+			.request_timer_init = cio_timer_init_ok,
+			.timer_expires = expires,
+			.request = "GET /foo HTTP/1.1" CRLF CRLF
+		},
+		{
+			.accept_error_parameter = CIO_SUCCESS,
+			.alloc_client = alloc_dummy_client_no_iostream,
+			.response_timer_init = cio_timer_init_ok,
+			.request_timer_init = cio_timer_init_ok,
+			.timer_expires = expires,
+			.request = "GET /foo HTTP/1.1" CRLF CRLF
+		},
+		{
+			.accept_error_parameter = CIO_SUCCESS,
+			.alloc_client = alloc_dummy_client,
+			.response_timer_init = cio_timer_init_fails,
+			.request_timer_init = cio_timer_init_ok,
+			.timer_expires = expires,
+			.request = "GET /foo HTTP/1.1" CRLF CRLF
+		},
+		{
+			.accept_error_parameter = CIO_SUCCESS,
+			.alloc_client = alloc_dummy_client,
+			.response_timer_init = cio_timer_init_ok,
+			.request_timer_init = cio_timer_init_fails,
+			.timer_expires = expires,
+			.request = "GET /foo HTTP/1.1" CRLF CRLF
+		},
+		{
+			.accept_error_parameter = CIO_SUCCESS,
+			.alloc_client = alloc_dummy_client,
+			.response_timer_init = cio_timer_init_ok,
+			.request_timer_init = cio_timer_init_ok,
+			.timer_expires = expires_error,
+			.request = "GET /foo HTTP/1.1" CRLF CRLF
+		},
+	};
+
+
+	for (unsigned int i = 0; i < ARRAY_SIZE(accept_tests); i++) {
+		struct accept_test accept_test = accept_tests[i];
+
+		enum cio_error (*timer_init_fakes[])(struct cio_timer *timer, struct cio_eventloop *l, cio_timer_close_hook hook) = {
+        	accept_test.response_timer_init,
+        	accept_test.request_timer_init
+    	};
+
+    	cio_timer_init_fake.custom_fake = NULL;
+    	SET_CUSTOM_FAKE_SEQ(cio_timer_init, timer_init_fakes, ARRAY_SIZE(timer_init_fakes));
+
+    	timer_expires_from_now_fake.custom_fake = accept_test.timer_expires;
+
+
+		struct cio_http_server server;
+		enum cio_error err = cio_http_server_init(&server, 8080, &loop, serve_error, header_read_timeout, body_read_timeout, response_timeout, accept_test.alloc_client, free_dummy_client);
+		TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Server initialization failed!");
+
+		err = server.serve(&server);
+		TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Serving http failed!");
+
+		struct cio_socket *s = server.alloc_client();
+		memory_stream_init(&ms, accept_test.request, s);
+
+		server.server_socket.handler(&server.server_socket, server.server_socket.handler_context, accept_test.accept_error_parameter, s);
+
+		TEST_ASSERT_EQUAL_MESSAGE(1, serve_error_fake.call_count, "Serve error callback was not called!");
+		if (accept_test.alloc_client != alloc_dummy_client_no_iostream) {
+			// if there is no stream, no socket could be closed
+			TEST_ASSERT_EQUAL_MESSAGE(1, client_socket_close_fake.call_count, "client socket was not closed if error in accept occured!");
+		}
+
+		if (accept_test.alloc_client == alloc_dummy_client_no_iostream) {
+			// To prevent memory leaks allocated by memory_stream_init, we havve to free the memory in the test.
+			free(ms.mem);
+		}
+
+		setUp();
+	}
+}
 /*
 
 static void test_serve_timeout(void)
@@ -1289,6 +1430,7 @@ int main(void)
 	RUN_TEST(test_serve_locations);
 	RUN_TEST(test_keepalive_handling);
 	RUN_TEST(test_errors_in_serve);
+	RUN_TEST(test_errors_in_accept);
 /*
 	RUN_TEST(test_serve_correctly);
 	RUN_TEST(test_serve_timeout);
