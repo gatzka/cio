@@ -142,6 +142,9 @@ static enum cio_error timer_expires_from_now(struct cio_timer *t, uint64_t timeo
 FAKE_VALUE_FUNC(enum cio_error, timer_expires_from_now, struct cio_timer *, uint64_t, cio_timer_handler, void *)
 FAKE_VALUE_FUNC(enum cio_error, cio_timer_init, struct cio_timer *, struct cio_eventloop *, cio_timer_close_hook)
 
+FAKE_VOID_FUNC0(location_handler_called)
+FAKE_VOID_FUNC0(sub_location_handler_called)
+
 /*
 static void close_client(struct cio_http_client *client)
 {
@@ -319,7 +322,12 @@ static void free_dummy_handler(struct cio_http_location_handler *handler)
 
 static struct cio_http_location_handler *alloc_dummy_handler(const void *config)
 {
-	(void)config;
+	uintptr_t location = (uintptr_t)config;
+	if (location == 0) {
+		location_handler_called();
+	} else if (location == 1) {
+		sub_location_handler_called();
+	}
 	struct dummy_handler *handler = malloc(sizeof(*handler));
 	if (cio_unlikely(handler == NULL)) {
 		return NULL;
@@ -484,6 +492,8 @@ void setUp(void)
 
 
 	RESET_FAKE(client_socket_close);
+	RESET_FAKE(location_handler_called);
+	RESET_FAKE(sub_location_handler_called);
 
 	http_parser_settings_init(&response_parser_settings);
 	http_parser_init(&response_parser, HTTP_RESPONSE);
@@ -609,19 +619,22 @@ static void test_serve_locations(void)
 {
 	struct location_test {
 		const char *location;
+		const char *sub_location;
 		const char *request_target;
 		int expected_response;
+		unsigned int location_call_count;
+		unsigned int sub_location_call_count;
 	};
 
 	static struct location_test location_tests[] = {
-		{.location = "/foo", .request_target = "/foo", .expected_response = 200},
-		{.location = "/foo", .request_target = "/foo/", .expected_response = 200},
-		{.location = "/foo", .request_target = "/foo/bar", .expected_response = 200},
-		{.location = "/foo", .request_target = "/foo2", .expected_response = 404},
-		{.location = "/foo/", .request_target = "/foo", .expected_response = 404},
-		{.location = "/foo/", .request_target = "/foo/", .expected_response = 200},
-		{.location = "/foo/", .request_target = "/foo/bar", .expected_response = 200},
-		{.location = "/foo/", .request_target = "/foo2", .expected_response = 404},
+		{.location = "/foo", .sub_location = "/foo/bar",.request_target = "/foo", .expected_response = 200, .location_call_count = 1, .sub_location_call_count = 0},
+		{.location = "/foo", .sub_location = "/foo/bar",.request_target = "/foo/", .expected_response = 200, .location_call_count = 1, .sub_location_call_count = 0},
+		{.location = "/foo", .sub_location = "/foo/bar",.request_target = "/foo/bar", .expected_response = 200, .location_call_count = 0, .sub_location_call_count = 1},
+		{.location = "/foo", .sub_location = "/foo/bar",.request_target = "/foo2", .expected_response = 404, .location_call_count = 0, .sub_location_call_count = 0},
+		{.location = "/foo/",.sub_location = "/foo/bar", .request_target = "/foo", .expected_response = 404, .location_call_count = 0, .sub_location_call_count = 0},
+		{.location = "/foo/",.sub_location = "/foo/bar", .request_target = "/foo/", .expected_response = 200, .location_call_count = 1, .sub_location_call_count = 0},
+		{.location = "/foo/",.sub_location = "/foo/bar", .request_target = "/foo/bar", .expected_response = 200, .location_call_count = 0, .sub_location_call_count = 1},
+		{.location = "/foo/",.sub_location = "/foo/bar", .request_target = "/foo2", .expected_response = 404, .location_call_count = 0, .sub_location_call_count = 0},
 	};
 
 	for (unsigned int i = 0; i < ARRAY_SIZE(location_tests); i++) {
@@ -631,12 +644,19 @@ static void test_serve_locations(void)
 		enum cio_error err = cio_http_server_init(&server, 8080, &loop, serve_error, header_read_timeout, body_read_timeout, response_timeout, alloc_dummy_client, free_dummy_client);
 		TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Server initialization failed!");
 
-		struct cio_http_location target;
-		err = cio_http_location_init(&target, location_test.location, NULL, alloc_dummy_handler);
-		TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Request target initialization failed!");
+		struct cio_http_location target1;
+		uintptr_t loc_marker = 0;
+		err = cio_http_location_init(&target1, location_test.location, (void *)loc_marker, alloc_dummy_handler);
+		TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Request target1 initialization failed!");
+		err = server.register_location(&server, &target1);
+		TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Register request target1 failed!");
 
-		err = server.register_location(&server, &target);
-		TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Register request target failed!");
+		struct cio_http_location target2;
+		uintptr_t sub_loc_marker = 1;
+		err = cio_http_location_init(&target2, location_test.sub_location, (void *)sub_loc_marker, alloc_dummy_handler);
+		TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Request target2 initialization failed!");
+		err = server.register_location(&server, &target2);
+		TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Register request target2 failed!");
 
 		err = server.serve(&server);
 		TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Serving http failed!");
@@ -656,6 +676,9 @@ static void test_serve_locations(void)
 		if (location_test.expected_response == 200) {
 			TEST_ASSERT_EQUAL_MESSAGE(1, header_complete_fake.call_count, "header_complete was not called!");
 		}
+
+		TEST_ASSERT_EQUAL_MESSAGE(location_test.location_call_count, location_handler_called_fake.call_count, "location handler was not called correctly");
+		TEST_ASSERT_EQUAL_MESSAGE(location_test.sub_location_call_count, sub_location_handler_called_fake.call_count, "sub_location handler was not called correctly");
 
 		TEST_ASSERT_EQUAL_MESSAGE(0, client_socket_close_fake.call_count, "client socket was closed before keepalive timeout triggered!");
 		fire_keepalive_timeout(s);
