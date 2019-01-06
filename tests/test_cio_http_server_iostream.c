@@ -738,6 +738,40 @@ static void test_keepalive_handling(void)
 	}
 }
 
+static void test_errors_in_serve(void)
+{
+	struct serve_test {
+		enum cio_error reuse_addres_retval;
+		enum cio_error bind_retval;
+		enum cio_error accept_retval;
+	};
+
+	static const struct serve_test serve_tests[] = {
+		{.reuse_addres_retval = CIO_INVALID_ARGUMENT, .bind_retval = CIO_SUCCESS, .accept_retval = CIO_SUCCESS},
+		{.reuse_addres_retval = CIO_SUCCESS, .bind_retval = CIO_INVALID_ARGUMENT, .accept_retval = CIO_SUCCESS},
+		{.reuse_addres_retval = CIO_SUCCESS, .bind_retval = CIO_SUCCESS, .accept_retval = CIO_INVALID_ARGUMENT},
+	};
+
+	for (unsigned int i = 0; i < ARRAY_SIZE(serve_tests); i++) {
+		struct serve_test serve_test = serve_tests[i];
+
+		socket_set_reuse_address_fake.return_val = serve_test.reuse_addres_retval;
+		socket_bind_fake.return_val = serve_test.bind_retval;
+		socket_accept_fake.custom_fake = NULL;
+		socket_accept_fake.return_val = serve_test.accept_retval;
+
+		struct cio_http_server server;
+		enum cio_error err = cio_http_server_init(&server, 8080, &loop, serve_error, header_read_timeout, body_read_timeout, response_timeout, alloc_dummy_client, free_dummy_client);
+		TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Server initialization failed!");
+
+		err = server.serve(&server);
+		TEST_ASSERT_NOT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Serving http did not fail!");
+		TEST_ASSERT_EQUAL_MESSAGE(1, socket_close_fake.call_count, "Close was not called!");
+
+		setUp();
+	}
+}
+
 /*
 
 static void test_serve_timeout(void)
@@ -1254,6 +1288,7 @@ int main(void)
 	RUN_TEST(test_register_request_target);
 	RUN_TEST(test_serve_locations);
 	RUN_TEST(test_keepalive_handling);
+	RUN_TEST(test_errors_in_serve);
 /*
 	RUN_TEST(test_serve_correctly);
 	RUN_TEST(test_serve_timeout);
