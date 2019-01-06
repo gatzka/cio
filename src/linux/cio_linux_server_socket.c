@@ -74,6 +74,7 @@ static void accept_callback(void *context)
 			if (cio_likely(err == CIO_SUCCESS)) {
 				ss->handler(ss, ss->handler_context, err, s);
 			} else {
+				ss->handler(ss, ss->handler_context, err, NULL);
 				close(client_fd);
 				ss->free_client(s);
 			}
