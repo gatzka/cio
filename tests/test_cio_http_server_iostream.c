@@ -626,7 +626,7 @@ static void test_serve_locations(void)
 		unsigned int sub_location_call_count;
 	};
 
-	static struct location_test location_tests[] = {
+	static const struct location_test location_tests[] = {
 		{.location = "/foo", .sub_location = "/foo/bar",.request_target = "/foo", .expected_response = 200, .location_call_count = 1, .sub_location_call_count = 0},
 		{.location = "/foo", .sub_location = "/foo/bar",.request_target = "/foo/", .expected_response = 200, .location_call_count = 1, .sub_location_call_count = 0},
 		{.location = "/foo", .sub_location = "/foo/bar",.request_target = "/foo/bar", .expected_response = 200, .location_call_count = 0, .sub_location_call_count = 1},
@@ -682,6 +682,57 @@ static void test_serve_locations(void)
 
 		TEST_ASSERT_EQUAL_MESSAGE(0, client_socket_close_fake.call_count, "client socket was closed before keepalive timeout triggered!");
 		fire_keepalive_timeout(s);
+		TEST_ASSERT_EQUAL_MESSAGE(1, client_socket_close_fake.call_count, "client socket was not closed after keepalive timeout triggered!");
+		setUp();
+	}
+}
+
+static void test_keepalive_handling(void)
+{
+	struct keepalive_test {
+		const char *location;
+		const char *request;
+		int expected_response;
+		bool immediate_close;
+	};
+
+	static const struct keepalive_test keepalive_tests[] = {
+		{.location = "/foo", .request = "GET /foo HTTP/1.1" CRLF CRLF, .expected_response = 200, .immediate_close = false},
+		{.location = "/foo", .request = "GET /foo HTTP/1.1" CRLF "Connection: keep-alive" CRLF CRLF, .expected_response = 200, .immediate_close = false},
+		{.location = "/foo", .request = "GET /foo HTTP/1.1" CRLF "Connection: close" CRLF CRLF, .expected_response = 200, .immediate_close = true},
+		{.location = "/foo", .request = "GET /foo HTTP/1.0" CRLF CRLF, .expected_response = 200, .immediate_close = true},
+		{.location = "/foo", .request = "GET /foo HTTP/1.0" CRLF "Connection: keep-alive" CRLF CRLF, .expected_response = 200, .immediate_close = false},
+	};
+
+	for (unsigned int i = 0; i < ARRAY_SIZE(keepalive_tests); i++) {
+		struct keepalive_test keepalive_test = keepalive_tests[i];
+
+		struct cio_http_server server;
+		enum cio_error err = cio_http_server_init(&server, 8080, &loop, serve_error, header_read_timeout, body_read_timeout, response_timeout, alloc_dummy_client, free_dummy_client);
+		TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Server initialization failed!");
+
+		struct cio_http_location target;
+		err = cio_http_location_init(&target, keepalive_test.location, NULL, alloc_dummy_handler);
+		TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Request target initialization failed!");
+		err = server.register_location(&server, &target);
+		TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Register request target failed!");
+
+		err = server.serve(&server);
+		TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Serving http failed!");
+
+		struct cio_socket *s = server.alloc_client();
+
+		memory_stream_init(&ms, keepalive_test.request, s);
+
+		server.server_socket.handler(&server.server_socket, server.server_socket.handler_context, CIO_SUCCESS, s);
+		TEST_ASSERT_EQUAL_MESSAGE(0, serve_error_fake.call_count, "Serve error callback was called!");
+		check_http_response(&ms, keepalive_test.expected_response);
+
+		if (!keepalive_test.immediate_close) {
+			TEST_ASSERT_EQUAL_MESSAGE(0, client_socket_close_fake.call_count, "client socket was closed before keepalive timeout triggered!");
+			fire_keepalive_timeout(s);
+		}
+
 		TEST_ASSERT_EQUAL_MESSAGE(1, client_socket_close_fake.call_count, "client socket was not closed after keepalive timeout triggered!");
 		setUp();
 	}
@@ -1202,6 +1253,7 @@ int main(void)
 	RUN_TEST(test_shutdown);
 	RUN_TEST(test_register_request_target);
 	RUN_TEST(test_serve_locations);
+	RUN_TEST(test_keepalive_handling);
 /*
 	RUN_TEST(test_serve_correctly);
 	RUN_TEST(test_serve_timeout);
