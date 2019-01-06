@@ -139,10 +139,9 @@ static void restart_read_request(struct cio_http_client *client)
 		client->response_written = false;
 
 		client->http_private.finish_func = finish_request_line;
-		err = client->bs.read_until(&client->bs, &client->rb, CIO_CRLF, parse, client);
-		if (cio_unlikely(err != CIO_SUCCESS)) {
-			mark_to_be_closed(client);
-		}
+
+		// Deliberatly no check for return value. bs and rb are part of client, a delimiter is given and also a callback.
+		client->bs.read_until(&client->bs, &client->rb, CIO_CRLF, parse, client);
 	}
 }
 
@@ -328,10 +327,8 @@ static void handle_server_error(struct cio_http_client *client, const char *msg)
 
 static void finish_bytes(struct cio_http_client *client)
 {
-	enum cio_error err = client->bs.read(&client->bs, &client->rb, parse, client);
-	if (cio_unlikely(err != CIO_SUCCESS)) {
-		handle_server_error(client, "Reading of bytes failed");
-	}
+	// Deliberatly no check for return value. bs and rb are part of client and also a callback.
+	client->bs.read(&client->bs, &client->rb, parse, client);
 }
 
 static int on_headers_complete(http_parser *parser)
@@ -566,10 +563,8 @@ static void parse(struct cio_buffered_stream *bs, void *handler_context, enum ci
 
 static void finish_header_line(struct cio_http_client *client)
 {
-	enum cio_error err = client->bs.read_until(&client->bs, &client->rb, CIO_CRLF, parse, client);
-	if (cio_unlikely(err != CIO_SUCCESS)) {
-		handle_server_error(client, "Reading of header line failed");
-	}
+	// Deliberatly no check for return value. bs and rb are part of client, a delimiter is given and also a callback.
+	client->bs.read_until(&client->bs, &client->rb, CIO_CRLF, parse, client);
 }
 
 static void finish_request_line(struct cio_http_client *client)
@@ -577,10 +572,9 @@ static void finish_request_line(struct cio_http_client *client)
 	client->http_major = client->parser.http_major;
 	client->http_minor = client->parser.http_minor;
 	client->http_private.finish_func = finish_header_line;
-	enum cio_error err = client->bs.read_until(&client->bs, &client->rb, CIO_CRLF, parse, client);
-	if (cio_unlikely(err != CIO_SUCCESS)) {
-		handle_server_error(client, "Reading of header line failed");
-	}
+
+	// Deliberatly no check for return value. bs and rb are part of client, a delimiter is given and also a callback.
+	client->bs.read_until(&client->bs, &client->rb, CIO_CRLF, parse, client);
 }
 
 static void handle_accept(struct cio_server_socket *ss, void *handler_context, enum cio_error err, struct cio_socket *socket)
