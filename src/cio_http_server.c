@@ -652,11 +652,14 @@ static void handle_accept(struct cio_server_socket *ss, void *handler_context, e
 	}
 
 	client->http_private.finish_func = finish_request_line;
-	// Deliberatly no check for return value. bs and rb are part of client, a delimiter is given and also a callback.
-	client->bs.read_until(&client->bs, &client->rb, CIO_CRLF, parse, client);
+	err = client->bs.read_until(&client->bs, &client->rb, CIO_CRLF, parse, client);
+	if (cio_unlikely(err != CIO_SUCCESS)) {
+		goto read_until_fail;
+	}
 
 	return;
 
+read_until_fail:
 expires_fail:
 	client->http_private.request_timer.close(&client->http_private.request_timer);
 request_timer_init_err:
