@@ -150,12 +150,14 @@ static void response_written(struct cio_buffered_stream *bs, void *handler_conte
 {
 	(void)bs;
 	struct cio_http_client *client = (struct cio_http_client *)handler_context;
+	enum cio_error cancel_err = client->http_private.response_timer.cancel(&client->http_private.response_timer);
+
 	client->response_written = true;
 	if (client->response_written_cb) {
 		client->response_written_cb(client, err);
 	}
 
-	if (cio_unlikely(err != CIO_SUCCESS)) {
+	if (cio_unlikely((err != CIO_SUCCESS) || (cancel_err != CIO_SUCCESS))) {
 		goto out;
 	}
 
@@ -166,7 +168,7 @@ static void response_written(struct cio_buffered_stream *bs, void *handler_conte
 	restart_read_request(client);
 	return;
 out:
-	client->close(client);
+	mark_to_be_closed(client);
 }
 
 static const char *get_response_statusline(enum cio_http_status_code status_code)
@@ -734,8 +736,8 @@ enum cio_error cio_http_server_init(struct cio_http_server *server,
                                     cio_free_client free_client)
 {
 	if (cio_unlikely((server == NULL) || (port == 0) ||
-		(loop == NULL) || (alloc_client == NULL) || (free_client == NULL) ||
-		(read_header_timeout_ns == 0) || (read_body_timeout_ns == 0) || (response_timeout_ns == 0))) {
+	                 (loop == NULL) || (alloc_client == NULL) || (free_client == NULL) ||
+	                 (read_header_timeout_ns == 0) || (read_body_timeout_ns == 0) || (response_timeout_ns == 0))) {
 		return CIO_INVALID_ARGUMENT;
 	}
 
