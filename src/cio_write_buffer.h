@@ -278,7 +278,6 @@ static inline void cio_write_buffer_splice(struct cio_write_buffer *list, struct
 	}
 }
 
-
 #ifdef __cplusplus
 }
 #endif
