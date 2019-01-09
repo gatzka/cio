@@ -631,6 +631,7 @@ static void test_read_exactly_sync_error(void)
 	static const char *test_data = "Hello";
 	memory_stream_init(&client->ms, test_data);
 	read_some_fake.custom_fake = read_some_error_sync;
+	dummy_read_handler_fake.custom_fake = save_to_check_buffer_and_close;
 
 	uint8_t buffer[40];
 	struct cio_read_buffer rb;
@@ -642,8 +643,8 @@ static void test_read_exactly_sync_error(void)
 	err = client->bs.read_exactly(&client->bs, &rb, sizeof(buffer) - 1, dummy_read_handler, NULL);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Return value not correct!");
 
-	err = client->bs.close(&client->bs);
-	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Return value not correct!");
+	//err = client->bs.close(&client->bs);
+	//TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Return value not correct!");
 	TEST_ASSERT_EQUAL_MESSAGE(1, close_fake.call_count, "Underlying cio_iostream was not closed!");
 	TEST_ASSERT_EQUAL_MESSAGE(1, dummy_read_handler_fake.call_count, "Handler was not called!");
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_INVALID_ARGUMENT, dummy_read_handler_fake.arg2_val, "Handler was not called with CIO_INVALID_ARGUMENT!");
