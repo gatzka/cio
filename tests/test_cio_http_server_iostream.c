@@ -441,6 +441,15 @@ static enum cio_error read_some_max(struct cio_io_stream *ios, struct cio_read_b
 	return CIO_SUCCESS;
 }
 
+static enum cio_error read_some_error(struct cio_io_stream *ios, struct cio_read_buffer *buffer, cio_io_stream_read_handler handler, void *context)
+{
+	(void)ios;
+	(void)buffer;
+	(void)handler;
+	(void)context;
+	return CIO_BAD_FILE_DESCRIPTOR;
+}
+
 static enum cio_error write_all(struct cio_io_stream *ios, const struct cio_write_buffer *buf, cio_io_stream_write_handler handler, void *handler_context)
 {
 	struct memory_stream *memory_stream = cio_container_of(ios, struct memory_stream, ios);
@@ -910,6 +919,39 @@ static void test_errors_in_accept(void)
 			free(ms.mem);
 		}
 
+		setUp();
+	}
+}
+
+static void test_parse_errors(void)
+{
+	struct parse_test {
+		enum cio_error (*read_some)(struct cio_io_stream *io_stream, struct cio_read_buffer *buffer, cio_io_stream_read_handler handler, void *handler_context);
+		const char *request;
+	};
+
+	static struct parse_test parse_tests[] = {
+		{.read_some = read_some_error, .request = "GET /foo HTTP/1.1" CRLF CRLF},
+		//{.read_some = read_some_max, .request = "GT /foo HTTP/1.1" CRLF CRLF},
+	};
+
+	for (unsigned int i = 0; i < ARRAY_SIZE(parse_tests); i++) {
+		struct parse_test parse_test = parse_tests[i];
+
+		struct cio_http_server server;
+		enum cio_error err = cio_http_server_init(&server, 8080, &loop, serve_error, header_read_timeout, body_read_timeout, response_timeout, alloc_dummy_client, free_dummy_client);
+		TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Server initialization failed!");
+
+		err = server.serve(&server);
+		TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Serving http failed!");
+
+		struct cio_socket *s = server.alloc_client();
+		memory_stream_init(&ms, parse_test.request, s);
+		ms.ios.read_some = parse_test.read_some;
+
+		server.server_socket.handler(&server.server_socket, server.server_socket.handler_context, CIO_SUCCESS, s);
+
+		//TEST_ASSERT_EQUAL_MESSAGE(1, serve_error_fake.call_count, "Serve error callback was not called!");
 		setUp();
 	}
 }
@@ -1431,6 +1473,7 @@ int main(void)
 	RUN_TEST(test_keepalive_handling);
 	RUN_TEST(test_errors_in_serve);
 	RUN_TEST(test_errors_in_accept);
+	RUN_TEST(test_parse_errors);
 /*
 	RUN_TEST(test_serve_correctly);
 	RUN_TEST(test_serve_timeout);
