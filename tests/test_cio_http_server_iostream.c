@@ -469,6 +469,15 @@ static enum cio_error write_all(struct cio_io_stream *ios, const struct cio_writ
 	return CIO_SUCCESS;
 }
 
+static enum cio_error write_error(struct cio_io_stream *ios, const struct cio_write_buffer *buf, cio_io_stream_write_handler handler, void *handler_context)
+{
+	(void)ios;
+	(void)buf;
+	(void)handler;
+	(void)handler_context;
+	return CIO_BAD_FILE_DESCRIPTOR;
+}
+
 static enum cio_error mem_close(struct cio_io_stream *io_stream)
 {
 	(void)io_stream;
@@ -531,7 +540,7 @@ void setUp(void)
 	RESET_FAKE(timer_close);
 	RESET_FAKE(cio_timer_init);
 
-   	SET_CUSTOM_FAKE_SEQ(cio_timer_init, NULL, 0);
+	SET_CUSTOM_FAKE_SEQ(cio_timer_init, NULL, 0);
 	cio_timer_init_fake.custom_fake = cio_timer_init_ok;
 	timer_cancel_fake.custom_fake = cancel_timer;
 	timer_expires_from_now_fake.custom_fake = expires;
@@ -927,12 +936,16 @@ static void test_parse_errors(void)
 {
 	struct parse_test {
 		enum cio_error (*read_some)(struct cio_io_stream *io_stream, struct cio_read_buffer *buffer, cio_io_stream_read_handler handler, void *handler_context);
+		enum cio_error (*write_some)(struct cio_io_stream *io_stream, const struct cio_write_buffer *buf, cio_io_stream_write_handler handler, void *handler_context);
 		const char *request;
+		bool simulate_write_error;
+		int expected_response;
 	};
 
 	static struct parse_test parse_tests[] = {
-		{.read_some = read_some_error, .request = "GET /foo HTTP/1.1" CRLF CRLF},
-		//{.read_some = read_some_max, .request = "GT /foo HTTP/1.1" CRLF CRLF},
+		{.read_some = read_some_error, .write_some = write_all, .request = "GET /foo HTTP/1.1" CRLF CRLF, .expected_response = 500},
+		{.read_some = read_some_max, .write_some = write_all, .request = "GT /foo HTTP/1.1" CRLF CRLF, .expected_response = 400},
+		{.read_some = read_some_max, .write_some = write_error, .request = "GT /foo HTTP/1.1" CRLF CRLF, },
 	};
 
 	for (unsigned int i = 0; i < ARRAY_SIZE(parse_tests); i++) {
@@ -946,12 +959,21 @@ static void test_parse_errors(void)
 		TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Serving http failed!");
 
 		struct cio_socket *s = server.alloc_client();
+
 		memory_stream_init(&ms, parse_test.request, s);
 		ms.ios.read_some = parse_test.read_some;
+		ms.ios.write_some = parse_test.write_some;
 
 		server.server_socket.handler(&server.server_socket, server.server_socket.handler_context, CIO_SUCCESS, s);
 
-		//TEST_ASSERT_EQUAL_MESSAGE(1, serve_error_fake.call_count, "Serve error callback was not called!");
+		if (!parse_test.simulate_write_error) {
+			check_http_response(&ms, parse_test.expected_response);
+		}
+
+		if (parse_test.expected_response == 500) {
+			TEST_ASSERT_EQUAL_MESSAGE(1, serve_error_fake.call_count, "Serve error callback was not called!");
+		}
+
 		setUp();
 	}
 }
