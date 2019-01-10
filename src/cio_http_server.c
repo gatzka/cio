@@ -220,14 +220,9 @@ static void end_response_header(struct cio_http_client *client)
 	cio_write_buffer_queue_tail(&client->response_wbh, &client->http_private.wb_http_response_header_end);
 }
 
-static void flush(struct cio_http_client *client, cio_buffered_stream_write_handler handler)
+static enum cio_error flush(struct cio_http_client *client, cio_buffered_stream_write_handler handler)
 {
-	enum cio_error err = client->bs.write(&client->bs, &client->response_wbh, handler, client);
-	if (cio_unlikely(err != CIO_SUCCESS)) {
-		struct cio_http_server *server = (struct cio_http_server *)client->parser.data;
-		handle_error(server, "flushing client responses failed");
-		mark_to_be_closed(client);
-	}
+	return client->bs.write(&client->bs, &client->response_wbh, handler, client);
 }
 
 static enum cio_error write_response(struct cio_http_client *client, enum cio_http_status_code status_code, struct cio_write_buffer *wbh_body, cio_response_written_cb written_cb)
@@ -271,9 +266,7 @@ static enum cio_error write_response(struct cio_http_client *client, enum cio_ht
 		return 0;
 	}
 
-	flush(client, response_written);
-
-	return CIO_SUCCESS;
+	return flush(client, response_written);
 }
 
 static bool location_match(const char *location, size_t location_length, const char *request_target, size_t request_target_length)
