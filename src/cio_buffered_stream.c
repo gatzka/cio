@@ -50,9 +50,9 @@ static void handle_read(struct cio_io_stream *stream, void *handler_context, enu
 static enum cio_bs_state call_handler(struct cio_buffered_stream *bs, enum cio_error err, struct cio_read_buffer *rb)
 {
 	bs->read_job = NULL;
-	bs->callback_is_running = true;
+	bs->callback_is_running++;
 	bs->read_handler(bs, bs->read_handler_context, err, rb);
-	bs->callback_is_running = false;
+	bs->callback_is_running--;
 
 	if (bs->shall_close) {
 		bs->stream->close(bs->stream);
@@ -90,7 +90,7 @@ static enum cio_error bs_close(struct cio_buffered_stream *bs)
 		return CIO_INVALID_ARGUMENT;
 	}
 
-	if (!bs->callback_is_running) {
+	if (bs->callback_is_running == 0) {
 		bs->stream->close(bs->stream);
 	} else {
 		bs->shall_close = true;
@@ -116,7 +116,7 @@ static void run_read(struct cio_buffered_stream *bs)
 
 static void start_read(struct cio_buffered_stream *bs)
 {
-	if (!bs->callback_is_running) {
+	if (bs->callback_is_running == 0) {
 		run_read(bs);
 	}
 }
@@ -316,7 +316,7 @@ enum cio_error cio_buffered_stream_init(struct cio_buffered_stream *bs,
 	}
 
 	bs->stream = stream;
-	bs->callback_is_running = false;
+	bs->callback_is_running = 0;
 	bs->shall_close = false;
 
 	bs->read = bs_read;

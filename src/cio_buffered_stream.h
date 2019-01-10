@@ -194,7 +194,7 @@ struct cio_buffered_stream {
 	struct cio_write_buffer wb;
 
 	enum cio_error last_error;
-	bool callback_is_running;
+	unsigned int callback_is_running;
 	bool shall_close;
 };
 
