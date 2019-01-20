@@ -534,6 +534,11 @@ static void parse(struct cio_buffered_stream *bs, void *handler_context, enum ci
 		return;
 	}
 
+	if (err == CIO_EOF) {
+		close_client(client);
+		return;
+	}
+
 	size_t bytes_transfered = cio_read_buffer_get_transferred_bytes(read_buffer);
 	client->http_private.parsing++;
 
