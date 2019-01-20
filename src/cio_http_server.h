@@ -122,6 +122,7 @@ struct cio_http_server {
 	struct cio_http_location *first_handler;
 	size_t num_handlers;
 	cio_http_server_close_hook close_hook;
+	char keepalive_header[33]; // "Keep-Alive: timeout= + uint32 as string + CR + LF + \0"
 };
 
 /**

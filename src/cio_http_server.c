@@ -24,6 +24,7 @@
  * SOFTWARE.
  */
 
+#include <inttypes.h>
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
@@ -202,7 +203,10 @@ static void start_response_header(struct cio_http_client *client, enum cio_http_
 
 	if (status_code != CIO_HTTP_STATUS_SWITCHING_PROTOCOLS) {
 		if (cio_likely(client->http_private.should_keepalive && !client->http_private.close_immediately)) {
+			struct cio_http_server *server = (struct cio_http_server *)client->parser.data;
 			cio_write_buffer_const_element_init(&client->http_private.wb_http_connection_header, CIO_HTTP_CONNECTION_KEEPALIVE, strlen(CIO_HTTP_CONNECTION_KEEPALIVE));
+			cio_write_buffer_const_element_init(&client->http_private.wb_http_keepalive_header, server->keepalive_header, strlen(server->keepalive_header));
+			add_response_header(client, &client->http_private.wb_http_keepalive_header);
 		} else {
 			cio_write_buffer_const_element_init(&client->http_private.wb_http_connection_header, CIO_HTTP_CONNECTION_CLOSE, strlen(CIO_HTTP_CONNECTION_CLOSE));
 		}
@@ -748,6 +752,9 @@ enum cio_error cio_http_server_init(struct cio_http_server *server,
 	server->read_body_timeout_ns = read_body_timeout_ns;
 	server->response_timeout_ns = response_timeout_ns;
 	server->close_hook = NULL;
+
+	uint32_t keep_alive = (uint32_t)(read_header_timeout_ns / 1000000000);
+	snprintf(server->keepalive_header, sizeof(server->keepalive_header), "Keep-Alive: timeout=%"PRIu32"\r\n", keep_alive);
 
 	return cio_server_socket_init(&server->server_socket, server->loop, DEFAULT_BACKLOG, server->alloc_client, server->free_client, server_socket_closed);
 }

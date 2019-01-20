@@ -66,6 +66,7 @@ struct cio_http_client_private {
 	struct cio_write_buffer wb_http_response_statusline;
 	struct cio_write_buffer wb_http_content_length;
 	struct cio_write_buffer wb_http_connection_header;
+	struct cio_write_buffer wb_http_keepalive_header;
 	struct cio_write_buffer wb_http_response_header_end;
 	struct cio_timer request_timer;
 	struct cio_timer response_timer;
