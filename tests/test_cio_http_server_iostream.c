@@ -437,6 +437,23 @@ static enum cio_error read_some_max(struct cio_io_stream *ios, struct cio_read_b
 	return CIO_SUCCESS;
 }
 
+static enum cio_error read_some_close(struct cio_io_stream *ios, struct cio_read_buffer *buffer, cio_io_stream_read_handler handler, void *context)
+{
+	struct memory_stream *memory_stream = cio_container_of(ios, struct memory_stream, ios);
+	size_t len = MIN(cio_read_buffer_size(buffer), memory_stream->size - memory_stream->read_pos);
+	memcpy(buffer->data, &((uint8_t *)memory_stream->mem)[memory_stream->read_pos], len);
+	memory_stream->read_pos += len;
+	buffer->add_ptr += len;
+	buffer->bytes_transferred = len;
+	if (len == 0) {
+		handler(ios, context, CIO_EOF, buffer);
+	} else {
+		handler(ios, context, CIO_SUCCESS, buffer);
+	}
+
+	return CIO_SUCCESS;
+}
+
 static enum cio_error read_some_error(struct cio_io_stream *ios, struct cio_read_buffer *buffer, cio_io_stream_read_handler handler, void *context)
 {
 	(void)ios;
@@ -978,6 +995,33 @@ static void test_parse_errors(void)
 		setUp();
 	}
 }
+
+static void test_client_close_while_reading(void)
+{
+	struct cio_http_server server;
+	enum cio_error err = cio_http_server_init(&server, 8080, &loop, serve_error, header_read_timeout, body_read_timeout, response_timeout, alloc_dummy_client, free_dummy_client);
+	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Server initialization failed!");
+
+	struct cio_http_location target;
+	err = cio_http_location_init(&target, "/foo", NULL, alloc_dummy_handler);
+	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Request target initialization failed!");
+	err = server.register_location(&server, &target);
+	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Register request target failed!");
+
+	err = server.serve(&server);
+	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Serving http failed!");
+
+	struct cio_socket *s = server.alloc_client();
+
+	memory_stream_init(&ms, "GET /foo HTTP/1.1" CRLF CRLF, s);
+	ms.ios.read_some = read_some_close;
+
+	server.server_socket.handler(&server.server_socket, server.server_socket.handler_context, CIO_SUCCESS, s);
+	TEST_ASSERT_EQUAL_MESSAGE(0, serve_error_fake.call_count, "Serve error callback was called!");
+	check_http_response(&ms, 200);
+
+	TEST_ASSERT_EQUAL_MESSAGE(1, client_socket_close_fake.call_count, "client socket was not closed after keepalive timeout triggered!");
+}
 /*
 
 static void test_serve_timeout(void)
@@ -1498,6 +1542,7 @@ int main(void)
 	RUN_TEST(test_errors_in_serve);
 	RUN_TEST(test_errors_in_accept);
 	RUN_TEST(test_parse_errors);
+	RUN_TEST(test_client_close_while_reading);
 /*
 	RUN_TEST(test_serve_correctly);
 	RUN_TEST(test_serve_timeout);
