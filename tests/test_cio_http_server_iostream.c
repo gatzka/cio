@@ -424,20 +424,16 @@ static enum cio_error read_blocks(struct cio_io_stream *ios, struct cio_read_buf
 
 static enum cio_error read_some_max(struct cio_io_stream *ios, struct cio_read_buffer *buffer, cio_io_stream_read_handler handler, void *context)
 {
-	enum cio_error error;
 	struct memory_stream *memory_stream = cio_container_of(ios, struct memory_stream, ios);
 	size_t len = MIN(cio_read_buffer_size(buffer), memory_stream->size - memory_stream->read_pos);
 	memcpy(buffer->data, &((uint8_t *)memory_stream->mem)[memory_stream->read_pos], len);
 	memory_stream->read_pos += len;
 	buffer->add_ptr += len;
 	buffer->bytes_transferred = len;
-	if (len == 0) {
-		error = CIO_EOF;
-	} else {
-		error = CIO_SUCCESS;
+	if (len > 0) {
+		handler(ios, context, CIO_SUCCESS, buffer);
 	}
 
-	handler(ios, context, error, buffer);
 	return CIO_SUCCESS;
 }
 
@@ -792,6 +788,11 @@ static void test_keepalive_handling(void)
 		TEST_ASSERT_EQUAL_MESSAGE(1, client_socket_close_fake.call_count, "client socket was not closed after keepalive timeout triggered!");
 		setUp();
 	}
+}
+
+static void test_requests(void)
+{
+
 }
 
 static void test_errors_in_serve(void)
@@ -1493,6 +1494,7 @@ int main(void)
 	RUN_TEST(test_register_request_target);
 	RUN_TEST(test_serve_locations);
 	RUN_TEST(test_keepalive_handling);
+	RUN_TEST(test_requests);
 	RUN_TEST(test_errors_in_serve);
 	RUN_TEST(test_errors_in_accept);
 	RUN_TEST(test_parse_errors);
