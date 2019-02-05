@@ -130,6 +130,21 @@ static enum cio_http_cb_return on_header_value(struct cio_http_client *c, const 
 FAKE_VALUE_FUNC(enum cio_http_cb_return, on_header_value, struct cio_http_client *, const char *, size_t)
 static enum cio_http_cb_return on_url(struct cio_http_client *c, const char *at, size_t length);
 FAKE_VALUE_FUNC(enum cio_http_cb_return, on_url, struct cio_http_client *, const char *, size_t)
+static enum cio_http_cb_return on_body(struct cio_http_client *c, const char *at, size_t length);
+FAKE_VALUE_FUNC(enum cio_http_cb_return, on_body, struct cio_http_client *, const char *, size_t)
+
+static enum cio_http_cb_return on_schema(struct cio_http_client *c, const char *, size_t);
+FAKE_VALUE_FUNC(enum cio_http_cb_return, on_schema, struct cio_http_client *, const char *, size_t)
+static enum cio_http_cb_return on_host(struct cio_http_client *c, const char *, size_t);
+FAKE_VALUE_FUNC(enum cio_http_cb_return, on_host, struct cio_http_client *, const char *, size_t)
+static enum cio_http_cb_return on_port(struct cio_http_client *c, const char *, size_t);
+FAKE_VALUE_FUNC(enum cio_http_cb_return, on_port, struct cio_http_client *, const char *, size_t)
+static enum cio_http_cb_return on_path(struct cio_http_client *c, const char *, size_t);
+FAKE_VALUE_FUNC(enum cio_http_cb_return, on_path, struct cio_http_client *, const char *, size_t)
+static enum cio_http_cb_return on_query(struct cio_http_client *c, const char *, size_t);
+FAKE_VALUE_FUNC(enum cio_http_cb_return, on_query, struct cio_http_client *, const char *, size_t)
+static enum cio_http_cb_return on_fragment(struct cio_http_client *c, const char *, size_t);
+FAKE_VALUE_FUNC(enum cio_http_cb_return, on_fragment, struct cio_http_client *, const char *, size_t)
 
 static void client_socket_close(void);
 FAKE_VOID_FUNC0(client_socket_close)
@@ -375,7 +390,14 @@ static struct cio_http_location_handler *alloc_dummy_handler(const void *config)
 		handler->handler.on_header_value = on_header_value;
 		handler->handler.on_url = on_url;
 		handler->handler.on_headers_complete = header_complete;
+		handler->handler.on_body = on_body;
 		handler->handler.on_message_complete = message_complete;
+		handler->handler.on_schema = on_schema;
+		handler->handler.on_host = on_host;
+		handler->handler.on_port = on_port;
+		handler->handler.on_path = on_path;
+		handler->handler.on_query = on_query;
+		handler->handler.on_fragment = on_fragment;
 		return &handler->handler;
 	}
 }
@@ -809,6 +831,21 @@ static void test_keepalive_handling(void)
 
 static void test_requests(void)
 {
+	struct request_test {
+		cio_http_data_cb on_scheme;
+		cio_http_data_cb on_host;
+		cio_http_data_cb on_port;
+		cio_http_data_cb on_path;
+		cio_http_data_cb on_query;
+		cio_http_data_cb on_fragment;
+		cio_http_data_cb on_url;
+		cio_http_data_cb on_header_field;
+		cio_http_data_cb on_header_value;
+		cio_http_cb on_header_complete;
+		cio_http_data_cb on_body;
+		cio_http_cb on_message_complete;
+
+	};
 
 }
 
