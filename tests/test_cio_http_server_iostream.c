@@ -61,14 +61,22 @@
 #define DNT_VALUE "1"
 #define CRLF "\r\n"
 
-
-
-
-
+struct request_test {
+	cio_http_data_cb on_scheme;
+	cio_http_data_cb on_host;
+	cio_http_data_cb on_port;
+	cio_http_data_cb on_path;
+	cio_http_data_cb on_query;
+	cio_http_data_cb on_fragment;
+	cio_http_data_cb on_url;
+	cio_http_data_cb on_header_field;
+	cio_http_data_cb on_header_value;
+	cio_http_cb on_header_complete;
+	cio_http_data_cb on_body;
+	cio_http_cb on_message_complete;
+};
 
 static struct cio_eventloop loop;
-
-
 
 static const uint64_t header_read_timeout = UINT64_C(5) * UINT64_C(1000) * UINT64_C(1000) * UINT64_C(1000);
 static const uint64_t body_read_timeout = UINT64_C(5) * UINT64_C(1000) * UINT64_C(1000) * UINT64_C(1000);
@@ -348,6 +356,17 @@ static enum cio_http_cb_return header_complete_write_response(struct cio_http_cl
 	return CIO_HTTP_CB_SUCCESS;
 }
 
+static enum cio_http_cb_return message_complete_write_response(struct cio_http_client *c)
+{
+	static const char data[] = "Hello World!";
+	struct cio_http_location_handler *handler = c->current_handler;
+	struct dummy_handler *dh = cio_container_of(handler, struct dummy_handler, handler);
+	cio_write_buffer_const_element_init(&dh->wb, data, sizeof(data));
+	cio_write_buffer_queue_tail(&dh->wbh, &dh->wb);
+	c->write_response(c, CIO_HTTP_STATUS_OK, &dh->wbh, NULL);
+	return CIO_HTTP_CB_SUCCESS;
+}
+
 /*
 static enum cio_http_cb_return header_complete_no_close(struct cio_http_client *c)
 {
@@ -398,6 +417,32 @@ static struct cio_http_location_handler *alloc_dummy_handler(const void *config)
 		handler->handler.on_path = on_path;
 		handler->handler.on_query = on_query;
 		handler->handler.on_fragment = on_fragment;
+		return &handler->handler;
+	}
+}
+
+static struct cio_http_location_handler *alloc_handler_for_callback_test(const void *config)
+{
+	struct dummy_handler *handler = malloc(sizeof(*handler));
+	if (cio_unlikely(handler == NULL)) {
+		return NULL;
+	} else {
+		const struct request_test *test = (const struct request_test *)config;
+		cio_http_location_handler_init(&handler->handler);
+		cio_write_buffer_head_init(&handler->wbh);
+		handler->handler.free = free_dummy_handler;
+		handler->handler.on_header_field = test->on_header_field;
+		handler->handler.on_header_value = test->on_header_value;
+		handler->handler.on_url = test->on_url;
+		handler->handler.on_headers_complete = test->on_header_complete;
+		handler->handler.on_body = test->on_body;
+		handler->handler.on_message_complete = test->on_message_complete;
+		handler->handler.on_schema = test->on_scheme;
+		handler->handler.on_host = test->on_host;
+		handler->handler.on_port = test->on_port;
+		handler->handler.on_path = test->on_path;
+		handler->handler.on_query = test->on_query;
+		handler->handler.on_fragment = test->on_fragment;
 		return &handler->handler;
 	}
 }
@@ -564,11 +609,18 @@ void setUp(void)
 	RESET_FAKE(socket_close);
 	RESET_FAKE(http_close_hook);
 
-	RESET_FAKE(message_complete);
-	RESET_FAKE(header_complete);
+	RESET_FAKE(on_schema);
+	RESET_FAKE(on_host);
+	RESET_FAKE(on_port);
+	RESET_FAKE(on_path);
+	RESET_FAKE(on_query);
+	RESET_FAKE(on_fragment);
 	RESET_FAKE(on_url);
 	RESET_FAKE(on_header_field);
 	RESET_FAKE(on_header_value);
+	RESET_FAKE(header_complete);
+	RESET_FAKE(on_body);
+	RESET_FAKE(message_complete);
 
 	RESET_FAKE(timer_expires_from_now);
 	RESET_FAKE(timer_cancel);
@@ -579,8 +631,6 @@ void setUp(void)
 	cio_timer_init_fake.custom_fake = cio_timer_init_ok;
 	timer_cancel_fake.custom_fake = cancel_timer;
 	timer_expires_from_now_fake.custom_fake = expires;
-
-
 
 	RESET_FAKE(client_socket_close);
 	RESET_FAKE(location_handler_called);
@@ -831,22 +881,96 @@ static void test_keepalive_handling(void)
 
 static void test_requests(void)
 {
-	struct request_test {
-		cio_http_data_cb on_scheme;
-		cio_http_data_cb on_host;
-		cio_http_data_cb on_port;
-		cio_http_data_cb on_path;
-		cio_http_data_cb on_query;
-		cio_http_data_cb on_fragment;
-		cio_http_data_cb on_url;
-		cio_http_data_cb on_header_field;
-		cio_http_data_cb on_header_value;
-		cio_http_cb on_header_complete;
-		cio_http_data_cb on_body;
-		cio_http_cb on_message_complete;
-
+	static const struct request_test request_tests[] = {
+		{.on_scheme = on_schema, .on_message_complete = message_complete_write_response},
+		{.on_host = on_host, .on_message_complete = message_complete_write_response},
+		{.on_port = on_port, .on_message_complete = message_complete_write_response},
+		{.on_path = on_path, .on_message_complete = message_complete_write_response},
+		{.on_query = on_query, .on_message_complete = message_complete_write_response},
+		{.on_fragment = on_fragment, .on_message_complete = message_complete_write_response},
 	};
 
+	for (unsigned int i = 0; i < ARRAY_SIZE(request_tests); i++) {
+		struct request_test request_test = request_tests[i];
+
+		struct cio_http_server server;
+		enum cio_error err = cio_http_server_init(&server, 8080, &loop, serve_error, header_read_timeout, body_read_timeout, response_timeout, alloc_dummy_client, free_dummy_client);
+		TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Server initialization failed!");
+
+		struct cio_http_location target;
+		err = cio_http_location_init(&target, "/foo", &request_test, alloc_handler_for_callback_test);
+		TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Request target initialization failed!");
+		err = server.register_location(&server, &target);
+		TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Register request target failed!");
+
+		err = server.serve(&server);
+		TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Serving http failed!");
+
+		struct cio_socket *s = server.alloc_client();
+
+		static const char *scheme = "http";
+		static const char *host = "172.19.1.1";
+		static const char *port = "8080";
+		static const char *path = "/foo";
+		static const char *query = "search=qry";
+		static const char *fragment = "fraggy";
+
+		char buffer[200];
+		snprintf(buffer, sizeof(buffer) - 1, "GET %s://%s:%s%s?%s#%s HTTP/1.1" CRLF CRLF, scheme, host, port, path, query, fragment);
+
+		memory_stream_init(&ms, buffer, s);
+
+		server.server_socket.handler(&server.server_socket, server.server_socket.handler_context, CIO_SUCCESS, s);
+		TEST_ASSERT_EQUAL_MESSAGE(0, serve_error_fake.call_count, "Serve error callback was called!");
+
+		struct cio_http_client *client = cio_container_of(s, struct cio_http_client, socket);
+
+		if (request_test.on_scheme) {
+			TEST_ASSERT_EQUAL_MESSAGE(1, on_schema_fake.call_count, "on_scheme callback was not called correctly!");
+			TEST_ASSERT_EQUAL_MESSAGE(client, on_schema_fake.arg0_val, "'client' parameter in on_scheme not correct");
+			TEST_ASSERT_EQUAL_MESSAGE(strlen(scheme), on_schema_fake.arg2_val, "'size' parameter in on_scheme not correct");
+			TEST_ASSERT_EQUAL_MEMORY_MESSAGE(scheme, on_schema_fake.arg1_val, strlen(scheme), "'at' parameter in on_scheme not correct");
+		}
+
+		if (request_test.on_host) {
+			TEST_ASSERT_EQUAL_MESSAGE(1, on_host_fake.call_count, "on_host callback was not called correctly!");
+			TEST_ASSERT_EQUAL_MESSAGE(client, on_host_fake.arg0_val, "'client' parameter in on_host not correct");
+			TEST_ASSERT_EQUAL_MESSAGE(strlen(host), on_host_fake.arg2_val, "'size' parameter in on_host not correct");
+			TEST_ASSERT_EQUAL_MEMORY_MESSAGE(host, on_host_fake.arg1_val, strlen(host), "'at' parameter in on_host not correct");
+		}
+
+		if (request_test.on_port) {
+			TEST_ASSERT_EQUAL_MESSAGE(1, on_port_fake.call_count, "on_port callback was not called correctly!");
+			TEST_ASSERT_EQUAL_MESSAGE(client, on_port_fake.arg0_val, "'client' parameter in on_port not correct");
+			TEST_ASSERT_EQUAL_MESSAGE(strlen(port), on_port_fake.arg2_val, "'size' parameter in on_port not correct");
+			TEST_ASSERT_EQUAL_MEMORY_MESSAGE(port, on_port_fake.arg1_val, strlen(port), "'at' parameter in on_port not correct");
+		}
+
+		if (request_test.on_path) {
+			TEST_ASSERT_EQUAL_MESSAGE(1, on_path_fake.call_count, "on_path callback was not called correctly!");
+			TEST_ASSERT_EQUAL_MESSAGE(client, on_path_fake.arg0_val, "'client' parameter in on_path not correct");
+			TEST_ASSERT_EQUAL_MESSAGE(strlen(path), on_path_fake.arg2_val, "'size' parameter in on_path not correct");
+			TEST_ASSERT_EQUAL_MEMORY_MESSAGE(path, on_path_fake.arg1_val, strlen(path), "'at' parameter in on_path not correct");
+		}
+
+		if (request_test.on_query) {
+			TEST_ASSERT_EQUAL_MESSAGE(1, on_query_fake.call_count, "on_query callback was not called correctly!");
+			TEST_ASSERT_EQUAL_MESSAGE(client, on_query_fake.arg0_val, "'client' parameter in on_query not correct");
+			TEST_ASSERT_EQUAL_MESSAGE(strlen(query), on_query_fake.arg2_val, "'size' parameter in on_query not correct");
+			TEST_ASSERT_EQUAL_MEMORY_MESSAGE(query, on_query_fake.arg1_val, strlen(query), "'at' parameter in on_query not correct");
+		}
+
+		if (request_test.on_fragment) {
+			TEST_ASSERT_EQUAL_MESSAGE(1, on_fragment_fake.call_count, "on_fragment callback was not called correctly!");
+			TEST_ASSERT_EQUAL_MESSAGE(client, on_fragment_fake.arg0_val, "'client' parameter in on_fragment not correct");
+			TEST_ASSERT_EQUAL_MESSAGE(strlen(fragment), on_fragment_fake.arg2_val, "'size' parameter in on_fragment not correct");
+			TEST_ASSERT_EQUAL_MEMORY_MESSAGE(fragment, on_fragment_fake.arg1_val, strlen(fragment), "'at' parameter in on_fragment not correct");
+		}
+
+		fire_keepalive_timeout(s);
+
+		setUp();
+	}
 }
 
 static void test_errors_in_serve(void)
