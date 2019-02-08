@@ -368,24 +368,25 @@ static int on_headers_complete(http_parser *parser)
 	return 0;
 }
 
+static int data_callback(struct cio_http_client *client, const char *at, size_t length, cio_http_data_cb cb)
+{
+	if (!client->http_private.response_fired && cb) {
+		return cb(client, at, length);
+	}
+
+	return CIO_HTTP_CB_SUCCESS;
+}
+
 static int on_header_field(http_parser *parser, const char *at, size_t length)
 {
 	struct cio_http_client *client = cio_container_of(parser, struct cio_http_client, parser);
-	if (!client->http_private.response_fired && client->current_handler->on_header_field) {
-		return client->current_handler->on_header_field(client, at, length);
-	}
-
-	return 0;
+	return data_callback(client, at, length, client->current_handler->on_header_field);
 }
 
 static int on_header_value(http_parser *parser, const char *at, size_t length)
 {
 	struct cio_http_client *client = cio_container_of(parser, struct cio_http_client, parser);
-	if (!client->http_private.response_fired && client->current_handler->on_header_value) {
-		return client->current_handler->on_header_value(client, at, length);
-	}
-
-	return 0;
+	return data_callback(client, at, length, client->current_handler->on_header_value);
 }
 
 static int on_message_complete(http_parser *parser)
@@ -428,11 +429,11 @@ static int on_body(http_parser *parser, const char *at, size_t length)
 
 static enum cio_http_cb_return call_url_parts_callback(const struct http_parser_url *u, enum http_parser_url_fields url_field, cio_http_data_cb callback, struct cio_http_client *client, const char *at)
 {
-	if ((callback != NULL && !client->http_private.response_fired) && ((u->field_set & (1U << url_field)) == (1U << url_field))) {
-		return callback(client, at + u->field_data[url_field].off, u->field_data[url_field].len);
+	if ((u->field_set & (1U << url_field)) == (1U << url_field)) {
+		return data_callback(client, at + u->field_data[url_field].off, u->field_data[url_field].len, callback);
 	}
 
-	return CIO_HTTP_CB_UNHANDLED;
+	return CIO_HTTP_CB_SUCCESS;
 }
 
 static int on_url(http_parser *parser, const char *at, size_t length)
