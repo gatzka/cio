@@ -916,7 +916,7 @@ static void test_requests(void)
 		static const char *fragment = "fraggy";
 
 		char buffer[200];
-		snprintf(buffer, sizeof(buffer) - 1, "GET %s://%s:%s%s?%s#%s HTTP/1.1" CRLF CRLF, scheme, host, port, path, query, fragment);
+		snprintf(buffer, sizeof(buffer) - 1, "GET %s://%s:%s%s?%s#%s HTTP/1.1" CRLF "Content-Length: 5" CRLF CRLF "Hello", scheme, host, port, path, query, fragment);
 
 		memory_stream_init(&ms, buffer, s);
 
