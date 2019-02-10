@@ -564,9 +564,8 @@ static void parse(struct cio_buffered_stream *bs, void *handler_context, enum ci
 		return;
 	}
 
-	if (bytes_transfered > 0) {
-		client->http_private.finish_func(client);
-	}
+
+	client->http_private.finish_func(client);
 }
 
 static void finish_header_line(struct cio_http_client *client)
