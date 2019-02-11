@@ -440,13 +440,6 @@ static int on_url(http_parser *parser, const char *at, size_t length)
 {
 	struct cio_http_client *client = cio_container_of(parser, struct cio_http_client, parser);
 
-	int is_connect;
-	if (cio_unlikely(parser->method == (unsigned int)HTTP_CONNECT)) {
-		is_connect = 1;
-	} else {
-		is_connect = 0;
-	}
-
 	client->http_method = (enum cio_http_method)client->parser.method;
 
 	client->parser_settings.on_headers_complete = on_headers_complete;
@@ -457,7 +450,7 @@ static int on_url(http_parser *parser, const char *at, size_t length)
 
 	struct http_parser_url u;
 	http_parser_url_init(&u);
-	int ret = http_parser_parse_url(at, length, is_connect, &u);
+	int ret = http_parser_parse_url(at, length, cio_unlikely(parser->method == (unsigned int)HTTP_CONNECT) ? 1 : 0, &u);
 	if ((cio_unlikely(ret != 0)) || !((u.field_set & (1U << (unsigned int)UF_PATH)) == (1U << (unsigned int)UF_PATH))) {
 		return -1;
 	}
