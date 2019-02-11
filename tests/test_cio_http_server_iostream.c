@@ -74,6 +74,9 @@ struct request_test {
 	cio_http_cb on_header_complete;
 	cio_http_data_cb on_body;
 	cio_http_cb on_message_complete;
+	cio_http_alloc_handler alloc_handler;
+	enum cio_http_cb_return callback_return;
+	int expected_response;
 };
 
 static struct cio_eventloop loop;
@@ -443,21 +446,14 @@ static struct cio_http_location_handler *alloc_handler_for_callback_test(const v
 		handler->handler.on_path = test->on_path;
 		handler->handler.on_query = test->on_query;
 		handler->handler.on_fragment = test->on_fragment;
-		return &handler->handler;
-	}
-}
 
-/*
-static struct cio_http_location_handler *alloc_handler_no_callbacks(const void *config)
-{
-	(void)config;
-	struct dummy_handler *handler = malloc(sizeof(*handler));
-	if (cio_unlikely(handler == NULL)) {
-		return NULL;
-	} else {
-		cio_http_location_handler_init(&handler->handler);
-		cio_write_buffer_head_init(&handler->wbh);
-		handler->handler.free = free_dummy_handler;
+		on_schema_fake.return_val = test->callback_return;
+		on_host_fake.return_val = test->callback_return;
+		on_port_fake.return_val = test->callback_return;
+		on_path_fake.return_val = test->callback_return;
+		on_query_fake.return_val = test->callback_return;
+		on_fragment_fake.return_val = test->callback_return;
+
 		return &handler->handler;
 	}
 }
@@ -467,7 +463,7 @@ static struct cio_http_location_handler *alloc_failing_handler(const void *confi
 	(void)config;
 	return NULL;
 }
-*/
+
 static enum cio_error accept_save_handler(struct cio_server_socket *ss, cio_accept_handler handler, void *handler_context)
 {
 	ss->handler = handler;
@@ -882,12 +878,20 @@ static void test_keepalive_handling(void)
 static void test_requests(void)
 {
 	static const struct request_test request_tests[] = {
-		{.on_scheme = on_schema, .on_message_complete = message_complete_write_response},
-		{.on_host = on_host, .on_message_complete = message_complete_write_response},
-		{.on_port = on_port, .on_message_complete = message_complete_write_response},
-		{.on_path = on_path, .on_message_complete = message_complete_write_response},
-		{.on_query = on_query, .on_message_complete = message_complete_write_response},
-		{.on_fragment = on_fragment, .on_message_complete = message_complete_write_response},
+		{.on_scheme = on_schema, .on_message_complete = message_complete_write_response, .alloc_handler = alloc_handler_for_callback_test, .callback_return = CIO_HTTP_CB_SUCCESS, .expected_response = 200},
+		{.on_host = on_host, .on_message_complete = message_complete_write_response, .alloc_handler = alloc_handler_for_callback_test, .callback_return = CIO_HTTP_CB_SUCCESS, .expected_response = 200},
+		{.on_port = on_port, .on_message_complete = message_complete_write_response, .alloc_handler = alloc_handler_for_callback_test, .callback_return = CIO_HTTP_CB_SUCCESS, .expected_response = 200},
+		{.on_path = on_path, .on_message_complete = message_complete_write_response, .alloc_handler = alloc_handler_for_callback_test, .callback_return = CIO_HTTP_CB_SUCCESS, .expected_response = 200},
+		{.on_query = on_query, .on_message_complete = message_complete_write_response, .alloc_handler = alloc_handler_for_callback_test, .callback_return = CIO_HTTP_CB_SUCCESS, .expected_response = 200},
+		{.on_fragment = on_fragment, .on_message_complete = message_complete_write_response, .alloc_handler = alloc_handler_for_callback_test, .callback_return = CIO_HTTP_CB_SUCCESS, .expected_response = 200},
+		{.on_scheme = on_schema, .on_message_complete = message_complete_write_response, .alloc_handler = alloc_handler_for_callback_test, .callback_return = CIO_HTTP_CB_ERROR, .expected_response = 400},
+		{.on_host = on_host, .on_message_complete = message_complete_write_response, .alloc_handler = alloc_handler_for_callback_test, .callback_return = CIO_HTTP_CB_ERROR, .expected_response = 400},
+		{.on_port = on_port, .on_message_complete = message_complete_write_response, .alloc_handler = alloc_handler_for_callback_test, .callback_return = CIO_HTTP_CB_ERROR, .expected_response = 400},
+		{.on_path = on_path, .on_message_complete = message_complete_write_response, .alloc_handler = alloc_handler_for_callback_test, .callback_return = CIO_HTTP_CB_ERROR, .expected_response = 400},
+		{.on_query = on_query, .on_message_complete = message_complete_write_response, .alloc_handler = alloc_handler_for_callback_test, .callback_return = CIO_HTTP_CB_ERROR, .expected_response = 400},
+		{.on_fragment = on_fragment, .on_message_complete = message_complete_write_response, .alloc_handler = alloc_handler_for_callback_test, .callback_return = CIO_HTTP_CB_ERROR, .expected_response = 400},
+		{.alloc_handler = alloc_handler_for_callback_test, .expected_response = 500},
+		{.alloc_handler = alloc_failing_handler, .expected_response = 500},
 	};
 
 	for (unsigned int i = 0; i < ARRAY_SIZE(request_tests); i++) {
@@ -898,7 +902,7 @@ static void test_requests(void)
 		TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Server initialization failed!");
 
 		struct cio_http_location target;
-		err = cio_http_location_init(&target, "/foo", &request_test, alloc_handler_for_callback_test);
+		err = cio_http_location_init(&target, "/foo", &request_test, request_test.alloc_handler);
 		TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Request target initialization failed!");
 		err = server.register_location(&server, &target);
 		TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Register request target failed!");
@@ -921,7 +925,7 @@ static void test_requests(void)
 		memory_stream_init(&ms, buffer, s);
 
 		server.server_socket.handler(&server.server_socket, server.server_socket.handler_context, CIO_SUCCESS, s);
-		TEST_ASSERT_EQUAL_MESSAGE(0, serve_error_fake.call_count, "Serve error callback was called!");
+		TEST_ASSERT_EQUAL_MESSAGE(request_test.expected_response == 500 ? 1 : 0, serve_error_fake.call_count, "Serve error callback was called!");
 
 		struct cio_http_client *client = cio_container_of(s, struct cio_http_client, socket);
 
@@ -967,7 +971,11 @@ static void test_requests(void)
 			TEST_ASSERT_EQUAL_MEMORY_MESSAGE(fragment, on_fragment_fake.arg1_val, strlen(fragment), "'at' parameter in on_fragment not correct");
 		}
 
-		fire_keepalive_timeout(s);
+		check_http_response(&ms, request_test.expected_response);
+
+		if(request_test.expected_response == 200) {
+			fire_keepalive_timeout(s);
+		}
 
 		setUp();
 	}
