@@ -337,6 +337,10 @@ static int on_headers_complete(http_parser *parser)
 	struct cio_http_client *client = cio_container_of(parser, struct cio_http_client, parser);
 	client->http_private.headers_complete = true;
 	client->http_private.should_keepalive = (http_should_keep_alive(parser) == 1) ? true : false;
+	if (cio_unlikely(!client->http_private.should_keepalive && client->http_private.response_fired)) {
+		mark_to_be_closed(client);
+	}
+
 	client->content_length = parser->content_length;
 
 	int ret;
@@ -550,7 +554,7 @@ static void parse(struct cio_buffered_stream *bs, void *handler_context, enum ci
 	if (cio_unlikely(nparsed != bytes_transfered)) {
 		err = write_response(client, CIO_HTTP_STATUS_BAD_REQUEST, NULL, NULL);
 		if (cio_unlikely(err != CIO_SUCCESS)) {
-			mark_to_be_closed(client);
+			close_client(client);
 		}
 
 		return;
