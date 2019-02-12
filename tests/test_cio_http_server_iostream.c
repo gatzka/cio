@@ -1115,6 +1115,7 @@ static void test_url_callbacks(void)
 		{.on_query = on_query, .on_message_complete = message_complete_write_response, .alloc_handler = alloc_handler_for_callback_test, .callback_return = CIO_HTTP_CB_ERROR, .expected_response = 400},
 		{.on_fragment = on_fragment, .on_message_complete = message_complete_write_response, .alloc_handler = alloc_handler_for_callback_test, .callback_return = CIO_HTTP_CB_ERROR, .expected_response = 400},
 		{.alloc_handler = alloc_handler_for_callback_test, .expected_response = 500},
+		{.on_scheme = on_schema, .alloc_handler = alloc_handler_for_callback_test, .expected_response = 500},
 		{.alloc_handler = alloc_failing_handler, .expected_response = 500},
 	};
 
@@ -1191,7 +1192,7 @@ static void test_url_callbacks(void)
 
 		check_http_response(&ms, request_test.expected_response);
 
-		if(request_test.expected_response == 200) {
+		if (request_test.expected_response == 200) {
 			fire_keepalive_timeout(s);
 		}
 
