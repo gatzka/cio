@@ -210,7 +210,6 @@ static void start_response_header(struct cio_http_client *client, enum cio_http_
 		} else {
 			cio_write_buffer_const_element_init(&client->http_private.wb_http_connection_header, CIO_HTTP_CONNECTION_CLOSE, strlen(CIO_HTTP_CONNECTION_CLOSE));
 		}
-
 	} else {
 		cio_write_buffer_const_element_init(&client->http_private.wb_http_connection_header, CIO_HTTP_CONNECTION_UPGRADE, strlen(CIO_HTTP_CONNECTION_UPGRADE));
 	}
@@ -436,6 +435,11 @@ static enum cio_http_cb_return call_url_parts_callback(const struct http_parser_
 	return CIO_HTTP_CB_SUCCESS;
 }
 
+static bool path_in_url(const struct http_parser_url *u)
+{
+	return ((u->field_set & (1U << (unsigned int)UF_PATH)) == (1U << (unsigned int)UF_PATH));
+}
+
 static int on_url(http_parser *parser, const char *at, size_t length)
 {
 	struct cio_http_client *client = cio_container_of(parser, struct cio_http_client, parser);
@@ -451,7 +455,11 @@ static int on_url(http_parser *parser, const char *at, size_t length)
 	struct http_parser_url u;
 	http_parser_url_init(&u);
 	int ret = http_parser_parse_url(at, length, cio_unlikely(parser->method == (unsigned int)HTTP_CONNECT) ? 1 : 0, &u);
-	if ((cio_unlikely(ret != 0)) || !((u.field_set & (1U << (unsigned int)UF_PATH)) == (1U << (unsigned int)UF_PATH))) {
+	if (cio_unlikely(ret != 0)) {
+		return -1;
+	}
+
+	if (cio_unlikely(!path_in_url(&u))) {
 		return -1;
 	}
 
