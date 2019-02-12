@@ -966,7 +966,7 @@ static void test_callbacks_after_response_sent(void)
 		{ .expected_response = 404, .who_sends_response = ON_HEADER_FIELD_SENDS_RESPONSE},
 		{ .expected_response = 404, .who_sends_response = ON_HEADER_VALUE_SENDS_RESPONSE},
 		{ .expected_response = 404, .who_sends_response = ON_BODY_SENDS_RESPONSE},
-		{ .expected_response = 404, .who_sends_response = ON_HEADER_COMPLETE_SENDS_RESPONSE},
+		{ .expected_response = 200, .who_sends_response = ON_HEADER_COMPLETE_SENDS_RESPONSE},
 		{ .expected_response = 404, .who_sends_response = ON_MESSAGE_COMPLETE_SENDS_RESPONSE},
 	};
 
@@ -989,7 +989,7 @@ static void test_callbacks_after_response_sent(void)
 		if (test.who_sends_response == ON_HEADER_FIELD_SENDS_RESPONSE) on_header_field_fake.custom_fake = data_callback_write_response;
 		if (test.who_sends_response == ON_HEADER_VALUE_SENDS_RESPONSE) on_header_value_fake.custom_fake = data_callback_write_response;
 		if (test.who_sends_response == ON_BODY_SENDS_RESPONSE) on_body_fake.custom_fake = data_callback_write_response;
-		if (test.who_sends_response == ON_HEADER_COMPLETE_SENDS_RESPONSE) on_header_complete_fake.custom_fake = callback_write_response;
+		if (test.who_sends_response == ON_HEADER_COMPLETE_SENDS_RESPONSE) on_header_complete_fake.custom_fake = header_complete_write_response;
 		if (test.who_sends_response == ON_MESSAGE_COMPLETE_SENDS_RESPONSE) on_message_complete_fake.custom_fake = callback_write_response;
 
 		struct cio_http_server server;
