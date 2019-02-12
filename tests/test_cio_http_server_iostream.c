@@ -354,7 +354,7 @@ static enum cio_http_cb_return callback_write_response(struct cio_http_client *c
 	struct dummy_handler *dh = cio_container_of(handler, struct dummy_handler, handler);
 	cio_write_buffer_const_element_init(&dh->wb, data, sizeof(data));
 	cio_write_buffer_queue_tail(&dh->wbh, &dh->wb);
-	c->write_response(c, CIO_HTTP_STATUS_BAD_REQUEST, &dh->wbh, NULL);
+	c->write_response(c, CIO_HTTP_STATUS_NOT_FOUND, &dh->wbh, NULL);
 	return CIO_HTTP_CB_SUCCESS;
 }
 
@@ -368,7 +368,7 @@ static enum cio_http_cb_return data_callback_write_response(struct cio_http_clie
 	struct dummy_handler *dh = cio_container_of(handler, struct dummy_handler, handler);
 	cio_write_buffer_const_element_init(&dh->wb, data, sizeof(data));
 	cio_write_buffer_queue_tail(&dh->wbh, &dh->wb);
-	c->write_response(c, CIO_HTTP_STATUS_BAD_REQUEST, &dh->wbh, NULL);
+	c->write_response(c, CIO_HTTP_STATUS_NOT_FOUND, &dh->wbh, NULL);
 	return CIO_HTTP_CB_SUCCESS;
 }
 
@@ -925,18 +925,18 @@ static void test_callbacks_after_response_sent(void)
 
 	struct tests tests[] = {
 		{ .expected_response = 500, .who_sends_response = NO_RESPONSE},
-		{ .expected_response = 400, .who_sends_response = ON_SCHEMA_SENDS_RESPONSE},
-		{ .expected_response = 400, .who_sends_response = ON_HOST_SENDS_RESPONSE},
-		{ .expected_response = 400, .who_sends_response = ON_PORT_SENDS_RESPONSE},
-		{ .expected_response = 400, .who_sends_response = ON_PATH_SENDS_RESPONSE},
-		{ .expected_response = 400, .who_sends_response = ON_QUERY_SENDS_RESPONSE},
-		{ .expected_response = 400, .who_sends_response = ON_FRAGMENT_SENDS_RESPONSE},
-		{ .expected_response = 400, .who_sends_response = ON_URL_SENDS_RESPONSE},
-		{ .expected_response = 400, .who_sends_response = ON_HEADER_FIELD_SENDS_RESPONSE},
-		{ .expected_response = 400, .who_sends_response = ON_HEADER_VALUE_SENDS_RESPONSE},
-		{ .expected_response = 400, .who_sends_response = ON_BODY_SENDS_RESPONSE},
-		{ .expected_response = 400, .who_sends_response = ON_HEADER_COMPLETE_SENDS_RESPONSE},
-		{ .expected_response = 400, .who_sends_response = ON_MESSAGE_COMPLETE_SENDS_RESPONSE},
+		{ .expected_response = 404, .who_sends_response = ON_SCHEMA_SENDS_RESPONSE},
+		{ .expected_response = 404, .who_sends_response = ON_HOST_SENDS_RESPONSE},
+		{ .expected_response = 404, .who_sends_response = ON_PORT_SENDS_RESPONSE},
+		{ .expected_response = 404, .who_sends_response = ON_PATH_SENDS_RESPONSE},
+		{ .expected_response = 404, .who_sends_response = ON_QUERY_SENDS_RESPONSE},
+		{ .expected_response = 404, .who_sends_response = ON_FRAGMENT_SENDS_RESPONSE},
+		{ .expected_response = 404, .who_sends_response = ON_URL_SENDS_RESPONSE},
+		{ .expected_response = 404, .who_sends_response = ON_HEADER_FIELD_SENDS_RESPONSE},
+		{ .expected_response = 404, .who_sends_response = ON_HEADER_VALUE_SENDS_RESPONSE},
+		{ .expected_response = 404, .who_sends_response = ON_BODY_SENDS_RESPONSE},
+		{ .expected_response = 404, .who_sends_response = ON_HEADER_COMPLETE_SENDS_RESPONSE},
+		{ .expected_response = 404, .who_sends_response = ON_MESSAGE_COMPLETE_SENDS_RESPONSE},
 	};
 
 	for (unsigned int i = 0; i < ARRAY_SIZE(tests); i++) {
