@@ -448,6 +448,37 @@ static struct cio_http_location_handler *alloc_dummy_handler(const void *config)
 	}
 }
 
+static enum cio_http_cb_return on_header_complete_upgrade(struct cio_http_client *c)
+{
+	static const char data[] = "Hello World!";
+	struct cio_http_location_handler *handler = c->current_handler;
+	struct dummy_handler *dh = cio_container_of(handler, struct dummy_handler, handler);
+	cio_write_buffer_const_element_init(&dh->wb, data, sizeof(data));
+	cio_write_buffer_queue_tail(&dh->wbh, &dh->wb);
+	c->write_response(c, CIO_HTTP_STATUS_SWITCHING_PROTOCOLS, &dh->wbh, NULL);
+	return CIO_HTTP_CB_SKIP_BODY;
+}
+
+static struct cio_http_location_handler *alloc_upgrade_handler(const void *config)
+{
+	uintptr_t location = (uintptr_t)config;
+	if (location == 0) {
+		location_handler_called();
+	} else if (location == 1) {
+		sub_location_handler_called();
+	}
+	struct dummy_handler *handler = malloc(sizeof(*handler));
+	if (cio_unlikely(handler == NULL)) {
+		return NULL;
+	} else {
+		cio_http_location_handler_init(&handler->handler);
+		cio_write_buffer_head_init(&handler->wbh);
+		handler->handler.free = free_dummy_handler;
+		handler->handler.on_headers_complete = on_header_complete_upgrade;
+		return &handler->handler;
+	}
+}
+
 static struct cio_http_location_handler *alloc_handler_for_callback_test(const void *config)
 {
 	struct dummy_handler *handler = malloc(sizeof(*handler));
@@ -1391,7 +1422,7 @@ static void test_connection_upgrade(void)
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Server initialization failed!");
 
 	struct cio_http_location target;
-	err = cio_http_location_init(&target, "/foo", NULL, alloc_dummy_handler);
+	err = cio_http_location_init(&target, "/foo", NULL, alloc_upgrade_handler);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Request target initialization failed!");
 	err = server.register_location(&server, &target);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Register request target failed!");
@@ -1405,7 +1436,7 @@ static void test_connection_upgrade(void)
 
 	server.server_socket.handler(&server.server_socket, server.server_socket.handler_context, CIO_SUCCESS, s);
 	TEST_ASSERT_EQUAL_MESSAGE(0, serve_error_fake.call_count, "Serve error callback was called!");
-	check_http_response(&ms, 200);
+	check_http_response(&ms, 101);
 	fire_keepalive_timeout(s);
 }
 
