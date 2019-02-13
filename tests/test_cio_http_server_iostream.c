@@ -48,7 +48,6 @@
 #define ARRAY_SIZE(a) (sizeof(a) / sizeof((a)[0]))
 #endif
 
-#define REQUEST_TARGET_CONNECT "www.google.de:80"
 #define ILLEGAL_REQUEST_TARGET "http://ww%.google.de/"
 #define CRLF "\r\n"
 
@@ -1269,8 +1268,8 @@ static void test_parse_errors(void)
 		{.read_some = read_some_error, .write_some = write_all, .request = "GET /foo HTTP/1.1" CRLF CRLF, .expected_response = 500},
 		{.read_some = read_some_max, .write_some = write_all, .request = "GT /foo HTTP/1.1" CRLF CRLF, .expected_response = 400},
 		{.read_some = read_some_max, .write_some = write_error, .request = "GT /foo HTTP/1.1" CRLF CRLF},
-		{.read_some = read_some_max, .write_some = write_all, .request = "GET " ILLEGAL_REQUEST_TARGET " HTTP/1.1" CRLF CRLF, .expected_response = 400},
-		{.read_some = read_some_max, .write_some = write_all, .request = "CONNECT " REQUEST_TARGET_CONNECT " HTTP/1.1" CRLF CRLF, .expected_response = 400},
+		{.read_some = read_some_max, .write_some = write_all, .request = "GET http://ww%.google.de/ HTTP/1.1" CRLF CRLF, .expected_response = 400},
+		{.read_some = read_some_max, .write_some = write_all, .request = "CONNECT www.google.de:80 HTTP/1.1" CRLF CRLF, .expected_response = 400},
 	};
 
 	for (unsigned int i = 0; i < ARRAY_SIZE(parse_tests); i++) {
