@@ -19,8 +19,8 @@ target_include_directories(unity PUBLIC ${CMAKE_CURRENT_LIST_DIR}/unity/src/)
 # add_executable(cio_test_buffered_stream test_cio_buffered_stream.c)
 # add_test(NAME cio.test_buffered_stream COMMAND cio_test_buffered_stream)
 
-# add_executable(cio_test_http_server test_cio_http_server.c)
-# add_test(NAME cio.test_http_server COMMAND cio_test_http_server)
+add_executable(cio_test_http_server test_cio_http_server.c)
+add_test(NAME cio.test_http_server COMMAND cio_test_http_server)
 
 add_executable(cio_test_http_server_iostream test_cio_http_server_iostream.c)
 add_test(NAME cio.test_http_server_iostream COMMAND cio_test_http_server_iostream)
