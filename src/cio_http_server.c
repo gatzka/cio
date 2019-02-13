@@ -348,7 +348,6 @@ static int on_headers_complete(http_parser *parser)
 
 	client->content_length = parser->content_length;
 
-	int ret;
 	enum cio_error err = client->http_private.request_timer.cancel(&client->http_private.request_timer);
 	if (cio_unlikely(err != CIO_SUCCESS)) {
 		handle_server_error(client, "Cancelling read timer in on_headers_complete failed, maybe not armed?");
@@ -356,7 +355,7 @@ static int on_headers_complete(http_parser *parser)
 	}
 
 	if (!client->http_private.response_fired && client->current_handler->on_headers_complete) {
-		ret = client->current_handler->on_headers_complete(client);
+		int ret = client->current_handler->on_headers_complete(client);
 		if (cio_unlikely(ret != CIO_HTTP_CB_SUCCESS)) {
 			return ret;
 		}
