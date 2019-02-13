@@ -900,11 +900,11 @@ static void test_keepalive_handling(void)
 	};
 
 	static const struct keepalive_test keepalive_tests[] = {
-		{.location = "/foo", .request = "GET /foo HTTP/1.1" CRLF CRLF, .expected_response = 200, .immediate_close = false},
-		{.location = "/foo", .request = "GET /foo HTTP/1.1" CRLF "Connection: keep-alive" CRLF CRLF, .expected_response = 200, .immediate_close = false},
-		{.location = "/foo", .request = "GET /foo HTTP/1.1" CRLF "Connection: close" CRLF CRLF, .expected_response = 200, .immediate_close = true},
-		{.location = "/foo", .request = "GET /foo HTTP/1.0" CRLF CRLF, .expected_response = 200, .immediate_close = true},
-		{.location = "/foo", .request = "GET /foo HTTP/1.0" CRLF "Connection: keep-alive" CRLF CRLF, .expected_response = 200, .immediate_close = false},
+		{.location = "/foo", .request = "GET /foo HTTP/1.1" CRLF "Content-Length: 0" CRLF CRLF, .expected_response = 200, .immediate_close = false},
+		{.location = "/foo", .request = "GET /foo HTTP/1.1" CRLF "Content-Length: 0" CRLF "Connection: keep-alive" CRLF CRLF, .expected_response = 200, .immediate_close = false},
+		{.location = "/foo", .request = "GET /foo HTTP/1.1" CRLF "Content-Length: 0" CRLF "Connection: close" CRLF CRLF, .expected_response = 200, .immediate_close = true},
+		{.location = "/foo", .request = "GET /foo HTTP/1.0" CRLF "Content-Length: 0" CRLF CRLF, .expected_response = 200, .immediate_close = true},
+		{.location = "/foo", .request = "GET /foo HTTP/1.0" CRLF "Content-Length: 0" CRLF "Connection: keep-alive" CRLF CRLF, .expected_response = 200, .immediate_close = false},
 	};
 
 	for (unsigned int i = 0; i < ARRAY_SIZE(keepalive_tests); i++) {
