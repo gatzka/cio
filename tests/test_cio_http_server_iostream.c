@@ -169,6 +169,8 @@ FAKE_VALUE_FUNC(enum cio_error, cio_timer_init, struct cio_timer *, struct cio_e
 FAKE_VOID_FUNC0(location_handler_called)
 FAKE_VOID_FUNC0(sub_location_handler_called)
 
+FAKE_VOID_FUNC(response_written_cb, struct cio_http_client *, enum cio_error)
+
 /*
 static void close_client(struct cio_http_client *client)
 {
@@ -385,7 +387,7 @@ static enum cio_http_cb_return header_complete_write_response(struct cio_http_cl
 	struct dummy_handler *dh = cio_container_of(handler, struct dummy_handler, handler);
 	cio_write_buffer_const_element_init(&dh->wb, data, sizeof(data));
 	cio_write_buffer_queue_tail(&dh->wbh, &dh->wb);
-	c->write_response(c, CIO_HTTP_STATUS_OK, &dh->wbh, NULL);
+	c->write_response(c, CIO_HTTP_STATUS_OK, &dh->wbh, response_written_cb);
 	return CIO_HTTP_CB_SUCCESS;
 }
 
@@ -693,6 +695,8 @@ void setUp(void)
 	RESET_FAKE(location_handler_called);
 	RESET_FAKE(sub_location_handler_called);
 
+	RESET_FAKE(response_written_cb);
+
 	http_parser_settings_init(&response_parser_settings);
 	http_parser_init(&response_parser, HTTP_RESPONSE);
 
@@ -873,6 +877,7 @@ static void test_serve_locations(void)
 		TEST_ASSERT_EQUAL_MESSAGE(0, on_message_complete_fake.call_count, "on_message_complete was not called!");
 		if (location_test.expected_response == 200) {
 			TEST_ASSERT_EQUAL_MESSAGE(1, on_header_complete_fake.call_count, "on_header_complete was not called!");
+			TEST_ASSERT_EQUAL_MESSAGE(1, response_written_cb_fake.call_count, "response_written callback was not called!");
 		}
 
 		TEST_ASSERT_EQUAL_MESSAGE(location_test.location_call_count, location_handler_called_fake.call_count, "location handler was not called correctly");
