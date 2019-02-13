@@ -25,9 +25,9 @@ target_include_directories(unity PUBLIC ${CMAKE_CURRENT_LIST_DIR}/unity/src/)
 add_executable(cio_test_http_server_iostream test_cio_http_server_iostream.c)
 add_test(NAME cio.test_http_server_iostream COMMAND cio_test_http_server_iostream)
 
-# add_executable(cio_test_http_location test_cio_http_location.c)
-# add_test(NAME cio.test_http_location COMMAND cio_test_http_location)
-# 
+add_executable(cio_test_http_location test_cio_http_location.c)
+add_test(NAME cio.test_http_location COMMAND cio_test_http_location)
+
 #add_executable(cio_test_read_buffer test_cio_read_buffer.c)
 #add_test(NAME cio.test_read_buffer COMMAND cio_test_read_buffer)
 # 
@@ -46,8 +46,8 @@ add_test(NAME cio.test_http_server_iostream COMMAND cio_test_http_server_iostrea
 # add_executable(cio_test_websocket_mask test_cio_websocket_mask.c)
 # add_test(NAME cio.test_websocket_mask COMMAND cio_test_websocket_mask)
 
-#add_executable(cio_test_write_buffer test_cio_write_buffer.c)
-#add_test(NAME cio.test_write_buffer COMMAND cio_test_write_buffer)
+add_executable(cio_test_write_buffer test_cio_write_buffer.c)
+add_test(NAME cio.test_write_buffer COMMAND cio_test_write_buffer)
 
 #add_executable(cio_test_version test_cio_version.c)
 #add_test(NAME cio.test_version COMMAND cio_test_version)
