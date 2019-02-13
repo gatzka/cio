@@ -817,21 +817,26 @@ static void test_read_until_errors(void)
 		int expected_response;
 	};
 
+#define NUM_TESTS 4u
 	static const struct test tests[] = {
 		{.which_read_until_fails = 0, .expected_response = 0},
+		{.which_read_until_fails = 1, .expected_response = 500},
+		{.which_read_until_fails = 2, .expected_response = 500},
+		{.which_read_until_fails = 3, .expected_response = 500},
 	};
 
+	enum cio_error (*bs_read_until_fakes[NUM_TESTS])(struct cio_buffered_stream *, struct cio_read_buffer *, const char *, cio_buffered_stream_read_handler, void *);
 	for (unsigned int i = 0; i < ARRAY_SIZE(tests); i++) {
 		struct test test = tests[i];
-		enum cio_error (*bs_read_until_fakes[tests->which_read_until_fails + 1])(struct cio_buffered_stream *, struct cio_read_buffer *, const char *, cio_buffered_stream_read_handler, void *);
 
-		for (unsigned int j = 0; j < ARRAY_SIZE(bs_read_until_fakes); j++) {
+		unsigned int array_s = ARRAY_SIZE(bs_read_until_fakes);
+		for (unsigned int j = 0; j < array_s; j++) {
 			bs_read_until_fakes[j] = bs_read_until_ok;
 		}
 
 		bs_read_until_fake.custom_fake = NULL;
 		bs_read_until_fakes[test.which_read_until_fails] = bs_read_until_call_fails;
-		SET_CUSTOM_FAKE_SEQ(bs_read_until, bs_read_until_fakes, (int)ARRAY_SIZE(bs_read_until_fakes));
+		SET_CUSTOM_FAKE_SEQ(bs_read_until, bs_read_until_fakes, (int)array_s);
 
 		cio_server_socket_init_fake.custom_fake = cio_server_socket_init_ok;
 		socket_accept_fake.custom_fake = accept_save_handler;
@@ -858,7 +863,12 @@ static void test_read_until_errors(void)
 
 		const char *request[] = {
 			start_line,
-			CRLF};
+			"foo: bar" CRLF,
+			CRLF,
+			start_line,
+			"foo: bar" CRLF,
+			CRLF
+		};
 
 		init_request(request, ARRAY_SIZE(request));
 		server.server_socket.handler(&server.server_socket, server.server_socket.handler_context, CIO_SUCCESS, s);
