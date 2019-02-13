@@ -164,19 +164,6 @@ FAKE_VOID_FUNC0(sub_location_handler_called)
 
 FAKE_VOID_FUNC(response_written_cb, struct cio_http_client *, enum cio_error)
 
-/*
-static void close_client(struct cio_http_client *client)
-{
-	if (cio_likely(client->current_handler != NULL)) {
-		client->current_handler->free(client->current_handler);
-	}
-
-	client->http_private.request_timer.close(&client->http_private.request_timer);
-	client->bs.close(&client->bs);
-}
-
-*/
-
 static enum cio_error cio_timer_init_fails(struct cio_timer *timer, struct cio_eventloop *l, cio_timer_close_hook hook)
 {
 	(void)l;
@@ -266,30 +253,6 @@ static void close_server_socket(struct cio_server_socket *ss)
 	}
 }
 
-
-/*
-
-#define HISTORY_LENGTH 10
-#define HISTORY_FIELD_LENGTH 10
-static uint8_t header_field_history[HISTORY_LENGTH][HISTORY_FIELD_LENGTH];
-static uint8_t header_value_history[HISTORY_LENGTH][HISTORY_FIELD_LENGTH];
-
-
-static enum cio_http_cb_return on_header_field_capture(struct cio_http_client *client, const char *at, size_t length)
-{
-	(void)client;
-	memcpy(header_field_history[on_header_field_fake.call_count - 1], at, length);
-	return CIO_HTTP_CB_SUCCESS;
-}
-
-static enum cio_http_cb_return on_header_value_capture(struct cio_http_client *client, const char *at, size_t length)
-{
-	(void)client;
-	memcpy(header_value_history[on_header_value_fake.call_count - 1], at, length);
-	return CIO_HTTP_CB_SUCCESS;
-}
-
-*/
 static struct cio_io_stream *get_mem_io_stream(struct cio_socket *context)
 {
 	(void)context;
@@ -338,16 +301,6 @@ static struct cio_socket *alloc_dummy_client_no_iostream(void)
 	return &client->socket;
 }
 
-/*
-
-static enum cio_http_cb_return header_complete_close(struct cio_http_client *c)
-{
-	c->close(c);
-	return CIO_HTTP_CB_SUCCESS;
-}
-
-*/
-
 static enum cio_http_cb_return callback_write_response(struct cio_http_client *c)
 {
 	static const char data[] = "Hello World!";
@@ -394,23 +347,6 @@ static enum cio_http_cb_return message_complete_write_response(struct cio_http_c
 	c->write_response(c, CIO_HTTP_STATUS_OK, &dh->wbh, NULL);
 	return CIO_HTTP_CB_SUCCESS;
 }
-
-/*
-static enum cio_http_cb_return header_complete_no_close(struct cio_http_client *c)
-{
-	(void)c;
-	return CIO_HTTP_CB_SUCCESS;
-}
-
-static enum cio_http_cb_return on_url_close(struct cio_http_client *c, const char *at, size_t length)
-{
-	(void)at;
-	(void)length;
-	c->close(c);
-	return CIO_HTTP_CB_SUCCESS;
-}
-
-*/
 
 static void free_dummy_handler(struct cio_http_location_handler *handler)
 {
@@ -526,20 +462,6 @@ static enum cio_error accept_save_handler(struct cio_server_socket *ss, cio_acce
 	ss->handler_context = handler_context;
 	return CIO_SUCCESS;
 }
-
-/*
-
-
-static enum cio_error read_blocks(struct cio_io_stream *ios, struct cio_read_buffer *buffer, cio_io_stream_read_handler handler, void *context)
-{
-	(void)ios;
-	(void)buffer;
-	(void)handler;
-	(void)context;
-	return CIO_SUCCESS;
-}
-
-*/
 
 static enum cio_error read_some_max(struct cio_io_stream *ios, struct cio_read_buffer *buffer, cio_io_stream_read_handler handler, void *context)
 {
