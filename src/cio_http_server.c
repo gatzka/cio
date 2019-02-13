@@ -60,6 +60,7 @@ static int on_url(http_parser *parser, const char *at, size_t length);
 static void finish_request_line(struct cio_http_client *client);
 static enum cio_error write_response(struct cio_http_client *client, enum cio_http_status_code status_code, struct cio_write_buffer *wbh, void (*response_written_cb)(struct cio_http_client *client, enum cio_error err));
 static void parse(struct cio_buffered_stream *bs, void *handler_context, enum cio_error err, struct cio_read_buffer *read_buffer);
+static void handle_server_error(struct cio_http_client *client, const char *msg);
 
 static void handle_error(struct cio_http_server *server, const char *reason)
 {
@@ -158,18 +159,22 @@ static void response_written(struct cio_buffered_stream *bs, void *handler_conte
 		client->response_written_cb(client, err);
 	}
 
-	if (cio_unlikely((err != CIO_SUCCESS) || (cancel_err != CIO_SUCCESS))) {
-		goto out;
+	if (cio_unlikely(cancel_err != CIO_SUCCESS)) {
+		handle_server_error(client, "Cancelling response timer failed!");
+		return;
+	}
+
+	if (cio_unlikely(err != CIO_SUCCESS)) {
+		handle_server_error(client, "Writing response failed!");
+		return;
 	}
 
 	if (cio_unlikely(client->http_private.close_immediately || !client->http_private.should_keepalive)) {
-		goto out;
+		mark_to_be_closed(client);
+		return;
 	}
 
 	restart_read_request(client);
-	return;
-out:
-	mark_to_be_closed(client);
 }
 
 static const char *get_response_statusline(enum cio_http_status_code status_code)
