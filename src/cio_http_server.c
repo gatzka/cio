@@ -128,7 +128,8 @@ static void restart_read_request(struct cio_http_client *client)
 		struct cio_http_server *server = (struct cio_http_server *)client->parser.data;
 		enum cio_error err = client->http_private.request_timer.expires_from_now(&client->http_private.request_timer, server->read_header_timeout_ns, client_timeout_handler, client);
 		if (cio_unlikely(err != CIO_SUCCESS)) {
-			mark_to_be_closed(client);
+			handle_server_error(client, "Could not re-arm timer for restarting a read request");
+			return;
 		}
 
 		cio_write_buffer_head_init(&client->response_wbh);
@@ -143,7 +144,7 @@ static void restart_read_request(struct cio_http_client *client)
 		client->http_private.finish_func = finish_request_line;
 		err = client->bs.read_until(&client->bs, &client->rb, CIO_CRLF, parse, client);
 		if (cio_unlikely(err != CIO_SUCCESS)) {
-			mark_to_be_closed(client);
+			handle_server_error(client, "Could not restart read request");
 		}
 	}
 }
@@ -259,19 +260,18 @@ static enum cio_error write_response(struct cio_http_client *client, enum cio_ht
 		client->http_private.close_immediately = true;
 	}
 
-	start_response_header(client, status_code);
-
-	end_response_header(client);
-	if (wbh_body) {
-		cio_write_buffer_splice(wbh_body, &client->response_wbh);
-	}
-
 	struct cio_http_server *server = (struct cio_http_server *)client->parser.data;
 	enum cio_error err = client->http_private.response_timer.expires_from_now(&client->http_private.response_timer, server->response_timeout_ns, client_timeout_handler, client);
 	if (cio_unlikely(err != CIO_SUCCESS)) {
 		handle_error(server, "Arming of response timer failed!");
 		mark_to_be_closed(client);
 		return 0;
+	}
+
+	start_response_header(client, status_code);
+	end_response_header(client);
+	if (wbh_body) {
+		cio_write_buffer_splice(wbh_body, &client->response_wbh);
 	}
 
 	return flush(client, response_written);
