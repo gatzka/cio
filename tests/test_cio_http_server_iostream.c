@@ -878,24 +878,26 @@ static void test_callbacks_after_response_sent(void)
 	};
 
 	struct tests {
+		const char *request;
 		enum callback_sends_response who_sends_response;
 		int expected_response;
+		bool keep_alive;
 	};
-
 	struct tests tests[] = {
-		{ .expected_response = 500, .who_sends_response = NO_RESPONSE},
-		{ .expected_response = 404, .who_sends_response = ON_SCHEMA_SENDS_RESPONSE},
-		{ .expected_response = 404, .who_sends_response = ON_HOST_SENDS_RESPONSE},
-		{ .expected_response = 404, .who_sends_response = ON_PORT_SENDS_RESPONSE},
-		{ .expected_response = 404, .who_sends_response = ON_PATH_SENDS_RESPONSE},
-		{ .expected_response = 404, .who_sends_response = ON_QUERY_SENDS_RESPONSE},
-		{ .expected_response = 404, .who_sends_response = ON_FRAGMENT_SENDS_RESPONSE},
-		{ .expected_response = 404, .who_sends_response = ON_URL_SENDS_RESPONSE},
-		{ .expected_response = 404, .who_sends_response = ON_HEADER_FIELD_SENDS_RESPONSE},
-		{ .expected_response = 404, .who_sends_response = ON_HEADER_VALUE_SENDS_RESPONSE},
-		{ .expected_response = 404, .who_sends_response = ON_BODY_SENDS_RESPONSE},
-		{ .expected_response = 200, .who_sends_response = ON_HEADER_COMPLETE_SENDS_RESPONSE},
-		{ .expected_response = 404, .who_sends_response = ON_MESSAGE_COMPLETE_SENDS_RESPONSE},
+		{ .expected_response = 500, .who_sends_response = NO_RESPONSE, .request = "GET http://172.19.1.1:8080/foo?search=qry#fraggy" CRLF "Content-Length: 5" CRLF CRLF "Hello", .keep_alive = false},
+		{ .expected_response = 404, .who_sends_response = ON_SCHEMA_SENDS_RESPONSE, .request = "GET http://172.19.1.1:8080/foo?search=qry#fraggy" CRLF "Content-Length: 5" CRLF CRLF "Hello", .keep_alive = false},
+		{ .expected_response = 404, .who_sends_response = ON_HOST_SENDS_RESPONSE, .request = "GET http://172.19.1.1:8080/foo?search=qry#fraggy" CRLF "Content-Length: 5" CRLF CRLF "Hello", .keep_alive = false},
+		{ .expected_response = 404, .who_sends_response = ON_PORT_SENDS_RESPONSE, .request = "GET http://172.19.1.1:8080/foo?search=qry#fraggy" CRLF "Content-Length: 5" CRLF CRLF "Hello", .keep_alive = false},
+		{ .expected_response = 404, .who_sends_response = ON_PATH_SENDS_RESPONSE, .request = "GET http://172.19.1.1:8080/foo?search=qry#fraggy" CRLF "Content-Length: 5" CRLF CRLF "Hello", .keep_alive = false},
+		{ .expected_response = 404, .who_sends_response = ON_QUERY_SENDS_RESPONSE, .request = "GET http://172.19.1.1:8080/foo?search=qry#fraggy" CRLF "Content-Length: 5" CRLF CRLF "Hello", .keep_alive = false},
+		{ .expected_response = 404, .who_sends_response = ON_FRAGMENT_SENDS_RESPONSE, .request = "GET http://172.19.1.1:8080/foo?search=qry#fraggy" CRLF "Content-Length: 5" CRLF CRLF "Hello", .keep_alive = false},
+		{ .expected_response = 404, .who_sends_response = ON_URL_SENDS_RESPONSE, .request = "GET http://172.19.1.1:8080/foo?search=qry#fraggy" CRLF "Content-Length: 5" CRLF CRLF "Hello", .keep_alive = false},
+		{ .expected_response = 404, .who_sends_response = ON_HEADER_FIELD_SENDS_RESPONSE, .request = "GET http://172.19.1.1:8080/foo?search=qry#fraggy" CRLF "Content-Length: 5" CRLF CRLF "Hello", .keep_alive = false},
+		{ .expected_response = 404, .who_sends_response = ON_HEADER_VALUE_SENDS_RESPONSE, .request = "GET http://172.19.1.1:8080/foo?search=qry#fraggy" CRLF "Content-Length: 5" CRLF CRLF "Hello", .keep_alive = false},
+		{ .expected_response = 404, .who_sends_response = ON_BODY_SENDS_RESPONSE, .request = "GET http://172.19.1.1:8080/foo?search=qry#fraggy" CRLF "Content-Length: 5" CRLF CRLF "Hello", .keep_alive = false},
+		{ .expected_response = 200, .who_sends_response = ON_HEADER_COMPLETE_SENDS_RESPONSE, .request = "GET http://172.19.1.1:8080/foo?search=qry#fraggy" CRLF "Content-Length: 5" CRLF CRLF "Hello", .keep_alive = false},
+		{ .expected_response = 404, .who_sends_response = ON_MESSAGE_COMPLETE_SENDS_RESPONSE, .request = "GET http://172.19.1.1:8080/foo?search=qry#fraggy" CRLF "Content-Length: 5" CRLF CRLF "Hello", .keep_alive = false},
+		{ .expected_response = 200, .who_sends_response = ON_HEADER_COMPLETE_SENDS_RESPONSE, .request = "GET http://172.19.1.1:8080/foo?search=qry#fraggy HTTP/1.1" CRLF "Content-Length: 5" CRLF CRLF "Hello", .keep_alive = true},
 	};
 
 	for (unsigned int i = 0; i < ARRAY_SIZE(tests); i++) {
@@ -935,7 +937,7 @@ static void test_callbacks_after_response_sent(void)
 
 		struct cio_socket *s = server.alloc_client();
 
-		memory_stream_init(&ms, "GET http://172.19.1.1:8080/foo?search=qry#fraggy" CRLF "Content-Length: 5" CRLF CRLF "Hello", s);
+		memory_stream_init(&ms, test.request, s);
 
 		server.server_socket.handler(&server.server_socket, server.server_socket.handler_context, CIO_SUCCESS, s);
 		TEST_ASSERT_EQUAL_MESSAGE(test.expected_response == 500 ? 1 : 0, serve_error_fake.call_count, "Serve error callback was called!");
@@ -1021,6 +1023,10 @@ static void test_callbacks_after_response_sent(void)
 
 			default:
 				break;
+		}
+
+		if (test.keep_alive) {
+			fire_keepalive_timeout(s);
 		}
 
 		setUp();
