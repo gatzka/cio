@@ -285,9 +285,7 @@ static void close_server_websocket(struct cio_websocket *ws)
 static void free_resources(struct cio_http_location_handler *handler)
 {
 	struct cio_websocket_location_handler *wslh = cio_container_of(handler, struct cio_websocket_location_handler, http_location);
-	if (wslh->location_handler_free != NULL) {
-		wslh->location_handler_free(wslh);
-	}
+	wslh->location_handler_free(wslh);
 }
 
 enum cio_error cio_websocket_location_handler_init(struct cio_websocket_location_handler *handler,
@@ -296,6 +294,10 @@ enum cio_error cio_websocket_location_handler_init(struct cio_websocket_location
                                                    cio_websocket_on_connect on_connect,
                                                    void (*location_handler_free)(struct cio_websocket_location_handler *))
 {
+	if (cio_unlikely((handler == NULL) || (location_handler_free == NULL))) {
+		return CIO_INVALID_ARGUMENT;
+	}
+
 	handler->flags.current_header_field = 0;
 	handler->flags.ws_version_ok = 0;
 	handler->flags.subprotocol_requested = 0;
