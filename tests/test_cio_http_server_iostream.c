@@ -1200,6 +1200,14 @@ static void test_errors_in_accept(void)
 			.request = "GET /foo HTTP/1.1" CRLF CRLF
 		},
 		{
+			.accept_error_parameter = CIO_INVALID_ARGUMENT,
+			.alloc_client = alloc_dummy_client_no_iostream,
+			.response_timer_init = cio_timer_init_ok,
+			.request_timer_init = cio_timer_init_ok,
+			.timer_expires = expires,
+			.request = "GET /foo HTTP/1.1" CRLF CRLF
+		},
+		{
 			.accept_error_parameter = CIO_SUCCESS,
 			.alloc_client = alloc_dummy_client,
 			.response_timer_init = cio_timer_init_fails,
