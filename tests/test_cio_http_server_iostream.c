@@ -1302,6 +1302,28 @@ static void test_parse_errors(void)
 	}
 }
 
+static void test_error_without_error_callback(void)
+{
+	struct cio_http_server server;
+	enum cio_error err = cio_http_server_init(&server, 8080, &loop, NULL, header_read_timeout, body_read_timeout, response_timeout, alloc_dummy_client, free_dummy_client);
+	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Server initialization failed!");
+
+	err = server.serve(&server);
+	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Serving http failed!");
+
+	struct cio_socket *s = server.alloc_client();
+
+	memory_stream_init(&ms, "GET /foo HTTP/1.1" CRLF CRLF, s);
+	ms.ios.read_some = read_some_error;
+	ms.ios.write_some = write_all;
+
+	server.server_socket.handler(&server.server_socket, server.server_socket.handler_context, CIO_SUCCESS, s);
+
+	check_http_response(&ms, 500);
+
+	TEST_ASSERT_EQUAL_MESSAGE(0, serve_error_fake.call_count, "Serve error callback was not called!");
+}
+
 static void test_client_close_while_reading(void)
 {
 	struct cio_http_server server;
@@ -1455,6 +1477,7 @@ int main(void)
 	RUN_TEST(test_errors_in_serve);
 	RUN_TEST(test_errors_in_accept);
 	RUN_TEST(test_parse_errors);
+	RUN_TEST(test_error_without_error_callback);
 	RUN_TEST(test_client_close_while_reading);
 	RUN_TEST(test_connection_upgrade);
 	RUN_TEST(test_timer_cancel_errors);
