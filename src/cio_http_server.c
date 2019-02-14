@@ -607,17 +607,16 @@ static void handle_accept(struct cio_server_socket *ss, void *handler_context, e
 	(void)ss;
 
 	struct cio_http_server *server = (struct cio_http_server *)handler_context;
-
 	struct cio_io_stream *stream = socket->get_io_stream(socket);
-	if (cio_unlikely((stream == NULL) && (err == CIO_SUCCESS))) {
-		server->free_client(socket);
-		handle_error(server, "accept failed");
-		return;
-	}
 
-	if (cio_unlikely(err != CIO_SUCCESS)) {
+	if (cio_unlikely((err != CIO_SUCCESS) || (stream == NULL))) {
 		handle_error(server, "accept failed");
-		stream->close(stream);
+		if (stream == NULL) {
+			server->free_client(socket);
+		} else {
+			stream->close(stream);
+		}
+
 		return;
 	}
 
