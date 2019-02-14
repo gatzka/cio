@@ -202,15 +202,15 @@ static enum cio_error cio_timer_init_ok(struct cio_timer *timer, struct cio_even
 	return CIO_SUCCESS;
 }
 
-static enum cio_error cio_timer_init_failed(struct cio_timer *timer, struct cio_eventloop *l, cio_timer_close_hook hook)
-{
-	(void)l;
-	timer->cancel = timer_cancel;
-	timer->close = timer_close;
-	timer->close_hook = hook;
-	timer->expires_from_now = timer_expires_from_now;
-	return CIO_INVALID_ARGUMENT;
-}
+//static enum cio_error cio_timer_init_failed(struct cio_timer *timer, struct cio_eventloop *l, cio_timer_close_hook hook)
+//{
+//	(void)l;
+//	timer->cancel = timer_cancel;
+//	timer->close = timer_close;
+//	timer->close_hook = hook;
+//	timer->expires_from_now = timer_expires_from_now;
+//	return CIO_INVALID_ARGUMENT;
+//}
 
 static enum cio_error cio_buffered_stream_init_ok(struct cio_buffered_stream *bs,
                                                   struct cio_io_stream *stream)
@@ -1101,12 +1101,14 @@ static void test_ws_location_write_error(void)
 	TEST_ASSERT_EQUAL_MESSAGE(1, bs_close_fake.call_count, "Stream was not closed in case of error!");
 }
 
-static void test_init_timer_init_failed(void)
+static void test_ws_location_init_fails(void)
 {
-	cio_timer_init_fake.custom_fake = cio_timer_init_failed;
 	struct cio_websocket_location_handler handler;
-	enum cio_error err = cio_websocket_location_handler_init(&handler, NULL, 0, NULL, NULL);
-	TEST_ASSERT_EQUAL_MESSAGE(CIO_INVALID_ARGUMENT, err, "web socket handler initialization did not failed!");
+	enum cio_error err = cio_websocket_location_handler_init(NULL, NULL, 0, NULL, NULL);
+	TEST_ASSERT_EQUAL_MESSAGE(CIO_INVALID_ARGUMENT, err, "web socket handler initialization did not failed if no handler is provided!");
+
+	err = cio_websocket_location_handler_init(&handler, NULL, 0, NULL, NULL);
+	TEST_ASSERT_EQUAL_MESSAGE(CIO_INVALID_ARGUMENT, err, "web socket handler initialization did not failed if no location free function is provided!");
 }
 
 int main(void)
@@ -1124,7 +1126,7 @@ int main(void)
 	RUN_TEST(test_ws_location_wrong_key_length);
 	RUN_TEST(test_ws_location_subprotocols);
 	RUN_TEST(test_ws_location_write_error);
-	RUN_TEST(test_init_timer_init_failed);
+	RUN_TEST(test_ws_location_init_fails);
 	RUN_TEST(test_ws_version);
 	return UNITY_END();
 }
