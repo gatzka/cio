@@ -81,7 +81,7 @@ static void close_bs(struct cio_http_client *client)
 
 static void free_handler(struct cio_http_client *client)
 {
-	if (cio_likely((client->current_handler != NULL) && (client->current_handler->free != NULL))) {
+	if (cio_likely(client->current_handler != NULL)) {
 		client->current_handler->free(client->current_handler);
 		client->current_handler = NULL;
 	}
@@ -481,6 +481,11 @@ static int on_url(http_parser *parser, const char *at, size_t length)
 	struct cio_http_location_handler *handler = target->alloc_handler(target->config);
 	if (cio_unlikely(handler == NULL)) {
 		handle_server_error(client, "Allocation of handler failed!");
+		return 0;
+	}
+
+	if (cio_unlikely(handler->free == NULL)) {
+		handle_server_error(client, "Handler has no function to free!");
 		return 0;
 	}
 
