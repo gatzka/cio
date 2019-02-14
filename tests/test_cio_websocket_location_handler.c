@@ -1075,17 +1075,9 @@ static void test_ws_location_subprotocols(void)
 	}
 }
 
-
-
-/*
 static void test_ws_location_no_upgrade(void)
 {
-	bs_read_exactly_buffer_size = 0;
-
-	bs_read_exactly_buffer = NULL;
-
 	bs_write_fake.custom_fake = bs_fake_write;
-	bs_read_exactly_fake.custom_fake = bs_read_exactly_from_buffer;
 
 	struct cio_http_server server;
 	enum cio_error err = cio_http_server_init(&server, 8080, &loop, serve_error, header_read_timeout, body_read_timeout, response_timeout, alloc_dummy_client, free_dummy_client);
@@ -1104,18 +1096,22 @@ static void test_ws_location_no_upgrade(void)
 	struct cio_socket *s = server.alloc_client();
 
 	const char *request[] = {
-	    "GET " REQUEST_TARGET " HTTP/1.1" CRLF,
-	    "Upgrade: websocket" CRLF,
-	    "Sec-WebSocket-Version: 13" CRLF,
-	    "Sec-WebSocket-Key: dGhlIHNhbXBsZSBub25jZQ==" CRLF,
-	    "Sec-WebSocket-Protocol: jet" CRLF,
-	    CRLF};
+		"GET " REQUEST_TARGET " HTTP/1.1" CRLF,
+		"Upgrade: websocket" CRLF,
+		"Sec-WebSocket-Version: 13" CRLF,
+		"Sec-WebSocket-Key: dGhlIHNhbXBsZSBub25jZQ==" CRLF,
+		"Sec-WebSocket-Protocol: jet" CRLF,
+		CRLF};
 
 	init_request(request, ARRAY_SIZE(request));
 	server.server_socket.handler(&server.server_socket, server.server_socket.handler_context, CIO_SUCCESS, s);
 	check_http_response(400);
 }
 
+
+
+
+/*
 */
 static void test_init_timer_init_failed(void)
 {
@@ -1135,7 +1131,7 @@ int main(void)
 	RUN_TEST(test_ws_location_wrong_http_version);
 	RUN_TEST(test_ws_location_wrong_http_method);
 	RUN_TEST(test_ws_location_wrong_ws_version);
-	//RUN_TEST(test_ws_location_no_upgrade);
+	RUN_TEST(test_ws_location_no_upgrade);
 	RUN_TEST(test_ws_key);
 	RUN_TEST(test_ws_location_wrong_key_length);
 	RUN_TEST(test_ws_location_subprotocols);
