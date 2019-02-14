@@ -380,7 +380,6 @@ static enum cio_error bs_fake_write(struct cio_buffered_stream *bs, struct cio_w
 	return bs_write_http_response(bs, buf, handler, handler_context);
 }
 
-/*
 static enum cio_error bs_fake_write_error(struct cio_buffered_stream *bs, struct cio_write_buffer *buffer, cio_buffered_stream_write_handler handler, void *handler_context)
 {
 	(void)buffer;
@@ -388,6 +387,8 @@ static enum cio_error bs_fake_write_error(struct cio_buffered_stream *bs, struct
 	handler(bs, handler_context, CIO_MESSAGE_TOO_LONG);
 	return CIO_SUCCESS;
 }
+
+/*
 
 static enum cio_error bs_fake_write_later(struct cio_buffered_stream *bs, struct cio_write_buffer *buffer, cio_buffered_stream_write_handler handler, void *handler_context)
 {
@@ -506,48 +507,6 @@ static size_t assemble_frame(uint8_t header, uint8_t *mask, uint8_t *data, size_
 	return offset + length;
 }
 
-static void test_ws_location_write_error(void)
-{
-	uint8_t *close_frame;
-	uint8_t mask[4] = {0x1, 0x2, 0x3, 0x4};
-	uint8_t data[2] = {0x3, 0xe8};
-	bs_read_exactly_buffer_size = assemble_frame(WS_HEADER_FIN | CIO_WEBSOCKET_CLOSE_FRAME, mask, data, sizeof(data), &close_frame);
-
-	bs_read_exactly_buffer = close_frame;
-
-	bs_write_fake.custom_fake = bs_fake_write_error;
-	bs_read_exactly_fake.custom_fake = bs_read_exactly_from_buffer;
-
-	struct cio_http_server server;
-	enum cio_error err = cio_http_server_init(&server, 8080, &loop, serve_error, header_read_timeout, body_read_timeout, response_timeout, alloc_dummy_client, free_dummy_client);
-	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Server initialization failed!");
-
-	struct cio_http_location target;
-	err = cio_http_location_init(&target, REQUEST_TARGET, NULL, alloc_websocket_handler);
-	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Request target initialization failed!");
-
-	err = server.register_location(&server, &target);
-	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Register request target failed!");
-
-	err = server.serve(&server);
-	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Serving http failed!");
-
-	struct cio_socket *s = server.alloc_client();
-
-	const char *request[] = {
-	    "GET " REQUEST_TARGET " HTTP/1.1" CRLF,
-	    "Upgrade: websocket" CRLF,
-	    "Connection: Upgrade" CRLF,
-	    "Sec-WebSocket-Version: 13" CRLF,
-	    "Sec-WebSocket-Key: dGhlIHNhbXBsZSBub25jZQ==" CRLF,
-	    "Sec-WebSocket-Protocol: jet" CRLF,
-	    CRLF};
-
-	init_request(request, ARRAY_SIZE(request));
-	server.server_socket.handler(&server.server_socket, server.server_socket.handler_context, CIO_SUCCESS, s);
-	free(close_frame);
-	TEST_ASSERT_EQUAL_MESSAGE(1, bs_close_fake.call_count, "Stream was not closed in case of error!");
-}
 
 static void test_ws_location_response_write_timeout(void)
 {
@@ -1108,11 +1067,40 @@ static void test_ws_location_no_upgrade(void)
 	check_http_response(400);
 }
 
+static void test_ws_location_write_error(void)
+{
+	bs_write_fake.custom_fake = bs_fake_write_error;
 
+	struct cio_http_server server;
+	enum cio_error err = cio_http_server_init(&server, 8080, &loop, serve_error, header_read_timeout, body_read_timeout, response_timeout, alloc_dummy_client, free_dummy_client);
+	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Server initialization failed!");
 
+	struct cio_http_location target;
+	err = cio_http_location_init(&target, REQUEST_TARGET, NULL, alloc_websocket_handler);
+	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Request target initialization failed!");
 
-/*
-*/
+	err = server.register_location(&server, &target);
+	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Register request target failed!");
+
+	err = server.serve(&server);
+	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Serving http failed!");
+
+	struct cio_socket *s = server.alloc_client();
+
+	const char *request[] = {
+		"GET " REQUEST_TARGET " HTTP/1.1" CRLF,
+		"Upgrade: websocket" CRLF,
+		"Connection: Upgrade" CRLF,
+		"Sec-WebSocket-Version: 13" CRLF,
+		"Sec-WebSocket-Key: dGhlIHNhbXBsZSBub25jZQ==" CRLF,
+		"Sec-WebSocket-Protocol: jet" CRLF,
+		CRLF};
+
+	init_request(request, ARRAY_SIZE(request));
+	server.server_socket.handler(&server.server_socket, server.server_socket.handler_context, CIO_SUCCESS, s);
+	TEST_ASSERT_EQUAL_MESSAGE(1, bs_close_fake.call_count, "Stream was not closed in case of error!");
+}
+
 static void test_init_timer_init_failed(void)
 {
 	cio_timer_init_fake.custom_fake = cio_timer_init_failed;
@@ -1135,7 +1123,7 @@ int main(void)
 	RUN_TEST(test_ws_key);
 	RUN_TEST(test_ws_location_wrong_key_length);
 	RUN_TEST(test_ws_location_subprotocols);
-	//RUN_TEST(test_ws_location_write_error);
+	RUN_TEST(test_ws_location_write_error);
 	RUN_TEST(test_init_timer_init_failed);
 	RUN_TEST(test_ws_version);
 	return UNITY_END();
