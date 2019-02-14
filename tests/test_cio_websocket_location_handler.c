@@ -115,6 +115,7 @@ FAKE_VOID_FUNC(read_handler, struct cio_websocket *, void *, enum cio_error, uin
 static void close_written(struct cio_websocket *ws, void *handler_context, enum cio_error err);
 FAKE_VOID_FUNC(close_written, struct cio_websocket *, void *, enum cio_error)
 
+/*
 static struct cio_eventloop loop;
 static const uint64_t header_read_timeout = UINT64_C(5) * UINT64_C(1000) * UINT64_C(1000) * UINT64_C(1000);
 static const uint64_t body_read_timeout = UINT64_C(5) * UINT64_C(1000) * UINT64_C(1000) * UINT64_C(1000);
@@ -123,6 +124,7 @@ static const size_t read_buffer_size = 2000;
 
 static uint8_t *bs_read_exactly_buffer;
 static size_t bs_read_exactly_buffer_size;
+*/
 static size_t bs_read_exactly_buffer_pos;
 
 static enum cio_error timer_expires_from_now_ok(struct cio_timer *t, uint64_t timeout_ns, cio_timer_handler handler, void *handler_context)
@@ -135,6 +137,13 @@ static enum cio_error timer_expires_from_now_ok(struct cio_timer *t, uint64_t ti
 	return CIO_SUCCESS;
 }
 
+static void free_dummy_client(struct cio_socket *socket)
+{
+	struct cio_http_client *client = cio_container_of(socket, struct cio_http_client, socket);
+	free(client);
+}
+
+/*
 static enum cio_error timer_expires_from_error(struct cio_timer *t, uint64_t timeout_ns, cio_timer_handler handler, void *handler_context)
 {
 	(void)t;
@@ -142,12 +151,6 @@ static enum cio_error timer_expires_from_error(struct cio_timer *t, uint64_t tim
 	(void)handler_context;
 	(void)timeout_ns;
 	return CIO_INVALID_ARGUMENT;
-}
-
-static void free_dummy_client(struct cio_socket *socket)
-{
-	struct cio_http_client *client = cio_container_of(socket, struct cio_http_client, socket);
-	free(client);
 }
 
 static struct cio_socket *alloc_dummy_client(void)
@@ -159,7 +162,7 @@ static struct cio_socket *alloc_dummy_client(void)
 	client->socket.close_hook = free_dummy_client;
 	return &client->socket;
 }
-
+*/
 static enum cio_error cio_server_socket_init_ok(struct cio_server_socket *ss,
                                                 struct cio_eventloop *l,
                                                 unsigned int backlog,
@@ -212,6 +215,7 @@ static enum cio_error cio_buffered_stream_init_ok(struct cio_buffered_stream *bs
 	return CIO_SUCCESS;
 }
 
+/*
 static void free_websocket_handler(struct cio_websocket_location_handler *wslh)
 {
 	struct ws_test_handler *h = cio_container_of(wslh, struct ws_test_handler, ws_handler);
@@ -261,7 +265,7 @@ static struct cio_http_location_handler *alloc_websocket_handler_no_subprotocol(
 		return &handler->ws_handler.http_location;
 	}
 }
-
+*/
 static enum cio_error accept_save_handler(struct cio_server_socket *ss, cio_accept_handler handler, void *handler_context)
 {
 	ss->handler = handler;
@@ -314,7 +318,7 @@ static size_t http_response_write_pos;
 
 static uint8_t ws_frame_write_buffer[1000];
 static size_t ws_frame_write_pos;
-
+/*
 static enum cio_error bs_write_http_response(struct cio_buffered_stream *bs, struct cio_write_buffer *buf, cio_buffered_stream_write_handler handler, void *handler_context)
 {
 	size_t buffer_len = cio_write_buffer_get_number_of_elements(buf);
@@ -392,10 +396,10 @@ static void init_request(const char **request, size_t lines)
 	request_lines = request;
 	num_of_request_lines = lines;
 }
-
+*/
 static http_parser parser;
 static http_parser_settings parser_settings;
-
+/*
 static void check_http_response(int status_code)
 {
 	size_t nparsed = http_parser_execute(&parser, &parser_settings, (const char *)http_response_write_buffer, http_response_write_pos);
@@ -403,7 +407,7 @@ static void check_http_response(int status_code)
 	TEST_ASSERT_EQUAL_MESSAGE(http_response_write_pos, nparsed, "Not a valid http response!");
 	TEST_ASSERT_EQUAL_MESSAGE(status_code, parser.status_code, "http response status code not correct!");
 }
-
+*/
 static enum cio_error cancel_timer(struct cio_timer *t)
 {
 	t->handler(t, t->handler_context, CIO_OPERATION_ABORTED);
@@ -464,6 +468,7 @@ void tearDown(void)
 {
 }
 
+/*
 static size_t assemble_frame(uint8_t header, uint8_t *mask, uint8_t *data, size_t length, uint8_t **ptr)
 {
 	if (length > 125) {
@@ -1154,7 +1159,7 @@ static void test_ws_location_wrong_key_length(void)
 	server.server_socket.handler(&server.server_socket, server.server_socket.handler_context, CIO_SUCCESS, s);
 	check_http_response(400);
 }
-
+*/
 static void test_init_timer_init_failed(void)
 {
 	cio_timer_init_fake.custom_fake = cio_timer_init_failed;
@@ -1166,19 +1171,19 @@ static void test_init_timer_init_failed(void)
 int main(void)
 {
 	UNITY_BEGIN();
-	RUN_TEST(test_ws_location_write_timeout_expires_failure);
-	RUN_TEST(test_ws_location_response_write_timeout);
-	RUN_TEST(test_ws_location_close_in_onconnect);
-	RUN_TEST(test_static_ws_location_close_in_onconnect);
-	RUN_TEST(test_ws_location_wrong_http_version);
-	RUN_TEST(test_ws_location_wrong_http_method);
-	RUN_TEST(test_ws_location_wrong_ws_version);
-	RUN_TEST(test_ws_version);
-	RUN_TEST(test_ws_location_no_upgrade);
-	RUN_TEST(test_ws_key);
-	RUN_TEST(test_ws_location_wrong_key_length);
-	RUN_TEST(test_ws_location_subprotocols);
-	RUN_TEST(test_ws_location_write_error);
+	//RUN_TEST(test_ws_location_write_timeout_expires_failure);
+	//RUN_TEST(test_ws_location_response_write_timeout);
+	//RUN_TEST(test_ws_location_close_in_onconnect);
+	//RUN_TEST(test_static_ws_location_close_in_onconnect);
+	//RUN_TEST(test_ws_location_wrong_http_version);
+	//RUN_TEST(test_ws_location_wrong_http_method);
+	//RUN_TEST(test_ws_location_wrong_ws_version);
+	//RUN_TEST(test_ws_version);
+	//RUN_TEST(test_ws_location_no_upgrade);
+	//RUN_TEST(test_ws_key);
+	//RUN_TEST(test_ws_location_wrong_key_length);
+	//RUN_TEST(test_ws_location_subprotocols);
+	//RUN_TEST(test_ws_location_write_error);
 	RUN_TEST(test_init_timer_init_failed);
 	return UNITY_END();
 }
