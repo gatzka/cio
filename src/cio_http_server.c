@@ -75,6 +75,7 @@ static void close_bs(struct cio_http_client *client)
 	if (cio_unlikely(err != CIO_SUCCESS)) {
 		struct cio_http_server *server = (struct cio_http_server *)client->parser.data;
 		handle_error(server, "closing buffered stream of client failed");
+		server->free_client(&client->socket);
 	}
 }
 
