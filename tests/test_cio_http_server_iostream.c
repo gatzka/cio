@@ -455,6 +455,17 @@ static struct cio_http_location_handler *alloc_failing_handler(const void *confi
 	return NULL;
 }
 
+static struct dummy_handler handler_with_no_free = {
+	.handler = { .free = NULL}
+};
+
+static struct cio_http_location_handler *alloc_handler_with_no_free(const void *config)
+{
+	(void)config;
+
+	return &handler_with_no_free.handler;
+}
+
 static enum cio_error accept_save_handler(struct cio_server_socket *ss, cio_accept_handler handler, void *handler_context)
 {
 	ss->handler = handler;
@@ -1034,6 +1045,7 @@ static void test_url_callbacks(void)
 		{.alloc_handler = alloc_handler_for_callback_test, .expected_response = 500},
 		{.on_scheme = on_schema, .alloc_handler = alloc_handler_for_callback_test, .expected_response = 500},
 		{.alloc_handler = alloc_failing_handler, .expected_response = 500},
+		{.alloc_handler = alloc_handler_with_no_free, .expected_response = 500},
 	};
 
 	for (unsigned int i = 0; i < ARRAY_SIZE(request_tests); i++) {
