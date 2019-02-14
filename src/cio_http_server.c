@@ -401,13 +401,15 @@ static int on_message_complete(http_parser *parser)
 {
 	struct cio_http_client *client = cio_container_of(parser, struct cio_http_client, parser);
 
-	enum cio_error err = client->http_private.request_timer.cancel(&client->http_private.request_timer);
-	if (cio_unlikely(err != CIO_SUCCESS)) {
-		handle_server_error(client, "Cancelling read timer in on_message_complete failed, maybe not armed?");
-		return 0;
-	}
+	if (cio_unlikely(!client->parser.upgrade)) {
+		enum cio_error err = client->http_private.request_timer.cancel(&client->http_private.request_timer);
+		if (cio_unlikely(err != CIO_SUCCESS)) {
+			handle_server_error(client, "Cancelling read timer in on_message_complete failed, maybe not armed?");
+			return 0;
+		}
 
-	client->http_private.finish_func = restart_read_request;
+		client->http_private.finish_func = restart_read_request;
+	}
 
 	enum cio_http_cb_return ret;
 	if (!client->http_private.response_fired && client->current_handler->on_message_complete) {
