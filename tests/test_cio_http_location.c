@@ -25,6 +25,7 @@
  */
 
 #include <stdlib.h>
+#include <stdbool.h>
 
 #include "fff.h"
 #include "unity.h"
@@ -92,9 +93,79 @@ static void test_request_target_init(void)
 	}
 }
 
+static enum cio_http_cb_return data_cb(struct cio_http_client *client, const char *at, size_t length)
+{
+	(void)client;
+	(void)at;
+	(void)length;
+	return CIO_HTTP_CB_SUCCESS;
+}
+
+static enum cio_http_cb_return no_data_cb(struct cio_http_client *client)
+{
+	(void)client;
+	return CIO_HTTP_CB_SUCCESS;
+}
+
+static void test_location_callback_test(void)
+{
+	struct cio_http_location_handler handler;
+	cio_http_location_handler_init(&handler);
+	TEST_ASSERT_TRUE_MESSAGE(cio_http_location_handler_no_callbacks(&handler), "cio_http_location_handler_no_callbacks did not return true if no handler was set!");
+
+	cio_http_location_handler_init(&handler);
+	handler.on_url = data_cb;
+	TEST_ASSERT_FALSE_MESSAGE(cio_http_location_handler_no_callbacks(&handler), "cio_http_location_handler_no_callbacks did not return false if a handler was set!");
+
+	cio_http_location_handler_init(&handler);
+	handler.on_body = data_cb;
+	TEST_ASSERT_FALSE_MESSAGE(cio_http_location_handler_no_callbacks(&handler), "cio_http_location_handler_no_callbacks did not return false if a handler was set!");
+
+	cio_http_location_handler_init(&handler);
+	handler.on_host = data_cb;
+	TEST_ASSERT_FALSE_MESSAGE(cio_http_location_handler_no_callbacks(&handler), "cio_http_location_handler_no_callbacks did not return false if a handler was set!");
+
+	cio_http_location_handler_init(&handler);
+	handler.on_path = data_cb;
+	TEST_ASSERT_FALSE_MESSAGE(cio_http_location_handler_no_callbacks(&handler), "cio_http_location_handler_no_callbacks did not return false if a handler was set!");
+
+	cio_http_location_handler_init(&handler);
+	handler.on_port = data_cb;
+	TEST_ASSERT_FALSE_MESSAGE(cio_http_location_handler_no_callbacks(&handler), "cio_http_location_handler_no_callbacks did not return false if a handler was set!");
+
+	cio_http_location_handler_init(&handler);
+	handler.on_query = data_cb;
+	TEST_ASSERT_FALSE_MESSAGE(cio_http_location_handler_no_callbacks(&handler), "cio_http_location_handler_no_callbacks did not return false if a handler was set!");
+
+	cio_http_location_handler_init(&handler);
+	handler.on_schema = data_cb;
+	TEST_ASSERT_FALSE_MESSAGE(cio_http_location_handler_no_callbacks(&handler), "cio_http_location_handler_no_callbacks did not return false if a handler was set!");
+
+	cio_http_location_handler_init(&handler);
+	handler.on_fragment = data_cb;
+	TEST_ASSERT_FALSE_MESSAGE(cio_http_location_handler_no_callbacks(&handler), "cio_http_location_handler_no_callbacks did not return false if a handler was set!");
+
+	cio_http_location_handler_init(&handler);
+	handler.on_header_field = data_cb;
+	TEST_ASSERT_FALSE_MESSAGE(cio_http_location_handler_no_callbacks(&handler), "cio_http_location_handler_no_callbacks did not return false if a handler was set!");
+
+	cio_http_location_handler_init(&handler);
+	handler.on_header_value = data_cb;
+	TEST_ASSERT_FALSE_MESSAGE(cio_http_location_handler_no_callbacks(&handler), "cio_http_location_handler_no_callbacks did not return false if a handler was set!");
+
+	cio_http_location_handler_init(&handler);
+	handler.on_headers_complete = no_data_cb;
+	TEST_ASSERT_FALSE_MESSAGE(cio_http_location_handler_no_callbacks(&handler), "cio_http_location_handler_no_callbacks did not return false if a handler was set!");
+
+	cio_http_location_handler_init(&handler);
+	handler.on_message_complete = no_data_cb;
+	TEST_ASSERT_FALSE_MESSAGE(cio_http_location_handler_no_callbacks(&handler), "cio_http_location_handler_no_callbacks did not return false if a handler was set!");
+}
+
 int main(void)
 {
 	UNITY_BEGIN();
 	RUN_TEST(test_request_target_init);
+	RUN_TEST(test_location_callback_test);
 	return UNITY_END();
 }
