@@ -477,6 +477,13 @@ static enum cio_error bs_write_all(struct cio_buffered_stream *bs, struct cio_wr
 	return CIO_SUCCESS;
 }
 
+static enum cio_error bs_write_error(struct cio_buffered_stream *bs, struct cio_write_buffer *buf, cio_buffered_stream_write_handler handler, void *handler_context)
+{
+	(void)buf;
+	handler(bs, handler_context, CIO_ADDRESS_IN_USE);
+	return CIO_SUCCESS;
+}
+
 
 /*
 static struct cio_buffered_stream *write_later_bs;
@@ -957,6 +964,42 @@ static void test_close_error(void)
 	TEST_ASSERT_EQUAL_MESSAGE(1, header_complete_fake.call_count, "header_complete was not called!");
 }
 
+static void test_write_error(void)
+{
+	cio_server_socket_init_fake.custom_fake = cio_server_socket_init_ok;
+	socket_accept_fake.custom_fake = accept_save_handler;
+	header_complete_fake.custom_fake = header_complete_write_response;
+	bs_write_fake.custom_fake = bs_write_error;
+
+	struct cio_http_server server;
+	enum cio_error err = cio_http_server_init(&server, 8080, &loop, serve_error, header_read_timeout, body_read_timeout, response_timeout, alloc_dummy_client, free_dummy_client);
+	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Server initialization failed!");
+
+	struct cio_http_location target;
+	err = cio_http_location_init(&target, "/foo", NULL, alloc_dummy_handler);
+	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Request target initialization failed!");
+
+	err = server.register_location(&server, &target);
+	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Register request target failed!");
+
+	err = server.serve(&server);
+	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Serving http failed!");
+
+	struct cio_socket *s = server.alloc_client();
+
+	const char start_line[] = "GET /foo HTTP/1.1" CRLF;
+
+	const char *request[] = {
+		start_line,
+		CRLF};
+
+	init_request(request, ARRAY_SIZE(request));
+	server.server_socket.handler(&server.server_socket, server.server_socket.handler_context, CIO_SUCCESS, s);
+	TEST_ASSERT_EQUAL_MESSAGE(1, serve_error_fake.call_count, "Serve error callback was called!");
+	// Because the response is written in on_headers_complete, on_message_complete will not be called
+	TEST_ASSERT_EQUAL_MESSAGE(0, message_complete_fake.call_count, "message_complete was not called!");
+	TEST_ASSERT_EQUAL_MESSAGE(1, header_complete_fake.call_count, "header_complete was not called!");
+}
 /*
 
 struct best_match_test {
@@ -1961,5 +2004,7 @@ int main(void)
 	RUN_TEST(test_serve_correctly);
 	RUN_TEST(test_close_error);
 	RUN_TEST(test_read_error);
+	RUN_TEST(test_write_error);
+
 	return UNITY_END();
 }
