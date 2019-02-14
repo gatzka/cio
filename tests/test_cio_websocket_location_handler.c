@@ -48,9 +48,6 @@ struct ws_test_handler {
 	struct cio_websocket_location_handler ws_handler;
 };
 
-#define WS_HEADER_FIN 0x80
-#define WS_MASK_SET 0x80
-
 static void serve_error(struct cio_http_server *server, const char *reason);
 FAKE_VOID_FUNC(serve_error, struct cio_http_server *, const char *)
 
@@ -74,12 +71,6 @@ FAKE_VALUE_FUNC(enum cio_error, cio_buffered_stream_init, struct cio_buffered_st
 static enum cio_error bs_read_until(struct cio_buffered_stream *bs, struct cio_read_buffer *buffer, const char *delim, cio_buffered_stream_read_handler handler, void *handler_context);
 FAKE_VALUE_FUNC(enum cio_error, bs_read_until, struct cio_buffered_stream *, struct cio_read_buffer *, const char *, cio_buffered_stream_read_handler, void *)
 
-static enum cio_error bs_read_exactly(struct cio_buffered_stream *bs, struct cio_read_buffer *buffer, size_t num, cio_buffered_stream_read_handler handler, void *handler_context);
-FAKE_VALUE_FUNC(enum cio_error, bs_read_exactly, struct cio_buffered_stream *, struct cio_read_buffer *, size_t, cio_buffered_stream_read_handler, void *)
-
-static enum cio_error bs_read(struct cio_buffered_stream *bs, struct cio_read_buffer *buffer, cio_buffered_stream_read_handler handler, void *handler_context);
-FAKE_VALUE_FUNC(enum cio_error, bs_read, struct cio_buffered_stream *, struct cio_read_buffer *, cio_buffered_stream_read_handler, void *)
-
 static enum cio_error bs_close(struct cio_buffered_stream *bs);
 FAKE_VALUE_FUNC(enum cio_error, bs_close, struct cio_buffered_stream *)
 
@@ -98,35 +89,22 @@ static enum cio_error timer_expires_from_now(struct cio_timer *t, uint64_t timeo
 FAKE_VALUE_FUNC(enum cio_error, timer_expires_from_now, struct cio_timer *, uint64_t, cio_timer_handler, void *)
 
 enum cio_error cio_server_socket_init(struct cio_server_socket *ss,
-                                      struct cio_eventloop *loop,
-                                      unsigned int backlog,
-                                      cio_alloc_client alloc_client,
-                                      cio_free_client free_client,
-                                      cio_server_socket_close_hook close_hook);
+									  struct cio_eventloop *loop,
+									  unsigned int backlog,
+									  cio_alloc_client alloc_client,
+									  cio_free_client free_client,
+									  cio_server_socket_close_hook close_hook);
 
 FAKE_VALUE_FUNC(enum cio_error, cio_server_socket_init, struct cio_server_socket *, struct cio_eventloop *, unsigned int, cio_alloc_client, cio_free_client, cio_server_socket_close_hook)
 
 static void on_control(const struct cio_websocket *ws, enum cio_websocket_frame_type type, const uint8_t *data, uint_fast8_t length);
 FAKE_VOID_FUNC(on_control, const struct cio_websocket *, enum cio_websocket_frame_type, const uint8_t *, uint_fast8_t)
 
-static void read_handler(struct cio_websocket *ws, void *handler_context, enum cio_error err, uint8_t *data, size_t length, bool last_frame, bool is_binary);
-FAKE_VOID_FUNC(read_handler, struct cio_websocket *, void *, enum cio_error, uint8_t *, size_t, bool, bool)
-
-static void close_written(struct cio_websocket *ws, void *handler_context, enum cio_error err);
-FAKE_VOID_FUNC(close_written, struct cio_websocket *, void *, enum cio_error)
-
 static struct cio_eventloop loop;
 static const uint64_t header_read_timeout = UINT64_C(5) * UINT64_C(1000) * UINT64_C(1000) * UINT64_C(1000);
 static const uint64_t body_read_timeout = UINT64_C(5) * UINT64_C(1000) * UINT64_C(1000) * UINT64_C(1000);
 static const uint64_t response_timeout = UINT64_C(5) * UINT64_C(1000) * UINT64_C(1000) * UINT64_C(1000);
 static const size_t read_buffer_size = 2000;
-
-/*
-
-static uint8_t *bs_read_exactly_buffer;
-static size_t bs_read_exactly_buffer_size;
-*/
-static size_t bs_read_exactly_buffer_pos;
 
 static enum cio_error timer_expires_from_now_ok(struct cio_timer *t, uint64_t timeout_ns, cio_timer_handler handler, void *handler_context)
 {
@@ -174,11 +152,11 @@ static struct cio_socket *alloc_dummy_client(void)
 }
 
 static enum cio_error cio_server_socket_init_ok(struct cio_server_socket *ss,
-                                                struct cio_eventloop *l,
-                                                unsigned int backlog,
-                                                cio_alloc_client alloc_client,
-                                                cio_free_client free_client,
-                                                cio_server_socket_close_hook close_hook)
+												struct cio_eventloop *l,
+												unsigned int backlog,
+												cio_alloc_client alloc_client,
+												cio_free_client free_client,
+												cio_server_socket_close_hook close_hook)
 {
 	ss->alloc_client = alloc_client;
 	ss->free_client = free_client;
@@ -202,23 +180,11 @@ static enum cio_error cio_timer_init_ok(struct cio_timer *timer, struct cio_even
 	return CIO_SUCCESS;
 }
 
-//static enum cio_error cio_timer_init_failed(struct cio_timer *timer, struct cio_eventloop *l, cio_timer_close_hook hook)
-//{
-//	(void)l;
-//	timer->cancel = timer_cancel;
-//	timer->close = timer_close;
-//	timer->close_hook = hook;
-//	timer->expires_from_now = timer_expires_from_now;
-//	return CIO_INVALID_ARGUMENT;
-//}
-
 static enum cio_error cio_buffered_stream_init_ok(struct cio_buffered_stream *bs,
                                                   struct cio_io_stream *stream)
 {
 	(void)stream;
 	bs->read_until = bs_read_until;
-	bs->read_exactly = bs_read_exactly;
-	bs->read = bs_read;
 	bs->write = bs_write;
 	bs->close = bs_close;
 
@@ -341,39 +307,6 @@ static enum cio_error bs_write_http_response(struct cio_buffered_stream *bs, str
 	handler(bs, handler_context, CIO_SUCCESS);
 	return CIO_SUCCESS;
 }
-/*
-
-static enum cio_error bs_write_ws_frame(struct cio_buffered_stream *bs, struct cio_write_buffer *buf, cio_buffered_stream_write_handler handler, void *handler_context)
-{
-	size_t buffer_len = cio_write_buffer_get_number_of_elements(buf);
-	const struct cio_write_buffer *data_buf = buf;
-
-	for (unsigned int i = 0; i < buffer_len; i++) {
-		data_buf = data_buf->next;
-		memcpy(&ws_frame_write_buffer[ws_frame_write_pos], data_buf->data.element.const_data, data_buf->data.element.length);
-		ws_frame_write_pos += data_buf->data.element.length;
-	}
-
-	handler(bs, handler_context, CIO_SUCCESS);
-	return CIO_SUCCESS;
-}
-
-static enum cio_error bs_read_exactly_from_buffer(struct cio_buffered_stream *bs, struct cio_read_buffer *buffer, size_t num, cio_buffered_stream_read_handler handler, void *handler_context)
-{
-	if (bs_read_exactly_buffer_pos >= bs_read_exactly_buffer_size) {
-		buffer->bytes_transferred = 0;
-	} else {
-		memcpy(buffer->add_ptr, &bs_read_exactly_buffer[bs_read_exactly_buffer_pos], num);
-		buffer->bytes_transferred = num;
-		buffer->fetch_ptr = buffer->add_ptr + num;
-		bs_read_exactly_buffer_pos += num;
-	}
-
-	handler(bs, handler_context, CIO_SUCCESS, buffer);
-	return CIO_SUCCESS;
-}
-
-*/
 
 static enum cio_error bs_fake_write(struct cio_buffered_stream *bs, struct cio_write_buffer *buf, cio_buffered_stream_write_handler handler, void *handler_context)
 {
@@ -387,19 +320,6 @@ static enum cio_error bs_fake_write_error(struct cio_buffered_stream *bs, struct
 	handler(bs, handler_context, CIO_MESSAGE_TOO_LONG);
 	return CIO_SUCCESS;
 }
-
-/*
-
-static enum cio_error bs_fake_write_later(struct cio_buffered_stream *bs, struct cio_write_buffer *buffer, cio_buffered_stream_write_handler handler, void *handler_context)
-{
-	(void)bs;
-	(void)buffer;
-	(void)handler;
-	(void)handler_context;
-
-	return CIO_SUCCESS;
-}
-*/
 
 static void init_request(const char **request, size_t lines)
 {
@@ -437,12 +357,8 @@ void setUp(void)
 	RESET_FAKE(bs_close);
 	RESET_FAKE(bs_write);
 	RESET_FAKE(bs_read_until);
-	RESET_FAKE(bs_read);
-
-	RESET_FAKE(close_written);
 
 	RESET_FAKE(on_control);
-	RESET_FAKE(read_handler);
 
 	http_parser_settings_init(&parser_settings);
 	http_parser_init(&parser, HTTP_RESPONSE);
@@ -461,7 +377,6 @@ void setUp(void)
 	ws_frame_write_pos = 0;
 
 	bs_close_fake.custom_fake = bs_close_ok;
-	bs_read_exactly_buffer_pos = 0;
 
 	timer_expires_from_now_fake.custom_fake = timer_expires_from_now_ok;
 	timer_cancel_fake.custom_fake = cancel_timer;
@@ -472,249 +387,6 @@ void setUp(void)
 void tearDown(void)
 {
 }
-
-/*
-static size_t assemble_frame(uint8_t header, uint8_t *mask, uint8_t *data, size_t length, uint8_t **ptr)
-{
-	if (length > 125) {
-		*ptr = NULL;
-		return 0;
-	}
-
-	size_t bytes = 1 + 1 + length;
-	if (mask != NULL) {
-		bytes += 4;
-	}
-
-	unsigned int offset;
-	uint8_t *mem = malloc(bytes);
-	mem[0] = header;
-	mem[1] = (uint8_t)length;
-	if (mask != NULL) {
-		mem[1] |= WS_MASK_SET;
-		memcpy(&mem[2], mask, 4);
-		offset = 6;
-	} else {
-		offset = 2;
-	}
-
-	memcpy(&mem[offset], data, length);
-	if (mask != NULL) {
-		cio_websocket_mask(&mem[6], length, &mem[2]);
-	}
-
-	*ptr = mem;
-	return offset + length;
-}
-
-
-static void test_ws_location_response_write_timeout(void)
-{
-	uint8_t *close_frame;
-	uint8_t mask[4] = {0x1, 0x2, 0x3, 0x4};
-	uint8_t data[2] = {0x3, 0xe8};
-	bs_read_exactly_buffer_size = assemble_frame(WS_HEADER_FIN | CIO_WEBSOCKET_CLOSE_FRAME, mask, data, sizeof(data), &close_frame);
-
-	bs_read_exactly_buffer = close_frame;
-	bs_write_fake.custom_fake = bs_fake_write_later;
-
-	bs_read_exactly_fake.custom_fake = bs_read_exactly_from_buffer;
-
-	struct cio_http_server server;
-	enum cio_error err = cio_http_server_init(&server, 8080, &loop, serve_error, header_read_timeout, body_read_timeout, response_timeout, alloc_dummy_client, free_dummy_client);
-	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Server initialization failed!");
-
-	struct cio_http_location target;
-	err = cio_http_location_init(&target, REQUEST_TARGET, NULL, alloc_websocket_handler);
-	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Request target initialization failed!");
-
-	err = server.register_location(&server, &target);
-	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Register request target failed!");
-
-	err = server.serve(&server);
-	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Serving http failed!");
-
-	struct cio_socket *s = server.alloc_client();
-
-	const char *request[] = {
-	    "GET " REQUEST_TARGET " HTTP/1.1" CRLF,
-	    "Upgrade: websocket" CRLF,
-	    "Connection: Upgrade" CRLF,
-	    "Sec-WebSocket-Version: 13" CRLF,
-	    "Sec-WebSocket-Key: dGhlIHNhbXBsZSBub25jZQ==" CRLF,
-	    "Sec-WebSocket-Protocol: jet" CRLF,
-	    CRLF};
-
-	init_request(request, ARRAY_SIZE(request));
-	server.server_socket.handler(&server.server_socket, server.server_socket.handler_context, CIO_SUCCESS, s);
-
-	TEST_ASSERT_EQUAL_MESSAGE(1, timer_cancel_fake.call_count, "write timeout timer not cancelled!");
-
-	//struct cio_http_client *client = cio_container_of(s, struct cio_http_client, socket);
-	//struct cio_http_location_handler *handler = client->current_handler;
-	//struct cio_websocket_location_handler *wslh = cio_container_of(handler, struct cio_websocket_location_handler, http_location);
-	//wslh->write_response_timer.handler(&wslh->write_response_timer, wslh->write_response_timer.handler_context, CIO_SUCCESS);
-
-	free(close_frame);
-}
-
-static void test_ws_location_write_timeout_expires_failure(void)
-{
-	uint8_t *close_frame;
-	uint8_t mask[4] = {0x1, 0x2, 0x3, 0x4};
-	uint8_t data[2] = {0x3, 0xe8};
-	bs_read_exactly_buffer_size = assemble_frame(WS_HEADER_FIN | CIO_WEBSOCKET_CLOSE_FRAME, mask, data, sizeof(data), &close_frame);
-
-	bs_read_exactly_buffer = close_frame;
-	bs_write_fake.custom_fake = bs_fake_write;
-	bs_read_exactly_fake.custom_fake = bs_read_exactly_from_buffer;
-
-	enum cio_error (*expires_fakes[])(struct cio_timer *, uint64_t, cio_timer_handler, void *) = {
-		timer_expires_from_now_ok,
-	    timer_expires_from_error,
-	};
-
-	timer_expires_from_now_fake.custom_fake = NULL;
-	SET_CUSTOM_FAKE_SEQ(timer_expires_from_now, expires_fakes, ARRAY_SIZE(expires_fakes));
-
-	struct cio_http_server server;
-	enum cio_error err = cio_http_server_init(&server, 8080, &loop, serve_error, header_read_timeout, body_read_timeout, response_timeout, alloc_dummy_client, free_dummy_client);
-	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Server initialization failed!");
-
-	struct cio_http_location target;
-	err = cio_http_location_init(&target, REQUEST_TARGET, NULL, alloc_websocket_handler);
-	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Request target initialization failed!");
-
-	err = server.register_location(&server, &target);
-	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Register request target failed!");
-
-	err = server.serve(&server);
-	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Serving http failed!");
-
-	struct cio_socket *s = server.alloc_client();
-
-	const char *request[] = {
-	    "GET " REQUEST_TARGET " HTTP/1.1" CRLF,
-	    "Upgrade: websocket" CRLF,
-	    "Connection: Upgrade" CRLF,
-	    "Sec-WebSocket-Version: 13" CRLF,
-	    "Sec-WebSocket-Key: dGhlIHNhbXBsZSBub25jZQ==" CRLF,
-	    "Sec-WebSocket-Protocol: jet" CRLF,
-	    CRLF};
-
-	init_request(request, ARRAY_SIZE(request));
-	server.server_socket.handler(&server.server_socket, server.server_socket.handler_context, CIO_SUCCESS, s);
-
-	TEST_ASSERT_EQUAL_MESSAGE(1, timer_cancel_fake.call_count, "write timeout timer not cancelled!");
-	TEST_ASSERT_EQUAL_MESSAGE(2, timer_close_fake.call_count, "write timeout timer not closed!");
-	free(close_frame);
-}
-
-static void test_ws_location_close_in_onconnect(void)
-{
-	uint8_t *close_frame;
-	uint8_t mask[4] = {0x1, 0x2, 0x3, 0x4};
-	uint8_t data[2] = {0x3, 0xe8};
-	bs_read_exactly_buffer_size = assemble_frame(WS_HEADER_FIN | CIO_WEBSOCKET_CLOSE_FRAME, mask, data, sizeof(data), &close_frame);
-
-	bs_read_exactly_buffer = close_frame;
-	bs_write_fake.custom_fake = bs_fake_write;
-
-	bs_read_exactly_fake.custom_fake = bs_read_exactly_from_buffer;
-
-	struct cio_http_server server;
-	enum cio_error err = cio_http_server_init(&server, 8080, &loop, serve_error, header_read_timeout, body_read_timeout, response_timeout, alloc_dummy_client, free_dummy_client);
-	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Server initialization failed!");
-
-	struct cio_http_location target;
-	err = cio_http_location_init(&target, REQUEST_TARGET, NULL, alloc_websocket_handler);
-	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Request target initialization failed!");
-
-	err = server.register_location(&server, &target);
-	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Register request target failed!");
-
-	err = server.serve(&server);
-	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Serving http failed!");
-
-	struct cio_socket *s = server.alloc_client();
-
-	const char *request[] = {
-	    "GET " REQUEST_TARGET " HTTP/1.1" CRLF,
-	    "Upgrade: websocket" CRLF,
-	    "Connection: Upgrade" CRLF,
-	    "Sec-WebSocket-Version: 13" CRLF,
-	    "Sec-WebSocket-Key: dGhlIHNhbXBsZSBub25jZQ==" CRLF,
-	    "Sec-WebSocket-Protocol: jet" CRLF,
-	    CRLF};
-
-	init_request(request, ARRAY_SIZE(request));
-	server.server_socket.handler(&server.server_socket, server.server_socket.handler_context, CIO_SUCCESS, s);
-	check_http_response(101);
-
-	TEST_ASSERT_EQUAL_MESSAGE(1, on_control_fake.call_count, "control callback was not called for last close frame");
-	TEST_ASSERT_NOT_NULL_MESSAGE(on_control_fake.arg0_val, "websocket parameter of control callback is NULL");
-	TEST_ASSERT_EQUAL_MESSAGE(CIO_WEBSOCKET_CLOSE_FRAME, on_control_fake.arg1_val, "websocket parameter of control callback is NULL");
-	TEST_ASSERT_EQUAL_MESSAGE(sizeof(data), on_control_fake.arg3_val, "data length parameter of control callback is not correct");
-	TEST_ASSERT_EQUAL_MESSAGE(1, read_handler_fake.call_count, "read callback was not called for last close frame");
-
-	TEST_ASSERT_EQUAL_MESSAGE(3, timer_cancel_fake.call_count, "write timeout timer not cancelled!");
-	free(close_frame);
-}
-
-static void test_static_ws_location_close_in_onconnect(void)
-{
-	uint8_t *close_frame;
-	uint8_t mask[4] = {0x1, 0x2, 0x3, 0x4};
-	uint8_t data[2] = {0x3, 0xe8};
-	bs_read_exactly_buffer_size = assemble_frame(WS_HEADER_FIN | CIO_WEBSOCKET_CLOSE_FRAME, mask, data, sizeof(data), &close_frame);
-
-	bs_read_exactly_buffer = close_frame;
-	bs_write_fake.custom_fake = bs_fake_write;
-
-	bs_read_exactly_fake.custom_fake = bs_read_exactly_from_buffer;
-
-	struct cio_http_server server;
-	enum cio_error err = cio_http_server_init(&server, 8080, &loop, serve_error, header_read_timeout, body_read_timeout, response_timeout, alloc_dummy_client, free_dummy_client);
-	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Server initialization failed!");
-
-	struct cio_http_location target;
-	err = cio_http_location_init(&target, REQUEST_TARGET, NULL, alloc_static_websocket_handler);
-	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Request target initialization failed!");
-
-	err = server.register_location(&server, &target);
-	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Register request target failed!");
-
-	err = server.serve(&server);
-	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Serving http failed!");
-
-	struct cio_socket *s = server.alloc_client();
-
-	const char *request[] = {
-	    "GET " REQUEST_TARGET " HTTP/1.1" CRLF,
-	    "Upgrade: websocket" CRLF,
-	    "Connection: Upgrade" CRLF,
-	    "Sec-WebSocket-Version: 13" CRLF,
-	    "Sec-WebSocket-Key: dGhlIHNhbXBsZSBub25jZQ==" CRLF,
-	    "Sec-WebSocket-Protocol: jet" CRLF,
-	    CRLF};
-
-	init_request(request, ARRAY_SIZE(request));
-	server.server_socket.handler(&server.server_socket, server.server_socket.handler_context, CIO_SUCCESS, s);
-	check_http_response(101);
-
-	TEST_ASSERT_EQUAL_MESSAGE(1, on_control_fake.call_count, "control callback was not called for last close frame");
-	TEST_ASSERT_NOT_NULL_MESSAGE(on_control_fake.arg0_val, "websocket parameter of control callback is NULL");
-	TEST_ASSERT_EQUAL_MESSAGE(CIO_WEBSOCKET_CLOSE_FRAME, on_control_fake.arg1_val, "websocket parameter of control callback is NULL");
-	TEST_ASSERT_EQUAL_MESSAGE(sizeof(data), on_control_fake.arg3_val, "data length parameter of control callback is not correct");
-	TEST_ASSERT_EQUAL_MESSAGE(1, read_handler_fake.call_count, "read callback was not called for last close frame");
-
-	TEST_ASSERT_EQUAL_MESSAGE(3, timer_cancel_fake.call_count, "write timeout timer not cancelled!");
-	free(close_frame);
-}
-
-
-
-*/
 
 struct ws_version_test {
 	const char *version_line;
@@ -1114,10 +786,6 @@ static void test_ws_location_init_fails(void)
 int main(void)
 {
 	UNITY_BEGIN();
-	//RUN_TEST(test_ws_location_write_timeout_expires_failure);
-	//RUN_TEST(test_ws_location_response_write_timeout);
-	//RUN_TEST(test_ws_location_close_in_onconnect);
-	//RUN_TEST(test_static_ws_location_close_in_onconnect);
 	RUN_TEST(test_ws_location_wrong_http_version);
 	RUN_TEST(test_ws_location_wrong_http_method);
 	RUN_TEST(test_ws_location_wrong_ws_version);
