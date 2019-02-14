@@ -124,7 +124,7 @@ static void client_timeout_handler(struct cio_timer *timer, void *handler_contex
 
 static void restart_read_request(struct cio_http_client *client)
 {
-	if (client->response_written && client->request_complete) {
+	if (client->request_complete) {
 		free_handler(client);
 		struct cio_http_server *server = (struct cio_http_server *)client->parser.data;
 		enum cio_error err = client->http_private.request_timer.expires_from_now(&client->http_private.request_timer, server->read_header_timeout_ns, client_timeout_handler, client);
