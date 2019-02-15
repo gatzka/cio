@@ -70,7 +70,6 @@ typedef void (*cio_http_serve_on_error)(struct cio_http_server *server, const ch
 
 typedef void (*cio_http_server_close_hook)(struct cio_http_server *server);
 
-
 #define KEEPALIVE_TIMEOUT_HEADER_MAX_LENGTH 33u // "Keep-Alive: timeout= + uint32 as string + CR + LF + \0"
 
 /**
