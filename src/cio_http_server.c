@@ -56,6 +56,8 @@
 
 #define CIO_HTTP_VERSION "HTTP/1.1"
 
+static const uint32_t NANO_SECONDS_IN_SECONDS = 1000000000;
+
 static int on_url(http_parser *parser, const char *at, size_t length);
 static void finish_request_line(struct cio_http_client *client);
 static enum cio_error write_response(struct cio_http_client *client, enum cio_http_status_code status_code, struct cio_write_buffer *wbh, void (*response_written_cb)(struct cio_http_client *client, enum cio_error err));
@@ -774,7 +776,7 @@ enum cio_error cio_http_server_init(struct cio_http_server *server,
 	server->response_timeout_ns = response_timeout_ns;
 	server->close_hook = NULL;
 
-	uint32_t keep_alive = (uint32_t)(read_header_timeout_ns / 1000000000);
+	uint32_t keep_alive = (uint32_t)(read_header_timeout_ns / NANO_SECONDS_IN_SECONDS);
 	snprintf(server->keepalive_header, sizeof(server->keepalive_header), "Keep-Alive: timeout=%"PRIu32"\r\n", keep_alive);
 
 	return cio_server_socket_init(&server->server_socket, server->loop, DEFAULT_BACKLOG, server->alloc_client, server->free_client, server_socket_closed);
