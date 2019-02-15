@@ -677,7 +677,7 @@ static void test_accept_socket_init_fails(void)
 
 	ss.impl.ev.read_callback(ss.impl.ev.context);
 
-	TEST_ASSERT_EQUAL(0, accept_handler_fake.call_count);
+	TEST_ASSERT_EQUAL(1, accept_handler_fake.call_count);
 	TEST_ASSERT_EQUAL(1, close_fake.call_count);
 	TEST_ASSERT_EQUAL(1, free_client_fake.call_count);
 }

@@ -25,15 +25,18 @@ add_test(NAME cio.test_http_server COMMAND cio_test_http_server)
 add_executable(cio_test_http_server_iostream test_cio_http_server_iostream.c)
 add_test(NAME cio.test_http_server_iostream COMMAND cio_test_http_server_iostream)
 
+add_executable(cio_test_http_location test_cio_http_location.c)
+add_test(NAME cio.test_http_location COMMAND cio_test_http_location)
+
 add_executable(cio_test_read_buffer test_cio_read_buffer.c)
 add_test(NAME cio.test_read_buffer COMMAND cio_test_read_buffer)
-
+ 
 add_executable(cio_test_utf8_checker test_cio_utf8_checker.c)
 add_test(NAME cio.test_utf8_checker COMMAND cio_test_utf8_checker)
 
 add_executable(cio_test_websocket test_cio_websocket.c)
 add_test(NAME cio.test_websocket COMMAND cio_test_websocket)
-
+ 
 add_executable(cio_test_websocket_client test_cio_websocket_client.c)
 add_test(NAME cio.test_websocket_client COMMAND cio_test_websocket_client)
 

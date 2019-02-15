@@ -48,8 +48,9 @@ static struct cio_http_server server;
 static const size_t read_buffer_size = 2000;
 static const uint16_t SERVER_PORT = 8080;
 
-static const uint64_t read_timeout = UINT64_C(5) * UINT64_C(1000) * UINT64_C(1000) * UINT64_C(1000);
-static const uint64_t upgrade_timeout = UINT64_C(1000000000);
+static const uint64_t header_read_timeout = UINT64_C(5) * UINT64_C(1000) * UINT64_C(1000) * UINT64_C(1000);
+static const uint64_t body_read_timeout = UINT64_C(5) * UINT64_C(1000) * UINT64_C(1000) * UINT64_C(1000);
+static const uint64_t response_timeout = UINT64_C(1) * UINT64_C(1000) * UINT64_C(1000) * UINT64_C(1000);
 static const uint64_t ping_period_ns = UINT64_C(1) * UINT64_C(1000) * UINT64_C(1000) * UINT64_C(1000);
 
 struct ws_echo_handler {
@@ -238,7 +239,7 @@ static struct cio_http_location_handler *alloc_websocket_handler(const void *con
 	}
 
 	static const char *subprotocols[2] = {"echo", "jet"};
-	cio_websocket_location_handler_init(&handler->ws_handler, upgrade_timeout, &loop, subprotocols, ARRAY_SIZE(subprotocols), on_connect, free_websocket_handler);
+	cio_websocket_location_handler_init(&handler->ws_handler, subprotocols, ARRAY_SIZE(subprotocols), on_connect, free_websocket_handler);
 	handler->ws_handler.websocket.on_control = on_control;
 	return &handler->ws_handler.http_location;
 }
@@ -275,8 +276,7 @@ static void sighandler(int signum)
 static void serve_error(struct cio_http_server *s, const char *reason)
 {
 	fprintf(stderr, "http server error: %s\n", reason);
-	s->server_socket.close(&s->server_socket);
-
+	s->shutdown(s, http_server_closed);
 }
 
 int main(void)
@@ -296,7 +296,7 @@ int main(void)
 		return EXIT_FAILURE;
 	}
 
-	err = cio_http_server_init(&server, SERVER_PORT, &loop, serve_error, read_timeout, alloc_http_client, free_http_client);
+	err = cio_http_server_init(&server, SERVER_PORT, &loop, serve_error, header_read_timeout, body_read_timeout, response_timeout, alloc_http_client, free_http_client);
 	if (err != CIO_SUCCESS) {
 		ret = EXIT_FAILURE;
 		goto destroy_loop;

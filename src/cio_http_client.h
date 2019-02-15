@@ -51,19 +51,32 @@ extern "C" {
 
 struct cio_http_client;
 
+/**
+ * @brief The type of a response callback function passed to the @ref cio_http_client_write_response "write_response" function.
+ *
+ * @param client The cio_http_client that wrote the response.
+ * @param err An error code. If @c err != ::CIO_SUCCESS, the client will be closed automatically. So please don't
+ * @ref cio_http_client_close "close" the client in the callback function. Any other resources not associated with @c client should
+ * be cleaned up here.
+ */
+typedef void (*cio_response_written_cb)(struct cio_http_client *client, enum cio_error err);
+
 #define CIO_HTTP_CLIENT_CONTENT_LENGTH_BUFFER_LENGTH 30
 struct cio_http_client_private {
 	struct cio_write_buffer wb_http_response_statusline;
 	struct cio_write_buffer wb_http_content_length;
 	struct cio_write_buffer wb_http_connection_header;
+	struct cio_write_buffer wb_http_keepalive_header;
 	struct cio_write_buffer wb_http_response_header_end;
-	struct cio_timer read_header_timer;
+	struct cio_timer request_timer;
+	struct cio_timer response_timer;
 
-	int should_keepalive;
+	bool should_keepalive;
+	bool close_immediately;
 	bool headers_complete;
 	bool to_be_closed;
 	unsigned int parsing;
-	bool response_written;
+	bool response_fired;
 
 	void (*finish_func)(struct cio_http_client *client);
 	char content_length_buffer[CIO_HTTP_CLIENT_CONTENT_LENGTH_BUFFER_LENGTH];
@@ -93,29 +106,47 @@ struct cio_http_client {
 
 	/**
 	 * @anchor cio_http_client_write_response
-	 * @brief Writes a response to the requesting client.
+	 * @brief Writes a non-chunked response to the requesting client.
 	 *
-	 * The HTTP connection is closed after the response was written.
+	 * This function writes a non-chunked response to the requesting client. This function takes care itself to
+	 * add @c Content-Length and @c Connection header fields. Additional header fields can
+	 * be added by calling @ref cio_http_client_add_response_header "add_response_header".
+	 *
+	 * @warning Any data belonging to response (namely the body data @p wbh_body points to and all header lines added
+	 * by @ref cio_http_client_add_response_header "add_response_header") must be available and valid until the complete
+	 * HTTP response was sent or the connection to the client @ref cio_http_client_close "is closed".
+	 * The response was sent when the @p response_written callback function was called.
 	 *
 	 * @param client The client which shall get the response.
 	 * @param status_code The http status code of the response.
-	 * @param wbh The write buffer head containing the data which should be written after
+	 * @param wbh_body The write buffer head containing the data which should be written after
 	 * the HTTP response header to the client (the http body).
+	 * @param response_written An optional callback that will be called whe the response was written. If @p err != ::CIO_SUCCESS,
+	 * the client will be automatically closed.
+	 * @return ::CIO_SUCCESS for success. If return value not ::CIO_SUCCESS, this typically means that you tried
+	 * to send two responses per request.
 	 */
-	void (*write_response)(struct cio_http_client *client, enum cio_http_status_code status_code, struct cio_write_buffer *wbh);
-
-	void (*start_response_header)(struct cio_http_client *client, enum cio_http_status_code status_code);
-	void (*end_response_header)(struct cio_http_client *client);
-	void (*add_response_header)(struct cio_http_client *client, struct cio_write_buffer *wbh);
+	enum cio_error (*write_response)(struct cio_http_client *client, enum cio_http_status_code status_code, struct cio_write_buffer *wbh_body, cio_response_written_cb written_cb);
 
 	/**
-	 * @anchor cio_http_client_flush
-	 * @brief Flushes the write buffer attached of this client.
-     *
-	 * @param client The client which shall be flushed.
-	 * @param handler The handler to be called when flusing completed.
-     */
-	void (*flush)(struct cio_http_client *client, cio_buffered_stream_write_handler handler);
+	 * @anchor cio_http_client_add_response_header
+	 * @brief Queues an additional HTTP header entry.
+	 *
+	 * This function queues an additional HTTP header entry which will be sent when an @ref cio_http_client_write_response "HTTP response is sent".
+	 * Calling this function does not cause any data sent to the client!
+	 *
+	 * @warning The user of this function must take care that a complete header line is given in @p wbh! Otherwise the whole header might not
+	 * be valid HTTP!
+	 *
+	 * @warning The data @p wbh points to must be available and valid until the complete @ref cio_http_client_write_response "HTTP reponse was sent"
+	 * or the connection to the client @ref cio_http_client_close "is closed". The response was sent when the @p response_written callback function
+	 * of @ref cio_http_client_write_response "write_response" was called.
+	 *
+	 *
+	 * @param client The client which shall get the HTTP header response entry.
+	 * @param wbh The write buffer head pointing to the data of the header line.
+	 */
+	void (*add_response_header)(struct cio_http_client *client, struct cio_write_buffer *wbh);
 
 	/**
 	 * @anchor cio_http_client_bs
@@ -164,15 +195,14 @@ struct cio_http_client {
 	 */
 	enum cio_http_method http_method;
 
-	struct cio_http_location_handler *handler;
-
-	struct cio_socket socket;
-
 	/*! @cond PRIVATE */
-
-	struct cio_write_buffer wbh;
-
+	struct cio_http_location_handler *current_handler;
+	struct cio_socket socket;
+	struct cio_write_buffer response_wbh;
 	struct cio_http_client_private http_private;
+	cio_response_written_cb response_written_cb;
+	bool request_complete;
+	bool response_written;
 
 	http_parser parser;
 	http_parser_settings parser_settings;

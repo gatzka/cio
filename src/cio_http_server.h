@@ -70,6 +70,9 @@ typedef void (*cio_http_serve_on_error)(struct cio_http_server *server, const ch
 
 typedef void (*cio_http_server_close_hook)(struct cio_http_server *server);
 
+
+#define KEEPALIVE_TIMEOUT_HEADER_MAX_LENGTH 33u // "Keep-Alive: timeout= + uint32 as string + CR + LF + \0"
+
 /**
  * @brief The cio_http_server structure provides the implementation of a simple HTTP server.
  */
@@ -115,11 +118,14 @@ struct cio_http_server {
 	cio_free_client free_client;
 
 	uint64_t read_header_timeout_ns;
+	uint64_t read_body_timeout_ns;
+	uint64_t response_timeout_ns;
 	cio_http_serve_on_error on_error;
 	struct cio_server_socket server_socket;
 	struct cio_http_location *first_handler;
 	size_t num_handlers;
 	cio_http_server_close_hook close_hook;
+	char keepalive_header[KEEPALIVE_TIMEOUT_HEADER_MAX_LENGTH]; // "Keep-Alive: timeout= + uint32 as string + CR + LF + \0"
 };
 
 /**
@@ -128,10 +134,13 @@ struct cio_http_server {
  * @param port The TCP port the HTTP server listens on.
  * @param loop The eventloop the HTTP server uses.
  * @param on_error This callback function will be called if something goes wrong while the HTTP client connection is established.
- * @param read_header_timeout_ns The read timeout in nanoseconds.
- * The timeout is started after the HTTP connection is established and canceled after the complete HTTP message was received or after
- * the complete HTTP header was received in case of an upgraded HTTP connection. In case of a timeout the client connection is
- * closed automatically.
+ * @param read_header_timeout_ns The timeout in nanoseconds until the complete HTTP header must be received.
+ * The timeout is started after the HTTP connection is established and canceled after the complete HTTP header was received.
+ * In case of a timeout the client connection is closed automatically.
+ * @param read_body_timeout_ns The timeout in nanoseconds until the complete HTTP body must be received.
+ * The timeout is started after the HTTP header was received and will be canceled after the complete HTTP message was received.
+ * In case of a timeout the client connection is closed automatically.
+ * @param response_timeout_ns The timeout in nanoseconds until the complete HTTP response must be sent.
  * @anchor cio_http_server_init_alloc_client
  * @param alloc_client A user provided function responsible to allocate a cio_http_client structure.
  * @anchor cio_http_server_init_free_client
@@ -143,6 +152,8 @@ CIO_EXPORT enum cio_error cio_http_server_init(struct cio_http_server *server,
                                                struct cio_eventloop *loop,
                                                cio_http_serve_on_error on_error,
                                                uint64_t read_header_timeout_ns,
+                                               uint64_t read_body_timeout_ns,
+                                               uint64_t response_timeout_ns,
                                                cio_alloc_client alloc_client,
                                                cio_free_client free_client);
 

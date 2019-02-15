@@ -37,13 +37,13 @@ extern "C" {
 
 /**
  * @file
- * @brief Functions manange a write buffer.
+ * @brief Functions to manage a write buffer.
  *
  * A write buffer comprises of a chain of buffer elements. Starting with a write buffer head,
  * multiple write buffer elements can be chained together. There are functions available like
  * queueing a write buffer element @ref cio_write_buffer_queue_tail "to the end" of a write buffer.
  *
- * If availavle, platform specific write function shall utilize scatter/gather I/O
+ * If available, platform specific write functions shall utilize scatter/gather I/O
  * functions like writev() to send a write buffer chain in a single chunk.
  */
 
@@ -163,7 +163,7 @@ static inline struct cio_write_buffer *cio_write_buffer_queue_peek(const struct 
 }
 
 /**
- * @brief Access the last element of a wwrite buffer chain without removing it.
+ * @brief Access the last element of a write buffer chain without removing it.
  * @param wbh The write buffer chain that is asked.
  * @return The last write buffer element if available, @c otherwise.
  */
@@ -211,27 +211,6 @@ static inline struct cio_write_buffer *cio_write_buffer_queue_dequeue(struct cio
 }
 
 /**
- * @brief Appends the write buffer elements of @p list to @p head.
- * @param list The elements which shall be appended to @p head.
- * @param head The list that shall pick up the elements of @p list.
- */
-static inline void cio_write_buffer_splice(const struct cio_write_buffer *list, struct cio_write_buffer *head)
-{
-	if (!cio_write_buffer_queue_empty(list)) {
-		struct cio_write_buffer *new_last = list->prev;
-		struct cio_write_buffer *new_first = list->next;
-		struct cio_write_buffer *last = head->prev;
-
-		last->next = list->next;
-		new_first->prev = last;
-		new_last->next = head;
-		head->prev = new_last;
-
-		head->data.q_len += list->data.q_len;
-	}
-}
-
-/**
  * @brief Provides the number of elements in a write buffer chain.
  * @param wbh The write buffer that is asked.
  * @return The number of elements in a write buffer chain.
@@ -274,6 +253,29 @@ static inline void cio_write_buffer_element_init(struct cio_write_buffer *wbe, v
 {
 	wbe->data.element.data = data;
 	wbe->data.element.length = length;
+}
+
+/**
+ * @brief Appends the write buffer elements of @p list to @p head.
+ * @param list The elements which shall be appended to @p head.
+ * @param head The list that shall pick up the elements of @p list.
+ */
+static inline void cio_write_buffer_splice(struct cio_write_buffer *list, struct cio_write_buffer *head)
+{
+	if (!cio_write_buffer_queue_empty(list)) {
+		struct cio_write_buffer *new_last = list->prev;
+		struct cio_write_buffer *new_first = list->next;
+		struct cio_write_buffer *last = head->prev;
+
+		last->next = list->next;
+		new_first->prev = last;
+		new_last->next = head;
+		head->prev = new_last;
+
+		head->data.q_len += list->data.q_len;
+
+		cio_write_buffer_head_init(list);
+	}
 }
 
 #ifdef __cplusplus
