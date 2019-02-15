@@ -13,44 +13,44 @@ set_target_properties(unity PROPERTIES
 )
 target_include_directories(unity PUBLIC ${CMAKE_CURRENT_LIST_DIR}/unity/src/)
 
-add_executable(cio_test_base64 test_cio_base64.c)
-add_test(NAME cio.test_base64 COMMAND cio_test_base64)
+add_executable(test_cio_base64 test_cio_base64.c)
+add_test(NAME cio.common.test_base64 COMMAND test_cio_base64)
 
-add_executable(cio_test_buffered_stream test_cio_buffered_stream.c)
-add_test(NAME cio.test_buffered_stream COMMAND cio_test_buffered_stream)
+add_executable(test_cio_buffered_stream test_cio_buffered_stream.c)
+add_test(NAME cio.common.test_buffered_stream COMMAND test_cio_buffered_stream)
 
-add_executable(cio_test_http_server test_cio_http_server.c)
-add_test(NAME cio.test_http_server COMMAND cio_test_http_server)
+add_executable(test_cio_http_server test_cio_http_server.c)
+add_test(NAME cio.common.test_http_server COMMAND test_cio_http_server)
 
-add_executable(cio_test_http_server_iostream test_cio_http_server_iostream.c)
-add_test(NAME cio.test_http_server_iostream COMMAND cio_test_http_server_iostream)
+add_executable(test_cio_http_server_iostream test_cio_http_server_iostream.c)
+add_test(NAME cio.common.test_http_server_iostream COMMAND test_cio_http_server_iostream)
 
-add_executable(cio_test_http_location test_cio_http_location.c)
-add_test(NAME cio.test_http_location COMMAND cio_test_http_location)
+add_executable(test_cio_http_location test_cio_http_location.c)
+add_test(NAME cio.common.test_http_location COMMAND test_cio_http_location)
 
-add_executable(cio_test_read_buffer test_cio_read_buffer.c)
-add_test(NAME cio.test_read_buffer COMMAND cio_test_read_buffer)
+add_executable(test_cio_read_buffer test_cio_read_buffer.c)
+add_test(NAME cio.common.test_read_buffer COMMAND test_cio_read_buffer)
  
-add_executable(cio_test_utf8_checker test_cio_utf8_checker.c)
-add_test(NAME cio.test_utf8_checker COMMAND cio_test_utf8_checker)
+add_executable(test_cio_utf8_checker test_cio_utf8_checker.c)
+add_test(NAME cio.common.test_utf8_checker COMMAND test_cio_utf8_checker)
 
-add_executable(cio_test_websocket test_cio_websocket.c)
-add_test(NAME cio.test_websocket COMMAND cio_test_websocket)
+add_executable(test_cio_websocket test_cio_websocket.c)
+add_test(NAME cio.common.test_websocket COMMAND test_cio_websocket)
  
-add_executable(cio_test_websocket_client test_cio_websocket_client.c)
-add_test(NAME cio.test_websocket_client COMMAND cio_test_websocket_client)
+add_executable(test_cio_websocket_client test_cio_websocket_client.c)
+add_test(NAME cio.common.test_websocket_client COMMAND test_cio_websocket_client)
 
-add_executable(cio_test_websocket_location_handler test_cio_websocket_location_handler.c)
-add_test(NAME cio.test_websocket_location_handler COMMAND cio_test_websocket_location_handler)
+add_executable(test_cio_websocket_location_handler test_cio_websocket_location_handler.c)
+add_test(NAME cio.common.test_websocket_location_handler COMMAND test_cio_websocket_location_handler)
 
-add_executable(cio_test_websocket_mask test_cio_websocket_mask.c)
-add_test(NAME cio.test_websocket_mask COMMAND cio_test_websocket_mask)
+add_executable(test_cio_websocket_mask test_cio_websocket_mask.c)
+add_test(NAME cio.common.test_websocket_mask COMMAND test_cio_websocket_mask)
 
-add_executable(cio_test_write_buffer test_cio_write_buffer.c)
-add_test(NAME cio.test_write_buffer COMMAND cio_test_write_buffer)
+add_executable(test_cio_write_buffer test_cio_write_buffer.c)
+add_test(NAME cio.common.test_write_buffer COMMAND test_cio_write_buffer)
 
-add_executable(cio_test_version test_cio_version.c)
-add_test(NAME cio.test_version COMMAND cio_test_version)
+add_executable(test_cio_version test_cio_version.c)
+add_test(NAME cio.common.test_version COMMAND test_cio_version)
 
 get_property(targets DIRECTORY "${CMAKE_CURRENT_LIST_DIR}" PROPERTY BUILDSYSTEM_TARGETS)
 foreach(tgt ${targets})
