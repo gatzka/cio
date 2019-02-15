@@ -178,6 +178,9 @@ $(document).ready(function(){initNavTree('functions.html','');});
 <li>close_hook
 : <a class="el" href="structcio__websocket__private.html#a51feb81058faa2b6380050e5a5f9b064">cio_websocket_private</a>
 </li>
+<li>close_immediately
+: <a class="el" href="structcio__http__client__private.html#afb202d9aa49a35b15cf12621b918d339">cio_http_client_private</a>
+</li>
 <li>close_timer
 : <a class="el" href="structcio__websocket__private.html#ac449ba2534bcd9691cedd3d4667f827f">cio_websocket_private</a>
 </li>
@@ -213,9 +216,6 @@ $(document).ready(function(){initNavTree('functions.html','');});
 <li>element
 : <a class="el" href="structcio__write__buffer.html#a02500d1a92d49f16f632eb2fd2415440">cio_write_buffer</a>
 </li>
-<li>end_response_header
-: <a class="el" href="structcio__http__client.html#aacbabf432193fdb92f55e0c2a0e8415d">cio_http_client</a>
-</li>
 <li>expires_from_now
 : <a class="el" href="structcio__timer.html#a4161d8a25bc250b11715d28f44b6b434">cio_timer</a>
 </li>
@@ -231,9 +231,6 @@ $(document).ready(function(){initNavTree('functions.html','');});
 </li>
 <li>first_write_job
 : <a class="el" href="structcio__websocket__private.html#a310adbcfc73e6d38444475531458c425">cio_websocket_private</a>
-</li>
-<li>flush
-: <a class="el" href="structcio__http__client.html#a08515712ea0111937f5bf96dbe204b14">cio_http_client</a>
 </li>
 <li>frag_opcode
 : <a class="el" href="structcio__websocket__private.html#a2444b6d19ae7c43fbfb7ade730c76ddc">cio_websocket_private</a>
@@ -260,8 +257,7 @@ $(document).ready(function(){initNavTree('functions.html','');});
 
 <h3><a class="anchor" id="index_h"></a>- h -</h3><ul>
 <li>handler
-: <a class="el" href="structcio__http__client.html#a90844e5f9e1490cb15eb051c9ed11715">cio_http_client</a>
-, <a class="el" href="structcio__websocket__write__job.html#a1f6652868857b5523069b2655849a741">cio_websocket_write_job</a>
+: <a class="el" href="structcio__websocket__write__job.html#a1f6652868857b5523069b2655849a741">cio_websocket_write_job</a>
 </li>
 <li>handler_context
 : <a class="el" href="structcio__websocket__write__job.html#a03e58e95b659e7a39db6d818c11411b1">cio_websocket_write_job</a>
@@ -406,9 +402,6 @@ $(document).ready(function(){initNavTree('functions.html','');});
 <li>read_handler_context
 : <a class="el" href="structcio__websocket__private.html#a1962b07487645e896c1ca63daad14d2e">cio_websocket_private</a>
 </li>
-<li>read_header_timer
-: <a class="el" href="structcio__http__client__private.html#a135692c65547c2e49019230b24b637c8">cio_http_client_private</a>
-</li>
 <li>read_message
 : <a class="el" href="structcio__websocket.html#aad2a79a6846fb5d34b890a7b8b889249">cio_websocket</a>
 </li>
@@ -424,8 +417,14 @@ $(document).ready(function(){initNavTree('functions.html','');});
 <li>register_location
 : <a class="el" href="structcio__http__server.html#a58101d627babd140a2647b9f4ec91814">cio_http_server</a>
 </li>
-<li>response_written
-: <a class="el" href="structcio__http__client__private.html#ad259222086a6f83d7c83d4e97626bab9">cio_http_client_private</a>
+<li>request_timer
+: <a class="el" href="structcio__http__client__private.html#ac73f735d9cc40b0842529bc1e50a1ae2">cio_http_client_private</a>
+</li>
+<li>response_fired
+: <a class="el" href="structcio__http__client__private.html#aa2111ca0e243decd95510d68495b099a">cio_http_client_private</a>
+</li>
+<li>response_timer
+: <a class="el" href="structcio__http__client__private.html#a6e1027e5b6a2a77b98ccfe39ade207d0">cio_http_client_private</a>
 </li>
 </ul>
 
@@ -450,16 +449,10 @@ $(document).ready(function(){initNavTree('functions.html','');});
 : <a class="el" href="structcio__socket.html#a5889e43ea5b501da383d51520a15a24a">cio_socket</a>
 </li>
 <li>should_keepalive
-: <a class="el" href="structcio__http__client__private.html#aa0a32071896f381e869ef9e34f8deabb">cio_http_client_private</a>
+: <a class="el" href="structcio__http__client__private.html#a3fd1b6611b23b007f1daa89aa1bf4293">cio_http_client_private</a>
 </li>
 <li>shutdown
 : <a class="el" href="structcio__http__server.html#a9ed45a349231c5ccf08a2dd978935865">cio_http_server</a>
-</li>
-<li>socket
-: <a class="el" href="structcio__http__client.html#a54b2c729a5b04b9c81c148d18540cdb1">cio_http_client</a>
-</li>
-<li>start_response_header
-: <a class="el" href="structcio__http__client.html#a1e41fcb58ad9014d9fed0b22ae7a148b">cio_http_client</a>
 </li>
 <li>state
 : <a class="el" href="structcio__utf8__state.html#ad5d20ff3befbecac8f36e02326e11f3c">cio_utf8_state</a>
@@ -507,6 +500,9 @@ $(document).ready(function(){initNavTree('functions.html','');});
 <li>wb_http_content_length
 : <a class="el" href="structcio__http__client__private.html#a0b04ba76e7b6c00498250a8bf0663c65">cio_http_client_private</a>
 </li>
+<li>wb_http_keepalive_header
+: <a class="el" href="structcio__http__client__private.html#a0f5516a64694a33eff54a811494f2aef">cio_http_client_private</a>
+</li>
 <li>wb_http_response_header_end
 : <a class="el" href="structcio__http__client__private.html#a4c34a91f96496674d5831b85bdf61286">cio_http_client_private</a>
 </li>
@@ -544,7 +540,7 @@ $(document).ready(function(){initNavTree('functions.html','');});
 : <a class="el" href="structcio__websocket__private.html#a4f63fe3c897fc27e34b5b3fabfd0fc7a">cio_websocket_private</a>
 </li>
 <li>write_response
-: <a class="el" href="structcio__http__client.html#ac4802e6cf4c5e7f3baa5d094c5d27c0e">cio_http_client</a>
+: <a class="el" href="structcio__http__client.html#ad79dcfbaf16f820fb698ac95735dcac7">cio_http_client</a>
 </li>
 <li>write_some
 : <a class="el" href="structcio__io__stream.html#ab173b100937d1e1d9d601ea3156624e3">cio_io_stream</a>

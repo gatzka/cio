@@ -139,9 +139,9 @@ Macros</h2></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="func-members"></a>
 Functions</h2></td></tr>
-<tr class="memitem:a307fd30566f3130ed2630f76758bd538"><td class="memItemLeft" align="right" valign="top"><a class="el" href="cio__export_8h.html#ab971b12fa232c415369be66dfaca507a">CIO_EXPORT</a> enum <a class="el" href="cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afe">cio_error</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="cio__websocket__location__handler_8h.html#a307fd30566f3130ed2630f76758bd538">cio_websocket_location_handler_init</a> (struct <a class="el" href="structcio__websocket__location__handler.html">cio_websocket_location_handler</a> *handler, uint64_t upgrade_response_timeout, struct cio_eventloop *loop, const char *subprotocols[], unsigned int num_subprotocols, <a class="el" href="cio__websocket_8h.html#a47f4e2befc8d1d0ef6478e7bb7d1bd60">cio_websocket_on_connect</a> on_connect, void(*location_handler_free)(struct <a class="el" href="structcio__websocket__location__handler.html">cio_websocket_location_handler</a> *))</td></tr>
-<tr class="memdesc:a307fd30566f3130ed2630f76758bd538"><td class="mdescLeft">&#160;</td><td class="mdescRight">Initializes a websocket handler.  <a href="#a307fd30566f3130ed2630f76758bd538">More...</a><br /></td></tr>
-<tr class="separator:a307fd30566f3130ed2630f76758bd538"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a81933a95a12d7996a56c85a9009a7b50"><td class="memItemLeft" align="right" valign="top"><a class="el" href="cio__export_8h.html#ab971b12fa232c415369be66dfaca507a">CIO_EXPORT</a> enum <a class="el" href="cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afe">cio_error</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="cio__websocket__location__handler_8h.html#a81933a95a12d7996a56c85a9009a7b50">cio_websocket_location_handler_init</a> (struct <a class="el" href="structcio__websocket__location__handler.html">cio_websocket_location_handler</a> *handler, const char *subprotocols[], unsigned int num_subprotocols, <a class="el" href="cio__websocket_8h.html#a47f4e2befc8d1d0ef6478e7bb7d1bd60">cio_websocket_on_connect</a> on_connect, void(*location_handler_free)(struct <a class="el" href="structcio__websocket__location__handler.html">cio_websocket_location_handler</a> *))</td></tr>
+<tr class="memdesc:a81933a95a12d7996a56c85a9009a7b50"><td class="mdescLeft">&#160;</td><td class="mdescRight">Initializes a websocket handler.  <a href="#a81933a95a12d7996a56c85a9009a7b50">More...</a><br /></td></tr>
+<tr class="separator:a81933a95a12d7996a56c85a9009a7b50"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <h2 class="groupheader">Macro Definition Documentation</h2>
 <a class="anchor" id="aac893e9e1f29db825224a1fe4ba2c714"></a>
@@ -181,7 +181,7 @@ Functions</h2></td></tr>
 </div>
 </div>
 <h2 class="groupheader">Function Documentation</h2>
-<a class="anchor" id="a307fd30566f3130ed2630f76758bd538"></a>
+<a class="anchor" id="a81933a95a12d7996a56c85a9009a7b50"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
@@ -190,18 +190,6 @@ Functions</h2></td></tr>
           <td>(</td>
           <td class="paramtype">struct <a class="el" href="structcio__websocket__location__handler.html">cio_websocket_location_handler</a> *&#160;</td>
           <td class="paramname"><em>handler</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">uint64_t&#160;</td>
-          <td class="paramname"><em>upgrade_response_timeout</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">struct cio_eventloop *&#160;</td>
-          <td class="paramname"><em>loop</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
@@ -239,12 +227,10 @@ Functions</h2></td></tr>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">handler</td><td>The handler to initialize. </td></tr>
-    <tr><td class="paramname">upgrade_response_timeout</td><td>Timeout in ns after which the websocket upgrade response must be sent. </td></tr>
-    <tr><td class="paramname">loop</td><td>Pointer to the eventloop to be used. </td></tr>
     <tr><td class="paramname">subprotocols</td><td>An array of strings containing the supported subprotocols. Please note that the functions will not copy this array, this array must be available as long as this <a class="el" href="structcio__websocket__location__handler.html">cio_websocket_location_handler</a> exists! </td></tr>
     <tr><td class="paramname">num_subprotocols</td><td>The number of entries <code>subprotocols</code> contains. </td></tr>
     <tr><td class="paramname">on_connect</td><td>Function that will be called if websocket is connected. </td></tr>
-    <tr><td class="paramname">location_handler_free</td><td>This Function will be called if the client connection for this handler is closed. After this function is called, the memory <code>handler</code> points to will no longer be accessed. Could be <code>NULL</code>. </td></tr>
+    <tr><td class="paramname">location_handler_free</td><td>This function will be called if the client connection for this handler is closed. After this function is called, the memory <code>handler</code> points to will no longer be accessed. Could be <code>NULL</code>. </td></tr>
   </table>
   </dd>
 </dl>

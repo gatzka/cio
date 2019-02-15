@@ -14,6 +14,6 @@ var cio__write__buffer_8h =
     [ "cio_write_buffer_queue_last", "cio__write__buffer_8h.html#afbd6b5632631a17bd90bbf6801eba104", null ],
     [ "cio_write_buffer_queue_peek", "cio__write__buffer_8h.html#adb045a192be8efeacff4cce5d05cf011", null ],
     [ "cio_write_buffer_queue_tail", "cio__write__buffer_8h.html#abce9f4fce0d37fd084b76c66acdcd3ba", null ],
-    [ "cio_write_buffer_splice", "cio__write__buffer_8h.html#ae38fe7a05b5e144dca985a2bcf280fdc", null ],
+    [ "cio_write_buffer_splice", "cio__write__buffer_8h.html#a529195d3850a2271d5628c803b5b63a1", null ],
     [ "cio_write_buffer_unlink", "cio__write__buffer_8h.html#a066ea453286fd70035fd26e8996a9f73", null ]
 ];

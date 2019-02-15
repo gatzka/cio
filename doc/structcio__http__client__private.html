@@ -122,26 +122,44 @@ Data Fields</h2></td></tr>
 <tr class="separator:a0b04ba76e7b6c00498250a8bf0663c65"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a4bf5ed0be60d8924c0f106dc5fb577b9"><td class="memItemLeft" align="right" valign="top">struct <a class="el" href="structcio__write__buffer.html">cio_write_buffer</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structcio__http__client__private.html#a4bf5ed0be60d8924c0f106dc5fb577b9">wb_http_connection_header</a></td></tr>
 <tr class="separator:a4bf5ed0be60d8924c0f106dc5fb577b9"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a0f5516a64694a33eff54a811494f2aef"><td class="memItemLeft" align="right" valign="top">struct <a class="el" href="structcio__write__buffer.html">cio_write_buffer</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structcio__http__client__private.html#a0f5516a64694a33eff54a811494f2aef">wb_http_keepalive_header</a></td></tr>
+<tr class="separator:a0f5516a64694a33eff54a811494f2aef"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a4c34a91f96496674d5831b85bdf61286"><td class="memItemLeft" align="right" valign="top">struct <a class="el" href="structcio__write__buffer.html">cio_write_buffer</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structcio__http__client__private.html#a4c34a91f96496674d5831b85bdf61286">wb_http_response_header_end</a></td></tr>
 <tr class="separator:a4c34a91f96496674d5831b85bdf61286"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a135692c65547c2e49019230b24b637c8"><td class="memItemLeft" align="right" valign="top">struct <a class="el" href="structcio__timer.html">cio_timer</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structcio__http__client__private.html#a135692c65547c2e49019230b24b637c8">read_header_timer</a></td></tr>
-<tr class="separator:a135692c65547c2e49019230b24b637c8"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aa0a32071896f381e869ef9e34f8deabb"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structcio__http__client__private.html#aa0a32071896f381e869ef9e34f8deabb">should_keepalive</a></td></tr>
-<tr class="separator:aa0a32071896f381e869ef9e34f8deabb"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac73f735d9cc40b0842529bc1e50a1ae2"><td class="memItemLeft" align="right" valign="top">struct <a class="el" href="structcio__timer.html">cio_timer</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structcio__http__client__private.html#ac73f735d9cc40b0842529bc1e50a1ae2">request_timer</a></td></tr>
+<tr class="separator:ac73f735d9cc40b0842529bc1e50a1ae2"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6e1027e5b6a2a77b98ccfe39ade207d0"><td class="memItemLeft" align="right" valign="top">struct <a class="el" href="structcio__timer.html">cio_timer</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structcio__http__client__private.html#a6e1027e5b6a2a77b98ccfe39ade207d0">response_timer</a></td></tr>
+<tr class="separator:a6e1027e5b6a2a77b98ccfe39ade207d0"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a3fd1b6611b23b007f1daa89aa1bf4293"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structcio__http__client__private.html#a3fd1b6611b23b007f1daa89aa1bf4293">should_keepalive</a></td></tr>
+<tr class="separator:a3fd1b6611b23b007f1daa89aa1bf4293"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:afb202d9aa49a35b15cf12621b918d339"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structcio__http__client__private.html#afb202d9aa49a35b15cf12621b918d339">close_immediately</a></td></tr>
+<tr class="separator:afb202d9aa49a35b15cf12621b918d339"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ad5fd3699d85d1bb18a48d8bec51493e1"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structcio__http__client__private.html#ad5fd3699d85d1bb18a48d8bec51493e1">headers_complete</a></td></tr>
 <tr class="separator:ad5fd3699d85d1bb18a48d8bec51493e1"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a13105e2222fdff4f2e548da6913ac7a8"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structcio__http__client__private.html#a13105e2222fdff4f2e548da6913ac7a8">to_be_closed</a></td></tr>
 <tr class="separator:a13105e2222fdff4f2e548da6913ac7a8"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aa660674004a416a3ab5e61a375924557"><td class="memItemLeft" align="right" valign="top">unsigned int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structcio__http__client__private.html#aa660674004a416a3ab5e61a375924557">parsing</a></td></tr>
 <tr class="separator:aa660674004a416a3ab5e61a375924557"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ad259222086a6f83d7c83d4e97626bab9"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structcio__http__client__private.html#ad259222086a6f83d7c83d4e97626bab9">response_written</a></td></tr>
-<tr class="separator:ad259222086a6f83d7c83d4e97626bab9"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa2111ca0e243decd95510d68495b099a"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structcio__http__client__private.html#aa2111ca0e243decd95510d68495b099a">response_fired</a></td></tr>
+<tr class="separator:aa2111ca0e243decd95510d68495b099a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a583c0f20c3f057abefa2a8d487d867e8"><td class="memItemLeft" align="right" valign="top">void(*&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structcio__http__client__private.html#a583c0f20c3f057abefa2a8d487d867e8">finish_func</a> )(struct <a class="el" href="structcio__http__client.html">cio_http_client</a> *client)</td></tr>
 <tr class="separator:a583c0f20c3f057abefa2a8d487d867e8"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a055a9f17d7b28643b5e5615e1ada3217"><td class="memItemLeft" align="right" valign="top">char&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structcio__http__client__private.html#a055a9f17d7b28643b5e5615e1ada3217">content_length_buffer</a> [<a class="el" href="cio__http__client_8h.html#aee27b80e6d5fa7092144d43a71989264">CIO_HTTP_CLIENT_CONTENT_LENGTH_BUFFER_LENGTH</a>]</td></tr>
 <tr class="separator:a055a9f17d7b28643b5e5615e1ada3217"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <h2 class="groupheader">Field Documentation</h2>
+<a class="anchor" id="afb202d9aa49a35b15cf12621b918d339"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool cio_http_client_private::close_immediately</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
 <a class="anchor" id="a055a9f17d7b28643b5e5615e1ada3217"></a>
 <div class="memitem">
 <div class="memproto">
@@ -190,36 +208,48 @@ Data Fields</h2></td></tr>
 
 </div>
 </div>
-<a class="anchor" id="a135692c65547c2e49019230b24b637c8"></a>
+<a class="anchor" id="ac73f735d9cc40b0842529bc1e50a1ae2"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">struct <a class="el" href="structcio__timer.html">cio_timer</a> cio_http_client_private::read_header_timer</td>
+          <td class="memname">struct <a class="el" href="structcio__timer.html">cio_timer</a> cio_http_client_private::request_timer</td>
         </tr>
       </table>
 </div><div class="memdoc">
 
 </div>
 </div>
-<a class="anchor" id="ad259222086a6f83d7c83d4e97626bab9"></a>
+<a class="anchor" id="aa2111ca0e243decd95510d68495b099a"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">bool cio_http_client_private::response_written</td>
+          <td class="memname">bool cio_http_client_private::response_fired</td>
         </tr>
       </table>
 </div><div class="memdoc">
 
 </div>
 </div>
-<a class="anchor" id="aa0a32071896f381e869ef9e34f8deabb"></a>
+<a class="anchor" id="a6e1027e5b6a2a77b98ccfe39ade207d0"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">int cio_http_client_private::should_keepalive</td>
+          <td class="memname">struct <a class="el" href="structcio__timer.html">cio_timer</a> cio_http_client_private::response_timer</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="a3fd1b6611b23b007f1daa89aa1bf4293"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool cio_http_client_private::should_keepalive</td>
         </tr>
       </table>
 </div><div class="memdoc">
@@ -256,6 +286,18 @@ Data Fields</h2></td></tr>
       <table class="memname">
         <tr>
           <td class="memname">struct <a class="el" href="structcio__write__buffer.html">cio_write_buffer</a> cio_http_client_private::wb_http_content_length</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="a0f5516a64694a33eff54a811494f2aef"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">struct <a class="el" href="structcio__write__buffer.html">cio_write_buffer</a> cio_http_client_private::wb_http_keepalive_header</td>
         </tr>
       </table>
 </div><div class="memdoc">

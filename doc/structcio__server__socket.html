@@ -146,10 +146,11 @@ Data Fields</h2></td></tr>
 </div><div class="memdoc">
 
 <p>Accepts an incoming socket connection. </p>
-<p><a class="anchor" id="cio_server_socket_accept"></a></p><dl class="params"><dt>Parameters</dt><dd>
+<p><a class="anchor" id="cio_server_socket_accept"></a>If the platform specific accept implementation fails, <code>handler</code> will be called with a appropriate error code. The implementation specific accept needs to take care of freeing any intermediatly allocated memory, so there is no need to free any resources in <code>handler</code> if <code>handler</code> is called with err != <a class="el" href="cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afea6bb29544c99750c61f70b10a1e17d96a">CIO_SUCCESS</a>.</p>
+<dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">ss</td><td>A pointer to a <a class="el" href="structcio__server__socket.html" title="The cio_server_socket struct describes a server socket. ">cio_server_socket</a> on which the accept should be performed. </td></tr>
-    <tr><td class="paramname">handler</td><td>The function to be called if the accept failes or succeeds. </td></tr>
+    <tr><td class="paramname">handler</td><td>The function to be called if the accept fails or succeeds. </td></tr>
     <tr><td class="paramname">handler_context</td><td>The context passed to the <em>handler</em> function.</td></tr>
   </table>
   </dd>

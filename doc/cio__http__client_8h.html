@@ -106,7 +106,8 @@ $(document).ready(function(){initNavTree('cio__http__client_8h.html','');});
 <div class="header">
   <div class="summary">
 <a href="#nested-classes">Data Structures</a> &#124;
-<a href="#define-members">Macros</a>  </div>
+<a href="#define-members">Macros</a> &#124;
+<a href="#typedef-members">Typedefs</a>  </div>
   <div class="headertitle">
 <div class="title">cio_http_client.h File Reference</div>  </div>
 </div><!--header-->
@@ -140,6 +141,12 @@ Data Structures</h2></td></tr>
 Macros</h2></td></tr>
 <tr class="memitem:aee27b80e6d5fa7092144d43a71989264"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="cio__http__client_8h.html#aee27b80e6d5fa7092144d43a71989264">CIO_HTTP_CLIENT_CONTENT_LENGTH_BUFFER_LENGTH</a>&#160;&#160;&#160;30</td></tr>
 <tr class="separator:aee27b80e6d5fa7092144d43a71989264"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="typedef-members"></a>
+Typedefs</h2></td></tr>
+<tr class="memitem:a1d13b2fba00a00f78064e8997d1427cb"><td class="memItemLeft" align="right" valign="top">typedef void(*&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="cio__http__client_8h.html#a1d13b2fba00a00f78064e8997d1427cb">cio_response_written_cb</a>) (struct <a class="el" href="structcio__http__client.html">cio_http_client</a> *client, enum <a class="el" href="cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afe">cio_error</a> err)</td></tr>
+<tr class="memdesc:a1d13b2fba00a00f78064e8997d1427cb"><td class="mdescLeft">&#160;</td><td class="mdescRight">The type of a response callback function passed to the <a class="el" href="structcio__http__client.html#cio_http_client_write_response">write_response</a> function.  <a href="#a1d13b2fba00a00f78064e8997d1427cb">More...</a><br /></td></tr>
+<tr class="separator:a1d13b2fba00a00f78064e8997d1427cb"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>The interface to an HTTP client connection. </p>
@@ -153,6 +160,28 @@ Macros</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
+
+</div>
+</div>
+<h2 class="groupheader">Typedef Documentation</h2>
+<a class="anchor" id="a1d13b2fba00a00f78064e8997d1427cb"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">typedef void(* cio_response_written_cb) (struct <a class="el" href="structcio__http__client.html">cio_http_client</a> *client, enum <a class="el" href="cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afe">cio_error</a> err)</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>The type of a response callback function passed to the <a class="el" href="structcio__http__client.html#cio_http_client_write_response">write_response</a> function. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">client</td><td>The <a class="el" href="structcio__http__client.html" title="A cio_http_client struct represents an HTTP client connection. ">cio_http_client</a> that wrote the response. </td></tr>
+    <tr><td class="paramname">err</td><td>An error code. If <code>err</code> != <a class="el" href="cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afea6bb29544c99750c61f70b10a1e17d96a">CIO_SUCCESS</a>, the client will be closed automatically. So please don't <a class="el" href="structcio__http__client.html#cio_http_client_close">close</a> the client in the callback function. Any other resources not associated with <code>client</code> should be cleaned up here. </td></tr>
+  </table>
+  </dd>
+</dl>
 
 </div>
 </div>
