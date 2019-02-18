@@ -298,14 +298,13 @@ static void serialize_frames(struct ws_frame frames[], size_t num_frames)
 static enum cio_error bs_read_exactly_from_buffer(struct cio_buffered_stream *bs, struct cio_read_buffer *buffer, size_t num, cio_buffered_stream_read_handler handler, void *handler_context)
 {
 	if (frame_buffer_read_pos > frame_buffer_fill_pos) {
-		handler(bs, handler_context, CIO_EOF, buffer);
+		handler(bs, handler_context, CIO_EOF, buffer, num);
 	} else {
 		memcpy(buffer->add_ptr, &frame_buffer[frame_buffer_read_pos], num);
-		buffer->bytes_transferred = num;
 		buffer->fetch_ptr = buffer->add_ptr + num;
 		frame_buffer_read_pos += num;
 
-		handler(bs, handler_context, CIO_SUCCESS, buffer);
+		handler(bs, handler_context, CIO_SUCCESS, buffer, num);
 	}
 
 	return CIO_SUCCESS;
@@ -324,14 +323,14 @@ static enum cio_error bs_read_exactly_block(struct cio_buffered_stream *bs, stru
 static enum cio_error bs_read_exactly_peer_close(struct cio_buffered_stream *bs, struct cio_read_buffer *buffer, size_t num, cio_buffered_stream_read_handler handler, void *handler_context)
 {
 	(void)num;
-	handler(bs, handler_context, CIO_EOF, buffer);
+	handler(bs, handler_context, CIO_EOF, buffer, 0);
 	return CIO_SUCCESS;
 }
 
 static enum cio_error bs_read_exactly_error(struct cio_buffered_stream *bs, struct cio_read_buffer *buffer, size_t num, cio_buffered_stream_read_handler handler, void *handler_context)
 {
 	(void)num;
-	handler(bs, handler_context, CIO_OPERATION_NOT_PERMITTED, buffer);
+	handler(bs, handler_context, CIO_OPERATION_NOT_PERMITTED, buffer, 0);
 	return CIO_SUCCESS;
 }
 
@@ -472,7 +471,7 @@ void setUp(void)
 	on_control_fake.custom_fake = on_control_save_data;
 	on_error_fake.custom_fake = on_error_save_data;
 
-	http_client.bs.read_exactly = read_exactly;
+	http_client.bs.read_at_least = read_exactly;
 	http_client.bs.write = bs_write;
 	frame_buffer_read_pos = 0;
 	frame_buffer_fill_pos = 0;
