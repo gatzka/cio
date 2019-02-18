@@ -300,15 +300,15 @@ static void save_to_check_buffer_and_read_at_least_again(struct cio_buffered_str
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Call to read_exactly did not succeed!");
 }
 
-/*
-static void save_to_check_buffer_and_read_until_again(struct cio_buffered_stream *bs, void *context, enum cio_error err, struct cio_read_buffer *buffer)
+static void save_to_check_buffer_and_read_until_again(struct cio_buffered_stream *bs, void *context, enum cio_error err, struct cio_read_buffer *buffer, size_t num_bytes)
 {
 	char *second_delim = context;
 
-	save_to_check_buffer(bs, context, err, buffer);
+	save_to_check_buffer(bs, context, err, buffer, num_bytes);
 	err = bs->read_until(bs, buffer, second_delim, second_dummy_read_handler, NULL);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Call to read_exactly did not succeed!");
 }
+/*
 static void save_to_check_buffer_and_read_again(struct cio_buffered_stream *bs, void *context, enum cio_error err, struct cio_read_buffer *buffer)
 {
 	(void)context;
@@ -759,7 +759,7 @@ static void test_read_until(void)
 	TEST_ASSERT_EQUAL_MESSAGE(&rb, dummy_read_handler_fake.arg3_val, "Handler was not called with original read buffer!");
 	TEST_ASSERT_MESSAGE(memcmp((const char *)first_check_buffer, PRE_DELIM DELIM, strlen(PRE_DELIM) + strlen(DELIM)) == 0, "Handler was not called with correct data!")
 }
-/*
+
 static void test_read_until_and_close(void)
 {
 #define PRE_DELIM "MY"
@@ -788,6 +788,7 @@ static void test_read_until_and_close(void)
 	TEST_ASSERT_EQUAL_MESSAGE(&rb, dummy_read_handler_fake.arg3_val, "Handler was not called with original read buffer!");
 	TEST_ASSERT_MESSAGE(memcmp((const char *)first_check_buffer, PRE_DELIM DELIM, strlen(PRE_DELIM) + strlen(DELIM)) == 0, "Handler was not called with correct data!")
 }
+
 static void test_read_until_not_found(void)
 {
 #define PRE_DELIM "MY"
@@ -879,7 +880,6 @@ static void test_read_until_NULL_delim(void)
 	TEST_ASSERT_EQUAL_MESSAGE(1, close_fake.call_count, "Underlying cio_iostream was not closed!");
 }
 
-*/
 static void test_read_until_no_buffered_stream(void)
 {
 #define PRE_DELIM "MY"
@@ -958,7 +958,7 @@ static void test_read_until_no_handler(void)
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Return value not correct!");
 	TEST_ASSERT_EQUAL_MESSAGE(1, close_fake.call_count, "Underlying cio_iostream was not closed!");
 }
-/*
+
 static void test_read_until_second_read_in_callback(void)
 {
 #define PRE_DELIM1 "MY"
@@ -1000,6 +1000,7 @@ static void test_read_until_second_read_in_callback(void)
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Return value not correct!");
 	TEST_ASSERT_EQUAL_MESSAGE(1, close_fake.call_count, "Underlying cio_iostream was not closed!");
 }
+
 static void test_read_exactly_then_until(void)
 {
 #define BUFFER_FOR_EXACTLY "hhhhhhhhhhhhh"
@@ -1022,7 +1023,7 @@ static void test_read_exactly_then_until(void)
 	err = cio_buffered_stream_init(&client->bs, &client->ms.ios);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Buffer was not initialized correctly!");
 
-	err = client->bs.read_exactly(&client->bs, &rb, strlen(BUFFER_FOR_EXACTLY), dummy_read_handler, first_check_buffer);
+	err = client->bs.read_at_least(&client->bs, &rb, strlen(BUFFER_FOR_EXACTLY), dummy_read_handler, first_check_buffer);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Return value not correct!");
 	err = client->bs.read_until(&client->bs, &rb, DELIM, dummy_read_handler, first_check_buffer);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Return value not correct!");
@@ -1041,6 +1042,7 @@ static void test_read_exactly_then_until(void)
 
 	free(buffer);
 }
+/*
 
 static void test_read_request_less_than_available(void)
 {
@@ -1763,15 +1765,15 @@ int main(void)
 	RUN_TEST(test_read_exactly_zero_length);
 	RUN_TEST(test_read_exactly_second_read_in_callback);
 	RUN_TEST(test_read_until);
-//	RUN_TEST(test_read_until_and_close);
-//	RUN_TEST(test_read_until_not_found);
-//	RUN_TEST(test_read_until_zero_length_delim);
-//	RUN_TEST(test_read_until_NULL_delim);
+	RUN_TEST(test_read_until_and_close);
+	RUN_TEST(test_read_until_not_found);
+	RUN_TEST(test_read_until_zero_length_delim);
+	RUN_TEST(test_read_until_NULL_delim);
 	RUN_TEST(test_read_until_no_buffer);
 	RUN_TEST(test_read_until_no_buffered_stream);
 	RUN_TEST(test_read_until_no_handler);
-	//RUN_TEST(test_read_until_second_read_in_callback);
-	//RUN_TEST(test_read_exactly_then_until);
+	RUN_TEST(test_read_until_second_read_in_callback);
+	RUN_TEST(test_read_exactly_then_until);
 	//RUN_TEST(test_read_request_less_than_available);
 	////RUN_TEST(test_read_request_no_buffered_stream);
 	////RUN_TEST(test_read_request_no_handler);
