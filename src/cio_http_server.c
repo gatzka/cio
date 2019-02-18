@@ -61,7 +61,7 @@ static const uint32_t NANO_SECONDS_IN_SECONDS = 1000000000;
 static int on_url(http_parser *parser, const char *at, size_t length);
 static void finish_request_line(struct cio_http_client *client);
 static enum cio_error write_response(struct cio_http_client *client, enum cio_http_status_code status_code, struct cio_write_buffer *wbh, void (*response_written_cb)(struct cio_http_client *client, enum cio_error err));
-static void parse(struct cio_buffered_stream *bs, void *handler_context, enum cio_error err, struct cio_read_buffer *read_buffer);
+static void parse(struct cio_buffered_stream *bs, void *handler_context, enum cio_error err, struct cio_read_buffer *read_buffer, size_t bytes_to_parse);
 static void handle_server_error(struct cio_http_client *client, const char *msg);
 
 static void handle_error(struct cio_http_server *server, const char *reason)
@@ -334,7 +334,7 @@ static void handle_server_error(struct cio_http_client *client, const char *msg)
 
 static void finish_bytes(struct cio_http_client *client)
 {
-	enum cio_error err = client->bs.read(&client->bs, &client->rb, parse, client);
+	enum cio_error err = client->bs.read_at_least(&client->bs, &client->rb, 1, parse, client);
 	if (cio_unlikely(err != CIO_SUCCESS)) {
 		handle_server_error(client, "Reading of bytes failed");
 	}
@@ -542,7 +542,7 @@ static inline bool cio_is_error(enum cio_error error)
 	return error < CIO_SUCCESS;
 }
 
-static void parse(struct cio_buffered_stream *bs, void *handler_context, enum cio_error err, struct cio_read_buffer *read_buffer)
+static void parse(struct cio_buffered_stream *bs, void *handler_context, enum cio_error err, struct cio_read_buffer *read_buffer, size_t bytes_to_parse)
 {
 	(void)bs;
 
@@ -559,13 +559,13 @@ static void parse(struct cio_buffered_stream *bs, void *handler_context, enum ci
 		return;
 	}
 
-	size_t bytes_transfered = cio_read_buffer_get_transferred_bytes(read_buffer);
 	client->http_private.parsing++;
 
-	size_t nparsed = http_parser_execute(parser, &client->parser_settings, (const char *)cio_read_buffer_get_read_ptr(read_buffer), bytes_transfered);
+	size_t nparsed = http_parser_execute(parser, &client->parser_settings, (const char *)cio_read_buffer_get_read_ptr(read_buffer), bytes_to_parse);
+	cio_read_buffer_consume(read_buffer, nparsed);
 	client->http_private.parsing--;
 
-	if (cio_unlikely(nparsed != bytes_transfered)) {
+	if (cio_unlikely(nparsed != bytes_to_parse)) {
 		err = write_response(client, CIO_HTTP_STATUS_BAD_REQUEST, NULL, NULL);
 		if (cio_unlikely(err != CIO_SUCCESS)) {
 			close_client(client);

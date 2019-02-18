@@ -113,12 +113,10 @@ static void read_callback(void *context)
 	ssize_t ret = read(s->impl.ev.fd, rb->add_ptr, cio_read_buffer_space_available(rb));
 	if (ret == -1) {
 		if (cio_unlikely((errno != EWOULDBLOCK) && (errno != EAGAIN))) {
-			rb->bytes_transferred = 0;
 			stream->read_handler(stream, stream->read_handler_context, (enum cio_error)(-errno), rb);
 		}
 	} else {
 		enum cio_error error;
-		rb->bytes_transferred = (size_t)ret;
 		if (ret == 0) {
 			error = CIO_EOF;
 		} else {
