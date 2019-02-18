@@ -94,19 +94,19 @@ static void handle_write(struct cio_io_stream *stream, void *handler_context, co
 static void handle_read(struct cio_io_stream *stream, void *handler_context, enum cio_error err, struct cio_read_buffer *read_buffer)
 {
 	struct echo_client *client = handler_context;
-	if (err != CIO_SUCCESS) {
-		fprintf(stderr, "read error!\n");
-		return;
-	}
-
-	if (read_buffer->bytes_transferred == 0) {
+	if (err == CIO_EOF) {
 		fprintf(stdout, "connection close by peer\n");
 		stream->close(stream);
 		return;
 	}
 
+	if (err != CIO_SUCCESS) {
+		fprintf(stderr, "read error!\n");
+		return;
+	}
+
 	cio_write_buffer_head_init(&client->wbh);
-	cio_write_buffer_element_init(&client->wb, read_buffer->data, read_buffer->bytes_transferred);
+	cio_write_buffer_element_init(&client->wb, cio_read_buffer_get_read_ptr(read_buffer), cio_read_buffer_unread_bytes(read_buffer));
 	cio_write_buffer_queue_tail(&client->wbh, &client->wb);
 	stream->write_some(stream, &client->wbh, handle_write, client);
 }
