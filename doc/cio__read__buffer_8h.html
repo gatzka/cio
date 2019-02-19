@@ -141,16 +141,59 @@ Functions</h2></td></tr>
 <tr class="memitem:acfdf1837e3b0cf5dfdcead7439eac86d"><td class="memItemLeft" align="right" valign="top">static uint8_t *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="cio__read__buffer_8h.html#acfdf1837e3b0cf5dfdcead7439eac86d">cio_read_buffer_get_read_ptr</a> (const struct <a class="el" href="structcio__read__buffer.html">cio_read_buffer</a> *rb)</td></tr>
 <tr class="memdesc:acfdf1837e3b0cf5dfdcead7439eac86d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Provides the pointer from where to read data.  <a href="#acfdf1837e3b0cf5dfdcead7439eac86d">More...</a><br /></td></tr>
 <tr class="separator:acfdf1837e3b0cf5dfdcead7439eac86d"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ac576019fe851826f17c4a78bd730fc24"><td class="memItemLeft" align="right" valign="top">static size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="cio__read__buffer_8h.html#ac576019fe851826f17c4a78bd730fc24">cio_read_buffer_get_transferred_bytes</a> (const struct <a class="el" href="structcio__read__buffer.html">cio_read_buffer</a> *rb)</td></tr>
-<tr class="memdesc:ac576019fe851826f17c4a78bd730fc24"><td class="mdescLeft">&#160;</td><td class="mdescRight">Provides the number of bytes transferred during the last read operation.  <a href="#ac576019fe851826f17c4a78bd730fc24">More...</a><br /></td></tr>
-<tr class="separator:ac576019fe851826f17c4a78bd730fc24"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a03260d7cc616b46e4425a91956d267e3"><td class="memItemLeft" align="right" valign="top">static size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="cio__read__buffer_8h.html#a03260d7cc616b46e4425a91956d267e3">cio_read_buffer_size</a> (const struct <a class="el" href="structcio__read__buffer.html">cio_read_buffer</a> *rb)</td></tr>
 <tr class="memdesc:a03260d7cc616b46e4425a91956d267e3"><td class="mdescLeft">&#160;</td><td class="mdescRight">Provides the size of the read buffer.  <a href="#a03260d7cc616b46e4425a91956d267e3">More...</a><br /></td></tr>
 <tr class="separator:a03260d7cc616b46e4425a91956d267e3"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a2cf01a38e6859df1f63cbcc1354e4fd2"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="cio__read__buffer_8h.html#a2cf01a38e6859df1f63cbcc1354e4fd2">cio_read_buffer_consume</a> (struct <a class="el" href="structcio__read__buffer.html">cio_read_buffer</a> *rb, size_t num)</td></tr>
+<tr class="memdesc:a2cf01a38e6859df1f63cbcc1354e4fd2"><td class="mdescLeft">&#160;</td><td class="mdescRight">Consumes <code>num</code> bytes of the read buffer.  <a href="#a2cf01a38e6859df1f63cbcc1354e4fd2">More...</a><br /></td></tr>
+<tr class="separator:a2cf01a38e6859df1f63cbcc1354e4fd2"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Functions to access a read buffer for library users. </p>
 </div><h2 class="groupheader">Function Documentation</h2>
+<a class="anchor" id="a2cf01a38e6859df1f63cbcc1354e4fd2"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static void cio_read_buffer_consume </td>
+          <td>(</td>
+          <td class="paramtype">struct <a class="el" href="structcio__read__buffer.html">cio_read_buffer</a> *&#160;</td>
+          <td class="paramname"><em>rb</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">size_t&#160;</td>
+          <td class="paramname"><em>num</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Consumes <code>num</code> bytes of the read buffer. </p>
+<p><a class="anchor" id="cio_read_buffer_consume"></a> </p><dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">rb</td><td>The read buffer from which the bytes shall be consumed. </td></tr>
+    <tr><td class="paramname">num</td><td>The number of bytes that shall be consumed fom the read buffer. </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
 <a class="anchor" id="acfdf1837e3b0cf5dfdcead7439eac86d"></a>
 <div class="memitem">
 <div class="memproto">
@@ -174,46 +217,13 @@ Functions</h2></td></tr>
 </div><div class="memdoc">
 
 <p>Provides the pointer from where to read data. </p>
-<p>The amount of data which can be read is provided by <a class="el" href="cio__read__buffer_8h.html#ac576019fe851826f17c4a78bd730fc24" title="Provides the number of bytes transferred during the last read operation. ">cio_read_buffer_get_transferred_bytes</a>. </p><dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">rb</td><td>The read buffer to be asked. </td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Returns</dt><dd>The pointer from where to read. </dd></dl>
-
-</div>
-</div>
-<a class="anchor" id="ac576019fe851826f17c4a78bd730fc24"></a>
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">static size_t cio_read_buffer_get_transferred_bytes </td>
-          <td>(</td>
-          <td class="paramtype">const struct <a class="el" href="structcio__read__buffer.html">cio_read_buffer</a> *&#160;</td>
-          <td class="paramname"><em>rb</em></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">static</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-
-<p>Provides the number of bytes transferred during the last read operation. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">rb</td><td>The read buffer to be asked. </td></tr>
   </table>
   </dd>
 </dl>
-<dl class="section return"><dt>Returns</dt><dd>The number of bytes transferred during the last read operation. </dd></dl>
+<dl class="section return"><dt>Returns</dt><dd>The pointer from where to read. </dd></dl>
 
 </div>
 </div>

@@ -133,9 +133,9 @@ Data Structures</h2></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="typedef-members"></a>
 Typedefs</h2></td></tr>
-<tr class="memitem:acaeccf42c49894a62ea724079da71592"><td class="memItemLeft" align="right" valign="top">typedef void(*&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="cio__buffered__stream_8h.html#acaeccf42c49894a62ea724079da71592">cio_buffered_stream_read_handler</a>) (struct <a class="el" href="structcio__buffered__stream.html">cio_buffered_stream</a> *bs, void *handler_context, enum <a class="el" href="cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afe">cio_error</a> err, struct <a class="el" href="structcio__read__buffer.html">cio_read_buffer</a> *buffer)</td></tr>
-<tr class="memdesc:acaeccf42c49894a62ea724079da71592"><td class="mdescLeft">&#160;</td><td class="mdescRight">The type of a function passed to all <a class="el" href="structcio__buffered__stream.html">cio_buffered_stream</a> read callback functions.  <a href="#acaeccf42c49894a62ea724079da71592">More...</a><br /></td></tr>
-<tr class="separator:acaeccf42c49894a62ea724079da71592"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6fb4f794d90d6a7e17a7bb53f6b4ae14"><td class="memItemLeft" align="right" valign="top">typedef void(*&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="cio__buffered__stream_8h.html#a6fb4f794d90d6a7e17a7bb53f6b4ae14">cio_buffered_stream_read_handler</a>) (struct <a class="el" href="structcio__buffered__stream.html">cio_buffered_stream</a> *bs, void *handler_context, enum <a class="el" href="cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afe">cio_error</a> err, struct <a class="el" href="structcio__read__buffer.html">cio_read_buffer</a> *buffer, size_t num_bytes)</td></tr>
+<tr class="memdesc:a6fb4f794d90d6a7e17a7bb53f6b4ae14"><td class="mdescLeft">&#160;</td><td class="mdescRight">The type of a function passed to all <a class="el" href="structcio__buffered__stream.html">cio_buffered_stream</a> read callback functions.  <a href="#a6fb4f794d90d6a7e17a7bb53f6b4ae14">More...</a><br /></td></tr>
+<tr class="separator:a6fb4f794d90d6a7e17a7bb53f6b4ae14"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a9e8c29e50483b6203e5ec9bb0f87ab85"><td class="memItemLeft" align="right" valign="top">typedef void(*&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="cio__buffered__stream_8h.html#a9e8c29e50483b6203e5ec9bb0f87ab85">cio_buffered_stream_write_handler</a>) (struct <a class="el" href="structcio__buffered__stream.html">cio_buffered_stream</a> *bs, void *handler_context, enum <a class="el" href="cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afe">cio_error</a> err)</td></tr>
 <tr class="memdesc:a9e8c29e50483b6203e5ec9bb0f87ab85"><td class="mdescLeft">&#160;</td><td class="mdescRight">The type of a function passed to all <a class="el" href="structcio__buffered__stream.html">cio_buffered_stream</a> write callback functions.  <a href="#a9e8c29e50483b6203e5ec9bb0f87ab85">More...</a><br /></td></tr>
 <tr class="separator:a9e8c29e50483b6203e5ec9bb0f87ab85"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -149,15 +149,15 @@ Functions</h2></td></tr>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Provides efficient reading and writing from or to an <a class="el" href="structcio__io__stream.html" title="This structure describes the interface all implementations have to fulfill. ">cio_io_stream</a>. </p>
 <p>A <a class="el" href="structcio__buffered__stream.html">cio_buffered_stream</a> is always greedy to fill its internal read buffer. Therefore, it greatly reduces the amount of read calls into the underlying operating system.</p>
-<p>Additonally, a <a class="el" href="structcio__buffered__stream.html">cio_buffered_stream</a> gives you the concept of reading an exact number of bytes or reading until a delimiter string is encountered. Both concepts are useful when parsing protocols.</p>
-<p>The callback of a <code>write</code> call into a buffered_stream is only called if either the provided buffer was completely written or an error occured. </p>
+<p>Additonally, a <a class="el" href="structcio__buffered__stream.html">cio_buffered_stream</a> gives you the concept of reading at least a number of bytes or reading until a delimiter string is encountered. Both concepts are useful when parsing protocols.</p>
+<p>The callback of a <code>write</code> call into a buffered_stream is only called if either the provided buffer was completely written or an error occured. After reading out data from the read_buffer, you must mark the data as consumed by calling <a class="el" href="cio__read__buffer_8h.html#cio_read_buffer_consume">cio_read_buffer_consume</a>. </p>
 </div><h2 class="groupheader">Typedef Documentation</h2>
-<a class="anchor" id="acaeccf42c49894a62ea724079da71592"></a>
+<a class="anchor" id="a6fb4f794d90d6a7e17a7bb53f6b4ae14"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">typedef void(* cio_buffered_stream_read_handler) (struct <a class="el" href="structcio__buffered__stream.html">cio_buffered_stream</a> *bs, void *handler_context, enum <a class="el" href="cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afe">cio_error</a> err, struct <a class="el" href="structcio__read__buffer.html">cio_read_buffer</a> *buffer)</td>
+          <td class="memname">typedef void(* cio_buffered_stream_read_handler) (struct <a class="el" href="structcio__buffered__stream.html">cio_buffered_stream</a> *bs, void *handler_context, enum <a class="el" href="cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afe">cio_error</a> err, struct <a class="el" href="structcio__read__buffer.html">cio_read_buffer</a> *buffer, size_t num_bytes)</td>
         </tr>
       </table>
 </div><div class="memdoc">
@@ -169,6 +169,7 @@ Functions</h2></td></tr>
     <tr><td class="paramname">handler_context</td><td>The context the functions works on. </td></tr>
     <tr><td class="paramname">err</td><td>If err != <a class="el" href="cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afea6bb29544c99750c61f70b10a1e17d96a">CIO_SUCCESS</a>, the read operation failed, if err == <a class="el" href="cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afea237cc68c5cce982ac9a6e9a434a28dc1">CIO_EOF</a>, the peer closed the stream. </td></tr>
     <tr><td class="paramname">buffer</td><td>The buffer where the data read is stored. </td></tr>
+    <tr><td class="paramname">num_bytes</td><td>The number of bytes until the delimiter was found (when called via <a class="el" href="structcio__buffered__stream.html#cio_buffered_stream_read_until">read_until()</a>), or the number of bytes that should have been read at least (when called via <a class="el" href="structcio__buffered__stream.html#cio_buffered_stream_read_at_least">read_at_least()</a>) </td></tr>
   </table>
   </dd>
 </dl>

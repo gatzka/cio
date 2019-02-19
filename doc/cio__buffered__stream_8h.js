@@ -1,7 +1,7 @@
 var cio__buffered__stream_8h =
 [
     [ "cio_buffered_stream", "structcio__buffered__stream.html", "structcio__buffered__stream" ],
-    [ "cio_buffered_stream_read_handler", "cio__buffered__stream_8h.html#acaeccf42c49894a62ea724079da71592", null ],
+    [ "cio_buffered_stream_read_handler", "cio__buffered__stream_8h.html#a6fb4f794d90d6a7e17a7bb53f6b4ae14", null ],
     [ "cio_buffered_stream_write_handler", "cio__buffered__stream_8h.html#a9e8c29e50483b6203e5ec9bb0f87ab85", null ],
     [ "cio_bs_state", "cio__buffered__stream_8h.html#a78aa67d350ee50928e889143bc042bc7", [
       [ "CIO_BS_OPEN", "cio__buffered__stream_8h.html#a78aa67d350ee50928e889143bc042bc7a02f5f79da037aca73580a723dcbce0b3", null ],
