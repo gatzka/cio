@@ -99,7 +99,6 @@ static inline enum cio_error cio_read_buffer_init(struct cio_read_buffer *rb, vo
 /**
  * @brief Provides the pointer from where to read data.
  *
- * The amount of data which can be read is provided by ::cio_read_buffer_get_transferred_bytes.
  * @param rb The read buffer to be asked.
  * @return The pointer from where to read.
  */
