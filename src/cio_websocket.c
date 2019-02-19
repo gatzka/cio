@@ -560,6 +560,7 @@ static void get_payload(struct cio_buffered_stream *bs, void *handler_context, e
 	}
 
 	uint8_t *ptr = cio_read_buffer_get_read_ptr(buffer);
+	cio_read_buffer_consume(buffer, num_bytes);
 
 	handle_frame(ws, ptr, num_bytes);
 }

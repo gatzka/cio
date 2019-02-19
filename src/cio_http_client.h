@@ -71,6 +71,7 @@ struct cio_http_client_private {
 	struct cio_timer request_timer;
 	struct cio_timer response_timer;
 
+	uint64_t remaining_content_length;
 	bool should_keepalive;
 	bool close_immediately;
 	bool headers_complete;

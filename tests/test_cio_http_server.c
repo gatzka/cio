@@ -154,6 +154,8 @@ FAKE_VALUE_FUNC(struct cio_io_stream *, get_io_stream, struct cio_socket *)
 
 static enum cio_error bs_read_until(struct cio_buffered_stream *bs, struct cio_read_buffer *buffer, const char *delim, cio_buffered_stream_read_handler handler, void *handler_context);
 FAKE_VALUE_FUNC(enum cio_error, bs_read_until, struct cio_buffered_stream *, struct cio_read_buffer *, const char *, cio_buffered_stream_read_handler, void *)
+static	enum cio_error bs_read_at_least(struct cio_buffered_stream *bs, struct cio_read_buffer *buffer, size_t num, cio_buffered_stream_read_handler handler, void *handler_context);
+FAKE_VALUE_FUNC(enum cio_error, bs_read_at_least, struct cio_buffered_stream *, struct cio_read_buffer *, size_t, cio_buffered_stream_read_handler, void *)
 
 static enum cio_error bs_close(struct cio_buffered_stream *bs);
 FAKE_VALUE_FUNC(enum cio_error, bs_close, struct cio_buffered_stream *)
@@ -258,6 +260,16 @@ static enum cio_error bs_read_until_call_fails(struct cio_buffered_stream *bs, s
 	return CIO_BAD_FILE_DESCRIPTOR;
 }
 
+static enum cio_error bs_read_at_least_call_fails(struct cio_buffered_stream *bs, struct cio_read_buffer *buffer, size_t num, cio_buffered_stream_read_handler handler, void *handler_context)
+{
+	(void)bs;
+	(void)buffer;
+	(void)num;
+	(void)handler;
+	(void)handler_context;
+	return CIO_BAD_FILE_DESCRIPTOR;
+}
+
 static void close_client(struct cio_http_client *client)
 {
 	free_dummy_client(&client->socket);
@@ -306,6 +318,7 @@ static enum cio_error cio_buffered_stream_init_ok(struct cio_buffered_stream *bs
 {
 	(void)stream;
 	bs->read_until = bs_read_until;
+	bs->read_at_least = bs_read_at_least;
 	bs->write = bs_write;
 	bs->close = bs_close;
 
@@ -347,6 +360,7 @@ void setUp(void)
 	RESET_FAKE(timer_expires_from_now);
 	RESET_FAKE(timer_cancel);
 	RESET_FAKE(bs_read_until);
+	RESET_FAKE(bs_read_at_least);
 	RESET_FAKE(bs_close);
 	RESET_FAKE(cio_buffered_stream_init);
 
@@ -520,6 +534,47 @@ static void test_close_error(void)
 	TEST_ASSERT_EQUAL_MESSAGE(1, header_complete_fake.call_count, "header_complete was not called!");
 }
 
+static void test_read_at_least_error(void)
+{
+	bs_read_at_least_fake.custom_fake = bs_read_at_least_call_fails;
+	cio_server_socket_init_fake.custom_fake = cio_server_socket_init_ok;
+	socket_accept_fake.custom_fake = accept_save_handler;
+
+	struct cio_http_server server;
+	enum cio_error err = cio_http_server_init(&server, 8080, &loop, serve_error, header_read_timeout, body_read_timeout, response_timeout, alloc_dummy_client, free_dummy_client);
+	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Server initialization failed!");
+
+	struct cio_http_location target;
+	err = cio_http_location_init(&target, "/foo", NULL, alloc_dummy_handler);
+	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Request target initialization failed!");
+
+	err = server.register_location(&server, &target);
+	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Register request target failed!");
+
+	err = server.serve(&server);
+	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Serving http failed!");
+
+	struct cio_socket *s = server.alloc_client();
+
+	const char start_line[] = "GET /foo HTTP/1.1" CRLF;
+
+	const char *request[] = {
+		start_line,
+		"Content-Length: 5" CRLF,
+		CRLF,
+		"Hello",
+		start_line,
+		"Content-Length: 5" CRLF,
+		CRLF,
+		"Hello"
+	};
+
+	init_request(request, ARRAY_SIZE(request));
+	server.server_socket.handler(&server.server_socket, server.server_socket.handler_context, CIO_SUCCESS, s);
+	TEST_ASSERT_EQUAL_MESSAGE(1, serve_error_fake.call_count, "Serve error callback was not called!");
+	check_http_response(500);
+}
+
 static void test_write_error(void)
 {
 	cio_server_socket_init_fake.custom_fake = cio_server_socket_init_ok;
@@ -564,7 +619,7 @@ int main(void)
 	RUN_TEST(test_read_until_errors);
 	RUN_TEST(test_serve_correctly);
 	RUN_TEST(test_close_error);
-	//RUN_TEST(test_read_error);
+	RUN_TEST(test_read_at_least_error);
 	RUN_TEST(test_write_error);
 
 	return UNITY_END();

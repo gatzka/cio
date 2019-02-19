@@ -280,7 +280,7 @@ static enum cio_error bs_read_at_least_from_buffer(struct cio_buffered_stream *b
 		handler(bs, handler_context, CIO_EOF, buffer, num);
 	} else {
 		memcpy(buffer->add_ptr, &frame_buffer[frame_buffer_read_pos], num);
-		buffer->fetch_ptr = buffer->add_ptr + num;
+		buffer->add_ptr += num;
 		frame_buffer_read_pos += num;
 
 		handler(bs, handler_context, CIO_SUCCESS, buffer, num);

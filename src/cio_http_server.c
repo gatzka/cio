@@ -55,6 +55,7 @@
 #define CIO_HTTP_CONNECTION_UPGRADE "Connection: Upgrade" CIO_CRLF
 
 #define CIO_HTTP_VERSION "HTTP/1.1"
+#define MIN(x, y) (((x) < (y)) ? (x) : (y))
 
 static const uint32_t NANO_SECONDS_IN_SECONDS = 1000000000;
 
@@ -373,6 +374,7 @@ static int on_headers_complete(http_parser *parser)
 
 	if (client->content_length > 0) {
 		client->http_private.finish_func = finish_bytes;
+		client->http_private.remaining_content_length = parser->content_length;
 	}
 
 	return 0;
@@ -559,6 +561,12 @@ static void parse(struct cio_buffered_stream *bs, void *handler_context, enum ci
 		return;
 	}
 
+	if (client->http_private.remaining_content_length > 0) {
+		size_t available = cio_read_buffer_unread_bytes(read_buffer);
+		bytes_to_parse = MIN(available, client->http_private.remaining_content_length);
+		client->http_private.remaining_content_length -= bytes_to_parse;
+	}
+
 	client->http_private.parsing++;
 
 	size_t nparsed = http_parser_execute(parser, &client->parser_settings, (const char *)cio_read_buffer_get_read_ptr(read_buffer), bytes_to_parse);
@@ -628,6 +636,7 @@ static void handle_accept(struct cio_server_socket *ss, void *handler_context, e
 	client->http_private.headers_complete = false;
 	client->content_length = 0;
 	client->http_private.to_be_closed = false;
+	client->http_private.remaining_content_length = 0;
 	client->http_private.should_keepalive = true;
 	client->http_private.close_immediately = false;
 	client->http_private.parsing = 0;
