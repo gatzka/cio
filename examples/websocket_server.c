@@ -171,17 +171,17 @@ static void on_control(const struct cio_websocket *ws, enum cio_websocket_frame_
 	}
 }
 
-static void read_handler(struct cio_websocket *ws, void *handler_context, enum cio_error err, uint8_t *data, size_t length, bool frame_completed, bool last_frame, bool is_binary)
+static void read_handler(struct cio_websocket *ws, void *handler_context, enum cio_error err, size_t frame_length, uint8_t *data, size_t chunk_length, bool last_frame, bool is_binary)
 {
 	(void)handler_context;
-	(void)frame_completed;
+	(void)frame_length;
 
 	if (err == CIO_SUCCESS) {
 		struct cio_websocket_location_handler *handler = cio_container_of(ws, struct cio_websocket_location_handler, websocket);
 		struct ws_echo_handler *eh = cio_container_of(handler, struct ws_echo_handler, ws_handler);
 
 		fprintf(stdout, "Got text message (last frame: %s):", last_frame ? "true" : "false");
-		fwrite(data, length, 1, stdout);
+		fwrite(data, chunk_length, 1, stdout);
 		fflush(stdout);
 		fprintf(stdout, "\n");
 

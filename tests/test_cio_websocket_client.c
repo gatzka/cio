@@ -52,8 +52,8 @@ enum frame_direction {
 	FROM_SERVER
 };
 
-static void read_handler(struct cio_websocket *ws, void *handler_context, enum cio_error err, uint8_t *data, size_t length, bool frame_completed, bool last_frame, bool is_binary);
-FAKE_VOID_FUNC(read_handler, struct cio_websocket *, void *, enum cio_error, uint8_t *, size_t, bool, bool, bool)
+static void read_handler(struct cio_websocket *ws, void *handler_context, enum cio_error err, size_t frame_length, uint8_t *data, size_t length, bool last_frame, bool is_binary);
+FAKE_VOID_FUNC(read_handler, struct cio_websocket *, void *, enum cio_error, size_t, uint8_t *, size_t, bool, bool)
 
 static enum cio_error read_at_least(struct cio_buffered_stream *bs, struct cio_read_buffer *buffer, size_t num, cio_buffered_stream_read_handler handler, void *handler_context);
 FAKE_VALUE_FUNC(enum cio_error, read_at_least, struct cio_buffered_stream *, struct cio_read_buffer *, size_t, cio_buffered_stream_read_handler, void *)
@@ -313,11 +313,11 @@ static enum cio_error bs_write_ok(struct cio_buffered_stream *bs, struct cio_wri
 	return CIO_SUCCESS;
 }
 
-static void read_handler_save_data(struct cio_websocket *websocket, void *handler_context, enum cio_error err, uint8_t *data, size_t length, bool frame_completed, bool last_frame, bool is_binary)
+static void read_handler_save_data(struct cio_websocket *websocket, void *handler_context, enum cio_error err, size_t frame_length, uint8_t *data, size_t length, bool last_frame, bool is_binary)
 {
 	(void)last_frame;
 	(void)is_binary;
-	(void)frame_completed;
+	(void)frame_length;
 
 	if (err == CIO_SUCCESS) {
 		if (length > 0) {
@@ -413,10 +413,10 @@ static void test_client_read_frame(void)
 	TEST_ASSERT_EQUAL_MESSAGE(ws, read_handler_fake.arg0_history[0], "websocket parameter of read_handler not correct");
 	TEST_ASSERT_NULL_MESSAGE(read_handler_fake.arg1_history[0], "context of read handler not NULL");
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, read_handler_fake.arg2_history[0], "error parameter of read_handler not CIO_SUCCESS");
-	TEST_ASSERT_EQUAL_MESSAGE(sizeof(data), read_handler_fake.arg4_history[0], "length parameter of read_handler not equal to frame_size");
-	TEST_ASSERT_TRUE_MESSAGE(read_handler_fake.arg5_history[0], "last_frame parameter of read_handler not true");
+	TEST_ASSERT_EQUAL_MESSAGE(sizeof(data), read_handler_fake.arg5_history[0], "chunk length parameter of read_handler not equal to frame_size");
+	TEST_ASSERT_TRUE_MESSAGE(read_handler_fake.arg6_history[0], "last_frame parameter of read_handler not true");
 
-	TEST_ASSERT_FALSE_MESSAGE(read_handler_fake.arg6_val, "is_binary parameter of read_handler not false");
+	TEST_ASSERT_FALSE_MESSAGE(read_handler_fake.arg7_val, "is_binary parameter of read_handler not false");
 
 	TEST_ASSERT_EQUAL_MESSAGE(0, on_error_fake.call_count, "error callback was called");
 	TEST_ASSERT_EQUAL_MEMORY_MESSAGE(data, read_back_buffer, sizeof(data), "data in read_handler not correct");
@@ -453,8 +453,8 @@ static void test_client_immediate_read_error_for_get_payload(void)
 	TEST_ASSERT_EQUAL_PTR_MESSAGE(ws, read_handler_fake.arg0_val, "websocket parameter of read_handler not correct");
 	TEST_ASSERT_NULL_MESSAGE(read_handler_fake.arg1_val, "context parameter of read_handler not correct");
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_EOF, read_handler_fake.arg2_val, "error parameter of read_handler not correct");
-	TEST_ASSERT_NULL_MESSAGE(read_handler_fake.arg3_val, "data parameter of read_handler not correct");
-	TEST_ASSERT_EQUAL_MESSAGE(0, read_handler_fake.arg4_val, "length parameter of read_handler not correct");
+	TEST_ASSERT_NULL_MESSAGE(read_handler_fake.arg4_val, "data parameter of read_handler not correct");
+	TEST_ASSERT_EQUAL_MESSAGE(0, read_handler_fake.arg5_val, "length parameter of read_handler not correct");
 
 	TEST_ASSERT_EQUAL_MESSAGE(1, on_error_fake.call_count, "error callback was called");
 	TEST_ASSERT_EQUAL_MESSAGE(ws, on_error_fake.arg0_val, "ws parameter in error callback not correct");
@@ -561,10 +561,10 @@ static void test_client_send_fragmented_frames(void)
 					if (read_cnt < read_handler_fake.call_count - 1) {
 						TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, read_handler_fake.arg2_history[read_cnt], "error parameter of read_handler not CIO_SUCCESS");
 						if (read_cnt == 0) {
-							TEST_ASSERT_EQUAL_MESSAGE(first_frame_size, read_handler_fake.arg4_history[read_cnt], "length parameter of read_handler not equal to frame_size");
+							TEST_ASSERT_EQUAL_MESSAGE(first_frame_size, read_handler_fake.arg5_history[read_cnt], "length parameter of read_handler not equal to frame_size");
 							TEST_ASSERT_FALSE_MESSAGE(read_handler_fake.arg6_history[read_cnt], "last_frame parameter of read_handler for first fragment not false");
 						} else {
-							TEST_ASSERT_EQUAL_MESSAGE(second_frame_size, read_handler_fake.arg4_history[read_cnt], "length parameter of read_handler not equal to frame_size");
+							TEST_ASSERT_EQUAL_MESSAGE(second_frame_size, read_handler_fake.arg5_history[read_cnt], "length parameter of read_handler not equal to frame_size");
 							TEST_ASSERT_TRUE_MESSAGE(read_handler_fake.arg6_history[read_cnt], "last_frame parameter of read_handler for last fragment not false");
 						}
 						TEST_ASSERT_EQUAL_MESSAGE((frame_type == CIO_WEBSOCKET_BINARY_FRAME), read_handler_fake.arg7_history[read_cnt], "is_binary parameter of read_handler for first fragment not correct");
