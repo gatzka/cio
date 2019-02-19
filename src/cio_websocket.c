@@ -56,7 +56,7 @@ static void close(struct cio_websocket *ws)
 {
 	if (ws->ws_private.in_user_writecallback_context == 0) {
 		if (cio_likely(ws->ws_private.read_handler != NULL)) {
-			ws->ws_private.read_handler(ws, ws->ws_private.read_handler_context, CIO_EOF, NULL, 0, false, false);
+			ws->ws_private.read_handler(ws, ws->ws_private.read_handler_context, CIO_EOF, NULL, 0, false, false, false);
 		}
 
 		if (ws->ws_private.close_hook) {
@@ -382,7 +382,7 @@ static int payload_size_in_limit(const struct cio_write_buffer *payload, size_t 
 
 static void handle_binary_frame(struct cio_websocket *ws, uint8_t *data, uint64_t length, bool last_frame)
 {
-	ws->ws_private.read_handler(ws, ws->ws_private.read_handler_context, CIO_SUCCESS, data, (size_t)length, last_frame, true);
+	ws->ws_private.read_handler(ws, ws->ws_private.read_handler_context, CIO_SUCCESS, data, (size_t)length, true, last_frame, true);
 }
 
 static void handle_text_frame(struct cio_websocket *ws, uint8_t *data, uint64_t length, bool last_frame)
@@ -396,7 +396,7 @@ static void handle_text_frame(struct cio_websocket *ws, uint8_t *data, uint64_t 
 		return;
 	}
 
-	ws->ws_private.read_handler(ws, ws->ws_private.read_handler_context, CIO_SUCCESS, data, len, last_frame, false);
+	ws->ws_private.read_handler(ws, ws->ws_private.read_handler_context, CIO_SUCCESS, data, len, true, last_frame, false);
 
 	if (last_frame) {
 		cio_utf8_init(&ws->ws_private.utf8_state);
