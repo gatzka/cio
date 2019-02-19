@@ -441,8 +441,7 @@ static void test_read_exactly(void)
 	read_some_fake.custom_fake = read_some_max;
 	dummy_read_handler_fake.custom_fake = save_to_check_buffer;
 
-	size_t buffer_size = 100;
-	uint8_t buffer[buffer_size];
+	uint8_t buffer[100];
 
 	struct cio_read_buffer rb;
 	enum cio_error err = cio_read_buffer_init(&rb, &buffer, sizeof(buffer));
@@ -450,7 +449,7 @@ static void test_read_exactly(void)
 
 	err = cio_buffered_stream_init(&client->bs, &client->ms.ios);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Buffer was not initialized correctly!");
-	err = client->bs.read_at_least(&client->bs, &rb, strlen(test_data), dummy_read_handler, &buffer_size);
+	err = client->bs.read_at_least(&client->bs, &rb, strlen(test_data), dummy_read_handler, NULL);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Return value not correct!");
 
 	err = client->bs.close(&client->bs);
@@ -471,15 +470,14 @@ static void test_read_exactly_close_in_callback(void)
 	read_some_fake.custom_fake = read_some_max;
 	dummy_read_handler_fake.custom_fake = save_to_check_buffer_and_close;
 
-	size_t buffer_size = 100;
-	uint8_t buffer[buffer_size];
+	uint8_t buffer[100];
 	struct cio_read_buffer rb;
 	enum cio_error err = cio_read_buffer_init(&rb, &buffer, sizeof(buffer));
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Read buffer was not initialized correctly!");
 
 	err = cio_buffered_stream_init(&client->bs, &client->ms.ios);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Buffer was not initialized correctly!");
-	err = client->bs.read_at_least(&client->bs, &rb, strlen(test_data), dummy_read_handler, &buffer_size);
+	err = client->bs.read_at_least(&client->bs, &rb, strlen(test_data), dummy_read_handler, NULL);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Return value not correct!");
 
 	TEST_ASSERT_EQUAL_MESSAGE(1, close_fake.call_count, "Underlying cio_iostream was not closed!");
@@ -498,15 +496,14 @@ static void test_read_exactly_zero_length(void)
 	read_some_fake.custom_fake = read_some_max;
 	dummy_read_handler_fake.custom_fake = save_to_check_buffer;
 
-	size_t buffer_size = 100;
-	uint8_t buffer[buffer_size];
+	uint8_t buffer[100];
 	struct cio_read_buffer rb;
 	enum cio_error err = cio_read_buffer_init(&rb, &buffer, sizeof(buffer));
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Read buffer was not initialized correctly!");
 
 	err = cio_buffered_stream_init(&client->bs, &client->ms.ios);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Buffer was not initialized correctly!");
-	err = client->bs.read_at_least(&client->bs, &rb, 0, dummy_read_handler, &buffer_size);
+	err = client->bs.read_at_least(&client->bs, &rb, 0, dummy_read_handler, NULL);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Return value not correct!");
 
 	err = client->bs.close(&client->bs);
@@ -639,15 +636,14 @@ static void test_read_exactly_sync_error(void)
 	read_some_fake.custom_fake = read_some_error_sync;
 	dummy_read_handler_fake.custom_fake = save_to_check_buffer_and_close;
 
-	size_t buffer_size = 40;
-	uint8_t buffer[buffer_size];
+	uint8_t buffer[40];
 	struct cio_read_buffer rb;
 	enum cio_error err = cio_read_buffer_init(&rb, &buffer, sizeof(buffer));
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Read buffer was not initialized correctly!");
 
 	err = cio_buffered_stream_init(&client->bs, &client->ms.ios);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Buffer was not initialized correctly!");
-	err = client->bs.read_at_least(&client->bs, &rb, sizeof(buffer) - 1, dummy_read_handler, &buffer_size);
+	err = client->bs.read_at_least(&client->bs, &rb, sizeof(buffer) - 1, dummy_read_handler, NULL);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Return value not correct!");
 
 	//err = client->bs.close(&client->bs);
@@ -741,8 +737,7 @@ static void test_read_until(void)
 	read_some_fake.custom_fake = read_some_max;
 	dummy_read_handler_fake.custom_fake = save_to_check_buffer;
 
-	size_t buffer_size = 40;
-	uint8_t buffer[buffer_size];
+	uint8_t buffer[40];
 	struct cio_read_buffer rb;
 	enum cio_error err = cio_read_buffer_init(&rb, &buffer, sizeof(buffer));
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Read buffer was not initialized correctly!");
@@ -750,7 +745,7 @@ static void test_read_until(void)
 	err = cio_buffered_stream_init(&client->bs, &client->ms.ios);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Buffer was not initialized correctly!");
 
-	err = client->bs.read_until(&client->bs, &rb, DELIM, dummy_read_handler, &buffer_size);
+	err = client->bs.read_until(&client->bs, &rb, DELIM, dummy_read_handler, NULL);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Return value not correct!");
 
 	err = client->bs.close(&client->bs);
