@@ -254,17 +254,16 @@ static unsigned int current_line;
 static enum cio_error bs_read_internal(struct cio_buffered_stream *bs, struct cio_read_buffer *buffer, cio_buffered_stream_read_handler handler, void *handler_context)
 {
 	if (current_line >= num_of_request_lines) {
-		buffer->bytes_transferred = 0;
+		handler(bs, handler_context, CIO_EOF, buffer, 0);
 	} else {
 		const char *line = request_lines[current_line];
 		size_t length = strlen(line);
 		memcpy(buffer->add_ptr, line, length);
-		buffer->bytes_transferred = length;
-		buffer->fetch_ptr = buffer->add_ptr + length;
+		buffer->add_ptr += length;
 		current_line++;
+		handler(bs, handler_context, CIO_SUCCESS, buffer, length);
 	}
 
-	handler(bs, handler_context, CIO_SUCCESS, buffer);
 	return CIO_SUCCESS;
 }
 
