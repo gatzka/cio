@@ -53,7 +53,6 @@ struct cio_read_buffer {
 	uint8_t *end;
 	uint8_t *add_ptr;
 	uint8_t *fetch_ptr;
-	size_t bytes_transferred;
 };
 
 /**
@@ -100,23 +99,12 @@ static inline enum cio_error cio_read_buffer_init(struct cio_read_buffer *rb, vo
 /**
  * @brief Provides the pointer from where to read data.
  *
- * The amount of data which can be read is provided by ::cio_read_buffer_get_transferred_bytes.
  * @param rb The read buffer to be asked.
  * @return The pointer from where to read.
  */
 static inline uint8_t *cio_read_buffer_get_read_ptr(const struct cio_read_buffer *rb)
 {
-	return rb->fetch_ptr - rb->bytes_transferred;
-}
-
-/**
- * @brief Provides the number of bytes transferred during the last read operation.
- * @param rb The read buffer to be asked.
- * @return The number of bytes transferred during the last read operation.
- */
-static inline size_t cio_read_buffer_get_transferred_bytes(const struct cio_read_buffer *rb)
-{
-	return rb->bytes_transferred;
+	return rb->fetch_ptr;
 }
 
 /**
@@ -127,6 +115,18 @@ static inline size_t cio_read_buffer_get_transferred_bytes(const struct cio_read
 static inline size_t cio_read_buffer_size(const struct cio_read_buffer *rb)
 {
 	return (size_t)(rb->end - rb->data);
+}
+
+/**
+ * @anchor cio_read_buffer_consume
+ *
+ * @brief Consumes @p num bytes of the read buffer.
+ * @param rb The read buffer from which the bytes shall be consumed.
+ * @param num The number of bytes that shall be consumed fom the read buffer.
+ */
+static inline void cio_read_buffer_consume(struct cio_read_buffer *rb, size_t num)
+{
+	rb->fetch_ptr += num;
 }
 
 #ifdef __cplusplus

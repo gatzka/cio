@@ -480,7 +480,6 @@ static enum cio_error read_some_max(struct cio_io_stream *ios, struct cio_read_b
 	memcpy(buffer->data, &((uint8_t *)memory_stream->mem)[memory_stream->read_pos], len);
 	memory_stream->read_pos += len;
 	buffer->add_ptr += len;
-	buffer->bytes_transferred = len;
 	if (len > 0) {
 		handler(ios, context, CIO_SUCCESS, buffer);
 	}
@@ -495,7 +494,6 @@ static enum cio_error read_some_close(struct cio_io_stream *ios, struct cio_read
 	memcpy(buffer->data, &((uint8_t *)memory_stream->mem)[memory_stream->read_pos], len);
 	memory_stream->read_pos += len;
 	buffer->add_ptr += len;
-	buffer->bytes_transferred = len;
 	if (len == 0) {
 		handler(ios, context, CIO_EOF, buffer);
 	} else {
@@ -949,7 +947,7 @@ static void test_callbacks_after_response_sent(void)
 				TEST_ASSERT_EQUAL_MESSAGE(1, on_message_complete_fake.call_count, "on_message_complete was not called!");
 				/* FALLTHRU */
 			case ON_BODY_SENDS_RESPONSE:
-				TEST_ASSERT_EQUAL_MESSAGE(1, on_body_fake.call_count, "on_body was not called!");
+				TEST_ASSERT_GREATER_THAN_MESSAGE(0, on_body_fake.call_count, "on_body was not called!");
 				/* FALLTHRU */
 			case ON_HEADER_COMPLETE_SENDS_RESPONSE:
 				TEST_ASSERT_EQUAL_MESSAGE(1, on_header_complete_fake.call_count, "on_header_complete was not called!");

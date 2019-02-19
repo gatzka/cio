@@ -116,7 +116,6 @@ static void read_callback(struct cio_event_notifier *ev)
 
 		error_code = (enum cio_error)(-error);
 	} else {
-		s->stream.read_buffer->bytes_transferred = (size_t)recv_bytes;
 		if (recv_bytes == 0) {
 			error_code = CIO_EOF;
 		} else {

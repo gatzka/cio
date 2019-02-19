@@ -43,7 +43,7 @@ include(CMakeDependentOption)
 
 option(CIO_CONFIG_HTTP "Add HTTP support to the library " ON)
 cmake_dependent_option(CIO_CONFIG_WEBSOCKETS "Add Websocket support to the library" ON "CIO_CONFIG_HTTP" OFF)
-cmake_dependent_option(CIO_CONFIG_WEBSOCKET_COMPRESSION "Add Websocket compression support to the library" ON "CIO_CONFIG_WEBSOCKETS" OFF)
+cmake_dependent_option(CIO_CONFIG_WEBSOCKET_COMPRESSION "Add Websocket compression support to the library" OFF "CIO_CONFIG_WEBSOCKETS" OFF)
 
 if(CIO_CONFIG_HTTP)
     add_library(http-parser OBJECT

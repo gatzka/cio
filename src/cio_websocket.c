@@ -49,7 +49,7 @@ static const size_t WS_MID_FRAME_SIZE = 65535;
 
 static const uint64_t close_timeout_ns = UINT64_C(10) * UINT64_C(1000) * UINT64_C(1000) * UINT64_C(1000);
 
-static void get_header(struct cio_buffered_stream *bs, void *handler_context, enum cio_error err, struct cio_read_buffer *buffer);
+static void get_header(struct cio_buffered_stream *bs, void *handler_context, enum cio_error err, struct cio_read_buffer *buffer, size_t num_bytes);
 static void handle_error(struct cio_websocket *ws, enum cio_error err, enum cio_websocket_status_code status_code, const char *reason);
 
 static void close(struct cio_websocket *ws)
@@ -462,7 +462,7 @@ static void pong_frame_written(struct cio_websocket *ws, void *handler_context, 
 
 	if (cio_likely(err == CIO_SUCCESS)) {
 		struct cio_http_client *c = ws->ws_private.http_client;
-		c->bs.read_exactly(&c->bs, &c->rb, 1, get_header, ws);
+		c->bs.read_at_least(&c->bs, &c->rb, 1, get_header, ws);
 	} else {
 		handle_error(ws, err, CIO_WEBSOCKET_CLOSE_INTERNAL_ERROR, "pong frame not written correctly");
 	}
@@ -498,7 +498,7 @@ static void handle_pong_frame(struct cio_websocket *ws, uint8_t *data, uint_fast
 	}
 
 	struct cio_http_client *c = ws->ws_private.http_client;
-	c->bs.read_exactly(&c->bs, &c->rb, 1, get_header, ws);
+	c->bs.read_at_least(&c->bs, &c->rb, 1, get_header, ws);
 }
 
 static void handle_frame(struct cio_websocket *ws, uint8_t *data, uint64_t length)
@@ -550,7 +550,7 @@ static inline bool handled_read_error(struct cio_websocket *ws, enum cio_error e
 	return false;
 }
 
-static void get_payload(struct cio_buffered_stream *bs, void *handler_context, enum cio_error err, struct cio_read_buffer *buffer)
+static void get_payload(struct cio_buffered_stream *bs, void *handler_context, enum cio_error err, struct cio_read_buffer *buffer, size_t num_bytes)
 {
 	(void)bs;
 
@@ -560,9 +560,9 @@ static void get_payload(struct cio_buffered_stream *bs, void *handler_context, e
 	}
 
 	uint8_t *ptr = cio_read_buffer_get_read_ptr(buffer);
-	size_t len = cio_read_buffer_get_transferred_bytes(buffer);
+	cio_read_buffer_consume(buffer, num_bytes);
 
-	handle_frame(ws, ptr, len);
+	handle_frame(ws, ptr, num_bytes);
 }
 
 static void read_payload(struct cio_websocket *ws, struct cio_buffered_stream *bs, struct cio_read_buffer *buffer)
@@ -571,18 +571,17 @@ static void read_payload(struct cio_websocket *ws, struct cio_buffered_stream *b
 		if (cio_unlikely(ws->ws_private.read_frame_length > SIZE_MAX)) {
 			handle_error(ws, CIO_MESSAGE_TOO_LONG, CIO_WEBSOCKET_CLOSE_TOO_LARGE, "websocket frame to large to process!");
 		} else {
-			enum cio_error err = bs->read_exactly(bs, buffer, (size_t)ws->ws_private.read_frame_length, get_payload, ws);
+			enum cio_error err = bs->read_at_least(bs, buffer, (size_t)ws->ws_private.read_frame_length, get_payload, ws);
 			if (cio_unlikely(err != CIO_SUCCESS)) {
 				handle_error(ws, err, CIO_WEBSOCKET_CLOSE_INTERNAL_ERROR, "error while start reading websocket payload");
 			}
 		}
 	} else {
-		buffer->bytes_transferred = 0;
 		handle_frame(ws, NULL, 0);
 	}
 }
 
-static void get_mask(struct cio_buffered_stream *bs, void *handler_context, enum cio_error err, struct cio_read_buffer *buffer)
+static void get_mask(struct cio_buffered_stream *bs, void *handler_context, enum cio_error err, struct cio_read_buffer *buffer, size_t num_bytes)
 {
 	struct cio_websocket *ws = (struct cio_websocket *)handler_context;
 	if (cio_unlikely(handled_read_error(ws, err))) {
@@ -591,7 +590,8 @@ static void get_mask(struct cio_buffered_stream *bs, void *handler_context, enum
 
 	uint8_t *ptr = cio_read_buffer_get_read_ptr(buffer);
 
-	memcpy(ws->ws_private.received_mask, ptr, sizeof(ws->ws_private.received_mask));
+	memcpy(ws->ws_private.received_mask, ptr, num_bytes);
+	cio_read_buffer_consume(buffer, num_bytes);
 	read_payload(ws, bs, buffer);
 }
 
@@ -599,7 +599,7 @@ static void get_mask_or_payload(struct cio_websocket *ws, struct cio_buffered_st
 {
 	enum cio_error err;
 	if (ws->ws_private.ws_flags.is_server == 1U) {
-		err = bs->read_exactly(bs, buffer, sizeof(ws->ws_private.received_mask), get_mask, ws);
+		err = bs->read_at_least(bs, buffer, sizeof(ws->ws_private.received_mask), get_mask, ws);
 		if (cio_unlikely(err != CIO_SUCCESS)) {
 			handle_error(ws, err, CIO_WEBSOCKET_CLOSE_INTERNAL_ERROR, "error while start reading websocket mask");
 		}
@@ -608,7 +608,7 @@ static void get_mask_or_payload(struct cio_websocket *ws, struct cio_buffered_st
 	}
 }
 
-static void get_length16(struct cio_buffered_stream *bs, void *handler_context, enum cio_error err, struct cio_read_buffer *buffer)
+static void get_length16(struct cio_buffered_stream *bs, void *handler_context, enum cio_error err, struct cio_read_buffer *buffer, size_t num_bytes)
 {
 	struct cio_websocket *ws = (struct cio_websocket *)handler_context;
 	if (cio_unlikely(handled_read_error(ws, err))) {
@@ -618,13 +618,14 @@ static void get_length16(struct cio_buffered_stream *bs, void *handler_context, 
 	uint8_t *ptr = cio_read_buffer_get_read_ptr(buffer);
 
 	uint16_t field;
-	memcpy(&field, ptr, sizeof(field));
+	memcpy(&field, ptr, num_bytes);
+	cio_read_buffer_consume(buffer, num_bytes);
 	field = cio_be16toh(field);
 	ws->ws_private.read_frame_length = (uint64_t)field;
 	get_mask_or_payload(ws, bs, buffer);
 }
 
-static void get_length64(struct cio_buffered_stream *bs, void *handler_context, enum cio_error err, struct cio_read_buffer *buffer)
+static void get_length64(struct cio_buffered_stream *bs, void *handler_context, enum cio_error err, struct cio_read_buffer *buffer, size_t num_bytes)
 {
 	struct cio_websocket *ws = (struct cio_websocket *)handler_context;
 	if (cio_unlikely(handled_read_error(ws, err))) {
@@ -634,7 +635,8 @@ static void get_length64(struct cio_buffered_stream *bs, void *handler_context, 
 	uint8_t *ptr = cio_read_buffer_get_read_ptr(buffer);
 
 	uint64_t field;
-	memcpy(&field, ptr, sizeof(field));
+	memcpy(&field, ptr, num_bytes);
+	cio_read_buffer_consume(buffer, num_bytes);
 	field = cio_be64toh(field);
 	ws->ws_private.read_frame_length = field;
 	get_mask_or_payload(ws, bs, buffer);
@@ -645,7 +647,7 @@ static inline bool is_control_frame(unsigned int opcode)
 	return opcode >= CIO_WEBSOCKET_CLOSE_FRAME;
 }
 
-static void get_first_length(struct cio_buffered_stream *bs, void *handler_context, enum cio_error err, struct cio_read_buffer *buffer)
+static void get_first_length(struct cio_buffered_stream *bs, void *handler_context, enum cio_error err, struct cio_read_buffer *buffer, size_t num_bytes)
 {
 	struct cio_websocket *ws = (struct cio_websocket *)handler_context;
 	if (cio_unlikely(handled_read_error(ws, err))) {
@@ -654,6 +656,7 @@ static void get_first_length(struct cio_buffered_stream *bs, void *handler_conte
 
 	uint8_t *ptr = cio_read_buffer_get_read_ptr(buffer);
 	uint8_t field = *ptr;
+	cio_read_buffer_consume(buffer, num_bytes);
 
 	if (((field & WS_MASK_SET) == 0) && (ws->ws_private.ws_flags.is_server == 1U)) {
 		handle_error(ws, CIO_PROTOCOL_NOT_SUPPORTED, CIO_WEBSOCKET_CLOSE_PROTOCOL_ERROR, "received unmasked frame on server websocket");
@@ -671,9 +674,9 @@ static void get_first_length(struct cio_buffered_stream *bs, void *handler_conte
 		}
 
 		if (field == CIO_WEBSOCKET_SMALL_FRAME_SIZE + 1) {
-			err = bs->read_exactly(bs, buffer, sizeof(uint16_t), get_length16, ws);
+			err = bs->read_at_least(bs, buffer, sizeof(uint16_t), get_length16, ws);
 		} else {
-			err = bs->read_exactly(bs, buffer, sizeof(uint64_t), get_length64, ws);
+			err = bs->read_at_least(bs, buffer, sizeof(uint64_t), get_length64, ws);
 		}
 	}
 
@@ -682,8 +685,9 @@ static void get_first_length(struct cio_buffered_stream *bs, void *handler_conte
 	}
 }
 
-static void get_header(struct cio_buffered_stream *bs, void *handler_context, enum cio_error err, struct cio_read_buffer *buffer)
+static void get_header(struct cio_buffered_stream *bs, void *handler_context, enum cio_error err, struct cio_read_buffer *buffer, size_t num_bytes)
 {
+	(void)num_bytes;
 	struct cio_websocket *ws = (struct cio_websocket *)handler_context;
 	if (cio_unlikely(handled_read_error(ws, err))) {
 		return;
@@ -691,6 +695,7 @@ static void get_header(struct cio_buffered_stream *bs, void *handler_context, en
 
 	uint8_t *ptr = cio_read_buffer_get_read_ptr(buffer);
 	uint8_t field = *ptr;
+	cio_read_buffer_consume(buffer, num_bytes);
 
 	ws->ws_private.ws_flags.fin = (field & WS_HEADER_FIN) == WS_HEADER_FIN;
 
@@ -744,7 +749,7 @@ static void get_header(struct cio_buffered_stream *bs, void *handler_context, en
 		}
 	}
 
-	err = bs->read_exactly(bs, buffer, 1, get_first_length, ws);
+	err = bs->read_at_least(bs, buffer, 1, get_first_length, ws);
 	if (cio_unlikely(err != CIO_SUCCESS)) {
 		handle_error(ws, err, CIO_WEBSOCKET_CLOSE_INTERNAL_ERROR, "error while start reading websocket frame length");
 	}
@@ -759,7 +764,7 @@ static enum cio_error read_message(struct cio_websocket *ws, cio_websocket_read_
 	ws->ws_private.read_handler = handler;
 	ws->ws_private.read_handler_context = handler_context;
 	struct cio_http_client *c = ws->ws_private.http_client;
-	enum cio_error err = c->bs.read_exactly(&c->bs, &c->rb, 1, get_header, ws);
+	enum cio_error err = c->bs.read_at_least(&c->bs, &c->rb, 1, get_header, ws);
 	if (cio_unlikely(err != CIO_SUCCESS)) {
 		handle_error(ws, err, CIO_WEBSOCKET_CLOSE_INTERNAL_ERROR, "error while start reading websocket header");
 	}

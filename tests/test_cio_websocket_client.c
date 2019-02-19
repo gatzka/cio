@@ -55,9 +55,8 @@ enum frame_direction {
 static void read_handler(struct cio_websocket *ws, void *handler_context, enum cio_error err, uint8_t *data, size_t length, bool last_frame, bool is_binary);
 FAKE_VOID_FUNC(read_handler, struct cio_websocket *, void *, enum cio_error, uint8_t *, size_t, bool, bool)
 
-static enum cio_error read_exactly(struct cio_buffered_stream *bs, struct cio_read_buffer *buffer, size_t num, cio_buffered_stream_read_handler handler, void *handler_context);
-FAKE_VALUE_FUNC(enum cio_error, read_exactly, struct cio_buffered_stream *, struct cio_read_buffer *, size_t, cio_buffered_stream_read_handler, void *)
-typedef enum cio_error (*read_exactly_fake_fun)(struct cio_buffered_stream *, struct cio_read_buffer *, size_t, cio_buffered_stream_read_handler, void *);
+static enum cio_error read_at_least(struct cio_buffered_stream *bs, struct cio_read_buffer *buffer, size_t num, cio_buffered_stream_read_handler handler, void *handler_context);
+FAKE_VALUE_FUNC(enum cio_error, read_at_least, struct cio_buffered_stream *, struct cio_read_buffer *, size_t, cio_buffered_stream_read_handler, void *)
 
 static enum cio_error bs_write(struct cio_buffered_stream *bs, struct cio_write_buffer *buf, cio_buffered_stream_write_handler handler, void *handler_context);
 FAKE_VALUE_FUNC(enum cio_error, bs_write, struct cio_buffered_stream *, struct cio_write_buffer *, cio_buffered_stream_write_handler, void *)
@@ -275,23 +274,22 @@ static void serialize_frames(struct ws_frame frames[], size_t num_frames)
 	frame_buffer_fill_pos = buffer_pos - 1;
 }
 
-static enum cio_error bs_read_exactly_from_buffer(struct cio_buffered_stream *bs, struct cio_read_buffer *buffer, size_t num, cio_buffered_stream_read_handler handler, void *handler_context)
+static enum cio_error bs_read_at_least_from_buffer(struct cio_buffered_stream *bs, struct cio_read_buffer *buffer, size_t num, cio_buffered_stream_read_handler handler, void *handler_context)
 {
 	if (frame_buffer_read_pos > frame_buffer_fill_pos) {
-		handler(bs, handler_context, CIO_EOF, buffer);
+		handler(bs, handler_context, CIO_EOF, buffer, num);
 	} else {
 		memcpy(buffer->add_ptr, &frame_buffer[frame_buffer_read_pos], num);
-		buffer->bytes_transferred = num;
-		buffer->fetch_ptr = buffer->add_ptr + num;
+		buffer->add_ptr += num;
 		frame_buffer_read_pos += num;
 
-		handler(bs, handler_context, CIO_SUCCESS, buffer);
+		handler(bs, handler_context, CIO_SUCCESS, buffer, num);
 	}
 
 	return CIO_SUCCESS;
 }
 
-static enum cio_error bs_read_exactly_immediate_error(struct cio_buffered_stream *bs, struct cio_read_buffer *buffer, size_t num, cio_buffered_stream_read_handler handler, void *handler_context)
+static enum cio_error bs_read_at_least_immediate_error(struct cio_buffered_stream *bs, struct cio_read_buffer *buffer, size_t num, cio_buffered_stream_read_handler handler, void *handler_context)
 {
 	(void)bs;
 	(void)buffer;
@@ -357,7 +355,7 @@ void setUp(void)
 	RESET_FAKE(read_handler);
 
 	RESET_FAKE(cio_timer_init);
-	RESET_FAKE(read_exactly);
+	RESET_FAKE(read_at_least);
 	RESET_FAKE(bs_write);
 	RESET_FAKE(on_connect);
 	RESET_FAKE(on_control);
@@ -366,19 +364,19 @@ void setUp(void)
 	RESET_FAKE(write_handler);
 
 	cio_read_buffer_init(&http_client.rb, read_buffer, sizeof(read_buffer));
-	ws = malloc(sizeof(*ws));
+	ws = (struct cio_websocket *)malloc(sizeof(*ws));
 	cio_websocket_init(ws, false, on_connect, NULL);
 	ws->ws_private.http_client = &http_client;
 	ws->on_control = on_control;
 	ws->on_error = on_error;
 
 	read_handler_fake.custom_fake = read_handler_save_data;
-	read_exactly_fake.custom_fake = bs_read_exactly_from_buffer;
+	read_at_least_fake.custom_fake = bs_read_at_least_from_buffer;
 	bs_write_fake.custom_fake = bs_write_ok;
 	on_control_fake.custom_fake = on_control_save_data;
 	on_error_fake.custom_fake = on_error_save_data;
 
-	http_client.bs.read_exactly = read_exactly;
+	http_client.bs.read_at_least = read_at_least;
 	http_client.bs.write = bs_write;
 	frame_buffer_read_pos = 0;
 	frame_buffer_fill_pos = 0;
@@ -440,12 +438,12 @@ static void test_client_immediate_read_error_for_get_payload(void)
 	};
 
 	serialize_frames(frames, ARRAY_SIZE(frames));
-	enum cio_error (*read_exactly_fakes[])(struct cio_buffered_stream *, struct cio_read_buffer *, size_t, cio_buffered_stream_read_handler, void *) = {
-	    bs_read_exactly_from_buffer,
-	    bs_read_exactly_from_buffer,
-	    bs_read_exactly_immediate_error};
+	enum cio_error (*read_at_least_fakes[])(struct cio_buffered_stream *, struct cio_read_buffer *, size_t, cio_buffered_stream_read_handler, void *) = {
+	    bs_read_at_least_from_buffer,
+	    bs_read_at_least_from_buffer,
+	    bs_read_at_least_immediate_error};
 
-	SET_CUSTOM_FAKE_SEQ(read_exactly, read_exactly_fakes, ARRAY_SIZE(read_exactly_fakes));
+	SET_CUSTOM_FAKE_SEQ(read_at_least, read_at_least_fakes, ARRAY_SIZE(read_at_least_fakes));
 
 	enum cio_error err = ws->read_message(ws, read_handler, NULL);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Could not start reading a message!");

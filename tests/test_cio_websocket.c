@@ -64,9 +64,9 @@ FAKE_VOID_FUNC(timer_close, struct cio_timer *)
 static enum cio_error timer_expires_from_now(struct cio_timer *t, uint64_t timeout_ns, cio_timer_handler handler, void *handler_context);
 FAKE_VALUE_FUNC(enum cio_error, timer_expires_from_now, struct cio_timer *, uint64_t, cio_timer_handler, void *)
 
-static enum cio_error read_exactly(struct cio_buffered_stream *bs, struct cio_read_buffer *buffer, size_t num, cio_buffered_stream_read_handler handler, void *handler_context);
-FAKE_VALUE_FUNC(enum cio_error, read_exactly, struct cio_buffered_stream *, struct cio_read_buffer *, size_t, cio_buffered_stream_read_handler, void *)
-typedef enum cio_error (*read_exactly_fake_fun)(struct cio_buffered_stream *, struct cio_read_buffer *, size_t, cio_buffered_stream_read_handler, void *);
+static enum cio_error read_at_least(struct cio_buffered_stream *bs, struct cio_read_buffer *buffer, size_t num, cio_buffered_stream_read_handler handler, void *handler_context);
+FAKE_VALUE_FUNC(enum cio_error, read_at_least, struct cio_buffered_stream *, struct cio_read_buffer *, size_t, cio_buffered_stream_read_handler, void *)
+typedef enum cio_error (*read_at_least_fake_fun)(struct cio_buffered_stream *, struct cio_read_buffer *, size_t, cio_buffered_stream_read_handler, void *);
 
 static enum cio_error bs_write(struct cio_buffered_stream *bs, struct cio_write_buffer *buf, cio_buffered_stream_write_handler handler, void *handler_context);
 FAKE_VALUE_FUNC(enum cio_error, bs_write, struct cio_buffered_stream *, struct cio_write_buffer *, cio_buffered_stream_write_handler, void *)
@@ -295,23 +295,22 @@ static void serialize_frames(struct ws_frame frames[], size_t num_frames)
 	frame_buffer_fill_pos = buffer_pos - 1;
 }
 
-static enum cio_error bs_read_exactly_from_buffer(struct cio_buffered_stream *bs, struct cio_read_buffer *buffer, size_t num, cio_buffered_stream_read_handler handler, void *handler_context)
+static enum cio_error bs_read_at_least_from_buffer(struct cio_buffered_stream *bs, struct cio_read_buffer *buffer, size_t num, cio_buffered_stream_read_handler handler, void *handler_context)
 {
 	if (frame_buffer_read_pos > frame_buffer_fill_pos) {
-		handler(bs, handler_context, CIO_EOF, buffer);
+		handler(bs, handler_context, CIO_EOF, buffer, num);
 	} else {
 		memcpy(buffer->add_ptr, &frame_buffer[frame_buffer_read_pos], num);
-		buffer->bytes_transferred = num;
-		buffer->fetch_ptr = buffer->add_ptr + num;
+		buffer->add_ptr += num;
 		frame_buffer_read_pos += num;
 
-		handler(bs, handler_context, CIO_SUCCESS, buffer);
+		handler(bs, handler_context, CIO_SUCCESS, buffer, num);
 	}
 
 	return CIO_SUCCESS;
 }
 
-static enum cio_error bs_read_exactly_block(struct cio_buffered_stream *bs, struct cio_read_buffer *buffer, size_t num, cio_buffered_stream_read_handler handler, void *handler_context)
+static enum cio_error bs_read_at_least_block(struct cio_buffered_stream *bs, struct cio_read_buffer *buffer, size_t num, cio_buffered_stream_read_handler handler, void *handler_context)
 {
 	(void)bs;
 	(void)buffer;
@@ -321,21 +320,21 @@ static enum cio_error bs_read_exactly_block(struct cio_buffered_stream *bs, stru
 	return CIO_SUCCESS;
 }
 
-static enum cio_error bs_read_exactly_peer_close(struct cio_buffered_stream *bs, struct cio_read_buffer *buffer, size_t num, cio_buffered_stream_read_handler handler, void *handler_context)
+static enum cio_error bs_read_at_least_peer_close(struct cio_buffered_stream *bs, struct cio_read_buffer *buffer, size_t num, cio_buffered_stream_read_handler handler, void *handler_context)
 {
 	(void)num;
-	handler(bs, handler_context, CIO_EOF, buffer);
+	handler(bs, handler_context, CIO_EOF, buffer, 0);
 	return CIO_SUCCESS;
 }
 
-static enum cio_error bs_read_exactly_error(struct cio_buffered_stream *bs, struct cio_read_buffer *buffer, size_t num, cio_buffered_stream_read_handler handler, void *handler_context)
+static enum cio_error bs_read_at_least_error(struct cio_buffered_stream *bs, struct cio_read_buffer *buffer, size_t num, cio_buffered_stream_read_handler handler, void *handler_context)
 {
 	(void)num;
-	handler(bs, handler_context, CIO_OPERATION_NOT_PERMITTED, buffer);
+	handler(bs, handler_context, CIO_OPERATION_NOT_PERMITTED, buffer, 0);
 	return CIO_SUCCESS;
 }
 
-static enum cio_error bs_read_exactly_immediate_error(struct cio_buffered_stream *bs, struct cio_read_buffer *buffer, size_t num, cio_buffered_stream_read_handler handler, void *handler_context)
+static enum cio_error bs_read_at_least_immediate_error(struct cio_buffered_stream *bs, struct cio_read_buffer *buffer, size_t num, cio_buffered_stream_read_handler handler, void *handler_context)
 {
 	(void)bs;
 	(void)buffer;
@@ -446,7 +445,7 @@ void setUp(void)
 	RESET_FAKE(timer_cancel);
 	RESET_FAKE(timer_close);
 	RESET_FAKE(timer_expires_from_now);
-	RESET_FAKE(read_exactly);
+	RESET_FAKE(read_at_least);
 	RESET_FAKE(bs_write);
 	RESET_FAKE(on_connect);
 	RESET_FAKE(on_control);
@@ -467,12 +466,12 @@ void setUp(void)
 	timer_close_fake.custom_fake = timer_close_cancel;
 
 	read_handler_fake.custom_fake = read_handler_save_data;
-	read_exactly_fake.custom_fake = bs_read_exactly_from_buffer;
+	read_at_least_fake.custom_fake = bs_read_at_least_from_buffer;
 	bs_write_fake.custom_fake = bs_write_ok;
 	on_control_fake.custom_fake = on_control_save_data;
 	on_error_fake.custom_fake = on_error_save_data;
 
-	http_client.bs.read_exactly = read_exactly;
+	http_client.bs.read_at_least = read_at_least;
 	http_client.bs.write = bs_write;
 	frame_buffer_read_pos = 0;
 	frame_buffer_fill_pos = 0;
@@ -917,7 +916,7 @@ static void test_close_in_get_header(void)
 	};
 
 	serialize_frames(frames, ARRAY_SIZE(frames));
-	read_exactly_fake.custom_fake = bs_read_exactly_peer_close;
+	read_at_least_fake.custom_fake = bs_read_at_least_peer_close;
 
 	enum cio_error err = ws->read_message(ws, read_handler, NULL);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Could not start reading a message!");
@@ -945,10 +944,10 @@ static void test_immediate_read_error_for_get_header(void)
 	};
 
 	serialize_frames(frames, ARRAY_SIZE(frames));
-	enum cio_error (*read_exactly_fakes[])(struct cio_buffered_stream *, struct cio_read_buffer *, size_t, cio_buffered_stream_read_handler, void *) = {
-	    bs_read_exactly_immediate_error};
+	enum cio_error (*read_at_least_fakes[])(struct cio_buffered_stream *, struct cio_read_buffer *, size_t, cio_buffered_stream_read_handler, void *) = {
+		bs_read_at_least_immediate_error};
 
-	SET_CUSTOM_FAKE_SEQ(read_exactly, read_exactly_fakes, ARRAY_SIZE(read_exactly_fakes));
+	SET_CUSTOM_FAKE_SEQ(read_at_least, read_at_least_fakes, ARRAY_SIZE(read_at_least_fakes));
 
 	enum cio_error err = ws->read_message(ws, read_handler, NULL);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Could not start reading a message!");
@@ -976,7 +975,7 @@ static void test_read_error_in_get_header(void)
 	};
 
 	serialize_frames(frames, ARRAY_SIZE(frames));
-	read_exactly_fake.custom_fake = bs_read_exactly_error;
+	read_at_least_fake.custom_fake = bs_read_at_least_error;
 
 	enum cio_error err = ws->read_message(ws, read_handler, NULL);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Could not start reading a message!");
@@ -1004,11 +1003,11 @@ static void test_immediate_read_error_for_get_first_length(void)
 	};
 
 	serialize_frames(frames, ARRAY_SIZE(frames));
-	enum cio_error (*read_exactly_fakes[])(struct cio_buffered_stream *, struct cio_read_buffer *, size_t, cio_buffered_stream_read_handler, void *) = {
-	    bs_read_exactly_from_buffer,
-	    bs_read_exactly_immediate_error};
+	enum cio_error (*read_at_least_fakes[])(struct cio_buffered_stream *, struct cio_read_buffer *, size_t, cio_buffered_stream_read_handler, void *) = {
+		bs_read_at_least_from_buffer,
+		bs_read_at_least_immediate_error};
 
-	SET_CUSTOM_FAKE_SEQ(read_exactly, read_exactly_fakes, ARRAY_SIZE(read_exactly_fakes));
+	SET_CUSTOM_FAKE_SEQ(read_at_least, read_at_least_fakes, ARRAY_SIZE(read_at_least_fakes));
 
 	enum cio_error err = ws->read_message(ws, read_handler, NULL);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Could not start reading a message!");
@@ -1036,12 +1035,12 @@ static void test_immediate_read_error_for_get_mask(void)
 	};
 
 	serialize_frames(frames, ARRAY_SIZE(frames));
-	enum cio_error (*read_exactly_fakes[])(struct cio_buffered_stream *, struct cio_read_buffer *, size_t, cio_buffered_stream_read_handler, void *) = {
-	    bs_read_exactly_from_buffer,
-	    bs_read_exactly_from_buffer,
-	    bs_read_exactly_immediate_error};
+	enum cio_error (*read_at_least_fakes[])(struct cio_buffered_stream *, struct cio_read_buffer *, size_t, cio_buffered_stream_read_handler, void *) = {
+		bs_read_at_least_from_buffer,
+		bs_read_at_least_from_buffer,
+		bs_read_at_least_immediate_error};
 
-	SET_CUSTOM_FAKE_SEQ(read_exactly, read_exactly_fakes, ARRAY_SIZE(read_exactly_fakes));
+	SET_CUSTOM_FAKE_SEQ(read_at_least, read_at_least_fakes, ARRAY_SIZE(read_at_least_fakes));
 
 	enum cio_error err = ws->read_message(ws, read_handler, NULL);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Could not start reading a message!");
@@ -1074,12 +1073,12 @@ static void test_immediate_read_error_for_get_extended_length(void)
 		};
 
 		serialize_frames(frames, ARRAY_SIZE(frames));
-		enum cio_error (*read_exactly_fakes[])(struct cio_buffered_stream *, struct cio_read_buffer *, size_t, cio_buffered_stream_read_handler, void *) = {
-		    bs_read_exactly_from_buffer,
-		    bs_read_exactly_from_buffer,
-		    bs_read_exactly_immediate_error};
+		enum cio_error (*read_at_least_fakes[])(struct cio_buffered_stream *, struct cio_read_buffer *, size_t, cio_buffered_stream_read_handler, void *) = {
+			bs_read_at_least_from_buffer,
+			bs_read_at_least_from_buffer,
+			bs_read_at_least_immediate_error};
 
-		SET_CUSTOM_FAKE_SEQ(read_exactly, read_exactly_fakes, ARRAY_SIZE(read_exactly_fakes));
+		SET_CUSTOM_FAKE_SEQ(read_at_least, read_at_least_fakes, ARRAY_SIZE(read_at_least_fakes));
 
 		enum cio_error err = ws->read_message(ws, read_handler, NULL);
 		TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Could not start reading a message!");
@@ -1119,18 +1118,18 @@ static void test_close_in_get_length(void)
 
 		serialize_frames(frames, ARRAY_SIZE(frames));
 
-		read_exactly_fake_fun *read_exactly_fakes;
+		read_at_least_fake_fun *read_at_least_fakes;
 		if (frame_size <= 125) {
-			read_exactly_fakes = malloc(2 * sizeof(read_exactly_fake_fun));
-			read_exactly_fakes[0] = bs_read_exactly_from_buffer;
-			read_exactly_fakes[1] = bs_read_exactly_peer_close;
-			SET_CUSTOM_FAKE_SEQ(read_exactly, read_exactly_fakes, 2);
+			read_at_least_fakes = malloc(2 * sizeof(read_at_least_fake_fun));
+			read_at_least_fakes[0] = bs_read_at_least_from_buffer;
+			read_at_least_fakes[1] = bs_read_at_least_peer_close;
+			SET_CUSTOM_FAKE_SEQ(read_at_least, read_at_least_fakes, 2);
 		} else {
-			read_exactly_fakes = malloc(3 * sizeof(read_exactly_fake_fun));
-			read_exactly_fakes[0] = bs_read_exactly_from_buffer;
-			read_exactly_fakes[1] = bs_read_exactly_from_buffer;
-			read_exactly_fakes[2] = bs_read_exactly_peer_close;
-			SET_CUSTOM_FAKE_SEQ(read_exactly, read_exactly_fakes, 3);
+			read_at_least_fakes = malloc(3 * sizeof(read_at_least_fake_fun));
+			read_at_least_fakes[0] = bs_read_at_least_from_buffer;
+			read_at_least_fakes[1] = bs_read_at_least_from_buffer;
+			read_at_least_fakes[2] = bs_read_at_least_peer_close;
+			SET_CUSTOM_FAKE_SEQ(read_at_least, read_at_least_fakes, 3);
 		}
 
 		enum cio_error err = ws->read_message(ws, read_handler, NULL);
@@ -1151,7 +1150,7 @@ static void test_close_in_get_length(void)
 			free(data);
 		}
 
-		free(read_exactly_fakes);
+		free(read_at_least_fakes);
 
 		free(ws);
 		setUp();
@@ -1170,12 +1169,12 @@ static void test_close_in_get_mask(void)
 
 	serialize_frames(frames, ARRAY_SIZE(frames));
 
-	enum cio_error (*read_exactly_fakes[])(struct cio_buffered_stream *, struct cio_read_buffer *, size_t, cio_buffered_stream_read_handler, void *) = {
-	    bs_read_exactly_from_buffer,
-	    bs_read_exactly_from_buffer,
-	    bs_read_exactly_peer_close};
+	enum cio_error (*read_at_least_fakes[])(struct cio_buffered_stream *, struct cio_read_buffer *, size_t, cio_buffered_stream_read_handler, void *) = {
+		bs_read_at_least_from_buffer,
+		bs_read_at_least_from_buffer,
+		bs_read_at_least_peer_close};
 
-	SET_CUSTOM_FAKE_SEQ(read_exactly, read_exactly_fakes, ARRAY_SIZE(read_exactly_fakes));
+	SET_CUSTOM_FAKE_SEQ(read_at_least, read_at_least_fakes, ARRAY_SIZE(read_at_least_fakes));
 
 	enum cio_error err = ws->read_message(ws, read_handler, NULL);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Could not start reading a message!");
@@ -1204,12 +1203,12 @@ static void test_read_error_in_get_mask(void)
 
 	serialize_frames(frames, ARRAY_SIZE(frames));
 
-	enum cio_error (*read_exactly_fakes[])(struct cio_buffered_stream *, struct cio_read_buffer *, size_t, cio_buffered_stream_read_handler, void *) = {
-	    bs_read_exactly_from_buffer,
-	    bs_read_exactly_from_buffer,
-	    bs_read_exactly_error};
+	enum cio_error (*read_at_least_fakes[])(struct cio_buffered_stream *, struct cio_read_buffer *, size_t, cio_buffered_stream_read_handler, void *) = {
+		bs_read_at_least_from_buffer,
+		bs_read_at_least_from_buffer,
+		bs_read_at_least_error};
 
-	SET_CUSTOM_FAKE_SEQ(read_exactly, read_exactly_fakes, ARRAY_SIZE(read_exactly_fakes));
+	SET_CUSTOM_FAKE_SEQ(read_at_least, read_at_least_fakes, ARRAY_SIZE(read_at_least_fakes));
 
 	enum cio_error err = ws->read_message(ws, read_handler, NULL);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Could not start reading a message!");
@@ -1237,13 +1236,13 @@ static void test_immediate_read_error_for_get_payload(void)
 	};
 
 	serialize_frames(frames, ARRAY_SIZE(frames));
-	enum cio_error (*read_exactly_fakes[])(struct cio_buffered_stream *, struct cio_read_buffer *, size_t, cio_buffered_stream_read_handler, void *) = {
-	    bs_read_exactly_from_buffer,
-	    bs_read_exactly_from_buffer,
-	    bs_read_exactly_from_buffer,
-	    bs_read_exactly_immediate_error};
+	enum cio_error (*read_at_least_fakes[])(struct cio_buffered_stream *, struct cio_read_buffer *, size_t, cio_buffered_stream_read_handler, void *) = {
+		bs_read_at_least_from_buffer,
+		bs_read_at_least_from_buffer,
+		bs_read_at_least_from_buffer,
+		bs_read_at_least_immediate_error};
 
-	SET_CUSTOM_FAKE_SEQ(read_exactly, read_exactly_fakes, ARRAY_SIZE(read_exactly_fakes));
+	SET_CUSTOM_FAKE_SEQ(read_at_least, read_at_least_fakes, ARRAY_SIZE(read_at_least_fakes));
 
 	enum cio_error err = ws->read_message(ws, read_handler, NULL);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Could not start reading a message!");
@@ -1272,13 +1271,13 @@ static void test_close_in_get_payload(void)
 
 	serialize_frames(frames, ARRAY_SIZE(frames));
 
-	enum cio_error (*read_exactly_fakes[])(struct cio_buffered_stream *, struct cio_read_buffer *, size_t, cio_buffered_stream_read_handler, void *) = {
-	    bs_read_exactly_from_buffer,
-	    bs_read_exactly_from_buffer,
-	    bs_read_exactly_from_buffer,
-	    bs_read_exactly_peer_close};
+	enum cio_error (*read_at_least_fakes[])(struct cio_buffered_stream *, struct cio_read_buffer *, size_t, cio_buffered_stream_read_handler, void *) = {
+		bs_read_at_least_from_buffer,
+		bs_read_at_least_from_buffer,
+		bs_read_at_least_from_buffer,
+		bs_read_at_least_peer_close};
 
-	SET_CUSTOM_FAKE_SEQ(read_exactly, read_exactly_fakes, ARRAY_SIZE(read_exactly_fakes));
+	SET_CUSTOM_FAKE_SEQ(read_at_least, read_at_least_fakes, ARRAY_SIZE(read_at_least_fakes));
 
 	enum cio_error err = ws->read_message(ws, read_handler, NULL);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Could not start reading a message!");
@@ -1307,13 +1306,13 @@ static void test_read_error_in_get_payload(void)
 
 	serialize_frames(frames, ARRAY_SIZE(frames));
 
-	enum cio_error (*read_exactly_fakes[])(struct cio_buffered_stream *, struct cio_read_buffer *, size_t, cio_buffered_stream_read_handler, void *) = {
-	    bs_read_exactly_from_buffer,
-	    bs_read_exactly_from_buffer,
-	    bs_read_exactly_from_buffer,
-	    bs_read_exactly_error};
+	enum cio_error (*read_at_least_fakes[])(struct cio_buffered_stream *, struct cio_read_buffer *, size_t, cio_buffered_stream_read_handler, void *) = {
+		bs_read_at_least_from_buffer,
+		bs_read_at_least_from_buffer,
+		bs_read_at_least_from_buffer,
+		bs_read_at_least_error};
 
-	SET_CUSTOM_FAKE_SEQ(read_exactly, read_exactly_fakes, ARRAY_SIZE(read_exactly_fakes));
+	SET_CUSTOM_FAKE_SEQ(read_at_least, read_at_least_fakes, ARRAY_SIZE(read_at_least_fakes));
 
 	enum cio_error err = ws->read_message(ws, read_handler, NULL);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Could not start reading a message!");
@@ -2035,7 +2034,7 @@ static void test_close_self_no_answer(void)
 	enum cio_error err = ws->close(ws, CIO_WEBSOCKET_CLOSE_NORMAL, NULL, close_handler, NULL);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Could not start reading a message!");
 
-	read_exactly_fake.custom_fake = bs_read_exactly_block;
+	read_at_least_fake.custom_fake = bs_read_at_least_block;
 
 	err = ws->read_message(ws, read_handler, NULL);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "read_message did not succeed");

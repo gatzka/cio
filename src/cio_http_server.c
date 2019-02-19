@@ -55,13 +55,14 @@
 #define CIO_HTTP_CONNECTION_UPGRADE "Connection: Upgrade" CIO_CRLF
 
 #define CIO_HTTP_VERSION "HTTP/1.1"
+#define MIN(x, y) (((x) < (y)) ? (x) : (y))
 
 static const uint32_t NANO_SECONDS_IN_SECONDS = 1000000000;
 
 static int on_url(http_parser *parser, const char *at, size_t length);
 static void finish_request_line(struct cio_http_client *client);
 static enum cio_error write_response(struct cio_http_client *client, enum cio_http_status_code status_code, struct cio_write_buffer *wbh, void (*response_written_cb)(struct cio_http_client *client, enum cio_error err));
-static void parse(struct cio_buffered_stream *bs, void *handler_context, enum cio_error err, struct cio_read_buffer *read_buffer);
+static void parse(struct cio_buffered_stream *bs, void *handler_context, enum cio_error err, struct cio_read_buffer *read_buffer, size_t bytes_to_parse);
 static void handle_server_error(struct cio_http_client *client, const char *msg);
 
 static void handle_error(struct cio_http_server *server, const char *reason)
@@ -334,7 +335,7 @@ static void handle_server_error(struct cio_http_client *client, const char *msg)
 
 static void finish_bytes(struct cio_http_client *client)
 {
-	enum cio_error err = client->bs.read(&client->bs, &client->rb, parse, client);
+	enum cio_error err = client->bs.read_at_least(&client->bs, &client->rb, 1, parse, client);
 	if (cio_unlikely(err != CIO_SUCCESS)) {
 		handle_server_error(client, "Reading of bytes failed");
 	}
@@ -373,6 +374,7 @@ static int on_headers_complete(http_parser *parser)
 
 	if (client->content_length > 0) {
 		client->http_private.finish_func = finish_bytes;
+		client->http_private.remaining_content_length = parser->content_length;
 	}
 
 	return 0;
@@ -542,7 +544,7 @@ static inline bool cio_is_error(enum cio_error error)
 	return error < CIO_SUCCESS;
 }
 
-static void parse(struct cio_buffered_stream *bs, void *handler_context, enum cio_error err, struct cio_read_buffer *read_buffer)
+static void parse(struct cio_buffered_stream *bs, void *handler_context, enum cio_error err, struct cio_read_buffer *read_buffer, size_t bytes_to_parse)
 {
 	(void)bs;
 
@@ -559,13 +561,19 @@ static void parse(struct cio_buffered_stream *bs, void *handler_context, enum ci
 		return;
 	}
 
-	size_t bytes_transfered = cio_read_buffer_get_transferred_bytes(read_buffer);
+	if (client->http_private.remaining_content_length > 0) {
+		size_t available = cio_read_buffer_unread_bytes(read_buffer);
+		bytes_to_parse = MIN(available, client->http_private.remaining_content_length);
+		client->http_private.remaining_content_length -= bytes_to_parse;
+	}
+
 	client->http_private.parsing++;
 
-	size_t nparsed = http_parser_execute(parser, &client->parser_settings, (const char *)cio_read_buffer_get_read_ptr(read_buffer), bytes_transfered);
+	size_t nparsed = http_parser_execute(parser, &client->parser_settings, (const char *)cio_read_buffer_get_read_ptr(read_buffer), bytes_to_parse);
+	cio_read_buffer_consume(read_buffer, nparsed);
 	client->http_private.parsing--;
 
-	if (cio_unlikely(nparsed != bytes_transfered)) {
+	if (cio_unlikely(nparsed != bytes_to_parse)) {
 		err = write_response(client, CIO_HTTP_STATUS_BAD_REQUEST, NULL, NULL);
 		if (cio_unlikely(err != CIO_SUCCESS)) {
 			close_client(client);
@@ -628,6 +636,7 @@ static void handle_accept(struct cio_server_socket *ss, void *handler_context, e
 	client->http_private.headers_complete = false;
 	client->content_length = 0;
 	client->http_private.to_be_closed = false;
+	client->http_private.remaining_content_length = 0;
 	client->http_private.should_keepalive = true;
 	client->http_private.close_immediately = false;
 	client->http_private.parsing = 0;
