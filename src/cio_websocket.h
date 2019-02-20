@@ -110,7 +110,7 @@ struct cio_response_buffer {
 };
 
 struct cio_websocket_private {
-	uint64_t read_frame_length;
+	uint64_t remaining_read_frame_length;
 
 	struct {
 		unsigned int fin : 1;

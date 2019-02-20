@@ -351,6 +351,11 @@ static bool is_invalid_status_code(uint16_t status_code)
 	return true;
 }
 
+static inline bool is_control_frame(unsigned int opcode)
+{
+	return opcode >= CIO_WEBSOCKET_CLOSE_FRAME;
+}
+
 static void close_timeout_handler(struct cio_timer *timer, void *handler_context, enum cio_error err)
 {
 	(void)timer;
@@ -382,7 +387,7 @@ static int payload_size_in_limit(const struct cio_write_buffer *payload, size_t 
 
 static void handle_binary_frame(struct cio_websocket *ws, uint8_t *data, uint64_t length, bool last_frame)
 {
-	ws->ws_private.read_handler(ws, ws->ws_private.read_handler_context, CIO_SUCCESS, ws->ws_private.read_frame_length, data, (size_t)length, last_frame, true);
+	ws->ws_private.read_handler(ws, ws->ws_private.read_handler_context, CIO_SUCCESS, ws->ws_private.remaining_read_frame_length, data, (size_t)length, last_frame, true);
 }
 
 static void handle_text_frame(struct cio_websocket *ws, uint8_t *data, uint64_t length, bool last_frame)
@@ -396,7 +401,7 @@ static void handle_text_frame(struct cio_websocket *ws, uint8_t *data, uint64_t 
 		return;
 	}
 
-	ws->ws_private.read_handler(ws, ws->ws_private.read_handler_context, CIO_SUCCESS, ws->ws_private.read_frame_length, data, len, last_frame, false);
+	ws->ws_private.read_handler(ws, ws->ws_private.read_handler_context, CIO_SUCCESS, ws->ws_private.remaining_read_frame_length, data, len, last_frame, false);
 
 	if (last_frame) {
 		cio_utf8_init(&ws->ws_private.utf8_state);
@@ -560,21 +565,33 @@ static void get_payload(struct cio_buffered_stream *bs, void *handler_context, e
 	}
 
 	uint8_t *ptr = cio_read_buffer_get_read_ptr(buffer);
-	cio_read_buffer_consume(buffer, num_bytes);
+	if (cio_likely(!is_control_frame(ws->ws_private.ws_flags.opcode))) {
+		size_t data_in_buffer = cio_read_buffer_unread_bytes(buffer);
+		num_bytes = MIN(ws->ws_private.remaining_read_frame_length, data_in_buffer);
+		ws->ws_private.remaining_read_frame_length -= num_bytes;
+	}
 
+	cio_read_buffer_consume(buffer, num_bytes);
 	handle_frame(ws, ptr, num_bytes);
 }
 
 static void read_payload(struct cio_websocket *ws, struct cio_buffered_stream *bs, struct cio_read_buffer *buffer)
 {
-	if (cio_likely(ws->ws_private.read_frame_length > 0)) {
-		if (cio_unlikely(ws->ws_private.read_frame_length > SIZE_MAX)) {
+	if (cio_likely(ws->ws_private.remaining_read_frame_length > 0)) {
+		if (cio_unlikely(ws->ws_private.remaining_read_frame_length > SIZE_MAX)) {
 			handle_error(ws, CIO_MESSAGE_TOO_LONG, CIO_WEBSOCKET_CLOSE_TOO_LARGE, "websocket frame to large to process!");
+			return;
+		}
+
+		enum cio_error err;
+		if (cio_unlikely(is_control_frame(ws->ws_private.ws_flags.opcode))) {
+			err = bs->read_at_least(bs, buffer, (size_t)ws->ws_private.remaining_read_frame_length, get_payload, ws);
 		} else {
-			enum cio_error err = bs->read_at_least(bs, buffer, (size_t)ws->ws_private.read_frame_length, get_payload, ws);
-			if (cio_unlikely(err != CIO_SUCCESS)) {
-				handle_error(ws, err, CIO_WEBSOCKET_CLOSE_INTERNAL_ERROR, "error while start reading websocket payload");
-			}
+			err = bs->read_at_least(bs, buffer, 1, get_payload, ws);
+		}
+
+		if (cio_unlikely(err != CIO_SUCCESS)) {
+			handle_error(ws, err, CIO_WEBSOCKET_CLOSE_INTERNAL_ERROR, "error while start reading websocket payload");
 		}
 	} else {
 		handle_frame(ws, NULL, 0);
@@ -621,7 +638,7 @@ static void get_length16(struct cio_buffered_stream *bs, void *handler_context, 
 	memcpy(&field, ptr, num_bytes);
 	cio_read_buffer_consume(buffer, num_bytes);
 	field = cio_be16toh(field);
-	ws->ws_private.read_frame_length = (uint64_t)field;
+	ws->ws_private.remaining_read_frame_length = (uint64_t)field;
 	get_mask_or_payload(ws, bs, buffer);
 }
 
@@ -638,13 +655,8 @@ static void get_length64(struct cio_buffered_stream *bs, void *handler_context, 
 	memcpy(&field, ptr, num_bytes);
 	cio_read_buffer_consume(buffer, num_bytes);
 	field = cio_be64toh(field);
-	ws->ws_private.read_frame_length = field;
+	ws->ws_private.remaining_read_frame_length = field;
 	get_mask_or_payload(ws, bs, buffer);
-}
-
-static inline bool is_control_frame(unsigned int opcode)
-{
-	return opcode >= CIO_WEBSOCKET_CLOSE_FRAME;
 }
 
 static void get_first_length(struct cio_buffered_stream *bs, void *handler_context, enum cio_error err, struct cio_read_buffer *buffer, size_t num_bytes)
@@ -665,7 +677,7 @@ static void get_first_length(struct cio_buffered_stream *bs, void *handler_conte
 
 	field = field & (uint8_t)(~WS_MASK_SET);
 	if (field <= CIO_WEBSOCKET_SMALL_FRAME_SIZE) {
-		ws->ws_private.read_frame_length = (uint64_t)field;
+		ws->ws_private.remaining_read_frame_length = (uint64_t)field;
 		get_mask_or_payload(ws, bs, buffer);
 	} else {
 		if (cio_unlikely(is_control_frame(ws->ws_private.ws_flags.opcode))) {
