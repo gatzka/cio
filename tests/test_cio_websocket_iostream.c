@@ -55,12 +55,6 @@ enum frame_direction {
 static void read_handler(struct cio_websocket *ws, void *handler_context, enum cio_error err, size_t frame_length, uint8_t *data, size_t length, bool last_frame, bool is_binary);
 FAKE_VOID_FUNC(read_handler, struct cio_websocket *, void *, enum cio_error, size_t, uint8_t *, size_t, bool, bool)
 
-static enum cio_error read_at_least(struct cio_buffered_stream *bs, struct cio_read_buffer *buffer, size_t num, cio_buffered_stream_read_handler handler, void *handler_context);
-FAKE_VALUE_FUNC(enum cio_error, read_at_least, struct cio_buffered_stream *, struct cio_read_buffer *, size_t, cio_buffered_stream_read_handler, void *)
-
-static enum cio_error bs_write(struct cio_buffered_stream *bs, struct cio_write_buffer *buf, cio_buffered_stream_write_handler handler, void *handler_context);
-FAKE_VALUE_FUNC(enum cio_error, bs_write, struct cio_buffered_stream *, struct cio_write_buffer *, cio_buffered_stream_write_handler, void *)
-
 static void on_connect(struct cio_websocket *s);
 FAKE_VOID_FUNC(on_connect, struct cio_websocket *)
 
@@ -92,19 +86,27 @@ struct ws_frame {
 	bool rsv;
 };
 
-static uint8_t frame_buffer[140000];
-static size_t frame_buffer_read_pos = 0;
-static size_t frame_buffer_fill_pos = 0;
+struct memory_stream {
+	struct cio_io_stream ios;
+
+	uint8_t frame_buffer[140000];
+	size_t frame_buffer_read_pos;
+	size_t frame_buffer_fill_pos;
+
+	uint8_t write_buffer[140000];
+	size_t write_buffer_pos;
+	size_t write_buffer_parse_pos;
+};
+
+static struct memory_stream ms;
+
 static uint8_t read_buffer[140000];
 static uint8_t read_back_buffer[140000];
 static size_t read_back_buffer_pos = 0;
-static uint8_t write_buffer[140000];
-static size_t write_buffer_pos = 0;
-static size_t write_buffer_parse_pos = 0;
 
 static bool check_frame(enum cio_websocket_frame_type opcode, const char *payload, size_t payload_length, bool is_last_frame)
 {
-	uint8_t header = write_buffer[write_buffer_parse_pos++];
+	uint8_t header = ms.write_buffer[ms.write_buffer_parse_pos++];
 	if (((header & WS_HEADER_FIN) == WS_HEADER_FIN) != is_last_frame) {
 		return false;
 	}
@@ -117,21 +119,21 @@ static bool check_frame(enum cio_websocket_frame_type opcode, const char *payloa
 		return false;
 	}
 
-	uint8_t first_length = write_buffer[write_buffer_parse_pos++];
+	uint8_t first_length = ms.write_buffer[ms.write_buffer_parse_pos++];
 	bool is_masked = ((first_length & WS_MASK_SET) == WS_MASK_SET);
 	first_length = (uint8_t)(first_length & ~WS_MASK_SET);
 
 	uint64_t length;
 	if (first_length == 126) {
 		uint16_t len;
-		memcpy(&len, &write_buffer[write_buffer_parse_pos], sizeof(len));
-		write_buffer_parse_pos += sizeof(len);
+		memcpy(&len, &ms.write_buffer[ms.write_buffer_parse_pos], sizeof(len));
+		ms.write_buffer_parse_pos += sizeof(len);
 		len = cio_be16toh(len);
 		length = len;
 	} else if (first_length == 127) {
 		uint64_t len;
-		memcpy(&len, &write_buffer[write_buffer_parse_pos], sizeof(len));
-		write_buffer_parse_pos += sizeof(len);
+		memcpy(&len, &ms.write_buffer[ms.write_buffer_parse_pos], sizeof(len));
+		ms.write_buffer_parse_pos += sizeof(len);
 		len = cio_be64toh(len);
 		length = len;
 	} else {
@@ -148,33 +150,33 @@ static bool check_frame(enum cio_websocket_frame_type opcode, const char *payloa
 
 	if (is_masked) {
 		uint8_t mask[4];
-		memcpy(mask, &write_buffer[write_buffer_parse_pos], sizeof(mask));
-		write_buffer_parse_pos += sizeof(mask);
-		cio_websocket_mask(&write_buffer[write_buffer_parse_pos], (size_t)length, mask);
+		memcpy(mask, &ms.write_buffer[ms.write_buffer_parse_pos], sizeof(mask));
+		ms.write_buffer_parse_pos += sizeof(mask);
+		cio_websocket_mask(&ms.write_buffer[ms.write_buffer_parse_pos], (size_t)length, mask);
 	}
 
 	if (length > 0) {
-		if (memcmp(&write_buffer[write_buffer_parse_pos], payload, (size_t)length) != 0) {
+		if (memcmp(&ms.write_buffer[ms.write_buffer_parse_pos], payload, (size_t)length) != 0) {
 			return false;
 		}
 	}
 
-	write_buffer_parse_pos += payload_length;
+	ms.write_buffer_parse_pos += payload_length;
 
 	return true;
 }
 
 static bool is_close_frame(uint16_t status_code, bool status_code_required)
 {
-	if ((write_buffer[write_buffer_parse_pos] & WS_HEADER_FIN) != WS_HEADER_FIN) {
+	if ((ms.write_buffer[ms.write_buffer_parse_pos] & WS_HEADER_FIN) != WS_HEADER_FIN) {
 		return false;
 	}
 
-	if ((write_buffer[write_buffer_parse_pos++] & WS_CLOSE_FRAME) == 0) {
+	if ((ms.write_buffer[ms.write_buffer_parse_pos++] & WS_CLOSE_FRAME) == 0) {
 		return false;
 	}
 
-	uint8_t first_length = write_buffer[write_buffer_parse_pos++];
+	uint8_t first_length = ms.write_buffer[ms.write_buffer_parse_pos++];
 	bool is_masked = ((first_length & WS_MASK_SET) == WS_MASK_SET);
 	first_length = (uint8_t)(first_length & ~WS_MASK_SET);
 
@@ -192,18 +194,18 @@ static bool is_close_frame(uint16_t status_code, bool status_code_required)
 
 	if (is_masked) {
 		uint8_t mask[4];
-		memcpy(mask, &write_buffer[write_buffer_parse_pos], sizeof(mask));
-		write_buffer_parse_pos += sizeof(mask);
-		cio_websocket_mask(&write_buffer[write_buffer_parse_pos], first_length, mask);
+		memcpy(mask, &ms.write_buffer[ms.write_buffer_parse_pos], sizeof(mask));
+		ms.write_buffer_parse_pos += sizeof(mask);
+		cio_websocket_mask(&ms.write_buffer[ms.write_buffer_parse_pos], first_length, mask);
 	}
 
 	if (first_length > 0) {
 		uint16_t sc;
-		memcpy(&sc, &write_buffer[write_buffer_parse_pos], sizeof(sc));
+		memcpy(&sc, &ms.write_buffer[ms.write_buffer_parse_pos], sizeof(sc));
 		sc = cio_be16toh(sc);
-		write_buffer_parse_pos += sizeof(sc);
+		ms.write_buffer_parse_pos += sizeof(sc);
 		first_length = (uint8_t)(first_length - sizeof(sc));
-		write_buffer_parse_pos += first_length;
+		ms.write_buffer_parse_pos += first_length;
 		if (status_code != sc) {
 			return false;
 		}
@@ -218,88 +220,60 @@ static void serialize_frames(struct ws_frame frames[], size_t num_frames)
 	for (size_t i = 0; i < num_frames; i++) {
 		struct ws_frame frame = frames[i];
 		if (frame.last_frame) {
-			frame_buffer[buffer_pos] = WS_HEADER_FIN;
+			ms.frame_buffer[buffer_pos] = WS_HEADER_FIN;
 		} else {
-			frame_buffer[buffer_pos] = 0x0;
+			ms.frame_buffer[buffer_pos] = 0x0;
 		}
 
 		if (frame.rsv) {
-			frame_buffer[buffer_pos] |= 0x70;
+			ms.frame_buffer[buffer_pos] |= 0x70;
 		}
 
-		frame_buffer[buffer_pos] = (uint8_t)(frame_buffer[buffer_pos] | frame.frame_type);
+		ms.frame_buffer[buffer_pos] = (uint8_t)(ms.frame_buffer[buffer_pos] | frame.frame_type);
 		buffer_pos++;
 
 		if (frame.direction == FROM_CLIENT) {
-			frame_buffer[buffer_pos] = WS_MASK_SET;
+			ms.frame_buffer[buffer_pos] = WS_MASK_SET;
 		} else {
-			frame_buffer[buffer_pos] = 0x00;
+			ms.frame_buffer[buffer_pos] = 0x00;
 		}
 
 		if (frame.data_length <= 125) {
-			frame_buffer[buffer_pos] |= (uint8_t)frame.data_length;
+			ms.frame_buffer[buffer_pos] |= (uint8_t)frame.data_length;
 			buffer_pos++;
 		} else if (frame.data_length < 65536) {
 			uint16_t len = (uint16_t)frame.data_length;
-			frame_buffer[buffer_pos] |= 126;
+			ms.frame_buffer[buffer_pos] |= 126;
 			buffer_pos++;
 			len = cio_htobe16(len);
-			memcpy(&frame_buffer[buffer_pos], &len, sizeof(len));
+			memcpy(&ms.frame_buffer[buffer_pos], &len, sizeof(len));
 			buffer_pos += sizeof(len);
 		} else {
-			frame_buffer[buffer_pos] |= 127;
+			ms.frame_buffer[buffer_pos] |= 127;
 			buffer_pos++;
 			uint64_t len = (uint64_t)frame.data_length;
 			len = cio_htobe64(len);
-			memcpy(&frame_buffer[buffer_pos], &len, sizeof(len));
+			memcpy(&ms.frame_buffer[buffer_pos], &len, sizeof(len));
 			buffer_pos += sizeof(len);
 		}
 
 		uint8_t mask[4] = {0x1, 0x2, 0x3, 0x4};
 		if (frame.direction == FROM_CLIENT) {
-			memcpy(&frame_buffer[buffer_pos], mask, sizeof(mask));
+			memcpy(&ms.frame_buffer[buffer_pos], mask, sizeof(mask));
 			buffer_pos += sizeof(mask);
 		}
 
 		if (frame.data_length > 0) {
-			memcpy(&frame_buffer[buffer_pos], frame.data, frame.data_length);
+			memcpy(&ms.frame_buffer[buffer_pos], frame.data, frame.data_length);
 			if (frame.direction == FROM_CLIENT) {
-				cio_websocket_mask(&frame_buffer[buffer_pos], frame.data_length, mask);
+				cio_websocket_mask(&ms.frame_buffer[buffer_pos], frame.data_length, mask);
 			}
 
 			buffer_pos += frame.data_length;
 		}
 	}
 
-	frame_buffer_fill_pos = buffer_pos - 1;
-}
-
-static enum cio_error bs_read_at_least_from_buffer(struct cio_buffered_stream *bs, struct cio_read_buffer *buffer, size_t num, cio_buffered_stream_read_handler handler, void *handler_context)
-{
-	if (frame_buffer_read_pos > frame_buffer_fill_pos) {
-		handler(bs, handler_context, CIO_EOF, buffer, num);
-	} else {
-		memcpy(buffer->add_ptr, &frame_buffer[frame_buffer_read_pos], num);
-		buffer->add_ptr += num;
-		frame_buffer_read_pos += num;
-
-		handler(bs, handler_context, CIO_SUCCESS, buffer, num);
-	}
-
-	return CIO_SUCCESS;
-}
-
-static enum cio_error bs_write_ok(struct cio_buffered_stream *bs, struct cio_write_buffer *buf, cio_buffered_stream_write_handler handler, void *handler_context)
-{
-	size_t len = buf->data.q_len;
-	for (unsigned int i = 0; i < len; i++) {
-		buf = buf->next;
-		memcpy(&write_buffer[write_buffer_pos], buf->data.element.data, buf->data.element.length);
-		write_buffer_pos += buf->data.element.length;
-	}
-
-	handler(bs, handler_context, CIO_SUCCESS);
-	return CIO_SUCCESS;
+	ms.frame_buffer_fill_pos = buffer_pos - 1;
 }
 
 static void read_handler_save_data(struct cio_websocket *websocket, void *handler_context, enum cio_error err, size_t remaining_length, uint8_t *data, size_t length, bool last_frame, bool is_binary)
@@ -346,8 +320,6 @@ void setUp(void)
 	RESET_FAKE(read_handler);
 
 	RESET_FAKE(cio_timer_init);
-	RESET_FAKE(read_at_least);
-	RESET_FAKE(bs_write);
 	RESET_FAKE(on_connect);
 	RESET_FAKE(on_control);
 	RESET_FAKE(on_error);
@@ -355,6 +327,7 @@ void setUp(void)
 	RESET_FAKE(write_handler);
 
 	cio_read_buffer_init(&http_client.rb, read_buffer, sizeof(read_buffer));
+	cio_buffered_stream_init(&http_client.bs, NULL);
 	ws = (struct cio_websocket *)malloc(sizeof(*ws));
 	cio_websocket_init(ws, false, on_connect, NULL);
 	ws->ws_private.http_client = &http_client;
@@ -362,22 +335,18 @@ void setUp(void)
 	ws->on_error = on_error;
 
 	read_handler_fake.custom_fake = read_handler_save_data;
-	read_at_least_fake.custom_fake = bs_read_at_least_from_buffer;
-	bs_write_fake.custom_fake = bs_write_ok;
 	on_control_fake.custom_fake = on_control_save_data;
 	on_error_fake.custom_fake = on_error_save_data;
 
-	http_client.bs.read_at_least = read_at_least;
-	http_client.bs.write = bs_write;
-	frame_buffer_read_pos = 0;
-	frame_buffer_fill_pos = 0;
+	ms.frame_buffer_read_pos = 0;
+	ms.frame_buffer_fill_pos = 0;
 
 	memset(read_buffer, 0x00, sizeof(read_buffer));
 	memset(read_back_buffer, 0x00, sizeof(read_back_buffer));
 	read_back_buffer_pos = 0;
-	write_buffer_pos = 0;
-	write_buffer_parse_pos = 0;
-	memset(write_buffer, 0x00, sizeof(write_buffer));
+	ms.write_buffer_pos = 0;
+	ms.write_buffer_parse_pos = 0;
+	memset(ms.write_buffer, 0x00, sizeof(ms.write_buffer));
 }
 
 void tearDown(void)
