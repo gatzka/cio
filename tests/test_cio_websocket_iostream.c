@@ -89,7 +89,7 @@ struct ws_frame {
 	bool rsv;
 };
 
-#define READ_BUFFER_SIZE 200
+#define READ_BUFFER_SIZE 150
 #define WRITE_BUFFER_SIZE 140000
 
 struct memory_stream {
@@ -149,8 +149,10 @@ static void memory_stream_init(struct memory_stream *s)
 
 static void run_eventloop_fake(void)
 {
+
+while (true) {
 	if (ms.frame_buffer_read_pos >= ms.frame_buffer_fill_pos) {
-		ms.ios.read_handler(&ms.ios, ms.ios.read_handler_context, CIO_EOF, ms.ios.read_buffer);
+		//ms.ios.read_handler(&ms.ios, ms.ios.read_handler_context, CIO_EOF, ms.ios.read_buffer);
 		return;
 	}
 
@@ -161,6 +163,7 @@ static void run_eventloop_fake(void)
 	ms.ios.read_buffer->add_ptr += bytes_to_read;
 	ms.frame_buffer_read_pos += bytes_to_read;
 	ms.ios.read_handler(&ms.ios, ms.ios.read_handler_context, CIO_SUCCESS, ms.ios.read_buffer);
+}
 }
 
 static bool check_frame(enum cio_websocket_frame_type opcode, const char *payload, size_t payload_length, bool is_last_frame)
@@ -332,7 +335,7 @@ static void serialize_frames(struct ws_frame frames[], size_t num_frames)
 		}
 	}
 
-	ms.frame_buffer_fill_pos = buffer_pos - 1;
+	ms.frame_buffer_fill_pos = buffer_pos;
 }
 
 static void read_handler_save_data(struct cio_websocket *websocket, void *handler_context, enum cio_error err, size_t remaining_length, uint8_t *data, size_t length, bool last_frame, bool is_binary)
@@ -423,7 +426,7 @@ static void test_client_send_text_binary_frame(void)
 			memset(check_data, 'a', frame_size);
 
 			struct ws_frame frames[] = {
-			    {.frame_type = CIO_WEBSOCKET_CLOSE_FRAME, .direction = FROM_CLIENT, .data = NULL, .data_length = 0, .last_frame = true, .rsv = false},
+			    {.frame_type = CIO_WEBSOCKET_CLOSE_FRAME, .direction = FROM_SERVER, .data = NULL, .data_length = 0, .last_frame = true, .rsv = false},
 			};
 
 			serialize_frames(frames, ARRAY_SIZE(frames));
@@ -474,88 +477,88 @@ static void test_client_send_text_binary_frame(void)
 		}
 	}
 }
-#if 0
-static void test_client_send_fragmented_frames(void)
-{
-	uint32_t first_frame_sizes[] = {125, 126};
-	uint32_t second_frame_sizes[] = {125, 126};
 
-	//uint32_t first_frame_sizes[] = {1, 2, 3, 4, 5, 6, 7, 8, 125, 126, 65535, 65536};
-	//uint32_t second_frame_sizes[] = {1, 2, 3, 4, 5, 6, 7, 8, 125, 126, 65535, 65536};
+static void test_client_receive_fragmented_frames(void)
+{
+	uint32_t first_frame_sizes[] = {1, 2, 3, 4, 5, 6, 7, 8, 125, 126, 65535, 65536};
+	uint32_t second_frame_sizes[] = {1, 2, 3, 4, 5, 6, 7, 8, 125, 126, 65535, 65536};
 	unsigned int frame_types[] = {CIO_WEBSOCKET_BINARY_FRAME, CIO_WEBSOCKET_TEXT_FRAME};
+	enum frame_direction dirs[] = {FROM_CLIENT, FROM_SERVER};
 
 	for (unsigned int i = 0; i < ARRAY_SIZE(first_frame_sizes); i++) {
 		for (unsigned int j = 0; j < ARRAY_SIZE(second_frame_sizes); j++) {
 			for (unsigned int k = 0; k < ARRAY_SIZE(frame_types); k++) {
-				unsigned int frame_type = frame_types[k];
-				uint32_t first_frame_size = first_frame_sizes[i];
-				uint32_t second_frame_size = second_frame_sizes[j];
+				for (unsigned int l = 0; l < ARRAY_SIZE(dirs); l++) {
+					unsigned int frame_type = frame_types[k];
+					uint32_t first_frame_size = first_frame_sizes[i];
+					uint32_t second_frame_size = second_frame_sizes[j];
+					enum frame_direction dir = dirs[l];
 
-				char *first_data = malloc(first_frame_size);
-				memset(first_data, 'a', first_frame_size);
+					char *first_data = malloc(first_frame_size);
+					memset(first_data, 'a', first_frame_size);
 
-				char *last_data = malloc(second_frame_size);
-				memset(last_data, 'b', second_frame_size);
-				struct ws_frame frames[] = {
-				    {.frame_type = frame_type, .direction = FROM_SERVER, .data = first_data, .data_length = first_frame_size, .last_frame = false},
-				    {.frame_type = CIO_WEBSOCKET_CONTINUATION_FRAME, .direction = FROM_SERVER, .data = last_data, .data_length = second_frame_size, .last_frame = true, .rsv = false},
-				    {.frame_type = CIO_WEBSOCKET_CLOSE_FRAME, .direction = FROM_SERVER, .data = NULL, .data_length = 0, .last_frame = true, .rsv = false},
-				};
+					char *last_data = malloc(second_frame_size);
+					memset(last_data, 'b', second_frame_size);
+					struct ws_frame frames[] = {
+					    {.frame_type = frame_type, .direction = dir, .data = first_data, .data_length = first_frame_size, .last_frame = false},
+					    {.frame_type = CIO_WEBSOCKET_CONTINUATION_FRAME, .direction = dir, .data = last_data, .data_length = second_frame_size, .last_frame = true, .rsv = false},
+					    {.frame_type = CIO_WEBSOCKET_CLOSE_FRAME, .direction = dir, .data = NULL, .data_length = 0, .last_frame = true, .rsv = false},
+					};
 
-				serialize_frames(frames, ARRAY_SIZE(frames));
+					serialize_frames(frames, ARRAY_SIZE(frames));
 
-				enum cio_error err = ws->read_message(ws, read_handler, NULL);
-				TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Could not start reading a message!");
+					ws->ws_private.ws_flags.is_server = (dir == FROM_CLIENT) ? 1 : 0;
+					enum cio_error err = ws->read_message(ws, read_handler, NULL);
+					TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Could not start reading a message!");
 
-				TEST_ASSERT_GREATER_OR_EQUAL_MESSAGE(3, read_handler_fake.call_count, "read_handler was not called");
+					run_eventloop_fake();
 
-				//for (unsigned int read_cnt = 0; read_cnt < read_handler_fake.call_count; read_cnt++) {
-				//for (unsigned int read_cnt = 0; read_cnt < 3; read_cnt++) {
-				//	TEST_ASSERT_EQUAL_MESSAGE(ws, read_handler_fake.arg0_history[read_cnt], "websocket parameter of read_handler not correct");
-				//	TEST_ASSERT_NULL_MESSAGE(read_handler_fake.arg1_history[read_cnt], "context parameter of read handler not NULL");
-				//	if (read_cnt < read_handler_fake.call_count - 1) {
-				//		TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, read_handler_fake.arg2_history[read_cnt], "error parameter of read_handler not CIO_SUCCESS");
-				//		if (read_cnt == 0) {
-				//			TEST_ASSERT_FALSE_MESSAGE(read_handler_fake.arg6_history[read_cnt], "last_frame parameter of read_handler for first fragment not false");
-				//		} else {
-				//			TEST_ASSERT_TRUE_MESSAGE(read_handler_fake.arg6_history[read_cnt], "last_frame parameter of read_handler for last fragment not true");
-				//		}
-				//		TEST_ASSERT_EQUAL_MESSAGE((frame_type == CIO_WEBSOCKET_BINARY_FRAME), read_handler_fake.arg7_history[read_cnt], "is_binary parameter of read_handler for first fragment not correct");
-				//	} else {
-				//		TEST_ASSERT_EQUAL_MESSAGE(CIO_EOF, read_handler_fake.arg2_history[read_cnt], "err parameter of read_handler not correct");
-				//	}
-				//}
+					TEST_ASSERT_GREATER_OR_EQUAL_MESSAGE(3, read_handler_fake.call_count, "read_handler was not called");
 
-				TEST_ASSERT_EQUAL_MESSAGE(0, on_error_fake.call_count, "error callback was called");
-				if (first_frame_size > 0) {
-					TEST_ASSERT_EQUAL_MEMORY_MESSAGE(first_data, read_back_buffer, first_frame_size, "data in data/binaray frame callback not correct");
-					if (second_frame_size > 0) {
-						TEST_ASSERT_EQUAL_MEMORY_MESSAGE(last_data, &read_back_buffer[first_frame_size], second_frame_size, "data in data/binaray frame callback not correct");
+					unsigned int arg_history_counter = MIN(read_handler_fake.arg_history_len, read_handler_fake.call_count);
+					for (unsigned int read_cnt = 0; read_cnt < arg_history_counter; read_cnt++) {
+						TEST_ASSERT_EQUAL_MESSAGE(ws, read_handler_fake.arg0_history[read_cnt], "websocket parameter of read_handler not correct");
+						TEST_ASSERT_NULL_MESSAGE(read_handler_fake.arg1_history[read_cnt], "context parameter of read handler not NULL");
+						if (read_cnt < read_handler_fake.call_count - 1) {
+							TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, read_handler_fake.arg2_history[read_cnt], "error parameter of read_handler not CIO_SUCCESS");
+							if (read_cnt == 0) {
+								TEST_ASSERT_FALSE_MESSAGE(read_handler_fake.arg6_history[read_cnt], "last_frame parameter of read_handler for first fragment not false");
+							}
+							TEST_ASSERT_EQUAL_MESSAGE((frame_type == CIO_WEBSOCKET_BINARY_FRAME), read_handler_fake.arg7_history[read_cnt], "is_binary parameter of read_handler for first fragment not correct");
+						} else {
+							TEST_ASSERT_EQUAL_MESSAGE(CIO_EOF, read_handler_fake.arg2_history[read_cnt], "err parameter of read_handler not correct");
+						}
 					}
+
+					TEST_ASSERT_EQUAL_MESSAGE(0, on_error_fake.call_count, "error callback was called");
+					if (first_frame_size > 0) {
+						TEST_ASSERT_EQUAL_MEMORY_MESSAGE(first_data, read_back_buffer, first_frame_size, "data in data/binaray frame callback not correct");
+						if (second_frame_size > 0) {
+							TEST_ASSERT_EQUAL_MEMORY_MESSAGE(last_data, &read_back_buffer[first_frame_size], second_frame_size, "data in data/binaray frame callback not correct");
+						}
+					}
+
+					TEST_ASSERT_EQUAL_MESSAGE(1, on_control_fake.call_count, "control callback was not called for last close frame");
+					TEST_ASSERT_NOT_NULL_MESSAGE(on_control_fake.arg0_val, "websocket parameter of control callback is NULL");
+					TEST_ASSERT_EQUAL_MESSAGE(CIO_WEBSOCKET_CLOSE_FRAME, on_control_fake.arg1_val, "websocket parameter of control callback is NULL");
+					TEST_ASSERT_NULL_MESSAGE(on_control_fake.arg2_val, "data parameter of control callback is not correct");
+					TEST_ASSERT_EQUAL_MESSAGE(0, on_control_fake.arg3_val, "data length parameter of control callback is not correct");
+
+					free(ws);
+					free(first_data);
+					free(last_data);
+					setUp();
 				}
-
-				TEST_ASSERT_EQUAL_MESSAGE(1, on_control_fake.call_count, "control callback was not called for last close frame");
-				TEST_ASSERT_NOT_NULL_MESSAGE(on_control_fake.arg0_val, "websocket parameter of control callback is NULL");
-				TEST_ASSERT_EQUAL_MESSAGE(CIO_WEBSOCKET_CLOSE_FRAME, on_control_fake.arg1_val, "websocket parameter of control callback is NULL");
-				TEST_ASSERT_NULL_MESSAGE(on_control_fake.arg2_val, "data parameter of control callback is not correct");
-				TEST_ASSERT_EQUAL_MESSAGE(0, on_control_fake.arg3_val, "data length parameter of control callback is not correct");
-
-				free(ws);
-				free(first_data);
-				free(last_data);
-				setUp();
 			}
 		}
 	}
 }
 
-#endif
-
 int main(void)
 {
 	UNITY_BEGIN();
 	RUN_TEST(test_client_send_text_binary_frame);
-//	RUN_TEST(test_client_send_fragmented_frames);
+	RUN_TEST(test_client_receive_fragmented_frames);
 
 	return UNITY_END();
 }
