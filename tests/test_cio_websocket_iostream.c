@@ -562,6 +562,7 @@ static void test_receive_fragmented_frames(void)
 int main(void)
 {
 	UNITY_BEGIN();
+
 	RUN_TEST(test_client_send_text_binary_frame);
 	RUN_TEST(test_receive_fragmented_frames);
 
