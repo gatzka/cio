@@ -416,64 +416,69 @@ static void test_client_send_text_binary_frame(void)
 {
 	uint32_t frame_sizes[] = {1, 2, 3, 4, 5, 6, 7, 8, 9, 125, 126, 65535, 65536};
 	unsigned int frame_types[] = {CIO_WEBSOCKET_BINARY_FRAME, CIO_WEBSOCKET_TEXT_FRAME};
+	enum frame_direction dirs[] = {FROM_CLIENT, FROM_SERVER};
 
 	for (unsigned int i = 0; i < ARRAY_SIZE(frame_sizes); i++) {
 		for (unsigned int j = 0; j < ARRAY_SIZE(frame_types); j++) {
-			uint32_t frame_size = frame_sizes[i];
-			char *data = malloc(frame_size);
-			memset(data, 'a', frame_size);
-			char *check_data = malloc(frame_size);
-			memset(check_data, 'a', frame_size);
+			for (unsigned int k = 0; k < ARRAY_SIZE(dirs); k++) {
+				uint32_t frame_size = frame_sizes[i];
+				enum frame_direction dir = dirs[k];
+				char *data = malloc(frame_size);
+				memset(data, 'a', frame_size);
+				char *check_data = malloc(frame_size);
+				memset(check_data, 'a', frame_size);
 
-			struct ws_frame frames[] = {
-			    {.frame_type = CIO_WEBSOCKET_CLOSE_FRAME, .direction = FROM_SERVER, .data = NULL, .data_length = 0, .last_frame = true, .rsv = false},
-			};
+				struct ws_frame frames[] = {
+				    {.frame_type = CIO_WEBSOCKET_CLOSE_FRAME, .direction = dir, .data = NULL, .data_length = 0, .last_frame = true, .rsv = false},
+				};
 
-			serialize_frames(frames, ARRAY_SIZE(frames));
+				serialize_frames(frames, ARRAY_SIZE(frames));
 
-			struct cio_write_buffer wbh;
-			cio_write_buffer_head_init(&wbh);
+				struct cio_write_buffer wbh;
+				cio_write_buffer_head_init(&wbh);
 
-			struct cio_write_buffer wb;
-			cio_write_buffer_element_init(&wb, data, frame_size);
-			cio_write_buffer_queue_tail(&wbh, &wb);
+				struct cio_write_buffer wb;
+				cio_write_buffer_element_init(&wb, data, frame_size);
+				cio_write_buffer_queue_tail(&wbh, &wb);
 
-			uint32_t context = 0x1234568;
-			if (frame_types[j] == CIO_WEBSOCKET_TEXT_FRAME) {
-				enum cio_error err = ws->write_message(ws, &wbh, true, false, write_handler, &context);
-				TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Writing a text frame did not succeed!");
-				TEST_ASSERT_MESSAGE(check_frame(CIO_WEBSOCKET_TEXT_FRAME, check_data, frame_size, true), "First frame send is incorrect text frame!");
-			} else if (frame_types[j] == CIO_WEBSOCKET_BINARY_FRAME) {
-				enum cio_error err = ws->write_message(ws, &wbh, true, true, write_handler, &context);
-				TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Writing a binary frame did not succeed!");
-				TEST_ASSERT_MESSAGE(check_frame(CIO_WEBSOCKET_BINARY_FRAME, check_data, frame_size, true), "First frame send is incorrect binary frame!");
+				uint32_t context = 0x1234568;
+				if (frame_types[j] == CIO_WEBSOCKET_TEXT_FRAME) {
+					enum cio_error err = ws->write_message(ws, &wbh, true, false, write_handler, &context);
+					TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Writing a text frame did not succeed!");
+					TEST_ASSERT_MESSAGE(check_frame(CIO_WEBSOCKET_TEXT_FRAME, check_data, frame_size, true), "First frame send is incorrect text frame!");
+				} else if (frame_types[j] == CIO_WEBSOCKET_BINARY_FRAME) {
+					enum cio_error err = ws->write_message(ws, &wbh, true, true, write_handler, &context);
+					TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Writing a binary frame did not succeed!");
+					TEST_ASSERT_MESSAGE(check_frame(CIO_WEBSOCKET_BINARY_FRAME, check_data, frame_size, true), "First frame send is incorrect binary frame!");
+				}
+
+				ws->ws_private.ws_flags.is_server = (dir == FROM_CLIENT) ? 1 : 0;
+				enum cio_error err = ws->read_message(ws, read_handler, NULL);
+				TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Could not start reading a message!");
+
+				run_eventloop_fake();
+
+				TEST_ASSERT_MESSAGE(is_close_frame(CIO_WEBSOCKET_CLOSE_NORMAL, true), "written frame is not a close frame!");
+
+				TEST_ASSERT_EQUAL_MESSAGE(1, write_handler_fake.call_count, "write handler was not called!");
+				TEST_ASSERT_EQUAL_PTR_MESSAGE(ws, write_handler_fake.arg0_val, "websocket pointer in write handler not correct!");
+				TEST_ASSERT_EQUAL_PTR_MESSAGE(&context, write_handler_fake.arg1_val, "context pointer in write handler not correct!");
+				TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, write_handler_fake.arg2_val, "error code in write handler not correct!");
+
+				TEST_ASSERT_EQUAL_MESSAGE(1, wbh.data.q_len, "Length of write buffer different than before writing!");
+				TEST_ASSERT_EQUAL_MESSAGE(&wbh, wbh.next->next, "Concatenation of write buffers no longer correct after writing!");
+				if (frame_size > 0) {
+					TEST_ASSERT_EQUAL_MEMORY_MESSAGE(data, wbh.next->data.element.data, frame_size, "Content of writebuffer not correct after writing!");
+				}
+
+				TEST_ASSERT_EQUAL_MESSAGE(0, on_error_fake.call_count, "error callback was called");
+				TEST_ASSERT_EQUAL_MESSAGE(1, on_control_fake.call_count, "control callback was called not for last close frame");
+
+				free(ws);
+				free(data);
+				free(check_data);
+				setUp();
 			}
-
-			enum cio_error err = ws->read_message(ws, read_handler, NULL);
-			TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Could not start reading a message!");
-
-			run_eventloop_fake();
-
-			TEST_ASSERT_MESSAGE(is_close_frame(CIO_WEBSOCKET_CLOSE_NORMAL, true), "written frame is not a close frame!");
-
-			TEST_ASSERT_EQUAL_MESSAGE(1, write_handler_fake.call_count, "write handler was not called!");
-			TEST_ASSERT_EQUAL_PTR_MESSAGE(ws, write_handler_fake.arg0_val, "websocket pointer in write handler not correct!");
-			TEST_ASSERT_EQUAL_PTR_MESSAGE(&context, write_handler_fake.arg1_val, "context pointer in write handler not correct!");
-			TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, write_handler_fake.arg2_val, "error code in write handler not correct!");
-
-			TEST_ASSERT_EQUAL_MESSAGE(1, wbh.data.q_len, "Length of write buffer different than before writing!");
-			TEST_ASSERT_EQUAL_MESSAGE(&wbh, wbh.next->next, "Concatenation of write buffers no longer correct after writing!");
-			if (frame_size > 0) {
-				TEST_ASSERT_EQUAL_MEMORY_MESSAGE(data, wbh.next->data.element.data, frame_size, "Content of writebuffer not correct after writing!");
-			}
-
-			TEST_ASSERT_EQUAL_MESSAGE(0, on_error_fake.call_count, "error callback was called");
-			TEST_ASSERT_EQUAL_MESSAGE(1, on_control_fake.call_count, "control callback was called not for last close frame");
-
-			free(ws);
-			free(data);
-			free(check_data);
-			setUp();
 		}
 	}
 }
