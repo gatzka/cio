@@ -478,7 +478,7 @@ static void test_client_send_text_binary_frame(void)
 	}
 }
 
-static void test_client_receive_fragmented_frames(void)
+static void test_receive_fragmented_frames(void)
 {
 	uint32_t first_frame_sizes[] = {1, 2, 3, 4, 5, 6, 7, 8, 125, 126, 65535, 65536};
 	uint32_t second_frame_sizes[] = {1, 2, 3, 4, 5, 6, 7, 8, 125, 126, 65535, 65536};
@@ -558,7 +558,7 @@ int main(void)
 {
 	UNITY_BEGIN();
 	RUN_TEST(test_client_send_text_binary_frame);
-	RUN_TEST(test_client_receive_fragmented_frames);
+	RUN_TEST(test_receive_fragmented_frames);
 
 	return UNITY_END();
 }
