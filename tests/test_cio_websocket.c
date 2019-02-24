@@ -519,66 +519,6 @@ static void test_read_message_no_handler(void)
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_INVALID_ARGUMENT, err, "Wrong error code if no handler is provided!");
 }
 
-static void test_unfragmented_frames(void)
-{
-	uint32_t frame_sizes[] = {0, 1, 5, 125, 126, 65535, 65536};
-	unsigned int frame_types[] = {CIO_WEBSOCKET_BINARY_FRAME, CIO_WEBSOCKET_TEXT_FRAME};
-
-	for (unsigned int i = 0; i < ARRAY_SIZE(frame_sizes); i++) {
-		for (unsigned int j = 0; j < ARRAY_SIZE(frame_types); j++) {
-			unsigned int frame_type = frame_types[j];
-			uint32_t frame_size = frame_sizes[i];
-			char *data = malloc(frame_size);
-			memset(data, 'a', frame_size);
-			struct ws_frame frames[] = {
-			    {.frame_type = frame_type, .direction = FROM_CLIENT, .data = data, .data_length = frame_size, .last_frame = true, .rsv = false},
-			    {.frame_type = CIO_WEBSOCKET_CLOSE_FRAME, .direction = FROM_CLIENT, .data = NULL, .data_length = 0, .last_frame = true, .rsv = false},
-			};
-
-			serialize_frames(frames, ARRAY_SIZE(frames));
-
-			enum cio_error err = ws->read_message(ws, read_handler, NULL);
-			TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Could not start reading a message!");
-
-			TEST_ASSERT_EQUAL_MESSAGE(2, read_handler_fake.call_count, "read_handler was not called");
-			TEST_ASSERT_EQUAL_MESSAGE(ws, read_handler_fake.arg0_history[0], "websocket parameter of read_handler not correct");
-			TEST_ASSERT_NULL_MESSAGE(read_handler_fake.arg1_history[0], "context of read handler not NULL");
-			TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, read_handler_fake.arg2_history[0], "error parameter of read_handler not CIO_SUCCESS");
-			TEST_ASSERT_EQUAL_MESSAGE(frame_size, read_handler_fake.arg5_history[0], "chunk length parameter of read_handler not equal to frame_size");
-			TEST_ASSERT_TRUE_MESSAGE(read_handler_fake.arg6_history[0], "last_frame parameter of read_handler not true");
-
-			if (read_handler_fake.call_count < 2) {
-				if (frame_type == CIO_WEBSOCKET_BINARY_FRAME) {
-					TEST_ASSERT_TRUE_MESSAGE(read_handler_fake.arg7_val, "is_binary parameter of read_handler not true");
-				} else {
-					TEST_ASSERT_FALSE_MESSAGE(read_handler_fake.arg7_val, "is_binary parameter of read_handler not false");
-				}
-			} else {
-				TEST_ASSERT_EQUAL_PTR_MESSAGE(ws, read_handler_fake.arg0_history[1], "websocket parameter of read_handler not correct");
-				TEST_ASSERT_NULL_MESSAGE(read_handler_fake.arg1_history[1], "context parameter of read_handler not correct");
-				TEST_ASSERT_EQUAL_MESSAGE(CIO_EOF, read_handler_fake.arg2_history[1], "err parameter of read_handler not correct");
-			}
-
-			TEST_ASSERT_EQUAL_MESSAGE(0, on_error_fake.call_count, "error callback was called");
-			if (frame_size > 0) {
-				TEST_ASSERT_EQUAL_MEMORY_MESSAGE(data, read_back_buffer, frame_size, "data in read_handler not correct");
-			}
-
-			TEST_ASSERT_EQUAL_MESSAGE(1, on_control_fake.call_count, "control callback was not called for last close frame");
-			TEST_ASSERT_NOT_NULL_MESSAGE(on_control_fake.arg0_val, "websocket parameter of control callback is NULL");
-			TEST_ASSERT_EQUAL_MESSAGE(CIO_WEBSOCKET_CLOSE_FRAME, on_control_fake.arg1_val, "websocket parameter of control callback is NULL");
-			TEST_ASSERT_NULL_MESSAGE(on_control_fake.arg2_val, "data parameter of control callback is not correct");
-			TEST_ASSERT_EQUAL_MESSAGE(0, on_control_fake.arg3_val, "data length parameter of control callback is not correct");
-
-			if (data) {
-				free(data);
-			}
-
-			free(ws);
-			setUp();
-		}
-	}
-}
 
 static void test_fragmented_frames(void)
 {
@@ -2576,7 +2516,6 @@ int main(void)
 
 	RUN_TEST(test_read_message_no_websocket);
 	RUN_TEST(test_read_message_no_handler);
-	RUN_TEST(test_unfragmented_frames);
 	RUN_TEST(test_fragmented_frames);
 	RUN_TEST(test_incoming_ping_frame);
 	RUN_TEST(test_incoming_ping_pong_send_fails);
