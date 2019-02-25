@@ -43,7 +43,6 @@
 
 DEFINE_FFF_GLOBALS
 
-
 static struct cio_websocket *ws;
 static struct cio_http_client http_client;
 
@@ -115,7 +114,6 @@ static uint8_t read_buffer[READ_BUFFER_SIZE];
 static uint8_t read_back_buffer[FRAME_BUFFER_SIZE];
 static size_t read_back_buffer_pos = 0;
 
-
 static enum cio_error ms_read_some(struct cio_io_stream *io_stream, struct cio_read_buffer *buffer, cio_io_stream_read_handler handler, void *handler_context)
 {
 	io_stream->read_buffer = buffer;
@@ -154,21 +152,20 @@ static void memory_stream_init(struct memory_stream *s)
 
 static void run_eventloop_fake(void)
 {
+	while (true) {
+		if (ms.frame_buffer_read_pos >= ms.frame_buffer_fill_pos) {
+			//ms.ios.read_handler(&ms.ios, ms.ios.read_handler_context, CIO_EOF, ms.ios.read_buffer);
+			return;
+		}
 
-while (true) {
-	if (ms.frame_buffer_read_pos >= ms.frame_buffer_fill_pos) {
-		//ms.ios.read_handler(&ms.ios, ms.ios.read_handler_context, CIO_EOF, ms.ios.read_buffer);
-		return;
+		size_t free_bytes = cio_read_buffer_space_available(ms.ios.read_buffer);
+		size_t unread_bytes = ms.frame_buffer_fill_pos - ms.frame_buffer_read_pos;
+		size_t bytes_to_read = MIN(free_bytes, unread_bytes);
+		memcpy(ms.ios.read_buffer->add_ptr, &ms.frame_buffer[ms.frame_buffer_read_pos], bytes_to_read);
+		ms.ios.read_buffer->add_ptr += bytes_to_read;
+		ms.frame_buffer_read_pos += bytes_to_read;
+		ms.ios.read_handler(&ms.ios, ms.ios.read_handler_context, CIO_SUCCESS, ms.ios.read_buffer);
 	}
-
-	size_t free_bytes = cio_read_buffer_space_available(ms.ios.read_buffer);
-	size_t unread_bytes = ms.frame_buffer_fill_pos - ms.frame_buffer_read_pos;
-	size_t bytes_to_read = MIN(free_bytes, unread_bytes);
-	memcpy(ms.ios.read_buffer->add_ptr, &ms.frame_buffer[ms.frame_buffer_read_pos], bytes_to_read);
-	ms.ios.read_buffer->add_ptr += bytes_to_read;
-	ms.frame_buffer_read_pos += bytes_to_read;
-	ms.ios.read_handler(&ms.ios, ms.ios.read_handler_context, CIO_SUCCESS, ms.ios.read_buffer);
-}
 }
 
 static bool check_frame(enum cio_websocket_frame_type opcode, const char *payload, size_t payload_length, bool is_last_frame)
@@ -640,10 +637,10 @@ static void test_receive_three_fragments(void)
 	memset(data, 'a', sizeof(data));
 
 	struct ws_frame frames[] = {
-		{.frame_type = CIO_WEBSOCKET_TEXT_FRAME, .direction = FROM_CLIENT, .data = data, .data_length = sizeof(data), .last_frame = false, .rsv = false},
-		{.frame_type = CIO_WEBSOCKET_CONTINUATION_FRAME, .direction = FROM_CLIENT, .data = data, .data_length = sizeof(data), .last_frame = false, .rsv = false},
-		{.frame_type = CIO_WEBSOCKET_CONTINUATION_FRAME, .direction = FROM_CLIENT, .data = data, .data_length = sizeof(data), .last_frame = true, .rsv = false},
-		{.frame_type = CIO_WEBSOCKET_CLOSE_FRAME, .direction = FROM_CLIENT, .data = NULL, .data_length = 0, .last_frame = true, .rsv = false},
+	    {.frame_type = CIO_WEBSOCKET_TEXT_FRAME, .direction = FROM_CLIENT, .data = data, .data_length = sizeof(data), .last_frame = false, .rsv = false},
+	    {.frame_type = CIO_WEBSOCKET_CONTINUATION_FRAME, .direction = FROM_CLIENT, .data = data, .data_length = sizeof(data), .last_frame = false, .rsv = false},
+	    {.frame_type = CIO_WEBSOCKET_CONTINUATION_FRAME, .direction = FROM_CLIENT, .data = data, .data_length = sizeof(data), .last_frame = true, .rsv = false},
+	    {.frame_type = CIO_WEBSOCKET_CLOSE_FRAME, .direction = FROM_CLIENT, .data = NULL, .data_length = 0, .last_frame = true, .rsv = false},
 	};
 
 	serialize_frames(frames, ARRAY_SIZE(frames));
@@ -682,11 +679,11 @@ static void test_wrong_opcode_between_fragments(void)
 	memset(data, 'a', sizeof(data));
 
 	struct ws_frame frames[] = {
-		{.frame_type = CIO_WEBSOCKET_TEXT_FRAME, .direction = FROM_CLIENT, .data = data, .data_length = sizeof(data), .last_frame = false, .rsv = false},
-		{.frame_type = CIO_WEBSOCKET_CONTINUATION_FRAME, .direction = FROM_CLIENT, .data = data, .data_length = sizeof(data), .last_frame = false, .rsv = false},
-		{.frame_type = CIO_WEBSOCKET_TEXT_FRAME, .direction = FROM_CLIENT, .data = data, .data_length = sizeof(data), .last_frame = false, .rsv = false},
-		{.frame_type = CIO_WEBSOCKET_CONTINUATION_FRAME, .direction = FROM_CLIENT, .data = data, .data_length = sizeof(data), .last_frame = true, .rsv = false},
-		{.frame_type = CIO_WEBSOCKET_CLOSE_FRAME, .direction = FROM_CLIENT, .data = NULL, .data_length = 0, .last_frame = true, .rsv = false},
+	    {.frame_type = CIO_WEBSOCKET_TEXT_FRAME, .direction = FROM_CLIENT, .data = data, .data_length = sizeof(data), .last_frame = false, .rsv = false},
+	    {.frame_type = CIO_WEBSOCKET_CONTINUATION_FRAME, .direction = FROM_CLIENT, .data = data, .data_length = sizeof(data), .last_frame = false, .rsv = false},
+	    {.frame_type = CIO_WEBSOCKET_TEXT_FRAME, .direction = FROM_CLIENT, .data = data, .data_length = sizeof(data), .last_frame = false, .rsv = false},
+	    {.frame_type = CIO_WEBSOCKET_CONTINUATION_FRAME, .direction = FROM_CLIENT, .data = data, .data_length = sizeof(data), .last_frame = true, .rsv = false},
+	    {.frame_type = CIO_WEBSOCKET_CLOSE_FRAME, .direction = FROM_CLIENT, .data = NULL, .data_length = 0, .last_frame = true, .rsv = false},
 	};
 
 	serialize_frames(frames, ARRAY_SIZE(frames));
@@ -715,11 +712,11 @@ static void test_wrong_opcode_in_fragment(void)
 	memset(data, 'a', sizeof(data));
 
 	struct ws_frame frames[] = {
-		{.frame_type = CIO_WEBSOCKET_TEXT_FRAME, .direction = FROM_CLIENT, .data = data, .data_length = sizeof(data), .last_frame = false, .rsv = false},
-		{.frame_type = CIO_WEBSOCKET_CONTINUATION_FRAME, .direction = FROM_CLIENT, .data = data, .data_length = sizeof(data), .last_frame = true, .rsv = false},
-		{.frame_type = CIO_WEBSOCKET_CONTINUATION_FRAME, .direction = FROM_CLIENT, .data = data, .data_length = sizeof(data), .last_frame = false, .rsv = false},
-		{.frame_type = CIO_WEBSOCKET_TEXT_FRAME, .direction = FROM_CLIENT, .data = data, .data_length = sizeof(data), .last_frame = true, .rsv = false},
-		{.frame_type = CIO_WEBSOCKET_CLOSE_FRAME, .direction = FROM_CLIENT, .data = NULL, .data_length = 0, .last_frame = true, .rsv = false},
+	    {.frame_type = CIO_WEBSOCKET_TEXT_FRAME, .direction = FROM_CLIENT, .data = data, .data_length = sizeof(data), .last_frame = false, .rsv = false},
+	    {.frame_type = CIO_WEBSOCKET_CONTINUATION_FRAME, .direction = FROM_CLIENT, .data = data, .data_length = sizeof(data), .last_frame = true, .rsv = false},
+	    {.frame_type = CIO_WEBSOCKET_CONTINUATION_FRAME, .direction = FROM_CLIENT, .data = data, .data_length = sizeof(data), .last_frame = false, .rsv = false},
+	    {.frame_type = CIO_WEBSOCKET_TEXT_FRAME, .direction = FROM_CLIENT, .data = data, .data_length = sizeof(data), .last_frame = true, .rsv = false},
+	    {.frame_type = CIO_WEBSOCKET_CLOSE_FRAME, .direction = FROM_CLIENT, .data = NULL, .data_length = 0, .last_frame = true, .rsv = false},
 	};
 
 	serialize_frames(frames, ARRAY_SIZE(frames));
@@ -748,11 +745,11 @@ static void test_control_frame_within_fragment(void)
 	memset(data, 'a', sizeof(data));
 
 	struct ws_frame frames[] = {
-		{.frame_type = CIO_WEBSOCKET_TEXT_FRAME, .direction = FROM_CLIENT, .data = data, .data_length = sizeof(data), .last_frame = false, .rsv = false},
-		{.frame_type = CIO_WEBSOCKET_CONTINUATION_FRAME, .direction = FROM_CLIENT, .data = data, .data_length = sizeof(data), .last_frame = false, .rsv = false},
-		{.frame_type = CIO_WEBSOCKET_PING_FRAME, .direction = FROM_CLIENT, .data = data, .data_length = sizeof(data), .last_frame = true, .rsv = false},
-		{.frame_type = CIO_WEBSOCKET_CONTINUATION_FRAME, .direction = FROM_CLIENT, .data = data, .data_length = sizeof(data), .last_frame = true, .rsv = false},
-		{.frame_type = CIO_WEBSOCKET_CLOSE_FRAME, .direction = FROM_CLIENT, .data = NULL, .data_length = 0, .last_frame = true, .rsv = false},
+	    {.frame_type = CIO_WEBSOCKET_TEXT_FRAME, .direction = FROM_CLIENT, .data = data, .data_length = sizeof(data), .last_frame = false, .rsv = false},
+	    {.frame_type = CIO_WEBSOCKET_CONTINUATION_FRAME, .direction = FROM_CLIENT, .data = data, .data_length = sizeof(data), .last_frame = false, .rsv = false},
+	    {.frame_type = CIO_WEBSOCKET_PING_FRAME, .direction = FROM_CLIENT, .data = data, .data_length = sizeof(data), .last_frame = true, .rsv = false},
+	    {.frame_type = CIO_WEBSOCKET_CONTINUATION_FRAME, .direction = FROM_CLIENT, .data = data, .data_length = sizeof(data), .last_frame = true, .rsv = false},
+	    {.frame_type = CIO_WEBSOCKET_CLOSE_FRAME, .direction = FROM_CLIENT, .data = NULL, .data_length = 0, .last_frame = true, .rsv = false},
 	};
 
 	serialize_frames(frames, ARRAY_SIZE(frames));
@@ -799,11 +796,11 @@ static void test_binary_frame_within_text_fragments(void)
 	memset(data, 'a', sizeof(data));
 
 	struct ws_frame frames[] = {
-		{.frame_type = CIO_WEBSOCKET_TEXT_FRAME, .direction = FROM_CLIENT, .data = data, .data_length = sizeof(data), .last_frame = false, .rsv = false},
-		{.frame_type = CIO_WEBSOCKET_CONTINUATION_FRAME, .direction = FROM_CLIENT, .data = data, .data_length = sizeof(data), .last_frame = false, .rsv = false},
-		{.frame_type = CIO_WEBSOCKET_BINARY_FRAME, .direction = FROM_CLIENT, .data = data, .data_length = sizeof(data), .last_frame = true, .rsv = false},
-		{.frame_type = CIO_WEBSOCKET_CONTINUATION_FRAME, .direction = FROM_CLIENT, .data = data, .data_length = sizeof(data), .last_frame = true, .rsv = false},
-		{.frame_type = CIO_WEBSOCKET_CLOSE_FRAME, .direction = FROM_CLIENT, .data = NULL, .data_length = 0, .last_frame = true, .rsv = false},
+	    {.frame_type = CIO_WEBSOCKET_TEXT_FRAME, .direction = FROM_CLIENT, .data = data, .data_length = sizeof(data), .last_frame = false, .rsv = false},
+	    {.frame_type = CIO_WEBSOCKET_CONTINUATION_FRAME, .direction = FROM_CLIENT, .data = data, .data_length = sizeof(data), .last_frame = false, .rsv = false},
+	    {.frame_type = CIO_WEBSOCKET_BINARY_FRAME, .direction = FROM_CLIENT, .data = data, .data_length = sizeof(data), .last_frame = true, .rsv = false},
+	    {.frame_type = CIO_WEBSOCKET_CONTINUATION_FRAME, .direction = FROM_CLIENT, .data = data, .data_length = sizeof(data), .last_frame = true, .rsv = false},
+	    {.frame_type = CIO_WEBSOCKET_CLOSE_FRAME, .direction = FROM_CLIENT, .data = NULL, .data_length = 0, .last_frame = true, .rsv = false},
 	};
 
 	serialize_frames(frames, ARRAY_SIZE(frames));
@@ -840,8 +837,8 @@ static void test_text_frame_not_utf8(void)
 	uint8_t data[] = {0xf8, 0x88, 0x80, 0x80, 0x80};
 
 	struct ws_frame frames[] = {
-		{.frame_type = CIO_WEBSOCKET_TEXT_FRAME, .direction = FROM_CLIENT, .data = data, .data_length = sizeof(data), .last_frame = true, .rsv = false},
-		{.frame_type = CIO_WEBSOCKET_CLOSE_FRAME, .direction = FROM_CLIENT, .data = NULL, .data_length = 0, .last_frame = true, .rsv = false},
+	    {.frame_type = CIO_WEBSOCKET_TEXT_FRAME, .direction = FROM_CLIENT, .data = data, .data_length = sizeof(data), .last_frame = true, .rsv = false},
+	    {.frame_type = CIO_WEBSOCKET_CLOSE_FRAME, .direction = FROM_CLIENT, .data = NULL, .data_length = 0, .last_frame = true, .rsv = false},
 	};
 
 	serialize_frames(frames, ARRAY_SIZE(frames));
@@ -868,8 +865,8 @@ static void test_text_frame_utf8_no_complete_in_last_frame(void)
 {
 	uint8_t data[] = {0x48, 0x65, 0x6c, 0x6c, 0x6f, 0x2d, 0xc2, 0xb5, 0x40, 0xc3}; //9fc3b6c3a4
 	struct ws_frame frames[] = {
-		{.frame_type = CIO_WEBSOCKET_TEXT_FRAME, .direction = FROM_CLIENT, .data = data, .data_length = sizeof(data), .last_frame = true, .rsv = false},
-		{.frame_type = CIO_WEBSOCKET_CLOSE_FRAME, .direction = FROM_CLIENT, .data = NULL, .data_length = 0, .last_frame = true, .rsv = false},
+	    {.frame_type = CIO_WEBSOCKET_TEXT_FRAME, .direction = FROM_CLIENT, .data = data, .data_length = sizeof(data), .last_frame = true, .rsv = false},
+	    {.frame_type = CIO_WEBSOCKET_CLOSE_FRAME, .direction = FROM_CLIENT, .data = NULL, .data_length = 0, .last_frame = true, .rsv = false},
 	};
 
 	serialize_frames(frames, ARRAY_SIZE(frames));
@@ -897,8 +894,8 @@ static void test_rsv_bit_in_header(void)
 	char data[9];
 	memset(data, 'a', sizeof(data));
 	struct ws_frame frames[] = {
-		{.frame_type = CIO_WEBSOCKET_TEXT_FRAME, .direction = FROM_CLIENT, .data = data, .data_length = sizeof(data), .last_frame = true, .rsv = true},
-		{.frame_type = CIO_WEBSOCKET_CLOSE_FRAME, .direction = FROM_CLIENT, .data = NULL, .data_length = 0, .last_frame = true, .rsv = false},
+	    {.frame_type = CIO_WEBSOCKET_TEXT_FRAME, .direction = FROM_CLIENT, .data = data, .data_length = sizeof(data), .last_frame = true, .rsv = true},
+	    {.frame_type = CIO_WEBSOCKET_CLOSE_FRAME, .direction = FROM_CLIENT, .data = NULL, .data_length = 0, .last_frame = true, .rsv = false},
 	};
 
 	serialize_frames(frames, ARRAY_SIZE(frames));
@@ -924,7 +921,7 @@ static void test_rsv_bit_in_header(void)
 static void test_fragmented_control_frame(void)
 {
 	struct ws_frame frames[] = {
-		{.frame_type = CIO_WEBSOCKET_CLOSE_FRAME, .direction = FROM_CLIENT, .data = NULL, .data_length = 0, .last_frame = false, .rsv = false},
+	    {.frame_type = CIO_WEBSOCKET_CLOSE_FRAME, .direction = FROM_CLIENT, .data = NULL, .data_length = 0, .last_frame = false, .rsv = false},
 	};
 
 	serialize_frames(frames, ARRAY_SIZE(frames));
@@ -953,7 +950,7 @@ static void test_wrong_continuation_frame_without_correct_start_frame(void)
 	memset(data, 'a', sizeof(data));
 
 	struct ws_frame frames[] = {
-		{.frame_type = CIO_WEBSOCKET_CONTINUATION_FRAME, .direction = FROM_CLIENT, .data = data, .data_length = sizeof(data), .last_frame = false, .rsv = false},
+	    {.frame_type = CIO_WEBSOCKET_CONTINUATION_FRAME, .direction = FROM_CLIENT, .data = data, .data_length = sizeof(data), .last_frame = false, .rsv = false},
 	};
 
 	serialize_frames(frames, ARRAY_SIZE(frames));
@@ -982,9 +979,9 @@ static void test_wrong_fragment_start(void)
 	memset(data, 'a', sizeof(data));
 
 	struct ws_frame frames[] = {
-		{.frame_type = CIO_WEBSOCKET_CONTINUATION_FRAME, .direction = FROM_CLIENT, .data = data, .data_length = sizeof(data), .last_frame = true, .rsv = false},
-		{.frame_type = CIO_WEBSOCKET_CONTINUATION_FRAME, .direction = FROM_CLIENT, .data = data, .data_length = sizeof(data), .last_frame = true, .rsv = false},
-		{.frame_type = CIO_WEBSOCKET_CLOSE_FRAME, .direction = FROM_CLIENT, .data = NULL, .data_length = 0, .last_frame = true, .rsv = false},
+	    {.frame_type = CIO_WEBSOCKET_CONTINUATION_FRAME, .direction = FROM_CLIENT, .data = data, .data_length = sizeof(data), .last_frame = true, .rsv = false},
+	    {.frame_type = CIO_WEBSOCKET_CONTINUATION_FRAME, .direction = FROM_CLIENT, .data = data, .data_length = sizeof(data), .last_frame = true, .rsv = false},
+	    {.frame_type = CIO_WEBSOCKET_CLOSE_FRAME, .direction = FROM_CLIENT, .data = NULL, .data_length = 0, .last_frame = true, .rsv = false},
 	};
 
 	serialize_frames(frames, ARRAY_SIZE(frames));
@@ -1010,8 +1007,8 @@ static void test_illegal_opcode(void)
 	char data[] = "aaaa";
 
 	struct ws_frame frames[] = {
-		{.frame_type = CIO_WEBSOCKET_PONG_FRAME + 1, .direction = FROM_CLIENT, .data = data, .data_length = sizeof(data), .last_frame = true, .rsv = false},
-		{.frame_type = CIO_WEBSOCKET_CLOSE_FRAME, .direction = FROM_CLIENT, .data = NULL, .data_length = 0, .last_frame = true, .rsv = false},
+	    {.frame_type = CIO_WEBSOCKET_PONG_FRAME + 1, .direction = FROM_CLIENT, .data = data, .data_length = sizeof(data), .last_frame = true, .rsv = false},
+	    {.frame_type = CIO_WEBSOCKET_CLOSE_FRAME, .direction = FROM_CLIENT, .data = NULL, .data_length = 0, .last_frame = true, .rsv = false},
 	};
 
 	serialize_frames(frames, ARRAY_SIZE(frames));
@@ -1040,8 +1037,8 @@ static void test_no_mask_set_from_client(void)
 	char *data = malloc(frame_size);
 	memset(data, 'a', frame_size);
 	struct ws_frame frames[] = {
-		{.frame_type = frame_type, .direction = FROM_SERVER, .data = data, .data_length = frame_size, .last_frame = true, .rsv = false},
-		{.frame_type = CIO_WEBSOCKET_CLOSE_FRAME, .direction = FROM_CLIENT, .data = NULL, .data_length = 0, .last_frame = true, .rsv = false},
+	    {.frame_type = frame_type, .direction = FROM_SERVER, .data = data, .data_length = frame_size, .last_frame = true, .rsv = false},
+	    {.frame_type = CIO_WEBSOCKET_CLOSE_FRAME, .direction = FROM_CLIENT, .data = NULL, .data_length = 0, .last_frame = true, .rsv = false},
 	};
 
 	serialize_frames(frames, ARRAY_SIZE(frames));
@@ -1095,8 +1092,8 @@ static void test_receive_ping_frame(void)
 	char data[] = "aaaa";
 
 	struct ws_frame frames[] = {
-		{.frame_type = CIO_WEBSOCKET_PING_FRAME, .direction = FROM_CLIENT, .data = data, .data_length = sizeof(data), .last_frame = true, .rsv = false},
-		{.frame_type = CIO_WEBSOCKET_CLOSE_FRAME, .direction = FROM_CLIENT, .data = NULL, .data_length = 0, .last_frame = true, .rsv = false},
+	    {.frame_type = CIO_WEBSOCKET_PING_FRAME, .direction = FROM_CLIENT, .data = data, .data_length = sizeof(data), .last_frame = true, .rsv = false},
+	    {.frame_type = CIO_WEBSOCKET_CLOSE_FRAME, .direction = FROM_CLIENT, .data = NULL, .data_length = 0, .last_frame = true, .rsv = false},
 	};
 
 	serialize_frames(frames, ARRAY_SIZE(frames));
@@ -1134,8 +1131,8 @@ static void test_receive_ping_frame_no_callback(void)
 	char data[] = "aaaa";
 
 	struct ws_frame frames[] = {
-		{.frame_type = CIO_WEBSOCKET_PING_FRAME, .direction = FROM_CLIENT, .data = data, .data_length = sizeof(data), .last_frame = true, .rsv = false},
-		{.frame_type = CIO_WEBSOCKET_CLOSE_FRAME, .direction = FROM_CLIENT, .data = NULL, .data_length = 0, .last_frame = true, .rsv = false},
+	    {.frame_type = CIO_WEBSOCKET_PING_FRAME, .direction = FROM_CLIENT, .data = data, .data_length = sizeof(data), .last_frame = true, .rsv = false},
+	    {.frame_type = CIO_WEBSOCKET_CLOSE_FRAME, .direction = FROM_CLIENT, .data = NULL, .data_length = 0, .last_frame = true, .rsv = false},
 	};
 
 	serialize_frames(frames, ARRAY_SIZE(frames));
@@ -1162,8 +1159,8 @@ static void test_receive_ping_frame_no_callback(void)
 static void test_receive_ping_frame_no_payload(void)
 {
 	struct ws_frame frames[] = {
-		{.frame_type = CIO_WEBSOCKET_PING_FRAME, .direction = FROM_CLIENT, .data = NULL, .data_length = 0, .last_frame = true, .rsv = false},
-		{.frame_type = CIO_WEBSOCKET_CLOSE_FRAME, .direction = FROM_CLIENT, .data = NULL, .data_length = 0, .last_frame = true, .rsv = false},
+	    {.frame_type = CIO_WEBSOCKET_PING_FRAME, .direction = FROM_CLIENT, .data = NULL, .data_length = 0, .last_frame = true, .rsv = false},
+	    {.frame_type = CIO_WEBSOCKET_CLOSE_FRAME, .direction = FROM_CLIENT, .data = NULL, .data_length = 0, .last_frame = true, .rsv = false},
 	};
 
 	serialize_frames(frames, ARRAY_SIZE(frames));
@@ -1199,8 +1196,8 @@ static void test_receive_ping_frame_payload_too_long(void)
 	char data[126] = {'a'};
 
 	struct ws_frame frames[] = {
-		{.frame_type = CIO_WEBSOCKET_PING_FRAME, .direction = FROM_CLIENT, .data = data, .data_length = sizeof(data), .last_frame = true, .rsv = false},
-		{.frame_type = CIO_WEBSOCKET_CLOSE_FRAME, .direction = FROM_CLIENT, .data = NULL, .data_length = 0, .last_frame = true, .rsv = false},
+	    {.frame_type = CIO_WEBSOCKET_PING_FRAME, .direction = FROM_CLIENT, .data = data, .data_length = sizeof(data), .last_frame = true, .rsv = false},
+	    {.frame_type = CIO_WEBSOCKET_CLOSE_FRAME, .direction = FROM_CLIENT, .data = NULL, .data_length = 0, .last_frame = true, .rsv = false},
 	};
 
 	serialize_frames(frames, ARRAY_SIZE(frames));
@@ -1232,8 +1229,8 @@ static void test_recieve_ping_frame_payload_too_long_no_error_callback(void)
 	char data[126] = {'a'};
 
 	struct ws_frame frames[] = {
-		{.frame_type = CIO_WEBSOCKET_PING_FRAME, .direction = FROM_CLIENT, .data = data, .data_length = sizeof(data), .last_frame = true, .rsv = false},
-		{.frame_type = CIO_WEBSOCKET_CLOSE_FRAME, .direction = FROM_CLIENT, .data = NULL, .data_length = 0, .last_frame = true, .rsv = false},
+	    {.frame_type = CIO_WEBSOCKET_PING_FRAME, .direction = FROM_CLIENT, .data = data, .data_length = sizeof(data), .last_frame = true, .rsv = false},
+	    {.frame_type = CIO_WEBSOCKET_CLOSE_FRAME, .direction = FROM_CLIENT, .data = NULL, .data_length = 0, .last_frame = true, .rsv = false},
 	};
 
 	serialize_frames(frames, ARRAY_SIZE(frames));
@@ -1263,8 +1260,8 @@ static void test_receive_pong_frame(void)
 	char data[] = "aaaa";
 
 	struct ws_frame frames[] = {
-		{.frame_type = CIO_WEBSOCKET_PONG_FRAME, .direction = FROM_CLIENT, .data = data, .data_length = sizeof(data), .last_frame = true, .rsv = false},
-		{.frame_type = CIO_WEBSOCKET_CLOSE_FRAME, .direction = FROM_CLIENT, .data = NULL, .data_length = 0, .last_frame = true, .rsv = false},
+	    {.frame_type = CIO_WEBSOCKET_PONG_FRAME, .direction = FROM_CLIENT, .data = data, .data_length = sizeof(data), .last_frame = true, .rsv = false},
+	    {.frame_type = CIO_WEBSOCKET_CLOSE_FRAME, .direction = FROM_CLIENT, .data = NULL, .data_length = 0, .last_frame = true, .rsv = false},
 	};
 
 	serialize_frames(frames, ARRAY_SIZE(frames));
@@ -1302,8 +1299,8 @@ static void test_receive_pong_frame_no_callback(void)
 	char data[] = "aaaa";
 
 	struct ws_frame frames[] = {
-		{.frame_type = CIO_WEBSOCKET_PONG_FRAME, .direction = FROM_CLIENT, .data = data, .data_length = sizeof(data), .last_frame = true, .rsv = false},
-		{.frame_type = CIO_WEBSOCKET_CLOSE_FRAME, .direction = FROM_CLIENT, .data = NULL, .data_length = 0, .last_frame = true, .rsv = false},
+	    {.frame_type = CIO_WEBSOCKET_PONG_FRAME, .direction = FROM_CLIENT, .data = data, .data_length = sizeof(data), .last_frame = true, .rsv = false},
+	    {.frame_type = CIO_WEBSOCKET_CLOSE_FRAME, .direction = FROM_CLIENT, .data = NULL, .data_length = 0, .last_frame = true, .rsv = false},
 	};
 
 	serialize_frames(frames, ARRAY_SIZE(frames));
@@ -1332,7 +1329,7 @@ static void test_close_short_status(void)
 	char data[] = {0xa};
 
 	struct ws_frame frames[] = {
-		{.frame_type = CIO_WEBSOCKET_CLOSE_FRAME, .direction = FROM_CLIENT, .data = data, .data_length = sizeof(data), .last_frame = true, .rsv = false},
+	    {.frame_type = CIO_WEBSOCKET_CLOSE_FRAME, .direction = FROM_CLIENT, .data = data, .data_length = sizeof(data), .last_frame = true, .rsv = false},
 	};
 
 	serialize_frames(frames, ARRAY_SIZE(frames));
@@ -1360,7 +1357,7 @@ static void test_close_invalid_status(void)
 	uint8_t data[] = {0x3, 0xec};
 
 	struct ws_frame frames[] = {
-		{.frame_type = CIO_WEBSOCKET_CLOSE_FRAME, .direction = FROM_CLIENT, .data = data, .data_length = sizeof(data), .last_frame = true, .rsv = false},
+	    {.frame_type = CIO_WEBSOCKET_CLOSE_FRAME, .direction = FROM_CLIENT, .data = data, .data_length = sizeof(data), .last_frame = true, .rsv = false},
 	};
 
 	serialize_frames(frames, ARRAY_SIZE(frames));
@@ -1388,7 +1385,7 @@ static void test_close_with_message(void)
 	uint8_t data[] = {0x3, 0xe8, 'G', 'o', 'o', 'd', ' ', 'B', 'y', 'e'};
 
 	struct ws_frame frames[] = {
-		{.frame_type = CIO_WEBSOCKET_CLOSE_FRAME, .direction = FROM_CLIENT, .data = data, .data_length = sizeof(data), .last_frame = true, .rsv = false},
+	    {.frame_type = CIO_WEBSOCKET_CLOSE_FRAME, .direction = FROM_CLIENT, .data = data, .data_length = sizeof(data), .last_frame = true, .rsv = false},
 	};
 
 	serialize_frames(frames, ARRAY_SIZE(frames));
@@ -1419,7 +1416,7 @@ static void test_close_reason_not_utf8(void)
 	uint8_t data[] = {0x3, 0xe8, 0xf8, 0x88, 0x80, 0x80, 0x80};
 
 	struct ws_frame frames[] = {
-		{.frame_type = CIO_WEBSOCKET_CLOSE_FRAME, .direction = FROM_CLIENT, .data = data, .data_length = sizeof(data), .last_frame = true, .rsv = false},
+	    {.frame_type = CIO_WEBSOCKET_CLOSE_FRAME, .direction = FROM_CLIENT, .data = data, .data_length = sizeof(data), .last_frame = true, .rsv = false},
 	};
 
 	serialize_frames(frames, ARRAY_SIZE(frames));
@@ -1449,7 +1446,7 @@ static void test_close_with_valid_status_codes(void)
 	for (unsigned int i = 0; i < ARRAY_SIZE(close_codes); i++) {
 		uint8_t *data = close_codes[i];
 		struct ws_frame frames[] = {
-			{.frame_type = CIO_WEBSOCKET_CLOSE_FRAME, .direction = FROM_CLIENT, .data = data, .data_length = 2, .last_frame = true, .rsv = false},
+		    {.frame_type = CIO_WEBSOCKET_CLOSE_FRAME, .direction = FROM_CLIENT, .data = data, .data_length = 2, .last_frame = true, .rsv = false},
 		};
 
 		serialize_frames(frames, ARRAY_SIZE(frames));
@@ -1486,7 +1483,7 @@ static void test_close_with_invalid_status_codes(void)
 	for (unsigned int i = 0; i < ARRAY_SIZE(close_codes); i++) {
 		uint8_t *data = close_codes[i];
 		struct ws_frame frames[] = {
-			{.frame_type = CIO_WEBSOCKET_CLOSE_FRAME, .direction = FROM_CLIENT, .data = data, .data_length = 2, .last_frame = true, .rsv = false},
+		    {.frame_type = CIO_WEBSOCKET_CLOSE_FRAME, .direction = FROM_CLIENT, .data = data, .data_length = 2, .last_frame = true, .rsv = false},
 		};
 
 		serialize_frames(frames, ARRAY_SIZE(frames));

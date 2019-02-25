@@ -24,8 +24,8 @@
  * SOFTWARE.
  */
 
-#include <stdlib.h>
 #include <stdbool.h>
+#include <stdlib.h>
 
 #include "fff.h"
 #include "unity.h"
@@ -80,10 +80,10 @@ static void test_request_target_init(void)
 	struct cio_http_location target;
 
 	struct location_init_arguments args[] = {
-		{.target = &target, .path = "/foo", .handler = alloc_dummy_handler, .expected_result = CIO_SUCCESS},
-		{.target = NULL, .path = "/foo", .handler = alloc_dummy_handler, .expected_result = CIO_INVALID_ARGUMENT},
-		{.target = &target, .path = NULL, .handler = alloc_dummy_handler, .expected_result = CIO_INVALID_ARGUMENT},
-		{.target = &target, .path = "/foo", .handler = NULL, .expected_result = CIO_INVALID_ARGUMENT},
+	    {.target = &target, .path = "/foo", .handler = alloc_dummy_handler, .expected_result = CIO_SUCCESS},
+	    {.target = NULL, .path = "/foo", .handler = alloc_dummy_handler, .expected_result = CIO_INVALID_ARGUMENT},
+	    {.target = &target, .path = NULL, .handler = alloc_dummy_handler, .expected_result = CIO_INVALID_ARGUMENT},
+	    {.target = &target, .path = "/foo", .handler = NULL, .expected_result = CIO_INVALID_ARGUMENT},
 	};
 
 	for (unsigned int i = 0; i < ARRAY_SIZE(args); i++) {

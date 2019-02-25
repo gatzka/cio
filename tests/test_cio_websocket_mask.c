@@ -89,9 +89,7 @@ static void test_aligned_buffer(void)
 				check_masking(check_buffer + align_counter, length_counter, check_mask);
 
 				TEST_ASSERT_MESSAGE(memcmp(check_buffer + align_counter, buffer + align_counter, length_counter) == 0, "Message masking not correct!");
-
 			}
-
 		}
 	}
 }

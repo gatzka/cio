@@ -154,7 +154,7 @@ FAKE_VALUE_FUNC(struct cio_io_stream *, get_io_stream, struct cio_socket *)
 
 static enum cio_error bs_read_until(struct cio_buffered_stream *bs, struct cio_read_buffer *buffer, const char *delim, cio_buffered_stream_read_handler handler, void *handler_context);
 FAKE_VALUE_FUNC(enum cio_error, bs_read_until, struct cio_buffered_stream *, struct cio_read_buffer *, const char *, cio_buffered_stream_read_handler, void *)
-static	enum cio_error bs_read_at_least(struct cio_buffered_stream *bs, struct cio_read_buffer *buffer, size_t num, cio_buffered_stream_read_handler handler, void *handler_context);
+static enum cio_error bs_read_at_least(struct cio_buffered_stream *bs, struct cio_read_buffer *buffer, size_t num, cio_buffered_stream_read_handler handler, void *handler_context);
 FAKE_VALUE_FUNC(enum cio_error, bs_read_at_least, struct cio_buffered_stream *, struct cio_read_buffer *, size_t, cio_buffered_stream_read_handler, void *)
 
 static enum cio_error bs_close(struct cio_buffered_stream *bs);
@@ -414,8 +414,8 @@ static void test_serve_correctly(void)
 	const char start_line[] = "GET /foo HTTP/1.1" CRLF;
 
 	const char *request[] = {
-		start_line,
-		CRLF};
+	    start_line,
+	    CRLF};
 
 	init_request(request, ARRAY_SIZE(request));
 	server.server_socket.handler(&server.server_socket, server.server_socket.handler_context, CIO_SUCCESS, s);
@@ -435,10 +435,10 @@ static void test_read_until_errors(void)
 
 #define NUM_TESTS 4u
 	static const struct test tests[] = {
-		{.which_read_until_fails = 0, .expected_response = 0},
-		{.which_read_until_fails = 1, .expected_response = 500},
-		{.which_read_until_fails = 2, .expected_response = 500},
-		{.which_read_until_fails = 3, .expected_response = 500},
+	    {.which_read_until_fails = 0, .expected_response = 0},
+	    {.which_read_until_fails = 1, .expected_response = 500},
+	    {.which_read_until_fails = 2, .expected_response = 500},
+	    {.which_read_until_fails = 3, .expected_response = 500},
 	};
 
 	enum cio_error (*bs_read_until_fakes[NUM_TESTS])(struct cio_buffered_stream *, struct cio_read_buffer *, const char *, cio_buffered_stream_read_handler, void *);
@@ -478,13 +478,12 @@ static void test_read_until_errors(void)
 		const char start_line[] = "GET /foo HTTP/1.1" CRLF;
 
 		const char *request[] = {
-			start_line,
-			"foo: bar" CRLF,
-			CRLF,
-			start_line,
-			"foo: bar" CRLF,
-			CRLF
-		};
+		    start_line,
+		    "foo: bar" CRLF,
+		    CRLF,
+		    start_line,
+		    "foo: bar" CRLF,
+		    CRLF};
 
 		init_request(request, ARRAY_SIZE(request));
 		server.server_socket.handler(&server.server_socket, server.server_socket.handler_context, CIO_SUCCESS, s);
@@ -522,8 +521,8 @@ static void test_close_error(void)
 	const char start_line[] = "GET /foo HTTP/1.1" CRLF;
 
 	const char *request[] = {
-		start_line,
-		CRLF};
+	    start_line,
+	    CRLF};
 
 	init_request(request, ARRAY_SIZE(request));
 	server.server_socket.handler(&server.server_socket, server.server_socket.handler_context, CIO_SUCCESS, s);
@@ -559,15 +558,14 @@ static void test_read_at_least_error(void)
 	const char start_line[] = "GET /foo HTTP/1.1" CRLF;
 
 	const char *request[] = {
-		start_line,
-		"Content-Length: 5" CRLF,
-		CRLF,
-		"Hello",
-		start_line,
-		"Content-Length: 5" CRLF,
-		CRLF,
-		"Hello"
-	};
+	    start_line,
+	    "Content-Length: 5" CRLF,
+	    CRLF,
+	    "Hello",
+	    start_line,
+	    "Content-Length: 5" CRLF,
+	    CRLF,
+	    "Hello"};
 
 	init_request(request, ARRAY_SIZE(request));
 	server.server_socket.handler(&server.server_socket, server.server_socket.handler_context, CIO_SUCCESS, s);
@@ -601,8 +599,8 @@ static void test_write_error(void)
 	const char start_line[] = "GET /foo HTTP/1.1" CRLF;
 
 	const char *request[] = {
-		start_line,
-		CRLF};
+	    start_line,
+	    CRLF};
 
 	init_request(request, ARRAY_SIZE(request));
 	server.server_socket.handler(&server.server_socket, server.server_socket.handler_context, CIO_SUCCESS, s);

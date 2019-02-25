@@ -120,7 +120,6 @@ FAKE_VALUE_FUNC(enum cio_error, cio_server_socket_init, struct cio_server_socket
 
 FAKE_VOID_FUNC(http_close_hook, struct cio_http_server *)
 
-
 static enum cio_http_cb_return on_message_complete(struct cio_http_client *c);
 FAKE_VALUE_FUNC(enum cio_http_cb_return, on_message_complete, struct cio_http_client *)
 static enum cio_http_cb_return on_header_complete(struct cio_http_client *c);
@@ -210,7 +209,7 @@ static enum cio_error expires_error(struct cio_timer *t, uint64_t timeout_ns, ci
 }
 
 static enum cio_error cio_server_socket_init_ok(struct cio_server_socket *ss,
-												struct cio_eventloop *l,
+                                                struct cio_eventloop *l,
                                                 unsigned int backlog,
                                                 cio_alloc_client alloc_client,
                                                 cio_free_client free_client,
@@ -229,11 +228,11 @@ static enum cio_error cio_server_socket_init_ok(struct cio_server_socket *ss,
 }
 
 static enum cio_error cio_server_socket_init_fails(struct cio_server_socket *ss,
-												   struct cio_eventloop *l,
-												   unsigned int backlog,
-												   cio_alloc_client alloc_client,
-												   cio_free_client free_client,
-												   cio_server_socket_close_hook close_hook)
+                                                   struct cio_eventloop *l,
+                                                   unsigned int backlog,
+                                                   cio_alloc_client alloc_client,
+                                                   cio_free_client free_client,
+                                                   cio_server_socket_close_hook close_hook)
 {
 	(void)ss;
 	(void)l;
@@ -456,8 +455,7 @@ static struct cio_http_location_handler *alloc_failing_handler(const void *confi
 }
 
 static struct dummy_handler handler_with_no_free = {
-	.handler = { .free = NULL}
-};
+    .handler = {.free = NULL}};
 
 static struct cio_http_location_handler *alloc_handler_with_no_free(const void *config)
 {
@@ -650,17 +648,17 @@ static void test_server_init(void)
 
 	struct cio_http_server server;
 	struct server_init_arguments server_init_arguments[] = {
-		{.server = &server, .port = 8080, .loop = &loop, .serve_error = serve_error, .header_read_timeout = header_read_timeout, .body_read_timeout = body_read_timeout, .response_timeout = response_timeout, .alloc_client = alloc_dummy_client, .free_client = free_dummy_client, .server_socket_init = cio_server_socket_init_ok, .expected_result = CIO_SUCCESS},
-		{.server = NULL, .port = 8080, .loop = &loop, .serve_error = serve_error, .header_read_timeout = header_read_timeout, .body_read_timeout = body_read_timeout, .response_timeout = response_timeout, .alloc_client = alloc_dummy_client, .free_client = free_dummy_client, .server_socket_init = cio_server_socket_init_ok, .expected_result = CIO_INVALID_ARGUMENT},
-		{.server = &server, .port = 0, .loop = &loop, .serve_error = serve_error, .header_read_timeout = header_read_timeout, .body_read_timeout = body_read_timeout, .response_timeout = response_timeout, .alloc_client = alloc_dummy_client, .free_client = free_dummy_client, .server_socket_init = cio_server_socket_init_ok, .expected_result = CIO_INVALID_ARGUMENT},
-		{.server = &server, .port = 8080, .loop = NULL, .serve_error = serve_error, .header_read_timeout = header_read_timeout, .body_read_timeout = body_read_timeout, .response_timeout = response_timeout, .alloc_client = alloc_dummy_client, .free_client = free_dummy_client, .server_socket_init = cio_server_socket_init_ok, .expected_result = CIO_INVALID_ARGUMENT},
-		{.server = &server, .port = 8080, .loop = &loop, .serve_error = NULL, .header_read_timeout = header_read_timeout, .body_read_timeout = body_read_timeout, .response_timeout = response_timeout, .alloc_client = alloc_dummy_client, .free_client = free_dummy_client, .server_socket_init = cio_server_socket_init_ok, .expected_result = CIO_SUCCESS},
-		{.server = &server, .port = 8080, .loop = &loop, .serve_error = serve_error, .header_read_timeout = 0, .body_read_timeout = body_read_timeout, .response_timeout = response_timeout, .alloc_client = alloc_dummy_client, .free_client = free_dummy_client, .server_socket_init = cio_server_socket_init_ok, .expected_result = CIO_INVALID_ARGUMENT},
-		{.server = &server, .port = 8080, .loop = &loop, .serve_error = serve_error, .header_read_timeout = header_read_timeout, .body_read_timeout = 0, .response_timeout = response_timeout, .alloc_client = alloc_dummy_client, .free_client = free_dummy_client, .server_socket_init = cio_server_socket_init_ok, .expected_result = CIO_INVALID_ARGUMENT},
-		{.server = &server, .port = 8080, .loop = &loop, .serve_error = serve_error, .header_read_timeout = header_read_timeout, .body_read_timeout = body_read_timeout, .response_timeout = 0, .alloc_client = alloc_dummy_client, .free_client = free_dummy_client, .server_socket_init = cio_server_socket_init_ok, .expected_result = CIO_INVALID_ARGUMENT},
-		{.server = &server, .port = 8080, .loop = &loop, .serve_error = serve_error, .header_read_timeout = header_read_timeout, .body_read_timeout = body_read_timeout, .response_timeout = response_timeout, .alloc_client = NULL, .free_client = free_dummy_client, .server_socket_init = cio_server_socket_init_ok, .expected_result = CIO_INVALID_ARGUMENT},
-		{.server = &server, .port = 8080, .loop = &loop, .serve_error = serve_error, .header_read_timeout = header_read_timeout, .body_read_timeout = body_read_timeout, .response_timeout = response_timeout, .alloc_client = alloc_dummy_client, .free_client = NULL, .server_socket_init = cio_server_socket_init_ok, .expected_result = CIO_INVALID_ARGUMENT},
-		{.server = &server, .port = 8080, .loop = &loop, .serve_error = serve_error, .header_read_timeout = header_read_timeout, .body_read_timeout = body_read_timeout, .response_timeout = response_timeout, .alloc_client = alloc_dummy_client, .free_client = free_dummy_client, .server_socket_init = cio_server_socket_init_fails, .expected_result = CIO_INVALID_ARGUMENT},
+	    {.server = &server, .port = 8080, .loop = &loop, .serve_error = serve_error, .header_read_timeout = header_read_timeout, .body_read_timeout = body_read_timeout, .response_timeout = response_timeout, .alloc_client = alloc_dummy_client, .free_client = free_dummy_client, .server_socket_init = cio_server_socket_init_ok, .expected_result = CIO_SUCCESS},
+	    {.server = NULL, .port = 8080, .loop = &loop, .serve_error = serve_error, .header_read_timeout = header_read_timeout, .body_read_timeout = body_read_timeout, .response_timeout = response_timeout, .alloc_client = alloc_dummy_client, .free_client = free_dummy_client, .server_socket_init = cio_server_socket_init_ok, .expected_result = CIO_INVALID_ARGUMENT},
+	    {.server = &server, .port = 0, .loop = &loop, .serve_error = serve_error, .header_read_timeout = header_read_timeout, .body_read_timeout = body_read_timeout, .response_timeout = response_timeout, .alloc_client = alloc_dummy_client, .free_client = free_dummy_client, .server_socket_init = cio_server_socket_init_ok, .expected_result = CIO_INVALID_ARGUMENT},
+	    {.server = &server, .port = 8080, .loop = NULL, .serve_error = serve_error, .header_read_timeout = header_read_timeout, .body_read_timeout = body_read_timeout, .response_timeout = response_timeout, .alloc_client = alloc_dummy_client, .free_client = free_dummy_client, .server_socket_init = cio_server_socket_init_ok, .expected_result = CIO_INVALID_ARGUMENT},
+	    {.server = &server, .port = 8080, .loop = &loop, .serve_error = NULL, .header_read_timeout = header_read_timeout, .body_read_timeout = body_read_timeout, .response_timeout = response_timeout, .alloc_client = alloc_dummy_client, .free_client = free_dummy_client, .server_socket_init = cio_server_socket_init_ok, .expected_result = CIO_SUCCESS},
+	    {.server = &server, .port = 8080, .loop = &loop, .serve_error = serve_error, .header_read_timeout = 0, .body_read_timeout = body_read_timeout, .response_timeout = response_timeout, .alloc_client = alloc_dummy_client, .free_client = free_dummy_client, .server_socket_init = cio_server_socket_init_ok, .expected_result = CIO_INVALID_ARGUMENT},
+	    {.server = &server, .port = 8080, .loop = &loop, .serve_error = serve_error, .header_read_timeout = header_read_timeout, .body_read_timeout = 0, .response_timeout = response_timeout, .alloc_client = alloc_dummy_client, .free_client = free_dummy_client, .server_socket_init = cio_server_socket_init_ok, .expected_result = CIO_INVALID_ARGUMENT},
+	    {.server = &server, .port = 8080, .loop = &loop, .serve_error = serve_error, .header_read_timeout = header_read_timeout, .body_read_timeout = body_read_timeout, .response_timeout = 0, .alloc_client = alloc_dummy_client, .free_client = free_dummy_client, .server_socket_init = cio_server_socket_init_ok, .expected_result = CIO_INVALID_ARGUMENT},
+	    {.server = &server, .port = 8080, .loop = &loop, .serve_error = serve_error, .header_read_timeout = header_read_timeout, .body_read_timeout = body_read_timeout, .response_timeout = response_timeout, .alloc_client = NULL, .free_client = free_dummy_client, .server_socket_init = cio_server_socket_init_ok, .expected_result = CIO_INVALID_ARGUMENT},
+	    {.server = &server, .port = 8080, .loop = &loop, .serve_error = serve_error, .header_read_timeout = header_read_timeout, .body_read_timeout = body_read_timeout, .response_timeout = response_timeout, .alloc_client = alloc_dummy_client, .free_client = NULL, .server_socket_init = cio_server_socket_init_ok, .expected_result = CIO_INVALID_ARGUMENT},
+	    {.server = &server, .port = 8080, .loop = &loop, .serve_error = serve_error, .header_read_timeout = header_read_timeout, .body_read_timeout = body_read_timeout, .response_timeout = response_timeout, .alloc_client = alloc_dummy_client, .free_client = free_dummy_client, .server_socket_init = cio_server_socket_init_fails, .expected_result = CIO_INVALID_ARGUMENT},
 	};
 
 	for (unsigned int i = 0; i < ARRAY_SIZE(server_init_arguments); i++) {
@@ -682,8 +680,8 @@ static void test_shutdown(void)
 	};
 
 	struct shutdown_args shutdown_args[] = {
-		{.close_hook = NULL, .close_hook_call_count = 0, .expected_result = CIO_SUCCESS},
-		{.close_hook = http_close_hook, .close_hook_call_count = 1, .expected_result = CIO_SUCCESS},
+	    {.close_hook = NULL, .close_hook_call_count = 0, .expected_result = CIO_SUCCESS},
+	    {.close_hook = http_close_hook, .close_hook_call_count = 1, .expected_result = CIO_SUCCESS},
 	};
 
 	struct cio_http_server server;
@@ -717,9 +715,9 @@ static void test_register_request_target(void)
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Request target initialization failed!");
 
 	struct register_request_target_args args[] = {
-		{.server = &server, .target = &target, .expected_result = CIO_SUCCESS},
-		{.server = NULL, .target = &target, .expected_result = CIO_INVALID_ARGUMENT},
-		{.server = &server, .target = NULL, .expected_result = CIO_INVALID_ARGUMENT},
+	    {.server = &server, .target = &target, .expected_result = CIO_SUCCESS},
+	    {.server = NULL, .target = &target, .expected_result = CIO_INVALID_ARGUMENT},
+	    {.server = &server, .target = NULL, .expected_result = CIO_INVALID_ARGUMENT},
 	};
 
 	for (unsigned int i = 0; i < ARRAY_SIZE(args); i++) {
@@ -743,14 +741,14 @@ static void test_serve_locations(void)
 	};
 
 	static const struct location_test location_tests[] = {
-		{.location = "/foo", .sub_location = "/foo/bar",.request_target = "/foo", .expected_response = 200, .location_call_count = 1, .sub_location_call_count = 0},
-		{.location = "/foo", .sub_location = "/foo/bar",.request_target = "/foo/", .expected_response = 200, .location_call_count = 1, .sub_location_call_count = 0},
-		{.location = "/foo", .sub_location = "/foo/bar",.request_target = "/foo/bar", .expected_response = 200, .location_call_count = 0, .sub_location_call_count = 1},
-		{.location = "/foo", .sub_location = "/foo/bar",.request_target = "/foo2", .expected_response = 404, .location_call_count = 0, .sub_location_call_count = 0},
-		{.location = "/foo/",.sub_location = "/foo/bar", .request_target = "/foo", .expected_response = 404, .location_call_count = 0, .sub_location_call_count = 0},
-		{.location = "/foo/",.sub_location = "/foo/bar", .request_target = "/foo/", .expected_response = 200, .location_call_count = 1, .sub_location_call_count = 0},
-		{.location = "/foo/",.sub_location = "/foo/bar", .request_target = "/foo/bar", .expected_response = 200, .location_call_count = 0, .sub_location_call_count = 1},
-		{.location = "/foo/",.sub_location = "/foo/bar", .request_target = "/foo2", .expected_response = 404, .location_call_count = 0, .sub_location_call_count = 0},
+	    {.location = "/foo", .sub_location = "/foo/bar", .request_target = "/foo", .expected_response = 200, .location_call_count = 1, .sub_location_call_count = 0},
+	    {.location = "/foo", .sub_location = "/foo/bar", .request_target = "/foo/", .expected_response = 200, .location_call_count = 1, .sub_location_call_count = 0},
+	    {.location = "/foo", .sub_location = "/foo/bar", .request_target = "/foo/bar", .expected_response = 200, .location_call_count = 0, .sub_location_call_count = 1},
+	    {.location = "/foo", .sub_location = "/foo/bar", .request_target = "/foo2", .expected_response = 404, .location_call_count = 0, .sub_location_call_count = 0},
+	    {.location = "/foo/", .sub_location = "/foo/bar", .request_target = "/foo", .expected_response = 404, .location_call_count = 0, .sub_location_call_count = 0},
+	    {.location = "/foo/", .sub_location = "/foo/bar", .request_target = "/foo/", .expected_response = 200, .location_call_count = 1, .sub_location_call_count = 0},
+	    {.location = "/foo/", .sub_location = "/foo/bar", .request_target = "/foo/bar", .expected_response = 200, .location_call_count = 0, .sub_location_call_count = 1},
+	    {.location = "/foo/", .sub_location = "/foo/bar", .request_target = "/foo2", .expected_response = 404, .location_call_count = 0, .sub_location_call_count = 0},
 	};
 
 	for (unsigned int i = 0; i < ARRAY_SIZE(location_tests); i++) {
@@ -815,11 +813,11 @@ static void test_keepalive_handling(void)
 	};
 
 	static const struct keepalive_test keepalive_tests[] = {
-		{.location = "/foo", .request = "GET /foo HTTP/1.1" CRLF "Content-Length: 0" CRLF CRLF, .expected_response = 200, .immediate_close = false},
-		{.location = "/foo", .request = "GET /foo HTTP/1.1" CRLF "Content-Length: 0" CRLF "Connection: keep-alive" CRLF CRLF, .expected_response = 200, .immediate_close = false},
-		{.location = "/foo", .request = "GET /foo HTTP/1.1" CRLF "Content-Length: 0" CRLF "Connection: close" CRLF CRLF, .expected_response = 200, .immediate_close = true},
-		{.location = "/foo", .request = "GET /foo HTTP/1.0" CRLF "Content-Length: 0" CRLF CRLF, .expected_response = 200, .immediate_close = true},
-		{.location = "/foo", .request = "GET /foo HTTP/1.0" CRLF "Content-Length: 0" CRLF "Connection: keep-alive" CRLF CRLF, .expected_response = 200, .immediate_close = false},
+	    {.location = "/foo", .request = "GET /foo HTTP/1.1" CRLF "Content-Length: 0" CRLF CRLF, .expected_response = 200, .immediate_close = false},
+	    {.location = "/foo", .request = "GET /foo HTTP/1.1" CRLF "Content-Length: 0" CRLF "Connection: keep-alive" CRLF CRLF, .expected_response = 200, .immediate_close = false},
+	    {.location = "/foo", .request = "GET /foo HTTP/1.1" CRLF "Content-Length: 0" CRLF "Connection: close" CRLF CRLF, .expected_response = 200, .immediate_close = true},
+	    {.location = "/foo", .request = "GET /foo HTTP/1.0" CRLF "Content-Length: 0" CRLF CRLF, .expected_response = 200, .immediate_close = true},
+	    {.location = "/foo", .request = "GET /foo HTTP/1.0" CRLF "Content-Length: 0" CRLF "Connection: keep-alive" CRLF CRLF, .expected_response = 200, .immediate_close = false},
 	};
 
 	for (unsigned int i = 0; i < ARRAY_SIZE(keepalive_tests); i++) {
@@ -882,43 +880,64 @@ static void test_callbacks_after_response_sent(void)
 		bool keep_alive;
 	};
 	struct tests tests[] = {
-		{ .expected_response = 500, .who_sends_response = NO_RESPONSE, .request = "GET http://172.19.1.1:8080/foo?search=qry#fraggy" CRLF "Content-Length: 5" CRLF CRLF "Hello", .keep_alive = false},
-		{ .expected_response = 404, .who_sends_response = ON_SCHEMA_SENDS_RESPONSE, .request = "GET http://172.19.1.1:8080/foo?search=qry#fraggy" CRLF "Content-Length: 5" CRLF CRLF "Hello", .keep_alive = false},
-		{ .expected_response = 404, .who_sends_response = ON_HOST_SENDS_RESPONSE, .request = "GET http://172.19.1.1:8080/foo?search=qry#fraggy" CRLF "Content-Length: 5" CRLF CRLF "Hello", .keep_alive = false},
-		{ .expected_response = 404, .who_sends_response = ON_PORT_SENDS_RESPONSE, .request = "GET http://172.19.1.1:8080/foo?search=qry#fraggy" CRLF "Content-Length: 5" CRLF CRLF "Hello", .keep_alive = false},
-		{ .expected_response = 404, .who_sends_response = ON_PATH_SENDS_RESPONSE, .request = "GET http://172.19.1.1:8080/foo?search=qry#fraggy" CRLF "Content-Length: 5" CRLF CRLF "Hello", .keep_alive = false},
-		{ .expected_response = 404, .who_sends_response = ON_QUERY_SENDS_RESPONSE, .request = "GET http://172.19.1.1:8080/foo?search=qry#fraggy" CRLF "Content-Length: 5" CRLF CRLF "Hello", .keep_alive = false},
-		{ .expected_response = 404, .who_sends_response = ON_FRAGMENT_SENDS_RESPONSE, .request = "GET http://172.19.1.1:8080/foo?search=qry#fraggy" CRLF "Content-Length: 5" CRLF CRLF "Hello", .keep_alive = false},
-		{ .expected_response = 404, .who_sends_response = ON_URL_SENDS_RESPONSE, .request = "GET http://172.19.1.1:8080/foo?search=qry#fraggy" CRLF "Content-Length: 5" CRLF CRLF "Hello", .keep_alive = false},
-		{ .expected_response = 404, .who_sends_response = ON_HEADER_FIELD_SENDS_RESPONSE, .request = "GET http://172.19.1.1:8080/foo?search=qry#fraggy" CRLF "Content-Length: 5" CRLF CRLF "Hello", .keep_alive = false},
-		{ .expected_response = 404, .who_sends_response = ON_HEADER_VALUE_SENDS_RESPONSE, .request = "GET http://172.19.1.1:8080/foo?search=qry#fraggy" CRLF "Content-Length: 5" CRLF CRLF "Hello", .keep_alive = false},
-		{ .expected_response = 404, .who_sends_response = ON_BODY_SENDS_RESPONSE, .request = "GET http://172.19.1.1:8080/foo?search=qry#fraggy" CRLF "Content-Length: 5" CRLF CRLF "Hello", .keep_alive = false},
-		{ .expected_response = 200, .who_sends_response = ON_HEADER_COMPLETE_SENDS_RESPONSE, .request = "GET http://172.19.1.1:8080/foo?search=qry#fraggy" CRLF "Content-Length: 5" CRLF CRLF "Hello", .keep_alive = false},
-		{ .expected_response = 404, .who_sends_response = ON_MESSAGE_COMPLETE_SENDS_RESPONSE, .request = "GET http://172.19.1.1:8080/foo?search=qry#fraggy" CRLF "Content-Length: 5" CRLF CRLF "Hello", .keep_alive = false},
-		{ .expected_response = 200, .who_sends_response = ON_HEADER_COMPLETE_SENDS_RESPONSE, .request = "GET http://172.19.1.1:8080/foo?search=qry#fraggy HTTP/1.1" CRLF "Content-Length: 5" CRLF CRLF "Hello", .keep_alive = true},
+	    {.expected_response = 500, .who_sends_response = NO_RESPONSE, .request = "GET http://172.19.1.1:8080/foo?search=qry#fraggy" CRLF "Content-Length: 5" CRLF CRLF "Hello", .keep_alive = false},
+	    {.expected_response = 404, .who_sends_response = ON_SCHEMA_SENDS_RESPONSE, .request = "GET http://172.19.1.1:8080/foo?search=qry#fraggy" CRLF "Content-Length: 5" CRLF CRLF "Hello", .keep_alive = false},
+	    {.expected_response = 404, .who_sends_response = ON_HOST_SENDS_RESPONSE, .request = "GET http://172.19.1.1:8080/foo?search=qry#fraggy" CRLF "Content-Length: 5" CRLF CRLF "Hello", .keep_alive = false},
+	    {.expected_response = 404, .who_sends_response = ON_PORT_SENDS_RESPONSE, .request = "GET http://172.19.1.1:8080/foo?search=qry#fraggy" CRLF "Content-Length: 5" CRLF CRLF "Hello", .keep_alive = false},
+	    {.expected_response = 404, .who_sends_response = ON_PATH_SENDS_RESPONSE, .request = "GET http://172.19.1.1:8080/foo?search=qry#fraggy" CRLF "Content-Length: 5" CRLF CRLF "Hello", .keep_alive = false},
+	    {.expected_response = 404, .who_sends_response = ON_QUERY_SENDS_RESPONSE, .request = "GET http://172.19.1.1:8080/foo?search=qry#fraggy" CRLF "Content-Length: 5" CRLF CRLF "Hello", .keep_alive = false},
+	    {.expected_response = 404, .who_sends_response = ON_FRAGMENT_SENDS_RESPONSE, .request = "GET http://172.19.1.1:8080/foo?search=qry#fraggy" CRLF "Content-Length: 5" CRLF CRLF "Hello", .keep_alive = false},
+	    {.expected_response = 404, .who_sends_response = ON_URL_SENDS_RESPONSE, .request = "GET http://172.19.1.1:8080/foo?search=qry#fraggy" CRLF "Content-Length: 5" CRLF CRLF "Hello", .keep_alive = false},
+	    {.expected_response = 404, .who_sends_response = ON_HEADER_FIELD_SENDS_RESPONSE, .request = "GET http://172.19.1.1:8080/foo?search=qry#fraggy" CRLF "Content-Length: 5" CRLF CRLF "Hello", .keep_alive = false},
+	    {.expected_response = 404, .who_sends_response = ON_HEADER_VALUE_SENDS_RESPONSE, .request = "GET http://172.19.1.1:8080/foo?search=qry#fraggy" CRLF "Content-Length: 5" CRLF CRLF "Hello", .keep_alive = false},
+	    {.expected_response = 404, .who_sends_response = ON_BODY_SENDS_RESPONSE, .request = "GET http://172.19.1.1:8080/foo?search=qry#fraggy" CRLF "Content-Length: 5" CRLF CRLF "Hello", .keep_alive = false},
+	    {.expected_response = 200, .who_sends_response = ON_HEADER_COMPLETE_SENDS_RESPONSE, .request = "GET http://172.19.1.1:8080/foo?search=qry#fraggy" CRLF "Content-Length: 5" CRLF CRLF "Hello", .keep_alive = false},
+	    {.expected_response = 404, .who_sends_response = ON_MESSAGE_COMPLETE_SENDS_RESPONSE, .request = "GET http://172.19.1.1:8080/foo?search=qry#fraggy" CRLF "Content-Length: 5" CRLF CRLF "Hello", .keep_alive = false},
+	    {.expected_response = 200, .who_sends_response = ON_HEADER_COMPLETE_SENDS_RESPONSE, .request = "GET http://172.19.1.1:8080/foo?search=qry#fraggy HTTP/1.1" CRLF "Content-Length: 5" CRLF CRLF "Hello", .keep_alive = true},
 	};
 
 	for (unsigned int i = 0; i < ARRAY_SIZE(tests); i++) {
 		struct tests test = tests[i];
 
 		struct request_test callbacks = {
-			.on_scheme = on_schema, .on_host = on_host, .on_port = on_port, .on_path = on_path, .on_query = on_query, .on_fragment = on_fragment, .on_url = on_url,
-			.on_header_field = on_header_field, .on_header_value = on_header_value, .on_header_complete = on_header_complete,
-			.on_body = on_body, .on_message_complete = on_message_complete,
+		    .on_scheme = on_schema,
+		    .on_host = on_host,
+		    .on_port = on_port,
+		    .on_path = on_path,
+		    .on_query = on_query,
+		    .on_fragment = on_fragment,
+		    .on_url = on_url,
+		    .on_header_field = on_header_field,
+		    .on_header_value = on_header_value,
+		    .on_header_complete = on_header_complete,
+		    .on_body = on_body,
+		    .on_message_complete = on_message_complete,
 		};
 
-		if (test.who_sends_response == ON_SCHEMA_SENDS_RESPONSE) on_schema_fake.custom_fake = data_callback_write_response;
-		if (test.who_sends_response == ON_HOST_SENDS_RESPONSE) on_host_fake.custom_fake = data_callback_write_response;
-		if (test.who_sends_response == ON_PORT_SENDS_RESPONSE) on_port_fake.custom_fake = data_callback_write_response;
-		if (test.who_sends_response == ON_PATH_SENDS_RESPONSE) on_path_fake.custom_fake = data_callback_write_response;
-		if (test.who_sends_response == ON_QUERY_SENDS_RESPONSE) on_query_fake.custom_fake = data_callback_write_response;
-		if (test.who_sends_response == ON_FRAGMENT_SENDS_RESPONSE) on_fragment_fake.custom_fake = data_callback_write_response;
-		if (test.who_sends_response == ON_URL_SENDS_RESPONSE) on_url_fake.custom_fake = data_callback_write_response;
-		if (test.who_sends_response == ON_HEADER_FIELD_SENDS_RESPONSE) on_header_field_fake.custom_fake = data_callback_write_response;
-		if (test.who_sends_response == ON_HEADER_VALUE_SENDS_RESPONSE) on_header_value_fake.custom_fake = data_callback_write_response;
-		if (test.who_sends_response == ON_BODY_SENDS_RESPONSE) on_body_fake.custom_fake = data_callback_write_response;
-		if (test.who_sends_response == ON_HEADER_COMPLETE_SENDS_RESPONSE) on_header_complete_fake.custom_fake = header_complete_write_response;
-		if (test.who_sends_response == ON_MESSAGE_COMPLETE_SENDS_RESPONSE) on_message_complete_fake.custom_fake = callback_write_response;
+		if (test.who_sends_response == ON_SCHEMA_SENDS_RESPONSE)
+			on_schema_fake.custom_fake = data_callback_write_response;
+		if (test.who_sends_response == ON_HOST_SENDS_RESPONSE)
+			on_host_fake.custom_fake = data_callback_write_response;
+		if (test.who_sends_response == ON_PORT_SENDS_RESPONSE)
+			on_port_fake.custom_fake = data_callback_write_response;
+		if (test.who_sends_response == ON_PATH_SENDS_RESPONSE)
+			on_path_fake.custom_fake = data_callback_write_response;
+		if (test.who_sends_response == ON_QUERY_SENDS_RESPONSE)
+			on_query_fake.custom_fake = data_callback_write_response;
+		if (test.who_sends_response == ON_FRAGMENT_SENDS_RESPONSE)
+			on_fragment_fake.custom_fake = data_callback_write_response;
+		if (test.who_sends_response == ON_URL_SENDS_RESPONSE)
+			on_url_fake.custom_fake = data_callback_write_response;
+		if (test.who_sends_response == ON_HEADER_FIELD_SENDS_RESPONSE)
+			on_header_field_fake.custom_fake = data_callback_write_response;
+		if (test.who_sends_response == ON_HEADER_VALUE_SENDS_RESPONSE)
+			on_header_value_fake.custom_fake = data_callback_write_response;
+		if (test.who_sends_response == ON_BODY_SENDS_RESPONSE)
+			on_body_fake.custom_fake = data_callback_write_response;
+		if (test.who_sends_response == ON_HEADER_COMPLETE_SENDS_RESPONSE)
+			on_header_complete_fake.custom_fake = header_complete_write_response;
+		if (test.who_sends_response == ON_MESSAGE_COMPLETE_SENDS_RESPONSE)
+			on_message_complete_fake.custom_fake = callback_write_response;
 
 		struct cio_http_server server;
 		enum cio_error err = cio_http_server_init(&server, 8080, &loop, serve_error, header_read_timeout, body_read_timeout, response_timeout, alloc_dummy_client, free_dummy_client);
@@ -942,85 +961,85 @@ static void test_callbacks_after_response_sent(void)
 
 		check_http_response(&ms, test.expected_response);
 
-		switch(test.who_sends_response) {
-			case ON_MESSAGE_COMPLETE_SENDS_RESPONSE:
-				TEST_ASSERT_EQUAL_MESSAGE(1, on_message_complete_fake.call_count, "on_message_complete was not called!");
-				/* FALLTHRU */
-			case ON_BODY_SENDS_RESPONSE:
-				TEST_ASSERT_GREATER_THAN_MESSAGE(0, on_body_fake.call_count, "on_body was not called!");
-				/* FALLTHRU */
-			case ON_HEADER_COMPLETE_SENDS_RESPONSE:
-				TEST_ASSERT_EQUAL_MESSAGE(1, on_header_complete_fake.call_count, "on_header_complete was not called!");
-				/* FALLTHRU */
-			case ON_HEADER_VALUE_SENDS_RESPONSE:
-				TEST_ASSERT_EQUAL_MESSAGE(1, on_header_value_fake.call_count, "on_header_value was not called!");
-				/* FALLTHRU */
-			case ON_HEADER_FIELD_SENDS_RESPONSE:
-				TEST_ASSERT_EQUAL_MESSAGE(1, on_header_field_fake.call_count, "on_header_field was not called!");
-				/* FALLTHRU */
-			case ON_URL_SENDS_RESPONSE:
-				TEST_ASSERT_EQUAL_MESSAGE(1, on_url_fake.call_count, "on_url was not called!");
-				/* FALLTHRU */
-			case ON_FRAGMENT_SENDS_RESPONSE:
-				TEST_ASSERT_EQUAL_MESSAGE(1, on_fragment_fake.call_count, "on_fragment was not called!");
-				/* FALLTHRU */
-			case ON_QUERY_SENDS_RESPONSE:
-				TEST_ASSERT_EQUAL_MESSAGE(1, on_query_fake.call_count, "on_query was not called!");
-				/* FALLTHRU */
-			case ON_PATH_SENDS_RESPONSE:
-				TEST_ASSERT_EQUAL_MESSAGE(1, on_path_fake.call_count, "on_path was not called!");
-				/* FALLTHRU */
-			case ON_PORT_SENDS_RESPONSE:
-				TEST_ASSERT_EQUAL_MESSAGE(1, on_port_fake.call_count, "on_port was not called!");
-				/* FALLTHRU */
-			case ON_HOST_SENDS_RESPONSE:
-				TEST_ASSERT_EQUAL_MESSAGE(1, on_host_fake.call_count, "on_host was not called!");
-				/* FALLTHRU */
-			case ON_SCHEMA_SENDS_RESPONSE:
-				TEST_ASSERT_EQUAL_MESSAGE(1, on_schema_fake.call_count, "on_schema was not called!");
-				break;
+		switch (test.who_sends_response) {
+		case ON_MESSAGE_COMPLETE_SENDS_RESPONSE:
+			TEST_ASSERT_EQUAL_MESSAGE(1, on_message_complete_fake.call_count, "on_message_complete was not called!");
+			/* FALLTHRU */
+		case ON_BODY_SENDS_RESPONSE:
+			TEST_ASSERT_GREATER_THAN_MESSAGE(0, on_body_fake.call_count, "on_body was not called!");
+			/* FALLTHRU */
+		case ON_HEADER_COMPLETE_SENDS_RESPONSE:
+			TEST_ASSERT_EQUAL_MESSAGE(1, on_header_complete_fake.call_count, "on_header_complete was not called!");
+			/* FALLTHRU */
+		case ON_HEADER_VALUE_SENDS_RESPONSE:
+			TEST_ASSERT_EQUAL_MESSAGE(1, on_header_value_fake.call_count, "on_header_value was not called!");
+			/* FALLTHRU */
+		case ON_HEADER_FIELD_SENDS_RESPONSE:
+			TEST_ASSERT_EQUAL_MESSAGE(1, on_header_field_fake.call_count, "on_header_field was not called!");
+			/* FALLTHRU */
+		case ON_URL_SENDS_RESPONSE:
+			TEST_ASSERT_EQUAL_MESSAGE(1, on_url_fake.call_count, "on_url was not called!");
+			/* FALLTHRU */
+		case ON_FRAGMENT_SENDS_RESPONSE:
+			TEST_ASSERT_EQUAL_MESSAGE(1, on_fragment_fake.call_count, "on_fragment was not called!");
+			/* FALLTHRU */
+		case ON_QUERY_SENDS_RESPONSE:
+			TEST_ASSERT_EQUAL_MESSAGE(1, on_query_fake.call_count, "on_query was not called!");
+			/* FALLTHRU */
+		case ON_PATH_SENDS_RESPONSE:
+			TEST_ASSERT_EQUAL_MESSAGE(1, on_path_fake.call_count, "on_path was not called!");
+			/* FALLTHRU */
+		case ON_PORT_SENDS_RESPONSE:
+			TEST_ASSERT_EQUAL_MESSAGE(1, on_port_fake.call_count, "on_port was not called!");
+			/* FALLTHRU */
+		case ON_HOST_SENDS_RESPONSE:
+			TEST_ASSERT_EQUAL_MESSAGE(1, on_host_fake.call_count, "on_host was not called!");
+			/* FALLTHRU */
+		case ON_SCHEMA_SENDS_RESPONSE:
+			TEST_ASSERT_EQUAL_MESSAGE(1, on_schema_fake.call_count, "on_schema was not called!");
+			break;
 
-			default:
-				break;
+		default:
+			break;
 		}
 
 		switch (test.who_sends_response) {
-			case ON_SCHEMA_SENDS_RESPONSE:
-				TEST_ASSERT_EQUAL_MESSAGE(0, on_host_fake.call_count, "on_host was called!");
-				/* FALLTHRU */
-			case ON_HOST_SENDS_RESPONSE:
-				TEST_ASSERT_EQUAL_MESSAGE(0, on_port_fake.call_count, "on_port was called!");
-				/* FALLTHRU */
-			case ON_PORT_SENDS_RESPONSE:
-				TEST_ASSERT_EQUAL_MESSAGE(0, on_path_fake.call_count, "on_path was called!");
-				/* FALLTHRU */
-			case ON_PATH_SENDS_RESPONSE:
-				TEST_ASSERT_EQUAL_MESSAGE(0, on_query_fake.call_count, "on_query was called!");
-				/* FALLTHRU */
-			case ON_QUERY_SENDS_RESPONSE:
-				TEST_ASSERT_EQUAL_MESSAGE(0, on_fragment_fake.call_count, "on_fragment was called!");
-				/* FALLTHRU */
-			case ON_FRAGMENT_SENDS_RESPONSE:
-				TEST_ASSERT_EQUAL_MESSAGE(0, on_url_fake.call_count, "on_url was called!");
-				/* FALLTHRU */
-			case ON_URL_SENDS_RESPONSE:
-				TEST_ASSERT_EQUAL_MESSAGE(0, on_header_field_fake.call_count, "on_header_field was called!");
-				/* FALLTHRU */
-			case ON_HEADER_FIELD_SENDS_RESPONSE:
-				TEST_ASSERT_EQUAL_MESSAGE(0, on_header_value_fake.call_count, "on_header_value was called!");
-				/* FALLTHRU */
-			case ON_HEADER_VALUE_SENDS_RESPONSE:
-				TEST_ASSERT_EQUAL_MESSAGE(0, on_header_complete_fake.call_count, "on_header_complete was called!");
-				/* FALLTHRU */
-			case ON_HEADER_COMPLETE_SENDS_RESPONSE:
-				TEST_ASSERT_EQUAL_MESSAGE(0, on_body_fake.call_count, "on_body was called!");
-				/* FALLTHRU */
-			case ON_BODY_SENDS_RESPONSE:
-				TEST_ASSERT_EQUAL_MESSAGE(0, on_message_complete_fake.call_count, "on_message_complete was called!");
-				break;
+		case ON_SCHEMA_SENDS_RESPONSE:
+			TEST_ASSERT_EQUAL_MESSAGE(0, on_host_fake.call_count, "on_host was called!");
+			/* FALLTHRU */
+		case ON_HOST_SENDS_RESPONSE:
+			TEST_ASSERT_EQUAL_MESSAGE(0, on_port_fake.call_count, "on_port was called!");
+			/* FALLTHRU */
+		case ON_PORT_SENDS_RESPONSE:
+			TEST_ASSERT_EQUAL_MESSAGE(0, on_path_fake.call_count, "on_path was called!");
+			/* FALLTHRU */
+		case ON_PATH_SENDS_RESPONSE:
+			TEST_ASSERT_EQUAL_MESSAGE(0, on_query_fake.call_count, "on_query was called!");
+			/* FALLTHRU */
+		case ON_QUERY_SENDS_RESPONSE:
+			TEST_ASSERT_EQUAL_MESSAGE(0, on_fragment_fake.call_count, "on_fragment was called!");
+			/* FALLTHRU */
+		case ON_FRAGMENT_SENDS_RESPONSE:
+			TEST_ASSERT_EQUAL_MESSAGE(0, on_url_fake.call_count, "on_url was called!");
+			/* FALLTHRU */
+		case ON_URL_SENDS_RESPONSE:
+			TEST_ASSERT_EQUAL_MESSAGE(0, on_header_field_fake.call_count, "on_header_field was called!");
+			/* FALLTHRU */
+		case ON_HEADER_FIELD_SENDS_RESPONSE:
+			TEST_ASSERT_EQUAL_MESSAGE(0, on_header_value_fake.call_count, "on_header_value was called!");
+			/* FALLTHRU */
+		case ON_HEADER_VALUE_SENDS_RESPONSE:
+			TEST_ASSERT_EQUAL_MESSAGE(0, on_header_complete_fake.call_count, "on_header_complete was called!");
+			/* FALLTHRU */
+		case ON_HEADER_COMPLETE_SENDS_RESPONSE:
+			TEST_ASSERT_EQUAL_MESSAGE(0, on_body_fake.call_count, "on_body was called!");
+			/* FALLTHRU */
+		case ON_BODY_SENDS_RESPONSE:
+			TEST_ASSERT_EQUAL_MESSAGE(0, on_message_complete_fake.call_count, "on_message_complete was called!");
+			break;
 
-			default:
-				break;
+		default:
+			break;
 		}
 
 		if (test.keep_alive) {
@@ -1034,22 +1053,22 @@ static void test_callbacks_after_response_sent(void)
 static void test_url_callbacks(void)
 {
 	static const struct request_test request_tests[] = {
-		{.on_scheme = on_schema, .on_message_complete = message_complete_write_response, .alloc_handler = alloc_handler_for_callback_test, .callback_return = CIO_HTTP_CB_SUCCESS, .expected_response = 200},
-		{.on_host = on_host, .on_message_complete = message_complete_write_response, .alloc_handler = alloc_handler_for_callback_test, .callback_return = CIO_HTTP_CB_SUCCESS, .expected_response = 200},
-		{.on_port = on_port, .on_message_complete = message_complete_write_response, .alloc_handler = alloc_handler_for_callback_test, .callback_return = CIO_HTTP_CB_SUCCESS, .expected_response = 200},
-		{.on_path = on_path, .on_message_complete = message_complete_write_response, .alloc_handler = alloc_handler_for_callback_test, .callback_return = CIO_HTTP_CB_SUCCESS, .expected_response = 200},
-		{.on_query = on_query, .on_message_complete = message_complete_write_response, .alloc_handler = alloc_handler_for_callback_test, .callback_return = CIO_HTTP_CB_SUCCESS, .expected_response = 200},
-		{.on_fragment = on_fragment, .on_message_complete = message_complete_write_response, .alloc_handler = alloc_handler_for_callback_test, .callback_return = CIO_HTTP_CB_SUCCESS, .expected_response = 200},
-		{.on_scheme = on_schema, .on_message_complete = message_complete_write_response, .alloc_handler = alloc_handler_for_callback_test, .callback_return = CIO_HTTP_CB_ERROR, .expected_response = 400},
-		{.on_host = on_host, .on_message_complete = message_complete_write_response, .alloc_handler = alloc_handler_for_callback_test, .callback_return = CIO_HTTP_CB_ERROR, .expected_response = 400},
-		{.on_port = on_port, .on_message_complete = message_complete_write_response, .alloc_handler = alloc_handler_for_callback_test, .callback_return = CIO_HTTP_CB_ERROR, .expected_response = 400},
-		{.on_path = on_path, .on_message_complete = message_complete_write_response, .alloc_handler = alloc_handler_for_callback_test, .callback_return = CIO_HTTP_CB_ERROR, .expected_response = 400},
-		{.on_query = on_query, .on_message_complete = message_complete_write_response, .alloc_handler = alloc_handler_for_callback_test, .callback_return = CIO_HTTP_CB_ERROR, .expected_response = 400},
-		{.on_fragment = on_fragment, .on_message_complete = message_complete_write_response, .alloc_handler = alloc_handler_for_callback_test, .callback_return = CIO_HTTP_CB_ERROR, .expected_response = 400},
-		{.alloc_handler = alloc_handler_for_callback_test, .expected_response = 500},
-		{.on_scheme = on_schema, .alloc_handler = alloc_handler_for_callback_test, .expected_response = 500},
-		{.alloc_handler = alloc_failing_handler, .expected_response = 500},
-		{.alloc_handler = alloc_handler_with_no_free, .expected_response = 500},
+	    {.on_scheme = on_schema, .on_message_complete = message_complete_write_response, .alloc_handler = alloc_handler_for_callback_test, .callback_return = CIO_HTTP_CB_SUCCESS, .expected_response = 200},
+	    {.on_host = on_host, .on_message_complete = message_complete_write_response, .alloc_handler = alloc_handler_for_callback_test, .callback_return = CIO_HTTP_CB_SUCCESS, .expected_response = 200},
+	    {.on_port = on_port, .on_message_complete = message_complete_write_response, .alloc_handler = alloc_handler_for_callback_test, .callback_return = CIO_HTTP_CB_SUCCESS, .expected_response = 200},
+	    {.on_path = on_path, .on_message_complete = message_complete_write_response, .alloc_handler = alloc_handler_for_callback_test, .callback_return = CIO_HTTP_CB_SUCCESS, .expected_response = 200},
+	    {.on_query = on_query, .on_message_complete = message_complete_write_response, .alloc_handler = alloc_handler_for_callback_test, .callback_return = CIO_HTTP_CB_SUCCESS, .expected_response = 200},
+	    {.on_fragment = on_fragment, .on_message_complete = message_complete_write_response, .alloc_handler = alloc_handler_for_callback_test, .callback_return = CIO_HTTP_CB_SUCCESS, .expected_response = 200},
+	    {.on_scheme = on_schema, .on_message_complete = message_complete_write_response, .alloc_handler = alloc_handler_for_callback_test, .callback_return = CIO_HTTP_CB_ERROR, .expected_response = 400},
+	    {.on_host = on_host, .on_message_complete = message_complete_write_response, .alloc_handler = alloc_handler_for_callback_test, .callback_return = CIO_HTTP_CB_ERROR, .expected_response = 400},
+	    {.on_port = on_port, .on_message_complete = message_complete_write_response, .alloc_handler = alloc_handler_for_callback_test, .callback_return = CIO_HTTP_CB_ERROR, .expected_response = 400},
+	    {.on_path = on_path, .on_message_complete = message_complete_write_response, .alloc_handler = alloc_handler_for_callback_test, .callback_return = CIO_HTTP_CB_ERROR, .expected_response = 400},
+	    {.on_query = on_query, .on_message_complete = message_complete_write_response, .alloc_handler = alloc_handler_for_callback_test, .callback_return = CIO_HTTP_CB_ERROR, .expected_response = 400},
+	    {.on_fragment = on_fragment, .on_message_complete = message_complete_write_response, .alloc_handler = alloc_handler_for_callback_test, .callback_return = CIO_HTTP_CB_ERROR, .expected_response = 400},
+	    {.alloc_handler = alloc_handler_for_callback_test, .expected_response = 500},
+	    {.on_scheme = on_schema, .alloc_handler = alloc_handler_for_callback_test, .expected_response = 500},
+	    {.alloc_handler = alloc_failing_handler, .expected_response = 500},
+	    {.alloc_handler = alloc_handler_with_no_free, .expected_response = 500},
 	};
 
 	for (unsigned int i = 0; i < ARRAY_SIZE(request_tests); i++) {
@@ -1142,9 +1161,9 @@ static void test_errors_in_serve(void)
 	};
 
 	static const struct serve_test serve_tests[] = {
-		{.reuse_addres_retval = CIO_INVALID_ARGUMENT, .bind_retval = CIO_SUCCESS, .accept_retval = CIO_SUCCESS},
-		{.reuse_addres_retval = CIO_SUCCESS, .bind_retval = CIO_INVALID_ARGUMENT, .accept_retval = CIO_SUCCESS},
-		{.reuse_addres_retval = CIO_SUCCESS, .bind_retval = CIO_SUCCESS, .accept_retval = CIO_INVALID_ARGUMENT},
+	    {.reuse_addres_retval = CIO_INVALID_ARGUMENT, .bind_retval = CIO_SUCCESS, .accept_retval = CIO_SUCCESS},
+	    {.reuse_addres_retval = CIO_SUCCESS, .bind_retval = CIO_INVALID_ARGUMENT, .accept_retval = CIO_SUCCESS},
+	    {.reuse_addres_retval = CIO_SUCCESS, .bind_retval = CIO_SUCCESS, .accept_retval = CIO_INVALID_ARGUMENT},
 	};
 
 	for (unsigned int i = 0; i < ARRAY_SIZE(serve_tests); i++) {
@@ -1179,77 +1198,61 @@ static void test_errors_in_accept(void)
 	};
 
 	static const struct accept_test accept_tests[] = {
-		{
-			.accept_error_parameter = CIO_INVALID_ARGUMENT,
-			.alloc_client = alloc_dummy_client,
-			.response_timer_init = cio_timer_init_ok,
-			.request_timer_init = cio_timer_init_ok,
-			.timer_expires = expires,
-			.request = "GET /foo HTTP/1.1" CRLF CRLF
-		},
-		{
-			.accept_error_parameter = CIO_SUCCESS,
-			.alloc_client = alloc_dummy_client_no_buffer,
-			.response_timer_init = cio_timer_init_ok,
-			.request_timer_init = cio_timer_init_ok,
-			.timer_expires = expires,
-			.request = "GET /foo HTTP/1.1" CRLF CRLF
-		},
-		{
-			.accept_error_parameter = CIO_SUCCESS,
-			.alloc_client = alloc_dummy_client_no_iostream,
-			.response_timer_init = cio_timer_init_ok,
-			.request_timer_init = cio_timer_init_ok,
-			.timer_expires = expires,
-			.request = "GET /foo HTTP/1.1" CRLF CRLF
-		},
-		{
-			.accept_error_parameter = CIO_INVALID_ARGUMENT,
-			.alloc_client = alloc_dummy_client_no_iostream,
-			.response_timer_init = cio_timer_init_ok,
-			.request_timer_init = cio_timer_init_ok,
-			.timer_expires = expires,
-			.request = "GET /foo HTTP/1.1" CRLF CRLF
-		},
-		{
-			.accept_error_parameter = CIO_SUCCESS,
-			.alloc_client = alloc_dummy_client,
-			.response_timer_init = cio_timer_init_fails,
-			.request_timer_init = cio_timer_init_ok,
-			.timer_expires = expires,
-			.request = "GET /foo HTTP/1.1" CRLF CRLF
-		},
-		{
-			.accept_error_parameter = CIO_SUCCESS,
-			.alloc_client = alloc_dummy_client,
-			.response_timer_init = cio_timer_init_ok,
-			.request_timer_init = cio_timer_init_fails,
-			.timer_expires = expires,
-			.request = "GET /foo HTTP/1.1" CRLF CRLF
-		},
-		{
-			.accept_error_parameter = CIO_SUCCESS,
-			.alloc_client = alloc_dummy_client,
-			.response_timer_init = cio_timer_init_ok,
-			.request_timer_init = cio_timer_init_ok,
-			.timer_expires = expires_error,
-			.request = "GET /foo HTTP/1.1" CRLF CRLF
-		},
+	    {.accept_error_parameter = CIO_INVALID_ARGUMENT,
+	     .alloc_client = alloc_dummy_client,
+	     .response_timer_init = cio_timer_init_ok,
+	     .request_timer_init = cio_timer_init_ok,
+	     .timer_expires = expires,
+	     .request = "GET /foo HTTP/1.1" CRLF CRLF},
+	    {.accept_error_parameter = CIO_SUCCESS,
+	     .alloc_client = alloc_dummy_client_no_buffer,
+	     .response_timer_init = cio_timer_init_ok,
+	     .request_timer_init = cio_timer_init_ok,
+	     .timer_expires = expires,
+	     .request = "GET /foo HTTP/1.1" CRLF CRLF},
+	    {.accept_error_parameter = CIO_SUCCESS,
+	     .alloc_client = alloc_dummy_client_no_iostream,
+	     .response_timer_init = cio_timer_init_ok,
+	     .request_timer_init = cio_timer_init_ok,
+	     .timer_expires = expires,
+	     .request = "GET /foo HTTP/1.1" CRLF CRLF},
+	    {.accept_error_parameter = CIO_INVALID_ARGUMENT,
+	     .alloc_client = alloc_dummy_client_no_iostream,
+	     .response_timer_init = cio_timer_init_ok,
+	     .request_timer_init = cio_timer_init_ok,
+	     .timer_expires = expires,
+	     .request = "GET /foo HTTP/1.1" CRLF CRLF},
+	    {.accept_error_parameter = CIO_SUCCESS,
+	     .alloc_client = alloc_dummy_client,
+	     .response_timer_init = cio_timer_init_fails,
+	     .request_timer_init = cio_timer_init_ok,
+	     .timer_expires = expires,
+	     .request = "GET /foo HTTP/1.1" CRLF CRLF},
+	    {.accept_error_parameter = CIO_SUCCESS,
+	     .alloc_client = alloc_dummy_client,
+	     .response_timer_init = cio_timer_init_ok,
+	     .request_timer_init = cio_timer_init_fails,
+	     .timer_expires = expires,
+	     .request = "GET /foo HTTP/1.1" CRLF CRLF},
+	    {.accept_error_parameter = CIO_SUCCESS,
+	     .alloc_client = alloc_dummy_client,
+	     .response_timer_init = cio_timer_init_ok,
+	     .request_timer_init = cio_timer_init_ok,
+	     .timer_expires = expires_error,
+	     .request = "GET /foo HTTP/1.1" CRLF CRLF},
 	};
 
 	for (unsigned int i = 0; i < ARRAY_SIZE(accept_tests); i++) {
 		struct accept_test accept_test = accept_tests[i];
 
-		enum cio_error (*timer_init_fakes[])(struct cio_timer *timer, struct cio_eventloop *l, cio_timer_close_hook hook) = {
-        	accept_test.response_timer_init,
-        	accept_test.request_timer_init
-    	};
+		enum cio_error (*timer_init_fakes[])(struct cio_timer * timer, struct cio_eventloop * l, cio_timer_close_hook hook) = {
+		    accept_test.response_timer_init,
+		    accept_test.request_timer_init};
 
-    	cio_timer_init_fake.custom_fake = NULL;
-    	SET_CUSTOM_FAKE_SEQ(cio_timer_init, timer_init_fakes, ARRAY_SIZE(timer_init_fakes));
+		cio_timer_init_fake.custom_fake = NULL;
+		SET_CUSTOM_FAKE_SEQ(cio_timer_init, timer_init_fakes, ARRAY_SIZE(timer_init_fakes));
 
-    	timer_expires_from_now_fake.custom_fake = accept_test.timer_expires;
-
+		timer_expires_from_now_fake.custom_fake = accept_test.timer_expires;
 
 		struct cio_http_server server;
 		enum cio_error err = cio_http_server_init(&server, 8080, &loop, serve_error, header_read_timeout, body_read_timeout, response_timeout, accept_test.alloc_client, free_dummy_client);
@@ -1289,11 +1292,11 @@ static void test_parse_errors(void)
 	};
 
 	static struct parse_test parse_tests[] = {
-		{.read_some = read_some_error, .write_some = write_all, .request = "GET /foo HTTP/1.1" CRLF CRLF, .expected_response = 500},
-		{.read_some = read_some_max, .write_some = write_all, .request = "GT /foo HTTP/1.1" CRLF CRLF, .expected_response = 400},
-		{.read_some = read_some_max, .write_some = write_error, .request = "GT /foo HTTP/1.1" CRLF CRLF},
-		{.read_some = read_some_max, .write_some = write_all, .request = "GET http://ww%.google.de/ HTTP/1.1" CRLF CRLF, .expected_response = 400},
-		{.read_some = read_some_max, .write_some = write_all, .request = "CONNECT www.google.de:80 HTTP/1.1" CRLF CRLF, .expected_response = 400},
+	    {.read_some = read_some_error, .write_some = write_all, .request = "GET /foo HTTP/1.1" CRLF CRLF, .expected_response = 500},
+	    {.read_some = read_some_max, .write_some = write_all, .request = "GT /foo HTTP/1.1" CRLF CRLF, .expected_response = 400},
+	    {.read_some = read_some_max, .write_some = write_error, .request = "GT /foo HTTP/1.1" CRLF CRLF},
+	    {.read_some = read_some_max, .write_some = write_all, .request = "GET http://ww%.google.de/ HTTP/1.1" CRLF CRLF, .expected_response = 400},
+	    {.read_some = read_some_max, .write_some = write_all, .request = "CONNECT www.google.de:80 HTTP/1.1" CRLF CRLF, .expected_response = 400},
 	};
 
 	for (unsigned int i = 0; i < ARRAY_SIZE(parse_tests); i++) {
@@ -1405,7 +1408,7 @@ static void test_connection_upgrade(void)
 
 static void test_timer_cancel_errors(void)
 {
-	enum cio_error (*timer_cancel_fakes[3])(struct cio_timer *timer);
+	enum cio_error (*timer_cancel_fakes[3])(struct cio_timer * timer);
 
 	for (unsigned int i = 0; i < ARRAY_SIZE(timer_cancel_fakes); i++) {
 		timer_cancel_fakes[0] = cancel_timer;
@@ -1447,7 +1450,7 @@ static void test_timer_cancel_errors(void)
 
 static void test_timer_expires_errors(void)
 {
-	enum cio_error (*timer_expires_fakes[4])(struct cio_timer *timer, uint64_t timeout_ns, cio_timer_handler handler, void *handler_context);
+	enum cio_error (*timer_expires_fakes[4])(struct cio_timer * timer, uint64_t timeout_ns, cio_timer_handler handler, void *handler_context);
 
 	for (unsigned int i = 0; i < ARRAY_SIZE(timer_expires_fakes); i++) {
 		timer_expires_fakes[0] = expires;
