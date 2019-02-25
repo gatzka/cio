@@ -40,9 +40,6 @@ add_test(NAME cio.common.test_websocket COMMAND test_cio_websocket)
 add_executable(test_cio_websocket_iostream test_cio_websocket_iostream.c)
 add_test(NAME cio.common.test_websocket_iostream COMMAND test_cio_websocket_iostream)
 
-add_executable(test_cio_websocket_client test_cio_websocket_client.c)
-add_test(NAME cio.common.test_websocket_client COMMAND test_cio_websocket_client)
-
 add_executable(test_cio_websocket_location_handler test_cio_websocket_location_handler.c)
 add_test(NAME cio.common.test_websocket_location_handler COMMAND test_cio_websocket_location_handler)
 
