@@ -18,6 +18,8 @@ file(GLOB FILES_TO_FORMAT
    ${PROJECT_SOURCE_DIR}/src/*.h
    ${PROJECT_SOURCE_DIR}/src/linux/*.c
    ${PROJECT_SOURCE_DIR}/src/linux/*.h
+   ${PROJECT_SOURCE_DIR}/tests/*.c
+   ${PROJECT_SOURCE_DIR}/tests/*.h
 )
 
 add_custom_target(cio-format SOURCES ${FILES_TO_FORMAT})
