@@ -829,8 +829,7 @@ static enum cio_error write_message(struct cio_websocket *ws, struct cio_write_b
 	ws->ws_private.write_message_job.last_frame = last_frame;
 	ws->ws_private.write_message_job.stream_handler = message_written;
 
-	enqueue_job(ws, &ws->ws_private.write_message_job);
-	return CIO_SUCCESS;
+	return enqueue_job(ws, &ws->ws_private.write_message_job);
 }
 
 static enum cio_error write_ping_or_pong_message(struct cio_websocket *ws, enum cio_websocket_frame_type frame_type, struct cio_websocket_write_job *job, struct cio_write_buffer *payload, cio_websocket_write_handler handler, void *handler_context)
