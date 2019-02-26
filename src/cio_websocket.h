@@ -58,7 +58,7 @@ struct cio_websocket;
 
 typedef void (*cio_websocket_close_hook)(struct cio_websocket *s);
 typedef void (*cio_websocket_on_connect)(struct cio_websocket *s);
-typedef void (*cio_websocket_read_handler)(struct cio_websocket *ws, void *handler_context, enum cio_error err, size_t frame_length, uint8_t *data, size_t chunk_length, bool last_frame, bool is_binary);
+typedef void (*cio_websocket_read_handler)(struct cio_websocket *ws, void *handler_context, enum cio_error err, size_t remaining_length, uint8_t *data, size_t chunk_length, bool last_frame, bool is_binary);
 typedef void (*cio_websocket_write_handler)(struct cio_websocket *ws, void *handler_context, enum cio_error err);
 
 enum cio_websocket_status_code {
