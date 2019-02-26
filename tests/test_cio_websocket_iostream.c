@@ -68,9 +68,6 @@ FAKE_VOID_FUNC(on_error, const struct cio_websocket *, enum cio_error, const cha
 static void write_handler(struct cio_websocket *ws, void *context, enum cio_error err);
 FAKE_VOID_FUNC(write_handler, struct cio_websocket *, void *, enum cio_error)
 
-static void close_handler(struct cio_websocket *ws, void *handler_context, enum cio_error err);
-FAKE_VOID_FUNC(close_handler, struct cio_websocket *, void *, enum cio_error)
-
 #ifndef ARRAY_SIZE
 #define ARRAY_SIZE(a) (sizeof(a) / sizeof((a)[0]))
 #endif
@@ -389,7 +386,6 @@ void setUp(void)
 	RESET_FAKE(on_error);
 
 	RESET_FAKE(write_handler);
-	RESET_FAKE(close_handler);
 
 	memory_stream_init(&ms);
 	cio_read_buffer_init(&http_client.rb, read_buffer, sizeof(read_buffer));
