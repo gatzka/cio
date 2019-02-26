@@ -115,12 +115,7 @@ static enum cio_error send_frame(struct cio_websocket *ws, struct cio_websocket_
 	uint8_t first_len;
 	size_t header_index = 2;
 
-	size_t length = 0;
-	struct cio_write_buffer *element = job->wbh;
-	for (size_t i = 0; i < job->wbh->data.q_len; i++) {
-		element = element->next;
-		length += element->data.element.length;
-	}
+	size_t length = cio_write_buffer_get_length(job->wbh);
 
 	uint8_t first_byte = (uint8_t)job->frame_type;
 	if (job->last_frame) {
