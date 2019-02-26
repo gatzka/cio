@@ -268,6 +268,8 @@ struct cio_websocket {
 };
 
 CIO_EXPORT enum cio_error cio_websocket_init(struct cio_websocket *ws, bool is_server, cio_websocket_on_connect on_connect, cio_websocket_close_hook close_hook);
+CIO_EXPORT enum cio_error cio_websocket_write_first_chunk(struct cio_websocket *ws, size_t frame_length, struct cio_write_buffer *payload, bool last_frame, bool is_binary, cio_websocket_write_handler handler, void *handler_context);
+CIO_EXPORT enum cio_error cio_websocket_write_chunk(struct cio_websocket *ws, struct cio_write_buffer *payload, cio_websocket_write_handler handler, void *handler_context);
 
 #ifdef __cplusplus
 }
