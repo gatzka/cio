@@ -112,45 +112,53 @@ static void mask_write_buffer(struct cio_write_buffer *wb, uint8_t mask[4])
 
 static enum cio_error send_frame(struct cio_websocket *ws, struct cio_websocket_write_job *job, size_t length)
 {
-	uint8_t first_len;
-	size_t header_index = 2;
+	if (!job->is_continuation_chunk) {
+		uint8_t first_len;
+		size_t header_index = 2;
 
-	uint8_t first_byte = (uint8_t)job->frame_type;
-	if (job->last_frame) {
-		first_byte |= WS_HEADER_FIN;
-	}
+		uint8_t first_byte = (uint8_t)job->frame_type;
+		if (job->last_frame) {
+			first_byte |= WS_HEADER_FIN;
+		}
 
-	job->send_header[0] = first_byte;
+		job->send_header[0] = first_byte;
 
-	if (length <= CIO_WEBSOCKET_SMALL_FRAME_SIZE) {
-		first_len = (uint8_t)length;
-	} else if (length <= WS_MID_FRAME_SIZE) {
-		uint16_t be_len = cio_htobe16((uint16_t)length);
-		memcpy(&job->send_header[2], &be_len, sizeof(be_len));
-		header_index += sizeof(be_len);
-		first_len = CIO_WEBSOCKET_SMALL_FRAME_SIZE + 1;
+		if (length <= CIO_WEBSOCKET_SMALL_FRAME_SIZE) {
+			first_len = (uint8_t)length;
+		} else if (length <= WS_MID_FRAME_SIZE) {
+			uint16_t be_len = cio_htobe16((uint16_t)length);
+			memcpy(&job->send_header[2], &be_len, sizeof(be_len));
+			header_index += sizeof(be_len);
+			first_len = CIO_WEBSOCKET_SMALL_FRAME_SIZE + 1;
+		} else {
+			uint64_t be_len = cio_htobe64((uint64_t)length);
+			memcpy(&job->send_header[2], &be_len, sizeof(be_len));
+			header_index += sizeof(be_len);
+			first_len = CIO_WEBSOCKET_SMALL_FRAME_SIZE + 2;
+		}
+
+		if (ws->ws_private.ws_flags.is_server == 0U) {
+			first_len |= WS_MASK_SET;
+			uint8_t mask[4];
+			cio_random_get_bytes(mask, sizeof(mask));
+			memcpy(&job->send_header[header_index], &mask, sizeof(mask));
+			// TODO: save te mask for next chunks, if necessary
+			header_index += sizeof(mask);
+			mask_write_buffer(job->wbh, mask);
+		}
+
+		job->send_header[1] = first_len;
+
+		cio_write_buffer_element_init(&job->websocket_header, job->send_header, header_index);
+		add_websocket_header(job);
+		struct cio_http_client *c = ws->ws_private.http_client;
+		return c->bs.write(&c->bs, job->wbh, job->stream_handler, ws);
 	} else {
-		uint64_t be_len = cio_htobe64((uint64_t)length);
-		memcpy(&job->send_header[2], &be_len, sizeof(be_len));
-		header_index += sizeof(be_len);
-		first_len = CIO_WEBSOCKET_SMALL_FRAME_SIZE + 2;
+		//TODO: mask the payload, if coming from a client
+		//send directly to the buffered_stream
+		struct cio_http_client *c = ws->ws_private.http_client;
+		return c->bs.write(&c->bs, job->wbh, job->stream_handler, ws);
 	}
-
-	if (ws->ws_private.ws_flags.is_server == 0U) {
-		first_len |= WS_MASK_SET;
-		uint8_t mask[4];
-		cio_random_get_bytes(mask, sizeof(mask));
-		memcpy(&job->send_header[header_index], &mask, sizeof(mask));
-		header_index += sizeof(mask);
-		mask_write_buffer(job->wbh, mask);
-	}
-
-	job->send_header[1] = first_len;
-
-	cio_write_buffer_element_init(&job->websocket_header, job->send_header, header_index);
-	add_websocket_header(job);
-	struct cio_http_client *c = ws->ws_private.http_client;
-	return c->bs.write(&c->bs, job->wbh, job->stream_handler, ws);
 }
 
 static enum cio_error enqueue_job(struct cio_websocket *ws, struct cio_websocket_write_job *job, size_t length)
@@ -828,6 +836,7 @@ static enum cio_error write_message(struct cio_websocket *ws, struct cio_write_b
 	ws->ws_private.write_message_job.frame_type = kind;
 	ws->ws_private.write_message_job.last_frame = last_frame;
 	ws->ws_private.write_message_job.stream_handler = message_written;
+	ws->ws_private.write_message_job.is_continuation_chunk = false;
 
 	return enqueue_job(ws, &ws->ws_private.write_message_job, length);
 }
@@ -927,8 +936,11 @@ enum cio_error cio_websocket_init(struct cio_websocket *ws, bool is_server, cio_
 
 	ws->ws_private.write_message_job.wbh = NULL;
 	ws->ws_private.write_ping_job.wbh = NULL;
+	ws->ws_private.write_ping_job.is_continuation_chunk = false;
 	ws->ws_private.write_pong_job.wbh = NULL;
+	ws->ws_private.write_pong_job.is_continuation_chunk = false;
 	ws->ws_private.write_close_job.wbh = NULL;
+	ws->ws_private.write_close_job.is_continuation_chunk = false;
 
 	ws->ws_private.first_write_job = NULL;
 
@@ -973,6 +985,7 @@ enum cio_error cio_websocket_write_first_chunk(struct cio_websocket *ws, size_t 
 	ws->ws_private.write_message_job.frame_type = kind;
 	ws->ws_private.write_message_job.last_frame = last_frame;
 	ws->ws_private.write_message_job.stream_handler = message_written;
+	ws->ws_private.write_message_job.is_continuation_chunk = false;
 
 	return enqueue_job(ws, &ws->ws_private.write_message_job, frame_length);
 }

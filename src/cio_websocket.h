@@ -100,6 +100,7 @@ struct cio_websocket_write_job {
 	void *handler_context;
 	enum cio_websocket_frame_type frame_type;
 	bool last_frame;
+	bool is_continuation_chunk;
 	cio_buffered_stream_write_handler stream_handler;
 };
 
