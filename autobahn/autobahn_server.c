@@ -42,7 +42,7 @@ static struct cio_http_server http_server;
 
 static const uint16_t AUTOBAHN_SERVER_PORT = 9001;
 
-#define read_buffer_size (16 * 1024 * 1024)
+#define read_buffer_size (1024)
 
 static const uint64_t header_read_timeout = UINT64_C(5) * UINT64_C(1000) * UINT64_C(1000) * UINT64_C(1000);
 static const uint64_t body_read_timeout = UINT64_C(5) * UINT64_C(1000) * UINT64_C(1000) * UINT64_C(1000);
@@ -52,7 +52,6 @@ struct ws_autobahn_handler {
 	struct cio_websocket_location_handler ws_handler;
 	struct cio_write_buffer wbh;
 	struct cio_write_buffer wb_message;
-	uint8_t echo_buffer[read_buffer_size];
 };
 
 static void free_autobahn_handler(struct cio_websocket_location_handler *wslh)
@@ -83,12 +82,8 @@ static void read_handler(struct cio_websocket *ws, void *handler_context, enum c
 		struct cio_websocket_location_handler *handler = cio_container_of(ws, struct cio_websocket_location_handler, websocket);
 		struct ws_autobahn_handler *eh = cio_container_of(handler, struct ws_autobahn_handler, ws_handler);
 
-		if (length > 0) {
-			memcpy(eh->echo_buffer, data, length);
-		}
-
 		cio_write_buffer_head_init(&eh->wbh);
-		cio_write_buffer_const_element_init(&eh->wb_message, eh->echo_buffer, length);
+		cio_write_buffer_const_element_init(&eh->wb_message, data, length);
 		cio_write_buffer_queue_tail(&eh->wbh, &eh->wb_message);
 		err = ws->write_message(ws, &eh->wbh, last_frame, is_binary, write_complete, NULL);
 		if (err != CIO_SUCCESS) {
