@@ -171,10 +171,11 @@ static void on_control(const struct cio_websocket *ws, enum cio_websocket_frame_
 	}
 }
 
-static void read_handler(struct cio_websocket *ws, void *handler_context, enum cio_error err, size_t frame_length, uint8_t *data, size_t chunk_length, bool last_frame, bool is_binary)
+static void read_handler(struct cio_websocket *ws, void *handler_context, enum cio_error err, size_t frame_length, uint8_t *data, size_t chunk_length, bool last_chunk, bool last_frame, bool is_binary)
 {
 	(void)handler_context;
 	(void)frame_length;
+	(void)last_chunk;
 
 	if (err == CIO_SUCCESS) {
 		struct cio_websocket_location_handler *handler = cio_container_of(ws, struct cio_websocket_location_handler, websocket);

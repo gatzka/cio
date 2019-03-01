@@ -58,7 +58,22 @@ struct cio_websocket;
 
 typedef void (*cio_websocket_close_hook)(struct cio_websocket *s);
 typedef void (*cio_websocket_on_connect)(struct cio_websocket *s);
-typedef void (*cio_websocket_read_handler)(struct cio_websocket *ws, void *handler_context, enum cio_error err, size_t remaining_length, uint8_t *data, size_t chunk_length, bool last_frame, bool is_binary);
+
+/**
+ * @brief The type of websocket read callback functions.
+ *
+ * @param ws The cio_websocket the read operation was called on.
+ * @param handler_context The context the functions works on.
+ * @param err If err != ::CIO_SUCCESS, the read operation failed, if err == ::CIO_EOF, the peer closed the stream. If err != ::CIO_SUCCESS,
+ * ignore the following parameters: @p frame_length, @p data, @p chunk_length, @p last_chunk, @p last_frame, @p is_binary.
+ * @param frame_length The total length of the websocket frame.
+ * @param data The address containing the chunked data.
+ * @param chunk_length The length of the chunked data.
+ * @param last_chunk Shows if the data in @p data is the last chunked in this frame.
+ * @param last_frame Shows if this frame is the last frame of a fragmented WebSocket message.
+ * @param is_binary Shows if the frame is a binary or a text frame
+ */
+typedef void (*cio_websocket_read_handler)(struct cio_websocket *ws, void *handler_context, enum cio_error err, size_t frame_length, uint8_t *data, size_t chunk_length, bool last_chunk, bool last_frame, bool is_binary);
 typedef void (*cio_websocket_write_handler)(struct cio_websocket *ws, void *handler_context, enum cio_error err);
 
 enum cio_websocket_status_code {
@@ -111,6 +126,7 @@ struct cio_response_buffer {
 };
 
 struct cio_websocket_private {
+	uint64_t read_frame_length;
 	uint64_t remaining_read_frame_length;
 
 	struct {

@@ -60,7 +60,7 @@ static void free_autobahn_handler(struct cio_websocket_location_handler *wslh)
 	free(h);
 }
 
-static void read_handler(struct cio_websocket *ws, void *handler_context, enum cio_error err, size_t frame_length, uint8_t *data, size_t length, bool last_frame, bool is_binary);
+static void read_handler(struct cio_websocket *ws, void *handler_context, enum cio_error err, size_t frame_length, uint8_t *data, size_t length, bool last_chunk, bool last_frame, bool is_binary);
 
 static void write_complete(struct cio_websocket *ws, void *handler_context, enum cio_error err)
 {
@@ -73,10 +73,13 @@ static void write_complete(struct cio_websocket *ws, void *handler_context, enum
 	}
 }
 
-static void read_handler(struct cio_websocket *ws, void *handler_context, enum cio_error err, size_t frame_length, uint8_t *data, size_t length, bool last_frame, bool is_binary)
+static void read_handler(struct cio_websocket *ws, void *handler_context, enum cio_error err, size_t frame_length, uint8_t *data, size_t length, bool last_chunk, bool last_frame, bool is_binary)
 {
 	(void)handler_context;
 	(void)frame_length;
+	(void)last_chunk;
+
+	fprintf(stdout, "frame_length %zu, chunk_length: %zu\n", frame_length, length);
 
 	if (err == CIO_SUCCESS) {
 		struct cio_websocket_location_handler *handler = cio_container_of(ws, struct cio_websocket_location_handler, websocket);

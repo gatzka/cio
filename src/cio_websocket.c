@@ -56,7 +56,7 @@ static void handle_error(struct cio_websocket *ws, enum cio_error err, enum cio_
 static void close(struct cio_websocket *ws)
 {
 	if (cio_likely(ws->ws_private.read_handler != NULL)) {
-		ws->ws_private.read_handler(ws, ws->ws_private.read_handler_context, CIO_EOF, 0, NULL, 0, false, false);
+		ws->ws_private.read_handler(ws, ws->ws_private.read_handler_context, CIO_EOF, 0, NULL, 0, true, false, false);
 	}
 
 	if (ws->ws_private.close_hook) {
@@ -379,9 +379,10 @@ static int payload_size_in_limit(const struct cio_write_buffer *payload, size_t 
 static void handle_binary_frame(struct cio_websocket *ws, uint8_t *data, uint64_t length, bool last_frame, struct cio_buffered_stream *bs, struct cio_read_buffer *buffer)
 {
 	size_t len = (size_t)length;
-	ws->ws_private.read_handler(ws, ws->ws_private.read_handler_context, CIO_SUCCESS, ws->ws_private.remaining_read_frame_length, data, len, last_frame, true);
+	bool last_chunk = (ws->ws_private.remaining_read_frame_length == 0);
+	ws->ws_private.read_handler(ws, ws->ws_private.read_handler_context, CIO_SUCCESS, ws->ws_private.read_frame_length, data, len, last_chunk, last_frame, true);
 
-	if (ws->ws_private.remaining_read_frame_length > 0) {
+	if (!last_chunk) {
 		cio_websocket_correct_mask(ws->ws_private.received_mask, len);
 
 		enum cio_error err = bs->read_at_least(bs, buffer, 1, get_payload, ws);
@@ -403,13 +404,15 @@ static void handle_text_frame(struct cio_websocket *ws, uint8_t *data, uint64_t 
 		return;
 	}
 
-	ws->ws_private.read_handler(ws, ws->ws_private.read_handler_context, CIO_SUCCESS, ws->ws_private.remaining_read_frame_length, data, len, last_frame, false);
+	bool last_chunk = (ws->ws_private.remaining_read_frame_length == 0);
+
+	ws->ws_private.read_handler(ws, ws->ws_private.read_handler_context, CIO_SUCCESS, ws->ws_private.read_frame_length, data, len, last_chunk, last_frame, false);
 
 	if (last_frame) {
 		cio_utf8_init(&ws->ws_private.utf8_state);
 	}
 
-	if (ws->ws_private.remaining_read_frame_length > 0) {
+	if (!last_chunk) {
 		cio_websocket_correct_mask(ws->ws_private.received_mask, len);
 
 		enum cio_error err = bs->read_at_least(bs, buffer, 1, get_payload, ws);
@@ -651,6 +654,7 @@ static void get_length16(struct cio_buffered_stream *bs, void *handler_context, 
 	cio_read_buffer_consume(buffer, num_bytes);
 	field = cio_be16toh(field);
 	ws->ws_private.remaining_read_frame_length = (uint64_t)field;
+	ws->ws_private.read_frame_length = (uint64_t)field;
 	get_mask_or_payload(ws, bs, buffer);
 }
 
@@ -668,6 +672,7 @@ static void get_length64(struct cio_buffered_stream *bs, void *handler_context, 
 	cio_read_buffer_consume(buffer, num_bytes);
 	field = cio_be64toh(field);
 	ws->ws_private.remaining_read_frame_length = field;
+	ws->ws_private.read_frame_length = (uint64_t)field;
 	get_mask_or_payload(ws, bs, buffer);
 }
 
@@ -692,6 +697,7 @@ static void get_first_length(struct cio_buffered_stream *bs, void *handler_conte
 	field = field & (uint8_t)(~WS_MASK_SET);
 	if (field <= CIO_WEBSOCKET_SMALL_FRAME_SIZE) {
 		ws->ws_private.remaining_read_frame_length = (uint64_t)field;
+		ws->ws_private.read_frame_length = (uint64_t)field;
 		get_mask_or_payload(ws, bs, buffer);
 	} else {
 		if (cio_unlikely(is_control_frame(ws->ws_private.ws_flags.opcode))) {

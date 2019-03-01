@@ -52,8 +52,8 @@ enum frame_direction {
 	FROM_SERVER
 };
 
-static void read_handler(struct cio_websocket *ws, void *handler_context, enum cio_error err, size_t frame_length, uint8_t *data, size_t length, bool last_frame, bool is_binary);
-FAKE_VOID_FUNC(read_handler, struct cio_websocket *, void *, enum cio_error, size_t, uint8_t *, size_t, bool, bool)
+static void read_handler(struct cio_websocket *ws, void *handler_context, enum cio_error err, size_t frame_length, uint8_t *data, size_t length, bool last_chunk, bool last_frame, bool is_binary);
+FAKE_VOID_FUNC(read_handler, struct cio_websocket *, void *, enum cio_error, size_t, uint8_t *, size_t, bool, bool, bool)
 
 static enum cio_error timer_cancel(struct cio_timer *t);
 FAKE_VALUE_FUNC(enum cio_error, timer_cancel, struct cio_timer *)
@@ -400,11 +400,12 @@ static enum cio_error cio_timer_init_fails(struct cio_timer *timer, struct cio_e
 	return CIO_INVALID_ARGUMENT;
 }
 
-static void read_handler_save_data(struct cio_websocket *websocket, void *handler_context, enum cio_error err, size_t frame_length, uint8_t *data, size_t chunk_length, bool last_frame, bool is_binary)
+static void read_handler_save_data(struct cio_websocket *websocket, void *handler_context, enum cio_error err, size_t frame_length, uint8_t *data, size_t chunk_length, bool last_chunk, bool last_frame, bool is_binary)
 {
 	(void)last_frame;
 	(void)is_binary;
 	(void)frame_length;
+	(void)last_chunk;
 
 	if (err == CIO_SUCCESS) {
 		if (chunk_length > 0) {
