@@ -52,6 +52,9 @@ struct ws_autobahn_handler {
 	struct cio_websocket_location_handler ws_handler;
 	struct cio_write_buffer wbh;
 	struct cio_write_buffer wb_message;
+	size_t echo_write_index;
+	bool start_new_write_chunk;
+	uint8_t echo_buffer[read_buffer_size];
 };
 
 static void free_autobahn_handler(struct cio_websocket_location_handler *wslh)
@@ -76,22 +79,41 @@ static void write_complete(struct cio_websocket *ws, void *handler_context, enum
 static void read_handler(struct cio_websocket *ws, void *handler_context, enum cio_error err, size_t frame_length, uint8_t *data, size_t length, bool last_chunk, bool last_frame, bool is_binary)
 {
 	(void)handler_context;
-	(void)frame_length;
-	(void)last_chunk;
-
-	fprintf(stdout, "frame_length %zu, chunk_length: %zu\n", frame_length, length);
 
 	if (err == CIO_SUCCESS) {
 		struct cio_websocket_location_handler *handler = cio_container_of(ws, struct cio_websocket_location_handler, websocket);
-		struct ws_autobahn_handler *eh = cio_container_of(handler, struct ws_autobahn_handler, ws_handler);
+		struct ws_autobahn_handler *ah = cio_container_of(handler, struct ws_autobahn_handler, ws_handler);
 
-		cio_write_buffer_head_init(&eh->wbh);
-		cio_write_buffer_const_element_init(&eh->wb_message, data, length);
-		cio_write_buffer_queue_tail(&eh->wbh, &eh->wb_message);
-		err = ws->write_message(ws, &eh->wbh, last_frame, is_binary, write_complete, NULL);
+		if (frame_length <= read_buffer_size) {
+			memcpy(ah->echo_buffer + ah->echo_write_index, data, length);
+			ah->echo_write_index +=length;
+			if (last_chunk) {
+				ah->echo_write_index = 0;
+				cio_write_buffer_head_init(&ah->wbh);
+				cio_write_buffer_const_element_init(&ah->wb_message, ah->echo_buffer, frame_length);
+				cio_write_buffer_queue_tail(&ah->wbh, &ah->wb_message);
+				ws->write_message(ws, &ah->wbh, last_frame, is_binary, write_complete, NULL);
+			} else {
+				err = ws->read_message(ws, read_handler, NULL);
+			}
+		} else {
+			// make chunked transfers
+			cio_write_buffer_head_init(&ah->wbh);
+			cio_write_buffer_const_element_init(&ah->wb_message, data, length);
+			cio_write_buffer_queue_tail(&ah->wbh, &ah->wb_message);
+			if (ah->start_new_write_chunk) {
+				err = cio_websocket_write_first_chunk(ws, frame_length, &ah->wbh, last_frame, is_binary, write_complete, NULL);
+			} else {
+				err = cio_websocket_write_chunk(ws, &ah->wbh, write_complete, NULL);
+			}
+
+			ah->start_new_write_chunk = last_chunk;
+		}
+
 		if (err != CIO_SUCCESS) {
 			fprintf(stderr, "could not start writing message!\n");
 		}
+
 	} else if (err != CIO_EOF) {
 		fprintf(stderr, "read failure!\n");
 	}
@@ -121,6 +143,8 @@ static struct cio_http_location_handler *alloc_autobahn_handler(const void *conf
 
 	cio_websocket_location_handler_init(&handler->ws_handler, NULL, 0, on_connect, free_autobahn_handler);
 	handler->ws_handler.websocket.on_error = on_error;
+	handler->echo_write_index = 0;
+	handler->start_new_write_chunk = true;
 	return &handler->ws_handler.http_location;
 }
 
