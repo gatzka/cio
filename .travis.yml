@@ -33,33 +33,33 @@ matrix:
         - libbsd-dev
         - ninja-build
 
-  - os: linux
-    dist: xenial
-    compiler: gcc
-    sudo: required
-    script:
-    - cmake -DCMAKE_C_COMPILER:STRING=gcc -DCMAKE_CXX_COMPILER:STRING=g++ -DCMAKE_BUILD_TYPE:STRING=Debug ./
-    - build-wrapper-linux-x86-64 --out-dir bw-output make
-    - sonar-scanner
-    addons:
-      sonarcloud:
-        organization: "gatzka-github"
-        branches:
-          - master
-          - sonarcloud
-        token:
-          secure: "kkXwc7Ysk8DiyP2laG7u416+AFxDs0iVgy64s9bE+kMHnYt4BUgqh96chovoI1DyX+u5dAaxo5AXtGs89gg6RhmrVPger7awfqf74TzqiXgSCSVVeXT7uL6MJULXKNRRGM/ydUvRRA3xpDaFW1yWWymCEJO+dIs/+OcDQl+w9/dlabGgW8KMYG7ZlABUyVKlzFldswYOH3Q4rgboEMqDbvl9BAqMnHDhTX3tV+9eRW1u6K2xnH1FMBeIEy2WxhPgRUp9s2RlwVrOJjKxCV0xO66a6TCMk33zo+0TcUY0m9DCZZT13PkXo1Wr5aoxcUaxkUfkgJIT7IzJ429Cn4dIxQT4HFTWbnaqSat6puHEFGnOUQWf84COxotd7pCBXmqiTQXKmP7wvB95G1kFCq0y6kkuTI9SNPE28k0vrE9CPE/SgWtS7Acm5LVT8ou3Tcn4BqlmkRygMGlIXzdP6jNbSQ+JSS6exwliLRfRHzzR+h41NrD1qkyvxmEUZb5Y9oIKbunXnVgWRsJDToUMWKkh/4IbwkwWPhEKknnb3zNVp6eBrOUr8O/Rzq7vKKaFiZje9nMvXfZ9pEZX+9APtcY31N4SKFNoYAcvGvbFrnUPx5q3XsVrQ74peq0NXJQw3UDe+pEOSvoWwtbs/49TXLJ/N1MGOhjgyPMBKRv8yPevlfY="
-        github_token:
-          secure: "iehzF8xduCnk2NZIcV0JzAQKqqYeUVzcdt6Qyon8DdiDa6fnCz5KzDOo2oCJpumivaZuqmAualjWG4UupXo01Rb+UIX0Z69K5MPAGjUmsakxNiIZ3tL2Zi72XC87EJYceNzOalGdSZundflRqohkLlzVlzEfVHPcFVG36D1YiIxGe8PB4ChHOR40CKUDuz5EA4Iwuwag7vl1LfH+7CT5XCWvisYfSfmohFxWtTGSxcL8aDK317ju38uaoE8iaLXo8sJ0Pz0CuAS01DAFFfDXIURbZw3h81/bo4XQDvlWQ8GCffgtXKkqPAp6PVzuFx06eVMd5YzQeZKbWc+WdC/2RqPpF4V9YqAHKS3JzuQBGT1k1D84YDSzuWvDhqkmLlcn+052voO1QbeGU7ZCGdqcaKjexGVyl6VRB55+RdpmClTHBaCj6eAE7DiDL77pu54hNSRZUsdeHcZNYE37OIoblJwfvh5aIHr4clTvwEgyb951Fp8NFPikqYrR+g+jRYNPhKhA0ix8gf2s8Bzop4PE60W7ZXVMUqi4xorSMsXDI2iAscrj3od2uppy4hMPO+Uuz1VzQk3mEv12BDEqDh47uxcLfSlulLVO1r1ZLu5iOjT19bGZZ+cC+F4mTAvUEgrU+xo/OOBRntlsRdSW6+jh6TJw70REG6kUAOewwjb7fjk="
+#   - os: linux
+#     dist: xenial
+#     compiler: gcc
+#     sudo: required
+#     script:
+#     - cmake -DCMAKE_C_COMPILER:STRING=gcc -DCMAKE_CXX_COMPILER:STRING=g++ -DCMAKE_BUILD_TYPE:STRING=Debug ./
+#     - build-wrapper-linux-x86-64 --out-dir bw-output make
+#     - sonar-scanner
+#     addons:
+#       sonarcloud:
+#         organization: "gatzka-github"
+#         branches:
+#           - master
+#           - sonarcloud
+#         token:
+#           secure: "kkXwc7Ysk8DiyP2laG7u416+AFxDs0iVgy64s9bE+kMHnYt4BUgqh96chovoI1DyX+u5dAaxo5AXtGs89gg6RhmrVPger7awfqf74TzqiXgSCSVVeXT7uL6MJULXKNRRGM/ydUvRRA3xpDaFW1yWWymCEJO+dIs/+OcDQl+w9/dlabGgW8KMYG7ZlABUyVKlzFldswYOH3Q4rgboEMqDbvl9BAqMnHDhTX3tV+9eRW1u6K2xnH1FMBeIEy2WxhPgRUp9s2RlwVrOJjKxCV0xO66a6TCMk33zo+0TcUY0m9DCZZT13PkXo1Wr5aoxcUaxkUfkgJIT7IzJ429Cn4dIxQT4HFTWbnaqSat6puHEFGnOUQWf84COxotd7pCBXmqiTQXKmP7wvB95G1kFCq0y6kkuTI9SNPE28k0vrE9CPE/SgWtS7Acm5LVT8ou3Tcn4BqlmkRygMGlIXzdP6jNbSQ+JSS6exwliLRfRHzzR+h41NrD1qkyvxmEUZb5Y9oIKbunXnVgWRsJDToUMWKkh/4IbwkwWPhEKknnb3zNVp6eBrOUr8O/Rzq7vKKaFiZje9nMvXfZ9pEZX+9APtcY31N4SKFNoYAcvGvbFrnUPx5q3XsVrQ74peq0NXJQw3UDe+pEOSvoWwtbs/49TXLJ/N1MGOhjgyPMBKRv8yPevlfY="
+#         github_token:
+#           secure: "iehzF8xduCnk2NZIcV0JzAQKqqYeUVzcdt6Qyon8DdiDa6fnCz5KzDOo2oCJpumivaZuqmAualjWG4UupXo01Rb+UIX0Z69K5MPAGjUmsakxNiIZ3tL2Zi72XC87EJYceNzOalGdSZundflRqohkLlzVlzEfVHPcFVG36D1YiIxGe8PB4ChHOR40CKUDuz5EA4Iwuwag7vl1LfH+7CT5XCWvisYfSfmohFxWtTGSxcL8aDK317ju38uaoE8iaLXo8sJ0Pz0CuAS01DAFFfDXIURbZw3h81/bo4XQDvlWQ8GCffgtXKkqPAp6PVzuFx06eVMd5YzQeZKbWc+WdC/2RqPpF4V9YqAHKS3JzuQBGT1k1D84YDSzuWvDhqkmLlcn+052voO1QbeGU7ZCGdqcaKjexGVyl6VRB55+RdpmClTHBaCj6eAE7DiDL77pu54hNSRZUsdeHcZNYE37OIoblJwfvh5aIHr4clTvwEgyb951Fp8NFPikqYrR+g+jRYNPhKhA0ix8gf2s8Bzop4PE60W7ZXVMUqi4xorSMsXDI2iAscrj3od2uppy4hMPO+Uuz1VzQk3mEv12BDEqDh47uxcLfSlulLVO1r1ZLu5iOjT19bGZZ+cC+F4mTAvUEgrU+xo/OOBRntlsRdSW6+jh6TJw70REG6kUAOewwjb7fjk="
 #       cache:
 #         directories:
 #           - '$HOME/.sonar/cache'
-      apt:
-        packages:
-        - cmake
-        - cmake-data
-        - libbsd-dev
-
+#       apt:
+#         packages:
+#         - cmake
+#         - cmake-data
+#         - libbsd-dev
+# 
   - os: linux
     dist: xenial
     compiler: gcc
