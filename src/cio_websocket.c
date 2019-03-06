@@ -148,7 +148,6 @@ static enum cio_error send_frame(struct cio_websocket *ws, struct cio_websocket_
 
 			size_t job_length = cio_write_buffer_get_length(job->wbh);
 			if (job_length < frame_length) {
-				cio_websocket_correct_mask(mask, job_length);
 				memcpy(ws->ws_private.chunk_send_mask, mask, sizeof(mask));
 			}
 		}

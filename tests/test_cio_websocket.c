@@ -1491,9 +1491,61 @@ static void test_send_text_binary_frame(void)
 
 				free(ws);
 				setUp();
-
 			}
 		}
+	}
+}
+
+static void test_send_chunks(void)
+{
+	enum frame_direction directions[] = {FROM_CLIENT, FROM_SERVER};
+
+	for (unsigned int k = 0; k < ARRAY_SIZE(directions); k++) {
+		unsigned int frame_type = CIO_WEBSOCKET_BINARY_FRAME;
+		enum frame_direction direction = directions[k];
+		char data[] = "HelloWorld!";
+		char check_data[] = "HelloWorld!";
+
+		struct ws_frame frames[] = {
+			{.frame_type = CIO_WEBSOCKET_CLOSE_FRAME, .direction = direction, .data = NULL, .data_length = 0, .last_frame = true, .rsv = false},
+		};
+
+		serialize_frames(frames, ARRAY_SIZE(frames));
+
+		struct cio_write_buffer wbh;
+		cio_write_buffer_head_init(&wbh);
+
+		struct cio_write_buffer wb;
+		cio_write_buffer_element_init(&wb, data, sizeof(data) / 2);
+		cio_write_buffer_queue_tail(&wbh, &wb);
+
+		ws->ws_private.ws_flags.is_server = (frames[0].direction == FROM_CLIENT) ? 1 : 0;
+		uint32_t context = 0x1234568;
+		enum cio_error err = ws->write_message_first_chunk(ws, sizeof(data), &wbh, true, frame_type == CIO_WEBSOCKET_BINARY_FRAME, write_handler, &context);
+		TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Writing a frame did not succeed!");
+
+		cio_write_buffer_head_init(&wbh);
+		cio_write_buffer_element_init(&wb, &data[sizeof(data) / 2], sizeof(data) - (sizeof(data) / 2));
+		cio_write_buffer_queue_tail(&wbh, &wb);
+		err = ws->write_message_continuation_chunk(ws, &wbh, write_handler, &context);
+		TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Writing a frame did not succeed!");
+
+		TEST_ASSERT_MESSAGE(check_frame(frame_type, check_data, sizeof(check_data), true), "First frame send is incorrect text frame!");
+
+		err = ws->read_message(ws, read_handler, NULL);
+		TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Could not start reading a message!");
+		TEST_ASSERT_MESSAGE(is_close_frame(CIO_WEBSOCKET_CLOSE_NORMAL, true), "written frame is not a close frame!");
+
+		TEST_ASSERT_EQUAL_MESSAGE(2, write_handler_fake.call_count, "write handler was not called!");
+		TEST_ASSERT_EQUAL_PTR_MESSAGE(ws, write_handler_fake.arg0_val, "websocket pointer in write handler not correct!");
+		TEST_ASSERT_EQUAL_PTR_MESSAGE(&context, write_handler_fake.arg1_val, "context pointer in write handler not correct!");
+		TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, write_handler_fake.arg2_val, "error code in write handler not correct!");
+
+		TEST_ASSERT_EQUAL_MESSAGE(0, on_error_fake.call_count, "error callback was called");
+		TEST_ASSERT_EQUAL_MESSAGE(1, on_control_fake.call_count, "control callback was called not for last close frame");
+
+		free(ws);
+		setUp();
 	}
 }
 
@@ -1749,6 +1801,7 @@ int main(void)
 	RUN_TEST(test_send_ping_frame);
 
 	RUN_TEST(test_send_text_binary_frame);
+	RUN_TEST(test_send_chunks);
 	RUN_TEST(test_send_fragmented_text_frame);
 	RUN_TEST(test_send_text_frame_no_ws);
 	RUN_TEST(test_send_text_frame_no_handler);
