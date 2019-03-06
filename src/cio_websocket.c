@@ -800,9 +800,8 @@ static enum cio_error read_message(struct cio_websocket *ws, cio_websocket_read_
 	return CIO_SUCCESS;
 }
 
-static enum cio_error write_message(struct cio_websocket *ws, struct cio_write_buffer *payload, bool last_frame, bool is_binary, cio_websocket_write_handler handler, void *handler_context)
+static enum cio_error write_message(struct cio_websocket *ws, size_t frame_length, struct cio_write_buffer *payload, bool last_frame, bool is_binary, cio_websocket_write_handler handler, void *handler_context)
 {
-	size_t length = cio_write_buffer_get_length(payload);
 
 	if (cio_unlikely((ws == NULL)) || (handler == NULL)) {
 		return CIO_INVALID_ARGUMENT;
@@ -840,7 +839,17 @@ static enum cio_error write_message(struct cio_websocket *ws, struct cio_write_b
 	ws->ws_private.write_message_job.stream_handler = message_written;
 	ws->ws_private.write_message_job.is_continuation_chunk = false;
 
-	return enqueue_job(ws, &ws->ws_private.write_message_job, length);
+	return enqueue_job(ws, &ws->ws_private.write_message_job, frame_length);
+}
+
+static enum cio_error write_continuation(struct cio_websocket *ws, struct cio_write_buffer *payload, cio_websocket_write_handler handler, void *handler_context)
+{
+	ws->ws_private.write_message_job.wbh = payload;
+	ws->ws_private.write_message_job.handler = handler;
+	ws->ws_private.write_message_job.handler_context = handler_context;
+	ws->ws_private.write_message_job.stream_handler = message_written;
+	ws->ws_private.write_message_job.is_continuation_chunk = true;
+	return enqueue_job(ws, &ws->ws_private.write_message_job, 0);
 }
 
 static enum cio_error write_ping_or_pong_message(struct cio_websocket *ws, enum cio_websocket_frame_type frame_type, struct cio_websocket_write_job *job, struct cio_write_buffer *payload, cio_websocket_write_handler handler, void *handler_context)
@@ -928,6 +937,7 @@ enum cio_error cio_websocket_init(struct cio_websocket *ws, bool is_server, cio_
 	ws->close = write_close_message;
 	ws->write_message = write_message;
 	ws->write_ping = write_ping_message;
+	ws->write_continuation = write_continuation;
 	ws->write_pong = write_pong_message;
 	ws->ws_private.close_hook = close_hook;
 	ws->ws_private.ws_flags.is_server = is_server ? 1 : 0;
@@ -950,55 +960,4 @@ enum cio_error cio_websocket_init(struct cio_websocket *ws, bool is_server, cio_
 	cio_utf8_init(&ws->ws_private.utf8_state);
 
 	return CIO_SUCCESS;
-}
-
-enum cio_error cio_websocket_write_first_chunk(struct cio_websocket *ws, size_t frame_length, struct cio_write_buffer *payload, bool last_frame, bool is_binary, cio_websocket_write_handler handler, void *handler_context)
-{
-	if (cio_unlikely((ws == NULL)) || (handler == NULL)) {
-		return CIO_INVALID_ARGUMENT;
-	}
-
-	if (cio_unlikely(ws->ws_private.write_message_job.wbh != NULL)) {
-		return CIO_OPERATION_NOT_PERMITTED;
-	}
-
-	enum cio_websocket_frame_type kind;
-
-	if (ws->ws_private.ws_flags.fragmented_write == 1U) {
-		if (is_binary) {
-			kind = CIO_WEBSOCKET_BINARY_FRAME;
-		} else {
-			kind = CIO_WEBSOCKET_TEXT_FRAME;
-		}
-
-		if (!last_frame) {
-			ws->ws_private.ws_flags.fragmented_write = 0;
-		}
-	} else {
-		if (last_frame) {
-			ws->ws_private.ws_flags.fragmented_write = 1;
-		}
-
-		kind = CIO_WEBSOCKET_CONTINUATION_FRAME;
-	}
-
-	ws->ws_private.write_message_job.wbh = payload;
-	ws->ws_private.write_message_job.handler = handler;
-	ws->ws_private.write_message_job.handler_context = handler_context;
-	ws->ws_private.write_message_job.frame_type = kind;
-	ws->ws_private.write_message_job.last_frame = last_frame;
-	ws->ws_private.write_message_job.stream_handler = message_written;
-	ws->ws_private.write_message_job.is_continuation_chunk = false;
-
-	return enqueue_job(ws, &ws->ws_private.write_message_job, frame_length);
-}
-
-enum cio_error cio_websocket_write_chunk(struct cio_websocket *ws, struct cio_write_buffer *payload, cio_websocket_write_handler handler, void *handler_context)
-{
-	ws->ws_private.write_message_job.wbh = payload;
-	ws->ws_private.write_message_job.handler = handler;
-	ws->ws_private.write_message_job.handler_context = handler_context;
-	ws->ws_private.write_message_job.stream_handler = message_written;
-	ws->ws_private.write_message_job.is_continuation_chunk = true;
-	return enqueue_job(ws, &ws->ws_private.write_message_job, 0);
 }

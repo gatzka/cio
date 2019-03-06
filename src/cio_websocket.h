@@ -208,6 +208,9 @@ struct cio_websocket {
 	 * @p payload using the @ref cio_write_buffer_element_init "non-const initialization function".
 	 *
 	 * @param ws The websocket which received the control frame.
+	 * @param frame_length The length of the frame to be sent. Please be aware that the frame length
+	 * must not necessarily be the same as the length of the payload. In fact, this funtion can be used
+	 * to write the first chunk of a message which has to be continuoued later using @ref cio_websocket_write_continuation.
 	 * @param payload The payload to be sent.
 	 * @param last_frame @c true if the is an unfragmented message or the last frame of a
 	 * fragmented message, @c false otherwise.
@@ -216,7 +219,9 @@ struct cio_websocket {
 	 * @param handler_context A context pointer given to @p handler when called.
 	 * @return ::CIO_SUCCESS for success.
 	 */
-	enum cio_error (*write_message)(struct cio_websocket *ws, struct cio_write_buffer *payload, bool last_frame, bool is_binary, cio_websocket_write_handler handler, void *handler_context);
+	enum cio_error (*write_message)(struct cio_websocket *ws, size_t frame_length, struct cio_write_buffer *payload, bool last_frame, bool is_binary, cio_websocket_write_handler handler, void *handler_context);
+
+	enum cio_error (*write_continuation)(struct cio_websocket *ws, struct cio_write_buffer *payload, cio_websocket_write_handler handler, void *handler_context);
 
 	/**
 	 * @brief A pointer to a function which is called when a control frame was received.
@@ -285,8 +290,6 @@ struct cio_websocket {
 };
 
 CIO_EXPORT enum cio_error cio_websocket_init(struct cio_websocket *ws, bool is_server, cio_websocket_on_connect on_connect, cio_websocket_close_hook close_hook);
-CIO_EXPORT enum cio_error cio_websocket_write_first_chunk(struct cio_websocket *ws, size_t frame_length, struct cio_write_buffer *payload, bool last_frame, bool is_binary, cio_websocket_write_handler handler, void *handler_context);
-CIO_EXPORT enum cio_error cio_websocket_write_chunk(struct cio_websocket *ws, struct cio_write_buffer *payload, cio_websocket_write_handler handler, void *handler_context);
 
 #ifdef __cplusplus
 }

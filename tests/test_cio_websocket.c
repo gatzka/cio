@@ -607,7 +607,7 @@ static void test_send_multiple_jobs_with_failures(void)
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Writing a ping frame did not succeed!");
 	err = ws->write_pong(ws, &pong_wbh, write_handler, NULL);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Writing a pong frame did not succeed!");
-	err = ws->write_message(ws, &text_wbh, true, false, write_handler, NULL);
+	err = ws->write_message(ws, cio_write_buffer_get_length(&text_wbh), &text_wbh, true, false, write_handler, NULL);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Writing a text frame did not succeed!");
 	err = ws->close(ws, CIO_WEBSOCKET_CLOSE_NORMAL, NULL, write_handler, NULL);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Writing a close frame did not succeed!");
@@ -1442,11 +1442,11 @@ static void test_send_text_binary_frame(void)
 
 			uint32_t context = 0x1234568;
 			if (frame_types[j] == CIO_WEBSOCKET_TEXT_FRAME) {
-				enum cio_error err = ws->write_message(ws, &wbh, true, false, write_handler, &context);
+				enum cio_error err = ws->write_message(ws, cio_write_buffer_get_length(&wbh), &wbh, true, false, write_handler, &context);
 				TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Writing a text frame did not succeed!");
 				TEST_ASSERT_MESSAGE(check_frame(CIO_WEBSOCKET_TEXT_FRAME, data, frame_size, true), "First frame send is incorrect text frame!");
 			} else if (frame_types[j] == CIO_WEBSOCKET_BINARY_FRAME) {
-				enum cio_error err = ws->write_message(ws, &wbh, true, true, write_handler, &context);
+				enum cio_error err = ws->write_message(ws, cio_write_buffer_get_length(&wbh), &wbh, true, true, write_handler, &context);
 				TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Writing a binary frame did not succeed!");
 				TEST_ASSERT_MESSAGE(check_frame(CIO_WEBSOCKET_BINARY_FRAME, data, frame_size, true), "First frame send is incorrect binary frame!");
 			}
@@ -1498,7 +1498,7 @@ static void write_handler_third_fragment(struct cio_websocket *s, void *context,
 	cio_write_buffer_element_init(&fws->wb, fws->third_fragment, sizeof(fws->third_fragment));
 	cio_write_buffer_queue_tail(&fws->wbh, &fws->wb);
 
-	err = s->write_message(s, &fws->wbh, true, false, write_handler, fws);
+	err = s->write_message(s, cio_write_buffer_get_length(&fws->wbh), &fws->wbh, true, false, write_handler, fws);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Writing third frame of text message did not succeed!");
 }
 
@@ -1514,7 +1514,7 @@ static void write_handler_second_fragment(struct cio_websocket *s, void *context
 	cio_write_buffer_element_init(&fws->wb, fws->second_fragment, sizeof(fws->second_fragment));
 	cio_write_buffer_queue_tail(&fws->wbh, &fws->wb);
 
-	err = s->write_message(s, &fws->wbh, false, false, write_handler, fws);
+	err = s->write_message(s, cio_write_buffer_get_length(&fws->wbh), &fws->wbh, false, false, write_handler, fws);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Writing second frame of text message did not succeed!");
 }
 
@@ -1536,7 +1536,7 @@ static void test_send_fragmented_text_frame(void)
 
 	fws.ws.ws_private.http_client = &http_client;
 
-	err = fws.ws.write_message(&fws.ws, &fws.wbh, false, false, write_handler, &fws);
+	err = fws.ws.write_message(&fws.ws, cio_write_buffer_get_length(&fws.wbh), &fws.wbh, false, false, write_handler, &fws);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Writing a text frame did not succeed!");
 	TEST_ASSERT_MESSAGE(check_frame(CIO_WEBSOCKET_CONTINUATION_FRAME, fws.third_fragment, sizeof(fws.third_fragment), true), "Third frame fragment sent is incorrect text frame!");
 
@@ -1555,7 +1555,7 @@ static void test_send_text_frame_no_ws(void)
 	cio_write_buffer_element_init(&wb, data, sizeof(data));
 	cio_write_buffer_queue_tail(&wbh, &wb);
 
-	enum cio_error err = ws->write_message(NULL, &wbh, true, false, write_handler, NULL);
+	enum cio_error err = ws->write_message(NULL, cio_write_buffer_get_length(&wbh), &wbh, true, false, write_handler, NULL);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_INVALID_ARGUMENT, err, "Writing a text frame with not webscoket did not fail!");
 }
 
@@ -1571,7 +1571,7 @@ static void test_send_text_frame_no_handler(void)
 	cio_write_buffer_element_init(&wb, data, sizeof(data));
 	cio_write_buffer_queue_tail(&wbh, &wb);
 
-	enum cio_error err = ws->write_message(ws, &wbh, true, false, NULL, NULL);
+	enum cio_error err = ws->write_message(ws, cio_write_buffer_get_length(&wbh), &wbh, true, false, NULL, NULL);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_INVALID_ARGUMENT, err, "Writing a text frame with no handler did not fail!");
 }
 
@@ -1589,10 +1589,10 @@ static void test_send_text_frame_twice(void)
 	cio_write_buffer_element_init(&wb, data, sizeof(data));
 	cio_write_buffer_queue_tail(&wbh, &wb);
 
-	enum cio_error err = ws->write_message(ws, &wbh, true, false, write_handler, NULL);
+	enum cio_error err = ws->write_message(ws, cio_write_buffer_get_length(&wbh), &wbh, true, false, write_handler, NULL);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Writing a text frame did not succeed!");
 
-	err = ws->write_message(ws, &wbh, true, false, write_handler, NULL);
+	err = ws->write_message(ws, cio_write_buffer_get_length(&wbh), &wbh, true, false, write_handler, NULL);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_OPERATION_NOT_PERMITTED, err, "Writing a second text frame did not fail!");
 }
 
@@ -1617,7 +1617,7 @@ static void test_send_multiple_jobs(void)
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Writing a ping frame did not succeed!");
 	err = ws->write_pong(ws, &pong_wbh, write_handler, NULL);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Writing a pong frame did not succeed!");
-	err = ws->write_message(ws, &text_wbh, true, false, write_handler, NULL);
+	err = ws->write_message(ws, cio_write_buffer_get_length(&text_wbh), &text_wbh, true, false, write_handler, NULL);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Writing a text frame did not succeed!");
 	err = ws->close(ws, CIO_WEBSOCKET_CLOSE_NORMAL, NULL, write_handler, NULL);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Writing a close frame did not succeed!");
@@ -1657,7 +1657,7 @@ static void test_send_multiple_jobs_starting_with_close(void)
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Writing a ping frame did not succeed!");
 	err = ws->write_pong(ws, &pong_wbh, write_handler, NULL);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Writing a pong frame did not succeed!");
-	err = ws->write_message(ws, &text_wbh, true, false, write_handler, NULL);
+	err = ws->write_message(ws, cio_write_buffer_get_length(&text_wbh), &text_wbh, true, false, write_handler, NULL);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Writing a text frame did not succeed!");
 
 	// Simulate write call over the eventloop
