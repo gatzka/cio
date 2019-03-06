@@ -74,6 +74,7 @@ static void test_patterns(void)
 		char *out = malloc(result_buffer_length);
 		cio_b64_encode_buffer((const uint8_t *)e.s, len, out);
 
+		TEST_ASSERT_EQUAL_MESSAGE(strlen(e.base64_string), result_buffer_length, "length of base64 output buffer was not calculated correctly");
 		if (result_buffer_length > 0) {
 			TEST_ASSERT_EQUAL_MEMORY_MESSAGE(e.base64_string, out, result_buffer_length, "base64 conversion not correct!");
 		} else {
