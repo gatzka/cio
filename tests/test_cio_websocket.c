@@ -176,7 +176,10 @@ static bool check_frame(enum cio_websocket_frame_type opcode, const char *payloa
 	}
 
 	if (is_masked) {
-		// TODO unmask_payload
+		uint8_t mask[4];
+		memcpy(mask, &write_buffer[write_buffer_parse_pos], sizeof(mask));
+		write_buffer_parse_pos += sizeof(mask);
+		cio_websocket_mask(&write_buffer[write_buffer_parse_pos], length, mask);
 	}
 
 	if (length > SIZE_MAX) {
@@ -205,6 +208,7 @@ static bool is_close_frame(uint16_t status_code, bool status_code_required)
 	}
 
 	uint8_t first_length = write_buffer[write_buffer_parse_pos++];
+	bool is_masked = ((first_length & WS_MASK_SET) == WS_MASK_SET);
 	first_length = first_length & (uint8_t)~WS_MASK_SET;
 	if (first_length > CIO_WEBSOCKET_SMALL_FRAME_SIZE) {
 		return false;
@@ -219,6 +223,13 @@ static bool is_close_frame(uint16_t status_code, bool status_code_required)
 	}
 
 	if (first_length > 0) {
+		if (is_masked) {
+			uint8_t mask[4];
+			memcpy(mask, &write_buffer[write_buffer_parse_pos], sizeof(mask));
+			write_buffer_parse_pos += sizeof(mask);
+			cio_websocket_mask(&write_buffer[write_buffer_parse_pos], first_length, mask);
+		}
+
 		uint16_t sc;
 		memcpy(&sc, &write_buffer[write_buffer_parse_pos], sizeof(sc));
 		sc = cio_be16toh(sc);
@@ -1426,6 +1437,8 @@ static void test_send_text_binary_frame(void)
 			uint32_t frame_size = frame_sizes[i];
 			char *data = malloc(frame_size);
 			memset(data, 'a', frame_size);
+			char *check_data = malloc(frame_size);
+			memcpy(check_data, data, frame_size);
 
 			struct ws_frame frames[] = {
 			    {.frame_type = CIO_WEBSOCKET_CLOSE_FRAME, .direction = FROM_CLIENT, .data = NULL, .data_length = 0, .last_frame = true, .rsv = false},
@@ -1440,15 +1453,16 @@ static void test_send_text_binary_frame(void)
 			cio_write_buffer_element_init(&wb, data, frame_size);
 			cio_write_buffer_queue_tail(&wbh, &wb);
 
+			ws->ws_private.ws_flags.is_server = (frames[0].direction == FROM_CLIENT) ? 1 : 0;
 			uint32_t context = 0x1234568;
 			if (frame_types[j] == CIO_WEBSOCKET_TEXT_FRAME) {
 				enum cio_error err = ws->write_message_first_chunk(ws, cio_write_buffer_get_length(&wbh), &wbh, true, false, write_handler, &context);
 				TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Writing a text frame did not succeed!");
-				TEST_ASSERT_MESSAGE(check_frame(CIO_WEBSOCKET_TEXT_FRAME, data, frame_size, true), "First frame send is incorrect text frame!");
+				TEST_ASSERT_MESSAGE(check_frame(CIO_WEBSOCKET_TEXT_FRAME, check_data, frame_size, true), "First frame send is incorrect text frame!");
 			} else if (frame_types[j] == CIO_WEBSOCKET_BINARY_FRAME) {
 				enum cio_error err = ws->write_message_first_chunk(ws, cio_write_buffer_get_length(&wbh), &wbh, true, true, write_handler, &context);
 				TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Writing a binary frame did not succeed!");
-				TEST_ASSERT_MESSAGE(check_frame(CIO_WEBSOCKET_BINARY_FRAME, data, frame_size, true), "First frame send is incorrect binary frame!");
+				TEST_ASSERT_MESSAGE(check_frame(CIO_WEBSOCKET_BINARY_FRAME, check_data, frame_size, true), "First frame send is incorrect binary frame!");
 			}
 
 			enum cio_error err = ws->read_message(ws, read_handler, NULL);
@@ -1469,6 +1483,7 @@ static void test_send_text_binary_frame(void)
 
 			if (data) {
 				free(data);
+				free(check_data);
 			}
 
 			free(ws);
