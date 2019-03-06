@@ -441,11 +441,11 @@ static void test_client_send_text_binary_frame(void)
 
 				uint32_t context = 0x1234568;
 				if (frame_types[j] == CIO_WEBSOCKET_TEXT_FRAME) {
-					enum cio_error err = ws->write_message(ws, cio_write_buffer_get_length(&wbh), &wbh, true, false, write_handler, &context);
+					enum cio_error err = ws->write_message_first_chunk(ws, cio_write_buffer_get_length(&wbh), &wbh, true, false, write_handler, &context);
 					TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Writing a text frame did not succeed!");
 					TEST_ASSERT_MESSAGE(check_frame(CIO_WEBSOCKET_TEXT_FRAME, check_data, frame_size, true), "First frame send is incorrect text frame!");
 				} else if (frame_types[j] == CIO_WEBSOCKET_BINARY_FRAME) {
-					enum cio_error err = ws->write_message(ws, cio_write_buffer_get_length(&wbh), &wbh, true, true, write_handler, &context);
+					enum cio_error err = ws->write_message_first_chunk(ws, cio_write_buffer_get_length(&wbh), &wbh, true, true, write_handler, &context);
 					TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Writing a binary frame did not succeed!");
 					TEST_ASSERT_MESSAGE(check_frame(CIO_WEBSOCKET_BINARY_FRAME, check_data, frame_size, true), "First frame send is incorrect binary frame!");
 				}

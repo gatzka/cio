@@ -190,7 +190,7 @@ static void read_handler(struct cio_websocket *ws, void *handler_context, enum c
 		cio_write_buffer_head_init(&eh->wbh);
 		cio_write_buffer_const_element_init(&eh->wb_message, text_message, strlen(text_message));
 		cio_write_buffer_queue_tail(&eh->wbh, &eh->wb_message);
-		err = ws->write_message(ws, cio_write_buffer_get_length(&eh->wbh), &eh->wbh, true, is_binary, write_complete, NULL);
+		err = ws->write_message_first_chunk(ws, cio_write_buffer_get_length(&eh->wbh), &eh->wbh, true, is_binary, write_complete, NULL);
 		if (err != CIO_SUCCESS) {
 			fprintf(stderr, "Could not start writing message!\n");
 		}
