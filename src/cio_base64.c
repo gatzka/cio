@@ -64,6 +64,4 @@ void cio_b64_encode_buffer(const uint8_t *__restrict in, size_t in_length, char 
 		memcpy(out, tmp, sizeof(tmp));
 		out += 4;
 	}
-
-	*out = '\0';
 }

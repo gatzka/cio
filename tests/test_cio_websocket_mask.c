@@ -68,19 +68,28 @@ static void test_aligned_buffer(void)
 
 	for (unsigned int align_counter = 0; align_counter < max_align; align_counter++) {
 		for (unsigned int length_counter = 1; length_counter < buffer_size; length_counter++) {
-			uint8_t buffer[buffer_size + max_align];
-			fill_random(buffer, sizeof(buffer));
+			for (unsigned int middle_counter = 1; middle_counter <= length_counter; middle_counter++) {
+				uint8_t buffer[buffer_size + max_align];
+				fill_random(buffer, sizeof(buffer));
 
-			uint8_t check_buffer[buffer_size + max_align];
-			memcpy(check_buffer, buffer, sizeof(buffer));
+				uint8_t check_buffer[buffer_size + max_align];
+				memcpy(check_buffer, buffer, sizeof(buffer));
 
-			uint8_t mask[4];
-			fill_random(mask, sizeof(mask));
+				uint8_t mask[4];
+				fill_random(mask, sizeof(mask));
+				uint8_t check_mask[4];
+				memcpy(check_mask, mask, sizeof(check_mask));
 
-			cio_websocket_mask(buffer + align_counter, length_counter, mask);
-			check_masking(check_buffer + align_counter, length_counter, mask);
+				uint8_t *start_address = buffer + align_counter;
 
-			TEST_ASSERT_MESSAGE(memcmp(check_buffer + align_counter, buffer + align_counter, length_counter) == 0, "Message masking not correct!");
+				uint8_t *middle_address = start_address + middle_counter;
+				cio_websocket_mask(start_address, middle_counter, mask);
+				cio_websocket_correct_mask(mask, middle_counter);
+				cio_websocket_mask(middle_address, length_counter - middle_counter, mask);
+				check_masking(check_buffer + align_counter, length_counter, check_mask);
+
+				TEST_ASSERT_MESSAGE(memcmp(check_buffer + align_counter, buffer + align_counter, length_counter) == 0, "Message masking not correct!");
+			}
 		}
 	}
 }

@@ -37,7 +37,7 @@ extern "C" {
  * cio_websocket need to know.
  *
  * @warning Please note that you always have to wait for the completion of
- * a write call (@ref cio_websocket_write_message)
+ * a write call (@ref cio_websocket_write_message_first_chunk)
  * before issuing a new write call. Otherwise, you risk loss of data to be written!
  */
 
@@ -58,7 +58,22 @@ struct cio_websocket;
 
 typedef void (*cio_websocket_close_hook)(struct cio_websocket *s);
 typedef void (*cio_websocket_on_connect)(struct cio_websocket *s);
-typedef void (*cio_websocket_read_handler)(struct cio_websocket *ws, void *handler_context, enum cio_error err, uint8_t *data, size_t length, bool last_frame, bool is_binary);
+
+/**
+ * @brief The type of websocket read callback functions.
+ *
+ * @param ws The cio_websocket the read operation was called on.
+ * @param handler_context The context the functions works on.
+ * @param err If err != ::CIO_SUCCESS, the read operation failed, if err == ::CIO_EOF, the peer closed the stream. If err != ::CIO_SUCCESS,
+ * ignore the following parameters: @p frame_length, @p data, @p chunk_length, @p last_chunk, @p last_frame, @p is_binary.
+ * @param frame_length The total length of the websocket frame.
+ * @param data The address containing the chunked data.
+ * @param chunk_length The length of the chunked data.
+ * @param last_chunk Shows if the data in @p data is the last chunked in this frame.
+ * @param last_frame Shows if this frame is the last frame of a fragmented WebSocket message.
+ * @param is_binary Shows if the frame is a binary or a text frame
+ */
+typedef void (*cio_websocket_read_handler)(struct cio_websocket *ws, void *handler_context, enum cio_error err, size_t frame_length, uint8_t *data, size_t chunk_length, bool last_chunk, bool last_frame, bool is_binary);
 typedef void (*cio_websocket_write_handler)(struct cio_websocket *ws, void *handler_context, enum cio_error err);
 
 enum cio_websocket_status_code {
@@ -100,6 +115,7 @@ struct cio_websocket_write_job {
 	void *handler_context;
 	enum cio_websocket_frame_type frame_type;
 	bool last_frame;
+	bool is_continuation_chunk;
 	cio_buffered_stream_write_handler stream_handler;
 };
 
@@ -111,6 +127,7 @@ struct cio_response_buffer {
 
 struct cio_websocket_private {
 	uint64_t read_frame_length;
+	uint64_t remaining_read_frame_length;
 
 	struct {
 		unsigned int fin : 1;
@@ -120,13 +137,10 @@ struct cio_websocket_private {
 		unsigned int is_server : 1;
 		unsigned int fragmented_write : 1;
 		unsigned int closed_by_error : 1;
-		unsigned int to_be_closed;
 	} ws_flags;
 
 	cio_websocket_read_handler read_handler;
 	void *read_handler_context;
-
-	unsigned int in_user_writecallback_context;
 
 	struct cio_http_client *http_client;
 
@@ -134,6 +148,7 @@ struct cio_websocket_private {
 	struct cio_utf8_state utf8_state;
 	cio_websocket_close_hook close_hook;
 	uint8_t received_mask[4];
+	uint8_t chunk_send_mask[4];
 
 	struct cio_websocket_write_job write_message_job;
 	struct cio_websocket_write_job write_ping_job;
@@ -184,7 +199,7 @@ struct cio_websocket {
 	enum cio_error (*read_message)(struct cio_websocket *ws, cio_websocket_read_handler handler, void *handler_context);
 
 	/**
-	 * @anchor cio_websocket_write_message
+	 * @anchor cio_websocket_write_message_first_chunk
 	 * @brief Writes a complete message to the websocket.
 	 *
 	 * @warning Please note that the data @p payload encapsulates will be scrambled by
@@ -193,7 +208,10 @@ struct cio_websocket {
 	 * by @p payload. In addition you should ALWAYS intialize the write buffer elements in
 	 * @p payload using the @ref cio_write_buffer_element_init "non-const initialization function".
 	 *
-	 * @param ws The websocket which received the control frame.
+	 * @param ws The websocket which should be used for sending.
+	 * @param frame_length The length of the frame to be sent. Please be aware that the frame length
+	 * must not necessarily be the same as the length of the payload. In fact, this funtion can be used
+	 * to write the first chunk of a message which has to be continuoued later using @ref cio_websocket_write_message_continuation_chunk.
 	 * @param payload The payload to be sent.
 	 * @param last_frame @c true if the is an unfragmented message or the last frame of a
 	 * fragmented message, @c false otherwise.
@@ -202,7 +220,25 @@ struct cio_websocket {
 	 * @param handler_context A context pointer given to @p handler when called.
 	 * @return ::CIO_SUCCESS for success.
 	 */
-	enum cio_error (*write_message)(struct cio_websocket *ws, struct cio_write_buffer *payload, bool last_frame, bool is_binary, cio_websocket_write_handler handler, void *handler_context);
+	enum cio_error (*write_message_first_chunk)(struct cio_websocket *ws, size_t frame_length, struct cio_write_buffer *payload, bool last_frame, bool is_binary, cio_websocket_write_handler handler, void *handler_context);
+
+	/**
+	 * @anchor cio_websocket_write_message_continuation_chunk
+	 * @brief Continuous to write data to a websocket message which was started with @ref cio_websocket_write_message_first_chunk.
+	 *
+	 * @warning Please note that the data @p payload encapsulates will be scrambled by
+	 * the library if this function is used in a websocket client connection. So if
+	 * you want to write the same data again, you have to re-initialize the data encapsluated
+	 * by @p payload. In addition you should ALWAYS intialize the write buffer elements in
+	 * @p payload using the @ref cio_write_buffer_element_init "non-const initialization function".
+	 *
+	 * @param ws The websocket which should be used for sending.
+	 * @param payload The payload to be sent.
+	 * @param handler A callback function that will be called when the write operation of the ping completes.
+	 * @param handler_context A context pointer given to @p handler when called.
+	 * @return ::CIO_SUCCESS for success.
+	 */
+	enum cio_error (*write_message_continuation_chunk)(struct cio_websocket *ws, struct cio_write_buffer *payload, cio_websocket_write_handler handler, void *handler_context);
 
 	/**
 	 * @brief A pointer to a function which is called when a control frame was received.

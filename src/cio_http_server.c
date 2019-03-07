@@ -246,14 +246,11 @@ static enum cio_error write_response(struct cio_http_client *client, enum cio_ht
 
 	client->response_written_cb = written_cb;
 	client->http_private.response_fired = true;
-	size_t content_length = 0;
+	size_t content_length;
 	if (wbh_body) {
-		size_t elements = wbh_body->data.q_len;
-		struct cio_write_buffer *wb = wbh_body;
-		for (size_t i = 0; i < elements; i++) {
-			wb = wbh_body->next;
-			content_length += wb->data.element.length;
-		}
+		content_length = cio_write_buffer_get_length(wbh_body);
+	} else {
+		content_length = 0;
 	}
 
 	int written = snprintf(client->http_private.content_length_buffer, sizeof(client->http_private.content_length_buffer) - 1, "Content-Length: %zu" CIO_CRLF, content_length);

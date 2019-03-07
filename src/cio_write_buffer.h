@@ -278,6 +278,22 @@ static inline void cio_write_buffer_splice(struct cio_write_buffer *list, struct
 	}
 }
 
+/**
+ * @brief Get the length of the complete write buffer.
+ * @param head The list from which the length should be gathered.
+ */
+static inline size_t cio_write_buffer_get_length(const struct cio_write_buffer *head)
+{
+	size_t length = 0;
+	size_t q_len = head->data.q_len;
+	for (size_t i = 0; i < q_len; i++) {
+		head = head->next;
+		length += head->data.element.length;
+	}
+
+	return length;
+}
+
 #ifdef __cplusplus
 }
 #endif

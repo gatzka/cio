@@ -317,7 +317,7 @@ static void save_to_check_buffer_and_read_again(struct cio_buffered_stream *bs, 
 	(void)context;
 	(void)num_bytes;
 
-	size_t available =  cio_read_buffer_unread_bytes(buffer);
+	size_t available = cio_read_buffer_unread_bytes(buffer);
 	save_to_check_buffer(bs, context, err, buffer, available);
 	err = bs->read_at_least(bs, buffer, 1, second_dummy_read_handler, NULL);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Call to read_exactly did not succeed!");

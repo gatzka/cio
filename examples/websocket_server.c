@@ -171,15 +171,18 @@ static void on_control(const struct cio_websocket *ws, enum cio_websocket_frame_
 	}
 }
 
-static void read_handler(struct cio_websocket *ws, void *handler_context, enum cio_error err, uint8_t *data, size_t length, bool last_frame, bool is_binary)
+static void read_handler(struct cio_websocket *ws, void *handler_context, enum cio_error err, size_t frame_length, uint8_t *data, size_t chunk_length, bool last_chunk, bool last_frame, bool is_binary)
 {
 	(void)handler_context;
+	(void)frame_length;
+	(void)last_chunk;
+
 	if (err == CIO_SUCCESS) {
 		struct cio_websocket_location_handler *handler = cio_container_of(ws, struct cio_websocket_location_handler, websocket);
 		struct ws_echo_handler *eh = cio_container_of(handler, struct ws_echo_handler, ws_handler);
 
 		fprintf(stdout, "Got text message (last frame: %s):", last_frame ? "true" : "false");
-		fwrite(data, length, 1, stdout);
+		fwrite(data, chunk_length, 1, stdout);
 		fflush(stdout);
 		fprintf(stdout, "\n");
 
@@ -187,7 +190,7 @@ static void read_handler(struct cio_websocket *ws, void *handler_context, enum c
 		cio_write_buffer_head_init(&eh->wbh);
 		cio_write_buffer_const_element_init(&eh->wb_message, text_message, strlen(text_message));
 		cio_write_buffer_queue_tail(&eh->wbh, &eh->wb_message);
-		err = ws->write_message(ws, &eh->wbh, true, is_binary, write_complete, NULL);
+		err = ws->write_message_first_chunk(ws, cio_write_buffer_get_length(&eh->wbh), &eh->wbh, true, is_binary, write_complete, NULL);
 		if (err != CIO_SUCCESS) {
 			fprintf(stderr, "Could not start writing message!\n");
 		}

@@ -33,6 +33,18 @@ extern "C" {
 
 #include <stddef.h>
 #include <stdint.h>
+#include <string.h>
+
+static inline void cio_websocket_correct_mask(uint8_t mask[4], size_t consumed_bytes)
+{
+	uint_fast8_t array_shift = consumed_bytes % 4;
+	uint8_t new_mask[4];
+	for (unsigned int i = 0; i < 4; i++) {
+		new_mask[i] = mask[(i + array_shift) % 4];
+	}
+
+	memcpy(mask, new_mask, 4);
+}
 
 static inline void cio_websocket_mask(uint8_t *buffer, size_t length, const uint8_t mask[4])
 {
