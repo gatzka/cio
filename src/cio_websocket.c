@@ -74,14 +74,14 @@ static void remove_websocket_header(const struct cio_websocket_write_job *job)
 	cio_write_buffer_queue_dequeue(job->wbh);
 }
 
-static inline void swap(uint8_t mask[4], uint_fast8_t first, uint_fast8_t last)
+static inline void swap(uint8_t *mask, uint_fast8_t first, uint_fast8_t last)
 {
 	uint8_t tmp = mask[first];
 	mask[first] = mask[last];
 	mask[last] = tmp;
 }
 
-static inline void rotate(uint8_t mask[4], uint_fast8_t middle)
+static inline void rotate(uint8_t *mask, uint_fast8_t middle)
 {
 	uint_fast8_t first = 0;
 	uint_fast8_t next = middle;
