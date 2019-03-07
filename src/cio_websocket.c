@@ -84,14 +84,13 @@ static inline void swap(uint8_t mask[4], uint_fast8_t first, uint_fast8_t last)
 static inline void rotate(uint8_t mask[4], uint_fast8_t middle)
 {
 	uint_fast8_t first = 0;
-	uint_fast8_t last = 4;
 	uint_fast8_t next = middle;
 
 	while (first != next) {
 		swap(mask, first, next);
 		first++;
 		next++;
-		if (next == last) {
+		if (next == 4) {
 			next = middle;
 		} else if (first == middle) {
 			middle = next;
