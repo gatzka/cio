@@ -301,7 +301,7 @@ static bool location_match(const char *location, size_t location_length, const c
 	return false;
 }
 
-static const struct cio_http_location *find_handler(const struct cio_http_server *server, const char *request_target, size_t url_length)
+static const struct cio_http_location *find_location(const struct cio_http_server *server, const char *request_target, size_t url_length)
 {
 	const struct cio_http_location *best_match = NULL;
 	size_t best_match_length = 0;
@@ -309,7 +309,7 @@ static const struct cio_http_location *find_handler(const struct cio_http_server
 	const struct cio_http_location *location = server->first_location;
 	for (size_t i = 0; i < server->num_handlers; i++) {
 		size_t location_length = strlen(location->path);
-		if ((location_match(location->path, location_length, request_target, url_length)) && (location_length > best_match_length)) {
+		if ((location_length > 0) && (location_match(location->path, location_length, request_target, url_length)) && (location_length > best_match_length)) {
 			best_match_length = location_length;
 			best_match = location;
 		}
@@ -475,13 +475,13 @@ static int on_url(http_parser *parser, const char *at, size_t length)
 		return -1;
 	}
 
-	const struct cio_http_location *target = find_handler(parser->data, at + u.field_data[UF_PATH].off, u.field_data[UF_PATH].len);
-	if (cio_unlikely(target == NULL)) {
+	const struct cio_http_location *location = find_location(parser->data, at + u.field_data[UF_PATH].off, u.field_data[UF_PATH].len);
+	if (cio_unlikely(location == NULL)) {
 		write_response(client, CIO_HTTP_STATUS_NOT_FOUND, NULL, NULL);
 		return 0;
 	}
 
-	struct cio_http_location_handler *handler = target->alloc_handler(target->config);
+	struct cio_http_location_handler *handler = location->alloc_handler(location->config);
 	if (cio_unlikely(handler == NULL)) {
 		handle_server_error(client, "Allocation of handler failed!");
 		return 0;
