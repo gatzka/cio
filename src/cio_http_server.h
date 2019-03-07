@@ -121,7 +121,7 @@ struct cio_http_server {
 	uint64_t response_timeout_ns;
 	cio_http_serve_on_error on_error;
 	struct cio_server_socket server_socket;
-	struct cio_http_location *first_handler;
+	struct cio_http_location *first_location;
 	size_t num_handlers;
 	cio_http_server_close_hook close_hook;
 	char keepalive_header[KEEPALIVE_TIMEOUT_HEADER_MAX_LENGTH]; // "Keep-Alive: timeout= + uint32 as string + CR + LF + \0"

@@ -306,15 +306,15 @@ static const struct cio_http_location *find_handler(const struct cio_http_server
 	const struct cio_http_location *best_match = NULL;
 	size_t best_match_length = 0;
 
-	const struct cio_http_location *handler = server->first_handler;
+	const struct cio_http_location *location = server->first_location;
 	for (size_t i = 0; i < server->num_handlers; i++) {
-		size_t location_length = strlen(handler->path);
-		if ((location_match(handler->path, location_length, request_target, url_length)) && (location_length > best_match_length)) {
+		size_t location_length = strlen(location->path);
+		if ((location_match(location->path, location_length, request_target, url_length)) && (location_length > best_match_length)) {
 			best_match_length = location_length;
-			best_match = handler;
+			best_match = location;
 		}
 
-		handler = handler->next;
+		location = location->next;
 	}
 
 	return best_match;
@@ -726,8 +726,8 @@ static enum cio_error register_handler(struct cio_http_server *server, struct ci
 		return CIO_INVALID_ARGUMENT;
 	}
 
-	target->next = server->first_handler;
-	server->first_handler = target;
+	target->next = server->first_location;
+	server->first_location = target;
 	server->num_handlers++;
 	return CIO_SUCCESS;
 }
@@ -772,7 +772,7 @@ enum cio_error cio_http_server_init(struct cio_http_server *server,
 	server->free_client = free_client;
 	server->serve = serve;
 	server->register_location = register_handler;
-	server->first_handler = NULL;
+	server->first_location = NULL;
 	server->num_handlers = 0;
 	server->on_error = on_error;
 	server->shutdown = shutdown_server;
