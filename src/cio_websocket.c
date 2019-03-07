@@ -688,7 +688,7 @@ static void get_first_length(struct cio_buffered_stream *bs, void *handler_conte
 
 	bool frame_is_masked = (field & WS_MASK_SET) == WS_MASK_SET;
 	bool is_server = ws->ws_private.ws_flags.is_server == 1U;
-	if ((frame_is_masked != is_server)) {
+	if (frame_is_masked != is_server) {
 		handle_error(ws, CIO_PROTOCOL_NOT_SUPPORTED, CIO_WEBSOCKET_CLOSE_PROTOCOL_ERROR, "received unmasked frame on server websocket");
 		return;
 	}
