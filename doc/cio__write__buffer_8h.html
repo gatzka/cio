@@ -173,6 +173,9 @@ Functions</h2></td></tr>
 <tr class="memitem:a529195d3850a2271d5628c803b5b63a1"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="cio__write__buffer_8h.html#a529195d3850a2271d5628c803b5b63a1">cio_write_buffer_splice</a> (struct <a class="el" href="structcio__write__buffer.html">cio_write_buffer</a> *list, struct <a class="el" href="structcio__write__buffer.html">cio_write_buffer</a> *head)</td></tr>
 <tr class="memdesc:a529195d3850a2271d5628c803b5b63a1"><td class="mdescLeft">&#160;</td><td class="mdescRight">Appends the write buffer elements of <code>list</code> to <code>head</code>.  <a href="#a529195d3850a2271d5628c803b5b63a1">More...</a><br /></td></tr>
 <tr class="separator:a529195d3850a2271d5628c803b5b63a1"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a3dae192cabd6dd5571af50b659c2ea43"><td class="memItemLeft" align="right" valign="top">static size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="cio__write__buffer_8h.html#a3dae192cabd6dd5571af50b659c2ea43">cio_write_buffer_get_length</a> (const struct <a class="el" href="structcio__write__buffer.html">cio_write_buffer</a> *head)</td></tr>
+<tr class="memdesc:a3dae192cabd6dd5571af50b659c2ea43"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get the length of the complete write buffer.  <a href="#a3dae192cabd6dd5571af50b659c2ea43">More...</a><br /></td></tr>
+<tr class="separator:a3dae192cabd6dd5571af50b659c2ea43"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Functions to manage a write buffer. </p>
@@ -273,6 +276,38 @@ Functions</h2></td></tr>
     <tr><td class="paramname">wbe</td><td>The write buffer element to be initialized. </td></tr>
     <tr><td class="paramname">data</td><td>A pointer to the data the write buffer element shall be handled. </td></tr>
     <tr><td class="paramname">length</td><td>The length in bytes of <code>data</code>. </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a class="anchor" id="a3dae192cabd6dd5571af50b659c2ea43"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static size_t cio_write_buffer_get_length </td>
+          <td>(</td>
+          <td class="paramtype">const struct <a class="el" href="structcio__write__buffer.html">cio_write_buffer</a> *&#160;</td>
+          <td class="paramname"><em>head</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Get the length of the complete write buffer. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">head</td><td>The list from which the length should be gathered. </td></tr>
   </table>
   </dd>
 </dl>

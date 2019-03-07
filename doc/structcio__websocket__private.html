@@ -118,6 +118,8 @@ $(document).ready(function(){initNavTree('structcio__websocket__private.html',''
 Data Fields</h2></td></tr>
 <tr class="memitem:abce150c320dfcf5ec94981c6f689049f"><td class="memItemLeft" align="right" valign="top">uint64_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structcio__websocket__private.html#abce150c320dfcf5ec94981c6f689049f">read_frame_length</a></td></tr>
 <tr class="separator:abce150c320dfcf5ec94981c6f689049f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab280f620532aac76d0069384bc739c4d"><td class="memItemLeft" align="right" valign="top">uint64_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structcio__websocket__private.html#ab280f620532aac76d0069384bc739c4d">remaining_read_frame_length</a></td></tr>
+<tr class="separator:ab280f620532aac76d0069384bc739c4d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a41b8d0e6181ad659a77f0cbd308dc5c6"><td class="memItemLeft" >struct {</td></tr>
 <tr class="memitem:a0688e986be7dcb497a4b76fbfd787a72"><td class="memItemLeft" >&#160;&#160;&#160;unsigned int&#160;&#160;&#160;<a class="el" href="structcio__websocket__private.html#a05244ed7d203d3a1dc63b72bb726583e">fin</a>: 1</td></tr>
 <tr class="separator:a0688e986be7dcb497a4b76fbfd787a72"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -133,16 +135,12 @@ Data Fields</h2></td></tr>
 <tr class="separator:aeab3773c1a5c702fb5ce8ee7de2d3201"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ada7b458d18ab42947aa8c03f9d39f21a"><td class="memItemLeft" >&#160;&#160;&#160;unsigned int&#160;&#160;&#160;<a class="el" href="structcio__websocket__private.html#a9713b99ac7dde95ddb5f824302835809">closed_by_error</a>: 1</td></tr>
 <tr class="separator:ada7b458d18ab42947aa8c03f9d39f21a"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a41deb55c68dc5f8e691172900df8385b"><td class="memItemLeft" >&#160;&#160;&#160;unsigned int&#160;&#160;&#160;<a class="el" href="structcio__websocket__private.html#a7f287e91621d4b46f9b70fff6a8dbb7c">to_be_closed</a></td></tr>
-<tr class="separator:a41deb55c68dc5f8e691172900df8385b"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a41b8d0e6181ad659a77f0cbd308dc5c6"><td class="memItemLeft" valign="top">}&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structcio__websocket__private.html#a41b8d0e6181ad659a77f0cbd308dc5c6">ws_flags</a></td></tr>
 <tr class="separator:a41b8d0e6181ad659a77f0cbd308dc5c6"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a039a8e2c5b9f72b9db0c26ff3ea9ba41"><td class="memItemLeft" align="right" valign="top"><a class="el" href="cio__websocket_8h.html#a4d6aa0edc59bbbceca0f54ffc2da16e0">cio_websocket_read_handler</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structcio__websocket__private.html#a039a8e2c5b9f72b9db0c26ff3ea9ba41">read_handler</a></td></tr>
+<tr class="memitem:a039a8e2c5b9f72b9db0c26ff3ea9ba41"><td class="memItemLeft" align="right" valign="top"><a class="el" href="cio__websocket_8h.html#afa44f1ffa8cef33d0367d3e6a052241a">cio_websocket_read_handler</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structcio__websocket__private.html#a039a8e2c5b9f72b9db0c26ff3ea9ba41">read_handler</a></td></tr>
 <tr class="separator:a039a8e2c5b9f72b9db0c26ff3ea9ba41"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a1962b07487645e896c1ca63daad14d2e"><td class="memItemLeft" align="right" valign="top">void *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structcio__websocket__private.html#a1962b07487645e896c1ca63daad14d2e">read_handler_context</a></td></tr>
 <tr class="separator:a1962b07487645e896c1ca63daad14d2e"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aff38ef10124ec090b6eec5b2e42324ac"><td class="memItemLeft" align="right" valign="top">unsigned int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structcio__websocket__private.html#aff38ef10124ec090b6eec5b2e42324ac">in_user_writecallback_context</a></td></tr>
-<tr class="separator:aff38ef10124ec090b6eec5b2e42324ac"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a766333170534377715371b3304a5133f"><td class="memItemLeft" align="right" valign="top">struct <a class="el" href="structcio__http__client.html">cio_http_client</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structcio__websocket__private.html#a766333170534377715371b3304a5133f">http_client</a></td></tr>
 <tr class="separator:a766333170534377715371b3304a5133f"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ac449ba2534bcd9691cedd3d4667f827f"><td class="memItemLeft" align="right" valign="top">struct <a class="el" href="structcio__timer.html">cio_timer</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structcio__websocket__private.html#ac449ba2534bcd9691cedd3d4667f827f">close_timer</a></td></tr>
@@ -153,6 +151,8 @@ Data Fields</h2></td></tr>
 <tr class="separator:a51feb81058faa2b6380050e5a5f9b064"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a62f8cd2e77449db411e02638832c83a6"><td class="memItemLeft" align="right" valign="top">uint8_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structcio__websocket__private.html#a62f8cd2e77449db411e02638832c83a6">received_mask</a> [4]</td></tr>
 <tr class="separator:a62f8cd2e77449db411e02638832c83a6"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae19a998d5f10cfff0600352d84105563"><td class="memItemLeft" align="right" valign="top">uint8_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structcio__websocket__private.html#ae19a998d5f10cfff0600352d84105563">chunk_send_mask</a> [4]</td></tr>
+<tr class="separator:ae19a998d5f10cfff0600352d84105563"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ab4860faa72ab9d8a75a65e1376d00089"><td class="memItemLeft" align="right" valign="top">struct <a class="el" href="structcio__websocket__write__job.html">cio_websocket_write_job</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structcio__websocket__private.html#ab4860faa72ab9d8a75a65e1376d00089">write_message_job</a></td></tr>
 <tr class="separator:ab4860faa72ab9d8a75a65e1376d00089"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a26e20e86af1c05a9d401f4ea45d0543c"><td class="memItemLeft" align="right" valign="top">struct <a class="el" href="structcio__websocket__write__job.html">cio_websocket_write_job</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structcio__websocket__private.html#a26e20e86af1c05a9d401f4ea45d0543c">write_ping_job</a></td></tr>
@@ -171,6 +171,18 @@ Data Fields</h2></td></tr>
 <tr class="separator:afba2373519a3ecbd553f4c26b85c6a32"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <h2 class="groupheader">Field Documentation</h2>
+<a class="anchor" id="ae19a998d5f10cfff0600352d84105563"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">uint8_t cio_websocket_private::chunk_send_mask[4]</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
 <a class="anchor" id="acff869ea3c3f402492d30102abe8655d"></a>
 <div class="memitem">
 <div class="memproto">
@@ -279,18 +291,6 @@ Data Fields</h2></td></tr>
 
 </div>
 </div>
-<a class="anchor" id="aff38ef10124ec090b6eec5b2e42324ac"></a>
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">unsigned int cio_websocket_private::in_user_writecallback_context</td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-</div>
-</div>
 <a class="anchor" id="a0163f940ff3512c8d11f65237d673b86"></a>
 <div class="memitem">
 <div class="memproto">
@@ -356,7 +356,7 @@ Data Fields</h2></td></tr>
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="cio__websocket_8h.html#a4d6aa0edc59bbbceca0f54ffc2da16e0">cio_websocket_read_handler</a> cio_websocket_private::read_handler</td>
+          <td class="memname"><a class="el" href="cio__websocket_8h.html#afa44f1ffa8cef33d0367d3e6a052241a">cio_websocket_read_handler</a> cio_websocket_private::read_handler</td>
         </tr>
       </table>
 </div><div class="memdoc">
@@ -387,24 +387,24 @@ Data Fields</h2></td></tr>
 
 </div>
 </div>
-<a class="anchor" id="a3fe66dbffbc5032fe80b323d027901a8"></a>
+<a class="anchor" id="ab280f620532aac76d0069384bc739c4d"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">unsigned int cio_websocket_private::self_initiated_close</td>
+          <td class="memname">uint64_t cio_websocket_private::remaining_read_frame_length</td>
         </tr>
       </table>
 </div><div class="memdoc">
 
 </div>
 </div>
-<a class="anchor" id="a7f287e91621d4b46f9b70fff6a8dbb7c"></a>
+<a class="anchor" id="a3fe66dbffbc5032fe80b323d027901a8"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">unsigned int cio_websocket_private::to_be_closed</td>
+          <td class="memname">unsigned int cio_websocket_private::self_initiated_close</td>
         </tr>
       </table>
 </div><div class="memdoc">

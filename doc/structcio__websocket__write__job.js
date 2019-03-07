@@ -3,6 +3,7 @@ var structcio__websocket__write__job =
     [ "frame_type", "structcio__websocket__write__job.html#aa861ea6f9fbe9270a2ca76f9faced872", null ],
     [ "handler", "structcio__websocket__write__job.html#a1f6652868857b5523069b2655849a741", null ],
     [ "handler_context", "structcio__websocket__write__job.html#a03e58e95b659e7a39db6d818c11411b1", null ],
+    [ "is_continuation_chunk", "structcio__websocket__write__job.html#aab7fd9bab7f83dd71b66c766ca8b49c6", null ],
     [ "last_frame", "structcio__websocket__write__job.html#a16d0cefda1aef984e79518621300d7da", null ],
     [ "next", "structcio__websocket__write__job.html#a7935a405777acb969c211cef16148173", null ],
     [ "send_header", "structcio__websocket__write__job.html#a0a5130519af4f959a75e8c1668134383", null ],

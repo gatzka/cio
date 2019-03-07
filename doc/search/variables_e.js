@@ -11,6 +11,7 @@ var searchData=
   ['received_5fmask',['received_mask',['../structcio__websocket__private.html#a62f8cd2e77449db411e02638832c83a6',1,'cio_websocket_private']]],
   ['register_5flocation',['register_location',['../structcio__http__server.html#a58101d627babd140a2647b9f4ec91814',1,'cio_http_server']]],
   ['remaining_5fcontent_5flength',['remaining_content_length',['../structcio__http__client__private.html#aa838a9345d18dcc42ffb559f8409cba0',1,'cio_http_client_private']]],
+  ['remaining_5fread_5fframe_5flength',['remaining_read_frame_length',['../structcio__websocket__private.html#ab280f620532aac76d0069384bc739c4d',1,'cio_websocket_private']]],
   ['request_5ftimer',['request_timer',['../structcio__http__client__private.html#ac73f735d9cc40b0842529bc1e50a1ae2',1,'cio_http_client_private']]],
   ['response_5ffired',['response_fired',['../structcio__http__client__private.html#aa2111ca0e243decd95510d68495b099a',1,'cio_http_client_private']]],
   ['response_5ftimer',['response_timer',['../structcio__http__client__private.html#a6e1027e5b6a2a77b98ccfe39ade207d0',1,'cio_http_client_private']]]

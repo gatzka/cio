@@ -3,6 +3,7 @@ var cio__write__buffer_8h =
     [ "cio_write_buffer", "structcio__write__buffer.html", "structcio__write__buffer" ],
     [ "cio_write_buffer_const_element_init", "cio__write__buffer_8h.html#a119ccb2ce237c24377c946cb58c07e7c", null ],
     [ "cio_write_buffer_element_init", "cio__write__buffer_8h.html#a6ad781e6c624d301aaf007ce554b501b", null ],
+    [ "cio_write_buffer_get_length", "cio__write__buffer_8h.html#a3dae192cabd6dd5571af50b659c2ea43", null ],
     [ "cio_write_buffer_get_number_of_elements", "cio__write__buffer_8h.html#a2a0d1790adbb22eea9d5a9a581b0d127", null ],
     [ "cio_write_buffer_head_init", "cio__write__buffer_8h.html#a6ffc05a5f989795e866347fe06b34afb", null ],
     [ "cio_write_buffer_insert", "cio__write__buffer_8h.html#a87cd6b7e9659523cfe15a26b246ea9cf", null ],

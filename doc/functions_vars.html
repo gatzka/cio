@@ -163,6 +163,9 @@ $(document).ready(function(){initNavTree('functions_vars.html','');});
 <li>cancel
 : <a class="el" href="structcio__timer.html#a5fda71e38ca8633d46a014d5e463c9fd">cio_timer</a>
 </li>
+<li>chunk_send_mask
+: <a class="el" href="structcio__websocket__private.html#ae19a998d5f10cfff0600352d84105563">cio_websocket_private</a>
+</li>
 <li>close
 : <a class="el" href="structcio__buffered__stream.html#a07c003b1f08190dab1dcbaf3641913e0">cio_buffered_stream</a>
 , <a class="el" href="structcio__http__client.html#a99ea764a1678b2390fb83cbb255b36b1">cio_http_client</a>
@@ -281,8 +284,8 @@ $(document).ready(function(){initNavTree('functions_vars.html','');});
 
 
 <h3><a class="anchor" id="index_i"></a>- i -</h3><ul>
-<li>in_user_writecallback_context
-: <a class="el" href="structcio__websocket__private.html#aff38ef10124ec090b6eec5b2e42324ac">cio_websocket_private</a>
+<li>is_continuation_chunk
+: <a class="el" href="structcio__websocket__write__job.html#aab7fd9bab7f83dd71b66c766ca8b49c6">cio_websocket_write_job</a>
 </li>
 <li>is_server
 : <a class="el" href="structcio__websocket__private.html#a0163f940ff3512c8d11f65237d673b86">cio_websocket_private</a>
@@ -417,6 +420,9 @@ $(document).ready(function(){initNavTree('functions_vars.html','');});
 <li>remaining_content_length
 : <a class="el" href="structcio__http__client__private.html#aa838a9345d18dcc42ffb559f8409cba0">cio_http_client_private</a>
 </li>
+<li>remaining_read_frame_length
+: <a class="el" href="structcio__websocket__private.html#ab280f620532aac76d0069384bc739c4d">cio_websocket_private</a>
+</li>
 <li>request_timer
 : <a class="el" href="structcio__http__client__private.html#ac73f735d9cc40b0842529bc1e50a1ae2">cio_http_client_private</a>
 </li>
@@ -472,7 +478,6 @@ $(document).ready(function(){initNavTree('functions_vars.html','');});
 <h3><a class="anchor" id="index_t"></a>- t -</h3><ul>
 <li>to_be_closed
 : <a class="el" href="structcio__http__client__private.html#a13105e2222fdff4f2e548da6913ac7a8">cio_http_client_private</a>
-, <a class="el" href="structcio__websocket__private.html#a7f287e91621d4b46f9b70fff6a8dbb7c">cio_websocket_private</a>
 </li>
 </ul>
 
@@ -521,8 +526,11 @@ $(document).ready(function(){initNavTree('functions_vars.html','');});
 <li>write_close_job
 : <a class="el" href="structcio__websocket__private.html#a64848421972153cf531ef13efa4efad9">cio_websocket_private</a>
 </li>
-<li>write_message
-: <a class="el" href="structcio__websocket.html#a57d6d9c4eb5f0d25cd2518d40b019c7e">cio_websocket</a>
+<li>write_message_continuation_chunk
+: <a class="el" href="structcio__websocket.html#addba42242e853e3942da9658d8e20b82">cio_websocket</a>
+</li>
+<li>write_message_first_chunk
+: <a class="el" href="structcio__websocket.html#a683a07df9f9628ceda9bc660509931d8">cio_websocket</a>
 </li>
 <li>write_message_job
 : <a class="el" href="structcio__websocket__private.html#ab4860faa72ab9d8a75a65e1376d00089">cio_websocket_private</a>

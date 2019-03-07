@@ -155,8 +155,9 @@ Typedefs</h2></td></tr>
 <tr class="separator:aca914fcd6af51949d43432f155c61e19"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a47f4e2befc8d1d0ef6478e7bb7d1bd60"><td class="memItemLeft" align="right" valign="top">typedef void(*&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="cio__websocket_8h.html#a47f4e2befc8d1d0ef6478e7bb7d1bd60">cio_websocket_on_connect</a>) (struct <a class="el" href="structcio__websocket.html">cio_websocket</a> *s)</td></tr>
 <tr class="separator:a47f4e2befc8d1d0ef6478e7bb7d1bd60"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a4d6aa0edc59bbbceca0f54ffc2da16e0"><td class="memItemLeft" align="right" valign="top">typedef void(*&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="cio__websocket_8h.html#a4d6aa0edc59bbbceca0f54ffc2da16e0">cio_websocket_read_handler</a>) (struct <a class="el" href="structcio__websocket.html">cio_websocket</a> *ws, void *handler_context, enum <a class="el" href="cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afe">cio_error</a> err, uint8_t *data, size_t length, bool last_frame, bool is_binary)</td></tr>
-<tr class="separator:a4d6aa0edc59bbbceca0f54ffc2da16e0"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:afa44f1ffa8cef33d0367d3e6a052241a"><td class="memItemLeft" align="right" valign="top">typedef void(*&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="cio__websocket_8h.html#afa44f1ffa8cef33d0367d3e6a052241a">cio_websocket_read_handler</a>) (struct <a class="el" href="structcio__websocket.html">cio_websocket</a> *ws, void *handler_context, enum <a class="el" href="cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afe">cio_error</a> err, size_t frame_length, uint8_t *data, size_t chunk_length, bool last_chunk, bool last_frame, bool is_binary)</td></tr>
+<tr class="memdesc:afa44f1ffa8cef33d0367d3e6a052241a"><td class="mdescLeft">&#160;</td><td class="mdescRight">The type of websocket read callback functions.  <a href="#afa44f1ffa8cef33d0367d3e6a052241a">More...</a><br /></td></tr>
+<tr class="separator:afa44f1ffa8cef33d0367d3e6a052241a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a708dd79eefd7e6609cae39f515174e3b"><td class="memItemLeft" align="right" valign="top">typedef void(*&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="cio__websocket_8h.html#a708dd79eefd7e6609cae39f515174e3b">cio_websocket_write_handler</a>) (struct <a class="el" href="structcio__websocket.html">cio_websocket</a> *ws, void *handler_context, enum <a class="el" href="cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afe">cio_error</a> err)</td></tr>
 <tr class="separator:a708dd79eefd7e6609cae39f515174e3b"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
@@ -203,7 +204,7 @@ Functions</h2></td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>This file contains the declarations all users of a <a class="el" href="structcio__websocket.html">cio_websocket</a> need to know. </p>
-<dl class="section warning"><dt>Warning</dt><dd>Please note that you always have to wait for the completion of a write call (<a class="el" href="structcio__websocket.html#cio_websocket_write_message">cio_websocket_write_message</a>) before issuing a new write call. Otherwise, you risk loss of data to be written! </dd></dl>
+<dl class="section warning"><dt>Warning</dt><dd>Please note that you always have to wait for the completion of a write call (<a class="el" href="structcio__websocket.html#cio_websocket_write_message_first_chunk">cio_websocket_write_message_first_chunk</a>) before issuing a new write call. Otherwise, you risk loss of data to be written! </dd></dl>
 </div><h2 class="groupheader">Macro Definition Documentation</h2>
 <a class="anchor" id="a458de5a4564b38244091fb62494c191b"></a>
 <div class="memitem">
@@ -254,15 +255,31 @@ Functions</h2></td></tr>
 
 </div>
 </div>
-<a class="anchor" id="a4d6aa0edc59bbbceca0f54ffc2da16e0"></a>
+<a class="anchor" id="afa44f1ffa8cef33d0367d3e6a052241a"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">typedef void(* cio_websocket_read_handler) (struct <a class="el" href="structcio__websocket.html">cio_websocket</a> *ws, void *handler_context, enum <a class="el" href="cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afe">cio_error</a> err, uint8_t *data, size_t length, bool last_frame, bool is_binary)</td>
+          <td class="memname">typedef void(* cio_websocket_read_handler) (struct <a class="el" href="structcio__websocket.html">cio_websocket</a> *ws, void *handler_context, enum <a class="el" href="cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afe">cio_error</a> err, size_t frame_length, uint8_t *data, size_t chunk_length, bool last_chunk, bool last_frame, bool is_binary)</td>
         </tr>
       </table>
 </div><div class="memdoc">
+
+<p>The type of websocket read callback functions. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">ws</td><td>The <a class="el" href="structcio__websocket.html">cio_websocket</a> the read operation was called on. </td></tr>
+    <tr><td class="paramname">handler_context</td><td>The context the functions works on. </td></tr>
+    <tr><td class="paramname">err</td><td>If err != <a class="el" href="cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afea6bb29544c99750c61f70b10a1e17d96a">CIO_SUCCESS</a>, the read operation failed, if err == <a class="el" href="cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afea237cc68c5cce982ac9a6e9a434a28dc1">CIO_EOF</a>, the peer closed the stream. If err != <a class="el" href="cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afea6bb29544c99750c61f70b10a1e17d96a">CIO_SUCCESS</a>, ignore the following parameters: <code>frame_length</code>, <code>data</code>, <code>chunk_length</code>, <code>last_chunk</code>, <code>last_frame</code>, <code>is_binary</code>. </td></tr>
+    <tr><td class="paramname">frame_length</td><td>The total length of the websocket frame. </td></tr>
+    <tr><td class="paramname">data</td><td>The address containing the chunked data. </td></tr>
+    <tr><td class="paramname">chunk_length</td><td>The length of the chunked data. </td></tr>
+    <tr><td class="paramname">last_chunk</td><td>Shows if the data in <code>data</code> is the last chunked in this frame. </td></tr>
+    <tr><td class="paramname">last_frame</td><td>Shows if this frame is the last frame of a fragmented WebSocket message. </td></tr>
+    <tr><td class="paramname">is_binary</td><td>Shows if the frame is a binary or a text frame </td></tr>
+  </table>
+  </dd>
+</dl>
 
 </div>
 </div>
