@@ -98,13 +98,13 @@ static inline void rotate(uint8_t mask[4], uint_fast8_t middle)
 	}
 }
 
-static void mask_write_buffer(struct cio_write_buffer *wb, uint8_t mask[4])
+static void mask_write_buffer(struct cio_write_buffer *wb, uint8_t *mask, size_t mask_length)
 {
 	size_t num_buffers = wb->data.q_len;
 	for (size_t i = 0; i < num_buffers; i++) {
 		wb = wb->next;
 		cio_websocket_mask(wb->data.element.data, wb->data.element.length, mask);
-		size_t middle = wb->data.element.length % 4;
+		size_t middle = wb->data.element.length % mask_length;
 		rotate(mask, (uint_fast8_t)middle);
 	}
 }
@@ -143,7 +143,7 @@ static enum cio_error send_frame(struct cio_websocket *ws, struct cio_websocket_
 			memcpy(&job->send_header[header_index], &mask, sizeof(mask));
 
 			header_index += sizeof(mask);
-			mask_write_buffer(job->wbh, mask);
+			mask_write_buffer(job->wbh, mask, sizeof(mask));
 
 			size_t job_length = cio_write_buffer_get_length(job->wbh);
 			if (job_length < frame_length) {
@@ -160,7 +160,7 @@ static enum cio_error send_frame(struct cio_websocket *ws, struct cio_websocket_
 	}
 
 	if (ws->ws_private.ws_flags.is_server == 0U) {
-		mask_write_buffer(job->wbh, ws->ws_private.chunk_send_mask);
+		mask_write_buffer(job->wbh, ws->ws_private.chunk_send_mask, sizeof(ws->ws_private.chunk_send_mask));
 		size_t job_length = cio_write_buffer_get_length(job->wbh);
 		cio_websocket_correct_mask(ws->ws_private.chunk_send_mask, job_length);
 	}
