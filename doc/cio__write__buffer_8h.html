@@ -158,9 +158,6 @@ Functions</h2></td></tr>
 <tr class="memitem:ad37228856b0ba01a5d7adc63661c9d94"><td class="memItemLeft" align="right" valign="top">static struct <a class="el" href="structcio__write__buffer.html">cio_write_buffer</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="cio__write__buffer_8h.html#ad37228856b0ba01a5d7adc63661c9d94">cio_write_buffer_queue_dequeue</a> (struct <a class="el" href="structcio__write__buffer.html">cio_write_buffer</a> *wbh)</td></tr>
 <tr class="memdesc:ad37228856b0ba01a5d7adc63661c9d94"><td class="mdescLeft">&#160;</td><td class="mdescRight">Accesses and removes the first element of.  <a href="#ad37228856b0ba01a5d7adc63661c9d94">More...</a><br /></td></tr>
 <tr class="separator:ad37228856b0ba01a5d7adc63661c9d94"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a2a0d1790adbb22eea9d5a9a581b0d127"><td class="memItemLeft" align="right" valign="top">static size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="cio__write__buffer_8h.html#a2a0d1790adbb22eea9d5a9a581b0d127">cio_write_buffer_get_number_of_elements</a> (const struct <a class="el" href="structcio__write__buffer.html">cio_write_buffer</a> *wbh)</td></tr>
-<tr class="memdesc:a2a0d1790adbb22eea9d5a9a581b0d127"><td class="mdescLeft">&#160;</td><td class="mdescRight">Provides the number of elements in a write buffer chain.  <a href="#a2a0d1790adbb22eea9d5a9a581b0d127">More...</a><br /></td></tr>
-<tr class="separator:a2a0d1790adbb22eea9d5a9a581b0d127"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a6ffc05a5f989795e866347fe06b34afb"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="cio__write__buffer_8h.html#a6ffc05a5f989795e866347fe06b34afb">cio_write_buffer_head_init</a> (struct <a class="el" href="structcio__write__buffer.html">cio_write_buffer</a> *wbh)</td></tr>
 <tr class="memdesc:a6ffc05a5f989795e866347fe06b34afb"><td class="mdescLeft">&#160;</td><td class="mdescRight">Initializes a write buffer head.  <a href="#a6ffc05a5f989795e866347fe06b34afb">More...</a><br /></td></tr>
 <tr class="separator:a6ffc05a5f989795e866347fe06b34afb"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -173,9 +170,12 @@ Functions</h2></td></tr>
 <tr class="memitem:a529195d3850a2271d5628c803b5b63a1"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="cio__write__buffer_8h.html#a529195d3850a2271d5628c803b5b63a1">cio_write_buffer_splice</a> (struct <a class="el" href="structcio__write__buffer.html">cio_write_buffer</a> *list, struct <a class="el" href="structcio__write__buffer.html">cio_write_buffer</a> *head)</td></tr>
 <tr class="memdesc:a529195d3850a2271d5628c803b5b63a1"><td class="mdescLeft">&#160;</td><td class="mdescRight">Appends the write buffer elements of <code>list</code> to <code>head</code>.  <a href="#a529195d3850a2271d5628c803b5b63a1">More...</a><br /></td></tr>
 <tr class="separator:a529195d3850a2271d5628c803b5b63a1"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a3dae192cabd6dd5571af50b659c2ea43"><td class="memItemLeft" align="right" valign="top">static size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="cio__write__buffer_8h.html#a3dae192cabd6dd5571af50b659c2ea43">cio_write_buffer_get_length</a> (const struct <a class="el" href="structcio__write__buffer.html">cio_write_buffer</a> *head)</td></tr>
-<tr class="memdesc:a3dae192cabd6dd5571af50b659c2ea43"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get the length of the complete write buffer.  <a href="#a3dae192cabd6dd5571af50b659c2ea43">More...</a><br /></td></tr>
-<tr class="separator:a3dae192cabd6dd5571af50b659c2ea43"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac2b0fb5b54821ef946f78f0dbd5ae3fe"><td class="memItemLeft" align="right" valign="top">static size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="cio__write__buffer_8h.html#ac2b0fb5b54821ef946f78f0dbd5ae3fe">cio_write_buffer_get_total_size</a> (const struct <a class="el" href="structcio__write__buffer.html">cio_write_buffer</a> *head)</td></tr>
+<tr class="memdesc:ac2b0fb5b54821ef946f78f0dbd5ae3fe"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get the total size of data in the write buffer.  <a href="#ac2b0fb5b54821ef946f78f0dbd5ae3fe">More...</a><br /></td></tr>
+<tr class="separator:ac2b0fb5b54821ef946f78f0dbd5ae3fe"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a2e2e811c31ff926729365c89002bed54"><td class="memItemLeft" align="right" valign="top">static size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="cio__write__buffer_8h.html#a2e2e811c31ff926729365c89002bed54">cio_write_buffer_get_num_buffer_elements</a> (const struct <a class="el" href="structcio__write__buffer.html">cio_write_buffer</a> *head)</td></tr>
+<tr class="memdesc:a2e2e811c31ff926729365c89002bed54"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get the number of individual buffer elements queued in this write buffer.  <a href="#a2e2e811c31ff926729365c89002bed54">More...</a><br /></td></tr>
+<tr class="separator:a2e2e811c31ff926729365c89002bed54"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Functions to manage a write buffer. </p>
@@ -282,7 +282,7 @@ Functions</h2></td></tr>
 
 </div>
 </div>
-<a class="anchor" id="a3dae192cabd6dd5571af50b659c2ea43"></a>
+<a class="anchor" id="a2e2e811c31ff926729365c89002bed54"></a>
 <div class="memitem">
 <div class="memproto">
 <table class="mlabels">
@@ -290,7 +290,7 @@ Functions</h2></td></tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">static size_t cio_write_buffer_get_length </td>
+          <td class="memname">static size_t cio_write_buffer_get_num_buffer_elements </td>
           <td>(</td>
           <td class="paramtype">const struct <a class="el" href="structcio__write__buffer.html">cio_write_buffer</a> *&#160;</td>
           <td class="paramname"><em>head</em></td><td>)</td>
@@ -304,17 +304,18 @@ Functions</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p>Get the length of the complete write buffer. </p>
+<p>Get the number of individual buffer elements queued in this write buffer. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">head</td><td>The list from which the length should be gathered. </td></tr>
+    <tr><td class="paramname">head</td><td>The write buffer from which the number of elements should be gathered. </td></tr>
   </table>
   </dd>
 </dl>
+<dl class="section return"><dt>Returns</dt><dd>Returns the number of individual write buffer elements. </dd></dl>
 
 </div>
 </div>
-<a class="anchor" id="a2a0d1790adbb22eea9d5a9a581b0d127"></a>
+<a class="anchor" id="ac2b0fb5b54821ef946f78f0dbd5ae3fe"></a>
 <div class="memitem">
 <div class="memproto">
 <table class="mlabels">
@@ -322,10 +323,10 @@ Functions</h2></td></tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">static size_t cio_write_buffer_get_number_of_elements </td>
+          <td class="memname">static size_t cio_write_buffer_get_total_size </td>
           <td>(</td>
           <td class="paramtype">const struct <a class="el" href="structcio__write__buffer.html">cio_write_buffer</a> *&#160;</td>
-          <td class="paramname"><em>wbh</em></td><td>)</td>
+          <td class="paramname"><em>head</em></td><td>)</td>
           <td></td>
         </tr>
       </table>
@@ -336,14 +337,14 @@ Functions</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p>Provides the number of elements in a write buffer chain. </p>
+<p>Get the total size of data in the write buffer. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">wbh</td><td>The write buffer that is asked. </td></tr>
+    <tr><td class="paramname">head</td><td>The write buffer from which the length should be gathered. </td></tr>
   </table>
   </dd>
 </dl>
-<dl class="section return"><dt>Returns</dt><dd>The number of elements in a write buffer chain. </dd></dl>
+<dl class="section return"><dt>Returns</dt><dd>Returns the total size of data in this buffer. </dd></dl>
 
 </div>
 </div>
