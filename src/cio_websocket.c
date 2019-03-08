@@ -36,6 +36,7 @@
 #include "cio_util.h"
 #include "cio_websocket.h"
 #include "cio_websocket_masking.h"
+#include "cio_write_buffer.h"
 
 #ifndef MIN
 #define MIN(a, b) ((a) < (b) ? (a) : (b))
