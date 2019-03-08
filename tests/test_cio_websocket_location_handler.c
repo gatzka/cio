@@ -293,7 +293,7 @@ static size_t ws_frame_write_pos;
 
 static enum cio_error bs_write_http_response(struct cio_buffered_stream *bs, struct cio_write_buffer *buf, cio_buffered_stream_write_handler handler, void *handler_context)
 {
-	size_t buffer_len = cio_write_buffer_get_number_of_elements(buf);
+	size_t buffer_len = cio_write_buffer_get_num_buffer_elements(buf);
 	const struct cio_write_buffer *data_buf = buf;
 
 	for (unsigned int i = 0; i < buffer_len; i++) {

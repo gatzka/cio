@@ -122,7 +122,7 @@ static enum cio_error ms_read_some(struct cio_io_stream *io_stream, struct cio_r
 static enum cio_error ms_write_some(struct cio_io_stream *io_stream, const struct cio_write_buffer *buf, cio_io_stream_write_handler handler, void *handler_context)
 {
 	struct memory_stream *mem_stream = cio_container_of(io_stream, struct memory_stream, ios);
-	size_t len = buf->data.q_len;
+	size_t len = cio_write_buffer_get_num_buffer_elements(buf);
 	size_t written = 0;
 	for (unsigned int i = 0; i < len; i++) {
 		buf = buf->next;
@@ -441,11 +441,11 @@ static void test_client_send_text_binary_frame(void)
 
 				uint32_t context = 0x1234568;
 				if (frame_types[j] == CIO_WEBSOCKET_TEXT_FRAME) {
-					enum cio_error err = ws->write_message_first_chunk(ws, cio_write_buffer_get_length(&wbh), &wbh, true, false, write_handler, &context);
+					enum cio_error err = ws->write_message_first_chunk(ws, cio_write_buffer_get_total_size(&wbh), &wbh, true, false, write_handler, &context);
 					TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Writing a text frame did not succeed!");
 					TEST_ASSERT_MESSAGE(check_frame(CIO_WEBSOCKET_TEXT_FRAME, check_data, frame_size, true), "First frame send is incorrect text frame!");
 				} else if (frame_types[j] == CIO_WEBSOCKET_BINARY_FRAME) {
-					enum cio_error err = ws->write_message_first_chunk(ws, cio_write_buffer_get_length(&wbh), &wbh, true, true, write_handler, &context);
+					enum cio_error err = ws->write_message_first_chunk(ws, cio_write_buffer_get_total_size(&wbh), &wbh, true, true, write_handler, &context);
 					TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Writing a binary frame did not succeed!");
 					TEST_ASSERT_MESSAGE(check_frame(CIO_WEBSOCKET_BINARY_FRAME, check_data, frame_size, true), "First frame send is incorrect binary frame!");
 				}
@@ -463,7 +463,7 @@ static void test_client_send_text_binary_frame(void)
 				TEST_ASSERT_EQUAL_PTR_MESSAGE(&context, write_handler_fake.arg1_val, "context pointer in write handler not correct!");
 				TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, write_handler_fake.arg2_val, "error code in write handler not correct!");
 
-				TEST_ASSERT_EQUAL_MESSAGE(1, wbh.data.q_len, "Length of write buffer different than before writing!");
+				TEST_ASSERT_EQUAL_MESSAGE(1, cio_write_buffer_get_num_buffer_elements(&wbh), "Length of write buffer different than before writing!");
 				TEST_ASSERT_EQUAL_MESSAGE(&wbh, wbh.next->next, "Concatenation of write buffers no longer correct after writing!");
 				if (frame_size > 0) {
 					TEST_ASSERT_EQUAL_MEMORY_MESSAGE(data, wbh.next->data.element.data, frame_size, "Content of writebuffer not correct after writing!");

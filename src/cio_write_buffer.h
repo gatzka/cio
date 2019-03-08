@@ -67,7 +67,10 @@ struct cio_write_buffer {
 			size_t length;
 		} element;
 
-		size_t q_len;
+		struct {
+			size_t q_len;
+			size_t total_length;
+		} head;
 	} data;
 };
 
@@ -86,7 +89,8 @@ static inline void cio_write_buffer_insert(struct cio_write_buffer *wbh,
 	new_wb->next = next_wb;
 	new_wb->prev = prev_wb;
 	next_wb->prev = prev_wb->next = new_wb;
-	wbh->data.q_len++;
+	wbh->data.head.q_len++;
+	wbh->data.head.total_length += new_wb->data.element.length;
 }
 /**
  * @brief Queue a new write buffer element before a write buffer element in a write buffer chain.
@@ -188,7 +192,8 @@ static inline void cio_write_buffer_unlink(struct cio_write_buffer *wbh, struct 
 	struct cio_write_buffer *next;
 	struct cio_write_buffer *prev;
 
-	wbh->data.q_len--;
+	wbh->data.head.q_len--;
+	wbh->data.head.total_length -= wbe->data.element.length;
 	next = wbe->next;
 	prev = wbe->prev;
 	next->prev = prev;
@@ -211,16 +216,6 @@ static inline struct cio_write_buffer *cio_write_buffer_queue_dequeue(struct cio
 }
 
 /**
- * @brief Provides the number of elements in a write buffer chain.
- * @param wbh The write buffer that is asked.
- * @return The number of elements in a write buffer chain.
- */
-static inline size_t cio_write_buffer_get_number_of_elements(const struct cio_write_buffer *wbh)
-{
-	return wbh->data.q_len;
-}
-
-/**
  * @brief Initializes a write buffer head.
  * @param wbh The write buffer head to be initialized.
  */
@@ -228,7 +223,8 @@ static inline void cio_write_buffer_head_init(struct cio_write_buffer *wbh)
 {
 	wbh->prev = wbh;
 	wbh->next = wbh;
-	wbh->data.q_len = 0;
+	wbh->data.head.q_len = 0;
+	wbh->data.head.total_length = 0;
 }
 
 /**
@@ -272,26 +268,31 @@ static inline void cio_write_buffer_splice(struct cio_write_buffer *list, struct
 		new_last->next = head;
 		head->prev = new_last;
 
-		head->data.q_len += list->data.q_len;
+		head->data.head.q_len += list->data.head.q_len;
+		head->data.head.total_length += list->data.head.total_length;
 
 		cio_write_buffer_head_init(list);
 	}
 }
 
 /**
- * @brief Get the length of the complete write buffer.
- * @param head The list from which the length should be gathered.
+ * @brief Get the total size of data in the write buffer.
+ * @param head The write buffer from which the length should be gathered.
+ * @return Returns the total size of data in this buffer.
  */
-static inline size_t cio_write_buffer_get_length(const struct cio_write_buffer *head)
+static inline size_t cio_write_buffer_get_total_size(const struct cio_write_buffer *head)
 {
-	size_t length = 0;
-	size_t q_len = head->data.q_len;
-	for (size_t i = 0; i < q_len; i++) {
-		head = head->next;
-		length += head->data.element.length;
-	}
+	return head->data.head.total_length;
+}
 
-	return length;
+/**
+ * @brief Get the number of individual buffer elements queued in this write buffer.
+ * @param head The write buffer from which the number of elements should be gathered.
+ * @return Returns the number of individual write buffer elements.
+ */
+static inline size_t cio_write_buffer_get_num_buffer_elements(const struct cio_write_buffer *head)
+{
+	return head->data.head.q_len;
 }
 
 #ifdef __cplusplus

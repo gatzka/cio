@@ -193,7 +193,7 @@ static enum cio_error stream_write(struct cio_io_stream *stream, const struct ci
 	s->stream.write_handler_context = handler_context;
 	s->stream.write_buffer = buffer;
 
-	size_t chain_length = cio_write_buffer_get_number_of_elements(buffer);
+	size_t chain_length = cio_write_buffer_get_num_buffer_elements(buffer);
 
 	WSABUF *wsa_buffers = alloca(sizeof(*wsa_buffers) * chain_length);
 	struct cio_write_buffer *wb = buffer->next;

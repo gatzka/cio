@@ -92,7 +92,7 @@ static void read_handler(struct cio_websocket *ws, void *handler_context, enum c
 				cio_write_buffer_head_init(&ah->wbh);
 				cio_write_buffer_const_element_init(&ah->wb_message, ah->echo_buffer, frame_length);
 				cio_write_buffer_queue_tail(&ah->wbh, &ah->wb_message);
-				ws->write_message_first_chunk(ws, cio_write_buffer_get_length(&ah->wbh), &ah->wbh, last_frame, is_binary, write_complete, NULL);
+				ws->write_message_first_chunk(ws, cio_write_buffer_get_total_size(&ah->wbh), &ah->wbh, last_frame, is_binary, write_complete, NULL);
 			} else {
 				err = ws->read_message(ws, read_handler, NULL);
 			}
