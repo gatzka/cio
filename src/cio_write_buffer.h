@@ -69,6 +69,7 @@ struct cio_write_buffer {
 
 		struct {
 			size_t q_len;
+			size_t total_length;
 		} head;
 	} data;
 };
@@ -89,6 +90,7 @@ static inline void cio_write_buffer_insert(struct cio_write_buffer *wbh,
 	new_wb->prev = prev_wb;
 	next_wb->prev = prev_wb->next = new_wb;
 	wbh->data.head.q_len++;
+	wbh->data.head.total_length += new_wb->data.element.length;
 }
 /**
  * @brief Queue a new write buffer element before a write buffer element in a write buffer chain.
@@ -191,6 +193,7 @@ static inline void cio_write_buffer_unlink(struct cio_write_buffer *wbh, struct 
 	struct cio_write_buffer *prev;
 
 	wbh->data.head.q_len--;
+	wbh->data.head.total_length -= wbe->data.element.length;
 	next = wbe->next;
 	prev = wbe->prev;
 	next->prev = prev;
@@ -221,6 +224,7 @@ static inline void cio_write_buffer_head_init(struct cio_write_buffer *wbh)
 	wbh->prev = wbh;
 	wbh->next = wbh;
 	wbh->data.head.q_len = 0;
+	wbh->data.head.total_length = 0;
 }
 
 /**
@@ -265,6 +269,7 @@ static inline void cio_write_buffer_splice(struct cio_write_buffer *list, struct
 		head->prev = new_last;
 
 		head->data.head.q_len += list->data.head.q_len;
+		head->data.head.total_length += list->data.head.total_length;
 
 		cio_write_buffer_head_init(list);
 	}
@@ -277,14 +282,7 @@ static inline void cio_write_buffer_splice(struct cio_write_buffer *list, struct
  */
 static inline size_t cio_write_buffer_get_total_size(const struct cio_write_buffer *head)
 {
-	size_t length = 0;
-	size_t q_len = head->data.head.q_len;
-	for (size_t i = 0; i < q_len; i++) {
-		head = head->next;
-		length += head->data.element.length;
-	}
-
-	return length;
+	return head->data.head.total_length;
 }
 
 /**
