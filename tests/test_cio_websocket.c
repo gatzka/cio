@@ -1486,6 +1486,9 @@ static void test_send_text_binary_frame(void)
 
 				if (data) {
 					free(data);
+				}
+
+				if (check_data) {
 					free(check_data);
 				}
 
