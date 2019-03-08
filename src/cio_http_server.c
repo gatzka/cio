@@ -248,7 +248,7 @@ static enum cio_error write_response(struct cio_http_client *client, enum cio_ht
 	client->http_private.response_fired = true;
 	size_t content_length;
 	if (wbh_body) {
-		content_length = cio_write_buffer_get_length(wbh_body);
+		content_length = cio_write_buffer_get_total_size(wbh_body);
 	} else {
 		content_length = 0;
 	}

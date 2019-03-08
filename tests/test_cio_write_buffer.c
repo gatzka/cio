@@ -68,41 +68,41 @@ static void test_cio_write_buffer_queue_tail(void)
 {
 	struct cio_write_buffer wbh;
 	cio_write_buffer_head_init(&wbh);
-	size_t num_elements = cio_write_buffer_get_number_of_elements(&wbh);
+	size_t num_elements = cio_write_buffer_get_num_buffer_elements(&wbh);
 	TEST_ASSERT_EQUAL_MESSAGE(0, num_elements, "Number of elements in write buffer not '0' after initialization of write buffer head!");
-	TEST_ASSERT_EQUAL_MESSAGE(0, cio_write_buffer_get_length(&wbh), "Write buffer total length not correct!");
+	TEST_ASSERT_EQUAL_MESSAGE(0, cio_write_buffer_get_total_size(&wbh), "Write buffer total length not correct!");
 
 	unsigned int data1 = 0x12;
 	struct cio_write_buffer wb1;
 	cio_write_buffer_element_init(&wb1, &data1, sizeof(data1));
 	cio_write_buffer_queue_tail(&wbh, &wb1);
-	num_elements = cio_write_buffer_get_number_of_elements(&wbh);
+	num_elements = cio_write_buffer_get_num_buffer_elements(&wbh);
 	TEST_ASSERT_EQUAL_MESSAGE(1, num_elements, "Number of elements in write buffer not '1' after inserting first element!");
-	TEST_ASSERT_EQUAL_MESSAGE(sizeof(data1), cio_write_buffer_get_length(&wbh), "Write buffer total length not correct!");
+	TEST_ASSERT_EQUAL_MESSAGE(sizeof(data1), cio_write_buffer_get_total_size(&wbh), "Write buffer total length not correct!");
 
 	const char data2[] = "Hello World!";
 	struct cio_write_buffer wb2;
 	cio_write_buffer_const_element_init(&wb2, data2, sizeof(data2));
 	cio_write_buffer_queue_tail(&wbh, &wb2);
-	num_elements = cio_write_buffer_get_number_of_elements(&wbh);
+	num_elements = cio_write_buffer_get_num_buffer_elements(&wbh);
 	TEST_ASSERT_EQUAL_MESSAGE(2, num_elements, "Number of elements in write buffer not '2' after inserting second element!");
-	TEST_ASSERT_EQUAL_MESSAGE(sizeof(data1) + sizeof(data2), cio_write_buffer_get_length(&wbh), "Write buffer total length not correct!");
+	TEST_ASSERT_EQUAL_MESSAGE(sizeof(data1) + sizeof(data2), cio_write_buffer_get_total_size(&wbh), "Write buffer total length not correct!");
 
 	struct cio_write_buffer *dequeued_wb = cio_write_buffer_queue_dequeue(&wbh);
 	TEST_ASSERT_EQUAL_MESSAGE(&wb1, dequeued_wb, "First dequeued write buffer is not the write buffer inserted first!");
-	num_elements = cio_write_buffer_get_number_of_elements(&wbh);
+	num_elements = cio_write_buffer_get_num_buffer_elements(&wbh);
 	TEST_ASSERT_EQUAL_MESSAGE(1, num_elements, "Number of elements in write buffer not '1' after dequeueing first element!");
-	TEST_ASSERT_EQUAL_MESSAGE(sizeof(data2), cio_write_buffer_get_length(&wbh), "Write buffer total length not correct!");
+	TEST_ASSERT_EQUAL_MESSAGE(sizeof(data2), cio_write_buffer_get_total_size(&wbh), "Write buffer total length not correct!");
 
 	dequeued_wb = cio_write_buffer_queue_dequeue(&wbh);
 	TEST_ASSERT_EQUAL_MESSAGE(&wb2, dequeued_wb, "First dequeued write buffer is not the write buffer inserted secondly!");
-	num_elements = cio_write_buffer_get_number_of_elements(&wbh);
+	num_elements = cio_write_buffer_get_num_buffer_elements(&wbh);
 	TEST_ASSERT_EQUAL_MESSAGE(0, num_elements, "Number of elements in write buffer not '0' after dequeueing second element!");
-	TEST_ASSERT_EQUAL_MESSAGE(0, cio_write_buffer_get_length(&wbh), "Write buffer total length not correct!");
+	TEST_ASSERT_EQUAL_MESSAGE(0, cio_write_buffer_get_total_size(&wbh), "Write buffer total length not correct!");
 
 	dequeued_wb = cio_write_buffer_queue_dequeue(&wbh);
 	TEST_ASSERT_EQUAL_MESSAGE(NULL, dequeued_wb, "Return value of cio_write_buffer_queue_dequeue not NULL when called on an empty write buffer!");
-	num_elements = cio_write_buffer_get_number_of_elements(&wbh);
+	num_elements = cio_write_buffer_get_num_buffer_elements(&wbh);
 	TEST_ASSERT_EQUAL_MESSAGE(0, num_elements, "Number of elements in write buffer not '0' after dequeueing from an empty write buffer!");
 }
 
@@ -110,77 +110,77 @@ static void test_cio_write_buffer_queue_head(void)
 {
 	struct cio_write_buffer wbh;
 	cio_write_buffer_head_init(&wbh);
-	size_t num_elements = cio_write_buffer_get_number_of_elements(&wbh);
+	size_t num_elements = cio_write_buffer_get_num_buffer_elements(&wbh);
 	TEST_ASSERT_EQUAL_MESSAGE(0, num_elements, "Number of elements in write buffer not '0' after initialization of write buffer head!");
-	TEST_ASSERT_EQUAL_MESSAGE(0, cio_write_buffer_get_length(&wbh), "Write buffer total length not correct!");
+	TEST_ASSERT_EQUAL_MESSAGE(0, cio_write_buffer_get_total_size(&wbh), "Write buffer total length not correct!");
 
 	unsigned int data1 = 0x12;
 	struct cio_write_buffer wb1;
 	cio_write_buffer_element_init(&wb1, &data1, sizeof(data1));
 	cio_write_buffer_queue_head(&wbh, &wb1);
-	num_elements = cio_write_buffer_get_number_of_elements(&wbh);
+	num_elements = cio_write_buffer_get_num_buffer_elements(&wbh);
 	TEST_ASSERT_EQUAL_MESSAGE(1, num_elements, "Number of elements in write buffer not '1' after inserting first element!");
-	TEST_ASSERT_EQUAL_MESSAGE(sizeof(data1), cio_write_buffer_get_length(&wbh), "Write buffer total length not correct!");
+	TEST_ASSERT_EQUAL_MESSAGE(sizeof(data1), cio_write_buffer_get_total_size(&wbh), "Write buffer total length not correct!");
 
 	const char data2[] = "Hello World!";
 	struct cio_write_buffer wb2;
 	cio_write_buffer_const_element_init(&wb2, data2, sizeof(data2));
 	cio_write_buffer_queue_head(&wbh, &wb2);
-	num_elements = cio_write_buffer_get_number_of_elements(&wbh);
+	num_elements = cio_write_buffer_get_num_buffer_elements(&wbh);
 	TEST_ASSERT_EQUAL_MESSAGE(2, num_elements, "Number of elements in write buffer not '2' after inserting second element!");
-	TEST_ASSERT_EQUAL_MESSAGE(sizeof(data1) + sizeof(data2), cio_write_buffer_get_length(&wbh), "Write buffer total length not correct!");
+	TEST_ASSERT_EQUAL_MESSAGE(sizeof(data1) + sizeof(data2), cio_write_buffer_get_total_size(&wbh), "Write buffer total length not correct!");
 
 	struct cio_write_buffer *dequeued_wb = cio_write_buffer_queue_dequeue(&wbh);
 	TEST_ASSERT_EQUAL_MESSAGE(&wb2, dequeued_wb, "First dequeued write buffer is not the write buffer inserted secondly!");
-	num_elements = cio_write_buffer_get_number_of_elements(&wbh);
+	num_elements = cio_write_buffer_get_num_buffer_elements(&wbh);
 	TEST_ASSERT_EQUAL_MESSAGE(1, num_elements, "Number of elements in write buffer not '1' after dequeueing first element!");
-	TEST_ASSERT_EQUAL_MESSAGE(sizeof(data1), cio_write_buffer_get_length(&wbh), "Write buffer total length not correct!");
+	TEST_ASSERT_EQUAL_MESSAGE(sizeof(data1), cio_write_buffer_get_total_size(&wbh), "Write buffer total length not correct!");
 
 	dequeued_wb = cio_write_buffer_queue_dequeue(&wbh);
 	TEST_ASSERT_EQUAL_MESSAGE(&wb1, dequeued_wb, "First dequeued write buffer is not the write buffer inserted first!");
-	num_elements = cio_write_buffer_get_number_of_elements(&wbh);
+	num_elements = cio_write_buffer_get_num_buffer_elements(&wbh);
 	TEST_ASSERT_EQUAL_MESSAGE(0, num_elements, "Number of elements in write buffer not '0' after dequeueing second element!");
-	TEST_ASSERT_EQUAL_MESSAGE(0, cio_write_buffer_get_length(&wbh), "Write buffer total length not correct!");
+	TEST_ASSERT_EQUAL_MESSAGE(0, cio_write_buffer_get_total_size(&wbh), "Write buffer total length not correct!");
 
 	dequeued_wb = cio_write_buffer_queue_dequeue(&wbh);
 	TEST_ASSERT_EQUAL_MESSAGE(NULL, dequeued_wb, "Return value of cio_write_buffer_queue_dequeue not NULL when called on an empty write buffer!");
-	num_elements = cio_write_buffer_get_number_of_elements(&wbh);
+	num_elements = cio_write_buffer_get_num_buffer_elements(&wbh);
 	TEST_ASSERT_EQUAL_MESSAGE(0, num_elements, "Number of elements in write buffer not '0' after dequeueing from an empty write buffer!");
-	TEST_ASSERT_EQUAL_MESSAGE(0, cio_write_buffer_get_length(&wbh), "Write buffer total length not correct!");
+	TEST_ASSERT_EQUAL_MESSAGE(0, cio_write_buffer_get_total_size(&wbh), "Write buffer total length not correct!");
 }
 
 static void test_cio_write_buffer_peek_and_last(void)
 {
 	struct cio_write_buffer wbh;
 	cio_write_buffer_head_init(&wbh);
-	size_t num_elements = cio_write_buffer_get_number_of_elements(&wbh);
+	size_t num_elements = cio_write_buffer_get_num_buffer_elements(&wbh);
 	TEST_ASSERT_EQUAL_MESSAGE(0, num_elements, "Number of elements in write buffer not '0' after initialization of write buffer head!");
 
 	unsigned int data1 = 0x12;
 	struct cio_write_buffer wb1;
 	cio_write_buffer_element_init(&wb1, &data1, sizeof(data1));
 	cio_write_buffer_queue_tail(&wbh, &wb1);
-	num_elements = cio_write_buffer_get_number_of_elements(&wbh);
+	num_elements = cio_write_buffer_get_num_buffer_elements(&wbh);
 	TEST_ASSERT_EQUAL_MESSAGE(1, num_elements, "Number of elements in write buffer not '1' after inserting first element!");
 
 	const char data2[] = "Hello World!";
 	struct cio_write_buffer wb2;
 	cio_write_buffer_const_element_init(&wb2, data2, sizeof(data2));
 	cio_write_buffer_queue_tail(&wbh, &wb2);
-	num_elements = cio_write_buffer_get_number_of_elements(&wbh);
+	num_elements = cio_write_buffer_get_num_buffer_elements(&wbh);
 	TEST_ASSERT_EQUAL_MESSAGE(2, num_elements, "Number of elements in write buffer not '2' after inserting second element!");
 
 	struct cio_write_buffer *peek = cio_write_buffer_queue_peek(&wbh);
 	TEST_ASSERT_EQUAL_MESSAGE(&wb1, peek, "Peek() gave not the write buffer inserted first!");
-	num_elements = cio_write_buffer_get_number_of_elements(&wbh);
+	num_elements = cio_write_buffer_get_num_buffer_elements(&wbh);
 	TEST_ASSERT_EQUAL_MESSAGE(2, num_elements, "Number of elements changed after peek()!");
-	TEST_ASSERT_EQUAL_MESSAGE(sizeof(data1) + sizeof(data2), cio_write_buffer_get_length(&wbh), "Write buffer total length not correct!");
+	TEST_ASSERT_EQUAL_MESSAGE(sizeof(data1) + sizeof(data2), cio_write_buffer_get_total_size(&wbh), "Write buffer total length not correct!");
 
 	struct cio_write_buffer *last = cio_write_buffer_queue_last(&wbh);
 	TEST_ASSERT_EQUAL_MESSAGE(&wb2, last, "Last() gave not the write buffer inserted last!");
-	num_elements = cio_write_buffer_get_number_of_elements(&wbh);
+	num_elements = cio_write_buffer_get_num_buffer_elements(&wbh);
 	TEST_ASSERT_EQUAL_MESSAGE(2, num_elements, "Number of elements changed after last()!");
-	TEST_ASSERT_EQUAL_MESSAGE(sizeof(data1) + sizeof(data2), cio_write_buffer_get_length(&wbh), "Write buffer total length not correct!");
+	TEST_ASSERT_EQUAL_MESSAGE(sizeof(data1) + sizeof(data2), cio_write_buffer_get_total_size(&wbh), "Write buffer total length not correct!");
 }
 
 static void test_cio_write_buffer_peek_from_empty_queue(void)
@@ -215,9 +215,9 @@ static void test_cio_write_buffer_splice(void)
 	struct cio_write_buffer wb2_one;
 	cio_write_buffer_const_element_init(&wb2_one, data2, sizeof(data2));
 	cio_write_buffer_queue_tail(&wbh_one, &wb2_one);
-	size_t num_elements = cio_write_buffer_get_number_of_elements(&wbh_one);
+	size_t num_elements = cio_write_buffer_get_num_buffer_elements(&wbh_one);
 	TEST_ASSERT_EQUAL_MESSAGE(2, num_elements, "Number of elements in write buffer not '2' after inserting second element!");
-	TEST_ASSERT_EQUAL_MESSAGE(sizeof(data1) + sizeof(data2), cio_write_buffer_get_length(&wbh_one), "Write buffer total length not correct!");
+	TEST_ASSERT_EQUAL_MESSAGE(sizeof(data1) + sizeof(data2), cio_write_buffer_get_total_size(&wbh_one), "Write buffer total length not correct!");
 
 	struct cio_write_buffer wbh_two;
 	cio_write_buffer_head_init(&wbh_two);
@@ -229,18 +229,18 @@ static void test_cio_write_buffer_splice(void)
 	struct cio_write_buffer wb2_two;
 	cio_write_buffer_const_element_init(&wb2_two, data2, sizeof(data2));
 	cio_write_buffer_queue_tail(&wbh_two, &wb2_two);
-	num_elements = cio_write_buffer_get_number_of_elements(&wbh_two);
+	num_elements = cio_write_buffer_get_num_buffer_elements(&wbh_two);
 	TEST_ASSERT_EQUAL_MESSAGE(2, num_elements, "Number of elements in write buffer not '2' after inserting second element!");
-	TEST_ASSERT_EQUAL_MESSAGE(sizeof(data1) + sizeof(data2), cio_write_buffer_get_length(&wbh_two), "Write buffer total length not correct!");
+	TEST_ASSERT_EQUAL_MESSAGE(sizeof(data1) + sizeof(data2), cio_write_buffer_get_total_size(&wbh_two), "Write buffer total length not correct!");
 
 	cio_write_buffer_splice(&wbh_two, &wbh_one);
-	num_elements = cio_write_buffer_get_number_of_elements(&wbh_two);
+	num_elements = cio_write_buffer_get_num_buffer_elements(&wbh_two);
 	TEST_ASSERT_EQUAL_MESSAGE(0, num_elements, "Number of elements in write buffer two not '0' after splicing to another list!");
 	TEST_ASSERT_TRUE_MESSAGE(cio_write_buffer_queue_empty(&wbh_two), "Write buffer not empty after splicing!");
-	num_elements = cio_write_buffer_get_number_of_elements(&wbh_one);
+	num_elements = cio_write_buffer_get_num_buffer_elements(&wbh_one);
 	TEST_ASSERT_EQUAL_MESSAGE(4, num_elements, "Number of elements in write buffer two not '4' after splicing from another list!");
-	TEST_ASSERT_EQUAL_MESSAGE(sizeof(data1) + sizeof(data2) + sizeof(data1) + sizeof(data2), cio_write_buffer_get_length(&wbh_one), "Write buffer total length not correct!");
-	TEST_ASSERT_EQUAL_MESSAGE(0, cio_write_buffer_get_length(&wbh_two), "Write buffer total length not correct!");
+	TEST_ASSERT_EQUAL_MESSAGE(sizeof(data1) + sizeof(data2) + sizeof(data1) + sizeof(data2), cio_write_buffer_get_total_size(&wbh_one), "Write buffer total length not correct!");
+	TEST_ASSERT_EQUAL_MESSAGE(0, cio_write_buffer_get_total_size(&wbh_two), "Write buffer total length not correct!");
 
 	struct cio_write_buffer *dequeued_wb = cio_write_buffer_queue_dequeue(&wbh_one);
 	TEST_ASSERT_EQUAL_MESSAGE(&wb1_one, dequeued_wb, "First dequeued write buffer is not correct after splicing!");
@@ -260,12 +260,12 @@ static void test_cio_write_buffer_splice_empty_list(void)
 	struct cio_write_buffer wb;
 	cio_write_buffer_element_init(&wb, NULL, 0);
 	cio_write_buffer_queue_tail(&wbh, &wb);
-	TEST_ASSERT_EQUAL_MESSAGE(1, cio_write_buffer_get_number_of_elements(&wbh), "Number of elements in write buffer not correct!");
+	TEST_ASSERT_EQUAL_MESSAGE(1, cio_write_buffer_get_num_buffer_elements(&wbh), "Number of elements in write buffer not correct!");
 
 	struct cio_write_buffer list_to_append;
 	cio_write_buffer_head_init(&list_to_append);
 	cio_write_buffer_splice(&list_to_append, &wbh);
-	TEST_ASSERT_EQUAL_MESSAGE(1, cio_write_buffer_get_number_of_elements(&wbh), "Number of elements in write buffer not correct!");
+	TEST_ASSERT_EQUAL_MESSAGE(1, cio_write_buffer_get_num_buffer_elements(&wbh), "Number of elements in write buffer not correct!");
 }
 
 int main(void)

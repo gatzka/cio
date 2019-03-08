@@ -156,7 +156,7 @@ static enum cio_error stream_write(struct cio_io_stream *stream, const struct ci
 	}
 
 	struct cio_socket *s = cio_container_of(stream, struct cio_socket, stream);
-	size_t chain_length = cio_write_buffer_get_number_of_elements(buffer);
+	size_t chain_length = cio_write_buffer_get_num_buffer_elements(buffer);
 	struct iovec msg_iov[chain_length];
 	struct msghdr msg;
 	msg.msg_name = NULL;

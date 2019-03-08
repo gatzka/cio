@@ -515,7 +515,7 @@ static enum cio_error write_all(struct cio_io_stream *ios, const struct cio_writ
 	struct memory_stream *memory_stream = cio_container_of(ios, struct memory_stream, ios);
 
 	size_t bytes_transferred = 0;
-	size_t buffer_len = cio_write_buffer_get_number_of_elements(buf);
+	size_t buffer_len = cio_write_buffer_get_num_buffer_elements(buf);
 	const struct cio_write_buffer *data_buf = buf;
 
 	for (unsigned int i = 0; i < buffer_len; i++) {

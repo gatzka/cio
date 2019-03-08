@@ -152,7 +152,7 @@ static enum cio_error write_some_all(struct cio_io_stream *io_stream, const stru
 	struct cio_write_buffer *wb = buf->next;
 	size_t total_length = 0;
 
-	for (size_t i = 0; i < cio_write_buffer_get_number_of_elements(buf); i++) {
+	for (size_t i = 0; i < cio_write_buffer_get_num_buffer_elements(buf); i++) {
 		if (wb->data.element.length > 0) {
 			memcpy(&write_check_buffer[write_check_buffer_pos], wb->data.element.const_data, wb->data.element.length);
 		}
@@ -171,7 +171,7 @@ static enum cio_error write_some_first_write_partial_second_error(struct cio_io_
 {
 	if (write_some_fake.call_count == 1) {
 		struct cio_write_buffer *wb = buf->next;
-		if (cio_write_buffer_get_number_of_elements(buf) >= 1) {
+		if (cio_write_buffer_get_num_buffer_elements(buf) >= 1) {
 			memcpy(&write_check_buffer[write_check_buffer_pos], wb->data.element.const_data, wb->data.element.length / 2);
 			write_check_buffer_pos += wb->data.element.length / 2;
 		}
@@ -190,7 +190,7 @@ static enum cio_error write_some_first_write_partial_second_error_sync(struct ci
 {
 	if (write_some_fake.call_count == 1) {
 		struct cio_write_buffer *wb = buf->next;
-		if (cio_write_buffer_get_number_of_elements(buf) >= 1) {
+		if (cio_write_buffer_get_num_buffer_elements(buf) >= 1) {
 			memcpy(&write_check_buffer[write_check_buffer_pos], wb->data.element.const_data, wb->data.element.length / 2);
 			write_check_buffer_pos += wb->data.element.length / 2;
 		}
@@ -225,7 +225,7 @@ static enum cio_error write_some_double_write_partial(struct cio_io_stream *io_s
 {
 	if (write_some_fake.call_count <= 2) {
 		struct cio_write_buffer *wb = buf->next;
-		if (cio_write_buffer_get_number_of_elements(buf) >= 1) {
+		if (cio_write_buffer_get_num_buffer_elements(buf) >= 1) {
 			memcpy(&write_check_buffer[write_check_buffer_pos], wb->data.element.const_data, wb->data.element.length / 2);
 			write_check_buffer_pos += wb->data.element.length / 2;
 		}
@@ -242,7 +242,7 @@ static enum cio_error write_some_first_write_partial_at_buffer_boundary(struct c
 {
 	if (write_some_fake.call_count == 1) {
 		struct cio_write_buffer *wb = buf->next;
-		if (cio_write_buffer_get_number_of_elements(buf) >= 1) {
+		if (cio_write_buffer_get_num_buffer_elements(buf) >= 1) {
 			memcpy(&write_check_buffer[write_check_buffer_pos], wb->data.element.const_data, wb->data.element.length);
 			write_check_buffer_pos += wb->data.element.length;
 		}
@@ -361,7 +361,7 @@ static enum cio_error write_some_first_write_partial(struct cio_io_stream *io_st
 {
 	if (write_some_fake.call_count == 1) {
 		struct cio_write_buffer *wb = buf->next;
-		if (cio_write_buffer_get_number_of_elements(buf) >= 1) {
+		if (cio_write_buffer_get_num_buffer_elements(buf) >= 1) {
 			memcpy(&write_check_buffer[write_check_buffer_pos], wb->data.element.const_data, wb->data.element.length / 2);
 			write_check_buffer_pos += wb->data.element.length / 2;
 		}
