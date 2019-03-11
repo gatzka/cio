@@ -26,12 +26,12 @@
 
 #define _DEFAULT_SOURCE
 
-#include <bsd/stdlib.h>
+#include <sys/random.h>
 #include <stddef.h>
 
 #include "cio_random.h"
 
 void cio_random_get_bytes(void *bytes, size_t num_bytes)
 {
-	arc4random_buf(bytes, num_bytes);
+	getentropy(bytes, num_bytes);
 }
