@@ -3,6 +3,7 @@
 
 #include <stddef.h>
 #include <stdint.h>
+#include <string.h>
 
 #include "cio_utf8_checker.h"
 
@@ -419,10 +420,11 @@ uint8_t cio_check_utf8(struct cio_utf8_state *state, const uint8_t *s, size_t co
 	}
 
 	while (main_length-- > 0) {
-		uint_fast32_t buffer = *s_aligned;
+		uint8_t buffer[sizeof(uint_fast32_t)];
+		memcpy(buffer, s_aligned, sizeof(buffer));
 		s_aligned++;
 		for (uint_fast8_t i = 0; i < (uint_fast8_t)sizeof(buffer); i++) {
-			uint8_t character = (buffer >> (i * 8U)) & 0xffU; // NOLINT
+			uint8_t character = buffer[i];
 			if (decode(&state->state, &state->codepoint, character) == CIO_UTF8_REJECT) {
 				return CIO_UTF8_REJECT;
 			}
