@@ -652,8 +652,8 @@ static void get_length16(struct cio_buffered_stream *bs, void *handler_context, 
 	memcpy(&field, ptr, num_bytes);
 	cio_read_buffer_consume(buffer, num_bytes);
 	field = cio_be16toh(field);
-	ws->ws_private.remaining_read_frame_length = (uint64_t)field;
-	ws->ws_private.read_frame_length = (uint64_t)field;
+	ws->ws_private.remaining_read_frame_length = (size_t)field;
+	ws->ws_private.read_frame_length = (size_t)field;
 	get_mask_or_payload(ws, bs, buffer);
 }
 
@@ -670,8 +670,14 @@ static void get_length64(struct cio_buffered_stream *bs, void *handler_context, 
 	memcpy(&field, ptr, num_bytes);
 	cio_read_buffer_consume(buffer, num_bytes);
 	field = cio_be64toh(field);
-	ws->ws_private.remaining_read_frame_length = field;
-	ws->ws_private.read_frame_length = field;
+
+	if (cio_unlikely(field > SIZE_MAX)) {
+		handle_error(ws, CIO_MESSAGE_TOO_LONG, CIO_WEBSOCKET_CLOSE_TOO_LARGE, "websocket frame to large to process!");
+		return;
+	}
+
+	ws->ws_private.remaining_read_frame_length = (size_t)field;
+	ws->ws_private.read_frame_length = (size_t)field;
 	get_mask_or_payload(ws, bs, buffer);
 }
 
@@ -695,8 +701,8 @@ static void get_first_length(struct cio_buffered_stream *bs, void *handler_conte
 
 	field = field & (uint8_t)(~WS_MASK_SET);
 	if (field <= CIO_WEBSOCKET_SMALL_FRAME_SIZE) {
-		ws->ws_private.remaining_read_frame_length = (uint64_t)field;
-		ws->ws_private.read_frame_length = (uint64_t)field;
+		ws->ws_private.remaining_read_frame_length = (size_t)field;
+		ws->ws_private.read_frame_length = (size_t)field;
 		get_mask_or_payload(ws, bs, buffer);
 	} else {
 		if (cio_unlikely(is_control_frame(ws->ws_private.ws_flags.opcode))) {
