@@ -371,7 +371,7 @@ static int on_headers_complete(http_parser *parser)
 
 	if (client->content_length > 0) {
 		client->http_private.finish_func = finish_bytes;
-		client->http_private.remaining_content_length = parser->content_length;
+		client->http_private.remaining_content_length = (size_t)parser->content_length;
 	}
 
 	return 0;
@@ -554,8 +554,7 @@ static void parse(struct cio_buffered_stream *bs, void *handler_context, enum ci
 	}
 
 	if (err == CIO_EOF) {
-		close_client(client);
-		return;
+		bytes_to_parse = 0;
 	}
 
 	if (client->http_private.remaining_content_length > 0) {
@@ -569,6 +568,11 @@ static void parse(struct cio_buffered_stream *bs, void *handler_context, enum ci
 	size_t nparsed = http_parser_execute(parser, &client->parser_settings, (const char *)cio_read_buffer_get_read_ptr(read_buffer), bytes_to_parse);
 	cio_read_buffer_consume(read_buffer, nparsed);
 	client->http_private.parsing--;
+
+	if (err == CIO_EOF) {
+		close_client(client);
+		return;
+	}
 
 	if (cio_unlikely(nparsed != bytes_to_parse)) {
 		err = write_response(client, CIO_HTTP_STATUS_BAD_REQUEST, NULL, NULL);
