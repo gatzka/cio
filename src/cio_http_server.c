@@ -25,6 +25,7 @@
  */
 
 #include <inttypes.h>
+#include <limits.h>
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
@@ -347,7 +348,12 @@ static int on_headers_complete(http_parser *parser)
 		mark_to_be_closed(client);
 	}
 
-	client->content_length = parser->content_length;
+	if ((parser->content_length > SIZE_MAX) && (parser->content_length != ULLONG_MAX)) {
+		handle_server_error(client, "Content-Length is too large to handle!");
+		return 0;
+	}
+
+	client->content_length = (size_t)parser->content_length;
 
 	enum cio_error err = client->http_private.request_timer.cancel(&client->http_private.request_timer);
 	if (cio_unlikely(err != CIO_SUCCESS)) {
@@ -371,7 +377,7 @@ static int on_headers_complete(http_parser *parser)
 
 	if (client->content_length > 0) {
 		client->http_private.finish_func = finish_bytes;
-		client->http_private.remaining_content_length = (size_t)parser->content_length;
+		client->http_private.remaining_content_length = client->content_length;
 	}
 
 	return 0;
