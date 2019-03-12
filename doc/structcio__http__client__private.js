@@ -5,7 +5,7 @@ var structcio__http__client__private =
     [ "finish_func", "structcio__http__client__private.html#a583c0f20c3f057abefa2a8d487d867e8", null ],
     [ "headers_complete", "structcio__http__client__private.html#ad5fd3699d85d1bb18a48d8bec51493e1", null ],
     [ "parsing", "structcio__http__client__private.html#aa660674004a416a3ab5e61a375924557", null ],
-    [ "remaining_content_length", "structcio__http__client__private.html#aa838a9345d18dcc42ffb559f8409cba0", null ],
+    [ "remaining_content_length", "structcio__http__client__private.html#a2e66734f783308151da5458b0010252d", null ],
     [ "request_timer", "structcio__http__client__private.html#ac73f735d9cc40b0842529bc1e50a1ae2", null ],
     [ "response_fired", "structcio__http__client__private.html#aa2111ca0e243decd95510d68495b099a", null ],
     [ "response_timer", "structcio__http__client__private.html#a6e1027e5b6a2a77b98ccfe39ade207d0", null ],

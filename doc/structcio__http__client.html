@@ -140,9 +140,9 @@ Data Fields</h2></td></tr>
 <tr class="memitem:aaebd126fae4cd5aeaf9b94e65e11548c"><td class="memItemLeft" align="right" valign="top">uint16_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structcio__http__client.html#aaebd126fae4cd5aeaf9b94e65e11548c">http_minor</a></td></tr>
 <tr class="memdesc:aaebd126fae4cd5aeaf9b94e65e11548c"><td class="mdescLeft">&#160;</td><td class="mdescRight">The HTTP minor version of the client request.  <a href="#aaebd126fae4cd5aeaf9b94e65e11548c">More...</a><br /></td></tr>
 <tr class="separator:aaebd126fae4cd5aeaf9b94e65e11548c"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a60ee207c718a191e3dfd0391ed083097"><td class="memItemLeft" align="right" valign="top">uint64_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structcio__http__client.html#a60ee207c718a191e3dfd0391ed083097">content_length</a></td></tr>
-<tr class="memdesc:a60ee207c718a191e3dfd0391ed083097"><td class="mdescLeft">&#160;</td><td class="mdescRight">The <a href="https://tools.ietf.org/html/rfc7230#section-3.3.2">content length</a> of the client request.  <a href="#a60ee207c718a191e3dfd0391ed083097">More...</a><br /></td></tr>
-<tr class="separator:a60ee207c718a191e3dfd0391ed083097"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:abd3df2d34ed863133b1be6bdf1bf85b1"><td class="memItemLeft" align="right" valign="top">size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structcio__http__client.html#abd3df2d34ed863133b1be6bdf1bf85b1">content_length</a></td></tr>
+<tr class="memdesc:abd3df2d34ed863133b1be6bdf1bf85b1"><td class="mdescLeft">&#160;</td><td class="mdescRight">The <a href="https://tools.ietf.org/html/rfc7230#section-3.3.2">content length</a> of the client request.  <a href="#abd3df2d34ed863133b1be6bdf1bf85b1">More...</a><br /></td></tr>
+<tr class="separator:abd3df2d34ed863133b1be6bdf1bf85b1"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a87bb7cbe9882e05b9c2eaace76698246"><td class="memItemLeft" align="right" valign="top">enum <a class="el" href="cio__http__method_8h.html#af72daec94b7eb3d7c6ba31bdb7ba0ef3">cio_http_method</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structcio__http__client.html#a87bb7cbe9882e05b9c2eaace76698246">http_method</a></td></tr>
 <tr class="memdesc:a87bb7cbe9882e05b9c2eaace76698246"><td class="mdescLeft">&#160;</td><td class="mdescRight">The HTTP method (i.e. GET, POST, PUT, ...) of the HTTP client request.  <a href="#a87bb7cbe9882e05b9c2eaace76698246">More...</a><br /></td></tr>
 <tr class="separator:a87bb7cbe9882e05b9c2eaace76698246"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -211,12 +211,12 @@ The data <code>wbh</code> points to must be available and valid until the comple
 
 </div>
 </div>
-<a class="anchor" id="a60ee207c718a191e3dfd0391ed083097"></a>
+<a class="anchor" id="abd3df2d34ed863133b1be6bdf1bf85b1"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">uint64_t cio_http_client::content_length</td>
+          <td class="memname">size_t cio_http_client::content_length</td>
         </tr>
       </table>
 </div><div class="memdoc">
