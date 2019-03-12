@@ -3,6 +3,10 @@ include (CheckLibraryExists)
 
 check_library_exists(bsd arc4random "/lib;/usr/lib;/usr/local/lib" HAVE_BSD_LIB)
 
+if (NOT HAVE_BSD_LIB)
+	message(WARNING "libbsd not found! Using unsafe random number generator!")
+endif()
+
 set(CIO_PLATFORM_SOURCES
     linux/cio_linux_endian.c
     linux/cio_linux_epoll.c
