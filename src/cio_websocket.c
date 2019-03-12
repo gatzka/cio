@@ -599,7 +599,7 @@ static void read_payload(struct cio_websocket *ws, struct cio_buffered_stream *b
 
 		enum cio_error err;
 		if (cio_unlikely(is_control_frame(ws->ws_private.ws_flags.opcode))) {
-			err = bs->read_at_least(bs, buffer, (size_t)ws->ws_private.remaining_read_frame_length, get_payload, ws);
+			err = bs->read_at_least(bs, buffer, ws->ws_private.remaining_read_frame_length, get_payload, ws);
 		} else {
 			err = bs->read_at_least(bs, buffer, 1, get_payload, ws);
 		}
