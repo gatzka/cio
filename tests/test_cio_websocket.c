@@ -179,7 +179,7 @@ static bool check_frame(enum cio_websocket_frame_type opcode, const char *payloa
 		uint8_t mask[4];
 		memcpy(mask, &write_buffer[write_buffer_parse_pos], sizeof(mask));
 		write_buffer_parse_pos += sizeof(mask);
-		cio_websocket_mask(&write_buffer[write_buffer_parse_pos], length, mask);
+		cio_websocket_mask(&write_buffer[write_buffer_parse_pos], (size_t)length, mask);
 	}
 
 	if (length > SIZE_MAX) {

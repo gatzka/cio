@@ -71,7 +71,7 @@ struct cio_http_client_private {
 	struct cio_timer request_timer;
 	struct cio_timer response_timer;
 
-	uint64_t remaining_content_length;
+	size_t remaining_content_length;
 	bool should_keepalive;
 	bool close_immediately;
 	bool headers_complete;
@@ -186,7 +186,7 @@ struct cio_http_client {
 	 * @ref cio_http_location_handler_on_headers_complete "on_headers_complete callback" you can rely
 	 * on the field being set.
 	 */
-	uint64_t content_length;
+	size_t content_length;
 
 	/**
 	 * @brief The HTTP method (i.e. GET, POST, PUT, ...) of the HTTP client request.

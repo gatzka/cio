@@ -26,25 +26,12 @@
 
 #define _DEFAULT_SOURCE
 
+#include <bsd/stdlib.h>
 #include <stddef.h>
-#include <stdio.h>
-#include <stdlib.h>
 
 #include "cio_random.h"
 
-static FILE *dev_urandom = NULL;
-
 void cio_random_get_bytes(void *bytes, size_t num_bytes)
 {
-
-	if (dev_urandom == NULL) {
-		dev_urandom = fopen("/dev/urandom", "re");
-	}
-
-	size_t ret = fread(bytes, 1, num_bytes, dev_urandom);
-	/* Ignore return value deliberately.
-	 * There is no good error handling when this call fails
-	 * besides shutting down cjet completely.
-	 */
-	(void)ret;
+	arc4random_buf(bytes, num_bytes);
 }
