@@ -38,7 +38,7 @@ void cio_random_get_bytes(void *bytes, size_t num_bytes)
 {
 
 	if (dev_urandom == NULL) {
-		dev_urandom = fopen("/dev/urandom", "r");
+		dev_urandom = fopen("/dev/urandom", "re");
 	}
 
 	size_t ret = fread(bytes, 1, num_bytes, dev_urandom);
