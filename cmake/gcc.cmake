@@ -1,9 +1,9 @@
 set(CMAKE_SYSTEM_NAME Linux)
 
-set(CMAKE_C_COMPILER gcc-8)
-set(CMAKE_CXX_COMPILER g++-8)
+set(CMAKE_C_COMPILER gcc)
+set(CMAKE_CXX_COMPILER g++)
 set(CMAKE_C_FLAGS_INIT "-pipe -fno-common")
-set(CTEST_COVERAGE_COMMAND "gcov-8")
+set(CTEST_COVERAGE_COMMAND "gcov")
 set(CIO_COVERAGE_FLAGS "--coverage")
 
 set(CIO_ASAN_FLAGS "-g -fsanitize=address -fno-sanitize-recover=all -fno-omit-frame-pointer")
