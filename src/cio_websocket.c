@@ -869,7 +869,7 @@ static enum cio_error write_continuation(struct cio_websocket *ws, struct cio_wr
 
 static enum cio_error write_ping_or_pong_message(struct cio_websocket *ws, enum cio_websocket_frame_type frame_type, struct cio_websocket_write_job *job, struct cio_write_buffer *payload, cio_websocket_write_handler handler, void *handler_context)
 {
-	if (cio_unlikely((ws == NULL)) || (handler == NULL)) {
+	if (cio_unlikely(handler == NULL)) {
 		return CIO_INVALID_ARGUMENT;
 	}
 
@@ -895,11 +895,19 @@ static enum cio_error write_ping_or_pong_message(struct cio_websocket *ws, enum 
 
 static enum cio_error write_ping_message(struct cio_websocket *ws, struct cio_write_buffer *payload, cio_websocket_write_handler handler, void *handler_context)
 {
+	if (cio_unlikely(ws == NULL)) {
+		return CIO_INVALID_ARGUMENT;
+	}
+
 	return write_ping_or_pong_message(ws, CIO_WEBSOCKET_PING_FRAME, &ws->ws_private.write_ping_job, payload, handler, handler_context);
 }
 
 static enum cio_error write_pong_message(struct cio_websocket *ws, struct cio_write_buffer *payload, cio_websocket_write_handler handler, void *handler_context)
 {
+	if (cio_unlikely(ws == NULL)) {
+		return CIO_INVALID_ARGUMENT;
+	}
+
 	return write_ping_or_pong_message(ws, CIO_WEBSOCKET_PONG_FRAME, &ws->ws_private.write_pong_job, payload, handler, handler_context);
 }
 
