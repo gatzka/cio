@@ -11,6 +11,7 @@
 # -DCIO_CTEST_MODEL:STRING=Experimental|Nightly|Continuous
 # -DCIO_CTEST_COVERAGE:BOOL=OFF|ON
 # -DCIO_CTEST_DOCUMENTATION:BOOL=OFF|ON
+# -DCIO_CTEST_ANALYZER:STRING=scan-build-<version-number>|clang-tidy-<version-number>
 # -DCIO_CTEST_SANITIZER:STRING=AddressSanitizer|MemorySanitizer|UndefinedBehaviorSanitizer|LeakSanitizer|Valgrind
 
 set(CTEST_USE_LAUNCHERS 1)
@@ -24,6 +25,7 @@ if(NOT DEFINED CIO_CTEST_TOOLCHAIN_FILE)
 endif()
 include(${CIO_CTEST_TOOLCHAIN_FILE})
 set(CMAKE_C_FLAGS ${CMAKE_C_FLAGS_INIT})
+set(CONFIGURE_OPTIONS "-DCMAKE_TOOLCHAIN_FILE=${CIO_CTEST_TOOLCHAIN_FILE}")
 
 if(NOT DEFINED CIO_CTEST_COVERAGE)
     set(CIO_CTEST_COVERAGE OFF)
@@ -79,28 +81,37 @@ endif()
 # endif()
 # 
 if(DEFINED CIO_CTEST_SANITIZER)
-    if (CIO_CTEST_SANITIZER STREQUAL "Valgrind")
+    if(CIO_CTEST_SANITIZER STREQUAL "Valgrind")
         find_program(CTEST_MEMORYCHECK_COMMAND NAMES valgrind)
         set(CTEST_MEMORYCHECK_TYPE Valgrind)
         set(CTEST_MEMORYCHECK_COMMAND_OPTIONS "--errors-for-leak-kinds=all --show-leak-kinds=all --leak-check=full --error-exitcode=1")
         #set(CTEST_MEMORYCHECK_SUPPRESSIONS_FILE ${CTEST_SOURCE_DIRECTORY}/tests/valgrind.supp)
-    elseif (CIO_CTEST_SANITIZER STREQUAL "AddressSanitizer")
+    elseif(CIO_CTEST_SANITIZER STREQUAL "AddressSanitizer")
 		set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${CIO_ASAN_FLAGS}")
         set(CTEST_MEMORYCHECK_TYPE "AddressSanitizer")
         set(CTEST_MEMORYCHECK_SANITIZER_OPTIONS "verbosity=1:exitcode=-1:check_initialization_order=true:detect_stack_use_after_return=true:strict_init_order=true:detect_invalid_pointer_pairs=10:strict_string_checks=true")
-    elseif (CIO_CTEST_SANITIZER STREQUAL "MemorySanitizer")
+    elseif(CIO_CTEST_SANITIZER STREQUAL "MemorySanitizer")
 		set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${CIO_MSAN_FLAGS}")
         set(CTEST_MEMORYCHECK_TYPE "MemorySanitizer")
         set(CTEST_MEMORYCHECK_SANITIZER_OPTIONS "verbosity=1:exitcode=-1")
-    elseif (CIO_CTEST_SANITIZER STREQUAL "LeakSanitizer")
+    elseif(CIO_CTEST_SANITIZER STREQUAL "LeakSanitizer")
 		set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${CIO_LSAN_FLAGS}")
         set(CTEST_MEMORYCHECK_TYPE "LeakSanitizer")
         set(CTEST_MEMORYCHECK_SANITIZER_OPTIONS "verbosity=1:exitcode=-1")
-    elseif (CIO_CTEST_SANITIZER STREQUAL "UndefinedBehaviorSanitizer")
+    elseif(CIO_CTEST_SANITIZER STREQUAL "UndefinedBehaviorSanitizer")
 		set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${CIO_UBSAN_FLAGS}")
         set(CTEST_MEMORYCHECK_TYPE "UndefinedBehaviorSanitizer")
         set(CTEST_MEMORYCHECK_SANITIZER_OPTIONS "verbosity=1:exitcode=-1:print_stacktrace=1")
     endif()
+endif()
+
+if(DEFINED CIO_CTEST_ANALYZER)
+	string(REGEX MATCH "^scan-build|^clang-tidy" ANALYZER_TYPE ${CIO_CTEST_ANALYZER})
+	if(ANALYZER_TYPE STREQUAL "scan-build")
+		message(STATUS "------------------- scan-build")
+	elseif(ANALYZER_TYPE STREQUAL "clang-tidy")
+		set(CONFIGURE_OPTIONS "${CONFIGURE_OPTIONS};-DCMAKE_C_CLANG_TIDY=${CIO_CTEST_ANALYZER}")
+	endif()
 endif()
 
 # set(CONFIGURE_OPTIONS
@@ -133,15 +144,16 @@ if(CIO_CTEST_COVERAGE)
 	set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${CIO_COVERAGE_FLAGS}")
 endif()
 
-# set(CTEST_CMAKE_GENERATOR "Unix Makefiles")
+#set(CTEST_CMAKE_GENERATOR "Unix Makefiles")
 set(CTEST_CMAKE_GENERATOR "Ninja")
-ctest_configure(OPTIONS "-DCMAKE_TOOLCHAIN_FILE=${CIO_CTEST_TOOLCHAIN_FILE};-DCMAKE_C_FLAGS=${CMAKE_C_FLAGS}")
+set(CONFIGURE_OPTIONS "${CONFIGURE_OPTIONS};-DCMAKE_C_FLAGS=${CMAKE_C_FLAGS}")
+ctest_configure(OPTIONS "${CONFIGURE_OPTIONS}")
 ctest_configure()
 
 # Build step
 
 if(CTEST_CMAKE_GENERATOR STREQUAL "Unix Makefiles")
-	# set(CTEST_BUILD_FLAGS VERBOSE=1)
+	#set(CTEST_BUILD_FLAGS VERBOSE=1)
 	set(CTEST_BUILD_FLAGS -j${NUMBER_OF_CORES})
 endif()
 ctest_build(NUMBER_ERRORS CIO_NUMBER_OF_ERRORS NUMBER_WARNINGS CIO_NUMBER_OF_WARNING)
