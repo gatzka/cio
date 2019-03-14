@@ -50,6 +50,7 @@ if(CIO_CONFIG_HTTP)
         http-parser/http_parser.c
     )
     set_target_properties(http-parser PROPERTIES
+		COMPILE_OPTIONS "$<$<OR:$<C_COMPILER_ID:GNU>,$<C_COMPILER_ID:Clang>>:-Wno-shadow;-Wno-sign-conversion;-Wno-switch-default;-Wno-conversion>"
         POSITION_INDEPENDENT_CODE ON
         C_VISIBILITY_PRESET hidden
 		C_CLANG_TIDY ""
