@@ -47,39 +47,6 @@ if(NOT CIO_CTEST_MODEL STREQUAL "Experimental")
     ctest_empty_binary_directory(${CTEST_BINARY_DIRECTORY})
 endif()
 
-# if(NOT DEFINED CIO_CTEST_COMPILER)
-#     set(CIO_CTEST_COMPILER "gcc")
-# endif()
-# 
-# string(REGEX MATCH "^gcc|^clang-tidy|^scan-build|^clang" C_COMPILER_TYPE ${CIO_CTEST_COMPILER})
-# string(REPLACE ${C_COMPILER_TYPE} "" COMPILER_VERSION ${CIO_CTEST_COMPILER})
-# if(C_COMPILER_TYPE STREQUAL "gcc")
-#     set(CXX_COMPILER_TYPE "g++")
-#     set(COVERAGE_TOOL "gcov${COMPILER_VERSION}")
-# elseif(C_COMPILER_TYPE STREQUAL "clang")
-#     set(CXX_COMPILER_TYPE "clang++")
-#     set(COVERAGE_TOOL "llvm-cov${COMPILER_VERSION}")
-#     set(CTEST_COVERAGE_EXTRA_FLAGS "gcov")
-# elseif(C_COMPILER_TYPE STREQUAL "clang-tidy")
-#     set(CONFIGURE_OPTIONS ${CONFIGURE_OPTIONS} "-DCMAKE_C_CLANG_TIDY=${C_COMPILER_TYPE}${COMPILER_VERSION}")
-#     set(CXX_COMPILER_TYPE "clang++")
-#     set(C_COMPILER_TYPE "clang")
-#     set(COVERAGE_TOOL "llvm-cov${COMPILER_VERSION}")
-#     set(CTEST_COVERAGE_EXTRA_FLAGS "gcov")
-# else()
-#     set(C_COMPILER_TYPE "clang")
-#     set(CXX_COMPILER_TYPE "clang++")
-#     set(COVERAGE_TOOL "llvm-cov${COMPILER_VERSION}")
-# 
-#     set(ENV{CCC_CC} "${C_COMPILER_TYPE}${COMPILER_VERSION}")
-#     set(ENV{CCC_CXX} "${CXX_COMPILER_TYPE}${COMPILER_VERSION}")
-#     set(CTEST_COVERAGE_EXTRA_FLAGS "gcov")
-#     set(CTEST_CONFIGURE_COMMAND "scan-build${COMPILER_VERSION} ${CMAKE_COMMAND} -DCMAKE_C_FLAGS=--coverage -fno-inline -fno-inline-small-functions -fno-default-inline ${CTEST_SOURCE_DIRECTORY}")
-#     set(ANALYZER_REPORT_DIR "${CTEST_BINARY_DIRECTORY}analyzer-scan/")
-#     set(CTEST_BUILD_COMMAND "scan-build${COMPILER_VERSION} --status-bugs -o ${ANALYZER_REPORT_DIR} ${CMAKE_COMMAND} --build ${CTEST_BINARY_DIRECTORY}")
-#     set(IS_CLANG_STATIC_ANALYZER TRUE)
-# endif()
-# 
 if(DEFINED CIO_CTEST_SANITIZER)
     if(CIO_CTEST_SANITIZER STREQUAL "Valgrind")
         find_program(CTEST_MEMORYCHECK_COMMAND NAMES valgrind)
@@ -108,21 +75,19 @@ endif()
 if(DEFINED CIO_CTEST_ANALYZER)
 	string(REGEX MATCH "^scan-build|^clang-tidy" ANALYZER_TYPE ${CIO_CTEST_ANALYZER})
 	if(ANALYZER_TYPE STREQUAL "scan-build")
-		message(STATUS "------------------- scan-build")
+	    set(C_COMPILER_TYPE "clang")
+	    set(CXX_COMPILER_TYPE "clang++")
+		string(REPLACE ${ANALYZER_TYPE} "" COMPILER_VERSION ${CIO_CTEST_ANALYZER})
+	    set(ENV{CCC_CC} "${C_COMPILER_TYPE}${COMPILER_VERSION}")
+	    set(ENV{CCC_CXX} "${CXX_COMPILER_TYPE}${COMPILER_VERSION}")
+		set(CTEST_CONFIGURE_COMMAND "${CIO_CTEST_ANALYZER} ${CMAKE_COMMAND} -DCMAKE_C_FLAGS=--coverage -fno-inline -fno-inline-small-functions -fno-default-inline ${CTEST_SOURCE_DIRECTORY}")
+	    set(ANALYZER_REPORT_DIR "${CTEST_BINARY_DIRECTORY}analyzer-scan/")
+		set(CTEST_BUILD_COMMAND "${CIO_CTEST_ANALYZER} --status-bugs -o ${ANALYZER_REPORT_DIR} ${CMAKE_COMMAND} --build ${CTEST_BINARY_DIRECTORY}")
+	    set(IS_CLANG_STATIC_ANALYZER TRUE)
 	elseif(ANALYZER_TYPE STREQUAL "clang-tidy")
 		set(CONFIGURE_OPTIONS "${CONFIGURE_OPTIONS};-DCMAKE_C_CLANG_TIDY=${CIO_CTEST_ANALYZER}")
 	endif()
 endif()
-
-# set(CONFIGURE_OPTIONS
-#     ${CONFIGURE_OPTIONS}
-#     "-DCMAKE_CXX_COMPILER=${CXX_COMPILER_TYPE}${COMPILER_VERSION}"
-#     "-DCMAKE_C_COMPILER=${C_COMPILER_TYPE}${COMPILER_VERSION}"
-#     "-DCMAKE_C_FLAGS_INIT=-pipe -fno-common"
-# )
-# 
-# 
-# set(CONFIGURE_OPTIONS ${CONFIGURE_OPTIONS} "-DCMAKE_C_FLAGS=${CIO_CTEST_CMAKE_C_FLAGS}")
 
 ###########
 cmake_host_system_information(RESULT FQDN QUERY FQDN)
@@ -153,8 +118,8 @@ ctest_configure()
 # Build step
 
 if(CTEST_CMAKE_GENERATOR STREQUAL "Unix Makefiles")
-	#set(CTEST_BUILD_FLAGS VERBOSE=1)
-	set(CTEST_BUILD_FLAGS -j${NUMBER_OF_CORES})
+	#set(CTEST_BUILD_FLAGS "${CTEST_BUILD_FLAGS} VERBOSE=1")
+	set(CTEST_BUILD_FLAGS "${CTEST_BUILD_FLAGS} -j${NUMBER_OF_CORES}")
 endif()
 ctest_build(NUMBER_ERRORS CIO_NUMBER_OF_ERRORS NUMBER_WARNINGS CIO_NUMBER_OF_WARNING)
 
@@ -172,7 +137,6 @@ if(CIO_CTEST_COVERAGE AND GCOVR_BIN)
         "cmake -E make_directory ${CIO_CTEST_COVERAGE_DIR}"
 		"${GCOVR_BIN} \"--gcov-executable=${CTEST_COVERAGE_COMMAND} ${CTEST_COVERAGE_EXTRA_FLAGS}\" --html --html-details --html-title cio -f ${CTEST_SCRIPT_DIRECTORY}/src/\\* -e ${CTEST_SCRIPT_DIRECTORY}/src/http-parser/\\* -e ${CTEST_SCRIPT_DIRECTORY}/src/miniz/\\* -e ${CTEST_SCRIPT_DIRECTORY}/src/sha1/\\* --exclude-directories .\\*CompilerIdC\\* -r ${CTEST_SCRIPT_DIRECTORY} --object-directory=${CIO_OBJECT_DIRECTORY} -o ${CIO_CTEST_COVERAGE_DIR}/index.html")
     
-	#    set(CTEST_COVERAGE_COMMAND "${COVERAGE_TOOL}")
     set(CTEST_CUSTOM_COVERAGE_EXCLUDE
     ${CTEST_CUSTOM_COVERAGE_EXCLUDE}
         ".*/tests/.*"
