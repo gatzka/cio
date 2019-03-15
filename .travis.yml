@@ -1,4 +1,4 @@
-language: c
+language: cpp
 branches:
   except:
   - "/^feature.*$/"
@@ -196,7 +196,7 @@ matrix:
 
   - os: linux
     dist: xenial
-    compiler: clang
+    compiler: clang-7
     sudo: required
     env:
     - MATRIX_EVAL="-DCIO_CTEST_TOOLCHAIN_FILE:STRING=$TRAVIS_BUILD_DIR/cmake/clang7.cmake -DCIO_CTEST_CONFIGURATION_TYPE:STRING=Debug -DCIO_CTEST_COVERAGE:BOOL=OFF"
