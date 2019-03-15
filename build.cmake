@@ -4,11 +4,14 @@
 #
 # You can set some command line variables to change the
 # behaviour of this script:
+
+# -DCIO_CTEST_TOOLCHAIN_FILE:STRING=<path-to-toolchain-file>
+
 # -DCIO_CTEST_CONFIGURATION_TYPE:STRING=Debug|Release
 # -DCIO_CTEST_MODEL:STRING=Experimental|Nightly|Continuous
 # -DCIO_CTEST_COVERAGE:BOOL=OFF|ON
 # -DCIO_CTEST_DOCUMENTATION:BOOL=OFF|ON
-# -DCIO_CTEST_COMPILER:STRING=gcc|gcc-<version-number>|clang|clang-<version-number>|scan-build-<version-number>|clang-tidy-<version-number>
+# -DCIO_CTEST_ANALYZER:STRING=scan-build-<version-number>|clang-tidy-<version-number>
 # -DCIO_CTEST_SANITIZER:STRING=AddressSanitizer|MemorySanitizer|UndefinedBehaviorSanitizer|LeakSanitizer|Valgrind
 
 set(CTEST_USE_LAUNCHERS 1)
@@ -16,6 +19,13 @@ set(CTEST_USE_LAUNCHERS 1)
 if(NOT DEFINED CIO_CTEST_MODEL)
     set(CIO_CTEST_MODEL "Experimental")
 endif()
+
+if(NOT DEFINED CIO_CTEST_TOOLCHAIN_FILE)
+	set(CIO_CTEST_TOOLCHAIN_FILE "${CTEST_SCRIPT_DIRECTORY}/cmake/gcc.cmake")
+endif()
+include(${CIO_CTEST_TOOLCHAIN_FILE})
+set(CMAKE_C_FLAGS ${CMAKE_C_FLAGS_INIT})
+set(CONFIGURE_OPTIONS "-DCMAKE_TOOLCHAIN_FILE=${CIO_CTEST_TOOLCHAIN_FILE}")
 
 if(NOT DEFINED CIO_CTEST_COVERAGE)
     set(CIO_CTEST_COVERAGE OFF)
@@ -37,76 +47,47 @@ if(NOT CIO_CTEST_MODEL STREQUAL "Experimental")
     ctest_empty_binary_directory(${CTEST_BINARY_DIRECTORY})
 endif()
 
-if(NOT DEFINED CIO_CTEST_COMPILER)
-    set(CIO_CTEST_COMPILER "gcc")
-endif()
-
-string(REGEX MATCH "^gcc|^clang-tidy|^scan-build|^clang" C_COMPILER_TYPE ${CIO_CTEST_COMPILER})
-string(REPLACE ${C_COMPILER_TYPE} "" COMPILER_VERSION ${CIO_CTEST_COMPILER})
-if(C_COMPILER_TYPE STREQUAL "gcc")
-    set(CXX_COMPILER_TYPE "g++")
-    set(COVERAGE_TOOL "gcov${COMPILER_VERSION}")
-elseif(C_COMPILER_TYPE STREQUAL "clang")
-    set(CXX_COMPILER_TYPE "clang++")
-    set(COVERAGE_TOOL "llvm-cov${COMPILER_VERSION}")
-    set(CTEST_COVERAGE_EXTRA_FLAGS "gcov")
-elseif(C_COMPILER_TYPE STREQUAL "clang-tidy")
-    set(CONFIGURE_OPTIONS ${CONFIGURE_OPTIONS} "-DCMAKE_C_CLANG_TIDY=${C_COMPILER_TYPE}${COMPILER_VERSION}")
-    set(CXX_COMPILER_TYPE "clang++")
-    set(C_COMPILER_TYPE "clang")
-    set(COVERAGE_TOOL "llvm-cov${COMPILER_VERSION}")
-    set(CTEST_COVERAGE_EXTRA_FLAGS "gcov")
-else()
-    set(C_COMPILER_TYPE "clang")
-    set(CXX_COMPILER_TYPE "clang++")
-    set(COVERAGE_TOOL "llvm-cov${COMPILER_VERSION}")
-
-    set(ENV{CCC_CC} "${C_COMPILER_TYPE}${COMPILER_VERSION}")
-    set(ENV{CCC_CXX} "${CXX_COMPILER_TYPE}${COMPILER_VERSION}")
-    set(CTEST_COVERAGE_EXTRA_FLAGS "gcov")
-    set(CTEST_CONFIGURE_COMMAND "scan-build${COMPILER_VERSION} ${CMAKE_COMMAND} -DCMAKE_C_FLAGS=--coverage -fno-inline -fno-inline-small-functions -fno-default-inline ${CTEST_SOURCE_DIRECTORY}")
-    set(ANALYZER_REPORT_DIR "${CTEST_BINARY_DIRECTORY}analyzer-scan/")
-    set(CTEST_BUILD_COMMAND "scan-build${COMPILER_VERSION} --status-bugs -o ${ANALYZER_REPORT_DIR} ${CMAKE_COMMAND} --build ${CTEST_BINARY_DIRECTORY}")
-    set(IS_CLANG_STATIC_ANALYZER TRUE)
-endif()
-
 if(DEFINED CIO_CTEST_SANITIZER)
-    if (CIO_CTEST_SANITIZER STREQUAL "Valgrind")
+    if(CIO_CTEST_SANITIZER STREQUAL "Valgrind")
         find_program(CTEST_MEMORYCHECK_COMMAND NAMES valgrind)
         set(CTEST_MEMORYCHECK_TYPE Valgrind)
         set(CTEST_MEMORYCHECK_COMMAND_OPTIONS "--errors-for-leak-kinds=all --show-leak-kinds=all --leak-check=full --error-exitcode=1")
         #set(CTEST_MEMORYCHECK_SUPPRESSIONS_FILE ${CTEST_SOURCE_DIRECTORY}/tests/valgrind.supp)
-    elseif (CIO_CTEST_SANITIZER STREQUAL "AddressSanitizer")
-        set(CIO_CTEST_CMAKE_C_FLAGS "${CIO_CTEST_CMAKE_C_FLAGS} -g -fsanitize=address -fno-omit-frame-pointer")
+    elseif(CIO_CTEST_SANITIZER STREQUAL "AddressSanitizer")
+		set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${ASAN_FLAGS}")
         set(CTEST_MEMORYCHECK_TYPE "AddressSanitizer")
         set(CTEST_MEMORYCHECK_SANITIZER_OPTIONS "verbosity=1:exitcode=-1:check_initialization_order=true:detect_stack_use_after_return=true:strict_init_order=true:detect_invalid_pointer_pairs=10:strict_string_checks=true")
-    elseif (CIO_CTEST_SANITIZER STREQUAL "MemorySanitizer")
-        set(CIO_CTEST_CMAKE_C_FLAGS "${CIO_CTEST_CMAKE_C_FLAGS} -g -fsanitize=memory -fsanitize-memory-track-origins -fno-omit-frame-pointer")
+    elseif(CIO_CTEST_SANITIZER STREQUAL "MemorySanitizer")
+		set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${MSAN_FLAGS}")
         set(CTEST_MEMORYCHECK_TYPE "MemorySanitizer")
         set(CTEST_MEMORYCHECK_SANITIZER_OPTIONS "verbosity=1:exitcode=-1")
-    elseif (CIO_CTEST_SANITIZER STREQUAL "LeakSanitizer")
-        set(CIO_CTEST_CMAKE_C_FLAGS "${CIO_CTEST_CMAKE_C_FLAGS} -g -fsanitize=leak -fno-omit-frame-pointer")
+    elseif(CIO_CTEST_SANITIZER STREQUAL "LeakSanitizer")
+		set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${LSAN_FLAGS}")
         set(CTEST_MEMORYCHECK_TYPE "LeakSanitizer")
         set(CTEST_MEMORYCHECK_SANITIZER_OPTIONS "verbosity=1:exitcode=-1")
-    elseif (CIO_CTEST_SANITIZER STREQUAL "UndefinedBehaviorSanitizer")
-        set(CIO_CTEST_CMAKE_C_FLAGS "${CIO_CTEST_CMAKE_C_FLAGS} -g -fsanitize=undefined -fno-omit-frame-pointer")
+    elseif(CIO_CTEST_SANITIZER STREQUAL "UndefinedBehaviorSanitizer")
+		set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${UBSAN_FLAGS}")
         set(CTEST_MEMORYCHECK_TYPE "UndefinedBehaviorSanitizer")
-        set(CTEST_MEMORYCHECK_SANITIZER_OPTIONS "verbosity=1:exitcode=-1")
+        set(CTEST_MEMORYCHECK_SANITIZER_OPTIONS "verbosity=1:exitcode=-1:print_stacktrace=1")
     endif()
 endif()
 
-set(CONFIGURE_OPTIONS
-    ${CONFIGURE_OPTIONS}
-    "-DCMAKE_CXX_COMPILER=${CXX_COMPILER_TYPE}${COMPILER_VERSION}"
-    "-DCMAKE_C_COMPILER=${C_COMPILER_TYPE}${COMPILER_VERSION}"
-    "-DCMAKE_C_FLAGS_INIT=-pipe -fno-common"
-)
-
-if(CIO_CTEST_COVERAGE)
-    set(CIO_CTEST_CMAKE_C_FLAGS "${CIO_CTEST_CMAKE_C_FLAGS} --coverage")
+if(DEFINED CIO_CTEST_ANALYZER)
+	string(REGEX MATCH "^scan-build|^clang-tidy" ANALYZER_TYPE ${CIO_CTEST_ANALYZER})
+	if(ANALYZER_TYPE STREQUAL "scan-build")
+	    set(C_COMPILER_TYPE "clang")
+	    set(CXX_COMPILER_TYPE "clang++")
+		string(REPLACE ${ANALYZER_TYPE} "" COMPILER_VERSION ${CIO_CTEST_ANALYZER})
+	    set(ENV{CCC_CC} "${C_COMPILER_TYPE}${COMPILER_VERSION}")
+	    set(ENV{CCC_CXX} "${CXX_COMPILER_TYPE}${COMPILER_VERSION}")
+		set(CTEST_CONFIGURE_COMMAND "${CIO_CTEST_ANALYZER} ${CMAKE_COMMAND} -DCMAKE_C_FLAGS=--coverage -fno-inline -fno-inline-small-functions -fno-default-inline ${CTEST_SOURCE_DIRECTORY}")
+	    set(ANALYZER_REPORT_DIR "${CTEST_BINARY_DIRECTORY}analyzer-scan/")
+		set(CTEST_BUILD_COMMAND "${CIO_CTEST_ANALYZER} --status-bugs -o ${ANALYZER_REPORT_DIR} ${CMAKE_COMMAND} --build ${CTEST_BINARY_DIRECTORY}")
+	    set(IS_CLANG_STATIC_ANALYZER TRUE)
+	elseif(ANALYZER_TYPE STREQUAL "clang-tidy")
+		set(CONFIGURE_OPTIONS "${CONFIGURE_OPTIONS};-DCMAKE_C_CLANG_TIDY=${CIO_CTEST_ANALYZER}")
+	endif()
 endif()
-
-set(CONFIGURE_OPTIONS ${CONFIGURE_OPTIONS} "-DCMAKE_C_FLAGS=${CIO_CTEST_CMAKE_C_FLAGS}")
 
 ###########
 cmake_host_system_information(RESULT FQDN QUERY FQDN)
@@ -122,9 +103,25 @@ endif()
 
 ctest_start(${CIO_CTEST_MODEL})
 
-set(CTEST_CMAKE_GENERATOR "Ninja")
-ctest_configure(OPTIONS "${CONFIGURE_OPTIONS}")
+# Configure step
 
+if(CIO_CTEST_COVERAGE)
+	set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${COVERAGE_FLAGS}")
+endif()
+
+#set(CTEST_CMAKE_GENERATOR "Unix Makefiles")
+set(CTEST_CMAKE_GENERATOR "Ninja")
+set(CONFIGURE_OPTIONS "${CONFIGURE_OPTIONS};-DCMAKE_C_FLAGS=${CMAKE_C_FLAGS}")
+ctest_configure(OPTIONS "${CONFIGURE_OPTIONS}")
+ctest_configure()
+
+# Build step
+
+if(CTEST_CMAKE_GENERATOR STREQUAL "Unix Makefiles")
+	#set(CTEST_BUILD_FLAGS "${CTEST_BUILD_FLAGS} VERBOSE=1")
+	set(CTEST_BUILD_FLAGS "${CTEST_BUILD_FLAGS} -j${NUMBER_OF_CORES}")
+endif()
+ctest_build(NUMBER_ERRORS CIO_NUMBER_OF_ERRORS NUMBER_WARNINGS CIO_NUMBER_OF_WARNING)
 
 # Test/Coverage step
 
@@ -138,9 +135,8 @@ if(CIO_CTEST_COVERAGE AND GCOVR_BIN)
     set(CIO_CTEST_COVERAGE_DIR "${CTEST_BINARY_DIRECTORY}cov-html/${CIO_CTEST_TIMESTAMP}")
     set(CTEST_CUSTOM_POST_TEST
         "cmake -E make_directory ${CIO_CTEST_COVERAGE_DIR}"
-        "${GCOVR_BIN} \"--gcov-executable=${COVERAGE_TOOL} ${CTEST_COVERAGE_EXTRA_FLAGS}\" --html --html-details --html-title cio -f ${CTEST_SCRIPT_DIRECTORY}/src/\\* -e ${CTEST_SCRIPT_DIRECTORY}/src/http-parser/\\* -e ${CTEST_SCRIPT_DIRECTORY}/src/miniz/\\* -e ${CTEST_SCRIPT_DIRECTORY}/src/sha1/\\* --exclude-directories .\\*CompilerIdC\\* -r ${CTEST_SCRIPT_DIRECTORY} --object-directory=${CIO_OBJECT_DIRECTORY} -o ${CIO_CTEST_COVERAGE_DIR}/index.html")
+		"${GCOVR_BIN} \"--gcov-executable=${CTEST_COVERAGE_COMMAND} ${CTEST_COVERAGE_EXTRA_FLAGS}\" --html --html-details --html-title cio -f ${CTEST_SCRIPT_DIRECTORY}/src/\\* -e ${CTEST_SCRIPT_DIRECTORY}/src/http-parser/\\* -e ${CTEST_SCRIPT_DIRECTORY}/src/miniz/\\* -e ${CTEST_SCRIPT_DIRECTORY}/src/sha1/\\* --exclude-directories .\\*CompilerIdC\\* -r ${CTEST_SCRIPT_DIRECTORY} --object-directory=${CIO_OBJECT_DIRECTORY} -o ${CIO_CTEST_COVERAGE_DIR}/index.html")
     
-    set(CTEST_COVERAGE_COMMAND "${COVERAGE_TOOL}")
     set(CTEST_CUSTOM_COVERAGE_EXCLUDE
     ${CTEST_CUSTOM_COVERAGE_EXCLUDE}
         ".*/tests/.*"
@@ -148,11 +144,7 @@ if(CIO_CTEST_COVERAGE AND GCOVR_BIN)
         ".*/src/sha1/.*"
     )
 endif()
-
-if(CTEST_CMAKE_GENERATOR STREQUAL "Unix Makefiles")
-    set(CTEST_BUILD_FLAGS -j${NUMBER_OF_CORES})
-endif()
-ctest_build(NUMBER_ERRORS CIO_NUMBER_OF_ERRORS NUMBER_WARNINGS CIO_NUMBER_OF_WARNING)
+ 
 if(CIO_NUMBER_OF_ERRORS OR CIO_NUMBER_OF_WARNING)
     if (IS_CLANG_STATIC_ANALYZER )
         message(" -- Look into ${ANALYZER_REPORT_DIR} to see clang static analyzer report!")
@@ -171,7 +163,7 @@ if(TEST_RETURN)
     message(FATAL_ERROR " -- Error while running tests!")
     return()
 endif()
-
+ 
 if(CIO_CTEST_COVERAGE AND GCOVR_BIN)
     ctest_coverage()
     message(" -- Open ${CIO_CTEST_COVERAGE_DIR}/index.html to see collected coverage")
