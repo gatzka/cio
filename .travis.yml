@@ -139,6 +139,7 @@ matrix:
         packages:
         - cmake
         - cmake-data
+        - doxygen
         - gcc-8
         - g++-8
         - libbsd-dev
