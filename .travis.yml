@@ -49,7 +49,7 @@ matrix:
 
   - os: linux
     dist: xenial
-    compiler: gcc-6
+    compiler: gcc
     sudo: required
     env:
     - MATRIX_EVAL="-DCIO_CTEST_TOOLCHAIN_FILE:STRING=$TRAVIS_BUILD_DIR/cmake/gcc6.cmake -DCIO_CTEST_CONFIGURATION_TYPE:STRING=Release -DCIO_CTEST_COVERAGE:BOOL=OFF"
@@ -67,7 +67,7 @@ matrix:
 
   - os: linux
     dist: xenial
-    compiler: gcc-7
+    compiler: gcc
     sudo: required
     env:
     - MATRIX_EVAL="-DCIO_CTEST_TOOLCHAIN_FILE:STRING=$TRAVIS_BUILD_DIR/cmake/gcc7.cmake -DCIO_CTEST_CONFIGURATION_TYPE:STRING=Release -DCIO_CTEST_COVERAGE:BOOL=OFF"
@@ -85,7 +85,7 @@ matrix:
 
   - os: linux
     dist: xenial
-    compiler: gcc-8
+    compiler: gcc
     sudo: required
     env:
     - MATRIX_EVAL="-DCIO_CTEST_TOOLCHAIN_FILE:STRING=$TRAVIS_BUILD_DIR/cmake/gcc8.cmake -DCIO_CTEST_CONFIGURATION_TYPE:STRING=Debug -DCIO_CTEST_COVERAGE:BOOL=ON"
@@ -104,7 +104,7 @@ matrix:
 
   - os: linux
     dist: xenial
-    compiler: gcc-8
+    compiler: gcc
     sudo: required
     env:
     - MATRIX_EVAL="-DCIO_CTEST_TOOLCHAIN_FILE:STRING=$TRAVIS_BUILD_DIR/cmake/gcc8.cmake -DCIO_CTEST_CONFIGURATION_TYPE:STRING=Release -DCIO_CTEST_COVERAGE:BOOL=OFF -DCIO_CTEST_DOCUMENTATION:BOOL=ON""
@@ -123,7 +123,7 @@ matrix:
 
   - os: linux
     dist: xenial
-    compiler: clang-6
+    compiler: clang
     sudo: required
     env:
     - MATRIX_EVAL="-DCIO_CTEST_TOOLCHAIN_FILE:STRING=$TRAVIS_BUILD_DIR/cmake/clang6.cmake -DCIO_CTEST_CONFIGURATION_TYPE:STRING=Release -DCIO_CTEST_COVERAGE:BOOL=OFF"
@@ -141,7 +141,7 @@ matrix:
 
   - os: linux
     dist: xenial
-    compiler: clang-7
+    compiler: clang
     sudo: required
     env:
     - MATRIX_EVAL="-DCIO_CTEST_TOOLCHAIN_FILE:STRING=$TRAVIS_BUILD_DIR/cmake/clang7.cmake -DCIO_CTEST_CONFIGURATION_TYPE:STRING=Release -DCIO_CTEST_COVERAGE:BOOL=OFF"
@@ -159,7 +159,7 @@ matrix:
 
   - os: linux
     dist: xenial
-    compiler: clang-8
+    compiler: clang
     sudo: required
     env:
     - MATRIX_EVAL="-DCIO_CTEST_TOOLCHAIN_FILE:STRING=$TRAVIS_BUILD_DIR/cmake/clang8.cmake -DCIO_CTEST_CONFIGURATION_TYPE:STRING=Release -DCIO_CTEST_COVERAGE:BOOL=OFF"
@@ -177,7 +177,7 @@ matrix:
 
   - os: linux
     dist: xenial
-    compiler: scan-build-8
+    compiler: clang
     sudo: required
     env:
     - MATRIX_EVAL="-DCIO_CTEST_TOOLCHAIN_FILE:STRING=$TRAVIS_BUILD_DIR/cmake/clang8.cmake -DCIO_CTEST_ANALYZER:STRING=scan-build-8 -DCIO_CTEST_CONFIGURATION_TYPE:STRING=Debug -DCIO_CTEST_COVERAGE:BOOL=OFF"
@@ -196,7 +196,7 @@ matrix:
 
   - os: linux
     dist: xenial
-    compiler: clang-tidy-8
+    compiler: clang
     sudo: required
     env:
     - MATRIX_EVAL="-DCIO_CTEST_TOOLCHAIN_FILE:STRING=$TRAVIS_BUILD_DIR/cmake/clang8.cmake -DCIO_CTEST_ANALYZER:STRING=clang-tidy-8 -DCIO_CTEST_CONFIGURATION_TYPE:STRING=Debug -DCIO_CTEST_COVERAGE:BOOL=OFF"
@@ -215,7 +215,7 @@ matrix:
 
    - os: linux
      dist: xenial
-     compiler: sonarqube
+     compiler: gcc
      sudo: required
      script:
      - cmake -DCMAKE_C_COMPILER:STRING=gcc -DCMAKE_CXX_COMPILER:STRING=g++ -DCMAKE_BUILD_TYPE:STRING=Debug ./
@@ -237,7 +237,7 @@ matrix:
 
   - os: linux
     dist: xenial
-    compiler: clang-8-ubsan
+    compiler: clang
     sudo: required
     env:
     - MATRIX_EVAL="-DCIO_CTEST_TOOLCHAIN_FILE:STRING=$TRAVIS_BUILD_DIR/cmake/clang8.cmake -DCIO_CTEST_CONFIGURATION_TYPE:STRING=Release -DCIO_CTEST_SANITIZER:STRING=UndefinedBehaviorSanitizer -DCIO_CTEST_COVERAGE:BOOL=OFF"
@@ -255,8 +255,7 @@ matrix:
 
   - os: linux
     dist: xenial
-    compiler: clang-8-lsan
-    sudo: required
+    compiler: clang
     env:
     - MATRIX_EVAL="-DCIO_CTEST_TOOLCHAIN_FILE:STRING=$TRAVIS_BUILD_DIR/cmake/clang8.cmake -DCIO_CTEST_CONFIGURATION_TYPE:STRING=Release -DCIO_CTEST_SANITIZER:STRING=LeakSanitizer -DCIO_CTEST_COVERAGE:BOOL=OFF"
     addons:
@@ -273,7 +272,7 @@ matrix:
 
   - os: linux
     dist: xenial
-    compiler: clang-8-msan
+    compiler: clang
     sudo: required
     env:
     - MATRIX_EVAL="-DCIO_CTEST_TOOLCHAIN_FILE:STRING=$TRAVIS_BUILD_DIR/cmake/clang8.cmake -DCIO_CTEST_CONFIGURATION_TYPE:STRING=Release -DCIO_CTEST_SANITIZER:STRING=MemorySanitizer -DCIO_CTEST_COVERAGE:BOOL=OFF"
@@ -291,7 +290,7 @@ matrix:
 
   - os: linux
     dist: xenial
-    compiler: clang-8-asan
+    compiler: clang
     sudo: required
     env:
     - MATRIX_EVAL="-DCIO_CTEST_TOOLCHAIN_FILE:STRING=$TRAVIS_BUILD_DIR/cmake/clang8.cmake -DCIO_CTEST_CONFIGURATION_TYPE:STRING=Release -DCIO_CTEST_SANITIZER:STRING=AddressSanitizer -DCIO_CTEST_COVERAGE:BOOL=OFF"
