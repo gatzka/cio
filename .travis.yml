@@ -1,4 +1,7 @@
 language: c
+dist: xenial
+sudo: required
+
 branches:
   except:
   - "/^feature.*$/"
@@ -11,9 +14,7 @@ matrix:
 
 # Coverity build, must be the first!
   - os: linux
-    dist: xenial
     compiler: gcc
-    sudo: required
     env:
     - MATRIX_EVAL="-DCIO_CTEST_TOOLCHAIN_FILE:STRING=$TRAVIS_BUILD_DIR/cmake/gcc5.cmake -DCIO_CTEST_CONFIGURATION_TYPE:STRING=Debug -DCIO_CTEST_COVERAGE:BOOL=OFF"
     addons:
@@ -32,4 +33,26 @@ matrix:
         - cmake-data
         - libbsd-dev
         - ninja-build
+
+install:
+- pip install --user gcovr
+
+script:
+- if [ "$COVERITY_SCAN_BRANCH" != 1 ]; then
+    ctest -VV -S build.cmake ${MATRIX_EVAL};
+  fi
+
+after_success:
+- if [ -n "${BUILD_WITH_COVERAGE_INFO}" ]; then
+    bash <(curl -s https://codecov.io/bash) -X gcov -s /tmp/cio/ || echo "Codecov did not collect coverage reports";
+  fi
+
+- if [ -n "${CREATE_DOXY}" ]; then
+    $TRAVIS_BUILD_DIR/scripts/push-doxygen-to-gh-pages.sh ;
+  fi
+
+env:
+  global:
+  - secure: kMI8djmAytx80YQ8MRmXU2X90hV9bXHp9DEUdFplJZE1spTO6p4yl8kb57/nXUZoits70AnNVt93GlZ3FGxCBdzBFdOAhvzMXkWnqjed1JCPS9Kh9b+tlOCPIFzJ6mXn9aBYLHMxACrtqAbTSm8XEri7+aEMdy471PYWD3uf6xIo7wAqscO5tzJOTzPoGhEjvl6eZHr24jemWRBUAvL7al4NcutE7bHeHc3znzo1aQhx5jtL/ukofzXXPwrFUBOj9ujQsMb32lNAdxhNEyCDL1c73p7tf143ZuJ0nJoDEEXfvHxRIPkPQ2g8e5APiJEyIqVzcHugq9KPMjnMpMSDBMyPaY8cgXFcbbRzuWQfsw4OY+Bd3/Lud3iXUeZsVZazGDHolzZWemebz8VvEuVdPOmSei5wCUhkgSnM7rutU4Fsdb5zwG0ZNePh3YBYZy99DBfTUejKXboAHQxxvMJm63RrHb3kGM5jzxXMWL3Xfiaii0cqfctDJ4EIOLnD8HJu+6v0Xw9fZCjx4eFYD9z5uFxjLhXCBGXFEfQ0sGAxf97TJ2RR08/SrG4eRnK4oU0dqU1NKd7I7+wjCY8sOOpuWidXI9wNcqkJpcfmTEbqhr47Co/ojlUSegwxk1FMnd3qMnnKZR4jqTLtAZdsz9fYLgQAhk+Cuk5QVH5pyCGnOrw=
+  - secure: kMAAzWLvoiczf17zLmgfd1ILG3qUOXVuDYDi4w5KdweeFHWCQS1AhJcVEpBD/Flbszx4oDv3Z/MH31Ko+ugRSRPlV3SIspk8D1Szq4tuJ39opgU/bZQI6dMnyBSCrjKNoCGHJWR5v7YEMQD0VjYRKQQRziubbyhBbDKrvJQy4ofWlhrRTOeh5pHa6XRpEw/DsMJM0aIu5lTMxH82O6V+QYz07r3gOG3xcfy+WYORIRJDWQJ0Sam7Cw8OZu0cz80dYSXP8JSihHZc0cF8i7qOgBLY56v1huiVLbka/ZRM7+BD44vTEIkx4iDOBJ6Dxf0Sgju8ECIEdiToMoceFPRMX7m1xEC9GD3GchLDoJmy4gic2TjZFtN94X4lM0oGOQayRYtlsUAJrHxDh1GiVvZPXObx9XxFf2ajmotdn0FFKRp70j6OKUaBF7t3nNTVZhnKRfkLgSMnWb0p3CxpNkCMPss1soozgX2cBjqyg2i936eeI6rPPxcDQeRRQjMsUhXv+f6eTVtIZjARoq9UxYMsA8DF6upR+c9KtA7q/KENu0x+ZgoRsM2ej/FFgQrIziyOSMKZJEvzgytViwZpU020k0rsCtu2uo0ERh7Ar8eEUH4h7H1ATcT6zd5db2o2mMjgpxIHX79nleWZbhJ34l14v1qUHGBh4n5hldpB/ScDIqA=
 
