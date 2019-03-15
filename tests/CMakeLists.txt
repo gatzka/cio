@@ -60,6 +60,8 @@ foreach(tgt ${targets})
     if (target_type STREQUAL "EXECUTABLE")
         target_link_libraries(${tgt} fff unity cio:cio)
         set_target_properties(${tgt} PROPERTIES
+    		C_STANDARD_REQUIRED ON
+    		C_EXTENSIONS OFF
             C_CLANG_TIDY ""
         )
     endif()

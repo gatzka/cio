@@ -74,6 +74,8 @@ if(CIO_CONFIG_WEBSOCKETS)
 
     set_target_properties(sha PROPERTIES
         POSITION_INDEPENDENT_CODE ON
+    	C_STANDARD_REQUIRED ON
+    	C_EXTENSIONS OFF
         C_VISIBILITY_PRESET hidden
 		C_CLANG_TIDY ""
     )
