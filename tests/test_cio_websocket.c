@@ -1334,6 +1334,27 @@ static void test_send_pong_frame_no_ws(void)
 	TEST_ASSERT_EQUAL_MEMORY_MESSAGE(buffer, wbh.next->data.element.data, sizeof(buffer), "Content of writebuffer not correct after writing!");
 }
 
+static void test_send_ping_frame_no_ws(void)
+{
+	char buffer[] = "aaaaaaaa";
+
+	struct cio_write_buffer wbh;
+	cio_write_buffer_head_init(&wbh);
+
+	struct cio_write_buffer wb;
+	cio_write_buffer_element_init(&wb, buffer, sizeof(buffer));
+	cio_write_buffer_queue_tail(&wbh, &wb);
+
+	enum cio_error err = ws->write_ping(NULL, &wbh, write_handler, NULL);
+	TEST_ASSERT_EQUAL_MESSAGE(CIO_INVALID_ARGUMENT, err, "Writing a ping frame did not succeed!");
+	TEST_ASSERT_EQUAL_MESSAGE(0, write_handler_fake.call_count, "Write handler was called");
+	TEST_ASSERT_EQUAL_MESSAGE(0, on_error_fake.call_count, "error callback was called");
+
+	TEST_ASSERT_EQUAL_MESSAGE(1, cio_write_buffer_get_num_buffer_elements(&wbh), "Length of write buffer different than before writing!");
+	TEST_ASSERT_EQUAL_MESSAGE(&wbh, wbh.next->next, "Concatenation of write buffers no longer correct after writing!");
+	TEST_ASSERT_EQUAL_MEMORY_MESSAGE(buffer, wbh.next->data.element.data, sizeof(buffer), "Content of writebuffer not correct after writing!");
+}
+
 static void test_send_pong_frame_no_handler(void)
 {
 	char buffer[] = "aaaaaaaa";
@@ -1797,6 +1818,7 @@ int main(void)
 
 	RUN_TEST(test_send_pong_frame);
 	RUN_TEST(test_send_pong_frame_no_ws);
+	RUN_TEST(test_send_ping_frame_no_ws);
 	RUN_TEST(test_send_pong_frame_no_handler);
 	RUN_TEST(test_send_pong_frame_payload_too_large);
 	RUN_TEST(test_send_pong_frame_twice);

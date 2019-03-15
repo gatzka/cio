@@ -15,7 +15,7 @@ matrix:
     compiler: gcc
     sudo: required
     env:
-    - MATRIX_EVAL="-DCIO_CTEST_COMPILER:STRING=gcc -DCIO_CTEST_CONFIGURATION_TYPE:STRING=Debug -DCIO_CTEST_COVERAGE:BOOL=OFF"
+    - MATRIX_EVAL="-DCIO_CTEST_TOOLCHAIN_FILE:STRING=$TRAVIS_BUILD_DIR/cmake/gcc5.cmake -DCIO_CTEST_CONFIGURATION_TYPE:STRING=Debug -DCIO_CTEST_COVERAGE:BOOL=OFF"
     addons:
       coverity_scan:
         project:
@@ -37,30 +37,8 @@ matrix:
     dist: xenial
     compiler: gcc
     sudo: required
-    script:
-    - cmake -DCMAKE_C_COMPILER:STRING=gcc -DCMAKE_CXX_COMPILER:STRING=g++ -DCMAKE_BUILD_TYPE:STRING=Debug ./
-    - build-wrapper-linux-x86-64 --out-dir bw-output make
-    - sonar-scanner
-    addons:
-      sonarcloud:
-        organization: "gatzka-github"
-        token:
-          secure: "kkXwc7Ysk8DiyP2laG7u416+AFxDs0iVgy64s9bE+kMHnYt4BUgqh96chovoI1DyX+u5dAaxo5AXtGs89gg6RhmrVPger7awfqf74TzqiXgSCSVVeXT7uL6MJULXKNRRGM/ydUvRRA3xpDaFW1yWWymCEJO+dIs/+OcDQl+w9/dlabGgW8KMYG7ZlABUyVKlzFldswYOH3Q4rgboEMqDbvl9BAqMnHDhTX3tV+9eRW1u6K2xnH1FMBeIEy2WxhPgRUp9s2RlwVrOJjKxCV0xO66a6TCMk33zo+0TcUY0m9DCZZT13PkXo1Wr5aoxcUaxkUfkgJIT7IzJ429Cn4dIxQT4HFTWbnaqSat6puHEFGnOUQWf84COxotd7pCBXmqiTQXKmP7wvB95G1kFCq0y6kkuTI9SNPE28k0vrE9CPE/SgWtS7Acm5LVT8ou3Tcn4BqlmkRygMGlIXzdP6jNbSQ+JSS6exwliLRfRHzzR+h41NrD1qkyvxmEUZb5Y9oIKbunXnVgWRsJDToUMWKkh/4IbwkwWPhEKknnb3zNVp6eBrOUr8O/Rzq7vKKaFiZje9nMvXfZ9pEZX+9APtcY31N4SKFNoYAcvGvbFrnUPx5q3XsVrQ74peq0NXJQw3UDe+pEOSvoWwtbs/49TXLJ/N1MGOhjgyPMBKRv8yPevlfY="
-      cache:
-        directories:
-          - '$HOME/.sonar/cache'
-      apt:
-        packages:
-        - cmake
-        - cmake-data
-        - libbsd-dev
-
-  - os: linux
-    dist: xenial
-    compiler: gcc
-    sudo: required
     env:
-    - MATRIX_EVAL="-DCIO_CTEST_COMPILER:STRING=gcc -DCIO_CTEST_CONFIGURATION_TYPE:STRING=Debug -DCIO_CTEST_COVERAGE:BOOL=OFF -DCIO_CTEST_DOCUMENTATION:BOOL=ON"
+    - MATRIX_EVAL="-DCIO_CTEST_TOOLCHAIN_FILE:STRING=$TRAVIS_BUILD_DIR/cmake/gcc5.cmake -DCIO_CTEST_CONFIGURATION_TYPE:STRING=Debug -DCIO_CTEST_COVERAGE:BOOL=OFF -DCIO_CTEST_DOCUMENTATION:BOOL=ON"
     - CREATE_DOXY=true
     addons:
       apt:
@@ -76,7 +54,7 @@ matrix:
     compiler: gcc
     sudo: required
     env:
-    - MATRIX_EVAL="-DCIO_CTEST_COMPILER:STRING=gcc -DCIO_CTEST_CONFIGURATION_TYPE:STRING=Release -DCIO_CTEST_COVERAGE:BOOL=OFF"
+    - MATRIX_EVAL="-DCIO_CTEST_TOOLCHAIN_FILE:STRING=$TRAVIS_BUILD_DIR/cmake/gcc5.cmake -DCIO_CTEST_CONFIGURATION_TYPE:STRING=Release -DCIO_CTEST_COVERAGE:BOOL=OFF"
     addons:
       apt:
         packages:
@@ -90,7 +68,7 @@ matrix:
     compiler: gcc-6
     sudo: required
     env:
-    - MATRIX_EVAL="-DCIO_CTEST_COMPILER:STRING=gcc-6 -DCIO_CTEST_CONFIGURATION_TYPE:STRING=Debug -DCIO_CTEST_COVERAGE:BOOL=OFF"
+    - MATRIX_EVAL="-DCIO_CTEST_TOOLCHAIN_FILE:STRING=$TRAVIS_BUILD_DIR/cmake/gcc6.cmake -DCIO_CTEST_CONFIGURATION_TYPE:STRING=Debug -DCIO_CTEST_COVERAGE:BOOL=OFF"
     addons:
       apt:
         sources:
@@ -108,7 +86,7 @@ matrix:
     compiler: gcc-6
     sudo: required
     env:
-    - MATRIX_EVAL="-DCIO_CTEST_COMPILER:STRING=gcc-6 -DCIO_CTEST_CONFIGURATION_TYPE:STRING=Release -DCIO_CTEST_COVERAGE:BOOL=OFF"
+    - MATRIX_EVAL="-DCIO_CTEST_TOOLCHAIN_FILE:STRING=$TRAVIS_BUILD_DIR/cmake/gcc6.cmake -DCIO_CTEST_CONFIGURATION_TYPE:STRING=Release -DCIO_CTEST_COVERAGE:BOOL=OFF"
     addons:
       apt:
         sources:
@@ -126,7 +104,7 @@ matrix:
     compiler: gcc-7
     sudo: required
     env:
-    - MATRIX_EVAL="-DCIO_CTEST_COMPILER:STRING=gcc-7 -DCIO_CTEST_CONFIGURATION_TYPE:STRING=Debug -DCIO_CTEST_COVERAGE:BOOL=OFF"
+    - MATRIX_EVAL="-DCIO_CTEST_TOOLCHAIN_FILE:STRING=$TRAVIS_BUILD_DIR/cmake/gcc7.cmake -DCIO_CTEST_CONFIGURATION_TYPE:STRING=Debug -DCIO_CTEST_COVERAGE:BOOL=OFF"
     addons:
       apt:
         sources:
@@ -144,7 +122,7 @@ matrix:
     compiler: gcc-7
     sudo: required
     env:
-    - MATRIX_EVAL="-DCIO_CTEST_COMPILER:STRING=gcc-7 -DCIO_CTEST_CONFIGURATION_TYPE:STRING=Release -DCIO_CTEST_COVERAGE:BOOL=OFF"
+    - MATRIX_EVAL="-DCIO_CTEST_TOOLCHAIN_FILE:STRING=$TRAVIS_BUILD_DIR/cmake/gcc7.cmake -DCIO_CTEST_CONFIGURATION_TYPE:STRING=Release -DCIO_CTEST_COVERAGE:BOOL=OFF"
     addons:
       apt:
         sources:
@@ -162,7 +140,7 @@ matrix:
     compiler: gcc-8
     sudo: required
     env:
-    - MATRIX_EVAL="-DCIO_CTEST_COMPILER:STRING=gcc-8 -DCIO_CTEST_CONFIGURATION_TYPE:STRING=Debug -DCIO_CTEST_COVERAGE:BOOL=ON"
+    - MATRIX_EVAL="-DCIO_CTEST_TOOLCHAIN_FILE:STRING=$TRAVIS_BUILD_DIR/cmake/gcc8.cmake -DCIO_CTEST_CONFIGURATION_TYPE:STRING=Debug -DCIO_CTEST_COVERAGE:BOOL=ON"
     - BUILD_WITH_COVERAGE_INFO=1
     addons:
       apt:
@@ -181,7 +159,7 @@ matrix:
     compiler: gcc-8
     sudo: required
     env:
-    - MATRIX_EVAL="-DCIO_CTEST_COMPILER:STRING=gcc-8 -DCIO_CTEST_CONFIGURATION_TYPE:STRING=Release -DCIO_CTEST_COVERAGE:BOOL=OFF"
+    - MATRIX_EVAL="-DCIO_CTEST_TOOLCHAIN_FILE:STRING=$TRAVIS_BUILD_DIR/cmake/gcc8.cmake -DCIO_CTEST_CONFIGURATION_TYPE:STRING=Release -DCIO_CTEST_COVERAGE:BOOL=OFF"
     addons:
       apt:
         sources:
@@ -196,13 +174,17 @@ matrix:
 
   - os: linux
     dist: xenial
-    compiler: clang
+    compiler: clang-6
     sudo: required
     env:
-    - MATRIX_EVAL="-DCIO_CTEST_COMPILER:STRING=clang -DCIO_CTEST_CONFIGURATION_TYPE:STRING=Debug -DCIO_CTEST_COVERAGE:BOOL=OFF"
+    - MATRIX_EVAL="-DCIO_CTEST_TOOLCHAIN_FILE:STRING=$TRAVIS_BUILD_DIR/cmake/clang6.cmake -DCIO_CTEST_CONFIGURATION_TYPE:STRING=Debug -DCIO_CTEST_COVERAGE:BOOL=OFF"
     addons:
       apt:
+        sources:
+        - ubuntu-toolchain-r-test
+        - llvm-toolchain-xenial-6.0
         packages:
+        - clang-6.0
         - cmake
         - cmake-data
         - libbsd-dev
@@ -210,13 +192,17 @@ matrix:
 
   - os: linux
     dist: xenial
-    compiler: clang
+    compiler: clang-6
     sudo: required
     env:
-    - MATRIX_EVAL="-DCIO_CTEST_COMPILER:STRING=clang -DCIO_CTEST_CONFIGURATION_TYPE:STRING=Release -DCIO_CTEST_COVERAGE:BOOL=OFF"
+    - MATRIX_EVAL="-DCIO_CTEST_TOOLCHAIN_FILE:STRING=$TRAVIS_BUILD_DIR/cmake/clang6.cmake -DCIO_CTEST_CONFIGURATION_TYPE:STRING=Release -DCIO_CTEST_COVERAGE:BOOL=OFF"
     addons:
       apt:
+        sources:
+        - ubuntu-toolchain-r-test
+        - llvm-toolchain-xenial-6.0
         packages:
+        - clang-6.0
         - cmake
         - cmake-data
         - libbsd-dev
@@ -224,13 +210,17 @@ matrix:
 
   - os: linux
     dist: xenial
-    compiler: clang
+    compiler: clang-7
     sudo: required
     env:
-    - MATRIX_EVAL="-DCIO_CTEST_COMPILER:STRING=scan-build -DCIO_CTEST_CONFIGURATION_TYPE:STRING=Debug -DCIO_CTEST_COVERAGE:BOOL=OFF"
+    - MATRIX_EVAL="-DCIO_CTEST_TOOLCHAIN_FILE:STRING=$TRAVIS_BUILD_DIR/cmake/clang7.cmake -DCIO_CTEST_CONFIGURATION_TYPE:STRING=Debug -DCIO_CTEST_COVERAGE:BOOL=OFF"
     addons:
       apt:
+        sources:
+        - ubuntu-toolchain-r-test
+        - llvm-toolchain-xenial-7
         packages:
+        - clang-7
         - cmake
         - cmake-data
         - libbsd-dev
@@ -238,13 +228,17 @@ matrix:
 
   - os: linux
     dist: xenial
-    compiler: clang-tidy
+    compiler: clang-7
     sudo: required
     env:
-    - MATRIX_EVAL="-DCIO_CTEST_COMPILER:STRING=clang-tidy -DCIO_CTEST_CONFIGURATION_TYPE:STRING=Debug -DCIO_CTEST_COVERAGE:BOOL=OFF"
+    - MATRIX_EVAL="-DCIO_CTEST_TOOLCHAIN_FILE:STRING=$TRAVIS_BUILD_DIR/cmake/clang7.cmake -DCIO_CTEST_CONFIGURATION_TYPE:STRING=Release -DCIO_CTEST_COVERAGE:BOOL=OFF"
     addons:
       apt:
+        sources:
+        - ubuntu-toolchain-r-test
+        - llvm-toolchain-xenial-7
         packages:
+        - clang-7
         - cmake
         - cmake-data
         - libbsd-dev
@@ -252,13 +246,17 @@ matrix:
 
   - os: linux
     dist: xenial
-    compiler: clang
+    compiler: clang-8
     sudo: required
     env:
-    - MATRIX_EVAL="-DCIO_CTEST_COMPILER:STRING=clang -DCIO_CTEST_CONFIGURATION_TYPE:STRING=Release -DCIO_CTEST_SANITIZER:STRING=UndefinedBehaviorSanitizer -DCIO_CTEST_COVERAGE:BOOL=OFF"
+    - MATRIX_EVAL="-DCIO_CTEST_TOOLCHAIN_FILE:STRING=$TRAVIS_BUILD_DIR/cmake/clang8.cmake -DCIO_CTEST_CONFIGURATION_TYPE:STRING=Debug -DCIO_CTEST_COVERAGE:BOOL=OFF"
     addons:
       apt:
+        sources:
+        - ubuntu-toolchain-r-test
+        - llvm-toolchain-xenial-8
         packages:
+        - clang-8
         - cmake
         - cmake-data
         - libbsd-dev
@@ -266,13 +264,37 @@ matrix:
 
   - os: linux
     dist: xenial
-    compiler: clang
+    compiler: clang-8
     sudo: required
     env:
-    - MATRIX_EVAL="-DCIO_CTEST_COMPILER:STRING=clang -DCIO_CTEST_CONFIGURATION_TYPE:STRING=Release -DCIO_CTEST_SANITIZER:STRING=LeakSanitizer -DCIO_CTEST_COVERAGE:BOOL=OFF"
+    - MATRIX_EVAL="-DCIO_CTEST_TOOLCHAIN_FILE:STRING=$TRAVIS_BUILD_DIR/cmake/clang8.cmake -DCIO_CTEST_CONFIGURATION_TYPE:STRING=Release -DCIO_CTEST_COVERAGE:BOOL=OFF"
     addons:
       apt:
+        sources:
+        - ubuntu-toolchain-r-test
+        - llvm-toolchain-xenial-8
         packages:
+        - clang-8
+        - cmake
+        - cmake-data
+        - libbsd-dev
+        - ninja-build
+
+
+  - os: linux
+    dist: xenial
+    compiler: scan-build-8
+    sudo: required
+    env:
+    - MATRIX_EVAL="-DCIO_CTEST_TOOLCHAIN_FILE:STRING=$TRAVIS_BUILD_DIR/cmake/clang8.cmake -DCIO_CTEST_ANALYZER:STRING=scan-build-8 -DCIO_CTEST_CONFIGURATION_TYPE:STRING=Debug -DCIO_CTEST_COVERAGE:BOOL=OFF"
+    addons:
+      apt:
+        sources:
+        - ubuntu-toolchain-r-test
+        - llvm-toolchain-xenial-8
+        packages:
+        - clang-8
+        - clang-tools-8
         - cmake
         - cmake-data
         - libbsd-dev
@@ -280,13 +302,58 @@ matrix:
 
   - os: linux
     dist: xenial
-    compiler: clang
+    compiler: clang-tidy-8
     sudo: required
     env:
-    - MATRIX_EVAL="-DCIO_CTEST_COMPILER:STRING=clang -DCIO_CTEST_CONFIGURATION_TYPE:STRING=Release -DCIO_CTEST_SANITIZER:STRING=MemorySanitizer -DCIO_CTEST_COVERAGE:BOOL=OFF"
+    - MATRIX_EVAL="-DCIO_CTEST_TOOLCHAIN_FILE:STRING=$TRAVIS_BUILD_DIR/cmake/clang8.cmake -DCIO_CTEST_ANALYZER:STRING=clang-tidy-8 -DCIO_CTEST_CONFIGURATION_TYPE:STRING=Debug -DCIO_CTEST_COVERAGE:BOOL=OFF"
     addons:
       apt:
+        sources:
+        - ubuntu-toolchain-r-test
+        - llvm-toolchain-xenial-8
         packages:
+        - clang-8
+        - clang-tidy-8
+        - cmake
+        - cmake-data
+        - libbsd-dev
+        - ninja-build
+
+   - os: linux
+     dist: xenial
+     compiler: sonarqube
+     sudo: required
+     script:
+     - cmake -DCMAKE_C_COMPILER:STRING=gcc -DCMAKE_CXX_COMPILER:STRING=g++ -DCMAKE_BUILD_TYPE:STRING=Debug ./
+     - build-wrapper-linux-x86-64 --out-dir bw-output make
+     - sonar-scanner
+     addons:
+       sonarcloud:
+         organization: "gatzka-github"
+         token:
+           secure: "kkXwc7Ysk8DiyP2laG7u416+AFxDs0iVgy64s9bE+kMHnYt4BUgqh96chovoI1DyX+u5dAaxo5AXtGs89gg6RhmrVPger7awfqf74TzqiXgSCSVVeXT7uL6MJULXKNRRGM/ydUvRRA3xpDaFW1yWWymCEJO+dIs/+OcDQl+w9/dlabGgW8KMYG7ZlABUyVKlzFldswYOH3Q4rgboEMqDbvl9BAqMnHDhTX3tV+9eRW1u6K2xnH1FMBeIEy2WxhPgRUp9s2RlwVrOJjKxCV0xO66a6TCMk33zo+0TcUY0m9DCZZT13PkXo1Wr5aoxcUaxkUfkgJIT7IzJ429Cn4dIxQT4HFTWbnaqSat6puHEFGnOUQWf84COxotd7pCBXmqiTQXKmP7wvB95G1kFCq0y6kkuTI9SNPE28k0vrE9CPE/SgWtS7Acm5LVT8ou3Tcn4BqlmkRygMGlIXzdP6jNbSQ+JSS6exwliLRfRHzzR+h41NrD1qkyvxmEUZb5Y9oIKbunXnVgWRsJDToUMWKkh/4IbwkwWPhEKknnb3zNVp6eBrOUr8O/Rzq7vKKaFiZje9nMvXfZ9pEZX+9APtcY31N4SKFNoYAcvGvbFrnUPx5q3XsVrQ74peq0NXJQw3UDe+pEOSvoWwtbs/49TXLJ/N1MGOhjgyPMBKRv8yPevlfY="
+       cache:
+         directories:
+           - '$HOME/.sonar/cache'
+       apt:
+         packages:
+         - cmake
+         - cmake-data
+         - libbsd-dev
+
+  - os: linux
+    dist: xenial
+    compiler: clang-8-ubsan
+    sudo: required
+    env:
+    - MATRIX_EVAL="-DCIO_CTEST_TOOLCHAIN_FILE:STRING=$TRAVIS_BUILD_DIR/cmake/clang8.cmake -DCIO_CTEST_CONFIGURATION_TYPE:STRING=Release -DCIO_CTEST_SANITIZER:STRING=UndefinedBehaviorSanitizer -DCIO_CTEST_COVERAGE:BOOL=OFF"
+    addons:
+      apt:
+        sources:
+        - ubuntu-toolchain-r-test
+        - llvm-toolchain-xenial-8
+        packages:
+        - clang-8
         - cmake
         - cmake-data
         - libbsd-dev
@@ -294,13 +361,53 @@ matrix:
 
   - os: linux
     dist: xenial
-    compiler: clang
+    compiler: clang-8-lsan
     sudo: required
     env:
-    - MATRIX_EVAL="-DCIO_CTEST_COMPILER:STRING=clang -DCIO_CTEST_CONFIGURATION_TYPE:STRING=Release -DCIO_CTEST_SANITIZER:STRING=AddressSanitizer -DCIO_CTEST_COVERAGE:BOOL=OFF"
+    - MATRIX_EVAL="-DCIO_CTEST_TOOLCHAIN_FILE:STRING=$TRAVIS_BUILD_DIR/cmake/clang8.cmake -DCIO_CTEST_CONFIGURATION_TYPE:STRING=Release -DCIO_CTEST_SANITIZER:STRING=LeakSanitizer -DCIO_CTEST_COVERAGE:BOOL=OFF"
     addons:
       apt:
+        sources:
+        - ubuntu-toolchain-r-test
+        - llvm-toolchain-xenial-8
         packages:
+        - clang-8
+        - cmake
+        - cmake-data
+        - libbsd-dev
+        - ninja-build
+
+  - os: linux
+    dist: xenial
+    compiler: clang-8-msan
+    sudo: required
+    env:
+    - MATRIX_EVAL="-DCIO_CTEST_TOOLCHAIN_FILE:STRING=$TRAVIS_BUILD_DIR/cmake/clang8.cmake -DCIO_CTEST_CONFIGURATION_TYPE:STRING=Release -DCIO_CTEST_SANITIZER:STRING=MemorySanitizer -DCIO_CTEST_COVERAGE:BOOL=OFF"
+    addons:
+      apt:
+        sources:
+        - ubuntu-toolchain-r-test
+        - llvm-toolchain-xenial-8
+        packages:
+        - clang-8
+        - cmake
+        - cmake-data
+        - libbsd-dev
+        - ninja-build
+
+  - os: linux
+    dist: xenial
+    compiler: clang-8-asan
+    sudo: required
+    env:
+    - MATRIX_EVAL="-DCIO_CTEST_TOOLCHAIN_FILE:STRING=$TRAVIS_BUILD_DIR/cmake/clang8.cmake -DCIO_CTEST_CONFIGURATION_TYPE:STRING=Release -DCIO_CTEST_SANITIZER:STRING=AddressSanitizer -DCIO_CTEST_COVERAGE:BOOL=OFF"
+    addons:
+      apt:
+        sources:
+        - ubuntu-toolchain-r-test
+        - llvm-toolchain-xenial-8
+        packages:
+        - clang-8
         - cmake
         - cmake-data
         - libbsd-dev

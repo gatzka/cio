@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.8)
-project(cio VERSION 0.0.1 LANGUAGES C CXX)
+project(cio VERSION 0.0.1 LANGUAGES C)
 
 include(CMakePackageConfigHelpers)
 
@@ -30,11 +30,6 @@ add_library(${PROJECT_NAME}
     "cio_version.c"
 )
 
-target_compile_options(${PROJECT_NAME} PRIVATE $<$<OR:$<C_COMPILER_ID:GNU>,$<C_COMPILER_ID:Clang>>:-Wall;-Wextra;-Wshadow;-Winit-self;-Wcast-qual;-Wcast-align;-Wformat=2;-Wwrite-strings;-Wmissing-prototypes;-Wstrict-prototypes;-Wold-style-definition;-Wstrict-overflow=5;-Wdisabled-optimization;-Wmissing-include-dirs;-Wswitch-default;-Wundef;-Wconversion;-pedantic;-pedantic-errors>)
-target_compile_options(${PROJECT_NAME} PRIVATE $<$<AND:$<C_COMPILER_ID:GNU>,$<VERSION_GREATER:$<C_COMPILER_VERSION>,7.0.0>>:-Wformat-truncation -Wstringop-overflow -Wformat-overflow=2>)
-target_compile_options(${PROJECT_NAME} PRIVATE $<$<AND:$<C_COMPILER_ID:GNU>,$<VERSION_GREATER:$<C_COMPILER_VERSION>,8.0.0>>:-Wstringop-truncation>)
-target_compile_options(${PROJECT_NAME} PRIVATE $<$<C_COMPILER_ID:Clang>:-Wdocumentation>)
-    
 add_library(${PROJECT_NAME}:${PROJECT_NAME} ALIAS ${PROJECT_NAME})
 
 add_dependencies(${PROJECT_NAME} generate_semver)
@@ -50,6 +45,7 @@ if(CIO_CONFIG_HTTP)
         http-parser/http_parser.c
     )
     set_target_properties(http-parser PROPERTIES
+		COMPILE_OPTIONS "$<$<OR:$<C_COMPILER_ID:GNU>,$<C_COMPILER_ID:Clang>>:-Wno-shadow;-Wno-sign-conversion;-Wno-switch-default;-Wno-conversion;-Wno-strict-overflow>"
         POSITION_INDEPENDENT_CODE ON
         C_VISIBILITY_PRESET hidden
 		C_CLANG_TIDY ""
@@ -78,6 +74,8 @@ if(CIO_CONFIG_WEBSOCKETS)
 
     set_target_properties(sha PROPERTIES
         POSITION_INDEPENDENT_CODE ON
+    	C_STANDARD_REQUIRED ON
+    	C_EXTENSIONS OFF
         C_VISIBILITY_PRESET hidden
 		C_CLANG_TIDY ""
     )

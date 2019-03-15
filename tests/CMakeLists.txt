@@ -10,6 +10,8 @@ add_library(unity
 )
 set_target_properties(unity PROPERTIES
     C_CLANG_TIDY ""
+    COMPILE_OPTIONS "$<$<OR:$<C_COMPILER_ID:GNU>,$<C_COMPILER_ID:Clang>>:-Wno-strict-overflow>"
+    
 )
 target_include_directories(unity PUBLIC ${CMAKE_CURRENT_LIST_DIR}/unity/src/)
 
@@ -54,15 +56,12 @@ add_test(NAME cio.common.test_version COMMAND test_cio_version)
 
 get_property(targets DIRECTORY "${CMAKE_CURRENT_LIST_DIR}" PROPERTY BUILDSYSTEM_TARGETS)
 foreach(tgt ${targets})
-    target_compile_options(${tgt} INTERFACE $<$<OR:$<C_COMPILER_ID:GNU>,$<C_COMPILER_ID:Clang>>:-Wall;-Wextra;-Wshadow;-Winit-self;-Wcast-qual;-Wcast-align;-Wformat=2;-Wwrite-strings;-Wmissing-prototypes;-Wstrict-prototypes;-Wold-style-definition;-Wstrict-overflow=5;-Wdisabled-optimization;-Wmissing-include-dirs;-Wswitch-default;-Wundef;-Wconversion;-pedantic;-pedantic-errors>)
-    target_compile_options(${tgt} INTERFACE $<$<AND:$<C_COMPILER_ID:GNU>,$<VERSION_GREATER:$<C_COMPILER_VERSION>,7.0.0>>:-Wformat-truncation -Wstringop-overflow -Wformat-overflow=2>)
-    target_compile_options(${tgt} INTERFACE $<$<AND:$<C_COMPILER_ID:GNU>,$<VERSION_GREATER:$<C_COMPILER_VERSION>,8.0.0>>:-Wstringop-truncation>)
-    
-    target_compile_options(${tgt} INTERFACE $<$<C_COMPILER_ID:Clang>:-Wdocumentation>)
     get_target_property(target_type ${tgt} TYPE)
     if (target_type STREQUAL "EXECUTABLE")
         target_link_libraries(${tgt} fff unity cio:cio)
         set_target_properties(${tgt} PROPERTIES
+    		C_STANDARD_REQUIRED ON
+    		C_EXTENSIONS OFF
             C_CLANG_TIDY ""
         )
     endif()
