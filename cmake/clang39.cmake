@@ -7,7 +7,3 @@ set(CMAKE_CXX_COMPILER clang++-3.9)
 set(CTEST_COVERAGE_COMMAND "llvm-cov-3.9")
 set(CTEST_COVERAGE_EXTRA_FLAGS "gcov")
 
-set(CIO_ASAN_FLAGS "-g -fsanitize=address -fno-sanitize-recover=all -fno-omit-frame-pointer")
-set(CIO_LSAN_FLAGS "-g -fsanitize=leak -fno-sanitize-recover=all -fno-omit-frame-pointer")
-set(CIO_UBSAN_FLAGS "-g -fsanitize=undefined -fno-sanitize-recover=all -fno-omit-frame-pointer")
-set(CIO_MSAN_FLAGS "-g -fsanitize=memory -fsanitize-memory-track-origins -fno-sanitize-recover=all -fno-omit-frame-pointer")
