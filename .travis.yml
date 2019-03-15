@@ -110,6 +110,40 @@ matrix:
         - libbsd-dev
         - ninja-build
 
+  - os: linux
+    compiler: gcc
+    env:
+    - MATRIX_EVAL="-DCIO_CTEST_TOOLCHAIN_FILE:STRING=$TRAVIS_BUILD_DIR/cmake/gcc8.cmake -DCIO_CTEST_CONFIGURATION_TYPE:STRING=Debug -DCIO_CTEST_COVERAGE:BOOL=ON"
+    - BUILD_WITH_COVERAGE_INFO=1
+    addons:
+      apt:
+        sources:
+        - ubuntu-toolchain-r-test
+        packages:
+        - cmake
+        - cmake-data
+        - gcc-8
+        - g++-8
+        - libbsd-dev
+        - ninja-build
+
+  - os: linux
+    compiler: gcc
+    env:
+    - MATRIX_EVAL="-DCIO_CTEST_TOOLCHAIN_FILE:STRING=$TRAVIS_BUILD_DIR/cmake/gcc8.cmake -DCIO_CTEST_CONFIGURATION_TYPE:STRING=Release -DCIO_CTEST_COVERAGE:BOOL=OFF -DCIO_CTEST_DOCUMENTATION:BOOL=ON""
+    - CREATE_DOXY=true
+    addons:
+      apt:
+        sources:
+        - ubuntu-toolchain-r-test
+        packages:
+        - cmake
+        - cmake-data
+        - gcc-8
+        - g++-8
+        - libbsd-dev
+        - ninja-build
+
 install:
 - pip install --user gcovr
 
