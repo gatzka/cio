@@ -196,6 +196,42 @@ matrix:
 
   - os: linux
     dist: xenial
+    compiler: clang-6
+    sudo: required
+    env:
+    - MATRIX_EVAL="-DCIO_CTEST_TOOLCHAIN_FILE:STRING=$TRAVIS_BUILD_DIR/cmake/clang6.cmake -DCIO_CTEST_CONFIGURATION_TYPE:STRING=Debug -DCIO_CTEST_COVERAGE:BOOL=OFF"
+    addons:
+      apt:
+        sources:
+        - ubuntu-toolchain-r-test
+        - llvm-toolchain-xenial-6.0
+        packages:
+        - clang-6.0
+        - cmake
+        - cmake-data
+        - libbsd-dev
+        - ninja-build
+
+  - os: linux
+    dist: xenial
+    compiler: clang-6
+    sudo: required
+    env:
+    - MATRIX_EVAL="-DCIO_CTEST_TOOLCHAIN_FILE:STRING=$TRAVIS_BUILD_DIR/cmake/clang6.cmake -DCIO_CTEST_CONFIGURATION_TYPE:STRING=Release -DCIO_CTEST_COVERAGE:BOOL=OFF"
+    addons:
+      apt:
+        sources:
+        - ubuntu-toolchain-r-test
+        - llvm-toolchain-xenial-6.0
+        packages:
+        - clang-6.0
+        - cmake
+        - cmake-data
+        - libbsd-dev
+        - ninja-build
+
+  - os: linux
+    dist: xenial
     compiler: clang-7
     sudo: required
     env:
@@ -229,6 +265,43 @@ matrix:
         - cmake-data
         - libbsd-dev
         - ninja-build
+
+  - os: linux
+    dist: xenial
+    compiler: clang-8
+    sudo: required
+    env:
+    - MATRIX_EVAL="-DCIO_CTEST_TOOLCHAIN_FILE:STRING=$TRAVIS_BUILD_DIR/cmake/clang8.cmake -DCIO_CTEST_CONFIGURATION_TYPE:STRING=Debug -DCIO_CTEST_COVERAGE:BOOL=OFF"
+    addons:
+      apt:
+        sources:
+        - ubuntu-toolchain-r-test
+        - llvm-toolchain-xenial-8
+        packages:
+        - clang-8
+        - cmake
+        - cmake-data
+        - libbsd-dev
+        - ninja-build
+
+  - os: linux
+    dist: xenial
+    compiler: clang-8
+    sudo: required
+    env:
+    - MATRIX_EVAL="-DCIO_CTEST_TOOLCHAIN_FILE:STRING=$TRAVIS_BUILD_DIR/cmake/clang8.cmake -DCIO_CTEST_CONFIGURATION_TYPE:STRING=Release -DCIO_CTEST_COVERAGE:BOOL=OFF"
+    addons:
+      apt:
+        sources:
+        - ubuntu-toolchain-r-test
+        - llvm-toolchain-xenial-8
+        packages:
+        - clang-8
+        - cmake
+        - cmake-data
+        - libbsd-dev
+        - ninja-build
+
 
 #  - os: linux
 #    dist: xenial
