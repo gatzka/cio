@@ -303,34 +303,44 @@ matrix:
         - ninja-build
 
 
-#  - os: linux
-#    dist: xenial
-#    compiler: clang
-#    sudo: required
-#    env:
-#    - MATRIX_EVAL="-DCIO_CTEST_COMPILER:STRING=scan-build -DCIO_CTEST_CONFIGURATION_TYPE:STRING=Debug -DCIO_CTEST_COVERAGE:BOOL=OFF"
-#    addons:
-#      apt:
-#        packages:
-#        - cmake
-#        - cmake-data
-#        - libbsd-dev
-#        - ninja-build
-#
-#  - os: linux
-#    dist: xenial
-#    compiler: clang-tidy
-#    sudo: required
-#    env:
-#    - MATRIX_EVAL="-DCIO_CTEST_COMPILER:STRING=clang-tidy -DCIO_CTEST_CONFIGURATION_TYPE:STRING=Debug -DCIO_CTEST_COVERAGE:BOOL=OFF"
-#    addons:
-#      apt:
-#        packages:
-#        - cmake
-#        - cmake-data
-#        - libbsd-dev
-#        - ninja-build
-#
+  - os: linux
+    dist: xenial
+    compiler: clang
+    sudo: required
+    env:
+    - MATRIX_EVAL="-DCIO_CTEST_TOOLCHAIN_FILE:STRING=$TRAVIS_BUILD_DIR/cmake/clang8.cmake -DCIO_CTEST_ANALYZER:STRING=scan-build-8 -DCIO_CTEST_CONFIGURATION_TYPE:STRING=Debug -DCIO_CTEST_COVERAGE:BOOL=OFF"
+    addons:
+      apt:
+        sources:
+        - ubuntu-toolchain-r-test
+        - llvm-toolchain-xenial-8
+        packages:
+        - clang-8
+        - clang-tools-8
+        - cmake
+        - cmake-data
+        - libbsd-dev
+        - ninja-build
+
+  - os: linux
+    dist: xenial
+    compiler: clang-tidy
+    sudo: required
+    env:
+    - MATRIX_EVAL="-DCIO_CTEST_TOOLCHAIN_FILE:STRING=$TRAVIS_BUILD_DIR/cmake/clang8.cmake -DCIO_CTEST_ANALYZER:STRING=clang-tidy-8 -DCIO_CTEST_CONFIGURATION_TYPE:STRING=Debug -DCIO_CTEST_COVERAGE:BOOL=OFF"
+    addons:
+      apt:
+        sources:
+        - ubuntu-toolchain-r-test
+        - llvm-toolchain-xenial-8
+        packages:
+        - clang-8
+        - clang-tidy-8
+        - cmake
+        - cmake-data
+        - libbsd-dev
+        - ninja-build
+
 #  - os: linux
 #    dist: xenial
 #    compiler: clang
