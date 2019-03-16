@@ -145,6 +145,154 @@ matrix:
         - libbsd-dev
         - ninja-build
 
+  - os: linux
+    compiler: clang
+    env:
+    - MATRIX_EVAL="-DCIO_CTEST_TOOLCHAIN_FILE:STRING=$TRAVIS_BUILD_DIR/cmake/clang6.cmake -DCIO_CTEST_CONFIGURATION_TYPE:STRING=Release -DCIO_CTEST_COVERAGE:BOOL=OFF"
+    addons:
+      apt:
+        sources:
+        - ubuntu-toolchain-r-test
+        - llvm-toolchain-xenial-6.0
+        packages:
+        - clang-6.0
+        - cmake
+        - cmake-data
+        - libbsd-dev
+        - ninja-build
+
+  - os: linux
+    compiler: clang
+    env:
+    - MATRIX_EVAL="-DCIO_CTEST_TOOLCHAIN_FILE:STRING=$TRAVIS_BUILD_DIR/cmake/clang7.cmake -DCIO_CTEST_CONFIGURATION_TYPE:STRING=Release -DCIO_CTEST_COVERAGE:BOOL=OFF"
+    addons:
+      apt:
+        sources:
+        - ubuntu-toolchain-r-test
+        - llvm-toolchain-xenial-7
+        packages:
+        - clang-7
+        - cmake
+        - cmake-data
+        - libbsd-dev
+        - ninja-build
+
+  - os: linux
+    compiler: clang
+    env:
+    - MATRIX_EVAL="-DCIO_CTEST_TOOLCHAIN_FILE:STRING=$TRAVIS_BUILD_DIR/cmake/clang8.cmake -DCIO_CTEST_CONFIGURATION_TYPE:STRING=Release -DCIO_CTEST_COVERAGE:BOOL=OFF"
+    addons:
+      apt:
+        sources:
+        - ubuntu-toolchain-r-test
+        - llvm-toolchain-xenial-8
+        packages:
+        - clang-8
+        - cmake
+        - cmake-data
+        - libbsd-dev
+        - ninja-build
+
+  - os: linux
+    compiler: clang
+    env:
+    - MATRIX_EVAL="-DCIO_CTEST_TOOLCHAIN_FILE:STRING=$TRAVIS_BUILD_DIR/cmake/clang8.cmake -DCIO_CTEST_ANALYZER:STRING=scan-build-8 -DCIO_CTEST_CONFIGURATION_TYPE:STRING=Debug -DCIO_CTEST_COVERAGE:BOOL=OFF"
+    addons:
+      apt:
+        sources:
+        - ubuntu-toolchain-r-test
+        - llvm-toolchain-xenial-8
+        packages:
+        - clang-8
+        - clang-tools-8
+        - cmake
+        - cmake-data
+        - libbsd-dev
+        - ninja-build
+
+  - os: linux
+    compiler: clang
+    env:
+    - MATRIX_EVAL="-DCIO_CTEST_TOOLCHAIN_FILE:STRING=$TRAVIS_BUILD_DIR/cmake/clang8.cmake -DCIO_CTEST_ANALYZER:STRING=clang-tidy-8 -DCIO_CTEST_CONFIGURATION_TYPE:STRING=Debug -DCIO_CTEST_COVERAGE:BOOL=OFF"
+    addons:
+      apt:
+        sources:
+        - ubuntu-toolchain-r-test
+        - llvm-toolchain-xenial-8
+        packages:
+        - clang-8
+        - clang-tidy-8
+        - cmake
+        - cmake-data
+        - libbsd-dev
+        - ninja-build
+
+  - os: linux
+    compiler: clang
+    env:
+    - MATRIX_EVAL="-DCIO_CTEST_TOOLCHAIN_FILE:STRING=$TRAVIS_BUILD_DIR/cmake/clang8.cmake -DCIO_CTEST_CONFIGURATION_TYPE:STRING=Release -DCIO_CTEST_SANITIZER:STRING=UndefinedBehaviorSanitizer -DCIO_CTEST_COVERAGE:BOOL=OFF"
+    addons:
+      apt:
+        sources:
+        - ubuntu-toolchain-r-test
+        - llvm-toolchain-xenial-8
+        packages:
+        - clang-8
+        - cmake
+        - cmake-data
+        - libbsd-dev
+        - ninja-build
+
+  - os: linux
+    compiler: clang
+    env:
+    - MATRIX_EVAL="-DCIO_CTEST_TOOLCHAIN_FILE:STRING=$TRAVIS_BUILD_DIR/cmake/clang8.cmake -DCIO_CTEST_CONFIGURATION_TYPE:STRING=Release -DCIO_CTEST_SANITIZER:STRING=LeakSanitizer -DCIO_CTEST_COVERAGE:BOOL=OFF"
+    addons:
+      apt:
+        sources:
+        - ubuntu-toolchain-r-test
+        - llvm-toolchain-xenial-8
+        packages:
+        - clang-8
+        - cmake
+        - cmake-data
+        - libbsd-dev
+        - ninja-build
+
+  - os: linux
+    compiler: clang
+    env:
+    - MATRIX_EVAL="-DCIO_CTEST_TOOLCHAIN_FILE:STRING=$TRAVIS_BUILD_DIR/cmake/clang8.cmake -DCIO_CTEST_CONFIGURATION_TYPE:STRING=Release -DCIO_CTEST_SANITIZER:STRING=MemorySanitizer -DCIO_CTEST_COVERAGE:BOOL=OFF"
+    addons:
+      apt:
+        sources:
+        - ubuntu-toolchain-r-test
+        - llvm-toolchain-xenial-8
+        packages:
+        - clang-8
+        - cmake
+        - cmake-data
+        - libbsd-dev
+        - ninja-build
+
+  - os: linux
+    compiler: clang
+    env:
+    - MATRIX_EVAL="-DCIO_CTEST_TOOLCHAIN_FILE:STRING=$TRAVIS_BUILD_DIR/cmake/clang8.cmake -DCIO_CTEST_CONFIGURATION_TYPE:STRING=Release -DCIO_CTEST_SANITIZER:STRING=AddressSanitizer -DCIO_CTEST_COVERAGE:BOOL=OFF"
+    addons:
+      apt:
+        sources:
+        - ubuntu-toolchain-r-test
+        - llvm-toolchain-xenial-8
+        packages:
+        - clang-8
+        - cmake
+        - cmake-data
+        - libbsd-dev
+        - ninja-build
+
+
+
 install:
 - pip install --user gcovr
 
