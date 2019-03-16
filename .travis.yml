@@ -194,6 +194,26 @@ matrix:
         - ninja-build
 
   - os: linux
+    compiler: gcc
+    script:
+    - cmake -DCMAKE_C_COMPILER:STRING=gcc -DCMAKE_CXX_COMPILER:STRING=g++ -DCMAKE_BUILD_TYPE:STRING=Debug ./
+    - build-wrapper-linux-x86-64 --out-dir bw-output make
+    - sonar-scanner
+    addons:
+      sonarcloud:
+        organization: "gatzka-github"
+        token:
+          secure: "kkXwc7Ysk8DiyP2laG7u416+AFxDs0iVgy64s9bE+kMHnYt4BUgqh96chovoI1DyX+u5dAaxo5AXtGs89gg6RhmrVPger7awfqf74TzqiXgSCSVVeXT7uL6MJULXKNRRGM/ydUvRRA3xpDaFW1yWWymCEJO+dIs/+OcDQl+w9/dlabGgW8KMYG7ZlABUyVKlzFldswYOH3Q4rgboEMqDbvl9BAqMnHDhTX3tV+9eRW1u6K2xnH1FMBeIEy2WxhPgRUp9s2RlwVrOJjKxCV0xO66a6TCMk33zo+0TcUY0m9DCZZT13PkXo1Wr5aoxcUaxkUfkgJIT7IzJ429Cn4dIxQT4HFTWbnaqSat6puHEFGnOUQWf84COxotd7pCBXmqiTQXKmP7wvB95G1kFCq0y6kkuTI9SNPE28k0vrE9CPE/SgWtS7Acm5LVT8ou3Tcn4BqlmkRygMGlIXzdP6jNbSQ+JSS6exwliLRfRHzzR+h41NrD1qkyvxmEUZb5Y9oIKbunXnVgWRsJDToUMWKkh/4IbwkwWPhEKknnb3zNVp6eBrOUr8O/Rzq7vKKaFiZje9nMvXfZ9pEZX+9APtcY31N4SKFNoYAcvGvbFrnUPx5q3XsVrQ74peq0NXJQw3UDe+pEOSvoWwtbs/49TXLJ/N1MGOhjgyPMBKRv8yPevlfY="
+      cache:
+        directories:
+          - '$HOME/.sonar/cache'
+      apt:
+        packages:
+        - cmake
+        - cmake-data
+        - libbsd-dev
+
+  - os: linux
     compiler: clang
     env:
     - MATRIX_EVAL="-DCIO_CTEST_TOOLCHAIN_FILE:STRING=$TRAVIS_BUILD_DIR/cmake/clang8.cmake -DCIO_CTEST_ANALYZER:STRING=scan-build-8 -DCIO_CTEST_CONFIGURATION_TYPE:STRING=Debug -DCIO_CTEST_COVERAGE:BOOL=OFF"
