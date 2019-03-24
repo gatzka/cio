@@ -191,23 +191,6 @@ struct cio_websocket {
 	 */
 	void (*on_error)(const struct cio_websocket *ws, enum cio_error err, const char *reason);
 
-	/**
-	 * @anchor cio_write_pong
-	 * @brief Writes a pong frame to the websocket.
-	 *
-	 * @warning Please note that the data @p payload encapsulates will be scrambled by
-	 * the library if this function is used in a websocket client connection. So if
-	 * you want to write the same data again, you have to re-initialize the data encapsluated
-	 * by @p payload. In addition you should ALWAYS intialize the write buffer elements in
-	 * @p payload using the @ref cio_write_buffer_element_init "non-const initialization function".
-	 *
-	 * @param payload The payload to be sent.
-	 * @param handler A callback function that will be called when the write operation of the pong completes.
-	 * @param handler_context A context pointer given to @p handler when called.
-	 * @return ::CIO_SUCCESS for success.
-	 */
-	enum cio_error (*write_pong)(struct cio_websocket *ws, struct cio_write_buffer *payload, cio_websocket_write_handler handler, void *handler_context);
-
 	/*! @cond PRIVATE */
 	struct cio_websocket_private ws_private;
 	void (*on_connect)(struct cio_websocket *ws);
@@ -294,6 +277,24 @@ CIO_EXPORT enum cio_error cio_websocket_write_message_continuation_chunk(struct 
  * @return ::CIO_SUCCESS for success.
  */
 CIO_EXPORT enum cio_error cio_websocket_write_ping(struct cio_websocket *ws, struct cio_write_buffer *payload, cio_websocket_write_handler handler, void *handler_context);
+
+/**
+ * @brief Writes a pong frame to the websocket.
+ *
+ * @warning Please note that the data @p payload encapsulates will be scrambled by
+ * the library if this function is used in a websocket client connection. So if
+ * you want to write the same data again, you have to re-initialize the data encapsluated
+ * by @p payload. In addition you should ALWAYS intialize the write buffer elements in
+ * @p payload using the @ref cio_write_buffer_element_init "non-const initialization function".
+ *
+ * @param ws The websocket which should be used for sending the pong message.
+ * @param payload The payload to be sent.
+ * @param handler A callback function that will be called when the write operation of the pong completes.
+ * @param handler_context A context pointer given to @p handler when called.
+ * @return ::CIO_SUCCESS for success.
+ */
+enum cio_error cio_websocket_write_pong(struct cio_websocket *ws, struct cio_write_buffer *payload, cio_websocket_write_handler handler, void *handler_context);
+
 
 #ifdef __cplusplus
 }

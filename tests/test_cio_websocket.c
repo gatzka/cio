@@ -616,7 +616,7 @@ static void test_send_multiple_jobs_with_failures(void)
 
 	enum cio_error err = cio_websocket_write_ping(ws, &ping_wbh, write_handler, NULL);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Writing a ping frame did not succeed!");
-	err = ws->write_pong(ws, &pong_wbh, write_handler, NULL);
+	err = cio_websocket_write_pong(ws, &pong_wbh, write_handler, NULL);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Writing a pong frame did not succeed!");
 	err = cio_websocket_write_message_first_chunk(ws, cio_write_buffer_get_total_size(&text_wbh), &text_wbh, true, false, write_handler, NULL);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Writing a text frame did not succeed!");
@@ -1297,7 +1297,7 @@ static void test_send_pong_frame(void)
 	cio_write_buffer_element_init(&wb, buffer, sizeof(buffer));
 	cio_write_buffer_queue_tail(&wbh, &wb);
 
-	enum cio_error err = ws->write_pong(ws, &wbh, write_handler, NULL);
+	enum cio_error err = cio_websocket_write_pong(ws, &wbh, write_handler, NULL);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Writing a pong frame did not succeed!");
 	TEST_ASSERT_EQUAL_MESSAGE(1, write_handler_fake.call_count, "Write handler was not called once");
 	TEST_ASSERT_EQUAL_MESSAGE(ws, write_handler_fake.arg0_val, "websocket parameter of write_handler not correct");
@@ -1324,7 +1324,7 @@ static void test_send_pong_frame_no_ws(void)
 	cio_write_buffer_element_init(&wb, buffer, sizeof(buffer));
 	cio_write_buffer_queue_tail(&wbh, &wb);
 
-	enum cio_error err = ws->write_pong(NULL, &wbh, write_handler, NULL);
+	enum cio_error err = cio_websocket_write_pong(NULL, &wbh, write_handler, NULL);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_INVALID_ARGUMENT, err, "Writing a pong frame did not succeed!");
 	TEST_ASSERT_EQUAL_MESSAGE(0, write_handler_fake.call_count, "Write handler was called");
 	TEST_ASSERT_EQUAL_MESSAGE(0, on_error_fake.call_count, "error callback was called");
@@ -1366,7 +1366,7 @@ static void test_send_pong_frame_no_handler(void)
 	cio_write_buffer_element_init(&wb, buffer, sizeof(buffer));
 	cio_write_buffer_queue_tail(&wbh, &wb);
 
-	enum cio_error err = ws->write_pong(ws, &wbh, NULL, NULL);
+	enum cio_error err = cio_websocket_write_pong(ws, &wbh, NULL, NULL);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_INVALID_ARGUMENT, err, "Writing a pong frame did not succeed!");
 	TEST_ASSERT_EQUAL_MESSAGE(0, write_handler_fake.call_count, "Write handler was called");
 	TEST_ASSERT_EQUAL_MESSAGE(0, on_error_fake.call_count, "error callback was called");
@@ -1387,7 +1387,7 @@ static void test_send_pong_frame_payload_too_large(void)
 	cio_write_buffer_element_init(&wb, buffer, sizeof(buffer));
 	cio_write_buffer_queue_tail(&wbh, &wb);
 
-	enum cio_error err = ws->write_pong(ws, &wbh, write_handler, NULL);
+	enum cio_error err = cio_websocket_write_pong(ws, &wbh, write_handler, NULL);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_INVALID_ARGUMENT, err, "Writing a pong frame did not succeed!");
 	TEST_ASSERT_EQUAL_MESSAGE(0, write_handler_fake.call_count, "Write handler was called");
 
@@ -1411,10 +1411,10 @@ static void test_send_pong_frame_twice(void)
 	cio_write_buffer_element_init(&wb, buffer, sizeof(buffer));
 	cio_write_buffer_queue_tail(&wbh, &wb);
 
-	enum cio_error err = ws->write_pong(ws, &wbh, write_handler, NULL);
+	enum cio_error err = cio_websocket_write_pong(ws, &wbh, write_handler, NULL);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Writing a pong frame did not succeed!");
 
-	err = ws->write_pong(ws, NULL, write_handler, NULL);
+	err = cio_websocket_write_pong(ws, NULL, write_handler, NULL);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_OPERATION_NOT_PERMITTED, err, "Writing a second pong frame did not failed");
 
 	TEST_ASSERT_EQUAL_MESSAGE(0, write_handler_fake.call_count, "Write handler was not called once");
@@ -1711,7 +1711,7 @@ static void test_send_multiple_jobs(void)
 
 	enum cio_error err = cio_websocket_write_ping(ws, &ping_wbh, write_handler, NULL);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Writing a ping frame did not succeed!");
-	err = ws->write_pong(ws, &pong_wbh, write_handler, NULL);
+	err = cio_websocket_write_pong(ws, &pong_wbh, write_handler, NULL);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Writing a pong frame did not succeed!");
 	err = cio_websocket_write_message_first_chunk(ws, cio_write_buffer_get_total_size(&text_wbh), &text_wbh, true, false, write_handler, NULL);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Writing a text frame did not succeed!");
@@ -1751,7 +1751,7 @@ static void test_send_multiple_jobs_starting_with_close(void)
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Writing a close frame did not succeed!");
 	err = cio_websocket_write_ping(ws, &ping_wbh, write_handler, NULL);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Writing a ping frame did not succeed!");
-	err = ws->write_pong(ws, &pong_wbh, write_handler, NULL);
+	err = cio_websocket_write_pong(ws, &pong_wbh, write_handler, NULL);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Writing a pong frame did not succeed!");
 	err = cio_websocket_write_message_first_chunk(ws, cio_write_buffer_get_total_size(&text_wbh), &text_wbh, true, false, write_handler, NULL);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Writing a text frame did not succeed!");
