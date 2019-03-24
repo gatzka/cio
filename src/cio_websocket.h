@@ -164,14 +164,6 @@ struct cio_websocket_private {
 
 struct cio_websocket {
 
-
-	/**
-	 * @brief A pointer to a function which is called when a websocket connection was established.
-	 *
-	 * @param ws The websocket which was connected.
-	 */
-	void (*on_connect)(struct cio_websocket *ws);
-
 	/**
 	 * @anchor cio_websocket_read_message
 	 * @brief Reads a message from a websocket.
@@ -288,6 +280,7 @@ struct cio_websocket {
 
 	/*! @cond PRIVATE */
 	struct cio_websocket_private ws_private;
+	void (*on_connect)(struct cio_websocket *ws);
 	/*! @endcond */
 };
 
