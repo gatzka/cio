@@ -300,7 +300,7 @@ static void serialize_frames(struct ws_frame frames[], size_t num_frames)
 		}
 
 		if (frame.data_length <= 125) {
-			ms.frame_buffer[buffer_pos] |= (uint8_t)frame.data_length;
+			ms.frame_buffer[buffer_pos] = (uint8_t)((unsigned int)ms.frame_buffer[buffer_pos] | (unsigned int)frame.data_length);
 			buffer_pos++;
 		} else if (frame.data_length < 65536) {
 			uint16_t len = (uint16_t)frame.data_length;

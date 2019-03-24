@@ -269,7 +269,7 @@ static void serialize_frames(struct ws_frame frames[], size_t num_frames)
 		}
 
 		if (frame.data_length <= 125) {
-			frame_buffer[buffer_pos] |= (uint8_t)frame.data_length;
+			frame_buffer[buffer_pos] = (uint8_t)((unsigned int)frame_buffer[buffer_pos] | (unsigned int)frame.data_length);
 			buffer_pos++;
 		} else if (frame.data_length < 65536) {
 			uint16_t len = (uint16_t)frame.data_length;
