@@ -792,48 +792,6 @@ static void get_header(struct cio_buffered_stream *bs, void *handler_context, en
 	}
 }
 
-static enum cio_error write_message(struct cio_websocket *ws, size_t frame_length, struct cio_write_buffer *payload, bool last_frame, bool is_binary, cio_websocket_write_handler handler, void *handler_context)
-{
-
-	if (cio_unlikely((ws == NULL)) || (handler == NULL)) {
-		return CIO_INVALID_ARGUMENT;
-	}
-
-	if (cio_unlikely(ws->ws_private.write_message_job.wbh != NULL)) {
-		return CIO_OPERATION_NOT_PERMITTED;
-	}
-
-	enum cio_websocket_frame_type kind;
-
-	if (ws->ws_private.ws_flags.fragmented_write == 1U) {
-		if (is_binary) {
-			kind = CIO_WEBSOCKET_BINARY_FRAME;
-		} else {
-			kind = CIO_WEBSOCKET_TEXT_FRAME;
-		}
-
-		if (!last_frame) {
-			ws->ws_private.ws_flags.fragmented_write = 0;
-		}
-	} else {
-		if (last_frame) {
-			ws->ws_private.ws_flags.fragmented_write = 1;
-		}
-
-		kind = CIO_WEBSOCKET_CONTINUATION_FRAME;
-	}
-
-	ws->ws_private.write_message_job.wbh = payload;
-	ws->ws_private.write_message_job.handler = handler;
-	ws->ws_private.write_message_job.handler_context = handler_context;
-	ws->ws_private.write_message_job.frame_type = kind;
-	ws->ws_private.write_message_job.last_frame = last_frame;
-	ws->ws_private.write_message_job.stream_handler = message_written;
-	ws->ws_private.write_message_job.is_continuation_chunk = false;
-
-	return enqueue_job(ws, &ws->ws_private.write_message_job, frame_length);
-}
-
 static enum cio_error write_continuation(struct cio_websocket *ws, struct cio_write_buffer *payload, cio_websocket_write_handler handler, void *handler_context)
 {
 	ws->ws_private.write_message_job.wbh = payload;
@@ -899,7 +857,6 @@ enum cio_error cio_websocket_init(struct cio_websocket *ws, bool is_server, cio_
 	ws->ws_private.read_handler = NULL;
 
 	ws->on_error = NULL;
-	ws->write_message_first_chunk = write_message;
 	ws->write_message_continuation_chunk = write_continuation;
 	ws->write_ping = write_ping_message;
 	ws->write_pong = write_pong_message;
@@ -982,4 +939,47 @@ enum cio_error cio_websocket_read_message(struct cio_websocket *ws, cio_websocke
 
 	return CIO_SUCCESS;
 }
+
+enum cio_error cio_websocket_write_message_first_chunk(struct cio_websocket *ws, size_t frame_length, struct cio_write_buffer *payload, bool last_frame, bool is_binary, cio_websocket_write_handler handler, void *handler_context)
+{
+
+	if (cio_unlikely((ws == NULL)) || (handler == NULL)) {
+		return CIO_INVALID_ARGUMENT;
+	}
+
+	if (cio_unlikely(ws->ws_private.write_message_job.wbh != NULL)) {
+		return CIO_OPERATION_NOT_PERMITTED;
+	}
+
+	enum cio_websocket_frame_type kind;
+
+	if (ws->ws_private.ws_flags.fragmented_write == 1U) {
+		if (is_binary) {
+			kind = CIO_WEBSOCKET_BINARY_FRAME;
+		} else {
+			kind = CIO_WEBSOCKET_TEXT_FRAME;
+		}
+
+		if (!last_frame) {
+			ws->ws_private.ws_flags.fragmented_write = 0;
+		}
+	} else {
+		if (last_frame) {
+			ws->ws_private.ws_flags.fragmented_write = 1;
+		}
+
+		kind = CIO_WEBSOCKET_CONTINUATION_FRAME;
+	}
+
+	ws->ws_private.write_message_job.wbh = payload;
+	ws->ws_private.write_message_job.handler = handler;
+	ws->ws_private.write_message_job.handler_context = handler_context;
+	ws->ws_private.write_message_job.frame_type = kind;
+	ws->ws_private.write_message_job.last_frame = last_frame;
+	ws->ws_private.write_message_job.stream_handler = message_written;
+	ws->ws_private.write_message_job.is_continuation_chunk = false;
+
+	return enqueue_job(ws, &ws->ws_private.write_message_job, frame_length);
+}
+
 

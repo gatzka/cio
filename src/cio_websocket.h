@@ -165,30 +165,6 @@ struct cio_websocket_private {
 struct cio_websocket {
 
 	/**
-	 * @anchor cio_websocket_write_message_first_chunk
-	 * @brief Writes a complete message to the websocket.
-	 *
-	 * @warning Please note that the data @p payload encapsulates will be scrambled by
-	 * the library if this function is used in a websocket client connection. So if
-	 * you want to write the same data again, you have to re-initialize the data encapsluated
-	 * by @p payload. In addition you should ALWAYS intialize the write buffer elements in
-	 * @p payload using the @ref cio_write_buffer_element_init "non-const initialization function".
-	 *
-	 * @param ws The websocket which should be used for sending.
-	 * @param frame_length The length of the frame to be sent. Please be aware that the frame length
-	 * must not necessarily be the same as the length of the payload. In fact, this funtion can be used
-	 * to write the first chunk of a message which has to be continuoued later using @ref cio_websocket_write_message_continuation_chunk.
-	 * @param payload The payload to be sent.
-	 * @param last_frame @c true if the is an unfragmented message or the last frame of a
-	 * fragmented message, @c false otherwise.
-	 * @param is_binary @c true if the message to be sent is a binary message.
-	 * @param handler A callback function that will be called when the write completes.
-	 * @param handler_context A context pointer given to @p handler when called.
-	 * @return ::CIO_SUCCESS for success.
-	 */
-	enum cio_error (*write_message_first_chunk)(struct cio_websocket *ws, size_t frame_length, struct cio_write_buffer *payload, bool last_frame, bool is_binary, cio_websocket_write_handler handler, void *handler_context);
-
-	/**
 	 * @anchor cio_websocket_write_message_continuation_chunk
 	 * @brief Continuous to write data to a websocket message which was started with @ref cio_websocket_write_message_first_chunk.
 	 *
@@ -296,6 +272,30 @@ CIO_EXPORT enum cio_error cio_websocket_close(struct cio_websocket *ws, enum cio
  * @return ::CIO_SUCCESS for success.
  */
 CIO_EXPORT enum cio_error cio_websocket_read_message(struct cio_websocket *ws, cio_websocket_read_handler handler, void *handler_context);
+
+/**
+ * @anchor cio_websocket_write_message_first_chunk
+ * @brief Writes a complete message to the websocket.
+ *
+ * @warning Please note that the data @p payload encapsulates will be scrambled by
+ * the library if this function is used in a websocket client connection. So if
+ * you want to write the same data again, you have to re-initialize the data encapsluated
+ * by @p payload. In addition you should ALWAYS intialize the write buffer elements in
+ * @p payload using the @ref cio_write_buffer_element_init "non-const initialization function".
+ *
+ * @param ws The websocket which should be used for sending.
+ * @param frame_length The length of the frame to be sent. Please be aware that the frame length
+ * must not necessarily be the same as the length of the payload. In fact, this funtion can be used
+ * to write the first chunk of a message which has to be continuoued later using @ref cio_websocket_write_message_continuation_chunk.
+ * @param payload The payload to be sent.
+ * @param last_frame @c true if the is an unfragmented message or the last frame of a
+ * fragmented message, @c false otherwise.
+ * @param is_binary @c true if the message to be sent is a binary message.
+ * @param handler A callback function that will be called when the write completes.
+ * @param handler_context A context pointer given to @p handler when called.
+ * @return ::CIO_SUCCESS for success.
+ */
+CIO_EXPORT enum cio_error cio_websocket_write_message_first_chunk(struct cio_websocket *ws, size_t frame_length, struct cio_write_buffer *payload, bool last_frame, bool is_binary, cio_websocket_write_handler handler, void *handler_context);
 
 #ifdef __cplusplus
 }
