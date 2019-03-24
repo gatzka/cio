@@ -424,7 +424,7 @@ static void read_handler_save_data(struct cio_websocket *websocket, void *handle
 			read_back_buffer_pos += chunk_length;
 		}
 
-		err = websocket->read_message(websocket, read_handler, handler_context);
+		err = cio_websocket_read_message(websocket, read_handler, handler_context);
 		TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Could not start reading a message!");
 	}
 }
@@ -527,7 +527,7 @@ static void test_incoming_ping_pong_send_fails(void)
 
 	serialize_frames(frames, ARRAY_SIZE(frames));
 
-	err = my_ws->read_message(my_ws, read_handler, NULL);
+	err = cio_websocket_read_message(my_ws, read_handler, NULL);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Could not start reading a message!");
 
 	TEST_ASSERT_EQUAL_MESSAGE(1, read_handler_fake.call_count, "read_handler was not called");
@@ -561,7 +561,7 @@ static void test_close_close_response_fails(void)
 
 	serialize_frames(frames, ARRAY_SIZE(frames));
 
-	enum cio_error err = ws->read_message(ws, read_handler, NULL);
+	enum cio_error err = cio_websocket_read_message(ws, read_handler, NULL);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Could not start reading a message!");
 
 	TEST_ASSERT_EQUAL_MESSAGE(1, read_handler_fake.call_count, "read_handler was not called");
@@ -665,7 +665,7 @@ static void test_immediate_read_error_for_get_header(void)
 
 	SET_CUSTOM_FAKE_SEQ(read_at_least, read_at_least_fakes, ARRAY_SIZE(read_at_least_fakes));
 
-	enum cio_error err = ws->read_message(ws, read_handler, NULL);
+	enum cio_error err = cio_websocket_read_message(ws, read_handler, NULL);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Could not start reading a message!");
 
 	TEST_ASSERT_EQUAL_MESSAGE(1, read_handler_fake.call_count, "read_handler was not called");
@@ -697,7 +697,7 @@ static void test_immediate_read_error_for_get_first_length(void)
 
 	SET_CUSTOM_FAKE_SEQ(read_at_least, read_at_least_fakes, ARRAY_SIZE(read_at_least_fakes));
 
-	enum cio_error err = ws->read_message(ws, read_handler, NULL);
+	enum cio_error err = cio_websocket_read_message(ws, read_handler, NULL);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Could not start reading a message!");
 
 	TEST_ASSERT_EQUAL_MESSAGE(1, read_handler_fake.call_count, "read_handler was not called");
@@ -730,7 +730,7 @@ static void test_immediate_read_error_for_get_mask(void)
 
 	SET_CUSTOM_FAKE_SEQ(read_at_least, read_at_least_fakes, ARRAY_SIZE(read_at_least_fakes));
 
-	enum cio_error err = ws->read_message(ws, read_handler, NULL);
+	enum cio_error err = cio_websocket_read_message(ws, read_handler, NULL);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Could not start reading a message!");
 
 	TEST_ASSERT_EQUAL_MESSAGE(1, read_handler_fake.call_count, "read_handler was not called");
@@ -768,7 +768,7 @@ static void test_immediate_read_error_for_get_extended_length(void)
 
 		SET_CUSTOM_FAKE_SEQ(read_at_least, read_at_least_fakes, ARRAY_SIZE(read_at_least_fakes));
 
-		enum cio_error err = ws->read_message(ws, read_handler, NULL);
+		enum cio_error err = cio_websocket_read_message(ws, read_handler, NULL);
 		TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Could not start reading a message!");
 
 		TEST_ASSERT_EQUAL_MESSAGE(1, read_handler_fake.call_count, "read_handler was not called");
@@ -810,7 +810,7 @@ static void test_immediate_read_error_for_get_payload(void)
 
 	SET_CUSTOM_FAKE_SEQ(read_at_least, read_at_least_fakes, ARRAY_SIZE(read_at_least_fakes));
 
-	enum cio_error err = ws->read_message(ws, read_handler, NULL);
+	enum cio_error err = cio_websocket_read_message(ws, read_handler, NULL);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Could not start reading a message!");
 
 	TEST_ASSERT_EQUAL_MESSAGE(1, read_handler_fake.call_count, "read_handler was not called");
@@ -849,7 +849,7 @@ static void test_immediate_read_error_for_second_get_payload(void)
 
 		SET_CUSTOM_FAKE_SEQ(read_at_least, read_at_least_fakes, ARRAY_SIZE(read_at_least_fakes));
 
-		enum cio_error err = ws->read_message(ws, read_handler, NULL);
+		enum cio_error err = cio_websocket_read_message(ws, read_handler, NULL);
 		TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Could not start reading a message!");
 
 		TEST_ASSERT_EQUAL_MESSAGE(2, read_handler_fake.call_count, "read_handler was not called");
@@ -881,7 +881,7 @@ static void test_read_error_in_get_header(void)
 	serialize_frames(frames, ARRAY_SIZE(frames));
 	read_at_least_fake.custom_fake = bs_read_at_least_error;
 
-	enum cio_error err = ws->read_message(ws, read_handler, NULL);
+	enum cio_error err = cio_websocket_read_message(ws, read_handler, NULL);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Could not start reading a message!");
 
 	TEST_ASSERT_EQUAL_MESSAGE(1, read_handler_fake.call_count, "read_handler was not called");
@@ -915,7 +915,7 @@ static void test_read_error_in_get_mask(void)
 
 	SET_CUSTOM_FAKE_SEQ(read_at_least, read_at_least_fakes, ARRAY_SIZE(read_at_least_fakes));
 
-	enum cio_error err = ws->read_message(ws, read_handler, NULL);
+	enum cio_error err = cio_websocket_read_message(ws, read_handler, NULL);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Could not start reading a message!");
 
 	TEST_ASSERT_EQUAL_MESSAGE(1, read_handler_fake.call_count, "read_handler was not called");
@@ -950,7 +950,7 @@ static void test_read_error_in_get_payload(void)
 
 	SET_CUSTOM_FAKE_SEQ(read_at_least, read_at_least_fakes, ARRAY_SIZE(read_at_least_fakes));
 
-	enum cio_error err = ws->read_message(ws, read_handler, NULL);
+	enum cio_error err = cio_websocket_read_message(ws, read_handler, NULL);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Could not start reading a message!");
 
 	TEST_ASSERT_EQUAL_MESSAGE(1, read_handler_fake.call_count, "read_handler was not called");
@@ -972,7 +972,7 @@ static void test_close_self_no_answer(void)
 
 	read_at_least_fake.custom_fake = bs_read_at_least_block;
 
-	err = ws->read_message(ws, read_handler, NULL);
+	err = cio_websocket_read_message(ws, read_handler, NULL);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "read_message did not succeed");
 
 	ws->ws_private.close_timer.handler(&ws->ws_private.close_timer, ws->ws_private.close_timer.handler_context, CIO_SUCCESS);
@@ -1000,7 +1000,7 @@ static void test_close_in_get_header(void)
 	serialize_frames(frames, ARRAY_SIZE(frames));
 	read_at_least_fake.custom_fake = bs_read_at_least_peer_close;
 
-	enum cio_error err = ws->read_message(ws, read_handler, NULL);
+	enum cio_error err = cio_websocket_read_message(ws, read_handler, NULL);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Could not start reading a message!");
 
 	TEST_ASSERT_EQUAL_MESSAGE(1, read_handler_fake.call_count, "read_handler was not called");
@@ -1044,7 +1044,7 @@ static void test_close_in_get_length(void)
 			SET_CUSTOM_FAKE_SEQ(read_at_least, read_at_least_fakes, 3);
 		}
 
-		enum cio_error err = ws->read_message(ws, read_handler, NULL);
+		enum cio_error err = cio_websocket_read_message(ws, read_handler, NULL);
 		TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Could not start reading a message!");
 
 		TEST_ASSERT_EQUAL_MESSAGE(1, read_handler_fake.call_count, "read_handler was not called");
@@ -1088,7 +1088,7 @@ static void test_close_in_get_mask(void)
 
 	SET_CUSTOM_FAKE_SEQ(read_at_least, read_at_least_fakes, ARRAY_SIZE(read_at_least_fakes));
 
-	enum cio_error err = ws->read_message(ws, read_handler, NULL);
+	enum cio_error err = cio_websocket_read_message(ws, read_handler, NULL);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Could not start reading a message!");
 
 	TEST_ASSERT_EQUAL_MESSAGE(1, read_handler_fake.call_count, "read_handler was not called");
@@ -1123,7 +1123,7 @@ static void test_close_in_get_payload(void)
 
 	SET_CUSTOM_FAKE_SEQ(read_at_least, read_at_least_fakes, ARRAY_SIZE(read_at_least_fakes));
 
-	enum cio_error err = ws->read_message(ws, read_handler, NULL);
+	enum cio_error err = cio_websocket_read_message(ws, read_handler, NULL);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Could not start reading a message!");
 
 	TEST_ASSERT_EQUAL_MESSAGE(1, read_handler_fake.call_count, "read_handler was not called");
@@ -1151,7 +1151,7 @@ static void test_close_self_no_reason(void)
 	enum cio_error err = cio_websocket_close(ws, CIO_WEBSOCKET_CLOSE_NORMAL, NULL, close_handler, NULL);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Could not start reading a message!");
 
-	err = ws->read_message(ws, read_handler, NULL);
+	err = cio_websocket_read_message(ws, read_handler, NULL);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Could not start reading a message!");
 
 	TEST_ASSERT_EQUAL_MESSAGE(1, read_handler_fake.call_count, "read_handler was not called");
@@ -1181,7 +1181,7 @@ static void test_close_self_with_reason(void)
 	enum cio_error err = cio_websocket_close(ws, CIO_WEBSOCKET_CLOSE_NORMAL, "Going away", close_handler, NULL);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Could not start reading a message!");
 
-	err = ws->read_message(ws, read_handler, NULL);
+	err = cio_websocket_read_message(ws, read_handler, NULL);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Closing did not succeed!");
 
 	TEST_ASSERT_EQUAL_MESSAGE(1, read_handler_fake.call_count, "read_handler was not called");
@@ -1273,7 +1273,7 @@ static void test_close_self_without_close_hook(void)
 	err = cio_websocket_close(&my_ws, CIO_WEBSOCKET_CLOSE_NORMAL, NULL, close_handler, NULL);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Could not start reading a message!");
 
-	err = my_ws.read_message(&my_ws, read_handler, NULL);
+	err = cio_websocket_read_message(&my_ws, read_handler, NULL);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Could not start reading a message!");
 
 	TEST_ASSERT_EQUAL_MESSAGE(1, read_handler_fake.call_count, "read_handler was not called");
@@ -1489,7 +1489,7 @@ static void test_send_text_binary_frame(void)
 					TEST_ASSERT_MESSAGE(check_frame(CIO_WEBSOCKET_BINARY_FRAME, check_data, frame_size, true), "First frame send is incorrect binary frame!");
 				}
 
-				enum cio_error err = ws->read_message(ws, read_handler, NULL);
+				enum cio_error err = cio_websocket_read_message(ws, read_handler, NULL);
 				TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Could not start reading a message!");
 				TEST_ASSERT_MESSAGE(is_close_frame(CIO_WEBSOCKET_CLOSE_NORMAL, true), "written frame is not a close frame!");
 
@@ -1556,7 +1556,7 @@ static void test_send_chunks(void)
 
 		TEST_ASSERT_MESSAGE(check_frame(frame_type, check_data, sizeof(check_data), true), "First frame send is incorrect text frame!");
 
-		err = ws->read_message(ws, read_handler, NULL);
+		err = cio_websocket_read_message(ws, read_handler, NULL);
 		TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Could not start reading a message!");
 		TEST_ASSERT_MESSAGE(is_close_frame(CIO_WEBSOCKET_CLOSE_NORMAL, true), "written frame is not a close frame!");
 

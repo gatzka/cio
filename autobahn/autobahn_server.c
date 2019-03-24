@@ -69,7 +69,7 @@ static void write_complete(struct cio_websocket *ws, void *handler_context, enum
 {
 	(void)handler_context;
 	if (err == CIO_SUCCESS) {
-		err = ws->read_message(ws, read_handler, NULL);
+		err = cio_websocket_read_message(ws, read_handler, NULL);
 		if (err != CIO_SUCCESS) {
 			fprintf(stderr, "could not start reading a new message!\n");
 		}
@@ -94,7 +94,7 @@ static void read_handler(struct cio_websocket *ws, void *handler_context, enum c
 				cio_write_buffer_queue_tail(&ah->wbh, &ah->wb_message);
 				ws->write_message_first_chunk(ws, cio_write_buffer_get_total_size(&ah->wbh), &ah->wbh, last_frame, is_binary, write_complete, NULL);
 			} else {
-				err = ws->read_message(ws, read_handler, NULL);
+				err = cio_websocket_read_message(ws, read_handler, NULL);
 			}
 		} else {
 			// make chunked transfers
@@ -121,7 +121,7 @@ static void read_handler(struct cio_websocket *ws, void *handler_context, enum c
 
 static void on_connect(struct cio_websocket *ws)
 {
-	enum cio_error err = ws->read_message(ws, read_handler, NULL);
+	enum cio_error err = cio_websocket_read_message(ws, read_handler, NULL);
 	if (err != CIO_SUCCESS) {
 		fprintf(stderr, "could not start reading a new message!\n");
 	}

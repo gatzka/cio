@@ -165,17 +165,6 @@ struct cio_websocket_private {
 struct cio_websocket {
 
 	/**
-	 * @anchor cio_websocket_read_message
-	 * @brief Reads a message from a websocket.
-	 *
-	 * @param ws The websocket from which a message shall be read.
-	 * @param handler A callback function that will be called when the read completes.
-	 * @param handler_context A context pointer given to @p handler when called.
-	 * @return ::CIO_SUCCESS for success.
-	 */
-	enum cio_error (*read_message)(struct cio_websocket *ws, cio_websocket_read_handler handler, void *handler_context);
-
-	/**
 	 * @anchor cio_websocket_write_message_first_chunk
 	 * @brief Writes a complete message to the websocket.
 	 *
@@ -297,6 +286,16 @@ CIO_EXPORT enum cio_error cio_websocket_init(struct cio_websocket *ws, bool is_s
  * @return ::CIO_SUCCESS for success.
  */
 CIO_EXPORT enum cio_error cio_websocket_close(struct cio_websocket *ws, enum cio_websocket_status_code status, const char *reason, cio_websocket_write_handler handler, void *handler_context);
+
+/**
+ * @brief Reads a message from a websocket.
+ *
+ * @param ws The websocket from which a message shall be read.
+ * @param handler A callback function that will be called when the read completes.
+ * @param handler_context A context pointer given to @p handler when called.
+ * @return ::CIO_SUCCESS for success.
+ */
+CIO_EXPORT enum cio_error cio_websocket_read_message(struct cio_websocket *ws, cio_websocket_read_handler handler, void *handler_context);
 
 #ifdef __cplusplus
 }

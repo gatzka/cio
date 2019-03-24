@@ -792,29 +792,6 @@ static void get_header(struct cio_buffered_stream *bs, void *handler_context, en
 	}
 }
 
-static enum cio_error read_message(struct cio_websocket *ws, cio_websocket_read_handler handler, void *handler_context)
-{
-	if (cio_unlikely((ws == NULL)) || (handler == NULL)) {
-		return CIO_INVALID_ARGUMENT;
-	}
-
-	ws->ws_private.read_handler = handler;
-	ws->ws_private.read_handler_context = handler_context;
-	struct cio_http_client *c = ws->ws_private.http_client;
-	enum cio_error err;
-	if (ws->ws_private.remaining_read_frame_length == 0) {
-		err = c->bs.read_at_least(&c->bs, &c->rb, 1, get_header, ws);
-	} else {
-		err = c->bs.read_at_least(&c->bs, &c->rb, 1, get_payload, ws);
-	}
-
-	if (cio_unlikely(err != CIO_SUCCESS)) {
-		handle_error(ws, err, CIO_WEBSOCKET_CLOSE_INTERNAL_ERROR, "error while start reading websocket header");
-	}
-
-	return CIO_SUCCESS;
-}
-
 static enum cio_error write_message(struct cio_websocket *ws, size_t frame_length, struct cio_write_buffer *payload, bool last_frame, bool is_binary, cio_websocket_write_handler handler, void *handler_context)
 {
 
@@ -918,7 +895,6 @@ enum cio_error cio_websocket_init(struct cio_websocket *ws, bool is_server, cio_
 	}
 
 	ws->on_connect = on_connect;
-	ws->read_message = read_message;
 	ws->on_control = NULL;
 	ws->ws_private.read_handler = NULL;
 
@@ -983,3 +959,27 @@ timer_expires_failed:
 	ws->ws_private.close_timer.close(&ws->ws_private.close_timer);
 	return err;
 }
+
+enum cio_error cio_websocket_read_message(struct cio_websocket *ws, cio_websocket_read_handler handler, void *handler_context)
+{
+	if (cio_unlikely((ws == NULL)) || (handler == NULL)) {
+		return CIO_INVALID_ARGUMENT;
+	}
+
+	ws->ws_private.read_handler = handler;
+	ws->ws_private.read_handler_context = handler_context;
+	struct cio_http_client *c = ws->ws_private.http_client;
+	enum cio_error err;
+	if (ws->ws_private.remaining_read_frame_length == 0) {
+		err = c->bs.read_at_least(&c->bs, &c->rb, 1, get_header, ws);
+	} else {
+		err = c->bs.read_at_least(&c->bs, &c->rb, 1, get_payload, ws);
+	}
+
+	if (cio_unlikely(err != CIO_SUCCESS)) {
+		handle_error(ws, err, CIO_WEBSOCKET_CLOSE_INTERNAL_ERROR, "error while start reading websocket header");
+	}
+
+	return CIO_SUCCESS;
+}
+

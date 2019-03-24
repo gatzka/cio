@@ -227,7 +227,7 @@ static void on_connect(struct cio_websocket *ws)
 		return;
 	}
 
-	err = ws->read_message(ws, read_handler, NULL);
+	err = cio_websocket_read_message(ws, read_handler, NULL);
 	if (err != CIO_SUCCESS) {
 		fprintf(stderr, "Could not start reading a new message!\n");
 	}
