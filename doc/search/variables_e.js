@@ -5,7 +5,6 @@ var searchData=
   ['read_5fframe_5flength',['read_frame_length',['../structcio__websocket__private.html#ae2ba78e6340e781f3fe56ae998af75ee',1,'cio_websocket_private']]],
   ['read_5fhandler',['read_handler',['../structcio__websocket__private.html#a039a8e2c5b9f72b9db0c26ff3ea9ba41',1,'cio_websocket_private']]],
   ['read_5fhandler_5fcontext',['read_handler_context',['../structcio__websocket__private.html#a1962b07487645e896c1ca63daad14d2e',1,'cio_websocket_private']]],
-  ['read_5fmessage',['read_message',['../structcio__websocket.html#aad2a79a6846fb5d34b890a7b8b889249',1,'cio_websocket']]],
   ['read_5fsome',['read_some',['../structcio__io__stream.html#aec8934d6e4ac112c217c72eb16509b43',1,'cio_io_stream']]],
   ['read_5funtil',['read_until',['../structcio__buffered__stream.html#a2392ad836feeb48d616a3f2a28ea729b',1,'cio_buffered_stream']]],
   ['received_5fmask',['received_mask',['../structcio__websocket__private.html#a62f8cd2e77449db411e02638832c83a6',1,'cio_websocket_private']]],

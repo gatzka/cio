@@ -35,5 +35,11 @@ var cio__websocket_8h =
       [ "CIO_WEBSOCKET_CLOSE_RESERVED_LOWER_BOUND", "cio__websocket_8h.html#aa24c9894ba2ee9dc5b0ebbc1c8809701a174e73826b58a9e38b3d84aad7855638", null ],
       [ "CIO_WEBSOCKET_CLOSE_RESERVED_UPPER_BOUND", "cio__websocket_8h.html#aa24c9894ba2ee9dc5b0ebbc1c8809701af96f1ba0788e17c59249f12a74defd2d", null ]
     ] ],
-    [ "cio_websocket_init", "cio__websocket_8h.html#a4b09cc7f9b2e87099efe8bc30d2a4828", null ]
+    [ "cio_websocket_close", "cio__websocket_8h.html#a90758de8a87a59ea945b683b8c6fc464", null ],
+    [ "cio_websocket_init", "cio__websocket_8h.html#a4b09cc7f9b2e87099efe8bc30d2a4828", null ],
+    [ "cio_websocket_read_message", "cio__websocket_8h.html#acf324349b95de3f30373cc6c7862d4c0", null ],
+    [ "cio_websocket_write_message_continuation_chunk", "cio__websocket_8h.html#aacf85224ea29aeda0f69513d1e9a69b1", null ],
+    [ "cio_websocket_write_message_first_chunk", "cio__websocket_8h.html#a740dec1044b5a7c4bdebe0aad583385c", null ],
+    [ "cio_websocket_write_ping", "cio__websocket_8h.html#adc7ba069e7ba95143b433a9e503750a3", null ],
+    [ "cio_websocket_write_pong", "cio__websocket_8h.html#addfd019deec62389b8cd23ed3f95b9ef", null ]
 ];

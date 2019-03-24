@@ -201,10 +201,28 @@ Enumerations</h2></td></tr>
 Functions</h2></td></tr>
 <tr class="memitem:a4b09cc7f9b2e87099efe8bc30d2a4828"><td class="memItemLeft" align="right" valign="top"><a class="el" href="cio__export_8h.html#ab971b12fa232c415369be66dfaca507a">CIO_EXPORT</a> enum <a class="el" href="cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afe">cio_error</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="cio__websocket_8h.html#a4b09cc7f9b2e87099efe8bc30d2a4828">cio_websocket_init</a> (struct <a class="el" href="structcio__websocket.html">cio_websocket</a> *ws, bool is_server, <a class="el" href="cio__websocket_8h.html#a47f4e2befc8d1d0ef6478e7bb7d1bd60">cio_websocket_on_connect</a> on_connect, <a class="el" href="cio__websocket_8h.html#aca914fcd6af51949d43432f155c61e19">cio_websocket_close_hook</a> close_hook)</td></tr>
 <tr class="separator:a4b09cc7f9b2e87099efe8bc30d2a4828"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a90758de8a87a59ea945b683b8c6fc464"><td class="memItemLeft" align="right" valign="top"><a class="el" href="cio__export_8h.html#ab971b12fa232c415369be66dfaca507a">CIO_EXPORT</a> enum <a class="el" href="cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afe">cio_error</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="cio__websocket_8h.html#a90758de8a87a59ea945b683b8c6fc464">cio_websocket_close</a> (struct <a class="el" href="structcio__websocket.html">cio_websocket</a> *ws, enum <a class="el" href="cio__websocket_8h.html#aa24c9894ba2ee9dc5b0ebbc1c8809701">cio_websocket_status_code</a> status, const char *reason, <a class="el" href="cio__websocket_8h.html#a708dd79eefd7e6609cae39f515174e3b">cio_websocket_write_handler</a> handler, void *handler_context)</td></tr>
+<tr class="memdesc:a90758de8a87a59ea945b683b8c6fc464"><td class="mdescLeft">&#160;</td><td class="mdescRight">Closes a websocket.  <a href="#a90758de8a87a59ea945b683b8c6fc464">More...</a><br /></td></tr>
+<tr class="separator:a90758de8a87a59ea945b683b8c6fc464"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:acf324349b95de3f30373cc6c7862d4c0"><td class="memItemLeft" align="right" valign="top"><a class="el" href="cio__export_8h.html#ab971b12fa232c415369be66dfaca507a">CIO_EXPORT</a> enum <a class="el" href="cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afe">cio_error</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="cio__websocket_8h.html#acf324349b95de3f30373cc6c7862d4c0">cio_websocket_read_message</a> (struct <a class="el" href="structcio__websocket.html">cio_websocket</a> *ws, <a class="el" href="cio__websocket_8h.html#afa44f1ffa8cef33d0367d3e6a052241a">cio_websocket_read_handler</a> handler, void *handler_context)</td></tr>
+<tr class="memdesc:acf324349b95de3f30373cc6c7862d4c0"><td class="mdescLeft">&#160;</td><td class="mdescRight">Reads a message from a websocket.  <a href="#acf324349b95de3f30373cc6c7862d4c0">More...</a><br /></td></tr>
+<tr class="separator:acf324349b95de3f30373cc6c7862d4c0"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a740dec1044b5a7c4bdebe0aad583385c"><td class="memItemLeft" align="right" valign="top"><a class="el" href="cio__export_8h.html#ab971b12fa232c415369be66dfaca507a">CIO_EXPORT</a> enum <a class="el" href="cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afe">cio_error</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="cio__websocket_8h.html#a740dec1044b5a7c4bdebe0aad583385c">cio_websocket_write_message_first_chunk</a> (struct <a class="el" href="structcio__websocket.html">cio_websocket</a> *ws, size_t frame_length, struct <a class="el" href="structcio__write__buffer.html">cio_write_buffer</a> *payload, bool last_frame, bool is_binary, <a class="el" href="cio__websocket_8h.html#a708dd79eefd7e6609cae39f515174e3b">cio_websocket_write_handler</a> handler, void *handler_context)</td></tr>
+<tr class="memdesc:a740dec1044b5a7c4bdebe0aad583385c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Writes a complete message to the websocket.  <a href="#a740dec1044b5a7c4bdebe0aad583385c">More...</a><br /></td></tr>
+<tr class="separator:a740dec1044b5a7c4bdebe0aad583385c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aacf85224ea29aeda0f69513d1e9a69b1"><td class="memItemLeft" align="right" valign="top"><a class="el" href="cio__export_8h.html#ab971b12fa232c415369be66dfaca507a">CIO_EXPORT</a> enum <a class="el" href="cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afe">cio_error</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="cio__websocket_8h.html#aacf85224ea29aeda0f69513d1e9a69b1">cio_websocket_write_message_continuation_chunk</a> (struct <a class="el" href="structcio__websocket.html">cio_websocket</a> *ws, struct <a class="el" href="structcio__write__buffer.html">cio_write_buffer</a> *payload, <a class="el" href="cio__websocket_8h.html#a708dd79eefd7e6609cae39f515174e3b">cio_websocket_write_handler</a> handler, void *handler_context)</td></tr>
+<tr class="memdesc:aacf85224ea29aeda0f69513d1e9a69b1"><td class="mdescLeft">&#160;</td><td class="mdescRight">Continuous to write data to a websocket message which was started with <a class="el" href="cio__websocket_8h.html#a740dec1044b5a7c4bdebe0aad583385c">cio_websocket_write_message_first_chunk</a>.  <a href="#aacf85224ea29aeda0f69513d1e9a69b1">More...</a><br /></td></tr>
+<tr class="separator:aacf85224ea29aeda0f69513d1e9a69b1"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:adc7ba069e7ba95143b433a9e503750a3"><td class="memItemLeft" align="right" valign="top"><a class="el" href="cio__export_8h.html#ab971b12fa232c415369be66dfaca507a">CIO_EXPORT</a> enum <a class="el" href="cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afe">cio_error</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="cio__websocket_8h.html#adc7ba069e7ba95143b433a9e503750a3">cio_websocket_write_ping</a> (struct <a class="el" href="structcio__websocket.html">cio_websocket</a> *ws, struct <a class="el" href="structcio__write__buffer.html">cio_write_buffer</a> *payload, <a class="el" href="cio__websocket_8h.html#a708dd79eefd7e6609cae39f515174e3b">cio_websocket_write_handler</a> handler, void *handler_context)</td></tr>
+<tr class="memdesc:adc7ba069e7ba95143b433a9e503750a3"><td class="mdescLeft">&#160;</td><td class="mdescRight">Writes a ping frame to the websocket.  <a href="#adc7ba069e7ba95143b433a9e503750a3">More...</a><br /></td></tr>
+<tr class="separator:adc7ba069e7ba95143b433a9e503750a3"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:addfd019deec62389b8cd23ed3f95b9ef"><td class="memItemLeft" align="right" valign="top">enum <a class="el" href="cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afe">cio_error</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="cio__websocket_8h.html#addfd019deec62389b8cd23ed3f95b9ef">cio_websocket_write_pong</a> (struct <a class="el" href="structcio__websocket.html">cio_websocket</a> *ws, struct <a class="el" href="structcio__write__buffer.html">cio_write_buffer</a> *payload, <a class="el" href="cio__websocket_8h.html#a708dd79eefd7e6609cae39f515174e3b">cio_websocket_write_handler</a> handler, void *handler_context)</td></tr>
+<tr class="memdesc:addfd019deec62389b8cd23ed3f95b9ef"><td class="mdescLeft">&#160;</td><td class="mdescRight">Writes a pong frame to the websocket.  <a href="#addfd019deec62389b8cd23ed3f95b9ef">More...</a><br /></td></tr>
+<tr class="separator:addfd019deec62389b8cd23ed3f95b9ef"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>This file contains the declarations all users of a <a class="el" href="structcio__websocket.html">cio_websocket</a> need to know. </p>
-<dl class="section warning"><dt>Warning</dt><dd>Please note that you always have to wait for the completion of a write call (<a class="el" href="structcio__websocket.html#cio_websocket_write_message_first_chunk">cio_websocket_write_message_first_chunk</a>) before issuing a new write call. Otherwise, you risk loss of data to be written! </dd></dl>
+<dl class="section warning"><dt>Warning</dt><dd>Please note that you always have to wait for the completion of a write call (<a class="el" href="cio__websocket_8h.html#a740dec1044b5a7c4bdebe0aad583385c">cio_websocket_write_message_first_chunk</a>) before issuing a new write call. Otherwise, you risk loss of data to be written! </dd></dl>
 </div><h2 class="groupheader">Macro Definition Documentation</h2>
 <a class="anchor" id="a458de5a4564b38244091fb62494c191b"></a>
 <div class="memitem">
@@ -367,6 +385,63 @@ Functions</h2></td></tr>
 </div>
 </div>
 <h2 class="groupheader">Function Documentation</h2>
+<a class="anchor" id="a90758de8a87a59ea945b683b8c6fc464"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="cio__export_8h.html#ab971b12fa232c415369be66dfaca507a">CIO_EXPORT</a> enum <a class="el" href="cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afe">cio_error</a> cio_websocket_close </td>
+          <td>(</td>
+          <td class="paramtype">struct <a class="el" href="structcio__websocket.html">cio_websocket</a> *&#160;</td>
+          <td class="paramname"><em>ws</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">enum <a class="el" href="cio__websocket_8h.html#aa24c9894ba2ee9dc5b0ebbc1c8809701">cio_websocket_status_code</a>&#160;</td>
+          <td class="paramname"><em>status</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const char *&#160;</td>
+          <td class="paramname"><em>reason</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="cio__websocket_8h.html#a708dd79eefd7e6609cae39f515174e3b">cio_websocket_write_handler</a>&#160;</td>
+          <td class="paramname"><em>handler</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">void *&#160;</td>
+          <td class="paramname"><em>handler_context</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Closes a websocket. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">ws</td><td>The websocket to be closed. </td></tr>
+    <tr><td class="paramname">status</td><td>The <a class="el" href="cio__websocket_8h.html#aa24c9894ba2ee9dc5b0ebbc1c8809701">websocket status code</a> to be sent. </td></tr>
+    <tr><td class="paramname">reason</td><td>A buffer which contains the reason for the close in an UTF8 encoded string. Could be <code>NULL</code> if no reason should be sent. </td></tr>
+    <tr><td class="paramname">handler</td><td>A function pointer that will be called when the close frame emitted by this function has been written. </td></tr>
+    <tr><td class="paramname">handler_context</td><td>A context pointer which will the argument of <code>handler</code>. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd><a class="el" href="cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afea6bb29544c99750c61f70b10a1e17d96a">CIO_SUCCESS</a> for success. </dd></dl>
+
+</div>
+</div>
 <a class="anchor" id="a4b09cc7f9b2e87099efe8bc30d2a4828"></a>
 <div class="memitem">
 <div class="memproto">
@@ -402,6 +477,274 @@ Functions</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="acf324349b95de3f30373cc6c7862d4c0"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="cio__export_8h.html#ab971b12fa232c415369be66dfaca507a">CIO_EXPORT</a> enum <a class="el" href="cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afe">cio_error</a> cio_websocket_read_message </td>
+          <td>(</td>
+          <td class="paramtype">struct <a class="el" href="structcio__websocket.html">cio_websocket</a> *&#160;</td>
+          <td class="paramname"><em>ws</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="cio__websocket_8h.html#afa44f1ffa8cef33d0367d3e6a052241a">cio_websocket_read_handler</a>&#160;</td>
+          <td class="paramname"><em>handler</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">void *&#160;</td>
+          <td class="paramname"><em>handler_context</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Reads a message from a websocket. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">ws</td><td>The websocket from which a message shall be read. </td></tr>
+    <tr><td class="paramname">handler</td><td>A callback function that will be called when the read completes. </td></tr>
+    <tr><td class="paramname">handler_context</td><td>A context pointer given to <code>handler</code> when called. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd><a class="el" href="cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afea6bb29544c99750c61f70b10a1e17d96a">CIO_SUCCESS</a> for success. </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="aacf85224ea29aeda0f69513d1e9a69b1"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="cio__export_8h.html#ab971b12fa232c415369be66dfaca507a">CIO_EXPORT</a> enum <a class="el" href="cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afe">cio_error</a> cio_websocket_write_message_continuation_chunk </td>
+          <td>(</td>
+          <td class="paramtype">struct <a class="el" href="structcio__websocket.html">cio_websocket</a> *&#160;</td>
+          <td class="paramname"><em>ws</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">struct <a class="el" href="structcio__write__buffer.html">cio_write_buffer</a> *&#160;</td>
+          <td class="paramname"><em>payload</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="cio__websocket_8h.html#a708dd79eefd7e6609cae39f515174e3b">cio_websocket_write_handler</a>&#160;</td>
+          <td class="paramname"><em>handler</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">void *&#160;</td>
+          <td class="paramname"><em>handler_context</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Continuous to write data to a websocket message which was started with <a class="el" href="cio__websocket_8h.html#a740dec1044b5a7c4bdebe0aad583385c">cio_websocket_write_message_first_chunk</a>. </p>
+<dl class="section warning"><dt>Warning</dt><dd>Please note that the data <code>payload</code> encapsulates will be scrambled by the library if this function is used in a websocket client connection. So if you want to write the same data again, you have to re-initialize the data encapsluated by <code>payload</code>. In addition you should ALWAYS intialize the write buffer elements in <code>payload</code> using the <a class="el" href="cio__write__buffer_8h.html#a6ad781e6c624d301aaf007ce554b501b">non-const initialization function</a>.</dd></dl>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">ws</td><td>The websocket which should be used for sending. </td></tr>
+    <tr><td class="paramname">payload</td><td>The payload to be sent. </td></tr>
+    <tr><td class="paramname">handler</td><td>A callback function that will be called when the write operation of the ping completes. </td></tr>
+    <tr><td class="paramname">handler_context</td><td>A context pointer given to <code>handler</code> when called. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd><a class="el" href="cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afea6bb29544c99750c61f70b10a1e17d96a">CIO_SUCCESS</a> for success. </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="a740dec1044b5a7c4bdebe0aad583385c"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="cio__export_8h.html#ab971b12fa232c415369be66dfaca507a">CIO_EXPORT</a> enum <a class="el" href="cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afe">cio_error</a> cio_websocket_write_message_first_chunk </td>
+          <td>(</td>
+          <td class="paramtype">struct <a class="el" href="structcio__websocket.html">cio_websocket</a> *&#160;</td>
+          <td class="paramname"><em>ws</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">size_t&#160;</td>
+          <td class="paramname"><em>frame_length</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">struct <a class="el" href="structcio__write__buffer.html">cio_write_buffer</a> *&#160;</td>
+          <td class="paramname"><em>payload</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">bool&#160;</td>
+          <td class="paramname"><em>last_frame</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">bool&#160;</td>
+          <td class="paramname"><em>is_binary</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="cio__websocket_8h.html#a708dd79eefd7e6609cae39f515174e3b">cio_websocket_write_handler</a>&#160;</td>
+          <td class="paramname"><em>handler</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">void *&#160;</td>
+          <td class="paramname"><em>handler_context</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Writes a complete message to the websocket. </p>
+<dl class="section warning"><dt>Warning</dt><dd>Please note that the data <code>payload</code> encapsulates will be scrambled by the library if this function is used in a websocket client connection. So if you want to write the same data again, you have to re-initialize the data encapsluated by <code>payload</code>. In addition you should ALWAYS intialize the write buffer elements in <code>payload</code> using the <a class="el" href="cio__write__buffer_8h.html#a6ad781e6c624d301aaf007ce554b501b">non-const initialization function</a>.</dd></dl>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">ws</td><td>The websocket which should be used for sending. </td></tr>
+    <tr><td class="paramname">frame_length</td><td>The length of the frame to be sent. Please be aware that the frame length must not necessarily be the same as the length of the payload. In fact, this funtion can be used to write the first chunk of a message which has to be continuoued later using <a class="el" href="cio__websocket_8h.html#aacf85224ea29aeda0f69513d1e9a69b1">cio_websocket_write_message_continuation_chunk</a>. </td></tr>
+    <tr><td class="paramname">payload</td><td>The payload to be sent. </td></tr>
+    <tr><td class="paramname">last_frame</td><td><code>true</code> if the is an unfragmented message or the last frame of a fragmented message, <code>false</code> otherwise. </td></tr>
+    <tr><td class="paramname">is_binary</td><td><code>true</code> if the message to be sent is a binary message. </td></tr>
+    <tr><td class="paramname">handler</td><td>A callback function that will be called when the write completes. </td></tr>
+    <tr><td class="paramname">handler_context</td><td>A context pointer given to <code>handler</code> when called. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd><a class="el" href="cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afea6bb29544c99750c61f70b10a1e17d96a">CIO_SUCCESS</a> for success. </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="adc7ba069e7ba95143b433a9e503750a3"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="cio__export_8h.html#ab971b12fa232c415369be66dfaca507a">CIO_EXPORT</a> enum <a class="el" href="cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afe">cio_error</a> cio_websocket_write_ping </td>
+          <td>(</td>
+          <td class="paramtype">struct <a class="el" href="structcio__websocket.html">cio_websocket</a> *&#160;</td>
+          <td class="paramname"><em>ws</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">struct <a class="el" href="structcio__write__buffer.html">cio_write_buffer</a> *&#160;</td>
+          <td class="paramname"><em>payload</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="cio__websocket_8h.html#a708dd79eefd7e6609cae39f515174e3b">cio_websocket_write_handler</a>&#160;</td>
+          <td class="paramname"><em>handler</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">void *&#160;</td>
+          <td class="paramname"><em>handler_context</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Writes a ping frame to the websocket. </p>
+<dl class="section warning"><dt>Warning</dt><dd>Please note that the data <code>payload</code> encapsulates will be scrambled by the library if this function is used in a websocket client connection. So if you want to write the same data again, you have to re-initialize the data encapsluated by <code>payload</code>. In addition you should ALWAYS intialize the write buffer elements in <code>payload</code> using the <a class="el" href="cio__write__buffer_8h.html#a6ad781e6c624d301aaf007ce554b501b">non-const initialization function</a>.</dd></dl>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">ws</td><td>The websocket which should be used for sending the ping message. </td></tr>
+    <tr><td class="paramname">payload</td><td>The payload to be sent. </td></tr>
+    <tr><td class="paramname">handler</td><td>A callback function that will be called when the write operation of the ping completes. </td></tr>
+    <tr><td class="paramname">handler_context</td><td>A context pointer given to <code>handler</code> when called. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd><a class="el" href="cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afea6bb29544c99750c61f70b10a1e17d96a">CIO_SUCCESS</a> for success. </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="addfd019deec62389b8cd23ed3f95b9ef"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">enum <a class="el" href="cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afe">cio_error</a> cio_websocket_write_pong </td>
+          <td>(</td>
+          <td class="paramtype">struct <a class="el" href="structcio__websocket.html">cio_websocket</a> *&#160;</td>
+          <td class="paramname"><em>ws</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">struct <a class="el" href="structcio__write__buffer.html">cio_write_buffer</a> *&#160;</td>
+          <td class="paramname"><em>payload</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="cio__websocket_8h.html#a708dd79eefd7e6609cae39f515174e3b">cio_websocket_write_handler</a>&#160;</td>
+          <td class="paramname"><em>handler</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">void *&#160;</td>
+          <td class="paramname"><em>handler_context</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Writes a pong frame to the websocket. </p>
+<dl class="section warning"><dt>Warning</dt><dd>Please note that the data <code>payload</code> encapsulates will be scrambled by the library if this function is used in a websocket client connection. So if you want to write the same data again, you have to re-initialize the data encapsluated by <code>payload</code>. In addition you should ALWAYS intialize the write buffer elements in <code>payload</code> using the <a class="el" href="cio__write__buffer_8h.html#a6ad781e6c624d301aaf007ce554b501b">non-const initialization function</a>.</dd></dl>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">ws</td><td>The websocket which should be used for sending the pong message. </td></tr>
+    <tr><td class="paramname">payload</td><td>The payload to be sent. </td></tr>
+    <tr><td class="paramname">handler</td><td>A callback function that will be called when the write operation of the pong completes. </td></tr>
+    <tr><td class="paramname">handler_context</td><td>A context pointer given to <code>handler</code> when called. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd><a class="el" href="cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afea6bb29544c99750c61f70b10a1e17d96a">CIO_SUCCESS</a> for success. </dd></dl>
 
 </div>
 </div>
