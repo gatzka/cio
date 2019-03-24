@@ -165,24 +165,6 @@ struct cio_websocket_private {
 struct cio_websocket {
 
 	/**
-	 * @anchor cio_websocket_write_message_continuation_chunk
-	 * @brief Continuous to write data to a websocket message which was started with @ref cio_websocket_write_message_first_chunk.
-	 *
-	 * @warning Please note that the data @p payload encapsulates will be scrambled by
-	 * the library if this function is used in a websocket client connection. So if
-	 * you want to write the same data again, you have to re-initialize the data encapsluated
-	 * by @p payload. In addition you should ALWAYS intialize the write buffer elements in
-	 * @p payload using the @ref cio_write_buffer_element_init "non-const initialization function".
-	 *
-	 * @param ws The websocket which should be used for sending.
-	 * @param payload The payload to be sent.
-	 * @param handler A callback function that will be called when the write operation of the ping completes.
-	 * @param handler_context A context pointer given to @p handler when called.
-	 * @return ::CIO_SUCCESS for success.
-	 */
-	enum cio_error (*write_message_continuation_chunk)(struct cio_websocket *ws, struct cio_write_buffer *payload, cio_websocket_write_handler handler, void *handler_context);
-
-	/**
 	 * @brief A pointer to a function which is called when a control frame was received.
 	 *
 	 * Library users are note required to set this function pointer.
@@ -274,7 +256,6 @@ CIO_EXPORT enum cio_error cio_websocket_close(struct cio_websocket *ws, enum cio
 CIO_EXPORT enum cio_error cio_websocket_read_message(struct cio_websocket *ws, cio_websocket_read_handler handler, void *handler_context);
 
 /**
- * @anchor cio_websocket_write_message_first_chunk
  * @brief Writes a complete message to the websocket.
  *
  * @warning Please note that the data @p payload encapsulates will be scrambled by
@@ -296,6 +277,23 @@ CIO_EXPORT enum cio_error cio_websocket_read_message(struct cio_websocket *ws, c
  * @return ::CIO_SUCCESS for success.
  */
 CIO_EXPORT enum cio_error cio_websocket_write_message_first_chunk(struct cio_websocket *ws, size_t frame_length, struct cio_write_buffer *payload, bool last_frame, bool is_binary, cio_websocket_write_handler handler, void *handler_context);
+
+/**
+ * @brief Continuous to write data to a websocket message which was started with @ref cio_websocket_write_message_first_chunk.
+ *
+ * @warning Please note that the data @p payload encapsulates will be scrambled by
+ * the library if this function is used in a websocket client connection. So if
+ * you want to write the same data again, you have to re-initialize the data encapsluated
+ * by @p payload. In addition you should ALWAYS intialize the write buffer elements in
+ * @p payload using the @ref cio_write_buffer_element_init "non-const initialization function".
+ *
+ * @param ws The websocket which should be used for sending.
+ * @param payload The payload to be sent.
+ * @param handler A callback function that will be called when the write operation of the ping completes.
+ * @param handler_context A context pointer given to @p handler when called.
+ * @return ::CIO_SUCCESS for success.
+ */
+CIO_EXPORT enum cio_error cio_websocket_write_message_continuation_chunk(struct cio_websocket *ws, struct cio_write_buffer *payload, cio_websocket_write_handler handler, void *handler_context);
 
 #ifdef __cplusplus
 }

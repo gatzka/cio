@@ -792,16 +792,6 @@ static void get_header(struct cio_buffered_stream *bs, void *handler_context, en
 	}
 }
 
-static enum cio_error write_continuation(struct cio_websocket *ws, struct cio_write_buffer *payload, cio_websocket_write_handler handler, void *handler_context)
-{
-	ws->ws_private.write_message_job.wbh = payload;
-	ws->ws_private.write_message_job.handler = handler;
-	ws->ws_private.write_message_job.handler_context = handler_context;
-	ws->ws_private.write_message_job.stream_handler = message_written;
-	ws->ws_private.write_message_job.is_continuation_chunk = true;
-	return enqueue_job(ws, &ws->ws_private.write_message_job, 0);
-}
-
 static enum cio_error write_ping_or_pong_message(struct cio_websocket *ws, enum cio_websocket_frame_type frame_type, struct cio_websocket_write_job *job, struct cio_write_buffer *payload, cio_websocket_write_handler handler, void *handler_context)
 {
 	if (cio_unlikely(handler == NULL)) {
@@ -857,7 +847,6 @@ enum cio_error cio_websocket_init(struct cio_websocket *ws, bool is_server, cio_
 	ws->ws_private.read_handler = NULL;
 
 	ws->on_error = NULL;
-	ws->write_message_continuation_chunk = write_continuation;
 	ws->write_ping = write_ping_message;
 	ws->write_pong = write_pong_message;
 	ws->ws_private.close_hook = close_hook;
@@ -981,5 +970,16 @@ enum cio_error cio_websocket_write_message_first_chunk(struct cio_websocket *ws,
 
 	return enqueue_job(ws, &ws->ws_private.write_message_job, frame_length);
 }
+
+enum cio_error cio_websocket_write_message_continuation_chunk(struct cio_websocket *ws, struct cio_write_buffer *payload, cio_websocket_write_handler handler, void *handler_context)
+{
+	ws->ws_private.write_message_job.wbh = payload;
+	ws->ws_private.write_message_job.handler = handler;
+	ws->ws_private.write_message_job.handler_context = handler_context;
+	ws->ws_private.write_message_job.stream_handler = message_written;
+	ws->ws_private.write_message_job.is_continuation_chunk = true;
+	return enqueue_job(ws, &ws->ws_private.write_message_job, 0);
+}
+
 
 

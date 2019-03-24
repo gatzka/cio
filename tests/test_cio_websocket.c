@@ -1551,7 +1551,7 @@ static void test_send_chunks(void)
 		cio_write_buffer_head_init(&wbh);
 		cio_write_buffer_element_init(&wb, &data[sizeof(data) / 2], sizeof(data) - (sizeof(data) / 2));
 		cio_write_buffer_queue_tail(&wbh, &wb);
-		err = ws->write_message_continuation_chunk(ws, &wbh, write_handler, &context);
+		err = cio_websocket_write_message_continuation_chunk(ws, &wbh, write_handler, &context);
 		TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Writing a frame did not succeed!");
 
 		TEST_ASSERT_MESSAGE(check_frame(frame_type, check_data, sizeof(check_data), true), "First frame send is incorrect text frame!");

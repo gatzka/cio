@@ -104,7 +104,7 @@ static void read_handler(struct cio_websocket *ws, void *handler_context, enum c
 			if (ah->start_new_write_chunk) {
 				err = cio_websocket_write_message_first_chunk(ws, frame_length, &ah->wbh, last_frame, is_binary, write_complete, NULL);
 			} else {
-				err = ws->write_message_continuation_chunk(ws, &ah->wbh, write_complete, NULL);
+				err = cio_websocket_write_message_continuation_chunk(ws, &ah->wbh, write_complete, NULL);
 			}
 
 			ah->start_new_write_chunk = last_chunk;
