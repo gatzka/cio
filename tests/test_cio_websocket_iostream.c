@@ -300,7 +300,7 @@ static void serialize_frames(struct ws_frame frames[], size_t num_frames)
 		}
 
 		if (frame.data_length <= 125) {
-			ms.frame_buffer[buffer_pos] |= (uint8_t)frame.data_length;
+			ms.frame_buffer[buffer_pos] = (uint8_t)((unsigned int)ms.frame_buffer[buffer_pos] | (unsigned int)frame.data_length);
 			buffer_pos++;
 		} else if (frame.data_length < 65536) {
 			uint16_t len = (uint16_t)frame.data_length;
@@ -350,7 +350,7 @@ static void read_handler_save_data(struct cio_websocket *websocket, void *handle
 			read_back_buffer_pos += length;
 		}
 
-		err = websocket->read_message(websocket, read_handler, handler_context);
+		err = cio_websocket_read_message(websocket, read_handler, handler_context);
 		TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Could not start reading a message!");
 	}
 }
@@ -441,17 +441,17 @@ static void test_client_send_text_binary_frame(void)
 
 				uint32_t context = 0x1234568;
 				if (frame_types[j] == CIO_WEBSOCKET_TEXT_FRAME) {
-					enum cio_error err = ws->write_message_first_chunk(ws, cio_write_buffer_get_total_size(&wbh), &wbh, true, false, write_handler, &context);
+					enum cio_error err = cio_websocket_write_message_first_chunk(ws, cio_write_buffer_get_total_size(&wbh), &wbh, true, false, write_handler, &context);
 					TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Writing a text frame did not succeed!");
 					TEST_ASSERT_MESSAGE(check_frame(CIO_WEBSOCKET_TEXT_FRAME, check_data, frame_size, true), "First frame send is incorrect text frame!");
 				} else if (frame_types[j] == CIO_WEBSOCKET_BINARY_FRAME) {
-					enum cio_error err = ws->write_message_first_chunk(ws, cio_write_buffer_get_total_size(&wbh), &wbh, true, true, write_handler, &context);
+					enum cio_error err = cio_websocket_write_message_first_chunk(ws, cio_write_buffer_get_total_size(&wbh), &wbh, true, true, write_handler, &context);
 					TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Writing a binary frame did not succeed!");
 					TEST_ASSERT_MESSAGE(check_frame(CIO_WEBSOCKET_BINARY_FRAME, check_data, frame_size, true), "First frame send is incorrect binary frame!");
 				}
 
 				ws->ws_private.ws_flags.is_server = (dir == FROM_CLIENT) ? 1 : 0;
-				enum cio_error err = ws->read_message(ws, read_handler, NULL);
+				enum cio_error err = cio_websocket_read_message(ws, read_handler, NULL);
 				TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Could not start reading a message!");
 
 				run_eventloop_fake();
@@ -505,7 +505,7 @@ static void test_receive_unfragmented_frames(void)
 				serialize_frames(frames, ARRAY_SIZE(frames));
 
 				ws->ws_private.ws_flags.is_server = (dir == FROM_CLIENT) ? 1 : 0;
-				enum cio_error err = ws->read_message(ws, read_handler, NULL);
+				enum cio_error err = cio_websocket_read_message(ws, read_handler, NULL);
 				TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Could not start reading a message!");
 
 				run_eventloop_fake();
@@ -582,7 +582,7 @@ static void test_receive_fragmented_frames(void)
 					serialize_frames(frames, ARRAY_SIZE(frames));
 
 					ws->ws_private.ws_flags.is_server = (dir == FROM_CLIENT) ? 1 : 0;
-					enum cio_error err = ws->read_message(ws, read_handler, NULL);
+					enum cio_error err = cio_websocket_read_message(ws, read_handler, NULL);
 					TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Could not start reading a message!");
 
 					run_eventloop_fake();
@@ -643,7 +643,7 @@ static void test_receive_three_fragments(void)
 	serialize_frames(frames, ARRAY_SIZE(frames));
 
 	ws->ws_private.ws_flags.is_server = (frames[0].direction == FROM_CLIENT) ? 1 : 0;
-	enum cio_error err = ws->read_message(ws, read_handler, NULL);
+	enum cio_error err = cio_websocket_read_message(ws, read_handler, NULL);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Could not start reading a message!");
 
 	run_eventloop_fake();
@@ -686,7 +686,7 @@ static void test_wrong_opcode_between_fragments(void)
 	serialize_frames(frames, ARRAY_SIZE(frames));
 
 	ws->ws_private.ws_flags.is_server = (frames[0].direction == FROM_CLIENT) ? 1 : 0;
-	enum cio_error err = ws->read_message(ws, read_handler, NULL);
+	enum cio_error err = cio_websocket_read_message(ws, read_handler, NULL);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Could not start reading a message!");
 
 	run_eventloop_fake();
@@ -719,7 +719,7 @@ static void test_wrong_opcode_in_fragment(void)
 	serialize_frames(frames, ARRAY_SIZE(frames));
 
 	ws->ws_private.ws_flags.is_server = (frames[0].direction == FROM_CLIENT) ? 1 : 0;
-	enum cio_error err = ws->read_message(ws, read_handler, NULL);
+	enum cio_error err = cio_websocket_read_message(ws, read_handler, NULL);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Could not start reading a message!");
 
 	run_eventloop_fake();
@@ -752,7 +752,7 @@ static void test_control_frame_within_fragment(void)
 	serialize_frames(frames, ARRAY_SIZE(frames));
 
 	ws->ws_private.ws_flags.is_server = (frames[0].direction == FROM_CLIENT) ? 1 : 0;
-	enum cio_error err = ws->read_message(ws, read_handler, NULL);
+	enum cio_error err = cio_websocket_read_message(ws, read_handler, NULL);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Could not start reading a message!");
 
 	run_eventloop_fake();
@@ -803,7 +803,7 @@ static void test_binary_frame_within_text_fragments(void)
 	serialize_frames(frames, ARRAY_SIZE(frames));
 
 	ws->ws_private.ws_flags.is_server = (frames[0].direction == FROM_CLIENT) ? 1 : 0;
-	enum cio_error err = ws->read_message(ws, read_handler, NULL);
+	enum cio_error err = cio_websocket_read_message(ws, read_handler, NULL);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Could not start reading a message!");
 
 	run_eventloop_fake();
@@ -841,7 +841,7 @@ static void test_text_frame_not_utf8(void)
 	serialize_frames(frames, ARRAY_SIZE(frames));
 
 	ws->ws_private.ws_flags.is_server = (frames[0].direction == FROM_CLIENT) ? 1 : 0;
-	enum cio_error err = ws->read_message(ws, read_handler, NULL);
+	enum cio_error err = cio_websocket_read_message(ws, read_handler, NULL);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Could not start reading a message!");
 
 	run_eventloop_fake();
@@ -869,7 +869,7 @@ static void test_text_frame_utf8_no_complete_in_last_frame(void)
 	serialize_frames(frames, ARRAY_SIZE(frames));
 
 	ws->ws_private.ws_flags.is_server = (frames[0].direction == FROM_CLIENT) ? 1 : 0;
-	enum cio_error err = ws->read_message(ws, read_handler, NULL);
+	enum cio_error err = cio_websocket_read_message(ws, read_handler, NULL);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Could not start reading a message!");
 
 	run_eventloop_fake();
@@ -898,7 +898,7 @@ static void test_rsv_bit_in_header(void)
 	serialize_frames(frames, ARRAY_SIZE(frames));
 
 	ws->ws_private.ws_flags.is_server = (frames[0].direction == FROM_CLIENT) ? 1 : 0;
-	enum cio_error err = ws->read_message(ws, read_handler, NULL);
+	enum cio_error err = cio_websocket_read_message(ws, read_handler, NULL);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Could not start reading a message!");
 
 	run_eventloop_fake();
@@ -924,7 +924,7 @@ static void test_fragmented_control_frame(void)
 	serialize_frames(frames, ARRAY_SIZE(frames));
 
 	ws->ws_private.ws_flags.is_server = (frames[0].direction == FROM_CLIENT) ? 1 : 0;
-	enum cio_error err = ws->read_message(ws, read_handler, NULL);
+	enum cio_error err = cio_websocket_read_message(ws, read_handler, NULL);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Could not start reading a message!");
 
 	run_eventloop_fake();
@@ -953,7 +953,7 @@ static void test_wrong_continuation_frame_without_correct_start_frame(void)
 	serialize_frames(frames, ARRAY_SIZE(frames));
 
 	ws->ws_private.ws_flags.is_server = (frames[0].direction == FROM_CLIENT) ? 1 : 0;
-	enum cio_error err = ws->read_message(ws, read_handler, NULL);
+	enum cio_error err = cio_websocket_read_message(ws, read_handler, NULL);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Could not start reading a message!");
 
 	run_eventloop_fake();
@@ -984,7 +984,7 @@ static void test_wrong_fragment_start(void)
 	serialize_frames(frames, ARRAY_SIZE(frames));
 
 	ws->ws_private.ws_flags.is_server = (frames[0].direction == FROM_CLIENT) ? 1 : 0;
-	enum cio_error err = ws->read_message(ws, read_handler, NULL);
+	enum cio_error err = cio_websocket_read_message(ws, read_handler, NULL);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Could not start reading a message!");
 
 	run_eventloop_fake();
@@ -1011,7 +1011,7 @@ static void test_illegal_opcode(void)
 	serialize_frames(frames, ARRAY_SIZE(frames));
 
 	ws->ws_private.ws_flags.is_server = (frames[0].direction == FROM_CLIENT) ? 1 : 0;
-	enum cio_error err = ws->read_message(ws, read_handler, NULL);
+	enum cio_error err = cio_websocket_read_message(ws, read_handler, NULL);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Could not start reading a message!");
 
 	run_eventloop_fake();
@@ -1041,7 +1041,7 @@ static void test_no_mask_set_from_client(void)
 	serialize_frames(frames, ARRAY_SIZE(frames));
 
 	ws->ws_private.ws_flags.is_server = 1;
-	enum cio_error err = ws->read_message(ws, read_handler, NULL);
+	enum cio_error err = cio_websocket_read_message(ws, read_handler, NULL);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Could not start reading a message!");
 
 	run_eventloop_fake();
@@ -1074,13 +1074,13 @@ static void test_init_without_on_connect(void)
 
 static void test_read_message_no_websocket(void)
 {
-	enum cio_error err = ws->read_message(NULL, read_handler, NULL);
+	enum cio_error err = cio_websocket_read_message(NULL, read_handler, NULL);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_INVALID_ARGUMENT, err, "Wrong error code if no websocket pointer is provided!");
 }
 
 static void test_read_message_no_handler(void)
 {
-	enum cio_error err = ws->read_message(ws, NULL, NULL);
+	enum cio_error err = cio_websocket_read_message(ws, NULL, NULL);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_INVALID_ARGUMENT, err, "Wrong error code if no handler is provided!");
 }
 
@@ -1096,7 +1096,7 @@ static void test_receive_ping_frame(void)
 	serialize_frames(frames, ARRAY_SIZE(frames));
 
 	ws->ws_private.ws_flags.is_server = (frames[0].direction == FROM_CLIENT) ? 1 : 0;
-	enum cio_error err = ws->read_message(ws, read_handler, NULL);
+	enum cio_error err = cio_websocket_read_message(ws, read_handler, NULL);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Could not start reading a message!");
 
 	run_eventloop_fake();
@@ -1136,7 +1136,7 @@ static void test_receive_ping_frame_no_callback(void)
 
 	ws->on_control = NULL;
 	ws->ws_private.ws_flags.is_server = (frames[0].direction == FROM_CLIENT) ? 1 : 0;
-	enum cio_error err = ws->read_message(ws, read_handler, NULL);
+	enum cio_error err = cio_websocket_read_message(ws, read_handler, NULL);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Could not start reading a message!");
 
 	run_eventloop_fake();
@@ -1163,7 +1163,7 @@ static void test_receive_ping_frame_no_payload(void)
 	serialize_frames(frames, ARRAY_SIZE(frames));
 
 	ws->ws_private.ws_flags.is_server = (frames[0].direction == FROM_CLIENT) ? 1 : 0;
-	enum cio_error err = ws->read_message(ws, read_handler, NULL);
+	enum cio_error err = cio_websocket_read_message(ws, read_handler, NULL);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Could not start reading a message!");
 
 	run_eventloop_fake();
@@ -1200,7 +1200,7 @@ static void test_receive_ping_frame_payload_too_long(void)
 	serialize_frames(frames, ARRAY_SIZE(frames));
 
 	ws->ws_private.ws_flags.is_server = (frames[0].direction == FROM_CLIENT) ? 1 : 0;
-	enum cio_error err = ws->read_message(ws, read_handler, NULL);
+	enum cio_error err = cio_websocket_read_message(ws, read_handler, NULL);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Could not start reading a message!");
 
 	run_eventloop_fake();
@@ -1234,7 +1234,7 @@ static void test_recieve_ping_frame_payload_too_long_no_error_callback(void)
 
 	ws->on_error = NULL;
 	ws->ws_private.ws_flags.is_server = (frames[0].direction == FROM_CLIENT) ? 1 : 0;
-	enum cio_error err = ws->read_message(ws, read_handler, NULL);
+	enum cio_error err = cio_websocket_read_message(ws, read_handler, NULL);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Could not start reading a message!");
 
 	run_eventloop_fake();
@@ -1264,7 +1264,7 @@ static void test_receive_pong_frame(void)
 	serialize_frames(frames, ARRAY_SIZE(frames));
 
 	ws->ws_private.ws_flags.is_server = (frames[0].direction == FROM_CLIENT) ? 1 : 0;
-	enum cio_error err = ws->read_message(ws, read_handler, NULL);
+	enum cio_error err = cio_websocket_read_message(ws, read_handler, NULL);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Could not start reading a message!");
 
 	run_eventloop_fake();
@@ -1304,7 +1304,7 @@ static void test_receive_pong_frame_no_callback(void)
 
 	ws->on_control = NULL;
 	ws->ws_private.ws_flags.is_server = (frames[0].direction == FROM_CLIENT) ? 1 : 0;
-	enum cio_error err = ws->read_message(ws, read_handler, NULL);
+	enum cio_error err = cio_websocket_read_message(ws, read_handler, NULL);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Could not start reading a message!");
 
 	run_eventloop_fake();
@@ -1332,7 +1332,7 @@ static void test_close_short_status(void)
 	serialize_frames(frames, ARRAY_SIZE(frames));
 
 	ws->ws_private.ws_flags.is_server = (frames[0].direction == FROM_CLIENT) ? 1 : 0;
-	enum cio_error err = ws->read_message(ws, read_handler, NULL);
+	enum cio_error err = cio_websocket_read_message(ws, read_handler, NULL);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Could not start reading a message!");
 
 	run_eventloop_fake();
@@ -1360,7 +1360,7 @@ static void test_close_invalid_status(void)
 	serialize_frames(frames, ARRAY_SIZE(frames));
 
 	ws->ws_private.ws_flags.is_server = (frames[0].direction == FROM_CLIENT) ? 1 : 0;
-	enum cio_error err = ws->read_message(ws, read_handler, NULL);
+	enum cio_error err = cio_websocket_read_message(ws, read_handler, NULL);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Could not start reading a message!");
 
 	run_eventloop_fake();
@@ -1388,7 +1388,7 @@ static void test_close_with_message(void)
 	serialize_frames(frames, ARRAY_SIZE(frames));
 
 	ws->ws_private.ws_flags.is_server = (frames[0].direction == FROM_CLIENT) ? 1 : 0;
-	enum cio_error err = ws->read_message(ws, read_handler, NULL);
+	enum cio_error err = cio_websocket_read_message(ws, read_handler, NULL);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Could not start reading a message!");
 
 	run_eventloop_fake();
@@ -1419,7 +1419,7 @@ static void test_close_reason_not_utf8(void)
 	serialize_frames(frames, ARRAY_SIZE(frames));
 
 	ws->ws_private.ws_flags.is_server = (frames[0].direction == FROM_CLIENT) ? 1 : 0;
-	enum cio_error err = ws->read_message(ws, read_handler, NULL);
+	enum cio_error err = cio_websocket_read_message(ws, read_handler, NULL);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Could not start reading a message!");
 
 	run_eventloop_fake();
@@ -1449,7 +1449,7 @@ static void test_close_with_valid_status_codes(void)
 		serialize_frames(frames, ARRAY_SIZE(frames));
 
 		ws->ws_private.ws_flags.is_server = (frames[0].direction == FROM_CLIENT) ? 1 : 0;
-		enum cio_error err = ws->read_message(ws, read_handler, NULL);
+		enum cio_error err = cio_websocket_read_message(ws, read_handler, NULL);
 		TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Could not start reading a message!");
 
 		run_eventloop_fake();
@@ -1486,7 +1486,7 @@ static void test_close_with_invalid_status_codes(void)
 		serialize_frames(frames, ARRAY_SIZE(frames));
 
 		ws->ws_private.ws_flags.is_server = (frames[0].direction == FROM_CLIENT) ? 1 : 0;
-		enum cio_error err = ws->read_message(ws, read_handler, NULL);
+		enum cio_error err = cio_websocket_read_message(ws, read_handler, NULL);
 		TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Could not start reading a message!");
 
 		run_eventloop_fake();

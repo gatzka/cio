@@ -165,82 +165,6 @@ struct cio_websocket_private {
 struct cio_websocket {
 
 	/**
-	 * @anchor cio_websocket_close
-	 * @brief Closes a websocket.
-	 *
-     * @warning Please note that the data @p reason encapsulates will be scrambled by
-     * the library if this function is used in a websocket client connection. You should
-     * ALWAYS intialize the write buffer elements in * @p reason using the
-     * @ref cio_write_buffer_element_init "non-const initialization function".
-	 *
-	 * @param ws The websocket to be closed.
-	 * @param status The @ref cio_websocket_status_code "websocket status code" to be sent.
-	 * @param reason A buffer which contains the reason for the close in an UTF8 encoded string. Could be @c NULL if no reason should be sent.
-	 * @return ::CIO_SUCCESS for success.
-	 */
-	enum cio_error (*close)(struct cio_websocket *ws, enum cio_websocket_status_code status, const char *reason, cio_websocket_write_handler handler, void *handler_context);
-
-	/**
-	 * @brief A pointer to a function which is called when a websocket connection was established.
-	 *
-	 * @param ws The websocket which was connected.
-	 */
-	void (*on_connect)(struct cio_websocket *ws);
-
-	/**
-	 * @anchor cio_websocket_read_message
-	 * @brief Reads a message from a websocket.
-	 *
-	 * @param ws The websocket from which a message shall be read.
-	 * @param handler A callback function that will be called when the read completes.
-	 * @param handler_context A context pointer given to @p handler when called.
-	 * @return ::CIO_SUCCESS for success.
-	 */
-	enum cio_error (*read_message)(struct cio_websocket *ws, cio_websocket_read_handler handler, void *handler_context);
-
-	/**
-	 * @anchor cio_websocket_write_message_first_chunk
-	 * @brief Writes a complete message to the websocket.
-	 *
-	 * @warning Please note that the data @p payload encapsulates will be scrambled by
-	 * the library if this function is used in a websocket client connection. So if
-	 * you want to write the same data again, you have to re-initialize the data encapsluated
-	 * by @p payload. In addition you should ALWAYS intialize the write buffer elements in
-	 * @p payload using the @ref cio_write_buffer_element_init "non-const initialization function".
-	 *
-	 * @param ws The websocket which should be used for sending.
-	 * @param frame_length The length of the frame to be sent. Please be aware that the frame length
-	 * must not necessarily be the same as the length of the payload. In fact, this funtion can be used
-	 * to write the first chunk of a message which has to be continuoued later using @ref cio_websocket_write_message_continuation_chunk.
-	 * @param payload The payload to be sent.
-	 * @param last_frame @c true if the is an unfragmented message or the last frame of a
-	 * fragmented message, @c false otherwise.
-	 * @param is_binary @c true if the message to be sent is a binary message.
-	 * @param handler A callback function that will be called when the write completes.
-	 * @param handler_context A context pointer given to @p handler when called.
-	 * @return ::CIO_SUCCESS for success.
-	 */
-	enum cio_error (*write_message_first_chunk)(struct cio_websocket *ws, size_t frame_length, struct cio_write_buffer *payload, bool last_frame, bool is_binary, cio_websocket_write_handler handler, void *handler_context);
-
-	/**
-	 * @anchor cio_websocket_write_message_continuation_chunk
-	 * @brief Continuous to write data to a websocket message which was started with @ref cio_websocket_write_message_first_chunk.
-	 *
-	 * @warning Please note that the data @p payload encapsulates will be scrambled by
-	 * the library if this function is used in a websocket client connection. So if
-	 * you want to write the same data again, you have to re-initialize the data encapsluated
-	 * by @p payload. In addition you should ALWAYS intialize the write buffer elements in
-	 * @p payload using the @ref cio_write_buffer_element_init "non-const initialization function".
-	 *
-	 * @param ws The websocket which should be used for sending.
-	 * @param payload The payload to be sent.
-	 * @param handler A callback function that will be called when the write operation of the ping completes.
-	 * @param handler_context A context pointer given to @p handler when called.
-	 * @return ::CIO_SUCCESS for success.
-	 */
-	enum cio_error (*write_message_continuation_chunk)(struct cio_websocket *ws, struct cio_write_buffer *payload, cio_websocket_write_handler handler, void *handler_context);
-
-	/**
 	 * @brief A pointer to a function which is called when a control frame was received.
 	 *
 	 * Library users are note required to set this function pointer.
@@ -267,46 +191,110 @@ struct cio_websocket {
 	 */
 	void (*on_error)(const struct cio_websocket *ws, enum cio_error err, const char *reason);
 
-	/**
-	 * @anchor cio_write_ping
-	 * @brief Writes a ping frame to the websocket.
-	 *
-	 * @warning Please note that the data @p payload encapsulates will be scrambled by
-	 * the library if this function is used in a websocket client connection. So if
-	 * you want to write the same data again, you have to re-initialize the data encapsluated
-	 * by @p payload. In addition you should ALWAYS intialize the write buffer elements in
-	 * @p payload using the @ref cio_write_buffer_element_init "non-const initialization function".
-	 *
-	 * @param payload The payload to be sent.
-	 * @param handler A callback function that will be called when the write operation of the ping completes.
-	 * @param handler_context A context pointer given to @p handler when called.
-	 * @return ::CIO_SUCCESS for success.
-	 */
-	enum cio_error (*write_ping)(struct cio_websocket *ws, struct cio_write_buffer *payload, cio_websocket_write_handler handler, void *handler_context);
-
-	/**
-	 * @anchor cio_write_pong
-	 * @brief Writes a pong frame to the websocket.
-	 *
-	 * @warning Please note that the data @p payload encapsulates will be scrambled by
-	 * the library if this function is used in a websocket client connection. So if
-	 * you want to write the same data again, you have to re-initialize the data encapsluated
-	 * by @p payload. In addition you should ALWAYS intialize the write buffer elements in
-	 * @p payload using the @ref cio_write_buffer_element_init "non-const initialization function".
-	 *
-	 * @param payload The payload to be sent.
-	 * @param handler A callback function that will be called when the write operation of the pong completes.
-	 * @param handler_context A context pointer given to @p handler when called.
-	 * @return ::CIO_SUCCESS for success.
-	 */
-	enum cio_error (*write_pong)(struct cio_websocket *ws, struct cio_write_buffer *payload, cio_websocket_write_handler handler, void *handler_context);
-
 	/*! @cond PRIVATE */
 	struct cio_websocket_private ws_private;
+	void (*on_connect)(struct cio_websocket *ws);
 	/*! @endcond */
 };
 
 CIO_EXPORT enum cio_error cio_websocket_init(struct cio_websocket *ws, bool is_server, cio_websocket_on_connect on_connect, cio_websocket_close_hook close_hook);
+
+/**
+ * @brief Closes a websocket.
+ *
+ * @param ws The websocket to be closed.
+ * @param status The @ref cio_websocket_status_code "websocket status code" to be sent.
+ * @param reason A buffer which contains the reason for the close in an UTF8 encoded string. Could be @c NULL if no reason should be sent.
+ * @param handler A function pointer that will be called when the close frame emitted by this function has been written.
+ * @param handler_context A context pointer which will the argument of @p handler.
+ * @return ::CIO_SUCCESS for success.
+ */
+CIO_EXPORT enum cio_error cio_websocket_close(struct cio_websocket *ws, enum cio_websocket_status_code status, const char *reason, cio_websocket_write_handler handler, void *handler_context);
+
+/**
+ * @brief Reads a message from a websocket.
+ *
+ * @param ws The websocket from which a message shall be read.
+ * @param handler A callback function that will be called when the read completes.
+ * @param handler_context A context pointer given to @p handler when called.
+ * @return ::CIO_SUCCESS for success.
+ */
+CIO_EXPORT enum cio_error cio_websocket_read_message(struct cio_websocket *ws, cio_websocket_read_handler handler, void *handler_context);
+
+/**
+ * @brief Writes a complete message to the websocket.
+ *
+ * @warning Please note that the data @p payload encapsulates will be scrambled by
+ * the library if this function is used in a websocket client connection. So if
+ * you want to write the same data again, you have to re-initialize the data encapsluated
+ * by @p payload. In addition you should ALWAYS intialize the write buffer elements in
+ * @p payload using the @ref cio_write_buffer_element_init "non-const initialization function".
+ *
+ * @param ws The websocket which should be used for sending.
+ * @param frame_length The length of the frame to be sent. Please be aware that the frame length
+ * must not necessarily be the same as the length of the payload. In fact, this funtion can be used
+ * to write the first chunk of a message which has to be continuoued later using @ref cio_websocket_write_message_continuation_chunk.
+ * @param payload The payload to be sent.
+ * @param last_frame @c true if the is an unfragmented message or the last frame of a
+ * fragmented message, @c false otherwise.
+ * @param is_binary @c true if the message to be sent is a binary message.
+ * @param handler A callback function that will be called when the write completes.
+ * @param handler_context A context pointer given to @p handler when called.
+ * @return ::CIO_SUCCESS for success.
+ */
+CIO_EXPORT enum cio_error cio_websocket_write_message_first_chunk(struct cio_websocket *ws, size_t frame_length, struct cio_write_buffer *payload, bool last_frame, bool is_binary, cio_websocket_write_handler handler, void *handler_context);
+
+/**
+ * @brief Continuous to write data to a websocket message which was started with @ref cio_websocket_write_message_first_chunk.
+ *
+ * @warning Please note that the data @p payload encapsulates will be scrambled by
+ * the library if this function is used in a websocket client connection. So if
+ * you want to write the same data again, you have to re-initialize the data encapsluated
+ * by @p payload. In addition you should ALWAYS intialize the write buffer elements in
+ * @p payload using the @ref cio_write_buffer_element_init "non-const initialization function".
+ *
+ * @param ws The websocket which should be used for sending.
+ * @param payload The payload to be sent.
+ * @param handler A callback function that will be called when the write operation of the ping completes.
+ * @param handler_context A context pointer given to @p handler when called.
+ * @return ::CIO_SUCCESS for success.
+ */
+CIO_EXPORT enum cio_error cio_websocket_write_message_continuation_chunk(struct cio_websocket *ws, struct cio_write_buffer *payload, cio_websocket_write_handler handler, void *handler_context);
+
+/**
+ * @brief Writes a ping frame to the websocket.
+ *
+ * @warning Please note that the data @p payload encapsulates will be scrambled by
+ * the library if this function is used in a websocket client connection. So if
+ * you want to write the same data again, you have to re-initialize the data encapsluated
+ * by @p payload. In addition you should ALWAYS intialize the write buffer elements in
+ * @p payload using the @ref cio_write_buffer_element_init "non-const initialization function".
+ *
+ * @param ws The websocket which should be used for sending the ping message.
+ * @param payload The payload to be sent.
+ * @param handler A callback function that will be called when the write operation of the ping completes.
+ * @param handler_context A context pointer given to @p handler when called.
+ * @return ::CIO_SUCCESS for success.
+ */
+CIO_EXPORT enum cio_error cio_websocket_write_ping(struct cio_websocket *ws, struct cio_write_buffer *payload, cio_websocket_write_handler handler, void *handler_context);
+
+/**
+ * @brief Writes a pong frame to the websocket.
+ *
+ * @warning Please note that the data @p payload encapsulates will be scrambled by
+ * the library if this function is used in a websocket client connection. So if
+ * you want to write the same data again, you have to re-initialize the data encapsluated
+ * by @p payload. In addition you should ALWAYS intialize the write buffer elements in
+ * @p payload using the @ref cio_write_buffer_element_init "non-const initialization function".
+ *
+ * @param ws The websocket which should be used for sending the pong message.
+ * @param payload The payload to be sent.
+ * @param handler A callback function that will be called when the write operation of the pong completes.
+ * @param handler_context A context pointer given to @p handler when called.
+ * @return ::CIO_SUCCESS for success.
+ */
+enum cio_error cio_websocket_write_pong(struct cio_websocket *ws, struct cio_write_buffer *payload, cio_websocket_write_handler handler, void *handler_context);
+
 
 #ifdef __cplusplus
 }
