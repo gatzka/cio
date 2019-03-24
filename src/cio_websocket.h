@@ -164,21 +164,6 @@ struct cio_websocket_private {
 
 struct cio_websocket {
 
-	/**
-	 * @anchor cio_websocket_close
-	 * @brief Closes a websocket.
-	 *
-     * @warning Please note that the data @p reason encapsulates will be scrambled by
-     * the library if this function is used in a websocket client connection. You should
-     * ALWAYS intialize the write buffer elements in * @p reason using the
-     * @ref cio_write_buffer_element_init "non-const initialization function".
-	 *
-	 * @param ws The websocket to be closed.
-	 * @param status The @ref cio_websocket_status_code "websocket status code" to be sent.
-	 * @param reason A buffer which contains the reason for the close in an UTF8 encoded string. Could be @c NULL if no reason should be sent.
-	 * @return ::CIO_SUCCESS for success.
-	 */
-	enum cio_error (*close)(struct cio_websocket *ws, enum cio_websocket_status_code status, const char *reason, cio_websocket_write_handler handler, void *handler_context);
 
 	/**
 	 * @brief A pointer to a function which is called when a websocket connection was established.
@@ -307,6 +292,18 @@ struct cio_websocket {
 };
 
 CIO_EXPORT enum cio_error cio_websocket_init(struct cio_websocket *ws, bool is_server, cio_websocket_on_connect on_connect, cio_websocket_close_hook close_hook);
+
+/**
+ * @brief Closes a websocket.
+ *
+ * @param ws The websocket to be closed.
+ * @param status The @ref cio_websocket_status_code "websocket status code" to be sent.
+ * @param reason A buffer which contains the reason for the close in an UTF8 encoded string. Could be @c NULL if no reason should be sent.
+ * @param handler A function pointer that will be called when the close frame emitted by this function has been written.
+ * @param handler_context A context pointer which will the argument of @p handler.
+ * @return ::CIO_SUCCESS for success.
+ */
+CIO_EXPORT enum cio_error cio_websocket_close(struct cio_websocket *ws, enum cio_websocket_status_code status, const char *reason, cio_websocket_write_handler handler, void *handler_context);
 
 #ifdef __cplusplus
 }

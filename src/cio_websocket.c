@@ -911,7 +911,46 @@ static enum cio_error write_pong_message(struct cio_websocket *ws, struct cio_wr
 	return write_ping_or_pong_message(ws, CIO_WEBSOCKET_PONG_FRAME, &ws->ws_private.write_pong_job, payload, handler, handler_context);
 }
 
-static enum cio_error write_close_message(struct cio_websocket *ws, enum cio_websocket_status_code status_code, const char *reason, cio_websocket_write_handler handler, void *handler_context)
+enum cio_error cio_websocket_init(struct cio_websocket *ws, bool is_server, cio_websocket_on_connect on_connect, cio_websocket_close_hook close_hook)
+{
+	if (cio_unlikely((ws == NULL) || (on_connect == NULL))) {
+		return CIO_INVALID_ARGUMENT;
+	}
+
+	ws->on_connect = on_connect;
+	ws->read_message = read_message;
+	ws->on_control = NULL;
+	ws->ws_private.read_handler = NULL;
+
+	ws->on_error = NULL;
+	ws->write_message_first_chunk = write_message;
+	ws->write_message_continuation_chunk = write_continuation;
+	ws->write_ping = write_ping_message;
+	ws->write_pong = write_pong_message;
+	ws->ws_private.close_hook = close_hook;
+	ws->ws_private.ws_flags.is_server = is_server ? 1 : 0;
+	ws->ws_private.ws_flags.frag_opcode = 0;
+	ws->ws_private.ws_flags.self_initiated_close = 0;
+	ws->ws_private.ws_flags.fragmented_write = 1;
+	ws->ws_private.ws_flags.closed_by_error = 0;
+	ws->ws_private.remaining_read_frame_length = 0;
+
+	ws->ws_private.write_message_job.wbh = NULL;
+	ws->ws_private.write_ping_job.wbh = NULL;
+	ws->ws_private.write_ping_job.is_continuation_chunk = false;
+	ws->ws_private.write_pong_job.wbh = NULL;
+	ws->ws_private.write_pong_job.is_continuation_chunk = false;
+	ws->ws_private.write_close_job.wbh = NULL;
+	ws->ws_private.write_close_job.is_continuation_chunk = false;
+
+	ws->ws_private.first_write_job = NULL;
+
+	cio_utf8_init(&ws->ws_private.utf8_state);
+
+	return CIO_SUCCESS;
+}
+
+enum cio_error cio_websocket_close(struct cio_websocket *ws, enum cio_websocket_status_code status_code, const char *reason, cio_websocket_write_handler handler, void *handler_context)
 {
 	if (cio_unlikely((ws == NULL)) || (handler == NULL)) {
 		return CIO_INVALID_ARGUMENT;
@@ -943,44 +982,4 @@ static enum cio_error write_close_message(struct cio_websocket *ws, enum cio_web
 timer_expires_failed:
 	ws->ws_private.close_timer.close(&ws->ws_private.close_timer);
 	return err;
-}
-
-enum cio_error cio_websocket_init(struct cio_websocket *ws, bool is_server, cio_websocket_on_connect on_connect, cio_websocket_close_hook close_hook)
-{
-	if (cio_unlikely((ws == NULL) || (on_connect == NULL))) {
-		return CIO_INVALID_ARGUMENT;
-	}
-
-	ws->on_connect = on_connect;
-	ws->read_message = read_message;
-	ws->on_control = NULL;
-	ws->ws_private.read_handler = NULL;
-
-	ws->on_error = NULL;
-	ws->close = write_close_message;
-	ws->write_message_first_chunk = write_message;
-	ws->write_message_continuation_chunk = write_continuation;
-	ws->write_ping = write_ping_message;
-	ws->write_pong = write_pong_message;
-	ws->ws_private.close_hook = close_hook;
-	ws->ws_private.ws_flags.is_server = is_server ? 1 : 0;
-	ws->ws_private.ws_flags.frag_opcode = 0;
-	ws->ws_private.ws_flags.self_initiated_close = 0;
-	ws->ws_private.ws_flags.fragmented_write = 1;
-	ws->ws_private.ws_flags.closed_by_error = 0;
-	ws->ws_private.remaining_read_frame_length = 0;
-
-	ws->ws_private.write_message_job.wbh = NULL;
-	ws->ws_private.write_ping_job.wbh = NULL;
-	ws->ws_private.write_ping_job.is_continuation_chunk = false;
-	ws->ws_private.write_pong_job.wbh = NULL;
-	ws->ws_private.write_pong_job.is_continuation_chunk = false;
-	ws->ws_private.write_close_job.wbh = NULL;
-	ws->ws_private.write_close_job.is_continuation_chunk = false;
-
-	ws->ws_private.first_write_job = NULL;
-
-	cio_utf8_init(&ws->ws_private.utf8_state);
-
-	return CIO_SUCCESS;
 }

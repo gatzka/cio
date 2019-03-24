@@ -74,7 +74,7 @@ static void ping_written(struct cio_websocket *ws, void *handler_context, enum c
 {
 	if (err != CIO_SUCCESS) {
 		fprintf(stderr, "writing ping frame failed!\n");
-		err = ws->close(ws, CIO_WEBSOCKET_CLOSE_INTERNAL_ERROR, NULL, NULL, NULL);
+		err = cio_websocket_close(ws, CIO_WEBSOCKET_CLOSE_INTERNAL_ERROR, NULL, NULL, NULL);
 		if (err != CIO_SUCCESS) {
 			fprintf(stderr, "Could not start writing websocket close!\n");
 		}
@@ -83,7 +83,7 @@ static void ping_written(struct cio_websocket *ws, void *handler_context, enum c
 		err = timer->expires_from_now(timer, ping_period_ns, send_ping, ws);
 		if (err != CIO_SUCCESS) {
 			fprintf(stderr, "Could not start ping timer!\n");
-			err = ws->close(ws, CIO_WEBSOCKET_CLOSE_NORMAL, NULL, NULL, NULL);
+			err = cio_websocket_close(ws, CIO_WEBSOCKET_CLOSE_NORMAL, NULL, NULL, NULL);
 			if (err != CIO_SUCCESS) {
 				fprintf(stderr, "Could not start writing websocket close!\n");
 			}
@@ -111,7 +111,7 @@ static void send_ping(struct cio_timer *timer, void *handler_context, enum cio_e
 		}
 	} else if (err != CIO_OPERATION_ABORTED){
 		fprintf(stderr, "ping timer failed!\n");
-		err = ws->close(ws, CIO_WEBSOCKET_CLOSE_INTERNAL_ERROR, NULL, NULL, NULL);
+		err = cio_websocket_close(ws, CIO_WEBSOCKET_CLOSE_INTERNAL_ERROR, NULL, NULL, NULL);
 		if (err != CIO_SUCCESS) {
 			fprintf(stderr, "Could not start writing websocket close!\n");
 		}
@@ -124,9 +124,9 @@ static void write_complete(struct cio_websocket *ws, void *handler_context, enum
 
 	if (err == CIO_SUCCESS) {
 		static const char *close_message = "Good Bye!";
-		err = ws->close(ws, CIO_WEBSOCKET_CLOSE_NORMAL, close_message, NULL, NULL);
+		err = cio_websocket_close(ws, CIO_WEBSOCKET_CLOSE_NORMAL, close_message, NULL, NULL);
 	} else {
-		err = ws->close(ws, CIO_WEBSOCKET_CLOSE_INTERNAL_ERROR, "write did not complete", NULL, NULL);
+		err = cio_websocket_close(ws, CIO_WEBSOCKET_CLOSE_INTERNAL_ERROR, "write did not complete", NULL, NULL);
 	}
 
 	if (err != CIO_SUCCESS) {
@@ -208,7 +208,7 @@ static void on_connect(struct cio_websocket *ws)
 	enum cio_error err = cio_timer_init(&eh->ping_timer, &loop, NULL);
 	if (err != CIO_SUCCESS) {
 		fprintf(stderr, "Could not initialize ping timer!\n");
-		err = ws->close(ws, CIO_WEBSOCKET_CLOSE_NORMAL, NULL, NULL, NULL);
+		err = cio_websocket_close(ws, CIO_WEBSOCKET_CLOSE_NORMAL, NULL, NULL, NULL);
 		if (err != CIO_SUCCESS) {
 			fprintf(stderr, "Could not start writing websocket close!\n");
 		}
@@ -219,7 +219,7 @@ static void on_connect(struct cio_websocket *ws)
 	err = eh->ping_timer.expires_from_now(&eh->ping_timer, ping_period_ns, send_ping, ws);
 	if (err != CIO_SUCCESS) {
 		fprintf(stderr, "Could not start ping timer!\n");
-		err = ws->close(ws, CIO_WEBSOCKET_CLOSE_NORMAL, NULL, NULL, NULL);
+		err = cio_websocket_close(ws, CIO_WEBSOCKET_CLOSE_NORMAL, NULL, NULL, NULL);
 		if (err != CIO_SUCCESS) {
 			fprintf(stderr, "Could not start writing websocket close!\n");
 		}

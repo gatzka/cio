@@ -585,7 +585,7 @@ static void test_close_self_sendframe_fails(void)
 {
 	bs_write_fake.custom_fake = bs_write_error;
 
-	enum cio_error err = ws->close(ws, CIO_WEBSOCKET_CLOSE_NORMAL, "Going away", close_handler, NULL);
+	enum cio_error err = cio_websocket_close(ws, CIO_WEBSOCKET_CLOSE_NORMAL, "Going away", close_handler, NULL);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Close not failed correctly");
 
 	TEST_ASSERT_EQUAL_MESSAGE(1, on_error_fake.call_count, "error callback was not called");
@@ -620,7 +620,7 @@ static void test_send_multiple_jobs_with_failures(void)
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Writing a pong frame did not succeed!");
 	err = ws->write_message_first_chunk(ws, cio_write_buffer_get_total_size(&text_wbh), &text_wbh, true, false, write_handler, NULL);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Writing a text frame did not succeed!");
-	err = ws->close(ws, CIO_WEBSOCKET_CLOSE_NORMAL, NULL, write_handler, NULL);
+	err = cio_websocket_close(ws, CIO_WEBSOCKET_CLOSE_NORMAL, NULL, write_handler, NULL);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Writing a close frame did not succeed!");
 
 	// Simulate write call over the eventloop
@@ -967,7 +967,7 @@ static void test_read_error_in_get_payload(void)
 
 static void test_close_self_no_answer(void)
 {
-	enum cio_error err = ws->close(ws, CIO_WEBSOCKET_CLOSE_NORMAL, NULL, close_handler, NULL);
+	enum cio_error err = cio_websocket_close(ws, CIO_WEBSOCKET_CLOSE_NORMAL, NULL, close_handler, NULL);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Could not start reading a message!");
 
 	read_at_least_fake.custom_fake = bs_read_at_least_block;
@@ -1148,7 +1148,7 @@ static void test_close_self_no_reason(void)
 
 	serialize_frames(frames, ARRAY_SIZE(frames));
 
-	enum cio_error err = ws->close(ws, CIO_WEBSOCKET_CLOSE_NORMAL, NULL, close_handler, NULL);
+	enum cio_error err = cio_websocket_close(ws, CIO_WEBSOCKET_CLOSE_NORMAL, NULL, close_handler, NULL);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Could not start reading a message!");
 
 	err = ws->read_message(ws, read_handler, NULL);
@@ -1178,7 +1178,7 @@ static void test_close_self_with_reason(void)
 
 	serialize_frames(frames, ARRAY_SIZE(frames));
 
-	enum cio_error err = ws->close(ws, CIO_WEBSOCKET_CLOSE_NORMAL, "Going away", close_handler, NULL);
+	enum cio_error err = cio_websocket_close(ws, CIO_WEBSOCKET_CLOSE_NORMAL, "Going away", close_handler, NULL);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Could not start reading a message!");
 
 	err = ws->read_message(ws, read_handler, NULL);
@@ -1200,13 +1200,13 @@ static void test_close_self_with_reason(void)
 
 static void test_close_self_no_ws(void)
 {
-	enum cio_error err = ws->close(NULL, CIO_WEBSOCKET_CLOSE_NORMAL, "Going away", close_handler, NULL);
+	enum cio_error err = cio_websocket_close(NULL, CIO_WEBSOCKET_CLOSE_NORMAL, "Going away", close_handler, NULL);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_INVALID_ARGUMENT, err, "Close not failed correctly");
 }
 
 static void test_close_self_no_handler(void)
 {
-	enum cio_error err = ws->close(ws, CIO_WEBSOCKET_CLOSE_NORMAL, "Going away", NULL, NULL);
+	enum cio_error err = cio_websocket_close(ws, CIO_WEBSOCKET_CLOSE_NORMAL, "Going away", NULL, NULL);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_INVALID_ARGUMENT, err, "Close not failed correctly");
 }
 
@@ -1214,10 +1214,10 @@ static void test_close_self_twice(void)
 {
 	bs_write_fake.custom_fake = bs_write_later;
 
-	enum cio_error err = ws->close(ws, CIO_WEBSOCKET_CLOSE_NORMAL, "Going away", close_handler, NULL);
+	enum cio_error err = cio_websocket_close(ws, CIO_WEBSOCKET_CLOSE_NORMAL, "Going away", close_handler, NULL);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Close did not succeed");
 
-	err = ws->close(ws, CIO_WEBSOCKET_CLOSE_NORMAL, "Going away", close_handler, NULL);
+	err = cio_websocket_close(ws, CIO_WEBSOCKET_CLOSE_NORMAL, "Going away", close_handler, NULL);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_OPERATION_NOT_PERMITTED, err, "Close did not failed correctly");
 }
 
@@ -1225,7 +1225,7 @@ static void test_close_self_timer_init_fails(void)
 {
 	cio_timer_init_fake.custom_fake = cio_timer_init_fails;
 
-	enum cio_error err = ws->close(ws, CIO_WEBSOCKET_CLOSE_NORMAL, "Going away", close_handler, NULL);
+	enum cio_error err = cio_websocket_close(ws, CIO_WEBSOCKET_CLOSE_NORMAL, "Going away", close_handler, NULL);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_INVALID_ARGUMENT, err, "Close not failed correctly");
 	TEST_ASSERT_EQUAL_MESSAGE(0, timer_cancel_fake.call_count, "Timer cancel was called");
 	TEST_ASSERT_EQUAL_MESSAGE(0, timer_close_fake.call_count, "Timer close was called");
@@ -1236,7 +1236,7 @@ static void test_close_self_timer_expire_fails(void)
 	timer_expires_from_now_fake.custom_fake = NULL;
 	timer_expires_from_now_fake.return_val = CIO_ADDRESS_IN_USE;
 
-	enum cio_error err = ws->close(ws, CIO_WEBSOCKET_CLOSE_NORMAL, "Going away", close_handler, NULL);
+	enum cio_error err = cio_websocket_close(ws, CIO_WEBSOCKET_CLOSE_NORMAL, "Going away", close_handler, NULL);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_ADDRESS_IN_USE, err, "Close not failed correctly");
 	TEST_ASSERT_EQUAL_MESSAGE(0, timer_cancel_fake.call_count, "Timer cancel was called");
 	TEST_ASSERT_EQUAL_MESSAGE(1, timer_close_fake.call_count, "Timer close was called");
@@ -1244,7 +1244,7 @@ static void test_close_self_timer_expire_fails(void)
 
 static void test_close_self_without_read(void)
 {
-	enum cio_error err = ws->close(ws, CIO_WEBSOCKET_CLOSE_NORMAL, "Going away", close_handler, NULL);
+	enum cio_error err = cio_websocket_close(ws, CIO_WEBSOCKET_CLOSE_NORMAL, "Going away", close_handler, NULL);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Close failed");
 
 	ws->ws_private.close_timer.handler(&ws->ws_private.close_timer, ws->ws_private.close_timer.handler_context, CIO_SUCCESS);
@@ -1270,7 +1270,7 @@ static void test_close_self_without_close_hook(void)
 
 	serialize_frames(frames, ARRAY_SIZE(frames));
 
-	err = my_ws.close(&my_ws, CIO_WEBSOCKET_CLOSE_NORMAL, NULL, close_handler, NULL);
+	err = cio_websocket_close(&my_ws, CIO_WEBSOCKET_CLOSE_NORMAL, NULL, close_handler, NULL);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Could not start reading a message!");
 
 	err = my_ws.read_message(&my_ws, read_handler, NULL);
@@ -1715,7 +1715,7 @@ static void test_send_multiple_jobs(void)
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Writing a pong frame did not succeed!");
 	err = ws->write_message_first_chunk(ws, cio_write_buffer_get_total_size(&text_wbh), &text_wbh, true, false, write_handler, NULL);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Writing a text frame did not succeed!");
-	err = ws->close(ws, CIO_WEBSOCKET_CLOSE_NORMAL, NULL, write_handler, NULL);
+	err = cio_websocket_close(ws, CIO_WEBSOCKET_CLOSE_NORMAL, NULL, write_handler, NULL);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Writing a close frame did not succeed!");
 
 	// Simulate write call over the eventloop
@@ -1747,7 +1747,7 @@ static void test_send_multiple_jobs_starting_with_close(void)
 	cio_write_buffer_element_init(&wb, buffer, sizeof(buffer));
 	cio_write_buffer_queue_tail(&text_wbh, &wb);
 
-	enum cio_error err = ws->close(ws, CIO_WEBSOCKET_CLOSE_NORMAL, NULL, write_handler, NULL);
+	enum cio_error err = cio_websocket_close(ws, CIO_WEBSOCKET_CLOSE_NORMAL, NULL, write_handler, NULL);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Writing a close frame did not succeed!");
 	err = ws->write_ping(ws, &ping_wbh, write_handler, NULL);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Writing a ping frame did not succeed!");
