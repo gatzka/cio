@@ -105,7 +105,7 @@ static void send_ping(struct cio_timer *timer, void *handler_context, enum cio_e
 		static const char *ping_message = "ping";
 		cio_write_buffer_const_element_init(&eh->wb_ping_message, ping_message, strlen(ping_message));
 		cio_write_buffer_queue_head(&wbh, &eh->wb_ping_message);
-		err = ws->write_ping(ws, &wbh, ping_written, timer);
+		err = cio_websocket_write_ping(ws, &wbh, ping_written, timer);
 		if (err != CIO_SUCCESS) {
 			fprintf(stderr, "Could not start writing websocket ping!\n");
 		}
