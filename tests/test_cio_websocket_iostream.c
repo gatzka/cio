@@ -394,7 +394,7 @@ void setUp(void)
 	cio_websocket_init(ws, false, on_connect, NULL);
 	ws->ws_private.http_client = &http_client;
 	ws->on_control = on_control;
-	ws->on_error = on_error;
+	cio_websocket_set_on_error_cb(ws, on_error);
 
 	read_handler_fake.custom_fake = read_handler_save_data;
 	on_control_fake.custom_fake = on_control_save_data;
@@ -1232,7 +1232,7 @@ static void test_recieve_ping_frame_payload_too_long_no_error_callback(void)
 
 	serialize_frames(frames, ARRAY_SIZE(frames));
 
-	ws->on_error = NULL;
+	cio_websocket_set_on_error_cb(ws, NULL);
 	ws->ws_private.ws_flags.is_server = (frames[0].direction == FROM_CLIENT) ? 1 : 0;
 	enum cio_error err = cio_websocket_read_message(ws, read_handler, NULL);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Could not start reading a message!");
