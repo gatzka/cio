@@ -105,8 +105,6 @@ $(document).ready(function(){initNavTree('structcio__http__server.html','');});
 </div>
 
 <div class="header">
-  <div class="summary">
-<a href="#pub-attribs">Data Fields</a>  </div>
   <div class="headertitle">
 <div class="title">cio_http_server Struct Reference</div>  </div>
 </div><!--header-->
@@ -116,89 +114,9 @@ $(document).ready(function(){initNavTree('structcio__http__server.html','');});
  <a href="structcio__http__server.html#details">More...</a></p>
 
 <p><code>#include &lt;<a class="el" href="cio__http__server_8h_source.html">cio_http_server.h</a>&gt;</code></p>
-<table class="memberdecls">
-<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-attribs"></a>
-Data Fields</h2></td></tr>
-<tr class="memitem:a880f52a1ca19eb235fec310977e0a22d"><td class="memItemLeft" align="right" valign="top">enum <a class="el" href="cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afe">cio_error</a>(*&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structcio__http__server.html#a880f52a1ca19eb235fec310977e0a22d">serve</a> )(struct <a class="el" href="structcio__http__server.html">cio_http_server</a> *server)</td></tr>
-<tr class="memdesc:a880f52a1ca19eb235fec310977e0a22d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Start serving HTTP client requests.  <a href="#a880f52a1ca19eb235fec310977e0a22d">More...</a><br /></td></tr>
-<tr class="separator:a880f52a1ca19eb235fec310977e0a22d"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a58101d627babd140a2647b9f4ec91814"><td class="memItemLeft" align="right" valign="top">enum <a class="el" href="cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afe">cio_error</a>(*&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structcio__http__server.html#a58101d627babd140a2647b9f4ec91814">register_location</a> )(struct <a class="el" href="structcio__http__server.html">cio_http_server</a> *server, struct <a class="el" href="structcio__http__location.html">cio_http_location</a> *location)</td></tr>
-<tr class="memdesc:a58101d627babd140a2647b9f4ec91814"><td class="mdescLeft">&#160;</td><td class="mdescRight">Register a <a class="el" href="structcio__http__location.html">location</a> to the HTTP server.  <a href="#a58101d627babd140a2647b9f4ec91814">More...</a><br /></td></tr>
-<tr class="separator:a58101d627babd140a2647b9f4ec91814"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a9ed45a349231c5ccf08a2dd978935865"><td class="memItemLeft" align="right" valign="top">enum <a class="el" href="cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afe">cio_error</a>(*&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structcio__http__server.html#a9ed45a349231c5ccf08a2dd978935865">shutdown</a> )(struct <a class="el" href="structcio__http__server.html">cio_http_server</a> *server, <a class="el" href="cio__http__server_8h.html#af609a6eee53f0b486836ad9095863110">cio_http_server_close_hook</a> close_hook)</td></tr>
-<tr class="memdesc:a9ed45a349231c5ccf08a2dd978935865"><td class="mdescLeft">&#160;</td><td class="mdescRight">Shuts down the HTTP server, including the underlying server socket.  <a href="#a9ed45a349231c5ccf08a2dd978935865">More...</a><br /></td></tr>
-<tr class="separator:a9ed45a349231c5ccf08a2dd978935865"><td class="memSeparator" colspan="2">&#160;</td></tr>
-</table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>The <a class="el" href="structcio__http__server.html" title="The cio_http_server structure provides the implementation of a simple HTTP server. ">cio_http_server</a> structure provides the implementation of a simple HTTP server. </p>
-</div><h2 class="groupheader">Field Documentation</h2>
-<a class="anchor" id="a58101d627babd140a2647b9f4ec91814"></a>
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">enum <a class="el" href="cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afe">cio_error</a>(* cio_http_server::register_location) (struct <a class="el" href="structcio__http__server.html">cio_http_server</a> *server, struct <a class="el" href="structcio__http__location.html">cio_http_location</a> *location)</td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Register a <a class="el" href="structcio__http__location.html">location</a> to the HTTP server. </p>
-<p><a class="anchor" id="cio_http_server_register"></a>If you register overlapping locations like "/foo" and "/foo/bar", the HTTP server looks for the best match with respect to the path in the HTTP request.</p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">server</td><td>The HTTP server instance which shall serve the new location. </td></tr>
-    <tr><td class="paramname">location</td><td>The location that should be served by the HTTP server. </td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Returns</dt><dd><a class="el" href="cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afea6bb29544c99750c61f70b10a1e17d96a">CIO_SUCCESS</a> if the <code>location</code> was registered correctly. </dd></dl>
-
-</div>
-</div>
-<a class="anchor" id="a880f52a1ca19eb235fec310977e0a22d"></a>
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">enum <a class="el" href="cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afe">cio_error</a>(* cio_http_server::serve) (struct <a class="el" href="structcio__http__server.html">cio_http_server</a> *server)</td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Start serving HTTP client requests. </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">server</td><td>The HTTP server instance that shall serve the requests. </td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Returns</dt><dd><a class="el" href="cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afea6bb29544c99750c61f70b10a1e17d96a">CIO_SUCCESS</a> if serving runs correctly. </dd></dl>
-
-</div>
-</div>
-<a class="anchor" id="a9ed45a349231c5ccf08a2dd978935865"></a>
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">enum <a class="el" href="cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afe">cio_error</a>(* cio_http_server::shutdown) (struct <a class="el" href="structcio__http__server.html">cio_http_server</a> *server, <a class="el" href="cio__http__server_8h.html#af609a6eee53f0b486836ad9095863110">cio_http_server_close_hook</a> close_hook)</td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Shuts down the HTTP server, including the underlying server socket. </p>
-<p><a class="anchor" id="cio_http_server_shutdown"></a></p><dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">server</td><td>The HTTP server which should be shut down. </td></tr>
-    <tr><td class="paramname">close_hook</td><td>A user provided function that will be called after the HTTP server completed the <a class="el" href="structcio__http__server.html#cio_http_server_shutdown">shutdown</a>. </td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Returns</dt><dd><a class="el" href="cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afea6bb29544c99750c61f70b10a1e17d96a">CIO_SUCCESS</a> if the shutdown operation succeeded. </dd></dl>
-
-</div>
-</div>
-<hr/>The documentation for this struct was generated from the following file:<ul>
+</div><hr/>The documentation for this struct was generated from the following file:<ul>
 <li><a class="el" href="cio__http__server_8h_source.html">cio_http_server.h</a></li>
 </ul>
 </div><!-- contents -->

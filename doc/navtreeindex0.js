@@ -113,7 +113,10 @@ var NAVTREEINDEX0 =
 "cio__http__method_8h.html#af72daec94b7eb3d7c6ba31bdb7ba0ef3af2caaf7b83438ec60d832a88d9d57a29":[1,0,9,0,27],
 "cio__http__method_8h_source.html":[1,0,9],
 "cio__http__server_8h.html":[1,0,10],
+"cio__http__server_8h.html#a1b1c0b2758be0424883cc56c0dd4c3d0":[1,0,10,5],
+"cio__http__server_8h.html#a1ce671d1b2e92504c6e61e8987fdb2c2":[1,0,10,6],
 "cio__http__server_8h.html#a2856ec3ea79fad3b6090a2870f700408":[1,0,10,1],
+"cio__http__server_8h.html#a3304a64e96e248f1352efbf43d5e6e0e":[1,0,10,7],
 "cio__http__server_8h.html#a4ac983752f48e94825352fb01a7fbb2f":[1,0,10,4],
 "cio__http__server_8h.html#af609a6eee53f0b486836ad9095863110":[1,0,10,3],
 "cio__http__server_8h.html#afbb607b74a68fb96dceaf24e3c486490":[1,0,10,2],
@@ -246,8 +249,5 @@ var NAVTREEINDEX0 =
 "cio__write__buffer_8h.html#adb045a192be8efeacff4cce5d05cf011":[1,0,25,13],
 "cio__write__buffer_8h.html#afbd6b5632631a17bd90bbf6801eba104":[1,0,25,12],
 "cio__write__buffer_8h.html#afd5f5930223e8b3ea17a291283689887":[1,0,25,10],
-"cio__write__buffer_8h_source.html":[1,0,25],
-"classes.html":[0,1],
-"files.html":[1,0],
-"functions.html":[0,2,0]
+"cio__write__buffer_8h_source.html":[1,0,25]
 };

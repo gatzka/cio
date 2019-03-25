@@ -5,7 +5,7 @@ var annotated_dup =
     [ "cio_http_client_private", "structcio__http__client__private.html", "structcio__http__client__private" ],
     [ "cio_http_location", "structcio__http__location.html", null ],
     [ "cio_http_location_handler", "structcio__http__location__handler.html", "structcio__http__location__handler" ],
-    [ "cio_http_server", "structcio__http__server.html", "structcio__http__server" ],
+    [ "cio_http_server", "structcio__http__server.html", null ],
     [ "cio_io_stream", "structcio__io__stream.html", "structcio__io__stream" ],
     [ "cio_read_buffer", "structcio__read__buffer.html", null ],
     [ "cio_response_buffer", "structcio__response__buffer.html", "structcio__response__buffer" ],

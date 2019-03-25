@@ -1,5 +1,8 @@
 var NAVTREEINDEX1 =
 {
+"classes.html":[0,1],
+"files.html":[1,0],
+"functions.html":[0,2,0],
 "functions_vars.html":[0,2,1],
 "globals.html":[1,1,0],
 "globals_defs.html":[1,1,5],
@@ -57,9 +60,6 @@ var NAVTREEINDEX1 =
 "structcio__http__location__handler.html#ad8af3ab5b547e3462784e00a1e2e056c":[0,0,4,4],
 "structcio__http__location__handler.html#adc9eb92df5e39f7341ced4fa0a225c68":[0,0,4,12],
 "structcio__http__server.html":[0,0,5],
-"structcio__http__server.html#a58101d627babd140a2647b9f4ec91814":[0,0,5,0],
-"structcio__http__server.html#a880f52a1ca19eb235fec310977e0a22d":[0,0,5,1],
-"structcio__http__server.html#a9ed45a349231c5ccf08a2dd978935865":[0,0,5,2],
 "structcio__io__stream.html":[0,0,6],
 "structcio__io__stream.html#ab173b100937d1e1d9d601ea3156624e3":[0,0,6,2],
 "structcio__io__stream.html#abd9b27a72fea1c39e54a88f3d7251db8":[0,0,6,0],
