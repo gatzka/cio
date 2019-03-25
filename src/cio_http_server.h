@@ -45,7 +45,7 @@ extern "C" {
  * @brief This file contains the declarations you need to know if you
  * want to implement an HTTP server.
  *
- * A cio_http_server gives you the ability to @ref cio_http_server_register "register" multiple
+ * A cio_http_server gives you the ability to @ref cio_http_server_register_location "register" multiple
  * @ref cio_http_location "locations" which will be instantianted automatically
  * if an HTTP request matches a location.
  *
@@ -76,21 +76,6 @@ typedef void (*cio_http_server_close_hook)(struct cio_http_server *server);
  * @brief The cio_http_server structure provides the implementation of a simple HTTP server.
  */
 struct cio_http_server {
-
-
-	/**
-	 * @anchor cio_http_server_register
-	 * @brief Register a @ref cio_http_location "location" to the HTTP server.
-	 *
-	 * If you register overlapping locations like "/foo" and "/foo/bar", the HTTP server
-	 * looks for the best match with respect to the path in the HTTP request.
-	 *
-	 * @param server The HTTP server instance which shall serve the new location.
-	 * @param location The location that should be served by the HTTP server.
-	 * @return ::CIO_SUCCESS if the @p location was registered correctly.
-	 */
-	enum cio_error (*register_location)(struct cio_http_server *server, struct cio_http_location *location);
-
 	/**
 	 * @anchor cio_http_server_shutdown
 	 * @brief Shuts down the HTTP server, including the underlying server socket.
@@ -156,6 +141,19 @@ CIO_EXPORT enum cio_error cio_http_server_init(struct cio_http_server *server,
  * @return ::CIO_SUCCESS if serving runs correctly.
  */
 CIO_EXPORT enum cio_error cio_http_server_serve(struct cio_http_server *server);
+
+/**
+ * @brief Register a @ref cio_http_location "location" to the HTTP server.
+ *
+ * If you register overlapping locations like "/foo" and "/foo/bar", the HTTP server
+ * looks for the best match with respect to the path in the HTTP request.
+ *
+ * @param server The HTTP server instance which shall serve the new location.
+ * @param location The location that should be served by the HTTP server.
+ * @return ::CIO_SUCCESS if the @p location was registered correctly.
+ */
+CIO_EXPORT enum cio_error cio_http_server_register_location(struct cio_http_server *server, struct cio_http_location *location);
+
 
 #ifdef __cplusplus
 }

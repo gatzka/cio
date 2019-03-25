@@ -706,18 +706,6 @@ response_timer_init_err:
 	notify_free_handler_and_close_stream(client);
 }
 
-static enum cio_error register_handler(struct cio_http_server *server, struct cio_http_location *target)
-{
-	if (cio_unlikely(server == NULL) || (target == NULL)) {
-		return CIO_INVALID_ARGUMENT;
-	}
-
-	target->next = server->first_location;
-	server->first_location = target;
-	server->num_handlers++;
-	return CIO_SUCCESS;
-}
-
 static enum cio_error shutdown_server(struct cio_http_server *server,
                                       cio_http_server_close_hook close_hook)
 {
@@ -756,7 +744,6 @@ enum cio_error cio_http_server_init(struct cio_http_server *server,
 	server->port = port;
 	server->alloc_client = alloc_client;
 	server->free_client = free_client;
-	server->register_location = register_handler;
 	server->first_location = NULL;
 	server->num_handlers = 0;
 	server->on_error = on_error;
@@ -794,4 +781,17 @@ enum cio_error cio_http_server_serve(struct cio_http_server *server)
 close_socket:
 	server->server_socket.close(&server->server_socket);
 	return err;
+}
+
+
+enum cio_error cio_http_server_register_location(struct cio_http_server *server, struct cio_http_location *location)
+{
+	if (cio_unlikely(server == NULL) || (location == NULL)) {
+		return CIO_INVALID_ARGUMENT;
+	}
+
+	location->next = server->first_location;
+	server->first_location = location;
+	server->num_handlers++;
+	return CIO_SUCCESS;
 }

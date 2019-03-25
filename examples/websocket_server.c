@@ -307,7 +307,7 @@ int main(void)
 
 	struct cio_http_location target_foo;
 	cio_http_location_init(&target_foo, "/ws", NULL, alloc_websocket_handler);
-	server.register_location(&server, &target_foo);
+	cio_http_server_register_location(&server, &target_foo);
 
 	err = cio_http_server_serve(&server);
 	if (err != CIO_SUCCESS) {

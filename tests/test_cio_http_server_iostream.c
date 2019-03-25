@@ -722,7 +722,7 @@ static void test_register_request_target(void)
 
 	for (unsigned int i = 0; i < ARRAY_SIZE(args); i++) {
 		struct register_request_target_args arg = args[i];
-		err = server.register_location(arg.server, arg.target);
+		err = cio_http_server_register_location(arg.server, arg.target);
 		TEST_ASSERT_EQUAL_MESSAGE(arg.expected_result, err, "Register request target not handled correctly!");
 
 		setUp();
@@ -764,14 +764,14 @@ static void test_serve_locations(void)
 		uintptr_t loc_marker = 0;
 		err = cio_http_location_init(&target1, location_test.location, (void *)loc_marker, alloc_dummy_handler);
 		TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Request target1 initialization failed!");
-		err = server.register_location(&server, &target1);
+		err = cio_http_server_register_location(&server, &target1);
 		TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Register request target1 failed!");
 
 		struct cio_http_location target2;
 		uintptr_t sub_loc_marker = 1;
 		err = cio_http_location_init(&target2, location_test.sub_location, (void *)sub_loc_marker, alloc_dummy_handler);
 		TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Request target2 initialization failed!");
-		err = server.register_location(&server, &target2);
+		err = cio_http_server_register_location(&server, &target2);
 		TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Register request target2 failed!");
 
 		err = cio_http_server_serve(&server);
@@ -832,7 +832,7 @@ static void test_keepalive_handling(void)
 		struct cio_http_location target;
 		err = cio_http_location_init(&target, keepalive_test.location, NULL, alloc_dummy_handler);
 		TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Request target initialization failed!");
-		err = server.register_location(&server, &target);
+		err = cio_http_server_register_location(&server, &target);
 		TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Register request target failed!");
 
 		err = cio_http_server_serve(&server);
@@ -947,7 +947,7 @@ static void test_callbacks_after_response_sent(void)
 		struct cio_http_location target;
 		err = cio_http_location_init(&target, "/foo", &callbacks, alloc_handler_for_callback_test);
 		TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Request target initialization failed!");
-		err = server.register_location(&server, &target);
+		err = cio_http_server_register_location(&server, &target);
 		TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Register request target failed!");
 
 		err = cio_http_server_serve(&server);
@@ -1082,7 +1082,7 @@ static void test_url_callbacks(void)
 		struct cio_http_location target;
 		err = cio_http_location_init(&target, "/foo", &request_test, request_test.alloc_handler);
 		TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Request target initialization failed!");
-		err = server.register_location(&server, &target);
+		err = cio_http_server_register_location(&server, &target);
 		TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Register request target failed!");
 
 		err = cio_http_server_serve(&server);
@@ -1363,7 +1363,7 @@ static void test_client_close_while_reading(void)
 	struct cio_http_location target;
 	err = cio_http_location_init(&target, "/foo", NULL, alloc_dummy_handler);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Request target initialization failed!");
-	err = server.register_location(&server, &target);
+	err = cio_http_server_register_location(&server, &target);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Register request target failed!");
 
 	err = cio_http_server_serve(&server);
@@ -1391,7 +1391,7 @@ static void test_connection_upgrade(void)
 	struct cio_http_location target;
 	err = cio_http_location_init(&target, "/foo", NULL, alloc_upgrade_handler);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Request target initialization failed!");
-	err = server.register_location(&server, &target);
+	err = cio_http_server_register_location(&server, &target);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Register request target failed!");
 
 	err = cio_http_server_serve(&server);
@@ -1430,7 +1430,7 @@ static void test_timer_cancel_errors(void)
 		struct cio_http_location target;
 		err = cio_http_location_init(&target, "/foo", NULL, alloc_dummy_handler);
 		TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Request target initialization failed!");
-		err = server.register_location(&server, &target);
+		err = cio_http_server_register_location(&server, &target);
 		TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Register request target failed!");
 
 		err = cio_http_server_serve(&server);
@@ -1473,7 +1473,7 @@ static void test_timer_expires_errors(void)
 		struct cio_http_location target;
 		err = cio_http_location_init(&target, "/foo", NULL, alloc_dummy_handler);
 		TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Request target initialization failed!");
-		err = server.register_location(&server, &target);
+		err = cio_http_server_register_location(&server, &target);
 		TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Register request target failed!");
 
 		err = cio_http_server_serve(&server);

@@ -208,7 +208,7 @@ int main(void)
 
 	struct cio_http_location autobahn_target;
 	cio_http_location_init(&autobahn_target, "/", NULL, alloc_autobahn_handler);
-	http_server.register_location(&http_server, &autobahn_target);
+	cio_http_server_register_location(&http_server, &autobahn_target);
 
 	err = cio_http_server_serve(&http_server);
 	if (err != CIO_SUCCESS) {

@@ -403,7 +403,7 @@ static void test_serve_correctly(void)
 	err = cio_http_location_init(&target, "/foo", NULL, alloc_dummy_handler);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Request target initialization failed!");
 
-	err = server.register_location(&server, &target);
+	err = cio_http_server_register_location(&server, &target);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Register request target failed!");
 
 	err = cio_http_server_serve(&server);
@@ -467,7 +467,7 @@ static void test_read_until_errors(void)
 		err = cio_http_location_init(&target, "/foo", NULL, alloc_dummy_handler);
 		TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Request target initialization failed!");
 
-		err = server.register_location(&server, &target);
+		err = cio_http_server_register_location(&server, &target);
 		TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Register request target failed!");
 
 		err = cio_http_server_serve(&server);
@@ -510,7 +510,7 @@ static void test_close_error(void)
 	err = cio_http_location_init(&target, "/foo", NULL, alloc_dummy_handler);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Request target initialization failed!");
 
-	err = server.register_location(&server, &target);
+	err = cio_http_server_register_location(&server, &target);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Register request target failed!");
 
 	err = cio_http_server_serve(&server);
@@ -547,7 +547,7 @@ static void test_read_at_least_error(void)
 	err = cio_http_location_init(&target, "/foo", NULL, alloc_dummy_handler);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Request target initialization failed!");
 
-	err = server.register_location(&server, &target);
+	err = cio_http_server_register_location(&server, &target);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Register request target failed!");
 
 	err = cio_http_server_serve(&server);
@@ -588,7 +588,7 @@ static void test_write_error(void)
 	err = cio_http_location_init(&target, "/foo", NULL, alloc_dummy_handler);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Request target initialization failed!");
 
-	err = server.register_location(&server, &target);
+	err = cio_http_server_register_location(&server, &target);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Register request target failed!");
 
 	err = cio_http_server_serve(&server);
