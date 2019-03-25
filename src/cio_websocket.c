@@ -978,3 +978,13 @@ enum cio_error cio_websocket_write_pong(struct cio_websocket *ws, struct cio_wri
 
 	return write_ping_or_pong_message(ws, CIO_WEBSOCKET_PONG_FRAME, &ws->ws_private.write_pong_job, payload, handler, handler_context);
 }
+
+void cio_websocket_set_on_error_cb(struct cio_websocket *ws, void (*on_error)(const struct cio_websocket *ws, enum cio_error err, const char *reason))
+{
+	ws->on_error = on_error;
+}
+
+void cio_websocket_set_on_control_cb(struct cio_websocket *ws, void (*on_control)(const struct cio_websocket *ws, enum cio_websocket_frame_type kind, const uint8_t *data, uint_fast8_t length))
+{
+	ws->on_control = on_control;
+}
