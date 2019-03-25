@@ -309,7 +309,7 @@ int main(void)
 	cio_http_location_init(&target_foo, "/ws", NULL, alloc_websocket_handler);
 	server.register_location(&server, &target_foo);
 
-	err = server.serve(&server);
+	err = cio_http_server_serve(&server);
 	if (err != CIO_SUCCESS) {
 		ret = EXIT_FAILURE;
 		goto destroy_loop;

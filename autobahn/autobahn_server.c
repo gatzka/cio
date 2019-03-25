@@ -210,7 +210,7 @@ int main(void)
 	cio_http_location_init(&autobahn_target, "/", NULL, alloc_autobahn_handler);
 	http_server.register_location(&http_server, &autobahn_target);
 
-	err = http_server.serve(&http_server);
+	err = cio_http_server_serve(&http_server);
 	if (err != CIO_SUCCESS) {
 		ret = EXIT_FAILURE;
 		goto destroy_loop;

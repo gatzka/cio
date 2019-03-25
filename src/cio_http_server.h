@@ -77,13 +77,6 @@ typedef void (*cio_http_server_close_hook)(struct cio_http_server *server);
  */
 struct cio_http_server {
 
-	/**
-	 * @brief Start serving HTTP client requests.
-	 *
-	 * @param server The HTTP server instance that shall serve the requests.
-	 * @return ::CIO_SUCCESS if serving runs correctly.
-	 */
-	enum cio_error (*serve)(struct cio_http_server *server);
 
 	/**
 	 * @anchor cio_http_server_register
@@ -155,6 +148,14 @@ CIO_EXPORT enum cio_error cio_http_server_init(struct cio_http_server *server,
                                                uint64_t response_timeout_ns,
                                                cio_alloc_client alloc_client,
                                                cio_free_client free_client);
+
+/**
+ * @brief Start serving HTTP client requests.
+ *
+ * @param server The HTTP server instance that shall serve the requests.
+ * @return ::CIO_SUCCESS if serving runs correctly.
+ */
+CIO_EXPORT enum cio_error cio_http_server_serve(struct cio_http_server *server);
 
 #ifdef __cplusplus
 }

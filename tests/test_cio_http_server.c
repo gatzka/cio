@@ -406,7 +406,7 @@ static void test_serve_correctly(void)
 	err = server.register_location(&server, &target);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Register request target failed!");
 
-	err = server.serve(&server);
+	err = cio_http_server_serve(&server);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Serving http failed!");
 
 	struct cio_socket *s = server.alloc_client();
@@ -470,7 +470,7 @@ static void test_read_until_errors(void)
 		err = server.register_location(&server, &target);
 		TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Register request target failed!");
 
-		err = server.serve(&server);
+		err = cio_http_server_serve(&server);
 		TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Serving http failed!");
 
 		struct cio_socket *s = server.alloc_client();
@@ -513,7 +513,7 @@ static void test_close_error(void)
 	err = server.register_location(&server, &target);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Register request target failed!");
 
-	err = server.serve(&server);
+	err = cio_http_server_serve(&server);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Serving http failed!");
 
 	struct cio_socket *s = server.alloc_client();
@@ -550,7 +550,7 @@ static void test_read_at_least_error(void)
 	err = server.register_location(&server, &target);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Register request target failed!");
 
-	err = server.serve(&server);
+	err = cio_http_server_serve(&server);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Serving http failed!");
 
 	struct cio_socket *s = server.alloc_client();
@@ -591,7 +591,7 @@ static void test_write_error(void)
 	err = server.register_location(&server, &target);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Register request target failed!");
 
-	err = server.serve(&server);
+	err = cio_http_server_serve(&server);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Serving http failed!");
 
 	struct cio_socket *s = server.alloc_client();

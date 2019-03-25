@@ -706,30 +706,6 @@ response_timer_init_err:
 	notify_free_handler_and_close_stream(client);
 }
 
-static enum cio_error serve(struct cio_http_server *server)
-{
-	enum cio_error err = server->server_socket.set_reuse_address(&server->server_socket, true);
-	if (cio_unlikely(err != CIO_SUCCESS)) {
-		goto close_socket;
-	}
-
-	err = server->server_socket.bind(&server->server_socket, NULL, server->port);
-	if (cio_unlikely(err != CIO_SUCCESS)) {
-		goto close_socket;
-	}
-
-	err = server->server_socket.accept(&server->server_socket, handle_accept, server);
-	if (cio_unlikely(err != CIO_SUCCESS)) {
-		goto close_socket;
-	}
-
-	return err;
-
-close_socket:
-	server->server_socket.close(&server->server_socket);
-	return err;
-}
-
 static enum cio_error register_handler(struct cio_http_server *server, struct cio_http_location *target)
 {
 	if (cio_unlikely(server == NULL) || (target == NULL)) {
@@ -780,7 +756,6 @@ enum cio_error cio_http_server_init(struct cio_http_server *server,
 	server->port = port;
 	server->alloc_client = alloc_client;
 	server->free_client = free_client;
-	server->serve = serve;
 	server->register_location = register_handler;
 	server->first_location = NULL;
 	server->num_handlers = 0;
@@ -795,4 +770,28 @@ enum cio_error cio_http_server_init(struct cio_http_server *server,
 	snprintf(server->keepalive_header, sizeof(server->keepalive_header), "Keep-Alive: timeout=%" PRIu32 "\r\n", keep_alive);
 
 	return cio_server_socket_init(&server->server_socket, server->loop, DEFAULT_BACKLOG, server->alloc_client, server->free_client, server_socket_closed);
+}
+
+enum cio_error cio_http_server_serve(struct cio_http_server *server)
+{
+	enum cio_error err = server->server_socket.set_reuse_address(&server->server_socket, true);
+	if (cio_unlikely(err != CIO_SUCCESS)) {
+		goto close_socket;
+	}
+
+	err = server->server_socket.bind(&server->server_socket, NULL, server->port);
+	if (cio_unlikely(err != CIO_SUCCESS)) {
+		goto close_socket;
+	}
+
+	err = server->server_socket.accept(&server->server_socket, handle_accept, server);
+	if (cio_unlikely(err != CIO_SUCCESS)) {
+		goto close_socket;
+	}
+
+	return err;
+
+close_socket:
+	server->server_socket.close(&server->server_socket);
+	return err;
 }
