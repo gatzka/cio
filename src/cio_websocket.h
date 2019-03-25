@@ -164,30 +164,11 @@ struct cio_websocket_private {
 
 struct cio_websocket {
 
-	/**
-	 * @brief A pointer to a function which is called when a control frame was received.
-	 *
-	 * Library users are not required to set this function pointer.
-	 *
-	 * @warning Please be aware that the websocket library handles control messages
-	 * itself, notably incoming close and ping messages. Please do NOT answer those control
-	 * messages in this callback function (I.e., do not call
-	 * @ref cio_websocket_close "close()" etc. on the websocket. Immediately after this
-	 * function returns, the library closes the websocket on its own.) So setting this
-	 * function pointer is mainly for debugging / logging purposes.
-	 *
-	 * @param ws The websocket which received the control frame.
-	 * @param kind The kind of control frame (::CIO_WEBSOCKET_CLOSE_FRAME, ::CIO_WEBSOCKET_PING_FRAME, ::CIO_WEBSOCKET_PONG_FRAME)
-	 * @param data The data the control frame carried.
-	 * @param length The length of data the control frame carried.
-	 */
-	void (*on_control)(const struct cio_websocket *ws, enum cio_websocket_frame_type kind, const uint8_t *data, uint_fast8_t length);
-
-
 	/*! @cond PRIVATE */
 	struct cio_websocket_private ws_private;
 	void (*on_connect)(struct cio_websocket *ws);
 	void (*on_error)(const struct cio_websocket *ws, enum cio_error err, const char *reason);
+	void (*on_control)(const struct cio_websocket *ws, enum cio_websocket_frame_type kind, const uint8_t *data, uint_fast8_t length);
 	/*! @endcond */
 };
 
@@ -298,9 +279,26 @@ enum cio_error cio_websocket_write_pong(struct cio_websocket *ws, struct cio_wri
  * is mainly for debugging / logging purposes.
  *
  * @param ws The websocket for which the error callback should be set.
- * @param on_error The callback function to be set
+ * @param on_error The callback function to be set.
  */
 CIO_EXPORT void cio_websocket_set_on_error_cb(struct cio_websocket *ws, void (*on_error)(const struct cio_websocket *ws, enum cio_error err, const char *reason));
+
+/**
+ * @brief A pointer to a function which is called when a control frame was received.
+ *
+ * Library users are not required to set this function pointer.
+ *
+ * @warning Please be aware that the websocket library handles control frames
+ * itself, notably incoming close and ping messages. Please do NOT answer those control
+ * frames in this callback function (I.e., do not call
+ * @ref cio_websocket_close "close()" etc. on the websocket. Immediately after this
+ * function returns, the library closes the websocket on its own.) So setting this
+ * function pointer is mainly for debugging / logging purposes.
+ *
+ * @param ws The websocket for which the control frame callback should be set.
+ * @param on_control The callback function to be set.
+ */
+CIO_EXPORT void cio_websocket_set_on_control_cb(struct cio_websocket *ws, void (*on_control)(const struct cio_websocket *ws, enum cio_websocket_frame_type kind, const uint8_t *data, uint_fast8_t length));
 
 #ifdef __cplusplus
 }

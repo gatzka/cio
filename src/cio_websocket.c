@@ -983,3 +983,8 @@ void cio_websocket_set_on_error_cb(struct cio_websocket *ws, void (*on_error)(co
 {
 	ws->on_error = on_error;
 }
+
+void cio_websocket_set_on_control_cb(struct cio_websocket *ws, void (*on_control)(const struct cio_websocket *ws, enum cio_websocket_frame_type kind, const uint8_t *data, uint_fast8_t length))
+{
+	ws->on_control = on_control;
+}

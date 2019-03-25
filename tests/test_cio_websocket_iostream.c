@@ -393,7 +393,7 @@ void setUp(void)
 	ws = (struct cio_websocket *)malloc(sizeof(*ws));
 	cio_websocket_init(ws, false, on_connect, NULL);
 	ws->ws_private.http_client = &http_client;
-	ws->on_control = on_control;
+	cio_websocket_set_on_control_cb(ws, on_control);
 	cio_websocket_set_on_error_cb(ws, on_error);
 
 	read_handler_fake.custom_fake = read_handler_save_data;
@@ -1134,7 +1134,7 @@ static void test_receive_ping_frame_no_callback(void)
 
 	serialize_frames(frames, ARRAY_SIZE(frames));
 
-	ws->on_control = NULL;
+	cio_websocket_set_on_control_cb(ws, NULL);
 	ws->ws_private.ws_flags.is_server = (frames[0].direction == FROM_CLIENT) ? 1 : 0;
 	enum cio_error err = cio_websocket_read_message(ws, read_handler, NULL);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Could not start reading a message!");
@@ -1302,7 +1302,7 @@ static void test_receive_pong_frame_no_callback(void)
 
 	serialize_frames(frames, ARRAY_SIZE(frames));
 
-	ws->on_control = NULL;
+	cio_websocket_set_on_control_cb(ws, NULL);
 	ws->ws_private.ws_flags.is_server = (frames[0].direction == FROM_CLIENT) ? 1 : 0;
 	enum cio_error err = cio_websocket_read_message(ws, read_handler, NULL);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Could not start reading a message!");

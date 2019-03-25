@@ -243,7 +243,7 @@ static struct cio_http_location_handler *alloc_websocket_handler(const void *con
 
 	static const char *subprotocols[2] = {"echo", "jet"};
 	cio_websocket_location_handler_init(&handler->ws_handler, subprotocols, ARRAY_SIZE(subprotocols), on_connect, free_websocket_handler);
-	handler->ws_handler.websocket.on_control = on_control;
+	cio_websocket_set_on_control_cb(&handler->ws_handler.websocket, on_control);
 	return &handler->ws_handler.http_location;
 }
 

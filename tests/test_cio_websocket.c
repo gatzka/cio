@@ -471,7 +471,7 @@ void setUp(void)
 	ws = malloc(sizeof(*ws));
 	cio_websocket_init(ws, true, on_connect, NULL);
 	ws->ws_private.http_client = &http_client;
-	ws->on_control = on_control;
+	cio_websocket_set_on_control_cb(ws, on_control);
 	cio_websocket_set_on_error_cb(ws, on_error);
 
 	cio_timer_init_fake.custom_fake = cio_timer_init_ok;
@@ -514,7 +514,7 @@ static void test_incoming_ping_pong_send_fails(void)
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Could not init websocket");
 	my_ws->ws_private.http_client = &http_client;
 	cio_websocket_set_on_error_cb(my_ws, on_error);
-	my_ws->on_control = on_control;
+	cio_websocket_set_on_control_cb(my_ws, on_control);
 
 	char data[] = "aaaa";
 
