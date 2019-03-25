@@ -40,7 +40,7 @@ extern "C" {
  * @brief This file contains the declarations for initializing an location in an HTTP server.
  *
  * A location is some kind of web space container a @ref cio_http_location_handler "location handler" is responsible for serving.
- * After initialization, a cio_http_location can be @ref cio_http_server_register "registered" to the \ref cio_http_server "HTTP server".
+ * After initialization, a cio_http_location can be @ref cio_http_server_register_location "registered" to the \ref cio_http_server "HTTP server".
  */
 
 /**
