@@ -706,14 +706,6 @@ response_timer_init_err:
 	notify_free_handler_and_close_stream(client);
 }
 
-static enum cio_error shutdown_server(struct cio_http_server *server,
-                                      cio_http_server_close_hook close_hook)
-{
-	server->close_hook = close_hook;
-	server->server_socket.close(&server->server_socket);
-	return CIO_SUCCESS;
-}
-
 static void server_socket_closed(struct cio_server_socket *ss)
 {
 	struct cio_http_server *server = cio_container_of(ss, struct cio_http_server, server_socket);
@@ -747,7 +739,6 @@ enum cio_error cio_http_server_init(struct cio_http_server *server,
 	server->first_location = NULL;
 	server->num_handlers = 0;
 	server->on_error = on_error;
-	server->shutdown = shutdown_server;
 	server->read_header_timeout_ns = read_header_timeout_ns;
 	server->read_body_timeout_ns = read_body_timeout_ns;
 	server->response_timeout_ns = response_timeout_ns;
@@ -793,5 +784,12 @@ enum cio_error cio_http_server_register_location(struct cio_http_server *server,
 	location->next = server->first_location;
 	server->first_location = location;
 	server->num_handlers++;
+	return CIO_SUCCESS;
+}
+
+enum cio_error cio_http_server_shutdown(struct cio_http_server *server, cio_http_server_close_hook close_hook)
+{
+	server->close_hook = close_hook;
+	server->server_socket.close(&server->server_socket);
 	return CIO_SUCCESS;
 }

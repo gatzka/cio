@@ -77,16 +77,6 @@ typedef void (*cio_http_server_close_hook)(struct cio_http_server *server);
  */
 struct cio_http_server {
 	/**
-	 * @anchor cio_http_server_shutdown
-	 * @brief Shuts down the HTTP server, including the underlying server socket.
-	 *
-	 * @param server The HTTP server which should be shut down.
-	 * @param close_hook A user provided function that will be called after the HTTP server completed the @ref cio_http_server_shutdown "shutdown".
-	 * @return ::CIO_SUCCESS if the shutdown operation succeeded.
-	 */
-	enum cio_error (*shutdown)(struct cio_http_server *server, cio_http_server_close_hook close_hook);
-
-	/**
 	 * @privatesection
 	 */
 	uint16_t port;
@@ -153,6 +143,17 @@ CIO_EXPORT enum cio_error cio_http_server_serve(struct cio_http_server *server);
  * @return ::CIO_SUCCESS if the @p location was registered correctly.
  */
 CIO_EXPORT enum cio_error cio_http_server_register_location(struct cio_http_server *server, struct cio_http_location *location);
+
+/**
+ * @anchor cio_http_server_shutdown
+ * @brief Shuts down the HTTP server, including the underlying server socket.
+ *
+ * @param server The HTTP server which should be shut down.
+ * @param close_hook A user provided function that will be called after the HTTP server completed the @ref cio_http_server_shutdown "shutdown".
+ * @return ::CIO_SUCCESS if the shutdown operation succeeded.
+ */
+CIO_EXPORT enum cio_error cio_http_server_shutdown(struct cio_http_server *server, cio_http_server_close_hook close_hook);
+
 
 
 #ifdef __cplusplus

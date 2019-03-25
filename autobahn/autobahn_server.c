@@ -174,13 +174,13 @@ static void http_server_closed(struct cio_http_server *s)
 static void sighandler(int signum)
 {
 	(void)signum;
-	http_server.shutdown(&http_server, http_server_closed);
+	cio_http_server_shutdown(&http_server, http_server_closed);
 }
 
 static void serve_error(struct cio_http_server *server, const char *reason)
 {
 	(void)reason;
-	server->shutdown(server, http_server_closed);
+	cio_http_server_shutdown(server, http_server_closed);
 }
 
 int main(void)

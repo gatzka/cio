@@ -273,13 +273,13 @@ static void http_server_closed(struct cio_http_server *s)
 static void sighandler(int signum)
 {
 	(void)signum;
-	server.shutdown(&server, http_server_closed);
+	cio_http_server_shutdown(&server, http_server_closed);
 }
 
 static void serve_error(struct cio_http_server *s, const char *reason)
 {
 	fprintf(stderr, "http server error: %s\n", reason);
-	s->shutdown(s, http_server_closed);
+	cio_http_server_shutdown(s, http_server_closed);
 }
 
 int main(void)

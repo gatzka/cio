@@ -690,7 +690,7 @@ static void test_shutdown(void)
 		struct shutdown_args args = shutdown_args[i];
 		enum cio_error err = cio_http_server_init(&server, 8080, &loop, serve_error, header_read_timeout, body_read_timeout, response_timeout, alloc_dummy_client, free_dummy_client);
 		TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Server initialization failed!");
-		err = server.shutdown(&server, args.close_hook);
+		err = cio_http_server_shutdown(&server, args.close_hook);
 		TEST_ASSERT_EQUAL_MESSAGE(args.close_hook_call_count, http_close_hook_fake.call_count, "http close hook was not called correctly");
 		TEST_ASSERT_EQUAL_MESSAGE(args.expected_result, err, "Server shutdown failed!");
 
