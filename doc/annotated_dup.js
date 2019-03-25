@@ -13,7 +13,7 @@ var annotated_dup =
     [ "cio_socket", "structcio__socket.html", "structcio__socket" ],
     [ "cio_timer", "structcio__timer.html", "structcio__timer" ],
     [ "cio_utf8_state", "structcio__utf8__state.html", "structcio__utf8__state" ],
-    [ "cio_websocket", "structcio__websocket.html", "structcio__websocket" ],
+    [ "cio_websocket", "structcio__websocket.html", null ],
     [ "cio_websocket_location_config", "structcio__websocket__location__config.html", "structcio__websocket__location__config" ],
     [ "cio_websocket_location_handler", "structcio__websocket__location__handler.html", "structcio__websocket__location__handler" ],
     [ "cio_websocket_private", "structcio__websocket__private.html", "structcio__websocket__private" ],

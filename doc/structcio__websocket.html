@@ -105,72 +105,12 @@ $(document).ready(function(){initNavTree('structcio__websocket.html','');});
 </div>
 
 <div class="header">
-  <div class="summary">
-<a href="#pub-attribs">Data Fields</a>  </div>
   <div class="headertitle">
 <div class="title">cio_websocket Struct Reference</div>  </div>
 </div><!--header-->
 <div class="contents">
 
 <p><code>#include &lt;<a class="el" href="cio__websocket_8h_source.html">cio_websocket.h</a>&gt;</code></p>
-<table class="memberdecls">
-<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-attribs"></a>
-Data Fields</h2></td></tr>
-<tr class="memitem:aa8ebb35a2710c7387c895a5b01ad26a0"><td class="memItemLeft" align="right" valign="top">void(*&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structcio__websocket.html#aa8ebb35a2710c7387c895a5b01ad26a0">on_control</a> )(const struct <a class="el" href="structcio__websocket.html">cio_websocket</a> *ws, enum <a class="el" href="cio__websocket_8h.html#af33fb069400eeffde11ab324bf2245e9">cio_websocket_frame_type</a> kind, const uint8_t *data, uint_fast8_t length)</td></tr>
-<tr class="memdesc:aa8ebb35a2710c7387c895a5b01ad26a0"><td class="mdescLeft">&#160;</td><td class="mdescRight">A pointer to a function which is called when a control frame was received.  <a href="#aa8ebb35a2710c7387c895a5b01ad26a0">More...</a><br /></td></tr>
-<tr class="separator:aa8ebb35a2710c7387c895a5b01ad26a0"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a9912a53d3ccdb6ce85c2e61e0f002779"><td class="memItemLeft" align="right" valign="top">void(*&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structcio__websocket.html#a9912a53d3ccdb6ce85c2e61e0f002779">on_error</a> )(const struct <a class="el" href="structcio__websocket.html">cio_websocket</a> *ws, enum <a class="el" href="cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afe">cio_error</a> err, const char *reason)</td></tr>
-<tr class="memdesc:a9912a53d3ccdb6ce85c2e61e0f002779"><td class="mdescLeft">&#160;</td><td class="mdescRight">A pointer to a function which is called if a receive error occurred.  <a href="#a9912a53d3ccdb6ce85c2e61e0f002779">More...</a><br /></td></tr>
-<tr class="separator:a9912a53d3ccdb6ce85c2e61e0f002779"><td class="memSeparator" colspan="2">&#160;</td></tr>
-</table>
-<h2 class="groupheader">Field Documentation</h2>
-<a class="anchor" id="aa8ebb35a2710c7387c895a5b01ad26a0"></a>
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">void(* cio_websocket::on_control) (const struct <a class="el" href="structcio__websocket.html">cio_websocket</a> *ws, enum <a class="el" href="cio__websocket_8h.html#af33fb069400eeffde11ab324bf2245e9">cio_websocket_frame_type</a> kind, const uint8_t *data, uint_fast8_t length)</td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>A pointer to a function which is called when a control frame was received. </p>
-<p>Library users are note required to set this function pointer. </p><dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">ws</td><td>The websocket which received the control frame. </td></tr>
-    <tr><td class="paramname">kind</td><td>The kind of control frame (<a class="el" href="cio__websocket_8h.html#af33fb069400eeffde11ab324bf2245e9a2c1fb6190c895d3c5d1c22310af91a5d">CIO_WEBSOCKET_CLOSE_FRAME</a>, <a class="el" href="cio__websocket_8h.html#af33fb069400eeffde11ab324bf2245e9a42de48db574a3eb78ee662c4683f4ed3">CIO_WEBSOCKET_PING_FRAME</a>, <a class="el" href="cio__websocket_8h.html#af33fb069400eeffde11ab324bf2245e9ac89c2941151a6830f7cf69729ee9693c">CIO_WEBSOCKET_PONG_FRAME</a>) </td></tr>
-    <tr><td class="paramname">data</td><td>The data the control frame carried. </td></tr>
-    <tr><td class="paramname">length</td><td>The length of data the control frame carried. </td></tr>
-  </table>
-  </dd>
-</dl>
-
-</div>
-</div>
-<a class="anchor" id="a9912a53d3ccdb6ce85c2e61e0f002779"></a>
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">void(* cio_websocket::on_error) (const struct <a class="el" href="structcio__websocket.html">cio_websocket</a> *ws, enum <a class="el" href="cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afe">cio_error</a> err, const char *reason)</td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>A pointer to a function which is called if a receive error occurred. </p>
-<p>Library users are note required to set this function pointer.</p>
-<dl class="section warning"><dt>Warning</dt><dd>If you set this function pointer, you are not allowed to on this websocket any longer. (I.e., do not call <a class="el" href="cio__websocket_8h.html#a90758de8a87a59ea945b683b8c6fc464">close()</a> etc. on the websocket). Immediately after this function returns, the library closes the websocket on its own.</dd></dl>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">ws</td><td>The websocket which encountered the error. </td></tr>
-    <tr><td class="paramname">err</td><td>An error code describing the error. Could be never <a class="el" href="cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afea6bb29544c99750c61f70b10a1e17d96a">CIO_SUCCESS</a>. </td></tr>
-    <tr><td class="paramname">reason</td><td>A string describing the reason for the error. Could be <code>NULL</code>. </td></tr>
-  </table>
-  </dd>
-</dl>
-
-</div>
-</div>
 <hr/>The documentation for this struct was generated from the following file:<ul>
 <li><a class="el" href="cio__websocket_8h_source.html">cio_websocket.h</a></li>
 </ul>

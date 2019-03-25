@@ -1,5 +1,7 @@
 var NAVTREEINDEX1 =
 {
+"functions_vars.html":[0,2,1],
+"globals.html":[1,1,0],
 "globals_defs.html":[1,1,5],
 "globals_enum.html":[1,1,3],
 "globals_eval.html":[1,1,4],
@@ -85,8 +87,6 @@ var NAVTREEINDEX1 =
 "structcio__utf8__state.html#a5e66194d8cc9ec2b85acd00e4b4fccfb":[0,0,12,0],
 "structcio__utf8__state.html#ad5d20ff3befbecac8f36e02326e11f3c":[0,0,12,1],
 "structcio__websocket.html":[0,0,13],
-"structcio__websocket.html#a9912a53d3ccdb6ce85c2e61e0f002779":[0,0,13,1],
-"structcio__websocket.html#aa8ebb35a2710c7387c895a5b01ad26a0":[0,0,13,0],
 "structcio__websocket__location__config.html":[0,0,14],
 "structcio__websocket__location__config.html#a14ad8a08b651241563810a95201a2f2f":[0,0,14,1],
 "structcio__websocket__location__config.html#a327e163cb520d626a66dbb263e638c49":[0,0,14,2],

@@ -37,6 +37,8 @@ var searchData=
   ['cio_5fwebsocket_5flocation_5fhandler_5finit',['cio_websocket_location_handler_init',['../cio__websocket__location__handler_8h.html#a81933a95a12d7996a56c85a9009a7b50',1,'cio_websocket_location_handler.h']]],
   ['cio_5fwebsocket_5fmask',['cio_websocket_mask',['../cio__websocket__masking_8h.html#adc260e8f2d104844810c62865f622be5',1,'cio_websocket_masking.h']]],
   ['cio_5fwebsocket_5fread_5fmessage',['cio_websocket_read_message',['../cio__websocket_8h.html#acf324349b95de3f30373cc6c7862d4c0',1,'cio_websocket.h']]],
+  ['cio_5fwebsocket_5fset_5fon_5fcontrol_5fcb',['cio_websocket_set_on_control_cb',['../cio__websocket_8h.html#a01bcaeb2c7531109e3e9212a177d6c62',1,'cio_websocket.h']]],
+  ['cio_5fwebsocket_5fset_5fon_5ferror_5fcb',['cio_websocket_set_on_error_cb',['../cio__websocket_8h.html#af0f0dbbfaf936e83a14015972f7fce8d',1,'cio_websocket.h']]],
   ['cio_5fwebsocket_5fwrite_5fmessage_5fcontinuation_5fchunk',['cio_websocket_write_message_continuation_chunk',['../cio__websocket_8h.html#aacf85224ea29aeda0f69513d1e9a69b1',1,'cio_websocket.h']]],
   ['cio_5fwebsocket_5fwrite_5fmessage_5ffirst_5fchunk',['cio_websocket_write_message_first_chunk',['../cio__websocket_8h.html#a740dec1044b5a7c4bdebe0aad583385c',1,'cio_websocket.h']]],
   ['cio_5fwebsocket_5fwrite_5fping',['cio_websocket_write_ping',['../cio__websocket_8h.html#adc7ba069e7ba95143b433a9e503750a3',1,'cio_websocket.h']]],
