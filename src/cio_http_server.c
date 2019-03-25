@@ -762,7 +762,7 @@ enum cio_error cio_http_server_serve(struct cio_http_server *server)
 		goto close_socket;
 	}
 
-	err = server->server_socket.accept(&server->server_socket, handle_accept, server);
+	err = cio_serversocket_accept(&server->server_socket, handle_accept, server);
 	if (cio_unlikely(err != CIO_SUCCESS)) {
 		goto close_socket;
 	}

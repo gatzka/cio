@@ -85,35 +85,6 @@ static void accept_callback(void *context)
 	}
 }
 
-static enum cio_error socket_accept(struct cio_server_socket *ss, cio_accept_handler handler, void *handler_context)
-{
-	enum cio_error err;
-	if (cio_unlikely(handler == NULL)) {
-		return CIO_INVALID_ARGUMENT;
-	}
-
-	ss->handler = handler;
-	ss->handler_context = handler_context;
-	ss->impl.ev.read_callback = accept_callback;
-	ss->impl.ev.context = ss;
-
-	if (cio_unlikely(listen(ss->impl.ev.fd, ss->backlog) < 0)) {
-		return (enum cio_error)(-errno);
-	}
-
-	err = cio_linux_eventloop_add(ss->impl.loop, &ss->impl.ev);
-	if (cio_unlikely(err != CIO_SUCCESS)) {
-		return err;
-	}
-
-	err = cio_linux_eventloop_register_read(ss->impl.loop, &ss->impl.ev);
-	if (cio_unlikely(err != CIO_SUCCESS)) {
-		return err;
-	}
-
-	return CIO_SUCCESS;
-}
-
 static enum cio_error socket_set_reuse_address(struct cio_server_socket *ss, bool on)
 {
 	int reuse;
@@ -192,11 +163,39 @@ enum cio_error cio_server_socket_init(struct cio_server_socket *ss,
 	ss->alloc_client = alloc_client;
 	ss->free_client = free_client;
 	ss->close = socket_close;
-	ss->accept = socket_accept;
 	ss->set_reuse_address = socket_set_reuse_address;
 	ss->bind = socket_bind;
 	ss->impl.loop = loop;
 	ss->close_hook = close_hook;
 	ss->backlog = (int)backlog;
+	return CIO_SUCCESS;
+}
+
+enum cio_error cio_serversocket_accept(struct cio_server_socket *ss, cio_accept_handler handler, void *handler_context)
+{
+	enum cio_error err;
+	if (cio_unlikely(handler == NULL)) {
+		return CIO_INVALID_ARGUMENT;
+	}
+
+	ss->handler = handler;
+	ss->handler_context = handler_context;
+	ss->impl.ev.read_callback = accept_callback;
+	ss->impl.ev.context = ss;
+
+	if (cio_unlikely(listen(ss->impl.ev.fd, ss->backlog) < 0)) {
+		return (enum cio_error)(-errno);
+	}
+
+	err = cio_linux_eventloop_add(ss->impl.loop, &ss->impl.ev);
+	if (cio_unlikely(err != CIO_SUCCESS)) {
+		return err;
+	}
+
+	err = cio_linux_eventloop_register_read(ss->impl.loop, &ss->impl.ev);
+	if (cio_unlikely(err != CIO_SUCCESS)) {
+		return err;
+	}
+
 	return CIO_SUCCESS;
 }

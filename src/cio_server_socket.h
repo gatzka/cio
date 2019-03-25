@@ -45,7 +45,7 @@ extern "C" {
  * @brief This file contains the interface of a server socket.
  *
  * A server socket can be @ref cio_server_socket_init "initialized",
- * @ref cio_server_socket_accept "accept connections" and can be
+ * @ref cio_serversocket_accept "accept connections" and can be
  * @ref cio_server_socket_close "closed".
  */
 
@@ -56,7 +56,7 @@ struct cio_server_socket;
 
 /**
  * @brief The type of a function that is called when
- * @ref cio_server_socket_accept "accept task" succeeds or fails.
+ * @ref cio_serversocket_accept "accept task" succeeds or fails.
  *
  * @param ss The server socket where the accept was called on.
  * @param handler_context The context the functions works on.
@@ -77,23 +77,6 @@ typedef void (*cio_server_socket_close_hook)(struct cio_server_socket *ss);
  * @brief The cio_server_socket struct describes a server socket.
  */
 struct cio_server_socket {
-
-	/**
-	 * @anchor cio_server_socket_accept
-	 * @brief Accepts an incoming socket connection.
-	 *
-	 * If the platform specific accept implementation fails, @p handler will
-	 * be called with a appropriate error code. The implementation specific accept
-	 * needs to take care of freeing any intermediatly allocated memory, so there is no
-	 * need to free any resources in @p handler if @p handler is called with err != ::CIO_SUCCESS.
-	 *
-	 * @param ss A pointer to a cio_server_socket on which the accept should be performed.
-	 * @param handler The function to be called if the accept fails or succeeds.
-	 * @param handler_context The context passed to the @a handler function.
-	 *
-	 * @return ::CIO_SUCCESS for success.
-	 */
-	enum cio_error (*accept)(struct cio_server_socket *ss, cio_accept_handler handler, void *handler_context);
 
 	/**
 	 * @anchor cio_server_socket_close
@@ -163,6 +146,24 @@ CIO_EXPORT enum cio_error cio_server_socket_init(struct cio_server_socket *ss,
                                                  cio_alloc_client alloc_client,
                                                  cio_free_client free_client,
                                                  cio_server_socket_close_hook close_hook);
+
+
+/**
+ * @anchor cio_serversocket_accept
+ * @brief Accepts an incoming socket connection.
+ *
+ * If the platform specific accept implementation fails, @p handler will
+ * be called with a appropriate error code. The implementation specific accept
+ * needs to take care of freeing any intermediatly allocated memory, so there is no
+ * need to free any resources in @p handler if @p handler is called with err != ::CIO_SUCCESS.
+ *
+ * @param ss A pointer to a cio_server_socket on which the accept should be performed.
+ * @param handler The function to be called if the accept fails or succeeds.
+ * @param handler_context The context passed to the @a handler function.
+ *
+ * @return ::CIO_SUCCESS for success.
+ */
+CIO_EXPORT enum cio_error cio_serversocket_accept(struct cio_server_socket *ss, cio_accept_handler handler, void *handler_context);
 
 #ifdef __cplusplus
 }
