@@ -706,50 +706,6 @@ response_timer_init_err:
 	notify_free_handler_and_close_stream(client);
 }
 
-static enum cio_error serve(struct cio_http_server *server)
-{
-	enum cio_error err = server->server_socket.set_reuse_address(&server->server_socket, true);
-	if (cio_unlikely(err != CIO_SUCCESS)) {
-		goto close_socket;
-	}
-
-	err = server->server_socket.bind(&server->server_socket, NULL, server->port);
-	if (cio_unlikely(err != CIO_SUCCESS)) {
-		goto close_socket;
-	}
-
-	err = server->server_socket.accept(&server->server_socket, handle_accept, server);
-	if (cio_unlikely(err != CIO_SUCCESS)) {
-		goto close_socket;
-	}
-
-	return err;
-
-close_socket:
-	server->server_socket.close(&server->server_socket);
-	return err;
-}
-
-static enum cio_error register_handler(struct cio_http_server *server, struct cio_http_location *target)
-{
-	if (cio_unlikely(server == NULL) || (target == NULL)) {
-		return CIO_INVALID_ARGUMENT;
-	}
-
-	target->next = server->first_location;
-	server->first_location = target;
-	server->num_handlers++;
-	return CIO_SUCCESS;
-}
-
-static enum cio_error shutdown_server(struct cio_http_server *server,
-                                      cio_http_server_close_hook close_hook)
-{
-	server->close_hook = close_hook;
-	server->server_socket.close(&server->server_socket);
-	return CIO_SUCCESS;
-}
-
 static void server_socket_closed(struct cio_server_socket *ss)
 {
 	struct cio_http_server *server = cio_container_of(ss, struct cio_http_server, server_socket);
@@ -780,12 +736,9 @@ enum cio_error cio_http_server_init(struct cio_http_server *server,
 	server->port = port;
 	server->alloc_client = alloc_client;
 	server->free_client = free_client;
-	server->serve = serve;
-	server->register_location = register_handler;
 	server->first_location = NULL;
 	server->num_handlers = 0;
 	server->on_error = on_error;
-	server->shutdown = shutdown_server;
 	server->read_header_timeout_ns = read_header_timeout_ns;
 	server->read_body_timeout_ns = read_body_timeout_ns;
 	server->response_timeout_ns = response_timeout_ns;
@@ -795,4 +748,48 @@ enum cio_error cio_http_server_init(struct cio_http_server *server,
 	snprintf(server->keepalive_header, sizeof(server->keepalive_header), "Keep-Alive: timeout=%" PRIu32 "\r\n", keep_alive);
 
 	return cio_server_socket_init(&server->server_socket, server->loop, DEFAULT_BACKLOG, server->alloc_client, server->free_client, server_socket_closed);
+}
+
+enum cio_error cio_http_server_serve(struct cio_http_server *server)
+{
+	enum cio_error err = server->server_socket.set_reuse_address(&server->server_socket, true);
+	if (cio_unlikely(err != CIO_SUCCESS)) {
+		goto close_socket;
+	}
+
+	err = server->server_socket.bind(&server->server_socket, NULL, server->port);
+	if (cio_unlikely(err != CIO_SUCCESS)) {
+		goto close_socket;
+	}
+
+	err = server->server_socket.accept(&server->server_socket, handle_accept, server);
+	if (cio_unlikely(err != CIO_SUCCESS)) {
+		goto close_socket;
+	}
+
+	return err;
+
+close_socket:
+	server->server_socket.close(&server->server_socket);
+	return err;
+}
+
+
+enum cio_error cio_http_server_register_location(struct cio_http_server *server, struct cio_http_location *location)
+{
+	if (cio_unlikely(server == NULL) || (location == NULL)) {
+		return CIO_INVALID_ARGUMENT;
+	}
+
+	location->next = server->first_location;
+	server->first_location = location;
+	server->num_handlers++;
+	return CIO_SUCCESS;
+}
+
+enum cio_error cio_http_server_shutdown(struct cio_http_server *server, cio_http_server_close_hook close_hook)
+{
+	server->close_hook = close_hook;
+	server->server_socket.close(&server->server_socket);
+	return CIO_SUCCESS;
 }

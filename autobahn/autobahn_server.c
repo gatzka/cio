@@ -174,13 +174,13 @@ static void http_server_closed(struct cio_http_server *s)
 static void sighandler(int signum)
 {
 	(void)signum;
-	http_server.shutdown(&http_server, http_server_closed);
+	cio_http_server_shutdown(&http_server, http_server_closed);
 }
 
 static void serve_error(struct cio_http_server *server, const char *reason)
 {
 	(void)reason;
-	server->shutdown(server, http_server_closed);
+	cio_http_server_shutdown(server, http_server_closed);
 }
 
 int main(void)
@@ -208,9 +208,9 @@ int main(void)
 
 	struct cio_http_location autobahn_target;
 	cio_http_location_init(&autobahn_target, "/", NULL, alloc_autobahn_handler);
-	http_server.register_location(&http_server, &autobahn_target);
+	cio_http_server_register_location(&http_server, &autobahn_target);
 
-	err = http_server.serve(&http_server);
+	err = cio_http_server_serve(&http_server);
 	if (err != CIO_SUCCESS) {
 		ret = EXIT_FAILURE;
 		goto destroy_loop;

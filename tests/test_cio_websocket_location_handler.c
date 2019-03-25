@@ -410,10 +410,10 @@ static void test_ws_version(void)
 		err = cio_http_location_init(&target, REQUEST_TARGET, NULL, alloc_websocket_handler);
 		TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Request target initialization failed!");
 
-		err = server.register_location(&server, &target);
+		err = cio_http_server_register_location(&server, &target);
 		TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Register request target failed!");
 
-		err = server.serve(&server);
+		err = cio_http_server_serve(&server);
 		TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Serving http failed!");
 
 		struct cio_socket *s = server.alloc_client();
@@ -463,10 +463,10 @@ static void test_ws_location_wrong_http_version(void)
 		err = cio_http_location_init(&target, REQUEST_TARGET, NULL, alloc_websocket_handler);
 		TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Request target initialization failed!");
 
-		err = server.register_location(&server, &target);
+		err = cio_http_server_register_location(&server, &target);
 		TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Register request target failed!");
 
-		err = server.serve(&server);
+		err = cio_http_server_serve(&server);
 		TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Serving http failed!");
 
 		struct cio_socket *s = server.alloc_client();
@@ -500,10 +500,10 @@ static void test_ws_location_wrong_http_method(void)
 	err = cio_http_location_init(&target, REQUEST_TARGET, NULL, alloc_websocket_handler);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Request target initialization failed!");
 
-	err = server.register_location(&server, &target);
+	err = cio_http_server_register_location(&server, &target);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Register request target failed!");
 
-	err = server.serve(&server);
+	err = cio_http_server_serve(&server);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Serving http failed!");
 
 	struct cio_socket *s = server.alloc_client();
@@ -535,10 +535,10 @@ static void test_ws_location_wrong_ws_version(void)
 		err = cio_http_location_init(&target, REQUEST_TARGET, NULL, alloc_websocket_handler);
 		TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Request target initialization failed!");
 
-		err = server.register_location(&server, &target);
+		err = cio_http_server_register_location(&server, &target);
 		TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Register request target failed!");
 
-		err = server.serve(&server);
+		err = cio_http_server_serve(&server);
 		TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Serving http failed!");
 
 		struct cio_socket *s = server.alloc_client();
@@ -587,10 +587,10 @@ static void test_ws_key(void)
 		err = cio_http_location_init(&target, REQUEST_TARGET, NULL, alloc_websocket_handler);
 		TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Request target initialization failed!");
 
-		err = server.register_location(&server, &target);
+		err = cio_http_server_register_location(&server, &target);
 		TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Register request target failed!");
 
-		err = server.serve(&server);
+		err = cio_http_server_serve(&server);
 		TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Serving http failed!");
 
 		struct cio_socket *s = server.alloc_client();
@@ -624,10 +624,10 @@ static void test_ws_location_wrong_key_length(void)
 	err = cio_http_location_init(&target, REQUEST_TARGET, NULL, alloc_websocket_handler);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Request target initialization failed!");
 
-	err = server.register_location(&server, &target);
+	err = cio_http_server_register_location(&server, &target);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Register request target failed!");
 
-	err = server.serve(&server);
+	err = cio_http_server_serve(&server);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Serving http failed!");
 
 	struct cio_socket *s = server.alloc_client();
@@ -679,10 +679,10 @@ static void test_ws_location_subprotocols(void)
 		err = cio_http_location_init(&target, REQUEST_TARGET, NULL, test_case.handler);
 		TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Request target initialization failed!");
 
-		err = server.register_location(&server, &target);
+		err = cio_http_server_register_location(&server, &target);
 		TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Register request target failed!");
 
-		err = server.serve(&server);
+		err = cio_http_server_serve(&server);
 		TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Serving http failed!");
 
 		struct cio_socket *s = server.alloc_client();
@@ -716,10 +716,10 @@ static void test_ws_location_no_upgrade(void)
 	err = cio_http_location_init(&target, REQUEST_TARGET, NULL, alloc_websocket_handler);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Request target initialization failed!");
 
-	err = server.register_location(&server, &target);
+	err = cio_http_server_register_location(&server, &target);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Register request target failed!");
 
-	err = server.serve(&server);
+	err = cio_http_server_serve(&server);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Serving http failed!");
 
 	struct cio_socket *s = server.alloc_client();
@@ -749,10 +749,10 @@ static void test_ws_location_write_error(void)
 	err = cio_http_location_init(&target, REQUEST_TARGET, NULL, alloc_websocket_handler);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Request target initialization failed!");
 
-	err = server.register_location(&server, &target);
+	err = cio_http_server_register_location(&server, &target);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Register request target failed!");
 
-	err = server.serve(&server);
+	err = cio_http_server_serve(&server);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Serving http failed!");
 
 	struct cio_socket *s = server.alloc_client();

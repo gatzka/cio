@@ -118,13 +118,13 @@ static void http_server_closed(struct cio_http_server *s)
 static void sighandler(int signum)
 {
 	(void)signum;
-	server.shutdown(&server, http_server_closed);
+	cio_http_server_shutdown(&server, http_server_closed);
 }
 
 static void serve_error(struct cio_http_server *s, const char *reason)
 {
 	fprintf(stderr, "http server error: %s\n", reason);
-	s->shutdown(s, http_server_closed);
+	cio_http_server_shutdown(s, http_server_closed);
 }
 
 int main(void)
@@ -152,9 +152,9 @@ int main(void)
 
 	struct cio_http_location target_foo;
 	cio_http_location_init(&target_foo, "/foo", NULL, alloc_dummy_handler);
-	server.register_location(&server, &target_foo);
+	cio_http_server_register_location(&server, &target_foo);
 
-	err = server.serve(&server);
+	err = cio_http_server_serve(&server);
 	if (err != CIO_SUCCESS) {
 		ret = EXIT_FAILURE;
 		goto destroy_loop;
