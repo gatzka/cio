@@ -46,51 +46,6 @@ static void try_free(struct cio_socket *s)
 	}
 }
 
-static enum cio_error socket_close(struct cio_socket *s)
-{
-	if (cio_unlikely(s == NULL)) {
-		return CIO_INVALID_ARGUMENT;
-	}
-
-	CancelIo(s->impl.fd);
-	shutdown((SOCKET)s->impl.fd, SD_BOTH);
-	try_free(s);
-
-	return CIO_SUCCESS;
-}
-
-static enum cio_error socket_tcp_no_delay(struct cio_socket *s, bool on)
-{
-	char tcp_no_delay = (char)on;
-
-	if (cio_unlikely(setsockopt((SOCKET)s->impl.fd, IPPROTO_TCP, TCP_NODELAY, &tcp_no_delay,
-	                            sizeof(tcp_no_delay)) == SOCKET_ERROR)) {
-		return (enum cio_error)(-WSAGetLastError());
-	}
-
-	return CIO_SUCCESS;
-}
-
-static enum cio_error socket_keepalive(struct cio_socket *s, bool on, unsigned int keep_idle_s,
-                                       unsigned int keep_intvl_s, unsigned int keep_cnt)
-{
-	(void)keep_cnt;
-
-	struct tcp_keepalive alive = {.onoff = on, .keepalivetime = keep_idle_s, .keepaliveinterval = keep_intvl_s};
-
-	DWORD bytes_returned;
-	if (cio_unlikely(WSAIoctl((SOCKET)s->impl.fd, SIO_KEEPALIVE_VALS, &alive, sizeof(alive), NULL, 0, &bytes_returned, NULL, NULL) == SOCKET_ERROR)) {
-		return (enum cio_error)(-WSAGetLastError());
-	}
-
-	return CIO_SUCCESS;
-}
-
-static struct cio_io_stream *socket_get_io_stream(struct cio_socket *s)
-{
-	return &s->stream;
-}
-
 static enum cio_error stream_close(struct cio_io_stream *stream)
 {
 	struct cio_socket *s = cio_container_of(stream, struct cio_socket, stream);
@@ -234,11 +189,6 @@ enum cio_error cio_windows_socket_init(struct cio_socket *s, SOCKET client_fd,
 	s->impl.loop = loop;
 	s->close_hook = close_hook;
 
-	s->close = socket_close;
-	s->set_tcp_no_delay = socket_tcp_no_delay;
-	s->set_keep_alive = socket_keepalive;
-	s->get_io_stream = socket_get_io_stream;
-
 	s->stream.read_some = stream_read;
 	s->stream.write_some = stream_write;
 	s->stream.close = stream_close;
@@ -249,4 +199,49 @@ enum cio_error cio_windows_socket_init(struct cio_socket *s, SOCKET client_fd,
 	}
 
 	return CIO_SUCCESS;
+}
+
+enum cio_error cio_socket_close(struct cio_socket *s)
+{
+	if (cio_unlikely(s == NULL)) {
+		return CIO_INVALID_ARGUMENT;
+	}
+
+	CancelIo(s->impl.fd);
+	shutdown((SOCKET)s->impl.fd, SD_BOTH);
+	try_free(s);
+
+	return CIO_SUCCESS;
+}
+
+enum cio_error cio_socket_set_tcp_no_delay(struct cio_socket *s, bool on)
+{
+	char tcp_no_delay = (char)on;
+
+	if (cio_unlikely(setsockopt((SOCKET)s->impl.fd, IPPROTO_TCP, TCP_NODELAY, &tcp_no_delay,
+	                            sizeof(tcp_no_delay)) == SOCKET_ERROR)) {
+		return (enum cio_error)(-WSAGetLastError());
+	}
+
+	return CIO_SUCCESS;
+}
+
+enum cio_error cio_socket_set_keep_alive(struct cio_socket *s, bool on, unsigned int keep_idle_s,
+                                         unsigned int keep_intvl_s, unsigned int keep_cnt)
+{
+	(void)keep_cnt;
+
+	struct tcp_keepalive alive = {.onoff = on, .keepalivetime = keep_idle_s, .keepaliveinterval = keep_intvl_s};
+
+	DWORD bytes_returned;
+	if (cio_unlikely(WSAIoctl((SOCKET)s->impl.fd, SIO_KEEPALIVE_VALS, &alive, sizeof(alive), NULL, 0, &bytes_returned, NULL, NULL) == SOCKET_ERROR)) {
+		return (enum cio_error)(-WSAGetLastError());
+	}
+
+	return CIO_SUCCESS;
+}
+
+struct cio_io_stream *cio_socket_get_io_stream(struct cio_socket *s)
+{
+	return &s->stream;
 }
