@@ -92,50 +92,6 @@ static enum cio_error socket_set_reuse_address(struct cio_server_socket *ss, boo
 	return CIO_SUCCESS;
 }
 
-static enum cio_error socket_bind(struct cio_server_socket *ss, const char *bind_address, uint16_t port)
-{
-	static const unsigned int MAX_PORT_LENGTH = 6;
-	struct addrinfo hints;
-	char server_port_string[MAX_PORT_LENGTH];
-	struct addrinfo *servinfo;
-	int ret;
-	struct addrinfo *rp;
-
-	memset(&hints, 0, sizeof(hints));
-	hints.ai_family = AF_INET6;
-	hints.ai_socktype = SOCK_STREAM;
-	hints.ai_flags = (unsigned int)AI_PASSIVE | (unsigned int)AI_V4MAPPED | (unsigned int)AI_NUMERICHOST;
-
-	snprintf(server_port_string, sizeof(server_port_string), "%d", port);
-
-	if (bind_address == NULL) {
-		bind_address = "::";
-	}
-
-	ret = getaddrinfo(bind_address, server_port_string, &hints, &servinfo);
-	if (ret != 0) {
-		if (ret == EAI_SYSTEM) {
-			return (enum cio_error)(-errno);
-		}
-
-		return CIO_INVALID_ARGUMENT;
-	}
-
-	for (rp = servinfo; rp != NULL; rp = rp->ai_next) {
-		if (cio_likely(bind(ss->impl.ev.fd, rp->ai_addr, rp->ai_addrlen) == 0)) {
-			break;
-		}
-	}
-
-	freeaddrinfo(servinfo);
-
-	if (rp == NULL) {
-		return CIO_INVALID_ARGUMENT;
-	}
-
-	return CIO_SUCCESS;
-}
-
 enum cio_error cio_server_socket_init(struct cio_server_socket *ss,
                                       struct cio_eventloop *loop,
                                       unsigned int backlog,
@@ -153,7 +109,6 @@ enum cio_error cio_server_socket_init(struct cio_server_socket *ss,
 	ss->alloc_client = alloc_client;
 	ss->free_client = free_client;
 	ss->set_reuse_address = socket_set_reuse_address;
-	ss->bind = socket_bind;
 	ss->impl.loop = loop;
 	ss->close_hook = close_hook;
 	ss->backlog = (int)backlog;
@@ -197,4 +152,48 @@ void cio_server_socket_close(struct cio_server_socket *ss)
 	if (ss->close_hook != NULL) {
 		ss->close_hook(ss);
 	}
+}
+
+enum cio_error cio_server_socket_bind(struct cio_server_socket *ss, const char *bind_address, uint16_t port)
+{
+	static const unsigned int MAX_PORT_LENGTH = 6;
+	struct addrinfo hints;
+	char server_port_string[MAX_PORT_LENGTH];
+	struct addrinfo *servinfo;
+	int ret;
+	struct addrinfo *rp;
+
+	memset(&hints, 0, sizeof(hints));
+	hints.ai_family = AF_INET6;
+	hints.ai_socktype = SOCK_STREAM;
+	hints.ai_flags = (unsigned int)AI_PASSIVE | (unsigned int)AI_V4MAPPED | (unsigned int)AI_NUMERICHOST;
+
+	snprintf(server_port_string, sizeof(server_port_string), "%d", port);
+
+	if (bind_address == NULL) {
+		bind_address = "::";
+	}
+
+	ret = getaddrinfo(bind_address, server_port_string, &hints, &servinfo);
+	if (ret != 0) {
+		if (ret == EAI_SYSTEM) {
+			return (enum cio_error)(-errno);
+		}
+
+		return CIO_INVALID_ARGUMENT;
+	}
+
+	for (rp = servinfo; rp != NULL; rp = rp->ai_next) {
+		if (cio_likely(bind(ss->impl.ev.fd, rp->ai_addr, rp->ai_addrlen) == 0)) {
+			break;
+		}
+	}
+
+	freeaddrinfo(servinfo);
+
+	if (rp == NULL) {
+		return CIO_INVALID_ARGUMENT;
+	}
+
+	return CIO_SUCCESS;
 }

@@ -67,11 +67,9 @@ FAKE_VOID_FUNC(serve_error, struct cio_http_server *, const char *)
 static enum cio_error socket_set_reuse_address(struct cio_server_socket *context, bool on);
 FAKE_VALUE_FUNC(enum cio_error, socket_set_reuse_address, struct cio_server_socket *, bool)
 
-static enum cio_error socket_bind(struct cio_server_socket *context, const char *bind_address, uint16_t port);
-FAKE_VALUE_FUNC(enum cio_error, socket_bind, struct cio_server_socket *, const char *, uint16_t)
-
 FAKE_VALUE_FUNC(enum cio_error, cio_server_socket_init, struct cio_server_socket *, struct cio_eventloop *, unsigned int, cio_alloc_client, cio_free_client, cio_server_socket_close_hook)
 FAKE_VALUE_FUNC(enum cio_error, cio_server_socket_accept, struct cio_server_socket *, cio_accept_handler, void *)
+FAKE_VALUE_FUNC(enum cio_error, cio_server_socket_bind, struct cio_server_socket *, const char *, uint16_t)
 FAKE_VOID_FUNC(cio_server_socket_close, struct cio_server_socket *)
 
 static enum cio_error timer_cancel(struct cio_timer *t);
@@ -127,7 +125,6 @@ static enum cio_error cio_server_socket_init_ok(struct cio_server_socket *ss,
 	ss->impl.loop = loop;
 	ss->close_hook = close_hook;
 	ss->set_reuse_address = socket_set_reuse_address;
-	ss->bind = socket_bind;
 	return CIO_SUCCESS;
 }
 
@@ -341,13 +338,13 @@ void setUp(void)
 	RESET_FAKE(bs_read_until);
 	RESET_FAKE(cio_buffered_stream_init);
 	RESET_FAKE(cio_server_socket_accept);
+	RESET_FAKE(cio_server_socket_bind);
 	RESET_FAKE(cio_server_socket_close);
 	RESET_FAKE(cio_server_socket_init);
 	RESET_FAKE(get_io_stream);
 	RESET_FAKE(header_complete);
 	RESET_FAKE(message_complete);
 	RESET_FAKE(serve_error);
-	RESET_FAKE(socket_bind);
 	RESET_FAKE(socket_set_reuse_address);
 	RESET_FAKE(timer_cancel);
 	RESET_FAKE(timer_expires_from_now);

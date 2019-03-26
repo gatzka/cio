@@ -757,7 +757,7 @@ enum cio_error cio_http_server_serve(struct cio_http_server *server)
 		goto close_socket;
 	}
 
-	err = server->server_socket.bind(&server->server_socket, NULL, server->port);
+	err = cio_server_socket_bind(&server->server_socket, NULL, server->port);
 	if (cio_unlikely(err != CIO_SUCCESS)) {
 		goto close_socket;
 	}

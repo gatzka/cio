@@ -79,19 +79,6 @@ typedef void (*cio_server_socket_close_hook)(struct cio_server_socket *ss);
 struct cio_server_socket {
 
 	/**
-	 * @anchor cio_server_socket_bind
-	 * @brief Binds the cio_server_socket to a specific address
-	 *
-	 * @param ss A pointer to a cio_server_socket on which the bind should be performed.
-	 * @param bind_address The IP address a cio_server_socket shall bound to. If @c NULL,
-	 *        then cio_server_socket binds to all interfaces.
-	 * @param port The TCP port the cio_server_socket shall listen on.
-	 *
-	 * @return ::CIO_SUCCESS for success.
-	 */
-	enum cio_error (*bind)(struct cio_server_socket *ss, const char *bind_address, uint16_t port);
-
-	/**
 	 * @anchor cio_server_socket_set_reuse_address
 	 * @brief Sets the SO_REUSEADDR socket option.
 	 *
@@ -162,6 +149,18 @@ CIO_EXPORT enum cio_error cio_server_socket_accept(struct cio_server_socket *ss,
  * @param ss A pointer to a cio_server_socket on which the close should be performed.
  */
 CIO_EXPORT void cio_server_socket_close(struct cio_server_socket *ss);
+
+/**
+ * @brief Binds the cio_server_socket to a specific address
+ *
+ * @param ss A pointer to a cio_server_socket on which the bind should be performed.
+ * @param bind_address The IP address a cio_server_socket shall bound to. If @c NULL,
+ *        then cio_server_socket binds to all interfaces.
+ * @param port The TCP port the cio_server_socket shall listen on.
+ *
+ * @return ::CIO_SUCCESS for success.
+ */
+CIO_EXPORT enum cio_error cio_server_socket_bind(struct cio_server_socket *ss, const char *bind_address, uint16_t port);
 
 
 #ifdef __cplusplus

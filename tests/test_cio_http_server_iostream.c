@@ -102,10 +102,9 @@ FAKE_VOID_FUNC(serve_error, struct cio_http_server *, const char *)
 
 static enum cio_error socket_set_reuse_address(struct cio_server_socket *context, bool on);
 FAKE_VALUE_FUNC(enum cio_error, socket_set_reuse_address, struct cio_server_socket *, bool)
-static enum cio_error socket_bind(struct cio_server_socket *context, const char *bind_address, uint16_t port);
-FAKE_VALUE_FUNC(enum cio_error, socket_bind, struct cio_server_socket *, const char *, uint16_t)
 
 FAKE_VALUE_FUNC(enum cio_error, cio_server_socket_accept, struct cio_server_socket *, cio_accept_handler, void *)
+FAKE_VALUE_FUNC(enum cio_error, cio_server_socket_bind, struct cio_server_socket *, const char *, uint16_t)
 FAKE_VOID_FUNC(cio_server_socket_close, struct cio_server_socket *)
 FAKE_VALUE_FUNC(enum cio_error, cio_server_socket_init, struct cio_server_socket *, struct cio_eventloop *, unsigned int, cio_alloc_client, cio_free_client, cio_server_socket_close_hook)
 
@@ -212,7 +211,6 @@ static enum cio_error cio_server_socket_init_ok(struct cio_server_socket *ss,
 	ss->impl.loop = l;
 	ss->close_hook = close_hook;
 	ss->set_reuse_address = socket_set_reuse_address;
-	ss->bind = socket_bind;
 	return CIO_SUCCESS;
 }
 
@@ -571,12 +569,12 @@ void setUp(void)
 {
 	FFF_RESET_HISTORY();
 
-	RESET_FAKE(cio_server_socket_init);
 	RESET_FAKE(cio_server_socket_accept);
+	RESET_FAKE(cio_server_socket_bind);
 	RESET_FAKE(cio_server_socket_close);
+	RESET_FAKE(cio_server_socket_init);
 
 	RESET_FAKE(socket_set_reuse_address);
-	RESET_FAKE(socket_bind);
 	RESET_FAKE(serve_error);
 	RESET_FAKE(http_close_hook);
 
@@ -1162,7 +1160,7 @@ static void test_errors_in_serve(void)
 		struct serve_test serve_test = serve_tests[i];
 
 		socket_set_reuse_address_fake.return_val = serve_test.reuse_addres_retval;
-		socket_bind_fake.return_val = serve_test.bind_retval;
+		cio_server_socket_bind_fake.return_val = serve_test.bind_retval;
 		cio_server_socket_accept_fake.custom_fake = NULL;
 		cio_server_socket_accept_fake.return_val = serve_test.accept_retval;
 

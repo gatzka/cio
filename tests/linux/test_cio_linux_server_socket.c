@@ -310,7 +310,7 @@ static void test_accept_bind_address(void)
 	TEST_ASSERT_EQUAL(CIO_SUCCESS, err);
 	err = ss.set_reuse_address(&ss, true);
 	TEST_ASSERT_EQUAL(CIO_SUCCESS, err);
-	err = ss.bind(&ss, "127.0.0.10", 12345);
+	err = cio_server_socket_bind(&ss, "127.0.0.10", 12345);
 	TEST_ASSERT_EQUAL(CIO_SUCCESS, err);
 	err = cio_server_socket_accept(&ss, accept_handler, NULL);
 	TEST_ASSERT_EQUAL(CIO_SUCCESS, err);
@@ -333,7 +333,7 @@ static void test_accept_close_in_accept_handler(void)
 	struct cio_server_socket ss;
 	enum cio_error err = cio_server_socket_init(&ss, &loop, 5, alloc_client, free_client, on_close);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Initialization of server socket failed!");
-	ss.bind(&ss, NULL, 12345);
+	cio_server_socket_bind(&ss, NULL, 12345);
 	cio_server_socket_accept(&ss, accept_handler, NULL);
 
 	ss.impl.ev.read_callback(ss.impl.ev.context);
@@ -354,7 +354,7 @@ static void test_accept_close_in_accept_handler_no_close_hook(void)
 	struct cio_server_socket ss;
 	enum cio_error err = cio_server_socket_init(&ss, &loop, 5, alloc_client, free_client, NULL);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Initialization of server socket failed!");
-	ss.bind(&ss, NULL, 12345);
+	cio_server_socket_bind(&ss, NULL, 12345);
 	cio_server_socket_accept(&ss, accept_handler, NULL);
 
 	ss.impl.ev.read_callback(ss.impl.ev.context);
@@ -374,7 +374,7 @@ static void test_accept_wouldblock(void)
 	struct cio_server_socket ss;
 	enum cio_error err = cio_server_socket_init(&ss, &loop, 5, alloc_client, free_client, on_close);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Initialization of server socket failed!");
-	err = ss.bind(&ss, NULL, 12345);
+	err = cio_server_socket_bind(&ss, NULL, 12345);
 	TEST_ASSERT_EQUAL(CIO_SUCCESS, err);
 	err = cio_server_socket_accept(&ss, accept_handler, NULL);
 	TEST_ASSERT_EQUAL(CIO_SUCCESS, err);
@@ -398,7 +398,7 @@ static void test_accept_fails(void)
 	struct cio_server_socket ss;
 	enum cio_error err = cio_server_socket_init(&ss, &loop, 5, alloc_client, free_client, on_close);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Initialization of server socket failed!");
-	ss.bind(&ss, NULL, 12345);
+	cio_server_socket_bind(&ss, NULL, 12345);
 	cio_server_socket_accept(&ss, accept_handler, NULL);
 
 	ss.impl.ev.read_callback(ss.impl.ev.context);
@@ -417,7 +417,7 @@ static void test_accept_no_handler(void)
 
 	enum cio_error err = cio_server_socket_init(&ss, &loop, 5, alloc_client, free_client, on_close);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Initialization of server socket failed!");
-	err = ss.bind(&ss, NULL, 12345);
+	err = cio_server_socket_bind(&ss, NULL, 12345);
 	TEST_ASSERT_EQUAL(CIO_SUCCESS, err);
 	err = cio_server_socket_accept(&ss, NULL, NULL);
 	TEST_ASSERT_EQUAL(CIO_INVALID_ARGUMENT, err);
@@ -439,7 +439,7 @@ static void test_accept_eventloop_add_fails(void)
 	enum cio_error err = cio_server_socket_init(&ss, &loop, 5, alloc_client, free_client, on_close);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Initialization of server socket failed!");
 
-	err = ss.bind(&ss, NULL, 12345);
+	err = cio_server_socket_bind(&ss, NULL, 12345);
 	TEST_ASSERT_EQUAL(CIO_SUCCESS, err);
 	err = cio_server_socket_accept(&ss, accept_handler, NULL);
 	TEST_ASSERT(err != CIO_SUCCESS);
@@ -475,7 +475,7 @@ static void test_init_listen_fails(void)
 	enum cio_error err = cio_server_socket_init(&ss, &loop, 5, alloc_client, free_client, on_close);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Initialization of server socket failed!");
 
-	err = ss.bind(&ss, NULL, 12345);
+	err = cio_server_socket_bind(&ss, NULL, 12345);
 	TEST_ASSERT_EQUAL(CIO_SUCCESS, err);
 	err = cio_server_socket_accept(&ss, accept_handler, NULL);
 	TEST_ASSERT(err != CIO_SUCCESS);
@@ -515,7 +515,7 @@ static void test_init_register_read_fails(void)
 	enum cio_error err = cio_server_socket_init(&ss, &loop, 5, alloc_client, free_client, on_close);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Initialization of server socket failed!");
 
-	err = ss.bind(&ss, NULL, 12345);
+	err = cio_server_socket_bind(&ss, NULL, 12345);
 	TEST_ASSERT_EQUAL(CIO_SUCCESS, err);
 	err = cio_server_socket_accept(&ss, accept_handler, NULL);
 	TEST_ASSERT(err != CIO_SUCCESS);
@@ -581,7 +581,7 @@ static void test_init_bind_fails(void)
 	enum cio_error err = cio_server_socket_init(&ss, &loop, 5, alloc_client, free_client, on_close);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Initialization of server socket failed!");
 
-	err = ss.bind(&ss, NULL, 12345);
+	err = cio_server_socket_bind(&ss, NULL, 12345);
 	TEST_ASSERT(err != CIO_SUCCESS);
 	TEST_ASSERT_EQUAL(0, close_fake.call_count);
 	cio_server_socket_close(&ss);
@@ -601,7 +601,7 @@ static void test_bind_getaddrinfofails(void)
 	enum cio_error err = cio_server_socket_init(&ss, &loop, 5, alloc_client, free_client, on_close);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Initialization of server socket failed!");
 
-	err = ss.bind(&ss, NULL, 12345);
+	err = cio_server_socket_bind(&ss, NULL, 12345);
 	TEST_ASSERT_NOT_EQUAL_MESSAGE(CIO_SUCCESS, err, "bind did not failed when getaddrinfo failes");
 	TEST_ASSERT_EQUAL(0, close_fake.call_count);
 	cio_server_socket_close(&ss);
@@ -621,7 +621,7 @@ static void test_bind_getaddrinfofails_eaisystem(void)
 	enum cio_error err = cio_server_socket_init(&ss, &loop, 5, alloc_client, free_client, on_close);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Initialization of server socket failed!");
 
-	err = ss.bind(&ss, NULL, 12345);
+	err = cio_server_socket_bind(&ss, NULL, 12345);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_INVALID_ARGUMENT, err, "bind did not failed when getaddrinfo failes");
 	TEST_ASSERT_EQUAL(0, close_fake.call_count);
 	cio_server_socket_close(&ss);
@@ -641,7 +641,7 @@ static void test_accept_malloc_fails(void)
 	enum cio_error err = cio_server_socket_init(&ss, &loop, 5, alloc_client, free_client, on_close);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Initialization of server socket failed!");
 
-	ss.bind(&ss, NULL, 12345);
+	cio_server_socket_bind(&ss, NULL, 12345);
 	cio_server_socket_accept(&ss, accept_handler, NULL);
 
 	ss.impl.ev.read_callback(ss.impl.ev.context);
@@ -672,7 +672,7 @@ static void test_accept_socket_init_fails(void)
 	enum cio_error err = cio_server_socket_init(&ss, &loop, 5, alloc_client, free_client, on_close);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Initialization of server socket failed!");
 
-	ss.bind(&ss, NULL, 12345);
+	cio_server_socket_bind(&ss, NULL, 12345);
 	cio_server_socket_accept(&ss, accept_handler, NULL);
 
 	ss.impl.ev.read_callback(ss.impl.ev.context);
@@ -697,7 +697,7 @@ static void test_accept_socket_close_socket(void)
 	enum cio_error err = cio_server_socket_init(&ss, &loop, 5, alloc_client, free_client, on_close);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Initialization of server socket failed!");
 
-	ss.bind(&ss, NULL, 12345);
+	cio_server_socket_bind(&ss, NULL, 12345);
 	cio_server_socket_accept(&ss, accept_handler, NULL);
 
 	ss.impl.ev.read_callback(ss.impl.ev.context);

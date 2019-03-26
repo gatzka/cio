@@ -159,7 +159,7 @@ int main(void)
 		goto close_socket;
 	}
 
-	err = ss.bind(&ss, NULL, SERVERSOCKET_LISTEN_PORT);
+	err = cio_server_socket_bind(&ss, NULL, SERVERSOCKET_LISTEN_PORT);
 	if (err != CIO_SUCCESS) {
 		ret = EXIT_FAILURE;
 		goto close_socket;
