@@ -171,42 +171,6 @@ accept_ex_failed:
 	return err;
 }
 
-static enum cio_error socket_accept(struct cio_server_socket *ss, cio_accept_handler handler, void *handler_context)
-{
-	if (cio_unlikely(handler == NULL)) {
-		return CIO_INVALID_ARGUMENT;
-	}
-
-	ss->handler = handler;
-	ss->handler_context = handler_context;
-
-	if (ss->impl.listen_socket_ipv4.bound) {
-		if (cio_unlikely(listen((SOCKET)ss->impl.listen_socket_ipv4.fd, ss->backlog) < 0)) {
-			int err = WSAGetLastError();
-			return (enum cio_error)(-err);
-		}
-
-		enum cio_error error = prepare_accept_socket(&ss->impl.listen_socket_ipv4);
-		if (cio_unlikely(error != CIO_SUCCESS)) {
-			return error;
-		}
-	}
-
-	if (ss->impl.listen_socket_ipv6.bound) {
-		if (cio_unlikely(listen((SOCKET)ss->impl.listen_socket_ipv6.fd, ss->backlog) < 0)) {
-			int err = WSAGetLastError();
-			return (enum cio_error)(-err);
-		}
-
-		enum cio_error error = prepare_accept_socket(&ss->impl.listen_socket_ipv6);
-		if (cio_unlikely(error != CIO_SUCCESS)) {
-			return error;
-		}
-	}
-
-	return CIO_SUCCESS;
-}
-
 static enum cio_error socket_set_reuse_address(struct cio_server_socket *ss, bool on)
 {
 	char reuse;
@@ -368,7 +332,6 @@ enum cio_error cio_server_socket_init(struct cio_server_socket *ss,
 
 	ss->set_reuse_address = socket_set_reuse_address;
 	ss->bind = socket_bind;
-	ss->accept = socket_accept;
 	ss->close = socket_close;
 
 	ss->impl.listen_socket_ipv4.accept_socket = INVALID_SOCKET;
@@ -389,4 +352,40 @@ enum cio_error cio_server_socket_init(struct cio_server_socket *ss,
 create_listen_socket_v6_failed:
 	close_listen_socket(&ss->impl.listen_socket_ipv4);
 	return err;
+}
+
+enum cio_error cio_serversocket_accept(struct cio_server_socket *ss, cio_accept_handler handler, void *handler_context)
+{
+	if (cio_unlikely(handler == NULL)) {
+		return CIO_INVALID_ARGUMENT;
+	}
+
+	ss->handler = handler;
+	ss->handler_context = handler_context;
+
+	if (ss->impl.listen_socket_ipv4.bound) {
+		if (cio_unlikely(listen((SOCKET)ss->impl.listen_socket_ipv4.fd, ss->backlog) < 0)) {
+			int err = WSAGetLastError();
+			return (enum cio_error)(-err);
+		}
+
+		enum cio_error error = prepare_accept_socket(&ss->impl.listen_socket_ipv4);
+		if (cio_unlikely(error != CIO_SUCCESS)) {
+			return error;
+		}
+	}
+
+	if (ss->impl.listen_socket_ipv6.bound) {
+		if (cio_unlikely(listen((SOCKET)ss->impl.listen_socket_ipv6.fd, ss->backlog) < 0)) {
+			int err = WSAGetLastError();
+			return (enum cio_error)(-err);
+		}
+
+		enum cio_error error = prepare_accept_socket(&ss->impl.listen_socket_ipv6);
+		if (cio_unlikely(error != CIO_SUCCESS)) {
+			return error;
+		}
+	}
+
+	return CIO_SUCCESS;
 }
