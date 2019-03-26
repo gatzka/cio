@@ -142,6 +142,15 @@ Functions</h2></td></tr>
 <tr class="memitem:a8854b02ed97089c8c3569e77254ddb58"><td class="memItemLeft" align="right" valign="top"><a class="el" href="cio__export_8h.html#ab971b12fa232c415369be66dfaca507a">CIO_EXPORT</a> enum <a class="el" href="cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afe">cio_error</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="cio__timer_8h.html#a8854b02ed97089c8c3569e77254ddb58">cio_timer_init</a> (struct <a class="el" href="structcio__timer.html">cio_timer</a> *timer, struct cio_eventloop *loop, <a class="el" href="cio__timer_8h.html#af4b92efa09a98a77af8dbcfc610cc87c">cio_timer_close_hook</a> close_hook)</td></tr>
 <tr class="memdesc:a8854b02ed97089c8c3569e77254ddb58"><td class="mdescLeft">&#160;</td><td class="mdescRight">Initializes a <a class="el" href="structcio__timer.html">cio_timer</a>.  <a href="#a8854b02ed97089c8c3569e77254ddb58">More...</a><br /></td></tr>
 <tr class="separator:a8854b02ed97089c8c3569e77254ddb58"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a97b804a0fe91eeb022437636f46c7f20"><td class="memItemLeft" align="right" valign="top"><a class="el" href="cio__export_8h.html#ab971b12fa232c415369be66dfaca507a">CIO_EXPORT</a> enum <a class="el" href="cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afe">cio_error</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="cio__timer_8h.html#a97b804a0fe91eeb022437636f46c7f20">cio_timer_expires_from_now</a> (struct <a class="el" href="structcio__timer.html">cio_timer</a> *timer, uint64_t timeout_ns, <a class="el" href="cio__timer_8h.html#aeb4cc7ded4661834b9469b1e79c3d344">cio_timer_handler</a> handler, void *handler_context)</td></tr>
+<tr class="memdesc:a97b804a0fe91eeb022437636f46c7f20"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set the timer's expiration time relative to now and arms the timer.  <a href="#a97b804a0fe91eeb022437636f46c7f20">More...</a><br /></td></tr>
+<tr class="separator:a97b804a0fe91eeb022437636f46c7f20"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:afb61d4be8cb0cd6e0f0204b11f9c7f49"><td class="memItemLeft" align="right" valign="top"><a class="el" href="cio__export_8h.html#ab971b12fa232c415369be66dfaca507a">CIO_EXPORT</a> enum <a class="el" href="cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afe">cio_error</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="cio__timer_8h.html#afb61d4be8cb0cd6e0f0204b11f9c7f49">cio_timer_cancel</a> (struct <a class="el" href="structcio__timer.html">cio_timer</a> *timer)</td></tr>
+<tr class="memdesc:afb61d4be8cb0cd6e0f0204b11f9c7f49"><td class="mdescLeft">&#160;</td><td class="mdescRight">Cancels an armed timer.  <a href="#afb61d4be8cb0cd6e0f0204b11f9c7f49">More...</a><br /></td></tr>
+<tr class="separator:afb61d4be8cb0cd6e0f0204b11f9c7f49"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a2e2052e78b5b9239db9b4184f627a812"><td class="memItemLeft" align="right" valign="top"><a class="el" href="cio__export_8h.html#ab971b12fa232c415369be66dfaca507a">CIO_EXPORT</a> void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="cio__timer_8h.html#a2e2052e78b5b9239db9b4184f627a812">cio_timer_close</a> (struct <a class="el" href="structcio__timer.html">cio_timer</a> *timer)</td></tr>
+<tr class="memdesc:a2e2052e78b5b9239db9b4184f627a812"><td class="mdescLeft">&#160;</td><td class="mdescRight">Closes a timer and frees underlying resources.  <a href="#a2e2052e78b5b9239db9b4184f627a812">More...</a><br /></td></tr>
+<tr class="separator:a2e2052e78b5b9239db9b4184f627a812"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>This file contains the interface of a timer. </p>
@@ -181,8 +190,8 @@ Functions</h2></td></tr>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">timer</td><td>The timer which called the callback. </td></tr>
-    <tr><td class="paramname">handler_context</td><td>The context the functions works on. This parameter is fed from <a class="el" href="structcio__timer.html#cio_timer_expires_from_now_handler_context">parameter handler_contex</a> of <a class="el" href="structcio__timer.html#cio_timer_expires_from_now">expires_from_now()</a>. </td></tr>
-    <tr><td class="paramname">err</td><td>If err == <a class="el" href="cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afea6bb29544c99750c61f70b10a1e17d96a">CIO_SUCCESS</a>, the timer expired. If err == <a class="el" href="cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afea9edd632146fdf8840413b990dcef02dd">CIO_OPERATION_ABORTED</a>, the timer was <a class="el" href="structcio__timer.html#cio_timer_cancel">cancelled</a>. </td></tr>
+    <tr><td class="paramname">handler_context</td><td>The context the functions works on. This parameter is fed from <a class="el" href="cio__timer_8h.html#cio_timer_expires_from_now_handler_context">parameter handler_contex</a> of <a class="el" href="cio__timer_8h.html#a97b804a0fe91eeb022437636f46c7f20">expires_from_now()</a>. </td></tr>
+    <tr><td class="paramname">err</td><td>If err == <a class="el" href="cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afea6bb29544c99750c61f70b10a1e17d96a">CIO_SUCCESS</a>, the timer expired. If err == <a class="el" href="cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afea9edd632146fdf8840413b990dcef02dd">CIO_OPERATION_ABORTED</a>, the timer was <a class="el" href="cio__timer_8h.html#afb61d4be8cb0cd6e0f0204b11f9c7f49">cancelled</a>. </td></tr>
   </table>
   </dd>
 </dl>
@@ -190,6 +199,106 @@ Functions</h2></td></tr>
 </div>
 </div>
 <h2 class="groupheader">Function Documentation</h2>
+<a class="anchor" id="afb61d4be8cb0cd6e0f0204b11f9c7f49"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="cio__export_8h.html#ab971b12fa232c415369be66dfaca507a">CIO_EXPORT</a> enum <a class="el" href="cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afe">cio_error</a> cio_timer_cancel </td>
+          <td>(</td>
+          <td class="paramtype">struct <a class="el" href="structcio__timer.html">cio_timer</a> *&#160;</td>
+          <td class="paramname"><em>timer</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Cancels an armed timer. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">timer</td><td>A pointer to a struct <a class="el" href="structcio__timer.html">cio_timer</a> which shall be canceled. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd><a class="el" href="cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afea6bb29544c99750c61f70b10a1e17d96a">CIO_SUCCESS</a> for success, <a class="el" href="cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afeaec9e03ebc85d2450c4d5d476cfa89881">CIO_OPERATION_NOT_PERMITTED</a> if the timer wasn't armed. </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="a2e2052e78b5b9239db9b4184f627a812"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="cio__export_8h.html#ab971b12fa232c415369be66dfaca507a">CIO_EXPORT</a> void cio_timer_close </td>
+          <td>(</td>
+          <td class="paramtype">struct <a class="el" href="structcio__timer.html">cio_timer</a> *&#160;</td>
+          <td class="paramname"><em>timer</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Closes a timer and frees underlying resources. </p>
+<p>If the timer is armed and has not expired yet, the timer will be canceled and the timer callback will be called. If a close_hook was given in <a class="el" href="cio__timer_8h.html#a8854b02ed97089c8c3569e77254ddb58" title="Initializes a cio_timer. ">cio_timer_init</a>, the hook is called.</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">timer</td><td>A pointer to a struct <a class="el" href="structcio__timer.html">cio_timer</a> which shall be closed. </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a class="anchor" id="a97b804a0fe91eeb022437636f46c7f20"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="cio__export_8h.html#ab971b12fa232c415369be66dfaca507a">CIO_EXPORT</a> enum <a class="el" href="cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afe">cio_error</a> cio_timer_expires_from_now </td>
+          <td>(</td>
+          <td class="paramtype">struct <a class="el" href="structcio__timer.html">cio_timer</a> *&#160;</td>
+          <td class="paramname"><em>timer</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint64_t&#160;</td>
+          <td class="paramname"><em>timeout_ns</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="cio__timer_8h.html#aeb4cc7ded4661834b9469b1e79c3d344">cio_timer_handler</a>&#160;</td>
+          <td class="paramname"><em>handler</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">void *&#160;</td>
+          <td class="paramname"><em>handler_context</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Set the timer's expiration time relative to now and arms the timer. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">timer</td><td>A pointer to a struct <a class="el" href="structcio__timer.html">cio_timer</a> which shall expire. </td></tr>
+    <tr><td class="paramname">timeout_ns</td><td>The expiration time relative to "now" in nanoseconds. </td></tr>
+    <tr><td class="paramname">handler</td><td>The callback function to be called when the timer expires or was cancelled. <a class="anchor" id="cio_timer_expires_from_now_handler_context"></a></td></tr>
+    <tr><td class="paramname">handler_context</td><td>A pointer to a context which might be useful inside <code>handler</code>. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd><a class="el" href="cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afea6bb29544c99750c61f70b10a1e17d96a">CIO_SUCCESS</a> if <code>timer</code> was armed successfully. </dd></dl>
+
+</div>
+</div>
 <a class="anchor" id="a8854b02ed97089c8c3569e77254ddb58"></a>
 <div class="memitem">
 <div class="memproto">
@@ -225,7 +334,7 @@ Functions</h2></td></tr>
   <table class="params">
     <tr><td class="paramname">timer</td><td>The <a class="el" href="structcio__timer.html">cio_timer</a> that should be initialized. </td></tr>
     <tr><td class="paramname">loop</td><td>The event loop the timer shall operate on. </td></tr>
-    <tr><td class="paramname">close_hook</td><td>A close hook function. If this parameter is non <code>NULL</code>, the function will be called directly after <a class="el" href="structcio__timer.html#cio_timer_close">closing</a> the <a class="el" href="structcio__timer.html">cio_timer</a>. It is guaranteed that the cio library will not access any memory of <a class="el" href="structcio__timer.html">cio_timer</a> that is passed to the close hook. Therefore, the hook could be used to free the memory of the timer struct. </td></tr>
+    <tr><td class="paramname">close_hook</td><td>A close hook function. If this parameter is non <code>NULL</code>, the function will be called directly after <a class="el" href="cio__timer_8h.html#a2e2052e78b5b9239db9b4184f627a812">closing</a> the <a class="el" href="structcio__timer.html">cio_timer</a>. It is guaranteed that the cio library will not access any memory of <a class="el" href="structcio__timer.html">cio_timer</a> that is passed to the close hook. Therefore, the hook could be used to free the memory of the timer struct. </td></tr>
   </table>
   </dd>
 </dl>
