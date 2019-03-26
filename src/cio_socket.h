@@ -60,17 +60,6 @@ typedef void (*cio_socket_close_hook)(struct cio_socket *s);
 struct cio_socket {
 
 	/**
-	 * @anchor cio_socket_set_tcp_no_delay
-	 * @brief Enables/disables the Nagle algorithm
-	 *
-	 * @param socket A pointer to a cio_socket for which the Nagle algorithm should be changed.
-	 * @param on Whether Nagle algorithm should be enabled or not.
-	 *
-	 * @return ::CIO_SUCCESS for success.
-	 */
-	enum cio_error (*set_tcp_no_delay)(struct cio_socket *socket, bool on);
-
-	/**
 	 * @anchor cio_socket_set_keep_alive
 	 * @brief Enables/disables TCP keepalive messages.
 	 *
@@ -131,6 +120,16 @@ CIO_EXPORT enum cio_error cio_socket_close(struct cio_socket *socket);
  * @return An I/O stream for reading from and writing to this socket.
  */
 CIO_EXPORT struct cio_io_stream *cio_socket_get_io_stream(struct cio_socket *socket);
+
+/**
+ * @brief Enables/disables the Nagle algorithm
+ *
+ * @param socket A pointer to a cio_socket for which the Nagle algorithm should be changed.
+ * @param on Whether Nagle algorithm should be enabled or not.
+ *
+ * @return ::CIO_SUCCESS for success.
+ */
+CIO_EXPORT enum cio_error cio_socket_set_tcp_no_delay(struct cio_socket *socket, bool on);
 
 #ifdef __cplusplus
 }

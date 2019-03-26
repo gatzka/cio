@@ -43,18 +43,6 @@
 #include "cio_write_buffer.h"
 #include "linux/cio_linux_socket_utils.h"
 
-static enum cio_error socket_tcp_no_delay(struct cio_socket *s, bool on)
-{
-	int tcp_no_delay = (char)on;
-
-	if (setsockopt(s->impl.ev.fd, IPPROTO_TCP, TCP_NODELAY, &tcp_no_delay,
-	               sizeof(tcp_no_delay)) < 0) {
-		return (enum cio_error)(-errno);
-	}
-
-	return CIO_SUCCESS;
-}
-
 static enum cio_error socket_keepalive(struct cio_socket *s, bool on, unsigned int keep_idle_s,
                                        unsigned int keep_intvl_s, unsigned int keep_cnt)
 {
@@ -195,7 +183,6 @@ enum cio_error cio_linux_socket_init(struct cio_socket *s, int client_fd,
 	s->impl.ev.read_callback = NULL;
 	s->impl.ev.context = s;
 
-	s->set_tcp_no_delay = socket_tcp_no_delay;
 	s->set_keep_alive = socket_keepalive;
 
 	s->stream.read_some = stream_read;
@@ -245,4 +232,16 @@ enum cio_error cio_socket_close(struct cio_socket *s)
 struct cio_io_stream *cio_socket_get_io_stream(struct cio_socket *s)
 {
 	return &s->stream;
+}
+
+enum cio_error cio_socket_set_tcp_no_delay(struct cio_socket *s, bool on)
+{
+	int tcp_no_delay = (char)on;
+
+	if (setsockopt(s->impl.ev.fd, IPPROTO_TCP, TCP_NODELAY, &tcp_no_delay,
+				   sizeof(tcp_no_delay)) < 0) {
+		return (enum cio_error)(-errno);
+	}
+
+	return CIO_SUCCESS;
 }
