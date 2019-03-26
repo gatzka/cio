@@ -106,6 +106,8 @@ FAKE_VOID_FUNC(cio_server_socket_close, struct cio_server_socket *)
 FAKE_VALUE_FUNC(enum cio_error, cio_server_socket_init, struct cio_server_socket *, struct cio_eventloop *, unsigned int, cio_alloc_client, cio_free_client, cio_server_socket_close_hook)
 FAKE_VALUE_FUNC(enum cio_error, cio_server_socket_set_reuse_address, struct cio_server_socket *, bool)
 
+FAKE_VALUE_FUNC(struct cio_io_stream *, cio_socket_get_io_stream, struct cio_socket *)
+
 FAKE_VOID_FUNC(http_close_hook, struct cio_http_server *)
 
 static enum cio_http_cb_return on_message_complete(struct cio_http_client *c);
@@ -258,7 +260,7 @@ static struct cio_socket *alloc_dummy_client(void)
 	struct cio_http_client *client = malloc(sizeof(*client) + read_buffer_size);
 	memset(client, 0xaf, sizeof(*client));
 	client->buffer_size = read_buffer_size;
-	client->socket.get_io_stream = get_mem_io_stream;
+	cio_socket_get_io_stream_fake.custom_fake = get_mem_io_stream;
 	client->socket.close_hook = free_dummy_client;
 	return &client->socket;
 }
@@ -268,7 +270,7 @@ static struct cio_socket *alloc_dummy_client_no_buffer(void)
 	struct cio_http_client *client = malloc(sizeof(*client) + 0);
 	memset(client, 0xaf, sizeof(*client));
 	client->buffer_size = 0;
-	client->socket.get_io_stream = get_mem_io_stream;
+	cio_socket_get_io_stream_fake.custom_fake = get_mem_io_stream;
 	client->socket.close_hook = free_dummy_client;
 	return &client->socket;
 }
@@ -278,7 +280,7 @@ static struct cio_socket *alloc_dummy_client_no_iostream(void)
 	struct cio_http_client *client = malloc(sizeof(*client) + read_buffer_size);
 	memset(client, 0xaf, sizeof(*client));
 	client->buffer_size = read_buffer_size;
-	client->socket.get_io_stream = get_null_io_stream;
+	cio_socket_get_io_stream_fake.custom_fake = get_null_io_stream;
 	client->socket.close_hook = free_dummy_client;
 	return &client->socket;
 }
@@ -571,6 +573,8 @@ void setUp(void)
 	RESET_FAKE(cio_server_socket_close);
 	RESET_FAKE(cio_server_socket_init);
 	RESET_FAKE(cio_server_socket_set_reuse_address);
+
+	RESET_FAKE(cio_socket_get_io_stream);
 
 	RESET_FAKE(serve_error);
 	RESET_FAKE(http_close_hook);

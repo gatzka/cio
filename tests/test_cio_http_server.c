@@ -71,6 +71,8 @@ FAKE_VALUE_FUNC(enum cio_error, cio_server_socket_bind, struct cio_server_socket
 FAKE_VOID_FUNC(cio_server_socket_close, struct cio_server_socket *)
 FAKE_VALUE_FUNC(enum cio_error, cio_server_socket_set_reuse_address, struct cio_server_socket *, bool)
 
+FAKE_VALUE_FUNC(struct cio_io_stream *, cio_socket_get_io_stream, struct cio_socket *)
+
 static enum cio_error timer_cancel(struct cio_timer *t);
 FAKE_VALUE_FUNC(enum cio_error, timer_cancel, struct cio_timer *)
 
@@ -132,9 +134,6 @@ FAKE_VALUE_FUNC(enum cio_http_cb_return, header_complete, struct cio_http_client
 static enum cio_http_cb_return message_complete(struct cio_http_client *c);
 FAKE_VALUE_FUNC(enum cio_http_cb_return, message_complete, struct cio_http_client *)
 
-static struct cio_io_stream *get_io_stream(struct cio_socket *context);
-FAKE_VALUE_FUNC(struct cio_io_stream *, get_io_stream, struct cio_socket *)
-
 static enum cio_error bs_read_until(struct cio_buffered_stream *bs, struct cio_read_buffer *buffer, const char *delim, cio_buffered_stream_read_handler handler, void *handler_context);
 FAKE_VALUE_FUNC(enum cio_error, bs_read_until, struct cio_buffered_stream *, struct cio_read_buffer *, const char *, cio_buffered_stream_read_handler, void *)
 static enum cio_error bs_read_at_least(struct cio_buffered_stream *bs, struct cio_read_buffer *buffer, size_t num, cio_buffered_stream_read_handler handler, void *handler_context);
@@ -154,7 +153,6 @@ static struct cio_socket *alloc_dummy_client(void)
 	struct cio_http_client *client = malloc(sizeof(*client) + read_buffer_size);
 	memset(client, 0xaf, sizeof(*client));
 	client->buffer_size = read_buffer_size;
-	client->socket.get_io_stream = get_io_stream;
 	client->socket.close_hook = free_dummy_client;
 	return &client->socket;
 }
@@ -340,7 +338,9 @@ void setUp(void)
 	RESET_FAKE(cio_server_socket_close);
 	RESET_FAKE(cio_server_socket_init);
 	RESET_FAKE(cio_server_socket_set_reuse_address);
-	RESET_FAKE(get_io_stream);
+
+	RESET_FAKE(cio_socket_get_io_stream);
+
 	RESET_FAKE(header_complete);
 	RESET_FAKE(message_complete);
 	RESET_FAKE(serve_error);
@@ -364,7 +364,7 @@ void setUp(void)
 	cio_buffered_stream_init_fake.custom_fake = cio_buffered_stream_init_ok;
 	cio_server_socket_close_fake.custom_fake = close_server_socket;
 
-	get_io_stream_fake.return_val = (struct cio_io_stream *)1;
+	cio_socket_get_io_stream_fake.return_val = (struct cio_io_stream *)1;
 }
 
 void tearDown(void)

@@ -84,11 +84,6 @@ static enum cio_error socket_keepalive(struct cio_socket *s, bool on, unsigned i
 	return CIO_SUCCESS;
 }
 
-static struct cio_io_stream *socket_get_io_stream(struct cio_socket *s)
-{
-	return &s->stream;
-}
-
 static void read_callback(void *context)
 {
 	struct cio_io_stream *stream = context;
@@ -202,7 +197,6 @@ enum cio_error cio_linux_socket_init(struct cio_socket *s, int client_fd,
 
 	s->set_tcp_no_delay = socket_tcp_no_delay;
 	s->set_keep_alive = socket_keepalive;
-	s->get_io_stream = socket_get_io_stream;
 
 	s->stream.read_some = stream_read;
 	s->stream.write_some = stream_write;
@@ -246,4 +240,9 @@ enum cio_error cio_socket_close(struct cio_socket *s)
 	}
 
 	return CIO_SUCCESS;
+}
+
+struct cio_io_stream *cio_socket_get_io_stream(struct cio_socket *s)
+{
+	return &s->stream;
 }

@@ -60,16 +60,6 @@ typedef void (*cio_socket_close_hook)(struct cio_socket *s);
 struct cio_socket {
 
 	/**
-	 * @anchor cio_socket_get_io_stream
-	 * @brief Gets an I/O stream from the socket.
-	 *
-	 * @param socket A pointer to a cio_socket from which the cio_io_stream is retrieved.
-	 *
-	 * @return An I/O stream for reading from and writing to this socket.
-	 */
-	struct cio_io_stream *(*get_io_stream)(struct cio_socket *socket);
-
-	/**
 	 * @anchor cio_socket_set_tcp_no_delay
 	 * @brief Enables/disables the Nagle algorithm
 	 *
@@ -132,6 +122,15 @@ CIO_EXPORT enum cio_error cio_socket_init(struct cio_socket *s,
  * @param socket A pointer to a cio_socket which shall be closed.
  */
 CIO_EXPORT enum cio_error cio_socket_close(struct cio_socket *socket);
+
+/**
+ * @brief Gets an I/O stream from the socket.
+ *
+ * @param socket A pointer to a cio_socket from which the cio_io_stream is retrieved.
+ *
+ * @return An I/O stream for reading from and writing to this socket.
+ */
+CIO_EXPORT struct cio_io_stream *cio_socket_get_io_stream(struct cio_socket *socket);
 
 #ifdef __cplusplus
 }
