@@ -102,21 +102,13 @@ FAKE_VOID_FUNC(serve_error, struct cio_http_server *, const char *)
 
 static void socket_close(struct cio_server_socket *context);
 FAKE_VOID_FUNC(socket_close, struct cio_server_socket *)
-static enum cio_error socket_accept(struct cio_server_socket *context, cio_accept_handler handler, void *handler_context);
-FAKE_VALUE_FUNC(enum cio_error, socket_accept, struct cio_server_socket *, cio_accept_handler, void *)
 static enum cio_error socket_set_reuse_address(struct cio_server_socket *context, bool on);
 FAKE_VALUE_FUNC(enum cio_error, socket_set_reuse_address, struct cio_server_socket *, bool)
 static enum cio_error socket_bind(struct cio_server_socket *context, const char *bind_address, uint16_t port);
 FAKE_VALUE_FUNC(enum cio_error, socket_bind, struct cio_server_socket *, const char *, uint16_t)
 
-enum cio_error cio_server_socket_init(struct cio_server_socket *ss,
-                                      struct cio_eventloop *loop,
-                                      unsigned int backlog,
-                                      cio_alloc_client alloc_client,
-                                      cio_free_client free_client,
-                                      cio_server_socket_close_hook close_hook);
-
 FAKE_VALUE_FUNC(enum cio_error, cio_server_socket_init, struct cio_server_socket *, struct cio_eventloop *, unsigned int, cio_alloc_client, cio_free_client, cio_server_socket_close_hook)
+FAKE_VALUE_FUNC(enum cio_error, cio_serversocket_accept, struct cio_server_socket *, cio_accept_handler, void *)
 
 FAKE_VOID_FUNC(http_close_hook, struct cio_http_server *)
 
@@ -221,7 +213,6 @@ static enum cio_error cio_server_socket_init_ok(struct cio_server_socket *ss,
 	ss->impl.loop = l;
 	ss->close_hook = close_hook;
 	ss->close = socket_close;
-	ss->accept = socket_accept;
 	ss->set_reuse_address = socket_set_reuse_address;
 	ss->bind = socket_bind;
 	return CIO_SUCCESS;
@@ -583,7 +574,6 @@ void setUp(void)
 	FFF_RESET_HISTORY();
 	RESET_FAKE(cio_server_socket_init);
 	RESET_FAKE(socket_set_reuse_address);
-	RESET_FAKE(socket_accept);
 	RESET_FAKE(socket_bind);
 	RESET_FAKE(serve_error);
 	RESET_FAKE(socket_close);
@@ -622,8 +612,8 @@ void setUp(void)
 	http_parser_init(&response_parser, HTTP_RESPONSE);
 
 	socket_close_fake.custom_fake = close_server_socket;
-	socket_accept_fake.custom_fake = accept_save_handler;
 	cio_server_socket_init_fake.custom_fake = cio_server_socket_init_ok;
+	cio_serversocket_accept_fake.custom_fake = accept_save_handler;
 }
 
 void tearDown(void)
@@ -1172,8 +1162,8 @@ static void test_errors_in_serve(void)
 
 		socket_set_reuse_address_fake.return_val = serve_test.reuse_addres_retval;
 		socket_bind_fake.return_val = serve_test.bind_retval;
-		socket_accept_fake.custom_fake = NULL;
-		socket_accept_fake.return_val = serve_test.accept_retval;
+		cio_serversocket_accept_fake.custom_fake = NULL;
+		cio_serversocket_accept_fake.return_val = serve_test.accept_retval;
 
 		struct cio_http_server server;
 		enum cio_error err = cio_http_server_init(&server, 8080, &loop, serve_error, header_read_timeout, body_read_timeout, response_timeout, alloc_dummy_client, free_dummy_client);

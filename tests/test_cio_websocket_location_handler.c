@@ -54,9 +54,6 @@ FAKE_VOID_FUNC(serve_error, struct cio_http_server *, const char *)
 static void socket_close(struct cio_server_socket *context);
 FAKE_VOID_FUNC(socket_close, struct cio_server_socket *)
 
-static enum cio_error socket_accept(struct cio_server_socket *context, cio_accept_handler handler, void *handler_context);
-FAKE_VALUE_FUNC(enum cio_error, socket_accept, struct cio_server_socket *, cio_accept_handler, void *)
-
 static enum cio_error socket_set_reuse_address(struct cio_server_socket *context, bool on);
 FAKE_VALUE_FUNC(enum cio_error, socket_set_reuse_address, struct cio_server_socket *, bool)
 
@@ -67,6 +64,7 @@ static struct cio_io_stream *get_io_stream(struct cio_socket *context);
 FAKE_VALUE_FUNC(struct cio_io_stream *, get_io_stream, struct cio_socket *)
 
 FAKE_VALUE_FUNC(enum cio_error, cio_buffered_stream_init, struct cio_buffered_stream *, struct cio_io_stream *)
+FAKE_VALUE_FUNC(enum cio_error, cio_serversocket_accept, struct cio_server_socket *, cio_accept_handler, void *)
 
 static enum cio_error bs_read_until(struct cio_buffered_stream *bs, struct cio_read_buffer *buffer, const char *delim, cio_buffered_stream_read_handler handler, void *handler_context);
 FAKE_VALUE_FUNC(enum cio_error, bs_read_until, struct cio_buffered_stream *, struct cio_read_buffer *, const char *, cio_buffered_stream_read_handler, void *)
@@ -163,7 +161,6 @@ static enum cio_error cio_server_socket_init_ok(struct cio_server_socket *ss,
 	ss->impl.loop = l;
 	ss->close_hook = close_hook;
 	ss->close = socket_close;
-	ss->accept = socket_accept;
 	ss->set_reuse_address = socket_set_reuse_address;
 	ss->bind = socket_bind;
 	return CIO_SUCCESS;
@@ -214,18 +211,6 @@ static struct cio_http_location_handler *alloc_websocket_handler(const void *con
 		return &handler->ws_handler.http_location;
 	}
 }
-/*
-static struct ws_test_handler static_handler;
-
-static struct cio_http_location_handler *alloc_static_websocket_handler(const void *config)
-{
-	(void)config;
-	static const char *subprotocols[2] = {"echo", "jet"};
-	cio_websocket_location_handler_init(&static_handler.ws_handler, subprotocols, ARRAY_SIZE(subprotocols), on_connect, NULL);
-	static_handler.ws_handler.websocket.on_control = on_control;
-	return &static_handler.ws_handler.http_location;
-}
-*/
 
 static struct cio_http_location_handler *alloc_websocket_handler_no_subprotocol(const void *config)
 {
@@ -340,30 +325,30 @@ void setUp(void)
 {
 	FFF_RESET_HISTORY();
 
+	RESET_FAKE(bs_close);
+	RESET_FAKE(bs_read_until);
+	RESET_FAKE(bs_write);
 	RESET_FAKE(cio_buffered_stream_init);
+	RESET_FAKE(cio_server_socket_init);
+	RESET_FAKE(cio_serversocket_accept);
 	RESET_FAKE(cio_timer_init);
-	RESET_FAKE(timer_cancel);
-	RESET_FAKE(timer_close);
-	RESET_FAKE(timer_expires_from_now);
 	RESET_FAKE(get_io_stream);
+	RESET_FAKE(on_control);
 	RESET_FAKE(serve_error);
-	RESET_FAKE(socket_accept);
 	RESET_FAKE(socket_bind);
 	RESET_FAKE(socket_close);
 	RESET_FAKE(socket_set_reuse_address);
-
-	RESET_FAKE(bs_close);
-	RESET_FAKE(bs_write);
-	RESET_FAKE(bs_read_until);
-
-	RESET_FAKE(on_control);
+	RESET_FAKE(timer_cancel);
+	RESET_FAKE(timer_close);
+	RESET_FAKE(timer_expires_from_now);
 
 	http_parser_settings_init(&parser_settings);
 	http_parser_init(&parser, HTTP_RESPONSE);
 
 	current_line = 0;
 	cio_server_socket_init_fake.custom_fake = cio_server_socket_init_ok;
-	socket_accept_fake.custom_fake = accept_save_handler;
+	cio_serversocket_accept_fake.custom_fake = accept_save_handler;
+
 	cio_timer_init_fake.custom_fake = cio_timer_init_ok;
 	cio_buffered_stream_init_fake.custom_fake = cio_buffered_stream_init_ok;
 	bs_read_until_fake.custom_fake = bs_read_until_ok;
