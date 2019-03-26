@@ -105,120 +105,12 @@ $(document).ready(function(){initNavTree('structcio__socket.html','');});
 </div>
 
 <div class="header">
-  <div class="summary">
-<a href="#pub-attribs">Data Fields</a>  </div>
   <div class="headertitle">
 <div class="title">cio_socket Struct Reference</div>  </div>
 </div><!--header-->
 <div class="contents">
 
 <p><code>#include &lt;<a class="el" href="cio__socket_8h_source.html">cio_socket.h</a>&gt;</code></p>
-<table class="memberdecls">
-<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-attribs"></a>
-Data Fields</h2></td></tr>
-<tr class="memitem:af836e3d4281dccb2efe7fdba973560b0"><td class="memItemLeft" align="right" valign="top">struct <a class="el" href="structcio__io__stream.html">cio_io_stream</a> *(*&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structcio__socket.html#af836e3d4281dccb2efe7fdba973560b0">get_io_stream</a> )(struct <a class="el" href="structcio__socket.html">cio_socket</a> *socket)</td></tr>
-<tr class="memdesc:af836e3d4281dccb2efe7fdba973560b0"><td class="mdescLeft">&#160;</td><td class="mdescRight">Gets an I/O stream from the socket.  <a href="#af836e3d4281dccb2efe7fdba973560b0">More...</a><br /></td></tr>
-<tr class="separator:af836e3d4281dccb2efe7fdba973560b0"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:acff1e0c8e5b733dba699afac4910551a"><td class="memItemLeft" align="right" valign="top">enum <a class="el" href="cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afe">cio_error</a>(*&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structcio__socket.html#acff1e0c8e5b733dba699afac4910551a">close</a> )(struct <a class="el" href="structcio__socket.html">cio_socket</a> *socket)</td></tr>
-<tr class="memdesc:acff1e0c8e5b733dba699afac4910551a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Closes the <a class="el" href="structcio__socket.html">cio_socket</a>.  <a href="#acff1e0c8e5b733dba699afac4910551a">More...</a><br /></td></tr>
-<tr class="separator:acff1e0c8e5b733dba699afac4910551a"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a5889e43ea5b501da383d51520a15a24a"><td class="memItemLeft" align="right" valign="top">enum <a class="el" href="cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afe">cio_error</a>(*&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structcio__socket.html#a5889e43ea5b501da383d51520a15a24a">set_tcp_no_delay</a> )(struct <a class="el" href="structcio__socket.html">cio_socket</a> *socket, bool on)</td></tr>
-<tr class="memdesc:a5889e43ea5b501da383d51520a15a24a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Enables/disables the Nagle algorithm.  <a href="#a5889e43ea5b501da383d51520a15a24a">More...</a><br /></td></tr>
-<tr class="separator:a5889e43ea5b501da383d51520a15a24a"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ad8fcad791ac2d1e3677fade9cc29937d"><td class="memItemLeft" align="right" valign="top">enum <a class="el" href="cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afe">cio_error</a>(*&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structcio__socket.html#ad8fcad791ac2d1e3677fade9cc29937d">set_keep_alive</a> )(struct <a class="el" href="structcio__socket.html">cio_socket</a> *socket, bool on, unsigned int keep_idle_s, unsigned int keep_intvl_s, unsigned int keep_cnt)</td></tr>
-<tr class="memdesc:ad8fcad791ac2d1e3677fade9cc29937d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Enables/disables TCP keepalive messages.  <a href="#ad8fcad791ac2d1e3677fade9cc29937d">More...</a><br /></td></tr>
-<tr class="separator:ad8fcad791ac2d1e3677fade9cc29937d"><td class="memSeparator" colspan="2">&#160;</td></tr>
-</table>
-<h2 class="groupheader">Field Documentation</h2>
-<a class="anchor" id="acff1e0c8e5b733dba699afac4910551a"></a>
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">enum <a class="el" href="cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afe">cio_error</a>(* cio_socket::close) (struct <a class="el" href="structcio__socket.html">cio_socket</a> *socket)</td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Closes the <a class="el" href="structcio__socket.html">cio_socket</a>. </p>
-<p><a class="anchor" id="cio_socket_close"></a>Once a socket has been closed, no further communication is possible. Closing the socket also closes the socket's <a class="el" href="structcio__io__stream.html" title="This structure describes the interface all implementations have to fulfill. ">cio_io_stream</a>.</p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">socket</td><td>A pointer to a <a class="el" href="structcio__socket.html">cio_socket</a> which shall be closed. </td></tr>
-  </table>
-  </dd>
-</dl>
-
-</div>
-</div>
-<a class="anchor" id="af836e3d4281dccb2efe7fdba973560b0"></a>
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">struct <a class="el" href="structcio__io__stream.html">cio_io_stream</a>*(* cio_socket::get_io_stream) (struct <a class="el" href="structcio__socket.html">cio_socket</a> *socket)</td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Gets an I/O stream from the socket. </p>
-<p><a class="anchor" id="cio_socket_get_io_stream"></a></p><dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">socket</td><td>A pointer to a <a class="el" href="structcio__socket.html">cio_socket</a> from which the <a class="el" href="structcio__io__stream.html" title="This structure describes the interface all implementations have to fulfill. ">cio_io_stream</a> is retrieved.</td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Returns</dt><dd>An I/O stream for reading from and writing to this socket. </dd></dl>
-
-</div>
-</div>
-<a class="anchor" id="ad8fcad791ac2d1e3677fade9cc29937d"></a>
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">enum <a class="el" href="cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afe">cio_error</a>(* cio_socket::set_keep_alive) (struct <a class="el" href="structcio__socket.html">cio_socket</a> *socket, bool on, unsigned int keep_idle_s, unsigned int keep_intvl_s, unsigned int keep_cnt)</td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Enables/disables TCP keepalive messages. </p>
-<p><a class="anchor" id="cio_socket_set_keep_alive"></a></p><dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">socket</td><td>A pointer to a <a class="el" href="structcio__socket.html">cio_socket</a> for which TCP keepalive should be changed. </td></tr>
-    <tr><td class="paramname">on</td><td>Whether or not to enable TCP keepalives. </td></tr>
-    <tr><td class="paramname">keep_idle_s</td><td>Time in seconds the connections needs to remain idle before start sending keepalive messages. This option might be unused in some platform implementations. </td></tr>
-    <tr><td class="paramname">keep_intvl_s</td><td>Time in seconds between individual keepalive probes. This option might be unused in some platform implementations. </td></tr>
-    <tr><td class="paramname">keep_cnt</td><td>The maximum number of keepalive probes before dropping the connection. This option might be unused in some platform implementations.</td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Returns</dt><dd><a class="el" href="cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afea6bb29544c99750c61f70b10a1e17d96a">CIO_SUCCESS</a> for success. </dd></dl>
-
-</div>
-</div>
-<a class="anchor" id="a5889e43ea5b501da383d51520a15a24a"></a>
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">enum <a class="el" href="cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afe">cio_error</a>(* cio_socket::set_tcp_no_delay) (struct <a class="el" href="structcio__socket.html">cio_socket</a> *socket, bool on)</td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Enables/disables the Nagle algorithm. </p>
-<p><a class="anchor" id="cio_socket_set_tcp_no_delay"></a></p><dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">socket</td><td>A pointer to a <a class="el" href="structcio__socket.html">cio_socket</a> for which the Nagle algorithm should be changed. </td></tr>
-    <tr><td class="paramname">on</td><td>Whether Nagle algorithm should be enabled or not.</td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Returns</dt><dd><a class="el" href="cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afea6bb29544c99750c61f70b10a1e17d96a">CIO_SUCCESS</a> for success. </dd></dl>
-
-</div>
-</div>
 <hr/>The documentation for this struct was generated from the following file:<ul>
 <li><a class="el" href="cio__socket_8h_source.html">cio_socket.h</a></li>
 </ul>

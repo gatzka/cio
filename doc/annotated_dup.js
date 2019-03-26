@@ -10,7 +10,7 @@ var annotated_dup =
     [ "cio_read_buffer", "structcio__read__buffer.html", null ],
     [ "cio_response_buffer", "structcio__response__buffer.html", "structcio__response__buffer" ],
     [ "cio_server_socket", "structcio__server__socket.html", null ],
-    [ "cio_socket", "structcio__socket.html", "structcio__socket" ],
+    [ "cio_socket", "structcio__socket.html", null ],
     [ "cio_timer", "structcio__timer.html", "structcio__timer" ],
     [ "cio_utf8_state", "structcio__utf8__state.html", "structcio__utf8__state" ],
     [ "cio_websocket", "structcio__websocket.html", null ],

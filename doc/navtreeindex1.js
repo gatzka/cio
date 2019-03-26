@@ -1,5 +1,9 @@
 var NAVTREEINDEX1 =
 {
+"cio__write__buffer_8h.html#a87cd6b7e9659523cfe15a26b246ea9cf":[1,0,25,6],
+"cio__write__buffer_8h.html#abce9f4fce0d37fd084b76c66acdcd3ba":[1,0,25,14],
+"cio__write__buffer_8h.html#ac2b0fb5b54821ef946f78f0dbd5ae3fe":[1,0,25,4],
+"cio__write__buffer_8h.html#ad37228856b0ba01a5d7adc63661c9d94":[1,0,25,9],
 "cio__write__buffer_8h.html#adb045a192be8efeacff4cce5d05cf011":[1,0,25,13],
 "cio__write__buffer_8h.html#afbd6b5632631a17bd90bbf6801eba104":[1,0,25,12],
 "cio__write__buffer_8h.html#afd5f5930223e8b3ea17a291283689887":[1,0,25,10],
@@ -75,10 +79,6 @@ var NAVTREEINDEX1 =
 "structcio__response__buffer.html#acc499a0a7902c3cc69cce28bdc75013d":[0,0,8,1],
 "structcio__server__socket.html":[0,0,9],
 "structcio__socket.html":[0,0,10],
-"structcio__socket.html#a5889e43ea5b501da383d51520a15a24a":[0,0,10,3],
-"structcio__socket.html#acff1e0c8e5b733dba699afac4910551a":[0,0,10,0],
-"structcio__socket.html#ad8fcad791ac2d1e3677fade9cc29937d":[0,0,10,2],
-"structcio__socket.html#af836e3d4281dccb2efe7fdba973560b0":[0,0,10,1],
 "structcio__timer.html":[0,0,11],
 "structcio__timer.html#a4161d8a25bc250b11715d28f44b6b434":[0,0,11,2],
 "structcio__timer.html#a5fda71e38ca8633d46a014d5e463c9fd":[0,0,11,0],

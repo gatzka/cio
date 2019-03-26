@@ -1,5 +1,4 @@
 var searchData=
 [
-  ['is_5fcontinuation_5fchunk',['is_continuation_chunk',['../structcio__websocket__write__job.html#aab7fd9bab7f83dd71b66c766ca8b49c6',1,'cio_websocket_write_job']]],
-  ['is_5fserver',['is_server',['../structcio__websocket__private.html#a0163f940ff3512c8d11f65237d673b86',1,'cio_websocket_private']]]
+  ['keepalive_5ftimeout_5fheader_5fmax_5flength',['KEEPALIVE_TIMEOUT_HEADER_MAX_LENGTH',['../cio__http__server_8h.html#a2856ec3ea79fad3b6090a2870f700408',1,'cio_http_server.h']]]
 ];
