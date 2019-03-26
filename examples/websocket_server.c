@@ -64,7 +64,7 @@ struct ws_echo_handler {
 static void free_websocket_handler(struct cio_websocket_location_handler *wslh)
 {
 	struct ws_echo_handler *h = cio_container_of(wslh, struct ws_echo_handler, ws_handler);
-	h->ping_timer.close(&h->ping_timer);
+	cio_timer_close(&h->ping_timer);
 	free(h);
 }
 
@@ -80,7 +80,7 @@ static void ping_written(struct cio_websocket *ws, void *handler_context, enum c
 		}
 	} else {
 		struct cio_timer *timer = (struct cio_timer *)handler_context;
-		err = timer->expires_from_now(timer, ping_period_ns, send_ping, ws);
+		err = cio_timer_expires_from_now(timer, ping_period_ns, send_ping, ws);
 		if (err != CIO_SUCCESS) {
 			fprintf(stderr, "Could not start ping timer!\n");
 			err = cio_websocket_close(ws, CIO_WEBSOCKET_CLOSE_NORMAL, NULL, NULL, NULL);
@@ -216,7 +216,7 @@ static void on_connect(struct cio_websocket *ws)
 		return;
 	}
 
-	err = eh->ping_timer.expires_from_now(&eh->ping_timer, ping_period_ns, send_ping, ws);
+	err = cio_timer_expires_from_now(&eh->ping_timer, ping_period_ns, send_ping, ws);
 	if (err != CIO_SUCCESS) {
 		fprintf(stderr, "Could not start ping timer!\n");
 		err = cio_websocket_close(ws, CIO_WEBSOCKET_CLOSE_NORMAL, NULL, NULL, NULL);

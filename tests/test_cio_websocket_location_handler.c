@@ -71,15 +71,9 @@ static enum cio_error bs_write(struct cio_buffered_stream *bs, struct cio_write_
 FAKE_VALUE_FUNC(enum cio_error, bs_write, struct cio_buffered_stream *, struct cio_write_buffer *, cio_buffered_stream_write_handler, void *)
 
 FAKE_VALUE_FUNC(enum cio_error, cio_timer_init, struct cio_timer *, struct cio_eventloop *, cio_timer_close_hook)
-
-static enum cio_error timer_cancel(struct cio_timer *t);
-FAKE_VALUE_FUNC(enum cio_error, timer_cancel, struct cio_timer *)
-
-static void timer_close(struct cio_timer *t);
-FAKE_VOID_FUNC(timer_close, struct cio_timer *)
-
-static enum cio_error timer_expires_from_now(struct cio_timer *t, uint64_t timeout_ns, cio_timer_handler handler, void *handler_context);
-FAKE_VALUE_FUNC(enum cio_error, timer_expires_from_now, struct cio_timer *, uint64_t, cio_timer_handler, void *)
+FAKE_VALUE_FUNC(enum cio_error, cio_timer_cancel, struct cio_timer *)
+FAKE_VOID_FUNC(cio_timer_close, struct cio_timer *)
+FAKE_VALUE_FUNC(enum cio_error, cio_timer_expires_from_now, struct cio_timer *, uint64_t, cio_timer_handler, void *)
 
 static void on_control(const struct cio_websocket *ws, enum cio_websocket_frame_type type, const uint8_t *data, uint_fast8_t length);
 FAKE_VOID_FUNC(on_control, const struct cio_websocket *, enum cio_websocket_frame_type, const uint8_t *, uint_fast8_t)
@@ -140,10 +134,7 @@ static enum cio_error cio_server_socket_init_ok(struct cio_server_socket *ss,
 static enum cio_error cio_timer_init_ok(struct cio_timer *timer, struct cio_eventloop *l, cio_timer_close_hook hook)
 {
 	(void)l;
-	timer->cancel = timer_cancel;
-	timer->close = timer_close;
 	timer->close_hook = hook;
-	timer->expires_from_now = timer_expires_from_now;
 	return CIO_SUCCESS;
 }
 
@@ -300,16 +291,19 @@ void setUp(void)
 	RESET_FAKE(bs_read_until);
 	RESET_FAKE(bs_write);
 	RESET_FAKE(cio_buffered_stream_init);
+
 	RESET_FAKE(cio_server_socket_accept);
 	RESET_FAKE(cio_server_socket_bind);
 	RESET_FAKE(cio_server_socket_init);
 	RESET_FAKE(cio_server_socket_set_reuse_address);
+
 	RESET_FAKE(cio_timer_init);
+	RESET_FAKE(cio_timer_cancel);
+	RESET_FAKE(cio_timer_close);
+	RESET_FAKE(cio_timer_expires_from_now);
+
 	RESET_FAKE(on_control);
 	RESET_FAKE(serve_error);
-	RESET_FAKE(timer_cancel);
-	RESET_FAKE(timer_close);
-	RESET_FAKE(timer_expires_from_now);
 
 	http_parser_settings_init(&parser_settings);
 	http_parser_init(&parser, HTTP_RESPONSE);
@@ -330,8 +324,8 @@ void setUp(void)
 
 	bs_close_fake.custom_fake = bs_close_ok;
 
-	timer_expires_from_now_fake.custom_fake = timer_expires_from_now_ok;
-	timer_cancel_fake.custom_fake = cancel_timer;
+	cio_timer_expires_from_now_fake.custom_fake = timer_expires_from_now_ok;
+	cio_timer_cancel_fake.custom_fake = cancel_timer;
 
 	cio_socket_get_io_stream_fake.return_val = (struct cio_io_stream *)1;
 }

@@ -361,7 +361,7 @@ static void close_timeout_handler(struct cio_timer *timer, void *handler_context
 	(void)timer;
 	if (err != CIO_OPERATION_ABORTED) {
 		struct cio_websocket *ws = (struct cio_websocket *)handler_context;
-		ws->ws_private.close_timer.close(&ws->ws_private.close_timer);
+		cio_timer_close(&ws->ws_private.close_timer);
 		close(ws);
 	}
 }
@@ -457,8 +457,8 @@ static void handle_close_frame(struct cio_websocket *ws, uint8_t *data, uint_fas
 	}
 
 	if (ws->ws_private.ws_flags.self_initiated_close == 1U) {
-		ws->ws_private.close_timer.cancel(&ws->ws_private.close_timer);
-		ws->ws_private.close_timer.close(&ws->ws_private.close_timer);
+		cio_timer_cancel(&ws->ws_private.close_timer);
+		cio_timer_close(&ws->ws_private.close_timer);
 		close(ws);
 	} else {
 		const uint8_t *reason;
@@ -870,7 +870,7 @@ enum cio_error cio_websocket_close(struct cio_websocket *ws, enum cio_websocket_
 		return err;
 	}
 
-	err = ws->ws_private.close_timer.expires_from_now(&ws->ws_private.close_timer, close_timeout_ns, close_timeout_handler, ws);
+	err = cio_timer_expires_from_now(&ws->ws_private.close_timer, close_timeout_ns, close_timeout_handler, ws);
 	if (cio_unlikely(err != CIO_SUCCESS)) {
 		goto timer_expires_failed;
 	}
@@ -882,7 +882,7 @@ enum cio_error cio_websocket_close(struct cio_websocket *ws, enum cio_websocket_
 	return CIO_SUCCESS;
 
 timer_expires_failed:
-	ws->ws_private.close_timer.close(&ws->ws_private.close_timer);
+	cio_timer_close(&ws->ws_private.close_timer);
 	return err;
 }
 
