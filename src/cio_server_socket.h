@@ -77,18 +77,6 @@ typedef void (*cio_server_socket_close_hook)(struct cio_server_socket *ss);
  * @brief The cio_server_socket struct describes a server socket.
  */
 struct cio_server_socket {
-
-	/**
-	 * @anchor cio_server_socket_set_reuse_address
-	 * @brief Sets the SO_REUSEADDR socket option.
-	 *
-	 * @param ss A pointer to a cio_server_socket for which the socket option should be set.
-	 * @param on Whether the socket option should be enabled or disabled.
-	 *
-	 * @return ::CIO_SUCCESS for success.
-	 */
-	enum cio_error (*set_reuse_address)(struct cio_server_socket *ss, bool on);
-
 	/**
 	 * @privatesection
 	 */
@@ -162,6 +150,15 @@ CIO_EXPORT void cio_server_socket_close(struct cio_server_socket *ss);
  */
 CIO_EXPORT enum cio_error cio_server_socket_bind(struct cio_server_socket *ss, const char *bind_address, uint16_t port);
 
+/**
+ * @brief Sets the SO_REUSEADDR socket option.
+ *
+ * @param ss A pointer to a cio_server_socket for which the socket option should be set.
+ * @param on Whether the socket option should be enabled or disabled.
+ *
+ * @return ::CIO_SUCCESS for success.
+ */
+CIO_EXPORT enum cio_error cio_server_socket_set_reuse_address(struct cio_server_socket *ss, bool on);
 
 #ifdef __cplusplus
 }

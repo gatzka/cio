@@ -75,23 +75,6 @@ static void accept_callback(void *context)
 	}
 }
 
-static enum cio_error socket_set_reuse_address(struct cio_server_socket *ss, bool on)
-{
-	int reuse;
-	if (on) {
-		reuse = 1;
-	} else {
-		reuse = 0;
-	}
-
-	if (cio_unlikely(setsockopt(ss->impl.ev.fd, SOL_SOCKET, SO_REUSEADDR, &reuse,
-	                            sizeof(reuse)) < 0)) {
-		return (enum cio_error)(-errno);
-	}
-
-	return CIO_SUCCESS;
-}
-
 enum cio_error cio_server_socket_init(struct cio_server_socket *ss,
                                       struct cio_eventloop *loop,
                                       unsigned int backlog,
@@ -108,7 +91,6 @@ enum cio_error cio_server_socket_init(struct cio_server_socket *ss,
 
 	ss->alloc_client = alloc_client;
 	ss->free_client = free_client;
-	ss->set_reuse_address = socket_set_reuse_address;
 	ss->impl.loop = loop;
 	ss->close_hook = close_hook;
 	ss->backlog = (int)backlog;
@@ -193,6 +175,23 @@ enum cio_error cio_server_socket_bind(struct cio_server_socket *ss, const char *
 
 	if (rp == NULL) {
 		return CIO_INVALID_ARGUMENT;
+	}
+
+	return CIO_SUCCESS;
+}
+
+enum cio_error cio_server_socket_set_reuse_address(struct cio_server_socket *ss, bool on)
+{
+	int reuse;
+	if (on) {
+		reuse = 1;
+	} else {
+		reuse = 0;
+	}
+
+	if (cio_unlikely(setsockopt(ss->impl.ev.fd, SOL_SOCKET, SO_REUSEADDR, &reuse,
+								sizeof(reuse)) < 0)) {
+		return (enum cio_error)(-errno);
 	}
 
 	return CIO_SUCCESS;

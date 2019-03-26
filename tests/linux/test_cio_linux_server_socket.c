@@ -308,7 +308,7 @@ static void test_accept_bind_address(void)
 	struct cio_server_socket ss;
 	enum cio_error err = cio_server_socket_init(&ss, &loop, 5, alloc_client, free_client, on_close);
 	TEST_ASSERT_EQUAL(CIO_SUCCESS, err);
-	err = ss.set_reuse_address(&ss, true);
+	err = cio_server_socket_set_reuse_address(&ss, true);
 	TEST_ASSERT_EQUAL(CIO_SUCCESS, err);
 	err = cio_server_socket_bind(&ss, "127.0.0.10", 12345);
 	TEST_ASSERT_EQUAL(CIO_SUCCESS, err);
@@ -495,7 +495,7 @@ static void test_init_setsockopt_fails(void)
 	enum cio_error err = cio_server_socket_init(&ss, &loop, 5, alloc_client, free_client, on_close);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Initialization of server socket failed!");
 
-	err = ss.set_reuse_address(&ss, true);
+	err = cio_server_socket_set_reuse_address(&ss, true);
 	TEST_ASSERT(err != CIO_SUCCESS);
 	TEST_ASSERT_EQUAL(0, close_fake.call_count);
 	cio_server_socket_close(&ss);
@@ -537,7 +537,7 @@ static void test_enable_reuse_address(void)
 	enum cio_error err = cio_server_socket_init(&ss, &loop, 5, alloc_client, free_client, on_close);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Initialization of server socket failed!");
 
-	err = ss.set_reuse_address(&ss, true);
+	err = cio_server_socket_set_reuse_address(&ss, true);
 	TEST_ASSERT_EQUAL(CIO_SUCCESS, err);
 	TEST_ASSERT_EQUAL(1, optval);
 	TEST_ASSERT_EQUAL(SOL_SOCKET, setsockopt_fake.arg1_val);
@@ -559,7 +559,7 @@ static void test_disable_reuse_address(void)
 	enum cio_error err = cio_server_socket_init(&ss, &loop, 5, alloc_client, free_client, on_close);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Initialization of server socket failed!");
 
-	err = ss.set_reuse_address(&ss, false);
+	err = cio_server_socket_set_reuse_address(&ss, false);
 	TEST_ASSERT_EQUAL(CIO_SUCCESS, err);
 	TEST_ASSERT_EQUAL(0, optval);
 	TEST_ASSERT_EQUAL(SOL_SOCKET, setsockopt_fake.arg1_val);

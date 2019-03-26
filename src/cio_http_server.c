@@ -752,7 +752,7 @@ enum cio_error cio_http_server_init(struct cio_http_server *server,
 
 enum cio_error cio_http_server_serve(struct cio_http_server *server)
 {
-	enum cio_error err = server->server_socket.set_reuse_address(&server->server_socket, true);
+	enum cio_error err = cio_server_socket_set_reuse_address(&server->server_socket, true);
 	if (cio_unlikely(err != CIO_SUCCESS)) {
 		goto close_socket;
 	}

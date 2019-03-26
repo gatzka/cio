@@ -51,9 +51,6 @@ struct ws_test_handler {
 static void serve_error(struct cio_http_server *server, const char *reason);
 FAKE_VOID_FUNC(serve_error, struct cio_http_server *, const char *)
 
-static enum cio_error socket_set_reuse_address(struct cio_server_socket *context, bool on);
-FAKE_VALUE_FUNC(enum cio_error, socket_set_reuse_address, struct cio_server_socket *, bool)
-
 static struct cio_io_stream *get_io_stream(struct cio_socket *context);
 FAKE_VALUE_FUNC(struct cio_io_stream *, get_io_stream, struct cio_socket *)
 
@@ -63,6 +60,7 @@ FAKE_VALUE_FUNC(enum cio_error, cio_server_socket_accept, struct cio_server_sock
 FAKE_VOID_FUNC(cio_server_socket_close, struct cio_server_socket *)
 FAKE_VALUE_FUNC(enum cio_error, cio_server_socket_init, struct cio_server_socket *, struct cio_eventloop *, unsigned int, cio_alloc_client, cio_free_client, cio_server_socket_close_hook)
 FAKE_VALUE_FUNC(enum cio_error, cio_server_socket_bind, struct cio_server_socket *, const char *, uint16_t)
+FAKE_VALUE_FUNC(enum cio_error, cio_server_socket_set_reuse_address, struct cio_server_socket *, bool)
 
 static enum cio_error bs_read_until(struct cio_buffered_stream *bs, struct cio_read_buffer *buffer, const char *delim, cio_buffered_stream_read_handler handler, void *handler_context);
 FAKE_VALUE_FUNC(enum cio_error, bs_read_until, struct cio_buffered_stream *, struct cio_read_buffer *, const char *, cio_buffered_stream_read_handler, void *)
@@ -139,7 +137,6 @@ static enum cio_error cio_server_socket_init_ok(struct cio_server_socket *ss,
 	ss->backlog = (int)backlog;
 	ss->impl.loop = l;
 	ss->close_hook = close_hook;
-	ss->set_reuse_address = socket_set_reuse_address;
 	return CIO_SUCCESS;
 }
 
@@ -309,11 +306,11 @@ void setUp(void)
 	RESET_FAKE(cio_server_socket_accept);
 	RESET_FAKE(cio_server_socket_bind);
 	RESET_FAKE(cio_server_socket_init);
+	RESET_FAKE(cio_server_socket_set_reuse_address);
 	RESET_FAKE(cio_timer_init);
 	RESET_FAKE(get_io_stream);
 	RESET_FAKE(on_control);
 	RESET_FAKE(serve_error);
-	RESET_FAKE(socket_set_reuse_address);
 	RESET_FAKE(timer_cancel);
 	RESET_FAKE(timer_close);
 	RESET_FAKE(timer_expires_from_now);

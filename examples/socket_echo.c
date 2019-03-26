@@ -153,7 +153,7 @@ int main(void)
 		goto destroy_loop;
 	}
 
-	err = ss.set_reuse_address(&ss, true);
+	err = cio_server_socket_set_reuse_address(&ss, true);
 	if (err != CIO_SUCCESS) {
 		ret = EXIT_FAILURE;
 		goto close_socket;
