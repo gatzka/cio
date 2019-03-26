@@ -50,19 +50,6 @@ static struct itimerspec convert_timeoutns_to_itimerspec(uint64_t timeout)
 	return ts;
 }
 
-static void timer_close(struct cio_timer *t)
-{
-	cio_linux_eventloop_remove(t->loop, &t->ev);
-	if (t->handler != NULL) {
-		cio_timer_cancel(t);
-	}
-
-	close(t->ev.fd);
-	if (t->close_hook != NULL) {
-		t->close_hook(t);
-	}
-}
-
 static void timer_read(void *context)
 {
 	struct cio_timer *t = context;
@@ -89,7 +76,6 @@ enum cio_error cio_timer_init(struct cio_timer *timer, struct cio_eventloop *loo
 		return (enum cio_error)(-errno);
 	}
 
-	timer->close = timer_close;
 	timer->close_hook = close_hook;
 	timer->handler = NULL;
 	timer->handler_context = NULL;
@@ -155,4 +141,17 @@ enum cio_error cio_timer_cancel(struct cio_timer *t)
 	}
 
 	return (enum cio_error)(-errno);
+}
+
+void cio_timer_close(struct cio_timer *t)
+{
+	cio_linux_eventloop_remove(t->loop, &t->ev);
+	if (t->handler != NULL) {
+		cio_timer_cancel(t);
+	}
+
+	close(t->ev.fd);
+	if (t->close_hook != NULL) {
+		t->close_hook(t);
+	}
 }

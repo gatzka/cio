@@ -55,7 +55,7 @@ static void handle_timeout(struct cio_timer *timer, void *handler_context, enum 
 				fprintf(stderr, "arming timer failed!\n");
 			}
 		} else {
-			timer->close(timer);
+			cio_timer_close(timer);
 			cio_eventloop_cancel(&loop);
 		}
 	} else {

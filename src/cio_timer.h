@@ -69,18 +69,6 @@ typedef void (*cio_timer_close_hook)(struct cio_timer *timer);
 typedef void (*cio_timer_handler)(struct cio_timer *timer, void *handler_context, enum cio_error err);
 
 struct cio_timer {
-
-	/**
-	 * @anchor cio_timer_close
-	 * @brief Closes a timer and frees underlying resources.
-	 *
-	 * If the timer is armed and has not expired yet, the timer will be canceled and the timer callback will be called.
-	 * If a close_hook was given in ::cio_timer_init, the hook is called.
-	 *
-	 * @param timer A pointer to a struct cio_timer which shall be closed.
-	 */
-	void (*close)(struct cio_timer *timer);
-
 	/**
 	 * @privatesection
 	 */
@@ -128,6 +116,16 @@ CIO_EXPORT enum cio_error cio_timer_expires_from_now(struct cio_timer *timer, ui
  *         ::CIO_OPERATION_NOT_PERMITTED if the timer wasn't armed.
  */
 CIO_EXPORT enum cio_error cio_timer_cancel(struct cio_timer *timer);
+
+/**
+ * @brief Closes a timer and frees underlying resources.
+ *
+ * If the timer is armed and has not expired yet, the timer will be canceled and the timer callback will be called.
+ * If a close_hook was given in ::cio_timer_init, the hook is called.
+ *
+ * @param timer A pointer to a struct cio_timer which shall be closed.
+ */
+CIO_EXPORT void cio_timer_close(struct cio_timer *timer);
 
 #ifdef __cplusplus
 }

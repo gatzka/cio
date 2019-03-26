@@ -99,8 +99,8 @@ static void notify_free_handler_and_close_stream(struct cio_http_client *client)
 
 static void close_client(struct cio_http_client *client)
 {
-	client->http_private.request_timer.close(&client->http_private.request_timer);
-	client->http_private.response_timer.close(&client->http_private.response_timer);
+	cio_timer_close(&client->http_private.request_timer);
+	cio_timer_close(&client->http_private.response_timer);
 	notify_free_handler_and_close_stream(client);
 }
 
@@ -698,9 +698,9 @@ static void handle_accept(struct cio_server_socket *ss, void *handler_context, e
 
 read_until_fail:
 expires_fail:
-	client->http_private.request_timer.close(&client->http_private.request_timer);
+	cio_timer_close(&client->http_private.request_timer);
 request_timer_init_err:
-	client->http_private.response_timer.close(&client->http_private.response_timer);
+	cio_timer_close(&client->http_private.response_timer);
 response_timer_init_err:
 	handle_error(server, "client initialization failed");
 	notify_free_handler_and_close_stream(client);

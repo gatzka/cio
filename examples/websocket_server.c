@@ -64,7 +64,7 @@ struct ws_echo_handler {
 static void free_websocket_handler(struct cio_websocket_location_handler *wslh)
 {
 	struct ws_echo_handler *h = cio_container_of(wslh, struct ws_echo_handler, ws_handler);
-	h->ping_timer.close(&h->ping_timer);
+	cio_timer_close(&h->ping_timer);
 	free(h);
 }
 

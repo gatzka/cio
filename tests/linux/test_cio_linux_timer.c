@@ -114,7 +114,7 @@ static void close_in_timeout(struct cio_timer *timer, void *handler_context, enu
 {
 	(void)handler_context;
 	(void)err;
-	timer->close(timer);
+	cio_timer_close(timer);
 }
 
 static void cancel_in_timeout(struct cio_timer *timer, void *handler_context, enum cio_error err)
@@ -209,7 +209,7 @@ static void test_close_without_hook(void)
 	enum cio_error err = cio_timer_init(&timer, NULL, NULL);
 	TEST_ASSERT_EQUAL(CIO_SUCCESS, err);
 
-	timer.close(&timer);
+	cio_timer_close(&timer);
 	TEST_ASSERT_EQUAL(1, close_fake.call_count);
 	TEST_ASSERT_EQUAL(timerfd, close_fake.arg0_val);
 }
@@ -223,7 +223,7 @@ static void test_close_with_hook(void)
 	enum cio_error err = cio_timer_init(&timer, NULL, on_close);
 	TEST_ASSERT_EQUAL(CIO_SUCCESS, err);
 
-	timer.close(&timer);
+	cio_timer_close(&timer);
 	TEST_ASSERT_EQUAL(1, close_fake.call_count);
 	TEST_ASSERT_EQUAL(timerfd, close_fake.arg0_val);
 	TEST_ASSERT_EQUAL(1, on_close_fake.call_count);
@@ -242,7 +242,7 @@ static void test_close_while_armed(void)
 
 	cio_timer_expires_from_now(&timer, 2000, handle_timeout, NULL);
 
-	timer.close(&timer);
+	cio_timer_close(&timer);
 	TEST_ASSERT_EQUAL(1, close_fake.call_count);
 	TEST_ASSERT_EQUAL(timerfd, close_fake.arg0_val);
 

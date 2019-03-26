@@ -141,9 +141,8 @@ FAKE_VOID_FUNC0(client_socket_close)
 
 FAKE_VALUE_FUNC(enum cio_error, cio_timer_init, struct cio_timer *, struct cio_eventloop *, cio_timer_close_hook)
 FAKE_VALUE_FUNC(enum cio_error, cio_timer_cancel, struct cio_timer *)
+FAKE_VOID_FUNC(cio_timer_close, struct cio_timer *)
 FAKE_VALUE_FUNC(enum cio_error, cio_timer_expires_from_now, struct cio_timer *, uint64_t, cio_timer_handler, void *)
-static void timer_close(struct cio_timer *t);
-FAKE_VOID_FUNC(timer_close, struct cio_timer *)
 
 FAKE_VOID_FUNC0(location_handler_called)
 FAKE_VOID_FUNC0(sub_location_handler_called)
@@ -161,7 +160,6 @@ static enum cio_error cio_timer_init_fails(struct cio_timer *timer, struct cio_e
 static enum cio_error cio_timer_init_ok(struct cio_timer *timer, struct cio_eventloop *l, cio_timer_close_hook hook)
 {
 	(void)l;
-	timer->close = timer_close;
 	timer->close_hook = hook;
 	return CIO_SUCCESS;
 }
@@ -588,9 +586,9 @@ void setUp(void)
 	RESET_FAKE(on_body);
 	RESET_FAKE(on_message_complete);
 
-	RESET_FAKE(timer_close);
 	RESET_FAKE(cio_timer_init);
 	RESET_FAKE(cio_timer_cancel);
+	RESET_FAKE(cio_timer_close);
 	RESET_FAKE(cio_timer_expires_from_now);
 
 	SET_CUSTOM_FAKE_SEQ(cio_timer_init, NULL, 0);
