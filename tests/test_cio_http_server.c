@@ -60,10 +60,8 @@ static const size_t read_buffer_size = 200;
 
 DEFINE_FFF_GLOBALS
 
-
 static void serve_error(struct cio_http_server *server, const char *reason);
 FAKE_VOID_FUNC(serve_error, struct cio_http_server *, const char *)
-
 
 FAKE_VALUE_FUNC(enum cio_error, cio_server_socket_init, struct cio_server_socket *, struct cio_eventloop *, unsigned int, cio_alloc_client, cio_free_client, cio_server_socket_close_hook)
 FAKE_VALUE_FUNC(enum cio_error, cio_server_socket_accept, struct cio_server_socket *, cio_accept_handler, void *)

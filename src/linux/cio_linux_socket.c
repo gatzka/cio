@@ -208,7 +208,7 @@ enum cio_error cio_socket_set_tcp_no_delay(struct cio_socket *s, bool on)
 	int tcp_no_delay = (char)on;
 
 	if (setsockopt(s->impl.ev.fd, IPPROTO_TCP, TCP_NODELAY, &tcp_no_delay,
-				   sizeof(tcp_no_delay)) < 0) {
+	               sizeof(tcp_no_delay)) < 0) {
 		return (enum cio_error)(-errno);
 	}
 
@@ -216,7 +216,7 @@ enum cio_error cio_socket_set_tcp_no_delay(struct cio_socket *s, bool on)
 }
 
 enum cio_error cio_socket_set_keep_alive(struct cio_socket *s, bool on, unsigned int keep_idle_s,
-									   unsigned int keep_intvl_s, unsigned int keep_cnt)
+                                         unsigned int keep_intvl_s, unsigned int keep_cnt)
 {
 	int keep_alive;
 

@@ -774,7 +774,6 @@ close_socket:
 	return err;
 }
 
-
 enum cio_error cio_http_server_register_location(struct cio_http_server *server, struct cio_http_location *location)
 {
 	if (cio_unlikely(server == NULL) || (location == NULL)) {

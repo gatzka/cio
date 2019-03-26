@@ -1465,7 +1465,7 @@ static void test_send_text_binary_frame(void)
 				memcpy(check_data, data, frame_size);
 
 				struct ws_frame frames[] = {
-					{.frame_type = CIO_WEBSOCKET_CLOSE_FRAME, .direction = direction, .data = NULL, .data_length = 0, .last_frame = true, .rsv = false},
+				    {.frame_type = CIO_WEBSOCKET_CLOSE_FRAME, .direction = direction, .data = NULL, .data_length = 0, .last_frame = true, .rsv = false},
 				};
 
 				serialize_frames(frames, ARRAY_SIZE(frames));
@@ -1531,7 +1531,7 @@ static void test_send_chunks(void)
 		char check_data[] = "HelloWorld!";
 
 		struct ws_frame frames[] = {
-			{.frame_type = CIO_WEBSOCKET_CLOSE_FRAME, .direction = direction, .data = NULL, .data_length = 0, .last_frame = true, .rsv = false},
+		    {.frame_type = CIO_WEBSOCKET_CLOSE_FRAME, .direction = direction, .data = NULL, .data_length = 0, .last_frame = true, .rsv = false},
 		};
 
 		serialize_frames(frames, ARRAY_SIZE(frames));
