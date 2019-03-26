@@ -43,68 +43,6 @@
 #include "cio_write_buffer.h"
 #include "linux/cio_linux_socket_utils.h"
 
-static enum cio_error socket_close(struct cio_socket *s)
-{
-	if (cio_unlikely(s == NULL)) {
-		return CIO_INVALID_ARGUMENT;
-	}
-
-	cio_linux_eventloop_remove(s->impl.loop, &s->impl.ev);
-
-	close(s->impl.ev.fd);
-	if (s->close_hook != NULL) {
-		s->close_hook(s);
-	}
-
-	return CIO_SUCCESS;
-}
-
-static enum cio_error socket_tcp_no_delay(struct cio_socket *s, bool on)
-{
-	int tcp_no_delay = (char)on;
-
-	if (setsockopt(s->impl.ev.fd, IPPROTO_TCP, TCP_NODELAY, &tcp_no_delay,
-	               sizeof(tcp_no_delay)) < 0) {
-		return (enum cio_error)(-errno);
-	}
-
-	return CIO_SUCCESS;
-}
-
-static enum cio_error socket_keepalive(struct cio_socket *s, bool on, unsigned int keep_idle_s,
-                                       unsigned int keep_intvl_s, unsigned int keep_cnt)
-{
-	int keep_alive;
-
-	if (on) {
-		keep_alive = 1;
-		if (setsockopt(s->impl.ev.fd, SOL_TCP, TCP_KEEPIDLE, &keep_idle_s, sizeof(keep_idle_s)) == -1) {
-			return (enum cio_error)(-errno);
-		}
-
-		if (setsockopt(s->impl.ev.fd, SOL_TCP, TCP_KEEPINTVL, &keep_intvl_s, sizeof(keep_intvl_s)) == -1) {
-			return (enum cio_error)(-errno);
-		}
-
-		if (setsockopt(s->impl.ev.fd, SOL_TCP, TCP_KEEPCNT, &keep_cnt, sizeof(keep_cnt)) == -1) {
-			return (enum cio_error)(-errno);
-		}
-	} else {
-		keep_alive = 0;
-	}
-
-	if (setsockopt(s->impl.ev.fd, SOL_SOCKET, SO_KEEPALIVE, &keep_alive, sizeof(keep_alive)) == -1) {
-		return (enum cio_error)(-errno);
-	}
-
-	return CIO_SUCCESS;
-}
-
-static struct cio_io_stream *socket_get_io_stream(struct cio_socket *s)
-{
-	return &s->stream;
-}
-
 static void read_callback(void *context)
 {
 	struct cio_io_stream *stream = context;
@@ -199,7 +137,7 @@ static enum cio_error stream_write(struct cio_io_stream *stream, const struct ci
 static enum cio_error stream_close(struct cio_io_stream *stream)
 {
 	struct cio_socket *s = cio_container_of(stream, struct cio_socket, stream);
-	return socket_close(s);
+	return cio_socket_close(s);
 }
 
 enum cio_error cio_linux_socket_init(struct cio_socket *s, int client_fd,
@@ -215,11 +153,6 @@ enum cio_error cio_linux_socket_init(struct cio_socket *s, int client_fd,
 	s->impl.ev.write_callback = NULL;
 	s->impl.ev.read_callback = NULL;
 	s->impl.ev.context = s;
-
-	s->close = socket_close;
-	s->set_tcp_no_delay = socket_tcp_no_delay;
-	s->set_keep_alive = socket_keepalive;
-	s->get_io_stream = socket_get_io_stream;
 
 	s->stream.read_some = stream_read;
 	s->stream.write_some = stream_write;
@@ -247,4 +180,66 @@ enum cio_error cio_socket_init(struct cio_socket *s,
 	}
 
 	return err;
+}
+
+enum cio_error cio_socket_close(struct cio_socket *s)
+{
+	if (cio_unlikely(s == NULL)) {
+		return CIO_INVALID_ARGUMENT;
+	}
+
+	cio_linux_eventloop_remove(s->impl.loop, &s->impl.ev);
+
+	close(s->impl.ev.fd);
+	if (s->close_hook != NULL) {
+		s->close_hook(s);
+	}
+
+	return CIO_SUCCESS;
+}
+
+struct cio_io_stream *cio_socket_get_io_stream(struct cio_socket *s)
+{
+	return &s->stream;
+}
+
+enum cio_error cio_socket_set_tcp_no_delay(struct cio_socket *s, bool on)
+{
+	int tcp_no_delay = (char)on;
+
+	if (setsockopt(s->impl.ev.fd, IPPROTO_TCP, TCP_NODELAY, &tcp_no_delay,
+	               sizeof(tcp_no_delay)) < 0) {
+		return (enum cio_error)(-errno);
+	}
+
+	return CIO_SUCCESS;
+}
+
+enum cio_error cio_socket_set_keep_alive(struct cio_socket *s, bool on, unsigned int keep_idle_s,
+                                         unsigned int keep_intvl_s, unsigned int keep_cnt)
+{
+	int keep_alive;
+
+	if (on) {
+		keep_alive = 1;
+		if (setsockopt(s->impl.ev.fd, SOL_TCP, TCP_KEEPIDLE, &keep_idle_s, sizeof(keep_idle_s)) == -1) {
+			return (enum cio_error)(-errno);
+		}
+
+		if (setsockopt(s->impl.ev.fd, SOL_TCP, TCP_KEEPINTVL, &keep_intvl_s, sizeof(keep_intvl_s)) == -1) {
+			return (enum cio_error)(-errno);
+		}
+
+		if (setsockopt(s->impl.ev.fd, SOL_TCP, TCP_KEEPCNT, &keep_cnt, sizeof(keep_cnt)) == -1) {
+			return (enum cio_error)(-errno);
+		}
+	} else {
+		keep_alive = 0;
+	}
+
+	if (setsockopt(s->impl.ev.fd, SOL_SOCKET, SO_KEEPALIVE, &keep_alive, sizeof(keep_alive)) == -1) {
+		return (enum cio_error)(-errno);
+	}
+
+	return CIO_SUCCESS;
 }

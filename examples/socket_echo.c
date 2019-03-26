@@ -125,7 +125,7 @@ static void handle_accept(struct cio_server_socket *ss, void *handler_context, e
 	}
 
 	cio_read_buffer_init(&client->rb, client->buffer, sizeof(client->buffer));
-	struct cio_io_stream *stream = socket->get_io_stream(socket);
+	struct cio_io_stream *stream = cio_socket_get_io_stream(socket);
 	stream->read_some(stream, &client->rb, handle_read, client);
 }
 

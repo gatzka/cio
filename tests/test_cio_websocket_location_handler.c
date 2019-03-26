@@ -51,9 +51,6 @@ struct ws_test_handler {
 static void serve_error(struct cio_http_server *server, const char *reason);
 FAKE_VOID_FUNC(serve_error, struct cio_http_server *, const char *)
 
-static struct cio_io_stream *get_io_stream(struct cio_socket *context);
-FAKE_VALUE_FUNC(struct cio_io_stream *, get_io_stream, struct cio_socket *)
-
 FAKE_VALUE_FUNC(enum cio_error, cio_buffered_stream_init, struct cio_buffered_stream *, struct cio_io_stream *)
 
 FAKE_VALUE_FUNC(enum cio_error, cio_server_socket_accept, struct cio_server_socket *, cio_accept_handler, void *)
@@ -61,6 +58,8 @@ FAKE_VOID_FUNC(cio_server_socket_close, struct cio_server_socket *)
 FAKE_VALUE_FUNC(enum cio_error, cio_server_socket_init, struct cio_server_socket *, struct cio_eventloop *, unsigned int, cio_alloc_client, cio_free_client, cio_server_socket_close_hook)
 FAKE_VALUE_FUNC(enum cio_error, cio_server_socket_bind, struct cio_server_socket *, const char *, uint16_t)
 FAKE_VALUE_FUNC(enum cio_error, cio_server_socket_set_reuse_address, struct cio_server_socket *, bool)
+
+FAKE_VALUE_FUNC(struct cio_io_stream *, cio_socket_get_io_stream, struct cio_socket *)
 
 static enum cio_error bs_read_until(struct cio_buffered_stream *bs, struct cio_read_buffer *buffer, const char *delim, cio_buffered_stream_read_handler handler, void *handler_context);
 FAKE_VALUE_FUNC(enum cio_error, bs_read_until, struct cio_buffered_stream *, struct cio_read_buffer *, const char *, cio_buffered_stream_read_handler, void *)
@@ -81,7 +80,6 @@ FAKE_VOID_FUNC(timer_close, struct cio_timer *)
 
 static enum cio_error timer_expires_from_now(struct cio_timer *t, uint64_t timeout_ns, cio_timer_handler handler, void *handler_context);
 FAKE_VALUE_FUNC(enum cio_error, timer_expires_from_now, struct cio_timer *, uint64_t, cio_timer_handler, void *)
-
 
 static void on_control(const struct cio_websocket *ws, enum cio_websocket_frame_type type, const uint8_t *data, uint_fast8_t length);
 FAKE_VOID_FUNC(on_control, const struct cio_websocket *, enum cio_websocket_frame_type, const uint8_t *, uint_fast8_t)
@@ -120,7 +118,6 @@ static struct cio_socket *alloc_dummy_client(void)
 	struct cio_http_client *client = malloc(sizeof(*client) + read_buffer_size);
 	memset(client, 0xaf, sizeof(*client));
 	client->buffer_size = read_buffer_size;
-	client->socket.get_io_stream = get_io_stream;
 	client->socket.close_hook = free_dummy_client;
 	return &client->socket;
 }
@@ -308,7 +305,6 @@ void setUp(void)
 	RESET_FAKE(cio_server_socket_init);
 	RESET_FAKE(cio_server_socket_set_reuse_address);
 	RESET_FAKE(cio_timer_init);
-	RESET_FAKE(get_io_stream);
 	RESET_FAKE(on_control);
 	RESET_FAKE(serve_error);
 	RESET_FAKE(timer_cancel);
@@ -337,7 +333,7 @@ void setUp(void)
 	timer_expires_from_now_fake.custom_fake = timer_expires_from_now_ok;
 	timer_cancel_fake.custom_fake = cancel_timer;
 
-	get_io_stream_fake.return_val = (struct cio_io_stream *)1;
+	cio_socket_get_io_stream_fake.return_val = (struct cio_io_stream *)1;
 }
 
 void tearDown(void)

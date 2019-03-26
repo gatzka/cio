@@ -625,7 +625,7 @@ static void handle_accept(struct cio_server_socket *ss, void *handler_context, e
 	(void)ss;
 
 	struct cio_http_server *server = (struct cio_http_server *)handler_context;
-	struct cio_io_stream *stream = socket->get_io_stream(socket);
+	struct cio_io_stream *stream = cio_socket_get_io_stream(socket);
 
 	if (cio_unlikely((err != CIO_SUCCESS) || (stream == NULL))) {
 		handle_error(server, "accept failed");
@@ -773,7 +773,6 @@ close_socket:
 	cio_server_socket_close(&server->server_socket);
 	return err;
 }
-
 
 enum cio_error cio_http_server_register_location(struct cio_http_server *server, struct cio_http_location *location)
 {

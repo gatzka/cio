@@ -154,8 +154,6 @@ CIO_EXPORT enum cio_error cio_http_server_register_location(struct cio_http_serv
  */
 CIO_EXPORT enum cio_error cio_http_server_shutdown(struct cio_http_server *server, cio_http_server_close_hook close_hook);
 
-
-
 #ifdef __cplusplus
 }
 #endif

@@ -114,7 +114,6 @@ CIO_EXPORT enum cio_error cio_server_socket_init(struct cio_server_socket *ss,
                                                  cio_free_client free_client,
                                                  cio_server_socket_close_hook close_hook);
 
-
 /**
  * @brief Accepts an incoming socket connection.
  *

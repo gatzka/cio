@@ -72,6 +72,8 @@ FAKE_VALUE_FUNC(enum cio_error, cio_linux_socket_init, struct cio_socket *, int,
                 struct cio_eventloop *,
                 cio_socket_close_hook)
 
+FAKE_VALUE_FUNC(enum cio_error, cio_socket_close, struct cio_socket *)
+
 static int optval;
 
 static struct cio_socket *alloc_success(void)
@@ -133,12 +135,23 @@ static void freeaddrinfo_success(struct addrinfo *res)
 	free(res);
 }
 
+static enum cio_error socket_close(struct cio_socket *s)
+{
+	close(s->impl.ev.fd);
+	if (s->close_hook != NULL) {
+		s->close_hook(s);
+	}
+
+	return CIO_SUCCESS;
+}
+
 void setUp(void)
 {
 	FFF_RESET_HISTORY();
 	RESET_FAKE(accept4);
 	RESET_FAKE(accept_handler);
 	RESET_FAKE(cio_linux_socket_create);
+	RESET_FAKE(cio_socket_close);
 
 	RESET_FAKE(cio_linux_eventloop_add);
 	RESET_FAKE(cio_linux_eventloop_remove);
@@ -157,6 +170,8 @@ void setUp(void)
 	RESET_FAKE(close);
 	RESET_FAKE(alloc_client);
 	RESET_FAKE(free_client);
+
+	cio_socket_close_fake.custom_fake = socket_close;
 }
 
 static int listen_fails(int sockfd, int backlog)
@@ -266,21 +281,9 @@ static void accept_handler_close_server_socket(struct cio_server_socket *ss, voi
 	cio_server_socket_close(ss);
 }
 
-static enum cio_error socket_close(struct cio_socket *s)
-{
-	close(s->impl.ev.fd);
-	if (s->close_hook != NULL) {
-		s->close_hook(s);
-	}
-
-	return CIO_SUCCESS;
-}
-
 static enum cio_error custom_cio_linux_socket_init(struct cio_socket *s, int fd, struct cio_eventloop *loop, cio_socket_close_hook hook)
 {
 	s->impl.ev.fd = fd;
-
-	s->close = socket_close;
 
 	s->impl.loop = loop;
 	s->close_hook = hook;
@@ -293,7 +296,7 @@ static void accept_handler_close_socket(struct cio_server_socket *ss, void *hand
 	(void)err;
 	(void)ss;
 	if (err == CIO_SUCCESS) {
-		sock->close(sock);
+		cio_socket_close(sock);
 	}
 }
 

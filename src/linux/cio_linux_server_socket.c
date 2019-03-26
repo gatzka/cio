@@ -190,7 +190,7 @@ enum cio_error cio_server_socket_set_reuse_address(struct cio_server_socket *ss,
 	}
 
 	if (cio_unlikely(setsockopt(ss->impl.ev.fd, SOL_SOCKET, SO_REUSEADDR, &reuse,
-								sizeof(reuse)) < 0)) {
+	                            sizeof(reuse)) < 0)) {
 		return (enum cio_error)(-errno);
 	}
 
