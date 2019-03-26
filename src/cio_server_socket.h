@@ -45,7 +45,7 @@ extern "C" {
  * @brief This file contains the interface of a server socket.
  *
  * A server socket can be @ref cio_serversocket_init "initialized",
- * @ref cio_serversocket_accept "accept connections" and can be
+ * @ref cio_server_socket_accept "accept connections" and can be
  * @ref cio_server_socket_close "closed".
  */
 
@@ -56,7 +56,7 @@ struct cio_server_socket;
 
 /**
  * @brief The type of a function that is called when
- * @ref cio_serversocket_accept "accept task" succeeds or fails.
+ * @ref cio_server_socket_accept "accept task" succeeds or fails.
  *
  * @param ss The server socket where the accept was called on.
  * @param handler_context The context the functions works on.
@@ -149,7 +149,7 @@ CIO_EXPORT enum cio_error cio_serversocket_init(struct cio_server_socket *ss,
 
 
 /**
- * @anchor cio_serversocket_accept
+ * @anchor cio_server_socket_accept
  * @brief Accepts an incoming socket connection.
  *
  * If the platform specific accept implementation fails, @p handler will
@@ -163,7 +163,7 @@ CIO_EXPORT enum cio_error cio_serversocket_init(struct cio_server_socket *ss,
  *
  * @return ::CIO_SUCCESS for success.
  */
-CIO_EXPORT enum cio_error cio_serversocket_accept(struct cio_server_socket *ss, cio_accept_handler handler, void *handler_context);
+CIO_EXPORT enum cio_error cio_server_socket_accept(struct cio_server_socket *ss, cio_accept_handler handler, void *handler_context);
 
 #ifdef __cplusplus
 }

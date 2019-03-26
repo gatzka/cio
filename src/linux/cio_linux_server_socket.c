@@ -171,7 +171,7 @@ enum cio_error cio_serversocket_init(struct cio_server_socket *ss,
 	return CIO_SUCCESS;
 }
 
-enum cio_error cio_serversocket_accept(struct cio_server_socket *ss, cio_accept_handler handler, void *handler_context)
+enum cio_error cio_server_socket_accept(struct cio_server_socket *ss, cio_accept_handler handler, void *handler_context)
 {
 	enum cio_error err;
 	if (cio_unlikely(handler == NULL)) {

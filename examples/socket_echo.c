@@ -165,7 +165,7 @@ int main(void)
 		goto close_socket;
 	}
 
-	err = cio_serversocket_accept(&ss, handle_accept, NULL);
+	err = cio_server_socket_accept(&ss, handle_accept, NULL);
 	if (err != CIO_SUCCESS) {
 		ret = EXIT_FAILURE;
 		goto close_socket;
