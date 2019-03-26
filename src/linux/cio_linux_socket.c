@@ -43,35 +43,6 @@
 #include "cio_write_buffer.h"
 #include "linux/cio_linux_socket_utils.h"
 
-static enum cio_error socket_keepalive(struct cio_socket *s, bool on, unsigned int keep_idle_s,
-                                       unsigned int keep_intvl_s, unsigned int keep_cnt)
-{
-	int keep_alive;
-
-	if (on) {
-		keep_alive = 1;
-		if (setsockopt(s->impl.ev.fd, SOL_TCP, TCP_KEEPIDLE, &keep_idle_s, sizeof(keep_idle_s)) == -1) {
-			return (enum cio_error)(-errno);
-		}
-
-		if (setsockopt(s->impl.ev.fd, SOL_TCP, TCP_KEEPINTVL, &keep_intvl_s, sizeof(keep_intvl_s)) == -1) {
-			return (enum cio_error)(-errno);
-		}
-
-		if (setsockopt(s->impl.ev.fd, SOL_TCP, TCP_KEEPCNT, &keep_cnt, sizeof(keep_cnt)) == -1) {
-			return (enum cio_error)(-errno);
-		}
-	} else {
-		keep_alive = 0;
-	}
-
-	if (setsockopt(s->impl.ev.fd, SOL_SOCKET, SO_KEEPALIVE, &keep_alive, sizeof(keep_alive)) == -1) {
-		return (enum cio_error)(-errno);
-	}
-
-	return CIO_SUCCESS;
-}
-
 static void read_callback(void *context)
 {
 	struct cio_io_stream *stream = context;
@@ -183,8 +154,6 @@ enum cio_error cio_linux_socket_init(struct cio_socket *s, int client_fd,
 	s->impl.ev.read_callback = NULL;
 	s->impl.ev.context = s;
 
-	s->set_keep_alive = socket_keepalive;
-
 	s->stream.read_some = stream_read;
 	s->stream.write_some = stream_write;
 	s->stream.close = stream_close;
@@ -240,6 +209,35 @@ enum cio_error cio_socket_set_tcp_no_delay(struct cio_socket *s, bool on)
 
 	if (setsockopt(s->impl.ev.fd, IPPROTO_TCP, TCP_NODELAY, &tcp_no_delay,
 				   sizeof(tcp_no_delay)) < 0) {
+		return (enum cio_error)(-errno);
+	}
+
+	return CIO_SUCCESS;
+}
+
+enum cio_error cio_socket_set_keep_alive(struct cio_socket *s, bool on, unsigned int keep_idle_s,
+									   unsigned int keep_intvl_s, unsigned int keep_cnt)
+{
+	int keep_alive;
+
+	if (on) {
+		keep_alive = 1;
+		if (setsockopt(s->impl.ev.fd, SOL_TCP, TCP_KEEPIDLE, &keep_idle_s, sizeof(keep_idle_s)) == -1) {
+			return (enum cio_error)(-errno);
+		}
+
+		if (setsockopt(s->impl.ev.fd, SOL_TCP, TCP_KEEPINTVL, &keep_intvl_s, sizeof(keep_intvl_s)) == -1) {
+			return (enum cio_error)(-errno);
+		}
+
+		if (setsockopt(s->impl.ev.fd, SOL_TCP, TCP_KEEPCNT, &keep_cnt, sizeof(keep_cnt)) == -1) {
+			return (enum cio_error)(-errno);
+		}
+	} else {
+		keep_alive = 0;
+	}
+
+	if (setsockopt(s->impl.ev.fd, SOL_SOCKET, SO_KEEPALIVE, &keep_alive, sizeof(keep_alive)) == -1) {
 		return (enum cio_error)(-errno);
 	}
 

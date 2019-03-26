@@ -357,7 +357,7 @@ static void test_socket_enable_keepalive(void)
 	enum cio_error err = cio_socket_init(&s, &loop, NULL);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Return value of cio_socket_init not correct!");
 
-	err = s.set_keep_alive(&s, true, 10, 9, 8);
+	err = cio_socket_set_keep_alive(&s, true, 10, 9, 8);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Return value of set_keep_alive not correct!");
 	TEST_ASSERT_EQUAL_MESSAGE(4, setsockopt_fake.call_count, "setsockopt was not called 4 times!");
 }
@@ -369,7 +369,7 @@ static void test_socket_disable_keepalive(void)
 	enum cio_error err = cio_socket_init(&s, &loop, NULL);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Return value of cio_socket_init not correct!");
 
-	err = s.set_keep_alive(&s, false, 10, 9, 8);
+	err = cio_socket_set_keep_alive(&s, false, 10, 9, 8);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Return value of set_keep_alive not correct!");
 	TEST_ASSERT_EQUAL_MESSAGE(1, setsockopt_fake.call_count, "setsockopt was not called 1 time!");
 }
@@ -387,7 +387,7 @@ static void test_socket_disable_keepalive_setsockopt_fails(void)
 
 	SET_CUSTOM_FAKE_SEQ(setsockopt, custom_fakes, ARRAY_SIZE(custom_fakes));
 
-	err = s.set_keep_alive(&s, false, 10, 9, 8);
+	err = cio_socket_set_keep_alive(&s, false, 10, 9, 8);
 	TEST_ASSERT_NOT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Return value for failing set_keep_alive not correct!");
 	TEST_ASSERT_EQUAL_MESSAGE(1, setsockopt_fake.call_count, "setsockopt was not called 1 time!");
 }
@@ -407,7 +407,7 @@ static void test_socket_enable_keepalive_keep_idle_fails(void)
 
 	SET_CUSTOM_FAKE_SEQ(setsockopt, custom_fakes, ARRAY_SIZE(custom_fakes));
 
-	err = s.set_keep_alive(&s, true, 10, 9, 8);
+	err = cio_socket_set_keep_alive(&s, true, 10, 9, 8);
 	TEST_ASSERT_NOT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Return value for failing set_keep_alive not correct!");
 	TEST_ASSERT_EQUAL_MESSAGE(1, setsockopt_fake.call_count, "setsockopt was not called 1 time!");
 }
@@ -427,7 +427,7 @@ static void test_socket_enable_keepalive_keep_intvl_fails(void)
 
 	SET_CUSTOM_FAKE_SEQ(setsockopt, custom_fakes, ARRAY_SIZE(custom_fakes));
 
-	err = s.set_keep_alive(&s, true, 10, 9, 8);
+	err = cio_socket_set_keep_alive(&s, true, 10, 9, 8);
 	TEST_ASSERT_NOT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Return value for failing set_keep_alive not correct!");
 	TEST_ASSERT_EQUAL_MESSAGE(2, setsockopt_fake.call_count, "setsockopt was not called 2 times!");
 }
@@ -447,7 +447,7 @@ static void test_socket_enable_keepalive_keep_cnt(void)
 
 	SET_CUSTOM_FAKE_SEQ(setsockopt, custom_fakes, ARRAY_SIZE(custom_fakes));
 
-	err = s.set_keep_alive(&s, true, 10, 9, 8);
+	err = cio_socket_set_keep_alive(&s, true, 10, 9, 8);
 	TEST_ASSERT_NOT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Return value for failing set_keep_alive not correct!");
 	TEST_ASSERT_EQUAL_MESSAGE(3, setsockopt_fake.call_count, "setsockopt was not called 3 times!");
 }

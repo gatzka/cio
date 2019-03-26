@@ -60,24 +60,6 @@ typedef void (*cio_socket_close_hook)(struct cio_socket *s);
 struct cio_socket {
 
 	/**
-	 * @anchor cio_socket_set_keep_alive
-	 * @brief Enables/disables TCP keepalive messages.
-	 *
-	 * @param socket A pointer to a cio_socket for which TCP keepalive should be changed.
-	 * @param on Whether or not to enable TCP keepalives.
-	 * @param keep_idle_s Time in seconds the connections needs to remain idle
-	 *        before start sending keepalive messages. This option might be unused
-	 *        in some platform implementations.
-	 * @param keep_intvl_s Time in seconds between individual keepalive probes.
-	 *        This option might be unused in some platform implementations.
-	 * @param keep_cnt The maximum number of keepalive probes before dropping the connection.
-	 *        This option might be unused in some platform implementations.
-	 *
-	 * @return ::CIO_SUCCESS for success.
-	 */
-	enum cio_error (*set_keep_alive)(struct cio_socket *socket, bool on, unsigned int keep_idle_s, unsigned int keep_intvl_s, unsigned int keep_cnt);
-
-	/**
 	 * @privatesection
 	 */
 	struct cio_io_stream stream;
@@ -130,6 +112,23 @@ CIO_EXPORT struct cio_io_stream *cio_socket_get_io_stream(struct cio_socket *soc
  * @return ::CIO_SUCCESS for success.
  */
 CIO_EXPORT enum cio_error cio_socket_set_tcp_no_delay(struct cio_socket *socket, bool on);
+
+/**
+ * @brief Enables/disables TCP keepalive messages.
+ *
+ * @param socket A pointer to a cio_socket for which TCP keepalive should be changed.
+ * @param on Whether or not to enable TCP keepalives.
+ * @param keep_idle_s Time in seconds the connections needs to remain idle
+ *        before start sending keepalive messages. This option might be unused
+ *        in some platform implementations.
+ * @param keep_intvl_s Time in seconds between individual keepalive probes.
+ *        This option might be unused in some platform implementations.
+ * @param keep_cnt The maximum number of keepalive probes before dropping the connection.
+ *        This option might be unused in some platform implementations.
+ *
+ * @return ::CIO_SUCCESS for success.
+ */
+CIO_EXPORT enum cio_error cio_socket_set_keep_alive(struct cio_socket *socket, bool on, unsigned int keep_idle_s, unsigned int keep_intvl_s, unsigned int keep_cnt);
 
 #ifdef __cplusplus
 }
