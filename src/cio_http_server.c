@@ -752,17 +752,17 @@ enum cio_error cio_http_server_init(struct cio_http_server *server,
 
 enum cio_error cio_http_server_serve(struct cio_http_server *server)
 {
-	enum cio_error err = server->server_socket.set_reuse_address(&server->server_socket, true);
+	enum cio_error err = cio_server_socket_set_reuse_address(&server->server_socket, true);
 	if (cio_unlikely(err != CIO_SUCCESS)) {
 		goto close_socket;
 	}
 
-	err = server->server_socket.bind(&server->server_socket, NULL, server->port);
+	err = cio_server_socket_bind(&server->server_socket, NULL, server->port);
 	if (cio_unlikely(err != CIO_SUCCESS)) {
 		goto close_socket;
 	}
 
-	err = server->server_socket.accept(&server->server_socket, handle_accept, server);
+	err = cio_server_socket_accept(&server->server_socket, handle_accept, server);
 	if (cio_unlikely(err != CIO_SUCCESS)) {
 		goto close_socket;
 	}
@@ -770,7 +770,7 @@ enum cio_error cio_http_server_serve(struct cio_http_server *server)
 	return err;
 
 close_socket:
-	server->server_socket.close(&server->server_socket);
+	cio_server_socket_close(&server->server_socket);
 	return err;
 }
 
@@ -790,6 +790,6 @@ enum cio_error cio_http_server_register_location(struct cio_http_server *server,
 enum cio_error cio_http_server_shutdown(struct cio_http_server *server, cio_http_server_close_hook close_hook)
 {
 	server->close_hook = close_hook;
-	server->server_socket.close(&server->server_socket);
+	cio_server_socket_close(&server->server_socket);
 	return CIO_SUCCESS;
 }

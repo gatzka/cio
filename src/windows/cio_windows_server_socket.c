@@ -171,7 +171,81 @@ accept_ex_failed:
 	return err;
 }
 
-static enum cio_error socket_accept(struct cio_server_socket *ss, cio_accept_handler handler, void *handler_context)
+static void close_listen_socket(struct cio_windows_listen_socket *wls)
+{
+	CancelIo(wls->fd);
+	if (wls->accept_socket != INVALID_SOCKET) {
+		closesocket(wls->accept_socket);
+	}
+
+	try_free(wls);
+}
+
+static enum cio_error create_listen_socket(struct cio_windows_listen_socket *socket, int address_family, struct cio_eventloop *loop)
+{
+	int err;
+	socket->address_family = address_family;
+	socket->bound = false;
+	socket->accept_socket = INVALID_SOCKET;
+	socket->fd = (HANDLE)create_win_socket(address_family, loop, socket);
+
+	if (cio_unlikely((SOCKET)socket->fd == INVALID_SOCKET)) {
+		err = WSAGetLastError();
+		return (enum cio_error)(-err);
+	}
+
+	DWORD dw_bytes;
+	GUID guid_accept_ex = WSAID_ACCEPTEX;
+	int status = WSAIoctl((SOCKET)socket->fd, SIO_GET_EXTENSION_FUNCTION_POINTER, &guid_accept_ex, sizeof(guid_accept_ex), &socket->accept_ex, sizeof(socket->accept_ex), &dw_bytes, NULL, NULL);
+	if (status != 0) {
+		err = WSAGetLastError();
+		goto WSAioctl_failed;
+	}
+
+	socket->en.callback = accept_callback;
+	socket->en.overlapped_operations_in_use = 0;
+
+	return CIO_SUCCESS;
+
+WSAioctl_failed:
+	close_listen_socket(socket);
+	return (enum cio_error)(-err);
+}
+
+enum cio_error cio_server_socket_init(struct cio_server_socket *ss,
+                                      struct cio_eventloop *loop,
+                                      unsigned int backlog,
+                                      cio_alloc_client alloc_client,
+                                      cio_free_client free_client,
+                                      cio_server_socket_close_hook close_hook)
+{
+	ss->backlog = (int)backlog;
+	ss->alloc_client = alloc_client;
+	ss->free_client = free_client;
+	ss->close_hook = close_hook;
+	ss->impl.loop = loop;
+
+	ss->impl.listen_socket_ipv4.accept_socket = INVALID_SOCKET;
+	ss->impl.listen_socket_ipv6.accept_socket = INVALID_SOCKET;
+
+	enum cio_error err = create_listen_socket(&ss->impl.listen_socket_ipv4, AF_INET, loop);
+	if (cio_unlikely(err != CIO_SUCCESS)) {
+		return err;
+	}
+
+	err = create_listen_socket(&ss->impl.listen_socket_ipv6, AF_INET6, loop);
+	if (cio_unlikely(err != CIO_SUCCESS)) {
+		goto create_listen_socket_v6_failed;
+	}
+
+	return CIO_SUCCESS;
+
+create_listen_socket_v6_failed:
+	close_listen_socket(&ss->impl.listen_socket_ipv4);
+	return err;
+}
+
+enum cio_error cio_server_socket_accept(struct cio_server_socket *ss, cio_accept_handler handler, void *handler_context)
 {
 	if (cio_unlikely(handler == NULL)) {
 		return CIO_INVALID_ARGUMENT;
@@ -207,7 +281,7 @@ static enum cio_error socket_accept(struct cio_server_socket *ss, cio_accept_han
 	return CIO_SUCCESS;
 }
 
-static enum cio_error socket_set_reuse_address(struct cio_server_socket *ss, bool on)
+enum cio_error cio_server_socket_set_reuse_address(struct cio_server_socket *ss, bool on)
 {
 	char reuse;
 	if (on) {
@@ -229,7 +303,7 @@ static enum cio_error socket_set_reuse_address(struct cio_server_socket *ss, boo
 	return CIO_SUCCESS;
 }
 
-static enum cio_error socket_bind(struct cio_server_socket *ss, const char *bind_address, uint16_t port)
+enum cio_error cio_server_socket_bind(struct cio_server_socket *ss, const char *bind_address, uint16_t port)
 {
 	struct addrinfo hints;
 	char server_port_string[6];
@@ -306,87 +380,8 @@ static enum cio_error socket_bind(struct cio_server_socket *ss, const char *bind
 	}
 }
 
-static void close_listen_socket(struct cio_windows_listen_socket *wls)
-{
-	CancelIo(wls->fd);
-	if (wls->accept_socket != INVALID_SOCKET) {
-		closesocket(wls->accept_socket);
-	}
-
-	try_free(wls);
-}
-
-static void socket_close(struct cio_server_socket *ss)
+void cio_server_socket_close(struct cio_server_socket *ss)
 {
 	close_listen_socket(&ss->impl.listen_socket_ipv4);
 	close_listen_socket(&ss->impl.listen_socket_ipv6);
-}
-
-static enum cio_error create_listen_socket(struct cio_windows_listen_socket *socket, int address_family, struct cio_eventloop *loop)
-{
-	int err;
-	socket->address_family = address_family;
-	socket->bound = false;
-	socket->accept_socket = INVALID_SOCKET;
-	socket->fd = (HANDLE)create_win_socket(address_family, loop, socket);
-
-	if (cio_unlikely((SOCKET)socket->fd == INVALID_SOCKET)) {
-		err = WSAGetLastError();
-		return (enum cio_error)(-err);
-	}
-
-	DWORD dw_bytes;
-	GUID guid_accept_ex = WSAID_ACCEPTEX;
-	int status = WSAIoctl((SOCKET)socket->fd, SIO_GET_EXTENSION_FUNCTION_POINTER, &guid_accept_ex, sizeof(guid_accept_ex), &socket->accept_ex, sizeof(socket->accept_ex), &dw_bytes, NULL, NULL);
-	if (status != 0) {
-		err = WSAGetLastError();
-		goto WSAioctl_failed;
-	}
-
-	socket->en.callback = accept_callback;
-	socket->en.overlapped_operations_in_use = 0;
-
-	return CIO_SUCCESS;
-
-WSAioctl_failed:
-	close_listen_socket(socket);
-	return (enum cio_error)(-err);
-}
-
-enum cio_error cio_server_socket_init(struct cio_server_socket *ss,
-                                      struct cio_eventloop *loop,
-                                      unsigned int backlog,
-                                      cio_alloc_client alloc_client,
-                                      cio_free_client free_client,
-                                      cio_server_socket_close_hook close_hook)
-{
-	ss->backlog = (int)backlog;
-	ss->alloc_client = alloc_client;
-	ss->free_client = free_client;
-	ss->close_hook = close_hook;
-	ss->impl.loop = loop;
-
-	ss->set_reuse_address = socket_set_reuse_address;
-	ss->bind = socket_bind;
-	ss->accept = socket_accept;
-	ss->close = socket_close;
-
-	ss->impl.listen_socket_ipv4.accept_socket = INVALID_SOCKET;
-	ss->impl.listen_socket_ipv6.accept_socket = INVALID_SOCKET;
-
-	enum cio_error err = create_listen_socket(&ss->impl.listen_socket_ipv4, AF_INET, loop);
-	if (cio_unlikely(err != CIO_SUCCESS)) {
-		return err;
-	}
-
-	err = create_listen_socket(&ss->impl.listen_socket_ipv6, AF_INET6, loop);
-	if (cio_unlikely(err != CIO_SUCCESS)) {
-		goto create_listen_socket_v6_failed;
-	}
-
-	return CIO_SUCCESS;
-
-create_listen_socket_v6_failed:
-	close_listen_socket(&ss->impl.listen_socket_ipv4);
-	return err;
 }

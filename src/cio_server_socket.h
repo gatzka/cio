@@ -77,56 +77,6 @@ typedef void (*cio_server_socket_close_hook)(struct cio_server_socket *ss);
  * @brief The cio_server_socket struct describes a server socket.
  */
 struct cio_server_socket {
-
-	/**
-	 * @anchor cio_server_socket_accept
-	 * @brief Accepts an incoming socket connection.
-	 *
-	 * If the platform specific accept implementation fails, @p handler will
-	 * be called with a appropriate error code. The implementation specific accept
-	 * needs to take care of freeing any intermediatly allocated memory, so there is no
-	 * need to free any resources in @p handler if @p handler is called with err != ::CIO_SUCCESS.
-	 *
-	 * @param ss A pointer to a cio_server_socket on which the accept should be performed.
-	 * @param handler The function to be called if the accept fails or succeeds.
-	 * @param handler_context The context passed to the @a handler function.
-	 *
-	 * @return ::CIO_SUCCESS for success.
-	 */
-	enum cio_error (*accept)(struct cio_server_socket *ss, cio_accept_handler handler, void *handler_context);
-
-	/**
-	 * @anchor cio_server_socket_close
-	 * @brief Closes the cio_server_socket.
-	 *
-	 * @param ss A pointer to a cio_server_socket on which the close should be performed.
-	 */
-	void (*close)(struct cio_server_socket *ss);
-
-	/**
-	 * @anchor cio_server_socket_bind
-	 * @brief Binds the cio_server_socket to a specific address
-	 *
-	 * @param ss A pointer to a cio_server_socket on which the bind should be performed.
-	 * @param bind_address The IP address a cio_server_socket shall bound to. If @c NULL,
-	 *        then cio_server_socket binds to all interfaces.
-	 * @param port The TCP port the cio_server_socket shall listen on.
-	 *
-	 * @return ::CIO_SUCCESS for success.
-	 */
-	enum cio_error (*bind)(struct cio_server_socket *ss, const char *bind_address, uint16_t port);
-
-	/**
-	 * @anchor cio_server_socket_set_reuse_address
-	 * @brief Sets the SO_REUSEADDR socket option.
-	 *
-	 * @param ss A pointer to a cio_server_socket for which the socket option should be set.
-	 * @param on Whether the socket option should be enabled or disabled.
-	 *
-	 * @return ::CIO_SUCCESS for success.
-	 */
-	enum cio_error (*set_reuse_address)(struct cio_server_socket *ss, bool on);
-
 	/**
 	 * @privatesection
 	 */
@@ -163,6 +113,52 @@ CIO_EXPORT enum cio_error cio_server_socket_init(struct cio_server_socket *ss,
                                                  cio_alloc_client alloc_client,
                                                  cio_free_client free_client,
                                                  cio_server_socket_close_hook close_hook);
+
+
+/**
+ * @brief Accepts an incoming socket connection.
+ *
+ * If the platform specific accept implementation fails, @p handler will
+ * be called with a appropriate error code. The implementation specific accept
+ * needs to take care of freeing any intermediatly allocated memory, so there is no
+ * need to free any resources in @p handler if @p handler is called with err != ::CIO_SUCCESS.
+ *
+ * @param ss A pointer to a cio_server_socket on which the accept should be performed.
+ * @param handler The function to be called if the accept fails or succeeds.
+ * @param handler_context The context passed to the @a handler function.
+ *
+ * @return ::CIO_SUCCESS for success.
+ */
+CIO_EXPORT enum cio_error cio_server_socket_accept(struct cio_server_socket *ss, cio_accept_handler handler, void *handler_context);
+
+/**
+ * @brief Closes the server socket.
+ *
+ * @param ss A pointer to a cio_server_socket on which the close should be performed.
+ */
+CIO_EXPORT void cio_server_socket_close(struct cio_server_socket *ss);
+
+/**
+ * @brief Binds the cio_server_socket to a specific address
+ *
+ * @param ss A pointer to a cio_server_socket on which the bind should be performed.
+ * @param bind_address The IP address a cio_server_socket shall bound to. If @c NULL,
+ *        then cio_server_socket binds to all interfaces.
+ * @param port The TCP port the cio_server_socket shall listen on.
+ *
+ * @return ::CIO_SUCCESS for success.
+ */
+CIO_EXPORT enum cio_error cio_server_socket_bind(struct cio_server_socket *ss, const char *bind_address, uint16_t port);
+
+/**
+ * @brief Sets the SO_REUSEADDR socket option.
+ *
+ * @param ss A pointer to a cio_server_socket for which the socket option should be set.
+ * @param on Whether the socket option should be enabled or disabled.
+ *
+ * @return ::CIO_SUCCESS for success.
+ */
+CIO_EXPORT enum cio_error cio_server_socket_set_reuse_address(struct cio_server_socket *ss, bool on);
 
 #ifdef __cplusplus
 }

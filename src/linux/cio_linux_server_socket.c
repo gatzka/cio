@@ -42,16 +42,6 @@
 #include "cio_socket.h"
 #include "linux/cio_linux_socket_utils.h"
 
-static void socket_close(struct cio_server_socket *ss)
-{
-	cio_linux_eventloop_remove(ss->impl.loop, &ss->impl.ev);
-
-	close(ss->impl.ev.fd);
-	if (ss->close_hook != NULL) {
-		ss->close_hook(ss);
-	}
-}
-
 static void accept_callback(void *context)
 {
 	struct sockaddr_storage addr;
@@ -85,7 +75,29 @@ static void accept_callback(void *context)
 	}
 }
 
-static enum cio_error socket_accept(struct cio_server_socket *ss, cio_accept_handler handler, void *handler_context)
+enum cio_error cio_server_socket_init(struct cio_server_socket *ss,
+                                      struct cio_eventloop *loop,
+                                      unsigned int backlog,
+                                      cio_alloc_client alloc_client,
+                                      cio_free_client free_client,
+                                      cio_server_socket_close_hook close_hook)
+{
+	int listen_fd = cio_linux_socket_create();
+	if (listen_fd == -1) {
+		return (enum cio_error)(-errno);
+	}
+
+	ss->impl.ev.fd = listen_fd;
+
+	ss->alloc_client = alloc_client;
+	ss->free_client = free_client;
+	ss->impl.loop = loop;
+	ss->close_hook = close_hook;
+	ss->backlog = (int)backlog;
+	return CIO_SUCCESS;
+}
+
+enum cio_error cio_server_socket_accept(struct cio_server_socket *ss, cio_accept_handler handler, void *handler_context)
 {
 	enum cio_error err;
 	if (cio_unlikely(handler == NULL)) {
@@ -114,24 +126,17 @@ static enum cio_error socket_accept(struct cio_server_socket *ss, cio_accept_han
 	return CIO_SUCCESS;
 }
 
-static enum cio_error socket_set_reuse_address(struct cio_server_socket *ss, bool on)
+void cio_server_socket_close(struct cio_server_socket *ss)
 {
-	int reuse;
-	if (on) {
-		reuse = 1;
-	} else {
-		reuse = 0;
-	}
+	cio_linux_eventloop_remove(ss->impl.loop, &ss->impl.ev);
 
-	if (cio_unlikely(setsockopt(ss->impl.ev.fd, SOL_SOCKET, SO_REUSEADDR, &reuse,
-	                            sizeof(reuse)) < 0)) {
-		return (enum cio_error)(-errno);
+	close(ss->impl.ev.fd);
+	if (ss->close_hook != NULL) {
+		ss->close_hook(ss);
 	}
-
-	return CIO_SUCCESS;
 }
 
-static enum cio_error socket_bind(struct cio_server_socket *ss, const char *bind_address, uint16_t port)
+enum cio_error cio_server_socket_bind(struct cio_server_socket *ss, const char *bind_address, uint16_t port)
 {
 	static const unsigned int MAX_PORT_LENGTH = 6;
 	struct addrinfo hints;
@@ -175,28 +180,19 @@ static enum cio_error socket_bind(struct cio_server_socket *ss, const char *bind
 	return CIO_SUCCESS;
 }
 
-enum cio_error cio_server_socket_init(struct cio_server_socket *ss,
-                                      struct cio_eventloop *loop,
-                                      unsigned int backlog,
-                                      cio_alloc_client alloc_client,
-                                      cio_free_client free_client,
-                                      cio_server_socket_close_hook close_hook)
+enum cio_error cio_server_socket_set_reuse_address(struct cio_server_socket *ss, bool on)
 {
-	int listen_fd = cio_linux_socket_create();
-	if (listen_fd == -1) {
+	int reuse;
+	if (on) {
+		reuse = 1;
+	} else {
+		reuse = 0;
+	}
+
+	if (cio_unlikely(setsockopt(ss->impl.ev.fd, SOL_SOCKET, SO_REUSEADDR, &reuse,
+								sizeof(reuse)) < 0)) {
 		return (enum cio_error)(-errno);
 	}
 
-	ss->impl.ev.fd = listen_fd;
-
-	ss->alloc_client = alloc_client;
-	ss->free_client = free_client;
-	ss->close = socket_close;
-	ss->accept = socket_accept;
-	ss->set_reuse_address = socket_set_reuse_address;
-	ss->bind = socket_bind;
-	ss->impl.loop = loop;
-	ss->close_hook = close_hook;
-	ss->backlog = (int)backlog;
 	return CIO_SUCCESS;
 }

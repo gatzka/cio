@@ -100,23 +100,11 @@ DEFINE_FFF_GLOBALS
 static void serve_error(struct cio_http_server *server, const char *reason);
 FAKE_VOID_FUNC(serve_error, struct cio_http_server *, const char *)
 
-static void socket_close(struct cio_server_socket *context);
-FAKE_VOID_FUNC(socket_close, struct cio_server_socket *)
-static enum cio_error socket_accept(struct cio_server_socket *context, cio_accept_handler handler, void *handler_context);
-FAKE_VALUE_FUNC(enum cio_error, socket_accept, struct cio_server_socket *, cio_accept_handler, void *)
-static enum cio_error socket_set_reuse_address(struct cio_server_socket *context, bool on);
-FAKE_VALUE_FUNC(enum cio_error, socket_set_reuse_address, struct cio_server_socket *, bool)
-static enum cio_error socket_bind(struct cio_server_socket *context, const char *bind_address, uint16_t port);
-FAKE_VALUE_FUNC(enum cio_error, socket_bind, struct cio_server_socket *, const char *, uint16_t)
-
-enum cio_error cio_server_socket_init(struct cio_server_socket *ss,
-                                      struct cio_eventloop *loop,
-                                      unsigned int backlog,
-                                      cio_alloc_client alloc_client,
-                                      cio_free_client free_client,
-                                      cio_server_socket_close_hook close_hook);
-
+FAKE_VALUE_FUNC(enum cio_error, cio_server_socket_accept, struct cio_server_socket *, cio_accept_handler, void *)
+FAKE_VALUE_FUNC(enum cio_error, cio_server_socket_bind, struct cio_server_socket *, const char *, uint16_t)
+FAKE_VOID_FUNC(cio_server_socket_close, struct cio_server_socket *)
 FAKE_VALUE_FUNC(enum cio_error, cio_server_socket_init, struct cio_server_socket *, struct cio_eventloop *, unsigned int, cio_alloc_client, cio_free_client, cio_server_socket_close_hook)
+FAKE_VALUE_FUNC(enum cio_error, cio_server_socket_set_reuse_address, struct cio_server_socket *, bool)
 
 FAKE_VOID_FUNC(http_close_hook, struct cio_http_server *)
 
@@ -220,10 +208,6 @@ static enum cio_error cio_server_socket_init_ok(struct cio_server_socket *ss,
 	ss->backlog = (int)backlog;
 	ss->impl.loop = l;
 	ss->close_hook = close_hook;
-	ss->close = socket_close;
-	ss->accept = socket_accept;
-	ss->set_reuse_address = socket_set_reuse_address;
-	ss->bind = socket_bind;
 	return CIO_SUCCESS;
 }
 
@@ -581,12 +565,14 @@ static void fire_keepalive_timeout(struct cio_socket *s)
 void setUp(void)
 {
 	FFF_RESET_HISTORY();
+
+	RESET_FAKE(cio_server_socket_accept);
+	RESET_FAKE(cio_server_socket_bind);
+	RESET_FAKE(cio_server_socket_close);
 	RESET_FAKE(cio_server_socket_init);
-	RESET_FAKE(socket_set_reuse_address);
-	RESET_FAKE(socket_accept);
-	RESET_FAKE(socket_bind);
+	RESET_FAKE(cio_server_socket_set_reuse_address);
+
 	RESET_FAKE(serve_error);
-	RESET_FAKE(socket_close);
 	RESET_FAKE(http_close_hook);
 
 	RESET_FAKE(on_schema);
@@ -621,9 +607,9 @@ void setUp(void)
 	http_parser_settings_init(&response_parser_settings);
 	http_parser_init(&response_parser, HTTP_RESPONSE);
 
-	socket_close_fake.custom_fake = close_server_socket;
-	socket_accept_fake.custom_fake = accept_save_handler;
 	cio_server_socket_init_fake.custom_fake = cio_server_socket_init_ok;
+	cio_server_socket_accept_fake.custom_fake = accept_save_handler;
+	cio_server_socket_close_fake.custom_fake = close_server_socket;
 }
 
 void tearDown(void)
@@ -648,17 +634,17 @@ static void test_server_init(void)
 
 	struct cio_http_server server;
 	struct server_init_arguments server_init_arguments[] = {
-	    {.server = &server, .port = 8080, .loop = &loop, .serve_error = serve_error, .header_read_timeout = header_read_timeout, .body_read_timeout = body_read_timeout, .response_timeout = response_timeout, .alloc_client = alloc_dummy_client, .free_client = free_dummy_client, .server_socket_init = cio_server_socket_init_ok, .expected_result = CIO_SUCCESS},
-	    {.server = NULL, .port = 8080, .loop = &loop, .serve_error = serve_error, .header_read_timeout = header_read_timeout, .body_read_timeout = body_read_timeout, .response_timeout = response_timeout, .alloc_client = alloc_dummy_client, .free_client = free_dummy_client, .server_socket_init = cio_server_socket_init_ok, .expected_result = CIO_INVALID_ARGUMENT},
-	    {.server = &server, .port = 0, .loop = &loop, .serve_error = serve_error, .header_read_timeout = header_read_timeout, .body_read_timeout = body_read_timeout, .response_timeout = response_timeout, .alloc_client = alloc_dummy_client, .free_client = free_dummy_client, .server_socket_init = cio_server_socket_init_ok, .expected_result = CIO_INVALID_ARGUMENT},
-	    {.server = &server, .port = 8080, .loop = NULL, .serve_error = serve_error, .header_read_timeout = header_read_timeout, .body_read_timeout = body_read_timeout, .response_timeout = response_timeout, .alloc_client = alloc_dummy_client, .free_client = free_dummy_client, .server_socket_init = cio_server_socket_init_ok, .expected_result = CIO_INVALID_ARGUMENT},
-	    {.server = &server, .port = 8080, .loop = &loop, .serve_error = NULL, .header_read_timeout = header_read_timeout, .body_read_timeout = body_read_timeout, .response_timeout = response_timeout, .alloc_client = alloc_dummy_client, .free_client = free_dummy_client, .server_socket_init = cio_server_socket_init_ok, .expected_result = CIO_SUCCESS},
-	    {.server = &server, .port = 8080, .loop = &loop, .serve_error = serve_error, .header_read_timeout = 0, .body_read_timeout = body_read_timeout, .response_timeout = response_timeout, .alloc_client = alloc_dummy_client, .free_client = free_dummy_client, .server_socket_init = cio_server_socket_init_ok, .expected_result = CIO_INVALID_ARGUMENT},
-	    {.server = &server, .port = 8080, .loop = &loop, .serve_error = serve_error, .header_read_timeout = header_read_timeout, .body_read_timeout = 0, .response_timeout = response_timeout, .alloc_client = alloc_dummy_client, .free_client = free_dummy_client, .server_socket_init = cio_server_socket_init_ok, .expected_result = CIO_INVALID_ARGUMENT},
-	    {.server = &server, .port = 8080, .loop = &loop, .serve_error = serve_error, .header_read_timeout = header_read_timeout, .body_read_timeout = body_read_timeout, .response_timeout = 0, .alloc_client = alloc_dummy_client, .free_client = free_dummy_client, .server_socket_init = cio_server_socket_init_ok, .expected_result = CIO_INVALID_ARGUMENT},
-	    {.server = &server, .port = 8080, .loop = &loop, .serve_error = serve_error, .header_read_timeout = header_read_timeout, .body_read_timeout = body_read_timeout, .response_timeout = response_timeout, .alloc_client = NULL, .free_client = free_dummy_client, .server_socket_init = cio_server_socket_init_ok, .expected_result = CIO_INVALID_ARGUMENT},
-	    {.server = &server, .port = 8080, .loop = &loop, .serve_error = serve_error, .header_read_timeout = header_read_timeout, .body_read_timeout = body_read_timeout, .response_timeout = response_timeout, .alloc_client = alloc_dummy_client, .free_client = NULL, .server_socket_init = cio_server_socket_init_ok, .expected_result = CIO_INVALID_ARGUMENT},
-	    {.server = &server, .port = 8080, .loop = &loop, .serve_error = serve_error, .header_read_timeout = header_read_timeout, .body_read_timeout = body_read_timeout, .response_timeout = response_timeout, .alloc_client = alloc_dummy_client, .free_client = free_dummy_client, .server_socket_init = cio_server_socket_init_fails, .expected_result = CIO_INVALID_ARGUMENT},
+		{.server = &server, .port = 8080, .loop = &loop, .serve_error = serve_error, .header_read_timeout = header_read_timeout, .body_read_timeout = body_read_timeout, .response_timeout = response_timeout, .alloc_client = alloc_dummy_client, .free_client = free_dummy_client, .server_socket_init = cio_server_socket_init_ok, .expected_result = CIO_SUCCESS},
+		{.server = NULL, .port = 8080, .loop = &loop, .serve_error = serve_error, .header_read_timeout = header_read_timeout, .body_read_timeout = body_read_timeout, .response_timeout = response_timeout, .alloc_client = alloc_dummy_client, .free_client = free_dummy_client, .server_socket_init = cio_server_socket_init_ok, .expected_result = CIO_INVALID_ARGUMENT},
+		{.server = &server, .port = 0, .loop = &loop, .serve_error = serve_error, .header_read_timeout = header_read_timeout, .body_read_timeout = body_read_timeout, .response_timeout = response_timeout, .alloc_client = alloc_dummy_client, .free_client = free_dummy_client, .server_socket_init = cio_server_socket_init_ok, .expected_result = CIO_INVALID_ARGUMENT},
+		{.server = &server, .port = 8080, .loop = NULL, .serve_error = serve_error, .header_read_timeout = header_read_timeout, .body_read_timeout = body_read_timeout, .response_timeout = response_timeout, .alloc_client = alloc_dummy_client, .free_client = free_dummy_client, .server_socket_init = cio_server_socket_init_ok, .expected_result = CIO_INVALID_ARGUMENT},
+		{.server = &server, .port = 8080, .loop = &loop, .serve_error = NULL, .header_read_timeout = header_read_timeout, .body_read_timeout = body_read_timeout, .response_timeout = response_timeout, .alloc_client = alloc_dummy_client, .free_client = free_dummy_client, .server_socket_init = cio_server_socket_init_ok, .expected_result = CIO_SUCCESS},
+		{.server = &server, .port = 8080, .loop = &loop, .serve_error = serve_error, .header_read_timeout = 0, .body_read_timeout = body_read_timeout, .response_timeout = response_timeout, .alloc_client = alloc_dummy_client, .free_client = free_dummy_client, .server_socket_init = cio_server_socket_init_ok, .expected_result = CIO_INVALID_ARGUMENT},
+		{.server = &server, .port = 8080, .loop = &loop, .serve_error = serve_error, .header_read_timeout = header_read_timeout, .body_read_timeout = 0, .response_timeout = response_timeout, .alloc_client = alloc_dummy_client, .free_client = free_dummy_client, .server_socket_init = cio_server_socket_init_ok, .expected_result = CIO_INVALID_ARGUMENT},
+		{.server = &server, .port = 8080, .loop = &loop, .serve_error = serve_error, .header_read_timeout = header_read_timeout, .body_read_timeout = body_read_timeout, .response_timeout = 0, .alloc_client = alloc_dummy_client, .free_client = free_dummy_client, .server_socket_init = cio_server_socket_init_ok, .expected_result = CIO_INVALID_ARGUMENT},
+		{.server = &server, .port = 8080, .loop = &loop, .serve_error = serve_error, .header_read_timeout = header_read_timeout, .body_read_timeout = body_read_timeout, .response_timeout = response_timeout, .alloc_client = NULL, .free_client = free_dummy_client, .server_socket_init = cio_server_socket_init_ok, .expected_result = CIO_INVALID_ARGUMENT},
+		{.server = &server, .port = 8080, .loop = &loop, .serve_error = serve_error, .header_read_timeout = header_read_timeout, .body_read_timeout = body_read_timeout, .response_timeout = response_timeout, .alloc_client = alloc_dummy_client, .free_client = NULL, .server_socket_init = cio_server_socket_init_ok, .expected_result = CIO_INVALID_ARGUMENT},
+		{.server = &server, .port = 8080, .loop = &loop, .serve_error = serve_error, .header_read_timeout = header_read_timeout, .body_read_timeout = body_read_timeout, .response_timeout = response_timeout, .alloc_client = alloc_dummy_client, .free_client = free_dummy_client, .server_socket_init = cio_server_socket_init_fails, .expected_result = CIO_INVALID_ARGUMENT},
 	};
 
 	for (unsigned int i = 0; i < ARRAY_SIZE(server_init_arguments); i++) {
@@ -1170,10 +1156,10 @@ static void test_errors_in_serve(void)
 	for (unsigned int i = 0; i < ARRAY_SIZE(serve_tests); i++) {
 		struct serve_test serve_test = serve_tests[i];
 
-		socket_set_reuse_address_fake.return_val = serve_test.reuse_addres_retval;
-		socket_bind_fake.return_val = serve_test.bind_retval;
-		socket_accept_fake.custom_fake = NULL;
-		socket_accept_fake.return_val = serve_test.accept_retval;
+		cio_server_socket_set_reuse_address_fake.return_val = serve_test.reuse_addres_retval;
+		cio_server_socket_bind_fake.return_val = serve_test.bind_retval;
+		cio_server_socket_accept_fake.custom_fake = NULL;
+		cio_server_socket_accept_fake.return_val = serve_test.accept_retval;
 
 		struct cio_http_server server;
 		enum cio_error err = cio_http_server_init(&server, 8080, &loop, serve_error, header_read_timeout, body_read_timeout, response_timeout, alloc_dummy_client, free_dummy_client);
@@ -1181,7 +1167,7 @@ static void test_errors_in_serve(void)
 
 		err = cio_http_server_serve(&server);
 		TEST_ASSERT_NOT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Serving http did not fail!");
-		TEST_ASSERT_EQUAL_MESSAGE(1, socket_close_fake.call_count, "Close was not called!");
+		TEST_ASSERT_EQUAL_MESSAGE(1, cio_server_socket_close_fake.call_count, "Close was not called!");
 
 		setUp();
 	}
