@@ -49,7 +49,7 @@ static void try_free(struct cio_socket *s)
 static enum cio_error stream_close(struct cio_io_stream *stream)
 {
 	struct cio_socket *s = cio_container_of(stream, struct cio_socket, stream);
-	return socket_close(s);
+	return cio_socket_close(s);
 }
 
 static void read_callback(struct cio_event_notifier *ev)
