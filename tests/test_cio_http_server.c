@@ -72,7 +72,7 @@ FAKE_VALUE_FUNC(enum cio_error, socket_set_reuse_address, struct cio_server_sock
 static enum cio_error socket_bind(struct cio_server_socket *context, const char *bind_address, uint16_t port);
 FAKE_VALUE_FUNC(enum cio_error, socket_bind, struct cio_server_socket *, const char *, uint16_t)
 
-FAKE_VALUE_FUNC(enum cio_error, cio_server_socket_init, struct cio_server_socket *, struct cio_eventloop *, unsigned int, cio_alloc_client, cio_free_client, cio_server_socket_close_hook)
+FAKE_VALUE_FUNC(enum cio_error, cio_serversocket_init, struct cio_server_socket *, struct cio_eventloop *, unsigned int, cio_alloc_client, cio_free_client, cio_server_socket_close_hook)
 FAKE_VALUE_FUNC(enum cio_error, cio_serversocket_accept, struct cio_server_socket *, cio_accept_handler, void *)
 
 static enum cio_error timer_cancel(struct cio_timer *t);
@@ -115,7 +115,7 @@ static enum cio_error cio_timer_init_ok(struct cio_timer *timer, struct cio_even
 	return CIO_SUCCESS;
 }
 
-static enum cio_error cio_server_socket_init_ok(struct cio_server_socket *ss,
+static enum cio_error cio_serversocket_init_ok(struct cio_server_socket *ss,
                                                 struct cio_eventloop *loop,
                                                 unsigned int backlog,
                                                 cio_alloc_client alloc_client,
@@ -343,7 +343,7 @@ void setUp(void)
 	RESET_FAKE(bs_read_until);
 	RESET_FAKE(cio_buffered_stream_init);
 	RESET_FAKE(cio_serversocket_accept);
-	RESET_FAKE(cio_server_socket_init);
+	RESET_FAKE(cio_serversocket_init);
 	RESET_FAKE(get_io_stream);
 	RESET_FAKE(header_complete);
 	RESET_FAKE(message_complete);
@@ -380,7 +380,7 @@ void tearDown(void)
 
 static void test_serve_correctly(void)
 {
-	cio_server_socket_init_fake.custom_fake = cio_server_socket_init_ok;
+	cio_serversocket_init_fake.custom_fake = cio_serversocket_init_ok;
 	cio_serversocket_accept_fake.custom_fake = accept_save_handler;
 
 	header_complete_fake.custom_fake = header_complete_write_response;
@@ -444,7 +444,7 @@ static void test_read_until_errors(void)
 		bs_read_until_fakes[test.which_read_until_fails] = bs_read_until_call_fails;
 		SET_CUSTOM_FAKE_SEQ(bs_read_until, bs_read_until_fakes, (int)array_size);
 
-		cio_server_socket_init_fake.custom_fake = cio_server_socket_init_ok;
+		cio_serversocket_init_fake.custom_fake = cio_serversocket_init_ok;
 		cio_serversocket_accept_fake.custom_fake = accept_save_handler;
 
 		header_complete_fake.custom_fake = header_complete_write_response;
@@ -486,7 +486,7 @@ static void test_read_until_errors(void)
 
 static void test_close_error(void)
 {
-	cio_server_socket_init_fake.custom_fake = cio_server_socket_init_ok;
+	cio_serversocket_init_fake.custom_fake = cio_serversocket_init_ok;
 	cio_serversocket_accept_fake.custom_fake = accept_save_handler;
 	bs_close_fake.custom_fake = bs_close_fails;
 
@@ -526,7 +526,7 @@ static void test_close_error(void)
 static void test_read_at_least_error(void)
 {
 	bs_read_at_least_fake.custom_fake = bs_read_at_least_call_fails;
-	cio_server_socket_init_fake.custom_fake = cio_server_socket_init_ok;
+	cio_serversocket_init_fake.custom_fake = cio_serversocket_init_ok;
 	cio_serversocket_accept_fake.custom_fake = accept_save_handler;
 
 	struct cio_http_server server;
@@ -565,7 +565,7 @@ static void test_read_at_least_error(void)
 
 static void test_write_error(void)
 {
-	cio_server_socket_init_fake.custom_fake = cio_server_socket_init_ok;
+	cio_serversocket_init_fake.custom_fake = cio_serversocket_init_ok;
 	cio_serversocket_accept_fake.custom_fake = accept_save_handler;
 	header_complete_fake.custom_fake = header_complete_write_response;
 	bs_write_fake.custom_fake = bs_write_error;

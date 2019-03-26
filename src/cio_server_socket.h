@@ -44,7 +44,7 @@ extern "C" {
  * @file
  * @brief This file contains the interface of a server socket.
  *
- * A server socket can be @ref cio_server_socket_init "initialized",
+ * A server socket can be @ref cio_serversocket_init "initialized",
  * @ref cio_serversocket_accept "accept connections" and can be
  * @ref cio_server_socket_close "closed".
  */
@@ -140,7 +140,7 @@ struct cio_server_socket {
  * the hook could be used to free the memory of the server socket.
  * @return ::CIO_SUCCESS for success.
  */
-CIO_EXPORT enum cio_error cio_server_socket_init(struct cio_server_socket *ss,
+CIO_EXPORT enum cio_error cio_serversocket_init(struct cio_server_socket *ss,
                                                  struct cio_eventloop *loop,
                                                  unsigned int backlog,
                                                  cio_alloc_client alloc_client,

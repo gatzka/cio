@@ -146,7 +146,7 @@ static enum cio_error socket_bind(struct cio_server_socket *ss, const char *bind
 	return CIO_SUCCESS;
 }
 
-enum cio_error cio_server_socket_init(struct cio_server_socket *ss,
+enum cio_error cio_serversocket_init(struct cio_server_socket *ss,
                                       struct cio_eventloop *loop,
                                       unsigned int backlog,
                                       cio_alloc_client alloc_client,

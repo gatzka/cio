@@ -86,14 +86,14 @@ FAKE_VOID_FUNC(timer_close, struct cio_timer *)
 static enum cio_error timer_expires_from_now(struct cio_timer *t, uint64_t timeout_ns, cio_timer_handler handler, void *handler_context);
 FAKE_VALUE_FUNC(enum cio_error, timer_expires_from_now, struct cio_timer *, uint64_t, cio_timer_handler, void *)
 
-enum cio_error cio_server_socket_init(struct cio_server_socket *ss,
+enum cio_error cio_serversocket_init(struct cio_server_socket *ss,
                                       struct cio_eventloop *loop,
                                       unsigned int backlog,
                                       cio_alloc_client alloc_client,
                                       cio_free_client free_client,
                                       cio_server_socket_close_hook close_hook);
 
-FAKE_VALUE_FUNC(enum cio_error, cio_server_socket_init, struct cio_server_socket *, struct cio_eventloop *, unsigned int, cio_alloc_client, cio_free_client, cio_server_socket_close_hook)
+FAKE_VALUE_FUNC(enum cio_error, cio_serversocket_init, struct cio_server_socket *, struct cio_eventloop *, unsigned int, cio_alloc_client, cio_free_client, cio_server_socket_close_hook)
 
 static void on_control(const struct cio_websocket *ws, enum cio_websocket_frame_type type, const uint8_t *data, uint_fast8_t length);
 FAKE_VOID_FUNC(on_control, const struct cio_websocket *, enum cio_websocket_frame_type, const uint8_t *, uint_fast8_t)
@@ -148,7 +148,7 @@ static struct cio_socket *alloc_dummy_client(void)
 	return &client->socket;
 }
 
-static enum cio_error cio_server_socket_init_ok(struct cio_server_socket *ss,
+static enum cio_error cio_serversocket_init_ok(struct cio_server_socket *ss,
                                                 struct cio_eventloop *l,
                                                 unsigned int backlog,
                                                 cio_alloc_client alloc_client,
@@ -329,7 +329,7 @@ void setUp(void)
 	RESET_FAKE(bs_read_until);
 	RESET_FAKE(bs_write);
 	RESET_FAKE(cio_buffered_stream_init);
-	RESET_FAKE(cio_server_socket_init);
+	RESET_FAKE(cio_serversocket_init);
 	RESET_FAKE(cio_serversocket_accept);
 	RESET_FAKE(cio_timer_init);
 	RESET_FAKE(get_io_stream);
@@ -346,7 +346,7 @@ void setUp(void)
 	http_parser_init(&parser, HTTP_RESPONSE);
 
 	current_line = 0;
-	cio_server_socket_init_fake.custom_fake = cio_server_socket_init_ok;
+	cio_serversocket_init_fake.custom_fake = cio_serversocket_init_ok;
 	cio_serversocket_accept_fake.custom_fake = accept_save_handler;
 
 	cio_timer_init_fake.custom_fake = cio_timer_init_ok;
