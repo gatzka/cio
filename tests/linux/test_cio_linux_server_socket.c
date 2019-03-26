@@ -263,7 +263,7 @@ static void accept_handler_close_server_socket(struct cio_server_socket *ss, voi
 		free_success(sock);
 	}
 
-	ss->close(ss);
+	cio_server_socket_close(ss);
 }
 
 static enum cio_error socket_close(struct cio_socket *s)
@@ -382,7 +382,7 @@ static void test_accept_wouldblock(void)
 	ss.impl.ev.read_callback(ss.impl.ev.context);
 
 	TEST_ASSERT_EQUAL(0, accept_handler_fake.call_count);
-	ss.close(&ss);
+	cio_server_socket_close(&ss);
 	TEST_ASSERT_EQUAL(1, on_close_fake.call_count);
 	TEST_ASSERT_EQUAL(&ss, on_close_fake.arg0_val);
 }
@@ -421,7 +421,7 @@ static void test_accept_no_handler(void)
 	TEST_ASSERT_EQUAL(CIO_SUCCESS, err);
 	err = cio_server_socket_accept(&ss, NULL, NULL);
 	TEST_ASSERT_EQUAL(CIO_INVALID_ARGUMENT, err);
-	ss.close(&ss);
+	cio_server_socket_close(&ss);
 	TEST_ASSERT_EQUAL(1, on_close_fake.call_count);
 	TEST_ASSERT_EQUAL(&ss, on_close_fake.arg0_val);
 }
@@ -444,7 +444,7 @@ static void test_accept_eventloop_add_fails(void)
 	err = cio_server_socket_accept(&ss, accept_handler, NULL);
 	TEST_ASSERT(err != CIO_SUCCESS);
 	TEST_ASSERT_EQUAL(0, accept_handler_fake.call_count);
-	ss.close(&ss);
+	cio_server_socket_close(&ss);
 }
 
 static void test_init_fails_no_socket(void)
@@ -479,7 +479,7 @@ static void test_init_listen_fails(void)
 	TEST_ASSERT_EQUAL(CIO_SUCCESS, err);
 	err = cio_server_socket_accept(&ss, accept_handler, NULL);
 	TEST_ASSERT(err != CIO_SUCCESS);
-	ss.close(&ss);
+	cio_server_socket_close(&ss);
 }
 
 static void test_init_setsockopt_fails(void)
@@ -498,7 +498,7 @@ static void test_init_setsockopt_fails(void)
 	err = ss.set_reuse_address(&ss, true);
 	TEST_ASSERT(err != CIO_SUCCESS);
 	TEST_ASSERT_EQUAL(0, close_fake.call_count);
-	ss.close(&ss);
+	cio_server_socket_close(&ss);
 	TEST_ASSERT_EQUAL(1, close_fake.call_count);
 }
 
@@ -520,7 +520,7 @@ static void test_init_register_read_fails(void)
 	err = cio_server_socket_accept(&ss, accept_handler, NULL);
 	TEST_ASSERT(err != CIO_SUCCESS);
 	TEST_ASSERT_EQUAL(0, close_fake.call_count);
-	ss.close(&ss);
+	cio_server_socket_close(&ss);
 	TEST_ASSERT_EQUAL(1, close_fake.call_count);
 }
 
@@ -543,7 +543,7 @@ static void test_enable_reuse_address(void)
 	TEST_ASSERT_EQUAL(SOL_SOCKET, setsockopt_fake.arg1_val);
 	TEST_ASSERT_EQUAL(SO_REUSEADDR, setsockopt_fake.arg2_val);
 	TEST_ASSERT_EQUAL(sizeof(int), setsockopt_fake.arg4_val);
-	ss.close(&ss);
+	cio_server_socket_close(&ss);
 }
 
 static void test_disable_reuse_address(void)
@@ -565,7 +565,7 @@ static void test_disable_reuse_address(void)
 	TEST_ASSERT_EQUAL(SOL_SOCKET, setsockopt_fake.arg1_val);
 	TEST_ASSERT_EQUAL(SO_REUSEADDR, setsockopt_fake.arg2_val);
 	TEST_ASSERT_EQUAL(sizeof(int), setsockopt_fake.arg4_val);
-	ss.close(&ss);
+	cio_server_socket_close(&ss);
 }
 
 static void test_init_bind_fails(void)
@@ -584,7 +584,7 @@ static void test_init_bind_fails(void)
 	err = ss.bind(&ss, NULL, 12345);
 	TEST_ASSERT(err != CIO_SUCCESS);
 	TEST_ASSERT_EQUAL(0, close_fake.call_count);
-	ss.close(&ss);
+	cio_server_socket_close(&ss);
 	TEST_ASSERT_EQUAL(1, close_fake.call_count);
 }
 
@@ -604,7 +604,7 @@ static void test_bind_getaddrinfofails(void)
 	err = ss.bind(&ss, NULL, 12345);
 	TEST_ASSERT_NOT_EQUAL_MESSAGE(CIO_SUCCESS, err, "bind did not failed when getaddrinfo failes");
 	TEST_ASSERT_EQUAL(0, close_fake.call_count);
-	ss.close(&ss);
+	cio_server_socket_close(&ss);
 	TEST_ASSERT_EQUAL(1, close_fake.call_count);
 }
 
@@ -624,7 +624,7 @@ static void test_bind_getaddrinfofails_eaisystem(void)
 	err = ss.bind(&ss, NULL, 12345);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_INVALID_ARGUMENT, err, "bind did not failed when getaddrinfo failes");
 	TEST_ASSERT_EQUAL(0, close_fake.call_count);
-	ss.close(&ss);
+	cio_server_socket_close(&ss);
 	TEST_ASSERT_EQUAL(1, close_fake.call_count);
 }
 

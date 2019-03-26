@@ -119,7 +119,7 @@ static void handle_accept(struct cio_server_socket *ss, void *handler_context, e
 
 	if (err != CIO_SUCCESS) {
 		fprintf(stderr, "accept error!\n");
-		ss->close(ss);
+		cio_server_socket_close(ss);
 		cio_eventloop_cancel(ss->impl.loop);
 		return;
 	}
@@ -177,7 +177,7 @@ int main(void)
 	}
 
 close_socket:
-	ss.close(&ss);
+	cio_server_socket_close(&ss);
 destroy_loop:
 	cio_eventloop_destroy(&loop);
 	return ret;

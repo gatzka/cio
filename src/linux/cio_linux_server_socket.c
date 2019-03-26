@@ -42,16 +42,6 @@
 #include "cio_socket.h"
 #include "linux/cio_linux_socket_utils.h"
 
-static void socket_close(struct cio_server_socket *ss)
-{
-	cio_linux_eventloop_remove(ss->impl.loop, &ss->impl.ev);
-
-	close(ss->impl.ev.fd);
-	if (ss->close_hook != NULL) {
-		ss->close_hook(ss);
-	}
-}
-
 static void accept_callback(void *context)
 {
 	struct sockaddr_storage addr;
@@ -162,7 +152,6 @@ enum cio_error cio_serversocket_init(struct cio_server_socket *ss,
 
 	ss->alloc_client = alloc_client;
 	ss->free_client = free_client;
-	ss->close = socket_close;
 	ss->set_reuse_address = socket_set_reuse_address;
 	ss->bind = socket_bind;
 	ss->impl.loop = loop;
@@ -198,4 +187,14 @@ enum cio_error cio_server_socket_accept(struct cio_server_socket *ss, cio_accept
 	}
 
 	return CIO_SUCCESS;
+}
+
+void cio_server_socket_close(struct cio_server_socket *ss)
+{
+	cio_linux_eventloop_remove(ss->impl.loop, &ss->impl.ev);
+
+	close(ss->impl.ev.fd);
+	if (ss->close_hook != NULL) {
+		ss->close_hook(ss);
+	}
 }

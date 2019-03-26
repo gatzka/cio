@@ -79,14 +79,6 @@ typedef void (*cio_server_socket_close_hook)(struct cio_server_socket *ss);
 struct cio_server_socket {
 
 	/**
-	 * @anchor cio_server_socket_close
-	 * @brief Closes the cio_server_socket.
-	 *
-	 * @param ss A pointer to a cio_server_socket on which the close should be performed.
-	 */
-	void (*close)(struct cio_server_socket *ss);
-
-	/**
 	 * @anchor cio_server_socket_bind
 	 * @brief Binds the cio_server_socket to a specific address
 	 *
@@ -149,7 +141,6 @@ CIO_EXPORT enum cio_error cio_serversocket_init(struct cio_server_socket *ss,
 
 
 /**
- * @anchor cio_server_socket_accept
  * @brief Accepts an incoming socket connection.
  *
  * If the platform specific accept implementation fails, @p handler will
@@ -164,6 +155,14 @@ CIO_EXPORT enum cio_error cio_serversocket_init(struct cio_server_socket *ss,
  * @return ::CIO_SUCCESS for success.
  */
 CIO_EXPORT enum cio_error cio_server_socket_accept(struct cio_server_socket *ss, cio_accept_handler handler, void *handler_context);
+
+/**
+ * @brief Closes the server socket.
+ *
+ * @param ss A pointer to a cio_server_socket on which the close should be performed.
+ */
+CIO_EXPORT void cio_server_socket_close(struct cio_server_socket *ss);
+
 
 #ifdef __cplusplus
 }

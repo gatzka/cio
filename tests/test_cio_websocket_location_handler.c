@@ -51,9 +51,6 @@ struct ws_test_handler {
 static void serve_error(struct cio_http_server *server, const char *reason);
 FAKE_VOID_FUNC(serve_error, struct cio_http_server *, const char *)
 
-static void socket_close(struct cio_server_socket *context);
-FAKE_VOID_FUNC(socket_close, struct cio_server_socket *)
-
 static enum cio_error socket_set_reuse_address(struct cio_server_socket *context, bool on);
 FAKE_VALUE_FUNC(enum cio_error, socket_set_reuse_address, struct cio_server_socket *, bool)
 
@@ -64,7 +61,10 @@ static struct cio_io_stream *get_io_stream(struct cio_socket *context);
 FAKE_VALUE_FUNC(struct cio_io_stream *, get_io_stream, struct cio_socket *)
 
 FAKE_VALUE_FUNC(enum cio_error, cio_buffered_stream_init, struct cio_buffered_stream *, struct cio_io_stream *)
+
 FAKE_VALUE_FUNC(enum cio_error, cio_server_socket_accept, struct cio_server_socket *, cio_accept_handler, void *)
+FAKE_VOID_FUNC(cio_server_socket_close, struct cio_server_socket *)
+FAKE_VALUE_FUNC(enum cio_error, cio_serversocket_init, struct cio_server_socket *, struct cio_eventloop *, unsigned int, cio_alloc_client, cio_free_client, cio_server_socket_close_hook)
 
 static enum cio_error bs_read_until(struct cio_buffered_stream *bs, struct cio_read_buffer *buffer, const char *delim, cio_buffered_stream_read_handler handler, void *handler_context);
 FAKE_VALUE_FUNC(enum cio_error, bs_read_until, struct cio_buffered_stream *, struct cio_read_buffer *, const char *, cio_buffered_stream_read_handler, void *)
@@ -86,14 +86,6 @@ FAKE_VOID_FUNC(timer_close, struct cio_timer *)
 static enum cio_error timer_expires_from_now(struct cio_timer *t, uint64_t timeout_ns, cio_timer_handler handler, void *handler_context);
 FAKE_VALUE_FUNC(enum cio_error, timer_expires_from_now, struct cio_timer *, uint64_t, cio_timer_handler, void *)
 
-enum cio_error cio_serversocket_init(struct cio_server_socket *ss,
-                                      struct cio_eventloop *loop,
-                                      unsigned int backlog,
-                                      cio_alloc_client alloc_client,
-                                      cio_free_client free_client,
-                                      cio_server_socket_close_hook close_hook);
-
-FAKE_VALUE_FUNC(enum cio_error, cio_serversocket_init, struct cio_server_socket *, struct cio_eventloop *, unsigned int, cio_alloc_client, cio_free_client, cio_server_socket_close_hook)
 
 static void on_control(const struct cio_websocket *ws, enum cio_websocket_frame_type type, const uint8_t *data, uint_fast8_t length);
 FAKE_VOID_FUNC(on_control, const struct cio_websocket *, enum cio_websocket_frame_type, const uint8_t *, uint_fast8_t)
@@ -127,17 +119,6 @@ static void free_dummy_client(struct cio_socket *socket)
 	free(client);
 }
 
-/*
-static enum cio_error timer_expires_from_error(struct cio_timer *t, uint64_t timeout_ns, cio_timer_handler handler, void *handler_context)
-{
-	(void)t;
-	(void)handler;
-	(void)handler_context;
-	(void)timeout_ns;
-	return CIO_INVALID_ARGUMENT;
-}
-*/
-
 static struct cio_socket *alloc_dummy_client(void)
 {
 	struct cio_http_client *client = malloc(sizeof(*client) + read_buffer_size);
@@ -160,7 +141,6 @@ static enum cio_error cio_serversocket_init_ok(struct cio_server_socket *ss,
 	ss->backlog = (int)backlog;
 	ss->impl.loop = l;
 	ss->close_hook = close_hook;
-	ss->close = socket_close;
 	ss->set_reuse_address = socket_set_reuse_address;
 	ss->bind = socket_bind;
 	return CIO_SUCCESS;
@@ -336,7 +316,6 @@ void setUp(void)
 	RESET_FAKE(on_control);
 	RESET_FAKE(serve_error);
 	RESET_FAKE(socket_bind);
-	RESET_FAKE(socket_close);
 	RESET_FAKE(socket_set_reuse_address);
 	RESET_FAKE(timer_cancel);
 	RESET_FAKE(timer_close);

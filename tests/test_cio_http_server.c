@@ -60,8 +60,6 @@ static const size_t read_buffer_size = 200;
 
 DEFINE_FFF_GLOBALS
 
-static void socket_close(struct cio_server_socket *context);
-FAKE_VOID_FUNC(socket_close, struct cio_server_socket *)
 
 static void serve_error(struct cio_http_server *server, const char *reason);
 FAKE_VOID_FUNC(serve_error, struct cio_http_server *, const char *)
@@ -74,6 +72,7 @@ FAKE_VALUE_FUNC(enum cio_error, socket_bind, struct cio_server_socket *, const c
 
 FAKE_VALUE_FUNC(enum cio_error, cio_serversocket_init, struct cio_server_socket *, struct cio_eventloop *, unsigned int, cio_alloc_client, cio_free_client, cio_server_socket_close_hook)
 FAKE_VALUE_FUNC(enum cio_error, cio_server_socket_accept, struct cio_server_socket *, cio_accept_handler, void *)
+FAKE_VOID_FUNC(cio_server_socket_close, struct cio_server_socket *)
 
 static enum cio_error timer_cancel(struct cio_timer *t);
 FAKE_VALUE_FUNC(enum cio_error, timer_cancel, struct cio_timer *)
@@ -127,7 +126,6 @@ static enum cio_error cio_serversocket_init_ok(struct cio_server_socket *ss,
 	ss->backlog = (int)backlog;
 	ss->impl.loop = loop;
 	ss->close_hook = close_hook;
-	ss->close = socket_close;
 	ss->set_reuse_address = socket_set_reuse_address;
 	ss->bind = socket_bind;
 	return CIO_SUCCESS;
@@ -343,13 +341,13 @@ void setUp(void)
 	RESET_FAKE(bs_read_until);
 	RESET_FAKE(cio_buffered_stream_init);
 	RESET_FAKE(cio_server_socket_accept);
+	RESET_FAKE(cio_server_socket_close);
 	RESET_FAKE(cio_serversocket_init);
 	RESET_FAKE(get_io_stream);
 	RESET_FAKE(header_complete);
 	RESET_FAKE(message_complete);
 	RESET_FAKE(serve_error);
 	RESET_FAKE(socket_bind);
-	RESET_FAKE(socket_close);
 	RESET_FAKE(socket_set_reuse_address);
 	RESET_FAKE(timer_cancel);
 	RESET_FAKE(timer_expires_from_now);
@@ -369,7 +367,7 @@ void setUp(void)
 
 	bs_write_fake.custom_fake = bs_write_all;
 	cio_buffered_stream_init_fake.custom_fake = cio_buffered_stream_init_ok;
-	socket_close_fake.custom_fake = close_server_socket;
+	cio_server_socket_close_fake.custom_fake = close_server_socket;
 
 	get_io_stream_fake.return_val = (struct cio_io_stream *)1;
 }

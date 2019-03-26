@@ -770,7 +770,7 @@ enum cio_error cio_http_server_serve(struct cio_http_server *server)
 	return err;
 
 close_socket:
-	server->server_socket.close(&server->server_socket);
+	cio_server_socket_close(&server->server_socket);
 	return err;
 }
 
@@ -790,6 +790,6 @@ enum cio_error cio_http_server_register_location(struct cio_http_server *server,
 enum cio_error cio_http_server_shutdown(struct cio_http_server *server, cio_http_server_close_hook close_hook)
 {
 	server->close_hook = close_hook;
-	server->server_socket.close(&server->server_socket);
+	cio_server_socket_close(&server->server_socket);
 	return CIO_SUCCESS;
 }
