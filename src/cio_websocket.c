@@ -870,7 +870,7 @@ enum cio_error cio_websocket_close(struct cio_websocket *ws, enum cio_websocket_
 		return err;
 	}
 
-	err = ws->ws_private.close_timer.expires_from_now(&ws->ws_private.close_timer, close_timeout_ns, close_timeout_handler, ws);
+	err = cio_timer_expires_from_now(&ws->ws_private.close_timer, close_timeout_ns, close_timeout_handler, ws);
 	if (cio_unlikely(err != CIO_SUCCESS)) {
 		goto timer_expires_failed;
 	}

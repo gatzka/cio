@@ -77,8 +77,7 @@ FAKE_VALUE_FUNC(enum cio_error, timer_cancel, struct cio_timer *)
 static void timer_close(struct cio_timer *t);
 FAKE_VOID_FUNC(timer_close, struct cio_timer *)
 
-static enum cio_error timer_expires_from_now(struct cio_timer *t, uint64_t timeout_ns, cio_timer_handler handler, void *handler_context);
-FAKE_VALUE_FUNC(enum cio_error, timer_expires_from_now, struct cio_timer *, uint64_t, cio_timer_handler, void *)
+FAKE_VALUE_FUNC(enum cio_error, cio_timer_expires_from_now, struct cio_timer *, uint64_t, cio_timer_handler, void *)
 
 FAKE_VALUE_FUNC(enum cio_error, cio_timer_init, struct cio_timer *, struct cio_eventloop *, cio_timer_close_hook)
 
@@ -107,7 +106,6 @@ static enum cio_error cio_timer_init_ok(struct cio_timer *timer, struct cio_even
 	timer->cancel = timer_cancel;
 	timer->close = timer_close;
 	timer->close_hook = hook;
-	timer->expires_from_now = timer_expires_from_now;
 	return CIO_SUCCESS;
 }
 
@@ -339,18 +337,20 @@ void setUp(void)
 
 	RESET_FAKE(cio_socket_get_io_stream);
 
+	RESET_FAKE(cio_timer_init);
+	RESET_FAKE(cio_timer_expires_from_now);
+
 	RESET_FAKE(header_complete);
 	RESET_FAKE(message_complete);
 	RESET_FAKE(serve_error);
 	RESET_FAKE(timer_cancel);
-	RESET_FAKE(timer_expires_from_now);
 
 	http_parser_settings_init(&parser_settings);
 	http_parser_init(&parser, HTTP_RESPONSE);
 
 	cio_timer_init_fake.custom_fake = cio_timer_init_ok;
+	cio_timer_expires_from_now_fake.custom_fake = expires;
 	timer_cancel_fake.custom_fake = cancel_timer;
-	timer_expires_from_now_fake.custom_fake = expires;
 
 	bs_read_until_fake.custom_fake = bs_read_until_ok;
 	bs_close_fake.custom_fake = bs_close_ok;

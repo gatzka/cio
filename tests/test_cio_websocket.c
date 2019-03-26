@@ -61,8 +61,7 @@ FAKE_VALUE_FUNC(enum cio_error, timer_cancel, struct cio_timer *)
 static void timer_close(struct cio_timer *t);
 FAKE_VOID_FUNC(timer_close, struct cio_timer *)
 
-static enum cio_error timer_expires_from_now(struct cio_timer *t, uint64_t timeout_ns, cio_timer_handler handler, void *handler_context);
-FAKE_VALUE_FUNC(enum cio_error, timer_expires_from_now, struct cio_timer *, uint64_t, cio_timer_handler, void *)
+FAKE_VALUE_FUNC(enum cio_error, cio_timer_expires_from_now, struct cio_timer *, uint64_t, cio_timer_handler, void *)
 
 static enum cio_error read_at_least(struct cio_buffered_stream *bs, struct cio_read_buffer *buffer, size_t num, cio_buffered_stream_read_handler handler, void *handler_context);
 FAKE_VALUE_FUNC(enum cio_error, read_at_least, struct cio_buffered_stream *, struct cio_read_buffer *, size_t, cio_buffered_stream_read_handler, void *)
@@ -399,7 +398,6 @@ static enum cio_error cio_timer_init_ok(struct cio_timer *timer, struct cio_even
 	timer->cancel = timer_cancel;
 	timer->close = timer_close;
 	timer->close_hook = hook;
-	timer->expires_from_now = timer_expires_from_now;
 	return CIO_SUCCESS;
 }
 
@@ -457,12 +455,14 @@ void setUp(void)
 	RESET_FAKE(cio_timer_init);
 	RESET_FAKE(timer_cancel);
 	RESET_FAKE(timer_close);
-	RESET_FAKE(timer_expires_from_now);
 	RESET_FAKE(read_at_least);
 	RESET_FAKE(bs_write);
 	RESET_FAKE(on_connect);
 	RESET_FAKE(on_control);
 	RESET_FAKE(on_error);
+
+	RESET_FAKE(cio_timer_init);
+	RESET_FAKE(cio_timer_expires_from_now);
 
 	RESET_FAKE(close_handler);
 	RESET_FAKE(write_handler);
@@ -475,7 +475,7 @@ void setUp(void)
 	cio_websocket_set_on_error_cb(ws, on_error);
 
 	cio_timer_init_fake.custom_fake = cio_timer_init_ok;
-	timer_expires_from_now_fake.custom_fake = timer_expires_from_now_save;
+	cio_timer_expires_from_now_fake.custom_fake = timer_expires_from_now_save;
 	timer_close_fake.custom_fake = timer_close_cancel;
 
 	read_handler_fake.custom_fake = read_handler_save_data;
@@ -1233,8 +1233,8 @@ static void test_close_self_timer_init_fails(void)
 
 static void test_close_self_timer_expire_fails(void)
 {
-	timer_expires_from_now_fake.custom_fake = NULL;
-	timer_expires_from_now_fake.return_val = CIO_ADDRESS_IN_USE;
+	cio_timer_expires_from_now_fake.custom_fake = NULL;
+	cio_timer_expires_from_now_fake.return_val = CIO_ADDRESS_IN_USE;
 
 	enum cio_error err = cio_websocket_close(ws, CIO_WEBSOCKET_CLOSE_NORMAL, "Going away", close_handler, NULL);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_ADDRESS_IN_USE, err, "Close not failed correctly");

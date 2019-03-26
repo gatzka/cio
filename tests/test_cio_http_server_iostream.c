@@ -143,9 +143,9 @@ static enum cio_error timer_cancel(struct cio_timer *t);
 FAKE_VALUE_FUNC(enum cio_error, timer_cancel, struct cio_timer *)
 static void timer_close(struct cio_timer *t);
 FAKE_VOID_FUNC(timer_close, struct cio_timer *)
-static enum cio_error timer_expires_from_now(struct cio_timer *t, uint64_t timeout_ns, cio_timer_handler handler, void *handler_context);
-FAKE_VALUE_FUNC(enum cio_error, timer_expires_from_now, struct cio_timer *, uint64_t, cio_timer_handler, void *)
+
 FAKE_VALUE_FUNC(enum cio_error, cio_timer_init, struct cio_timer *, struct cio_eventloop *, cio_timer_close_hook)
+FAKE_VALUE_FUNC(enum cio_error, cio_timer_expires_from_now, struct cio_timer *, uint64_t, cio_timer_handler, void *)
 
 FAKE_VOID_FUNC0(location_handler_called)
 FAKE_VOID_FUNC0(sub_location_handler_called)
@@ -166,7 +166,6 @@ static enum cio_error cio_timer_init_ok(struct cio_timer *timer, struct cio_even
 	timer->cancel = timer_cancel;
 	timer->close = timer_close;
 	timer->close_hook = hook;
-	timer->expires_from_now = timer_expires_from_now;
 	return CIO_SUCCESS;
 }
 
@@ -592,15 +591,15 @@ void setUp(void)
 	RESET_FAKE(on_body);
 	RESET_FAKE(on_message_complete);
 
-	RESET_FAKE(timer_expires_from_now);
 	RESET_FAKE(timer_cancel);
 	RESET_FAKE(timer_close);
 	RESET_FAKE(cio_timer_init);
+	RESET_FAKE(cio_timer_expires_from_now);
 
 	SET_CUSTOM_FAKE_SEQ(cio_timer_init, NULL, 0);
 	cio_timer_init_fake.custom_fake = cio_timer_init_ok;
 	timer_cancel_fake.custom_fake = cancel_timer;
-	timer_expires_from_now_fake.custom_fake = expires;
+	cio_timer_expires_from_now_fake.custom_fake = expires;
 
 	RESET_FAKE(client_socket_close);
 	RESET_FAKE(location_handler_called);
@@ -1243,7 +1242,7 @@ static void test_errors_in_accept(void)
 		cio_timer_init_fake.custom_fake = NULL;
 		SET_CUSTOM_FAKE_SEQ(cio_timer_init, timer_init_fakes, ARRAY_SIZE(timer_init_fakes));
 
-		timer_expires_from_now_fake.custom_fake = accept_test.timer_expires;
+		cio_timer_expires_from_now_fake.custom_fake = accept_test.timer_expires;
 
 		struct cio_http_server server;
 		enum cio_error err = cio_http_server_init(&server, 8080, &loop, serve_error, header_read_timeout, body_read_timeout, response_timeout, accept_test.alloc_client, free_dummy_client);
@@ -1451,8 +1450,8 @@ static void test_timer_expires_errors(void)
 
 		timer_expires_fakes[i] = expires_error;
 
-		timer_expires_from_now_fake.custom_fake = NULL;
-		SET_CUSTOM_FAKE_SEQ(timer_expires_from_now, timer_expires_fakes, ARRAY_SIZE(timer_expires_fakes));
+		cio_timer_expires_from_now_fake.custom_fake = NULL;
+		SET_CUSTOM_FAKE_SEQ(cio_timer_expires_from_now, timer_expires_fakes, ARRAY_SIZE(timer_expires_fakes));
 
 		on_header_complete_fake.custom_fake = header_complete_write_response;
 

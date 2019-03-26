@@ -51,8 +51,6 @@ enum frame_direction {
 	FROM_SERVER
 };
 
-FAKE_VALUE_FUNC(enum cio_error, cio_timer_init, struct cio_timer *, struct cio_eventloop *, cio_timer_close_hook)
-
 static void read_handler(struct cio_websocket *ws, void *handler_context, enum cio_error err, size_t frame_length, uint8_t *data, size_t length, bool last_chunk, bool last_frame, bool is_binary);
 FAKE_VOID_FUNC(read_handler, struct cio_websocket *, void *, enum cio_error, size_t, uint8_t *, size_t, bool, bool, bool)
 
@@ -380,7 +378,6 @@ void setUp(void)
 
 	RESET_FAKE(read_handler);
 
-	RESET_FAKE(cio_timer_init);
 	RESET_FAKE(on_connect);
 	RESET_FAKE(on_control);
 	RESET_FAKE(on_error);

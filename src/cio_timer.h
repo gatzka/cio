@@ -71,20 +71,6 @@ typedef void (*cio_timer_handler)(struct cio_timer *timer, void *handler_context
 struct cio_timer {
 
 	/**
-	 * @anchor cio_timer_expires_from_now
-	 * @brief Set the timer's expiration time relative to now and arms the timer.
-	 *
-	 * @param timer A pointer to a struct cio_timer which shall expire.
-	 * @param timeout_ns The expiration time relative to "now" in nanoseconds.
-	 * @param handler The callback function to be called when the timer expires or was cancelled.
-	 * @anchor cio_timer_expires_from_now_handler_context
-	 * @param handler_context A pointer to a context which might be
-	 *                        useful inside @p handler.
-	 * @return ::CIO_SUCCESS if @p timer was armed successfully.
-	 */
-	enum cio_error (*expires_from_now)(struct cio_timer *timer, uint64_t timeout_ns, cio_timer_handler handler, void *handler_context);
-
-	/**
 	 * @anchor cio_timer_cancel
 	 * @brief Cancels an armed timer.
 	 *
@@ -130,6 +116,19 @@ struct cio_timer {
  */
 CIO_EXPORT enum cio_error cio_timer_init(struct cio_timer *timer, struct cio_eventloop *loop,
                                          cio_timer_close_hook close_hook);
+
+/**
+ * @brief Set the timer's expiration time relative to now and arms the timer.
+ *
+ * @param timer A pointer to a struct cio_timer which shall expire.
+ * @param timeout_ns The expiration time relative to "now" in nanoseconds.
+ * @param handler The callback function to be called when the timer expires or was cancelled.
+ * @anchor cio_timer_expires_from_now_handler_context
+ * @param handler_context A pointer to a context which might be
+ *                        useful inside @p handler.
+ * @return ::CIO_SUCCESS if @p timer was armed successfully.
+ */
+CIO_EXPORT enum cio_error cio_timer_expires_from_now(struct cio_timer *timer, uint64_t timeout_ns, cio_timer_handler handler, void *handler_context);
 
 #ifdef __cplusplus
 }

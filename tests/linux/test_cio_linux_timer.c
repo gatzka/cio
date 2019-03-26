@@ -35,6 +35,7 @@
 #include "unity.h"
 
 #include "cio_error_code.h"
+#include "cio_eventloop.h"
 #include "cio_timer.h"
 
 DEFINE_FFF_GLOBALS
@@ -239,7 +240,7 @@ static void test_close_while_armed(void)
 	enum cio_error err = cio_timer_init(&timer, NULL, NULL);
 	TEST_ASSERT_EQUAL(CIO_SUCCESS, err);
 
-	timer.expires_from_now(&timer, 2000, handle_timeout, NULL);
+	cio_timer_expires_from_now(&timer, 2000, handle_timeout, NULL);
 
 	timer.close(&timer);
 	TEST_ASSERT_EQUAL(1, close_fake.call_count);
@@ -278,7 +279,7 @@ static void test_cancel_settime_in_cancel_fails(void)
 	enum cio_error err = cio_timer_init(&timer, NULL, NULL);
 	TEST_ASSERT_EQUAL(CIO_SUCCESS, err);
 
-	timer.expires_from_now(&timer, 2000, handle_timeout, NULL);
+	cio_timer_expires_from_now(&timer, 2000, handle_timeout, NULL);
 
 	err = timer.cancel(&timer);
 	TEST_ASSERT_MESSAGE(err != CIO_SUCCESS, "timer cancel did not failed when settime fails!");
@@ -296,7 +297,7 @@ static void test_arming_settime_fails(void)
 	enum cio_error err = cio_timer_init(&timer, NULL, NULL);
 	TEST_ASSERT_EQUAL(CIO_SUCCESS, err);
 
-	err = timer.expires_from_now(&timer, 2000, handle_timeout, NULL);
+	err = cio_timer_expires_from_now(&timer, 2000, handle_timeout, NULL);
 	TEST_ASSERT_MESSAGE(err != CIO_SUCCESS, "Timer arming did not fail when settime fails!");
 	TEST_ASSERT_EQUAL_MESSAGE(0, handle_timeout_fake.call_count, "Timer callback was called even if arming failed!");
 }
@@ -311,7 +312,7 @@ static void test_arming_read_fails(void)
 	enum cio_error err = cio_timer_init(&timer, NULL, NULL);
 	TEST_ASSERT_EQUAL(CIO_SUCCESS, err);
 
-	timer.expires_from_now(&timer, 2000, handle_timeout, NULL);
+	cio_timer_expires_from_now(&timer, 2000, handle_timeout, NULL);
 
 	TEST_ASSERT_EQUAL(1, handle_timeout_fake.call_count);
 	TEST_ASSERT(handle_timeout_fake.arg2_val != CIO_SUCCESS);
@@ -328,7 +329,7 @@ static void test_arming_success(void)
 	enum cio_error err = cio_timer_init(&timer, NULL, NULL);
 	TEST_ASSERT_EQUAL(CIO_SUCCESS, err);
 
-	timer.expires_from_now(&timer, 2000, handle_timeout, NULL);
+	cio_timer_expires_from_now(&timer, 2000, handle_timeout, NULL);
 
 	TEST_ASSERT_EQUAL(1, handle_timeout_fake.call_count);
 	TEST_ASSERT(handle_timeout_fake.arg2_val == CIO_SUCCESS);
@@ -346,7 +347,7 @@ static void test_close_in_callback(void)
 	enum cio_error err = cio_timer_init(&timer, NULL, NULL);
 	TEST_ASSERT_EQUAL(CIO_SUCCESS, err);
 
-	timer.expires_from_now(&timer, 2000, handle_timeout, NULL);
+	cio_timer_expires_from_now(&timer, 2000, handle_timeout, NULL);
 
 	TEST_ASSERT_EQUAL(1, handle_timeout_fake.call_count);
 	TEST_ASSERT(handle_timeout_fake.arg2_val == CIO_SUCCESS);
@@ -367,7 +368,7 @@ static void test_cancel_in_callback(void)
 	enum cio_error err = cio_timer_init(&timer, NULL, NULL);
 	TEST_ASSERT_EQUAL(CIO_SUCCESS, err);
 
-	timer.expires_from_now(&timer, 2000, handle_timeout, NULL);
+	cio_timer_expires_from_now(&timer, 2000, handle_timeout, NULL);
 
 	TEST_ASSERT_EQUAL(1, handle_timeout_fake.call_count);
 	TEST_ASSERT(handle_timeout_fake.arg2_val == CIO_SUCCESS);
