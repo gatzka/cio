@@ -70,17 +70,6 @@ struct cio_socket {
 	struct cio_io_stream *(*get_io_stream)(struct cio_socket *socket);
 
 	/**
-	 * @anchor cio_socket_close
-	 * @brief Closes the cio_socket.
-	 *
-	 * Once a socket has been closed, no further communication is possible. Closing the socket
-	 * also closes the socket's cio_io_stream.
-	 *
-	 * @param socket A pointer to a cio_socket which shall be closed.
-	 */
-	enum cio_error (*close)(struct cio_socket *socket);
-
-	/**
 	 * @anchor cio_socket_set_tcp_no_delay
 	 * @brief Enables/disables the Nagle algorithm
 	 *
@@ -133,6 +122,16 @@ struct cio_socket {
 CIO_EXPORT enum cio_error cio_socket_init(struct cio_socket *s,
                                           struct cio_eventloop *loop,
                                           cio_socket_close_hook close_hook);
+
+/**
+ * @brief Closes the cio_socket.
+ *
+ * Once a socket has been closed, no further communication is possible. Closing the socket
+ * also closes the socket's cio_io_stream.
+ *
+ * @param socket A pointer to a cio_socket which shall be closed.
+ */
+CIO_EXPORT enum cio_error cio_socket_close(struct cio_socket *socket);
 
 #ifdef __cplusplus
 }

@@ -43,22 +43,6 @@
 #include "cio_write_buffer.h"
 #include "linux/cio_linux_socket_utils.h"
 
-static enum cio_error socket_close(struct cio_socket *s)
-{
-	if (cio_unlikely(s == NULL)) {
-		return CIO_INVALID_ARGUMENT;
-	}
-
-	cio_linux_eventloop_remove(s->impl.loop, &s->impl.ev);
-
-	close(s->impl.ev.fd);
-	if (s->close_hook != NULL) {
-		s->close_hook(s);
-	}
-
-	return CIO_SUCCESS;
-}
-
 static enum cio_error socket_tcp_no_delay(struct cio_socket *s, bool on)
 {
 	int tcp_no_delay = (char)on;
@@ -199,7 +183,7 @@ static enum cio_error stream_write(struct cio_io_stream *stream, const struct ci
 static enum cio_error stream_close(struct cio_io_stream *stream)
 {
 	struct cio_socket *s = cio_container_of(stream, struct cio_socket, stream);
-	return socket_close(s);
+	return cio_socket_close(s);
 }
 
 enum cio_error cio_linux_socket_init(struct cio_socket *s, int client_fd,
@@ -216,7 +200,6 @@ enum cio_error cio_linux_socket_init(struct cio_socket *s, int client_fd,
 	s->impl.ev.read_callback = NULL;
 	s->impl.ev.context = s;
 
-	s->close = socket_close;
 	s->set_tcp_no_delay = socket_tcp_no_delay;
 	s->set_keep_alive = socket_keepalive;
 	s->get_io_stream = socket_get_io_stream;
@@ -247,4 +230,20 @@ enum cio_error cio_socket_init(struct cio_socket *s,
 	}
 
 	return err;
+}
+
+enum cio_error cio_socket_close(struct cio_socket *s)
+{
+	if (cio_unlikely(s == NULL)) {
+		return CIO_INVALID_ARGUMENT;
+	}
+
+	cio_linux_eventloop_remove(s->impl.loop, &s->impl.ev);
+
+	close(s->impl.ev.fd);
+	if (s->close_hook != NULL) {
+		s->close_hook(s);
+	}
+
+	return CIO_SUCCESS;
 }

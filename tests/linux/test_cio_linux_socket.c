@@ -270,7 +270,7 @@ static void test_socket_close_without_hook(void)
 	enum cio_error err = cio_socket_init(&s, &loop, NULL);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Return value of cio_socket_init() not correct!");
 
-	err = s.close(&s);
+	err = cio_socket_close(&s);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Return value of close() not correct!");
 	TEST_ASSERT_EQUAL_MESSAGE(1, close_fake.call_count, "Socket close was not called!");
 	TEST_ASSERT_EQUAL_MESSAGE(s.impl.ev.fd, close_fake.arg0_val, "Socket close was not called with correct parameter!");
@@ -283,7 +283,7 @@ static void test_socket_close_with_hook(void)
 	enum cio_error err = cio_socket_init(&s, &loop, on_close);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Return value of cio_socket_init() not correct!");
 
-	err = s.close(&s);
+	err = cio_socket_close(&s);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Return value if close() not correct!");
 	TEST_ASSERT_EQUAL(1, close_fake.call_count);
 	TEST_ASSERT_EQUAL(s.impl.ev.fd, close_fake.arg0_val);
@@ -298,7 +298,7 @@ static void test_socket_close_no_stream(void)
 	enum cio_error err = cio_socket_init(&s, &loop, NULL);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Return value of cio_socket_init not correct!");
 
-	err = s.close(NULL);
+	err = cio_socket_close(NULL);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_INVALID_ARGUMENT, err, "Return value of close() not correct!");
 	TEST_ASSERT_EQUAL_MESSAGE(0, close_fake.call_count, "Close handler was called!");
 }
