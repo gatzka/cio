@@ -64,7 +64,7 @@ FAKE_VALUE_FUNC(enum cio_error, cio_buffered_stream_init, struct cio_buffered_st
 
 FAKE_VALUE_FUNC(enum cio_error, cio_server_socket_accept, struct cio_server_socket *, cio_accept_handler, void *)
 FAKE_VOID_FUNC(cio_server_socket_close, struct cio_server_socket *)
-FAKE_VALUE_FUNC(enum cio_error, cio_serversocket_init, struct cio_server_socket *, struct cio_eventloop *, unsigned int, cio_alloc_client, cio_free_client, cio_server_socket_close_hook)
+FAKE_VALUE_FUNC(enum cio_error, cio_server_socket_init, struct cio_server_socket *, struct cio_eventloop *, unsigned int, cio_alloc_client, cio_free_client, cio_server_socket_close_hook)
 
 static enum cio_error bs_read_until(struct cio_buffered_stream *bs, struct cio_read_buffer *buffer, const char *delim, cio_buffered_stream_read_handler handler, void *handler_context);
 FAKE_VALUE_FUNC(enum cio_error, bs_read_until, struct cio_buffered_stream *, struct cio_read_buffer *, const char *, cio_buffered_stream_read_handler, void *)
@@ -129,7 +129,7 @@ static struct cio_socket *alloc_dummy_client(void)
 	return &client->socket;
 }
 
-static enum cio_error cio_serversocket_init_ok(struct cio_server_socket *ss,
+static enum cio_error cio_server_socket_init_ok(struct cio_server_socket *ss,
                                                 struct cio_eventloop *l,
                                                 unsigned int backlog,
                                                 cio_alloc_client alloc_client,
@@ -309,7 +309,7 @@ void setUp(void)
 	RESET_FAKE(bs_read_until);
 	RESET_FAKE(bs_write);
 	RESET_FAKE(cio_buffered_stream_init);
-	RESET_FAKE(cio_serversocket_init);
+	RESET_FAKE(cio_server_socket_init);
 	RESET_FAKE(cio_server_socket_accept);
 	RESET_FAKE(cio_timer_init);
 	RESET_FAKE(get_io_stream);
@@ -325,7 +325,7 @@ void setUp(void)
 	http_parser_init(&parser, HTTP_RESPONSE);
 
 	current_line = 0;
-	cio_serversocket_init_fake.custom_fake = cio_serversocket_init_ok;
+	cio_server_socket_init_fake.custom_fake = cio_server_socket_init_ok;
 	cio_server_socket_accept_fake.custom_fake = accept_save_handler;
 
 	cio_timer_init_fake.custom_fake = cio_timer_init_ok;
