@@ -457,7 +457,7 @@ static void handle_close_frame(struct cio_websocket *ws, uint8_t *data, uint_fas
 	}
 
 	if (ws->ws_private.ws_flags.self_initiated_close == 1U) {
-		ws->ws_private.close_timer.cancel(&ws->ws_private.close_timer);
+		cio_timer_cancel(&ws->ws_private.close_timer);
 		ws->ws_private.close_timer.close(&ws->ws_private.close_timer);
 		close(ws);
 	} else {

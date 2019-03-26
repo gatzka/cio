@@ -71,16 +71,6 @@ typedef void (*cio_timer_handler)(struct cio_timer *timer, void *handler_context
 struct cio_timer {
 
 	/**
-	 * @anchor cio_timer_cancel
-	 * @brief Cancels an armed timer.
-	 *
-	 * @param timer A pointer to a struct cio_timer which shall be canceled.
-	 * @return ::CIO_SUCCESS for success,
-	 *         ::CIO_OPERATION_NOT_PERMITTED if the timer wasn't armed.
-	 */
-	enum cio_error (*cancel)(struct cio_timer *timer);
-
-	/**
 	 * @anchor cio_timer_close
 	 * @brief Closes a timer and frees underlying resources.
 	 *
@@ -129,6 +119,15 @@ CIO_EXPORT enum cio_error cio_timer_init(struct cio_timer *timer, struct cio_eve
  * @return ::CIO_SUCCESS if @p timer was armed successfully.
  */
 CIO_EXPORT enum cio_error cio_timer_expires_from_now(struct cio_timer *timer, uint64_t timeout_ns, cio_timer_handler handler, void *handler_context);
+
+/**
+ * @brief Cancels an armed timer.
+ *
+ * @param timer A pointer to a struct cio_timer which shall be canceled.
+ * @return ::CIO_SUCCESS for success,
+ *         ::CIO_OPERATION_NOT_PERMITTED if the timer wasn't armed.
+ */
+CIO_EXPORT enum cio_error cio_timer_cancel(struct cio_timer *timer);
 
 #ifdef __cplusplus
 }

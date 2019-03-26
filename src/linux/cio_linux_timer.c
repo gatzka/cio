@@ -50,31 +50,11 @@ static struct itimerspec convert_timeoutns_to_itimerspec(uint64_t timeout)
 	return ts;
 }
 
-static enum cio_error timer_cancel(struct cio_timer *t)
-{
-	struct itimerspec timeout;
-	int ret;
-
-	if (t->handler == NULL) {
-		return CIO_OPERATION_NOT_PERMITTED;
-	}
-
-	memset(&timeout, 0x0, sizeof(timeout));
-	ret = timerfd_settime(t->ev.fd, 0, &timeout, NULL);
-	if (cio_likely(ret == 0)) {
-		t->handler(t, t->handler_context, CIO_OPERATION_ABORTED);
-		t->handler = NULL;
-		return CIO_SUCCESS;
-	}
-
-	return (enum cio_error)(-errno);
-}
-
 static void timer_close(struct cio_timer *t)
 {
 	cio_linux_eventloop_remove(t->loop, &t->ev);
 	if (t->handler != NULL) {
-		timer_cancel(t);
+		cio_timer_cancel(t);
 	}
 
 	close(t->ev.fd);
@@ -109,7 +89,6 @@ enum cio_error cio_timer_init(struct cio_timer *timer, struct cio_eventloop *loo
 		return (enum cio_error)(-errno);
 	}
 
-	timer->cancel = timer_cancel;
 	timer->close = timer_close;
 	timer->close_hook = close_hook;
 	timer->handler = NULL;
@@ -156,4 +135,24 @@ enum cio_error cio_timer_expires_from_now(struct cio_timer *t, uint64_t timeout_
 
 	timer_read(t);
 	return CIO_SUCCESS;
+}
+
+enum cio_error cio_timer_cancel(struct cio_timer *t)
+{
+	struct itimerspec timeout;
+	int ret;
+
+	if (t->handler == NULL) {
+		return CIO_OPERATION_NOT_PERMITTED;
+	}
+
+	memset(&timeout, 0x0, sizeof(timeout));
+	ret = timerfd_settime(t->ev.fd, 0, &timeout, NULL);
+	if (cio_likely(ret == 0)) {
+		t->handler(t, t->handler_context, CIO_OPERATION_ABORTED);
+		t->handler = NULL;
+		return CIO_SUCCESS;
+	}
+
+	return (enum cio_error)(-errno);
 }

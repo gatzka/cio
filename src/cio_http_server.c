@@ -158,7 +158,7 @@ static void response_written(struct cio_buffered_stream *bs, void *handler_conte
 {
 	(void)bs;
 	struct cio_http_client *client = (struct cio_http_client *)handler_context;
-	enum cio_error cancel_err = client->http_private.response_timer.cancel(&client->http_private.response_timer);
+	enum cio_error cancel_err = cio_timer_cancel(&client->http_private.response_timer);
 
 	client->response_written = true;
 	if (client->response_written_cb) {
@@ -355,7 +355,7 @@ static int on_headers_complete(http_parser *parser)
 
 	client->content_length = (size_t)parser->content_length;
 
-	enum cio_error err = client->http_private.request_timer.cancel(&client->http_private.request_timer);
+	enum cio_error err = cio_timer_cancel(&client->http_private.request_timer);
 	if (cio_unlikely(err != CIO_SUCCESS)) {
 		handle_server_error(client, "Cancelling read timer in on_headers_complete failed, maybe not armed?");
 		return 0;
@@ -409,7 +409,7 @@ static int on_message_complete(http_parser *parser)
 	struct cio_http_client *client = cio_container_of(parser, struct cio_http_client, parser);
 
 	if (cio_unlikely(!client->parser.upgrade)) {
-		enum cio_error err = client->http_private.request_timer.cancel(&client->http_private.request_timer);
+		enum cio_error err = cio_timer_cancel(&client->http_private.request_timer);
 		if (cio_unlikely(err != CIO_SUCCESS)) {
 			handle_server_error(client, "Cancelling read timer in on_message_complete failed, maybe not armed?");
 			return 0;

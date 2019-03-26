@@ -139,13 +139,11 @@ FAKE_VALUE_FUNC(enum cio_http_cb_return, on_fragment, struct cio_http_client *, 
 static void client_socket_close(void);
 FAKE_VOID_FUNC0(client_socket_close)
 
-static enum cio_error timer_cancel(struct cio_timer *t);
-FAKE_VALUE_FUNC(enum cio_error, timer_cancel, struct cio_timer *)
+FAKE_VALUE_FUNC(enum cio_error, cio_timer_init, struct cio_timer *, struct cio_eventloop *, cio_timer_close_hook)
+FAKE_VALUE_FUNC(enum cio_error, cio_timer_cancel, struct cio_timer *)
+FAKE_VALUE_FUNC(enum cio_error, cio_timer_expires_from_now, struct cio_timer *, uint64_t, cio_timer_handler, void *)
 static void timer_close(struct cio_timer *t);
 FAKE_VOID_FUNC(timer_close, struct cio_timer *)
-
-FAKE_VALUE_FUNC(enum cio_error, cio_timer_init, struct cio_timer *, struct cio_eventloop *, cio_timer_close_hook)
-FAKE_VALUE_FUNC(enum cio_error, cio_timer_expires_from_now, struct cio_timer *, uint64_t, cio_timer_handler, void *)
 
 FAKE_VOID_FUNC0(location_handler_called)
 FAKE_VOID_FUNC0(sub_location_handler_called)
@@ -163,7 +161,6 @@ static enum cio_error cio_timer_init_fails(struct cio_timer *timer, struct cio_e
 static enum cio_error cio_timer_init_ok(struct cio_timer *timer, struct cio_eventloop *l, cio_timer_close_hook hook)
 {
 	(void)l;
-	timer->cancel = timer_cancel;
 	timer->close = timer_close;
 	timer->close_hook = hook;
 	return CIO_SUCCESS;
@@ -591,14 +588,14 @@ void setUp(void)
 	RESET_FAKE(on_body);
 	RESET_FAKE(on_message_complete);
 
-	RESET_FAKE(timer_cancel);
 	RESET_FAKE(timer_close);
 	RESET_FAKE(cio_timer_init);
+	RESET_FAKE(cio_timer_cancel);
 	RESET_FAKE(cio_timer_expires_from_now);
 
 	SET_CUSTOM_FAKE_SEQ(cio_timer_init, NULL, 0);
 	cio_timer_init_fake.custom_fake = cio_timer_init_ok;
-	timer_cancel_fake.custom_fake = cancel_timer;
+	cio_timer_cancel_fake.custom_fake = cancel_timer;
 	cio_timer_expires_from_now_fake.custom_fake = expires;
 
 	RESET_FAKE(client_socket_close);
@@ -1407,8 +1404,8 @@ static void test_timer_cancel_errors(void)
 
 		timer_cancel_fakes[i] = cancel_timer_error;
 
-		timer_cancel_fake.custom_fake = NULL;
-		SET_CUSTOM_FAKE_SEQ(timer_cancel, timer_cancel_fakes, ARRAY_SIZE(timer_cancel_fakes));
+		cio_timer_cancel_fake.custom_fake = NULL;
+		SET_CUSTOM_FAKE_SEQ(cio_timer_cancel, timer_cancel_fakes, ARRAY_SIZE(timer_cancel_fakes));
 
 		on_header_complete_fake.custom_fake = header_complete_write_response;
 

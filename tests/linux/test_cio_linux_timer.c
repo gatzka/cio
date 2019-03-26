@@ -120,7 +120,7 @@ static void close_in_timeout(struct cio_timer *timer, void *handler_context, enu
 static void cancel_in_timeout(struct cio_timer *timer, void *handler_context, enum cio_error err)
 {
 	(void)handler_context;
-	err = timer->cancel(timer);
+	err = cio_timer_cancel(timer);
 	TEST_ASSERT_EQUAL_MESSAGE(err, CIO_OPERATION_NOT_PERMITTED, "Cancel in timer callback did not returned an error!");
 }
 
@@ -260,7 +260,7 @@ static void test_cancel_without_arming(void)
 	enum cio_error err = cio_timer_init(&timer, NULL, NULL);
 	TEST_ASSERT_EQUAL(CIO_SUCCESS, err);
 
-	err = timer.cancel(&timer);
+	err = cio_timer_cancel(&timer);
 	TEST_ASSERT(err != CIO_SUCCESS);
 }
 
@@ -281,7 +281,7 @@ static void test_cancel_settime_in_cancel_fails(void)
 
 	cio_timer_expires_from_now(&timer, 2000, handle_timeout, NULL);
 
-	err = timer.cancel(&timer);
+	err = cio_timer_cancel(&timer);
 	TEST_ASSERT_MESSAGE(err != CIO_SUCCESS, "timer cancel did not failed when settime fails!");
 	TEST_ASSERT_EQUAL(0, handle_timeout_fake.call_count);
 }

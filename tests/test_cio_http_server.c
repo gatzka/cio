@@ -71,15 +71,12 @@ FAKE_VALUE_FUNC(enum cio_error, cio_server_socket_set_reuse_address, struct cio_
 
 FAKE_VALUE_FUNC(struct cio_io_stream *, cio_socket_get_io_stream, struct cio_socket *)
 
-static enum cio_error timer_cancel(struct cio_timer *t);
-FAKE_VALUE_FUNC(enum cio_error, timer_cancel, struct cio_timer *)
-
 static void timer_close(struct cio_timer *t);
 FAKE_VOID_FUNC(timer_close, struct cio_timer *)
 
-FAKE_VALUE_FUNC(enum cio_error, cio_timer_expires_from_now, struct cio_timer *, uint64_t, cio_timer_handler, void *)
-
 FAKE_VALUE_FUNC(enum cio_error, cio_timer_init, struct cio_timer *, struct cio_eventloop *, cio_timer_close_hook)
+FAKE_VALUE_FUNC(enum cio_error, cio_timer_cancel, struct cio_timer *)
+FAKE_VALUE_FUNC(enum cio_error, cio_timer_expires_from_now, struct cio_timer *, uint64_t, cio_timer_handler, void *)
 
 static enum cio_error bs_write(struct cio_buffered_stream *bs, struct cio_write_buffer *buf, cio_buffered_stream_write_handler handler, void *handler_context);
 FAKE_VALUE_FUNC(enum cio_error, bs_write, struct cio_buffered_stream *, struct cio_write_buffer *, cio_buffered_stream_write_handler, void *)
@@ -103,7 +100,6 @@ static enum cio_error expires(struct cio_timer *t, uint64_t timeout_ns, cio_time
 static enum cio_error cio_timer_init_ok(struct cio_timer *timer, struct cio_eventloop *loop, cio_timer_close_hook hook)
 {
 	(void)loop;
-	timer->cancel = timer_cancel;
 	timer->close = timer_close;
 	timer->close_hook = hook;
 	return CIO_SUCCESS;
@@ -338,19 +334,19 @@ void setUp(void)
 	RESET_FAKE(cio_socket_get_io_stream);
 
 	RESET_FAKE(cio_timer_init);
+	RESET_FAKE(cio_timer_cancel);
 	RESET_FAKE(cio_timer_expires_from_now);
 
 	RESET_FAKE(header_complete);
 	RESET_FAKE(message_complete);
 	RESET_FAKE(serve_error);
-	RESET_FAKE(timer_cancel);
 
 	http_parser_settings_init(&parser_settings);
 	http_parser_init(&parser, HTTP_RESPONSE);
 
 	cio_timer_init_fake.custom_fake = cio_timer_init_ok;
 	cio_timer_expires_from_now_fake.custom_fake = expires;
-	timer_cancel_fake.custom_fake = cancel_timer;
+	cio_timer_cancel_fake.custom_fake = cancel_timer;
 
 	bs_read_until_fake.custom_fake = bs_read_until_ok;
 	bs_close_fake.custom_fake = bs_close_ok;

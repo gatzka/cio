@@ -42,8 +42,6 @@
 
 DEFINE_FFF_GLOBALS
 
-FAKE_VALUE_FUNC(enum cio_error, cio_timer_init, struct cio_timer *, struct cio_eventloop *, cio_timer_close_hook)
-
 static struct cio_websocket *ws;
 static struct cio_http_client http_client;
 
@@ -55,12 +53,11 @@ enum frame_direction {
 static void read_handler(struct cio_websocket *ws, void *handler_context, enum cio_error err, size_t frame_length, uint8_t *data, size_t length, bool last_chunk, bool last_frame, bool is_binary);
 FAKE_VOID_FUNC(read_handler, struct cio_websocket *, void *, enum cio_error, size_t, uint8_t *, size_t, bool, bool, bool)
 
-static enum cio_error timer_cancel(struct cio_timer *t);
-FAKE_VALUE_FUNC(enum cio_error, timer_cancel, struct cio_timer *)
-
 static void timer_close(struct cio_timer *t);
 FAKE_VOID_FUNC(timer_close, struct cio_timer *)
 
+FAKE_VALUE_FUNC(enum cio_error, cio_timer_init, struct cio_timer *, struct cio_eventloop *, cio_timer_close_hook)
+FAKE_VALUE_FUNC(enum cio_error, cio_timer_cancel, struct cio_timer *)
 FAKE_VALUE_FUNC(enum cio_error, cio_timer_expires_from_now, struct cio_timer *, uint64_t, cio_timer_handler, void *)
 
 static enum cio_error read_at_least(struct cio_buffered_stream *bs, struct cio_read_buffer *buffer, size_t num, cio_buffered_stream_read_handler handler, void *handler_context);
@@ -395,7 +392,6 @@ static enum cio_error cio_timer_init_ok(struct cio_timer *timer, struct cio_even
 {
 	(void)l;
 	timer->handler = NULL;
-	timer->cancel = timer_cancel;
 	timer->close = timer_close;
 	timer->close_hook = hook;
 	return CIO_SUCCESS;
@@ -452,8 +448,6 @@ void setUp(void)
 
 	RESET_FAKE(read_handler);
 
-	RESET_FAKE(cio_timer_init);
-	RESET_FAKE(timer_cancel);
 	RESET_FAKE(timer_close);
 	RESET_FAKE(read_at_least);
 	RESET_FAKE(bs_write);
@@ -462,6 +456,7 @@ void setUp(void)
 	RESET_FAKE(on_error);
 
 	RESET_FAKE(cio_timer_init);
+	RESET_FAKE(cio_timer_cancel);
 	RESET_FAKE(cio_timer_expires_from_now);
 
 	RESET_FAKE(close_handler);
@@ -1227,7 +1222,7 @@ static void test_close_self_timer_init_fails(void)
 
 	enum cio_error err = cio_websocket_close(ws, CIO_WEBSOCKET_CLOSE_NORMAL, "Going away", close_handler, NULL);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_INVALID_ARGUMENT, err, "Close not failed correctly");
-	TEST_ASSERT_EQUAL_MESSAGE(0, timer_cancel_fake.call_count, "Timer cancel was called");
+	TEST_ASSERT_EQUAL_MESSAGE(0, cio_timer_cancel_fake.call_count, "Timer cancel was called");
 	TEST_ASSERT_EQUAL_MESSAGE(0, timer_close_fake.call_count, "Timer close was called");
 }
 
@@ -1238,7 +1233,7 @@ static void test_close_self_timer_expire_fails(void)
 
 	enum cio_error err = cio_websocket_close(ws, CIO_WEBSOCKET_CLOSE_NORMAL, "Going away", close_handler, NULL);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_ADDRESS_IN_USE, err, "Close not failed correctly");
-	TEST_ASSERT_EQUAL_MESSAGE(0, timer_cancel_fake.call_count, "Timer cancel was called");
+	TEST_ASSERT_EQUAL_MESSAGE(0, cio_timer_cancel_fake.call_count, "Timer cancel was called");
 	TEST_ASSERT_EQUAL_MESSAGE(1, timer_close_fake.call_count, "Timer close was called");
 }
 
