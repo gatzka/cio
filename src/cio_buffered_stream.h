@@ -149,6 +149,7 @@ CIO_EXPORT enum cio_error cio_buffered_stream_init(struct cio_buffered_stream *b
  * Schedule a read job which calls @p handler if at least @p num bytes are available to consume.
  *
  * @param bs A pointer to the cio_buffered_stream of the on which the operation should be performed.
+ * @param buffer The buffer that should be used for reading.
  * @param num The number of bytes to be read at least when @p handler will be called.
  * @param handler The callback function to be called when the read
  * request is fulfilled.
@@ -164,6 +165,7 @@ CIO_EXPORT enum cio_error cio_buffered_stream_read_at_least(struct cio_buffered_
  * @brief Call @p handler if delimiter @p delim is encountered.
  *
  * @param bs A pointer to the cio_buffered_stream of the on which the operation should be performed.
+ * @param buffer The buffer that should be used for reading.
  * @param delim A zero terminated string containing the delimiter to be found. Pay attention that the delimiter string
  *              is not copied and must therefore survive until @p handler is called.
  * @param handler The callback function to be called when the read
