@@ -58,12 +58,11 @@ FAKE_VALUE_FUNC(enum cio_error, cio_timer_cancel, struct cio_timer *)
 FAKE_VOID_FUNC(cio_timer_close, struct cio_timer *)
 FAKE_VALUE_FUNC(enum cio_error, cio_timer_expires_from_now, struct cio_timer *, uint64_t, cio_timer_handler, void *)
 
-static enum cio_error read_at_least(struct cio_buffered_stream *bs, struct cio_read_buffer *buffer, size_t num, cio_buffered_stream_read_handler handler, void *handler_context);
-FAKE_VALUE_FUNC(enum cio_error, read_at_least, struct cio_buffered_stream *, struct cio_read_buffer *, size_t, cio_buffered_stream_read_handler, void *)
+FAKE_VALUE_FUNC(enum cio_error, cio_buffered_stream_read_at_least, struct cio_buffered_stream *, struct cio_read_buffer *, size_t, cio_buffered_stream_read_handler, void *)
+
 typedef enum cio_error (*read_at_least_fake_fun)(struct cio_buffered_stream *, struct cio_read_buffer *, size_t, cio_buffered_stream_read_handler, void *);
 
-static enum cio_error bs_write(struct cio_buffered_stream *bs, struct cio_write_buffer *buf, cio_buffered_stream_write_handler handler, void *handler_context);
-FAKE_VALUE_FUNC(enum cio_error, bs_write, struct cio_buffered_stream *, struct cio_write_buffer *, cio_buffered_stream_write_handler, void *)
+FAKE_VALUE_FUNC(enum cio_error, cio_buffered_stream_write, struct cio_buffered_stream *, struct cio_write_buffer *, cio_buffered_stream_write_handler, void *)
 
 static void on_connect(struct cio_websocket *s);
 FAKE_VOID_FUNC(on_connect, struct cio_websocket *)
@@ -439,17 +438,25 @@ static void on_error_save_data(const struct cio_websocket *websocket, enum cio_e
 	read_back_buffer_pos += strlen(reason);
 }
 
+static void bs_init(struct cio_buffered_stream *bs)
+{
+	bs->callback_is_running = 0;
+	bs->shall_close = false;
+	cio_write_buffer_head_init(&bs->wbh);
+}
+
 void setUp(void)
 {
 	FFF_RESET_HISTORY();
 
 	RESET_FAKE(read_handler);
 
-	RESET_FAKE(read_at_least);
-	RESET_FAKE(bs_write);
 	RESET_FAKE(on_connect);
 	RESET_FAKE(on_control);
 	RESET_FAKE(on_error);
+
+	RESET_FAKE(cio_buffered_stream_read_at_least);
+	RESET_FAKE(cio_buffered_stream_write);
 
 	RESET_FAKE(cio_timer_init);
 	RESET_FAKE(cio_timer_cancel);
@@ -466,18 +473,19 @@ void setUp(void)
 	cio_websocket_set_on_control_cb(ws, on_control);
 	cio_websocket_set_on_error_cb(ws, on_error);
 
+	bs_init(&http_client.bs);
+
 	cio_timer_init_fake.custom_fake = cio_timer_init_ok;
 	cio_timer_expires_from_now_fake.custom_fake = timer_expires_from_now_save;
 	cio_timer_close_fake.custom_fake = timer_close_cancel;
 
 	read_handler_fake.custom_fake = read_handler_save_data;
-	read_at_least_fake.custom_fake = bs_read_at_least_from_buffer;
-	bs_write_fake.custom_fake = bs_write_ok;
 	on_control_fake.custom_fake = on_control_save_data;
 	on_error_fake.custom_fake = on_error_save_data;
 
-	http_client.bs.read_at_least = read_at_least;
-	http_client.bs.write = bs_write;
+	cio_buffered_stream_read_at_least_fake.custom_fake = bs_read_at_least_from_buffer;
+	cio_buffered_stream_write_fake.custom_fake = bs_write_ok;
+
 	frame_buffer_read_pos = 0;
 	frame_buffer_fill_pos = 0;
 
@@ -515,7 +523,7 @@ static void test_incoming_ping_pong_send_fails(void)
 	    {.frame_type = CIO_WEBSOCKET_CLOSE_FRAME, .direction = FROM_CLIENT, .data = NULL, .data_length = 0, .last_frame = true, .rsv = false},
 	};
 
-	bs_write_fake.custom_fake = bs_write_error;
+	cio_buffered_stream_write_fake.custom_fake = bs_write_error;
 
 	serialize_frames(frames, ARRAY_SIZE(frames));
 
@@ -549,7 +557,7 @@ static void test_close_close_response_fails(void)
 	    {.frame_type = CIO_WEBSOCKET_CLOSE_FRAME, .direction = FROM_CLIENT, .data = data, .data_length = sizeof(data), .last_frame = true, .rsv = false},
 	};
 
-	bs_write_fake.custom_fake = bs_write_error;
+	cio_buffered_stream_write_fake.custom_fake = bs_write_error;
 
 	serialize_frames(frames, ARRAY_SIZE(frames));
 
@@ -575,7 +583,7 @@ static void test_close_close_response_fails(void)
 
 static void test_close_self_sendframe_fails(void)
 {
-	bs_write_fake.custom_fake = bs_write_error;
+	cio_buffered_stream_write_fake.custom_fake = bs_write_error;
 
 	enum cio_error err = cio_websocket_close(ws, CIO_WEBSOCKET_CLOSE_NORMAL, "Going away", close_handler, NULL);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Close not failed correctly");
@@ -592,8 +600,8 @@ static void test_send_multiple_jobs_with_failures(void)
 	typedef enum cio_error (*write_func)(struct cio_buffered_stream * bs, struct cio_write_buffer * buffer, cio_buffered_stream_write_handler handler, void *handler_context);
 	write_func write_funcs[3] = {bs_write_later, bs_write_error, bs_write_ok};
 
-	bs_write_fake.custom_fake_seq = write_funcs;
-	bs_write_fake.custom_fake_seq_len = ARRAY_SIZE(write_funcs);
+	cio_buffered_stream_write_fake.custom_fake_seq = write_funcs;
+	cio_buffered_stream_write_fake.custom_fake_seq_len = ARRAY_SIZE(write_funcs);
 
 	struct cio_write_buffer ping_wbh;
 	cio_write_buffer_head_init(&ping_wbh);
@@ -616,7 +624,7 @@ static void test_send_multiple_jobs_with_failures(void)
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Writing a close frame did not succeed!");
 
 	// Simulate write call over the eventloop
-	bs_write_fake.custom_fake = bs_write_error;
+	cio_buffered_stream_write_fake.custom_fake = bs_write_error;
 	bs_write_ok(write_later_bs, write_later_buf, write_later_handler, write_later_handler_context);
 
 	TEST_ASSERT_EQUAL_MESSAGE(4, write_handler_fake.call_count, "Write handler was not called");
@@ -655,7 +663,7 @@ static void test_immediate_read_error_for_get_header(void)
 	enum cio_error (*read_at_least_fakes[])(struct cio_buffered_stream *, struct cio_read_buffer *, size_t, cio_buffered_stream_read_handler, void *) = {
 	    bs_read_at_least_immediate_error};
 
-	SET_CUSTOM_FAKE_SEQ(read_at_least, read_at_least_fakes, ARRAY_SIZE(read_at_least_fakes));
+	SET_CUSTOM_FAKE_SEQ(cio_buffered_stream_read_at_least, read_at_least_fakes, ARRAY_SIZE(read_at_least_fakes));
 
 	enum cio_error err = cio_websocket_read_message(ws, read_handler, NULL);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Could not start reading a message!");
@@ -687,7 +695,7 @@ static void test_immediate_read_error_for_get_first_length(void)
 	    bs_read_at_least_from_buffer,
 	    bs_read_at_least_immediate_error};
 
-	SET_CUSTOM_FAKE_SEQ(read_at_least, read_at_least_fakes, ARRAY_SIZE(read_at_least_fakes));
+	SET_CUSTOM_FAKE_SEQ(cio_buffered_stream_read_at_least, read_at_least_fakes, ARRAY_SIZE(read_at_least_fakes));
 
 	enum cio_error err = cio_websocket_read_message(ws, read_handler, NULL);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Could not start reading a message!");
@@ -720,7 +728,7 @@ static void test_immediate_read_error_for_get_mask(void)
 	    bs_read_at_least_from_buffer,
 	    bs_read_at_least_immediate_error};
 
-	SET_CUSTOM_FAKE_SEQ(read_at_least, read_at_least_fakes, ARRAY_SIZE(read_at_least_fakes));
+	SET_CUSTOM_FAKE_SEQ(cio_buffered_stream_read_at_least, read_at_least_fakes, ARRAY_SIZE(read_at_least_fakes));
 
 	enum cio_error err = cio_websocket_read_message(ws, read_handler, NULL);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Could not start reading a message!");
@@ -758,7 +766,7 @@ static void test_immediate_read_error_for_get_extended_length(void)
 		    bs_read_at_least_from_buffer,
 		    bs_read_at_least_immediate_error};
 
-		SET_CUSTOM_FAKE_SEQ(read_at_least, read_at_least_fakes, ARRAY_SIZE(read_at_least_fakes));
+		SET_CUSTOM_FAKE_SEQ(cio_buffered_stream_read_at_least, read_at_least_fakes, ARRAY_SIZE(read_at_least_fakes));
 
 		enum cio_error err = cio_websocket_read_message(ws, read_handler, NULL);
 		TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Could not start reading a message!");
@@ -800,7 +808,7 @@ static void test_immediate_read_error_for_get_payload(void)
 	    bs_read_at_least_from_buffer,
 	    bs_read_at_least_immediate_error};
 
-	SET_CUSTOM_FAKE_SEQ(read_at_least, read_at_least_fakes, ARRAY_SIZE(read_at_least_fakes));
+	SET_CUSTOM_FAKE_SEQ(cio_buffered_stream_read_at_least, read_at_least_fakes, ARRAY_SIZE(read_at_least_fakes));
 
 	enum cio_error err = cio_websocket_read_message(ws, read_handler, NULL);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Could not start reading a message!");
@@ -839,7 +847,7 @@ static void test_immediate_read_error_for_second_get_payload(void)
 		    bs_read_at_least_from_buffer,
 		    bs_read_at_least_immediate_error};
 
-		SET_CUSTOM_FAKE_SEQ(read_at_least, read_at_least_fakes, ARRAY_SIZE(read_at_least_fakes));
+		SET_CUSTOM_FAKE_SEQ(cio_buffered_stream_read_at_least, read_at_least_fakes, ARRAY_SIZE(read_at_least_fakes));
 
 		enum cio_error err = cio_websocket_read_message(ws, read_handler, NULL);
 		TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Could not start reading a message!");
@@ -871,7 +879,7 @@ static void test_read_error_in_get_header(void)
 	};
 
 	serialize_frames(frames, ARRAY_SIZE(frames));
-	read_at_least_fake.custom_fake = bs_read_at_least_error;
+	cio_buffered_stream_read_at_least_fake.custom_fake = bs_read_at_least_error;
 
 	enum cio_error err = cio_websocket_read_message(ws, read_handler, NULL);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Could not start reading a message!");
@@ -905,7 +913,7 @@ static void test_read_error_in_get_mask(void)
 	    bs_read_at_least_from_buffer,
 	    bs_read_at_least_error};
 
-	SET_CUSTOM_FAKE_SEQ(read_at_least, read_at_least_fakes, ARRAY_SIZE(read_at_least_fakes));
+	SET_CUSTOM_FAKE_SEQ(cio_buffered_stream_read_at_least, read_at_least_fakes, ARRAY_SIZE(read_at_least_fakes));
 
 	enum cio_error err = cio_websocket_read_message(ws, read_handler, NULL);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Could not start reading a message!");
@@ -940,7 +948,7 @@ static void test_read_error_in_get_payload(void)
 	    bs_read_at_least_from_buffer,
 	    bs_read_at_least_error};
 
-	SET_CUSTOM_FAKE_SEQ(read_at_least, read_at_least_fakes, ARRAY_SIZE(read_at_least_fakes));
+	SET_CUSTOM_FAKE_SEQ(cio_buffered_stream_read_at_least, read_at_least_fakes, ARRAY_SIZE(read_at_least_fakes));
 
 	enum cio_error err = cio_websocket_read_message(ws, read_handler, NULL);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Could not start reading a message!");
@@ -962,7 +970,7 @@ static void test_close_self_no_answer(void)
 	enum cio_error err = cio_websocket_close(ws, CIO_WEBSOCKET_CLOSE_NORMAL, NULL, close_handler, NULL);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Could not start reading a message!");
 
-	read_at_least_fake.custom_fake = bs_read_at_least_block;
+	cio_buffered_stream_read_at_least_fake.custom_fake = bs_read_at_least_block;
 
 	err = cio_websocket_read_message(ws, read_handler, NULL);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "read_message did not succeed");
@@ -990,7 +998,7 @@ static void test_close_in_get_header(void)
 	};
 
 	serialize_frames(frames, ARRAY_SIZE(frames));
-	read_at_least_fake.custom_fake = bs_read_at_least_peer_close;
+	cio_buffered_stream_read_at_least_fake.custom_fake = bs_read_at_least_peer_close;
 
 	enum cio_error err = cio_websocket_read_message(ws, read_handler, NULL);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Could not start reading a message!");
@@ -1027,13 +1035,13 @@ static void test_close_in_get_length(void)
 			read_at_least_fakes = malloc(2 * sizeof(read_at_least_fake_fun));
 			read_at_least_fakes[0] = bs_read_at_least_from_buffer;
 			read_at_least_fakes[1] = bs_read_at_least_peer_close;
-			SET_CUSTOM_FAKE_SEQ(read_at_least, read_at_least_fakes, 2);
+			SET_CUSTOM_FAKE_SEQ(cio_buffered_stream_read_at_least, read_at_least_fakes, 2);
 		} else {
 			read_at_least_fakes = malloc(3 * sizeof(read_at_least_fake_fun));
 			read_at_least_fakes[0] = bs_read_at_least_from_buffer;
 			read_at_least_fakes[1] = bs_read_at_least_from_buffer;
 			read_at_least_fakes[2] = bs_read_at_least_peer_close;
-			SET_CUSTOM_FAKE_SEQ(read_at_least, read_at_least_fakes, 3);
+			SET_CUSTOM_FAKE_SEQ(cio_buffered_stream_read_at_least, read_at_least_fakes, 3);
 		}
 
 		enum cio_error err = cio_websocket_read_message(ws, read_handler, NULL);
@@ -1078,7 +1086,7 @@ static void test_close_in_get_mask(void)
 	    bs_read_at_least_from_buffer,
 	    bs_read_at_least_peer_close};
 
-	SET_CUSTOM_FAKE_SEQ(read_at_least, read_at_least_fakes, ARRAY_SIZE(read_at_least_fakes));
+	SET_CUSTOM_FAKE_SEQ(cio_buffered_stream_read_at_least, read_at_least_fakes, ARRAY_SIZE(read_at_least_fakes));
 
 	enum cio_error err = cio_websocket_read_message(ws, read_handler, NULL);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Could not start reading a message!");
@@ -1113,7 +1121,7 @@ static void test_close_in_get_payload(void)
 	    bs_read_at_least_from_buffer,
 	    bs_read_at_least_peer_close};
 
-	SET_CUSTOM_FAKE_SEQ(read_at_least, read_at_least_fakes, ARRAY_SIZE(read_at_least_fakes));
+	SET_CUSTOM_FAKE_SEQ(cio_buffered_stream_read_at_least, read_at_least_fakes, ARRAY_SIZE(read_at_least_fakes));
 
 	enum cio_error err = cio_websocket_read_message(ws, read_handler, NULL);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Could not start reading a message!");
@@ -1204,7 +1212,7 @@ static void test_close_self_no_handler(void)
 
 static void test_close_self_twice(void)
 {
-	bs_write_fake.custom_fake = bs_write_later;
+	cio_buffered_stream_write_fake.custom_fake = bs_write_later;
 
 	enum cio_error err = cio_websocket_close(ws, CIO_WEBSOCKET_CLOSE_NORMAL, "Going away", close_handler, NULL);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Close did not succeed");
@@ -1394,7 +1402,7 @@ static void test_send_pong_frame_twice(void)
 {
 	char buffer[125] = {'a'};
 
-	bs_write_fake.custom_fake = bs_write_later;
+	cio_buffered_stream_write_fake.custom_fake = bs_write_later;
 
 	struct cio_write_buffer wbh;
 	cio_write_buffer_head_init(&wbh);
@@ -1665,7 +1673,7 @@ static void test_send_text_frame_no_handler(void)
 
 static void test_send_text_frame_twice(void)
 {
-	bs_write_fake.custom_fake = bs_write_later;
+	cio_buffered_stream_write_fake.custom_fake = bs_write_later;
 
 	char data[5];
 	memset(data, 'a', sizeof(data));
@@ -1688,7 +1696,7 @@ static void test_send_multiple_jobs(void)
 {
 	char buffer[125] = {'a'};
 
-	bs_write_fake.custom_fake = bs_write_later;
+	cio_buffered_stream_write_fake.custom_fake = bs_write_later;
 
 	struct cio_write_buffer ping_wbh;
 	cio_write_buffer_head_init(&ping_wbh);
@@ -1711,7 +1719,7 @@ static void test_send_multiple_jobs(void)
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Writing a close frame did not succeed!");
 
 	// Simulate write call over the eventloop
-	bs_write_fake.custom_fake = bs_write_ok;
+	cio_buffered_stream_write_fake.custom_fake = bs_write_ok;
 	bs_write_ok(write_later_bs, write_later_buf, write_later_handler, write_later_handler_context);
 
 	TEST_ASSERT_EQUAL_MESSAGE(4, write_handler_fake.call_count, "Write handler was not called");
@@ -1726,7 +1734,7 @@ static void test_send_multiple_jobs_starting_with_close(void)
 {
 	char buffer[125] = {'a'};
 
-	bs_write_fake.custom_fake = bs_write_later;
+	cio_buffered_stream_write_fake.custom_fake = bs_write_later;
 
 	struct cio_write_buffer ping_wbh;
 	cio_write_buffer_head_init(&ping_wbh);
@@ -1749,7 +1757,7 @@ static void test_send_multiple_jobs_starting_with_close(void)
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Writing a text frame did not succeed!");
 
 	// Simulate write call over the eventloop
-	bs_write_fake.custom_fake = bs_write_ok;
+	cio_buffered_stream_write_fake.custom_fake = bs_write_ok;
 	bs_write_ok(write_later_bs, write_later_buf, write_later_handler, write_later_handler_context);
 
 	TEST_ASSERT_EQUAL_MESSAGE(4, write_handler_fake.call_count, "Write handler was not called");

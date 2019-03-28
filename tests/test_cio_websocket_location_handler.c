@@ -27,6 +27,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#include "cio_buffered_stream.h"
 #include "cio_http_server.h"
 #include "cio_util.h"
 #include "cio_websocket_location_handler.h"
@@ -51,8 +52,6 @@ struct ws_test_handler {
 static void serve_error(struct cio_http_server *server, const char *reason);
 FAKE_VOID_FUNC(serve_error, struct cio_http_server *, const char *)
 
-FAKE_VALUE_FUNC(enum cio_error, cio_buffered_stream_init, struct cio_buffered_stream *, struct cio_io_stream *)
-
 FAKE_VALUE_FUNC(enum cio_error, cio_server_socket_accept, struct cio_server_socket *, cio_accept_handler, void *)
 FAKE_VOID_FUNC(cio_server_socket_close, struct cio_server_socket *)
 FAKE_VALUE_FUNC(enum cio_error, cio_server_socket_init, struct cio_server_socket *, struct cio_eventloop *, unsigned int, cio_alloc_client, cio_free_client, cio_server_socket_close_hook)
@@ -61,14 +60,11 @@ FAKE_VALUE_FUNC(enum cio_error, cio_server_socket_set_reuse_address, struct cio_
 
 FAKE_VALUE_FUNC(struct cio_io_stream *, cio_socket_get_io_stream, struct cio_socket *)
 
-static enum cio_error bs_read_until(struct cio_buffered_stream *bs, struct cio_read_buffer *buffer, const char *delim, cio_buffered_stream_read_handler handler, void *handler_context);
-FAKE_VALUE_FUNC(enum cio_error, bs_read_until, struct cio_buffered_stream *, struct cio_read_buffer *, const char *, cio_buffered_stream_read_handler, void *)
-
-static enum cio_error bs_close(struct cio_buffered_stream *bs);
-FAKE_VALUE_FUNC(enum cio_error, bs_close, struct cio_buffered_stream *)
-
-static enum cio_error bs_write(struct cio_buffered_stream *bs, struct cio_write_buffer *buffer, cio_buffered_stream_write_handler handler, void *handler_context);
-FAKE_VALUE_FUNC(enum cio_error, bs_write, struct cio_buffered_stream *, struct cio_write_buffer *, cio_buffered_stream_write_handler, void *)
+FAKE_VALUE_FUNC(enum cio_error, cio_buffered_stream_read_until, struct cio_buffered_stream *, struct cio_read_buffer *, const char *, cio_buffered_stream_read_handler, void *)
+FAKE_VALUE_FUNC(enum cio_error, cio_buffered_stream_read_at_least, struct cio_buffered_stream *, struct cio_read_buffer *, size_t, cio_buffered_stream_read_handler, void *)
+FAKE_VALUE_FUNC(enum cio_error, cio_buffered_stream_close, struct cio_buffered_stream *)
+FAKE_VALUE_FUNC(enum cio_error, cio_buffered_stream_write, struct cio_buffered_stream *, struct cio_write_buffer *, cio_buffered_stream_write_handler, void *)
+FAKE_VALUE_FUNC(enum cio_error, cio_buffered_stream_init, struct cio_buffered_stream *, struct cio_io_stream *)
 
 FAKE_VALUE_FUNC(enum cio_error, cio_timer_init, struct cio_timer *, struct cio_eventloop *, cio_timer_close_hook)
 FAKE_VALUE_FUNC(enum cio_error, cio_timer_cancel, struct cio_timer *)
@@ -107,12 +103,20 @@ static void free_dummy_client(struct cio_socket *socket)
 	free(client);
 }
 
+static void bs_init(struct cio_buffered_stream *bs)
+{
+	bs->callback_is_running = 0;
+	bs->shall_close = false;
+	cio_write_buffer_head_init(&bs->wbh);
+}
+
 static struct cio_socket *alloc_dummy_client(void)
 {
 	struct cio_http_client *client = malloc(sizeof(*client) + read_buffer_size);
 	memset(client, 0xaf, sizeof(*client));
 	client->buffer_size = read_buffer_size;
 	client->socket.close_hook = free_dummy_client;
+	bs_init(&client->bs);
 	return &client->socket;
 }
 
@@ -135,17 +139,6 @@ static enum cio_error cio_timer_init_ok(struct cio_timer *timer, struct cio_even
 {
 	(void)l;
 	timer->close_hook = hook;
-	return CIO_SUCCESS;
-}
-
-static enum cio_error cio_buffered_stream_init_ok(struct cio_buffered_stream *bs,
-                                                  struct cio_io_stream *stream)
-{
-	(void)stream;
-	bs->read_until = bs_read_until;
-	bs->write = bs_write;
-	bs->close = bs_close;
-
 	return CIO_SUCCESS;
 }
 
@@ -287,10 +280,11 @@ void setUp(void)
 {
 	FFF_RESET_HISTORY();
 
-	RESET_FAKE(bs_close);
-	RESET_FAKE(bs_read_until);
-	RESET_FAKE(bs_write);
 	RESET_FAKE(cio_buffered_stream_init);
+	RESET_FAKE(cio_buffered_stream_close);
+	RESET_FAKE(cio_buffered_stream_read_at_least);
+	RESET_FAKE(cio_buffered_stream_read_until);
+	RESET_FAKE(cio_buffered_stream_write);
 
 	RESET_FAKE(cio_server_socket_accept);
 	RESET_FAKE(cio_server_socket_bind);
@@ -313,16 +307,14 @@ void setUp(void)
 	cio_server_socket_accept_fake.custom_fake = accept_save_handler;
 
 	cio_timer_init_fake.custom_fake = cio_timer_init_ok;
-	cio_buffered_stream_init_fake.custom_fake = cio_buffered_stream_init_ok;
-	bs_read_until_fake.custom_fake = bs_read_until_ok;
+	cio_buffered_stream_read_until_fake.custom_fake = bs_read_until_ok;
+	cio_buffered_stream_close_fake.custom_fake = bs_close_ok;
 
 	memset(http_response_write_buffer, 0xaf, sizeof(http_response_write_buffer));
 	http_response_write_pos = 0;
 
 	memset(ws_frame_write_buffer, 0xaf, sizeof(ws_frame_write_buffer));
 	ws_frame_write_pos = 0;
-
-	bs_close_fake.custom_fake = bs_close_ok;
 
 	cio_timer_expires_from_now_fake.custom_fake = timer_expires_from_now_ok;
 	cio_timer_cancel_fake.custom_fake = cancel_timer;
@@ -348,7 +340,7 @@ static void test_ws_version(void)
 
 	for (unsigned int i = 0; i < ARRAY_SIZE(test_cases); i++) {
 		struct ws_version_test test_case = test_cases[i];
-		bs_write_fake.custom_fake = bs_fake_write;
+		cio_buffered_stream_write_fake.custom_fake = bs_fake_write;
 
 		struct cio_http_server server;
 		enum cio_error err = cio_http_server_init(&server, 8080, &loop, serve_error, header_read_timeout, body_read_timeout, response_timeout, alloc_dummy_client, free_dummy_client);
@@ -401,7 +393,7 @@ static void test_ws_location_wrong_http_version(void)
 	for (unsigned int i = 0; i < ARRAY_SIZE(test_cases); i++) {
 		struct http_test test_case = test_cases[i];
 
-		bs_write_fake.custom_fake = bs_fake_write;
+		cio_buffered_stream_write_fake.custom_fake = bs_fake_write;
 
 		struct cio_http_server server;
 		enum cio_error err = cio_http_server_init(&server, 8080, &loop, serve_error, header_read_timeout, body_read_timeout, response_timeout, alloc_dummy_client, free_dummy_client);
@@ -438,7 +430,7 @@ static void test_ws_location_wrong_http_version(void)
 
 static void test_ws_location_wrong_http_method(void)
 {
-	bs_write_fake.custom_fake = bs_fake_write;
+	cio_buffered_stream_write_fake.custom_fake = bs_fake_write;
 
 	struct cio_http_server server;
 	enum cio_error err = cio_http_server_init(&server, 8080, &loop, serve_error, header_read_timeout, body_read_timeout, response_timeout, alloc_dummy_client, free_dummy_client);
@@ -473,7 +465,7 @@ static void test_ws_location_wrong_http_method(void)
 static void test_ws_location_wrong_ws_version(void)
 {
 	for (signed int i = -10; i < 13; i++) {
-		bs_write_fake.custom_fake = bs_fake_write;
+		cio_buffered_stream_write_fake.custom_fake = bs_fake_write;
 
 		struct cio_http_server server;
 		enum cio_error err = cio_http_server_init(&server, 8080, &loop, serve_error, header_read_timeout, body_read_timeout, response_timeout, alloc_dummy_client, free_dummy_client);
@@ -525,7 +517,7 @@ static void test_ws_key(void)
 
 	for (unsigned int i = 0; i < ARRAY_SIZE(test_cases); i++) {
 		struct key_test test_case = test_cases[i];
-		bs_write_fake.custom_fake = bs_fake_write;
+		cio_buffered_stream_write_fake.custom_fake = bs_fake_write;
 
 		struct cio_http_server server;
 		enum cio_error err = cio_http_server_init(&server, 8080, &loop, serve_error, header_read_timeout, body_read_timeout, response_timeout, alloc_dummy_client, free_dummy_client);
@@ -562,7 +554,7 @@ static void test_ws_key(void)
 
 static void test_ws_location_wrong_key_length(void)
 {
-	bs_write_fake.custom_fake = bs_fake_write;
+	cio_buffered_stream_write_fake.custom_fake = bs_fake_write;
 
 	struct cio_http_server server;
 	enum cio_error err = cio_http_server_init(&server, 8080, &loop, serve_error, header_read_timeout, body_read_timeout, response_timeout, alloc_dummy_client, free_dummy_client);
@@ -617,7 +609,7 @@ static void test_ws_location_subprotocols(void)
 	for (unsigned int i = 0; i < ARRAY_SIZE(test_cases); i++) {
 		struct protocol_test test_case = test_cases[i];
 
-		bs_write_fake.custom_fake = bs_fake_write;
+		cio_buffered_stream_write_fake.custom_fake = bs_fake_write;
 
 		struct cio_http_server server;
 		enum cio_error err = cio_http_server_init(&server, 8080, &loop, serve_error, header_read_timeout, body_read_timeout, response_timeout, alloc_dummy_client, free_dummy_client);
@@ -654,7 +646,7 @@ static void test_ws_location_subprotocols(void)
 
 static void test_ws_location_no_upgrade(void)
 {
-	bs_write_fake.custom_fake = bs_fake_write;
+	cio_buffered_stream_write_fake.custom_fake = bs_fake_write;
 
 	struct cio_http_server server;
 	enum cio_error err = cio_http_server_init(&server, 8080, &loop, serve_error, header_read_timeout, body_read_timeout, response_timeout, alloc_dummy_client, free_dummy_client);
@@ -687,7 +679,7 @@ static void test_ws_location_no_upgrade(void)
 
 static void test_ws_location_write_error(void)
 {
-	bs_write_fake.custom_fake = bs_fake_write_error;
+	cio_buffered_stream_write_fake.custom_fake = bs_fake_write_error;
 
 	struct cio_http_server server;
 	enum cio_error err = cio_http_server_init(&server, 8080, &loop, serve_error, header_read_timeout, body_read_timeout, response_timeout, alloc_dummy_client, free_dummy_client);
@@ -716,7 +708,7 @@ static void test_ws_location_write_error(void)
 
 	init_request(request, ARRAY_SIZE(request));
 	server.server_socket.handler(&server.server_socket, server.server_socket.handler_context, CIO_SUCCESS, s);
-	TEST_ASSERT_EQUAL_MESSAGE(1, bs_close_fake.call_count, "Stream was not closed in case of error!");
+	TEST_ASSERT_EQUAL_MESSAGE(1, cio_buffered_stream_close_fake.call_count, "Stream was not closed in case of error!");
 }
 
 static void test_ws_location_init_fails(void)
