@@ -191,7 +191,6 @@ CIO_EXPORT enum cio_error cio_buffered_stream_close(struct cio_buffered_stream *
  *
  * @param bs A pointer to the cio_buffered_stream of the on which the operation should be performed.
  * @param buffer The buffer where the data is written from.
- * @param count The number of to write.
  * @param handler The callback function to be called when the write
  * request is fulfilled.
  * @param handler_context A pointer to a context which might be
