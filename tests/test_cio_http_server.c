@@ -311,8 +311,11 @@ void setUp(void)
 {
 	FFF_RESET_HISTORY();
 
+	RESET_FAKE(cio_buffered_stream_close);
 	RESET_FAKE(cio_buffered_stream_init);
+	RESET_FAKE(cio_buffered_stream_read_at_least);
 	RESET_FAKE(cio_buffered_stream_read_until);
+	RESET_FAKE(cio_buffered_stream_write);
 
 	RESET_FAKE(cio_server_socket_accept);
 	RESET_FAKE(cio_server_socket_bind);
