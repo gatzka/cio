@@ -77,9 +77,6 @@ FAKE_VALUE_FUNC(enum cio_error, cio_timer_cancel, struct cio_timer *)
 FAKE_VOID_FUNC(cio_timer_close, struct cio_timer *)
 FAKE_VALUE_FUNC(enum cio_error, cio_timer_expires_from_now, struct cio_timer *, uint64_t, cio_timer_handler, void *)
 
-static enum cio_error bs_write(struct cio_buffered_stream *bs, struct cio_write_buffer *buf, cio_buffered_stream_write_handler handler, void *handler_context);
-FAKE_VALUE_FUNC(enum cio_error, bs_write, struct cio_buffered_stream *, struct cio_write_buffer *, cio_buffered_stream_write_handler, void *)
-
 FAKE_VALUE_FUNC(enum cio_error, cio_buffered_stream_init, struct cio_buffered_stream *, struct cio_io_stream *)
 FAKE_VALUE_FUNC(enum cio_error, cio_buffered_stream_read_until, struct cio_buffered_stream *, struct cio_read_buffer *, const char *, cio_buffered_stream_read_handler, void *)
 FAKE_VALUE_FUNC(enum cio_error, cio_buffered_stream_read_at_least, struct cio_buffered_stream *, struct cio_read_buffer *, size_t, cio_buffered_stream_read_handler, void *)
@@ -347,7 +344,7 @@ void setUp(void)
 	memset(write_buffer, 0xaf, sizeof(write_buffer));
 	write_pos = 0;
 
-	bs_write_fake.custom_fake = bs_write_all;
+	cio_buffered_stream_write_fake.custom_fake = bs_write_all;
 	cio_server_socket_close_fake.custom_fake = close_server_socket;
 
 	cio_socket_get_io_stream_fake.return_val = (struct cio_io_stream *)1;
@@ -547,7 +544,7 @@ static void test_write_error(void)
 	cio_server_socket_init_fake.custom_fake = cio_server_socket_init_ok;
 	cio_server_socket_accept_fake.custom_fake = accept_save_handler;
 	header_complete_fake.custom_fake = header_complete_write_response;
-	bs_write_fake.custom_fake = bs_write_error;
+	cio_buffered_stream_write_fake.custom_fake = bs_write_error;
 
 	struct cio_http_server server;
 	enum cio_error err = cio_http_server_init(&server, 8080, &loop, serve_error, header_read_timeout, body_read_timeout, response_timeout, alloc_dummy_client, free_dummy_client);
