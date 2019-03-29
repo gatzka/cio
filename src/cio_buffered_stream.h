@@ -107,66 +107,6 @@ union cio_read_info {
 struct cio_buffered_stream {
 
 	/**
-	 * @anchor cio_buffered_stream_read_at_least
-	 * @brief Call @p handler if at least @p num bytes are read.
-	 *
-	 * Schedule a read job which calls @p handler if at least @p num bytes are available to consume.
-	 *
-	 * @param bs A pointer to the cio_buffered_stream of the on which the operation should be performed.
-	 * @param num The number of bytes to be read at least when @p handler will be called.
-	 * @param handler The callback function to be called when the read
-	 * request is fulfilled.
-	 * @param handler_context A pointer to a context which might be
-	 * useful inside @p handler.
-	 *
-	 * @return ::CIO_SUCCESS for success.
-	 */
-	enum cio_error (*read_at_least)(struct cio_buffered_stream *bs, struct cio_read_buffer *buffer, size_t num, cio_buffered_stream_read_handler handler, void *handler_context);
-
-	/**
-	 * @anchor cio_buffered_stream_read_until
-	 * @brief Call @p handler if delimiter @p delim is encountered.
-	 *
-	 * @param bs A pointer to the cio_buffered_stream of the on which the operation should be performed.
-	 * @param delim A zero terminated string containing the delimiter to be found. Pay attention that the delimiter string
-	 *              is not copied and must therefore survive until @p handler is called.
-	 * @param handler The callback function to be called when the read
-	 * request is fulfilled.
-	 * @param handler_context A pointer to a context which might be
-	 * useful inside @p handler
-	 *
-	 * @return ::CIO_SUCCESS for success.
-	 */
-	enum cio_error (*read_until)(struct cio_buffered_stream *bs, struct cio_read_buffer *buffer, const char *delim, cio_buffered_stream_read_handler handler, void *handler_context);
-
-	/**
-	 * @brief Writes @p count bytes to the buffered stream.
-	 *
-	 * @p handler is called when either the buffer was completely written or an error occured.
-	 *
-	 * @param bs A pointer to the cio_buffered_stream of the on which the operation should be performed.
-	 * @param buffer The buffer where the data is written from.
-	 * @param count The number of to write.
-	 * @param handler The callback function to be called when the write
-	 * request is fulfilled.
-	 * @param handler_context A pointer to a context which might be
-	 * useful inside @p handler
-	 *
-	 * @return ::CIO_SUCCESS for success.
-	 */
-	enum cio_error (*write)(struct cio_buffered_stream *bs, struct cio_write_buffer *buffer, cio_buffered_stream_write_handler handler, void *handler_context);
-
-	/**
-	 * @anchor cio_buffered_stream_close
-	 * @brief Closes the stream.
-	 *
-	 * @param bs A pointer to the cio_buffered_stream of the on which the operation should be performed.
-	 *
-	 * @return ::CIO_SUCCESS for success.
-	 */
-	enum cio_error (*close)(struct cio_buffered_stream *bs);
-
-	/**
 	 * @privatesection
 	 */
 	struct cio_io_stream *stream;
@@ -202,6 +142,65 @@ struct cio_buffered_stream {
  */
 CIO_EXPORT enum cio_error cio_buffered_stream_init(struct cio_buffered_stream *bs,
                                                    struct cio_io_stream *stream);
+
+/**
+ * @brief Call @p handler if at least @p num bytes are read.
+ *
+ * Schedule a read job which calls @p handler if at least @p num bytes are available to consume.
+ *
+ * @param bs A pointer to the cio_buffered_stream of the on which the operation should be performed.
+ * @param buffer The buffer that should be used for reading.
+ * @param num The number of bytes to be read at least when @p handler will be called.
+ * @param handler The callback function to be called when the read
+ * request is fulfilled.
+ * @param handler_context A pointer to a context which might be
+ * useful inside @p handler.
+ *
+ * @return ::CIO_SUCCESS for success.
+ */
+CIO_EXPORT enum cio_error cio_buffered_stream_read_at_least(struct cio_buffered_stream *bs, struct cio_read_buffer *buffer, size_t num, cio_buffered_stream_read_handler handler, void *handler_context);
+
+/**
+ * @anchor cio_buffered_stream_read_until
+ * @brief Call @p handler if delimiter @p delim is encountered.
+ *
+ * @param bs A pointer to the cio_buffered_stream of the on which the operation should be performed.
+ * @param buffer The buffer that should be used for reading.
+ * @param delim A zero terminated string containing the delimiter to be found. Pay attention that the delimiter string
+ *              is not copied and must therefore survive until @p handler is called.
+ * @param handler The callback function to be called when the read
+ * request is fulfilled.
+ * @param handler_context A pointer to a context which might be
+ * useful inside @p handler
+ *
+ * @return ::CIO_SUCCESS for success.
+ */
+CIO_EXPORT enum cio_error cio_buffered_stream_read_until(struct cio_buffered_stream *bs, struct cio_read_buffer *buffer, const char *delim, cio_buffered_stream_read_handler handler, void *handler_context);
+
+/**
+ * @brief Closes the stream.
+ *
+ * @param bs A pointer to the cio_buffered_stream of the on which the operation should be performed.
+ *
+ * @return ::CIO_SUCCESS for success.
+ */
+CIO_EXPORT enum cio_error cio_buffered_stream_close(struct cio_buffered_stream *bs);
+
+/**
+ * @brief Writes @p count bytes to the buffered stream.
+ *
+ * @p handler is called when either the buffer was completely written or an error occured.
+ *
+ * @param bs A pointer to the cio_buffered_stream of the on which the operation should be performed.
+ * @param buffer The buffer where the data is written from.
+ * @param handler The callback function to be called when the write
+ * request is fulfilled.
+ * @param handler_context A pointer to a context which might be
+ * useful inside @p handler
+ *
+ * @return ::CIO_SUCCESS for success.
+ */
+CIO_EXPORT enum cio_error cio_buffered_stream_write(struct cio_buffered_stream *bs, struct cio_write_buffer *buffer, cio_buffered_stream_write_handler handler, void *handler_context);
 
 #ifdef __cplusplus
 }

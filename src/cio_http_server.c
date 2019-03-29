@@ -75,7 +75,7 @@ static void handle_error(struct cio_http_server *server, const char *reason)
 
 static void close_bs(struct cio_http_client *client)
 {
-	enum cio_error err = client->bs.close(&client->bs);
+	enum cio_error err = cio_buffered_stream_close(&client->bs);
 	if (cio_unlikely(err != CIO_SUCCESS)) {
 		struct cio_http_server *server = (struct cio_http_server *)client->parser.data;
 		handle_error(server, "closing buffered stream of client failed");
@@ -147,7 +147,7 @@ static void restart_read_request(struct cio_http_client *client)
 		client->response_written = false;
 
 		client->http_private.finish_func = finish_request_line;
-		err = client->bs.read_until(&client->bs, &client->rb, CIO_CRLF, parse, client);
+		err = cio_buffered_stream_read_until(&client->bs, &client->rb, CIO_CRLF, parse, client);
 		if (cio_unlikely(err != CIO_SUCCESS)) {
 			handle_server_error(client, "Could not restart read request");
 		}
@@ -236,7 +236,7 @@ static void end_response_header(struct cio_http_client *client)
 
 static enum cio_error flush(struct cio_http_client *client, cio_buffered_stream_write_handler handler)
 {
-	return client->bs.write(&client->bs, &client->response_wbh, handler, client);
+	return cio_buffered_stream_write(&client->bs, &client->response_wbh, handler, client);
 }
 
 static enum cio_error write_response(struct cio_http_client *client, enum cio_http_status_code status_code, struct cio_write_buffer *wbh_body, cio_response_written_cb written_cb)
@@ -333,7 +333,7 @@ static void handle_server_error(struct cio_http_client *client, const char *msg)
 
 static void finish_bytes(struct cio_http_client *client)
 {
-	enum cio_error err = client->bs.read_at_least(&client->bs, &client->rb, 1, parse, client);
+	enum cio_error err = cio_buffered_stream_read_at_least(&client->bs, &client->rb, 1, parse, client);
 	if (cio_unlikely(err != CIO_SUCCESS)) {
 		handle_server_error(client, "Reading of bytes failed");
 	}
@@ -603,7 +603,7 @@ static void parse(struct cio_buffered_stream *bs, void *handler_context, enum ci
 
 static void finish_header_line(struct cio_http_client *client)
 {
-	enum cio_error err = client->bs.read_until(&client->bs, &client->rb, CIO_CRLF, parse, client);
+	enum cio_error err = cio_buffered_stream_read_until(&client->bs, &client->rb, CIO_CRLF, parse, client);
 	if (cio_unlikely(err != CIO_SUCCESS)) {
 		handle_server_error(client, "Reading of header line failed");
 	}
@@ -614,7 +614,7 @@ static void finish_request_line(struct cio_http_client *client)
 	client->http_major = client->parser.http_major;
 	client->http_minor = client->parser.http_minor;
 	client->http_private.finish_func = finish_header_line;
-	enum cio_error err = client->bs.read_until(&client->bs, &client->rb, CIO_CRLF, parse, client);
+	enum cio_error err = cio_buffered_stream_read_until(&client->bs, &client->rb, CIO_CRLF, parse, client);
 	if (cio_unlikely(err != CIO_SUCCESS)) {
 		handle_server_error(client, "Reading of header line failed");
 	}
@@ -689,7 +689,7 @@ static void handle_accept(struct cio_server_socket *ss, void *handler_context, e
 	}
 
 	client->http_private.finish_func = finish_request_line;
-	err = client->bs.read_until(&client->bs, &client->rb, CIO_CRLF, parse, client);
+	err = cio_buffered_stream_read_until(&client->bs, &client->rb, CIO_CRLF, parse, client);
 	if (cio_unlikely(err != CIO_SUCCESS)) {
 		goto read_until_fail;
 	}

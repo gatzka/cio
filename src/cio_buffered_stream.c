@@ -84,21 +84,6 @@ static void fill_buffer(struct cio_buffered_stream *bs)
 	}
 }
 
-static enum cio_error bs_close(struct cio_buffered_stream *bs)
-{
-	if (cio_unlikely(bs == NULL)) {
-		return CIO_INVALID_ARGUMENT;
-	}
-
-	if (bs->callback_is_running == 0) {
-		bs->stream->close(bs->stream);
-	} else {
-		bs->shall_close = true;
-	}
-
-	return CIO_SUCCESS;
-}
-
 static void run_read(struct cio_buffered_stream *bs)
 {
 	while (bs->read_job != NULL) {
@@ -141,24 +126,6 @@ static enum cio_bs_state internal_read_until(struct cio_buffered_stream *bs)
 	return CIO_BS_AGAIN;
 }
 
-static enum cio_error bs_read_until(struct cio_buffered_stream *bs, struct cio_read_buffer *buffer, const char *delim, cio_buffered_stream_read_handler handler, void *handler_context)
-{
-	if (cio_unlikely((bs == NULL) || (buffer == NULL) || (handler == NULL) || (delim == NULL))) {
-		return CIO_INVALID_ARGUMENT;
-	}
-
-	bs->read_info.until.delim = delim;
-	bs->read_info.until.delim_length = strlen(delim);
-	bs->read_job = internal_read_until;
-	bs->read_buffer = buffer;
-	bs->read_handler = handler;
-	bs->read_handler_context = handler_context;
-	bs->last_error = CIO_SUCCESS;
-	start_read(bs);
-
-	return CIO_SUCCESS;
-}
-
 static enum cio_bs_state internal_read_at_least(struct cio_buffered_stream *bs)
 {
 	struct cio_read_buffer *rb = bs->read_buffer;
@@ -173,27 +140,6 @@ static enum cio_bs_state internal_read_at_least(struct cio_buffered_stream *bs)
 	}
 
 	return CIO_BS_AGAIN;
-}
-
-static enum cio_error bs_read_at_least(struct cio_buffered_stream *bs, struct cio_read_buffer *buffer, size_t num, cio_buffered_stream_read_handler handler, void *handler_context)
-{
-	if (cio_unlikely((bs == NULL) || (handler == NULL) || (buffer == NULL))) {
-		return CIO_INVALID_ARGUMENT;
-	}
-
-	if (cio_unlikely(num > cio_read_buffer_size(buffer))) {
-		return CIO_MESSAGE_TOO_LONG;
-	}
-
-	bs->read_info.bytes_to_read = num;
-	bs->read_job = internal_read_at_least;
-	bs->read_buffer = buffer;
-	bs->read_handler = handler;
-	bs->read_handler_context = handler_context;
-	bs->last_error = CIO_SUCCESS;
-	start_read(bs);
-
-	return CIO_SUCCESS;
 }
 
 static inline bool buffer_partially_written(const struct cio_write_buffer *wb, size_t bytes_transferred)
@@ -253,7 +199,77 @@ static void handle_write(struct cio_io_stream *io_stream, void *handler_context,
 	}
 }
 
-static enum cio_error bs_write(struct cio_buffered_stream *bs, struct cio_write_buffer *buffer, cio_buffered_stream_write_handler handler, void *handler_context)
+enum cio_error cio_buffered_stream_init(struct cio_buffered_stream *bs,
+                                        struct cio_io_stream *stream)
+{
+	if (cio_unlikely((bs == NULL) || (stream == NULL))) {
+		return CIO_INVALID_ARGUMENT;
+	}
+
+	bs->stream = stream;
+	bs->callback_is_running = 0;
+	bs->shall_close = false;
+
+	cio_write_buffer_head_init(&bs->wbh);
+
+	return CIO_SUCCESS;
+}
+
+enum cio_error cio_buffered_stream_read_at_least(struct cio_buffered_stream *bs, struct cio_read_buffer *buffer, size_t num, cio_buffered_stream_read_handler handler, void *handler_context)
+{
+	if (cio_unlikely((bs == NULL) || (handler == NULL) || (buffer == NULL))) {
+		return CIO_INVALID_ARGUMENT;
+	}
+
+	if (cio_unlikely(num > cio_read_buffer_size(buffer))) {
+		return CIO_MESSAGE_TOO_LONG;
+	}
+
+	bs->read_info.bytes_to_read = num;
+	bs->read_job = internal_read_at_least;
+	bs->read_buffer = buffer;
+	bs->read_handler = handler;
+	bs->read_handler_context = handler_context;
+	bs->last_error = CIO_SUCCESS;
+	start_read(bs);
+
+	return CIO_SUCCESS;
+}
+
+enum cio_error cio_buffered_stream_read_until(struct cio_buffered_stream *bs, struct cio_read_buffer *buffer, const char *delim, cio_buffered_stream_read_handler handler, void *handler_context)
+{
+	if (cio_unlikely((bs == NULL) || (buffer == NULL) || (handler == NULL) || (delim == NULL))) {
+		return CIO_INVALID_ARGUMENT;
+	}
+
+	bs->read_info.until.delim = delim;
+	bs->read_info.until.delim_length = strlen(delim);
+	bs->read_job = internal_read_until;
+	bs->read_buffer = buffer;
+	bs->read_handler = handler;
+	bs->read_handler_context = handler_context;
+	bs->last_error = CIO_SUCCESS;
+	start_read(bs);
+
+	return CIO_SUCCESS;
+}
+
+enum cio_error cio_buffered_stream_close(struct cio_buffered_stream *bs)
+{
+	if (cio_unlikely(bs == NULL)) {
+		return CIO_INVALID_ARGUMENT;
+	}
+
+	if (bs->callback_is_running == 0) {
+		bs->stream->close(bs->stream);
+	} else {
+		bs->shall_close = true;
+	}
+
+	return CIO_SUCCESS;
+}
+
+enum cio_error cio_buffered_stream_write(struct cio_buffered_stream *bs, struct cio_write_buffer *buffer, cio_buffered_stream_write_handler handler, void *handler_context)
 {
 	if (cio_unlikely((bs == NULL) || (buffer == NULL) || (handler == NULL))) {
 		return CIO_INVALID_ARGUMENT;
@@ -269,26 +285,4 @@ static enum cio_error bs_write(struct cio_buffered_stream *bs, struct cio_write_
 	}
 
 	return bs->stream->write_some(bs->stream, &bs->wbh, handle_write, bs);
-}
-
-enum cio_error cio_buffered_stream_init(struct cio_buffered_stream *bs,
-                                        struct cio_io_stream *stream)
-{
-	if (cio_unlikely((bs == NULL) || (stream == NULL))) {
-		return CIO_INVALID_ARGUMENT;
-	}
-
-	bs->stream = stream;
-	bs->callback_is_running = 0;
-	bs->shall_close = false;
-
-	bs->read_at_least = bs_read_at_least;
-	bs->read_until = bs_read_until;
-
-	cio_write_buffer_head_init(&bs->wbh);
-	bs->write = bs_write;
-
-	bs->close = bs_close;
-
-	return CIO_SUCCESS;
 }

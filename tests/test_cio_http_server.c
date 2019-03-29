@@ -30,6 +30,7 @@
 #include "fff.h"
 #include "unity.h"
 
+#include "cio_buffered_stream.h"
 #include "cio_error_code.h"
 #include "cio_http_location.h"
 #include "cio_http_location_handler.h"
@@ -76,10 +77,11 @@ FAKE_VALUE_FUNC(enum cio_error, cio_timer_cancel, struct cio_timer *)
 FAKE_VOID_FUNC(cio_timer_close, struct cio_timer *)
 FAKE_VALUE_FUNC(enum cio_error, cio_timer_expires_from_now, struct cio_timer *, uint64_t, cio_timer_handler, void *)
 
-static enum cio_error bs_write(struct cio_buffered_stream *bs, struct cio_write_buffer *buf, cio_buffered_stream_write_handler handler, void *handler_context);
-FAKE_VALUE_FUNC(enum cio_error, bs_write, struct cio_buffered_stream *, struct cio_write_buffer *, cio_buffered_stream_write_handler, void *)
-
 FAKE_VALUE_FUNC(enum cio_error, cio_buffered_stream_init, struct cio_buffered_stream *, struct cio_io_stream *)
+FAKE_VALUE_FUNC(enum cio_error, cio_buffered_stream_read_until, struct cio_buffered_stream *, struct cio_read_buffer *, const char *, cio_buffered_stream_read_handler, void *)
+FAKE_VALUE_FUNC(enum cio_error, cio_buffered_stream_read_at_least, struct cio_buffered_stream *, struct cio_read_buffer *, size_t, cio_buffered_stream_read_handler, void *)
+FAKE_VALUE_FUNC(enum cio_error, cio_buffered_stream_close, struct cio_buffered_stream *)
+FAKE_VALUE_FUNC(enum cio_error, cio_buffered_stream_write, struct cio_buffered_stream *, struct cio_write_buffer *, cio_buffered_stream_write_handler, void *)
 
 static enum cio_error cancel_timer(struct cio_timer *t)
 {
@@ -123,13 +125,12 @@ FAKE_VALUE_FUNC(enum cio_http_cb_return, header_complete, struct cio_http_client
 static enum cio_http_cb_return message_complete(struct cio_http_client *c);
 FAKE_VALUE_FUNC(enum cio_http_cb_return, message_complete, struct cio_http_client *)
 
-static enum cio_error bs_read_until(struct cio_buffered_stream *bs, struct cio_read_buffer *buffer, const char *delim, cio_buffered_stream_read_handler handler, void *handler_context);
-FAKE_VALUE_FUNC(enum cio_error, bs_read_until, struct cio_buffered_stream *, struct cio_read_buffer *, const char *, cio_buffered_stream_read_handler, void *)
-static enum cio_error bs_read_at_least(struct cio_buffered_stream *bs, struct cio_read_buffer *buffer, size_t num, cio_buffered_stream_read_handler handler, void *handler_context);
-FAKE_VALUE_FUNC(enum cio_error, bs_read_at_least, struct cio_buffered_stream *, struct cio_read_buffer *, size_t, cio_buffered_stream_read_handler, void *)
-
-static enum cio_error bs_close(struct cio_buffered_stream *bs);
-FAKE_VALUE_FUNC(enum cio_error, bs_close, struct cio_buffered_stream *)
+static void bs_init(struct cio_buffered_stream *bs)
+{
+	bs->callback_is_running = 0;
+	bs->shall_close = false;
+	cio_write_buffer_head_init(&bs->wbh);
+}
 
 static void free_dummy_client(struct cio_socket *socket)
 {
@@ -143,6 +144,7 @@ static struct cio_socket *alloc_dummy_client(void)
 	memset(client, 0xaf, sizeof(*client));
 	client->buffer_size = read_buffer_size;
 	client->socket.close_hook = free_dummy_client;
+	bs_init(&client->bs);
 	return &client->socket;
 }
 
@@ -283,18 +285,6 @@ static enum cio_error bs_write_error(struct cio_buffered_stream *bs, struct cio_
 	return CIO_SUCCESS;
 }
 
-static enum cio_error cio_buffered_stream_init_ok(struct cio_buffered_stream *bs,
-                                                  struct cio_io_stream *stream)
-{
-	(void)stream;
-	bs->read_until = bs_read_until;
-	bs->read_at_least = bs_read_at_least;
-	bs->write = bs_write;
-	bs->close = bs_close;
-
-	return CIO_SUCCESS;
-}
-
 static struct cio_eventloop loop;
 
 static http_parser parser;
@@ -318,10 +308,12 @@ void setUp(void)
 {
 	FFF_RESET_HISTORY();
 
-	RESET_FAKE(bs_close);
-	RESET_FAKE(bs_read_at_least);
-	RESET_FAKE(bs_read_until);
+	RESET_FAKE(cio_buffered_stream_close);
 	RESET_FAKE(cio_buffered_stream_init);
+	RESET_FAKE(cio_buffered_stream_read_at_least);
+	RESET_FAKE(cio_buffered_stream_read_until);
+	RESET_FAKE(cio_buffered_stream_write);
+
 	RESET_FAKE(cio_server_socket_accept);
 	RESET_FAKE(cio_server_socket_bind);
 	RESET_FAKE(cio_server_socket_close);
@@ -346,14 +338,13 @@ void setUp(void)
 	cio_timer_expires_from_now_fake.custom_fake = expires;
 	cio_timer_cancel_fake.custom_fake = cancel_timer;
 
-	bs_read_until_fake.custom_fake = bs_read_until_ok;
-	bs_close_fake.custom_fake = bs_close_ok;
+	cio_buffered_stream_read_until_fake.custom_fake = bs_read_until_ok;
+	cio_buffered_stream_close_fake.custom_fake = bs_close_ok;
 	current_line = 0;
 	memset(write_buffer, 0xaf, sizeof(write_buffer));
 	write_pos = 0;
 
-	bs_write_fake.custom_fake = bs_write_all;
-	cio_buffered_stream_init_fake.custom_fake = cio_buffered_stream_init_ok;
+	cio_buffered_stream_write_fake.custom_fake = bs_write_all;
 	cio_server_socket_close_fake.custom_fake = close_server_socket;
 
 	cio_socket_get_io_stream_fake.return_val = (struct cio_io_stream *)1;
@@ -425,9 +416,9 @@ static void test_read_until_errors(void)
 			bs_read_until_fakes[j] = bs_read_until_ok;
 		}
 
-		bs_read_until_fake.custom_fake = NULL;
+		cio_buffered_stream_read_until_fake.custom_fake = NULL;
 		bs_read_until_fakes[test.which_read_until_fails] = bs_read_until_call_fails;
-		SET_CUSTOM_FAKE_SEQ(bs_read_until, bs_read_until_fakes, (int)array_size);
+		SET_CUSTOM_FAKE_SEQ(cio_buffered_stream_read_until, bs_read_until_fakes, (int)array_size);
 
 		cio_server_socket_init_fake.custom_fake = cio_server_socket_init_ok;
 		cio_server_socket_accept_fake.custom_fake = accept_save_handler;
@@ -473,7 +464,7 @@ static void test_close_error(void)
 {
 	cio_server_socket_init_fake.custom_fake = cio_server_socket_init_ok;
 	cio_server_socket_accept_fake.custom_fake = accept_save_handler;
-	bs_close_fake.custom_fake = bs_close_fails;
+	cio_buffered_stream_close_fake.custom_fake = bs_close_fails;
 
 	header_complete_fake.custom_fake = header_complete_write_response;
 
@@ -510,7 +501,7 @@ static void test_close_error(void)
 
 static void test_read_at_least_error(void)
 {
-	bs_read_at_least_fake.custom_fake = bs_read_at_least_call_fails;
+	cio_buffered_stream_read_at_least_fake.custom_fake = bs_read_at_least_call_fails;
 	cio_server_socket_init_fake.custom_fake = cio_server_socket_init_ok;
 	cio_server_socket_accept_fake.custom_fake = accept_save_handler;
 
@@ -553,7 +544,7 @@ static void test_write_error(void)
 	cio_server_socket_init_fake.custom_fake = cio_server_socket_init_ok;
 	cio_server_socket_accept_fake.custom_fake = accept_save_handler;
 	header_complete_fake.custom_fake = header_complete_write_response;
-	bs_write_fake.custom_fake = bs_write_error;
+	cio_buffered_stream_write_fake.custom_fake = bs_write_error;
 
 	struct cio_http_server server;
 	enum cio_error err = cio_http_server_init(&server, 8080, &loop, serve_error, header_read_timeout, body_read_timeout, response_timeout, alloc_dummy_client, free_dummy_client);

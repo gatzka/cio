@@ -157,7 +157,7 @@ static enum cio_error send_frame(struct cio_websocket *ws, struct cio_websocket_
 		cio_write_buffer_element_init(&job->websocket_header, job->send_header, header_index);
 		add_websocket_header(job);
 		struct cio_http_client *c = ws->ws_private.http_client;
-		return c->bs.write(&c->bs, job->wbh, job->stream_handler, ws);
+		return cio_buffered_stream_write(&c->bs, job->wbh, job->stream_handler, ws);
 	}
 
 	if (ws->ws_private.ws_flags.is_server == 0U) {
@@ -167,7 +167,7 @@ static enum cio_error send_frame(struct cio_websocket *ws, struct cio_websocket_
 	}
 
 	struct cio_http_client *c = ws->ws_private.http_client;
-	return c->bs.write(&c->bs, job->wbh, job->stream_handler, ws);
+	return cio_buffered_stream_write(&c->bs, job->wbh, job->stream_handler, ws);
 }
 
 static enum cio_error enqueue_job(struct cio_websocket *ws, struct cio_websocket_write_job *job, size_t length)
@@ -480,7 +480,7 @@ static void pong_frame_written(struct cio_websocket *ws, void *handler_context, 
 
 	if (cio_likely(err == CIO_SUCCESS)) {
 		struct cio_http_client *c = ws->ws_private.http_client;
-		c->bs.read_at_least(&c->bs, &c->rb, 1, get_header, ws);
+		cio_buffered_stream_read_at_least(&c->bs, &c->rb, 1, get_header, ws);
 	} else {
 		handle_error(ws, err, CIO_WEBSOCKET_CLOSE_INTERNAL_ERROR, "pong frame not written correctly");
 	}
@@ -517,7 +517,7 @@ static void handle_pong_frame(struct cio_websocket *ws, uint8_t *data, uint_fast
 	}
 
 	struct cio_http_client *c = ws->ws_private.http_client;
-	c->bs.read_at_least(&c->bs, &c->rb, 1, get_header, ws);
+	cio_buffered_stream_read_at_least(&c->bs, &c->rb, 1, get_header, ws);
 }
 
 static void handle_frame(struct cio_websocket *ws, uint8_t *data, uint64_t length)
@@ -599,9 +599,9 @@ static void read_payload(struct cio_websocket *ws, struct cio_buffered_stream *b
 
 		enum cio_error err;
 		if (cio_unlikely(is_control_frame(ws->ws_private.ws_flags.opcode))) {
-			err = bs->read_at_least(bs, buffer, ws->ws_private.remaining_read_frame_length, get_payload, ws);
+			err = cio_buffered_stream_read_at_least(bs, buffer, ws->ws_private.remaining_read_frame_length, get_payload, ws);
 		} else {
-			err = bs->read_at_least(bs, buffer, 1, get_payload, ws);
+			err = cio_buffered_stream_read_at_least(bs, buffer, 1, get_payload, ws);
 		}
 
 		if (cio_unlikely(err != CIO_SUCCESS)) {
@@ -630,7 +630,7 @@ static void get_mask_or_payload(struct cio_websocket *ws, struct cio_buffered_st
 {
 	enum cio_error err;
 	if (ws->ws_private.ws_flags.is_server == 1U) {
-		err = bs->read_at_least(bs, buffer, sizeof(ws->ws_private.received_mask), get_mask, ws);
+		err = cio_buffered_stream_read_at_least(bs, buffer, sizeof(ws->ws_private.received_mask), get_mask, ws);
 		if (cio_unlikely(err != CIO_SUCCESS)) {
 			handle_error(ws, err, CIO_WEBSOCKET_CLOSE_INTERNAL_ERROR, "error while start reading websocket mask");
 		}
@@ -711,9 +711,9 @@ static void get_first_length(struct cio_buffered_stream *bs, void *handler_conte
 		}
 
 		if (field == CIO_WEBSOCKET_SMALL_FRAME_SIZE + 1) {
-			err = bs->read_at_least(bs, buffer, sizeof(uint16_t), get_length16, ws);
+			err = cio_buffered_stream_read_at_least(bs, buffer, sizeof(uint16_t), get_length16, ws);
 		} else {
-			err = bs->read_at_least(bs, buffer, sizeof(uint64_t), get_length64, ws);
+			err = cio_buffered_stream_read_at_least(bs, buffer, sizeof(uint64_t), get_length64, ws);
 		}
 	}
 
@@ -786,7 +786,7 @@ static void get_header(struct cio_buffered_stream *bs, void *handler_context, en
 		}
 	}
 
-	err = bs->read_at_least(bs, buffer, 1, get_first_length, ws);
+	err = cio_buffered_stream_read_at_least(bs, buffer, 1, get_first_length, ws);
 	if (cio_unlikely(err != CIO_SUCCESS)) {
 		handle_error(ws, err, CIO_WEBSOCKET_CLOSE_INTERNAL_ERROR, "error while start reading websocket frame length");
 	}
@@ -897,9 +897,9 @@ enum cio_error cio_websocket_read_message(struct cio_websocket *ws, cio_websocke
 	struct cio_http_client *c = ws->ws_private.http_client;
 	enum cio_error err;
 	if (ws->ws_private.remaining_read_frame_length == 0) {
-		err = c->bs.read_at_least(&c->bs, &c->rb, 1, get_header, ws);
+		err = cio_buffered_stream_read_at_least(&c->bs, &c->rb, 1, get_header, ws);
 	} else {
-		err = c->bs.read_at_least(&c->bs, &c->rb, 1, get_payload, ws);
+		err = cio_buffered_stream_read_at_least(&c->bs, &c->rb, 1, get_payload, ws);
 	}
 
 	if (cio_unlikely(err != CIO_SUCCESS)) {
