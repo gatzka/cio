@@ -1,6 +1,6 @@
 var annotated_dup =
 [
-    [ "cio_buffered_stream", "structcio__buffered__stream.html", "structcio__buffered__stream" ],
+    [ "cio_buffered_stream", "structcio__buffered__stream.html", null ],
     [ "cio_http_client", "structcio__http__client.html", "structcio__http__client" ],
     [ "cio_http_client_private", "structcio__http__client__private.html", "structcio__http__client__private" ],
     [ "cio_http_location", "structcio__http__location.html", null ],

@@ -9,7 +9,6 @@ var searchData=
   ['wb_5fhttp_5fresponse_5fstatusline',['wb_http_response_statusline',['../structcio__http__client__private.html#aeac0cb76877803781370be45509b2a46',1,'cio_http_client_private']]],
   ['wbh',['wbh',['../structcio__websocket__write__job.html#aa7f770b89a2f840fd5ab79ece5d6d116',1,'cio_websocket_write_job']]],
   ['websocket_5fheader',['websocket_header',['../structcio__websocket__write__job.html#a95bdcf4a76ed0daed24d0ebe95a897be',1,'cio_websocket_write_job']]],
-  ['write',['write',['../structcio__buffered__stream.html#a6752e9496e5b89a1242e65af3ed89bfa',1,'cio_buffered_stream']]],
   ['write_5fclose_5fjob',['write_close_job',['../structcio__websocket__private.html#a64848421972153cf531ef13efa4efad9',1,'cio_websocket_private']]],
   ['write_5fmessage_5fjob',['write_message_job',['../structcio__websocket__private.html#ab4860faa72ab9d8a75a65e1376d00089',1,'cio_websocket_private']]],
   ['write_5fping_5fjob',['write_ping_job',['../structcio__websocket__private.html#a26e20e86af1c05a9d401f4ea45d0543c',1,'cio_websocket_private']]],
