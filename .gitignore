@@ -5,3 +5,4 @@ build/*
 *.obj
 .vs
 CMakeLists.txt.user
+.vscode/ipch/
