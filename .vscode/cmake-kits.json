@@ -1,0 +1,6 @@
+[
+    {
+        "name": "gcc 8 for x64",
+        "toolchainFile": "${workspaceFolder}/cmake/x86-linux-gcc-8.cmake"
+    }
+]
