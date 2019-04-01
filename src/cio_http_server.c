@@ -485,6 +485,8 @@ static int on_url(http_parser *parser, const char *at, size_t length)
 
 	const struct cio_http_location *location = find_location(parser->data, at + u.field_data[UF_PATH].off, u.field_data[UF_PATH].len);
 	if (cio_unlikely(location == NULL)) {
+		client->parser_settings.on_header_field = NULL;
+		client->parser_settings.on_header_value = NULL;
 		write_response(client, CIO_HTTP_STATUS_NOT_FOUND, NULL, NULL);
 		return 0;
 	}
