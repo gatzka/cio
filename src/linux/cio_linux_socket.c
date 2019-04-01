@@ -41,6 +41,7 @@
 #include "cio_linux_socket.h"
 #include "cio_read_buffer.h"
 #include "cio_socket.h"
+#include "cio_timer.h"
 #include "cio_util.h"
 #include "cio_write_buffer.h"
 #include "linux/cio_linux_socket_utils.h"
@@ -66,6 +67,44 @@ static void read_callback(void *context)
 		}
 
 		stream->read_handler(stream, stream->read_handler_context, error, rb);
+	}
+}
+
+static void close_socket(struct cio_socket *s)
+{
+	cio_linux_eventloop_remove(s->impl.loop, &s->impl.ev);
+
+	// TODO: destroy close timer
+	close(s->impl.ev.fd);
+	if (s->close_hook != NULL) {
+		s->close_hook(s);
+	}
+}
+
+static void reset_connection(struct cio_socket *s)
+{
+	// Set linger
+	// remove from event loop
+	// close fd
+	// call close_hook
+	(void)s;
+}
+
+static void read_until_close_callback(void *context)
+{
+	uint8_t buffer[20];
+
+	struct cio_socket *s = (struct cio_socket *)context;
+	ssize_t ret = read(s->impl.ev.fd, buffer, sizeof(buffer));
+	if (ret == -1) {
+		if (cio_unlikely((errno != EWOULDBLOCK) && (errno != EAGAIN))) {
+			reset_connection(s);
+		}
+	} else {
+		if (ret == 0) {
+			// cancel close timer;
+			close_socket(s);
+		}
 	}
 }
 
@@ -187,24 +226,28 @@ enum cio_error cio_socket_init(struct cio_socket *s,
 	return err;
 }
 
-static void close_socket(struct cio_socket *s)
-{
-	cio_linux_eventloop_remove(s->impl.loop, &s->impl.ev);
-
-	close(s->impl.ev.fd);
-	if (s->close_hook != NULL) {
-		s->close_hook(s);
-	}
-}
-
 static void shutdown_socket(struct cio_socket *s)
 {
+	int ret = shutdown(s->impl.ev.fd, SHUT_WR);
+	if (cio_unlikely(ret == -1)) {
+		goto shutdown_failed;
+	}
+
 	cio_linux_eventloop_remove(s->impl.loop, &s->impl.ev);
 
-	close(s->impl.ev.fd);
-	if (s->close_hook != NULL) {
-		s->close_hook(s);
+	s->impl.ev.context = s;
+	s->impl.ev.read_callback = read_until_close_callback;
+	enum cio_error err = cio_linux_eventloop_register_read(s->impl.loop, &s->impl.ev);
+	if (cio_unlikely(err != CIO_SUCCESS)) {
+		goto eventloop_register_failed;
 	}
+
+	err = cio_timer_init(&s->impl.close_timer, s->impl.loop, NULL);
+	// TODO: arm close timer
+
+eventloop_register_failed:
+shutdown_failed:
+	reset_connection(s);
 }
 
 enum cio_error cio_socket_close(struct cio_socket *s)

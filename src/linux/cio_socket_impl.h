@@ -36,9 +36,11 @@ extern "C" {
 #include <stdbool.h>
 
 #include "cio_eventloop.h"
+#include "cio_timer.h"
 
 struct cio_socket_impl {
 	struct cio_event_notifier ev;
+	struct cio_timer close_timer;
 	struct cio_eventloop *loop;
 	bool peer_closed_connection;
 };
