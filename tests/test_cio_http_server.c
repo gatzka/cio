@@ -70,7 +70,7 @@ FAKE_VALUE_FUNC(enum cio_error, cio_server_socket_bind, struct cio_server_socket
 FAKE_VOID_FUNC(cio_server_socket_close, struct cio_server_socket *)
 FAKE_VALUE_FUNC(enum cio_error, cio_server_socket_set_reuse_address, struct cio_server_socket *, bool)
 
-FAKE_VALUE_FUNC(struct cio_io_stream *, cio_socket_get_io_stream, const struct cio_socket *)
+FAKE_VALUE_FUNC(struct cio_io_stream *, cio_socket_get_io_stream, struct cio_socket *)
 
 FAKE_VALUE_FUNC(enum cio_error, cio_timer_init, struct cio_timer *, struct cio_eventloop *, cio_timer_close_hook)
 FAKE_VALUE_FUNC(enum cio_error, cio_timer_cancel, struct cio_timer *)

@@ -222,7 +222,7 @@ enum cio_error cio_socket_close(struct cio_socket *s)
 	return CIO_SUCCESS;
 }
 
-struct cio_io_stream *cio_socket_get_io_stream(const struct cio_socket *s)
+struct cio_io_stream *cio_socket_get_io_stream(struct cio_socket *s)
 {
 	return &s->stream;
 }

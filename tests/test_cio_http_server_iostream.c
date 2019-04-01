@@ -106,7 +106,7 @@ FAKE_VOID_FUNC(cio_server_socket_close, struct cio_server_socket *)
 FAKE_VALUE_FUNC(enum cio_error, cio_server_socket_init, struct cio_server_socket *, struct cio_eventloop *, unsigned int, cio_alloc_client, cio_free_client, cio_server_socket_close_hook)
 FAKE_VALUE_FUNC(enum cio_error, cio_server_socket_set_reuse_address, struct cio_server_socket *, bool)
 
-FAKE_VALUE_FUNC(struct cio_io_stream *, cio_socket_get_io_stream, const struct cio_socket *)
+FAKE_VALUE_FUNC(struct cio_io_stream *, cio_socket_get_io_stream, struct cio_socket *)
 
 FAKE_VOID_FUNC(http_close_hook, struct cio_http_server *)
 
@@ -231,13 +231,13 @@ static void close_server_socket(struct cio_server_socket *ss)
 	}
 }
 
-static struct cio_io_stream *get_mem_io_stream(const struct cio_socket *context)
+static struct cio_io_stream *get_mem_io_stream(struct cio_socket *context)
 {
 	(void)context;
 	return &ms.ios;
 }
 
-static struct cio_io_stream *get_null_io_stream(const struct cio_socket *context)
+static struct cio_io_stream *get_null_io_stream(struct cio_socket *context)
 {
 	(void)context;
 	return NULL;

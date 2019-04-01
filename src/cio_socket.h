@@ -103,7 +103,7 @@ CIO_EXPORT enum cio_error cio_socket_close(struct cio_socket *socket);
  *
  * @return An I/O stream for reading from and writing to this socket.
  */
-CIO_EXPORT struct cio_io_stream *cio_socket_get_io_stream(const struct cio_socket *socket);
+CIO_EXPORT struct cio_io_stream *cio_socket_get_io_stream(struct cio_socket *socket);
 
 /**
  * @brief Enables/disables the Nagle algorithm
