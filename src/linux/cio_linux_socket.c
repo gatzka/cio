@@ -72,9 +72,10 @@ static void read_callback(void *context)
 
 static void close_socket(struct cio_socket *s)
 {
+	cio_linux_eventloop_unregister_read(s->impl.loop, &s->impl.ev);
 	cio_linux_eventloop_remove(s->impl.loop, &s->impl.ev);
 
-	// TODO: destroy close timer
+	cio_timer_close(&s->impl.close_timer);
 	close(s->impl.ev.fd);
 	if (s->close_hook != NULL) {
 		s->close_hook(s);
@@ -83,11 +84,9 @@ static void close_socket(struct cio_socket *s)
 
 static void reset_connection(struct cio_socket *s)
 {
-	// Set linger
-	// remove from event loop
-	// close fd
-	// call close_hook
-	(void)s;
+	struct linger linger = {.l_onoff = 1, .l_linger = 0};
+	setsockopt(s->impl.ev.fd, SOL_SOCKET, SO_LINGER, &linger, sizeof(linger));
+	close_socket(s);
 }
 
 static void read_until_close_callback(void *context)
@@ -102,7 +101,7 @@ static void read_until_close_callback(void *context)
 		}
 	} else {
 		if (ret == 0) {
-			// cancel close timer;
+			cio_timer_cancel(&s->impl.close_timer);
 			close_socket(s);
 		}
 	}
@@ -205,7 +204,17 @@ enum cio_error cio_linux_socket_init(struct cio_socket *s, int client_fd,
 	s->impl.loop = loop;
 	s->close_hook = close_hook;
 
-	return cio_linux_eventloop_add(s->impl.loop, &s->impl.ev);
+	enum cio_error err = cio_timer_init(&s->impl.close_timer, s->impl.loop, NULL);
+	if (cio_unlikely(err != CIO_SUCCESS)) {
+		return err;
+	}
+
+	err = cio_linux_eventloop_add(s->impl.loop, &s->impl.ev);
+	if (cio_unlikely(err != CIO_SUCCESS)) {
+		cio_timer_close(&s->impl.close_timer);
+	}
+
+	return err;
 }
 
 enum cio_error cio_socket_init(struct cio_socket *s,
@@ -226,6 +235,16 @@ enum cio_error cio_socket_init(struct cio_socket *s,
 	return err;
 }
 
+static void close_timeout_handler(struct cio_timer *timer, void *handler_context, enum cio_error err)
+{
+	(void)timer;
+
+	if (err == CIO_SUCCESS) {
+		struct cio_socket *s = (struct cio_socket *)handler_context;
+		reset_connection(s);
+	}
+}
+
 static void shutdown_socket(struct cio_socket *s)
 {
 	int ret = shutdown(s->impl.ev.fd, SHUT_WR);
@@ -233,7 +252,7 @@ static void shutdown_socket(struct cio_socket *s)
 		goto shutdown_failed;
 	}
 
-	cio_linux_eventloop_remove(s->impl.loop, &s->impl.ev);
+	cio_linux_eventloop_unregister_read(s->impl.loop, &s->impl.ev);
 
 	s->impl.ev.context = s;
 	s->impl.ev.read_callback = read_until_close_callback;
@@ -242,9 +261,15 @@ static void shutdown_socket(struct cio_socket *s)
 		goto eventloop_register_failed;
 	}
 
-	err = cio_timer_init(&s->impl.close_timer, s->impl.loop, NULL);
-	// TODO: arm close timer
+	static const uint64_t close_timeout_ns = UINT64_C(5) * UINT64_C(1000) * UINT64_C(1000) * UINT64_C(1000);
+	err = cio_timer_expires_from_now(&s->impl.close_timer, close_timeout_ns, close_timeout_handler, s);
+	if (cio_unlikely(err != CIO_SUCCESS)) {
+		goto timer_arm_failed;
+	}
 
+	return;
+
+timer_arm_failed:
 eventloop_register_failed:
 shutdown_failed:
 	reset_connection(s);

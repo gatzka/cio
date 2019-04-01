@@ -48,6 +48,7 @@ DEFINE_FFF_GLOBALS
 
 FAKE_VALUE_FUNC(enum cio_error, cio_linux_eventloop_add, const struct cio_eventloop *, struct cio_event_notifier *)
 FAKE_VALUE_FUNC(enum cio_error, cio_linux_eventloop_register_read, const struct cio_eventloop *, struct cio_event_notifier *)
+FAKE_VALUE_FUNC(enum cio_error, cio_linux_eventloop_unregister_read, const struct cio_eventloop *, struct cio_event_notifier *)
 FAKE_VALUE_FUNC(enum cio_error, cio_linux_eventloop_register_write, const struct cio_eventloop *, struct cio_event_notifier *)
 FAKE_VOID_FUNC(cio_linux_eventloop_remove, struct cio_eventloop *, const struct cio_event_notifier *)
 
