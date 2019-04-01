@@ -59,6 +59,7 @@ static void read_callback(void *context)
 		enum cio_error error;
 		if (ret == 0) {
 			error = CIO_EOF;
+			s->impl.peer_closed_connection = true;
 		} else {
 			rb->add_ptr += (size_t)ret;
 			error = CIO_SUCCESS;
@@ -156,6 +157,8 @@ enum cio_error cio_linux_socket_init(struct cio_socket *s, int client_fd,
 	s->impl.ev.read_callback = NULL;
 	s->impl.ev.context = s;
 
+	s->impl.peer_closed_connection = false;
+
 	s->stream.read_some = stream_read;
 	s->stream.write_some = stream_write;
 	s->stream.close = stream_close;
@@ -184,17 +187,36 @@ enum cio_error cio_socket_init(struct cio_socket *s,
 	return err;
 }
 
+static void close_socket(struct cio_socket *s)
+{
+	cio_linux_eventloop_remove(s->impl.loop, &s->impl.ev);
+
+	close(s->impl.ev.fd);
+	if (s->close_hook != NULL) {
+		s->close_hook(s);
+	}
+}
+
+static void shutdown_socket(struct cio_socket *s)
+{
+	cio_linux_eventloop_remove(s->impl.loop, &s->impl.ev);
+
+	close(s->impl.ev.fd);
+	if (s->close_hook != NULL) {
+		s->close_hook(s);
+	}
+}
+
 enum cio_error cio_socket_close(struct cio_socket *s)
 {
 	if (cio_unlikely(s == NULL)) {
 		return CIO_INVALID_ARGUMENT;
 	}
 
-	cio_linux_eventloop_remove(s->impl.loop, &s->impl.ev);
-
-	close(s->impl.ev.fd);
-	if (s->close_hook != NULL) {
-		s->close_hook(s);
+	if (s->impl.peer_closed_connection) {
+		close_socket(s);
+	} else {
+		shutdown_socket(s);
 	}
 
 	return CIO_SUCCESS;

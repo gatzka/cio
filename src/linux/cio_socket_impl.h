@@ -33,11 +33,14 @@
 extern "C" {
 #endif
 
+#include <stdbool.h>
+
 #include "cio_eventloop.h"
 
 struct cio_socket_impl {
 	struct cio_event_notifier ev;
 	struct cio_eventloop *loop;
+	bool peer_closed_connection;
 };
 
 #ifdef __cplusplus
