@@ -53,6 +53,7 @@ FAKE_VALUE_FUNC(enum cio_error, cio_linux_eventloop_register_write, const struct
 FAKE_VOID_FUNC(cio_linux_eventloop_remove, struct cio_eventloop *, const struct cio_event_notifier *)
 
 FAKE_VALUE_FUNC(int, close, int)
+FAKE_VALUE_FUNC(int, shutdown, int, int)
 FAKE_VALUE_FUNC(ssize_t, read, int, void *, size_t)
 FAKE_VALUE_FUNC(ssize_t, sendmsg, int, const struct msghdr *, int)
 FAKE_VALUE_FUNC(int, setsockopt, int, int, int, const void *, socklen_t)
@@ -210,6 +211,7 @@ void setUp(void)
 	RESET_FAKE(cio_linux_eventloop_register_write);
 
 	RESET_FAKE(close);
+	RESET_FAKE(shutdown);
 	RESET_FAKE(read);
 	RESET_FAKE(sendmsg);
 	RESET_FAKE(setsockopt);
@@ -268,12 +270,20 @@ static void test_socket_close_without_hook(void)
 {
 	struct cio_socket s;
 
+	ssize_t (*custom_read_fakes[])(int, void *, size_t) = {
+		read_blocks, // Thats for the arming timer read
+		read_eof,
+	};
+
+	SET_CUSTOM_FAKE_SEQ(read, custom_read_fakes, ARRAY_SIZE(custom_read_fakes));
 	enum cio_error err = cio_socket_init(&s, &loop, NULL);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Return value of cio_socket_init() not correct!");
 
 	err = cio_socket_close(&s);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Return value of close() not correct!");
-	TEST_ASSERT_EQUAL_MESSAGE(1, close_fake.call_count, "Socket close was not called!");
+
+	s.impl.ev.read_callback(s.impl.ev.context);
+	TEST_ASSERT_EQUAL_MESSAGE(2, close_fake.call_count, "Socket and/or close timer were not closed correctly!");
 	TEST_ASSERT_EQUAL_MESSAGE(s.impl.ev.fd, close_fake.arg0_val, "Socket close was not called with correct parameter!");
 }
 
@@ -281,15 +291,22 @@ static void test_socket_close_with_hook(void)
 {
 	struct cio_socket s;
 
+	ssize_t (*custom_read_fakes[])(int, void *, size_t) = {
+		read_blocks, // Thats for the arming timer read
+		read_eof,
+	};
+
+	SET_CUSTOM_FAKE_SEQ(read, custom_read_fakes, ARRAY_SIZE(custom_read_fakes));
+
 	enum cio_error err = cio_socket_init(&s, &loop, on_close);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Return value of cio_socket_init() not correct!");
 
 	err = cio_socket_close(&s);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Return value if close() not correct!");
-	TEST_ASSERT_EQUAL(1, close_fake.call_count);
-	TEST_ASSERT_EQUAL(s.impl.ev.fd, close_fake.arg0_val);
-	TEST_ASSERT_EQUAL(1, on_close_fake.call_count);
-	TEST_ASSERT_EQUAL(&s, on_close_fake.arg0_val);
+	s.impl.ev.read_callback(s.impl.ev.context);
+	TEST_ASSERT_EQUAL_MESSAGE(2, close_fake.call_count, "Socket and/or close timer were not closed correctly!");
+	TEST_ASSERT_EQUAL_MESSAGE(1, on_close_fake.call_count, "close hook was not called!");
+	TEST_ASSERT_EQUAL_MESSAGE(s.impl.ev.fd, close_fake.arg0_val, "Socket close was not called with correct parameter!");
 }
 
 static void test_socket_close_no_stream(void)
@@ -455,6 +472,13 @@ static void test_socket_enable_keepalive_keep_cnt(void)
 
 static void test_socket_stream_close(void)
 {
+	ssize_t (*custom_read_fakes[])(int, void *, size_t) = {
+		read_blocks, // Thats for the arming timer read
+		read_eof,
+	};
+
+	SET_CUSTOM_FAKE_SEQ(read, custom_read_fakes, ARRAY_SIZE(custom_read_fakes));
+
 	struct cio_socket s;
 	enum cio_error err = cio_socket_init(&s, &loop, on_close);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Return value of cio_socket_init not correct!");
@@ -462,7 +486,8 @@ static void test_socket_stream_close(void)
 	struct cio_io_stream *stream = cio_socket_get_io_stream(&s);
 	err = stream->close(stream);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Return value of stream close() not correct!");
-	TEST_ASSERT_EQUAL_MESSAGE(1, close_fake.call_count, "Close was not called!");
+	s.impl.ev.read_callback(s.impl.ev.context);
+	TEST_ASSERT_EQUAL_MESSAGE(2, close_fake.call_count, "Socket and/or close timer were not closed correctly!");
 	TEST_ASSERT_EQUAL_MESSAGE(s.impl.ev.fd, close_fake.arg0_val, "file descriptor fo close() not correct!");
 }
 
@@ -499,7 +524,8 @@ static void test_socket_readsome_register_read_fails(void)
 	available_read_data = data_to_read;
 	memset(read_buffer, 0x12, data_to_read);
 	read_fake.custom_fake = read_ok;
-	cio_linux_eventloop_register_read_fake.return_val = CIO_INVALID_ARGUMENT;
+	enum cio_error register_read_rets[2] = {CIO_SUCCESS, CIO_INVALID_ARGUMENT};
+	SET_RETURN_SEQ(cio_linux_eventloop_register_read, register_read_rets, ARRAY_SIZE(register_read_rets));
 
 	struct cio_socket s;
 	enum cio_error err = cio_socket_init(&s, &loop, on_close);
