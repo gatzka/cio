@@ -206,6 +206,14 @@ static int setsockopt_ok(int fd, int level, int option_name,
 	return 0;
 }
 
+static enum cio_error expires_save_handler(struct cio_timer *t, uint64_t timeout_ns, cio_timer_handler handler, void *handler_context)
+{
+	(void)timeout_ns;
+	t->handler = handler;
+	t->handler_context = handler_context;
+	return CIO_SUCCESS;
+}
+
 void setUp(void)
 {
 	FFF_RESET_HISTORY();
@@ -394,6 +402,30 @@ static void test_socket_close_expire_fails(void)
 	TEST_ASSERT_EQUAL_MESSAGE(SOL_SOCKET, setsockopt_fake.arg1_val, "level for setsockopt not correct!");
 	TEST_ASSERT_EQUAL_MESSAGE(SO_LINGER, setsockopt_fake.arg2_val, "option name for setsockopt not correct!");
 }
+
+static void test_socket_close_expires(void)
+{
+	struct cio_socket s;
+
+	cio_timer_expires_from_now_fake.custom_fake = expires_save_handler;
+
+	enum cio_error err = cio_socket_init(&s, &loop, on_close);
+	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Return value of cio_socket_init not correct!");
+
+	err = cio_socket_close(&s);
+	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Return value of close() not correct!");
+
+	s.impl.close_timer.handler(&s.impl.close_timer, &s, CIO_SUCCESS);
+
+	TEST_ASSERT_EQUAL_MESSAGE(1, close_fake.call_count, "Socket and/or close timer were not closed correctly!");
+	TEST_ASSERT_EQUAL_MESSAGE(s.impl.ev.fd, close_fake.arg0_val, "Socket close was not called with correct parameter!");
+
+	TEST_ASSERT_EQUAL_MESSAGE(1, setsockopt_fake.call_count, "setsockopt was not called!");
+	TEST_ASSERT_EQUAL_MESSAGE(s.impl.ev.fd, setsockopt_fake.arg0_val, "fd for setsockopt not correct!");
+	TEST_ASSERT_EQUAL_MESSAGE(SOL_SOCKET, setsockopt_fake.arg1_val, "level for setsockopt not correct!");
+	TEST_ASSERT_EQUAL_MESSAGE(SO_LINGER, setsockopt_fake.arg2_val, "option name for setsockopt not correct!");
+}
+
 
 static void test_socket_enable_nodelay(void)
 {
@@ -972,6 +1004,7 @@ int main(void)
 	RUN_TEST(test_socket_close_shutdown_fails);
 	RUN_TEST(test_socket_close_register_read_fails);
 	RUN_TEST(test_socket_close_expire_fails);
+	RUN_TEST(test_socket_close_expires);
 	RUN_TEST(test_socket_enable_nodelay);
 	RUN_TEST(test_socket_disable_nodelay);
 	RUN_TEST(test_socket_nodelay_setsockopt_fails);
