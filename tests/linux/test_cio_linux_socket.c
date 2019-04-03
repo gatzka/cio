@@ -274,6 +274,16 @@ static void test_socket_init_eventloop_add_fails(void)
 
 	enum cio_error err = cio_socket_init(&s, &loop, NULL);
 	TEST_ASSERT_NOT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Return value of cio_socket_init() not correct!");
+	TEST_ASSERT_EQUAL_MESSAGE(cio_timer_init_fake.call_count, cio_timer_close_fake.call_count, "close timer was not closed  correctly in case of an error!");
+}
+
+static void test_socket_init_timer_init_fails(void)
+{
+	struct cio_socket s;
+	cio_timer_init_fake.return_val = CIO_INVALID_ARGUMENT;
+
+	enum cio_error err = cio_socket_init(&s, &loop, NULL);
+	TEST_ASSERT_NOT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Return value of cio_socket_init() not correct!");
 }
 
 static void test_socket_close_without_hook(void)
@@ -955,6 +965,7 @@ int main(void)
 	RUN_TEST(test_socket_init_socket_create_no_loop);
 	RUN_TEST(test_socket_init_socket_create_fails);
 	RUN_TEST(test_socket_init_eventloop_add_fails);
+	RUN_TEST(test_socket_init_timer_init_fails);
 	RUN_TEST(test_socket_close_without_hook);
 	RUN_TEST(test_socket_close_with_hook);
 	RUN_TEST(test_socket_close_no_stream);
