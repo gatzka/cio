@@ -52,6 +52,11 @@ FAKE_VALUE_FUNC(enum cio_error, cio_linux_eventloop_unregister_read, const struc
 FAKE_VALUE_FUNC(enum cio_error, cio_linux_eventloop_register_write, const struct cio_eventloop *, struct cio_event_notifier *)
 FAKE_VOID_FUNC(cio_linux_eventloop_remove, struct cio_eventloop *, const struct cio_event_notifier *)
 
+FAKE_VALUE_FUNC(enum cio_error, cio_timer_init, struct cio_timer *, struct cio_eventloop *, cio_timer_close_hook)
+FAKE_VALUE_FUNC(enum cio_error, cio_timer_expires_from_now, struct cio_timer *, uint64_t, cio_timer_handler, void *)
+FAKE_VALUE_FUNC(enum cio_error, cio_timer_cancel, struct cio_timer *)
+FAKE_VOID_FUNC(cio_timer_close, struct cio_timer *)
+
 FAKE_VALUE_FUNC(int, close, int)
 FAKE_VALUE_FUNC(int, shutdown, int, int)
 FAKE_VALUE_FUNC(ssize_t, read, int, void *, size_t)
@@ -210,6 +215,11 @@ void setUp(void)
 	RESET_FAKE(cio_linux_eventloop_register_read);
 	RESET_FAKE(cio_linux_eventloop_register_write);
 
+	RESET_FAKE(cio_timer_init);
+	RESET_FAKE(cio_timer_expires_from_now);
+	RESET_FAKE(cio_timer_cancel);
+	RESET_FAKE(cio_timer_close);
+
 	RESET_FAKE(close);
 	RESET_FAKE(shutdown);
 	RESET_FAKE(read);
@@ -270,12 +280,7 @@ static void test_socket_close_without_hook(void)
 {
 	struct cio_socket s;
 
-	ssize_t (*custom_read_fakes[])(int, void *, size_t) = {
-		read_blocks, // Thats for the arming timer read
-		read_eof,
-	};
-
-	SET_CUSTOM_FAKE_SEQ(read, custom_read_fakes, ARRAY_SIZE(custom_read_fakes));
+	read_fake.custom_fake = read_eof;
 	enum cio_error err = cio_socket_init(&s, &loop, NULL);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Return value of cio_socket_init() not correct!");
 
@@ -283,20 +288,17 @@ static void test_socket_close_without_hook(void)
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Return value of close() not correct!");
 
 	s.impl.ev.read_callback(s.impl.ev.context);
-	TEST_ASSERT_EQUAL_MESSAGE(2, close_fake.call_count, "Socket and/or close timer were not closed correctly!");
+	TEST_ASSERT_EQUAL_MESSAGE(1, close_fake.call_count, "Socket was not closed correctly!");
 	TEST_ASSERT_EQUAL_MESSAGE(s.impl.ev.fd, close_fake.arg0_val, "Socket close was not called with correct parameter!");
+	TEST_ASSERT_EQUAL_MESSAGE(1, cio_timer_cancel_fake.call_count, "close timer was not canceled!");
+	TEST_ASSERT_EQUAL_MESSAGE(1, cio_timer_close_fake.call_count, "close timer was not closed!");
 }
 
 static void test_socket_close_with_hook(void)
 {
 	struct cio_socket s;
 
-	ssize_t (*custom_read_fakes[])(int, void *, size_t) = {
-		read_blocks, // Thats for the arming timer read
-		read_eof,
-	};
-
-	SET_CUSTOM_FAKE_SEQ(read, custom_read_fakes, ARRAY_SIZE(custom_read_fakes));
+	read_fake.custom_fake = read_eof;
 
 	enum cio_error err = cio_socket_init(&s, &loop, on_close);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Return value of cio_socket_init() not correct!");
@@ -304,9 +306,11 @@ static void test_socket_close_with_hook(void)
 	err = cio_socket_close(&s);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Return value if close() not correct!");
 	s.impl.ev.read_callback(s.impl.ev.context);
-	TEST_ASSERT_EQUAL_MESSAGE(2, close_fake.call_count, "Socket and/or close timer were not closed correctly!");
+	TEST_ASSERT_EQUAL_MESSAGE(1, close_fake.call_count, "Socket was not closed correctly!");
 	TEST_ASSERT_EQUAL_MESSAGE(1, on_close_fake.call_count, "close hook was not called!");
 	TEST_ASSERT_EQUAL_MESSAGE(s.impl.ev.fd, close_fake.arg0_val, "Socket close was not called with correct parameter!");
+	TEST_ASSERT_EQUAL_MESSAGE(1, cio_timer_cancel_fake.call_count, "close timer was not canceled!");
+	TEST_ASSERT_EQUAL_MESSAGE(1, cio_timer_close_fake.call_count, "close timer was not closed!");
 }
 
 static void test_socket_close_no_stream(void)
@@ -331,7 +335,48 @@ static void test_socket_close_shutdown_fails(void)
 	err = cio_socket_close(&s);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Return value of close() not correct!");
 
-	TEST_ASSERT_EQUAL_MESSAGE(2, close_fake.call_count, "Socket and/or close timer were not closed correctly!");
+	TEST_ASSERT_EQUAL_MESSAGE(1, close_fake.call_count, "Socket was not closed correctly!");
+	TEST_ASSERT_EQUAL_MESSAGE(s.impl.ev.fd, close_fake.arg0_val, "Socket close was not called with correct parameter!");
+
+	TEST_ASSERT_EQUAL_MESSAGE(1, setsockopt_fake.call_count, "setsockopt was not called!");
+	TEST_ASSERT_EQUAL_MESSAGE(s.impl.ev.fd, setsockopt_fake.arg0_val, "fd for setsockopt not correct!");
+	TEST_ASSERT_EQUAL_MESSAGE(SOL_SOCKET, setsockopt_fake.arg1_val, "level for setsockopt not correct!");
+	TEST_ASSERT_EQUAL_MESSAGE(SO_LINGER, setsockopt_fake.arg2_val, "option name for setsockopt not correct!");
+}
+
+static void test_socket_close_register_read_fails(void)
+{
+	struct cio_socket s;
+
+	cio_linux_eventloop_register_read_fake.return_val = CIO_INVALID_ARGUMENT;
+	enum cio_error err = cio_socket_init(&s, &loop, on_close);
+	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Return value of cio_socket_init not correct!");
+
+	err = cio_socket_close(&s);
+	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Return value of close() not correct!");
+
+	TEST_ASSERT_EQUAL_MESSAGE(1, close_fake.call_count, "Socket was not closed correctly!");
+	TEST_ASSERT_EQUAL_MESSAGE(s.impl.ev.fd, close_fake.arg0_val, "Socket close was not called with correct parameter!");
+
+	TEST_ASSERT_EQUAL_MESSAGE(1, setsockopt_fake.call_count, "setsockopt was not called!");
+	TEST_ASSERT_EQUAL_MESSAGE(s.impl.ev.fd, setsockopt_fake.arg0_val, "fd for setsockopt not correct!");
+	TEST_ASSERT_EQUAL_MESSAGE(SOL_SOCKET, setsockopt_fake.arg1_val, "level for setsockopt not correct!");
+	TEST_ASSERT_EQUAL_MESSAGE(SO_LINGER, setsockopt_fake.arg2_val, "option name for setsockopt not correct!");
+}
+
+static void test_socket_close_expire_fails(void)
+{
+	struct cio_socket s;
+
+	cio_timer_expires_from_now_fake.return_val = CIO_INVALID_ARGUMENT;
+
+	enum cio_error err = cio_socket_init(&s, &loop, on_close);
+	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Return value of cio_socket_init not correct!");
+
+	err = cio_socket_close(&s);
+	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Return value of close() not correct!");
+
+	TEST_ASSERT_EQUAL_MESSAGE(1, close_fake.call_count, "Socket and/or close timer were not closed correctly!");
 	TEST_ASSERT_EQUAL_MESSAGE(s.impl.ev.fd, close_fake.arg0_val, "Socket close was not called with correct parameter!");
 
 	TEST_ASSERT_EQUAL_MESSAGE(1, setsockopt_fake.call_count, "setsockopt was not called!");
@@ -491,12 +536,7 @@ static void test_socket_enable_keepalive_keep_cnt(void)
 
 static void test_socket_stream_close(void)
 {
-	ssize_t (*custom_read_fakes[])(int, void *, size_t) = {
-		read_blocks, // Thats for the arming timer read
-		read_eof,
-	};
-
-	SET_CUSTOM_FAKE_SEQ(read, custom_read_fakes, ARRAY_SIZE(custom_read_fakes));
+	read_fake.custom_fake = read_eof;
 
 	struct cio_socket s;
 	enum cio_error err = cio_socket_init(&s, &loop, on_close);
@@ -506,7 +546,7 @@ static void test_socket_stream_close(void)
 	err = stream->close(stream);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Return value of stream close() not correct!");
 	s.impl.ev.read_callback(s.impl.ev.context);
-	TEST_ASSERT_EQUAL_MESSAGE(2, close_fake.call_count, "Socket and/or close timer were not closed correctly!");
+	TEST_ASSERT_EQUAL_MESSAGE(1, close_fake.call_count, "Socket and/or close timer were not closed correctly!");
 	TEST_ASSERT_EQUAL_MESSAGE(s.impl.ev.fd, close_fake.arg0_val, "file descriptor fo close() not correct!");
 }
 
@@ -543,8 +583,7 @@ static void test_socket_readsome_register_read_fails(void)
 	available_read_data = data_to_read;
 	memset(read_buffer, 0x12, data_to_read);
 	read_fake.custom_fake = read_ok;
-	enum cio_error register_read_rets[2] = {CIO_SUCCESS, CIO_INVALID_ARGUMENT};
-	SET_RETURN_SEQ(cio_linux_eventloop_register_read, register_read_rets, ARRAY_SIZE(register_read_rets));
+	cio_linux_eventloop_register_read_fake.return_val = CIO_INVALID_ARGUMENT;
 
 	struct cio_socket s;
 	enum cio_error err = cio_socket_init(&s, &loop, on_close);
@@ -630,8 +669,7 @@ static void test_socket_readsome_read_eof(void)
 	TEST_ASSERT_EQUAL_MESSAGE(NULL, read_handler_fake.arg1_val, "Context parameter for read handler is not correct!");
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_EOF, read_handler_fake.arg2_val, "Read handler was called with CIO_SUCCESS for a failing read!");
 	TEST_ASSERT_EQUAL_MESSAGE(&rb, read_handler_fake.arg3_val, "Original buffer was not passed to read handler!");
-	TEST_ASSERT_EQUAL_MESSAGE(2, close_fake.call_count, "Socket and/or close timer were not closed correctly!");
-
+	TEST_ASSERT_EQUAL_MESSAGE(1, close_fake.call_count, "Socket and/or close timer were not closed correctly!");
 }
 
 static void test_socket_readsome_no_stream(void)
@@ -921,6 +959,8 @@ int main(void)
 	RUN_TEST(test_socket_close_with_hook);
 	RUN_TEST(test_socket_close_no_stream);
 	RUN_TEST(test_socket_close_shutdown_fails);
+	RUN_TEST(test_socket_close_register_read_fails);
+	RUN_TEST(test_socket_close_expire_fails);
 	RUN_TEST(test_socket_enable_nodelay);
 	RUN_TEST(test_socket_disable_nodelay);
 	RUN_TEST(test_socket_nodelay_setsockopt_fails);
