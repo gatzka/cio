@@ -59,7 +59,7 @@ static void timer_read(void *context)
 
 	ssize_t ret = read(t->ev.fd, &number_of_expirations, sizeof(number_of_expirations));
 	if (cio_unlikely(ret == -1)) {
-		if (cio_unlikely((errno != EAGAIN) && (errno != EWOULDBLOCK))) {
+		if (cio_unlikely(errno != EAGAIN)) {
 			t->handler(t, t->handler_context, (enum cio_error)(-errno));
 		}
 	} else {

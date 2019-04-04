@@ -56,7 +56,7 @@ static void accept_callback(void *context)
 	addrlen = sizeof(addr);
 	client_fd = accept4(fd, (struct sockaddr *)&addr, &addrlen, (unsigned int)SOCK_NONBLOCK | (unsigned int)SOCK_CLOEXEC);
 	if (cio_unlikely(client_fd == -1)) {
-		if ((errno != EAGAIN) && (errno != EWOULDBLOCK) && (errno != EBADF)) {
+		if ((errno != EAGAIN) && (errno != EBADF)) {
 			ss->handler(ss, ss->handler_context, (enum cio_error)(-errno), NULL);
 		}
 	} else {

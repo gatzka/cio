@@ -53,7 +53,7 @@ static void read_callback(void *context)
 	struct cio_socket *s = cio_container_of(stream, struct cio_socket, stream);
 	ssize_t ret = read(s->impl.ev.fd, rb->add_ptr, cio_read_buffer_space_available(rb));
 	if (ret == -1) {
-		if (cio_unlikely((errno != EWOULDBLOCK) && (errno != EAGAIN))) {
+		if (cio_unlikely(errno != EAGAIN)) {
 			stream->read_handler(stream, stream->read_handler_context, (enum cio_error)(-errno), rb);
 		}
 	} else {
@@ -96,7 +96,7 @@ static void read_until_close_callback(void *context)
 	struct cio_socket *s = (struct cio_socket *)context;
 	ssize_t ret = read(s->impl.ev.fd, buffer, sizeof(buffer));
 	if (ret == -1) {
-		if (cio_unlikely((errno != EWOULDBLOCK) && (errno != EAGAIN))) {
+		if (cio_unlikely(errno != EAGAIN)) {
 			cio_timer_cancel(&s->impl.close_timer);
 			reset_connection(s);
 		}
@@ -161,7 +161,7 @@ static enum cio_error stream_write(struct cio_io_stream *stream, const struct ci
 	if (cio_likely(ret >= 0)) {
 		handler(stream, handler_context, buffer, CIO_SUCCESS, (size_t)ret);
 	} else {
-		if (cio_likely((errno == EWOULDBLOCK) || (errno == EAGAIN))) {
+		if (cio_likely(errno == EAGAIN)) {
 			s->stream.write_handler = handler;
 			s->stream.write_handler_context = handler_context;
 			s->stream.write_buffer = buffer;
