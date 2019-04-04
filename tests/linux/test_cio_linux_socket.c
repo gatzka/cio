@@ -377,6 +377,30 @@ static void test_socket_close_get_data_from_peer(void)
 	TEST_ASSERT_EQUAL_MESSAGE(1, cio_timer_close_fake.call_count, "close timer was not closed!");
 }
 
+static void test_socket_close_peer_blocks_first(void)
+{
+	struct cio_socket s;
+
+	ssize_t (*read_fakes[])(int, void *, size_t) = {
+		read_blocks,
+		read_eof,
+	};
+
+	SET_CUSTOM_FAKE_SEQ(read, read_fakes, ARRAY_SIZE(read_fakes));
+	enum cio_error err = cio_socket_init(&s, &loop, NULL);
+	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Return value of cio_socket_init() not correct!");
+
+	err = cio_socket_close(&s);
+	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Return value of close() not correct!");
+
+	s.impl.ev.read_callback(s.impl.ev.context);
+	s.impl.ev.read_callback(s.impl.ev.context);
+	TEST_ASSERT_EQUAL_MESSAGE(1, close_fake.call_count, "Socket was not closed correctly!");
+	TEST_ASSERT_EQUAL_MESSAGE(s.impl.ev.fd, close_fake.arg0_val, "Socket close was not called with correct parameter!");
+	TEST_ASSERT_EQUAL_MESSAGE(1, cio_timer_cancel_fake.call_count, "close timer was not canceled!");
+	TEST_ASSERT_EQUAL_MESSAGE(1, cio_timer_close_fake.call_count, "close timer was not closed!");
+}
+
 static void test_socket_close_with_hook(void)
 {
 	struct cio_socket s;
@@ -720,6 +744,9 @@ static void test_socket_readsome_read_blocks(void)
 
 	err = stream->read_some(stream, &rb, read_handler, NULL);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Return value not correct!");
+
+	s.impl.ev.read_callback(s.impl.ev.context);
+
 	TEST_ASSERT_EQUAL_MESSAGE(0, read_handler_fake.call_count, "Handler was called!");
 }
 
@@ -1065,6 +1092,7 @@ int main(void)
 	RUN_TEST(test_socket_close_without_hook);
 	RUN_TEST(test_socket_close_read_error);
 	RUN_TEST(test_socket_close_get_data_from_peer);
+	RUN_TEST(test_socket_close_peer_blocks_first);
 	RUN_TEST(test_socket_close_with_hook);
 	RUN_TEST(test_socket_close_no_stream);
 	RUN_TEST(test_socket_close_shutdown_fails);
