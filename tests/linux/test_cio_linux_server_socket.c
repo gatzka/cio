@@ -240,7 +240,7 @@ static int accept_wouldblock(int fd, struct sockaddr *addr, socklen_t *addrlen, 
 	(void)addrlen;
 	(void)flags;
 
-	errno = EWOULDBLOCK;
+	errno = EAGAIN;
 	return -1;
 }
 
@@ -254,7 +254,7 @@ static int accept_wouldblock_second(int fd, struct sockaddr *addr, socklen_t *ad
 	if (accept4_fake.call_count == 1) {
 		return 42;
 	} else {
-		errno = EWOULDBLOCK;
+		errno = EAGAIN;
 		return -1;
 	}
 }
