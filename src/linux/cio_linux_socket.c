@@ -97,6 +97,7 @@ static void read_until_close_callback(void *context)
 	ssize_t ret = read(s->impl.ev.fd, buffer, sizeof(buffer));
 	if (ret == -1) {
 		if (cio_unlikely((errno != EWOULDBLOCK) && (errno != EAGAIN))) {
+			cio_timer_cancel(&s->impl.close_timer);
 			reset_connection(s);
 		}
 	} else {
