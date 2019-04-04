@@ -244,6 +244,17 @@ static int accept_wouldblock(int fd, struct sockaddr *addr, socklen_t *addrlen, 
 	return -1;
 }
 
+static int accept_badf(int fd, struct sockaddr *addr, socklen_t *addrlen, int flags)
+{
+	(void)fd;
+	(void)addr;
+	(void)addrlen;
+	(void)flags;
+
+	errno = EBADF;
+	return -1;
+}
+
 static int accept_wouldblock_second(int fd, struct sockaddr *addr, socklen_t *addrlen, int flags)
 {
 	(void)fd;
@@ -388,6 +399,29 @@ static void test_accept_wouldblock(void)
 	cio_server_socket_close(&ss);
 	TEST_ASSERT_EQUAL(1, on_close_fake.call_count);
 	TEST_ASSERT_EQUAL(&ss, on_close_fake.arg0_val);
+}
+
+static void test_accept_after_close(void)
+{
+	accept4_fake.custom_fake = accept_badf;
+	alloc_client_fake.custom_fake = alloc_success;
+	free_client_fake.custom_fake = free_success;
+
+	struct cio_eventloop loop;
+	struct cio_server_socket ss;
+	enum cio_error err = cio_server_socket_init(&ss, &loop, 5, alloc_client, free_client, on_close);
+	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Initialization of server socket failed!");
+	err = cio_server_socket_bind(&ss, NULL, 12345);
+	TEST_ASSERT_EQUAL(CIO_SUCCESS, err);
+	err = cio_server_socket_accept(&ss, accept_handler, NULL);
+	TEST_ASSERT_EQUAL(CIO_SUCCESS, err);
+	cio_server_socket_close(&ss);
+	TEST_ASSERT_EQUAL(1, on_close_fake.call_count);
+	TEST_ASSERT_EQUAL(&ss, on_close_fake.arg0_val);
+
+	ss.impl.ev.read_callback(ss.impl.ev.context);
+
+	TEST_ASSERT_EQUAL(0, accept_handler_fake.call_count);
 }
 
 static void test_accept_fails(void)
@@ -720,6 +754,7 @@ int main(void)
 	RUN_TEST(test_accept_no_handler);
 	RUN_TEST(test_accept_eventloop_add_fails);
 	RUN_TEST(test_accept_wouldblock);
+	RUN_TEST(test_accept_after_close);
 	RUN_TEST(test_accept_fails);
 	RUN_TEST(test_init_fails_no_socket);
 	RUN_TEST(test_init_listen_fails);
