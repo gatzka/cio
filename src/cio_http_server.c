@@ -130,7 +130,7 @@ static void client_timeout_handler(struct cio_timer *timer, void *handler_contex
 
 static void restart_read_request(struct cio_http_client *client)
 {
-	if (client->request_complete) {
+	if ((client->request_complete) && (client->response_written_completed)) {
 		free_handler(client);
 		struct cio_http_server *server = (struct cio_http_server *)client->parser.data;
 		enum cio_error err = cio_timer_expires_from_now(&client->http_private.request_timer, server->read_header_timeout_ns, client_timeout_handler, client);
@@ -147,6 +147,7 @@ static void restart_read_request(struct cio_http_client *client)
 		client->http_private.response_fired = false;
 		client->request_complete = false;
 		client->response_written = false;
+		client->response_written_completed = false;
 
 		client->http_private.finish_func = finish_request_line;
 		err = cio_buffered_stream_read_until(&client->bs, &client->rb, CIO_CRLF, parse, client);
@@ -162,7 +163,8 @@ static void response_written(struct cio_buffered_stream *bs, void *handler_conte
 	struct cio_http_client *client = (struct cio_http_client *)handler_context;
 	enum cio_error cancel_err = cio_timer_cancel(&client->http_private.response_timer);
 
-	client->response_written = true;
+	client->response_written_completed = true;
+
 	if (client->response_written_cb) {
 		client->response_written_cb(client, err);
 	}
@@ -278,6 +280,7 @@ static enum cio_error write_response(struct cio_http_client *client, enum cio_ht
 		cio_write_buffer_splice(wbh_body, &client->response_wbh);
 	}
 
+	client->response_written = true;
 	return flush(client, response_written);
 }
 
@@ -657,6 +660,7 @@ static void handle_accept(struct cio_server_socket *ss, void *handler_context, e
 	client->write_response = write_response;
 	client->response_written_cb = NULL;
 	client->response_written = false;
+	client->response_written_completed = false;
 	client->request_complete = false;
 
 	cio_write_buffer_head_init(&client->response_wbh);
