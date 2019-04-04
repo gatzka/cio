@@ -223,6 +223,13 @@ static enum cio_error expires_save_handler(struct cio_timer *t, uint64_t timeout
 	return CIO_SUCCESS;
 }
 
+static enum cio_error cancel_timer(struct cio_timer *t)
+{
+	t->handler(t, NULL, CIO_OPERATION_ABORTED);
+
+	return CIO_SUCCESS;
+}
+
 void setUp(void)
 {
 	FFF_RESET_HISTORY();
@@ -308,6 +315,8 @@ static void test_socket_close_without_hook(void)
 	struct cio_socket s;
 
 	read_fake.custom_fake = read_eof;
+	cio_timer_expires_from_now_fake.custom_fake = expires_save_handler;
+	cio_timer_cancel_fake.custom_fake = cancel_timer;
 	enum cio_error err = cio_socket_init(&s, &loop, NULL);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Return value of cio_socket_init() not correct!");
 
