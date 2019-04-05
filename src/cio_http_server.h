@@ -110,6 +110,9 @@ struct cio_http_server {
  * The timeout is started after the HTTP header was received and will be canceled after the complete HTTP message was received.
  * In case of a timeout the client connection is closed automatically.
  * @param response_timeout_ns The timeout in nanoseconds until the complete HTTP response must be sent.
+ * @param close_timeout_ns The timeout in ns until a closed http connection waits for a TCP FIN packet before sending a TCP RST.
+ * If you set this parameter to >0, you can effectivly control how long the TCP socket stays in the FIN_WAIT_2 state. Setting this
+ * parameter to 0 leaves it up to the operating system to get the socket out of FIN_WAIT_2.
  * @anchor cio_http_server_init_alloc_client
  * @param alloc_client A user provided function responsible to allocate a cio_http_client structure.
  * @anchor cio_http_server_init_free_client
@@ -123,6 +126,7 @@ CIO_EXPORT enum cio_error cio_http_server_init(struct cio_http_server *server,
                                                uint64_t read_header_timeout_ns,
                                                uint64_t read_body_timeout_ns,
                                                uint64_t response_timeout_ns,
+                                               uint64_t close_timeout_ns,
                                                cio_alloc_client alloc_client,
                                                cio_free_client free_client);
 

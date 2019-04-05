@@ -184,6 +184,7 @@ static enum cio_error stream_close(struct cio_io_stream *stream)
 
 enum cio_error cio_linux_socket_init(struct cio_socket *s, int client_fd,
                                      struct cio_eventloop *loop,
+                                     uint64_t close_timeout_ns,
                                      cio_socket_close_hook close_hook)
 {
 	if (cio_unlikely((s == NULL) || (loop == NULL))) {
@@ -195,6 +196,7 @@ enum cio_error cio_linux_socket_init(struct cio_socket *s, int client_fd,
 	s->impl.ev.write_callback = NULL;
 	s->impl.ev.read_callback = NULL;
 	s->impl.ev.context = s;
+	s->impl.close_timeout_ns = close_timeout_ns;
 
 	s->impl.peer_closed_connection = false;
 
@@ -220,6 +222,7 @@ enum cio_error cio_linux_socket_init(struct cio_socket *s, int client_fd,
 
 enum cio_error cio_socket_init(struct cio_socket *s,
                                struct cio_eventloop *loop,
+                               uint64_t close_timeout_ns,
                                cio_socket_close_hook close_hook)
 {
 	enum cio_error err;
@@ -228,7 +231,7 @@ enum cio_error cio_socket_init(struct cio_socket *s,
 		return (enum cio_error)(-errno);
 	}
 
-	err = cio_linux_socket_init(s, socket_fd, loop, close_hook);
+	err = cio_linux_socket_init(s, socket_fd, loop, close_timeout_ns, close_hook);
 	if (cio_unlikely(err != CIO_SUCCESS)) {
 		close(socket_fd);
 	}
@@ -246,7 +249,7 @@ static void close_timeout_handler(struct cio_timer *timer, void *handler_context
 	}
 }
 
-static void shutdown_socket(struct cio_socket *s)
+static void shutdown_socket(struct cio_socket *s, uint64_t close_timeout_ns)
 {
 	int ret = shutdown(s->impl.ev.fd, SHUT_WR);
 	if (cio_unlikely(ret == -1)) {
@@ -262,7 +265,6 @@ static void shutdown_socket(struct cio_socket *s)
 		goto eventloop_register_failed;
 	}
 
-	static const uint64_t close_timeout_ns = UINT64_C(5) * UINT64_C(1000) * UINT64_C(1000) * UINT64_C(1000);
 	err = cio_timer_expires_from_now(&s->impl.close_timer, close_timeout_ns, close_timeout_handler, s);
 	if (cio_unlikely(err != CIO_SUCCESS)) {
 		goto timer_arm_failed;
@@ -285,7 +287,7 @@ enum cio_error cio_socket_close(struct cio_socket *s)
 	if (s->impl.peer_closed_connection) {
 		close_socket(s);
 	} else {
-		shutdown_socket(s);
+		shutdown_socket(s, s->impl.close_timeout_ns);
 	}
 
 	return CIO_SUCCESS;

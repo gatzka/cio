@@ -62,7 +62,7 @@ static void accept_callback(void *context)
 	} else {
 		struct cio_socket *s = ss->alloc_client();
 		if (cio_likely(s != NULL)) {
-			enum cio_error err = cio_linux_socket_init(s, client_fd, ss->impl.loop, ss->free_client);
+			enum cio_error err = cio_linux_socket_init(s, client_fd, ss->impl.loop, ss->impl.close_timeout_ns, ss->free_client);
 			if (cio_likely(err == CIO_SUCCESS)) {
 				ss->handler(ss, ss->handler_context, err, s);
 			} else {
@@ -82,6 +82,7 @@ enum cio_error cio_server_socket_init(struct cio_server_socket *ss,
                                       unsigned int backlog,
                                       cio_alloc_client alloc_client,
                                       cio_free_client free_client,
+                                      uint64_t close_timeout_ns,
                                       cio_server_socket_close_hook close_hook)
 {
 	int listen_fd = cio_linux_socket_create();
@@ -90,6 +91,7 @@ enum cio_error cio_server_socket_init(struct cio_server_socket *ss,
 	}
 
 	ss->impl.ev.fd = listen_fd;
+	ss->impl.close_timeout_ns = close_timeout_ns;
 
 	ss->alloc_client = alloc_client;
 	ss->free_client = free_client;

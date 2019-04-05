@@ -40,6 +40,7 @@
 static struct cio_eventloop loop;
 static const unsigned int SERVERSOCKET_BACKLOG = 5;
 static const uint16_t SERVERSOCKET_LISTEN_PORT = 12345;
+static const uint64_t close_timeout_ns = UINT64_C(1) * UINT64_C(1000) * UINT64_C(1000) * UINT64_C(1000);
 enum {BUFFER_SIZE = 100};
 
 struct echo_client {
@@ -147,7 +148,7 @@ int main(void)
 	}
 
 	struct cio_server_socket ss;
-	err = cio_server_socket_init(&ss, &loop, SERVERSOCKET_BACKLOG, alloc_echo_client, free_echo_client, NULL);
+	err = cio_server_socket_init(&ss, &loop, SERVERSOCKET_BACKLOG, alloc_echo_client, free_echo_client, close_timeout_ns, NULL);
 	if (err != CIO_SUCCESS) {
 		ret = EXIT_FAILURE;
 		goto destroy_loop;

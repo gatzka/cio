@@ -731,6 +731,7 @@ enum cio_error cio_http_server_init(struct cio_http_server *server,
                                     uint64_t read_header_timeout_ns,
                                     uint64_t read_body_timeout_ns,
                                     uint64_t response_timeout_ns,
+                                    uint64_t close_timeout_ns,
                                     cio_alloc_client alloc_client,
                                     cio_free_client free_client)
 {
@@ -755,7 +756,7 @@ enum cio_error cio_http_server_init(struct cio_http_server *server,
 	uint32_t keep_alive = (uint32_t)(read_header_timeout_ns / NANO_SECONDS_IN_SECONDS);
 	snprintf(server->keepalive_header, sizeof(server->keepalive_header), "Keep-Alive: timeout=%" PRIu32 "\r\n", keep_alive);
 
-	return cio_server_socket_init(&server->server_socket, server->loop, DEFAULT_BACKLOG, server->alloc_client, server->free_client, server_socket_closed);
+	return cio_server_socket_init(&server->server_socket, server->loop, DEFAULT_BACKLOG, server->alloc_client, server->free_client, close_timeout_ns, server_socket_closed);
 }
 
 enum cio_error cio_http_server_serve(struct cio_http_server *server)
