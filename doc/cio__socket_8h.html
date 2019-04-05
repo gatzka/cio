@@ -116,6 +116,7 @@ $(document).ready(function(){initNavTree('cio__socket_8h.html','');});
 <p>This file contains the interface of a socket.  
 <a href="#details">More...</a></p>
 <div class="textblock"><code>#include &lt;stdbool.h&gt;</code><br />
+<code>#include &lt;stdint.h&gt;</code><br />
 <code>#include &quot;<a class="el" href="cio__error__code_8h_source.html">cio_error_code.h</a>&quot;</code><br />
 <code>#include &quot;<a class="el" href="cio__eventloop_8h_source.html">cio_eventloop.h</a>&quot;</code><br />
 <code>#include &quot;<a class="el" href="cio__export_8h_source.html">cio_export.h</a>&quot;</code><br />
@@ -137,9 +138,9 @@ Typedefs</h2></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="func-members"></a>
 Functions</h2></td></tr>
-<tr class="memitem:abcdfff1f5612cdb0f25bbfd0bc4c653b"><td class="memItemLeft" align="right" valign="top"><a class="el" href="cio__export_8h.html#ab971b12fa232c415369be66dfaca507a">CIO_EXPORT</a> enum <a class="el" href="cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afe">cio_error</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="cio__socket_8h.html#abcdfff1f5612cdb0f25bbfd0bc4c653b">cio_socket_init</a> (struct <a class="el" href="structcio__socket.html">cio_socket</a> *s, struct cio_eventloop *loop, <a class="el" href="cio__socket_8h.html#aa7dba60f1aaedb69eeb6f781acd9ed27">cio_socket_close_hook</a> close_hook)</td></tr>
-<tr class="memdesc:abcdfff1f5612cdb0f25bbfd0bc4c653b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Initializes a <a class="el" href="structcio__socket.html">cio_socket</a>.  <a href="#abcdfff1f5612cdb0f25bbfd0bc4c653b">More...</a><br /></td></tr>
-<tr class="separator:abcdfff1f5612cdb0f25bbfd0bc4c653b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a8631338a7f52efe173636f3aaed20f36"><td class="memItemLeft" align="right" valign="top"><a class="el" href="cio__export_8h.html#ab971b12fa232c415369be66dfaca507a">CIO_EXPORT</a> enum <a class="el" href="cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afe">cio_error</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="cio__socket_8h.html#a8631338a7f52efe173636f3aaed20f36">cio_socket_init</a> (struct <a class="el" href="structcio__socket.html">cio_socket</a> *s, struct cio_eventloop *loop, uint64_t close_timeout_ns, <a class="el" href="cio__socket_8h.html#aa7dba60f1aaedb69eeb6f781acd9ed27">cio_socket_close_hook</a> close_hook)</td></tr>
+<tr class="memdesc:a8631338a7f52efe173636f3aaed20f36"><td class="mdescLeft">&#160;</td><td class="mdescRight">Initializes a <a class="el" href="structcio__socket.html">cio_socket</a>.  <a href="#a8631338a7f52efe173636f3aaed20f36">More...</a><br /></td></tr>
+<tr class="separator:a8631338a7f52efe173636f3aaed20f36"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a05ffd07e49f227b8c4edf823d05d7d63"><td class="memItemLeft" align="right" valign="top"><a class="el" href="cio__export_8h.html#ab971b12fa232c415369be66dfaca507a">CIO_EXPORT</a> enum <a class="el" href="cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afe">cio_error</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="cio__socket_8h.html#a05ffd07e49f227b8c4edf823d05d7d63">cio_socket_close</a> (struct <a class="el" href="structcio__socket.html">cio_socket</a> *socket)</td></tr>
 <tr class="memdesc:a05ffd07e49f227b8c4edf823d05d7d63"><td class="mdescLeft">&#160;</td><td class="mdescRight">Closes the <a class="el" href="structcio__socket.html">cio_socket</a>.  <a href="#a05ffd07e49f227b8c4edf823d05d7d63">More...</a><br /></td></tr>
 <tr class="separator:a05ffd07e49f227b8c4edf823d05d7d63"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -228,7 +229,7 @@ Functions</h2></td></tr>
 
 </div>
 </div>
-<a class="anchor" id="abcdfff1f5612cdb0f25bbfd0bc4c653b"></a>
+<a class="anchor" id="a8631338a7f52efe173636f3aaed20f36"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
@@ -243,6 +244,12 @@ Functions</h2></td></tr>
           <td></td>
           <td class="paramtype">struct cio_eventloop *&#160;</td>
           <td class="paramname"><em>loop</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint64_t&#160;</td>
+          <td class="paramname"><em>close_timeout_ns</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
@@ -263,6 +270,7 @@ Functions</h2></td></tr>
   <table class="params">
     <tr><td class="paramname">s</td><td>The <a class="el" href="structcio__socket.html">cio_socket</a> that should be initialized. </td></tr>
     <tr><td class="paramname">loop</td><td>The event loop the socket shall operate on. </td></tr>
+    <tr><td class="paramname">close_timeout_ns</td><td>The timeout in ns until a closed TCP connection waits for a TCP FIN packet from teh remote peer before sending a TCP RST.If you set this parameter to &gt;0, you can effectivly control how long the TCP socket stays in the FIN_WAIT_2 state. Setting this parameter to 0 leaves it up to the operating system to get the socket out of FIN_WAIT_2. </td></tr>
     <tr><td class="paramname">close_hook</td><td>A close hook function. If this parameter is non <code>NULL</code>, the function will be called directly after <a class="el" href="cio__socket_8h.html#a05ffd07e49f227b8c4edf823d05d7d63">closing</a> the <a class="el" href="structcio__socket.html">cio_socket</a>. It is guaranteed the the cio library will not access any memory of <a class="el" href="structcio__server__socket.html" title="The cio_server_socket struct describes a server socket. ">cio_server_socket</a> that is passed to the close hook. Therefore the hook could be used to free the memory of the server socket. </td></tr>
   </table>
   </dd>
