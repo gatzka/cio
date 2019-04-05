@@ -83,6 +83,10 @@ struct memory_stream {
 	size_t size;
 	uint8_t write_buffer[1000];
 	size_t write_pos;
+	cio_io_stream_write_handler handler;
+	void * handler_context;
+	const struct cio_write_buffer *buf;
+	size_t bytes_transferred;
 };
 
 static struct memory_stream ms;
@@ -148,6 +152,8 @@ FAKE_VOID_FUNC0(location_handler_called)
 FAKE_VOID_FUNC0(sub_location_handler_called)
 
 FAKE_VOID_FUNC(response_written_cb, struct cio_http_client *, enum cio_error)
+
+FAKE_VALUE_FUNC(enum cio_error, write_wrapper, struct cio_io_stream *, const struct cio_write_buffer *, cio_io_stream_write_handler, void *)
 
 static enum cio_error cio_timer_init_fails(struct cio_timer *timer, struct cio_eventloop *l, cio_timer_close_hook hook)
 {
@@ -513,6 +519,29 @@ static enum cio_error write_all(struct cio_io_stream *ios, const struct cio_writ
 	return CIO_SUCCESS;
 }
 
+static enum cio_error write_blocks(struct cio_io_stream *ios, const struct cio_write_buffer *buf, cio_io_stream_write_handler handler, void *handler_context)
+{
+	struct memory_stream *memory_stream = cio_container_of(ios, struct memory_stream, ios);
+
+	size_t bytes_transferred = 0;
+	size_t buffer_len = cio_write_buffer_get_num_buffer_elements(buf);
+	const struct cio_write_buffer *data_buf = buf;
+
+	for (unsigned int i = 0; i < buffer_len; i++) {
+		data_buf = data_buf->next;
+		memcpy(&memory_stream->write_buffer[memory_stream->write_pos], data_buf->data.element.const_data, data_buf->data.element.length);
+		memory_stream->write_pos += data_buf->data.element.length;
+		bytes_transferred += data_buf->data.element.length;
+	}
+
+	memory_stream->buf = buf;
+	memory_stream->bytes_transferred  = bytes_transferred;
+	memory_stream->handler = handler;
+	memory_stream->handler_context = handler_context;
+
+	return CIO_SUCCESS;
+}
+
 static enum cio_error write_error(struct cio_io_stream *ios, const struct cio_write_buffer *buf, cio_io_stream_write_handler handler, void *handler_context)
 {
 	(void)ios;
@@ -605,6 +634,8 @@ void setUp(void)
 	RESET_FAKE(sub_location_handler_called);
 
 	RESET_FAKE(response_written_cb);
+
+	RESET_FAKE(write_wrapper);
 
 	http_parser_settings_init(&response_parser_settings);
 	http_parser_init(&response_parser, HTTP_RESPONSE);
@@ -842,6 +873,45 @@ static void test_keepalive_handling(void)
 		TEST_ASSERT_EQUAL_MESSAGE(1, client_socket_close_fake.call_count, "client socket was not closed after keepalive timeout triggered!");
 		setUp();
 	}
+}
+
+static void test_response_callback_after_message_complete(void)
+{
+	on_header_complete_fake.custom_fake = message_complete_write_response;
+
+	struct cio_http_server server;
+	enum cio_error err = cio_http_server_init(&server, 8080, &loop, serve_error, header_read_timeout, body_read_timeout, response_timeout, 10, alloc_dummy_client, free_dummy_client);
+	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Server initialization failed!");
+
+	struct cio_http_location target;
+	err = cio_http_location_init(&target, "/foo", NULL, alloc_dummy_handler);
+	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Request target initialization failed!");
+	err = cio_http_server_register_location(&server, &target);
+	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Register request target failed!");
+
+	err = cio_http_server_serve(&server);
+	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Serving http failed!");
+
+	struct cio_socket *s = server.alloc_client();
+
+	memory_stream_init(&ms, "GET /foo HTTP/1.1" CRLF "Content-Length: 0" CRLF CRLF, s);
+	ms.ios.write_some = write_wrapper;
+
+	enum cio_error (*write_fakes[])(struct cio_io_stream *stream, const struct cio_write_buffer *wb, cio_io_stream_write_handler handler, void *context) = {
+		write_blocks,
+		write_all
+	};
+	write_wrapper_fake.custom_fake = NULL;
+	SET_CUSTOM_FAKE_SEQ(write_wrapper, write_fakes, ARRAY_SIZE(write_fakes));
+
+	server.server_socket.handler(&server.server_socket, server.server_socket.handler_context, CIO_SUCCESS, s);
+	TEST_ASSERT_EQUAL_MESSAGE(0, serve_error_fake.call_count, "Serve error callback was called!");
+	ms.handler(&ms.ios, ms.handler_context, ms.buf, CIO_SUCCESS, ms.bytes_transferred);
+	check_http_response(&ms, 200);
+
+	TEST_ASSERT_EQUAL_MESSAGE(0, client_socket_close_fake.call_count, "client socket was closed before keepalive timeout triggered!");
+	fire_keepalive_timeout(s);
+	TEST_ASSERT_EQUAL_MESSAGE(1, client_socket_close_fake.call_count, "client socket was not closed after keepalive timeout triggered!");
 }
 
 static void test_callbacks_after_response_sent(void)
@@ -1488,6 +1558,7 @@ int main(void)
 	RUN_TEST(test_register_request_target);
 	RUN_TEST(test_serve_locations);
 	RUN_TEST(test_keepalive_handling);
+	RUN_TEST(test_response_callback_after_message_complete);
 	RUN_TEST(test_url_callbacks);
 	RUN_TEST(test_callbacks_after_response_sent);
 	RUN_TEST(test_errors_in_serve);
