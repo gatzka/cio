@@ -219,8 +219,11 @@ enum cio_error cio_server_socket_init(struct cio_server_socket *ss,
                                       unsigned int backlog,
                                       cio_alloc_client alloc_client,
                                       cio_free_client free_client,
+                                      uint64_t close_timeout_ns,
                                       cio_server_socket_close_hook close_hook)
 {
+	(void)close_timeout_ns;
+
 	ss->backlog = (int)backlog;
 	ss->alloc_client = alloc_client;
 	ss->free_client = free_client;
