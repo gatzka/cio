@@ -206,6 +206,7 @@ struct cio_http_client {
 	cio_response_written_cb response_written_cb;
 	bool request_complete;
 	bool response_written;
+	bool response_written_completed;
 
 	http_parser parser;
 	http_parser_settings parser_settings;

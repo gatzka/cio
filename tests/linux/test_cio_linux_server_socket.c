@@ -68,9 +68,7 @@ FAKE_VOID_FUNC(free_client, struct cio_socket *)
 
 FAKE_VALUE_FUNC0(int, cio_linux_socket_create)
 
-FAKE_VALUE_FUNC(enum cio_error, cio_linux_socket_init, struct cio_socket *, int,
-                struct cio_eventloop *,
-                cio_socket_close_hook)
+FAKE_VALUE_FUNC(enum cio_error, cio_linux_socket_init, struct cio_socket *, int, struct cio_eventloop *, uint64_t, cio_socket_close_hook)
 
 FAKE_VALUE_FUNC(enum cio_error, cio_socket_close, struct cio_socket *)
 
@@ -240,7 +238,18 @@ static int accept_wouldblock(int fd, struct sockaddr *addr, socklen_t *addrlen, 
 	(void)addrlen;
 	(void)flags;
 
-	errno = EWOULDBLOCK;
+	errno = EAGAIN;
+	return -1;
+}
+
+static int accept_badf(int fd, struct sockaddr *addr, socklen_t *addrlen, int flags)
+{
+	(void)fd;
+	(void)addr;
+	(void)addrlen;
+	(void)flags;
+
+	errno = EBADF;
 	return -1;
 }
 
@@ -254,7 +263,7 @@ static int accept_wouldblock_second(int fd, struct sockaddr *addr, socklen_t *ad
 	if (accept4_fake.call_count == 1) {
 		return 42;
 	} else {
-		errno = EWOULDBLOCK;
+		errno = EAGAIN;
 		return -1;
 	}
 }
@@ -281,8 +290,9 @@ static void accept_handler_close_server_socket(struct cio_server_socket *ss, voi
 	cio_server_socket_close(ss);
 }
 
-static enum cio_error custom_cio_linux_socket_init(struct cio_socket *s, int fd, struct cio_eventloop *loop, cio_socket_close_hook hook)
+static enum cio_error custom_cio_linux_socket_init(struct cio_socket *s, int fd, struct cio_eventloop *loop, uint64_t close_timeout_ns, cio_socket_close_hook hook)
 {
+	(void)close_timeout_ns;
 	s->impl.ev.fd = fd;
 
 	s->impl.loop = loop;
@@ -309,7 +319,7 @@ static void test_accept_bind_address(void)
 
 	struct cio_eventloop loop;
 	struct cio_server_socket ss;
-	enum cio_error err = cio_server_socket_init(&ss, &loop, 5, alloc_client, free_client, on_close);
+	enum cio_error err = cio_server_socket_init(&ss, &loop, 5, alloc_client, free_client, 10, on_close);
 	TEST_ASSERT_EQUAL(CIO_SUCCESS, err);
 	err = cio_server_socket_set_reuse_address(&ss, true);
 	TEST_ASSERT_EQUAL(CIO_SUCCESS, err);
@@ -334,7 +344,7 @@ static void test_accept_close_in_accept_handler(void)
 
 	struct cio_eventloop loop;
 	struct cio_server_socket ss;
-	enum cio_error err = cio_server_socket_init(&ss, &loop, 5, alloc_client, free_client, on_close);
+	enum cio_error err = cio_server_socket_init(&ss, &loop, 5, alloc_client, free_client, 10, on_close);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Initialization of server socket failed!");
 	cio_server_socket_bind(&ss, NULL, 12345);
 	cio_server_socket_accept(&ss, accept_handler, NULL);
@@ -355,7 +365,7 @@ static void test_accept_close_in_accept_handler_no_close_hook(void)
 
 	struct cio_eventloop loop;
 	struct cio_server_socket ss;
-	enum cio_error err = cio_server_socket_init(&ss, &loop, 5, alloc_client, free_client, NULL);
+	enum cio_error err = cio_server_socket_init(&ss, &loop, 5, alloc_client, free_client, 10, NULL);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Initialization of server socket failed!");
 	cio_server_socket_bind(&ss, NULL, 12345);
 	cio_server_socket_accept(&ss, accept_handler, NULL);
@@ -375,7 +385,7 @@ static void test_accept_wouldblock(void)
 
 	struct cio_eventloop loop;
 	struct cio_server_socket ss;
-	enum cio_error err = cio_server_socket_init(&ss, &loop, 5, alloc_client, free_client, on_close);
+	enum cio_error err = cio_server_socket_init(&ss, &loop, 5, alloc_client, free_client, 10, on_close);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Initialization of server socket failed!");
 	err = cio_server_socket_bind(&ss, NULL, 12345);
 	TEST_ASSERT_EQUAL(CIO_SUCCESS, err);
@@ -390,6 +400,29 @@ static void test_accept_wouldblock(void)
 	TEST_ASSERT_EQUAL(&ss, on_close_fake.arg0_val);
 }
 
+static void test_accept_after_close(void)
+{
+	accept4_fake.custom_fake = accept_badf;
+	alloc_client_fake.custom_fake = alloc_success;
+	free_client_fake.custom_fake = free_success;
+
+	struct cio_eventloop loop;
+	struct cio_server_socket ss;
+	enum cio_error err = cio_server_socket_init(&ss, &loop, 5, alloc_client, free_client, 10, on_close);
+	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Initialization of server socket failed!");
+	err = cio_server_socket_bind(&ss, NULL, 12345);
+	TEST_ASSERT_EQUAL(CIO_SUCCESS, err);
+	err = cio_server_socket_accept(&ss, accept_handler, NULL);
+	TEST_ASSERT_EQUAL(CIO_SUCCESS, err);
+	cio_server_socket_close(&ss);
+	TEST_ASSERT_EQUAL(1, on_close_fake.call_count);
+	TEST_ASSERT_EQUAL(&ss, on_close_fake.arg0_val);
+
+	ss.impl.ev.read_callback(ss.impl.ev.context);
+
+	TEST_ASSERT_EQUAL(0, accept_handler_fake.call_count);
+}
+
 static void test_accept_fails(void)
 {
 	accept4_fake.custom_fake = accept_fails;
@@ -399,7 +432,7 @@ static void test_accept_fails(void)
 
 	struct cio_eventloop loop;
 	struct cio_server_socket ss;
-	enum cio_error err = cio_server_socket_init(&ss, &loop, 5, alloc_client, free_client, on_close);
+	enum cio_error err = cio_server_socket_init(&ss, &loop, 5, alloc_client, free_client, 10, on_close);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Initialization of server socket failed!");
 	cio_server_socket_bind(&ss, NULL, 12345);
 	cio_server_socket_accept(&ss, accept_handler, NULL);
@@ -418,7 +451,7 @@ static void test_accept_no_handler(void)
 	alloc_client_fake.custom_fake = alloc_success;
 	free_client_fake.custom_fake = free_success;
 
-	enum cio_error err = cio_server_socket_init(&ss, &loop, 5, alloc_client, free_client, on_close);
+	enum cio_error err = cio_server_socket_init(&ss, &loop, 5, alloc_client, free_client, 10, on_close);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Initialization of server socket failed!");
 	err = cio_server_socket_bind(&ss, NULL, 12345);
 	TEST_ASSERT_EQUAL(CIO_SUCCESS, err);
@@ -439,7 +472,7 @@ static void test_accept_eventloop_add_fails(void)
 	alloc_client_fake.custom_fake = alloc_success;
 	free_client_fake.custom_fake = free_success;
 
-	enum cio_error err = cio_server_socket_init(&ss, &loop, 5, alloc_client, free_client, on_close);
+	enum cio_error err = cio_server_socket_init(&ss, &loop, 5, alloc_client, free_client, 10, on_close);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Initialization of server socket failed!");
 
 	err = cio_server_socket_bind(&ss, NULL, 12345);
@@ -460,7 +493,7 @@ static void test_init_fails_no_socket(void)
 	alloc_client_fake.custom_fake = alloc_success;
 	free_client_fake.custom_fake = free_success;
 
-	enum cio_error err = cio_server_socket_init(&ss, &loop, 5, alloc_client, free_client, on_close);
+	enum cio_error err = cio_server_socket_init(&ss, &loop, 5, alloc_client, free_client, 10, on_close);
 	TEST_ASSERT_NOT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Initialization of server socket did not failed!");
 	TEST_ASSERT_EQUAL(0, close_fake.call_count);
 }
@@ -475,7 +508,7 @@ static void test_init_listen_fails(void)
 	alloc_client_fake.custom_fake = alloc_success;
 	free_client_fake.custom_fake = free_success;
 
-	enum cio_error err = cio_server_socket_init(&ss, &loop, 5, alloc_client, free_client, on_close);
+	enum cio_error err = cio_server_socket_init(&ss, &loop, 5, alloc_client, free_client, 10, on_close);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Initialization of server socket failed!");
 
 	err = cio_server_socket_bind(&ss, NULL, 12345);
@@ -495,7 +528,7 @@ static void test_init_setsockopt_fails(void)
 	alloc_client_fake.custom_fake = alloc_success;
 	free_client_fake.custom_fake = free_success;
 
-	enum cio_error err = cio_server_socket_init(&ss, &loop, 5, alloc_client, free_client, on_close);
+	enum cio_error err = cio_server_socket_init(&ss, &loop, 5, alloc_client, free_client, 10, on_close);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Initialization of server socket failed!");
 
 	err = cio_server_socket_set_reuse_address(&ss, true);
@@ -515,7 +548,7 @@ static void test_init_register_read_fails(void)
 	alloc_client_fake.custom_fake = alloc_success;
 	free_client_fake.custom_fake = free_success;
 
-	enum cio_error err = cio_server_socket_init(&ss, &loop, 5, alloc_client, free_client, on_close);
+	enum cio_error err = cio_server_socket_init(&ss, &loop, 5, alloc_client, free_client, 10, on_close);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Initialization of server socket failed!");
 
 	err = cio_server_socket_bind(&ss, NULL, 12345);
@@ -537,7 +570,7 @@ static void test_enable_reuse_address(void)
 	alloc_client_fake.custom_fake = alloc_success;
 	free_client_fake.custom_fake = free_success;
 
-	enum cio_error err = cio_server_socket_init(&ss, &loop, 5, alloc_client, free_client, on_close);
+	enum cio_error err = cio_server_socket_init(&ss, &loop, 5, alloc_client, free_client, 10, on_close);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Initialization of server socket failed!");
 
 	err = cio_server_socket_set_reuse_address(&ss, true);
@@ -559,7 +592,7 @@ static void test_disable_reuse_address(void)
 	alloc_client_fake.custom_fake = alloc_success;
 	free_client_fake.custom_fake = free_success;
 
-	enum cio_error err = cio_server_socket_init(&ss, &loop, 5, alloc_client, free_client, on_close);
+	enum cio_error err = cio_server_socket_init(&ss, &loop, 5, alloc_client, free_client, 10, on_close);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Initialization of server socket failed!");
 
 	err = cio_server_socket_set_reuse_address(&ss, false);
@@ -581,7 +614,7 @@ static void test_init_bind_fails(void)
 	alloc_client_fake.custom_fake = alloc_success;
 	free_client_fake.custom_fake = free_success;
 
-	enum cio_error err = cio_server_socket_init(&ss, &loop, 5, alloc_client, free_client, on_close);
+	enum cio_error err = cio_server_socket_init(&ss, &loop, 5, alloc_client, free_client, 10, on_close);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Initialization of server socket failed!");
 
 	err = cio_server_socket_bind(&ss, NULL, 12345);
@@ -601,7 +634,7 @@ static void test_bind_getaddrinfofails(void)
 	alloc_client_fake.custom_fake = alloc_success;
 	free_client_fake.custom_fake = free_success;
 
-	enum cio_error err = cio_server_socket_init(&ss, &loop, 5, alloc_client, free_client, on_close);
+	enum cio_error err = cio_server_socket_init(&ss, &loop, 5, alloc_client, free_client, 10, on_close);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Initialization of server socket failed!");
 
 	err = cio_server_socket_bind(&ss, NULL, 12345);
@@ -621,7 +654,7 @@ static void test_bind_getaddrinfofails_eaisystem(void)
 	alloc_client_fake.custom_fake = alloc_success;
 	free_client_fake.custom_fake = free_success;
 
-	enum cio_error err = cio_server_socket_init(&ss, &loop, 5, alloc_client, free_client, on_close);
+	enum cio_error err = cio_server_socket_init(&ss, &loop, 5, alloc_client, free_client, 10, on_close);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Initialization of server socket failed!");
 
 	err = cio_server_socket_bind(&ss, NULL, 12345);
@@ -641,7 +674,7 @@ static void test_accept_malloc_fails(void)
 	alloc_client_fake.custom_fake = alloc_fails;
 	free_client_fake.custom_fake = free_success;
 
-	enum cio_error err = cio_server_socket_init(&ss, &loop, 5, alloc_client, free_client, on_close);
+	enum cio_error err = cio_server_socket_init(&ss, &loop, 5, alloc_client, free_client, 10, on_close);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Initialization of server socket failed!");
 
 	cio_server_socket_bind(&ss, NULL, 12345);
@@ -672,7 +705,7 @@ static void test_accept_socket_init_fails(void)
 	alloc_client_fake.custom_fake = alloc_success;
 	free_client_fake.custom_fake = free_success;
 
-	enum cio_error err = cio_server_socket_init(&ss, &loop, 5, alloc_client, free_client, on_close);
+	enum cio_error err = cio_server_socket_init(&ss, &loop, 5, alloc_client, free_client, 10, on_close);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Initialization of server socket failed!");
 
 	cio_server_socket_bind(&ss, NULL, 12345);
@@ -697,7 +730,7 @@ static void test_accept_socket_close_socket(void)
 	alloc_client_fake.custom_fake = alloc_success;
 	free_client_fake.custom_fake = free_success;
 
-	enum cio_error err = cio_server_socket_init(&ss, &loop, 5, alloc_client, free_client, on_close);
+	enum cio_error err = cio_server_socket_init(&ss, &loop, 5, alloc_client, free_client, 10, on_close);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Initialization of server socket failed!");
 
 	cio_server_socket_bind(&ss, NULL, 12345);
@@ -720,6 +753,7 @@ int main(void)
 	RUN_TEST(test_accept_no_handler);
 	RUN_TEST(test_accept_eventloop_add_fails);
 	RUN_TEST(test_accept_wouldblock);
+	RUN_TEST(test_accept_after_close);
 	RUN_TEST(test_accept_fails);
 	RUN_TEST(test_init_fails_no_socket);
 	RUN_TEST(test_init_listen_fails);

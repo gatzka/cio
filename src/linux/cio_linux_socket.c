@@ -41,6 +41,7 @@
 #include "cio_linux_socket.h"
 #include "cio_read_buffer.h"
 #include "cio_socket.h"
+#include "cio_timer.h"
 #include "cio_util.h"
 #include "cio_write_buffer.h"
 #include "linux/cio_linux_socket_utils.h"
@@ -52,19 +53,60 @@ static void read_callback(void *context)
 	struct cio_socket *s = cio_container_of(stream, struct cio_socket, stream);
 	ssize_t ret = read(s->impl.ev.fd, rb->add_ptr, cio_read_buffer_space_available(rb));
 	if (ret == -1) {
-		if (cio_unlikely((errno != EWOULDBLOCK) && (errno != EAGAIN))) {
+		if (cio_unlikely(errno != EAGAIN)) {
 			stream->read_handler(stream, stream->read_handler_context, (enum cio_error)(-errno), rb);
 		}
 	} else {
 		enum cio_error error;
 		if (ret == 0) {
 			error = CIO_EOF;
+			s->impl.peer_closed_connection = true;
 		} else {
 			rb->add_ptr += (size_t)ret;
 			error = CIO_SUCCESS;
 		}
 
 		stream->read_handler(stream, stream->read_handler_context, error, rb);
+	}
+}
+
+static void close_socket(struct cio_socket *s)
+{
+	cio_linux_eventloop_unregister_read(s->impl.loop, &s->impl.ev);
+	cio_linux_eventloop_remove(s->impl.loop, &s->impl.ev);
+
+	cio_timer_close(&s->impl.close_timer);
+	close(s->impl.ev.fd);
+	if (s->close_hook != NULL) {
+		s->close_hook(s);
+	}
+}
+
+static void reset_connection(struct cio_socket *s)
+{
+	struct linger linger = {.l_onoff = 1, .l_linger = 0};
+	setsockopt(s->impl.ev.fd, SOL_SOCKET, SO_LINGER, &linger, sizeof(linger));
+	close_socket(s);
+}
+
+#define READ_CLOSE_BUFFER_SIZE 20
+
+static void read_until_close_callback(void *context)
+{
+	uint8_t buffer[READ_CLOSE_BUFFER_SIZE];
+
+	struct cio_socket *s = (struct cio_socket *)context;
+	ssize_t ret = read(s->impl.ev.fd, buffer, sizeof(buffer));
+	if (ret == -1) {
+		if (cio_unlikely(errno != EAGAIN)) {
+			cio_timer_cancel(&s->impl.close_timer);
+			reset_connection(s);
+		}
+	} else {
+		if (ret == 0) {
+			cio_timer_cancel(&s->impl.close_timer);
+			close_socket(s);
+		}
 	}
 }
 
@@ -121,7 +163,7 @@ static enum cio_error stream_write(struct cio_io_stream *stream, const struct ci
 	if (cio_likely(ret >= 0)) {
 		handler(stream, handler_context, buffer, CIO_SUCCESS, (size_t)ret);
 	} else {
-		if (cio_likely((errno == EWOULDBLOCK) || (errno == EAGAIN))) {
+		if (cio_likely(errno == EAGAIN)) {
 			s->stream.write_handler = handler;
 			s->stream.write_handler_context = handler_context;
 			s->stream.write_buffer = buffer;
@@ -144,6 +186,7 @@ static enum cio_error stream_close(struct cio_io_stream *stream)
 
 enum cio_error cio_linux_socket_init(struct cio_socket *s, int client_fd,
                                      struct cio_eventloop *loop,
+                                     uint64_t close_timeout_ns,
                                      cio_socket_close_hook close_hook)
 {
 	if (cio_unlikely((s == NULL) || (loop == NULL))) {
@@ -155,6 +198,9 @@ enum cio_error cio_linux_socket_init(struct cio_socket *s, int client_fd,
 	s->impl.ev.write_callback = NULL;
 	s->impl.ev.read_callback = NULL;
 	s->impl.ev.context = s;
+	s->impl.close_timeout_ns = close_timeout_ns;
+
+	s->impl.peer_closed_connection = false;
 
 	s->stream.read_some = stream_read;
 	s->stream.write_some = stream_write;
@@ -163,11 +209,22 @@ enum cio_error cio_linux_socket_init(struct cio_socket *s, int client_fd,
 	s->impl.loop = loop;
 	s->close_hook = close_hook;
 
-	return cio_linux_eventloop_add(s->impl.loop, &s->impl.ev);
+	enum cio_error err = cio_timer_init(&s->impl.close_timer, s->impl.loop, NULL);
+	if (cio_unlikely(err != CIO_SUCCESS)) {
+		return err;
+	}
+
+	err = cio_linux_eventloop_add(s->impl.loop, &s->impl.ev);
+	if (cio_unlikely(err != CIO_SUCCESS)) {
+		cio_timer_close(&s->impl.close_timer);
+	}
+
+	return err;
 }
 
 enum cio_error cio_socket_init(struct cio_socket *s,
                                struct cio_eventloop *loop,
+                               uint64_t close_timeout_ns,
                                cio_socket_close_hook close_hook)
 {
 	enum cio_error err;
@@ -176,12 +233,51 @@ enum cio_error cio_socket_init(struct cio_socket *s,
 		return (enum cio_error)(-errno);
 	}
 
-	err = cio_linux_socket_init(s, socket_fd, loop, close_hook);
+	err = cio_linux_socket_init(s, socket_fd, loop, close_timeout_ns, close_hook);
 	if (cio_unlikely(err != CIO_SUCCESS)) {
 		close(socket_fd);
 	}
 
 	return err;
+}
+
+static void close_timeout_handler(struct cio_timer *timer, void *handler_context, enum cio_error err)
+{
+	(void)timer;
+
+	if (err == CIO_SUCCESS) {
+		struct cio_socket *s = (struct cio_socket *)handler_context;
+		reset_connection(s);
+	}
+}
+
+static void shutdown_socket(struct cio_socket *s, uint64_t close_timeout_ns)
+{
+	int ret = shutdown(s->impl.ev.fd, SHUT_WR);
+	if (cio_unlikely(ret == -1)) {
+		goto shutdown_failed;
+	}
+
+	cio_linux_eventloop_unregister_read(s->impl.loop, &s->impl.ev);
+
+	s->impl.ev.context = s;
+	s->impl.ev.read_callback = read_until_close_callback;
+	enum cio_error err = cio_linux_eventloop_register_read(s->impl.loop, &s->impl.ev);
+	if (cio_unlikely(err != CIO_SUCCESS)) {
+		goto eventloop_register_failed;
+	}
+
+	err = cio_timer_expires_from_now(&s->impl.close_timer, close_timeout_ns, close_timeout_handler, s);
+	if (cio_unlikely(err != CIO_SUCCESS)) {
+		goto timer_arm_failed;
+	}
+
+	return;
+
+timer_arm_failed:
+eventloop_register_failed:
+shutdown_failed:
+	reset_connection(s);
 }
 
 enum cio_error cio_socket_close(struct cio_socket *s)
@@ -190,11 +286,10 @@ enum cio_error cio_socket_close(struct cio_socket *s)
 		return CIO_INVALID_ARGUMENT;
 	}
 
-	cio_linux_eventloop_remove(s->impl.loop, &s->impl.ev);
-
-	close(s->impl.ev.fd);
-	if (s->close_hook != NULL) {
-		s->close_hook(s);
+	if (s->impl.peer_closed_connection) {
+		close_socket(s);
+	} else {
+		shutdown_socket(s, s->impl.close_timeout_ns);
 	}
 
 	return CIO_SUCCESS;
