@@ -89,9 +89,11 @@ static void reset_connection(struct cio_socket *s)
 	close_socket(s);
 }
 
+#define READ_CLOSE_BUFFER_SIZE 20
+
 static void read_until_close_callback(void *context)
 {
-	uint8_t buffer[20];
+	uint8_t buffer[READ_CLOSE_BUFFER_SIZE];
 
 	struct cio_socket *s = (struct cio_socket *)context;
 	ssize_t ret = read(s->impl.ev.fd, buffer, sizeof(buffer));
