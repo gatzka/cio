@@ -70,16 +70,21 @@ static void read_callback(void *context)
 	}
 }
 
+static void close_and_call_hook(struct cio_socket *s)
+{
+	close(s->impl.ev.fd);
+	if (s->close_hook != NULL) {
+		s->close_hook(s);
+	}
+}
+
 static void close_socket(struct cio_socket *s)
 {
 	cio_linux_eventloop_unregister_read(s->impl.loop, &s->impl.ev);
 	cio_linux_eventloop_remove(s->impl.loop, &s->impl.ev);
 
 	cio_timer_close(&s->impl.close_timer);
-	close(s->impl.ev.fd);
-	if (s->close_hook != NULL) {
-		s->close_hook(s);
-	}
+	close_and_call_hook(s);
 }
 
 static void reset_connection(struct cio_socket *s)
@@ -288,10 +293,15 @@ enum cio_error cio_socket_close(struct cio_socket *s)
 
 	if (s->impl.peer_closed_connection) {
 		close_socket(s);
-	} else {
-		shutdown_socket(s, s->impl.close_timeout_ns);
+		return CIO_SUCCESS;
 	}
 
+	if (s->impl.close_timeout_ns > 0) {
+		shutdown_socket(s, s->impl.close_timeout_ns);
+		return CIO_SUCCESS;
+	}
+
+	close_socket(s);
 	return CIO_SUCCESS;
 }
 
