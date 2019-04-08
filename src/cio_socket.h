@@ -76,7 +76,7 @@ struct cio_socket {
  * @param s The cio_socket that should be initialized.
  * @param loop The event loop the socket shall operate on.
  * @param close_timeout_ns The timeout in ns until a closed TCP connection waits for a
- * TCP FIN packet from teh remote peer before sending a TCP RST.If you set this parameter
+ * TCP FIN packet from the remote peer before sending a TCP RST.If you set this parameter
  * to >0, you can effectivly control how long the TCP socket stays in the FIN_WAIT_2 state.
  * Setting this parameter to 0 leaves it up to the operating system to get the socket out of FIN_WAIT_2.
  * @param close_hook A close hook function. If this parameter is non @c NULL,

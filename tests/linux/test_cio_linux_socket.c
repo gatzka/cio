@@ -330,6 +330,26 @@ static void test_socket_close_without_hook(void)
 	TEST_ASSERT_EQUAL_MESSAGE(1, cio_timer_close_fake.call_count, "close timer was not closed!");
 }
 
+static void test_socket_close_without_timeout(void)
+{
+	struct cio_socket s;
+
+	read_fake.custom_fake = read_eof;
+	enum cio_error err = cio_socket_init(&s, &loop, 0, NULL);
+	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Return value of cio_socket_init() not correct!");
+
+	err = cio_socket_close(&s);
+	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Return value of close() not correct!");
+
+	TEST_ASSERT_EQUAL_MESSAGE(1, close_fake.call_count, "Socket was not closed correctly!");
+	TEST_ASSERT_EQUAL_MESSAGE(s.impl.ev.fd, close_fake.arg0_val, "Socket close was not called with correct parameter!");
+	TEST_ASSERT_EQUAL_MESSAGE(1, cio_timer_close_fake.call_count, "close timer was not closed!");
+
+	TEST_ASSERT_EQUAL_MESSAGE(0, cio_timer_expires_from_now_fake.call_count, "Close timer was armed even if close timeout was 0!");
+	TEST_ASSERT_EQUAL_MESSAGE(0, cio_timer_cancel_fake.call_count, "Timer cancel called even if close timer was not armed!");
+	TEST_ASSERT_EQUAL_MESSAGE(0, shutdown_fake.call_count, "socket shutdown called!");
+}
+
 static void test_socket_close_read_error(void)
 {
 	struct cio_socket s;
@@ -1090,6 +1110,7 @@ int main(void)
 	RUN_TEST(test_socket_init_eventloop_add_fails);
 	RUN_TEST(test_socket_init_timer_init_fails);
 	RUN_TEST(test_socket_close_without_hook);
+	RUN_TEST(test_socket_close_without_timeout);
 	RUN_TEST(test_socket_close_read_error);
 	RUN_TEST(test_socket_close_get_data_from_peer);
 	RUN_TEST(test_socket_close_peer_blocks_first);
