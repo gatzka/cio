@@ -270,7 +270,7 @@ Functions</h2></td></tr>
   <table class="params">
     <tr><td class="paramname">s</td><td>The <a class="el" href="structcio__socket.html">cio_socket</a> that should be initialized. </td></tr>
     <tr><td class="paramname">loop</td><td>The event loop the socket shall operate on. </td></tr>
-    <tr><td class="paramname">close_timeout_ns</td><td>The timeout in ns until a closed TCP connection waits for a TCP FIN packet from teh remote peer before sending a TCP RST.If you set this parameter to &gt;0, you can effectivly control how long the TCP socket stays in the FIN_WAIT_2 state. Setting this parameter to 0 leaves it up to the operating system to get the socket out of FIN_WAIT_2. </td></tr>
+    <tr><td class="paramname">close_timeout_ns</td><td>The timeout in ns until a closed TCP connection waits for a TCP FIN packet from the remote peer before sending a TCP RST.If you set this parameter to &gt;0, you can effectivly control how long the TCP socket stays in the FIN_WAIT_2 state. Setting this parameter to 0 leaves it up to the operating system to get the socket out of FIN_WAIT_2. </td></tr>
     <tr><td class="paramname">close_hook</td><td>A close hook function. If this parameter is non <code>NULL</code>, the function will be called directly after <a class="el" href="cio__socket_8h.html#a05ffd07e49f227b8c4edf823d05d7d63">closing</a> the <a class="el" href="structcio__socket.html">cio_socket</a>. It is guaranteed the the cio library will not access any memory of <a class="el" href="structcio__server__socket.html" title="The cio_server_socket struct describes a server socket. ">cio_server_socket</a> that is passed to the close hook. Therefore the hook could be used to free the memory of the server socket. </td></tr>
   </table>
   </dd>
