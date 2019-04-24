@@ -33,6 +33,8 @@ matrix:
         - cmake-data
         - libbsd-dev
         - ninja-build
+    script:
+      - echo -n | openssl s_client -connect scan.coverity.com:443 | sed -ne '/-BEGIN CERTIFICATE-/,/-END CERTIFICATE-/p' | sudo tee -a /etc/ssl/certs/ca-
 
   - os: linux
     compiler: gcc
