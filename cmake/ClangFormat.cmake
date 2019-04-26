@@ -3,7 +3,6 @@ option(
     "Use clang-formatter to format source code?"
     ON
 )
-message(STATUS "option ENABLE_CLANG_FORMATTER=" ${ENABLE_CLANG_FORMATTER})
 
 if(ENABLE_CLANG_FORMATTER)
     include(LocateProgram)
