@@ -186,11 +186,13 @@ install(FILES "${CMAKE_CURRENT_BINARY_DIR}/generated/${PROJECT_NAME}_export.h"
     DESTINATION include/cio/
 )
 
-install(EXPORT ${PROJECT_NAME}
-    NAMESPACE ${PROJECT_NAME}::
-    DESTINATION lib/cmake/${PROJECT_NAME}
-    FILE ${PROJECT_NAME}Config.cmake
-)
+if(NOT CIO_BUILD_FOR_ZEPHYR)
+    install(EXPORT ${PROJECT_NAME}
+        NAMESPACE ${PROJECT_NAME}::
+        DESTINATION lib/cmake/${PROJECT_NAME}
+        FILE ${PROJECT_NAME}Config.cmake
+    )
+endif()
 
 include(FindDoxygen)
 
