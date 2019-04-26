@@ -50,7 +50,7 @@ static const uint8_t WS_MASK_SET = 0x80;
 static const uint8_t WS_HEADER_FIN = 0x80;
 static const size_t WS_MID_FRAME_SIZE = 65535;
 
-static const uint64_t close_timeout_ns = UINT64_C(10) * UINT64_C(1000) * UINT64_C(1000) * UINT64_C(1000);
+static const uint64_t close_timeout_ns = (uint64_t)10 * (uint64_t)1000 * (uint64_t)1000 * (uint64_t)1000;
 
 static void get_header(struct cio_buffered_stream *bs, void *handler_context, enum cio_error err, struct cio_read_buffer *buffer, size_t num_bytes);
 static void get_payload(struct cio_buffered_stream *bs, void *handler_context, enum cio_error err, struct cio_read_buffer *buffer, size_t num_bytes);

@@ -18,7 +18,7 @@ endif()
 
 include(CMakePackageConfigHelpers)
 
-if (NOT CIO_BUILD_FOR_ZEPHYR)
+if(NOT CIO_BUILD_FOR_ZEPHYR)
     include(CheckTypeSize)
     CHECK_TYPE_SIZE(uint_fast32_t fast32_t LANGUAGE C)
     if (NOT ${HAVE_fast32_t})
@@ -87,9 +87,9 @@ if(CIO_CONFIG_WEBSOCKETS)
     add_library(sha OBJECT
         sha1/sha1.c
     )
-	if (NOT CIO_BUILD_FOR_ZEPHYR)
-    	target_compile_features(sha PRIVATE $<$<NOT:$<C_COMPILER_ID:MSVC>>:c_std_99>)
-	endif()
+    if(NOT CIO_BUILD_FOR_ZEPHYR)
+        target_compile_features(sha PRIVATE $<$<NOT:$<C_COMPILER_ID:MSVC>>:c_std_99>)
+    endif()
 
     set_target_properties(sha PROPERTIES
         POSITION_INDEPENDENT_CODE ON
@@ -136,12 +136,13 @@ if(${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
     include(linux/CMakeLists.txt)
 elseif(${CMAKE_SYSTEM_NAME} STREQUAL "Windows")
     include(windows/CMakeLists.txt)
+elseif(${CIO_BUILD_FOR_ZEPHYR})
+    include(zephyr/CMakeLists.txt)
 endif()
 
-if (NOT CIO_BUILD_FOR_ZEPHYR)
+if(NOT CIO_BUILD_FOR_ZEPHYR)
     target_compile_features(${PROJECT_NAME} PUBLIC $<$<NOT:$<C_COMPILER_ID:MSVC>>:c_std_11>)
 endif()
-
 set_target_properties(${PROJECT_NAME} PROPERTIES
     VERSION "${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}.${PROJECT_VERSION_PATCH}"
     SOVERSION ${PROJECT_VERSION_MAJOR}
@@ -185,11 +186,13 @@ install(FILES "${CMAKE_CURRENT_BINARY_DIR}/generated/${PROJECT_NAME}_export.h"
     DESTINATION include/cio/
 )
 
-install(EXPORT ${PROJECT_NAME}
-    NAMESPACE ${PROJECT_NAME}::
-    DESTINATION lib/cmake/${PROJECT_NAME}
-    FILE ${PROJECT_NAME}Config.cmake
-)
+if(NOT CIO_BUILD_FOR_ZEPHYR)
+    install(EXPORT ${PROJECT_NAME}
+        NAMESPACE ${PROJECT_NAME}::
+        DESTINATION lib/cmake/${PROJECT_NAME}
+        FILE ${PROJECT_NAME}Config.cmake
+    )
+endif()
 
 include(FindDoxygen)
 
