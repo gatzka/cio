@@ -26,8 +26,8 @@
  * SOFTWARE.
  */
 
-#ifndef CIO_EVENTLOOP_IMPL_H
-#define CIO_EVENTLOOP_IMPL_H
+#ifndef CIO_LINUX_EVENTLOOP_IMPL_H
+#define CIO_LINUX_EVENTLOOP_IMPL_H
 
 #include <stdbool.h>
 #include <stdint.h>

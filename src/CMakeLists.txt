@@ -1,6 +1,21 @@
 cmake_minimum_required(VERSION 3.8)
 project(cio VERSION 0.0.1 LANGUAGES C)
 
+find_package(Git QUIET REQUIRED)
+if(GIT_FOUND AND EXISTS "${PROJECT_SOURCE_DIR}/../.git")
+# Update submodules as needed
+    option(GIT_SUBMODULE "Check submodules during build" ON)
+    if(GIT_SUBMODULE)
+        message(STATUS "Submodule update")
+        execute_process(COMMAND ${GIT_EXECUTABLE} submodule update --init --recursive
+                        WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+                        RESULT_VARIABLE GIT_SUBMOD_RESULT)
+        if(NOT GIT_SUBMOD_RESULT EQUAL "0")
+            message(FATAL_ERROR "git submodule update --init failed with ${GIT_SUBMOD_RESULT}, please checkout submodules")
+        endif()
+    endif()
+endif()
+
 include(CMakePackageConfigHelpers)
 
 if(NOT CIO_BUILD_FOR_ZEPHYR)
@@ -72,9 +87,9 @@ if(CIO_CONFIG_WEBSOCKETS)
     add_library(sha OBJECT
         sha1/sha1.c
     )
-    if(NOT CIO_BUILD_FOR_ZEPHYR)
-        target_compile_features(sha PRIVATE $<$<NOT:$<C_COMPILER_ID:MSVC>>:c_std_99>)
-    endif()
+==== BASE ====
+    target_compile_features(sha PRIVATE $<$<NOT:$<C_COMPILER_ID:MSVC>>:c_std_99>)
+==== BASE ====
 
     set_target_properties(sha PROPERTIES
         POSITION_INDEPENDENT_CODE ON
@@ -125,9 +140,9 @@ elseif(${CIO_BUILD_FOR_ZEPHYR})
     include(zephyr/CMakeLists.txt)
 endif()
 
-if(NOT CIO_BUILD_FOR_ZEPHYR)
-    target_compile_features(${PROJECT_NAME} PUBLIC $<$<NOT:$<C_COMPILER_ID:MSVC>>:c_std_11>)
-endif()
+==== BASE ====
+target_compile_features(${PROJECT_NAME} PUBLIC $<$<NOT:$<C_COMPILER_ID:MSVC>>:c_std_11>)
+==== BASE ====
 set_target_properties(${PROJECT_NAME} PROPERTIES
     VERSION "${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}.${PROJECT_VERSION_PATCH}"
     SOVERSION ${PROJECT_VERSION_MAJOR}

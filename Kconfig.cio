@@ -18,7 +18,7 @@
 #
 
 config CIO
-	bool "cio  Support"
+	bool "cio Support"
 	help
 	  This option enables the cio library.
 
