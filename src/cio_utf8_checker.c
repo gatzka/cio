@@ -383,9 +383,9 @@ static inline uint8_t decode(uint8_t *state, uint8_t *codep, uint8_t byte)
 {
 	uint8_t type = utf8d[byte];
 
-	*codep = (uint8_t)((*state != CIO_UTF8_ACCEPT) ? ((byte & UINT8_C(0x3f)) | (uint8_t)(*codep << UINT8_C(6))) : ((UINT8_C(0xff) >> type) & (byte))); // NOLINT
+	*codep = (uint8_t)((*state != CIO_UTF8_ACCEPT) ? ((byte & (uint8_t)0x3f) | (uint8_t)(*codep << (uint8_t)6)) : (((uint8_t)0xff >> type) & (byte)));
 
-	*state = utf8d[256 + *state + type]; // NOLINT
+	*state = utf8d[256 + *state + type];
 	return *state;
 }
 
