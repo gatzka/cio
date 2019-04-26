@@ -87,9 +87,9 @@ if(CIO_CONFIG_WEBSOCKETS)
     add_library(sha OBJECT
         sha1/sha1.c
     )
-==== BASE ====
-    target_compile_features(sha PRIVATE $<$<NOT:$<C_COMPILER_ID:MSVC>>:c_std_99>)
-==== BASE ====
+    if(NOT CIO_BUILD_FOR_ZEPHYR)
+        target_compile_features(sha PRIVATE $<$<NOT:$<C_COMPILER_ID:MSVC>>:c_std_99>)
+    endif()
 
     set_target_properties(sha PROPERTIES
         POSITION_INDEPENDENT_CODE ON
@@ -140,9 +140,9 @@ elseif(${CIO_BUILD_FOR_ZEPHYR})
     include(zephyr/CMakeLists.txt)
 endif()
 
-==== BASE ====
-target_compile_features(${PROJECT_NAME} PUBLIC $<$<NOT:$<C_COMPILER_ID:MSVC>>:c_std_11>)
-==== BASE ====
+if(NOT CIO_BUILD_FOR_ZEPHYR)
+    target_compile_features(${PROJECT_NAME} PUBLIC $<$<NOT:$<C_COMPILER_ID:MSVC>>:c_std_11>)
+endif()
 set_target_properties(${PROJECT_NAME} PROPERTIES
     VERSION "${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}.${PROJECT_VERSION_PATCH}"
     SOVERSION ${PROJECT_VERSION_MAJOR}
