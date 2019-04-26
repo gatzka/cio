@@ -3,7 +3,7 @@ project(cio VERSION 0.0.1 LANGUAGES C)
 
 include(CMakePackageConfigHelpers)
 
-if (NOT CIO_BUILD_FOR_ZEPHYR)
+if(NOT CIO_BUILD_FOR_ZEPHYR)
     include(CheckTypeSize)
     CHECK_TYPE_SIZE(uint_fast32_t fast32_t LANGUAGE C)
     if (NOT ${HAVE_fast32_t})
@@ -121,6 +121,8 @@ if(${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
     include(linux/CMakeLists.txt)
 elseif(${CMAKE_SYSTEM_NAME} STREQUAL "Windows")
     include(windows/CMakeLists.txt)
+elseif(${CIO_BUILD_FOR_ZEPHYR})
+    include(zephyr/CMakeLists.txt)
 endif()
 
 if(NOT CIO_BUILD_FOR_ZEPHYR)
