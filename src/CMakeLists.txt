@@ -3,15 +3,17 @@ project(cio VERSION 0.0.1 LANGUAGES C)
 
 include(CMakePackageConfigHelpers)
 
-# include(CheckTypeSize)
-# CHECK_TYPE_SIZE(uint_fast32_t fast32_t LANGUAGE C)
-# if (NOT ${HAVE_fast32_t})
-#     message(FATAL_ERROR "Type uint_fast32_t is not available!")
-# endif()
-# math(EXPR mod_uint_fast32_t "${fast32_t} % 4")
-# if (NOT mod_uint_fast32_t EQUAL 0)
-#     message(FATAL_ERROR "Size of type uint_fast32_t is not a multiple of 4!")
-# endif()
+if (NOT CIO_BUILD_FOR_ZEPHYR)
+    include(CheckTypeSize)
+    CHECK_TYPE_SIZE(uint_fast32_t fast32_t LANGUAGE C)
+    if (NOT ${HAVE_fast32_t})
+        message(FATAL_ERROR "Type uint_fast32_t is not available!")
+    endif()
+    math(EXPR mod_uint_fast32_t "${fast32_t} % 4")
+    if (NOT mod_uint_fast32_t EQUAL 0)
+        message(FATAL_ERROR "Size of type uint_fast32_t is not a multiple of 4!")
+    endif()
+endif()
 
 add_custom_target(generate_semver
     COMMAND ${CMAKE_COMMAND}
@@ -70,7 +72,9 @@ if(CIO_CONFIG_WEBSOCKETS)
     add_library(sha OBJECT
         sha1/sha1.c
     )
-    target_compile_features(sha PRIVATE $<$<NOT:$<C_COMPILER_ID:MSVC>>:c_std_99>)
+    if(NOT CIO_BUILD_FOR_ZEPHYR)
+        target_compile_features(sha PRIVATE $<$<NOT:$<C_COMPILER_ID:MSVC>>:c_std_99>)
+    endif()
 
     set_target_properties(sha PROPERTIES
         POSITION_INDEPENDENT_CODE ON
@@ -119,7 +123,9 @@ elseif(${CMAKE_SYSTEM_NAME} STREQUAL "Windows")
     include(windows/CMakeLists.txt)
 endif()
 
-target_compile_features(${PROJECT_NAME} PUBLIC $<$<NOT:$<C_COMPILER_ID:MSVC>>:c_std_11>)
+if(NOT CIO_BUILD_FOR_ZEPHYR)
+    target_compile_features(${PROJECT_NAME} PUBLIC $<$<NOT:$<C_COMPILER_ID:MSVC>>:c_std_11>)
+endif()
 set_target_properties(${PROJECT_NAME} PROPERTIES
     VERSION "${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}.${PROJECT_VERSION_PATCH}"
     SOVERSION ${PROJECT_VERSION_MAJOR}
