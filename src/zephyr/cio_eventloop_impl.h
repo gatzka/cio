@@ -92,12 +92,12 @@ struct cio_eventloop {
 	//struct epoll_event epoll_events[CONFIG_MAX_EPOLL_EVENTS];
 };
 
-enum cio_error cio_linux_eventloop_add(const struct cio_eventloop *loop, struct cio_event_notifier *ev);
-void cio_linux_eventloop_remove(struct cio_eventloop *loop, const struct cio_event_notifier *ev);
-enum cio_error cio_linux_eventloop_register_read(const struct cio_eventloop *loop, struct cio_event_notifier *ev);
-enum cio_error cio_linux_eventloop_unregister_read(const struct cio_eventloop *loop, struct cio_event_notifier *ev);
-enum cio_error cio_linux_eventloop_register_write(const struct cio_eventloop *loop, struct cio_event_notifier *ev);
-enum cio_error cio_linux_eventloop_unregister_write(const struct cio_eventloop *loop, struct cio_event_notifier *ev);
+enum cio_error cio_zephyr_eventloop_add(const struct cio_eventloop *loop, struct cio_event_notifier *ev);
+void cio_zephyr_eventloop_remove(struct cio_eventloop *loop, const struct cio_event_notifier *ev);
+enum cio_error cio_zephyr_eventloop_register_read(const struct cio_eventloop *loop, struct cio_event_notifier *ev);
+enum cio_error cio_zephyr_eventloop_unregister_read(const struct cio_eventloop *loop, struct cio_event_notifier *ev);
+enum cio_error cio_zephyr_eventloop_register_write(const struct cio_eventloop *loop, struct cio_event_notifier *ev);
+enum cio_error cio_zephyr_eventloop_unregister_write(const struct cio_eventloop *loop, struct cio_event_notifier *ev);
 
 #ifdef __cplusplus
 }
