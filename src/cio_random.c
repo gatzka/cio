@@ -67,7 +67,7 @@ static uint32_t pcg32_random_r(pcg32_random_t* rng)
 	rng->state = oldstate * MULTIPLIER + rng->inc;
 	uint32_t xorshifted = (uint32_t)((oldstate >> FIRST_XOR_SHIFT) ^ oldstate) >> SECOND_XOR_SHIFT;
 	uint32_t rot = (uint32_t)(oldstate >> ROT_SHIFT);
-	return (xorshifted >> rot) | (xorshifted << ((-rot) & RETURN_SHIFT));
+	return (xorshifted >> rot) | (xorshifted << ((~rot + 1) & RETURN_SHIFT));
 }
 
 void cio_random_get_bytes(void *bytes, size_t num_bytes)
