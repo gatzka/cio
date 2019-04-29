@@ -29,6 +29,7 @@ var searchData=
   ['cio_5fdeprecated_5fexport',['CIO_DEPRECATED_EXPORT',['../cio__export_8h.html#ac110ac9534ec5731545e06c3f401ba52',1,'cio_export.h']]],
   ['cio_5fdeprecated_5fno_5fexport',['CIO_DEPRECATED_NO_EXPORT',['../cio__export_8h.html#afd72c82b86b5a4b70be3ec592a6f21c3',1,'cio_export.h']]],
   ['cio_5fendian_2eh',['cio_endian.h',['../cio__endian_8h.html',1,'']]],
+  ['cio_5fentropy_5fget_5fbytes',['cio_entropy_get_bytes',['../cio__random_8h.html#aae24954a889c76590eca4b3f05bb97cf',1,'cio_random.h']]],
   ['cio_5feof',['CIO_EOF',['../cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afea237cc68c5cce982ac9a6e9a434a28dc1',1,'cio_error_code.h']]],
   ['cio_5ferror',['cio_error',['../cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afe',1,'cio_error_code.h']]],
   ['cio_5ferror_5fcode_2eh',['cio_error_code.h',['../cio__error__code_8h.html',1,'']]],

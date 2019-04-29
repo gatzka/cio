@@ -9,6 +9,7 @@ var searchData=
   ['cio_5fbuffered_5fstream_5fread_5funtil',['cio_buffered_stream_read_until',['../cio__buffered__stream_8h.html#ace1fccae3e69ff33f1be48b77835c373',1,'cio_buffered_stream.h']]],
   ['cio_5fbuffered_5fstream_5fwrite',['cio_buffered_stream_write',['../cio__buffered__stream_8h.html#a7f5b55199257d85be55363965d5be46b',1,'cio_buffered_stream.h']]],
   ['cio_5fcheck_5futf8',['cio_check_utf8',['../cio__utf8__checker_8h.html#a5c0dd74d77825c00d6cdea16735af864',1,'cio_utf8_checker.h']]],
+  ['cio_5fentropy_5fget_5fbytes',['cio_entropy_get_bytes',['../cio__random_8h.html#aae24954a889c76590eca4b3f05bb97cf',1,'cio_random.h']]],
   ['cio_5feventloop_5fcancel',['cio_eventloop_cancel',['../cio__eventloop_8h.html#a911bc3b7db8ffa4c1df7ee2f86113bc6',1,'cio_eventloop.h']]],
   ['cio_5feventloop_5fdestroy',['cio_eventloop_destroy',['../cio__eventloop_8h.html#a0e274c6b18566611e20399173e8c97fb',1,'cio_eventloop.h']]],
   ['cio_5feventloop_5finit',['cio_eventloop_init',['../cio__eventloop_8h.html#a65a416debfbe1894fad395e8270dab06',1,'cio_eventloop.h']]],
