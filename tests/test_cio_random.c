@@ -1,9 +1,7 @@
 /*
- * SPDX-License-Identifier: MIT
- *
  * The MIT License (MIT)
  *
- * Copyright (c) <2017> <Stephan Gatzka>
+ * Copyright (c) <2019> <Stephan Gatzka>
  *
  * Permission is hereby granted, free of charge, to any person obtaining
  * a copy of this software and associated documentation files (the
@@ -26,27 +24,36 @@
  * SOFTWARE.
  */
 
-#define _DEFAULT_SOURCE
-
-#include <stddef.h>
-#include <stdio.h>
-#include <stdlib.h>
-
 #include "cio_random.h"
+#include "fff.h"
+#include "unity.h"
 
-static FILE *dev_urandom = NULL;
+DEFINE_FFF_GLOBALS
 
-void cio_entropy_get_bytes(void *bytes, size_t num_bytes)
+void setUp(void)
 {
+	FFF_RESET_HISTORY();
+}
 
-	if (dev_urandom == NULL) {
-		dev_urandom = fopen("/dev/urandom", "re");
-	}
+void tearDown(void)
+{
+}
 
-	size_t ret = fread(bytes, 1, num_bytes, dev_urandom);
-	/* Ignore return value deliberately.
-	 * There is no good error handling when this call fails
-	 * besides shutting down cjet completely.
-	 */
-	(void)ret;
+static void test_two_randoms(void)
+{
+	uint64_t first_rand;
+	uint64_t second_rand;
+
+	cio_random_get_bytes(&first_rand, sizeof(first_rand));
+	cio_random_get_bytes(&second_rand, sizeof(second_rand));
+
+	int equal = memcmp(&first_rand, &second_rand, sizeof(first_rand));
+	TEST_ASSERT_NOT_EQUAL_MESSAGE(0, equal, "Two calls for random lead to the same result!");
+}
+
+int main(void)
+{
+	UNITY_BEGIN();
+	RUN_TEST(test_two_randoms);
+	return UNITY_END();
 }

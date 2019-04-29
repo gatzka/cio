@@ -33,7 +33,7 @@
 
 #include "cio_random.h"
 
-void cio_random_get_bytes(void *bytes, size_t num_bytes)
+void cio_entropy_get_bytes(void *bytes, size_t num_bytes)
 {
 	arc4random_buf(bytes, num_bytes);
 }
