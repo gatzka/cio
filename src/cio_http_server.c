@@ -693,19 +693,18 @@ static void handle_accept(struct cio_server_socket *ss, void *handler_context, e
 
 	err = cio_timer_expires_from_now(&client->http_private.request_timer, server->read_header_timeout_ns, client_timeout_handler, client);
 	if (cio_unlikely(err != CIO_SUCCESS)) {
-		goto expires_fail;
+		goto close_timer;
 	}
 
 	client->http_private.finish_func = finish_request_line;
 	err = cio_buffered_stream_read_until(&client->bs, &client->rb, CIO_CRLF, parse, client);
 	if (cio_unlikely(err != CIO_SUCCESS)) {
-		goto read_until_fail;
+		goto close_timer;
 	}
 
 	return;
 
-read_until_fail:
-expires_fail:
+close_timer:
 	cio_timer_close(&client->http_private.request_timer);
 request_timer_init_err:
 	cio_timer_close(&client->http_private.response_timer);

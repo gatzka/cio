@@ -260,7 +260,7 @@ static void shutdown_socket(struct cio_socket *s, uint64_t close_timeout_ns)
 {
 	int ret = shutdown(s->impl.ev.fd, SHUT_WR);
 	if (cio_unlikely(ret == -1)) {
-		goto shutdown_failed;
+		goto reset_connection;
 	}
 
 	cio_linux_eventloop_unregister_read(s->impl.loop, &s->impl.ev);
@@ -269,19 +269,17 @@ static void shutdown_socket(struct cio_socket *s, uint64_t close_timeout_ns)
 	s->impl.ev.read_callback = read_until_close_callback;
 	enum cio_error err = cio_linux_eventloop_register_read(s->impl.loop, &s->impl.ev);
 	if (cio_unlikely(err != CIO_SUCCESS)) {
-		goto eventloop_register_failed;
+		goto reset_connection;
 	}
 
 	err = cio_timer_expires_from_now(&s->impl.close_timer, close_timeout_ns, close_timeout_handler, s);
 	if (cio_unlikely(err != CIO_SUCCESS)) {
-		goto timer_arm_failed;
+		goto reset_connection;
 	}
 
 	return;
 
-timer_arm_failed:
-eventloop_register_failed:
-shutdown_failed:
+reset_connection:
 	reset_connection(s);
 }
 
