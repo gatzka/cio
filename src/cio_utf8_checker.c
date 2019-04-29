@@ -388,7 +388,7 @@ static inline uint8_t decode(uint8_t *state, uint8_t *codep, uint8_t byte)
 {
 	uint8_t type = utf8d[byte];
 
-	*codep = (uint8_t)((*state != CIO_UTF8_ACCEPT) ? ((uint8_t)((byte & type_mask)) | (uint8_t)(*codep << shift)) : ((uint8_t)(byte_mask >> type) & byte));
+	*codep = (uint8_t)((*state != CIO_UTF8_ACCEPT) ? ((uint8_t)(byte & type_mask) | (uint8_t)(*codep << shift)) : ((uint8_t)(byte_mask >> type) & byte));
 
 	*state = utf8d[next_byte + *state + type];
 	return *state;
