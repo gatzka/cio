@@ -34,7 +34,7 @@
 
 #include "cio_random.h"
 
-void cio_random_get_bytes(void *bytes, size_t num_bytes)
+void cio_entropy_get_bytes(void *bytes, size_t num_bytes)
 {
 	struct device *dev;
 	dev = device_get_binding(CONFIG_ENTROPY_NAME);
