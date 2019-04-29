@@ -77,10 +77,12 @@ void cio_random_get_bytes(void *bytes, size_t num_bytes)
 		uint64_t seeds[2];
 		cio_entropy_get_bytes(&seeds, sizeof(seeds));
 		pcg32_srandom_r(&global_rng, seeds[0], seeds[1]);
+		initialized = 1;
 	}
 
 	uint8_t *dest = bytes;
 	for (size_t i = 0; i < num_bytes; i++) {
 		*dest = (uint8_t) pcg32_random_r(&global_rng);
+		dest++;
 	}
 }
