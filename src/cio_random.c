@@ -29,21 +29,18 @@
 #include "cio_random.h"
 
 #define pcg32_srandom_r pcg_setseq_64_srandom_r
-#define PCG_DEFAULT_MULTIPLIER_64 6364136223846793005ULL
+static const uint64_t MULTIPLIER = 6364136223846793005ULL;
+static const unsigned int FIRST_XOR_SHIFT = 18U;
+static const unsigned int SECOND_XOR_SHIFT = 27U;
+static const unsigned int ROT_SHIFT = 59U;
+static const unsigned int RETURN_SHIFT = 31U;
 
-struct pcg_state_setseq_64 {
-	uint64_t state; // RNG state. All values are possible.
-	uint64_t inc; // Controls which RNG sequence (stream) is selected. Must *always* be odd.
-};
-
-typedef struct pcg_state_setseq_64 pcg32_random_t;
-
-static void pcg_setseq_64_step_r(struct pcg_state_setseq_64* rng)
+static void pcg_setseq_64_step_r(struct pcg_state_setseq_64 *rng)
 {
-	rng->state = rng->state * PCG_DEFAULT_MULTIPLIER_64 + rng->inc;
+	rng->state = rng->state * MULTIPLIER + rng->inc;
 }
 
-static void pcg_setseq_64_srandom_r(struct pcg_state_setseq_64* rng,
+static void pcg_setseq_64_srandom_r(struct pcg_state_setseq_64 *rng,
 									uint64_t initstate, uint64_t initseq)
 {
 	rng->state = 0U;
@@ -53,36 +50,36 @@ static void pcg_setseq_64_srandom_r(struct pcg_state_setseq_64* rng,
 	pcg_setseq_64_step_r(rng);
 }
 
-static const uint64_t MULTIPLIER = 6364136223846793005ULL;
-static const unsigned int FIRST_XOR_SHIFT = 18U;
-static const unsigned int SECOND_XOR_SHIFT = 27U;
-static const unsigned int ROT_SHIFT = 59U;
-static const unsigned int RETURN_SHIFT = 31U;
-
-static pcg32_random_t global_rng;
-
-static uint32_t pcg32_random_r(pcg32_random_t* rng)
+static uint32_t pcg_rotr_32(uint32_t value, unsigned int rot)
 {
-	uint64_t oldstate = rng->state;
-	rng->state = oldstate * MULTIPLIER + rng->inc;
-	uint32_t xorshifted = (uint32_t)((oldstate >> FIRST_XOR_SHIFT) ^ oldstate) >> SECOND_XOR_SHIFT;
-	uint32_t rot = (uint32_t)(oldstate >> ROT_SHIFT);
-	return (xorshifted >> rot) | (xorshifted << ((~rot + 1) & RETURN_SHIFT));
+	return (value >> rot) | (value << ((- rot) & RETURN_SHIFT));
 }
 
-void cio_random_get_bytes(void *bytes, size_t num_bytes)
+static uint32_t pcg_output_xsh_rr_64_32(uint64_t state)
 {
-	static int initialized = 0;
-	if (cio_unlikely(!initialized)) {
-		uint64_t seeds[2];
-		cio_entropy_get_bytes(&seeds, sizeof(seeds));
-		pcg32_srandom_r(&global_rng, seeds[0], seeds[1]);
-		initialized = 1;
-	}
+	return pcg_rotr_32((uint32_t)(((state >> FIRST_XOR_SHIFT) ^ state) >> SECOND_XOR_SHIFT), (unsigned int)(state >> ROT_SHIFT));
+}
 
+static uint32_t pcg32_random_r(cio_rng *rng)
+{
+	uint64_t oldstate = rng->state;
+	pcg_setseq_64_step_r(rng);
+	return pcg_output_xsh_rr_64_32(oldstate);
+
+}
+
+void cio_random_seed_rng(cio_rng *rng)
+{
+	uint64_t seeds[2];
+	cio_entropy_get_bytes(&seeds, sizeof(seeds));
+	pcg32_srandom_r(rng, seeds[0], seeds[1]);
+}
+
+void cio_random_get_bytes(cio_rng *rng, void *bytes, size_t num_bytes)
+{
 	uint8_t *dest = bytes;
 	for (size_t i = 0; i < num_bytes; i++) {
-		*dest = (uint8_t) pcg32_random_r(&global_rng);
+		*dest = (uint8_t) pcg32_random_r(rng);
 		dest++;
 	}
 }
