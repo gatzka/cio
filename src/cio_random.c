@@ -35,13 +35,6 @@ static const unsigned int SECOND_XOR_SHIFT = 27U;
 static const unsigned int ROT_SHIFT = 59U;
 static const unsigned int RETURN_SHIFT = 31U;
 
-struct pcg_state_setseq_64 {
-	uint64_t state; // RNG state. All values are possible.
-	uint64_t inc; // Controls which RNG sequence (stream) is selected. Must *always* be odd.
-};
-
-typedef struct pcg_state_setseq_64 cio_rng;
-
 static void pcg_setseq_64_step_r(struct pcg_state_setseq_64 *rng)
 {
 	rng->state = rng->state * MULTIPLIER + rng->inc;
@@ -56,8 +49,6 @@ static void pcg_setseq_64_srandom_r(struct pcg_state_setseq_64 *rng,
 	rng->state += initstate;
 	pcg_setseq_64_step_r(rng);
 }
-
-static cio_rng global_rng;
 
 static uint32_t pcg_rotr_32(uint32_t value, unsigned int rot)
 {
@@ -77,19 +68,18 @@ static uint32_t pcg32_random_r(cio_rng *rng)
 
 }
 
-void cio_random_get_bytes(void *bytes, size_t num_bytes)
+void cio_random_seed_rng(cio_rng *rng)
 {
-	static int initialized = 0;
-	if (cio_unlikely(!initialized)) {
-		uint64_t seeds[2];
-		cio_entropy_get_bytes(&seeds, sizeof(seeds));
-		pcg32_srandom_r(&global_rng, seeds[0], seeds[1]);
-		initialized = 1;
-	}
+	uint64_t seeds[2];
+	cio_entropy_get_bytes(&seeds, sizeof(seeds));
+	pcg32_srandom_r(rng, seeds[0], seeds[1]);
+}
 
+void cio_random_get_bytes(cio_rng *rng, void *bytes, size_t num_bytes)
+{
 	uint8_t *dest = bytes;
 	for (size_t i = 0; i < num_bytes; i++) {
-		*dest = (uint8_t) pcg32_random_r(&global_rng);
+		*dest = (uint8_t) pcg32_random_r(rng);
 		dest++;
 	}
 }

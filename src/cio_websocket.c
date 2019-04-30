@@ -142,7 +142,7 @@ static enum cio_error send_frame(struct cio_websocket *ws, struct cio_websocket_
 		if (ws->ws_private.ws_flags.is_server == 0U) {
 			first_len |= WS_MASK_SET;
 			uint8_t mask[4];
-			cio_random_get_bytes(mask, sizeof(mask));
+			cio_random_get_bytes(&ws->ws_private.rng, mask, sizeof(mask));
 			memcpy(&job->send_header[header_index], &mask, sizeof(mask));
 
 			header_index += sizeof(mask);
@@ -850,6 +850,8 @@ enum cio_error cio_websocket_init(struct cio_websocket *ws, bool is_server, cio_
 	ws->ws_private.first_write_job = NULL;
 
 	cio_utf8_init(&ws->ws_private.utf8_state);
+
+	cio_random_seed_rng(&ws->ws_private.rng);
 
 	return CIO_SUCCESS;
 }

@@ -35,10 +35,19 @@ extern "C" {
 
 #include <stdbool.h>
 #include <stddef.h>
+#include <stdint.h>
 
 #include "cio_export.h"
 
-CIO_EXPORT void cio_random_get_bytes(void *bytes, size_t num_bytes);
+struct pcg_state_setseq_64 {
+	uint64_t state; // RNG state. All values are possible.
+	uint64_t inc; // Controls which RNG sequence (stream) is selected. Must *always* be odd.
+};
+
+typedef struct pcg_state_setseq_64 cio_rng;
+
+CIO_EXPORT void cio_random_seed_rng(cio_rng *rng);
+CIO_EXPORT void cio_random_get_bytes(cio_rng *rng, void *bytes, size_t num_bytes);
 
 void cio_entropy_get_bytes(void *bytes, size_t num_bytes);
 
