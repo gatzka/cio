@@ -36,7 +36,7 @@ struct pcg_state_setseq_64 {
 	uint64_t inc; // Controls which RNG sequence (stream) is selected. Must *always* be odd.
 };
 
-typedef struct pcg_state_setseq_64 pcg32_random_t;
+typedef struct pcg_state_setseq_64 cio_rng;
 
 static void pcg_setseq_64_step_r(struct pcg_state_setseq_64* rng)
 {
@@ -59,9 +59,9 @@ static const unsigned int SECOND_XOR_SHIFT = 27U;
 static const unsigned int ROT_SHIFT = 59U;
 static const unsigned int RETURN_SHIFT = 31U;
 
-static pcg32_random_t global_rng;
+static cio_rng global_rng;
 
-static uint32_t pcg32_random_r(pcg32_random_t* rng)
+static uint32_t pcg32_random_r(cio_rng* rng)
 {
 	uint64_t oldstate = rng->state;
 	rng->state = oldstate * MULTIPLIER + rng->inc;
