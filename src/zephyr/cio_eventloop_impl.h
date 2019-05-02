@@ -26,12 +26,11 @@
  * SOFTWARE.
  */
 
-#ifndef CIO_LINUX_EVENTLOOP_IMPL_H
-#define CIO_LINUX_EVENTLOOP_IMPL_H
+#ifndef CIO_ZEPHYR_EVENTLOOP_IMPL_H
+#define CIO_ZEPHYR_EVENTLOOP_IMPL_H
 
 #include <stdbool.h>
 #include <stdint.h>
-#include <sys/epoll.h>
 
 #include "cio_error_code.h"
 
@@ -41,16 +40,12 @@ extern "C" {
 
 /**
  * @file
- * @brief Implementation of an event loop running on Linux using epoll.
+ * @brief Implementation of an event loop running on Zephyr
  */
 
-/**
- * @private
- */
-#define CONFIG_MAX_EPOLL_EVENTS 100
 
 /**
- * @brief The cio_linux_event_notifier struct bundles the information
+ * @brief The cio_event_notifier struct bundles the information
  * necessary to register I/O events.
  */
 struct cio_event_notifier {
@@ -94,15 +89,15 @@ struct cio_eventloop {
 	unsigned int event_counter;
 	unsigned int num_events;
 	struct cio_event_notifier *current_ev;
-	struct epoll_event epoll_events[CONFIG_MAX_EPOLL_EVENTS];
+	//struct epoll_event epoll_events[CONFIG_MAX_EPOLL_EVENTS];
 };
 
-enum cio_error cio_linux_eventloop_add(const struct cio_eventloop *loop, struct cio_event_notifier *ev);
-void cio_linux_eventloop_remove(struct cio_eventloop *loop, const struct cio_event_notifier *ev);
-enum cio_error cio_linux_eventloop_register_read(const struct cio_eventloop *loop, struct cio_event_notifier *ev);
-enum cio_error cio_linux_eventloop_unregister_read(const struct cio_eventloop *loop, struct cio_event_notifier *ev);
-enum cio_error cio_linux_eventloop_register_write(const struct cio_eventloop *loop, struct cio_event_notifier *ev);
-enum cio_error cio_linux_eventloop_unregister_write(const struct cio_eventloop *loop, struct cio_event_notifier *ev);
+enum cio_error cio_zephyr_eventloop_add(const struct cio_eventloop *loop, struct cio_event_notifier *ev);
+void cio_zephyr_eventloop_remove(struct cio_eventloop *loop, const struct cio_event_notifier *ev);
+enum cio_error cio_zephyr_eventloop_register_read(const struct cio_eventloop *loop, struct cio_event_notifier *ev);
+enum cio_error cio_zephyr_eventloop_unregister_read(const struct cio_eventloop *loop, struct cio_event_notifier *ev);
+enum cio_error cio_zephyr_eventloop_register_write(const struct cio_eventloop *loop, struct cio_event_notifier *ev);
+enum cio_error cio_zephyr_eventloop_unregister_write(const struct cio_eventloop *loop, struct cio_event_notifier *ev);
 
 #ifdef __cplusplus
 }

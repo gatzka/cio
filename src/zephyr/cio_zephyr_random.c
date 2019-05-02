@@ -3,7 +3,7 @@
  *
  * The MIT License (MIT)
  *
- * Copyright (c) <2017> <Stephan Gatzka>
+ * Copyright (c) <2019> <Stephan Gatzka>
  *
  * Permission is hereby granted, free of charge, to any person obtaining
  * a copy of this software and associated documentation files (the
@@ -26,27 +26,17 @@
  * SOFTWARE.
  */
 
-#define _DEFAULT_SOURCE
 
 #include <stddef.h>
-#include <stdio.h>
-#include <stdlib.h>
+#include <stdint.h>
+
+#include <entropy.h>
 
 #include "cio_random.h"
 
-static FILE *dev_urandom = NULL;
-
 void cio_entropy_get_bytes(void *bytes, size_t num_bytes)
 {
-
-	if (dev_urandom == NULL) {
-		dev_urandom = fopen("/dev/urandom", "re");
-	}
-
-	size_t ret = fread(bytes, 1, num_bytes, dev_urandom);
-	/* Ignore return value deliberately.
-	 * There is no good error handling when this call fails
-	 * besides shutting down cjet completely.
-	 */
-	(void)ret;
+	struct device *dev;
+	dev = device_get_binding(CONFIG_ENTROPY_NAME);
+	entropy_get_entropy(dev, bytes, (uint16_t)num_bytes);
 }

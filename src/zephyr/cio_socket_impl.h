@@ -3,7 +3,7 @@
  *
  * The MIT License (MIT)
  *
- * Copyright (c) <2017> <Stephan Gatzka>
+ * Copyright (c) <2019> <Stephan Gatzka>
  *
  * Permission is hereby granted, free of charge, to any person obtaining
  * a copy of this software and associated documentation files (the
@@ -26,27 +26,29 @@
  * SOFTWARE.
  */
 
-#define _DEFAULT_SOURCE
+#ifndef CIO_ZEPHYR_SOCKET_IMPL_H
+#define CIO_ZEPHYR_SOCKET_IMPL_H
 
-#include <stddef.h>
-#include <stdio.h>
-#include <stdlib.h>
+#ifdef __cplusplus
+extern "C" {
+#endif
 
-#include "cio_random.h"
+#include <stdbool.h>
+#include <stdint.h>
 
-static FILE *dev_urandom = NULL;
+#include "cio_eventloop.h"
+#include "cio_timer.h"
 
-void cio_entropy_get_bytes(void *bytes, size_t num_bytes)
-{
+struct cio_socket_impl {
+	uint64_t close_timeout_ns;
+	struct cio_event_notifier ev;
+	struct cio_timer close_timer;
+	struct cio_eventloop *loop;
+	bool peer_closed_connection;
+};
 
-	if (dev_urandom == NULL) {
-		dev_urandom = fopen("/dev/urandom", "re");
-	}
-
-	size_t ret = fread(bytes, 1, num_bytes, dev_urandom);
-	/* Ignore return value deliberately.
-	 * There is no good error handling when this call fails
-	 * besides shutting down cjet completely.
-	 */
-	(void)ret;
+#ifdef __cplusplus
 }
+#endif
+
+#endif // CIO_ZEPHYR_SOCKET_IMPL_H

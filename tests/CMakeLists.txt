@@ -30,6 +30,9 @@ add_test(NAME cio.common.test_http_server_iostream COMMAND test_cio_http_server_
 add_executable(test_cio_http_location test_cio_http_location.c)
 add_test(NAME cio.common.test_http_location COMMAND test_cio_http_location)
 
+add_executable(test_cio_random test_cio_random.c)
+add_test(NAME cio.common.test_random COMMAND test_cio_random)
+
 add_executable(test_cio_read_buffer test_cio_read_buffer.c)
 add_test(NAME cio.common.test_read_buffer COMMAND test_cio_read_buffer)
  

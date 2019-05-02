@@ -52,6 +52,7 @@ extern "C" {
 #include "cio_eventloop.h"
 #include "cio_export.h"
 #include "cio_http_client.h"
+#include "cio_random.h"
 #include "cio_timer.h"
 #include "cio_utf8_checker.h"
 #include "cio_write_buffer.h"
@@ -151,6 +152,8 @@ struct cio_websocket_private {
 	cio_websocket_close_hook close_hook;
 	uint8_t received_mask[4];
 	uint8_t chunk_send_mask[4];
+
+	cio_rng rng;
 
 	struct cio_websocket_write_job write_message_job;
 	struct cio_websocket_write_job write_ping_job;

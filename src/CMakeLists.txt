@@ -1,16 +1,33 @@
 cmake_minimum_required(VERSION 3.8)
 project(cio VERSION 0.0.1 LANGUAGES C)
 
+find_package(Git QUIET REQUIRED)
+if(GIT_FOUND AND EXISTS "${PROJECT_SOURCE_DIR}/../.git")
+# Update submodules as needed
+    option(GIT_SUBMODULE "Check submodules during build" ON)
+    if(GIT_SUBMODULE)
+        message(STATUS "Submodule update")
+        execute_process(COMMAND ${GIT_EXECUTABLE} submodule update --init --recursive
+                        WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+                        RESULT_VARIABLE GIT_SUBMOD_RESULT)
+        if(NOT GIT_SUBMOD_RESULT EQUAL "0")
+            message(FATAL_ERROR "git submodule update --init failed with ${GIT_SUBMOD_RESULT}, please checkout submodules")
+        endif()
+    endif()
+endif()
+
 include(CMakePackageConfigHelpers)
 
-include(CheckTypeSize)
-CHECK_TYPE_SIZE(uint_fast32_t fast32_t LANGUAGE C)
-if (NOT ${HAVE_fast32_t})
-    message(FATAL_ERROR "Type uint_fast32_t is not available!")
-endif()
-math(EXPR mod_uint_fast32_t "${fast32_t} % 4")
-if (NOT mod_uint_fast32_t EQUAL 0)
-    message(FATAL_ERROR "Size of type uint_fast32_t is not a multiple of 4!")
+if(NOT CIO_BUILD_FOR_ZEPHYR)
+    include(CheckTypeSize)
+    CHECK_TYPE_SIZE(uint_fast32_t fast32_t LANGUAGE C)
+    if (NOT ${HAVE_fast32_t})
+        message(FATAL_ERROR "Type uint_fast32_t is not available!")
+    endif()
+    math(EXPR mod_uint_fast32_t "${fast32_t} % 4")
+    if (NOT mod_uint_fast32_t EQUAL 0)
+        message(FATAL_ERROR "Size of type uint_fast32_t is not a multiple of 4!")
+    endif()
 endif()
 
 add_custom_target(generate_semver
@@ -27,6 +44,7 @@ add_custom_target(generate_semver
 
 add_library(${PROJECT_NAME}
     "cio_buffered_stream.c"
+    "cio_random.c"
     "cio_version.c"
 )
 
@@ -70,7 +88,9 @@ if(CIO_CONFIG_WEBSOCKETS)
     add_library(sha OBJECT
         sha1/sha1.c
     )
-    target_compile_features(sha PRIVATE $<$<NOT:$<C_COMPILER_ID:MSVC>>:c_std_99>)
+    if(NOT CIO_BUILD_FOR_ZEPHYR)
+        target_compile_features(sha PRIVATE $<$<NOT:$<C_COMPILER_ID:MSVC>>:c_std_99>)
+    endif()
 
     set_target_properties(sha PROPERTIES
         POSITION_INDEPENDENT_CODE ON
@@ -117,9 +137,13 @@ if(${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
     include(linux/CMakeLists.txt)
 elseif(${CMAKE_SYSTEM_NAME} STREQUAL "Windows")
     include(windows/CMakeLists.txt)
+elseif(${CIO_BUILD_FOR_ZEPHYR})
+    include(zephyr/CMakeLists.txt)
 endif()
 
-target_compile_features(${PROJECT_NAME} PUBLIC $<$<NOT:$<C_COMPILER_ID:MSVC>>:c_std_11>)
+if(NOT CIO_BUILD_FOR_ZEPHYR)
+    target_compile_features(${PROJECT_NAME} PUBLIC $<$<NOT:$<C_COMPILER_ID:MSVC>>:c_std_11>)
+endif()
 set_target_properties(${PROJECT_NAME} PROPERTIES
     VERSION "${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}.${PROJECT_VERSION_PATCH}"
     SOVERSION ${PROJECT_VERSION_MAJOR}
@@ -163,11 +187,13 @@ install(FILES "${CMAKE_CURRENT_BINARY_DIR}/generated/${PROJECT_NAME}_export.h"
     DESTINATION include/cio/
 )
 
-install(EXPORT ${PROJECT_NAME}
-    NAMESPACE ${PROJECT_NAME}::
-    DESTINATION lib/cmake/${PROJECT_NAME}
-    FILE ${PROJECT_NAME}Config.cmake
-)
+if(NOT CIO_BUILD_FOR_ZEPHYR)
+    install(EXPORT ${PROJECT_NAME}
+        NAMESPACE ${PROJECT_NAME}::
+        DESTINATION lib/cmake/${PROJECT_NAME}
+        FILE ${PROJECT_NAME}Config.cmake
+    )
+endif()
 
 include(FindDoxygen)
 

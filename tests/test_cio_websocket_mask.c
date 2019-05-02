@@ -1,4 +1,6 @@
 /*
+ * SPDX-License-Identifier: MIT
+ *
  * The MIT License (MIT)
  *
  * Copyright (c) <2017> <Stephan Gatzka>
@@ -40,9 +42,12 @@
 
 DEFINE_FFF_GLOBALS
 
+static cio_rng global_rng;
+
 void setUp(void)
 {
 	FFF_RESET_HISTORY();
+	cio_random_seed_rng(&global_rng);
 }
 
 void tearDown(void)
@@ -51,7 +56,7 @@ void tearDown(void)
 
 static void fill_random(uint8_t *buffer, size_t length)
 {
-	cio_random_get_bytes(buffer, length);
+	cio_random_get_bytes(&global_rng, buffer, length);
 }
 
 static void check_masking(uint8_t *buffer, size_t length, const uint8_t mask[4])
