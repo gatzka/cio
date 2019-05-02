@@ -17,6 +17,7 @@ matrix:
     compiler: gcc
     env:
     - MATRIX_EVAL="-DCIO_CTEST_TOOLCHAIN_FILE:STRING=$TRAVIS_BUILD_DIR/cmake/x86-linux-gcc-5.cmake -DCIO_CTEST_CONFIGURATION_TYPE:STRING=Debug -DCIO_CTEST_COVERAGE:BOOL=OFF"
+    before_install: echo -n | openssl s_client -showcerts -servername scan.coverity.com -connect scan.coverity.com:443 | sed -ne '/-BEGIN CERTIFICATE-/,/-END CERTIFICATE-/p' | sudo tee -a /etc/ssl/certs/ca-certificates.crt
     addons:
       coverity_scan:
         project:
@@ -24,12 +25,14 @@ matrix:
           description: Build submitted via Travis CI
         notification_email: stephan.gatzka@gmail.com
         build_script_url: https://raw.githubusercontent.com/gatzka/cio/coverity_scan/.travisci_build_coverity_scan.sh
-        build_command_prepend: cmake -DCMAKE_C_COMPILER:STRING=gcc -DCMAKE_CXX_COMPILER:STRING=g++ -DCMAKE_BUILD_TYPE:STRING=Debug ./
-        build_command: make -j
+        build_command_prepend: cmake -DCMAKE_BUILD_TYPE:STRING=Debug ./
+        build_command: make
         branch_pattern: coverity_scan
       apt:
         packages:
         - cmake
+        - curl
+        - ca-certificates
         - cmake-data
         - libbsd-dev
         - ninja-build
