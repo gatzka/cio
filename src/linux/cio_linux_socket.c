@@ -90,7 +90,11 @@ static void close_socket(struct cio_socket *s)
 static void reset_connection(struct cio_socket *s)
 {
 	struct linger linger = {.l_onoff = 1, .l_linger = 0};
-	setsockopt(s->impl.ev.fd, SOL_SOCKET, SO_LINGER, &linger, sizeof(linger));
+	int ret = setsockopt(s->impl.ev.fd, SOL_SOCKET, SO_LINGER, &linger, sizeof(linger));
+
+	// Deliberately ignore the return value of setsockopt.
+	// If setsockopt fails, we close the socket anyhow.
+	(void)ret;
 	close_socket(s);
 }
 
