@@ -144,6 +144,12 @@ Data Fields</h2></td></tr>
 <tr class="separator:aa660674004a416a3ab5e61a375924557"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aa2111ca0e243decd95510d68495b099a"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structcio__http__client__private.html#aa2111ca0e243decd95510d68495b099a">response_fired</a></td></tr>
 <tr class="separator:aa2111ca0e243decd95510d68495b099a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad602f4fd02033a719e0a7761ae117f59"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structcio__http__client__private.html#ad602f4fd02033a719e0a7761ae117f59">request_complete</a></td></tr>
+<tr class="separator:ad602f4fd02033a719e0a7761ae117f59"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad259222086a6f83d7c83d4e97626bab9"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structcio__http__client__private.html#ad259222086a6f83d7c83d4e97626bab9">response_written</a></td></tr>
+<tr class="separator:ad259222086a6f83d7c83d4e97626bab9"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7c19872c2fa2273eef5b8ff6e208e227"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structcio__http__client__private.html#a7c19872c2fa2273eef5b8ff6e208e227">response_written_completed</a></td></tr>
+<tr class="separator:a7c19872c2fa2273eef5b8ff6e208e227"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a583c0f20c3f057abefa2a8d487d867e8"><td class="memItemLeft" align="right" valign="top">void(*&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structcio__http__client__private.html#a583c0f20c3f057abefa2a8d487d867e8">finish_func</a> )(struct <a class="el" href="structcio__http__client.html">cio_http_client</a> *client)</td></tr>
 <tr class="separator:a583c0f20c3f057abefa2a8d487d867e8"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a055a9f17d7b28643b5e5615e1ada3217"><td class="memItemLeft" align="right" valign="top">char&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structcio__http__client__private.html#a055a9f17d7b28643b5e5615e1ada3217">content_length_buffer</a> [<a class="el" href="cio__http__client_8h.html#aee27b80e6d5fa7092144d43a71989264">CIO_HTTP_CLIENT_CONTENT_LENGTH_BUFFER_LENGTH</a>]</td></tr>
@@ -222,6 +228,18 @@ Data Fields</h2></td></tr>
 
 </div>
 </div>
+<a class="anchor" id="ad602f4fd02033a719e0a7761ae117f59"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool cio_http_client_private::request_complete</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
 <a class="anchor" id="ac73f735d9cc40b0842529bc1e50a1ae2"></a>
 <div class="memitem">
 <div class="memproto">
@@ -252,6 +270,30 @@ Data Fields</h2></td></tr>
       <table class="memname">
         <tr>
           <td class="memname">struct <a class="el" href="structcio__timer.html">cio_timer</a> cio_http_client_private::response_timer</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="ad259222086a6f83d7c83d4e97626bab9"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool cio_http_client_private::response_written</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="a7c19872c2fa2273eef5b8ff6e208e227"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool cio_http_client_private::response_written_completed</td>
         </tr>
       </table>
 </div><div class="memdoc">

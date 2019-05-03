@@ -3,7 +3,7 @@ var cio__websocket_8h =
     [ "cio_websocket_write_job", "structcio__websocket__write__job.html", "structcio__websocket__write__job" ],
     [ "cio_response_buffer", "structcio__response__buffer.html", "structcio__response__buffer" ],
     [ "cio_websocket_private", "structcio__websocket__private.html", "structcio__websocket__private" ],
-    [ "cio_websocket", "structcio__websocket.html", null ],
+    [ "cio_websocket", "structcio__websocket.html", "structcio__websocket" ],
     [ "CIO_WEBSOCKET_MAX_HEADER_SIZE", "cio__websocket_8h.html#a458de5a4564b38244091fb62494c191b", null ],
     [ "CIO_WEBSOCKET_SMALL_FRAME_SIZE", "cio__websocket_8h.html#a6092b5c3a185ea1e9ca81b41026a2aea", null ],
     [ "cio_websocket_close_hook", "cio__websocket_8h.html#aca914fcd6af51949d43432f155c61e19", null ],

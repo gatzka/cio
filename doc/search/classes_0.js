@@ -6,6 +6,7 @@ var searchData=
   ['cio_5fhttp_5flocation',['cio_http_location',['../structcio__http__location.html',1,'']]],
   ['cio_5fhttp_5flocation_5fhandler',['cio_http_location_handler',['../structcio__http__location__handler.html',1,'']]],
   ['cio_5fhttp_5fserver',['cio_http_server',['../structcio__http__server.html',1,'']]],
+  ['cio_5fhttp_5fserver_5fconfiguration',['cio_http_server_configuration',['../structcio__http__server__configuration.html',1,'']]],
   ['cio_5fio_5fstream',['cio_io_stream',['../structcio__io__stream.html',1,'']]],
   ['cio_5fread_5fbuffer',['cio_read_buffer',['../structcio__read__buffer.html',1,'']]],
   ['cio_5fresponse_5fbuffer',['cio_response_buffer',['../structcio__response__buffer.html',1,'']]],

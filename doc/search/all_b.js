@@ -1,7 +1,9 @@
 var searchData=
 [
   ['on_5fbody',['on_body',['../structcio__http__location__handler.html#a32a7896a868d5778338e015f6610e504',1,'cio_http_location_handler']]],
-  ['on_5fconnect',['on_connect',['../structcio__websocket__location__config.html#a327e163cb520d626a66dbb263e638c49',1,'cio_websocket_location_config']]],
+  ['on_5fconnect',['on_connect',['../structcio__websocket.html#a788f6e8b0650d183e395369ff9662bc9',1,'cio_websocket::on_connect()'],['../structcio__websocket__location__config.html#a327e163cb520d626a66dbb263e638c49',1,'cio_websocket_location_config::on_connect()']]],
+  ['on_5fcontrol',['on_control',['../structcio__websocket.html#aa8ebb35a2710c7387c895a5b01ad26a0',1,'cio_websocket']]],
+  ['on_5ferror',['on_error',['../structcio__http__server__configuration.html#a1ee6a81d5ce2c810cf7cc55169c71b2e',1,'cio_http_server_configuration::on_error()'],['../structcio__websocket.html#a9912a53d3ccdb6ce85c2e61e0f002779',1,'cio_websocket::on_error()']]],
   ['on_5ffragment',['on_fragment',['../structcio__http__location__handler.html#a45d7a4048f22f2061f6497e78ac83fa2',1,'cio_http_location_handler']]],
   ['on_5fheader_5ffield',['on_header_field',['../structcio__http__location__handler.html#a4d075f82eb121f4cf2a79aac878bea37',1,'cio_http_location_handler']]],
   ['on_5fheader_5fvalue',['on_header_value',['../structcio__http__location__handler.html#ad8af3ab5b547e3462784e00a1e2e056c',1,'cio_http_location_handler']]],
