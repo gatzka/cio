@@ -97,38 +97,61 @@ struct cio_http_server {
 	char keepalive_header[KEEPALIVE_TIMEOUT_HEADER_MAX_LENGTH]; // "Keep-Alive: timeout= + uint32 as string + CR + LF + \0"
 };
 
+struct cio_http_server_configuration {
+	/** @brief The TCP port the HTTP server listens on. */
+	uint16_t port;
+
+	/** @brief This callback function will be called if something goes wrong while the HTTP client connection is established. */
+	cio_http_serve_on_error on_error;
+
+	/**
+	 * @brief The timeout in nanoseconds until the complete HTTP header must be received.
+	 * The timeout is started after the HTTP connection is established and canceled after the complete HTTP header was received.
+	 * In case of a timeout the client connection is closed automatically.
+	 */
+	uint64_t read_header_timeout_ns;
+
+	/**
+	 * @brief The timeout in nanoseconds until the complete HTTP body must be received.
+	 * The timeout is started after the HTTP header was received and will be canceled after the complete HTTP message was received.
+	* In case of a timeout the client connection is closed automatically.
+	*/
+	uint64_t read_body_timeout_ns;
+
+	/** @brief The timeout in nanoseconds until the complete HTTP response must be sent. */
+	uint64_t response_timeout_ns;
+
+	/**
+	 * The timeout in ns until a closed http connection waits for a TCP FIN packet before sending a TCP RST.
+	 * If you set this parameter to >0, you can effectivly control how long the TCP socket stays in the FIN_WAIT_2 state. Setting this
+	 * parameter to 0 leaves it up to the operating system to get the socket out of FIN_WAIT_2.
+	 */
+	uint64_t close_timeout_ns;
+
+	/**
+	 * @anchor cio_http_server_init_alloc_client
+	 * @brief alloc_client A user provided function responsible to allocate a cio_http_client structure.
+	 */
+	cio_alloc_client alloc_client;
+
+	/**
+	 * @anchor cio_http_server_init_free_client
+	 * @brief free_client A user provided function to free the client memory @ref cio_http_server_init_alloc_client "allocated".
+	 */
+	cio_free_client free_client;
+};
+
 /**
  * @brief Initializes an HTTP server.
  * @param server The cio_http_server that should be initialized.
- * @param port The TCP port the HTTP server listens on.
  * @param loop The eventloop the HTTP server uses.
- * @param on_error This callback function will be called if something goes wrong while the HTTP client connection is established.
- * @param read_header_timeout_ns The timeout in nanoseconds until the complete HTTP header must be received.
- * The timeout is started after the HTTP connection is established and canceled after the complete HTTP header was received.
- * In case of a timeout the client connection is closed automatically.
- * @param read_body_timeout_ns The timeout in nanoseconds until the complete HTTP body must be received.
- * The timeout is started after the HTTP header was received and will be canceled after the complete HTTP message was received.
- * In case of a timeout the client connection is closed automatically.
- * @param response_timeout_ns The timeout in nanoseconds until the complete HTTP response must be sent.
- * @param close_timeout_ns The timeout in ns until a closed http connection waits for a TCP FIN packet before sending a TCP RST.
- * If you set this parameter to >0, you can effectivly control how long the TCP socket stays in the FIN_WAIT_2 state. Setting this
- * parameter to 0 leaves it up to the operating system to get the socket out of FIN_WAIT_2.
- * @anchor cio_http_server_init_alloc_client
- * @param alloc_client A user provided function responsible to allocate a cio_http_client structure.
- * @anchor cio_http_server_init_free_client
- * @param free_client A user provided function to free the client memory @ref cio_http_server_init_alloc_client "allocated".
+ * @param config The configuration of the HTTP server.
  * @return ::CIO_SUCCESS for success.
  */
 CIO_EXPORT enum cio_error cio_http_server_init(struct cio_http_server *server,
-                                               uint16_t port,
-                                               struct cio_eventloop *loop,
-                                               cio_http_serve_on_error on_error,
-                                               uint64_t read_header_timeout_ns,
-                                               uint64_t read_body_timeout_ns,
-                                               uint64_t response_timeout_ns,
-                                               uint64_t close_timeout_ns,
-                                               cio_alloc_client alloc_client,
-                                               cio_free_client free_client);
+											   struct cio_eventloop *loop,
+											   struct cio_http_server_configuration *config
+											   );
 
 /**
  * @brief Start serving HTTP client requests.

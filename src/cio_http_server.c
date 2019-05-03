@@ -723,39 +723,33 @@ static void server_socket_closed(struct cio_server_socket *ss)
 
 static const unsigned int DEFAULT_BACKLOG = 5;
 
-enum cio_error cio_http_server_init(struct cio_http_server *server,
-                                    uint16_t port,
-                                    struct cio_eventloop *loop,
-                                    cio_http_serve_on_error on_error,
-                                    uint64_t read_header_timeout_ns,
-                                    uint64_t read_body_timeout_ns,
-                                    uint64_t response_timeout_ns,
-                                    uint64_t close_timeout_ns,
-                                    cio_alloc_client alloc_client,
-                                    cio_free_client free_client)
+CIO_EXPORT enum cio_error cio_http_server_init(struct cio_http_server *server,
+											   struct cio_eventloop *loop,
+											   struct cio_http_server_configuration *config
+											   )
 {
-	if (cio_unlikely((server == NULL) || (port == 0) ||
-	                 (loop == NULL) || (alloc_client == NULL) || (free_client == NULL) ||
-	                 (read_header_timeout_ns == 0) || (read_body_timeout_ns == 0) || (response_timeout_ns == 0))) {
+	if (cio_unlikely((server == NULL) || (config == NULL) || (config->port == 0) ||
+					 (loop == NULL) || (config->alloc_client == NULL) || (config->free_client == NULL) ||
+					 (config->read_header_timeout_ns == 0) || (config->read_body_timeout_ns == 0) || (config->response_timeout_ns == 0))) {
 		return CIO_INVALID_ARGUMENT;
 	}
 
 	server->loop = loop;
-	server->port = port;
-	server->alloc_client = alloc_client;
-	server->free_client = free_client;
+	server->port = config->port;
+	server->alloc_client = config->alloc_client;
+	server->free_client = config->free_client;
 	server->first_location = NULL;
 	server->num_handlers = 0;
-	server->on_error = on_error;
-	server->read_header_timeout_ns = read_header_timeout_ns;
-	server->read_body_timeout_ns = read_body_timeout_ns;
-	server->response_timeout_ns = response_timeout_ns;
+	server->on_error = config->on_error;
+	server->read_header_timeout_ns = config->read_header_timeout_ns;
+	server->read_body_timeout_ns = config->read_body_timeout_ns;
+	server->response_timeout_ns = config->response_timeout_ns;
 	server->close_hook = NULL;
 
-	uint32_t keep_alive = (uint32_t)(read_header_timeout_ns / NANO_SECONDS_IN_SECONDS);
+	uint32_t keep_alive = (uint32_t)(config->read_header_timeout_ns / NANO_SECONDS_IN_SECONDS);
 	snprintf(server->keepalive_header, sizeof(server->keepalive_header), "Keep-Alive: timeout=%" PRIu32 "\r\n", keep_alive);
 
-	return cio_server_socket_init(&server->server_socket, server->loop, DEFAULT_BACKLOG, server->alloc_client, server->free_client, close_timeout_ns, server_socket_closed);
+	return cio_server_socket_init(&server->server_socket, server->loop, DEFAULT_BACKLOG, server->alloc_client, server->free_client, config->close_timeout_ns, server_socket_closed);
 }
 
 enum cio_error cio_http_server_serve(struct cio_http_server *server)
