@@ -52,7 +52,7 @@ static void pcg_setseq_64_srandom_r(struct pcg_state_setseq_64 *rng,
 
 static uint32_t pcg_rotr_32(uint32_t value, unsigned int rot)
 {
-	return (value >> rot) | (value << ((- rot) & RETURN_SHIFT));
+	return (value >> rot) | (value << ((~rot + 1) & RETURN_SHIFT));
 }
 
 static uint32_t pcg_output_xsh_rr_64_32(uint64_t state)
