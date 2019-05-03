@@ -40,7 +40,7 @@ static void pcg_setseq_64_step_r(struct pcg_state_setseq_64 *rng)
 }
 
 static void pcg_setseq_64_srandom_r(struct pcg_state_setseq_64 *rng,
-									uint64_t initstate, uint64_t initseq)
+                                    uint64_t initstate, uint64_t initseq)
 {
 	rng->state = 0U;
 	rng->inc = (initseq << 1U) | 1U;
@@ -64,7 +64,6 @@ static uint32_t pcg32_random_r(cio_rng *rng)
 	uint64_t oldstate = rng->state;
 	pcg_setseq_64_step_r(rng);
 	return pcg_output_xsh_rr_64_32(oldstate);
-
 }
 
 void cio_random_seed_rng(cio_rng *rng)
@@ -78,7 +77,7 @@ void cio_random_get_bytes(cio_rng *rng, void *bytes, size_t num_bytes)
 {
 	uint8_t *dest = bytes;
 	for (size_t i = 0; i < num_bytes; i++) {
-		*dest = (uint8_t) pcg32_random_r(rng);
+		*dest = (uint8_t)pcg32_random_r(rng);
 		dest++;
 	}
 }
