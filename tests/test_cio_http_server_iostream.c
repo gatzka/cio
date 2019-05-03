@@ -703,6 +703,14 @@ static void test_server_init(void)
 	}
 }
 
+static void test_server_init_no_config(void)
+{
+	struct cio_http_server server;
+
+	enum cio_error err = cio_http_server_init(&server, &loop, NULL);
+	TEST_ASSERT_EQUAL_MESSAGE(CIO_INVALID_ARGUMENT, err, "Initialization failed!");
+}
+
 static void test_shutdown(void)
 {
 	struct shutdown_args {
@@ -1721,6 +1729,7 @@ int main(void)
 {
 	UNITY_BEGIN();
 	RUN_TEST(test_server_init);
+	RUN_TEST(test_server_init_no_config);
 	RUN_TEST(test_shutdown);
 	RUN_TEST(test_register_request_target);
 	RUN_TEST(test_serve_locations);
