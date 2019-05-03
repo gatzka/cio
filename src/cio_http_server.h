@@ -149,9 +149,8 @@ struct cio_http_server_configuration {
  * @return ::CIO_SUCCESS for success.
  */
 CIO_EXPORT enum cio_error cio_http_server_init(struct cio_http_server *server,
-											   struct cio_eventloop *loop,
-											   struct cio_http_server_configuration *config
-											   );
+                                               struct cio_eventloop *loop,
+                                               struct cio_http_server_configuration *config);
 
 /**
  * @brief Start serving HTTP client requests.

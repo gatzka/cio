@@ -724,13 +724,12 @@ static void server_socket_closed(struct cio_server_socket *ss)
 static const unsigned int DEFAULT_BACKLOG = 5;
 
 CIO_EXPORT enum cio_error cio_http_server_init(struct cio_http_server *server,
-											   struct cio_eventloop *loop,
-											   struct cio_http_server_configuration *config
-											   )
+                                               struct cio_eventloop *loop,
+                                               struct cio_http_server_configuration *config)
 {
 	if (cio_unlikely((server == NULL) || (config == NULL) || (config->port == 0) ||
-					 (loop == NULL) || (config->alloc_client == NULL) || (config->free_client == NULL) ||
-					 (config->read_header_timeout_ns == 0) || (config->read_body_timeout_ns == 0) || (config->response_timeout_ns == 0))) {
+	                 (loop == NULL) || (config->alloc_client == NULL) || (config->free_client == NULL) ||
+	                 (config->read_header_timeout_ns == 0) || (config->read_body_timeout_ns == 0) || (config->response_timeout_ns == 0))) {
 		return CIO_INVALID_ARGUMENT;
 	}
 

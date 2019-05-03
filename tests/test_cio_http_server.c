@@ -367,15 +367,14 @@ static void test_serve_correctly(void)
 	header_complete_fake.custom_fake = header_complete_write_response;
 
 	struct cio_http_server_configuration config = {
-		.port = 8080,
-		.on_error = serve_error,
-		.read_header_timeout_ns = header_read_timeout,
-		.read_body_timeout_ns = body_read_timeout,
-		.response_timeout_ns = response_timeout,
-		.close_timeout_ns = close_timeout_ns,
-		.alloc_client = alloc_dummy_client,
-		.free_client = free_dummy_client
-	};
+	    .port = 8080,
+	    .on_error = serve_error,
+	    .read_header_timeout_ns = header_read_timeout,
+	    .read_body_timeout_ns = body_read_timeout,
+	    .response_timeout_ns = response_timeout,
+	    .close_timeout_ns = close_timeout_ns,
+	    .alloc_client = alloc_dummy_client,
+	    .free_client = free_dummy_client};
 	struct cio_http_server server;
 	enum cio_error err = cio_http_server_init(&server, &loop, &config);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Server initialization failed!");
@@ -441,15 +440,14 @@ static void test_read_until_errors(void)
 		header_complete_fake.custom_fake = header_complete_write_response;
 
 		struct cio_http_server_configuration config = {
-			.port = 8080,
-			.on_error = serve_error,
-			.read_header_timeout_ns = header_read_timeout,
-			.read_body_timeout_ns = body_read_timeout,
-			.response_timeout_ns = response_timeout,
-			.close_timeout_ns = close_timeout_ns,
-			.alloc_client = alloc_dummy_client,
-			.free_client = free_dummy_client
-		};
+		    .port = 8080,
+		    .on_error = serve_error,
+		    .read_header_timeout_ns = header_read_timeout,
+		    .read_body_timeout_ns = body_read_timeout,
+		    .response_timeout_ns = response_timeout,
+		    .close_timeout_ns = close_timeout_ns,
+		    .alloc_client = alloc_dummy_client,
+		    .free_client = free_dummy_client};
 		struct cio_http_server server;
 		enum cio_error err = cio_http_server_init(&server, &loop, &config);
 		TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Server initialization failed!");
@@ -494,15 +492,14 @@ static void test_close_error(void)
 	header_complete_fake.custom_fake = header_complete_write_response;
 
 	struct cio_http_server_configuration config = {
-		.port = 8080,
-		.on_error = serve_error,
-		.read_header_timeout_ns = header_read_timeout,
-		.read_body_timeout_ns = body_read_timeout,
-		.response_timeout_ns = response_timeout,
-		.close_timeout_ns = close_timeout_ns,
-		.alloc_client = alloc_dummy_client,
-		.free_client = free_dummy_client
-	};
+	    .port = 8080,
+	    .on_error = serve_error,
+	    .read_header_timeout_ns = header_read_timeout,
+	    .read_body_timeout_ns = body_read_timeout,
+	    .response_timeout_ns = response_timeout,
+	    .close_timeout_ns = close_timeout_ns,
+	    .alloc_client = alloc_dummy_client,
+	    .free_client = free_dummy_client};
 	struct cio_http_server server;
 	enum cio_error err = cio_http_server_init(&server, &loop, &config);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Server initialization failed!");
@@ -541,15 +538,14 @@ static void test_read_at_least_error(void)
 	cio_server_socket_accept_fake.custom_fake = accept_save_handler;
 
 	struct cio_http_server_configuration config = {
-		.port = 8080,
-		.on_error = serve_error,
-		.read_header_timeout_ns = header_read_timeout,
-		.read_body_timeout_ns = body_read_timeout,
-		.response_timeout_ns = response_timeout,
-		.close_timeout_ns = close_timeout_ns,
-		.alloc_client = alloc_dummy_client,
-		.free_client = free_dummy_client
-	};
+	    .port = 8080,
+	    .on_error = serve_error,
+	    .read_header_timeout_ns = header_read_timeout,
+	    .read_body_timeout_ns = body_read_timeout,
+	    .response_timeout_ns = response_timeout,
+	    .close_timeout_ns = close_timeout_ns,
+	    .alloc_client = alloc_dummy_client,
+	    .free_client = free_dummy_client};
 	struct cio_http_server server;
 	enum cio_error err = cio_http_server_init(&server, &loop, &config);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Server initialization failed!");
@@ -592,15 +588,14 @@ static void test_write_error(void)
 	cio_buffered_stream_write_fake.custom_fake = bs_write_error;
 
 	struct cio_http_server_configuration config = {
-		.port = 8080,
-		.on_error = serve_error,
-		.read_header_timeout_ns = header_read_timeout,
-		.read_body_timeout_ns = body_read_timeout,
-		.response_timeout_ns = response_timeout,
-		.close_timeout_ns = close_timeout_ns,
-		.alloc_client = alloc_dummy_client,
-		.free_client = free_dummy_client
-	};
+	    .port = 8080,
+	    .on_error = serve_error,
+	    .read_header_timeout_ns = header_read_timeout,
+	    .read_body_timeout_ns = body_read_timeout,
+	    .response_timeout_ns = response_timeout,
+	    .close_timeout_ns = close_timeout_ns,
+	    .alloc_client = alloc_dummy_client,
+	    .free_client = free_dummy_client};
 	struct cio_http_server server;
 	enum cio_error err = cio_http_server_init(&server, &loop, &config);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Server initialization failed!");
