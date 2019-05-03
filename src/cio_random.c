@@ -28,12 +28,11 @@
 #include "cio_compiler.h"
 #include "cio_random.h"
 
-#define pcg32_srandom_r pcg_setseq_64_srandom_r
 static const uint64_t MULTIPLIER = 6364136223846793005ULL;
-static const unsigned int FIRST_XOR_SHIFT = 18U;
-static const unsigned int SECOND_XOR_SHIFT = 27U;
-static const unsigned int ROT_SHIFT = 59U;
-static const unsigned int RETURN_SHIFT = 31U;
+static const uint_fast8_t FIRST_XOR_SHIFT = 18U;
+static const uint_fast8_t SECOND_XOR_SHIFT = 27U;
+static const uint_fast8_t ROT_SHIFT = 59U;
+static const uint_fast8_t RETURN_SHIFT = 31U;
 
 static void pcg_setseq_64_step_r(struct pcg_state_setseq_64 *rng)
 {
@@ -72,7 +71,7 @@ void cio_random_seed_rng(cio_rng *rng)
 {
 	uint64_t seeds[2];
 	cio_entropy_get_bytes(&seeds, sizeof(seeds));
-	pcg32_srandom_r(rng, seeds[0], seeds[1]);
+	pcg_setseq_64_srandom_r(rng, seeds[0], seeds[1]);
 }
 
 void cio_random_get_bytes(cio_rng *rng, void *bytes, size_t num_bytes)
