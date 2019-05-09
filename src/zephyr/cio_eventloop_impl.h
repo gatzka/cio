@@ -3,7 +3,7 @@
  *
  * The MIT License (MIT)
  *
- * Copyright (c) <2017> <Stephan Gatzka>
+ * Copyright (c) <2019> <Stephan Gatzka>
  *
  * Permission is hereby granted, free of charge, to any person obtaining
  * a copy of this software and associated documentation files (the
@@ -49,35 +49,11 @@ extern "C" {
  * necessary to register I/O events.
  */
 struct cio_event_notifier {
-	/**
-	 * @anchor cio_linux_event_notifier_read_callback
-	 * @brief The function to be called when a file descriptor becomes readable.
-	 */
 	void (*read_callback)(void *context);
-
-	/**
-	 * @anchor cio_linux_event_notifier_write_callback
-	 * @brief The function to be called when a file descriptor becomes writeable.
-	 */
 	void (*write_callback)(void *context);
-
-	/**
-	 * @anchor cio_linux_event_notifier_error_callback
-	 * @brief The function to be called when a file descriptor got an error.
-	 */
 	void (*error_callback)(void *context);
 
-	/**
-	 * @brief The context that is given to the callback functions.
-	 */
 	void *context;
-
-	/**
-	 * @brief The file descriptor that shall be monitored.
-	 */
-	int fd;
-
-	uint32_t registered_events;
 };
 
 struct cio_eventloop {
