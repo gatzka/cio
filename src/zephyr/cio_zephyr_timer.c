@@ -26,6 +26,8 @@
  * SOFTWARE.
  */
 
+#include <stddef.h>
+
 #include "cio_compiler.h"
 #include "cio_error_code.h"
 #include "cio_eventloop_impl.h"
