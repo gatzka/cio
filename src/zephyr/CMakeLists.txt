@@ -14,5 +14,5 @@ target_include_directories(${PROJECT_NAME}
     PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/>
 )
 
-target_link_libraries (cio PRIVATE zephyr)
+target_link_libraries (cio PRIVATE zephyr kernel)
 
