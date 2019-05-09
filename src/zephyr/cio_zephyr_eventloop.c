@@ -26,6 +26,8 @@
  * SOFTWARE.
  */
 
+#include <kernel.h>
+
 #include "cio_compiler.h"
 #include "cio_error_code.h"
 #include "cio_eventloop.h"
@@ -33,6 +35,7 @@
 
 enum cio_error cio_eventloop_init(struct cio_eventloop *loop)
 {
+	k_msgq_init(&loop->msg_queue, loop->msg_buf, sizeof(struct cio_event_msg), CIO_ZEPHYR_EVENTLOOP_MSG_QUEUE_SIZE);
 	return CIO_SUCCESS;
 }
 

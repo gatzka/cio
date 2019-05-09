@@ -32,6 +32,8 @@
 #include <stdbool.h>
 #include <stdint.h>
 
+#include <kernel.h>
+
 #include "cio_error_code.h"
 
 #ifdef __cplusplus
@@ -43,6 +45,11 @@ extern "C" {
  * @brief Implementation of an event loop running on Zephyr
  */
 
+struct cio_event_msg {
+	u32_t field1;
+	u32_t field2;
+	u32_t field3;
+};
 
 /**
  * @brief The cio_event_notifier struct bundles the information
@@ -56,16 +63,14 @@ struct cio_event_notifier {
 	void *context;
 };
 
+#define CIO_ZEPHYR_EVENTLOOP_MSG_QUEUE_SIZE 10
+
 struct cio_eventloop {
 	/**
 	 * @privatesection
 	 */
-	int epoll_fd;
-	struct cio_event_notifier stop_ev;
-	unsigned int event_counter;
-	unsigned int num_events;
-	struct cio_event_notifier *current_ev;
-	//struct epoll_event epoll_events[CONFIG_MAX_EPOLL_EVENTS];
+	struct k_msgq msg_queue;
+	char __aligned(4) msg_buf[CIO_ZEPHYR_EVENTLOOP_MSG_QUEUE_SIZE * sizeof(struct cio_event_msg)];
 };
 
 enum cio_error cio_zephyr_eventloop_add(const struct cio_eventloop *loop, struct cio_event_notifier *ev);
