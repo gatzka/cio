@@ -3,6 +3,7 @@ cmake_minimum_required(VERSION 3.8)
 set(CIO_PLATFORM_SOURCES
     zephyr/cio_zephyr_eventloop.c
     zephyr/cio_zephyr_random.c
+    zephyr/cio_zephyr_timer.c
 )
 
 target_sources(${PROJECT_NAME}
