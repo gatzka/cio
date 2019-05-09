@@ -31,6 +31,20 @@
 #include "cio_eventloop.h"
 #include "zephyr/cio_eventloop_impl.h"
 
+enum cio_error cio_eventloop_init(struct cio_eventloop *loop)
+{
+	return CIO_SUCCESS;
+}
+
+void cio_eventloop_destroy(struct cio_eventloop *loop)
+{
+}
+
+enum cio_error cio_eventloop_run(struct cio_eventloop *loop)
+{
+	return CIO_SUCCESS;
+}
+
 void cio_eventloop_cancel(struct cio_eventloop *loop)
 {
 }
