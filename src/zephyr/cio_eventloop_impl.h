@@ -46,9 +46,7 @@ extern "C" {
  */
 
 struct cio_event_msg {
-	u32_t field1;
-	u32_t field2;
-	u32_t field3;
+	void *work;
 };
 
 /**

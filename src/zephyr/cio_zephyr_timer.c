@@ -28,10 +28,30 @@
 
 #include <stddef.h>
 
+#include <kernel.h>
+#include <misc/printk.h>
+
 #include "cio_compiler.h"
 #include "cio_error_code.h"
 #include "cio_eventloop_impl.h"
 #include "cio_timer.h"
+#include "cio_util.h"
+
+static void expire(struct k_timer *work)
+{
+	printk("timer expiration!\n");
+	struct cio_timer_impl *impl = cio_container_of(work, struct cio_timer_impl, timer);
+	struct cio_timer *timer = cio_container_of(impl, struct cio_timer, impl);
+	struct cio_event_msg msg = {.work = timer};
+
+	k_msgq_put(&timer->loop->msg_queue, &msg, K_FOREVER);
+
+	// cio_timer_handler handler = timer->handler;
+	// timer->handler = NULL;
+	// handler(timer, timer->handler_context, CIO_SUCCESS);
+
+	// TODO: put a message into the queue
+}
 
 enum cio_error cio_timer_init(struct cio_timer *timer, struct cio_eventloop *loop,
                               cio_timer_close_hook close_hook)
@@ -43,6 +63,8 @@ enum cio_error cio_timer_init(struct cio_timer *timer, struct cio_eventloop *loo
 	timer->handler_context = NULL;
 	timer->loop = loop;
 
+	k_timer_init(&timer->impl.timer, expire, NULL);
+
 	return ret_val;
 }
 
@@ -51,6 +73,8 @@ enum cio_error cio_timer_expires_from_now(struct cio_timer *t, uint64_t timeout_
 	t->handler = handler;
 	t->handler_context = handler_context;
 	t->ev.context = t;
+
+	k_timer_start(&t->impl.timer, K_MSEC(timeout_ns / 1000000), 0);
 
 	return CIO_SUCCESS;
 }

@@ -26,35 +26,22 @@
  * SOFTWARE.
  */
 
+#ifndef CIO_ZEPHYR_TIMER_IMPL_H
+#define CIO_ZEPHYR_TIMER_IMPL_H
+
 #include <kernel.h>
-#include <misc/printk.h>
 
-#include "cio_compiler.h"
-#include "cio_error_code.h"
-#include "cio_eventloop.h"
-#include "zephyr/cio_eventloop_impl.h"
+#ifdef __cplusplus
+extern "C" {
+#endif
 
-enum cio_error cio_eventloop_init(struct cio_eventloop *loop)
-{
-	k_msgq_init(&loop->msg_queue, loop->msg_buf, sizeof(struct cio_event_msg), CIO_ZEPHYR_EVENTLOOP_MSG_QUEUE_SIZE);
-	return CIO_SUCCESS;
+struct cio_timer_impl {
+	struct k_timer timer;
+};
+
+#ifdef __cplusplus
 }
+#endif
 
-void cio_eventloop_destroy(struct cio_eventloop *loop)
-{
-}
+#endif
 
-enum cio_error cio_eventloop_run(struct cio_eventloop *loop)
-{
-	while (true) {
-		struct cio_event_msg ev;
-		k_msgq_get(&loop->msg_queue, &ev, K_FOREVER);
-		printk("got event message!\n");
-	}
-
-	return CIO_SUCCESS;
-}
-
-void cio_eventloop_cancel(struct cio_eventloop *loop)
-{
-}

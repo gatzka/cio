@@ -35,6 +35,7 @@
 #include "cio_error_code.h"
 #include "cio_eventloop.h"
 #include "cio_export.h"
+#include "cio_timer_impl.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -78,6 +79,7 @@ struct cio_timer {
 	cio_timer_handler handler;
 	void *handler_context;
 	struct cio_event_notifier ev;
+	struct cio_timer_impl impl;
 	struct cio_eventloop *loop;
 };
 
