@@ -53,6 +53,11 @@ struct cio_event_notifier {
 	void (*callback)(void *context);
 
 	void *context;
+	bool removed;
+};
+
+struct cio_ev_msg {
+	struct cio_event_notifier *ev;
 };
 
 #define CIO_ZEPHYR_EVENTLOOP_MSG_QUEUE_SIZE 10
@@ -62,11 +67,12 @@ struct cio_eventloop {
 	 * @privatesection
 	 */
 	struct k_msgq msg_queue;
-	char __aligned(4) msg_buf[CIO_ZEPHYR_EVENTLOOP_MSG_QUEUE_SIZE * sizeof(struct cio_event_notifier)];
+	char __aligned(4) msg_buf[CIO_ZEPHYR_EVENTLOOP_MSG_QUEUE_SIZE * sizeof(struct cio_ev_msg)];
 };
 
 void cio_zephyr_eventloop_add_event(struct cio_eventloop *loop, struct cio_event_notifier *ev);
-void cio_zephyr_eventloop_remove_event(struct cio_eventloop *loop, const struct cio_event_notifier *ev);
+void cio_zephyr_eventloop_remove_event(struct cio_event_notifier *ev);
+void cio_zephyr_ev_init(struct cio_event_notifier *ev);
 
 #ifdef __cplusplus
 }

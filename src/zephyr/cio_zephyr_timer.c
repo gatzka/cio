@@ -70,6 +70,7 @@ enum cio_error cio_timer_init(struct cio_timer *timer, struct cio_eventloop *loo
 	timer->handler = NULL;
 	timer->handler_context = NULL;
 	timer->loop = loop;
+	cio_zephyr_ev_init(&timer->ev);
 	timer->ev.callback = timer_callback;
 
 	timer->impl.cancelled = false;
@@ -103,7 +104,7 @@ enum cio_error cio_timer_cancel(struct cio_timer *t)
 
 void cio_timer_close(struct cio_timer *t)
 {
-	cio_zephyr_eventloop_remove_event(t->loop, &t->ev);
+	cio_zephyr_eventloop_remove_event(&t->ev);
 	if (t->handler != NULL) {
 		cio_timer_cancel(t);
 	}
