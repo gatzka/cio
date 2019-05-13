@@ -29,6 +29,8 @@
 #ifndef CIO_ZEPHYR_TIMER_IMPL_H
 #define CIO_ZEPHYR_TIMER_IMPL_H
 
+#include <stdbool.h>
+
 #include <kernel.h>
 
 #ifdef __cplusplus
@@ -37,6 +39,7 @@ extern "C" {
 
 struct cio_timer_impl {
 	struct k_timer timer;
+	bool cancelled;
 };
 
 #ifdef __cplusplus
