@@ -39,7 +39,11 @@
 
 static void timer_callback(void *context)
 {
+	struct cio_timer *t = context;
+	cio_timer_handler handler = t->handler;
+	t->handler = NULL;
 	printk("calling timer callback!\n");
+	handler(t, t->handler_context, CIO_SUCCESS);
 }
 
 static void expire(struct k_timer *work)
@@ -49,12 +53,6 @@ static void expire(struct k_timer *work)
 	struct cio_event_notifier ev = {.context = timer, .callback = timer_callback};
 
 	k_msgq_put(&timer->loop->msg_queue, &ev, K_FOREVER);
-
-	// cio_timer_handler handler = timer->handler;
-	// timer->handler = NULL;
-	// handler(timer, timer->handler_context, CIO_SUCCESS);
-
-	// TODO: put a message into the queue
 }
 
 enum cio_error cio_timer_init(struct cio_timer *timer, struct cio_eventloop *loop,
