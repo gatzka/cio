@@ -26,13 +26,6 @@
  * SOFTWARE.
  */
 
-/*
- * TODO: while running eventloop_run, callbacks of an event
- * might trigger the removal of that event. But this event might already 
- * been signaled. So care must be take that the removal of an event
- * is considered for events that are already in the message queue.
- */
-
 #include <kernel.h>
 
 #include "cio_compiler.h"
@@ -40,9 +33,12 @@
 #include "cio_eventloop.h"
 #include "zephyr/cio_eventloop_impl.h"
 
+static struct cio_event_notifier stop_ev;
+
 enum cio_error cio_eventloop_init(struct cio_eventloop *loop)
 {
 	k_msgq_init(&loop->msg_queue, loop->msg_buf, sizeof(struct cio_event_notifier), CIO_ZEPHYR_EVENTLOOP_MSG_QUEUE_SIZE);
+	stop_ev.context = &stop_ev;
 	return CIO_SUCCESS;
 }
 
@@ -55,7 +51,11 @@ enum cio_error cio_eventloop_run(struct cio_eventloop *loop)
 	while (true) {
 		struct cio_event_notifier ev;
 		k_msgq_get(&loop->msg_queue, &ev, K_FOREVER);
-		ev.callback(ev.context);
+		if (cio_likely(ev.context != &stop_ev)) {
+			ev.callback(ev.context);
+		} else {
+			break;
+		}
 	}
 
 	return CIO_SUCCESS;
@@ -63,9 +63,21 @@ enum cio_error cio_eventloop_run(struct cio_eventloop *loop)
 
 void cio_eventloop_cancel(struct cio_eventloop *loop)
 {
+	k_msgq_purge(&loop->msg_queue);
+	cio_zephyr_eventloop_add_event(loop, &stop_ev);
 }
 
-void cio_zephyr_eventloop_remove(struct cio_eventloop *loop, const struct cio_event_notifier *ev)
+void cio_zephyr_eventloop_add_event(struct cio_eventloop *loop, struct cio_event_notifier *ev)
 {
+	k_msgq_put(&loop->msg_queue, ev, K_FOREVER);
+}
 
+void cio_zephyr_eventloop_remove_event(struct cio_eventloop *loop, const struct cio_event_notifier *ev)
+{
+/*
+ * TODO: while running eventloop_run, callbacks of an event
+ * might trigger the removal of that event. But this event might already 
+ * been signaled. So care must be take that the removal of an event
+ * is considered for events that are already in the message queue.
+ */
 }

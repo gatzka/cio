@@ -58,7 +58,7 @@ static void expire_or_stop(struct k_timer *work)
 	struct cio_timer *timer = cio_container_of(impl, struct cio_timer, impl);
 
 	timer->ev.context = timer;
-	k_msgq_put(&timer->loop->msg_queue, &timer->ev, K_FOREVER);
+	cio_zephyr_eventloop_add_event(timer->loop, &timer->ev);
 }
 
 enum cio_error cio_timer_init(struct cio_timer *timer, struct cio_eventloop *loop,
@@ -103,7 +103,7 @@ enum cio_error cio_timer_cancel(struct cio_timer *t)
 
 void cio_timer_close(struct cio_timer *t)
 {
-	cio_zephyr_eventloop_remove(t->loop, &t->ev);
+	cio_zephyr_eventloop_remove_event(t->loop, &t->ev);
 	if (t->handler != NULL) {
 		cio_timer_cancel(t);
 	}

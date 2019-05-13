@@ -65,12 +65,8 @@ struct cio_eventloop {
 	char __aligned(4) msg_buf[CIO_ZEPHYR_EVENTLOOP_MSG_QUEUE_SIZE * sizeof(struct cio_event_notifier)];
 };
 
-enum cio_error cio_zephyr_eventloop_add(const struct cio_eventloop *loop, struct cio_event_notifier *ev);
-void cio_zephyr_eventloop_remove(struct cio_eventloop *loop, const struct cio_event_notifier *ev);
-enum cio_error cio_zephyr_eventloop_register_read(const struct cio_eventloop *loop, struct cio_event_notifier *ev);
-enum cio_error cio_zephyr_eventloop_unregister_read(const struct cio_eventloop *loop, struct cio_event_notifier *ev);
-enum cio_error cio_zephyr_eventloop_register_write(const struct cio_eventloop *loop, struct cio_event_notifier *ev);
-enum cio_error cio_zephyr_eventloop_unregister_write(const struct cio_eventloop *loop, struct cio_event_notifier *ev);
+void cio_zephyr_eventloop_add_event(struct cio_eventloop *loop, struct cio_event_notifier *ev);
+void cio_zephyr_eventloop_remove_event(struct cio_eventloop *loop, const struct cio_event_notifier *ev);
 
 #ifdef __cplusplus
 }
