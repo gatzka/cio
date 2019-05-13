@@ -27,7 +27,6 @@
  */
 
 #include <kernel.h>
-#include <misc/printk.h>
 
 #include "cio_compiler.h"
 #include "cio_error_code.h"
@@ -49,7 +48,6 @@ enum cio_error cio_eventloop_run(struct cio_eventloop *loop)
 	while (true) {
 		struct cio_event_notifier ev;
 		k_msgq_get(&loop->msg_queue, &ev, K_FOREVER);
-		printk("got event message!\n");
 		ev.callback(ev.context);
 	}
 
