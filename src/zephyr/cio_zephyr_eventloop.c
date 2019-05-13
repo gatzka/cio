@@ -64,3 +64,8 @@ enum cio_error cio_eventloop_run(struct cio_eventloop *loop)
 void cio_eventloop_cancel(struct cio_eventloop *loop)
 {
 }
+
+void cio_zephyr_eventloop_remove(struct cio_eventloop *loop, const struct cio_event_notifier *ev)
+{
+
+}
