@@ -26,6 +26,13 @@
  * SOFTWARE.
  */
 
+/*
+ * TODO: while running eventloop_run, callbacks of an event
+ * might trigger the removal of that event. But this event might already 
+ * been signaled. So care must be take that the removal of an event
+ * is considered for events that are already in the message queue.
+ */
+
 #include <kernel.h>
 
 #include "cio_compiler.h"
