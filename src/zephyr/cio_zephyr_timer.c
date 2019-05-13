@@ -37,14 +37,19 @@
 #include "cio_timer.h"
 #include "cio_util.h"
 
+static void timer_callback(void *context)
+{
+	printk("calling timer callback!\n");
+}
+
 static void expire(struct k_timer *work)
 {
 	printk("timer expiration!\n");
 	struct cio_timer_impl *impl = cio_container_of(work, struct cio_timer_impl, timer);
 	struct cio_timer *timer = cio_container_of(impl, struct cio_timer, impl);
-	struct cio_event_msg msg = {.work = timer};
+	struct cio_event_notifier ev = {.context = timer, .callback = timer_callback};
 
-	k_msgq_put(&timer->loop->msg_queue, &msg, K_FOREVER);
+	k_msgq_put(&timer->loop->msg_queue, &ev, K_FOREVER);
 
 	// cio_timer_handler handler = timer->handler;
 	// timer->handler = NULL;

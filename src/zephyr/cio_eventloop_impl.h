@@ -45,18 +45,12 @@ extern "C" {
  * @brief Implementation of an event loop running on Zephyr
  */
 
-struct cio_event_msg {
-	void *work;
-};
-
 /**
  * @brief The cio_event_notifier struct bundles the information
  * necessary to register I/O events.
  */
 struct cio_event_notifier {
-	void (*read_callback)(void *context);
-	void (*write_callback)(void *context);
-	void (*error_callback)(void *context);
+	void (*callback)(void *context);
 
 	void *context;
 };
@@ -68,7 +62,7 @@ struct cio_eventloop {
 	 * @privatesection
 	 */
 	struct k_msgq msg_queue;
-	char __aligned(4) msg_buf[CIO_ZEPHYR_EVENTLOOP_MSG_QUEUE_SIZE * sizeof(struct cio_event_msg)];
+	char __aligned(4) msg_buf[CIO_ZEPHYR_EVENTLOOP_MSG_QUEUE_SIZE * sizeof(struct cio_event_notifier)];
 };
 
 enum cio_error cio_zephyr_eventloop_add(const struct cio_eventloop *loop, struct cio_event_notifier *ev);

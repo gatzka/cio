@@ -36,7 +36,7 @@
 
 enum cio_error cio_eventloop_init(struct cio_eventloop *loop)
 {
-	k_msgq_init(&loop->msg_queue, loop->msg_buf, sizeof(struct cio_event_msg), CIO_ZEPHYR_EVENTLOOP_MSG_QUEUE_SIZE);
+	k_msgq_init(&loop->msg_queue, loop->msg_buf, sizeof(struct cio_event_notifier), CIO_ZEPHYR_EVENTLOOP_MSG_QUEUE_SIZE);
 	return CIO_SUCCESS;
 }
 
@@ -47,9 +47,10 @@ void cio_eventloop_destroy(struct cio_eventloop *loop)
 enum cio_error cio_eventloop_run(struct cio_eventloop *loop)
 {
 	while (true) {
-		struct cio_event_msg ev;
+		struct cio_event_notifier ev;
 		k_msgq_get(&loop->msg_queue, &ev, K_FOREVER);
 		printk("got event message!\n");
+		ev.callback(ev.context);
 	}
 
 	return CIO_SUCCESS;
