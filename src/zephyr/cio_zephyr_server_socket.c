@@ -26,6 +26,9 @@
  * SOFTWARE.
  */
 
+#include <net/socket.h>
+#include <kernel.h>
+
 #include "cio_compiler.h"
 #include "cio_error_code.h"
 #include "cio_eventloop_impl.h"
@@ -40,6 +43,7 @@ enum cio_error cio_server_socket_init(struct cio_server_socket *ss,
                                       uint64_t close_timeout_ns,
                                       cio_server_socket_close_hook close_hook)
 {
+	int ret = zsock_socket(AF_INET6, SOCK_STREAM, 0);
 	return CIO_SUCCESS;
 }
 
