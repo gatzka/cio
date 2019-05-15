@@ -26,8 +26,9 @@
  * SOFTWARE.
  */
 
-#include <net/socket.h>
+#include <errno.h>
 #include <kernel.h>
+#include <net/socket.h>
 
 #include "cio_compiler.h"
 #include "cio_error_code.h"
@@ -43,12 +44,31 @@ enum cio_error cio_server_socket_init(struct cio_server_socket *ss,
                                       uint64_t close_timeout_ns,
                                       cio_server_socket_close_hook close_hook)
 {
-	int ret = zsock_socket(AF_INET6, SOCK_STREAM, 0);
+	int listen_fd = zsock_socket(AF_INET6, SOCK_STREAM, IPPROTO_TCP);
+	if (cio_unlikely(listen_fd == -1)) {
+		return (enum cio_error)(-errno);
+	}
+
+	ss->impl.fd = listen_fd;
+	ss->impl.close_timeout_ns = close_timeout_ns;
+	ss->impl.loop = loop;
+
+	ss->alloc_client = alloc_client;
+	ss->free_client = free_client;
+	ss->close_hook = close_hook;
+	ss->backlog = (int)backlog;
+
 	return CIO_SUCCESS;
 }
 
 void cio_server_socket_close(struct cio_server_socket *ss)
 {
+	cio_zephyr_eventloop_remove_event(&ss->impl.ev);
+
+	zsock_close(ss->impl.fd);
+	if (ss->close_hook != NULL) {
+		ss->close_hook(ss);
+	}
 }
 
 

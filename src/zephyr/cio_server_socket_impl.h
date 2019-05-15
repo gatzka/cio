@@ -38,6 +38,7 @@ extern "C" {
 #include "cio_eventloop.h"
 
 struct cio_server_socket_impl {
+	int fd;
 	uint64_t close_timeout_ns;
 	struct cio_event_notifier ev;
 	struct cio_eventloop *loop;
