@@ -63,6 +63,18 @@ enum cio_error cio_server_socket_init(struct cio_server_socket *ss,
 
 enum cio_error cio_server_socket_set_reuse_address(struct cio_server_socket *ss, bool on)
 {
+	int reuse;
+	if (on) {
+		reuse = 1;
+	} else {
+		reuse = 0;
+	}
+
+	if (cio_unlikely(zsock_setsockopt(ss->impl.fd, SOL_SOCKET, SO_REUSEADDR, &reuse,
+					sizeof(reuse)) < 0)) {
+		return (enum cio_error)(-errno);
+	}
+
 	return CIO_SUCCESS;
 }
 
