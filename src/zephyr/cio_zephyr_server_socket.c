@@ -78,8 +78,41 @@ enum cio_error cio_server_socket_set_reuse_address(struct cio_server_socket *ss,
 	return CIO_SUCCESS;
 }
 
+
+
 enum cio_error cio_server_socket_bind(struct cio_server_socket *ss, const char *bind_address, uint16_t port)
 {
+	struct sockaddr addr;
+	size_t addr_size;
+
+	memset(&addr, 0, sizeof(addr));
+
+	if (bind_address == NULL) {
+		// bind to all interfaces
+		bind_address = "::";
+	}
+
+	if (!net_ipaddr_parse(bind_address, strlen(bind_address), &addr)) {
+		printk("parsing failed!\n");
+		return CIO_INVALID_ARGUMENT;
+	}
+
+	if (addr.sa_family == AF_INET) {
+		struct sockaddr_in *addr4 = (struct sockaddr_in *)&addr;
+		addr4->sin_port = htons(port);
+		addr_size = sizeof(*addr4);
+	} else {
+		struct sockaddr_in6 *addr6 = (struct sockaddr_in6 *)&addr;
+		addr6->sin6_port = htons(port);
+		addr_size = sizeof(*addr6);
+	}
+
+	int ret = zsock_bind(ss->impl.fd, &addr, addr_size);
+	if (cio_unlikely(ret < 0)) {
+		printk("bind failed!\n");
+		return (enum cio_error)(-errno);
+	}
+
 	return CIO_SUCCESS;
 }
 
