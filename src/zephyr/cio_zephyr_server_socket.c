@@ -78,6 +78,11 @@ enum cio_error cio_server_socket_set_reuse_address(struct cio_server_socket *ss,
 	return CIO_SUCCESS;
 }
 
+enum cio_error cio_server_socket_bind(struct cio_server_socket *ss, const char *bind_address, uint16_t port)
+{
+	return CIO_SUCCESS;
+}
+
 void cio_server_socket_close(struct cio_server_socket *ss)
 {
 	cio_zephyr_eventloop_remove_event(&ss->impl.ev);
