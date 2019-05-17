@@ -94,14 +94,12 @@ enum cio_error cio_server_socket_bind(struct cio_server_socket *ss, const char *
 	}
 
 	if (!net_ipaddr_parse(address, strlen(address), &addr)) {
-		printk("parsing failed!\n");
 		return CIO_INVALID_ARGUMENT;
 	}
 
 	if (addr.sa_family == AF_INET) {
 		struct sockaddr_in *addr4 = (struct sockaddr_in *)&addr;
 		if ((bind_address != NULL) && !net_ipv4_is_my_addr(&addr4->sin_addr)) {
-			printk("not my IPv4 address!\n");
 			return CIO_INVALID_ARGUMENT;
 		}
 
@@ -110,7 +108,6 @@ enum cio_error cio_server_socket_bind(struct cio_server_socket *ss, const char *
 	} else {
 		struct sockaddr_in6 *addr6 = (struct sockaddr_in6 *)&addr;
 		if ((bind_address != NULL) && !net_ipv6_is_my_addr(&addr6->sin6_addr)) {
-			printk("not my IPv6 address!\n");
 			return CIO_INVALID_ARGUMENT;
 		}
 		addr6->sin6_port = htons(port);
@@ -119,7 +116,6 @@ enum cio_error cio_server_socket_bind(struct cio_server_socket *ss, const char *
 
 	int ret = zsock_bind(ss->impl.fd, &addr, addr_size);
 	if (cio_unlikely(ret < 0)) {
-		printk("bind failed!\n");
 		return (enum cio_error)(-errno);
 	}
 
