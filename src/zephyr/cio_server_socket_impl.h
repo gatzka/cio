@@ -33,7 +33,9 @@
 extern "C" {
 #endif
 
+#include <kernel.h>
 #include <stdint.h>
+#include <zephyr.h>
 
 #include "cio_eventloop.h"
 
@@ -42,7 +44,12 @@ struct cio_server_socket_impl {
 	uint64_t close_timeout_ns;
 	struct cio_event_notifier ev;
 	struct cio_eventloop *loop;
+	k_tid_t ipv4_listen_thread_id;
+	struct k_thread ipv4_listen_thread;
+	k_tid_t ipv6_listen_thread_id;
+	struct k_thread ipv6_listen_thread;
 };
+
 
 #ifdef __cplusplus
 }
