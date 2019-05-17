@@ -85,24 +85,34 @@ enum cio_error cio_server_socket_bind(struct cio_server_socket *ss, const char *
 	struct sockaddr addr;
 	size_t addr_size;
 
+	const char *address = bind_address;
 	memset(&addr, 0, sizeof(addr));
 
-	if (bind_address == NULL) {
+	if (address == NULL) {
 		// bind to all interfaces
-		bind_address = "::";
+		address = "::";
 	}
 
-	if (!net_ipaddr_parse(bind_address, strlen(bind_address), &addr)) {
+	if (!net_ipaddr_parse(address, strlen(address), &addr)) {
 		printk("parsing failed!\n");
 		return CIO_INVALID_ARGUMENT;
 	}
 
 	if (addr.sa_family == AF_INET) {
 		struct sockaddr_in *addr4 = (struct sockaddr_in *)&addr;
+		if ((bind_address != NULL) && !net_ipv4_is_my_addr(&addr4->sin_addr)) {
+			printk("not my IPv4 address!\n");
+			return CIO_INVALID_ARGUMENT;
+		}
+
 		addr4->sin_port = htons(port);
 		addr_size = sizeof(*addr4);
 	} else {
 		struct sockaddr_in6 *addr6 = (struct sockaddr_in6 *)&addr;
+		if ((bind_address != NULL) && !net_ipv6_is_my_addr(&addr6->sin6_addr)) {
+			printk("not my IPv6 address!\n");
+			return CIO_INVALID_ARGUMENT;
+		}
 		addr6->sin6_port = htons(port);
 		addr_size = sizeof(*addr6);
 	}
