@@ -44,7 +44,7 @@ enum cio_error cio_server_socket_init(struct cio_server_socket *ss,
                                       uint64_t close_timeout_ns,
                                       cio_server_socket_close_hook close_hook)
 {
-	int listen_fd = zsock_socket(AF_INET6, SOCK_STREAM, IPPROTO_TCP);
+	int listen_fd = zsock_socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
 	if (cio_unlikely(listen_fd == -1)) {
 		return (enum cio_error)(-errno);
 	}
@@ -78,12 +78,9 @@ enum cio_error cio_server_socket_set_reuse_address(struct cio_server_socket *ss,
 	return CIO_SUCCESS;
 }
 
-
-
 enum cio_error cio_server_socket_bind(struct cio_server_socket *ss, const char *bind_address, uint16_t port)
 {
 	struct sockaddr addr;
-	size_t addr_size;
 
 	const char *address = bind_address;
 	memset(&addr, 0, sizeof(addr));
@@ -97,27 +94,70 @@ enum cio_error cio_server_socket_bind(struct cio_server_socket *ss, const char *
 		return CIO_INVALID_ARGUMENT;
 	}
 
-	if (addr.sa_family == AF_INET) {
-		struct sockaddr_in *addr4 = (struct sockaddr_in *)&addr;
-		if ((bind_address != NULL) && !net_ipv4_is_my_addr(&addr4->sin_addr)) {
-			return CIO_INVALID_ARGUMENT;
-		}
+	struct sockaddr *bind_addr;
+	size_t addr_size;
+	struct sockaddr_in addr4;
+	struct sockaddr_in6 addr6;
 
-		addr4->sin_port = htons(port);
-		addr_size = sizeof(*addr4);
+	if (addr.sa_family == AF_INET) {
+
+		(void)memset(&addr4, 0, sizeof(addr4));
+		addr4.sin_family = AF_INET;
+		addr4.sin_port = htons(port);
+		//if ((bind_address != NULL) && !net_ipv4_is_my_addr(&addr4->sin_addr)) {
+		//	return CIO_INVALID_ARGUMENT;
+		//}
+		printk("bind to ipv4 address: %s port: %u\n", bind_address, port);
+		bind_addr = (struct sockaddr *)&addr4;
+		addr_size = sizeof(addr4);
 	} else {
-		struct sockaddr_in6 *addr6 = (struct sockaddr_in6 *)&addr;
-		if ((bind_address != NULL) && !net_ipv6_is_my_addr(&addr6->sin6_addr)) {
-			return CIO_INVALID_ARGUMENT;
-		}
-		addr6->sin6_port = htons(port);
-		addr_size = sizeof(*addr6);
+		(void)memset(&addr6, 0, sizeof(addr6));
+		addr6.sin6_family = AF_INET6;
+		addr6.sin6_port = htons(port);
+		//if ((bind_address != NULL) && !net_ipv6_is_my_addr(&addr6->sin6_addr)) {
+		//	return CIO_INVALID_ARGUMENT;
+		//}
+		bind_addr = (struct sockaddr *)&addr6;
+		addr_size = sizeof(addr6);
 	}
 
-	int ret = zsock_bind(ss->impl.fd, &addr, addr_size);
+	int ret = zsock_bind(ss->impl.fd, bind_addr, addr_size);
 	if (cio_unlikely(ret < 0)) {
 		return (enum cio_error)(-errno);
 	}
+
+	return CIO_SUCCESS;
+}
+
+static void accept_callback(void *context)
+{
+	printk("In accept callback!\n");
+}
+
+enum cio_error cio_server_socket_accept(struct cio_server_socket *ss, cio_accept_handler handler, void *handler_context)
+{
+	if (cio_unlikely(handler == NULL)) {
+		return CIO_INVALID_ARGUMENT;
+	}
+
+	ss->handler = handler;
+	ss->handler_context = handler_context;
+	ss->impl.ev.callback = accept_callback;
+	ss->impl.ev.context = ss;
+
+	if (cio_unlikely(zsock_listen(ss->impl.fd, ss->backlog) < 0)) {
+		return (enum cio_error)(-errno);
+	}
+
+	struct sockaddr client_addr;
+	size_t client_addr_size = sizeof(client_addr);
+
+	printk("Before accept!\n");
+	if (cio_unlikely(zsock_accept(ss->impl.fd, &client_addr, &client_addr_size) < 0)) {
+		return (enum cio_error)(-errno);
+	}
+
+	printk("After accept!\n");
 
 	return CIO_SUCCESS;
 }
