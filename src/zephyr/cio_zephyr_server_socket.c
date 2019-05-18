@@ -36,6 +36,9 @@
 #include "cio_server_socket.h"
 #include "cio_socket.h"
 
+#define STACK_SIZE 512
+static K_THREAD_STACK_ARRAY_DEFINE(stacks, CONFIG_CIO_NUM_SERVER_SOCKETS, STACK_SIZE);
+
 enum cio_error cio_server_socket_init(struct cio_server_socket *ss,
                                       struct cio_eventloop *loop,
                                       unsigned int backlog,

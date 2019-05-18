@@ -24,7 +24,7 @@ menuconfig CIO
 
 if CIO 
 
-config NUM_SERVER_SOCKETS
+config CIO_NUM_SERVER_SOCKETS
 	int "Number of server sockets"
 	default 2
 	range 2 128
