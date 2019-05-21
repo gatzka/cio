@@ -137,6 +137,24 @@ static void accept_callback(void *context)
 	printk("In accept callback!\n");
 }
 
+static void accept_thread(void *arg1, void *arg2, void *arg3)
+{
+	struct cio_server_socket *ss = (struct cio_server_socket *)arg1;
+
+	while (true) {
+		printk("Before accept!\n");
+
+		struct sockaddr client_addr;
+		size_t client_addr_size = sizeof(client_addr);
+
+		if (cio_unlikely(zsock_accept(ss->impl.fd, &client_addr, &client_addr_size) < 0)) {
+			printk("Error in accept!\n");
+		}
+
+		printk("After accept!\n");
+	}
+}
+
 enum cio_error cio_server_socket_accept(struct cio_server_socket *ss, cio_accept_handler handler, void *handler_context)
 {
 	if (cio_unlikely(handler == NULL)) {
@@ -152,15 +170,9 @@ enum cio_error cio_server_socket_accept(struct cio_server_socket *ss, cio_accept
 		return (enum cio_error)(-errno);
 	}
 
-	struct sockaddr client_addr;
-	size_t client_addr_size = sizeof(client_addr);
+	k_thread_create(&ss->impl.ipv4_listen_thread, &stacks[0][0], STACK_SIZE,
+			accept_thread, ss, 0, 0, K_PRIO_PREEMPT(10), 0, K_NO_WAIT);
 
-	printk("Before accept!\n");
-	if (cio_unlikely(zsock_accept(ss->impl.fd, &client_addr, &client_addr_size) < 0)) {
-		return (enum cio_error)(-errno);
-	}
-
-	printk("After accept!\n");
 
 	return CIO_SUCCESS;
 }
