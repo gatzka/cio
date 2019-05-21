@@ -36,7 +36,7 @@
 #include "cio_server_socket.h"
 #include "cio_socket.h"
 
-#define STACK_SIZE 512
+#define STACK_SIZE 2048
 static K_THREAD_STACK_ARRAY_DEFINE(stacks, CONFIG_CIO_NUM_SERVER_SOCKETS, STACK_SIZE);
 
 enum cio_error cio_server_socket_init(struct cio_server_socket *ss,
@@ -179,12 +179,15 @@ enum cio_error cio_server_socket_accept(struct cio_server_socket *ss, cio_accept
 
 void cio_server_socket_close(struct cio_server_socket *ss)
 {
-	cio_zephyr_eventloop_remove_event(&ss->impl.ev);
+	//cio_zephyr_eventloop_remove_event(&ss->impl.ev);
 
+	printk("zsock_close!\n");
 	zsock_close(ss->impl.fd);
-	if (ss->close_hook != NULL) {
-		ss->close_hook(ss);
-	}
+	//if (ss->close_hook != NULL) {
+	//	ss->close_hook(ss);
+	//}
+
+	printk("end of cio_server_socket_close!\n");
 }
 
 
