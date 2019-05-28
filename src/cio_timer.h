@@ -78,9 +78,7 @@ struct cio_timer {
 	cio_timer_close_hook close_hook;
 	cio_timer_handler handler;
 	void *handler_context;
-	struct cio_event_notifier ev;
 	struct cio_timer_impl impl;
-	struct cio_eventloop *loop;
 };
 
 /**
