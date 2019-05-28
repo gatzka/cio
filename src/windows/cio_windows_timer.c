@@ -37,15 +37,16 @@ static void CALLBACK timer_callback(void *context, BOOLEAN fired)
 {
 	if (fired) {
 		struct cio_timer *t = (struct cio_timer *)context;
-		DeleteTimerQueueTimer(NULL, t->ev.overlapped.hEvent, NULL);
-		memset(&t->ev.overlapped, 0, sizeof(t->ev.overlapped));
-		PostQueuedCompletionStatus(t->loop->loop_completion_port, 0, (ULONG_PTR)t, &t->ev.overlapped);
+		DeleteTimerQueueTimer(NULL, t->impl.ev.overlapped.hEvent, NULL);
+		memset(&t->impl.ev.overlapped, 0, sizeof(t->impl.ev.overlapped));
+		PostQueuedCompletionStatus(t->impl.loop->loop_completion_port, 0, (ULONG_PTR)t, &t->impl.ev.overlapped);
 	}
 }
 
 static void timer_event_callback(struct cio_event_notifier *ev)
 {
-	struct cio_timer *t = cio_container_of(ev, struct cio_timer, ev);
+	struct cio_timer_impl *impl = cio_container_of(impl, struct cio_timer_impl, ev);
+	struct cio_timer *t = cio_container_of(ev, struct cio_timer, impl);
 	cio_timer_handler handler = t->handler;
 	t->handler = NULL;
 	handler(t, t->handler_context, CIO_SUCCESS);
@@ -55,9 +56,9 @@ enum cio_error cio_timer_init(struct cio_timer *timer, struct cio_eventloop *loo
                               cio_timer_close_hook close_hook)
 {
 	timer->close_hook = close_hook;
-	timer->loop = loop;
-	timer->ev.overlapped.hEvent = 0;
-	timer->ev.callback = timer_event_callback;
+	timer->impl.loop = loop;
+	timer->impl.ev.overlapped.hEvent = 0;
+	timer->impl.ev.callback = timer_event_callback;
 
 	return CIO_SUCCESS;
 }
@@ -68,9 +69,9 @@ enum cio_error cio_timer_cancel(struct cio_timer *t)
 		return CIO_OPERATION_NOT_PERMITTED;
 	}
 
-	BOOL ret = DeleteTimerQueueTimer(NULL, t->ev.overlapped.hEvent, NULL);
+	BOOL ret = DeleteTimerQueueTimer(NULL, t->impl.ev.overlapped.hEvent, NULL);
 	if (cio_likely(ret)) {
-		t->ev.overlapped.hEvent = 0;
+		t->impl.ev.overlapped.hEvent = 0;
 		t->handler(t, t->handler_context, CIO_OPERATION_ABORTED);
 		t->handler = NULL;
 		return CIO_SUCCESS;
@@ -95,11 +96,11 @@ enum cio_error cio_timer_expires_from_now(struct cio_timer *t, uint64_t timeout_
 	t->handler = handler;
 	t->handler_context = handler_context;
 
-	if (t->ev.overlapped.hEvent) {
-		DeleteTimerQueueTimer(NULL, t->ev.overlapped.hEvent, NULL);
+	if (t->impl.ev.overlapped.hEvent) {
+		DeleteTimerQueueTimer(NULL, t->impl.ev.overlapped.hEvent, NULL);
 	}
 
-	BOOL ret = CreateTimerQueueTimer(&t->ev.overlapped.hEvent, NULL, timer_callback, t, (DWORD)(timeout_ns / 1000000), 0, WT_EXECUTEDEFAULT);
+	BOOL ret = CreateTimerQueueTimer(&t->impl.ev.overlapped.hEvent, NULL, timer_callback, t, (DWORD)(timeout_ns / 1000000), 0, WT_EXECUTEDEFAULT);
 	if (!ret) {
 		return CIO_INVALID_ARGUMENT;
 	}
