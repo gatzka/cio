@@ -58,6 +58,7 @@
 #define CIO_HTTP_CONNECTION_UPGRADE "Connection: Upgrade" CIO_CRLF
 
 #define CIO_HTTP_VERSION "HTTP/1.1"
+#undef MIN
 #define MIN(x, y) (((x) < (y)) ? (x) : (y))
 
 static const uint32_t NANO_SECONDS_IN_SECONDS = 1000000000;
