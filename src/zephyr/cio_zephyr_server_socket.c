@@ -144,10 +144,7 @@ static void accept_thread(void *arg1, void *arg2, void *arg3)
 	while (true) {
 		printk("Before accept!\n");
 
-		struct sockaddr client_addr;
-		size_t client_addr_size = sizeof(client_addr);
-
-		if (cio_unlikely(zsock_accept(ss->impl.fd, &client_addr, &client_addr_size) < 0)) {
+		if (cio_unlikely(zsock_accept(ss->impl.fd, NULL, NULL) < 0)) {
 			printk("Error in accept!\n");
 		}
 

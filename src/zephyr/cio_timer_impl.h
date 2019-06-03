@@ -29,17 +29,20 @@
 #ifndef CIO_ZEPHYR_TIMER_IMPL_H
 #define CIO_ZEPHYR_TIMER_IMPL_H
 
-#include <stdbool.h>
-
-#include <kernel.h>
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
+#include <kernel.h>
+
+#include "cio_eventloop.h"
+
 struct cio_timer_impl {
 	struct k_timer timer;
 	bool cancelled;
+	struct cio_eventloop *loop;
+	struct cio_event_notifier ev;
 };
 
 #ifdef __cplusplus

@@ -57,8 +57,8 @@ static void expire_or_stop(struct k_timer *work)
 	struct cio_timer_impl *impl = cio_container_of(work, struct cio_timer_impl, timer);
 	struct cio_timer *timer = cio_container_of(impl, struct cio_timer, impl);
 
-	timer->ev.context = timer;
-	cio_zephyr_eventloop_add_event(timer->loop, &timer->ev);
+	timer->impl.ev.context = timer;
+	cio_zephyr_eventloop_add_event(timer->impl.loop, &timer->impl.ev);
 }
 
 enum cio_error cio_timer_init(struct cio_timer *timer, struct cio_eventloop *loop,
@@ -69,9 +69,9 @@ enum cio_error cio_timer_init(struct cio_timer *timer, struct cio_eventloop *loo
 	timer->close_hook = close_hook;
 	timer->handler = NULL;
 	timer->handler_context = NULL;
-	timer->loop = loop;
-	cio_zephyr_ev_init(&timer->ev);
-	timer->ev.callback = timer_callback;
+	timer->impl.loop = loop;
+	cio_zephyr_ev_init(&timer->impl.ev);
+	timer->impl.ev.callback = timer_callback;
 
 	timer->impl.cancelled = false;
 	k_timer_init(&timer->impl.timer, expire_or_stop, expire_or_stop);
@@ -83,7 +83,7 @@ enum cio_error cio_timer_expires_from_now(struct cio_timer *t, uint64_t timeout_
 {
 	t->handler = handler;
 	t->handler_context = handler_context;
-	t->ev.context = t;
+	t->impl.ev.context = t;
 
 	k_timer_start(&t->impl.timer, K_MSEC(timeout_ns / 1000000), 0);
 
@@ -104,7 +104,7 @@ enum cio_error cio_timer_cancel(struct cio_timer *t)
 
 void cio_timer_close(struct cio_timer *t)
 {
-	cio_zephyr_eventloop_remove_event(&t->ev);
+	cio_zephyr_eventloop_remove_event(&t->impl.ev);
 	if (t->handler != NULL) {
 		cio_timer_cancel(t);
 	}
