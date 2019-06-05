@@ -18,7 +18,7 @@ endif()
 
 include(CMakePackageConfigHelpers)
 
-if(NOT CIO_BUILD_FOR_ZEPHYR)
+if((NOT CIO_BUILD_FOR_ZEPHYR) AND (NOT CIO_BUILD_FOR_MBED))
     include(CheckTypeSize)
     CHECK_TYPE_SIZE(uint_fast32_t fast32_t LANGUAGE C)
     if (NOT ${HAVE_fast32_t})
@@ -63,7 +63,7 @@ if(CIO_CONFIG_HTTP)
         http-parser/http_parser.c
     )
     set_target_properties(http-parser PROPERTIES
-		COMPILE_OPTIONS "$<$<OR:$<C_COMPILER_ID:GNU>,$<C_COMPILER_ID:Clang>>:-Wno-shadow;-Wno-sign-conversion;-Wno-switch-default;-Wno-conversion;-Wno-strict-overflow>"
+        COMPILE_OPTIONS "$<$<OR:$<C_COMPILER_ID:GNU>,$<C_COMPILER_ID:Clang>>:-Wno-shadow;-Wno-sign-conversion;-Wno-switch-default;-Wno-conversion;-Wno-strict-overflow>"
         POSITION_INDEPENDENT_CODE ON
         C_VISIBILITY_PRESET hidden
 		C_CLANG_TIDY ""
@@ -88,7 +88,7 @@ if(CIO_CONFIG_WEBSOCKETS)
     add_library(sha OBJECT
         sha1/sha1.c
     )
-    if(NOT CIO_BUILD_FOR_ZEPHYR)
+    if((NOT CIO_BUILD_FOR_ZEPHYR) AND (NOT CIO_BUILD_FOR_MBED))
         target_compile_features(sha PRIVATE $<$<NOT:$<C_COMPILER_ID:MSVC>>:c_std_99>)
     endif()
 
@@ -139,9 +139,11 @@ elseif(${CMAKE_SYSTEM_NAME} STREQUAL "Windows")
     include(windows/CMakeLists.txt)
 elseif(${CIO_BUILD_FOR_ZEPHYR})
     include(zephyr/CMakeLists.txt)
+elseif(${CIO_BUILD_FOR_MBED})
+    include(mbed/CMakeLists.txt)
 endif()
 
-if(NOT CIO_BUILD_FOR_ZEPHYR)
+if((NOT CIO_BUILD_FOR_ZEPHYR) AND (NOT CIO_BUILD_FOR_MBED))
     target_compile_features(${PROJECT_NAME} PUBLIC $<$<NOT:$<C_COMPILER_ID:MSVC>>:c_std_11>)
 endif()
 set_target_properties(${PROJECT_NAME} PROPERTIES
