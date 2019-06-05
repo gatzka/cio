@@ -26,8 +26,8 @@
  * SOFTWARE.
  */
 
-#ifndef CIO_LINUX_SERVER_SOCKET_IMPL_H
-#define CIO_LINUX_SERVER_SOCKET_IMPL_H
+#ifndef CIO_ZEPHYR_SERVER_SOCKET_IMPL_H
+#define CIO_ZEPHYR_SERVER_SOCKET_IMPL_H
 
 #ifdef __cplusplus
 extern "C" {
