@@ -133,14 +133,14 @@ target_include_directories(${PROJECT_NAME} PUBLIC
     $<INSTALL_INTERFACE:include/cio/>
 )
 
-if(${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
-    include(linux/CMakeLists.txt)
-elseif(${CMAKE_SYSTEM_NAME} STREQUAL "Windows")
-    include(windows/CMakeLists.txt)
-elseif(${CIO_BUILD_FOR_ZEPHYR})
+if(${CIO_BUILD_FOR_ZEPHYR})
     include(zephyr/CMakeLists.txt)
 elseif(${CIO_BUILD_FOR_MBED})
     include(mbed/CMakeLists.txt)
+elseif(${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
+    include(linux/CMakeLists.txt)
+elseif(${CMAKE_SYSTEM_NAME} STREQUAL "Windows")
+    include(windows/CMakeLists.txt)
 endif()
 
 if((NOT CIO_BUILD_FOR_ZEPHYR) AND (NOT CIO_BUILD_FOR_MBED))
