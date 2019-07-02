@@ -86,7 +86,7 @@ endif()
 
 if(CIO_CONFIG_WEBSOCKETS)
     add_library(sha OBJECT
-        sha1/sha1.c
+        sha1/cio_sha1.c
     )
     if((NOT CIO_BUILD_FOR_ZEPHYR) AND (NOT CIO_BUILD_FOR_MBED))
         target_compile_features(sha PRIVATE $<$<NOT:$<C_COMPILER_ID:MSVC>>:c_std_99>)

@@ -45,7 +45,7 @@
 #include "cio_websocket.h"
 #include "cio_websocket_location_handler.h"
 #include "cio_write_buffer.h"
-#include "sha1/sha1.h"
+#include "sha1/cio_sha1.h"
 
 #define CIO_CRLF "\r\n"
 

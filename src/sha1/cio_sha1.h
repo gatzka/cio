@@ -1,5 +1,5 @@
 /*
- *  sha1.h
+ *  cio_sha1.h
  *
  *  Description:
  *      This is the header file for code which implements the Secure
@@ -10,7 +10,7 @@
  *      single character names, were used because those were the names
  *      used in the publication.
  *
- *      Please read the file sha1.c for more information.
+ *      Please read the file cio_sha1.c for more information.
  *
  */
 

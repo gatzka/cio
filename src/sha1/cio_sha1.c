@@ -1,5 +1,5 @@
 /*
- *  sha1.c
+ *  cio_sha1.c
  *
  *  Description:
  *      This file implements the Secure Hashing Algorithm 1 as
@@ -15,7 +15,7 @@
  *
  *  Portability Issues:
  *      SHA-1 is defined in terms of 32-bit "words".  This code
- *      uses <stdint.h> (included via "sha1.h" to define 32 and 8
+ *      uses <stdint.h> (included via "cio_sha1.h" to define 32 and 8
  *      bit unsigned integer types.  If your C compiler does not
  *      support 32 bit unsigned integers, this code is not
  *      appropriate.
@@ -29,7 +29,7 @@
  *
  */
 
-#include "sha1.h"
+#include "cio_sha1.h"
 
 /*
  *  Define the SHA1 circular left shift macro
