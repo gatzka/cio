@@ -16,7 +16,7 @@ add_custom_target(mbed
 	COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_BINARY_DIR}/generated/*.h ${CMAKE_BINARY_DIR}/mbed_package/
 
 	COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_BINARY_DIR}/mbed_package/${CIO_MBED_SOURCE_DIR}/
-	COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_SOURCE_DIR}/${CIO_MBED_SOURCE_DIR}/*.c ${CMAKE_BINARY_DIR}/mbed_package/${CIO_MBED_SOURCE_DIR}/
+	COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_SOURCE_DIR}/${CIO_MBED_SOURCE_DIR}/*.cpp ${CMAKE_BINARY_DIR}/mbed_package/${CIO_MBED_SOURCE_DIR}/
 	COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_SOURCE_DIR}/${CIO_MBED_SOURCE_DIR}/*.h ${CMAKE_BINARY_DIR}/mbed_package/${CIO_MBED_SOURCE_DIR}/
 )
 
@@ -24,7 +24,7 @@ add_dependencies(mbed generate_semver)
 
 set(CIO_PLATFORM_SOURCES
 	#    zephyr/cio_zephyr_eventloop.c
-    mbed/cio_mbed_random.c
+	#    mbed/cio_mbed_random.c
 	#    zephyr/cio_zephyr_server_socket.c
 	#    zephyr/cio_zephyr_timer.c
 )

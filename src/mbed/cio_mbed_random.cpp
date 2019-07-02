@@ -30,6 +30,8 @@
 #include <stddef.h>
 #include <stdint.h>
 
+#include <mbed.h>
+
 #include "cio_random.h"
 
 void cio_entropy_get_bytes(void *bytes, size_t num_bytes)
