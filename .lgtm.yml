@@ -1,0 +1,25 @@
+#
+# .lgtml.yml configuration file for C++ analysis of Krita on https://lgtm.com/projects/g/KDE/krita/
+#
+path_classifiers:
+  test:
+    - tests
+  src:
+      - src
+extraction:
+  cpp:
+    prepare:
+      packages:
+        - build-essential
+        - cmake
+        - extra-cmake-modules
+    configure:
+      command:
+        - mkdir build
+        - cd build
+        - cmake ..
+    index:
+      build_command:
+        - cd build
+        - make
+
