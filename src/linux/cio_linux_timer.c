@@ -57,7 +57,7 @@ static void timer_read(void *context)
 	struct cio_timer *t = context;
 	uint64_t number_of_expirations;
 
-	ssize_t ret = read(t->ev.fd, &number_of_expirations, sizeof(number_of_expirations));
+	ssize_t ret = read(t->impl.ev.fd, &number_of_expirations, sizeof(number_of_expirations));
 	if (cio_unlikely(ret == -1)) {
 		if (cio_unlikely(errno != EAGAIN)) {
 			t->handler(t, t->handler_context, (enum cio_error)(-errno));
@@ -81,19 +81,19 @@ enum cio_error cio_timer_init(struct cio_timer *timer, struct cio_eventloop *loo
 	timer->close_hook = close_hook;
 	timer->handler = NULL;
 	timer->handler_context = NULL;
-	timer->loop = loop;
+	timer->impl.loop = loop;
 
-	timer->ev.read_callback = timer_read;
-	timer->ev.error_callback = NULL;
-	timer->ev.write_callback = NULL;
-	timer->ev.fd = fd;
+	timer->impl.ev.read_callback = timer_read;
+	timer->impl.ev.error_callback = NULL;
+	timer->impl.ev.write_callback = NULL;
+	timer->impl.ev.fd = fd;
 
-	ret_val = cio_linux_eventloop_add(timer->loop, &timer->ev);
+	ret_val = cio_linux_eventloop_add(timer->impl.loop, &timer->impl.ev);
 	if (cio_unlikely(ret_val != CIO_SUCCESS)) {
 		goto eventloop_add_failed;
 	}
 
-	ret_val = cio_linux_eventloop_register_read(timer->loop, &timer->ev);
+	ret_val = cio_linux_eventloop_register_read(timer->impl.loop, &timer->impl.ev);
 	if (cio_unlikely(ret_val != CIO_SUCCESS)) {
 		goto register_read_failed;
 	}
@@ -101,7 +101,7 @@ enum cio_error cio_timer_init(struct cio_timer *timer, struct cio_eventloop *loo
 	return ret_val;
 
 register_read_failed:
-	cio_linux_eventloop_remove(timer->loop, &timer->ev);
+	cio_linux_eventloop_remove(timer->impl.loop, &timer->impl.ev);
 eventloop_add_failed:
 	close(fd);
 	return ret_val;
@@ -114,9 +114,9 @@ enum cio_error cio_timer_expires_from_now(struct cio_timer *t, uint64_t timeout_
 
 	t->handler = handler;
 	t->handler_context = handler_context;
-	t->ev.context = t;
+	t->impl.ev.context = t;
 
-	ret = timerfd_settime(t->ev.fd, 0, &timeout, NULL);
+	ret = timerfd_settime(t->impl.ev.fd, 0, &timeout, NULL);
 	if (cio_unlikely(ret != 0)) {
 		return (enum cio_error)(-errno);
 	}
@@ -135,7 +135,7 @@ enum cio_error cio_timer_cancel(struct cio_timer *t)
 	}
 
 	memset(&timeout, 0x0, sizeof(timeout));
-	ret = timerfd_settime(t->ev.fd, 0, &timeout, NULL);
+	ret = timerfd_settime(t->impl.ev.fd, 0, &timeout, NULL);
 	if (cio_likely(ret == 0)) {
 		t->handler(t, t->handler_context, CIO_OPERATION_ABORTED);
 		t->handler = NULL;
@@ -147,12 +147,12 @@ enum cio_error cio_timer_cancel(struct cio_timer *t)
 
 void cio_timer_close(struct cio_timer *t)
 {
-	cio_linux_eventloop_remove(t->loop, &t->ev);
+	cio_linux_eventloop_remove(t->impl.loop, &t->impl.ev);
 	if (t->handler != NULL) {
 		cio_timer_cancel(t);
 	}
 
-	close(t->ev.fd);
+	close(t->impl.ev.fd);
 	if (t->close_hook != NULL) {
 		t->close_hook(t);
 	}

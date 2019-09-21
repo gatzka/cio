@@ -145,7 +145,18 @@ int main(void)
 		return EXIT_FAILURE;
 	}
 
-	err = cio_http_server_init(&server, HTTPSERVER_LISTEN_PORT, &loop, serve_error, header_read_timeout, body_read_timeout, response_timeout, close_timeout_ns, alloc_http_client, free_http_client);
+	struct cio_http_server_configuration config = {
+		.port = HTTPSERVER_LISTEN_PORT,
+		.on_error = serve_error,
+		.read_header_timeout_ns = header_read_timeout,
+		.read_body_timeout_ns = body_read_timeout,
+		.response_timeout_ns = response_timeout,
+		.close_timeout_ns = close_timeout_ns,
+		.alloc_client = alloc_http_client,
+		.free_client = free_http_client
+	};
+
+	err = cio_http_server_init(&server, &loop, &config);
 	if (err != CIO_SUCCESS) {
 		ret = EXIT_FAILURE;
 		goto destroy_loop;
