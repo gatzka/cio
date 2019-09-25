@@ -17,7 +17,7 @@ matrix:
     compiler: gcc
     env:
     - MATRIX_EVAL="-DCIO_CTEST_TOOLCHAIN_FILE:STRING=$TRAVIS_BUILD_DIR/cmake/x86-linux-gcc-5.cmake -DCIO_CTEST_CONFIGURATION_TYPE:STRING=Debug -DCIO_CTEST_COVERAGE:BOOL=OFF"
-    before_install: echo -n | openssl s_client -showcerts -servername scan.coverity.com -connect scan.coverity.com:443 | sed -ne '/-BEGIN CERTIFICATE-/,/-END CERTIFICATE-/p' | sudo tee -a /etc/ssl/certs/ca-certificates.crt
+    #before_install: echo -n | openssl s_client -showcerts -servername scan.coverity.com -connect scan.coverity.com:443 | sed -ne '/-BEGIN CERTIFICATE-/,/-END CERTIFICATE-/p' | sudo tee -a /etc/ssl/certs/ca-certificates.crt
     addons:
       coverity_scan:
         project:
