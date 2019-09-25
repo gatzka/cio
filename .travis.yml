@@ -374,7 +374,7 @@ script:
 
 after_success:
 - if [ -n "${BUILD_WITH_COVERAGE_INFO}" ]; then
-    bash <(curl -s https://codecov.io/bash) -X gcov -s /tmp/cio/ || echo "Codecov did not collect coverage reports";
+    bash <(curl -s https://codecov.io/bash) -s /tmp/cio/ || echo "Codecov did not collect coverage reports";
   fi
 
 - if [ -n "${CREATE_DOXY}" ]; then
