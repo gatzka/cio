@@ -158,7 +158,7 @@ if(CIO_CTEST_DOCUMENTATION)
     message(" -- Open ${CTEST_BINARY_DIRECTORY}src/docs/html/index.html to see generated documentation")
 endif()
 
-ctest_test(RETURN_VALUE TEST_RETURN PARALLEL_LEVEL ${NUMBER_OF_CORES})
+ctest_test(RETURN_VALUE TEST_RETURN PARALLEL_LEVEL 1)
 if(TEST_RETURN)
     message(FATAL_ERROR " -- Error while running tests!")
     return()
