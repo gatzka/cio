@@ -58,6 +58,7 @@
 #define CIO_HTTP_CONNECTION_UPGRADE "Connection: Upgrade" CIO_CRLF
 
 #define CIO_HTTP_VERSION "HTTP/1.1"
+#undef MIN
 #define MIN(x, y) (((x) < (y)) ? (x) : (y))
 
 static const uint32_t NANO_SECONDS_IN_SECONDS = 1000000000;
@@ -130,7 +131,7 @@ static void client_timeout_handler(struct cio_timer *timer, void *handler_contex
 
 static void restart_read_request(struct cio_http_client *client)
 {
-	if ((client->request_complete) && (client->response_written_completed)) {
+	if ((client->http_private.request_complete) && (client->http_private.response_written_completed)) {
 		free_handler(client);
 		struct cio_http_server *server = (struct cio_http_server *)client->parser.data;
 		enum cio_error err = cio_timer_expires_from_now(&client->http_private.request_timer, server->read_header_timeout_ns, client_timeout_handler, client);
@@ -145,9 +146,9 @@ static void restart_read_request(struct cio_http_client *client)
 		http_parser_init(&client->parser, HTTP_REQUEST);
 
 		client->http_private.response_fired = false;
-		client->request_complete = false;
-		client->response_written = false;
-		client->response_written_completed = false;
+		client->http_private.request_complete = false;
+		client->http_private.response_written = false;
+		client->http_private.response_written_completed = false;
 
 		client->http_private.finish_func = finish_request_line;
 		err = cio_buffered_stream_read_until(&client->bs, &client->rb, CIO_CRLF, parse, client);
@@ -163,7 +164,7 @@ static void response_written(struct cio_buffered_stream *bs, void *handler_conte
 	struct cio_http_client *client = (struct cio_http_client *)handler_context;
 	enum cio_error cancel_err = cio_timer_cancel(&client->http_private.response_timer);
 
-	client->response_written_completed = true;
+	client->http_private.response_written_completed = true;
 
 	if (client->response_written_cb) {
 		client->response_written_cb(client, err);
@@ -245,7 +246,7 @@ static enum cio_error flush(struct cio_http_client *client, cio_buffered_stream_
 
 static enum cio_error write_response(struct cio_http_client *client, enum cio_http_status_code status_code, struct cio_write_buffer *wbh_body, cio_response_written_cb written_cb)
 {
-	if (cio_unlikely(client->response_written)) {
+	if (cio_unlikely(client->http_private.response_written)) {
 		return CIO_OPERATION_NOT_PERMITTED;
 	}
 
@@ -280,7 +281,7 @@ static enum cio_error write_response(struct cio_http_client *client, enum cio_ht
 		cio_write_buffer_splice(wbh_body, &client->response_wbh);
 	}
 
-	client->response_written = true;
+	client->http_private.response_written = true;
 	return flush(client, response_written);
 }
 
@@ -430,12 +431,12 @@ static int on_message_complete(http_parser *parser)
 		ret = CIO_HTTP_CB_SUCCESS;
 	}
 
-	if (cio_unlikely(!client->response_written)) {
+	if (cio_unlikely(!client->http_private.response_written)) {
 		handle_server_error(client, "After receiving the complete message, no response was written!");
 		return 0;
 	}
 
-	client->request_complete = true;
+	client->http_private.request_complete = true;
 	return ret;
 }
 
@@ -659,9 +660,9 @@ static void handle_accept(struct cio_server_socket *ss, void *handler_context, e
 	client->add_response_header = add_response_header;
 	client->write_response = write_response;
 	client->response_written_cb = NULL;
-	client->response_written = false;
-	client->response_written_completed = false;
-	client->request_complete = false;
+	client->http_private.response_written = false;
+	client->http_private.response_written_completed = false;
+	client->http_private.request_complete = false;
 
 	cio_write_buffer_head_init(&client->response_wbh);
 
@@ -723,39 +724,32 @@ static void server_socket_closed(struct cio_server_socket *ss)
 
 static const unsigned int DEFAULT_BACKLOG = 5;
 
-enum cio_error cio_http_server_init(struct cio_http_server *server,
-                                    uint16_t port,
-                                    struct cio_eventloop *loop,
-                                    cio_http_serve_on_error on_error,
-                                    uint64_t read_header_timeout_ns,
-                                    uint64_t read_body_timeout_ns,
-                                    uint64_t response_timeout_ns,
-                                    uint64_t close_timeout_ns,
-                                    cio_alloc_client alloc_client,
-                                    cio_free_client free_client)
+CIO_EXPORT enum cio_error cio_http_server_init(struct cio_http_server *server,
+                                               struct cio_eventloop *loop,
+                                               struct cio_http_server_configuration *config)
 {
-	if (cio_unlikely((server == NULL) || (port == 0) ||
-	                 (loop == NULL) || (alloc_client == NULL) || (free_client == NULL) ||
-	                 (read_header_timeout_ns == 0) || (read_body_timeout_ns == 0) || (response_timeout_ns == 0))) {
+	if (cio_unlikely((server == NULL) || (config == NULL) || (config->port == 0) ||
+	                 (loop == NULL) || (config->alloc_client == NULL) || (config->free_client == NULL) ||
+	                 (config->read_header_timeout_ns == 0) || (config->read_body_timeout_ns == 0) || (config->response_timeout_ns == 0))) {
 		return CIO_INVALID_ARGUMENT;
 	}
 
 	server->loop = loop;
-	server->port = port;
-	server->alloc_client = alloc_client;
-	server->free_client = free_client;
+	server->port = config->port;
+	server->alloc_client = config->alloc_client;
+	server->free_client = config->free_client;
 	server->first_location = NULL;
 	server->num_handlers = 0;
-	server->on_error = on_error;
-	server->read_header_timeout_ns = read_header_timeout_ns;
-	server->read_body_timeout_ns = read_body_timeout_ns;
-	server->response_timeout_ns = response_timeout_ns;
+	server->on_error = config->on_error;
+	server->read_header_timeout_ns = config->read_header_timeout_ns;
+	server->read_body_timeout_ns = config->read_body_timeout_ns;
+	server->response_timeout_ns = config->response_timeout_ns;
 	server->close_hook = NULL;
 
-	uint32_t keep_alive = (uint32_t)(read_header_timeout_ns / NANO_SECONDS_IN_SECONDS);
+	uint32_t keep_alive = (uint32_t)(config->read_header_timeout_ns / NANO_SECONDS_IN_SECONDS);
 	snprintf(server->keepalive_header, sizeof(server->keepalive_header), "Keep-Alive: timeout=%" PRIu32 "\r\n", keep_alive);
 
-	return cio_server_socket_init(&server->server_socket, server->loop, DEFAULT_BACKLOG, server->alloc_client, server->free_client, close_timeout_ns, server_socket_closed);
+	return cio_server_socket_init(&server->server_socket, server->loop, DEFAULT_BACKLOG, server->alloc_client, server->free_client, config->close_timeout_ns, server_socket_closed);
 }
 
 enum cio_error cio_http_server_serve(struct cio_http_server *server)

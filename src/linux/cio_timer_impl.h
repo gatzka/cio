@@ -26,33 +26,24 @@
  * SOFTWARE.
  */
 
-#ifndef CIO_LINUX_SERVER_SOCKET_IMPL_H
-#define CIO_LINUX_SERVER_SOCKET_IMPL_H
+#ifndef CIO_LINUX_TIMER_IMPL_H
+#define CIO_LINUX_TIMER_IMPL_H
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-#include <kernel.h>
-#include <stdint.h>
-#include <zephyr.h>
-
 #include "cio_eventloop.h"
+#include "linux/cio_eventloop_impl.h"
 
-struct cio_server_socket_impl {
-	int fd;
-	uint64_t close_timeout_ns;
+struct cio_timer_impl {
 	struct cio_event_notifier ev;
 	struct cio_eventloop *loop;
-	k_tid_t ipv4_listen_thread_id;
-	struct k_thread ipv4_listen_thread;
-	k_tid_t ipv6_listen_thread_id;
-	struct k_thread ipv6_listen_thread;
 };
-
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif // CIO_SERVER_SOCKET_IMPL_H
+#endif
+

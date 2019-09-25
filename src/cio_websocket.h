@@ -171,10 +171,10 @@ struct cio_websocket {
 
 	/*! @cond PRIVATE */
 	struct cio_websocket_private ws_private;
+	/*! @endcond */
 	void (*on_connect)(struct cio_websocket *ws);
 	void (*on_error)(const struct cio_websocket *ws, enum cio_error err, const char *reason);
 	void (*on_control)(const struct cio_websocket *ws, enum cio_websocket_frame_type kind, const uint8_t *data, uint_fast8_t length);
-	/*! @endcond */
 };
 
 CIO_EXPORT enum cio_error cio_websocket_init(struct cio_websocket *ws, bool is_server, cio_websocket_on_connect on_connect, cio_websocket_close_hook close_hook);

@@ -3,7 +3,7 @@
  *
  * The MIT License (MIT)
  *
- * Copyright (c) <2017> <Stephan Gatzka>
+ * Copyright (c) <2019> <Stephan Gatzka>
  *
  * Permission is hereby granted, free of charge, to any person obtaining
  * a copy of this software and associated documentation files (the
@@ -32,6 +32,8 @@
 #include <stdbool.h>
 #include <stdint.h>
 
+#include <kernel.h>
+
 #include "cio_error_code.h"
 
 #ifdef __cplusplus
@@ -43,61 +45,34 @@ extern "C" {
  * @brief Implementation of an event loop running on Zephyr
  */
 
-
 /**
  * @brief The cio_event_notifier struct bundles the information
  * necessary to register I/O events.
  */
 struct cio_event_notifier {
-	/**
-	 * @anchor cio_linux_event_notifier_read_callback
-	 * @brief The function to be called when a file descriptor becomes readable.
-	 */
-	void (*read_callback)(void *context);
+	void (*callback)(void *context);
 
-	/**
-	 * @anchor cio_linux_event_notifier_write_callback
-	 * @brief The function to be called when a file descriptor becomes writeable.
-	 */
-	void (*write_callback)(void *context);
-
-	/**
-	 * @anchor cio_linux_event_notifier_error_callback
-	 * @brief The function to be called when a file descriptor got an error.
-	 */
-	void (*error_callback)(void *context);
-
-	/**
-	 * @brief The context that is given to the callback functions.
-	 */
 	void *context;
-
-	/**
-	 * @brief The file descriptor that shall be monitored.
-	 */
-	int fd;
-
-	uint32_t registered_events;
+	bool removed;
 };
+
+struct cio_ev_msg {
+	struct cio_event_notifier *ev;
+};
+
+#define CIO_ZEPHYR_EVENTLOOP_MSG_QUEUE_SIZE 10
 
 struct cio_eventloop {
 	/**
 	 * @privatesection
 	 */
-	int epoll_fd;
-	struct cio_event_notifier stop_ev;
-	unsigned int event_counter;
-	unsigned int num_events;
-	struct cio_event_notifier *current_ev;
-	//struct epoll_event epoll_events[CONFIG_MAX_EPOLL_EVENTS];
+	struct k_msgq msg_queue;
+	char __aligned(4) msg_buf[CIO_ZEPHYR_EVENTLOOP_MSG_QUEUE_SIZE * sizeof(struct cio_ev_msg)];
 };
 
-enum cio_error cio_zephyr_eventloop_add(const struct cio_eventloop *loop, struct cio_event_notifier *ev);
-void cio_zephyr_eventloop_remove(struct cio_eventloop *loop, const struct cio_event_notifier *ev);
-enum cio_error cio_zephyr_eventloop_register_read(const struct cio_eventloop *loop, struct cio_event_notifier *ev);
-enum cio_error cio_zephyr_eventloop_unregister_read(const struct cio_eventloop *loop, struct cio_event_notifier *ev);
-enum cio_error cio_zephyr_eventloop_register_write(const struct cio_eventloop *loop, struct cio_event_notifier *ev);
-enum cio_error cio_zephyr_eventloop_unregister_write(const struct cio_eventloop *loop, struct cio_event_notifier *ev);
+void cio_zephyr_eventloop_add_event(struct cio_eventloop *loop, struct cio_event_notifier *ev);
+void cio_zephyr_eventloop_remove_event(struct cio_event_notifier *ev);
+void cio_zephyr_ev_init(struct cio_event_notifier *ev);
 
 #ifdef __cplusplus
 }

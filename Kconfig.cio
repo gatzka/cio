@@ -17,8 +17,22 @@
 # under the License.
 #
 
-config CIO
+menuconfig CIO
 	bool "cio Support"
 	help
 	  This option enables the cio library.
+
+if CIO 
+
+config CIO_NUM_SERVER_SOCKETS
+	int "Number of server sockets"
+	default 2
+	range 2 128
+	help
+	  Number of server sockets configured in cio. This effectively
+	  limits the number of different listen sockets. Please note that
+	  binding a server socket to all interfaces consumes 2 servers
+	  sockets, one for IPv4 and one for IPv6.
+
+endif # CIO
 
