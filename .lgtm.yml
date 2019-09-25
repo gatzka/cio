@@ -1,11 +1,13 @@
 #
 # .lgtml.yml configuration file for C++ analysis of Krita on https://lgtm.com/projects/g/KDE/krita/
 #
-path_classifiers:
-  test:
-    - tests
-  src:
-      - src
+# path_classifiers:
+#   test:
+#     - tests
+#   src:
+#     - src
+#     - "**/*.c"
+#     - "**/*.h"
 extraction:
   cpp:
     prepare:
