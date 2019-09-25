@@ -24,7 +24,7 @@ matrix:
           name: gatzka/cio
           description: Build submitted via Travis CI
         notification_email: stephan.gatzka@gmail.com
-        build_script_url: https://raw.githubusercontent.com/gatzka/cio/coverity_scan/.travisci_build_coverity_scan.sh
+        #build_script_url: https://raw.githubusercontent.com/gatzka/cio/coverity_scan/.travisci_build_coverity_scan.sh
         build_command_prepend: cmake -DCMAKE_BUILD_TYPE:STRING=Debug ./
         build_command: make
         branch_pattern: coverity_scan
