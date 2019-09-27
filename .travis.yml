@@ -25,8 +25,8 @@ matrix:
           description: Build submitted via Travis CI
         notification_email: stephan.gatzka@gmail.com
         #build_script_url: https://raw.githubusercontent.com/gatzka/cio/coverity_scan/.travisci_build_coverity_scan.sh
-        build_command_prepend: cmake -DCMAKE_BUILD_TYPE:STRING=Debug ./
-        build_command: make
+        build_command_prepend: "cov-configure --comptype gcc"
+        build_command: cmake -DCMAKE_BUILD_TYPE:STRING=Debug ./ ; cmake --build ./
         branch_pattern: coverity_scan
       apt:
         packages:
@@ -374,7 +374,7 @@ script:
 
 after_success:
 - if [ -n "${BUILD_WITH_COVERAGE_INFO}" ]; then
-    bash <(curl -s https://codecov.io/bash) -X gcov -s /tmp/cio/ || echo "Codecov did not collect coverage reports";
+    bash <(curl -s https://codecov.io/bash) -s /tmp/cio/ || echo "Codecov did not collect coverage reports";
   fi
 
 - if [ -n "${CREATE_DOXY}" ]; then
