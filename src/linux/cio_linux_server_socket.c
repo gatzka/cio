@@ -140,9 +140,10 @@ void cio_server_socket_close(struct cio_server_socket *ss)
 	}
 }
 
+#define MAX_PORT_LENGTH 6
+
 enum cio_error cio_server_socket_bind(struct cio_server_socket *ss, const char *bind_address, uint16_t port)
 {
-	static const unsigned int MAX_PORT_LENGTH = 6;
 	struct addrinfo hints;
 	char server_port_string[MAX_PORT_LENGTH];
 	struct addrinfo *servinfo;
