@@ -1,5 +1,5 @@
-{
-  "Checks": "*,-llvm-header-guard",
-  "WarningsAsErrors": "",
-  "HeaderFilterRegex": "cio_.*"
-}
+---
+Checks: "*,-llvm-header-guard,-clang-analyzer-security.insecureAPI.DeprecatedOrUnsafeBufferHandling"
+WarningsAsErrors: "*"
+HeaderFilterRegex: 'cio_*.h$'
+---
