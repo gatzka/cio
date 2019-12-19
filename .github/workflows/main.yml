@@ -217,27 +217,27 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         cmake_build_type: Debug
 
-#  doxygen:
-#    name: generate doxygen doumentation
-#    runs-on: ubuntu-latest
-#    needs: [gcc-9-debug, gcc-9-release, gcc-valgrind, clang-9-debug, clang-9-release, clang-9-UndefinedBehaviorSanitizer, clang-9-LeakSanitizer, clang-9-MemorySanitizer, clang-9-AddressSanitizer, clang-9-scanbuild, clang-9-clangtidy]
-#    if: contains(github.ref, 'master')
-#
-#    steps:
-#    - name: Checkout
-#      uses: actions/checkout@v2
-#    - name: cmake build
-#      uses: gatzka/cmake-build-action@master
-#      with:
-#        install_deps: ./.github/workflows/install-deps.sh
-#        cmake_build_target: docs
-#    - name: GitHub Pages Deploy
-#      uses: gatzka/publish-gh-pages-action@master
-#      env:
-#        BUILD_DIR: build/src/docs/
-#        GH_PAT: ${{ secrets.GH_PAT }}
-#        GH_PAGES_SUBDIR: ./doc
-#
+  doxygen:
+    name: generate doxygen doumentation
+    runs-on: ubuntu-latest
+    needs: [gcc-9-debug, gcc-9-release, gcc-valgrind, clang-9-debug, clang-9-release, clang-9-UndefinedBehaviorSanitizer, clang-9-LeakSanitizer, clang-9-MemorySanitizer, clang-9-AddressSanitizer, clang-9-scanbuild, clang-9-clangtidy]
+    if: contains(github.ref, 'master')
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+    - name: cmake build
+      uses: gatzka/cmake-build-action@master
+      with:
+        install_deps: ./.github/workflows/install-deps.sh
+        cmake_build_target: docs
+    - name: GitHub Pages Deploy
+      uses: gatzka/publish-gh-pages-action@master
+      env:
+        BUILD_DIR: build/src/docs/
+        GH_PAT: ${{ secrets.GH_PAT }}
+        GH_PAGES_SUBDIR: ./doc
+
   coverity:
     name: coverity scan build
     runs-on: ubuntu-latest
