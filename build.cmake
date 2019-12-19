@@ -10,6 +10,7 @@
 # -DCIO_CTEST_CONFIGURATION_TYPE:STRING=Debug|Release|MemorySanitizer|AddressSanitizer|LeakSanitizer|UndefinedBehaviorSanitizer|Valgrind|Coverage
 # -DCIO_CTEST_MODEL:STRING=Experimental|Nightly|Continuous
 # -DCIO_CTEST_DOCUMENTATION:BOOL=OFF|ON
+# -DCIO_CTEST_BINARY_DIRECTORY:STRING=<path/to/builddir>
 # -DCIO_CTEST_ANALYZER:STRING=scan-build-<version-number>|clang-tidy-<version-number>
 # -DCIO_CTEST_CMAKE_GENERATOR:STRING=Ninja|Unix Makefiles|...)
 
@@ -27,8 +28,13 @@ if(NOT DEFINED CIO_CTEST_DOCUMENTATION)
     set(CIO_CTEST_DOCUMENTATION OFF)
 endif()
 
+if(NOT DEFINED CIO_CTEST_BINARY_DIRECTORY)
+  set(CTEST_BINARY_DIRECTORY "/tmp/cio/")
+else()
+	set(CTEST_BINARY_DIRECTORY ${CIO_CTEST_BINARY_DIRECTORY})
+endif()
+
 set(CTEST_SOURCE_DIRECTORY "${CTEST_SCRIPT_DIRECTORY}")
-set(CTEST_BINARY_DIRECTORY "/tmp/cio/")
 
 if(NOT DEFINED CIO_CTEST_CONFIGURATION_TYPE)
     set(CIO_CTEST_CONFIGURATION_TYPE "Debug")
