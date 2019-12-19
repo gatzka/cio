@@ -181,42 +181,42 @@ jobs:
         ctest_toolchain_file: /tmp/sclog/toolchains/arm-linux-gnueabihf-gcc-7.cmake
         ctest_configuration_type: Release
 
-#  gcc-9-coverage:
-#    name: x86 code coverage
-#    runs-on: ubuntu-latest
-#
-#    steps:
-#    - name: Checkout
-#      uses: actions/checkout@v2
-#    - name: ctest build
-#      uses: gatzka/ctest-build-action@master
-#      with:
-#        install_deps: ./.github/workflows/install-deps.sh
-#        ctest_toolchain_file: build/toolchains/x86-linux-gcc-7.cmake
-#        ctest_configuration_type: Coverage
-#        ctest_binary_directory: build
-#    - name: coverage upload
-#      uses: gatzka/codecov-action@master
-#      with:
-#        token: ${{ secrets.CODECOV_TOKEN }}
-#        path: build
-#        flags: unittests
-#
-#  sonarcloud:
-#    name: sonarcloud scan build
-#    runs-on: ubuntu-latest
-#
-#    steps:
-#    - name: Checkout
-#      uses: actions/checkout@v2
-#    - name: sonarcloud cmake build
-#      uses: gatzka/sonarcloud-cmake-build-action@master
-#      with:
-#        install_deps: ./.github/workflows/install-deps.sh
-#        SONAR_TOKEN: ${{ secrets.SONARCLOUD_TOKEN }}
-#        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-#        cmake_build_type: Debug
-#
+  gcc-9-coverage:
+    name: x86 code coverage
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+    - name: ctest build
+      uses: gatzka/ctest-build-action@master
+      with:
+        install_deps: ./.github/workflows/install-deps.sh
+        ctest_toolchain_file: build/toolchains/x86-linux-gcc-7.cmake
+        ctest_configuration_type: Coverage
+        ctest_binary_directory: build
+    - name: coverage upload
+      uses: gatzka/codecov-action@master
+      with:
+        token: ${{ secrets.CODECOV_TOKEN }}
+        path: build
+        flags: unittests
+
+  sonarcloud:
+    name: sonarcloud scan build
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+    - name: sonarcloud cmake build
+      uses: gatzka/sonarcloud-cmake-build-action@master
+      with:
+        install_deps: ./.github/workflows/install-deps.sh
+        SONAR_TOKEN: ${{ secrets.SONARCLOUD_TOKEN }}
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        cmake_build_type: Debug
+
 #  doxygen:
 #    name: generate doxygen doumentation
 #    runs-on: ubuntu-latest
@@ -238,23 +238,23 @@ jobs:
 #        GH_PAT: ${{ secrets.GH_PAT }}
 #        GH_PAGES_SUBDIR: ./doc
 #
-#  coverity:
-#    name: coverity scan build
-#    runs-on: ubuntu-latest
-#    if: contains(github.ref, 'coverity_scan')
-#
-#    steps:
-#    - name: Checkout
-#      uses: actions/checkout@v2
-#    - name: coverity cmake build
-#      uses: gatzka/coverity-cmake-build-action@master
-#      with:
-#        install_deps: ./.github/workflows/install-deps.sh
-#        cmake_build_type: Debug
-#        coverity_token: ${{ secrets.COVERITY_TOKEN }}
-#        coverity_account: gatzka
-#        coverity_project: sclog
-#        coverity_email: stephan.gatzka@gmail.com
-#        coverity_version: ${{ github.sha }}
-#        coverity_description: "Build submitted by github action"
-#
+  coverity:
+    name: coverity scan build
+    runs-on: ubuntu-latest
+    if: contains(github.ref, 'coverity_scan')
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+    - name: coverity cmake build
+      uses: gatzka/coverity-cmake-build-action@master
+      with:
+        install_deps: ./.github/workflows/install-deps.sh
+        cmake_build_type: Debug
+        coverity_token: ${{ secrets.COVERITY_TOKEN }}
+        coverity_account: gatzka
+        coverity_project: sclog
+        coverity_email: stephan.gatzka@gmail.com
+        coverity_version: ${{ github.sha }}
+        coverity_description: "Build submitted by github action"
+
