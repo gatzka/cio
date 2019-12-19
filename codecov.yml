@@ -5,3 +5,5 @@ ignore:
   - "src/http-parser"
   - "src/miniz"
   - "tests"
+  - "autobahn"
+  - "examples"
