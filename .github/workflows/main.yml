@@ -1,0 +1,260 @@
+name: CI build
+
+on: [push, pull_request]
+
+jobs:
+  windows-debug:
+    name: x86 windows Debug
+    runs-on: windows-latest
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+    - name: ctest build
+      run: ctest -DCTEST_CMAKE_GENERATOR="Visual Studio 16 2019" -DCTEST_CONFIGURATION_TYPE:STRING=Debug -S build.cmake
+
+  gcc-9-debug:
+    name: x86 gcc-9 Debug
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+    - name: ctest build
+      uses: gatzka/ctest-build-action@master
+      with:
+        install_deps: ./.github/workflows/install-deps.sh
+        ctest_toolchain_file: /tmp/cio/toolchains/x86-linux-gcc-9.cmake
+        ctest_configuration_type: Debug
+
+  gcc-9-release:
+    name: x86 gcc-9 Release
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+    - name: ctest build
+      uses: gatzka/ctest-build-action@master
+      with:
+        install_deps: ./.github/workflows/install-deps.sh
+        ctest_toolchain_file: /tmp/cio/toolchains/x86-linux-gcc-9.cmake
+        ctest_configuration_type: Release
+
+  gcc-valgrind:
+    name: x86 gcc-9 Valgrind
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+    - name: ctest build
+      uses: gatzka/ctest-build-action@master
+      with:
+        install_deps: ./.github/workflows/install-deps.sh
+        ctest_toolchain_file: /tmp/cio/toolchains/x86-linux-gcc-9.cmake
+        ctest_configuration_type: Valgrind
+
+  clang-9-debug:
+    name: x86 clang-9 Debug
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+    - name: ctest build
+      uses: gatzka/ctest-build-action@master
+      with:
+        install_deps: ./.github/workflows/install-deps.sh
+        ctest_toolchain_file: /tmp/cio/toolchains/x86-linux-clang-9.cmake
+        ctest_configuration_type: Debug
+
+  clang-9-release:
+    name: x86 clang-9 Release
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+    - name: ctest build
+      uses: gatzka/ctest-build-action@master
+      with:
+        install_deps: ./.github/workflows/install-deps.sh
+        ctest_toolchain_file: /tmp/cio/toolchains/x86-linux-clang-9.cmake
+        ctest_configuration_type: Release
+
+  clang-9-UndefinedBehaviorSanitizer:
+    name: x86 clang-9 UndefinedBehaviorSanitizer
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+    - name: ctest build
+      uses: gatzka/ctest-build-action@master
+      with:
+        install_deps: ./.github/workflows/install-deps.sh
+        ctest_toolchain_file: /tmp/cio/toolchains/x86-linux-clang-9.cmake
+        ctest_configuration_type: UndefinedBehaviorSanitizer
+
+  clang-9-LeakSanitizer:
+    name: x86 clang-9 LeakSanitizer
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+    - name: ctest build
+      uses: gatzka/ctest-build-action@master
+      with:
+        install_deps: ./.github/workflows/install-deps.sh
+        ctest_toolchain_file: /tmp/cio/toolchains/x86-linux-clang-9.cmake
+        ctest_configuration_type: LeakSanitizer
+
+  clang-9-MemorySanitizer:
+    name: x86 clang-9 MemorySanitizer
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+    - name: ctest build
+      uses: gatzka/ctest-build-action@master
+      with:
+        install_deps: ./.github/workflows/install-deps.sh
+        ctest_toolchain_file: /tmp/cio/toolchains/x86-linux-clang-9.cmake
+        ctest_configuration_type: MemorySanitizer
+
+  clang-9-AddressSanitizer:
+    name: x86 clang-9 AddressSanitizer
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+    - name: ctest build
+      uses: gatzka/ctest-build-action@master
+      with:
+        install_deps: ./.github/workflows/install-deps.sh
+        ctest_toolchain_file: /tmp/cio/toolchains/x86-linux-clang-9.cmake
+        ctest_configuration_type: AddressSanitizer
+
+  clang-9-scanbuild:
+    name: x86 clang-9 scan-build
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+    - name: ctest build
+      uses: gatzka/ctest-build-action@master
+      with:
+        install_deps: ./.github/workflows/install-deps.sh
+        ctest_toolchain_file: /tmp/cio/toolchains/x86-linux-clang-9.cmake
+        ctest_analyzer: scan-build-9
+
+  clang-9-clangtidy:
+    name: x86 clang-9 clang-tidy
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+    - name: ctest build
+      uses: gatzka/ctest-build-action@master
+      with:
+        install_deps: ./.github/workflows/install-deps.sh
+        ctest_toolchain_file: /tmp/cio/toolchains/x86-linux-clang-9.cmake
+        ctest_analyzer: clang-tidy-9
+
+  gcc-7-arm:
+    name: arm gcc-7 Release
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+    - name: ctest build
+      uses: gatzka/ctest-build-action@master
+      with:
+        install_deps: ./.github/workflows/install-deps.sh
+        ctest_toolchain_file: /tmp/cio/toolchains/arm-linux-gnueabihf-gcc-7.cmake
+        ctest_configuration_type: Release
+
+  gcc-9-coverage:
+    name: x86 code coverage
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+    - name: ctest build
+      uses: gatzka/ctest-build-action@master
+      with:
+        install_deps: ./.github/workflows/install-deps.sh
+        ctest_toolchain_file: build/toolchains/x86-linux-gcc-7.cmake
+        ctest_configuration_type: Coverage
+        ctest_binary_directory: build
+    - name: coverage upload
+      uses: gatzka/codecov-action@master
+      with:
+        token: ${{ secrets.CODECOV_TOKEN }}
+        path: build
+        flags: unittests
+
+  sonarcloud:
+    name: sonarcloud scan build
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+    - name: sonarcloud cmake build
+      uses: gatzka/sonarcloud-cmake-build-action@master
+      with:
+        install_deps: ./.github/workflows/install-deps.sh
+        SONAR_TOKEN: ${{ secrets.SONARCLOUD_TOKEN }}
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        cmake_build_type: Debug
+
+  doxygen:
+    name: generate doxygen doumentation
+    runs-on: ubuntu-latest
+    needs: [gcc-9-debug, gcc-9-release, gcc-valgrind, clang-9-debug, clang-9-release, clang-9-UndefinedBehaviorSanitizer, clang-9-LeakSanitizer, clang-9-MemorySanitizer, clang-9-AddressSanitizer, clang-9-scanbuild, clang-9-clangtidy]
+    if: contains(github.ref, 'master')
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+    - name: cmake build
+      uses: gatzka/cmake-build-action@master
+      with:
+        install_deps: ./.github/workflows/install-deps.sh
+        cmake_build_target: docs
+    - name: GitHub Pages Deploy
+      uses: gatzka/publish-gh-pages-action@master
+      env:
+        BUILD_DIR: build/src/docs/
+        GH_PAT: ${{ secrets.GH_PAT }}
+        GH_PAGES_SUBDIR: ./doc
+
+  coverity:
+    name: coverity scan build
+    runs-on: ubuntu-latest
+    if: contains(github.ref, 'coverity_scan')
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+    - name: coverity cmake build
+      uses: gatzka/coverity-cmake-build-action@master
+      with:
+        install_deps: ./.github/workflows/install-deps.sh
+        cmake_build_type: Debug
+        coverity_token: ${{ secrets.COVERITY_TOKEN }}
+        coverity_account: gatzka
+        coverity_project: cio
+        coverity_email: stephan.gatzka@gmail.com
+        coverity_version: ${{ github.sha }}
+        coverity_description: "Build submitted by github action"
+
