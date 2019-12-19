@@ -11,7 +11,7 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v2
     - name: ctest build
-      run: ctest -DSCLOG_CTEST_CMAKE_GENERATOR="Visual Studio 16 2019" -DSCLOG_CTEST_CONFIGURATION_TYPE:STRING=Debug -S build.cmake
+      run: ctest -DCIO_CTEST_CMAKE_GENERATOR="Visual Studio 16 2019" -DCIO_CTEST_CONFIGURATION_TYPE:STRING=Debug -S build.cmake
 
   gcc-9-debug:
     name: x86 gcc-9 Debug
@@ -180,7 +180,6 @@ jobs:
         install_deps: ./.github/workflows/install-deps.sh
         ctest_toolchain_file: /tmp/sclog/toolchains/arm-linux-gnueabihf-gcc-7.cmake
         ctest_configuration_type: Release
-        cmake_options: SCLOG_CMAKE_OPTIONS:LIST=SCLOG_EXAMPLES=OFF;SCLOG_CONFIG_LINUX=OFF
 
 #  gcc-9-coverage:
 #    name: x86 code coverage

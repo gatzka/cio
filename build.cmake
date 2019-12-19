@@ -11,6 +11,7 @@
 # -DCIO_CTEST_MODEL:STRING=Experimental|Nightly|Continuous
 # -DCIO_CTEST_DOCUMENTATION:BOOL=OFF|ON
 # -DCIO_CTEST_ANALYZER:STRING=scan-build-<version-number>|clang-tidy-<version-number>
+# -DCIO_CTEST_CMAKE_GENERATOR:STRING=Ninja|Unix Makefiles|...)
 
 set(CTEST_USE_LAUNCHERS 1)
 
@@ -92,7 +93,12 @@ ctest_start(${CIO_CTEST_MODEL})
 # Configure step
 
 #set(CTEST_CMAKE_GENERATOR "Unix Makefiles")
-set(CTEST_CMAKE_GENERATOR "Ninja")
+
+if(NOT DEFINED CIO_CTEST_CMAKE_GENERATOR)
+	set(CIO_CTEST_CMAKE_GENERATOR "Ninja")
+endif()
+set(CTEST_CMAKE_GENERATOR ${CIO_CTEST_CMAKE_GENERATOR})
+
 set(CONFIGURE_OPTIONS "${CONFIGURE_OPTIONS}")
 ctest_configure(OPTIONS "${CONFIGURE_OPTIONS}")
 ctest_configure()
