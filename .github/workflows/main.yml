@@ -24,7 +24,7 @@ jobs:
       uses: gatzka/ctest-build-action@master
       with:
         install_deps: ./.github/workflows/install-deps.sh
-        ctest_toolchain_file: /tmp/sclog/toolchains/x86-linux-gcc-9.cmake
+        ctest_toolchain_file: /tmp/cio/toolchains/x86-linux-gcc-9.cmake
         ctest_configuration_type: Debug
 
   gcc-9-release:
@@ -38,7 +38,7 @@ jobs:
       uses: gatzka/ctest-build-action@master
       with:
         install_deps: ./.github/workflows/install-deps.sh
-        ctest_toolchain_file: /tmp/sclog/toolchains/x86-linux-gcc-9.cmake
+        ctest_toolchain_file: /tmp/cio/toolchains/x86-linux-gcc-9.cmake
         ctest_configuration_type: Release
 
   gcc-valgrind:
@@ -52,7 +52,7 @@ jobs:
       uses: gatzka/ctest-build-action@master
       with:
         install_deps: ./.github/workflows/install-deps.sh
-        ctest_toolchain_file: /tmp/sclog/toolchains/x86-linux-gcc-9.cmake
+        ctest_toolchain_file: /tmp/cio/toolchains/x86-linux-gcc-9.cmake
         ctest_configuration_type: Valgrind
 
   clang-9-debug:
@@ -66,7 +66,7 @@ jobs:
       uses: gatzka/ctest-build-action@master
       with:
         install_deps: ./.github/workflows/install-deps.sh
-        ctest_toolchain_file: /tmp/sclog/toolchains/x86-linux-clang-9.cmake
+        ctest_toolchain_file: /tmp/cio/toolchains/x86-linux-clang-9.cmake
         ctest_configuration_type: Debug
 
   clang-9-release:
@@ -80,7 +80,7 @@ jobs:
       uses: gatzka/ctest-build-action@master
       with:
         install_deps: ./.github/workflows/install-deps.sh
-        ctest_toolchain_file: /tmp/sclog/toolchains/x86-linux-clang-9.cmake
+        ctest_toolchain_file: /tmp/cio/toolchains/x86-linux-clang-9.cmake
         ctest_configuration_type: Release
 
   clang-9-UndefinedBehaviorSanitizer:
@@ -94,7 +94,7 @@ jobs:
       uses: gatzka/ctest-build-action@master
       with:
         install_deps: ./.github/workflows/install-deps.sh
-        ctest_toolchain_file: /tmp/sclog/toolchains/x86-linux-clang-9.cmake
+        ctest_toolchain_file: /tmp/cio/toolchains/x86-linux-clang-9.cmake
         ctest_configuration_type: UndefinedBehaviorSanitizer
 
   clang-9-LeakSanitizer:
@@ -108,7 +108,7 @@ jobs:
       uses: gatzka/ctest-build-action@master
       with:
         install_deps: ./.github/workflows/install-deps.sh
-        ctest_toolchain_file: /tmp/sclog/toolchains/x86-linux-clang-9.cmake
+        ctest_toolchain_file: /tmp/cio/toolchains/x86-linux-clang-9.cmake
         ctest_configuration_type: LeakSanitizer
 
   clang-9-MemorySanitizer:
@@ -122,7 +122,7 @@ jobs:
       uses: gatzka/ctest-build-action@master
       with:
         install_deps: ./.github/workflows/install-deps.sh
-        ctest_toolchain_file: /tmp/sclog/toolchains/x86-linux-clang-9.cmake
+        ctest_toolchain_file: /tmp/cio/toolchains/x86-linux-clang-9.cmake
         ctest_configuration_type: MemorySanitizer
 
   clang-9-AddressSanitizer:
@@ -136,7 +136,7 @@ jobs:
       uses: gatzka/ctest-build-action@master
       with:
         install_deps: ./.github/workflows/install-deps.sh
-        ctest_toolchain_file: /tmp/sclog/toolchains/x86-linux-clang-9.cmake
+        ctest_toolchain_file: /tmp/cio/toolchains/x86-linux-clang-9.cmake
         ctest_configuration_type: AddressSanitizer
 
   clang-9-scanbuild:
@@ -150,7 +150,7 @@ jobs:
       uses: gatzka/ctest-build-action@master
       with:
         install_deps: ./.github/workflows/install-deps.sh
-        ctest_toolchain_file: /tmp/sclog/toolchains/x86-linux-clang-9.cmake
+        ctest_toolchain_file: /tmp/cio/toolchains/x86-linux-clang-9.cmake
         ctest_analyzer: scan-build-9
 
   clang-9-clangtidy:
@@ -164,7 +164,7 @@ jobs:
       uses: gatzka/ctest-build-action@master
       with:
         install_deps: ./.github/workflows/install-deps.sh
-        ctest_toolchain_file: /tmp/sclog/toolchains/x86-linux-clang-9.cmake
+        ctest_toolchain_file: /tmp/cio/toolchains/x86-linux-clang-9.cmake
         ctest_analyzer: clang-tidy-9
 
   gcc-7-arm:
@@ -178,7 +178,7 @@ jobs:
       uses: gatzka/ctest-build-action@master
       with:
         install_deps: ./.github/workflows/install-deps.sh
-        ctest_toolchain_file: /tmp/sclog/toolchains/arm-linux-gnueabihf-gcc-7.cmake
+        ctest_toolchain_file: /tmp/cio/toolchains/arm-linux-gnueabihf-gcc-7.cmake
         ctest_configuration_type: Release
 
   gcc-9-coverage:
@@ -253,7 +253,7 @@ jobs:
         cmake_build_type: Debug
         coverity_token: ${{ secrets.COVERITY_TOKEN }}
         coverity_account: gatzka
-        coverity_project: sclog
+        coverity_project: cio
         coverity_email: stephan.gatzka@gmail.com
         coverity_version: ${{ github.sha }}
         coverity_description: "Build submitted by github action"
