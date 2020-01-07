@@ -28,6 +28,7 @@
 
 #include <errno.h>
 #include <netdb.h>
+#include <netinet/tcp.h>
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
@@ -113,6 +114,8 @@ enum cio_error cio_server_socket_accept(struct cio_server_socket *ss, cio_accept
 	ss->impl.ev.read_callback = accept_callback;
 	ss->impl.ev.context = ss;
 
+	int qlen = 5;
+	setsockopt(ss->impl.ev.fd, SOL_TCP, TCP_FASTOPEN, &qlen, sizeof(qlen));
 	if (cio_unlikely(listen(ss->impl.ev.fd, ss->backlog) < 0)) {
 		return (enum cio_error)(-errno);
 	}
