@@ -28,8 +28,11 @@ if(CMAKE_CONFIGURATION_TYPES)
   if(NOT "Coverage" IN_LIST CMAKE_CONFIGURATION_TYPES)
     list(APPEND CMAKE_CONFIGURATION_TYPES Coverage)
   endif()
+  if(NOT "Profile" IN_LIST CMAKE_CONFIGURATION_TYPES)
+    list(APPEND CMAKE_CONFIGURATION_TYPES Profile)
+  endif()
 else()
-  set(allowableBuildTypes Debug Release MemorySanitizer AddressSanitizer LeakSanitizer UndefinedBehaviorSanitizer Coverage)
+  set(allowableBuildTypes Debug Release MemorySanitizer AddressSanitizer LeakSanitizer UndefinedBehaviorSanitizer Coverage Profile)
   set_property(CACHE CMAKE_BUILD_TYPE PROPERTY
   STRINGS "${allowableBuildTypes}")
   if(NOT CMAKE_BUILD_TYPE)
@@ -73,6 +76,13 @@ set(CMAKE_EXE_LINKER_FLAGS_COVERAGE "${CMAKE_EXE_LINKER_FLAGS_DEBUG} ${COVERAGE_
 set(CMAKE_SHARED_LINKER_FLAGS_COVERAGE "${CMAKE_SHARED_LINKER_FLAGS_DEBUG} ${COVERAGE_FLAGS}" CACHE STRING "Flags used for shared library linking during coverage builds." FORCE)
 set(CMAKE_STATIC_LINKER_FLAGS_COVERAGE "${CMAKE_STATIC_LINKER_FLAGS_DEBUG}" CACHE STRING "Flags used for static library linking during coverage builds." FORCE)
 set(CMAKE_MODULE_LINKER_FLAGS_COVERAGE "${CMAKE_MODULE_LINKER_FLAGS_DEBUG} ${COVERAGE_FLAGS}" CACHE STRING "Flags used module linking during coverage builds." FORCE)
+
+set(CMAKE_C_FLAGS_PROFILE "${CMAKE_C_FLAGS_RELWITHDEBINFO} ${PROFILE_FLAGS}" CACHE STRING "Flags used by the C compiler during profiling builds." FORCE)
+set(CMAKE_CXX_FLAGS_PROFILE "${CMAKE_CXX_FLAGS_RELWITHDEBINFO} ${PROFILE_FLAGS}" CACHE STRING "Flags used by the C++ compiler during profiling builds." FORCE)
+set(CMAKE_EXE_LINKER_FLAGS_PROFILE "${CMAKE_EXE_LINKER_FLAGS_RELWITHDEBINFO} ${PROFILE_FLAGS}" CACHE STRING "Flags used for linking executables during profiling builds." FORCE)
+set(CMAKE_SHARED_LINKER_FLAGS_PROFILE "${CMAKE_SHARED_LINKER_FLAGS_RELWITHDEBINFO} ${PROFILE_FLAGS}" CACHE STRING "Flags used for shared library linking during profiling builds." FORCE)
+set(CMAKE_STATIC_LINKER_FLAGS_PROFILE "${CMAKE_SHARED_LINKER_FLAGS_RELWITHDEBINFO}" CACHE STRING "Flags used for static library linking during profiling builds." FORCE)
+set(CMAKE_MODULE_LINKER_FLAGS_PROFILE "${CMAKE_SHARED_LINKER_FLAGS_RELWITHDEBINFO} ${PROFILE_FLAGS}" CACHE STRING "Flags used module linking during profiling builds." FORCE)
 
 include(CTest)
 
