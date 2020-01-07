@@ -1,6 +1,7 @@
 var files =
 [
     [ "cio_export.h", "cio__export_8h.html", "cio__export_8h" ],
+    [ "os_config.h", "os__config_8h.html", "os__config_8h" ],
     [ "cio_base64.h", "cio__base64_8h.html", "cio__base64_8h" ],
     [ "cio_buffered_stream.h", "cio__buffered__stream_8h.html", "cio__buffered__stream_8h" ],
     [ "cio_compiler.h", "cio__compiler_8h.html", null ],

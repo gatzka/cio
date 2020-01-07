@@ -264,6 +264,7 @@ var searchData=
   ['close_5ftimer',['close_timer',['../structcio__websocket__private.html#ac449ba2534bcd9691cedd3d4667f827f',1,'cio_websocket_private']]],
   ['closed_5fby_5ferror',['closed_by_error',['../structcio__websocket__private.html#a9713b99ac7dde95ddb5f824302835809',1,'cio_websocket_private']]],
   ['codepoint',['codepoint',['../structcio__utf8__state.html#a5e66194d8cc9ec2b85acd00e4b4fccfb',1,'cio_utf8_state']]],
+  ['config_5ftcp_5ffastopen_5fqueue_5fsize',['CONFIG_TCP_FASTOPEN_QUEUE_SIZE',['../os__config_8h.html#abed82baf7f470b522273a3e37c24c600a1ff311fb81f3d4d3b286feab82ac8ad5',1,'os_config.h']]],
   ['const_5fdata',['const_data',['../structcio__write__buffer.html#af814a576f13c8be9a02eb018b085c8d6',1,'cio_write_buffer']]],
   ['content_5flength',['content_length',['../structcio__http__client.html#abd3df2d34ed863133b1be6bdf1bf85b1',1,'cio_http_client']]],
   ['content_5flength_5fbuffer',['content_length_buffer',['../structcio__http__client__private.html#a055a9f17d7b28643b5e5615e1ada3217',1,'cio_http_client_private']]],
