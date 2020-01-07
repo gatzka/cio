@@ -1,11 +1,14 @@
 cmake_minimum_required(VERSION 3.8)
-include (CheckLibraryExists)
+include(CheckLibraryExists)
+include(linux/defaults.cmake)
 
 check_library_exists(bsd arc4random "/lib;/usr/lib;/usr/local/lib" HAVE_BSD_LIB)
 
 if (NOT HAVE_BSD_LIB)
 	message(WARNING "libbsd not found! Using unsafe random number generator!")
 endif()
+
+configure_file(linux/os_config.h.in ${PROJECT_BINARY_DIR}/generated/os_config.h)
 
 set(CIO_PLATFORM_SOURCES
     linux/cio_linux_endian.c
