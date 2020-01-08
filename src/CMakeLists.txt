@@ -137,7 +137,7 @@ target_include_directories(${PROJECT_NAME} PUBLIC
 if(${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
     add_subdirectory(linux)
 elseif(${CMAKE_SYSTEM_NAME} STREQUAL "Windows")
-    include(windows/CMakeLists.txt)
+    add_subdirectory(windows)
 elseif(${CIO_BUILD_FOR_ZEPHYR})
     include(zephyr/CMakeLists.txt)
 endif()
