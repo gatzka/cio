@@ -47,6 +47,7 @@ add_library(${PROJECT_NAME}
     "cio_random.c"
     "cio_version.c"
 )
+target_link_libraries(${PROJECT_NAME} PUBLIC PLATFORM)
 
 add_library(${PROJECT_NAME}:${PROJECT_NAME} ALIAS ${PROJECT_NAME})
 
@@ -121,7 +122,7 @@ if(CIO_CONFIG_WEBSOCKET_COMPRESSION)
     set_target_properties(miniz PROPERTIES
         POSITION_INDEPENDENT_CODE ON
         C_VISIBILITY_PRESET hidden
-		C_CLANG_TIDY ""
+        C_CLANG_TIDY ""
     )
     target_compile_definitions(miniz PRIVATE MINIZ_NO_STDIO MINIZ_NO_ARCHIVE_APIS MINIZ_NO_TIME MINIZ_NO_ARCHIVE_WRITING_APIS MINIZ_NO_ZLIB_APIS MINIZ_NO_ZLIB_COMPATIBLE_NAME MINIZ_NO_MALLOC)
     target_sources(${PROJECT_NAME} PRIVATE $<TARGET_OBJECTS:miniz>)
@@ -134,9 +135,9 @@ target_include_directories(${PROJECT_NAME} PUBLIC
 )
 
 if(${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
-    include(linux/CMakeLists.txt)
+    add_subdirectory(linux)
 elseif(${CMAKE_SYSTEM_NAME} STREQUAL "Windows")
-    include(windows/CMakeLists.txt)
+    add_subdirectory(windows)
 elseif(${CIO_BUILD_FOR_ZEPHYR})
     include(zephyr/CMakeLists.txt)
 endif()
@@ -169,7 +170,8 @@ generate_export_header(${PROJECT_NAME} EXPORT_FILE_NAME ${CMAKE_CURRENT_BINARY_D
 #   endif()
 # endforeach()
 
-install(TARGETS ${PROJECT_NAME} EXPORT ${PROJECT_NAME}
+install(TARGETS ${PROJECT_NAME} PLATFORM
+    EXPORT ${PROJECT_NAME}
     LIBRARY DESTINATION lib
     ARCHIVE DESTINATION lib
     PUBLIC_HEADER DESTINATION include/cio
