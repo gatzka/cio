@@ -39,6 +39,10 @@ void setUp(void)
 	FFF_RESET_HISTORY();
 }
 
+void tearDown(void)
+{
+}
+
 static void test_cio_memmem(void)
 {
 	const char haystack[] = "abcd";

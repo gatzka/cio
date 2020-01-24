@@ -261,6 +261,10 @@ void setUp(void)
 	bytes_to_send = 0;
 }
 
+void tearDown(void)
+{
+}
+
 static void test_socket_init(void)
 {
 	struct cio_socket s;

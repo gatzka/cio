@@ -172,6 +172,10 @@ void setUp(void)
 	cio_socket_close_fake.custom_fake = socket_close;
 }
 
+void tearDown(void)
+{
+}
+
 static int listen_fails(int sockfd, int backlog)
 {
 	(void)sockfd;

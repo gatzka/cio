@@ -85,6 +85,10 @@ void setUp(void)
 	events_in_list = 0;
 }
 
+void tearDown(void)
+{
+}
+
 static void remove_third_fd(void *context)
 {
 	struct cio_eventloop *loop = context;

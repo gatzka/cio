@@ -47,6 +47,10 @@ void setUp(void)
 	RESET_FAKE(close);
 }
 
+void tearDown(void)
+{
+}
+
 static void test_create_socket_no_fd(void)
 {
 	int socket_fd = 5;
