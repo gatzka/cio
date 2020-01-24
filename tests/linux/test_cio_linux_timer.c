@@ -142,6 +142,10 @@ void setUp(void)
 	RESET_FAKE(handle_timeout);
 }
 
+void tearDown(void)
+{
+}
+
 static void test_create_timer(void)
 {
 	timerfd_create_fake.return_val = 1;

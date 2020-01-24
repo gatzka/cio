@@ -38,6 +38,10 @@ void setUp(void)
 	FFF_RESET_HISTORY();
 }
 
+void tearDown(void)
+{
+}
+
 static void test_convert_be16(void)
 {
 	uint8_t pattern_array[] = {0x34, 0x12};
