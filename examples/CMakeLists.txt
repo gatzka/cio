@@ -6,6 +6,11 @@ add_executable(socket_echo
 )
 target_link_libraries (socket_echo)
 
+add_executable(socket_connect
+    socket_connect.c
+)
+target_link_libraries (socket_connect)
+
 add_executable(http_server
     http_server.c
 )
