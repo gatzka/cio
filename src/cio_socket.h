@@ -78,6 +78,8 @@ struct cio_socket {
 	 */
 	struct cio_io_stream stream;
 	cio_socket_close_hook close_hook;
+	cio_connect_handler handler;
+	void *handler_context;
 	struct cio_socket_impl impl;
 };
 
