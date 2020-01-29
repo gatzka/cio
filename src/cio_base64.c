@@ -1,7 +1,7 @@
 /*
  * SPDX-License-Identifier: MIT
  *
- *The MIT License (MIT)
+ * The MIT License (MIT)
  *
  * Copyright (c) <2016> <Stephan Gatzka>
  *
