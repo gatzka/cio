@@ -31,6 +31,7 @@
 #include <netinet/tcp.h>
 #include <stdbool.h>
 #include <stddef.h>
+#include <string.h>
 #include <sys/socket.h>
 #include <unistd.h>
 
@@ -287,36 +288,79 @@ reset_connection:
 	reset_connection(s);
 }
 
-enum cio_error cio_socket_close(struct cio_socket *s)
+enum cio_error cio_socket_close(struct cio_socket *socket)
 {
-	if (cio_unlikely(s == NULL)) {
+	if (cio_unlikely(socket == NULL)) {
 		return CIO_INVALID_ARGUMENT;
 	}
 
-	if (s->impl.peer_closed_connection) {
-		close_socket(s);
+	if (socket->impl.peer_closed_connection) {
+		close_socket(socket);
 		return CIO_SUCCESS;
 	}
 
-	if (s->impl.close_timeout_ns > 0) {
-		shutdown_socket(s, s->impl.close_timeout_ns);
+	if (socket->impl.close_timeout_ns > 0) {
+		shutdown_socket(socket, socket->impl.close_timeout_ns);
 		return CIO_SUCCESS;
 	}
 
-	close_socket(s);
+	close_socket(socket);
 	return CIO_SUCCESS;
 }
 
-struct cio_io_stream *cio_socket_get_io_stream(struct cio_socket *s)
+static void connect_callback(void *context)
 {
-	return &s->stream;
+	struct cio_socket *socket = context;
+	socket->handler(socket, socket->handler_context, CIO_SUCCESS);
 }
 
-enum cio_error cio_socket_set_tcp_no_delay(struct cio_socket *s, bool on)
+enum cio_error cio_socket_connect(struct cio_socket *socket, struct cio_inet_socket_address *address, cio_connect_handler handler, void *handler_context)
+{
+	if (cio_unlikely(socket == NULL)) {
+		return CIO_INVALID_ARGUMENT;
+	}
+
+	struct sockaddr_in addr4;
+	struct sockaddr_in addr6;
+	struct sockaddr *addr;
+	socklen_t addr_len;
+	if (address->inet_address.type == CIO_INET4_ADDRESS) {
+		memset(&addr4, 0, sizeof(addr4));
+		addr = (struct sockaddr *)&addr4;
+		addr_len = sizeof(addr4);
+	} else {
+		memset(&addr6, 0, sizeof(addr6));
+		addr = (struct sockaddr *)&addr6;
+		addr_len = sizeof(addr6);
+	}
+
+	int ret = connect(socket->impl.ev.fd, addr, addr_len);
+	if (ret >= 0) {
+		handler(socket, handler_context, CIO_SUCCESS);
+	} else {
+		if (cio_likely(errno == EAGAIN)) {
+			socket->handler = handler;
+			socket->handler_context = handler_context;
+			socket->impl.ev.context = socket;
+			socket->impl.ev.write_callback = connect_callback;
+			return cio_linux_eventloop_register_write(socket->impl.loop, &socket->impl.ev);
+		}
+
+		return (enum cio_error)(-errno);
+	}
+	return CIO_SUCCESS;
+}
+
+struct cio_io_stream *cio_socket_get_io_stream(struct cio_socket *socket)
+{
+	return &socket->stream;
+}
+
+enum cio_error cio_socket_set_tcp_no_delay(struct cio_socket *socket, bool on)
 {
 	int tcp_no_delay = (char)on;
 
-	if (setsockopt(s->impl.ev.fd, IPPROTO_TCP, TCP_NODELAY, &tcp_no_delay,
+	if (setsockopt(socket->impl.ev.fd, IPPROTO_TCP, TCP_NODELAY, &tcp_no_delay,
 	               sizeof(tcp_no_delay)) < 0) {
 		return (enum cio_error)(-errno);
 	}
@@ -324,29 +368,29 @@ enum cio_error cio_socket_set_tcp_no_delay(struct cio_socket *s, bool on)
 	return CIO_SUCCESS;
 }
 
-enum cio_error cio_socket_set_keep_alive(struct cio_socket *s, bool on, unsigned int keep_idle_s,
+enum cio_error cio_socket_set_keep_alive(struct cio_socket *socket, bool on, unsigned int keep_idle_s,
                                          unsigned int keep_intvl_s, unsigned int keep_cnt)
 {
 	int keep_alive;
 
 	if (on) {
 		keep_alive = 1;
-		if (setsockopt(s->impl.ev.fd, SOL_TCP, TCP_KEEPIDLE, &keep_idle_s, sizeof(keep_idle_s)) == -1) {
+		if (setsockopt(socket->impl.ev.fd, SOL_TCP, TCP_KEEPIDLE, &keep_idle_s, sizeof(keep_idle_s)) == -1) {
 			return (enum cio_error)(-errno);
 		}
 
-		if (setsockopt(s->impl.ev.fd, SOL_TCP, TCP_KEEPINTVL, &keep_intvl_s, sizeof(keep_intvl_s)) == -1) {
+		if (setsockopt(socket->impl.ev.fd, SOL_TCP, TCP_KEEPINTVL, &keep_intvl_s, sizeof(keep_intvl_s)) == -1) {
 			return (enum cio_error)(-errno);
 		}
 
-		if (setsockopt(s->impl.ev.fd, SOL_TCP, TCP_KEEPCNT, &keep_cnt, sizeof(keep_cnt)) == -1) {
+		if (setsockopt(socket->impl.ev.fd, SOL_TCP, TCP_KEEPCNT, &keep_cnt, sizeof(keep_cnt)) == -1) {
 			return (enum cio_error)(-errno);
 		}
 	} else {
 		keep_alive = 0;
 	}
 
-	if (setsockopt(s->impl.ev.fd, SOL_SOCKET, SO_KEEPALIVE, &keep_alive, sizeof(keep_alive)) == -1) {
+	if (setsockopt(socket->impl.ev.fd, SOL_SOCKET, SO_KEEPALIVE, &keep_alive, sizeof(keep_alive)) == -1) {
 		return (enum cio_error)(-errno);
 	}
 
