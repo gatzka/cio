@@ -32,20 +32,22 @@
 
 #include "cio_compiler.h"
 #include "cio_error_code.h"
+#include "cio_inet4_address.h"
+#include "cio_inet6_address.h"
 #include "cio_inet_address.h"
 
 enum cio_error cio_init_inet_address(struct cio_inet_address *inet_address, const uint8_t *address, size_t address_length)
 {
-	if (cio_unlikely((inet_address == NULL) || !((address_length == 4) || (address_length == 16)))) {
+	if (cio_unlikely((inet_address == NULL) || !((address_length == CIO_IPV4_ADDRESS_SIZE) || (address_length == CIO_IPV6_ADDRESS_SIZE)))) {
 		return CIO_INVALID_ARGUMENT;
 	}
 
-	if (address_length == 4) {
+	if (address_length == CIO_IPV4_ADDRESS_SIZE) {
 		inet_address->type = CIO_INET4_ADDRESS;
-		memcpy(inet_address->address.addr4.addr, address, 4);
+		memcpy(inet_address->address.addr4.addr, address, CIO_IPV4_ADDRESS_SIZE);
 	} else {
 		inet_address->type = CIO_INET6_ADDRESS;
-		memcpy(inet_address->address.addr6.addr, address, 16);
+		memcpy(inet_address->address.addr6.addr, address, CIO_IPV6_ADDRESS_SIZE);
 	}
 
 	return CIO_SUCCESS;

@@ -40,8 +40,12 @@ extern "C" {
 
 #include <stdint.h>
 
+enum {
+	CIO_IPV4_ADDRESS_SIZE = 4
+};
+
 struct cio_inet4_address {
-	uint8_t addr[4];
+	uint8_t addr[CIO_IPV4_ADDRESS_SIZE];
 };
 
 #ifdef __cplusplus
