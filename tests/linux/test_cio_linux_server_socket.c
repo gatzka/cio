@@ -66,7 +66,7 @@ FAKE_VALUE_FUNC0(struct cio_socket *, alloc_client)
 void free_client(struct cio_socket *socket);
 FAKE_VOID_FUNC(free_client, struct cio_socket *)
 
-FAKE_VALUE_FUNC0(int, cio_linux_socket_create)
+FAKE_VALUE_FUNC(int, cio_linux_socket_create, int)
 
 FAKE_VALUE_FUNC(enum cio_error, cio_linux_socket_init, struct cio_socket *, int, struct cio_eventloop *, uint64_t, cio_socket_close_hook)
 

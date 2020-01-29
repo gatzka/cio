@@ -237,18 +237,15 @@ enum cio_error cio_socket_init(struct cio_socket *socket,
                                uint64_t close_timeout_ns,
                                cio_socket_close_hook close_hook)
 {
-	enum cio_error err;
-	int socket_fd = cio_linux_socket_create();
-	if (cio_unlikely(socket_fd == -1)) {
-		return (enum cio_error)(-errno);
+	if (cio_unlikely(socket == NULL) || (loop == NULL)) {
+		return CIO_INVALID_ARGUMENT;
 	}
 
-	err = cio_linux_socket_init(socket, socket_fd, loop, close_timeout_ns, close_hook);
-	if (cio_unlikely(err != CIO_SUCCESS)) {
-		close(socket_fd);
-	}
+	socket->impl.close_timeout_ns = close_timeout_ns;
+	socket->impl.loop = loop;
+	socket->close_hook = close_hook;
 
-	return err;
+	return CIO_SUCCESS;
 }
 
 static void close_timeout_handler(struct cio_timer *timer, void *handler_context, enum cio_error err)
@@ -324,6 +321,7 @@ enum cio_error cio_socket_connect(struct cio_socket *socket, struct cio_inet_soc
 	struct sockaddr_in6 addr6;
 	struct sockaddr *addr;
 	socklen_t addr_len;
+	int domain;
 	if (address->inet_address.type == CIO_INET4_ADDRESS) {
 		memset(&addr4, 0, sizeof(addr4));
 		addr4.sin_family = AF_INET;
@@ -331,6 +329,7 @@ enum cio_error cio_socket_connect(struct cio_socket *socket, struct cio_inet_soc
 		addr4.sin_port = htons(address->port);
 		addr = (struct sockaddr *)&addr4;
 		addr_len = sizeof(addr4);
+		domain = AF_INET;
 	} else {
 		memset(&addr6, 0, sizeof(addr6));
 		addr6.sin6_family = AF_INET6;
@@ -338,6 +337,18 @@ enum cio_error cio_socket_connect(struct cio_socket *socket, struct cio_inet_soc
 		addr6.sin6_port = htons(address->port);
 		addr = (struct sockaddr *)&addr6;
 		addr_len = sizeof(addr6);
+		domain = AF_INET6;
+	}
+
+	enum cio_error err;
+	int socket_fd = cio_linux_socket_create(domain);
+	if (cio_unlikely(socket_fd == -1)) {
+		return (enum cio_error)(-errno);
+	}
+
+	err = cio_linux_socket_init(socket, socket_fd, socket->impl.loop, socket->impl.close_timeout_ns, socket->close_hook);
+	if (cio_unlikely(err != CIO_SUCCESS)) {
+		close(socket_fd);
 	}
 
 	int ret = connect(socket->impl.ev.fd, addr, addr_len);
