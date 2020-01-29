@@ -62,6 +62,7 @@ struct cio_inet_address {
 /**
  * @brief Initializes a inet address structure.
  *
+ * @param inet_address The inet address to be initialized.
  * @param address The buffer that holds the address in network byte order.
  * @param address_length The length of the address buffer. Must be either 4 for IPv4 addresses or 16 for IPv6 addresses.
  *
