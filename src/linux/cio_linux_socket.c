@@ -321,24 +321,30 @@ enum cio_error cio_socket_connect(struct cio_socket *socket, struct cio_inet_soc
 	}
 
 	struct sockaddr_in addr4;
-	struct sockaddr_in addr6;
+	struct sockaddr_in6 addr6;
 	struct sockaddr *addr;
 	socklen_t addr_len;
 	if (address->inet_address.type == CIO_INET4_ADDRESS) {
 		memset(&addr4, 0, sizeof(addr4));
+		addr4.sin_family = AF_INET;
+		memcpy(&addr4.sin_addr.s_addr, address->inet_address.address.addr4.addr, sizeof(address->inet_address.address.addr4.addr));
+		addr4.sin_port = htons(address->port);
 		addr = (struct sockaddr *)&addr4;
 		addr_len = sizeof(addr4);
 	} else {
 		memset(&addr6, 0, sizeof(addr6));
+		addr6.sin6_family = AF_INET6;
+		memcpy(&addr6.sin6_addr, address->inet_address.address.addr6.addr, sizeof(address->inet_address.address.addr6.addr));
+		addr6.sin6_port = htons(address->port);
 		addr = (struct sockaddr *)&addr6;
 		addr_len = sizeof(addr6);
 	}
 
 	int ret = connect(socket->impl.ev.fd, addr, addr_len);
-	if (ret >= 0) {
+	if (ret == 0) {
 		handler(socket, handler_context, CIO_SUCCESS);
 	} else {
-		if (cio_likely(errno == EAGAIN)) {
+		if (cio_likely(errno == EINPROGRESS)) {
 			socket->handler = handler;
 			socket->handler_context = handler_context;
 			socket->impl.ev.context = socket;
