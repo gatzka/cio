@@ -58,7 +58,7 @@ struct cio_inet_socket_address {
  *
  * @return ::CIO_SUCCESS for success.
  */
-CIO_EXPORT enum cio_error cio_init_inet_socket_address(struct cio_inet_socket_address *sock_address, const struct cio_inet_socket_address *inet_address, uint16_t port);
+CIO_EXPORT enum cio_error cio_init_inet_socket_address(struct cio_inet_socket_address *sock_address, const struct cio_inet_address *inet_address, uint16_t port);
 
 #ifdef __cplusplus
 }
