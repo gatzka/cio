@@ -35,6 +35,7 @@
 #include "cio_error_code.h"
 #include "cio_eventloop.h"
 #include "cio_export.h"
+#include "cio_inet_socket_address.h"
 #include "cio_io_stream.h"
 #include "cio_socket_impl.h"
 
@@ -54,11 +55,21 @@ extern "C" {
 struct cio_socket;
 
 /**
+ * @brief The type of a function that is called when
+ * @ref cio_socket_connect "connect task" succeeds or fails.
+ *
+ * @param socket The socket where the connect was called on.
+ * @param handler_context The context the functions works on.
+ * @param err If err != ::CIO_SUCCESS, the connect call failed.
+ */
+typedef void (*cio_connect_handler)(struct cio_socket *socket, void *handler_context, enum cio_error err);
+
+/**
  * @brief The type of close hook function.
  *
- * @param s The cio_socket the close hook was called on.
+ * @param socket The cio_socket the close hook was called on.
  */
-typedef void (*cio_socket_close_hook)(struct cio_socket *s);
+typedef void (*cio_socket_close_hook)(struct cio_socket *socket);
 
 struct cio_socket {
 
@@ -73,7 +84,7 @@ struct cio_socket {
 /**
  * @brief Initializes a cio_socket.
  *
- * @param s The cio_socket that should be initialized.
+ * @param socket The cio_socket that should be initialized.
  * @param loop The event loop the socket shall operate on.
  * @param close_timeout_ns The timeout in ns until a closed TCP connection waits for a
  * TCP FIN packet from the remote peer before sending a TCP RST.If you set this parameter
@@ -87,7 +98,7 @@ struct cio_socket {
  * the hook could be used to free the memory of the server socket.
  * @return ::CIO_SUCCESS for success.
  */
-CIO_EXPORT enum cio_error cio_socket_init(struct cio_socket *s,
+CIO_EXPORT enum cio_error cio_socket_init(struct cio_socket *socket,
                                           struct cio_eventloop *loop,
                                           uint64_t close_timeout_ns,
                                           cio_socket_close_hook close_hook);
@@ -95,12 +106,22 @@ CIO_EXPORT enum cio_error cio_socket_init(struct cio_socket *s,
 /**
  * @brief Closes the cio_socket.
  *
- * Once a socket has been closed, no further communication is possible. Closing the socket
- * also closes the socket's cio_io_stream.
+ * Once a socket has been closed, no further communication is possible.
+ * Closing the socket also closes the socket's cio_io_stream.
  *
  * @param socket A pointer to a cio_socket which shall be closed.
  */
 CIO_EXPORT enum cio_error cio_socket_close(struct cio_socket *socket);
+
+/**
+ * @brief Connects this socket to a server.
+ *
+ * @param socket A pointer to a cio_socket which shall connect to a server.
+ * @param address The address of the server that should be connected.
+ * @param handler The function to be called if the connect fails or succeeds.
+ * @param handler_context The context passed to the @a handler function.
+ */
+CIO_EXPORT enum cio_error cio_socket_connect(struct cio_socket *socket, struct cio_inet_socket_address *address, cio_connect_handler handler, void *handler_context);
 
 /**
  * @brief Gets an I/O stream from the socket.
