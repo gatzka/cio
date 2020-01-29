@@ -63,7 +63,7 @@ struct cio_server_socket;
  * @param ss The server socket where the accept was called on.
  * @param handler_context The context the functions works on.
  * @param err If err != ::CIO_SUCCESS, the accept call failed. Please note that no memory for a client is
- * allocated if err != ::CIO_SUCCESS. So NEVER free any
+ * allocated if err != ::CIO_SUCCESS. So NEVER close @a socket in that case.
  * @param socket The client socket that was created from the accept.
  */
 typedef void (*cio_accept_handler)(struct cio_server_socket *ss, void *handler_context, enum cio_error err, struct cio_socket *socket);
