@@ -34,7 +34,7 @@
 #include "cio_error_code.h"
 #include "cio_inet_socket_address.h"
 
-enum cio_error cio_init_inet_socket_address(struct cio_inet_socket_address *sock_address, const struct cio_inet_socket_address *inet_address, uint16_t port)
+enum cio_error cio_init_inet_socket_address(struct cio_inet_socket_address *sock_address, const struct cio_inet_address *inet_address, uint16_t port)
 {
 	sock_address->port = port;
 	if (cio_unlikely((sock_address == NULL) || (inet_address == NULL))) {
