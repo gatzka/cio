@@ -45,6 +45,7 @@ add_custom_target(generate_semver
 add_library(${PROJECT_NAME}
     "cio_buffered_stream.c"
     "cio_inet_address.c"
+    "cio_inet_socket_address.c"
     "cio_random.c"
     "cio_version.c"
 )
