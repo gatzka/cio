@@ -87,7 +87,7 @@ enum cio_error cio_server_socket_init(struct cio_server_socket *ss,
                                       uint64_t close_timeout_ns,
                                       cio_server_socket_close_hook close_hook)
 {
-	int listen_fd = cio_linux_socket_create();
+	int listen_fd = cio_linux_socket_create(AF_INET6);
 	if (listen_fd == -1) {
 		return (enum cio_error)(-errno);
 	}

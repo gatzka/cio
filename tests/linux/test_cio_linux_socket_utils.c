@@ -55,7 +55,7 @@ static void test_create_socket_no_fd(void)
 {
 	int socket_fd = 5;
 	socket_fake.return_val = socket_fd;
-	int ret = cio_linux_socket_create();
+	int ret = cio_linux_socket_create(AF_INET);
 
 	TEST_ASSERT_EQUAL(ret, socket_fd);
 	TEST_ASSERT_EQUAL(1, socket_fake.call_count);
@@ -65,7 +65,7 @@ static void test_create_socket_no_fd(void)
 static void test_create_socket_fails(void)
 {
 	socket_fake.return_val = -1;
-	int ret = cio_linux_socket_create();
+	int ret = cio_linux_socket_create(AF_INET);
 
 	TEST_ASSERT_EQUAL(-1, ret);
 	TEST_ASSERT_EQUAL(1, socket_fake.call_count);
