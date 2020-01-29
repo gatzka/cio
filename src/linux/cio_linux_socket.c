@@ -231,7 +231,7 @@ enum cio_error cio_linux_socket_init(struct cio_socket *s, int client_fd,
 	return err;
 }
 
-enum cio_error cio_socket_init(struct cio_socket *s,
+enum cio_error cio_socket_init(struct cio_socket *socket,
                                struct cio_eventloop *loop,
                                uint64_t close_timeout_ns,
                                cio_socket_close_hook close_hook)
@@ -242,7 +242,7 @@ enum cio_error cio_socket_init(struct cio_socket *s,
 		return (enum cio_error)(-errno);
 	}
 
-	err = cio_linux_socket_init(s, socket_fd, loop, close_timeout_ns, close_hook);
+	err = cio_linux_socket_init(socket, socket_fd, loop, close_timeout_ns, close_hook);
 	if (cio_unlikely(err != CIO_SUCCESS)) {
 		close(socket_fd);
 	}
