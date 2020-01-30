@@ -19,5 +19,4 @@ target_include_directories(PLATFORM
 	PRIVATE ${CMAKE_CURRENT_BINARY_DIR}/../generated/ ${CMAKE_CURRENT_LIST_DIR}/../
 )
 
-
 target_link_libraries(PLATFORM bcrypt ws2_32)
