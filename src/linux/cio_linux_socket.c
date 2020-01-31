@@ -47,18 +47,23 @@
 #include "cio_write_buffer.h"
 #include "linux/cio_linux_socket_utils.h"
 
-static void read_callback(void *context)
+static void read_callback(void *context, enum cio_error error)
 {
 	struct cio_io_stream *stream = context;
 	struct cio_read_buffer *rb = stream->read_buffer;
 	struct cio_socket *s = cio_container_of(stream, struct cio_socket, stream);
+
+	if (cio_unlikely(error != CIO_SUCCESS)) {
+		stream->read_handler(stream, stream->read_handler_context, error, rb);
+		return;
+	}
+
 	ssize_t ret = read(s->impl.ev.fd, rb->add_ptr, cio_read_buffer_space_available(rb));
 	if (ret == -1) {
 		if (cio_unlikely(errno != EAGAIN)) {
 			stream->read_handler(stream, stream->read_handler_context, (enum cio_error)(-errno), rb);
 		}
 	} else {
-		enum cio_error error;
 		if (ret == 0) {
 			error = CIO_EOF;
 			s->impl.peer_closed_connection = true;
@@ -101,22 +106,35 @@ static void reset_connection(struct cio_socket *s)
 
 #define READ_CLOSE_BUFFER_SIZE 20
 
-static void read_until_close_callback(void *context)
+static void cancel_timer_and_reset_connection(struct cio_socket *s)
+{
+	cio_timer_cancel(&s->impl.close_timer);
+	reset_connection(s);
+}
+
+static void read_until_close_callback(void *context, enum cio_error error)
 {
 	uint8_t buffer[READ_CLOSE_BUFFER_SIZE];
 
 	struct cio_socket *s = (struct cio_socket *)context;
+
+	if (cio_unlikely(error != CIO_SUCCESS)) {
+		cancel_timer_and_reset_connection(s);
+		return;
+	}
+
 	ssize_t ret = read(s->impl.ev.fd, buffer, sizeof(buffer));
 	if (ret == -1) {
 		if (cio_unlikely(errno != EAGAIN)) {
-			cio_timer_cancel(&s->impl.close_timer);
-			reset_connection(s);
+			cancel_timer_and_reset_connection(s);
 		}
-	} else {
-		if (ret == 0) {
-			cio_timer_cancel(&s->impl.close_timer);
-			close_socket(s);
-		}
+
+		return;
+	}
+
+	if (ret == 0) {
+		cio_timer_cancel(&s->impl.close_timer);
+		close_socket(s);
 	}
 }
 
@@ -135,10 +153,10 @@ static enum cio_error stream_read(struct cio_io_stream *stream, struct cio_read_
 	return cio_linux_eventloop_register_read(s->impl.loop, &s->impl.ev);
 }
 
-static void write_callback(void *context)
+static void write_callback(void *context, enum cio_error error)
 {
 	struct cio_io_stream *stream = context;
-	stream->write_handler(stream, stream->write_handler_context, stream->write_buffer, CIO_SUCCESS, 0);
+	stream->write_handler(stream, stream->write_handler_context, stream->write_buffer, error, 0);
 }
 
 static enum cio_error stream_write(struct cio_io_stream *stream, const struct cio_write_buffer *buffer, cio_io_stream_write_handler handler, void *handler_context)
@@ -204,7 +222,6 @@ enum cio_error cio_linux_socket_init(struct cio_socket *s, int client_fd,
 	}
 
 	s->impl.ev.fd = client_fd;
-	s->impl.ev.error_callback = NULL;
 	s->impl.ev.write_callback = NULL;
 	s->impl.ev.read_callback = NULL;
 	s->impl.ev.context = s;
@@ -305,10 +322,10 @@ enum cio_error cio_socket_close(struct cio_socket *socket)
 	return CIO_SUCCESS;
 }
 
-static void connect_callback(void *context)
+static void connect_callback(void *context, enum cio_error error)
 {
 	struct cio_socket *socket = context;
-	socket->handler(socket, socket->handler_context, CIO_SUCCESS);
+	socket->handler(socket, socket->handler_context, error);
 }
 
 enum cio_error cio_socket_connect(struct cio_socket *socket, struct cio_inet_socket_address *address, cio_connect_handler handler, void *handler_context)
