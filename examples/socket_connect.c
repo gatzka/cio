@@ -43,11 +43,11 @@ static void handle_connect(struct cio_socket *socket, void *handler_context, enu
 	(void)handler_context;
 
 	if (err != CIO_SUCCESS) {
-		fprintf(stderr, "connect error!\n");
-		cio_socket_close(socket);
-		cio_eventloop_cancel(socket->impl.loop);
-		return;
+		fprintf(stderr, "connect error, error code %d\n", err);
 	}
+
+	cio_socket_close(socket);
+	cio_eventloop_cancel(socket->impl.loop);
 }
 
 static void sighandler(int signum)
