@@ -52,9 +52,15 @@ static struct itimerspec convert_timeoutns_to_itimerspec(uint64_t timeout)
 	return ts;
 }
 
-static void timer_read(void *context)
+static void timer_read(void *context, enum cio_error error)
 {
 	struct cio_timer *t = context;
+
+	if (cio_unlikely(error != CIO_SUCCESS)) {
+		t->handler(t, t->handler_context, error);
+		return;
+	}
+
 	uint64_t number_of_expirations;
 
 	ssize_t ret = read(t->impl.ev.fd, &number_of_expirations, sizeof(number_of_expirations));
@@ -84,7 +90,6 @@ enum cio_error cio_timer_init(struct cio_timer *timer, struct cio_eventloop *loo
 	timer->impl.loop = loop;
 
 	timer->impl.ev.read_callback = timer_read;
-	timer->impl.ev.error_callback = NULL;
 	timer->impl.ev.write_callback = NULL;
 	timer->impl.ev.fd = fd;
 
@@ -121,7 +126,7 @@ enum cio_error cio_timer_expires_from_now(struct cio_timer *t, uint64_t timeout_
 		return (enum cio_error)(-errno);
 	}
 
-	timer_read(t);
+	timer_read(t, CIO_SUCCESS);
 	return CIO_SUCCESS;
 }
 

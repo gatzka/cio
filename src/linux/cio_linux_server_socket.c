@@ -46,10 +46,16 @@
 #include "linux/cio_linux_socket_utils.h"
 #include "os_config.h"
 
-static void accept_callback(void *context)
+static void accept_callback(void *context, enum cio_error error)
 {
-	struct sockaddr_storage addr;
 	struct cio_server_socket *ss = context;
+
+	if (cio_unlikely(error != CIO_SUCCESS)) {
+		ss->handler(ss, ss->handler_context, error, NULL);
+		return;
+	}
+
+	struct sockaddr_storage addr;
 	int fd = ss->impl.ev.fd;
 	socklen_t addrlen;
 

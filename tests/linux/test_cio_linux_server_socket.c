@@ -145,29 +145,29 @@ static enum cio_error socket_close(struct cio_socket *s)
 
 void setUp(void)
 {
-	FFF_RESET_HISTORY();
-	RESET_FAKE(accept4);
-	RESET_FAKE(accept_handler);
-	RESET_FAKE(cio_linux_socket_create);
-	RESET_FAKE(cio_socket_close);
+	FFF_RESET_HISTORY()
+	RESET_FAKE(accept4)
+	RESET_FAKE(accept_handler)
+	RESET_FAKE(cio_linux_socket_create)
+	RESET_FAKE(cio_socket_close)
 
-	RESET_FAKE(cio_linux_eventloop_add);
-	RESET_FAKE(cio_linux_eventloop_remove);
-	RESET_FAKE(cio_linux_eventloop_register_read);
-	RESET_FAKE(cio_linux_eventloop_register_write);
+	RESET_FAKE(cio_linux_eventloop_add)
+	RESET_FAKE(cio_linux_eventloop_remove)
+	RESET_FAKE(cio_linux_eventloop_register_read)
+	RESET_FAKE(cio_linux_eventloop_register_write)
 
-	RESET_FAKE(on_close);
+	RESET_FAKE(on_close)
 
-	RESET_FAKE(getaddrinfo);
+	RESET_FAKE(getaddrinfo)
 	getaddrinfo_fake.custom_fake = getaddrinfo_success;
-	RESET_FAKE(freeaddrinfo);
+	RESET_FAKE(freeaddrinfo)
 	freeaddrinfo_fake.custom_fake = freeaddrinfo_success;
-	RESET_FAKE(setsockopt);
-	RESET_FAKE(bind);
-	RESET_FAKE(listen);
-	RESET_FAKE(close);
-	RESET_FAKE(alloc_client);
-	RESET_FAKE(free_client);
+	RESET_FAKE(setsockopt)
+	RESET_FAKE(bind)
+	RESET_FAKE(listen)
+	RESET_FAKE(close)
+	RESET_FAKE(alloc_client)
+	RESET_FAKE(free_client)
 
 	cio_socket_close_fake.custom_fake = socket_close;
 }
@@ -332,7 +332,7 @@ static void test_accept_bind_address(void)
 	err = cio_server_socket_accept(&ss, accept_handler, NULL);
 	TEST_ASSERT_EQUAL(CIO_SUCCESS, err);
 
-	ss.impl.ev.read_callback(ss.impl.ev.context);
+	ss.impl.ev.read_callback(ss.impl.ev.context, CIO_SUCCESS);
 
 	TEST_ASSERT_EQUAL(1, accept_handler_fake.call_count);
 	TEST_ASSERT_EQUAL(1, on_close_fake.call_count);
@@ -353,7 +353,7 @@ static void test_accept_close_in_accept_handler(void)
 	cio_server_socket_bind(&ss, NULL, 12345);
 	cio_server_socket_accept(&ss, accept_handler, NULL);
 
-	ss.impl.ev.read_callback(ss.impl.ev.context);
+	ss.impl.ev.read_callback(ss.impl.ev.context, CIO_SUCCESS);
 
 	TEST_ASSERT_EQUAL(1, accept_handler_fake.call_count);
 	TEST_ASSERT_EQUAL(1, on_close_fake.call_count);
@@ -374,7 +374,7 @@ static void test_accept_close_in_accept_handler_no_close_hook(void)
 	cio_server_socket_bind(&ss, NULL, 12345);
 	cio_server_socket_accept(&ss, accept_handler, NULL);
 
-	ss.impl.ev.read_callback(ss.impl.ev.context);
+	ss.impl.ev.read_callback(ss.impl.ev.context, CIO_SUCCESS);
 
 	TEST_ASSERT_EQUAL(1, accept_handler_fake.call_count);
 	TEST_ASSERT_EQUAL(0, on_close_fake.call_count);
@@ -396,7 +396,7 @@ static void test_accept_wouldblock(void)
 	err = cio_server_socket_accept(&ss, accept_handler, NULL);
 	TEST_ASSERT_EQUAL(CIO_SUCCESS, err);
 
-	ss.impl.ev.read_callback(ss.impl.ev.context);
+	ss.impl.ev.read_callback(ss.impl.ev.context, CIO_SUCCESS);
 
 	TEST_ASSERT_EQUAL(0, accept_handler_fake.call_count);
 	cio_server_socket_close(&ss);
@@ -422,7 +422,7 @@ static void test_accept_after_close(void)
 	TEST_ASSERT_EQUAL(1, on_close_fake.call_count);
 	TEST_ASSERT_EQUAL(&ss, on_close_fake.arg0_val);
 
-	ss.impl.ev.read_callback(ss.impl.ev.context);
+	ss.impl.ev.read_callback(ss.impl.ev.context, CIO_SUCCESS);
 
 	TEST_ASSERT_EQUAL(0, accept_handler_fake.call_count);
 }
@@ -441,7 +441,7 @@ static void test_accept_fails(void)
 	cio_server_socket_bind(&ss, NULL, 12345);
 	cio_server_socket_accept(&ss, accept_handler, NULL);
 
-	ss.impl.ev.read_callback(ss.impl.ev.context);
+	ss.impl.ev.read_callback(ss.impl.ev.context, CIO_SUCCESS);
 
 	TEST_ASSERT_EQUAL(1, accept_handler_fake.call_count);
 	TEST_ASSERT_EQUAL(1, on_close_fake.call_count);
@@ -482,7 +482,7 @@ static void test_accept_eventloop_add_fails(void)
 	err = cio_server_socket_bind(&ss, NULL, 12345);
 	TEST_ASSERT_EQUAL(CIO_SUCCESS, err);
 	err = cio_server_socket_accept(&ss, accept_handler, NULL);
-	TEST_ASSERT(err != CIO_SUCCESS);
+	TEST_ASSERT(err != CIO_SUCCESS)
 	TEST_ASSERT_EQUAL(0, accept_handler_fake.call_count);
 	cio_server_socket_close(&ss);
 }
@@ -498,7 +498,7 @@ static void test_init_fails_no_socket(void)
 	free_client_fake.custom_fake = free_success;
 
 	enum cio_error err = cio_server_socket_init(&ss, &loop, 5, alloc_client, free_client, 10, on_close);
-	TEST_ASSERT_NOT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Initialization of server socket did not failed!");
+	TEST_ASSERT_NOT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Initialization of server socket did not failed!")
 	TEST_ASSERT_EQUAL(0, close_fake.call_count);
 }
 
@@ -518,7 +518,7 @@ static void test_init_listen_fails(void)
 	err = cio_server_socket_bind(&ss, NULL, 12345);
 	TEST_ASSERT_EQUAL(CIO_SUCCESS, err);
 	err = cio_server_socket_accept(&ss, accept_handler, NULL);
-	TEST_ASSERT(err != CIO_SUCCESS);
+	TEST_ASSERT(err != CIO_SUCCESS)
 	cio_server_socket_close(&ss);
 }
 
@@ -536,7 +536,7 @@ static void test_init_setsockopt_fails(void)
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Initialization of server socket failed!");
 
 	err = cio_server_socket_set_reuse_address(&ss, true);
-	TEST_ASSERT(err != CIO_SUCCESS);
+	TEST_ASSERT(err != CIO_SUCCESS)
 	TEST_ASSERT_EQUAL(0, close_fake.call_count);
 	cio_server_socket_close(&ss);
 	TEST_ASSERT_EQUAL(1, close_fake.call_count);
@@ -558,7 +558,7 @@ static void test_init_register_read_fails(void)
 	err = cio_server_socket_bind(&ss, NULL, 12345);
 	TEST_ASSERT_EQUAL(CIO_SUCCESS, err);
 	err = cio_server_socket_accept(&ss, accept_handler, NULL);
-	TEST_ASSERT(err != CIO_SUCCESS);
+	TEST_ASSERT(err != CIO_SUCCESS)
 	TEST_ASSERT_EQUAL(0, close_fake.call_count);
 	cio_server_socket_close(&ss);
 	TEST_ASSERT_EQUAL(1, close_fake.call_count);
@@ -622,7 +622,7 @@ static void test_init_bind_fails(void)
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Initialization of server socket failed!");
 
 	err = cio_server_socket_bind(&ss, NULL, 12345);
-	TEST_ASSERT(err != CIO_SUCCESS);
+	TEST_ASSERT(err != CIO_SUCCESS)
 	TEST_ASSERT_EQUAL(0, close_fake.call_count);
 	cio_server_socket_close(&ss);
 	TEST_ASSERT_EQUAL(1, close_fake.call_count);
@@ -642,7 +642,7 @@ static void test_bind_getaddrinfofails(void)
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Initialization of server socket failed!");
 
 	err = cio_server_socket_bind(&ss, NULL, 12345);
-	TEST_ASSERT_NOT_EQUAL_MESSAGE(CIO_SUCCESS, err, "bind did not failed when getaddrinfo failes");
+	TEST_ASSERT_NOT_EQUAL_MESSAGE(CIO_SUCCESS, err, "bind did not failed when getaddrinfo failes")
 	TEST_ASSERT_EQUAL(0, close_fake.call_count);
 	cio_server_socket_close(&ss);
 	TEST_ASSERT_EQUAL(1, close_fake.call_count);
@@ -684,7 +684,7 @@ static void test_accept_malloc_fails(void)
 	cio_server_socket_bind(&ss, NULL, 12345);
 	cio_server_socket_accept(&ss, accept_handler, NULL);
 
-	ss.impl.ev.read_callback(ss.impl.ev.context);
+	ss.impl.ev.read_callback(ss.impl.ev.context, CIO_SUCCESS);
 
 	TEST_ASSERT_EQUAL(1, accept_handler_fake.call_count);
 	TEST_ASSERT_EQUAL_MESSAGE(&ss, accept_handler_fake.arg0_val, "first parameter of accept callback is not the server socket struct!");
@@ -715,7 +715,7 @@ static void test_accept_socket_init_fails(void)
 	cio_server_socket_bind(&ss, NULL, 12345);
 	cio_server_socket_accept(&ss, accept_handler, NULL);
 
-	ss.impl.ev.read_callback(ss.impl.ev.context);
+	ss.impl.ev.read_callback(ss.impl.ev.context, CIO_SUCCESS);
 
 	TEST_ASSERT_EQUAL(1, accept_handler_fake.call_count);
 	TEST_ASSERT_EQUAL(1, close_fake.call_count);
@@ -740,7 +740,7 @@ static void test_accept_socket_close_socket(void)
 	cio_server_socket_bind(&ss, NULL, 12345);
 	cio_server_socket_accept(&ss, accept_handler, NULL);
 
-	ss.impl.ev.read_callback(ss.impl.ev.context);
+	ss.impl.ev.read_callback(ss.impl.ev.context, CIO_SUCCESS);
 
 	TEST_ASSERT_EQUAL(1, accept_handler_fake.call_count);
 	TEST_ASSERT_EQUAL(1, close_fake.call_count);

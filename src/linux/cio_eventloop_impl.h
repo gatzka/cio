@@ -58,19 +58,13 @@ struct cio_event_notifier {
 	 * @anchor cio_linux_event_notifier_read_callback
 	 * @brief The function to be called when a file descriptor becomes readable.
 	 */
-	void (*read_callback)(void *context);
+	void (*read_callback)(void *context, enum cio_error error);
 
 	/**
 	 * @anchor cio_linux_event_notifier_write_callback
 	 * @brief The function to be called when a file descriptor becomes writeable.
 	 */
-	void (*write_callback)(void *context);
-
-	/**
-	 * @anchor cio_linux_event_notifier_error_callback
-	 * @brief The function to be called when a file descriptor got an error.
-	 */
-	void (*error_callback)(void *context);
+	void (*write_callback)(void *context, enum cio_error error);
 
 	/**
 	 * @brief The context that is given to the callback functions.

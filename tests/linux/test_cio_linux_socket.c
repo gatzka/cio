@@ -235,28 +235,28 @@ static enum cio_error cancel_timer(struct cio_timer *t)
 
 void setUp(void)
 {
-	FFF_RESET_HISTORY();
+	FFF_RESET_HISTORY()
 
-	RESET_FAKE(cio_linux_eventloop_add);
-	RESET_FAKE(cio_linux_eventloop_remove);
-	RESET_FAKE(cio_linux_eventloop_register_read);
-	RESET_FAKE(cio_linux_eventloop_register_write);
+	RESET_FAKE(cio_linux_eventloop_add)
+	RESET_FAKE(cio_linux_eventloop_remove)
+	RESET_FAKE(cio_linux_eventloop_register_read)
+	RESET_FAKE(cio_linux_eventloop_register_write)
 
-	RESET_FAKE(cio_timer_init);
-	RESET_FAKE(cio_timer_expires_from_now);
-	RESET_FAKE(cio_timer_cancel);
-	RESET_FAKE(cio_timer_close);
+	RESET_FAKE(cio_timer_init)
+	RESET_FAKE(cio_timer_expires_from_now)
+	RESET_FAKE(cio_timer_cancel)
+	RESET_FAKE(cio_timer_close)
 
-	RESET_FAKE(close);
-	RESET_FAKE(shutdown);
-	RESET_FAKE(read);
-	RESET_FAKE(sendmsg);
-	RESET_FAKE(setsockopt);
+	RESET_FAKE(close)
+	RESET_FAKE(shutdown)
+	RESET_FAKE(read)
+	RESET_FAKE(sendmsg)
+	RESET_FAKE(setsockopt)
 
-	RESET_FAKE(cio_linux_socket_create);
-	RESET_FAKE(read_handler);
-	RESET_FAKE(write_handler);
-	RESET_FAKE(on_close);
+	RESET_FAKE(cio_linux_socket_create)
+	RESET_FAKE(read_handler)
+	RESET_FAKE(write_handler)
+	RESET_FAKE(on_close)
 
 	memset(read_buffer, 0xff, sizeof(read_buffer));
 	memset(send_buffer, 0xff, sizeof(send_buffer));
@@ -306,7 +306,7 @@ static void test_socket_close_without_hook(void)
 	err = cio_socket_close(&s);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Return value of close() not correct!");
 
-	s.impl.ev.read_callback(s.impl.ev.context);
+	s.impl.ev.read_callback(s.impl.ev.context, CIO_SUCCESS);
 	TEST_ASSERT_EQUAL_MESSAGE(1, close_fake.call_count, "Socket was not closed correctly!");
 	TEST_ASSERT_EQUAL_MESSAGE(s.impl.ev.fd, close_fake.arg0_val, "Socket close was not called with correct parameter!");
 	TEST_ASSERT_EQUAL_MESSAGE(1, cio_timer_cancel_fake.call_count, "close timer was not canceled!");
@@ -352,7 +352,7 @@ static void test_socket_close_read_error(void)
 	err = cio_socket_close(&s);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Return value of close() not correct!");
 
-	s.impl.ev.read_callback(s.impl.ev.context);
+	s.impl.ev.read_callback(s.impl.ev.context, CIO_SUCCESS);
 	TEST_ASSERT_EQUAL_MESSAGE(1, close_fake.call_count, "Socket was not closed correctly!");
 	TEST_ASSERT_EQUAL_MESSAGE(s.impl.ev.fd, close_fake.arg0_val, "Socket close was not called with correct parameter!");
 	TEST_ASSERT_EQUAL_MESSAGE(1, cio_timer_cancel_fake.call_count, "close timer was not canceled!");
@@ -384,8 +384,8 @@ static void test_socket_close_get_data_from_peer(void)
 	err = cio_socket_close(&s);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Return value of close() not correct!");
 
-	s.impl.ev.read_callback(s.impl.ev.context);
-	s.impl.ev.read_callback(s.impl.ev.context);
+	s.impl.ev.read_callback(s.impl.ev.context, CIO_SUCCESS);
+	s.impl.ev.read_callback(s.impl.ev.context, CIO_SUCCESS);
 	TEST_ASSERT_EQUAL_MESSAGE(1, close_fake.call_count, "Socket was not closed correctly!");
 	TEST_ASSERT_EQUAL_MESSAGE(s.impl.ev.fd, close_fake.arg0_val, "Socket close was not called with correct parameter!");
 	TEST_ASSERT_EQUAL_MESSAGE(1, cio_timer_cancel_fake.call_count, "close timer was not canceled!");
@@ -413,8 +413,8 @@ static void test_socket_close_peer_blocks_first(void)
 	err = cio_socket_close(&s);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Return value of close() not correct!");
 
-	s.impl.ev.read_callback(s.impl.ev.context);
-	s.impl.ev.read_callback(s.impl.ev.context);
+	s.impl.ev.read_callback(s.impl.ev.context, CIO_SUCCESS);
+	s.impl.ev.read_callback(s.impl.ev.context, CIO_SUCCESS);
 	TEST_ASSERT_EQUAL_MESSAGE(1, close_fake.call_count, "Socket was not closed correctly!");
 	TEST_ASSERT_EQUAL_MESSAGE(s.impl.ev.fd, close_fake.arg0_val, "Socket close was not called with correct parameter!");
 	TEST_ASSERT_EQUAL_MESSAGE(1, cio_timer_cancel_fake.call_count, "close timer was not canceled!");
@@ -436,7 +436,7 @@ static void test_socket_close_with_hook(void)
 
 	err = cio_socket_close(&s);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Return value if close() not correct!");
-	s.impl.ev.read_callback(s.impl.ev.context);
+	s.impl.ev.read_callback(s.impl.ev.context, CIO_SUCCESS);
 	TEST_ASSERT_EQUAL_MESSAGE(1, close_fake.call_count, "Socket was not closed correctly!");
 	TEST_ASSERT_EQUAL_MESSAGE(1, on_close_fake.call_count, "close hook was not called!");
 	TEST_ASSERT_EQUAL_MESSAGE(s.impl.ev.fd, close_fake.arg0_val, "Socket close was not called with correct parameter!");
@@ -608,7 +608,7 @@ static void test_socket_nodelay_setsockopt_fails(void)
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Return value of cio_linux_socket_init() not correct!");
 
 	err = cio_socket_set_tcp_no_delay(&s, false);
-	TEST_ASSERT_NOT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Return value of set_tcp_no_delay not correct!");
+	TEST_ASSERT_NOT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Return value of set_tcp_no_delay not correct!")
 	TEST_ASSERT_EQUAL_MESSAGE(1, setsockopt_fake.call_count, "setsockopt was not called!");
 	TEST_ASSERT_EQUAL_MESSAGE(s.impl.ev.fd, setsockopt_fake.arg0_val, "fd for setsockopt not correct!");
 	TEST_ASSERT_EQUAL_MESSAGE(IPPROTO_TCP, setsockopt_fake.arg1_val, "level for setsockopt not correct!");
@@ -649,10 +649,10 @@ static void test_socket_disable_keepalive_setsockopt_fails(void)
 	enum cio_error err = cio_socket_init(&s, &loop, 10, NULL);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Return value of cio_socket_init not correct!");
 
-	SET_CUSTOM_FAKE_SEQ(setsockopt, custom_fakes, ARRAY_SIZE(custom_fakes));
+	SET_CUSTOM_FAKE_SEQ(setsockopt, custom_fakes, ARRAY_SIZE(custom_fakes))
 
 	err = cio_socket_set_keep_alive(&s, false, 10, 9, 8);
-	TEST_ASSERT_NOT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Return value for failing set_keep_alive not correct!");
+	TEST_ASSERT_NOT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Return value for failing set_keep_alive not correct!")
 	TEST_ASSERT_EQUAL_MESSAGE(1, setsockopt_fake.call_count, "setsockopt was not called 1 time!");
 }
 
@@ -689,10 +689,10 @@ static void test_socket_enable_keepalive_keep_intvl_fails(void)
 	enum cio_error err = cio_socket_init(&s, &loop, 10, NULL);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Return value of cio_socket_init not correct!");
 
-	SET_CUSTOM_FAKE_SEQ(setsockopt, custom_fakes, ARRAY_SIZE(custom_fakes));
+	SET_CUSTOM_FAKE_SEQ(setsockopt, custom_fakes, ARRAY_SIZE(custom_fakes))
 
 	err = cio_socket_set_keep_alive(&s, true, 10, 9, 8);
-	TEST_ASSERT_NOT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Return value for failing set_keep_alive not correct!");
+	TEST_ASSERT_NOT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Return value for failing set_keep_alive not correct!")
 	TEST_ASSERT_EQUAL_MESSAGE(2, setsockopt_fake.call_count, "setsockopt was not called 2 times!");
 }
 
@@ -709,10 +709,10 @@ static void test_socket_enable_keepalive_keep_cnt(void)
 	enum cio_error err = cio_socket_init(&s, &loop, 10, NULL);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Return value of cio_socket_init not correct!");
 
-	SET_CUSTOM_FAKE_SEQ(setsockopt, custom_fakes, ARRAY_SIZE(custom_fakes));
+	SET_CUSTOM_FAKE_SEQ(setsockopt, custom_fakes, ARRAY_SIZE(custom_fakes))
 
 	err = cio_socket_set_keep_alive(&s, true, 10, 9, 8);
-	TEST_ASSERT_NOT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Return value for failing set_keep_alive not correct!");
+	TEST_ASSERT_NOT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Return value for failing set_keep_alive not correct!")
 	TEST_ASSERT_EQUAL_MESSAGE(3, setsockopt_fake.call_count, "setsockopt was not called 3 times!");
 }
 
@@ -731,7 +731,7 @@ static void test_socket_stream_close(void)
 	struct cio_io_stream *stream = cio_socket_get_io_stream(&s);
 	err = stream->close(stream);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Return value of stream close() not correct!");
-	s.impl.ev.read_callback(s.impl.ev.context);
+	s.impl.ev.read_callback(s.impl.ev.context, CIO_SUCCESS);
 	TEST_ASSERT_EQUAL_MESSAGE(1, close_fake.call_count, "Socket and/or close timer were not closed correctly!");
 	TEST_ASSERT_EQUAL_MESSAGE(s.impl.ev.fd, close_fake.arg0_val, "file descriptor fo close() not correct!");
 }
@@ -757,7 +757,7 @@ static void test_socket_readsome(void)
 	err = stream->read_some(stream, &rb, read_handler, NULL);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Return value not correct!");
 
-	s.impl.ev.read_callback(s.impl.ev.context);
+	s.impl.ev.read_callback(s.impl.ev.context, CIO_SUCCESS);
 
 	TEST_ASSERT_EQUAL_MESSAGE(1, read_handler_fake.call_count, "read handler was not called!");
 	TEST_ASSERT_EQUAL_MESSAGE(stream, read_handler_fake.arg0_val, "First parameter for read handler is not the stream!");
@@ -813,7 +813,7 @@ static void test_socket_readsome_read_blocks(void)
 	err = stream->read_some(stream, &rb, read_handler, NULL);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Return value not correct!");
 
-	s.impl.ev.read_callback(s.impl.ev.context);
+	s.impl.ev.read_callback(s.impl.ev.context, CIO_SUCCESS);
 
 	TEST_ASSERT_EQUAL_MESSAGE(0, read_handler_fake.call_count, "Handler was called!");
 }
@@ -840,7 +840,7 @@ static void test_socket_readsome_read_fails(void)
 	err = stream->read_some(stream, &rb, read_handler, NULL);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Return value not correct!");
 
-	s.impl.ev.read_callback(s.impl.ev.context);
+	s.impl.ev.read_callback(s.impl.ev.context, CIO_SUCCESS);
 
 	TEST_ASSERT_EQUAL_MESSAGE(1, read_handler_fake.call_count, "Read handler was not called!");
 	TEST_ASSERT_EQUAL_MESSAGE(stream, read_handler_fake.arg0_val, "Original stream was not passed to read handler!");
@@ -869,7 +869,7 @@ static void test_socket_readsome_read_eof(void)
 	err = stream->read_some(stream, &rb, read_handler, NULL);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Return value not correct!");
 
-	s.impl.ev.read_callback(s.impl.ev.context);
+	s.impl.ev.read_callback(s.impl.ev.context, CIO_SUCCESS);
 
 	err = cio_socket_close(&s);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Return value of close() not correct!");
@@ -1047,7 +1047,7 @@ static void test_socket_writesome_fails(void)
 	struct cio_io_stream *stream = cio_socket_get_io_stream(&s);
 
 	err = stream->write_some(stream, &wbh, write_handler, NULL);
-	TEST_ASSERT_NOT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Return value not correct!");
+	TEST_ASSERT_NOT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Return value not correct!")
 	TEST_ASSERT_EQUAL_MESSAGE(0, write_handler_fake.call_count, "write_handler was called!");
 }
 
@@ -1060,7 +1060,7 @@ static void test_socket_writesome_blocks(void)
 	    {
 	        send_blocks,
 	        send_all};
-	SET_CUSTOM_FAKE_SEQ(sendmsg, custom_fakes, ARRAY_SIZE(custom_fakes));
+	SET_CUSTOM_FAKE_SEQ(sendmsg, custom_fakes, ARRAY_SIZE(custom_fakes))
 
 	struct cio_socket s;
 	struct cio_write_buffer wbh;
@@ -1082,7 +1082,7 @@ static void test_socket_writesome_blocks(void)
 	err = stream->write_some(stream, &wbh, write_handler, NULL);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Return value not correct!");
 	TEST_ASSERT_EQUAL_MESSAGE(0, write_handler_fake.call_count, "write_handler was called!");
-	s.impl.ev.write_callback(s.impl.ev.context);
+	s.impl.ev.write_callback(s.impl.ev.context, CIO_SUCCESS);
 	TEST_ASSERT_EQUAL_MESSAGE(1, write_handler_fake.call_count, "write_handler was not called exactly once!");
 	TEST_ASSERT_EQUAL_MESSAGE(stream, write_handler_fake.arg0_val, "write_handler was not called with correct stream!");
 	TEST_ASSERT_EQUAL_MESSAGE(NULL, write_handler_fake.arg1_val, "write_handler was not called with correct handler_context!");
@@ -1100,7 +1100,7 @@ static void test_socket_writesome_blocks_fails(void)
 	    {
 	        send_blocks,
 	        send_all};
-	SET_CUSTOM_FAKE_SEQ(sendmsg, custom_fakes, ARRAY_SIZE(custom_fakes));
+	SET_CUSTOM_FAKE_SEQ(sendmsg, custom_fakes, ARRAY_SIZE(custom_fakes))
 	cio_linux_eventloop_register_write_fake.return_val = CIO_INVALID_ARGUMENT;
 
 	struct cio_socket s;
@@ -1121,7 +1121,7 @@ static void test_socket_writesome_blocks_fails(void)
 	struct cio_io_stream *stream = cio_socket_get_io_stream(&s);
 
 	err = stream->write_some(stream, &wbh, write_handler, NULL);
-	TEST_ASSERT_NOT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Return value not correct!");
+	TEST_ASSERT_NOT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Return value not correct!")
 
 	TEST_ASSERT_EQUAL_MESSAGE(0, write_handler_fake.call_count, "write_handler was called!");
 }
