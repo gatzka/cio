@@ -43,7 +43,7 @@ int cio_linux_socket_create(int domain)
 	return fd;
 }
 
-enum cio_error cio_linux_fget_socket_error(int fd)
+enum cio_error cio_linux_get_socket_error(int fd)
 {
 	int error = 0;
 	socklen_t len = sizeof(error);

@@ -36,7 +36,7 @@ extern "C" {
 #include "cio_error_code.h"
 
 int cio_linux_socket_create(int domain);
-enum cio_error cio_linux_fget_socket_error(int fd);
+enum cio_error cio_linux_get_socket_error(int fd);
 
 #ifdef __cplusplus
 }
