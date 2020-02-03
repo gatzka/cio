@@ -197,6 +197,10 @@ enum cio_error cio_eventloop_run(struct cio_eventloop *loop)
 				if (cio_unlikely(((events_type & (uint32_t)EPOLLERR) != 0) || ((events_type & (uint32_t)EPOLLHUP) != 0))) {
 					int error = 0;
 					socklen_t len = sizeof(error);
+					//TODO:
+					// take out getsockoptcall (let that do the callback function)
+					// call read/write_callback with eventloop specific error codes
+					// rename enum cio_error to enum cio_socket_error
 					int ret = getsockopt(ev->fd, SOL_SOCKET, SO_ERROR, &error, &len);
 					if (cio_unlikely(ret != 0)) {
 						err = (enum cio_error)(-errno);
