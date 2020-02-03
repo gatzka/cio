@@ -46,4 +46,3 @@ struct cio_timer_impl {
 #endif
 
 #endif
-
