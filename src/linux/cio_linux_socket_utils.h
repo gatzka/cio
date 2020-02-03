@@ -34,8 +34,9 @@ extern "C" {
 #endif
 
 #include "cio_error_code.h"
+#include "cio_inet_address.h"
 
-int cio_linux_socket_create(int domain);
+int cio_linux_socket_create(enum cio_socket_address_family address_family);
 enum cio_error cio_linux_get_socket_error(int fd);
 
 #ifdef __cplusplus

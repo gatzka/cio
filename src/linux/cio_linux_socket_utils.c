@@ -33,8 +33,18 @@
 #include "cio_error_code.h"
 #include "linux/cio_linux_socket_utils.h"
 
-int cio_linux_socket_create(int domain)
+int cio_linux_socket_create(enum cio_socket_address_family address_family)
 {
+	int domain;
+	switch (address_family) {
+		case CIO_INET4_ADDRESS:
+			domain = AF_INET;
+			break;
+		case CIO_INET6_ADDRESS:
+			domain = AF_INET6;
+			break;
+	}
+
 	int fd = socket(domain, (unsigned int)SOCK_STREAM | (unsigned int)SOCK_CLOEXEC | (unsigned int)SOCK_NONBLOCK, 0U);
 	if (cio_unlikely(fd == -1)) {
 		return -1;

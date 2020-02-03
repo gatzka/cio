@@ -87,6 +87,7 @@ struct cio_socket {
  * @brief Initializes a cio_socket.
  *
  * @param socket The cio_socket that should be initialized.
+ * @param address_family The address family like ::CIO_INET4_ADDRESS or ::CIO_INET6_ADDRESS
  * @param loop The event loop the socket shall operate on.
  * @param close_timeout_ns The timeout in ns until a closed TCP connection waits for a
  * TCP FIN packet from the remote peer before sending a TCP RST.If you set this parameter
@@ -101,6 +102,7 @@ struct cio_socket {
  * @return ::CIO_SUCCESS for success.
  */
 CIO_EXPORT enum cio_error cio_socket_init(struct cio_socket *socket,
+                                          enum cio_socket_address_family address_family,
                                           struct cio_eventloop *loop,
                                           uint64_t close_timeout_ns,
                                           cio_socket_close_hook close_hook);

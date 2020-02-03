@@ -33,6 +33,7 @@
 #include "unity.h"
 
 #include "cio_eventloop.h"
+#include "cio_inet_address.h"
 #include "cio_linux_socket.h"
 #include "cio_linux_socket_utils.h"
 #include "cio_server_socket.h"
@@ -66,7 +67,7 @@ FAKE_VALUE_FUNC0(struct cio_socket *, alloc_client)
 void free_client(struct cio_socket *socket);
 FAKE_VOID_FUNC(free_client, struct cio_socket *)
 
-FAKE_VALUE_FUNC(int, cio_linux_socket_create, int)
+FAKE_VALUE_FUNC(int, cio_linux_socket_create, enum cio_socket_address_family)
 
 FAKE_VALUE_FUNC(enum cio_error, cio_linux_socket_init, struct cio_socket *, int, struct cio_eventloop *, uint64_t, cio_socket_close_hook)
 

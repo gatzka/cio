@@ -46,13 +46,13 @@ extern "C" {
 #include "cio_inet4_address.h"
 #include "cio_inet6_address.h"
 
-enum cio_inet_address_type {
+enum cio_socket_address_family {
 	CIO_INET4_ADDRESS,
 	CIO_INET6_ADDRESS
 };
 
 struct cio_inet_address {
-	enum cio_inet_address_type type;
+	enum cio_socket_address_family type;
 	union {
 		struct cio_inet4_address addr4;
 		struct cio_inet6_address addr6;
