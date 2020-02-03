@@ -40,6 +40,7 @@
 #include "cio_compiler.h"
 #include "cio_error_code.h"
 #include "cio_eventloop_impl.h"
+#include "cio_inet_address.h"
 #include "cio_linux_socket.h"
 #include "cio_server_socket.h"
 #include "cio_socket.h"
@@ -93,7 +94,7 @@ enum cio_error cio_server_socket_init(struct cio_server_socket *ss,
                                       uint64_t close_timeout_ns,
                                       cio_server_socket_close_hook close_hook)
 {
-	int listen_fd = cio_linux_socket_create(AF_INET6);
+	int listen_fd = cio_linux_socket_create(CIO_INET6_ADDRESS);
 	if (listen_fd == -1) {
 		return (enum cio_error)(-errno);
 	}

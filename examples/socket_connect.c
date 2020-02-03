@@ -56,8 +56,33 @@ static void sighandler(int signum)
 	cio_eventloop_cancel(&loop);
 }
 
-int main(void)
+static void usage(const char *name)
 {
+	fprintf(stderr, "Usage: %s <IPv4 address> <port>\n", name);
+}
+
+int main(int argc, char *argv[])
+{
+	if (argc != 3) {
+		usage(argv[0]);
+		return EXIT_FAILURE;
+	}
+
+	uint8_t ipv4_address[4] = {0x8b, 0x3b, 0x86, 0xf8};
+	int number = sscanf(argv[1], "%3hhu.%3hhu.%3hhu.%3hhu", ipv4_address, ipv4_address + 1, ipv4_address + 2, ipv4_address + 3);
+	if (number != 4) {
+		usage(argv[0]);
+		return EXIT_FAILURE;
+	}
+
+	uint16_t port;
+	number = sscanf(argv[2], "%hu", &port);
+
+	if (number != 1) {
+		usage(argv[0]);
+		return EXIT_FAILURE;
+	}
+
 	int ret = EXIT_SUCCESS;
 	if (signal(SIGTERM, sighandler) == SIG_ERR) {
 		return -1;
@@ -74,7 +99,6 @@ int main(void)
 	}
 
 	struct cio_inet_address address;
-	uint8_t ipv4_address[4] = {0x8b, 0x3b, 0x86, 0xf8};
 	err = cio_init_inet_address(&address, ipv4_address, sizeof(ipv4_address));
 	if (err != CIO_SUCCESS) {
 		ret = EXIT_FAILURE;
@@ -82,23 +106,19 @@ int main(void)
 	}
 
 	struct cio_inet_socket_address socket_address;
-	err = cio_init_inet_socket_address(&socket_address, &address, 80);
+	err = cio_init_inet_socket_address(&socket_address, &address, port);
 	if (err != CIO_SUCCESS) {
 		ret = EXIT_FAILURE;
 		goto destroy_loop;
 	}
 
 	struct cio_socket socket;
-	err = cio_socket_init(&socket, &loop, close_timeout_ns, NULL);
-	if (err != CIO_SUCCESS) {
-		ret = EXIT_FAILURE;
-		goto destroy_loop;
-	}
 
+	err = cio_socket_init(&socket, CIO_INET4_ADDRESS, &loop, close_timeout_ns, NULL);
 	err = cio_socket_connect(&socket, &socket_address, handle_connect, NULL);
 	if (err != CIO_SUCCESS) {
 		ret = EXIT_FAILURE;
-		goto close_socket;
+		goto destroy_loop;
 	}
 
 	err = cio_eventloop_run(&loop);
@@ -106,7 +126,6 @@ int main(void)
 		ret = EXIT_FAILURE;
 	}
 
-close_socket:
 	cio_socket_close(&socket);
 destroy_loop:
 	cio_eventloop_destroy(&loop);
