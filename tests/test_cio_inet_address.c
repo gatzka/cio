@@ -70,7 +70,7 @@ static void test_init_inet_address_no_address(void)
 
 static void test_init_inet_address_no_ipaddress(void)
 {
-	uint8_t ipv6_address[16] = {0};
+	uint8_t ipv6_address[16];
 	struct cio_inet_address address;
 	enum cio_error err = cio_init_inet_address(&address, NULL, sizeof(ipv6_address));
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_INVALID_ARGUMENT, err, "cio_init_inet_address didn't fail if no IP address given!");
