@@ -315,6 +315,32 @@ static void accept_handler_close_socket(struct cio_server_socket *ss, void *hand
 	}
 }
 
+static void test_accept_error(void)
+{
+	accept4_fake.custom_fake = custom_accept_fake;
+	accept_handler_fake.custom_fake = accept_handler_close_server_socket;
+	alloc_client_fake.custom_fake = alloc_success;
+	free_client_fake.custom_fake = free_success;
+
+	struct cio_eventloop loop;
+	struct cio_server_socket ss;
+	enum cio_error err = cio_server_socket_init(&ss, &loop, 5, alloc_client, free_client, 10, on_close);
+	TEST_ASSERT_EQUAL(CIO_SUCCESS, err);
+	err = cio_server_socket_set_reuse_address(&ss, true);
+	TEST_ASSERT_EQUAL(CIO_SUCCESS, err);
+	err = cio_server_socket_bind(&ss, "127.0.0.10", 12345);
+	TEST_ASSERT_EQUAL(CIO_SUCCESS, err);
+	err = cio_server_socket_accept(&ss, accept_handler, NULL);
+	TEST_ASSERT_EQUAL(CIO_SUCCESS, err);
+
+	ss.impl.ev.read_callback(ss.impl.ev.context, CIO_NO_BUFFER_SPACE);
+
+	TEST_ASSERT_EQUAL(1, accept_handler_fake.call_count);
+	TEST_ASSERT_EQUAL_MESSAGE(CIO_NO_BUFFER_SPACE, accept_handler_fake.arg2_val, "accept_hander was not called with correct error code!");
+	TEST_ASSERT_EQUAL(1, on_close_fake.call_count);
+	TEST_ASSERT_EQUAL(&ss, on_close_fake.arg0_val);
+}
+
 static void test_accept_bind_address(void)
 {
 	accept4_fake.custom_fake = custom_accept_fake;
@@ -752,6 +778,8 @@ static void test_accept_socket_close_socket(void)
 int main(void)
 {
 	UNITY_BEGIN();
+
+	RUN_TEST(test_accept_error);
 	RUN_TEST(test_accept_bind_address);
 	RUN_TEST(test_accept_close_in_accept_handler);
 	RUN_TEST(test_accept_close_in_accept_handler_no_close_hook);
