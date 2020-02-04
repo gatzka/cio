@@ -38,7 +38,7 @@
 
 enum cio_error cio_init_inet_address(struct cio_inet_address *inet_address, const uint8_t *address, size_t address_length)
 {
-	if (cio_unlikely((inet_address == NULL) || !((address_length == CIO_IPV4_ADDRESS_SIZE) || (address_length == CIO_IPV6_ADDRESS_SIZE)))) {
+	if (cio_unlikely((inet_address == NULL) || (address == NULL) || !((address_length == CIO_IPV4_ADDRESS_SIZE) || (address_length == CIO_IPV6_ADDRESS_SIZE)))) {
 		return CIO_INVALID_ARGUMENT;
 	}
 
