@@ -31,6 +31,7 @@
 
 #include "cio_compiler.h"
 #include "cio_error_code.h"
+#include "cio_inet_address.h"
 #include "linux/cio_linux_socket_utils.h"
 
 int cio_linux_socket_create(enum cio_socket_address_family address_family)
@@ -42,6 +43,9 @@ int cio_linux_socket_create(enum cio_socket_address_family address_family)
 			break;
 		case CIO_INET6_ADDRESS:
 			domain = AF_INET6;
+			break;
+		default:
+			return -1;
 			break;
 	}
 
