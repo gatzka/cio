@@ -64,7 +64,7 @@ enum cio_error cio_linux_get_socket_error(int fd)
 	int ret = getsockopt(fd, SOL_SOCKET, SO_ERROR, &error, &len);
 	if (cio_unlikely(ret != 0)) {
 		return (enum cio_error)(-errno);
-	} else {
-		return (enum cio_error)(-error);
 	}
+
+	return (enum cio_error)(-error);
 }
