@@ -38,6 +38,7 @@
 #include "cio_compiler.h"
 #include "cio_error_code.h"
 #include "cio_eventloop_impl.h"
+#include "cio_inet_socket_address.h"
 #include "cio_io_stream.h"
 #include "cio_linux_socket.h"
 #include "cio_read_buffer.h"
@@ -217,10 +218,6 @@ enum cio_error cio_linux_socket_init(struct cio_socket *s, int client_fd,
                                      uint64_t close_timeout_ns,
                                      cio_socket_close_hook close_hook)
 {
-	if (cio_unlikely((s == NULL) || (loop == NULL))) {
-		return CIO_INVALID_ARGUMENT;
-	}
-
 	s->impl.ev.fd = client_fd;
 	s->impl.ev.write_callback = NULL;
 	s->impl.ev.read_callback = NULL;
