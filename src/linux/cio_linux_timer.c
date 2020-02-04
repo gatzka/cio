@@ -57,7 +57,9 @@ static void timer_read(void *context, enum cio_error error)
 	struct cio_timer *t = context;
 
 	if (cio_unlikely(error != CIO_SUCCESS)) {
-		t->handler(t, t->handler_context, error);
+		cio_timer_handler handler = t->handler;
+		t->handler = NULL;
+		handler(t, t->handler_context, error);
 		return;
 	}
 
