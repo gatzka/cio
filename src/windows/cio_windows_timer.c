@@ -45,8 +45,8 @@ static void CALLBACK timer_callback(void *context, BOOLEAN fired)
 
 static void timer_event_callback(struct cio_event_notifier *ev)
 {
-	struct cio_timer_impl *impl = cio_container_of(impl, struct cio_timer_impl, ev);
-	struct cio_timer *t = cio_container_of(ev, struct cio_timer, impl);
+	struct cio_timer_impl *impl = cio_container_of(ev, struct cio_timer_impl, ev);
+	struct cio_timer *t = cio_container_of(impl, struct cio_timer, impl);
 	cio_timer_handler handler = t->handler;
 	t->handler = NULL;
 	handler(t, t->handler_context, CIO_SUCCESS);
