@@ -115,10 +115,15 @@ int main(int argc, char *argv[])
 	struct cio_socket socket;
 
 	err = cio_socket_init(&socket, CIO_INET4_ADDRESS, &loop, close_timeout_ns, NULL);
-	err = cio_socket_connect(&socket, &socket_address, handle_connect, NULL);
 	if (err != CIO_SUCCESS) {
 		ret = EXIT_FAILURE;
 		goto destroy_loop;
+	}
+
+	err = cio_socket_connect(&socket, &socket_address, handle_connect, NULL);
+	if (err != CIO_SUCCESS) {
+		ret = EXIT_FAILURE;
+		goto close_socket;
 	}
 
 	err = cio_eventloop_run(&loop);
@@ -126,6 +131,7 @@ int main(int argc, char *argv[])
 		ret = EXIT_FAILURE;
 	}
 
+close_socket:
 	cio_socket_close(&socket);
 destroy_loop:
 	cio_eventloop_destroy(&loop);
