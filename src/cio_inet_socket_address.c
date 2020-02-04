@@ -36,11 +36,11 @@
 
 enum cio_error cio_init_inet_socket_address(struct cio_inet_socket_address *sock_address, const struct cio_inet_address *inet_address, uint16_t port)
 {
-	sock_address->port = port;
 	if (cio_unlikely((sock_address == NULL) || (inet_address == NULL))) {
 		return CIO_INVALID_ARGUMENT;
 	}
 
+	sock_address->port = port;
 	memcpy(&sock_address->inet_address, inet_address, sizeof(*inet_address));
 	return CIO_SUCCESS;
 }
