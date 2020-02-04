@@ -29,6 +29,9 @@ add_test(NAME cio.common.test_http_server_iostream COMMAND test_cio_http_server_
 add_executable(test_cio_http_location test_cio_http_location.c)
 add_test(NAME cio.common.test_http_location COMMAND test_cio_http_location)
 
+add_executable(test_cio_inet_address test_cio_inet_address.c)
+add_test(NAME cio.common.test_inet_address COMMAND test_cio_inet_address)
+
 add_executable(test_cio_random test_cio_random.c)
 add_test(NAME cio.common.test_random COMMAND test_cio_random)
 
