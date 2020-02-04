@@ -32,6 +32,7 @@
 #include "fff.h"
 #include "unity.h"
 
+#include "cio_inet_address.h"
 #include "cio_linux_socket_utils.h"
 
 DEFINE_FFF_GLOBALS
@@ -41,10 +42,10 @@ FAKE_VALUE_FUNC(int, close, int)
 
 void setUp(void)
 {
-	FFF_RESET_HISTORY();
-	RESET_FAKE(socket);
+	FFF_RESET_HISTORY()
+	RESET_FAKE(socket)
 
-	RESET_FAKE(close);
+	RESET_FAKE(close)
 }
 
 void tearDown(void)
@@ -55,7 +56,7 @@ static void test_create_socket_no_fd(void)
 {
 	int socket_fd = 5;
 	socket_fake.return_val = socket_fd;
-	int ret = cio_linux_socket_create(AF_INET);
+	int ret = cio_linux_socket_create(CIO_INET4_ADDRESS);
 
 	TEST_ASSERT_EQUAL(ret, socket_fd);
 	TEST_ASSERT_EQUAL(1, socket_fake.call_count);
@@ -65,7 +66,7 @@ static void test_create_socket_no_fd(void)
 static void test_create_socket_fails(void)
 {
 	socket_fake.return_val = -1;
-	int ret = cio_linux_socket_create(AF_INET);
+	int ret = cio_linux_socket_create(CIO_INET4_ADDRESS);
 
 	TEST_ASSERT_EQUAL(-1, ret);
 	TEST_ASSERT_EQUAL(1, socket_fake.call_count);
