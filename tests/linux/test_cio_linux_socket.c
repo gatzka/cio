@@ -36,6 +36,7 @@
 #include "unity.h"
 
 #include "cio_error_code.h"
+#include "cio_inet_address.h"
 #include "cio_linux_socket.h"
 #include "cio_linux_socket_utils.h"
 #include "cio_read_buffer.h"
@@ -78,42 +79,16 @@ FAKE_VOID_FUNC(write_handler, struct cio_io_stream *, void *, const struct cio_w
 #define ARRAY_SIZE(a) (sizeof(a) / sizeof((a)[0]))
 #endif
 
-#if 0
-static uint8_t read_buffer[100];
-static size_t available_read_data;
-static uint8_t readback_buffer[200];
-static size_t bytes_to_send;
-static uint8_t send_buffer[200];
-
 static struct cio_eventloop loop;
 
-#if 0
-static int socket_create_fails(int domain)
-{
-	(void)domain;
-	errno = EINVAL;
-	return -1;
-}
-#endif
 
-static ssize_t read_ok(int fd, void *buf, size_t count)
+static ssize_t read_eof(int fd, void *buf, size_t count)
 {
 	(void)fd;
 	(void)buf;
 	(void)count;
 
-	memcpy(buf, read_buffer, available_read_data);
-	return (ssize_t)available_read_data;
-}
-
-static ssize_t read_blocks(int fd, void *buf, size_t count)
-{
-	(void)fd;
-	(void)buf;
-	(void)count;
-
-	errno = EWOULDBLOCK;
-	return -1;
+	return 0;
 }
 
 static ssize_t read_fails(int fd, void *buf, size_t count)
@@ -126,15 +101,6 @@ static ssize_t read_fails(int fd, void *buf, size_t count)
 	return -1;
 }
 
-static ssize_t read_eof(int fd, void *buf, size_t count)
-{
-	(void)fd;
-	(void)buf;
-	(void)count;
-
-	return 0;
-}
-
 static ssize_t read_4_bytes(int fd, void *buf, size_t count)
 {
 	(void)fd;
@@ -142,6 +108,57 @@ static ssize_t read_4_bytes(int fd, void *buf, size_t count)
 	(void)count;
 
 	return 4;
+}
+
+static ssize_t read_blocks(int fd, void *buf, size_t count)
+{
+	(void)fd;
+	(void)buf;
+	(void)count;
+
+	errno = EWOULDBLOCK;
+	return -1;
+}
+
+static int setsockopt_fails(int fd, int level, int option_name,
+							const void *option_value, socklen_t option_len)
+{
+	(void)fd;
+	(void)level;
+	(void)option_name;
+	(void)option_value;
+	(void)option_len;
+
+	errno = EINVAL;
+	return -1;
+}
+
+static int setsockopt_ok(int fd, int level, int option_name,
+						 const void *option_value, socklen_t option_len)
+{
+	(void)fd;
+	(void)level;
+	(void)option_name;
+	(void)option_value;
+	(void)option_len;
+
+	return 0;
+}
+
+static size_t available_read_data;
+static uint8_t read_buffer[100];
+static uint8_t readback_buffer[200];
+static uint8_t send_buffer[200];
+static size_t bytes_to_send;
+
+static ssize_t read_ok(int fd, void *buf, size_t count)
+{
+	(void)fd;
+	(void)buf;
+	(void)count;
+
+	memcpy(buf, read_buffer, available_read_data);
+	return (ssize_t)available_read_data;
 }
 
 static ssize_t send_all(int fd, const struct msghdr *msg, int flags)
@@ -155,15 +172,6 @@ static ssize_t send_all(int fd, const struct msghdr *msg, int flags)
 	}
 
 	return len;
-}
-
-static ssize_t send_blocks(int fd, const struct msghdr *msg, int flags)
-{
-	(void)fd;
-	(void)msg;
-	(void)flags;
-	errno = EWOULDBLOCK;
-	return -1;
 }
 
 static ssize_t send_parts(int fd, const struct msghdr *msg, int flags)
@@ -194,29 +202,13 @@ static ssize_t send_fails(int fd, const struct msghdr *msg, int flags)
 	return -1;
 }
 
-static int setsockopt_fails(int fd, int level, int option_name,
-                            const void *option_value, socklen_t option_len)
+static ssize_t send_blocks(int fd, const struct msghdr *msg, int flags)
 {
 	(void)fd;
-	(void)level;
-	(void)option_name;
-	(void)option_value;
-	(void)option_len;
-
-	errno = EINVAL;
+	(void)msg;
+	(void)flags;
+	errno = EWOULDBLOCK;
 	return -1;
-}
-
-static int setsockopt_ok(int fd, int level, int option_name,
-                         const void *option_value, socklen_t option_len)
-{
-	(void)fd;
-	(void)level;
-	(void)option_name;
-	(void)option_value;
-	(void)option_len;
-
-	return 0;
 }
 
 static enum cio_error expires_save_handler(struct cio_timer *t, uint64_t timeout_ns, cio_timer_handler handler, void *handler_context)
@@ -233,7 +225,6 @@ static enum cio_error cancel_timer(struct cio_timer *t)
 
 	return CIO_SUCCESS;
 }
-#endif
 
 void setUp(void)
 {
@@ -260,37 +251,63 @@ void setUp(void)
 	RESET_FAKE(write_handler)
 	RESET_FAKE(on_close)
 
-#if 0
+	available_read_data = 0;
 	memset(read_buffer, 0xff, sizeof(read_buffer));
 	memset(send_buffer, 0xff, sizeof(send_buffer));
-	available_read_data = 0;
 	bytes_to_send = 0;
-#endif
 }
 
 void tearDown(void)
 {
 }
-#if 0
+
 static void test_socket_init(void)
 {
 	struct cio_socket s;
-
-	enum cio_error err = cio_socket_init(&s, &loop, 10, NULL);
+	enum cio_error err = cio_socket_init(&s, CIO_INET4_ADDRESS, &loop, 10, NULL);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Return value if cio_socket_init() not correct!");
 }
 
 static void test_socket_init_socket_create_no_socket(void)
 {
-	enum cio_error err = cio_socket_init(NULL, &loop, 10, NULL);
+	enum cio_error err = cio_socket_init(NULL, CIO_INET4_ADDRESS, &loop, 10, NULL);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_INVALID_ARGUMENT, err, "Return value of cio_socket_init() not correct!");
 }
 
 static void test_socket_init_socket_create_no_loop(void)
 {
 	struct cio_socket s;
-	enum cio_error err = cio_socket_init(&s, NULL, 10, NULL);
+	enum cio_error err = cio_socket_init(&s, CIO_INET4_ADDRESS, NULL, 10, NULL);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_INVALID_ARGUMENT, err, "Return value of cio_socket_init() not correct!");
+}
+
+static void test_socket_init_socket_create_fails(void)
+{
+	cio_linux_socket_create_fake.return_val = -1;
+	errno = EINVAL;
+
+	struct cio_socket s;
+	enum cio_error err = cio_socket_init(&s, CIO_INET4_ADDRESS, &loop, 10, NULL);
+	TEST_ASSERT_EQUAL_MESSAGE(CIO_INVALID_ARGUMENT, err, "Return value if cio_socket_init() not correct if socket creation fails!");
+}
+
+static void test_linux_socket_init_timer_init_fails(void)
+{
+	struct cio_socket s;
+	cio_timer_init_fake.return_val = CIO_NO_BUFFER_SPACE;
+
+	enum cio_error err = cio_linux_socket_init(&s, 2, &loop, 10, NULL);
+	TEST_ASSERT_EQUAL_MESSAGE(CIO_NO_BUFFER_SPACE, err, "Return value of cio_linux_socket_init() not correct if timer init fails!");
+}
+
+static void test_linux_socket_init_eventloop_add_fails(void)
+{
+	struct cio_socket s;
+	cio_linux_eventloop_add_fake.return_val = CIO_NO_BUFFER_SPACE;
+
+	enum cio_error err = cio_linux_socket_init(&s, 2, &loop, 10, NULL);
+	TEST_ASSERT_EQUAL_MESSAGE(CIO_NO_BUFFER_SPACE, err, "Return value of cio_linux_socket_init() not correct if timer init fails!");
+	TEST_ASSERT_EQUAL_MESSAGE(1, cio_timer_close_fake.call_count, "close timer was not called if eventloop_add fails");
 }
 
 static void test_socket_close_without_hook(void)
@@ -300,12 +317,8 @@ static void test_socket_close_without_hook(void)
 	read_fake.custom_fake = read_eof;
 	cio_timer_expires_from_now_fake.custom_fake = expires_save_handler;
 	cio_timer_cancel_fake.custom_fake = cancel_timer;
-	enum cio_error err = cio_socket_init(&s, &loop, 10, NULL);
+	enum cio_error err = cio_socket_init(&s, CIO_INET4_ADDRESS, &loop, 10, NULL);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Return value of cio_socket_init() not correct!");
-
-	int socket_fd = cio_linux_socket_create(AF_INET);
-	err = cio_linux_socket_init(&s, socket_fd, s.impl.loop, s.impl.close_timeout_ns, s.close_hook);
-	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Return value of cio_linux_socket_init() not correct!");
 
 	err = cio_socket_close(&s);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Return value of close() not correct!");
@@ -317,17 +330,32 @@ static void test_socket_close_without_hook(void)
 	TEST_ASSERT_EQUAL_MESSAGE(1, cio_timer_close_fake.call_count, "close timer was not closed!");
 }
 
+static void test_socket_close_with_hook(void)
+{
+	struct cio_socket s;
+
+	read_fake.custom_fake = read_eof;
+
+	enum cio_error err = cio_socket_init(&s, CIO_INET4_ADDRESS, &loop, 10, on_close);
+	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Return value of cio_socket_init() not correct!");
+
+	err = cio_socket_close(&s);
+	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Return value if close() not correct!");
+	s.impl.ev.read_callback(s.impl.ev.context, CIO_SUCCESS);
+	TEST_ASSERT_EQUAL_MESSAGE(1, close_fake.call_count, "Socket was not closed correctly!");
+	TEST_ASSERT_EQUAL_MESSAGE(1, on_close_fake.call_count, "close hook was not called!");
+	TEST_ASSERT_EQUAL_MESSAGE(s.impl.ev.fd, close_fake.arg0_val, "Socket close was not called with correct parameter!");
+	TEST_ASSERT_EQUAL_MESSAGE(1, cio_timer_cancel_fake.call_count, "close timer was not canceled!");
+	TEST_ASSERT_EQUAL_MESSAGE(1, cio_timer_close_fake.call_count, "close timer was not closed!");
+}
+
 static void test_socket_close_without_timeout(void)
 {
 	struct cio_socket s;
 
 	read_fake.custom_fake = read_eof;
-	enum cio_error err = cio_socket_init(&s, &loop, 0, NULL);
+	enum cio_error err = cio_socket_init(&s, CIO_INET4_ADDRESS, &loop, 0, NULL);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Return value of cio_socket_init() not correct!");
-
-	int socket_fd = cio_linux_socket_create(AF_INET);
-	err = cio_linux_socket_init(&s, socket_fd, s.impl.loop, s.impl.close_timeout_ns, s.close_hook);
-	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Return value of cio_linux_socket_init() not correct!");
 
 	err = cio_socket_close(&s);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Return value of close() not correct!");
@@ -346,12 +374,8 @@ static void test_socket_close_read_error(void)
 	struct cio_socket s;
 
 	read_fake.custom_fake = read_fails;
-	enum cio_error err = cio_socket_init(&s, &loop, 10, NULL);
+	enum cio_error err = cio_socket_init(&s,CIO_INET4_ADDRESS, &loop, 10, NULL);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Return value of cio_socket_init() not correct!");
-
-	int socket_fd = cio_linux_socket_create(AF_INET);
-	err = cio_linux_socket_init(&s, socket_fd, s.impl.loop, s.impl.close_timeout_ns, s.close_hook);
-	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Return value of cio_linux_socket_init() not correct!");
 
 	err = cio_socket_close(&s);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Return value of close() not correct!");
@@ -377,13 +401,9 @@ static void test_socket_close_get_data_from_peer(void)
 		read_eof,
 	};
 
-	SET_CUSTOM_FAKE_SEQ(read, read_fakes, ARRAY_SIZE(read_fakes));
-	enum cio_error err = cio_socket_init(&s, &loop, 10, NULL);
+	SET_CUSTOM_FAKE_SEQ(read, read_fakes, ARRAY_SIZE(read_fakes))
+	enum cio_error err = cio_socket_init(&s, CIO_INET4_ADDRESS, &loop, 10, NULL);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Return value of cio_socket_init() not correct!");
-
-	int socket_fd = cio_linux_socket_create(AF_INET);
-	err = cio_linux_socket_init(&s, socket_fd, s.impl.loop, s.impl.close_timeout_ns, s.close_hook);
-	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Return value of cio_linux_socket_init() not correct!");
 
 	err = cio_socket_close(&s);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Return value of close() not correct!");
@@ -405,14 +425,9 @@ static void test_socket_close_peer_blocks_first(void)
 		read_eof,
 	};
 
-	SET_CUSTOM_FAKE_SEQ(read, read_fakes, ARRAY_SIZE(read_fakes));
-	enum cio_error err = cio_socket_init(&s, &loop, 10, NULL);
+	SET_CUSTOM_FAKE_SEQ(read, read_fakes, ARRAY_SIZE(read_fakes))
+	enum cio_error err = cio_socket_init(&s, CIO_INET4_ADDRESS, &loop, 10, NULL);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Return value of cio_socket_init() not correct!");
-
-	int socket_fd = cio_linux_socket_create(AF_INET);
-	err = cio_linux_socket_init(&s, socket_fd, s.impl.loop, s.impl.close_timeout_ns, s.close_hook);
-	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Return value of cio_linux_socket_init() not correct!");
-
 
 	err = cio_socket_close(&s);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Return value of close() not correct!");
@@ -425,34 +440,11 @@ static void test_socket_close_peer_blocks_first(void)
 	TEST_ASSERT_EQUAL_MESSAGE(1, cio_timer_close_fake.call_count, "close timer was not closed!");
 }
 
-static void test_socket_close_with_hook(void)
+static void test_socket_close_no_socket(void)
 {
 	struct cio_socket s;
 
-	read_fake.custom_fake = read_eof;
-
-	enum cio_error err = cio_socket_init(&s, &loop, 10, on_close);
-	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Return value of cio_socket_init() not correct!");
-
-	int socket_fd = cio_linux_socket_create(AF_INET);
-	err = cio_linux_socket_init(&s, socket_fd, s.impl.loop, s.impl.close_timeout_ns, s.close_hook);
-	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Return value of cio_linux_socket_init() not correct!");
-
-	err = cio_socket_close(&s);
-	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Return value if close() not correct!");
-	s.impl.ev.read_callback(s.impl.ev.context, CIO_SUCCESS);
-	TEST_ASSERT_EQUAL_MESSAGE(1, close_fake.call_count, "Socket was not closed correctly!");
-	TEST_ASSERT_EQUAL_MESSAGE(1, on_close_fake.call_count, "close hook was not called!");
-	TEST_ASSERT_EQUAL_MESSAGE(s.impl.ev.fd, close_fake.arg0_val, "Socket close was not called with correct parameter!");
-	TEST_ASSERT_EQUAL_MESSAGE(1, cio_timer_cancel_fake.call_count, "close timer was not canceled!");
-	TEST_ASSERT_EQUAL_MESSAGE(1, cio_timer_close_fake.call_count, "close timer was not closed!");
-}
-
-static void test_socket_close_no_stream(void)
-{
-	struct cio_socket s;
-
-	enum cio_error err = cio_socket_init(&s, &loop, 10, NULL);
+	enum cio_error err = cio_socket_init(&s, CIO_INET4_ADDRESS, &loop, 10, NULL);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Return value of cio_socket_init not correct!");
 
 	err = cio_socket_close(NULL);
@@ -464,12 +456,8 @@ static void test_socket_close_shutdown_fails(void)
 {
 	struct cio_socket s;
 	shutdown_fake.return_val = -1;
-	enum cio_error err = cio_socket_init(&s, &loop, 10, NULL);
+	enum cio_error err = cio_socket_init(&s, CIO_INET4_ADDRESS, &loop, 10, NULL);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Return value of cio_socket_init() not correct!");
-
-	int socket_fd = cio_linux_socket_create(AF_INET);
-	err = cio_linux_socket_init(&s, socket_fd, s.impl.loop, s.impl.close_timeout_ns, s.close_hook);
-	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Return value of cio_linux_socket_init() not correct!");
 
 	err = cio_socket_close(&s);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Return value of close() not correct!");
@@ -488,12 +476,8 @@ static void test_socket_close_register_read_fails(void)
 	struct cio_socket s;
 
 	cio_linux_eventloop_register_read_fake.return_val = CIO_INVALID_ARGUMENT;
-	enum cio_error err = cio_socket_init(&s, &loop, 10, on_close);
+	enum cio_error err = cio_socket_init(&s, CIO_INET4_ADDRESS, &loop, 10, on_close);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Return value of cio_socket_init not correct!");
-
-	int socket_fd = cio_linux_socket_create(AF_INET);
-	err = cio_linux_socket_init(&s, socket_fd, s.impl.loop, s.impl.close_timeout_ns, s.close_hook);
-	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Return value of cio_linux_socket_init() not correct!");
 
 	err = cio_socket_close(&s);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Return value of close() not correct!");
@@ -513,12 +497,8 @@ static void test_socket_close_expire_fails(void)
 
 	cio_timer_expires_from_now_fake.return_val = CIO_INVALID_ARGUMENT;
 
-	enum cio_error err = cio_socket_init(&s, &loop, 10, on_close);
+	enum cio_error err = cio_socket_init(&s, CIO_INET4_ADDRESS, &loop, 10, on_close);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Return value of cio_socket_init not correct!");
-
-	int socket_fd = cio_linux_socket_create(AF_INET);
-	err = cio_linux_socket_init(&s, socket_fd, s.impl.loop, s.impl.close_timeout_ns, s.close_hook);
-	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Return value of cio_linux_socket_init() not correct!");
 
 	err = cio_socket_close(&s);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Return value of close() not correct!");
@@ -538,12 +518,8 @@ static void test_socket_close_expires(void)
 
 	cio_timer_expires_from_now_fake.custom_fake = expires_save_handler;
 
-	enum cio_error err = cio_socket_init(&s, &loop, 10, on_close);
+	enum cio_error err = cio_socket_init(&s, CIO_INET4_ADDRESS, &loop, 10, on_close);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Return value of cio_socket_init not correct!");
-
-	int socket_fd = cio_linux_socket_create(AF_INET);
-	err = cio_linux_socket_init(&s, socket_fd, s.impl.loop, s.impl.close_timeout_ns, s.close_hook);
-	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Return value of cio_linux_socket_init() not correct!");
 
 	err = cio_socket_close(&s);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Return value of close() not correct!");
@@ -559,17 +535,12 @@ static void test_socket_close_expires(void)
 	TEST_ASSERT_EQUAL_MESSAGE(SO_LINGER, setsockopt_fake.arg2_val, "option name for setsockopt not correct!");
 }
 
-
 static void test_socket_enable_nodelay(void)
 {
 	struct cio_socket s;
 
-	enum cio_error err = cio_socket_init(&s, &loop, 10, NULL);
+	enum cio_error err = cio_socket_init(&s, CIO_INET4_ADDRESS, &loop, 10, NULL);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Return value of cio_socket_init not correct!");
-
-	int socket_fd = cio_linux_socket_create(AF_INET);
-	err = cio_linux_socket_init(&s, socket_fd, s.impl.loop, s.impl.close_timeout_ns, s.close_hook);
-	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Return value of cio_linux_socket_init() not correct!");
 
 	err = cio_socket_set_tcp_no_delay(&s, true);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Return value of set_tcp_no_delay not correct!");
@@ -583,12 +554,8 @@ static void test_socket_disable_nodelay(void)
 {
 	struct cio_socket s;
 
-	enum cio_error err = cio_socket_init(&s, &loop, 10, NULL);
+	enum cio_error err = cio_socket_init(&s, CIO_INET4_ADDRESS, &loop, 10, NULL);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Return value of cio_socket_init not correct!");
-
-	int socket_fd = cio_linux_socket_create(AF_INET);
-	err = cio_linux_socket_init(&s, socket_fd, s.impl.loop, s.impl.close_timeout_ns, s.close_hook);
-	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Return value of cio_linux_socket_init() not correct!");
 
 	err = cio_socket_set_tcp_no_delay(&s, false);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Return value of set_tcp_no_delay not correct!");
@@ -604,12 +571,8 @@ static void test_socket_nodelay_setsockopt_fails(void)
 
 	setsockopt_fake.custom_fake = setsockopt_fails;
 
-	enum cio_error err = cio_socket_init(&s, &loop, 10, NULL);
+	enum cio_error err = cio_socket_init(&s, CIO_INET4_ADDRESS, &loop, 10, NULL);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Return value of cio_socket_init not correct!");
-
-	int socket_fd = cio_linux_socket_create(AF_INET);
-	err = cio_linux_socket_init(&s, socket_fd, s.impl.loop, s.impl.close_timeout_ns, s.close_hook);
-	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Return value of cio_linux_socket_init() not correct!");
 
 	err = cio_socket_set_tcp_no_delay(&s, false);
 	TEST_ASSERT_NOT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Return value of set_tcp_no_delay not correct!")
@@ -623,7 +586,7 @@ static void test_socket_enable_keepalive(void)
 {
 	struct cio_socket s;
 
-	enum cio_error err = cio_socket_init(&s, &loop, 10, NULL);
+	enum cio_error err = cio_socket_init(&s, CIO_INET4_ADDRESS, &loop, 10, NULL);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Return value of cio_socket_init not correct!");
 
 	err = cio_socket_set_keep_alive(&s, true, 10, 9, 8);
@@ -635,7 +598,7 @@ static void test_socket_disable_keepalive(void)
 {
 	struct cio_socket s;
 
-	enum cio_error err = cio_socket_init(&s, &loop, 10, NULL);
+	enum cio_error err = cio_socket_init(&s, CIO_INET4_ADDRESS, &loop, 10, NULL);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Return value of cio_socket_init not correct!");
 
 	err = cio_socket_set_keep_alive(&s, false, 10, 9, 8);
@@ -650,7 +613,7 @@ static void test_socket_disable_keepalive_setsockopt_fails(void)
 		setsockopt_fails,
 	};
 
-	enum cio_error err = cio_socket_init(&s, &loop, 10, NULL);
+	enum cio_error err = cio_socket_init(&s, CIO_INET4_ADDRESS, &loop, 10, NULL);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Return value of cio_socket_init not correct!");
 
 	SET_CUSTOM_FAKE_SEQ(setsockopt, custom_fakes, ARRAY_SIZE(custom_fakes))
@@ -670,13 +633,13 @@ static void test_socket_enable_keepalive_keep_idle_fails(void)
 	        setsockopt_ok,
 	        setsockopt_ok};
 
-	enum cio_error err = cio_socket_init(&s, &loop, 10, NULL);
+	enum cio_error err = cio_socket_init(&s, CIO_INET4_ADDRESS, &loop, 10, NULL);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Return value of cio_socket_init not correct!");
 
-	SET_CUSTOM_FAKE_SEQ(setsockopt, custom_fakes, ARRAY_SIZE(custom_fakes));
+	SET_CUSTOM_FAKE_SEQ(setsockopt, custom_fakes, ARRAY_SIZE(custom_fakes))
 
 	err = cio_socket_set_keep_alive(&s, true, 10, 9, 8);
-	TEST_ASSERT_NOT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Return value for failing set_keep_alive not correct!");
+	TEST_ASSERT_NOT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Return value for failing set_keep_alive not correct!")
 	TEST_ASSERT_EQUAL_MESSAGE(1, setsockopt_fake.call_count, "setsockopt was not called 1 time!");
 }
 
@@ -690,7 +653,7 @@ static void test_socket_enable_keepalive_keep_intvl_fails(void)
 	        setsockopt_ok,
 	        setsockopt_ok};
 
-	enum cio_error err = cio_socket_init(&s, &loop, 10, NULL);
+	enum cio_error err = cio_socket_init(&s, CIO_INET4_ADDRESS, &loop, 10, NULL);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Return value of cio_socket_init not correct!");
 
 	SET_CUSTOM_FAKE_SEQ(setsockopt, custom_fakes, ARRAY_SIZE(custom_fakes))
@@ -710,7 +673,7 @@ static void test_socket_enable_keepalive_keep_cnt(void)
 	        setsockopt_fails,
 	        setsockopt_ok};
 
-	enum cio_error err = cio_socket_init(&s, &loop, 10, NULL);
+	enum cio_error err = cio_socket_init(&s, CIO_INET4_ADDRESS, &loop, 10, NULL);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Return value of cio_socket_init not correct!");
 
 	SET_CUSTOM_FAKE_SEQ(setsockopt, custom_fakes, ARRAY_SIZE(custom_fakes))
@@ -725,12 +688,8 @@ static void test_socket_stream_close(void)
 	read_fake.custom_fake = read_eof;
 
 	struct cio_socket s;
-	enum cio_error err = cio_socket_init(&s, &loop, 10, on_close);
+	enum cio_error err = cio_socket_init(&s, CIO_INET4_ADDRESS, &loop, 10, on_close);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Return value of cio_socket_init not correct!");
-
-	int socket_fd = cio_linux_socket_create(AF_INET);
-	err = cio_linux_socket_init(&s, socket_fd, s.impl.loop, s.impl.close_timeout_ns, s.close_hook);
-	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Return value of cio_linux_socket_init() not correct!");
 
 	struct cio_io_stream *stream = cio_socket_get_io_stream(&s);
 	err = stream->close(stream);
@@ -748,12 +707,8 @@ static void test_socket_readsome(void)
 	read_fake.custom_fake = read_ok;
 
 	struct cio_socket s;
-	enum cio_error err = cio_socket_init(&s, &loop, 10, on_close);
+	enum cio_error err = cio_socket_init(&s, CIO_INET4_ADDRESS, &loop, 10, on_close);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Return value of cio_socket_init not correct!");
-
-	int socket_fd = cio_linux_socket_create(AF_INET);
-	err = cio_linux_socket_init(&s, socket_fd, s.impl.loop, s.impl.close_timeout_ns, s.close_hook);
-	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Return value of cio_linux_socket_init() not correct!");
 
 	struct cio_read_buffer rb;
 	cio_read_buffer_init(&rb, readback_buffer, sizeof(readback_buffer));
@@ -780,12 +735,8 @@ static void test_socket_readsome_register_read_fails(void)
 	cio_linux_eventloop_register_read_fake.return_val = CIO_INVALID_ARGUMENT;
 
 	struct cio_socket s;
-	enum cio_error err = cio_socket_init(&s, &loop, 10, on_close);
+	enum cio_error err = cio_socket_init(&s, CIO_INET4_ADDRESS, &loop, 10, on_close);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Return value of cio_socket_init not correct!");
-
-	int socket_fd = cio_linux_socket_create(AF_INET);
-	err = cio_linux_socket_init(&s, socket_fd, s.impl.loop, s.impl.close_timeout_ns, s.close_hook);
-	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Return value of cio_linux_socket_init() not correct!");
 
 	struct cio_read_buffer rb;
 	cio_read_buffer_init(&rb, readback_buffer, sizeof(readback_buffer));
@@ -803,12 +754,8 @@ static void test_socket_readsome_read_blocks(void)
 	read_fake.custom_fake = read_blocks;
 
 	struct cio_socket s;
-	enum cio_error err = cio_socket_init(&s, &loop, 10, on_close);
+	enum cio_error err = cio_socket_init(&s, CIO_INET4_ADDRESS, &loop, 10, on_close);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Return value of cio_socket_init not correct!");
-
-	int socket_fd = cio_linux_socket_create(AF_INET);
-	err = cio_linux_socket_init(&s, socket_fd, s.impl.loop, s.impl.close_timeout_ns, s.close_hook);
-	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Return value of cio_linux_socket_init() not correct!");
 
 	struct cio_read_buffer rb;
 	cio_read_buffer_init(&rb, readback_buffer, sizeof(readback_buffer));
@@ -830,12 +777,8 @@ static void test_socket_readsome_read_fails(void)
 	read_fake.custom_fake = read_fails;
 
 	struct cio_socket s;
-	enum cio_error err = cio_socket_init(&s, &loop, 10, on_close);
+	enum cio_error err = cio_socket_init(&s, CIO_INET4_ADDRESS, &loop, 10, on_close);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Return value of cio_socket_init not correct!");
-
-	int socket_fd = cio_linux_socket_create(AF_INET);
-	err = cio_linux_socket_init(&s, socket_fd, s.impl.loop, s.impl.close_timeout_ns, s.close_hook);
-	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Return value of cio_linux_socket_init() not correct!");
 
 	struct cio_read_buffer rb;
 	cio_read_buffer_init(&rb, readback_buffer, sizeof(readback_buffer));
@@ -858,15 +801,11 @@ static void test_socket_readsome_read_eof(void)
 	read_fake.custom_fake = read_eof;
 
 	struct cio_socket s;
-	enum cio_error err = cio_socket_init(&s, &loop, 10, on_close);
+	enum cio_error err = cio_socket_init(&s, CIO_INET4_ADDRESS, &loop, 10, on_close);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Return value of cio_socket_init not correct!");
 
 	struct cio_read_buffer rb;
 	cio_read_buffer_init(&rb, readback_buffer, sizeof(readback_buffer));
-
-	int socket_fd = cio_linux_socket_create(AF_INET);
-	err = cio_linux_socket_init(&s, socket_fd, s.impl.loop, s.impl.close_timeout_ns, s.close_hook);
-	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Return value of cio_linux_socket_init() not correct!");
 
 	struct cio_io_stream *stream = cio_socket_get_io_stream(&s);
 
@@ -894,12 +833,8 @@ static void test_socket_readsome_no_stream(void)
 	read_fake.custom_fake = read_fails;
 
 	struct cio_socket s;
-	enum cio_error err = cio_socket_init(&s, &loop, 10, on_close);
+	enum cio_error err = cio_socket_init(&s, CIO_INET4_ADDRESS, &loop, 10, on_close);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Return value of cio_socket_init not correct!");
-
-	int socket_fd = cio_linux_socket_create(AF_INET);
-	err = cio_linux_socket_init(&s, socket_fd, s.impl.loop, s.impl.close_timeout_ns, s.close_hook);
-	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Return value of cio_linux_socket_init() not correct!");
 
 	struct cio_read_buffer rb;
 	cio_read_buffer_init(&rb, readback_buffer, sizeof(readback_buffer));
@@ -918,12 +853,8 @@ static void test_socket_readsome_no_buffer(void)
 	read_fake.custom_fake = read_fails;
 
 	struct cio_socket s;
-	enum cio_error err = cio_socket_init(&s, &loop, 10, on_close);
+	enum cio_error err = cio_socket_init(&s, CIO_INET4_ADDRESS, &loop, 10, on_close);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Return value of cio_socket_init not correct!");
-
-	int socket_fd = cio_linux_socket_create(AF_INET);
-	err = cio_linux_socket_init(&s, socket_fd, s.impl.loop, s.impl.close_timeout_ns, s.close_hook);
-	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Return value of cio_linux_socket_init() not correct!");
 
 	struct cio_io_stream *stream = cio_socket_get_io_stream(&s);
 
@@ -940,15 +871,11 @@ static void test_socket_readsome_no_handler(void)
 	read_fake.custom_fake = read_fails;
 
 	struct cio_socket s;
-	enum cio_error err = cio_socket_init(&s, &loop, 10, on_close);
+	enum cio_error err = cio_socket_init(&s, CIO_INET4_ADDRESS, &loop, 10, on_close);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Return value of cio_socket_init not correct!");
 
 	struct cio_read_buffer rb;
 	cio_read_buffer_init(&rb, readback_buffer, sizeof(readback_buffer));
-
-	int socket_fd = cio_linux_socket_create(AF_INET);
-	err = cio_linux_socket_init(&s, socket_fd, s.impl.loop, s.impl.close_timeout_ns, s.close_hook);
-	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Return value of cio_linux_socket_init() not correct!");
 
 	struct cio_io_stream *stream = cio_socket_get_io_stream(&s);
 
@@ -971,13 +898,9 @@ static void test_socket_writesome_all(void)
 	cio_write_buffer_element_init(&wb, buffer, sizeof(buffer));
 	cio_write_buffer_queue_tail(&wbh, &wb);
 
-	enum cio_error err = cio_socket_init(&s, &loop, 10, on_close);
+	enum cio_error err = cio_socket_init(&s, CIO_INET4_ADDRESS, &loop, 10, on_close);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Return value of cio_socket_init not correct!");
 	struct cio_io_stream *stream = cio_socket_get_io_stream(&s);
-
-	int socket_fd = cio_linux_socket_create(AF_INET);
-	err = cio_linux_socket_init(&s, socket_fd, s.impl.loop, s.impl.close_timeout_ns, s.close_hook);
-	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Return value of cio_linux_socket_init() not correct!");
 
 	err = stream->write_some(stream, &wbh, write_handler, NULL);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Return value not correct!");
@@ -1007,12 +930,8 @@ static void test_socket_writesome_parts(void)
 	wb.data.element.length = sizeof(buffer);
 	cio_write_buffer_queue_tail(&wbh, &wb);
 
-	enum cio_error err = cio_socket_init(&s, &loop, 10, on_close);
+	enum cio_error err = cio_socket_init(&s, CIO_INET4_ADDRESS, &loop, 10, on_close);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Return value of cio_socket_init not correct!");
-
-	int socket_fd = cio_linux_socket_create(AF_INET);
-	err = cio_linux_socket_init(&s, socket_fd, s.impl.loop, s.impl.close_timeout_ns, s.close_hook);
-	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Return value of cio_linux_socket_init() not correct!");
 
 	struct cio_io_stream *stream = cio_socket_get_io_stream(&s);
 
@@ -1041,12 +960,8 @@ static void test_socket_writesome_fails(void)
 	cio_write_buffer_element_init(&wb, buffer, sizeof(buffer));
 	cio_write_buffer_queue_tail(&wbh, &wb);
 
-	enum cio_error err = cio_socket_init(&s, &loop, 10, on_close);
+	enum cio_error err = cio_socket_init(&s, CIO_INET4_ADDRESS, &loop, 10, on_close);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Return value of cio_socket_init not correct!");
-
-	int socket_fd = cio_linux_socket_create(AF_INET);
-	err = cio_linux_socket_init(&s, socket_fd, s.impl.loop, s.impl.close_timeout_ns, s.close_hook);
-	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Return value of cio_linux_socket_init() not correct!");
 
 	struct cio_io_stream *stream = cio_socket_get_io_stream(&s);
 
@@ -1074,12 +989,8 @@ static void test_socket_writesome_blocks(void)
 	cio_write_buffer_element_init(&wb, buffer, sizeof(buffer));
 	cio_write_buffer_queue_tail(&wbh, &wb);
 
-	enum cio_error err = cio_socket_init(&s, &loop, 10, on_close);
+	enum cio_error err = cio_socket_init(&s, CIO_INET4_ADDRESS, &loop, 10, on_close);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Return value of cio_socket_init not correct!");
-
-	int socket_fd = cio_linux_socket_create(AF_INET);
-	err = cio_linux_socket_init(&s, socket_fd, s.impl.loop, s.impl.close_timeout_ns, s.close_hook);
-	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Return value of cio_linux_socket_init() not correct!");
 
 	struct cio_io_stream *stream = cio_socket_get_io_stream(&s);
 
@@ -1115,12 +1026,8 @@ static void test_socket_writesome_blocks_fails(void)
 	cio_write_buffer_element_init(&wb, buffer, sizeof(buffer));
 	cio_write_buffer_queue_tail(&wbh, &wb);
 
-	enum cio_error err = cio_socket_init(&s, &loop, 10, on_close);
+	enum cio_error err = cio_socket_init(&s, CIO_INET4_ADDRESS, &loop, 10, on_close);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Return value of cio_socket_init not correct!");
-
-	int socket_fd = cio_linux_socket_create(AF_INET);
-	err = cio_linux_socket_init(&s, socket_fd, s.impl.loop, s.impl.close_timeout_ns, s.close_hook);
-	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Return value of cio_linux_socket_init() not correct!");
 
 	struct cio_io_stream *stream = cio_socket_get_io_stream(&s);
 
@@ -1144,12 +1051,8 @@ static void test_socket_writesome_no_stream(void)
 	cio_write_buffer_element_init(&wb, buffer, sizeof(buffer));
 	cio_write_buffer_queue_tail(&wbh, &wb);
 
-	enum cio_error err = cio_socket_init(&s, &loop, 10, on_close);
+	enum cio_error err = cio_socket_init(&s, CIO_INET4_ADDRESS, &loop, 10, on_close);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Return value of cio_socket_init not correct!");
-
-	int socket_fd = cio_linux_socket_create(AF_INET);
-	err = cio_linux_socket_init(&s, socket_fd, s.impl.loop, s.impl.close_timeout_ns, s.close_hook);
-	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Return value of cio_linux_socket_init() not correct!");
 
 	struct cio_io_stream *stream = cio_socket_get_io_stream(&s);
 
@@ -1172,12 +1075,8 @@ static void test_socket_writesome_no_buffer(void)
 	cio_write_buffer_element_init(&wb, buffer, sizeof(buffer));
 	cio_write_buffer_queue_tail(&wbh, &wb);
 
-	enum cio_error err = cio_socket_init(&s, &loop, 10, on_close);
+	enum cio_error err = cio_socket_init(&s, CIO_INET4_ADDRESS, &loop, 10, on_close);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Return value of cio_socket_init not correct!");
-
-	int socket_fd = cio_linux_socket_create(AF_INET);
-	err = cio_linux_socket_init(&s, socket_fd, s.impl.loop, s.impl.close_timeout_ns, s.close_hook);
-	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Return value of cio_linux_socket_init() not correct!");
 
 	struct cio_io_stream *stream = cio_socket_get_io_stream(&s);
 
@@ -1200,12 +1099,8 @@ static void test_socket_writesome_no_handler(void)
 	cio_write_buffer_element_init(&wb, buffer, sizeof(buffer));
 	cio_write_buffer_queue_tail(&wbh, &wb);
 
-	enum cio_error err = cio_socket_init(&s, &loop, 10, on_close);
+	enum cio_error err = cio_socket_init(&s, CIO_INET4_ADDRESS, &loop, 10, on_close);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Return value of cio_socket_init not correct!");
-
-	int socket_fd = cio_linux_socket_create(AF_INET);
-	err = cio_linux_socket_init(&s, socket_fd, s.impl.loop, s.impl.close_timeout_ns, s.close_hook);
-	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Return value of cio_linux_socket_init() not correct!");
 
 	struct cio_io_stream *stream = cio_socket_get_io_stream(&s);
 
@@ -1213,25 +1108,30 @@ static void test_socket_writesome_no_handler(void)
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_INVALID_ARGUMENT, err, "Return value not correct!");
 	TEST_ASSERT_EQUAL_MESSAGE(0, write_handler_fake.call_count, "write_handler was not called exactly once!");
 }
-#endif
+
 int main(void)
 {
 	UNITY_BEGIN();
-#if 0
 	RUN_TEST(test_socket_init);
 	RUN_TEST(test_socket_init_socket_create_no_socket);
 	RUN_TEST(test_socket_init_socket_create_no_loop);
+	RUN_TEST(test_socket_init_socket_create_fails);
+	RUN_TEST(test_linux_socket_init_timer_init_fails);
+	RUN_TEST(test_linux_socket_init_eventloop_add_fails);
+
 	RUN_TEST(test_socket_close_without_hook);
+	RUN_TEST(test_socket_close_with_hook);
+
 	RUN_TEST(test_socket_close_without_timeout);
 	RUN_TEST(test_socket_close_read_error);
 	RUN_TEST(test_socket_close_get_data_from_peer);
 	RUN_TEST(test_socket_close_peer_blocks_first);
-	RUN_TEST(test_socket_close_with_hook);
-	RUN_TEST(test_socket_close_no_stream);
+	RUN_TEST(test_socket_close_no_socket);
 	RUN_TEST(test_socket_close_shutdown_fails);
 	RUN_TEST(test_socket_close_register_read_fails);
 	RUN_TEST(test_socket_close_expire_fails);
 	RUN_TEST(test_socket_close_expires);
+
 	RUN_TEST(test_socket_enable_nodelay);
 	RUN_TEST(test_socket_disable_nodelay);
 	RUN_TEST(test_socket_nodelay_setsockopt_fails);
@@ -1241,7 +1141,9 @@ int main(void)
 	RUN_TEST(test_socket_enable_keepalive_keep_idle_fails);
 	RUN_TEST(test_socket_enable_keepalive_keep_intvl_fails);
 	RUN_TEST(test_socket_enable_keepalive_keep_cnt);
+
 	RUN_TEST(test_socket_stream_close);
+
 	RUN_TEST(test_socket_readsome);
 	RUN_TEST(test_socket_readsome_register_read_fails);
 	RUN_TEST(test_socket_readsome_read_blocks);
@@ -1250,6 +1152,7 @@ int main(void)
 	RUN_TEST(test_socket_readsome_no_stream);
 	RUN_TEST(test_socket_readsome_no_buffer);
 	RUN_TEST(test_socket_readsome_no_handler);
+
 	RUN_TEST(test_socket_writesome_all);
 	RUN_TEST(test_socket_writesome_parts);
 	RUN_TEST(test_socket_writesome_fails);
@@ -1258,6 +1161,5 @@ int main(void)
 	RUN_TEST(test_socket_writesome_no_stream);
 	RUN_TEST(test_socket_writesome_no_buffer);
 	RUN_TEST(test_socket_writesome_no_handler);
-#endif
 	return UNITY_END();
 }
