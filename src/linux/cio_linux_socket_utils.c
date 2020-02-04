@@ -46,7 +46,6 @@ int cio_linux_socket_create(enum cio_socket_address_family address_family)
 			break;
 		default:
 			return -1;
-			break;
 	}
 
 	int fd = socket(domain, (unsigned int)SOCK_STREAM | (unsigned int)SOCK_CLOEXEC | (unsigned int)SOCK_NONBLOCK, 0U);
