@@ -64,6 +64,7 @@ FAKE_VALUE_FUNC(int, shutdown, int, int)
 FAKE_VALUE_FUNC(ssize_t, read, int, void *, size_t)
 FAKE_VALUE_FUNC(ssize_t, sendmsg, int, const struct msghdr *, int)
 FAKE_VALUE_FUNC(int, setsockopt, int, int, int, const void *, socklen_t)
+FAKE_VALUE_FUNC(int, connect, int, const struct sockaddr *, socklen_t)
 
 FAKE_VALUE_FUNC(int, cio_linux_socket_create, enum cio_socket_address_family)
 
@@ -75,6 +76,9 @@ FAKE_VOID_FUNC(read_handler, struct cio_io_stream *, void *, enum cio_error, str
 
 void write_handler(struct cio_io_stream *stream, void *handler_context, const struct cio_write_buffer *, enum cio_error err, size_t bytes_transferred);
 FAKE_VOID_FUNC(write_handler, struct cio_io_stream *, void *, const struct cio_write_buffer *, enum cio_error, size_t)
+
+void connect_handler(struct cio_socket *socket, void *handler_context, enum cio_error err);
+FAKE_VOID_FUNC(connect_handler, struct cio_socket *, void *, enum cio_error)
 
 #ifndef ARRAY_SIZE
 #define ARRAY_SIZE(a) (sizeof(a) / sizeof((a)[0]))
@@ -227,6 +231,26 @@ static enum cio_error cancel_timer(struct cio_timer *t)
 	return CIO_SUCCESS;
 }
 
+static int connect_einprogress(int fd, const struct sockaddr *addr, socklen_t len)
+{
+	(void)fd;
+	(void)addr;
+	(void)len;
+
+	errno = EINPROGRESS;
+	return -1;
+}
+
+static int connect_error(int fd, const struct sockaddr *addr, socklen_t len)
+{
+	(void)fd;
+	(void)addr;
+	(void)len;
+
+	errno = EINVAL;
+	return -1;
+}
+
 void setUp(void)
 {
 	FFF_RESET_HISTORY()
@@ -250,6 +274,7 @@ void setUp(void)
 	RESET_FAKE(cio_linux_socket_create)
 	RESET_FAKE(read_handler)
 	RESET_FAKE(write_handler)
+	RESET_FAKE(connect_handler)
 	RESET_FAKE(on_close)
 
 	available_read_data = 0;
@@ -1158,6 +1183,125 @@ static void test_socket_writesome_no_handler(void)
 	TEST_ASSERT_EQUAL_MESSAGE(0, write_handler_fake.call_count, "write_handler was not called exactly once!");
 }
 
+static void test_socket_connect_immediatly(void)
+{
+	uint8_t ip_address[4] = {172, 19, 1, 1};
+	struct cio_inet_address inet_address;
+	enum cio_error err = cio_init_inet_address(&inet_address, ip_address, sizeof(ip_address));
+	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "cio_init_inet_address did not succeed!");
+
+	struct cio_inet_socket_address socket_address;
+	err = cio_init_inet_socket_address(&socket_address, &inet_address, 80);
+	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "cio_init_inet_socket_address did not succeed!");
+
+	struct cio_socket s;
+	err = cio_socket_init(&s, inet_address.type, &loop, 10, on_close);
+	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Return value of cio_socket_init not correct!");
+
+	err = cio_socket_connect(&s, &socket_address, connect_handler, NULL);
+	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "cio_socket_connect did not succeed!");
+	TEST_ASSERT_EQUAL_MESSAGE(1, connect_handler_fake.call_count, "connect_handler was not called exactly once!");
+}
+
+static void test_socket_connect_immediatly_ipv6(void)
+{
+	uint8_t ip_address[16];
+	struct cio_inet_address inet_address;
+	enum cio_error err = cio_init_inet_address(&inet_address, ip_address, sizeof(ip_address));
+	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "cio_init_inet_address did not succeed!");
+
+	struct cio_inet_socket_address socket_address;
+	err = cio_init_inet_socket_address(&socket_address, &inet_address, 80);
+	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "cio_init_inet_socket_address did not succeed!");
+
+	struct cio_socket s;
+	err = cio_socket_init(&s, inet_address.type, &loop, 10, on_close);
+	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Return value of cio_socket_init not correct!");
+
+	err = cio_socket_connect(&s, &socket_address, connect_handler, NULL);
+	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "cio_socket_connect did not succeed!");
+	TEST_ASSERT_EQUAL_MESSAGE(1, connect_handler_fake.call_count, "connect_handler was not called exactly once!");
+}
+
+static void test_socket_connect_no_socket(void)
+{
+	uint8_t ip_address[4] = {172, 19, 1, 1};
+	struct cio_inet_address inet_address;
+	enum cio_error err = cio_init_inet_address(&inet_address, ip_address, sizeof(ip_address));
+	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "cio_init_inet_address did not succeed!");
+
+	struct cio_inet_socket_address socket_address;
+	err = cio_init_inet_socket_address(&socket_address, &inet_address, 80);
+	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "cio_init_inet_socket_address did not succeed!");
+
+	err = cio_socket_connect(NULL, &socket_address, connect_handler, NULL);
+	TEST_ASSERT_EQUAL_MESSAGE(CIO_INVALID_ARGUMENT, err, "cio_socket_connect did not succeed!");
+	TEST_ASSERT_EQUAL_MESSAGE(0, connect_handler_fake.call_count, "connect_handler was called!");
+}
+
+static void test_socket_connect_no_address(void)
+{
+	uint8_t ip_address[4] = {172, 19, 1, 1};
+	struct cio_inet_address inet_address;
+	enum cio_error err = cio_init_inet_address(&inet_address, ip_address, sizeof(ip_address));
+	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "cio_init_inet_address did not succeed!");
+
+	struct cio_socket s;
+	err = cio_socket_init(&s, inet_address.type, &loop, 10, on_close);
+	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Return value of cio_socket_init not correct!");
+
+	err = cio_socket_connect(&s, NULL, connect_handler, NULL);
+	TEST_ASSERT_EQUAL_MESSAGE(CIO_INVALID_ARGUMENT, err, "cio_socket_connect did not succeed!");
+	TEST_ASSERT_EQUAL_MESSAGE(0, connect_handler_fake.call_count, "connect_handler was called!");
+}
+
+static void test_socket_connect_later(void)
+{
+	connect_fake.custom_fake = connect_einprogress;
+
+	uint8_t ip_address[4] = {172, 19, 1, 1};
+	struct cio_inet_address inet_address;
+	enum cio_error err = cio_init_inet_address(&inet_address, ip_address, sizeof(ip_address));
+	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "cio_init_inet_address did not succeed!");
+
+	struct cio_inet_socket_address socket_address;
+	err = cio_init_inet_socket_address(&socket_address, &inet_address, 80);
+	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "cio_init_inet_socket_address did not succeed!");
+
+	struct cio_socket s;
+	err = cio_socket_init(&s, inet_address.type, &loop, 10, on_close);
+	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Return value of cio_socket_init not correct!");
+
+	err = cio_socket_connect(&s, &socket_address, connect_handler, NULL);
+	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "cio_socket_connect did not succeed!");
+	TEST_ASSERT_EQUAL_MESSAGE(0, connect_handler_fake.call_count, "connect_handler was called prematurely!");
+
+	s.impl.ev.write_callback(s.impl.ev.context, CIO_SUCCESS);
+	TEST_ASSERT_EQUAL_MESSAGE(1, connect_handler_fake.call_count, "connect_handler was not called exactly once!");
+}
+
+static void test_socket_connect_error(void)
+{
+	connect_fake.custom_fake = connect_error;
+
+	uint8_t ip_address[4] = {172, 19, 1, 1};
+	struct cio_inet_address inet_address;
+	enum cio_error err = cio_init_inet_address(&inet_address, ip_address, sizeof(ip_address));
+	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "cio_init_inet_address did not succeed!");
+
+	struct cio_inet_socket_address socket_address;
+	err = cio_init_inet_socket_address(&socket_address, &inet_address, 80);
+	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "cio_init_inet_socket_address did not succeed!");
+
+	struct cio_socket s;
+	err = cio_socket_init(&s, inet_address.type, &loop, 10, on_close);
+	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Return value of cio_socket_init not correct!");
+
+	err = cio_socket_connect(&s, &socket_address, connect_handler, NULL);
+	TEST_ASSERT_NOT_EQUAL_MESSAGE(CIO_SUCCESS, err, "cio_socket_connect did succeed!")
+	TEST_ASSERT_EQUAL_MESSAGE(0, connect_handler_fake.call_count, "connect_handler was called prematurely!");
+}
+
 int main(void)
 {
 	UNITY_BEGIN();
@@ -1212,5 +1356,13 @@ int main(void)
 	RUN_TEST(test_socket_writesome_no_stream);
 	RUN_TEST(test_socket_writesome_no_buffer);
 	RUN_TEST(test_socket_writesome_no_handler);
+
+	RUN_TEST(test_socket_connect_immediatly);
+	RUN_TEST(test_socket_connect_immediatly_ipv6);
+	RUN_TEST(test_socket_connect_no_socket);
+	RUN_TEST(test_socket_connect_no_address);
+	RUN_TEST(test_socket_connect_later);
+	RUN_TEST(test_socket_connect_error);
+
 	return UNITY_END();
 }
