@@ -370,6 +370,29 @@ static void test_socket_close_without_timeout(void)
 	TEST_ASSERT_EQUAL_MESSAGE(0, shutdown_fake.call_count, "socket shutdown called!");
 }
 
+static void test_socket_close_eventloop_error(void)
+{
+	struct cio_socket s;
+
+	read_fake.custom_fake = read_fails;
+	enum cio_error err = cio_socket_init(&s,CIO_INET4_ADDRESS, &loop, 10, NULL);
+	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Return value of cio_socket_init() not correct!");
+
+	err = cio_socket_close(&s);
+	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Return value of close() not correct!");
+
+	s.impl.ev.read_callback(s.impl.ev.context, CIO_NO_BUFFER_SPACE);
+	TEST_ASSERT_EQUAL_MESSAGE(1, close_fake.call_count, "Socket was not closed correctly!");
+	TEST_ASSERT_EQUAL_MESSAGE(s.impl.ev.fd, close_fake.arg0_val, "Socket close was not called with correct parameter!");
+	TEST_ASSERT_EQUAL_MESSAGE(1, cio_timer_cancel_fake.call_count, "close timer was not canceled!");
+	TEST_ASSERT_EQUAL_MESSAGE(1, cio_timer_close_fake.call_count, "close timer was not closed!");
+
+	TEST_ASSERT_EQUAL_MESSAGE(1, setsockopt_fake.call_count, "setsockopt was not called!");
+	TEST_ASSERT_EQUAL_MESSAGE(s.impl.ev.fd, setsockopt_fake.arg0_val, "fd for setsockopt not correct!");
+	TEST_ASSERT_EQUAL_MESSAGE(SOL_SOCKET, setsockopt_fake.arg1_val, "level for setsockopt not correct!");
+	TEST_ASSERT_EQUAL_MESSAGE(SO_LINGER, setsockopt_fake.arg2_val, "option name for setsockopt not correct!");
+}
+
 static void test_socket_close_read_error(void)
 {
 	struct cio_socket s;
@@ -1149,6 +1172,7 @@ int main(void)
 	RUN_TEST(test_socket_close_with_hook);
 
 	RUN_TEST(test_socket_close_without_timeout);
+	RUN_TEST(test_socket_close_eventloop_error);
 	RUN_TEST(test_socket_close_read_error);
 	RUN_TEST(test_socket_close_get_data_from_peer);
 	RUN_TEST(test_socket_close_peer_blocks_first);
