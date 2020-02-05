@@ -40,6 +40,7 @@
 #include "cio_linux_socket.h"
 #include "cio_linux_socket_utils.h"
 #include "cio_read_buffer.h"
+#include "cio_socket.h"
 #include "cio_write_buffer.h"
 
 #undef MIN
@@ -769,6 +770,31 @@ static void test_socket_readsome_read_blocks(void)
 	TEST_ASSERT_EQUAL_MESSAGE(0, read_handler_fake.call_count, "Handler was called!");
 }
 
+static void test_socket_readsome_read_blocks_eventloop_fails(void)
+{
+	static const size_t data_to_read = 12;
+	available_read_data = data_to_read;
+	memset(read_buffer, 0x12, data_to_read);
+	read_fake.custom_fake = read_blocks;
+
+	struct cio_socket s;
+	enum cio_error err = cio_socket_init(&s, CIO_INET4_ADDRESS, &loop, 10, on_close);
+	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Return value of cio_socket_init not correct!");
+
+	struct cio_read_buffer rb;
+	cio_read_buffer_init(&rb, readback_buffer, sizeof(readback_buffer));
+	struct cio_io_stream *stream = cio_socket_get_io_stream(&s);
+
+	err = stream->read_some(stream, &rb, read_handler, NULL);
+	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Return value not correct!");
+
+	s.impl.ev.read_callback(s.impl.ev.context, CIO_NO_BUFFER_SPACE);
+
+	TEST_ASSERT_EQUAL_MESSAGE(1, read_handler_fake.call_count, "Handler was called!");
+	TEST_ASSERT_EQUAL_MESSAGE(CIO_NO_BUFFER_SPACE, read_handler_fake.arg2_val, "error code not correct in read callback!");
+}
+
+
 static void test_socket_readsome_read_fails(void)
 {
 	static const size_t data_to_read = 12;
@@ -1147,6 +1173,7 @@ int main(void)
 	RUN_TEST(test_socket_readsome);
 	RUN_TEST(test_socket_readsome_register_read_fails);
 	RUN_TEST(test_socket_readsome_read_blocks);
+	RUN_TEST(test_socket_readsome_read_blocks_eventloop_fails);
 	RUN_TEST(test_socket_readsome_read_fails);
 	RUN_TEST(test_socket_readsome_read_eof);
 	RUN_TEST(test_socket_readsome_no_stream);
