@@ -29,11 +29,11 @@
 #define WIN32_LEAN_AND_MEAN
 
 #include <WinSock2.h>
-#include <Ws2tcpip.h>
-#include <Mstcpip.h>
 #include <Windows.h>
-#include <mswsock.h>
+#include <Ws2tcpip.h>
 #include <malloc.h>
+#include <mswsock.h>
+#include <Mstcpip.h>
 
 #include "cio_compiler.h"
 #include "cio_error_code.h"
@@ -161,7 +161,7 @@ static enum cio_error stream_write(struct cio_io_stream *stream, const struct ci
 	if (cio_unlikely(wsa_buffers == NULL)) {
 		return CIO_NO_BUFFER_SPACE;
 	}
-	
+
 	struct cio_write_buffer *wb = buffer->next;
 	for (size_t i = 0; i < chain_length; i++) {
 		wsa_buffers[i].buf = (void *)wb->data.element.const_data;
@@ -251,6 +251,32 @@ enum cio_error cio_socket_close(struct cio_socket *s)
 	return CIO_SUCCESS;
 }
 
+static void connect_callback(struct cio_event_notifier *ev)
+{
+	struct cio_socket_impl *impl = cio_container_of(ev, struct cio_socket_impl, write_event);
+	struct cio_socket *socket = cio_container_of(impl, struct cio_socket, impl);
+
+	DWORD bytes_transferred;
+	DWORD flags = 0;
+	BOOL rc = WSAGetOverlappedResult((SOCKET)impl->fd, &ev->overlapped, &bytes_transferred, FALSE, &flags);
+	impl->write_event.overlapped_operations_in_use--;
+
+	if (cio_unlikely(rc == FALSE)) {
+		int err = WSAGetLastError();
+		socket->handler(socket, socket->handler_context, (enum cio_error)(-err));
+		return;
+	}
+
+	rc = setsockopt((SOCKET)impl->fd, SOL_SOCKET, SO_UPDATE_CONNECT_CONTEXT, NULL, 0);
+	if (cio_unlikely(rc == SOCKET_ERROR)) {
+		int err = WSAGetLastError();
+		socket->handler(socket, socket->handler_context, (enum cio_error)(-err));
+		return;
+	}
+
+	socket->handler(socket, socket->handler_context, CIO_SUCCESS);
+}
+
 enum cio_error cio_socket_connect(struct cio_socket *socket, struct cio_inet_socket_address *address, cio_connect_handler handler, void *handler_context)
 {
 	if (cio_unlikely(socket == NULL) || (address == NULL)) {
@@ -261,6 +287,27 @@ enum cio_error cio_socket_connect(struct cio_socket *socket, struct cio_inet_soc
 	struct sockaddr_in addr4;
 	struct sockaddr_in6 addr6;
 	int addr_len;
+	if (address->inet_address.type == CIO_INET4_ADDRESS) {
+		memset(&addr4, 0, sizeof(addr4));
+		addr4.sin_family = AF_INET;
+		addr4.sin_addr.s_addr = INADDR_ANY;
+		addr4.sin_port = 0;
+		addr = (struct sockaddr *)&addr4;
+		addr_len = sizeof(addr4);
+	} else {
+		memset(&addr6, 0, sizeof(addr6));
+		addr6.sin6_family = AF_INET6;
+		addr6.sin6_addr = in6addr_any;
+		addr6.sin6_port = 0;
+		addr = (struct sockaddr *)&addr6;
+		addr_len = sizeof(addr6);
+	}
+	int rc = bind((SOCKET)socket->impl.fd, addr, addr_len);
+	if (rc != 0) {
+		int err = WSAGetLastError();
+		return (enum cio_error)(-err);
+	}
+
 	if (address->inet_address.type == CIO_INET4_ADDRESS) {
 		memset(&addr4, 0, sizeof(addr4));
 		addr4.sin_family = AF_INET;
@@ -276,21 +323,33 @@ enum cio_error cio_socket_connect(struct cio_socket *socket, struct cio_inet_soc
 		addr = (struct sockaddr *)&addr6;
 		addr_len = sizeof(addr6);
 	}
-	
-	int err;
+
 	DWORD dw_bytes;
-	GUID guid_accept_ex = WSAID_CONNECTEX;
-	int status = WSAIoctl((SOCKET)socket->impl.fd, SIO_GET_EXTENSION_FUNCTION_POINTER, &guid_accept_ex, sizeof(guid_accept_ex), &socket->impl.connect_ex, sizeof(socket->impl.connect_ex), &dw_bytes, NULL, NULL);
+	GUID guid_connect_ex = WSAID_CONNECTEX;
+	int status = WSAIoctl((SOCKET)socket->impl.fd, SIO_GET_EXTENSION_FUNCTION_POINTER, &guid_connect_ex, sizeof(guid_connect_ex), &socket->impl.connect_ex, sizeof(socket->impl.connect_ex), &dw_bytes, NULL, NULL);
 	if (status != 0) {
-		err = WSAGetLastError();
-		goto WSAioctl_failed;
+		int err = WSAGetLastError();
+		return (enum cio_error)(-err);
 	}
 
-	return CIO_SUCCESS;
+	DWORD bytes_sent = 0;
+	memset(&socket->impl.write_event.overlapped, 0, sizeof(socket->impl.write_event.overlapped));
+	BOOL ret = socket->impl.connect_ex((SOCKET)socket->impl.fd, addr, addr_len, NULL, 0, &bytes_sent, &socket->impl.write_event.overlapped);
+	if (ret == TRUE) {
+		handler(socket, handler_context, CIO_SUCCESS);
+	} else {
+		int rc = WSAGetLastError();
+		if (cio_likely(rc != WSA_IO_PENDING)) {
+			return (enum cio_error)(-rc);
+		}
 
-WSAioctl_failed:
-	cio_socket_close(socket);
-	return (enum cio_error)(-err);
+		socket->handler = handler;
+		socket->handler_context = handler_context;
+		socket->impl.write_event.callback = connect_callback;
+	}
+
+	socket->impl.write_event.overlapped_operations_in_use++;
+	return CIO_SUCCESS;
 }
 
 enum cio_error cio_socket_set_tcp_no_delay(struct cio_socket *s, bool on)
