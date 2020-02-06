@@ -6,6 +6,7 @@ add_library(PLATFORM OBJECT
     cio_windows_random.c
     cio_windows_server_socket.c
     cio_windows_socket.c
+    cio_windows_socket_utils.c
     cio_windows_string.c
     cio_windows_timer.c
 )
