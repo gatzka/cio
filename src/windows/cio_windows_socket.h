@@ -29,6 +29,7 @@
 #ifndef CIO_WINDOWS_SOCKET_H
 #define CIO_WINDOWS_SOCKET_H
 
+#include <stdint.h>
 #include <Winsock2.h>
 
 #include "cio_error_code.h"
@@ -41,6 +42,7 @@ extern "C" {
 
 enum cio_error cio_windows_socket_init(struct cio_socket *s, SOCKET client_fd,
                                        struct cio_eventloop *loop,
+                                       uint64_t close_timeout_ns,
                                        cio_socket_close_hook close_hook);
 
 #ifdef __cplusplus

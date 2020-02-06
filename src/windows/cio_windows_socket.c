@@ -37,6 +37,7 @@
 #include "cio_socket.h"
 #include "cio_util.h"
 #include "cio_windows_socket.h"
+#include "cio_windows_socket_utils.h"
 
 static void try_free(struct cio_socket *s)
 {
@@ -152,7 +153,11 @@ static enum cio_error stream_write(struct cio_io_stream *stream, const struct ci
 
 	size_t chain_length = cio_write_buffer_get_num_buffer_elements(buffer);
 
-	WSABUF *wsa_buffers = alloca(sizeof(*wsa_buffers) * chain_length);
+	WSABUF *wsa_buffers = _malloca(sizeof(*wsa_buffers) * chain_length);
+	if (cio_unlikely(wsa_buffers == NULL)) {
+		return CIO_NO_BUFFER_SPACE;
+	}
+	
 	struct cio_write_buffer *wb = buffer->next;
 	for (size_t i = 0; i < chain_length; i++) {
 		wsa_buffers[i].buf = (void *)wb->data.element.const_data;
@@ -176,6 +181,7 @@ static enum cio_error stream_write(struct cio_io_stream *stream, const struct ci
 
 enum cio_error cio_windows_socket_init(struct cio_socket *s, SOCKET client_fd,
                                        struct cio_eventloop *loop,
+                                       uint64_t close_timeout_ns,
                                        cio_socket_close_hook close_hook)
 {
 	if (cio_unlikely((s == NULL) || (loop == NULL))) {
@@ -189,6 +195,7 @@ enum cio_error cio_windows_socket_init(struct cio_socket *s, SOCKET client_fd,
 	s->impl.write_event.callback = write_callback;
 	s->impl.write_event.overlapped_operations_in_use = 0;
 	s->impl.loop = loop;
+	s->impl.close_timeout_ns = close_timeout_ns;
 	s->close_hook = close_hook;
 
 	s->stream.read_some = stream_read;
@@ -201,6 +208,24 @@ enum cio_error cio_windows_socket_init(struct cio_socket *s, SOCKET client_fd,
 	}
 
 	return CIO_SUCCESS;
+}
+
+enum cio_error cio_socket_init(struct cio_socket *socket,
+                               enum cio_socket_address_family address_family,
+                               struct cio_eventloop *loop,
+                               uint64_t close_timeout_ns,
+                               cio_socket_close_hook close_hook)
+{
+	if (cio_unlikely(socket == NULL) || (loop == NULL)) {
+		return CIO_INVALID_ARGUMENT;
+	}
+
+	SOCKET socket_fd = cio_windows_socket_create(address_family, loop, &socket->impl);
+	if (cio_unlikely(socket_fd == -1)) {
+		return (enum cio_error)(-errno);
+	}
+
+	return cio_windows_socket_init(socket, socket_fd, loop, close_timeout_ns, close_hook);
 }
 
 enum cio_error cio_socket_close(struct cio_socket *s)

@@ -34,6 +34,7 @@
 #include "cio_error_code.h"
 #include "cio_eventloop_impl.h"
 #include "cio_server_socket.h"
+#include "cio_windows_socket_utils.h"
 #include "cio_util.h"
 #include "cio_windows_socket.h"
 
@@ -63,22 +64,6 @@ static void try_free(struct cio_windows_listen_socket *wls)
 			}
 		}
 	}
-}
-
-static SOCKET create_win_socket(int address_family, const struct cio_eventloop *loop, void *socket_impl)
-{
-	SOCKET s = WSASocketW(address_family, SOCK_STREAM, 0, NULL, 0, WSA_FLAG_OVERLAPPED);
-	if (cio_unlikely(s == INVALID_SOCKET)) {
-		return INVALID_SOCKET;
-	}
-
-	enum cio_error err = cio_windows_add_handle_to_completion_port((HANDLE)s, loop, socket_impl);
-	if (cio_unlikely(err != CIO_SUCCESS)) {
-		closesocket(s);
-		return INVALID_SOCKET;
-	}
-
-	return s;
 }
 
 static void accept_callback(struct cio_event_notifier *ev)
@@ -123,7 +108,7 @@ static void accept_callback(struct cio_event_notifier *ev)
 			goto alloc_failed;
 		}
 
-		error_code = cio_windows_socket_init(s, client_fd, ss->impl.loop, ss->free_client);
+		error_code = cio_windows_socket_init(s, client_fd, ss->impl.loop, 0, ss->free_client);
 		if (cio_unlikely(error_code != CIO_SUCCESS)) {
 			goto socket_init_failed;
 		}
@@ -189,8 +174,8 @@ static enum cio_error create_listen_socket(struct cio_windows_listen_socket *soc
 	socket->address_family = address_family;
 	socket->bound = false;
 	socket->accept_socket = INVALID_SOCKET;
-	socket->fd = (HANDLE)create_win_socket(address_family, loop, socket);
-
+	socket->fd = (HANDLE)cio_windows_socket_create(address_family, loop, socket);
+		
 	if (cio_unlikely((SOCKET)socket->fd == INVALID_SOCKET)) {
 		err = WSAGetLastError();
 		return (enum cio_error)(-err);

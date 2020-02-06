@@ -33,11 +33,14 @@
 extern "C" {
 #endif
 
+#include <stdint.h>
+
 #include "cio_eventloop.h"
 #include "cio_eventloop_impl.h"
 
 struct cio_socket_impl {
 	HANDLE fd;
+	uint64_t close_timeout_ns;
 	struct cio_eventloop *loop;
 	struct cio_event_notifier read_event;
 	struct cio_event_notifier write_event;
