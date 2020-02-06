@@ -243,6 +243,10 @@ enum cio_error cio_socket_close(struct cio_socket *s)
 
 enum cio_error cio_socket_connect(struct cio_socket *socket, struct cio_inet_socket_address *address, cio_connect_handler handler, void *handler_context)
 {
+	if (cio_unlikely(socket == NULL) || (address == NULL)) {
+		return CIO_INVALID_ARGUMENT;
+	}
+
 	return CIO_SUCCESS;
 }
 
