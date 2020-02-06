@@ -33,6 +33,9 @@
 extern "C" {
 #endif
 
+#include <winsock2.h>
+#include <ws2tcpip.h>
+#include <mswsock.h>
 #include <stdint.h>
 
 #include "cio_eventloop.h"
@@ -40,6 +43,7 @@ extern "C" {
 
 struct cio_socket_impl {
 	HANDLE fd;
+	LPFN_CONNECTEX connect_ex;
 	uint64_t close_timeout_ns;
 	struct cio_eventloop *loop;
 	struct cio_event_notifier read_event;

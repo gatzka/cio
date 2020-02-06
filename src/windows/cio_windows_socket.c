@@ -26,9 +26,13 @@
  * SOFTWARE.
  */
 
+#define WIN32_LEAN_AND_MEAN
+
 #include <WinSock2.h>
+#include <Ws2tcpip.h>
 #include <Mstcpip.h>
 #include <Windows.h>
+#include <mswsock.h>
 #include <malloc.h>
 
 #include "cio_compiler.h"
@@ -202,11 +206,6 @@ enum cio_error cio_windows_socket_init(struct cio_socket *s, SOCKET client_fd,
 	s->stream.write_some = stream_write;
 	s->stream.close = stream_close;
 
-	enum cio_error err = cio_windows_add_handle_to_completion_port((HANDLE)client_fd, loop, &s->stream);
-	if (cio_unlikely(err != CIO_SUCCESS)) {
-		return err;
-	}
-
 	return CIO_SUCCESS;
 }
 
@@ -220,7 +219,18 @@ enum cio_error cio_socket_init(struct cio_socket *socket,
 		return CIO_INVALID_ARGUMENT;
 	}
 
-	SOCKET socket_fd = cio_windows_socket_create(address_family, loop, &socket->impl);
+	int domain;
+	switch (address_family) {
+	case CIO_INET4_ADDRESS:
+		domain = AF_INET;
+		break;
+	case CIO_INET6_ADDRESS:
+		domain = AF_INET6;
+		break;
+	default:
+		return CIO_INVALID_ARGUMENT;
+	}
+	SOCKET socket_fd = cio_windows_socket_create(domain, loop, &socket->impl);
 	if (cio_unlikely(socket_fd == -1)) {
 		return (enum cio_error)(-errno);
 	}
@@ -247,7 +257,40 @@ enum cio_error cio_socket_connect(struct cio_socket *socket, struct cio_inet_soc
 		return CIO_INVALID_ARGUMENT;
 	}
 
+	struct sockaddr *addr;
+	struct sockaddr_in addr4;
+	struct sockaddr_in6 addr6;
+	int addr_len;
+	if (address->inet_address.type == CIO_INET4_ADDRESS) {
+		memset(&addr4, 0, sizeof(addr4));
+		addr4.sin_family = AF_INET;
+		memcpy(&addr4.sin_addr.s_addr, address->inet_address.address.addr4.addr, sizeof(address->inet_address.address.addr4.addr));
+		addr4.sin_port = htons(address->port);
+		addr = (struct sockaddr *)&addr4;
+		addr_len = sizeof(addr4);
+	} else {
+		memset(&addr6, 0, sizeof(addr6));
+		addr6.sin6_family = AF_INET6;
+		memcpy(&addr6.sin6_addr, address->inet_address.address.addr6.addr, sizeof(address->inet_address.address.addr6.addr));
+		addr6.sin6_port = htons(address->port);
+		addr = (struct sockaddr *)&addr6;
+		addr_len = sizeof(addr6);
+	}
+	
+	int err;
+	DWORD dw_bytes;
+	GUID guid_accept_ex = WSAID_CONNECTEX;
+	int status = WSAIoctl((SOCKET)socket->impl.fd, SIO_GET_EXTENSION_FUNCTION_POINTER, &guid_accept_ex, sizeof(guid_accept_ex), &socket->impl.connect_ex, sizeof(socket->impl.connect_ex), &dw_bytes, NULL, NULL);
+	if (status != 0) {
+		err = WSAGetLastError();
+		goto WSAioctl_failed;
+	}
+
 	return CIO_SUCCESS;
+
+WSAioctl_failed:
+	cio_socket_close(socket);
+	return (enum cio_error)(-err);
 }
 
 enum cio_error cio_socket_set_tcp_no_delay(struct cio_socket *s, bool on)

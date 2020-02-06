@@ -108,6 +108,11 @@ static void accept_callback(struct cio_event_notifier *ev)
 			goto alloc_failed;
 		}
 
+		error_code = cio_windows_add_handle_to_completion_port((HANDLE)client_fd, ss->impl.loop, &s->stream);
+		if (cio_unlikely(error_code != CIO_SUCCESS)) {
+			goto socket_init_failed;
+		}
+
 		error_code = cio_windows_socket_init(s, client_fd, ss->impl.loop, 0, ss->free_client);
 		if (cio_unlikely(error_code != CIO_SUCCESS)) {
 			goto socket_init_failed;
