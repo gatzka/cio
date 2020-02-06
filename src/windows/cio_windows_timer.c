@@ -37,7 +37,8 @@ static void CALLBACK timer_callback(void *context, BOOLEAN fired)
 {
 	if (fired) {
 		struct cio_timer *t = (struct cio_timer *)context;
-		DeleteTimerQueueTimer(NULL, t->impl.ev.overlapped.hEvent, NULL);
+		BOOL ret = DeleteTimerQueueTimer(NULL, t->impl.ev.overlapped.hEvent, NULL);
+		(void)ret; //Deliberately ignore return value. There is nothing we can do if that call fails.
 		memset(&t->impl.ev.overlapped, 0, sizeof(t->impl.ev.overlapped));
 		PostQueuedCompletionStatus(t->impl.loop->loop_completion_port, 0, (ULONG_PTR)t, &t->impl.ev.overlapped);
 	}
@@ -93,11 +94,18 @@ void cio_timer_close(struct cio_timer *t)
 
 enum cio_error cio_timer_expires_from_now(struct cio_timer *t, uint64_t timeout_ns, cio_timer_handler handler, void *handler_context)
 {
+	if (cio_unlikely(t == NULL)) {
+		return CIO_INVALID_ARGUMENT;
+	}
+
 	t->handler = handler;
 	t->handler_context = handler_context;
 
 	if (t->impl.ev.overlapped.hEvent) {
-		DeleteTimerQueueTimer(NULL, t->impl.ev.overlapped.hEvent, NULL);
+		BOOL ret = DeleteTimerQueueTimer(NULL, t->impl.ev.overlapped.hEvent, NULL);
+		if ((cio_unlikely(ret == FALSE))) {
+			return (enum cio_error)(-WSAGetLastError());
+		}
 	}
 
 	BOOL ret = CreateTimerQueueTimer(&t->impl.ev.overlapped.hEvent, NULL, timer_callback, t, (DWORD)(timeout_ns / 1000000), 0, WT_EXECUTEDEFAULT);
