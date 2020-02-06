@@ -241,6 +241,11 @@ enum cio_error cio_socket_close(struct cio_socket *s)
 	return CIO_SUCCESS;
 }
 
+enum cio_error cio_socket_connect(struct cio_socket *socket, struct cio_inet_socket_address *address, cio_connect_handler handler, void *handler_context)
+{
+	return CIO_SUCCESS;
+}
+
 enum cio_error cio_socket_set_tcp_no_delay(struct cio_socket *s, bool on)
 {
 	char tcp_no_delay = (char)on;
