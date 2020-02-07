@@ -5,7 +5,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=9"/>
 <meta name="generator" content="Doxygen 1.8.13"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>cioall: cio_write_buffer Struct Reference</title>
+<title>cioall: cio_inet_address Struct Reference</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
@@ -63,7 +63,7 @@ $(function() {
   </div>
 </div>
 <script type="text/javascript">
-$(document).ready(function(){initNavTree('structcio__write__buffer.html','');});
+$(document).ready(function(){initNavTree('structcio__inet__address.html','');});
 </script>
 <div id="doc-content">
 <!-- window showing the filter options -->
@@ -81,111 +81,78 @@ $(document).ready(function(){initNavTree('structcio__write__buffer.html','');});
 </div>
 
 <div class="header">
+  <div class="summary">
+<a href="#pub-attribs">Data Fields</a>  </div>
   <div class="headertitle">
-<div class="title">cio_write_buffer Struct Reference</div>  </div>
+<div class="title">cio_inet_address Struct Reference</div>  </div>
 </div><!--header-->
 <div class="contents">
 
-<p>Structure to build up a write buffer chain.  
- <a href="structcio__write__buffer.html#details">More...</a></p>
-
-<p><code>#include &lt;<a class="el" href="cio__write__buffer_8h_source.html">cio_write_buffer.h</a>&gt;</code></p>
-<a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
-<div class="textblock"><p>Structure to build up a write buffer chain. </p>
-<p>This structure is used for both a write buffer head and a write buffer element holding data. </p>
-</div><h2 class="groupheader">Field Documentation</h2>
-<a id="af814a576f13c8be9a02eb018b085c8d6"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#af814a576f13c8be9a02eb018b085c8d6">&#9670;&nbsp;</a></span>const_data</h2>
+<p><code>#include &lt;<a class="el" href="cio__inet__address_8h_source.html">cio_inet_address.h</a>&gt;</code></p>
+<table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-attribs"></a>
+Data Fields</h2></td></tr>
+<tr class="memitem:a5bc304ed87e7e484ad727b1efe872991"><td class="memItemLeft" align="right" valign="top">enum <a class="el" href="cio__inet__address_8h.html#abf80bd22ac22458beb0fc5078195dfc9">cio_socket_address_family</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structcio__inet__address.html#a5bc304ed87e7e484ad727b1efe872991">type</a></td></tr>
+<tr class="separator:a5bc304ed87e7e484ad727b1efe872991"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac550d4c31cb0d6e311f7d2f49ff2bcd3"><td class="memItemLeft" >union {</td></tr>
+<tr class="memitem:ac18fcdbd6f67536673a61af70e5c7c5b"><td class="memItemLeft" >&#160;&#160;&#160;struct <a class="el" href="structcio__inet4__address.html">cio_inet4_address</a>&#160;&#160;&#160;<a class="el" href="structcio__inet__address.html#a3bb40912ee685cefe065e3aa145f5875">addr4</a></td></tr>
+<tr class="separator:ac18fcdbd6f67536673a61af70e5c7c5b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae930144a4f8636f40ccb428f7f208718"><td class="memItemLeft" >&#160;&#160;&#160;struct <a class="el" href="structcio__inet6__address.html">cio_inet6_address</a>&#160;&#160;&#160;<a class="el" href="structcio__inet__address.html#afdb41886922c2941268f53ebdc8484f0">addr6</a></td></tr>
+<tr class="separator:ae930144a4f8636f40ccb428f7f208718"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac550d4c31cb0d6e311f7d2f49ff2bcd3"><td class="memItemLeft" valign="top">}&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structcio__inet__address.html#ac550d4c31cb0d6e311f7d2f49ff2bcd3">address</a></td></tr>
+<tr class="separator:ac550d4c31cb0d6e311f7d2f49ff2bcd3"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table>
+<h2 class="groupheader">Field Documentation</h2>
+<a id="a3bb40912ee685cefe065e3aa145f5875"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a3bb40912ee685cefe065e3aa145f5875">&#9670;&nbsp;</a></span>addr4</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">const void* cio_write_buffer::const_data</td>
+          <td class="memname">struct <a class="el" href="structcio__inet4__address.html">cio_inet4_address</a> cio_inet_address::addr4</td>
         </tr>
       </table>
 </div><div class="memdoc">
 
 </div>
 </div>
-<a id="af9e736e2fb82a15e552147a4754d19c7"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#af9e736e2fb82a15e552147a4754d19c7">&#9670;&nbsp;</a></span>data</h2>
+<a id="afdb41886922c2941268f53ebdc8484f0"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#afdb41886922c2941268f53ebdc8484f0">&#9670;&nbsp;</a></span>addr6</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">void* cio_write_buffer::data</td>
+          <td class="memname">struct <a class="el" href="structcio__inet6__address.html">cio_inet6_address</a> cio_inet_address::addr6</td>
         </tr>
       </table>
 </div><div class="memdoc">
 
 </div>
 </div>
-<a id="a8b80cfc266701fc274e6c6ff22daa394"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a8b80cfc266701fc274e6c6ff22daa394">&#9670;&nbsp;</a></span>element</h2>
+<a id="ac550d4c31cb0d6e311f7d2f49ff2bcd3"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ac550d4c31cb0d6e311f7d2f49ff2bcd3">&#9670;&nbsp;</a></span>address</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">struct { ... }   cio_write_buffer::element</td>
+          <td class="memname">union { ... }   cio_inet_address::address</td>
         </tr>
       </table>
 </div><div class="memdoc">
 
 </div>
 </div>
-<a id="a108ff80bca33420f8a96ec44188fc100"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a108ff80bca33420f8a96ec44188fc100">&#9670;&nbsp;</a></span>head</h2>
+<a id="a5bc304ed87e7e484ad727b1efe872991"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a5bc304ed87e7e484ad727b1efe872991">&#9670;&nbsp;</a></span>type</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">struct { ... }   cio_write_buffer::head</td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-</div>
-</div>
-<a id="ada5b2211a3ee640baf15abdae9be2d7a"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ada5b2211a3ee640baf15abdae9be2d7a">&#9670;&nbsp;</a></span>length</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">size_t cio_write_buffer::length</td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-</div>
-</div>
-<a id="a21d9ee9a38c18e9ee82f90743524dd47"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a21d9ee9a38c18e9ee82f90743524dd47">&#9670;&nbsp;</a></span>q_len</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">size_t cio_write_buffer::q_len</td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-</div>
-</div>
-<a id="a6e5d0ec7cfa6e5a96a04dba5836fb881"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a6e5d0ec7cfa6e5a96a04dba5836fb881">&#9670;&nbsp;</a></span>total_length</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">size_t cio_write_buffer::total_length</td>
+          <td class="memname">enum <a class="el" href="cio__inet__address_8h.html#abf80bd22ac22458beb0fc5078195dfc9">cio_socket_address_family</a> cio_inet_address::type</td>
         </tr>
       </table>
 </div><div class="memdoc">
@@ -193,14 +160,14 @@ $(document).ready(function(){initNavTree('structcio__write__buffer.html','');});
 </div>
 </div>
 <hr/>The documentation for this struct was generated from the following file:<ul>
-<li><a class="el" href="cio__write__buffer_8h_source.html">cio_write_buffer.h</a></li>
+<li><a class="el" href="cio__inet__address_8h_source.html">cio_inet_address.h</a></li>
 </ul>
 </div><!-- contents -->
 </div><!-- doc-content -->
 <!-- start footer part -->
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
-    <li class="navelem"><a class="el" href="structcio__write__buffer.html">cio_write_buffer</a></li>
+    <li class="navelem"><a class="el" href="structcio__inet__address.html">cio_inet_address</a></li>
     <li class="footer">Generated by
     <a href="http://www.doxygen.org/index.html">
     <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.8.13 </li>

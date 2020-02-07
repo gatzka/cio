@@ -138,6 +138,9 @@ $(document).ready(function(){initNavTree('globals.html','');});
 <li>cio_check_utf8()
 : <a class="el" href="cio__utf8__checker_8h.html#a5c0dd74d77825c00d6cdea16735af864">cio_utf8_checker.h</a>
 </li>
+<li>cio_connect_handler
+: <a class="el" href="cio__socket_8h.html#aa1c0496e07744a2c296b040796f2153c">cio_socket.h</a>
+</li>
 <li>cio_const_container_of
 : <a class="el" href="cio__util_8h.html#ada457a697a09d60689684d6b367727c5">cio_util.h</a>
 </li>
@@ -372,6 +375,18 @@ $(document).ready(function(){initNavTree('globals.html','');});
 <li>CIO_HTTP_UNSUBSCRIBE
 : <a class="el" href="cio__http__method_8h.html#af72daec94b7eb3d7c6ba31bdb7ba0ef3af2caaf7b83438ec60d832a88d9d57a29">cio_http_method.h</a>
 </li>
+<li>CIO_INET4_ADDRESS
+: <a class="el" href="cio__inet__address_8h.html#abf80bd22ac22458beb0fc5078195dfc9ad0a90a44171972ffa8b4c02a648fcecf">cio_inet_address.h</a>
+</li>
+<li>CIO_INET6_ADDRESS
+: <a class="el" href="cio__inet__address_8h.html#abf80bd22ac22458beb0fc5078195dfc9a9e6dca1e828d596d902a69812760af5b">cio_inet_address.h</a>
+</li>
+<li>cio_init_inet_address()
+: <a class="el" href="cio__inet__address_8h.html#a58b575f4607d3f55e3a9ab97b9be3403">cio_inet_address.h</a>
+</li>
+<li>cio_init_inet_socket_address()
+: <a class="el" href="cio__inet__socket__address_8h.html#ad8d13b47a99dc17ed23c4b50eea11fb8">cio_inet_socket_address.h</a>
+</li>
 <li>CIO_INVALID_ARGUMENT
 : <a class="el" href="cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afea5c1717df699ce9f37dff0713f0c183fe">cio_error_code.h</a>
 </li>
@@ -380,6 +395,12 @@ $(document).ready(function(){initNavTree('globals.html','');});
 </li>
 <li>cio_io_stream_write_handler
 : <a class="el" href="cio__io__stream_8h.html#ab36d9d747bae6688a42d5f1425dcc6ab">cio_io_stream.h</a>
+</li>
+<li>CIO_IPV4_ADDRESS_SIZE
+: <a class="el" href="cio__inet4__address_8h.html#adf764cbdea00d65edcd07bb9953ad2b7a0dc187eb32fafcfebd879bc92bc38225">cio_inet4_address.h</a>
+</li>
+<li>CIO_IPV6_ADDRESS_SIZE
+: <a class="el" href="cio__inet6__address_8h.html#a99fb83031ce9923c84392b4e92f956b5a91a9b083a6215454834833f9cfbdf7b1">cio_inet6_address.h</a>
 </li>
 <li>cio_memmem()
 : <a class="el" href="cio__string_8h.html#a15c5a92b8872b62342ef86fa20d1e8d8">cio_string.h</a>
@@ -474,17 +495,23 @@ $(document).ready(function(){initNavTree('globals.html','');});
 <li>cio_server_socket_set_reuse_address()
 : <a class="el" href="cio__server__socket_8h.html#a9072ce36cc4c775589d501c7bf36b058">cio_server_socket.h</a>
 </li>
+<li>cio_socket_address_family
+: <a class="el" href="cio__inet__address_8h.html#abf80bd22ac22458beb0fc5078195dfc9">cio_inet_address.h</a>
+</li>
 <li>cio_socket_close()
 : <a class="el" href="cio__socket_8h.html#a05ffd07e49f227b8c4edf823d05d7d63">cio_socket.h</a>
 </li>
 <li>cio_socket_close_hook
-: <a class="el" href="cio__socket_8h.html#aa7dba60f1aaedb69eeb6f781acd9ed27">cio_socket.h</a>
+: <a class="el" href="cio__socket_8h.html#a15b402d7780a66823a9a2cb98b2c4391">cio_socket.h</a>
+</li>
+<li>cio_socket_connect()
+: <a class="el" href="cio__socket_8h.html#a4335acb47395c8017c961b536a95d2c6">cio_socket.h</a>
 </li>
 <li>cio_socket_get_io_stream()
 : <a class="el" href="cio__socket_8h.html#aa7700eebfcc2eb28a7e14a98fd0cfb4e">cio_socket.h</a>
 </li>
 <li>cio_socket_init()
-: <a class="el" href="cio__socket_8h.html#a8631338a7f52efe173636f3aaed20f36">cio_socket.h</a>
+: <a class="el" href="cio__socket_8h.html#a5b2d8f9a9703b4632988d533451a148b">cio_socket.h</a>
 </li>
 <li>cio_socket_set_keep_alive()
 : <a class="el" href="cio__socket_8h.html#afc0965f58a404be3b01b004fecd8eb0e">cio_socket.h</a>
@@ -709,7 +736,7 @@ $(document).ready(function(){initNavTree('globals.html','');});
 : <a class="el" href="cio__write__buffer_8h.html#a066ea453286fd70035fd26e8996a9f73">cio_write_buffer.h</a>
 </li>
 <li>CONFIG_TCP_FASTOPEN_QUEUE_SIZE
-: <a class="el" href="os__config_8h.html#abed82baf7f470b522273a3e37c24c600a1ff311fb81f3d4d3b286feab82ac8ad5">os_config.h</a>
+: <a class="el" href="os__config_8h.html#abc5c98fcc1211af2b80116dd6e0a035da1ff311fb81f3d4d3b286feab82ac8ad5">os_config.h</a>
 </li>
 </ul>
 </div><!-- contents -->

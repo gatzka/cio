@@ -160,7 +160,7 @@ Functions</h2></td></tr>
   <table class="params">
     <tr><td class="paramname">ss</td><td>The server socket where the accept was called on. </td></tr>
     <tr><td class="paramname">handler_context</td><td>The context the functions works on. </td></tr>
-    <tr><td class="paramname">err</td><td>If err != <a class="el" href="cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afea6bb29544c99750c61f70b10a1e17d96a">CIO_SUCCESS</a>, the accept call failed. Please note that no memory for a client is allocated if err != <a class="el" href="cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afea6bb29544c99750c61f70b10a1e17d96a">CIO_SUCCESS</a>. So NEVER free any </td></tr>
+    <tr><td class="paramname">err</td><td>If err != <a class="el" href="cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afea6bb29544c99750c61f70b10a1e17d96a">CIO_SUCCESS</a>, the accept call failed. Please note that no memory for a client is allocated if err != <a class="el" href="cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afea6bb29544c99750c61f70b10a1e17d96a">CIO_SUCCESS</a>. So NEVER close <em>socket</em> in that case. </td></tr>
     <tr><td class="paramname">socket</td><td>The client socket that was created from the accept. </td></tr>
   </table>
   </dd>

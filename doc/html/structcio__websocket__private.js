@@ -26,5 +26,5 @@ var structcio__websocket__private =
     [ "write_message_job", "structcio__websocket__private.html#ab4860faa72ab9d8a75a65e1376d00089", null ],
     [ "write_ping_job", "structcio__websocket__private.html#a26e20e86af1c05a9d401f4ea45d0543c", null ],
     [ "write_pong_job", "structcio__websocket__private.html#a4f63fe3c897fc27e34b5b3fabfd0fc7a", null ],
-    [ "ws_flags", "structcio__websocket__private.html#a41b8d0e6181ad659a77f0cbd308dc5c6", null ]
+    [ "ws_flags", "structcio__websocket__private.html#a3013b4fc29b443464ffc93c2ba958620", null ]
 ];
