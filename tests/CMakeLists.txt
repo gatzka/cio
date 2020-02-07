@@ -10,7 +10,6 @@ add_library(unity
 )
 set_target_properties(unity PROPERTIES
     C_CLANG_TIDY ""
-    COMPILE_OPTIONS "$<$<OR:$<C_COMPILER_ID:GNU>,$<C_COMPILER_ID:Clang>>:-Wno-strict-overflow>"
 )
 target_include_directories(unity PUBLIC ${CMAKE_CURRENT_LIST_DIR}/unity/src/)
 
