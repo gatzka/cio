@@ -166,6 +166,7 @@ jobs:
         install_deps: ./.github/workflows/install-deps.sh
         ctest_toolchain_file: /tmp/cio/toolchains/x86-linux-clang-9.cmake
         ctest_analyzer: clang-tidy-9
+        ctest_configuration_type: Release
 
   gcc-7-arm:
     name: arm gcc-7 Release
