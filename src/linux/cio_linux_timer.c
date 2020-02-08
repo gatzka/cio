@@ -35,6 +35,7 @@
 #include "cio_compiler.h"
 #include "cio_error_code.h"
 #include "cio_eventloop_impl.h"
+#include "cio_linux_socket_utils.h"
 #include "cio_timer.h"
 
 static const uint64_t NSECONDS_IN_SECONDS = UINT64_C(1000000000);
@@ -52,14 +53,15 @@ static struct itimerspec convert_timeoutns_to_itimerspec(uint64_t timeout)
 	return ts;
 }
 
-static void timer_read(void *context, enum cio_error error)
+static void timer_read(void *context, enum cio_epoll_error error)
 {
 	struct cio_timer *t = context;
 
-	if (cio_unlikely(error != CIO_SUCCESS)) {
+	if (cio_unlikely(error != CIO_EPOLL_SUCCESS)) {
 		cio_timer_handler handler = t->handler;
 		t->handler = NULL;
-		handler(t, t->handler_context, error);
+		enum cio_error err = cio_linux_get_socket_error(t->impl.ev.fd);
+		handler(t, t->handler_context, err);
 		return;
 	}
 
@@ -128,7 +130,7 @@ enum cio_error cio_timer_expires_from_now(struct cio_timer *t, uint64_t timeout_
 		return (enum cio_error)(-errno);
 	}
 
-	timer_read(t, CIO_SUCCESS);
+	timer_read(t, CIO_EPOLL_SUCCESS);
 	return CIO_SUCCESS;
 }
 

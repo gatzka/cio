@@ -46,18 +46,18 @@ FAKE_VALUE_FUNC(ssize_t, write, int, const void *, size_t)
 
 void epoll_callback(void *, int);
 FAKE_VOID_FUNC(epoll_callback, void *, int)
-void epoll_callback_second_fd(void *, enum cio_error);
-FAKE_VOID_FUNC(epoll_callback_second_fd, void *, enum cio_error)
-void epoll_callback_third_fd(void *, enum cio_error);
-FAKE_VOID_FUNC(epoll_callback_third_fd, void *, enum cio_error)
-void epoll_callback_forth_fd(void *, enum cio_error);
-FAKE_VOID_FUNC(epoll_callback_forth_fd, void *, enum cio_error)
-void epoll_callback_remove_third_fd(void *, enum cio_error);
-FAKE_VOID_FUNC(epoll_callback_remove_third_fd, void *, enum cio_error)
-void epoll_callback_remove_loop(void *, enum cio_error);
-FAKE_VOID_FUNC(epoll_callback_remove_loop, void *, enum cio_error)
-void epoll_callback_unregister_read_second_fd(void *, enum cio_error);
-FAKE_VOID_FUNC(epoll_callback_unregister_read_second_fd, void *, enum cio_error)
+void epoll_callback_second_fd(void *, enum cio_epoll_error);
+FAKE_VOID_FUNC(epoll_callback_second_fd, void *, enum cio_epoll_error)
+void epoll_callback_third_fd(void *, enum cio_epoll_error);
+FAKE_VOID_FUNC(epoll_callback_third_fd, void *, enum cio_epoll_error)
+void epoll_callback_forth_fd(void *, enum cio_epoll_error);
+FAKE_VOID_FUNC(epoll_callback_forth_fd, void *, enum cio_epoll_error)
+void epoll_callback_remove_third_fd(void *, enum cio_epoll_error);
+FAKE_VOID_FUNC(epoll_callback_remove_third_fd, void *, enum cio_epoll_error)
+void epoll_callback_remove_loop(void *, enum cio_epoll_error);
+FAKE_VOID_FUNC(epoll_callback_remove_loop, void *, enum cio_epoll_error)
+void epoll_callback_unregister_read_second_fd(void *, enum cio_epoll_error);
+FAKE_VOID_FUNC(epoll_callback_unregister_read_second_fd, void *, enum cio_epoll_error)
 
 #ifndef ARRAY_SIZE
 #define ARRAY_SIZE(a) (sizeof(a) / sizeof((a)[0]))
@@ -89,14 +89,14 @@ void tearDown(void)
 {
 }
 
-static void remove_third_fd(void *context, enum cio_error error)
+static void remove_third_fd(void *context, enum cio_epoll_error error)
 {
 	(void)error;
 	struct cio_eventloop *loop = context;
 	cio_linux_eventloop_remove(loop, event_list[2]);
 }
 
-static void remove_from_loop(void *context, enum cio_error error)
+static void remove_from_loop(void *context, enum cio_epoll_error error)
 {
 	(void)error;
 	struct cio_eventloop *loop = context;
@@ -105,7 +105,7 @@ static void remove_from_loop(void *context, enum cio_error error)
 	free(ev);
 }
 
-static void unregister_write_event(void *context, enum cio_error error)
+static void unregister_write_event(void *context, enum cio_epoll_error error)
 {
 	(void)error;
 	struct cio_eventloop *loop = context;
@@ -113,7 +113,7 @@ static void unregister_write_event(void *context, enum cio_error error)
 	cio_linux_eventloop_unregister_write(loop, ev);
 }
 
-static void unregister_read_event(void *context, enum cio_error err)
+static void unregister_read_event(void *context, enum cio_epoll_error err)
 {
 	(void)err;
 	struct cio_eventloop *loop = context;
@@ -276,6 +276,39 @@ static int notify_two_fds(int epfd, struct epoll_event *events,
 		return -1;
 	}
 }
+
+static int notify_write_and_error(int epfd, struct epoll_event *events,
+                          int maxevents, int timeout)
+{
+	(void)epfd;
+	(void)maxevents;
+	(void)timeout;
+
+	if (epoll_wait_fake.call_count == 1) {
+		events[0].events = EPOLLOUT | EPOLLERR;
+		events[0].data.ptr = event_list[0];
+		return 1;
+	} else {
+		return -1;
+	}
+}
+
+static int notify_write_and_hup(int epfd, struct epoll_event *events,
+                          int maxevents, int timeout)
+{
+	(void)epfd;
+	(void)maxevents;
+	(void)timeout;
+
+	if (epoll_wait_fake.call_count == 1) {
+		events[0].events = EPOLLOUT | EPOLLHUP;
+		events[0].data.ptr = event_list[0];
+		return 1;
+	} else {
+		return -1;
+	}
+}
+
 
 static void test_create_loop(void)
 {
@@ -465,6 +498,85 @@ static void test_notify_event(void)
 	cio_eventloop_run(&loop);
 	TEST_ASSERT_EQUAL(1, epoll_callback_fake.call_count);
 	TEST_ASSERT_EQUAL(&loop, epoll_callback_fake.arg0_val);
+	TEST_ASSERT_EQUAL_MESSAGE(CIO_EPOLL_SUCCESS, epoll_callback_fake.arg1_val, "callback was not called with success code!");
+
+	cio_eventloop_destroy(&loop);
+	TEST_ASSERT_EQUAL(2, close_fake.call_count);
+}
+
+static void test_notify_error_event(void)
+{
+	epoll_wait_fake.custom_fake = notify_write_and_error;
+	int (*epoll_ctrl_fakes[])(int, int, int, struct epoll_event *) = {epoll_ctl_nosave, epoll_ctl_save};
+	SET_CUSTOM_FAKE_SEQ(epoll_ctl, epoll_ctrl_fakes, ARRAY_SIZE(epoll_ctrl_fakes))
+
+	struct cio_eventloop loop;
+	enum cio_error err = cio_eventloop_init(&loop);
+	TEST_ASSERT_EQUAL(CIO_SUCCESS, err);
+	TEST_ASSERT_EQUAL(1, epoll_create1_fake.call_count);
+
+	static const int fake_fd = 42;
+	struct cio_event_notifier ev;
+	ev.fd = fake_fd;
+	ev.write_callback = epoll_callback;
+	ev.context = &loop;
+	err = cio_linux_eventloop_add(&loop, &ev);
+	TEST_ASSERT_EQUAL(CIO_SUCCESS, err);
+	TEST_ASSERT_EQUAL(3, epoll_ctl_fake.call_count);
+	TEST_ASSERT_EQUAL(loop.epoll_fd, epoll_ctl_fake.arg0_val);
+	TEST_ASSERT_EQUAL(EPOLL_CTL_ADD, epoll_ctl_fake.arg1_val);
+	TEST_ASSERT_EQUAL(fake_fd, epoll_ctl_fake.arg2_val);
+
+	err = cio_linux_eventloop_register_write(&loop, &ev);
+	TEST_ASSERT_EQUAL(CIO_SUCCESS, err);
+	TEST_ASSERT_EQUAL(4, epoll_ctl_fake.call_count);
+	TEST_ASSERT_EQUAL(loop.epoll_fd, epoll_ctl_fake.arg0_val);
+	TEST_ASSERT_EQUAL(EPOLL_CTL_MOD, epoll_ctl_fake.arg1_val);
+	TEST_ASSERT_EQUAL(fake_fd, epoll_ctl_fake.arg2_val);
+
+	cio_eventloop_run(&loop);
+	TEST_ASSERT_EQUAL(1, epoll_callback_fake.call_count);
+	TEST_ASSERT_EQUAL(&loop, epoll_callback_fake.arg0_val);
+	TEST_ASSERT_EQUAL_MESSAGE(CIO_EPOLL_ERROR, epoll_callback_fake.arg1_val, "callback was not called with error code!");
+
+	cio_eventloop_destroy(&loop);
+	TEST_ASSERT_EQUAL(2, close_fake.call_count);
+}
+
+static void test_notify_hup_event(void)
+{
+	epoll_wait_fake.custom_fake = notify_write_and_hup;
+	int (*epoll_ctrl_fakes[])(int, int, int, struct epoll_event *) = {epoll_ctl_nosave, epoll_ctl_save};
+	SET_CUSTOM_FAKE_SEQ(epoll_ctl, epoll_ctrl_fakes, ARRAY_SIZE(epoll_ctrl_fakes))
+
+	struct cio_eventloop loop;
+	enum cio_error err = cio_eventloop_init(&loop);
+	TEST_ASSERT_EQUAL(CIO_SUCCESS, err);
+	TEST_ASSERT_EQUAL(1, epoll_create1_fake.call_count);
+
+	static const int fake_fd = 42;
+	struct cio_event_notifier ev;
+	ev.fd = fake_fd;
+	ev.write_callback = epoll_callback;
+	ev.context = &loop;
+	err = cio_linux_eventloop_add(&loop, &ev);
+	TEST_ASSERT_EQUAL(CIO_SUCCESS, err);
+	TEST_ASSERT_EQUAL(3, epoll_ctl_fake.call_count);
+	TEST_ASSERT_EQUAL(loop.epoll_fd, epoll_ctl_fake.arg0_val);
+	TEST_ASSERT_EQUAL(EPOLL_CTL_ADD, epoll_ctl_fake.arg1_val);
+	TEST_ASSERT_EQUAL(fake_fd, epoll_ctl_fake.arg2_val);
+
+	err = cio_linux_eventloop_register_write(&loop, &ev);
+	TEST_ASSERT_EQUAL(CIO_SUCCESS, err);
+	TEST_ASSERT_EQUAL(4, epoll_ctl_fake.call_count);
+	TEST_ASSERT_EQUAL(loop.epoll_fd, epoll_ctl_fake.arg0_val);
+	TEST_ASSERT_EQUAL(EPOLL_CTL_MOD, epoll_ctl_fake.arg1_val);
+	TEST_ASSERT_EQUAL(fake_fd, epoll_ctl_fake.arg2_val);
+
+	cio_eventloop_run(&loop);
+	TEST_ASSERT_EQUAL(1, epoll_callback_fake.call_count);
+	TEST_ASSERT_EQUAL(&loop, epoll_callback_fake.arg0_val);
+	TEST_ASSERT_EQUAL_MESSAGE(CIO_EPOLL_ERROR, epoll_callback_fake.arg1_val, "callback was not called with error code!");
 
 	cio_eventloop_destroy(&loop);
 	TEST_ASSERT_EQUAL(2, close_fake.call_count);
@@ -527,6 +639,8 @@ static void test_notify_single_fd_multiple_events(void)
 	cio_eventloop_run(&loop);
 	TEST_ASSERT_EQUAL(2, epoll_callback_fake.call_count);
 	TEST_ASSERT_EQUAL(&loop, epoll_callback_fake.arg0_val);
+	TEST_ASSERT_EQUAL_MESSAGE(CIO_EPOLL_SUCCESS, epoll_callback_fake.arg1_history[0], "callback was not called with success code!");
+	TEST_ASSERT_EQUAL_MESSAGE(CIO_EPOLL_SUCCESS, epoll_callback_fake.arg1_history[1], "callback was not called with success code!");
 
 	cio_eventloop_destroy(&loop);
 	TEST_ASSERT_EQUAL(2, close_fake.call_count);
@@ -800,6 +914,8 @@ int main(void)
 	RUN_TEST(test_cancel);
 	RUN_TEST(test_register_event_fails);
 	RUN_TEST(test_notify_event);
+	RUN_TEST(test_notify_error_event);
+	RUN_TEST(test_notify_hup_event);
 	RUN_TEST(test_notify_three_event_and_remove);
 	RUN_TEST(test_notify_single_fd_multiple_events);
 	RUN_TEST(test_notify_single_fd_multiple_events_remove_from_loop);

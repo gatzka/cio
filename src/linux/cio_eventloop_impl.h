@@ -49,6 +49,10 @@ extern "C" {
  */
 #define CONFIG_MAX_EPOLL_EVENTS 100
 
+enum cio_epoll_error {
+	CIO_EPOLL_SUCCESS = 0, /*!< No error occured. */
+	CIO_EPOLL_ERROR = -1,  /*!< No error occured. */
+};
 /**
  * @brief The cio_linux_event_notifier struct bundles the information
  * necessary to register I/O events.
@@ -58,13 +62,13 @@ struct cio_event_notifier {
 	 * @anchor cio_linux_event_notifier_read_callback
 	 * @brief The function to be called when a file descriptor becomes readable.
 	 */
-	void (*read_callback)(void *context, enum cio_error error);
+	void (*read_callback)(void *context, enum cio_epoll_error error);
 
 	/**
 	 * @anchor cio_linux_event_notifier_write_callback
 	 * @brief The function to be called when a file descriptor becomes writeable.
 	 */
-	void (*write_callback)(void *context, enum cio_error error);
+	void (*write_callback)(void *context, enum cio_epoll_error error);
 
 	/**
 	 * @brief The context that is given to the callback functions.
