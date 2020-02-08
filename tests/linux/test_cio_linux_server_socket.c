@@ -323,7 +323,6 @@ static void test_accept_error(void)
 	alloc_client_fake.custom_fake = alloc_success;
 	free_client_fake.custom_fake = free_success;
 	getsockopt_fake.return_val = -1;
-	errno = ENOBUFS;
 
 	struct cio_eventloop loop;
 	struct cio_server_socket ss;
@@ -336,6 +335,7 @@ static void test_accept_error(void)
 	err = cio_server_socket_accept(&ss, accept_handler, NULL);
 	TEST_ASSERT_EQUAL(CIO_SUCCESS, err);
 
+	errno = ENOBUFS;
 	ss.impl.ev.read_callback(ss.impl.ev.context, CIO_EPOLL_ERROR);
 
 	TEST_ASSERT_EQUAL(1, accept_handler_fake.call_count);
