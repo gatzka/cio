@@ -185,6 +185,7 @@ var searchData=
   ['cio_5fstring_2eh',['cio_string.h',['../cio__string_8h.html',1,'']]],
   ['cio_5fstrncasecmp',['cio_strncasecmp',['../cio__string_8h.html#af707c0efef3a5212113b370078e608fa',1,'cio_string.h']]],
   ['cio_5fsuccess',['CIO_SUCCESS',['../cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afea6bb29544c99750c61f70b10a1e17d96a',1,'cio_error_code.h']]],
+  ['cio_5ftimedout',['CIO_TIMEDOUT',['../cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afea786707b1f9c68c3dc296ce63fe8307ae',1,'cio_error_code.h']]],
   ['cio_5ftimer',['cio_timer',['../structcio__timer.html',1,'']]],
   ['cio_5ftimer_2eh',['cio_timer.h',['../cio__timer_8h.html',1,'']]],
   ['cio_5ftimer_5fcancel',['cio_timer_cancel',['../cio__timer_8h.html#afb61d4be8cb0cd6e0f0204b11f9c7f49',1,'cio_timer.h']]],

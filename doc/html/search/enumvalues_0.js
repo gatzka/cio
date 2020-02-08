@@ -65,6 +65,7 @@ var searchData=
   ['cio_5fpermission_5fdenied',['CIO_PERMISSION_DENIED',['../cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afeacbe96e6c41d13351a99ed59d910e146f',1,'cio_error_code.h']]],
   ['cio_5fprotocol_5fnot_5fsupported',['CIO_PROTOCOL_NOT_SUPPORTED',['../cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afea2b17f2123e380cd5580bb6e614f9789a',1,'cio_error_code.h']]],
   ['cio_5fsuccess',['CIO_SUCCESS',['../cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afea6bb29544c99750c61f70b10a1e17d96a',1,'cio_error_code.h']]],
+  ['cio_5ftimedout',['CIO_TIMEDOUT',['../cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afea786707b1f9c68c3dc296ce63fe8307ae',1,'cio_error_code.h']]],
   ['cio_5ftoo_5fmany_5ffiles_5fopen',['CIO_TOO_MANY_FILES_OPEN',['../cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afea5943517bd1417748a5861a147db26657',1,'cio_error_code.h']]],
   ['cio_5ftoo_5fmany_5fsymbolic_5flink_5flevels',['CIO_TOO_MANY_SYMBOLIC_LINK_LEVELS',['../cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afea4d57cc6f8e1fa638917916386d201172',1,'cio_error_code.h']]],
   ['cio_5futf8_5faccept',['CIO_UTF8_ACCEPT',['../cio__utf8__checker_8h.html#a8cc342c473ef83b38ab4e96678d4d63ea2375a85acbf1e6af16060d7d0d91eb11',1,'cio_utf8_checker.h']]],
