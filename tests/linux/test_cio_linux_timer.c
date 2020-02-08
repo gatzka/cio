@@ -49,6 +49,8 @@ FAKE_VALUE_FUNC(int, timerfd_create, int, int)
 FAKE_VALUE_FUNC(int, timerfd_settime, int, int, const struct itimerspec *, struct itimerspec *)
 FAKE_VALUE_FUNC(ssize_t, read, int, void *, size_t)
 FAKE_VALUE_FUNC(int, close, int)
+FAKE_VALUE_FUNC(int, getsockopt, int, int, int, void *, socklen_t *)
+
 
 void on_close(struct cio_timer *timer);
 FAKE_VOID_FUNC(on_close, struct cio_timer *)
@@ -240,14 +242,16 @@ static void test_eventloop_error(void)
 	timerfd_create_fake.return_val = timerfd;
 	read_fake.custom_fake = read_blocks;
 	handle_timeout_fake.custom_fake = close_in_timeout;
+	getsockopt_fake.return_val = -1;
 
 	struct cio_timer timer;
 	enum cio_error err = cio_timer_init(&timer, NULL, NULL);
 	TEST_ASSERT_EQUAL(CIO_SUCCESS, err);
 
 	cio_timer_expires_from_now(&timer, 2000, handle_timeout, NULL);
+	errno = ENOBUFS;
 
-	timer.impl.ev.read_callback(&timer, CIO_NO_BUFFER_SPACE);
+	timer.impl.ev.read_callback(&timer, CIO_EPOLL_ERROR);
 
 	TEST_ASSERT_EQUAL(1, close_fake.call_count);
 	TEST_ASSERT_EQUAL(timerfd, close_fake.arg0_val);

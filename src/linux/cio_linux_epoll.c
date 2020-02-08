@@ -184,29 +184,19 @@ enum cio_error cio_eventloop_run(struct cio_eventloop *loop)
 			uint32_t events_type = events[loop->event_counter].events;
 			loop->current_ev = ev;
 
-			enum cio_error err = CIO_SUCCESS;
-
 			if ((events_type & (uint32_t)EPOLLIN & ev->registered_events) != 0) {
-				ev->read_callback(ev->context, err);
+				ev->read_callback(ev->context, CIO_EPOLL_SUCCESS);
 			}
 
 			/*
 			 * The current event could have been removed via cio_linux_eventloop_remove
 			 */
 			if (cio_likely(loop->current_ev != NULL) && (events_type & (uint32_t)EPOLLOUT & ev->registered_events) != 0) {
+				enum cio_epoll_error err;
 				if (cio_unlikely(((events_type & (uint32_t)EPOLLERR) != 0) || ((events_type & (uint32_t)EPOLLHUP) != 0))) {
-					int error = 0;
-					socklen_t len = sizeof(error);
-					//TODO(gatzka):
-					// take out getsockoptcall (let that do the callback function)
-					// call read/write_callback with eventloop specific error codes
-					// rename enum cio_error to enum cio_socket_error
-					int ret = getsockopt(ev->fd, SOL_SOCKET, SO_ERROR, &error, &len);
-					if (cio_unlikely(ret != 0)) {
-						err = (enum cio_error)(-errno);
-					} else {
-						err = (enum cio_error)(-error);
-					}
+					err = CIO_EPOLL_ERROR;
+				} else {
+					err = CIO_EPOLL_SUCCESS;
 				}
 
 				cio_linux_eventloop_unregister_write(loop, ev);

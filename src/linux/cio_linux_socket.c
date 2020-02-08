@@ -49,14 +49,16 @@
 #include "cio_write_buffer.h"
 #include "linux/cio_linux_socket_utils.h"
 
-static void read_callback(void *context, enum cio_error error)
+static void read_callback(void *context, enum cio_epoll_error error)
 {
 	struct cio_io_stream *stream = context;
 	struct cio_read_buffer *rb = stream->read_buffer;
 	struct cio_socket *s = cio_container_of(stream, struct cio_socket, stream);
 
-	if (cio_unlikely(error != CIO_SUCCESS)) {
-		stream->read_handler(stream, stream->read_handler_context, error, rb);
+	enum cio_error err;
+	if (cio_unlikely(error != CIO_EPOLL_SUCCESS)) {
+		err = cio_linux_get_socket_error(s->impl.ev.fd);
+		stream->read_handler(stream, stream->read_handler_context, err, rb);
 		return;
 	}
 
@@ -67,14 +69,14 @@ static void read_callback(void *context, enum cio_error error)
 		}
 	} else {
 		if (ret == 0) {
-			error = CIO_EOF;
+			err = CIO_EOF;
 			s->impl.peer_closed_connection = true;
 		} else {
 			rb->add_ptr += (size_t)ret;
-			error = CIO_SUCCESS;
+			err = CIO_SUCCESS;
 		}
 
-		stream->read_handler(stream, stream->read_handler_context, error, rb);
+		stream->read_handler(stream, stream->read_handler_context, err, rb);
 	}
 }
 
@@ -114,13 +116,13 @@ static void cancel_timer_and_reset_connection(struct cio_socket *s)
 	reset_connection(s);
 }
 
-static void read_until_close_callback(void *context, enum cio_error error)
+static void read_until_close_callback(void *context, enum cio_epoll_error error)
 {
 	uint8_t buffer[READ_CLOSE_BUFFER_SIZE];
 
 	struct cio_socket *s = (struct cio_socket *)context;
 
-	if (cio_unlikely(error != CIO_SUCCESS)) {
+	if (cio_unlikely(error != CIO_EPOLL_SUCCESS)) {
 		cancel_timer_and_reset_connection(s);
 		return;
 	}
@@ -155,10 +157,19 @@ static enum cio_error stream_read(struct cio_io_stream *stream, struct cio_read_
 	return cio_linux_eventloop_register_read(s->impl.loop, &s->impl.ev);
 }
 
-static void write_callback(void *context, enum cio_error error)
+static void write_callback(void *context, enum cio_epoll_error error)
 {
 	struct cio_io_stream *stream = context;
-	stream->write_handler(stream, stream->write_handler_context, stream->write_buffer, error, 0);
+
+	enum cio_error err;
+	if (cio_unlikely(error != CIO_EPOLL_SUCCESS)) {
+		struct cio_socket *s = cio_container_of(stream, struct cio_socket, stream);
+		err = cio_linux_get_socket_error(s->impl.ev.fd);
+	} else {
+		err = CIO_SUCCESS;
+	}
+
+	stream->write_handler(stream, stream->write_handler_context, stream->write_buffer, err, 0);
 }
 
 static enum cio_error stream_write(struct cio_io_stream *stream, const struct cio_write_buffer *buffer, cio_io_stream_write_handler handler, void *handler_context)
@@ -248,10 +259,10 @@ enum cio_error cio_linux_socket_init(struct cio_socket *s, int client_fd,
 }
 
 enum cio_error cio_socket_init(struct cio_socket *socket,
-							   enum cio_socket_address_family address_family,
-							   struct cio_eventloop *loop,
-							   uint64_t close_timeout_ns,
-							   cio_socket_close_hook close_hook)
+                               enum cio_socket_address_family address_family,
+                               struct cio_eventloop *loop,
+                               uint64_t close_timeout_ns,
+                               cio_socket_close_hook close_hook)
 {
 	if (cio_unlikely(socket == NULL) || (loop == NULL)) {
 		return CIO_INVALID_ARGUMENT;
@@ -322,10 +333,16 @@ enum cio_error cio_socket_close(struct cio_socket *socket)
 	return CIO_SUCCESS;
 }
 
-static void connect_callback(void *context, enum cio_error error)
+static void connect_callback(void *context, enum cio_epoll_error error)
 {
 	struct cio_socket *socket = context;
-	socket->handler(socket, socket->handler_context, error);
+	enum cio_error err;
+	if (cio_unlikely(error != CIO_EPOLL_SUCCESS)) {
+		err = cio_linux_get_socket_error(socket->impl.ev.fd);
+	} else {
+		err = CIO_SUCCESS;
+	}
+	socket->handler(socket, socket->handler_context, err);
 }
 
 enum cio_error cio_socket_connect(struct cio_socket *socket, struct cio_inet_socket_address *address, cio_connect_handler handler, void *handler_context)

@@ -38,14 +38,14 @@ int cio_linux_socket_create(enum cio_socket_address_family address_family)
 {
 	int domain;
 	switch (address_family) {
-		case CIO_INET4_ADDRESS:
-			domain = AF_INET;
-			break;
-		case CIO_INET6_ADDRESS:
-			domain = AF_INET6;
-			break;
-		default:
-			return -1;
+	case CIO_INET4_ADDRESS:
+		domain = AF_INET;
+		break;
+	case CIO_INET6_ADDRESS:
+		domain = AF_INET6;
+		break;
+	default:
+		return -1;
 	}
 
 	int fd = socket(domain, (unsigned int)SOCK_STREAM | (unsigned int)SOCK_CLOEXEC | (unsigned int)SOCK_NONBLOCK, 0U);

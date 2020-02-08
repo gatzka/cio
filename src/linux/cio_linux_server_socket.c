@@ -47,12 +47,13 @@
 #include "linux/cio_linux_socket_utils.h"
 #include "os_config.h"
 
-static void accept_callback(void *context, enum cio_error error)
+static void accept_callback(void *context, enum cio_epoll_error error)
 {
 	struct cio_server_socket *ss = context;
 
-	if (cio_unlikely(error != CIO_SUCCESS)) {
-		ss->handler(ss, ss->handler_context, error, NULL);
+	if (cio_unlikely(error != CIO_EPOLL_SUCCESS)) {
+		enum cio_error err = cio_linux_get_socket_error(ss->impl.ev.fd);
+		ss->handler(ss, ss->handler_context, err, NULL);
 		return;
 	}
 
