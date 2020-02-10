@@ -92,9 +92,9 @@ $(document).ready(function(){initNavTree('structcio__http__server__configuration
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-attribs"></a>
 Data Fields</h2></td></tr>
-<tr class="memitem:a36d6808f7e11474e4cdae67fe2b76210"><td class="memItemLeft" align="right" valign="top">uint16_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structcio__http__server__configuration.html#a36d6808f7e11474e4cdae67fe2b76210">port</a></td></tr>
-<tr class="memdesc:a36d6808f7e11474e4cdae67fe2b76210"><td class="mdescLeft">&#160;</td><td class="mdescRight">The TCP port the HTTP server listens on.  <a href="#a36d6808f7e11474e4cdae67fe2b76210">More...</a><br /></td></tr>
-<tr class="separator:a36d6808f7e11474e4cdae67fe2b76210"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa605230127e2bc430add4517f228f14f"><td class="memItemLeft" align="right" valign="top">struct <a class="el" href="structcio__inet__socket__address.html">cio_inet_socket_address</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structcio__http__server__configuration.html#aa605230127e2bc430add4517f228f14f">endpoint</a></td></tr>
+<tr class="memdesc:aa605230127e2bc430add4517f228f14f"><td class="mdescLeft">&#160;</td><td class="mdescRight">The endpoint (IP address and point) the HTTP server listens on.  <a href="#aa605230127e2bc430add4517f228f14f">More...</a><br /></td></tr>
+<tr class="separator:aa605230127e2bc430add4517f228f14f"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a1ee6a81d5ce2c810cf7cc55169c71b2e"><td class="memItemLeft" align="right" valign="top"><a class="el" href="cio__http__server_8h.html#afbb607b74a68fb96dceaf24e3c486490">cio_http_serve_on_error</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structcio__http__server__configuration.html#a1ee6a81d5ce2c810cf7cc55169c71b2e">on_error</a></td></tr>
 <tr class="memdesc:a1ee6a81d5ce2c810cf7cc55169c71b2e"><td class="mdescLeft">&#160;</td><td class="mdescRight">This callback function will be called if something goes wrong while the HTTP client connection is established.  <a href="#a1ee6a81d5ce2c810cf7cc55169c71b2e">More...</a><br /></td></tr>
 <tr class="separator:a1ee6a81d5ce2c810cf7cc55169c71b2e"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -149,6 +149,22 @@ Data Fields</h2></td></tr>
 
 </div>
 </div>
+<a id="aa605230127e2bc430add4517f228f14f"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aa605230127e2bc430add4517f228f14f">&#9670;&nbsp;</a></span>endpoint</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">struct <a class="el" href="structcio__inet__socket__address.html">cio_inet_socket_address</a> cio_http_server_configuration::endpoint</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>The endpoint (IP address and point) the HTTP server listens on. </p>
+
+</div>
+</div>
 <a id="a2f331c78be1245119bdf97276aae3012"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a2f331c78be1245119bdf97276aae3012">&#9670;&nbsp;</a></span>free_client</h2>
 
@@ -179,22 +195,6 @@ Data Fields</h2></td></tr>
 </div><div class="memdoc">
 
 <p>This callback function will be called if something goes wrong while the HTTP client connection is established. </p>
-
-</div>
-</div>
-<a id="a36d6808f7e11474e4cdae67fe2b76210"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a36d6808f7e11474e4cdae67fe2b76210">&#9670;&nbsp;</a></span>port</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">uint16_t cio_http_server_configuration::port</td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>The TCP port the HTTP server listens on. </p>
 
 </div>
 </div>
