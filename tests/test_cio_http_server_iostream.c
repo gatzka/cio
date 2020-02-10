@@ -693,9 +693,9 @@ static void test_server_init(void)
 		    .alloc_client = args.alloc_client,
 		    .free_client = args.free_client};
 
-		uint8_t ipv4[4] = {127, 0, 0, 1};
+		uint8_t ip[4] = {0, 0, 0, 0};
 		struct cio_inet_address address;
-		cio_init_inet_address(&address, ipv4, sizeof(ipv4));
+		cio_init_inet_address(&address, ip, sizeof(ip));
 		cio_init_inet_socket_address(&config.endpoint, &address, 8080);
 
 		enum cio_error err = cio_http_server_init(args.server, args.loop, &config);
@@ -740,9 +740,9 @@ static void test_shutdown(void)
 		    .alloc_client = alloc_dummy_client,
 		    .free_client = free_dummy_client};
 
-		uint8_t ipv4[4] = {127, 0, 0, 1};
+		uint8_t ip[4] = {0, 0, 0, 0};
 		struct cio_inet_address address;
-		cio_init_inet_address(&address, ipv4, sizeof(ipv4));
+		cio_init_inet_address(&address, ip, sizeof(ip));
 		cio_init_inet_socket_address(&config.endpoint, &address, 8080);
 
 		enum cio_error err = cio_http_server_init(&server, &loop, &config);
@@ -772,9 +772,9 @@ static void test_register_request_target(void)
 	    .alloc_client = alloc_dummy_client,
 	    .free_client = free_dummy_client};
 
-	uint8_t ipv4[4] = {127, 0, 0, 1};
+	uint8_t ip[4] = {0, 0, 0, 0};
 	struct cio_inet_address address;
-	cio_init_inet_address(&address, ipv4, sizeof(ipv4));
+	cio_init_inet_address(&address, ip, sizeof(ip));
 	cio_init_inet_socket_address(&config.endpoint, &address, 8080);
 
 	struct cio_http_server server;
@@ -836,9 +836,9 @@ static void test_serve_locations(void)
 		    .alloc_client = alloc_dummy_client,
 		    .free_client = free_dummy_client};
 
-		uint8_t ipv4[4] = {127, 0, 0, 1};
+		uint8_t ip[4] = {0, 0, 0, 0};
 		struct cio_inet_address address;
-		cio_init_inet_address(&address, ipv4, sizeof(ipv4));
+		cio_init_inet_address(&address, ip, sizeof(ip));
 		cio_init_inet_socket_address(&config.endpoint, &address, 8080);
 
 		struct cio_http_server server;
@@ -919,9 +919,9 @@ static void test_keepalive_handling(void)
 		    .alloc_client = alloc_dummy_client,
 		    .free_client = free_dummy_client};
 
-		uint8_t ipv4[4] = {127, 0, 0, 1};
+		uint8_t ip[4] = {0, 0, 0, 0};
 		struct cio_inet_address address;
-		cio_init_inet_address(&address, ipv4, sizeof(ipv4));
+		cio_init_inet_address(&address, ip, sizeof(ip));
 		cio_init_inet_socket_address(&config.endpoint, &address, 8080);
 
 		struct cio_http_server server;
@@ -968,9 +968,9 @@ static void test_response_callback_after_message_complete(void)
 	    .alloc_client = alloc_dummy_client,
 	    .free_client = free_dummy_client};
 
-	uint8_t ipv4[4] = {127, 0, 0, 1};
+	uint8_t ip[4] = {0, 0, 0, 0};
 	struct cio_inet_address address;
-	cio_init_inet_address(&address, ipv4, sizeof(ipv4));
+	cio_init_inet_address(&address, ip, sizeof(ip));
 	cio_init_inet_socket_address(&config.endpoint, &address, 8080);
 
 	struct cio_http_server server;
@@ -995,7 +995,7 @@ static void test_response_callback_after_message_complete(void)
 	    write_blocks,
 	    write_all};
 	write_wrapper_fake.custom_fake = NULL;
-	SET_CUSTOM_FAKE_SEQ(write_wrapper, write_fakes, ARRAY_SIZE(write_fakes));
+	SET_CUSTOM_FAKE_SEQ(write_wrapper, write_fakes, ARRAY_SIZE(write_fakes))
 
 	server.server_socket.handler(&server.server_socket, server.server_socket.handler_context, CIO_SUCCESS, s);
 	TEST_ASSERT_EQUAL_MESSAGE(0, serve_error_fake.call_count, "Serve error callback was called!");
@@ -1100,9 +1100,9 @@ static void test_callbacks_after_response_sent(void)
 		    .alloc_client = alloc_dummy_client,
 		    .free_client = free_dummy_client};
 
-		uint8_t ipv4[4] = {127, 0, 0, 1};
+		uint8_t ip[4] = {0, 0, 0, 0};
 		struct cio_inet_address address;
-		cio_init_inet_address(&address, ipv4, sizeof(ipv4));
+		cio_init_inet_address(&address, ip, sizeof(ip));
 		cio_init_inet_socket_address(&config.endpoint, &address, 8080);
 
 		struct cio_http_server server;
@@ -1249,9 +1249,9 @@ static void test_url_callbacks(void)
 		    .alloc_client = alloc_dummy_client,
 		    .free_client = free_dummy_client};
 
-		uint8_t ipv4[4] = {127, 0, 0, 1};
+		uint8_t ip[4] = {0, 0, 0, 0};
 		struct cio_inet_address address;
-		cio_init_inet_address(&address, ipv4, sizeof(ipv4));
+		cio_init_inet_address(&address, ip, sizeof(ip));
 		cio_init_inet_socket_address(&config.endpoint, &address, 8080);
 
 		struct cio_http_server server;
@@ -1363,9 +1363,9 @@ static void test_errors_in_serve(void)
 		    .alloc_client = alloc_dummy_client,
 		    .free_client = free_dummy_client};
 
-		uint8_t ipv4[4] = {127, 0, 0, 1};
+		uint8_t ip[4] = {0, 0, 0, 0};
 		struct cio_inet_address address;
-		cio_init_inet_address(&address, ipv4, sizeof(ipv4));
+		cio_init_inet_address(&address, ip, sizeof(ip));
 		cio_init_inet_socket_address(&config.endpoint, &address, 8080);
 
 		struct cio_http_server server;
@@ -1373,7 +1373,7 @@ static void test_errors_in_serve(void)
 		TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Server initialization failed!");
 
 		err = cio_http_server_serve(&server);
-		TEST_ASSERT_NOT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Serving http did not fail!");
+		TEST_ASSERT_NOT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Serving http did not fail!")
 		TEST_ASSERT_EQUAL_MESSAGE(1, cio_server_socket_close_fake.call_count, "Close was not called!");
 
 		setUp();
@@ -1457,9 +1457,9 @@ static void test_errors_in_accept(void)
 		    .alloc_client = accept_test.alloc_client,
 		    .free_client = free_dummy_client};
 
-		uint8_t ipv4[4] = {127, 0, 0, 1};
+		uint8_t ip[4] = {0, 0, 0, 0};
 		struct cio_inet_address address;
-		cio_init_inet_address(&address, ipv4, sizeof(ipv4));
+		cio_init_inet_address(&address, ip, sizeof(ip));
 		cio_init_inet_socket_address(&config.endpoint, &address, 8080);
 
 		struct cio_http_server server;
@@ -1519,9 +1519,9 @@ static void test_parse_errors(void)
 		    .alloc_client = alloc_dummy_client,
 		    .free_client = free_dummy_client};
 
-		uint8_t ipv4[4] = {127, 0, 0, 1};
+		uint8_t ip[4] = {0, 0, 0, 0};
 		struct cio_inet_address address;
-		cio_init_inet_address(&address, ipv4, sizeof(ipv4));
+		cio_init_inet_address(&address, ip, sizeof(ip));
 		cio_init_inet_socket_address(&config.endpoint, &address, 8080);
 
 		struct cio_http_server server;
@@ -1562,9 +1562,9 @@ static void test_error_without_error_callback(void)
 	    .alloc_client = alloc_dummy_client,
 	    .free_client = free_dummy_client};
 
-	uint8_t ipv4[4] = {127, 0, 0, 1};
+	uint8_t ip[4] = {0, 0, 0, 0};
 	struct cio_inet_address address;
-	cio_init_inet_address(&address, ipv4, sizeof(ipv4));
+	cio_init_inet_address(&address, ip, sizeof(ip));
 	cio_init_inet_socket_address(&config.endpoint, &address, 8080);
 
 	struct cio_http_server server;
@@ -1598,9 +1598,9 @@ static void test_client_close_while_reading(void)
 	    .alloc_client = alloc_dummy_client,
 	    .free_client = free_dummy_client};
 
-	uint8_t ipv4[4] = {127, 0, 0, 1};
+	uint8_t ip[4] = {0, 0, 0, 0};
 	struct cio_inet_address address;
-	cio_init_inet_address(&address, ipv4, sizeof(ipv4));
+	cio_init_inet_address(&address, ip, sizeof(ip));
 	cio_init_inet_socket_address(&config.endpoint, &address, 8080);
 
 	struct cio_http_server server;
@@ -1641,9 +1641,9 @@ static void test_connection_upgrade(void)
 	    .alloc_client = alloc_dummy_client,
 	    .free_client = free_dummy_client};
 
-	uint8_t ipv4[4] = {127, 0, 0, 1};
+	uint8_t ip[4] = {0, 0, 0, 0};
 	struct cio_inet_address address;
-	cio_init_inet_address(&address, ipv4, sizeof(ipv4));
+	cio_init_inet_address(&address, ip, sizeof(ip));
 	cio_init_inet_socket_address(&config.endpoint, &address, 8080);
 
 	struct cio_http_server server;
@@ -1695,9 +1695,9 @@ static void test_timer_cancel_errors(void)
 		    .alloc_client = alloc_dummy_client,
 		    .free_client = free_dummy_client};
 
-		uint8_t ipv4[4] = {127, 0, 0, 1};
+		uint8_t ip[4] = {0, 0, 0, 0};
 		struct cio_inet_address address;
-		cio_init_inet_address(&address, ipv4, sizeof(ipv4));
+		cio_init_inet_address(&address, ip, sizeof(ip));
 		cio_init_inet_socket_address(&config.endpoint, &address, 8080);
 
 		struct cio_http_server server;
@@ -1752,9 +1752,9 @@ static void test_timer_expires_errors(void)
 		    .alloc_client = alloc_dummy_client,
 		    .free_client = free_dummy_client};
 
-		uint8_t ipv4[4] = {127, 0, 0, 1};
+		uint8_t ip[4] = {0, 0, 0, 0};
 		struct cio_inet_address address;
-		cio_init_inet_address(&address, ipv4, sizeof(ipv4));
+		cio_init_inet_address(&address, ip, sizeof(ip));
 		cio_init_inet_socket_address(&config.endpoint, &address, 8080);
 
 		struct cio_http_server server;
@@ -1775,7 +1775,7 @@ static void test_timer_expires_errors(void)
 		memory_stream_init(&ms, "GET /foo HTTP/1.1" CRLF CRLF, s);
 
 		server.server_socket.handler(&server.server_socket, server.server_socket.handler_context, CIO_SUCCESS, s);
-		TEST_ASSERT_MESSAGE(serve_error_fake.call_count > 0, "Serve error callback was called!");
+		TEST_ASSERT_MESSAGE(serve_error_fake.call_count > 0, "Serve error callback was called!")
 
 		TEST_ASSERT_EQUAL_MESSAGE(1, client_socket_close_fake.call_count, "client socket was not closed after keepalive timeout triggered!");
 

@@ -312,30 +312,30 @@ static void close_server_socket(struct cio_server_socket *ss)
 
 void setUp(void)
 {
-	FFF_RESET_HISTORY();
+	FFF_RESET_HISTORY()
 
-	RESET_FAKE(cio_buffered_stream_close);
-	RESET_FAKE(cio_buffered_stream_init);
-	RESET_FAKE(cio_buffered_stream_read_at_least);
-	RESET_FAKE(cio_buffered_stream_read_until);
-	RESET_FAKE(cio_buffered_stream_write);
+	RESET_FAKE(cio_buffered_stream_close)
+	RESET_FAKE(cio_buffered_stream_init)
+	RESET_FAKE(cio_buffered_stream_read_at_least)
+	RESET_FAKE(cio_buffered_stream_read_until)
+	RESET_FAKE(cio_buffered_stream_write)
 
-	RESET_FAKE(cio_server_socket_accept);
-	RESET_FAKE(cio_server_socket_bind);
-	RESET_FAKE(cio_server_socket_close);
-	RESET_FAKE(cio_server_socket_init);
-	RESET_FAKE(cio_server_socket_set_reuse_address);
+	RESET_FAKE(cio_server_socket_accept)
+	RESET_FAKE(cio_server_socket_bind)
+	RESET_FAKE(cio_server_socket_close)
+	RESET_FAKE(cio_server_socket_init)
+	RESET_FAKE(cio_server_socket_set_reuse_address)
 
-	RESET_FAKE(cio_socket_get_io_stream);
+	RESET_FAKE(cio_socket_get_io_stream)
 
-	RESET_FAKE(cio_timer_init);
-	RESET_FAKE(cio_timer_cancel);
-	RESET_FAKE(cio_timer_close);
-	RESET_FAKE(cio_timer_expires_from_now);
+	RESET_FAKE(cio_timer_init)
+	RESET_FAKE(cio_timer_cancel)
+	RESET_FAKE(cio_timer_close)
+	RESET_FAKE(cio_timer_expires_from_now)
 
-	RESET_FAKE(header_complete);
-	RESET_FAKE(message_complete);
-	RESET_FAKE(serve_error);
+	RESET_FAKE(header_complete)
+	RESET_FAKE(message_complete)
+	RESET_FAKE(serve_error)
 
 	http_parser_settings_init(&parser_settings);
 	http_parser_init(&parser, HTTP_RESPONSE);
@@ -376,9 +376,9 @@ static void test_serve_correctly(void)
 	    .alloc_client = alloc_dummy_client,
 	    .free_client = free_dummy_client};
 
-	uint8_t ipv4[4] = {127, 0, 0, 1};
+	uint8_t ip[4] = {0, 0, 0, 0};
 	struct cio_inet_address address;
-	cio_init_inet_address(&address, ipv4, sizeof(ipv4));
+	cio_init_inet_address(&address, ip, sizeof(ip));
 	cio_init_inet_socket_address(&config.endpoint, &address, 8080);
 
 	struct cio_http_server server;
@@ -438,7 +438,7 @@ static void test_read_until_errors(void)
 
 		cio_buffered_stream_read_until_fake.custom_fake = NULL;
 		bs_read_until_fakes[test.which_read_until_fails] = bs_read_until_call_fails;
-		SET_CUSTOM_FAKE_SEQ(cio_buffered_stream_read_until, bs_read_until_fakes, (int)array_size);
+		SET_CUSTOM_FAKE_SEQ(cio_buffered_stream_read_until, bs_read_until_fakes, (int)array_size)
 
 		cio_server_socket_init_fake.custom_fake = cio_server_socket_init_ok;
 		cio_server_socket_accept_fake.custom_fake = accept_save_handler;
@@ -454,9 +454,9 @@ static void test_read_until_errors(void)
 		    .alloc_client = alloc_dummy_client,
 		    .free_client = free_dummy_client};
 
-		uint8_t ipv4[4] = {127, 0, 0, 1};
+		uint8_t ip[4] = {0, 0, 0, 0};
 		struct cio_inet_address address;
-		cio_init_inet_address(&address, ipv4, sizeof(ipv4));
+		cio_init_inet_address(&address, ip, sizeof(ip));
 		cio_init_inet_socket_address(&config.endpoint, &address, 8080);
 
 		struct cio_http_server server;
@@ -511,9 +511,9 @@ static void test_close_error(void)
 	    .alloc_client = alloc_dummy_client,
 	    .free_client = free_dummy_client};
 
-	uint8_t ipv4[4] = {127, 0, 0, 1};
+	uint8_t ip[4] = {0, 0, 0, 0};
 	struct cio_inet_address address;
-	cio_init_inet_address(&address, ipv4, sizeof(ipv4));
+	cio_init_inet_address(&address, ip, sizeof(ip));
 	cio_init_inet_socket_address(&config.endpoint, &address, 8080);
 
 	struct cio_http_server server;
@@ -562,9 +562,9 @@ static void test_read_at_least_error(void)
 	    .alloc_client = alloc_dummy_client,
 	    .free_client = free_dummy_client};
 
-	uint8_t ipv4[4] = {127, 0, 0, 1};
+	uint8_t ip[4] = {0, 0, 0, 0};
 	struct cio_inet_address address;
-	cio_init_inet_address(&address, ipv4, sizeof(ipv4));
+	cio_init_inet_address(&address, ip, sizeof(ip));
 	cio_init_inet_socket_address(&config.endpoint, &address, 8080);
 
 	struct cio_http_server server;
@@ -617,9 +617,9 @@ static void test_write_error(void)
 	    .alloc_client = alloc_dummy_client,
 	    .free_client = free_dummy_client};
 
-	uint8_t ipv4[4] = {127, 0, 0, 1};
+	uint8_t ip[4] = {0, 0, 0, 0};
 	struct cio_inet_address address;
-	cio_init_inet_address(&address, ipv4, sizeof(ipv4));
+	cio_init_inet_address(&address, ip, sizeof(ip));
 	cio_init_inet_socket_address(&config.endpoint, &address, 8080);
 
 	struct cio_http_server server;

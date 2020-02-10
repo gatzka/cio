@@ -356,9 +356,9 @@ static void test_ws_version(void)
 		    .alloc_client = alloc_dummy_client,
 		    .free_client = free_dummy_client};
 
-		uint8_t ipv4[4] = {127, 0, 0, 1};
+		uint8_t ip[4] = {0, 0, 0, 0};
 		struct cio_inet_address address;
-		cio_init_inet_address(&address, ipv4, sizeof(ipv4));
+		cio_init_inet_address(&address, ip, sizeof(ip));
 		cio_init_inet_socket_address(&config.endpoint, &address, 8080);
 
 		struct cio_http_server server;
@@ -423,9 +423,9 @@ static void test_ws_location_wrong_http_version(void)
 		    .alloc_client = alloc_dummy_client,
 		    .free_client = free_dummy_client};
 
-		uint8_t ipv4[4] = {127, 0, 0, 1};
+		uint8_t ip[4] = {0, 0, 0, 0};
 		struct cio_inet_address address;
-		cio_init_inet_address(&address, ipv4, sizeof(ipv4));
+		cio_init_inet_address(&address, ip, sizeof(ip));
 		cio_init_inet_socket_address(&config.endpoint, &address, 8080);
 
 		struct cio_http_server server;
@@ -473,9 +473,9 @@ static void test_ws_location_wrong_http_method(void)
 	    .alloc_client = alloc_dummy_client,
 	    .free_client = free_dummy_client};
 
-	uint8_t ipv4[4] = {127, 0, 0, 1};
+	uint8_t ip[4] = {0, 0, 0, 0};
 	struct cio_inet_address address;
-	cio_init_inet_address(&address, ipv4, sizeof(ipv4));
+	cio_init_inet_address(&address, ip, sizeof(ip));
 	cio_init_inet_socket_address(&config.endpoint, &address, 8080);
 
 	struct cio_http_server server;
@@ -522,9 +522,9 @@ static void test_ws_location_wrong_ws_version(void)
 		    .alloc_client = alloc_dummy_client,
 		    .free_client = free_dummy_client};
 
-		uint8_t ipv4[4] = {127, 0, 0, 1};
+		uint8_t ip[4] = {0, 0, 0, 0};
 		struct cio_inet_address address;
-		cio_init_inet_address(&address, ipv4, sizeof(ipv4));
+		cio_init_inet_address(&address, ip, sizeof(ip));
 		cio_init_inet_socket_address(&config.endpoint, &address, 8080);
 
 		struct cio_http_server server;
@@ -588,9 +588,9 @@ static void test_ws_key(void)
 		    .alloc_client = alloc_dummy_client,
 		    .free_client = free_dummy_client};
 
-		uint8_t ipv4[4] = {127, 0, 0, 1};
+		uint8_t ip[4] = {0, 0, 0, 0};
 		struct cio_inet_address address;
-		cio_init_inet_address(&address, ipv4, sizeof(ipv4));
+		cio_init_inet_address(&address, ip, sizeof(ip));
 		cio_init_inet_socket_address(&config.endpoint, &address, 8080);
 
 		struct cio_http_server server;
@@ -639,9 +639,9 @@ static void test_ws_location_wrong_key_length(void)
 	    .alloc_client = alloc_dummy_client,
 	    .free_client = free_dummy_client};
 
-	uint8_t ipv4[4] = {127, 0, 0, 1};
+	uint8_t ip[4] = {0, 0, 0, 0};
 	struct cio_inet_address address;
-	cio_init_inet_address(&address, ipv4, sizeof(ipv4));
+	cio_init_inet_address(&address, ip, sizeof(ip));
 	cio_init_inet_socket_address(&config.endpoint, &address, 8080);
 
 	struct cio_http_server server;
@@ -707,9 +707,9 @@ static void test_ws_location_subprotocols(void)
 		    .alloc_client = alloc_dummy_client,
 		    .free_client = free_dummy_client};
 
-		uint8_t ipv4[4] = {127, 0, 0, 1};
+		uint8_t ip[4] = {0, 0, 0, 0};
 		struct cio_inet_address address;
-		cio_init_inet_address(&address, ipv4, sizeof(ipv4));
+		cio_init_inet_address(&address, ip, sizeof(ip));
 		cio_init_inet_socket_address(&config.endpoint, &address, 8080);
 
 		struct cio_http_server server;
@@ -758,9 +758,9 @@ static void test_ws_location_no_upgrade(void)
 	    .alloc_client = alloc_dummy_client,
 	    .free_client = free_dummy_client};
 
-	uint8_t ipv4[4] = {127, 0, 0, 1};
+	uint8_t ip[4] = {0, 0, 0, 0};
 	struct cio_inet_address address;
-	cio_init_inet_address(&address, ipv4, sizeof(ipv4));
+	cio_init_inet_address(&address, ip, sizeof(ip));
 	cio_init_inet_socket_address(&config.endpoint, &address, 8080);
 
 	struct cio_http_server server;
@@ -805,9 +805,9 @@ static void test_ws_location_write_error(void)
 	    .alloc_client = alloc_dummy_client,
 	    .free_client = free_dummy_client};
 
-	uint8_t ipv4[4] = {127, 0, 0, 1};
+	uint8_t ip[4] = {0, 0, 0, 0};
 	struct cio_inet_address address;
-	cio_init_inet_address(&address, ipv4, sizeof(ipv4));
+	cio_init_inet_address(&address, ip, sizeof(ip));
 	cio_init_inet_socket_address(&config.endpoint, &address, 8080);
 
 	struct cio_http_server server;

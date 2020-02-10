@@ -267,17 +267,17 @@ static void accept_handler_close_socket(struct cio_server_socket *ss, void *hand
 
 static void fill_inet_socket_address(struct cio_inet_socket_address *endpoint)
 {
-	uint8_t ipv4[4] = {127, 0, 0, 1};
+	uint8_t ip[4] = {0, 0, 0, 0};
 	struct cio_inet_address address;
-	cio_init_inet_address(&address, ipv4, sizeof(ipv4));
+	cio_init_inet_address(&address, ip, sizeof(ip));
 	cio_init_inet_socket_address(endpoint, &address, 12345);
 }
 
 static void fill_inet_socket_address_v6(struct cio_inet_socket_address *endpoint)
 {
-	uint8_t ipv6[16] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1};
+	uint8_t ip[16] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 	struct cio_inet_address address;
-	cio_init_inet_address(&address, ipv6, sizeof(ipv6));
+	cio_init_inet_address(&address, ip, sizeof(ip));
 	cio_init_inet_socket_address(endpoint, &address, 12345);
 }
 
@@ -680,7 +680,7 @@ static void test_init_bind_fails(void)
 	struct cio_inet_socket_address endpoint;
 	fill_inet_socket_address(&endpoint);
 	err = cio_server_socket_bind(&ss, &endpoint);
-	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "call to bind() did not succeed!");
+	TEST_ASSERT_EQUAL_MESSAGE(CIO_ADDRESS_IN_USE, err, "call to bind() did not succeed!");
 
 	TEST_ASSERT_EQUAL(0, close_fake.call_count);
 	cio_server_socket_close(&ss);

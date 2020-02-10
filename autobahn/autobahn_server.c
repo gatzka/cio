@@ -43,6 +43,7 @@ static struct cio_http_server http_server;
 static const uint16_t AUTOBAHN_SERVER_PORT = 9001;
 
 #define read_buffer_size (1024)
+enum {IPV6_ADDRESS_SIZE = 16};
 
 static const uint64_t header_read_timeout = UINT64_C(5) * UINT64_C(1000) * UINT64_C(1000) * UINT64_C(1000);
 static const uint64_t body_read_timeout = UINT64_C(5) * UINT64_C(1000) * UINT64_C(1000) * UINT64_C(1000);
@@ -211,9 +212,9 @@ int main(void)
 		.free_client = free_http_client
 	};
 
-	uint8_t ipv4[4] = {127, 0, 0, 1};
+	uint8_t ip[IPV6_ADDRESS_SIZE] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 	struct cio_inet_address address;
-	cio_init_inet_address(&address, ipv4, sizeof(ipv4));
+	cio_init_inet_address(&address, ip, sizeof(ip));
 	cio_init_inet_socket_address(&config.endpoint, &address, AUTOBAHN_SERVER_PORT);
 
 	err = cio_http_server_init(&http_server, &loop, &config);

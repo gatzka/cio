@@ -312,9 +312,9 @@ int main(void)
 		.free_client = free_http_client
 	};
 
-	uint8_t ipv4[4] = {127, 0, 0, 1};
+	uint8_t ip[16] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 	struct cio_inet_address address;
-	cio_init_inet_address(&address, ipv4, sizeof(ipv4));
+	cio_init_inet_address(&address, ip, sizeof(ip));
 	cio_init_inet_socket_address(&config.endpoint, &address, HTTPSERVER_LISTEN_PORT);
 
 	err = cio_http_server_init(&server, &loop, &config);
