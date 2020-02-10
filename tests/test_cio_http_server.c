@@ -37,6 +37,7 @@
 #include "cio_http_location.h"
 #include "cio_http_location_handler.h"
 #include "cio_http_server.h"
+#include "cio_inet_socket_address.h"
 #include "cio_server_socket.h"
 #include "cio_timer.h"
 #include "cio_util.h"
@@ -67,9 +68,9 @@ DEFINE_FFF_GLOBALS
 static void serve_error(struct cio_http_server *server, const char *reason);
 FAKE_VOID_FUNC(serve_error, struct cio_http_server *, const char *)
 
-FAKE_VALUE_FUNC(enum cio_error, cio_server_socket_init, struct cio_server_socket *, struct cio_eventloop *, unsigned int, cio_alloc_client, cio_free_client, uint64_t, cio_server_socket_close_hook)
+FAKE_VALUE_FUNC(enum cio_error, cio_server_socket_init, struct cio_server_socket *, struct cio_eventloop *, unsigned int, enum cio_socket_address_family, cio_alloc_client, cio_free_client, uint64_t, cio_server_socket_close_hook)
 FAKE_VALUE_FUNC(enum cio_error, cio_server_socket_accept, struct cio_server_socket *, cio_accept_handler, void *)
-FAKE_VALUE_FUNC(enum cio_error, cio_server_socket_bind, struct cio_server_socket *, const char *, uint16_t)
+FAKE_VALUE_FUNC(enum cio_error, cio_server_socket_bind, struct cio_server_socket *, const struct cio_inet_socket_address *)
 FAKE_VOID_FUNC(cio_server_socket_close, struct cio_server_socket *)
 FAKE_VALUE_FUNC(enum cio_error, cio_server_socket_set_reuse_address, struct cio_server_socket *, bool)
 
@@ -110,11 +111,13 @@ static enum cio_error cio_timer_init_ok(struct cio_timer *timer, struct cio_even
 static enum cio_error cio_server_socket_init_ok(struct cio_server_socket *ss,
                                                 struct cio_eventloop *loop,
                                                 unsigned int backlog,
+                                                enum cio_socket_address_family family,
                                                 cio_alloc_client alloc_client,
                                                 cio_free_client free_client,
                                                 uint64_t close_timeout,
                                                 cio_server_socket_close_hook close_hook)
 {
+	(void)family;
 	(void)close_timeout;
 	ss->alloc_client = alloc_client;
 	ss->free_client = free_client;
@@ -311,30 +314,30 @@ static void close_server_socket(struct cio_server_socket *ss)
 
 void setUp(void)
 {
-	FFF_RESET_HISTORY();
+	FFF_RESET_HISTORY()
 
-	RESET_FAKE(cio_buffered_stream_close);
-	RESET_FAKE(cio_buffered_stream_init);
-	RESET_FAKE(cio_buffered_stream_read_at_least);
-	RESET_FAKE(cio_buffered_stream_read_until);
-	RESET_FAKE(cio_buffered_stream_write);
+	RESET_FAKE(cio_buffered_stream_close)
+	RESET_FAKE(cio_buffered_stream_init)
+	RESET_FAKE(cio_buffered_stream_read_at_least)
+	RESET_FAKE(cio_buffered_stream_read_until)
+	RESET_FAKE(cio_buffered_stream_write)
 
-	RESET_FAKE(cio_server_socket_accept);
-	RESET_FAKE(cio_server_socket_bind);
-	RESET_FAKE(cio_server_socket_close);
-	RESET_FAKE(cio_server_socket_init);
-	RESET_FAKE(cio_server_socket_set_reuse_address);
+	RESET_FAKE(cio_server_socket_accept)
+	RESET_FAKE(cio_server_socket_bind)
+	RESET_FAKE(cio_server_socket_close)
+	RESET_FAKE(cio_server_socket_init)
+	RESET_FAKE(cio_server_socket_set_reuse_address)
 
-	RESET_FAKE(cio_socket_get_io_stream);
+	RESET_FAKE(cio_socket_get_io_stream)
 
-	RESET_FAKE(cio_timer_init);
-	RESET_FAKE(cio_timer_cancel);
-	RESET_FAKE(cio_timer_close);
-	RESET_FAKE(cio_timer_expires_from_now);
+	RESET_FAKE(cio_timer_init)
+	RESET_FAKE(cio_timer_cancel)
+	RESET_FAKE(cio_timer_close)
+	RESET_FAKE(cio_timer_expires_from_now)
 
-	RESET_FAKE(header_complete);
-	RESET_FAKE(message_complete);
-	RESET_FAKE(serve_error);
+	RESET_FAKE(header_complete)
+	RESET_FAKE(message_complete)
+	RESET_FAKE(serve_error)
 
 	http_parser_settings_init(&parser_settings);
 	http_parser_init(&parser, HTTP_RESPONSE);
@@ -367,7 +370,6 @@ static void test_serve_correctly(void)
 	header_complete_fake.custom_fake = header_complete_write_response;
 
 	struct cio_http_server_configuration config = {
-	    .port = 8080,
 	    .on_error = serve_error,
 	    .read_header_timeout_ns = header_read_timeout,
 	    .read_body_timeout_ns = body_read_timeout,
@@ -375,6 +377,12 @@ static void test_serve_correctly(void)
 	    .close_timeout_ns = close_timeout_ns,
 	    .alloc_client = alloc_dummy_client,
 	    .free_client = free_dummy_client};
+
+	uint8_t ip[4] = {0, 0, 0, 0};
+	struct cio_inet_address address;
+	cio_init_inet_address(&address, ip, sizeof(ip));
+	cio_init_inet_socket_address(&config.endpoint, &address, 8080);
+
 	struct cio_http_server server;
 	enum cio_error err = cio_http_server_init(&server, &loop, &config);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Server initialization failed!");
@@ -432,7 +440,7 @@ static void test_read_until_errors(void)
 
 		cio_buffered_stream_read_until_fake.custom_fake = NULL;
 		bs_read_until_fakes[test.which_read_until_fails] = bs_read_until_call_fails;
-		SET_CUSTOM_FAKE_SEQ(cio_buffered_stream_read_until, bs_read_until_fakes, (int)array_size);
+		SET_CUSTOM_FAKE_SEQ(cio_buffered_stream_read_until, bs_read_until_fakes, (int)array_size)
 
 		cio_server_socket_init_fake.custom_fake = cio_server_socket_init_ok;
 		cio_server_socket_accept_fake.custom_fake = accept_save_handler;
@@ -440,7 +448,6 @@ static void test_read_until_errors(void)
 		header_complete_fake.custom_fake = header_complete_write_response;
 
 		struct cio_http_server_configuration config = {
-		    .port = 8080,
 		    .on_error = serve_error,
 		    .read_header_timeout_ns = header_read_timeout,
 		    .read_body_timeout_ns = body_read_timeout,
@@ -448,6 +455,12 @@ static void test_read_until_errors(void)
 		    .close_timeout_ns = close_timeout_ns,
 		    .alloc_client = alloc_dummy_client,
 		    .free_client = free_dummy_client};
+
+		uint8_t ip[4] = {0, 0, 0, 0};
+		struct cio_inet_address address;
+		cio_init_inet_address(&address, ip, sizeof(ip));
+		cio_init_inet_socket_address(&config.endpoint, &address, 8080);
+
 		struct cio_http_server server;
 		enum cio_error err = cio_http_server_init(&server, &loop, &config);
 		TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Server initialization failed!");
@@ -492,7 +505,6 @@ static void test_close_error(void)
 	header_complete_fake.custom_fake = header_complete_write_response;
 
 	struct cio_http_server_configuration config = {
-	    .port = 8080,
 	    .on_error = serve_error,
 	    .read_header_timeout_ns = header_read_timeout,
 	    .read_body_timeout_ns = body_read_timeout,
@@ -500,6 +512,12 @@ static void test_close_error(void)
 	    .close_timeout_ns = close_timeout_ns,
 	    .alloc_client = alloc_dummy_client,
 	    .free_client = free_dummy_client};
+
+	uint8_t ip[4] = {0, 0, 0, 0};
+	struct cio_inet_address address;
+	cio_init_inet_address(&address, ip, sizeof(ip));
+	cio_init_inet_socket_address(&config.endpoint, &address, 8080);
+
 	struct cio_http_server server;
 	enum cio_error err = cio_http_server_init(&server, &loop, &config);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Server initialization failed!");
@@ -538,7 +556,6 @@ static void test_read_at_least_error(void)
 	cio_server_socket_accept_fake.custom_fake = accept_save_handler;
 
 	struct cio_http_server_configuration config = {
-	    .port = 8080,
 	    .on_error = serve_error,
 	    .read_header_timeout_ns = header_read_timeout,
 	    .read_body_timeout_ns = body_read_timeout,
@@ -546,6 +563,12 @@ static void test_read_at_least_error(void)
 	    .close_timeout_ns = close_timeout_ns,
 	    .alloc_client = alloc_dummy_client,
 	    .free_client = free_dummy_client};
+
+	uint8_t ip[4] = {0, 0, 0, 0};
+	struct cio_inet_address address;
+	cio_init_inet_address(&address, ip, sizeof(ip));
+	cio_init_inet_socket_address(&config.endpoint, &address, 8080);
+
 	struct cio_http_server server;
 	enum cio_error err = cio_http_server_init(&server, &loop, &config);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Server initialization failed!");
@@ -588,7 +611,6 @@ static void test_write_error(void)
 	cio_buffered_stream_write_fake.custom_fake = bs_write_error;
 
 	struct cio_http_server_configuration config = {
-	    .port = 8080,
 	    .on_error = serve_error,
 	    .read_header_timeout_ns = header_read_timeout,
 	    .read_body_timeout_ns = body_read_timeout,
@@ -596,6 +618,12 @@ static void test_write_error(void)
 	    .close_timeout_ns = close_timeout_ns,
 	    .alloc_client = alloc_dummy_client,
 	    .free_client = free_dummy_client};
+
+	uint8_t ip[4] = {0, 0, 0, 0};
+	struct cio_inet_address address;
+	cio_init_inet_address(&address, ip, sizeof(ip));
+	cio_init_inet_socket_address(&config.endpoint, &address, 8080);
+
 	struct cio_http_server server;
 	enum cio_error err = cio_http_server_init(&server, &loop, &config);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Server initialization failed!");

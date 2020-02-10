@@ -34,7 +34,6 @@ foreach(tgt ${targets})
         set_target_properties(${tgt} PROPERTIES
     		C_STANDARD_REQUIRED ON
     		C_EXTENSIONS OFF
-            C_CLANG_TIDY ""
         )
     endif()
 endforeach()

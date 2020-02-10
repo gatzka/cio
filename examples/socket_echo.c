@@ -32,6 +32,8 @@
 
 #include "cio_error_code.h"
 #include "cio_eventloop.h"
+#include "cio_inet_address.h"
+#include "cio_inet_socket_address.h"
 #include "cio_io_stream.h"
 #include "cio_read_buffer.h"
 #include "cio_server_socket.h"
@@ -40,10 +42,11 @@
 #include "cio_write_buffer.h"
 
 static struct cio_eventloop loop;
-static const unsigned int SERVERSOCKET_BACKLOG = 5;
-static const uint16_t SERVERSOCKET_LISTEN_PORT = 12345;
-static const uint64_t close_timeout_ns = UINT64_C(1) * UINT64_C(1000) * UINT64_C(1000) * UINT64_C(1000);
+enum {SERVERSOCKET_BACKLOG = 5};
+enum {SERVERSOCKET_LISTEN_PORT = 12345};
+static const uint64_t CLOSE_TIMEOUT_NS = UINT64_C(1) * UINT64_C(1000) * UINT64_C(1000) * UINT64_C(1000);
 enum {BUFFER_SIZE = 100};
+enum {IPV6_ADDRESS_SIZE = 16};
 
 struct echo_client {
 	struct cio_socket socket;
@@ -144,13 +147,26 @@ int main(void)
 		return -1;
 	}
 
-	enum cio_error err = cio_eventloop_init(&loop);
+	uint8_t ip[IPV6_ADDRESS_SIZE] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+	struct cio_inet_address address;
+	enum cio_error err = cio_init_inet_address(&address, ip, sizeof(ip));
+	if (err != CIO_SUCCESS) {
+		return -1;
+	}
+
+	struct cio_inet_socket_address endpoint;
+	err = cio_init_inet_socket_address(&endpoint, &address, SERVERSOCKET_LISTEN_PORT);
+	if (err != CIO_SUCCESS) {
+		return -1;
+	}
+
+	err = cio_eventloop_init(&loop);
 	if (err != CIO_SUCCESS) {
 		return EXIT_FAILURE;
 	}
 
 	struct cio_server_socket ss;
-	err = cio_server_socket_init(&ss, &loop, SERVERSOCKET_BACKLOG, alloc_echo_client, free_echo_client, close_timeout_ns, NULL);
+	err = cio_server_socket_init(&ss, &loop, SERVERSOCKET_BACKLOG, endpoint.inet_address.type, alloc_echo_client, free_echo_client, CLOSE_TIMEOUT_NS, NULL);
 	if (err != CIO_SUCCESS) {
 		ret = EXIT_FAILURE;
 		goto destroy_loop;
@@ -162,7 +178,7 @@ int main(void)
 		goto close_socket;
 	}
 
-	err = cio_server_socket_bind(&ss, NULL, SERVERSOCKET_LISTEN_PORT);
+	err = cio_server_socket_bind(&ss, &endpoint);
 	if (err != CIO_SUCCESS) {
 		ret = EXIT_FAILURE;
 		goto close_socket;

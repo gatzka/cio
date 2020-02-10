@@ -47,8 +47,9 @@
 static struct cio_eventloop loop;
 static struct cio_http_server server;
 
-static const size_t read_buffer_size = 2000;
-static const uint16_t HTTPSERVER_LISTEN_PORT = 8080;
+enum {READ_BUFFER_SIZE = 2000};
+enum {HTTPSERVER_LISTEN_PORT = 8080};
+enum {IPV6_ADDRESS_SIZE = 16};
 
 static const uint64_t header_read_timeout = UINT64_C(5) * UINT64_C(1000) * UINT64_C(1000) * UINT64_C(1000);
 static const uint64_t body_read_timeout = UINT64_C(5) * UINT64_C(1000) * UINT64_C(1000) * UINT64_C(1000);
@@ -252,12 +253,12 @@ static struct cio_http_location_handler *alloc_websocket_handler(const void *con
 
 static struct cio_socket *alloc_http_client(void)
 {
-	struct cio_http_client *client = malloc(sizeof(*client) + read_buffer_size);
+	struct cio_http_client *client = malloc(sizeof(*client) + READ_BUFFER_SIZE);
 	if (cio_unlikely(client == NULL)) {
 		return NULL;
 	}
 
-	client->buffer_size = read_buffer_size;
+	client->buffer_size = READ_BUFFER_SIZE;
 	return &client->socket;
 }
 
@@ -303,7 +304,6 @@ int main(void)
 	}
 
 	struct cio_http_server_configuration config = {
-		.port = HTTPSERVER_LISTEN_PORT,
 		.on_error = serve_error,
 		.read_header_timeout_ns = header_read_timeout,
 		.read_body_timeout_ns = body_read_timeout,
@@ -312,6 +312,11 @@ int main(void)
 		.alloc_client = alloc_http_client,
 		.free_client = free_http_client
 	};
+
+	uint8_t ip[IPV6_ADDRESS_SIZE] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+	struct cio_inet_address address;
+	cio_init_inet_address(&address, ip, sizeof(ip));
+	cio_init_inet_socket_address(&config.endpoint, &address, HTTPSERVER_LISTEN_PORT);
 
 	err = cio_http_server_init(&server, &loop, &config);
 	if (err != CIO_SUCCESS) {

@@ -36,6 +36,7 @@
 #include "cio_eventloop.h"
 #include "cio_export.h"
 #include "cio_http_location.h"
+#include "cio_inet_socket_address.h"
 #include "cio_server_socket.h"
 
 #ifdef __cplusplus
@@ -81,7 +82,7 @@ struct cio_http_server {
 	/**
 	 * @privatesection
 	 */
-	uint16_t port;
+	struct cio_inet_socket_address endpoint;
 	struct cio_eventloop *loop;
 	cio_alloc_client alloc_client;
 	cio_free_client free_client;
@@ -98,8 +99,9 @@ struct cio_http_server {
 };
 
 struct cio_http_server_configuration {
-	/** @brief The TCP port the HTTP server listens on. */
-	uint16_t port;
+
+	/** @brief The endpoint (IP address and point) the HTTP server listens on. */
+	struct cio_inet_socket_address endpoint;
 
 	/** @brief This callback function will be called if something goes wrong while the HTTP client connection is established. */
 	cio_http_serve_on_error on_error;

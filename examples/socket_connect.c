@@ -26,7 +26,9 @@
  * SOFTWARE.
  */
 
+#include <limits.h>
 #include <signal.h>
+#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -36,7 +38,10 @@
 #include "cio_socket.h"
 
 static struct cio_eventloop loop;
-static const uint64_t close_timeout_ns = UINT64_C(1) * UINT64_C(1000) * UINT64_C(1000) * UINT64_C(1000);
+static const uint64_t CLOSE_TIMEOUT_NS = UINT64_C(1) * UINT64_C(1000) * UINT64_C(1000) * UINT64_C(1000);
+
+enum {BASE_10 = 10};
+enum {NUM_OF_IPV4_OCTETS = 4};
 
 static void handle_connect(struct cio_socket *socket, void *handler_context, enum cio_error err)
 {
@@ -68,20 +73,27 @@ int main(int argc, char *argv[])
 		return EXIT_FAILURE;
 	}
 
-	uint8_t ipv4_address[4] = {0x8b, 0x3b, 0x86, 0xf8};
-	int number = sscanf(argv[1], "%3hhu.%3hhu.%3hhu.%3hhu", ipv4_address, ipv4_address + 1, ipv4_address + 2, ipv4_address + 3);
-	if (number != 4) {
-		usage(argv[0]);
-		return EXIT_FAILURE;
+	uint8_t ip[NUM_OF_IPV4_OCTETS];
+
+	char *scan = argv[1];
+	for (uint_fast8_t i = 0; i < (uint8_t)NUM_OF_IPV4_OCTETS; i++) {
+		unsigned long octet = strtoul(scan, &scan, BASE_10);
+		if ((octet ==  ULONG_MAX) || (octet > UINT8_MAX) ||  ((i < NUM_OF_IPV4_OCTETS - 1)  && *scan != '.')) {
+			usage(argv[0]);
+			return EXIT_FAILURE;
+		}
+
+		scan++;
+		ip[i] = (uint8_t)octet;
 	}
 
 	uint16_t port;
-	number = sscanf(argv[2], "%hu", &port);
-
-	if (number != 1) {
+	unsigned long int port_number = strtoul(argv[2], NULL, BASE_10);
+	if ((port_number ==  ULONG_MAX) || (port_number > UINT16_MAX)) {
 		usage(argv[0]);
 		return EXIT_FAILURE;
 	}
+	port = (uint16_t)port_number;
 
 	int ret = EXIT_SUCCESS;
 	if (signal(SIGTERM, sighandler) == SIG_ERR) {
@@ -99,7 +111,7 @@ int main(int argc, char *argv[])
 	}
 
 	struct cio_inet_address address;
-	err = cio_init_inet_address(&address, ipv4_address, sizeof(ipv4_address));
+	err = cio_init_inet_address(&address, ip, sizeof(ip));
 	if (err != CIO_SUCCESS) {
 		ret = EXIT_FAILURE;
 		goto destroy_loop;
@@ -114,7 +126,7 @@ int main(int argc, char *argv[])
 
 	struct cio_socket socket;
 
-	err = cio_socket_init(&socket, CIO_INET4_ADDRESS, &loop, close_timeout_ns, NULL);
+	err = cio_socket_init(&socket, CIO_INET4_ADDRESS, &loop, CLOSE_TIMEOUT_NS, NULL);
 	if (err != CIO_SUCCESS) {
 		ret = EXIT_FAILURE;
 		goto destroy_loop;

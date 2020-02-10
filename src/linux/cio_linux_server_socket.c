@@ -27,7 +27,6 @@
  */
 
 #include <errno.h>
-#include <netdb.h>
 #include <netinet/tcp.h>
 #include <stdbool.h>
 #include <stddef.h>
@@ -38,6 +37,7 @@
 #include <unistd.h>
 
 #include "cio_compiler.h"
+#include "cio_endian.h"
 #include "cio_error_code.h"
 #include "cio_eventloop_impl.h"
 #include "cio_inet_address.h"
@@ -90,12 +90,13 @@ static void accept_callback(void *context, enum cio_epoll_error error)
 enum cio_error cio_server_socket_init(struct cio_server_socket *ss,
                                       struct cio_eventloop *loop,
                                       unsigned int backlog,
+                                      enum cio_socket_address_family family,
                                       cio_alloc_client alloc_client,
                                       cio_free_client free_client,
                                       uint64_t close_timeout_ns,
                                       cio_server_socket_close_hook close_hook)
 {
-	int listen_fd = cio_linux_socket_create(CIO_INET6_ADDRESS);
+	int listen_fd = cio_linux_socket_create(family);
 	if (listen_fd == -1) {
 		return (enum cio_error)(-errno);
 	}
@@ -152,46 +153,35 @@ void cio_server_socket_close(struct cio_server_socket *ss)
 	}
 }
 
-#define MAX_PORT_LENGTH 6
-
-enum cio_error cio_server_socket_bind(struct cio_server_socket *ss, const char *bind_address, uint16_t port)
+enum cio_error cio_server_socket_bind(struct cio_server_socket *ss, const struct cio_inet_socket_address *endpoint)
 {
-	struct addrinfo hints;
-	char server_port_string[MAX_PORT_LENGTH];
-	struct addrinfo *servinfo;
-	int ret;
-	struct addrinfo *rp;
-
-	memset(&hints, 0, sizeof(hints));
-	hints.ai_family = AF_INET6;
-	hints.ai_socktype = SOCK_STREAM;
-	hints.ai_flags = (unsigned int)AI_PASSIVE | (unsigned int)AI_V4MAPPED | (unsigned int)AI_NUMERICHOST;
-
-	snprintf(server_port_string, sizeof(server_port_string), "%d", port);
-
-	if (bind_address == NULL) {
-		bind_address = "::";
-	}
-
-	ret = getaddrinfo(bind_address, server_port_string, &hints, &servinfo);
-	if (ret != 0) {
-		if (ret == EAI_SYSTEM) {
-			return (enum cio_error)(-errno);
-		}
-
+	if (cio_unlikely((ss == NULL) || (endpoint == NULL))) {
 		return CIO_INVALID_ARGUMENT;
 	}
 
-	for (rp = servinfo; rp != NULL; rp = rp->ai_next) {
-		if (cio_likely(bind(ss->impl.ev.fd, rp->ai_addr, rp->ai_addrlen) == 0)) {
-			break;
-		}
+	struct sockaddr_in addr4;
+	struct sockaddr_in6 addr6;
+	struct sockaddr *addr;
+	socklen_t addr_len;
+	if (endpoint->inet_address.type == CIO_INET4_ADDRESS) {
+		memset(&addr4, 0, sizeof(addr4));
+		addr4.sin_family = AF_INET;
+		memcpy(&addr4.sin_addr.s_addr, endpoint->inet_address.address.addr4.addr, sizeof(endpoint->inet_address.address.addr4.addr));
+		addr4.sin_port = cio_htobe16(endpoint->port);
+		addr = (struct sockaddr *)&addr4;
+		addr_len = sizeof(addr4);
+	} else {
+		memset(&addr6, 0, sizeof(addr6));
+		addr6.sin6_family = AF_INET6;
+		memcpy(&addr6.sin6_addr, endpoint->inet_address.address.addr6.addr, sizeof(endpoint->inet_address.address.addr6.addr));
+		addr6.sin6_port = cio_htobe16(endpoint->port);
+		addr = (struct sockaddr *)&addr6;
+		addr_len = sizeof(addr6);
 	}
 
-	freeaddrinfo(servinfo);
-
-	if (rp == NULL) {
-		return CIO_INVALID_ARGUMENT;
+	int ret = bind(ss->impl.ev.fd, addr, addr_len);
+	if (cio_unlikely(ret != 0)) {
+		return (enum cio_error)(-errno);
 	}
 
 	return CIO_SUCCESS;
