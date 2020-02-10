@@ -40,9 +40,9 @@
 static struct cio_eventloop loop;
 static struct cio_http_server http_server;
 
-static const uint16_t AUTOBAHN_SERVER_PORT = 9001;
+enum {AUTOBAHN_SERVER_PORT = 9001};
 
-#define read_buffer_size (1024)
+enum {READ_BUFFER_SIZE = 1024};
 enum {IPV6_ADDRESS_SIZE = 16};
 
 static const uint64_t header_read_timeout = UINT64_C(5) * UINT64_C(1000) * UINT64_C(1000) * UINT64_C(1000);
@@ -56,7 +56,7 @@ struct ws_autobahn_handler {
 	struct cio_write_buffer wb_message;
 	size_t echo_write_index;
 	bool start_new_write_chunk;
-	uint8_t echo_buffer[read_buffer_size];
+	uint8_t echo_buffer[READ_BUFFER_SIZE];
 };
 
 static void free_autobahn_handler(struct cio_websocket_location_handler *wslh)
@@ -86,7 +86,7 @@ static void read_handler(struct cio_websocket *ws, void *handler_context, enum c
 		struct cio_websocket_location_handler *handler = cio_container_of(ws, struct cio_websocket_location_handler, websocket);
 		struct ws_autobahn_handler *ah = cio_container_of(handler, struct ws_autobahn_handler, ws_handler);
 
-		if (frame_length <= read_buffer_size) {
+		if (frame_length <= READ_BUFFER_SIZE) {
 			memcpy(ah->echo_buffer + ah->echo_write_index, data, length);
 			ah->echo_write_index +=length;
 			if (last_chunk) {
@@ -152,12 +152,12 @@ static struct cio_http_location_handler *alloc_autobahn_handler(const void *conf
 
 static struct cio_socket *alloc_http_client(void)
 {
-	struct cio_http_client *client = malloc(sizeof(*client) + read_buffer_size);
+	struct cio_http_client *client = malloc(sizeof(*client) + READ_BUFFER_SIZE);
 	if (cio_unlikely(client == NULL)) {
 		return NULL;
 	}
 
-	client->buffer_size = read_buffer_size;
+	client->buffer_size = READ_BUFFER_SIZE;
 	return &client->socket;
 }
 
