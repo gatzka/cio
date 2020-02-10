@@ -42,6 +42,8 @@
 #include "cio_http_location_handler.h"
 #include "cio_http_server.h"
 #include "cio_http_status_code.h"
+#include "cio_inet_address.h"
+#include "cio_inet_socket_address.h"
 #include "cio_read_buffer.h"
 #include "cio_server_socket.h"
 #include "cio_socket.h"
@@ -728,14 +730,13 @@ CIO_EXPORT enum cio_error cio_http_server_init(struct cio_http_server *server,
                                                struct cio_eventloop *loop,
                                                struct cio_http_server_configuration *config)
 {
-	if (cio_unlikely((server == NULL) || (config == NULL) || (config->port == 0) ||
+	if (cio_unlikely((server == NULL) || (config == NULL) ||
 	                 (loop == NULL) || (config->alloc_client == NULL) || (config->free_client == NULL) ||
 	                 (config->read_header_timeout_ns == 0) || (config->read_body_timeout_ns == 0) || (config->response_timeout_ns == 0))) {
 		return CIO_INVALID_ARGUMENT;
 	}
 
 	server->loop = loop;
-	server->port = config->port;
 	server->alloc_client = config->alloc_client;
 	server->free_client = config->free_client;
 	server->first_location = NULL;
@@ -745,6 +746,7 @@ CIO_EXPORT enum cio_error cio_http_server_init(struct cio_http_server *server,
 	server->read_body_timeout_ns = config->read_body_timeout_ns;
 	server->response_timeout_ns = config->response_timeout_ns;
 	server->close_hook = NULL;
+	memcpy(&server->endpoint, &config->endpoint, sizeof(config->endpoint));
 
 	uint32_t keep_alive = (uint32_t)(config->read_header_timeout_ns / NANO_SECONDS_IN_SECONDS);
 	snprintf(server->keepalive_header, sizeof(server->keepalive_header), "Keep-Alive: timeout=%" PRIu32 "\r\n", keep_alive);
@@ -759,7 +761,7 @@ enum cio_error cio_http_server_serve(struct cio_http_server *server)
 		goto close_socket;
 	}
 
-	err = cio_server_socket_bind(&server->server_socket, NULL, server->port);
+	err = cio_server_socket_bind(&server->server_socket, &server->endpoint);
 	if (cio_unlikely(err != CIO_SUCCESS)) {
 		goto close_socket;
 	}

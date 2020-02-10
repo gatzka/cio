@@ -202,7 +202,6 @@ int main(void)
 	}
 
 	struct cio_http_server_configuration config = {
-		.port = AUTOBAHN_SERVER_PORT,
 		.on_error = serve_error,
 		.read_header_timeout_ns = header_read_timeout,
 		.read_body_timeout_ns = body_read_timeout,
@@ -211,6 +210,11 @@ int main(void)
 		.alloc_client = alloc_http_client,
 		.free_client = free_http_client
 	};
+
+	uint8_t ipv4[4] = {127, 0, 0, 1};
+	struct cio_inet_address address;
+	cio_init_inet_address(&address, ipv4, sizeof(ipv4));
+	cio_init_inet_socket_address(&config.endpoint, &address, AUTOBAHN_SERVER_PORT);
 
 	err = cio_http_server_init(&http_server, &loop, &config);
 	if (err != CIO_SUCCESS) {

@@ -345,9 +345,9 @@ static void connect_callback(void *context, enum cio_epoll_error error)
 	socket->handler(socket, socket->handler_context, err);
 }
 
-enum cio_error cio_socket_connect(struct cio_socket *socket, struct cio_inet_socket_address *address, cio_connect_handler handler, void *handler_context)
+enum cio_error cio_socket_connect(struct cio_socket *socket, struct cio_inet_socket_address *endpoint, cio_connect_handler handler, void *handler_context)
 {
-	if (cio_unlikely(socket == NULL) || (address == NULL)) {
+	if (cio_unlikely(socket == NULL) || (endpoint == NULL)) {
 		return CIO_INVALID_ARGUMENT;
 	}
 
@@ -355,18 +355,18 @@ enum cio_error cio_socket_connect(struct cio_socket *socket, struct cio_inet_soc
 	struct sockaddr_in6 addr6;
 	struct sockaddr *addr;
 	socklen_t addr_len;
-	if (address->inet_address.type == CIO_INET4_ADDRESS) {
+	if (endpoint->inet_address.type == CIO_INET4_ADDRESS) {
 		memset(&addr4, 0, sizeof(addr4));
 		addr4.sin_family = AF_INET;
-		memcpy(&addr4.sin_addr.s_addr, address->inet_address.address.addr4.addr, sizeof(address->inet_address.address.addr4.addr));
-		addr4.sin_port = cio_htobe16(address->port);
+		memcpy(&addr4.sin_addr.s_addr, endpoint->inet_address.address.addr4.addr, sizeof(endpoint->inet_address.address.addr4.addr));
+		addr4.sin_port = cio_htobe16(endpoint->port);
 		addr = (struct sockaddr *)&addr4;
 		addr_len = sizeof(addr4);
 	} else {
 		memset(&addr6, 0, sizeof(addr6));
 		addr6.sin6_family = AF_INET6;
-		memcpy(&addr6.sin6_addr, address->inet_address.address.addr6.addr, sizeof(address->inet_address.address.addr6.addr));
-		addr6.sin6_port = cio_htobe16(address->port);
+		memcpy(&addr6.sin6_addr, endpoint->inet_address.address.addr6.addr, sizeof(endpoint->inet_address.address.addr6.addr));
+		addr6.sin6_port = cio_htobe16(endpoint->port);
 		addr = (struct sockaddr *)&addr6;
 		addr_len = sizeof(addr6);
 	}

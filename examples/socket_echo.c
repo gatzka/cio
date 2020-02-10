@@ -32,6 +32,8 @@
 
 #include "cio_error_code.h"
 #include "cio_eventloop.h"
+#include "cio_inet_address.h"
+#include "cio_inet_socket_address.h"
 #include "cio_io_stream.h"
 #include "cio_read_buffer.h"
 #include "cio_server_socket.h"
@@ -162,7 +164,23 @@ int main(void)
 		goto close_socket;
 	}
 
-	err = cio_server_socket_bind(&ss, NULL, SERVERSOCKET_LISTEN_PORT);
+	//uint8_t ipv6[4] = {127, 0, 0, 1};
+	uint8_t ipv6[16] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+	struct cio_inet_address address;
+	err = cio_init_inet_address(&address, ipv6, sizeof(ipv6));
+	if (err != CIO_SUCCESS) {
+		ret = EXIT_FAILURE;
+		goto close_socket;
+	}
+
+	struct cio_inet_socket_address endpoint;
+	err = cio_init_inet_socket_address(&endpoint, &address, SERVERSOCKET_LISTEN_PORT);
+	if (err != CIO_SUCCESS) {
+		ret = EXIT_FAILURE;
+		goto close_socket;
+	}
+
+	err = cio_server_socket_bind(&ss, &endpoint);
 	if (err != CIO_SUCCESS) {
 		ret = EXIT_FAILURE;
 		goto close_socket;

@@ -35,6 +35,7 @@
 #include "cio_error_code.h"
 #include "cio_eventloop.h"
 #include "cio_export.h"
+#include "cio_inet_socket_address.h"
 #include "cio_server_socket_impl.h"
 #include "cio_socket.h"
 
@@ -148,13 +149,11 @@ CIO_EXPORT void cio_server_socket_close(struct cio_server_socket *ss);
  * @brief Binds the cio_server_socket to a specific address
  *
  * @param ss A pointer to a cio_server_socket on which the bind should be performed.
- * @param bind_address The IP address a cio_server_socket shall bound to. If @c NULL,
- *        then cio_server_socket binds to all interfaces.
- * @param port The TCP port the cio_server_socket shall listen on.
+ * @param endpoint The IP address and port number to bind to.
  *
  * @return ::CIO_SUCCESS for success.
  */
-CIO_EXPORT enum cio_error cio_server_socket_bind(struct cio_server_socket *ss, const char *bind_address, uint16_t port);
+CIO_EXPORT enum cio_error cio_server_socket_bind(struct cio_server_socket *ss, const struct cio_inet_socket_address *endpoint);
 
 /**
  * @brief Sets the SO_REUSEADDR socket option.

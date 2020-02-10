@@ -31,6 +31,7 @@
 
 #include "cio_buffered_stream.h"
 #include "cio_http_server.h"
+#include "cio_inet_socket_address.h"
 #include "cio_util.h"
 #include "cio_websocket_location_handler.h"
 #include "cio_websocket_masking.h"
@@ -57,7 +58,7 @@ FAKE_VOID_FUNC(serve_error, struct cio_http_server *, const char *)
 FAKE_VALUE_FUNC(enum cio_error, cio_server_socket_accept, struct cio_server_socket *, cio_accept_handler, void *)
 FAKE_VOID_FUNC(cio_server_socket_close, struct cio_server_socket *)
 FAKE_VALUE_FUNC(enum cio_error, cio_server_socket_init, struct cio_server_socket *, struct cio_eventloop *, unsigned int, cio_alloc_client, cio_free_client, uint64_t, cio_server_socket_close_hook)
-FAKE_VALUE_FUNC(enum cio_error, cio_server_socket_bind, struct cio_server_socket *, const char *, uint16_t)
+FAKE_VALUE_FUNC(enum cio_error, cio_server_socket_bind, struct cio_server_socket *, const struct cio_inet_socket_address *)
 FAKE_VALUE_FUNC(enum cio_error, cio_server_socket_set_reuse_address, struct cio_server_socket *, bool)
 
 FAKE_VALUE_FUNC(struct cio_io_stream *, cio_socket_get_io_stream, struct cio_socket *)
@@ -347,7 +348,6 @@ static void test_ws_version(void)
 		cio_buffered_stream_write_fake.custom_fake = bs_fake_write;
 
 		struct cio_http_server_configuration config = {
-		    .port = 8080,
 		    .on_error = serve_error,
 		    .read_header_timeout_ns = header_read_timeout,
 		    .read_body_timeout_ns = body_read_timeout,
@@ -355,6 +355,12 @@ static void test_ws_version(void)
 		    .close_timeout_ns = 10,
 		    .alloc_client = alloc_dummy_client,
 		    .free_client = free_dummy_client};
+
+		uint8_t ipv4[4] = {127, 0, 0, 1};
+		struct cio_inet_address address;
+		cio_init_inet_address(&address, ipv4, sizeof(ipv4));
+		cio_init_inet_socket_address(&config.endpoint, &address, 8080);
+
 		struct cio_http_server server;
 		enum cio_error err = cio_http_server_init(&server, &loop, &config);
 		TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Server initialization failed!");
@@ -409,7 +415,6 @@ static void test_ws_location_wrong_http_version(void)
 		cio_buffered_stream_write_fake.custom_fake = bs_fake_write;
 
 		struct cio_http_server_configuration config = {
-		    .port = 8080,
 		    .on_error = serve_error,
 		    .read_header_timeout_ns = header_read_timeout,
 		    .read_body_timeout_ns = body_read_timeout,
@@ -417,6 +422,12 @@ static void test_ws_location_wrong_http_version(void)
 		    .close_timeout_ns = 10,
 		    .alloc_client = alloc_dummy_client,
 		    .free_client = free_dummy_client};
+
+		uint8_t ipv4[4] = {127, 0, 0, 1};
+		struct cio_inet_address address;
+		cio_init_inet_address(&address, ipv4, sizeof(ipv4));
+		cio_init_inet_socket_address(&config.endpoint, &address, 8080);
+
 		struct cio_http_server server;
 		enum cio_error err = cio_http_server_init(&server, &loop, &config);
 		TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Server initialization failed!");
@@ -454,7 +465,6 @@ static void test_ws_location_wrong_http_method(void)
 {
 	cio_buffered_stream_write_fake.custom_fake = bs_fake_write;
 	struct cio_http_server_configuration config = {
-	    .port = 8080,
 	    .on_error = serve_error,
 	    .read_header_timeout_ns = header_read_timeout,
 	    .read_body_timeout_ns = body_read_timeout,
@@ -462,6 +472,12 @@ static void test_ws_location_wrong_http_method(void)
 	    .close_timeout_ns = 10,
 	    .alloc_client = alloc_dummy_client,
 	    .free_client = free_dummy_client};
+
+	uint8_t ipv4[4] = {127, 0, 0, 1};
+	struct cio_inet_address address;
+	cio_init_inet_address(&address, ipv4, sizeof(ipv4));
+	cio_init_inet_socket_address(&config.endpoint, &address, 8080);
+
 	struct cio_http_server server;
 	enum cio_error err = cio_http_server_init(&server, &loop, &config);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Server initialization failed!");
@@ -498,7 +514,6 @@ static void test_ws_location_wrong_ws_version(void)
 		cio_buffered_stream_write_fake.custom_fake = bs_fake_write;
 
 		struct cio_http_server_configuration config = {
-		    .port = 8080,
 		    .on_error = serve_error,
 		    .read_header_timeout_ns = header_read_timeout,
 		    .read_body_timeout_ns = body_read_timeout,
@@ -506,6 +521,12 @@ static void test_ws_location_wrong_ws_version(void)
 		    .close_timeout_ns = 10,
 		    .alloc_client = alloc_dummy_client,
 		    .free_client = free_dummy_client};
+
+		uint8_t ipv4[4] = {127, 0, 0, 1};
+		struct cio_inet_address address;
+		cio_init_inet_address(&address, ipv4, sizeof(ipv4));
+		cio_init_inet_socket_address(&config.endpoint, &address, 8080);
+
 		struct cio_http_server server;
 		enum cio_error err = cio_http_server_init(&server, &loop, &config);
 		TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Server initialization failed!");
@@ -559,7 +580,6 @@ static void test_ws_key(void)
 		cio_buffered_stream_write_fake.custom_fake = bs_fake_write;
 
 		struct cio_http_server_configuration config = {
-		    .port = 8080,
 		    .on_error = serve_error,
 		    .read_header_timeout_ns = header_read_timeout,
 		    .read_body_timeout_ns = body_read_timeout,
@@ -567,6 +587,12 @@ static void test_ws_key(void)
 		    .close_timeout_ns = 10,
 		    .alloc_client = alloc_dummy_client,
 		    .free_client = free_dummy_client};
+
+		uint8_t ipv4[4] = {127, 0, 0, 1};
+		struct cio_inet_address address;
+		cio_init_inet_address(&address, ipv4, sizeof(ipv4));
+		cio_init_inet_socket_address(&config.endpoint, &address, 8080);
+
 		struct cio_http_server server;
 		enum cio_error err = cio_http_server_init(&server, &loop, &config);
 		TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Server initialization failed!");
@@ -605,7 +631,6 @@ static void test_ws_location_wrong_key_length(void)
 	cio_buffered_stream_write_fake.custom_fake = bs_fake_write;
 
 	struct cio_http_server_configuration config = {
-	    .port = 8080,
 	    .on_error = serve_error,
 	    .read_header_timeout_ns = header_read_timeout,
 	    .read_body_timeout_ns = body_read_timeout,
@@ -613,6 +638,12 @@ static void test_ws_location_wrong_key_length(void)
 	    .close_timeout_ns = 10,
 	    .alloc_client = alloc_dummy_client,
 	    .free_client = free_dummy_client};
+
+	uint8_t ipv4[4] = {127, 0, 0, 1};
+	struct cio_inet_address address;
+	cio_init_inet_address(&address, ipv4, sizeof(ipv4));
+	cio_init_inet_socket_address(&config.endpoint, &address, 8080);
+
 	struct cio_http_server server;
 	enum cio_error err = cio_http_server_init(&server, &loop, &config);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Server initialization failed!");
@@ -668,7 +699,6 @@ static void test_ws_location_subprotocols(void)
 
 		cio_buffered_stream_write_fake.custom_fake = bs_fake_write;
 		struct cio_http_server_configuration config = {
-		    .port = 8080,
 		    .on_error = serve_error,
 		    .read_header_timeout_ns = header_read_timeout,
 		    .read_body_timeout_ns = body_read_timeout,
@@ -676,6 +706,11 @@ static void test_ws_location_subprotocols(void)
 		    .close_timeout_ns = 10,
 		    .alloc_client = alloc_dummy_client,
 		    .free_client = free_dummy_client};
+
+		uint8_t ipv4[4] = {127, 0, 0, 1};
+		struct cio_inet_address address;
+		cio_init_inet_address(&address, ipv4, sizeof(ipv4));
+		cio_init_inet_socket_address(&config.endpoint, &address, 8080);
 
 		struct cio_http_server server;
 		enum cio_error err = cio_http_server_init(&server, &loop, &config);
@@ -715,7 +750,6 @@ static void test_ws_location_no_upgrade(void)
 	cio_buffered_stream_write_fake.custom_fake = bs_fake_write;
 
 	struct cio_http_server_configuration config = {
-	    .port = 8080,
 	    .on_error = serve_error,
 	    .read_header_timeout_ns = header_read_timeout,
 	    .read_body_timeout_ns = body_read_timeout,
@@ -723,6 +757,12 @@ static void test_ws_location_no_upgrade(void)
 	    .close_timeout_ns = 10,
 	    .alloc_client = alloc_dummy_client,
 	    .free_client = free_dummy_client};
+
+	uint8_t ipv4[4] = {127, 0, 0, 1};
+	struct cio_inet_address address;
+	cio_init_inet_address(&address, ipv4, sizeof(ipv4));
+	cio_init_inet_socket_address(&config.endpoint, &address, 8080);
+
 	struct cio_http_server server;
 	enum cio_error err = cio_http_server_init(&server, &loop, &config);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Server initialization failed!");
@@ -757,7 +797,6 @@ static void test_ws_location_write_error(void)
 	cio_buffered_stream_write_fake.custom_fake = bs_fake_write_error;
 
 	struct cio_http_server_configuration config = {
-	    .port = 8080,
 	    .on_error = serve_error,
 	    .read_header_timeout_ns = header_read_timeout,
 	    .read_body_timeout_ns = body_read_timeout,
@@ -765,6 +804,12 @@ static void test_ws_location_write_error(void)
 	    .close_timeout_ns = 10,
 	    .alloc_client = alloc_dummy_client,
 	    .free_client = free_dummy_client};
+
+	uint8_t ipv4[4] = {127, 0, 0, 1};
+	struct cio_inet_address address;
+	cio_init_inet_address(&address, ipv4, sizeof(ipv4));
+	cio_init_inet_socket_address(&config.endpoint, &address, 8080);
+
 	struct cio_http_server server;
 	enum cio_error err = cio_http_server_init(&server, &loop, &config);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Server initialization failed!");
