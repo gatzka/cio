@@ -90,12 +90,13 @@ static void accept_callback(void *context, enum cio_epoll_error error)
 enum cio_error cio_server_socket_init(struct cio_server_socket *ss,
                                       struct cio_eventloop *loop,
                                       unsigned int backlog,
+                                      enum cio_socket_address_family family,
                                       cio_alloc_client alloc_client,
                                       cio_free_client free_client,
                                       uint64_t close_timeout_ns,
                                       cio_server_socket_close_hook close_hook)
 {
-	int listen_fd = cio_linux_socket_create(CIO_INET6_ADDRESS);
+	int listen_fd = cio_linux_socket_create(family);
 	if (listen_fd == -1) {
 		return (enum cio_error)(-errno);
 	}

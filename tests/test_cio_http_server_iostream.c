@@ -109,7 +109,7 @@ FAKE_VOID_FUNC(serve_error, struct cio_http_server *, const char *)
 FAKE_VALUE_FUNC(enum cio_error, cio_server_socket_accept, struct cio_server_socket *, cio_accept_handler, void *)
 FAKE_VALUE_FUNC(enum cio_error, cio_server_socket_bind, struct cio_server_socket *, const struct cio_inet_socket_address *)
 FAKE_VOID_FUNC(cio_server_socket_close, struct cio_server_socket *)
-FAKE_VALUE_FUNC(enum cio_error, cio_server_socket_init, struct cio_server_socket *, struct cio_eventloop *, unsigned int, cio_alloc_client, cio_free_client, uint64_t, cio_server_socket_close_hook)
+FAKE_VALUE_FUNC(enum cio_error, cio_server_socket_init, struct cio_server_socket *, struct cio_eventloop *, unsigned int, enum cio_socket_address_family, cio_alloc_client, cio_free_client, uint64_t, cio_server_socket_close_hook)
 FAKE_VALUE_FUNC(enum cio_error, cio_server_socket_set_reuse_address, struct cio_server_socket *, bool)
 
 FAKE_VALUE_FUNC(struct cio_io_stream *, cio_socket_get_io_stream, struct cio_socket *)
@@ -203,11 +203,13 @@ static enum cio_error expires_error(struct cio_timer *t, uint64_t timeout_ns, ci
 static enum cio_error cio_server_socket_init_ok(struct cio_server_socket *ss,
                                                 struct cio_eventloop *l,
                                                 unsigned int backlog,
+                                                enum cio_socket_address_family family,
                                                 cio_alloc_client alloc_client,
                                                 cio_free_client free_client,
                                                 uint64_t close_timeout_ns,
                                                 cio_server_socket_close_hook close_hook)
 {
+	(void)family;
 	(void)close_timeout_ns;
 	ss->alloc_client = alloc_client;
 	ss->free_client = free_client;
@@ -220,6 +222,7 @@ static enum cio_error cio_server_socket_init_ok(struct cio_server_socket *ss,
 static enum cio_error cio_server_socket_init_fails(struct cio_server_socket *ss,
                                                    struct cio_eventloop *l,
                                                    unsigned int backlog,
+                                                   enum cio_socket_address_family family,
                                                    cio_alloc_client alloc_client,
                                                    cio_free_client free_client,
                                                    uint64_t close_timeout_ns,
@@ -228,6 +231,7 @@ static enum cio_error cio_server_socket_init_fails(struct cio_server_socket *ss,
 	(void)ss;
 	(void)l;
 	(void)backlog;
+	(void)family;
 	(void)alloc_client;
 	(void)free_client;
 	(void)close_timeout_ns;
@@ -595,49 +599,49 @@ static void fire_keepalive_timeout(struct cio_socket *s)
 
 void setUp(void)
 {
-	FFF_RESET_HISTORY();
+	FFF_RESET_HISTORY()
 
-	RESET_FAKE(cio_server_socket_accept);
-	RESET_FAKE(cio_server_socket_bind);
-	RESET_FAKE(cio_server_socket_close);
-	RESET_FAKE(cio_server_socket_init);
-	RESET_FAKE(cio_server_socket_set_reuse_address);
+	RESET_FAKE(cio_server_socket_accept)
+	RESET_FAKE(cio_server_socket_bind)
+	RESET_FAKE(cio_server_socket_close)
+	RESET_FAKE(cio_server_socket_init)
+	RESET_FAKE(cio_server_socket_set_reuse_address)
 
-	RESET_FAKE(cio_socket_get_io_stream);
+	RESET_FAKE(cio_socket_get_io_stream)
 
-	RESET_FAKE(serve_error);
-	RESET_FAKE(http_close_hook);
+	RESET_FAKE(serve_error)
+	RESET_FAKE(http_close_hook)
 
-	RESET_FAKE(on_schema);
-	RESET_FAKE(on_host);
-	RESET_FAKE(on_port);
-	RESET_FAKE(on_path);
-	RESET_FAKE(on_query);
-	RESET_FAKE(on_fragment);
-	RESET_FAKE(on_url);
-	RESET_FAKE(on_header_field);
-	RESET_FAKE(on_header_value);
-	RESET_FAKE(on_header_complete);
-	RESET_FAKE(on_body);
-	RESET_FAKE(on_message_complete);
+	RESET_FAKE(on_schema)
+	RESET_FAKE(on_host)
+	RESET_FAKE(on_port)
+	RESET_FAKE(on_path)
+	RESET_FAKE(on_query)
+	RESET_FAKE(on_fragment)
+	RESET_FAKE(on_url)
+	RESET_FAKE(on_header_field)
+	RESET_FAKE(on_header_value)
+	RESET_FAKE(on_header_complete)
+	RESET_FAKE(on_body)
+	RESET_FAKE(on_message_complete)
 
-	RESET_FAKE(cio_timer_init);
-	RESET_FAKE(cio_timer_cancel);
-	RESET_FAKE(cio_timer_close);
-	RESET_FAKE(cio_timer_expires_from_now);
+	RESET_FAKE(cio_timer_init)
+	RESET_FAKE(cio_timer_cancel)
+	RESET_FAKE(cio_timer_close)
+	RESET_FAKE(cio_timer_expires_from_now)
 
-	SET_CUSTOM_FAKE_SEQ(cio_timer_init, NULL, 0);
+	SET_CUSTOM_FAKE_SEQ(cio_timer_init, NULL, 0)
 	cio_timer_init_fake.custom_fake = cio_timer_init_ok;
 	cio_timer_cancel_fake.custom_fake = cancel_timer;
 	cio_timer_expires_from_now_fake.custom_fake = expires;
 
-	RESET_FAKE(client_socket_close);
-	RESET_FAKE(location_handler_called);
-	RESET_FAKE(sub_location_handler_called);
+	RESET_FAKE(client_socket_close)
+	RESET_FAKE(location_handler_called)
+	RESET_FAKE(sub_location_handler_called)
 
-	RESET_FAKE(response_written_cb);
+	RESET_FAKE(response_written_cb)
 
-	RESET_FAKE(write_wrapper);
+	RESET_FAKE(write_wrapper)
 
 	http_parser_settings_init(&response_parser_settings);
 	http_parser_init(&response_parser, HTTP_RESPONSE);
@@ -662,7 +666,7 @@ static void test_server_init(void)
 		uint64_t response_timeout;
 		struct cio_socket *(*alloc_client)(void);
 		void (*free_client)(struct cio_socket *socket);
-		enum cio_error (*server_socket_init)(struct cio_server_socket *ss, struct cio_eventloop *loop, unsigned int backlog, cio_alloc_client alloc_client, cio_free_client free_client, uint64_t close_timeout_ns, cio_server_socket_close_hook close_hook);
+		enum cio_error (*server_socket_init)(struct cio_server_socket *ss, struct cio_eventloop *loop, unsigned int backlog, enum cio_socket_address_family family, cio_alloc_client alloc_client, cio_free_client free_client, uint64_t close_timeout_ns, cio_server_socket_close_hook close_hook);
 		enum cio_error expected_result;
 	};
 

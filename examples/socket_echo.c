@@ -147,35 +147,32 @@ int main(void)
 		return -1;
 	}
 
-	enum cio_error err = cio_eventloop_init(&loop);
+	uint8_t ip[IPV6_ADDRESS_SIZE] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+	struct cio_inet_address address;
+	enum cio_error err = cio_init_inet_address(&address, ip, sizeof(ip));
+	if (err != CIO_SUCCESS) {
+		return -1;
+	}
+
+	struct cio_inet_socket_address endpoint;
+	err = cio_init_inet_socket_address(&endpoint, &address, SERVERSOCKET_LISTEN_PORT);
+	if (err != CIO_SUCCESS) {
+		return -1;
+	}
+
+	err = cio_eventloop_init(&loop);
 	if (err != CIO_SUCCESS) {
 		return EXIT_FAILURE;
 	}
 
 	struct cio_server_socket ss;
-	err = cio_server_socket_init(&ss, &loop, SERVERSOCKET_BACKLOG, alloc_echo_client, free_echo_client, CLOSE_TIMEOUT_NS, NULL);
+	err = cio_server_socket_init(&ss, &loop, SERVERSOCKET_BACKLOG, endpoint.inet_address.type, alloc_echo_client, free_echo_client, CLOSE_TIMEOUT_NS, NULL);
 	if (err != CIO_SUCCESS) {
 		ret = EXIT_FAILURE;
 		goto destroy_loop;
 	}
 
 	err = cio_server_socket_set_reuse_address(&ss, true);
-	if (err != CIO_SUCCESS) {
-		ret = EXIT_FAILURE;
-		goto close_socket;
-	}
-
-	//uint8_t ip[4] = {127, 0, 0, 1};
-	uint8_t ip[IPV6_ADDRESS_SIZE] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-	struct cio_inet_address address;
-	err = cio_init_inet_address(&address, ip, sizeof(ip));
-	if (err != CIO_SUCCESS) {
-		ret = EXIT_FAILURE;
-		goto close_socket;
-	}
-
-	struct cio_inet_socket_address endpoint;
-	err = cio_init_inet_socket_address(&endpoint, &address, SERVERSOCKET_LISTEN_PORT);
 	if (err != CIO_SUCCESS) {
 		ret = EXIT_FAILURE;
 		goto close_socket;

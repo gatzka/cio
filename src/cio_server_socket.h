@@ -98,6 +98,7 @@ struct cio_server_socket {
  * @param ss The cio_server_socket that should be initialized.
  * @param loop The event loop the server socket shall operate on.
  * @param backlog The minimal length of the listen queue.
+ * @param family The address family for that socket (either ::CIO_INET4_ADDRESS of ::CIO_INET6_ADDRESS).
  * @param alloc_client An allocator function that is called if a client connects
  * to the server.
  * @param free_client This function is called after closing a @ref cio_socket.
@@ -117,6 +118,7 @@ struct cio_server_socket {
 CIO_EXPORT enum cio_error cio_server_socket_init(struct cio_server_socket *ss,
                                                  struct cio_eventloop *loop,
                                                  unsigned int backlog,
+                                                 enum cio_socket_address_family family,
                                                  cio_alloc_client alloc_client,
                                                  cio_free_client free_client,
                                                  uint64_t close_timeout_ns,

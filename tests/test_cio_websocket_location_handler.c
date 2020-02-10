@@ -57,7 +57,7 @@ FAKE_VOID_FUNC(serve_error, struct cio_http_server *, const char *)
 
 FAKE_VALUE_FUNC(enum cio_error, cio_server_socket_accept, struct cio_server_socket *, cio_accept_handler, void *)
 FAKE_VOID_FUNC(cio_server_socket_close, struct cio_server_socket *)
-FAKE_VALUE_FUNC(enum cio_error, cio_server_socket_init, struct cio_server_socket *, struct cio_eventloop *, unsigned int, cio_alloc_client, cio_free_client, uint64_t, cio_server_socket_close_hook)
+FAKE_VALUE_FUNC(enum cio_error, cio_server_socket_init, struct cio_server_socket *, struct cio_eventloop *, unsigned int, enum cio_socket_address_family, cio_alloc_client, cio_free_client, uint64_t, cio_server_socket_close_hook)
 FAKE_VALUE_FUNC(enum cio_error, cio_server_socket_bind, struct cio_server_socket *, const struct cio_inet_socket_address *)
 FAKE_VALUE_FUNC(enum cio_error, cio_server_socket_set_reuse_address, struct cio_server_socket *, bool)
 
@@ -126,12 +126,14 @@ static struct cio_socket *alloc_dummy_client(void)
 static enum cio_error cio_server_socket_init_ok(struct cio_server_socket *ss,
                                                 struct cio_eventloop *l,
                                                 unsigned int backlog,
+                                                enum cio_socket_address_family family,
                                                 cio_alloc_client alloc_client,
                                                 cio_free_client free_client,
                                                 uint64_t close_timeout_ns,
                                                 cio_server_socket_close_hook close_hook)
 {
 	(void)close_timeout_ns;
+	(void)family;
 	ss->alloc_client = alloc_client;
 	ss->free_client = free_client;
 	ss->backlog = (int)backlog;
@@ -283,26 +285,26 @@ static void check_http_response(int status_code)
 
 void setUp(void)
 {
-	FFF_RESET_HISTORY();
+	FFF_RESET_HISTORY()
 
-	RESET_FAKE(cio_buffered_stream_init);
-	RESET_FAKE(cio_buffered_stream_close);
-	RESET_FAKE(cio_buffered_stream_read_at_least);
-	RESET_FAKE(cio_buffered_stream_read_until);
-	RESET_FAKE(cio_buffered_stream_write);
+	RESET_FAKE(cio_buffered_stream_init)
+	RESET_FAKE(cio_buffered_stream_close)
+	RESET_FAKE(cio_buffered_stream_read_at_least)
+	RESET_FAKE(cio_buffered_stream_read_until)
+	RESET_FAKE(cio_buffered_stream_write)
 
-	RESET_FAKE(cio_server_socket_accept);
-	RESET_FAKE(cio_server_socket_bind);
-	RESET_FAKE(cio_server_socket_init);
-	RESET_FAKE(cio_server_socket_set_reuse_address);
+	RESET_FAKE(cio_server_socket_accept)
+	RESET_FAKE(cio_server_socket_bind)
+	RESET_FAKE(cio_server_socket_init)
+	RESET_FAKE(cio_server_socket_set_reuse_address)
 
-	RESET_FAKE(cio_timer_init);
-	RESET_FAKE(cio_timer_cancel);
-	RESET_FAKE(cio_timer_close);
-	RESET_FAKE(cio_timer_expires_from_now);
+	RESET_FAKE(cio_timer_init)
+	RESET_FAKE(cio_timer_cancel)
+	RESET_FAKE(cio_timer_close)
+	RESET_FAKE(cio_timer_expires_from_now)
 
-	RESET_FAKE(on_control);
-	RESET_FAKE(serve_error);
+	RESET_FAKE(on_control)
+	RESET_FAKE(serve_error)
 
 	http_parser_settings_init(&parser_settings);
 	http_parser_init(&parser, HTTP_RESPONSE);
