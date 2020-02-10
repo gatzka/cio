@@ -45,10 +45,10 @@ enum {AUTOBAHN_SERVER_PORT = 9001};
 enum {READ_BUFFER_SIZE = 1024};
 enum {IPV6_ADDRESS_SIZE = 16};
 
-static const uint64_t header_read_timeout = UINT64_C(5) * UINT64_C(1000) * UINT64_C(1000) * UINT64_C(1000);
-static const uint64_t body_read_timeout = UINT64_C(5) * UINT64_C(1000) * UINT64_C(1000) * UINT64_C(1000);
-static const uint64_t response_timeout = UINT64_C(1) * UINT64_C(1000) * UINT64_C(1000) * UINT64_C(1000);
-static const uint64_t close_timeout_ns = UINT64_C(1) * UINT64_C(1000) * UINT64_C(1000) * UINT64_C(1000);
+static const uint64_t HEADER_READ_TIMEOUT = UINT64_C(5) * UINT64_C(1000) * UINT64_C(1000) * UINT64_C(1000);
+static const uint64_t BODY_READ_TIMEOUT = UINT64_C(5) * UINT64_C(1000) * UINT64_C(1000) * UINT64_C(1000);
+static const uint64_t RESPONSE_TIMEOUT = UINT64_C(1) * UINT64_C(1000) * UINT64_C(1000) * UINT64_C(1000);
+static const uint64_t CLOSE_TIMEOUT_NS = UINT64_C(1) * UINT64_C(1000) * UINT64_C(1000) * UINT64_C(1000);
 
 struct ws_autobahn_handler {
 	struct cio_websocket_location_handler ws_handler;
@@ -204,10 +204,10 @@ int main(void)
 
 	struct cio_http_server_configuration config = {
 		.on_error = serve_error,
-		.read_header_timeout_ns = header_read_timeout,
-		.read_body_timeout_ns = body_read_timeout,
-		.response_timeout_ns = response_timeout,
-		.close_timeout_ns = close_timeout_ns,
+		.read_header_timeout_ns = HEADER_READ_TIMEOUT,
+		.read_body_timeout_ns = BODY_READ_TIMEOUT,
+		.response_timeout_ns = RESPONSE_TIMEOUT,
+		.close_timeout_ns = CLOSE_TIMEOUT_NS,
 		.alloc_client = alloc_http_client,
 		.free_client = free_http_client
 	};
