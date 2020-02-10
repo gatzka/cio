@@ -313,10 +313,11 @@ int main(void)
 		.free_client = free_http_client
 	};
 
-	uint8_t ip[IPV6_ADDRESS_SIZE] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-	struct cio_inet_address address;
-	cio_init_inet_address(&address, ip, sizeof(ip));
-	cio_init_inet_socket_address(&config.endpoint, &address, HTTPSERVER_LISTEN_PORT);
+	err = cio_init_inet_socket_address(&config.endpoint, &cio_inet_address_any6, HTTPSERVER_LISTEN_PORT);
+	if (err != CIO_SUCCESS) {
+		ret = EXIT_FAILURE;
+		goto destroy_loop;
+	}
 
 	err = cio_http_server_init(&server, &loop, &config);
 	if (err != CIO_SUCCESS) {

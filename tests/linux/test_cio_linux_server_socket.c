@@ -267,18 +267,12 @@ static void accept_handler_close_socket(struct cio_server_socket *ss, void *hand
 
 static void fill_inet_socket_address(struct cio_inet_socket_address *endpoint)
 {
-	uint8_t ip[4] = {0, 0, 0, 0};
-	struct cio_inet_address address;
-	cio_init_inet_address(&address, ip, sizeof(ip));
-	cio_init_inet_socket_address(endpoint, &address, 12345);
+	cio_init_inet_socket_address(endpoint, &cio_inet_address_any4, 12345);
 }
 
 static void fill_inet_socket_address_v6(struct cio_inet_socket_address *endpoint)
 {
-	uint8_t ip[16] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-	struct cio_inet_address address;
-	cio_init_inet_address(&address, ip, sizeof(ip));
-	cio_init_inet_socket_address(endpoint, &address, 12345);
+	cio_init_inet_socket_address(endpoint, &cio_inet_address_any6, 12345);
 }
 
 static void test_accept_error(void)

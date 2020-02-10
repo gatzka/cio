@@ -378,10 +378,7 @@ static void test_serve_correctly(void)
 	    .alloc_client = alloc_dummy_client,
 	    .free_client = free_dummy_client};
 
-	uint8_t ip[4] = {0, 0, 0, 0};
-	struct cio_inet_address address;
-	cio_init_inet_address(&address, ip, sizeof(ip));
-	cio_init_inet_socket_address(&config.endpoint, &address, 8080);
+	cio_init_inet_socket_address(&config.endpoint, &cio_inet_address_any4, 8080);
 
 	struct cio_http_server server;
 	enum cio_error err = cio_http_server_init(&server, &loop, &config);
@@ -456,10 +453,7 @@ static void test_read_until_errors(void)
 		    .alloc_client = alloc_dummy_client,
 		    .free_client = free_dummy_client};
 
-		uint8_t ip[4] = {0, 0, 0, 0};
-		struct cio_inet_address address;
-		cio_init_inet_address(&address, ip, sizeof(ip));
-		cio_init_inet_socket_address(&config.endpoint, &address, 8080);
+		cio_init_inet_socket_address(&config.endpoint, &cio_inet_address_any4, 8080);
 
 		struct cio_http_server server;
 		enum cio_error err = cio_http_server_init(&server, &loop, &config);
@@ -513,10 +507,7 @@ static void test_close_error(void)
 	    .alloc_client = alloc_dummy_client,
 	    .free_client = free_dummy_client};
 
-	uint8_t ip[4] = {0, 0, 0, 0};
-	struct cio_inet_address address;
-	cio_init_inet_address(&address, ip, sizeof(ip));
-	cio_init_inet_socket_address(&config.endpoint, &address, 8080);
+	cio_init_inet_socket_address(&config.endpoint, &cio_inet_address_any4, 8080);
 
 	struct cio_http_server server;
 	enum cio_error err = cio_http_server_init(&server, &loop, &config);
@@ -564,10 +555,7 @@ static void test_read_at_least_error(void)
 	    .alloc_client = alloc_dummy_client,
 	    .free_client = free_dummy_client};
 
-	uint8_t ip[4] = {0, 0, 0, 0};
-	struct cio_inet_address address;
-	cio_init_inet_address(&address, ip, sizeof(ip));
-	cio_init_inet_socket_address(&config.endpoint, &address, 8080);
+	cio_init_inet_socket_address(&config.endpoint, &cio_inet_address_any4, 8080);
 
 	struct cio_http_server server;
 	enum cio_error err = cio_http_server_init(&server, &loop, &config);
@@ -619,10 +607,7 @@ static void test_write_error(void)
 	    .alloc_client = alloc_dummy_client,
 	    .free_client = free_dummy_client};
 
-	uint8_t ip[4] = {0, 0, 0, 0};
-	struct cio_inet_address address;
-	cio_init_inet_address(&address, ip, sizeof(ip));
-	cio_init_inet_socket_address(&config.endpoint, &address, 8080);
+	cio_init_inet_socket_address(&config.endpoint, &cio_inet_address_any4, 8080);
 
 	struct cio_http_server server;
 	enum cio_error err = cio_http_server_init(&server, &loop, &config);

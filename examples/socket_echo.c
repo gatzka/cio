@@ -50,10 +50,10 @@ enum {IPV6_ADDRESS_SIZE = 16};
 
 struct echo_client {
 	struct cio_socket socket;
-	uint8_t buffer[BUFFER_SIZE];
 	struct cio_write_buffer wb;
 	struct cio_write_buffer wbh;
 	struct cio_read_buffer rb;
+	uint8_t buffer[BUFFER_SIZE];
 };
 
 static struct cio_socket *alloc_echo_client(void)
@@ -147,15 +147,8 @@ int main(void)
 		return -1;
 	}
 
-	uint8_t ip[IPV6_ADDRESS_SIZE] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-	struct cio_inet_address address;
-	enum cio_error err = cio_init_inet_address(&address, ip, sizeof(ip));
-	if (err != CIO_SUCCESS) {
-		return -1;
-	}
-
 	struct cio_inet_socket_address endpoint;
-	err = cio_init_inet_socket_address(&endpoint, &address, SERVERSOCKET_LISTEN_PORT);
+	enum cio_error err = cio_init_inet_socket_address(&endpoint, &cio_inet_address_any6, SERVERSOCKET_LISTEN_PORT);
 	if (err != CIO_SUCCESS) {
 		return -1;
 	}

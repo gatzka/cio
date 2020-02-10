@@ -697,10 +697,7 @@ static void test_server_init(void)
 		    .alloc_client = args.alloc_client,
 		    .free_client = args.free_client};
 
-		uint8_t ip[4] = {0, 0, 0, 0};
-		struct cio_inet_address address;
-		cio_init_inet_address(&address, ip, sizeof(ip));
-		cio_init_inet_socket_address(&config.endpoint, &address, 8080);
+		cio_init_inet_socket_address(&config.endpoint, &cio_inet_address_any4, 8080);
 
 		enum cio_error err = cio_http_server_init(args.server, args.loop, &config);
 		TEST_ASSERT_EQUAL_MESSAGE(args.expected_result, err, "Initialization failed!");
@@ -744,10 +741,7 @@ static void test_shutdown(void)
 		    .alloc_client = alloc_dummy_client,
 		    .free_client = free_dummy_client};
 
-		uint8_t ip[4] = {0, 0, 0, 0};
-		struct cio_inet_address address;
-		cio_init_inet_address(&address, ip, sizeof(ip));
-		cio_init_inet_socket_address(&config.endpoint, &address, 8080);
+		cio_init_inet_socket_address(&config.endpoint, &cio_inet_address_any4, 8080);
 
 		enum cio_error err = cio_http_server_init(&server, &loop, &config);
 		TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Server initialization failed!");
@@ -776,10 +770,7 @@ static void test_register_request_target(void)
 	    .alloc_client = alloc_dummy_client,
 	    .free_client = free_dummy_client};
 
-	uint8_t ip[4] = {0, 0, 0, 0};
-	struct cio_inet_address address;
-	cio_init_inet_address(&address, ip, sizeof(ip));
-	cio_init_inet_socket_address(&config.endpoint, &address, 8080);
+	cio_init_inet_socket_address(&config.endpoint, &cio_inet_address_any4, 8080);
 
 	struct cio_http_server server;
 	enum cio_error err = cio_http_server_init(&server, &loop, &config);
@@ -840,10 +831,7 @@ static void test_serve_locations(void)
 		    .alloc_client = alloc_dummy_client,
 		    .free_client = free_dummy_client};
 
-		uint8_t ip[4] = {0, 0, 0, 0};
-		struct cio_inet_address address;
-		cio_init_inet_address(&address, ip, sizeof(ip));
-		cio_init_inet_socket_address(&config.endpoint, &address, 8080);
+		cio_init_inet_socket_address(&config.endpoint, &cio_inet_address_any4, 8080);
 
 		struct cio_http_server server;
 		enum cio_error err = cio_http_server_init(&server, &loop, &config);
@@ -923,10 +911,7 @@ static void test_keepalive_handling(void)
 		    .alloc_client = alloc_dummy_client,
 		    .free_client = free_dummy_client};
 
-		uint8_t ip[4] = {0, 0, 0, 0};
-		struct cio_inet_address address;
-		cio_init_inet_address(&address, ip, sizeof(ip));
-		cio_init_inet_socket_address(&config.endpoint, &address, 8080);
+		cio_init_inet_socket_address(&config.endpoint, &cio_inet_address_any4, 8080);
 
 		struct cio_http_server server;
 		enum cio_error err = cio_http_server_init(&server, &loop, &config);
@@ -972,10 +957,7 @@ static void test_response_callback_after_message_complete(void)
 	    .alloc_client = alloc_dummy_client,
 	    .free_client = free_dummy_client};
 
-	uint8_t ip[4] = {0, 0, 0, 0};
-	struct cio_inet_address address;
-	cio_init_inet_address(&address, ip, sizeof(ip));
-	cio_init_inet_socket_address(&config.endpoint, &address, 8080);
+	cio_init_inet_socket_address(&config.endpoint, &cio_inet_address_any4, 8080);
 
 	struct cio_http_server server;
 	enum cio_error err = cio_http_server_init(&server, &loop, &config);
@@ -1104,10 +1086,7 @@ static void test_callbacks_after_response_sent(void)
 		    .alloc_client = alloc_dummy_client,
 		    .free_client = free_dummy_client};
 
-		uint8_t ip[4] = {0, 0, 0, 0};
-		struct cio_inet_address address;
-		cio_init_inet_address(&address, ip, sizeof(ip));
-		cio_init_inet_socket_address(&config.endpoint, &address, 8080);
+		cio_init_inet_socket_address(&config.endpoint, &cio_inet_address_any4, 8080);
 
 		struct cio_http_server server;
 		enum cio_error err = cio_http_server_init(&server, &loop, &config);
@@ -1253,10 +1232,7 @@ static void test_url_callbacks(void)
 		    .alloc_client = alloc_dummy_client,
 		    .free_client = free_dummy_client};
 
-		uint8_t ip[4] = {0, 0, 0, 0};
-		struct cio_inet_address address;
-		cio_init_inet_address(&address, ip, sizeof(ip));
-		cio_init_inet_socket_address(&config.endpoint, &address, 8080);
+		cio_init_inet_socket_address(&config.endpoint, &cio_inet_address_any4, 8080);
 
 		struct cio_http_server server;
 		enum cio_error err = cio_http_server_init(&server, &loop, &config);
@@ -1367,10 +1343,7 @@ static void test_errors_in_serve(void)
 		    .alloc_client = alloc_dummy_client,
 		    .free_client = free_dummy_client};
 
-		uint8_t ip[4] = {0, 0, 0, 0};
-		struct cio_inet_address address;
-		cio_init_inet_address(&address, ip, sizeof(ip));
-		cio_init_inet_socket_address(&config.endpoint, &address, 8080);
+		cio_init_inet_socket_address(&config.endpoint, &cio_inet_address_any4, 8080);
 
 		struct cio_http_server server;
 		enum cio_error err = cio_http_server_init(&server, &loop, &config);
@@ -1461,10 +1434,7 @@ static void test_errors_in_accept(void)
 		    .alloc_client = accept_test.alloc_client,
 		    .free_client = free_dummy_client};
 
-		uint8_t ip[4] = {0, 0, 0, 0};
-		struct cio_inet_address address;
-		cio_init_inet_address(&address, ip, sizeof(ip));
-		cio_init_inet_socket_address(&config.endpoint, &address, 8080);
+		cio_init_inet_socket_address(&config.endpoint, &cio_inet_address_any4, 8080);
 
 		struct cio_http_server server;
 		enum cio_error err = cio_http_server_init(&server, &loop, &config);
@@ -1523,10 +1493,7 @@ static void test_parse_errors(void)
 		    .alloc_client = alloc_dummy_client,
 		    .free_client = free_dummy_client};
 
-		uint8_t ip[4] = {0, 0, 0, 0};
-		struct cio_inet_address address;
-		cio_init_inet_address(&address, ip, sizeof(ip));
-		cio_init_inet_socket_address(&config.endpoint, &address, 8080);
+		cio_init_inet_socket_address(&config.endpoint, &cio_inet_address_any4, 8080);
 
 		struct cio_http_server server;
 		enum cio_error err = cio_http_server_init(&server, &loop, &config);
@@ -1566,10 +1533,7 @@ static void test_error_without_error_callback(void)
 	    .alloc_client = alloc_dummy_client,
 	    .free_client = free_dummy_client};
 
-	uint8_t ip[4] = {0, 0, 0, 0};
-	struct cio_inet_address address;
-	cio_init_inet_address(&address, ip, sizeof(ip));
-	cio_init_inet_socket_address(&config.endpoint, &address, 8080);
+	cio_init_inet_socket_address(&config.endpoint, &cio_inet_address_any4, 8080);
 
 	struct cio_http_server server;
 	enum cio_error err = cio_http_server_init(&server, &loop, &config);
@@ -1602,10 +1566,7 @@ static void test_client_close_while_reading(void)
 	    .alloc_client = alloc_dummy_client,
 	    .free_client = free_dummy_client};
 
-	uint8_t ip[4] = {0, 0, 0, 0};
-	struct cio_inet_address address;
-	cio_init_inet_address(&address, ip, sizeof(ip));
-	cio_init_inet_socket_address(&config.endpoint, &address, 8080);
+	cio_init_inet_socket_address(&config.endpoint, &cio_inet_address_any4, 8080);
 
 	struct cio_http_server server;
 	on_header_complete_fake.custom_fake = header_complete_write_response;
@@ -1645,10 +1606,7 @@ static void test_connection_upgrade(void)
 	    .alloc_client = alloc_dummy_client,
 	    .free_client = free_dummy_client};
 
-	uint8_t ip[4] = {0, 0, 0, 0};
-	struct cio_inet_address address;
-	cio_init_inet_address(&address, ip, sizeof(ip));
-	cio_init_inet_socket_address(&config.endpoint, &address, 8080);
+	cio_init_inet_socket_address(&config.endpoint, &cio_inet_address_any4, 8080);
 
 	struct cio_http_server server;
 	on_header_complete_fake.custom_fake = header_complete_write_response;
@@ -1699,10 +1657,7 @@ static void test_timer_cancel_errors(void)
 		    .alloc_client = alloc_dummy_client,
 		    .free_client = free_dummy_client};
 
-		uint8_t ip[4] = {0, 0, 0, 0};
-		struct cio_inet_address address;
-		cio_init_inet_address(&address, ip, sizeof(ip));
-		cio_init_inet_socket_address(&config.endpoint, &address, 8080);
+		cio_init_inet_socket_address(&config.endpoint, &cio_inet_address_any4, 8080);
 
 		struct cio_http_server server;
 		enum cio_error err = cio_http_server_init(&server, &loop, &config);
@@ -1743,7 +1698,7 @@ static void test_timer_expires_errors(void)
 		timer_expires_fakes[i] = expires_error;
 
 		cio_timer_expires_from_now_fake.custom_fake = NULL;
-		SET_CUSTOM_FAKE_SEQ(cio_timer_expires_from_now, timer_expires_fakes, ARRAY_SIZE(timer_expires_fakes));
+		SET_CUSTOM_FAKE_SEQ(cio_timer_expires_from_now, timer_expires_fakes, ARRAY_SIZE(timer_expires_fakes))
 
 		on_header_complete_fake.custom_fake = header_complete_write_response;
 
@@ -1756,10 +1711,7 @@ static void test_timer_expires_errors(void)
 		    .alloc_client = alloc_dummy_client,
 		    .free_client = free_dummy_client};
 
-		uint8_t ip[4] = {0, 0, 0, 0};
-		struct cio_inet_address address;
-		cio_init_inet_address(&address, ip, sizeof(ip));
-		cio_init_inet_socket_address(&config.endpoint, &address, 8080);
+		cio_init_inet_socket_address(&config.endpoint, &cio_inet_address_any4, 8080);
 
 		struct cio_http_server server;
 		enum cio_error err = cio_http_server_init(&server, &loop, &config);
