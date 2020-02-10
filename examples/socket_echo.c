@@ -165,10 +165,10 @@ int main(void)
 		goto close_socket;
 	}
 
-	//uint8_t ipv6[4] = {127, 0, 0, 1};
-	uint8_t ipv6[IPV6_ADDRESS_SIZE] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+	//uint8_t ip[4] = {127, 0, 0, 1};
+	uint8_t ip[IPV6_ADDRESS_SIZE] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 	struct cio_inet_address address;
-	err = cio_init_inet_address(&address, ipv6, sizeof(ipv6));
+	err = cio_init_inet_address(&address, ip, sizeof(ip));
 	if (err != CIO_SUCCESS) {
 		ret = EXIT_FAILURE;
 		goto close_socket;
