@@ -61,11 +61,11 @@ struct cio_inet_address {
 
 static const struct cio_inet_address cio_inet_address_any6 = {
     .type = CIO_INET6_ADDRESS,
-    .address = {.addr6 = {0}}};
+	.address = {.addr6 = {{0}}}};
 
 static const struct cio_inet_address cio_inet_address_any4 = {
     .type = CIO_INET4_ADDRESS,
-    .address = {.addr4 = {0}}};
+	.address = {.addr4 = {{0}}}};
 
 /**
  * @brief Initializes a inet address structure.
