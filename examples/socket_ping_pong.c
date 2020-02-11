@@ -26,6 +26,7 @@
  * SOFTWARE.
  */
 
+#include <limits.h>
 #include <signal.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -48,6 +49,9 @@ enum {SERVERSOCKET_LISTEN_PORT = 12345};
 static const uint64_t CLOSE_TIMEOUT_NS = UINT64_C(1) * UINT64_C(1000) * UINT64_C(1000) * UINT64_C(1000);
 enum {BUFFER_SIZE = 128};
 enum {IPV6_ADDRESS_SIZE = 16};
+enum {BASE_10 = 10};
+
+static unsigned long long max_pings;
 
 struct echo_client {
 	size_t bytes_read;
@@ -61,6 +65,7 @@ struct echo_client {
 
 struct client {
 	size_t bytes_read;
+	unsigned long long number_of_pings;
 	struct cio_buffered_stream buffered_stream;
 	struct cio_write_buffer wb;
 	struct cio_write_buffer wbh;
@@ -81,6 +86,7 @@ static struct cio_socket *alloc_echo_client(void)
 
 static void free_echo_client(struct cio_socket *socket)
 {
+	fprintf(stdout, "client will be freed\n");
 	struct echo_client *client = cio_container_of(socket, struct echo_client, socket);
 	free(client);
 }
@@ -116,7 +122,7 @@ static void server_handle_read(struct cio_buffered_stream *bs, void *handler_con
 	struct echo_client *client = handler_context;
 
 	if (cio_unlikely(err == CIO_EOF)) {
-		fprintf(stdout, "connection closed by peer\n");
+		fprintf(stdout, "connection closed by client peer\n");
 		cio_buffered_stream_close(bs);
 		return;
 	}
@@ -191,11 +197,17 @@ static void client_handle_read(struct cio_buffered_stream *bs, void *handler_con
 		return;
 	}
 
-	client->bytes_read = num_bytes;
-	cio_write_buffer_head_init(&client->wbh);
-	cio_write_buffer_element_init(&client->wb, cio_read_buffer_get_read_ptr(read_buffer), num_bytes);
-	cio_write_buffer_queue_tail(&client->wbh, &client->wb);
-	cio_buffered_stream_write(bs, &client->wbh, client_handle_write, client);
+	client->number_of_pings++;
+	if (cio_likely(client->number_of_pings < max_pings)) {
+		client->bytes_read = num_bytes;
+		cio_write_buffer_head_init(&client->wbh);
+		cio_write_buffer_element_init(&client->wb, cio_read_buffer_get_read_ptr(read_buffer), num_bytes);
+		cio_write_buffer_queue_tail(&client->wbh, &client->wb);
+		cio_buffered_stream_write(bs, &client->wbh, client_handle_write, client);
+	} else {
+		fprintf(stdout, "Clients closes socket\n");
+		cio_buffered_stream_close(bs);
+	}
 }
 
 static void client_handle_write(struct cio_buffered_stream *bs, void *handler_context, enum cio_error err)
@@ -213,6 +225,13 @@ static void client_handle_write(struct cio_buffered_stream *bs, void *handler_co
 		fprintf(stderr, "client could no start reading!\n");
 		cio_buffered_stream_close(bs);
 	}
+}
+
+static void client_socket_close_hook(struct cio_socket *socket)
+{
+	(void)socket;
+	fprintf(stdout, "connection closed by server peer\n");
+	cio_eventloop_cancel(&loop);
 }
 
 static void handle_connect(struct cio_socket *socket, void *handler_context, enum cio_error err)
@@ -241,8 +260,24 @@ static void handle_connect(struct cio_socket *socket, void *handler_context, enu
 	}
 }
 
-int main(void)
+static void usage(const char *name)
 {
+	fprintf(stderr, "Usage: %s <number of messages to be exchanged>\n", name);
+}
+
+int main(int argc, char *argv[])
+{
+	if (argc != 2) {
+		usage(argv[0]);
+		return EXIT_FAILURE;
+	}
+
+	max_pings = strtoul(argv[1], NULL, BASE_10);
+	if (max_pings == ULLONG_MAX) {
+		usage(argv[0]);
+		return EXIT_FAILURE;
+	}
+
 	int ret = EXIT_SUCCESS;
 	if (signal(SIGTERM, sighandler) == SIG_ERR) {
 		fprintf(stderr, "could no install SIGTERM handler!\n");
@@ -314,7 +349,7 @@ int main(void)
 	}
 
 	struct cio_socket socket;
-	err = cio_socket_init(&socket,inet_address.type, &loop, CLOSE_TIMEOUT_NS, NULL);
+	err = cio_socket_init(&socket,inet_address.type, &loop, CLOSE_TIMEOUT_NS, client_socket_close_hook);
 	if (cio_unlikely(err != CIO_SUCCESS)) {
 		fprintf(stderr, "could not init client socket endpoint!\n");
 		ret = EXIT_FAILURE;
@@ -323,6 +358,7 @@ int main(void)
 
 	struct client client;
 	client.bytes_read = 0;
+	client.number_of_pings = 0;
 
 	err = cio_socket_connect(&socket, &client_endpoint, handle_connect, &client);
 	if (err != CIO_SUCCESS) {
