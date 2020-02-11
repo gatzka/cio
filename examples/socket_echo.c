@@ -46,7 +46,7 @@ static struct cio_eventloop loop;
 enum {SERVERSOCKET_BACKLOG = 5};
 enum {SERVERSOCKET_LISTEN_PORT = 12345};
 static const uint64_t CLOSE_TIMEOUT_NS = UINT64_C(1) * UINT64_C(1000) * UINT64_C(1000) * UINT64_C(1000);
-enum {BUFFER_SIZE = 100};
+enum {BUFFER_SIZE = 128};
 enum {IPV6_ADDRESS_SIZE = 16};
 
 struct echo_client {
