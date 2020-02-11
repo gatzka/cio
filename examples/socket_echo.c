@@ -112,8 +112,10 @@ static void handle_read(struct cio_io_stream *stream, void *handler_context, enu
 	}
 
 	cio_write_buffer_head_init(&client->wbh);
-	cio_write_buffer_element_init(&client->wb, cio_read_buffer_get_read_ptr(read_buffer), cio_read_buffer_unread_bytes(read_buffer));
+	size_t number_of_unread_bytes = cio_read_buffer_unread_bytes(read_buffer);
+	cio_write_buffer_element_init(&client->wb, cio_read_buffer_get_read_ptr(read_buffer), number_of_unread_bytes);
 	cio_write_buffer_queue_tail(&client->wbh, &client->wb);
+	cio_read_buffer_consume(read_buffer, number_of_unread_bytes);
 	stream->write_some(stream, &client->wbh, handle_write, client);
 }
 
