@@ -50,6 +50,7 @@ enum {BUFFER_SIZE = 100};
 enum {IPV6_ADDRESS_SIZE = 16};
 
 struct echo_client {
+	size_t bytes_read;
 	struct cio_buffered_stream buffered_stream;
 	struct cio_socket socket;
 	struct cio_write_buffer wb;
@@ -59,6 +60,7 @@ struct echo_client {
 };
 
 struct client {
+	size_t bytes_read;
 	struct cio_buffered_stream buffered_stream;
 	struct cio_write_buffer wb;
 	struct cio_write_buffer wbh;
@@ -73,6 +75,7 @@ static struct cio_socket *alloc_echo_client(void)
 		return NULL;
 	}
 
+	client->bytes_read = 0;
 	return &client->socket;
 }
 
@@ -99,6 +102,8 @@ static void server_handle_write(struct cio_buffered_stream *bs, void *handler_co
 		return;
 	}
 
+	cio_read_buffer_consume(&client->rb, client->bytes_read);
+
 	err = cio_buffered_stream_read_until(bs, &client->rb, "\n", server_handle_read, client);
 	if (cio_unlikely(err != CIO_SUCCESS)) {
 		fprintf(stderr, "server could no start reading!\n");
@@ -122,10 +127,10 @@ static void server_handle_read(struct cio_buffered_stream *bs, void *handler_con
 		return;
 	}
 
+	client->bytes_read = num_bytes;
 	cio_write_buffer_head_init(&client->wbh);
 	cio_write_buffer_element_init(&client->wb, cio_read_buffer_get_read_ptr(read_buffer), num_bytes);
 	cio_write_buffer_queue_tail(&client->wbh, &client->wb);
-	cio_read_buffer_consume(read_buffer, num_bytes);
 	cio_buffered_stream_write(bs, &client->wbh, server_handle_write, client);
 }
 
@@ -186,10 +191,10 @@ static void client_handle_read(struct cio_buffered_stream *bs, void *handler_con
 		return;
 	}
 
+	client->bytes_read = num_bytes;
 	cio_write_buffer_head_init(&client->wbh);
 	cio_write_buffer_element_init(&client->wb, cio_read_buffer_get_read_ptr(read_buffer), num_bytes);
 	cio_write_buffer_queue_tail(&client->wbh, &client->wb);
-	cio_read_buffer_consume(read_buffer, num_bytes);
 	cio_buffered_stream_write(bs, &client->wbh, client_handle_write, client);
 }
 
@@ -202,6 +207,7 @@ static void client_handle_write(struct cio_buffered_stream *bs, void *handler_co
 	}
 
 	struct client *client = (struct client *)handler_context;
+	cio_read_buffer_consume(&client->rb, client->bytes_read);
 	err = cio_buffered_stream_read_until(bs, &client->rb, "\n", client_handle_read, client);
 	if (cio_unlikely(err != CIO_SUCCESS)) {
 		fprintf(stderr, "client could no start reading!\n");
@@ -316,6 +322,7 @@ int main(void)
 	}
 
 	struct client client;
+	client.bytes_read = 0;
 
 	err = cio_socket_connect(&socket, &client_endpoint, handle_connect, &client);
 	if (err != CIO_SUCCESS) {

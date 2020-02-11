@@ -30,6 +30,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#include "cio_buffered_stream.h"
 #include "cio_error_code.h"
 #include "cio_eventloop.h"
 #include "cio_inet_address.h"
@@ -49,6 +50,8 @@ enum {BUFFER_SIZE = 100};
 enum {IPV6_ADDRESS_SIZE = 16};
 
 struct echo_client {
+	size_t number_of_bytes_read;
+	struct cio_buffered_stream buffered_stream;
 	struct cio_socket socket;
 	struct cio_write_buffer wb;
 	struct cio_write_buffer wbh;
@@ -62,6 +65,8 @@ static struct cio_socket *alloc_echo_client(void)
 	if (cio_unlikely(client == NULL)) {
 		return NULL;
 	}
+
+	cio_read_buffer_init(&client->rb, client->buffer, sizeof(client->buffer));
 
 	return &client->socket;
 }
@@ -80,12 +85,9 @@ static void sighandler(int signum)
 
 static void handle_read(struct cio_io_stream *stream, void *handler_context, enum cio_error err, struct cio_read_buffer *read_buffer);
 
-
-static void handle_write(struct cio_io_stream *stream, void *handler_context, const struct cio_write_buffer *buf, enum cio_error err, size_t bytes_transferred)
+static void handle_write(struct cio_buffered_stream *bs, void *handler_context, enum cio_error err)
 {
-	(void)bytes_transferred;
-	(void)buf;
-
+	(void)bs;
 	struct echo_client *client = handler_context;
 
 	if (err != CIO_SUCCESS) {
@@ -93,7 +95,8 @@ static void handle_write(struct cio_io_stream *stream, void *handler_context, co
 		return;
 	}
 
-	cio_read_buffer_init(&client->rb, client->buffer, sizeof(client->buffer));
+	cio_read_buffer_consume(&client->rb, client->number_of_bytes_read);
+	struct cio_io_stream *stream = cio_socket_get_io_stream(&client->socket);
 	stream->read_some(stream, &client->rb, handle_read, client);
 }
 
@@ -113,10 +116,10 @@ static void handle_read(struct cio_io_stream *stream, void *handler_context, enu
 
 	cio_write_buffer_head_init(&client->wbh);
 	size_t number_of_unread_bytes = cio_read_buffer_unread_bytes(read_buffer);
+	client->number_of_bytes_read = number_of_unread_bytes;
 	cio_write_buffer_element_init(&client->wb, cio_read_buffer_get_read_ptr(read_buffer), number_of_unread_bytes);
 	cio_write_buffer_queue_tail(&client->wbh, &client->wb);
-	cio_read_buffer_consume(read_buffer, number_of_unread_bytes);
-	stream->write_some(stream, &client->wbh, handle_write, client);
+	cio_buffered_stream_write(&client->buffered_stream, &client->wbh, handle_write, client);
 }
 
 static void handle_accept(struct cio_server_socket *ss, void *handler_context, enum cio_error err, struct cio_socket *socket)
@@ -132,8 +135,15 @@ static void handle_accept(struct cio_server_socket *ss, void *handler_context, e
 		return;
 	}
 
-	cio_read_buffer_init(&client->rb, client->buffer, sizeof(client->buffer));
 	struct cio_io_stream *stream = cio_socket_get_io_stream(socket);
+	err = cio_buffered_stream_init(&client->buffered_stream, stream);
+	if (err != CIO_SUCCESS) {
+		fprintf(stderr, "could not init buffered stream!\n");
+		cio_server_socket_close(ss);
+		cio_eventloop_cancel(ss->impl.loop);
+		return;
+	}
+
 	stream->read_some(stream, &client->rb, handle_read, client);
 }
 
