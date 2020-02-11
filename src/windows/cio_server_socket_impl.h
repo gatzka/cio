@@ -55,8 +55,7 @@ struct cio_windows_listen_socket {
 
 struct cio_server_socket_impl {
 	struct cio_eventloop *loop;
-	struct cio_windows_listen_socket listen_socket_ipv4;
-	struct cio_windows_listen_socket listen_socket_ipv6;
+	struct cio_windows_listen_socket listen_socket;
 };
 
 #ifdef __cplusplus

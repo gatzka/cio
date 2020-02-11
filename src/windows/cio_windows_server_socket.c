@@ -31,6 +31,7 @@
 #include <Windows.h>
 #include <stdio.h>
 
+#include "cio_endian.h"
 #include "cio_error_code.h"
 #include "cio_eventloop_impl.h"
 #include "cio_server_socket.h"
@@ -42,13 +43,7 @@ static enum cio_error prepare_accept_socket(struct cio_windows_listen_socket *s)
 
 static struct cio_server_socket *get_server_socket(const struct cio_windows_listen_socket *wls)
 {
-	struct cio_server_socket_imp *impl;
-	if (wls->address_family == AF_INET) {
-		impl = cio_container_of(wls, struct cio_server_socket_impl, listen_socket_ipv4);
-	} else {
-		impl = cio_container_of(wls, struct cio_server_socket_impl, listen_socket_ipv6);
-	}
-
+	struct cio_server_socket_imp *impl = cio_container_of(wls, struct cio_server_socket_impl, listen_socket);
 	struct cio_server_socket *ss = cio_container_of(impl, struct cio_server_socket, impl);
 	return ss;
 }
@@ -58,7 +53,7 @@ static void try_free(struct cio_windows_listen_socket *wls)
 	if (wls->en.overlapped_operations_in_use == 0) {
 		closesocket((SOCKET)wls->fd);
 		struct cio_server_socket *ss = get_server_socket(wls);
-		if ((ss->impl.listen_socket_ipv4.bound == false) && (ss->impl.listen_socket_ipv6.bound == false)) {
+		if (ss->impl.listen_socket.bound == false) {
 			if (ss->close_hook != NULL) {
 				ss->close_hook(ss);
 			}
@@ -173,13 +168,18 @@ static void close_listen_socket(struct cio_windows_listen_socket *wls)
 	try_free(wls);
 }
 
-static enum cio_error create_listen_socket(struct cio_windows_listen_socket *socket, int address_family, struct cio_eventloop *loop)
+static enum cio_error create_listen_socket(struct cio_windows_listen_socket *socket, enum cio_address_family address_family, struct cio_eventloop *loop)
 {
 	int err;
-	socket->address_family = address_family;
+	if (address_family == CIO_INET4_ADDRESS) {
+		socket->address_family = AF_INET;
+	} else {
+		socket->address_family = AF_INET6;
+	}
+
 	socket->bound = false;
 	socket->accept_socket = INVALID_SOCKET;
-	socket->fd = (HANDLE)cio_windows_socket_create(address_family, loop, socket);
+	socket->fd = (HANDLE)cio_windows_socket_create(socket->address_family, loop, socket);
 		
 	if (cio_unlikely((SOCKET)socket->fd == INVALID_SOCKET)) {
 		err = WSAGetLastError();
@@ -205,12 +205,13 @@ WSAioctl_failed:
 }
 
 enum cio_error cio_server_socket_init(struct cio_server_socket *ss,
-                                      struct cio_eventloop *loop,
-                                      unsigned int backlog,
-                                      cio_alloc_client alloc_client,
-                                      cio_free_client free_client,
-                                      uint64_t close_timeout_ns,
-                                      cio_server_socket_close_hook close_hook)
+                                                 struct cio_eventloop *loop,
+                                                 unsigned int backlog,
+                                                 enum cio_socket_address_family family,
+                                                 cio_alloc_client alloc_client,
+                                                 cio_free_client free_client,
+                                                 uint64_t close_timeout_ns,
+                                                 cio_server_socket_close_hook close_hook)
 {
 	(void)close_timeout_ns;
 
@@ -220,24 +221,14 @@ enum cio_error cio_server_socket_init(struct cio_server_socket *ss,
 	ss->close_hook = close_hook;
 	ss->impl.loop = loop;
 
-	ss->impl.listen_socket_ipv4.accept_socket = INVALID_SOCKET;
-	ss->impl.listen_socket_ipv6.accept_socket = INVALID_SOCKET;
-
-	enum cio_error err = create_listen_socket(&ss->impl.listen_socket_ipv4, AF_INET, loop);
+	ss->impl.listen_socket.accept_socket = INVALID_SOCKET;
+	
+	enum cio_error err = create_listen_socket(&ss->impl.listen_socket, family, loop);
 	if (cio_unlikely(err != CIO_SUCCESS)) {
 		return err;
 	}
 
-	err = create_listen_socket(&ss->impl.listen_socket_ipv6, AF_INET6, loop);
-	if (cio_unlikely(err != CIO_SUCCESS)) {
-		goto create_listen_socket_v6_failed;
-	}
-
 	return CIO_SUCCESS;
-
-create_listen_socket_v6_failed:
-	close_listen_socket(&ss->impl.listen_socket_ipv4);
-	return err;
 }
 
 enum cio_error cio_server_socket_accept(struct cio_server_socket *ss, cio_accept_handler handler, void *handler_context)
@@ -249,25 +240,13 @@ enum cio_error cio_server_socket_accept(struct cio_server_socket *ss, cio_accept
 	ss->handler = handler;
 	ss->handler_context = handler_context;
 
-	if (ss->impl.listen_socket_ipv4.bound) {
-		if (cio_unlikely(listen((SOCKET)ss->impl.listen_socket_ipv4.fd, ss->backlog) < 0)) {
+	if (ss->impl.listen_socket.bound) {
+		if (cio_unlikely(listen((SOCKET)ss->impl.listen_socket.fd, ss->backlog) < 0)) {
 			int err = WSAGetLastError();
 			return (enum cio_error)(-err);
 		}
 
-		enum cio_error error = prepare_accept_socket(&ss->impl.listen_socket_ipv4);
-		if (cio_unlikely(error != CIO_SUCCESS)) {
-			return error;
-		}
-	}
-
-	if (ss->impl.listen_socket_ipv6.bound) {
-		if (cio_unlikely(listen((SOCKET)ss->impl.listen_socket_ipv6.fd, ss->backlog) < 0)) {
-			int err = WSAGetLastError();
-			return (enum cio_error)(-err);
-		}
-
-		enum cio_error error = prepare_accept_socket(&ss->impl.listen_socket_ipv6);
+		enum cio_error error = prepare_accept_socket(&ss->impl.listen_socket);
 		if (cio_unlikely(error != CIO_SUCCESS)) {
 			return error;
 		}
@@ -285,12 +264,7 @@ enum cio_error cio_server_socket_set_reuse_address(struct cio_server_socket *ss,
 		reuse = 0;
 	}
 
-	if (cio_unlikely(setsockopt((SOCKET)ss->impl.listen_socket_ipv4.fd, SOL_SOCKET, SO_REUSEADDR, &reuse, sizeof(reuse)) < 0)) {
-		int err = GetLastError();
-		return (enum cio_error)(-err);
-	}
-
-	if (cio_unlikely(setsockopt((SOCKET)ss->impl.listen_socket_ipv6.fd, SOL_SOCKET, SO_REUSEADDR, &reuse, sizeof(reuse)) < 0)) {
+	if (cio_unlikely(setsockopt((SOCKET)ss->impl.listen_socket.fd, SOL_SOCKET, SO_REUSEADDR, &reuse, sizeof(reuse)) < 0)) {
 		int err = GetLastError();
 		return (enum cio_error)(-err);
 	}
@@ -298,85 +272,42 @@ enum cio_error cio_server_socket_set_reuse_address(struct cio_server_socket *ss,
 	return CIO_SUCCESS;
 }
 
-enum cio_error cio_server_socket_bind(struct cio_server_socket *ss, const char *bind_address, uint16_t port)
+enum cio_error cio_server_socket_bind(struct cio_server_socket *ss, const struct cio_inet_socket_address *endpoint)
 {
-	struct addrinfo hints;
-	char server_port_string[6];
-	struct addrinfo *servinfo = NULL;
-	int ret;
-	struct addrinfo *rp;
-
-	memset(&hints, 0, sizeof(hints));
-	hints.ai_family = AF_UNSPEC;
-	hints.ai_socktype = SOCK_STREAM;
-	hints.ai_protocol = IPPROTO_TCP;
-	hints.ai_flags = AI_PASSIVE | AI_V4MAPPED | AI_NUMERICHOST;
-
-	snprintf(server_port_string, sizeof(server_port_string), "%d", port);
-
-	if (bind_address == NULL) {
-		struct sockaddr_in6 address_v6;
-		memset(&address_v6, 0, sizeof(address_v6));
-		address_v6.sin6_family = AF_INET6;
-		address_v6.sin6_addr = in6addr_any;
-		address_v6.sin6_port = htons(port);
-		if (cio_unlikely(bind((SOCKET)ss->impl.listen_socket_ipv6.fd, (struct sockaddr *)&address_v6, sizeof(address_v6)) == -1)) {
-			int err = WSAGetLastError();
-			return (enum cio_error)(-err);
-		}
-
-		ss->impl.listen_socket_ipv6.bound = true;
-
-		struct sockaddr_in address_v4;
-		memset(&address_v4, 0, sizeof(address_v4));
-		address_v4.sin_family = AF_INET;
-		address_v4.sin_addr = in4addr_any;
-		address_v4.sin_port = htons(port);
-		if (cio_unlikely(bind((SOCKET)ss->impl.listen_socket_ipv4.fd, (struct sockaddr *)&address_v4, sizeof(address_v4)) == -1)) {
-			int err = WSAGetLastError();
-			return (enum cio_error)(-err);
-		}
-
-		ss->impl.listen_socket_ipv4.bound = true;
-
-		return CIO_SUCCESS;
-	} else {
-		ret = getaddrinfo(bind_address, server_port_string, &hints, &servinfo);
-		if (cio_unlikely(ret != 0)) {
-			return (enum cio_error)(-ret);
-		}
-
-		for (rp = servinfo; rp != NULL; rp = rp->ai_next) {
-			switch (rp->ai_family) {
-			case AF_INET:
-				if (cio_likely(bind((SOCKET)ss->impl.listen_socket_ipv4.fd, rp->ai_addr, (int)rp->ai_addrlen) == 0)) {
-					ss->impl.listen_socket_ipv4.bound = true;
-					goto out;
-				}
-
-				break;
-			case AF_INET6:
-				if (cio_likely(bind((SOCKET)ss->impl.listen_socket_ipv6.fd, rp->ai_addr, (int)rp->ai_addrlen) == 0)) {
-					ss->impl.listen_socket_ipv6.bound = true;
-					goto out;
-				}
-
-				break;
-			}
-		}
-	out:
-		freeaddrinfo(servinfo);
-
-		if (rp == NULL) {
-			return CIO_INVALID_ARGUMENT;
-		}
-
-		return CIO_SUCCESS;
+	if (cio_unlikely((ss == NULL) || (endpoint == NULL))) {
+		return CIO_INVALID_ARGUMENT;
 	}
+
+	struct sockaddr_in addr4;
+	struct sockaddr_in6 addr6;
+	struct sockaddr *addr;
+	socklen_t addr_len;
+	if (endpoint->inet_address.type == CIO_INET4_ADDRESS) {
+		memset(&addr4, 0, sizeof(addr4));
+		addr4.sin_family = AF_INET;
+		memcpy(&addr4.sin_addr.s_addr, endpoint->inet_address.address.addr4.addr, sizeof(endpoint->inet_address.address.addr4.addr));
+		addr4.sin_port = cio_htobe16(endpoint->port);
+		addr = (struct sockaddr *)&addr4;
+		addr_len = sizeof(addr4);
+	} else {
+		memset(&addr6, 0, sizeof(addr6));
+		addr6.sin6_family = AF_INET6;
+		memcpy(&addr6.sin6_addr, endpoint->inet_address.address.addr6.addr, sizeof(endpoint->inet_address.address.addr6.addr));
+		addr6.sin6_port = cio_htobe16(endpoint->port);
+		addr = (struct sockaddr *)&addr6;
+		addr_len = sizeof(addr6);
+	}
+
+	int ret = bind((SOCKET)ss->impl.listen_socket.fd, addr, addr_len);
+	if (cio_unlikely(ret != 0)) {
+		int err = GetLastError();
+		return (enum cio_error)(-err);
+	}
+
+	return CIO_SUCCESS;
 }
 
 void cio_server_socket_close(struct cio_server_socket *ss)
 {
-	close_listen_socket(&ss->impl.listen_socket_ipv4);
-	close_listen_socket(&ss->impl.listen_socket_ipv6);
+	close_listen_socket(&ss->impl.listen_socket);
 }

@@ -291,7 +291,7 @@ int main(int argc, char *argv[])
 	}
 
 	struct cio_inet_socket_address endpoint;
-	enum cio_error err = cio_init_inet_socket_address(&endpoint, &cio_inet_address_any6, SERVERSOCKET_LISTEN_PORT);
+	enum cio_error err = cio_init_inet_socket_address(&endpoint, &cio_inet_address_any4, SERVERSOCKET_LISTEN_PORT);
 	if (cio_unlikely(err != CIO_SUCCESS)) {
 		fprintf(stderr, "could no init server socket endpoint!\n");
 		return -1;
