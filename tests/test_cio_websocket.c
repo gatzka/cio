@@ -26,6 +26,8 @@
  * SOFTWARE.
  */
 
+#define _CRT_SECURE_NO_WARNINGS
+
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
@@ -436,6 +438,7 @@ static void on_error_save_data(const struct cio_websocket *websocket, enum cio_e
 	(void)websocket;
 	(void)err;
 	size_t free_space = sizeof(read_back_buffer) - read_back_buffer_pos;
+	size_t reason_len = strlen(reason);
 	strncpy((char *)&read_back_buffer[read_back_buffer_pos], reason, free_space - 1);
 	read_back_buffer_pos += strlen(reason);
 }
