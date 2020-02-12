@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.8)
+cmake_minimum_required(VERSION 3.9)
 
 add_library(PLATFORM OBJECT
     cio_windows_iocp.c
