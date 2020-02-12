@@ -274,6 +274,7 @@ static void connect_callback(struct cio_event_notifier *ev)
 		return;
 	}
 
+	socket->impl.write_event.callback = write_callback;
 	socket->handler(socket, socket->handler_context, CIO_SUCCESS);
 }
 
