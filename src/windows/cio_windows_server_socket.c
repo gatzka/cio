@@ -304,6 +304,7 @@ enum cio_error cio_server_socket_bind(struct cio_server_socket *ss, const struct
 		return (enum cio_error)(-err);
 	}
 
+	ss->impl.listen_socket.bound = true;
 	return CIO_SUCCESS;
 }
 
