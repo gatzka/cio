@@ -124,6 +124,8 @@ var searchData=
   ['cio_5finet6_5faddress_2eh',['cio_inet6_address.h',['../cio__inet6__address_8h.html',1,'']]],
   ['cio_5finet_5faddress',['cio_inet_address',['../structcio__inet__address.html',1,'']]],
   ['cio_5finet_5faddress_2eh',['cio_inet_address.h',['../cio__inet__address_8h.html',1,'']]],
+  ['cio_5finet_5faddress_5fany4',['cio_inet_address_any4',['../cio__inet__address_8h.html#a16e955d5dd41f6747250c6a9b4602096',1,'cio_inet_address.h']]],
+  ['cio_5finet_5faddress_5fany6',['cio_inet_address_any6',['../cio__inet__address_8h.html#a84c44ca77dff6723eee323e772ecfa16',1,'cio_inet_address.h']]],
   ['cio_5finet_5fsocket_5faddress',['cio_inet_socket_address',['../structcio__inet__socket__address.html',1,'']]],
   ['cio_5finet_5fsocket_5faddress_2eh',['cio_inet_socket_address.h',['../cio__inet__socket__address_8h.html',1,'']]],
   ['cio_5finit_5finet_5faddress',['cio_init_inet_address',['../cio__inet__address_8h.html#a58b575f4607d3f55e3a9ab97b9be3403',1,'cio_inet_address.h']]],

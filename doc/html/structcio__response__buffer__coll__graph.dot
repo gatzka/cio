@@ -1,0 +1,8 @@
+digraph "cio_response_buffer"
+{
+  edge [fontname="Helvetica",fontsize="10",labelfontname="Helvetica",labelfontsize="10"];
+  node [fontname="Helvetica",fontsize="10",shape=record];
+  Node1 [label="cio_response_buffer",height=0.2,width=0.4,color="black", fillcolor="grey75", style="filled", fontcolor="black"];
+  Node2 -> Node1 [dir="back",color="darkorchid3",fontsize="10",style="dashed",label=" wb_head\nwb" ,fontname="Helvetica"];
+  Node2 [label="cio_write_buffer",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$structcio__write__buffer.html",tooltip="Structure to build up a write buffer chain. "];
+}

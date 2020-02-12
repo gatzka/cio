@@ -1,6 +1,8 @@
 var searchData=
 [
   ['chunk_5fsend_5fmask',['chunk_send_mask',['../structcio__websocket__private.html#ae19a998d5f10cfff0600352d84105563',1,'cio_websocket_private']]],
+  ['cio_5finet_5faddress_5fany4',['cio_inet_address_any4',['../cio__inet__address_8h.html#a16e955d5dd41f6747250c6a9b4602096',1,'cio_inet_address.h']]],
+  ['cio_5finet_5faddress_5fany6',['cio_inet_address_any6',['../cio__inet__address_8h.html#a84c44ca77dff6723eee323e772ecfa16',1,'cio_inet_address.h']]],
   ['close',['close',['../structcio__http__client.html#a99ea764a1678b2390fb83cbb255b36b1',1,'cio_http_client::close()'],['../structcio__io__stream.html#abd9b27a72fea1c39e54a88f3d7251db8',1,'cio_io_stream::close()']]],
   ['close_5fbuffer',['close_buffer',['../structcio__websocket__private.html#acff869ea3c3f402492d30102abe8655d',1,'cio_websocket_private']]],
   ['close_5fhook',['close_hook',['../structcio__websocket__private.html#a51feb81058faa2b6380050e5a5f9b064',1,'cio_websocket_private']]],

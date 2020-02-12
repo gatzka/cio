@@ -142,7 +142,9 @@ var NAVTREEINDEX0 =
 "cio__inet6__address_8h.html#a99fb83031ce9923c84392b4e92f956b5a91a9b083a6215454834833f9cfbdf7b1":[1,0,15,1],
 "cio__inet6__address_8h_source.html":[1,0,15],
 "cio__inet__address_8h.html":[1,0,16],
+"cio__inet__address_8h.html#a16e955d5dd41f6747250c6a9b4602096":[1,0,16,3],
 "cio__inet__address_8h.html#a58b575f4607d3f55e3a9ab97b9be3403":[1,0,16,2],
+"cio__inet__address_8h.html#a84c44ca77dff6723eee323e772ecfa16":[1,0,16,4],
 "cio__inet__address_8h.html#abf80bd22ac22458beb0fc5078195dfc9":[1,0,16,1],
 "cio__inet__address_8h.html#abf80bd22ac22458beb0fc5078195dfc9a9e6dca1e828d596d902a69812760af5b":[1,0,16,1,1],
 "cio__inet__address_8h.html#abf80bd22ac22458beb0fc5078195dfc9ad0a90a44171972ffa8b4c02a648fcecf":[1,0,16,1,0],
@@ -247,7 +249,5 @@ var NAVTREEINDEX0 =
 "cio__websocket_8h.html#aca914fcd6af51949d43432f155c61e19":[1,0,28,6],
 "cio__websocket_8h.html#acf324349b95de3f30373cc6c7862d4c0":[1,0,28,14],
 "cio__websocket_8h.html#adc7ba069e7ba95143b433a9e503750a3":[1,0,28,19],
-"cio__websocket_8h.html#addfd019deec62389b8cd23ed3f95b9ef":[1,0,28,20],
-"cio__websocket_8h.html#af0f0dbbfaf936e83a14015972f7fce8d":[1,0,28,16],
-"cio__websocket_8h.html#af33fb069400eeffde11ab324bf2245e9":[1,0,28,10]
+"cio__websocket_8h.html#addfd019deec62389b8cd23ed3f95b9ef":[1,0,28,20]
 };
