@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.8)
+cmake_minimum_required(VERSION 3.9)
 
 add_library(PLATFORM OBJECT
     cio_windows_iocp.c
@@ -21,3 +21,14 @@ target_include_directories(PLATFORM
 )
 
 target_link_libraries(PLATFORM bcrypt ws2_32)
+
+include(CheckIPOSupported)
+check_ipo_supported(RESULT ipo_supported OUTPUT output)
+
+get_property(targets DIRECTORY "${CMAKE_CURRENT_LIST_DIR}" PROPERTY BUILDSYSTEM_TARGETS)
+foreach(tgt ${targets})
+    if(ipo_supported)
+        set_property(TARGET ${tgt} PROPERTY INTERPROCEDURAL_OPTIMIZATION TRUE)
+    endif()
+endforeach()
+

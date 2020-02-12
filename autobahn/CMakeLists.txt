@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.0)
+cmake_minimum_required(VERSION 3.9)
 project(cio-autobahn C)
 
 add_executable(autobahn_server
@@ -9,3 +9,10 @@ set_target_properties(autobahn_server PROPERTIES
 	C_STANDARD_REQUIRED ON
 	C_EXTENSIONS OFF
 )
+
+include(CheckIPOSupported)
+check_ipo_supported(RESULT ipo_supported OUTPUT output)
+
+if(ipo_supported)
+    set_property(TARGET autobahn_server PROPERTY INTERPROCEDURAL_OPTIMIZATION TRUE)
+endif()

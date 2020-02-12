@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.8)
+cmake_minimum_required(VERSION 3.9)
 include(CheckLibraryExists)
 include(defaults.cmake)
 
@@ -33,7 +33,17 @@ set_property(TARGET PLATFORM
 
 target_include_directories(PLATFORM
     PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/>
-	PRIVATE ${CMAKE_CURRENT_BINARY_DIR}/../generated/ ${CMAKE_CURRENT_LIST_DIR}/../
+    PRIVATE ${CMAKE_CURRENT_BINARY_DIR}/../generated/ ${CMAKE_CURRENT_LIST_DIR}/../
 )
 
 target_link_libraries(PLATFORM $<$<BOOL:${HAVE_BSD_LIB}>:bsd>)
+
+include(CheckIPOSupported)
+check_ipo_supported(RESULT ipo_supported OUTPUT output)
+
+get_property(targets DIRECTORY "${CMAKE_CURRENT_LIST_DIR}" PROPERTY BUILDSYSTEM_TARGETS)
+foreach(tgt ${targets})
+    if(ipo_supported)
+        set_property(TARGET ${tgt} PROPERTY INTERPROCEDURAL_OPTIMIZATION TRUE)
+    endif()
+endforeach()

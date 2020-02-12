@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.7)
+cmake_minimum_required(VERSION 3.9)
 project(cio-examples C)
 
 add_executable(socket_echo
@@ -31,6 +31,9 @@ add_executable(periodic_timer
 )
 target_link_libraries (periodic_timer)
 
+include(CheckIPOSupported)
+check_ipo_supported(RESULT ipo_supported OUTPUT output)
+
 get_property(targets DIRECTORY "${CMAKE_CURRENT_LIST_DIR}" PROPERTY BUILDSYSTEM_TARGETS)
 foreach(tgt ${targets})
     get_target_property(target_type ${tgt} TYPE)
@@ -40,5 +43,8 @@ foreach(tgt ${targets})
     		C_STANDARD_REQUIRED ON
     		C_EXTENSIONS OFF
         )
+    endif()
+    if(ipo_supported)
+        set_property(TARGET ${tgt} PROPERTY INTERPROCEDURAL_OPTIMIZATION TRUE)
     endif()
 endforeach()
