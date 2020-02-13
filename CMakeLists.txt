@@ -32,7 +32,7 @@ if(CMAKE_CONFIGURATION_TYPES)
     list(APPEND CMAKE_CONFIGURATION_TYPES Profile)
   endif()
 else()
-	set(allowableBuildTypes Debug Release RelWithDebInfo MemorySanitizer AddressSanitizer LeakSanitizer UndefinedBehaviorSanitizer Coverage Profile)
+  set(allowableBuildTypes Debug Release RelWithDebInfo MemorySanitizer AddressSanitizer LeakSanitizer UndefinedBehaviorSanitizer Coverage Profile)
   set_property(CACHE CMAKE_BUILD_TYPE PROPERTY
   STRINGS "${allowableBuildTypes}")
   if(NOT CMAKE_BUILD_TYPE)
@@ -85,6 +85,12 @@ set(CMAKE_STATIC_LINKER_FLAGS_PROFILE "${CMAKE_SHARED_LINKER_FLAGS_RELWITHDEBINF
 set(CMAKE_MODULE_LINKER_FLAGS_PROFILE "${CMAKE_SHARED_LINKER_FLAGS_RELWITHDEBINFO} ${PROFILE_FLAGS}" CACHE STRING "Flags used module linking during profiling builds." FORCE)
 
 include(CTest)
+
+include(CheckIPOSupported)
+check_ipo_supported(RESULT ipo_supported OUTPUT output)
+if(ipo_supported)
+	option(CIO_ENABLE_LTO "Build everithing with link time optization" OFF)
+endif()
 
 add_subdirectory(src)
 add_subdirectory(tests)

@@ -10,9 +10,6 @@ set_target_properties(autobahn_server PROPERTIES
 	C_EXTENSIONS OFF
 )
 
-include(CheckIPOSupported)
-check_ipo_supported(RESULT ipo_supported OUTPUT output)
-
-if(ipo_supported)
+if(CIO_ENABLE_LTO)
     set_property(TARGET autobahn_server PROPERTY INTERPROCEDURAL_OPTIMIZATION TRUE)
 endif()

@@ -23,9 +23,6 @@ add_test(NAME cio.linux.test_string COMMAND test_cio_linux_string)
 add_executable(test_cio_linux_timer test_cio_linux_timer.c)
 add_test(NAME cio.linux.test_timer COMMAND test_cio_linux_timer)
 
-include(CheckIPOSupported)
-check_ipo_supported(RESULT ipo_supported OUTPUT output)
-
 get_property(targets DIRECTORY "${CMAKE_CURRENT_LIST_DIR}" PROPERTY BUILDSYSTEM_TARGETS)
 foreach(tgt ${targets})
     get_target_property(target_type ${tgt} TYPE)
@@ -36,7 +33,7 @@ foreach(tgt ${targets})
         )
     endif()
 
-	if(ipo_supported AND NOT ${target_type} STREQUAL "INTERFACE_LIBRARY")
+	if(CIO_ENABLE_LTO AND NOT ${target_type} STREQUAL "INTERFACE_LIBRARY")
         set_property(TARGET ${tgt} PROPERTY INTERPROCEDURAL_OPTIMIZATION TRUE)
     endif()
 endforeach()

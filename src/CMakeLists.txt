@@ -228,12 +228,9 @@ else(DOXYGEN_FOUND)
     message(STATUS "Doxygen need to be installed to generate the doxygen documentation")
 endif(DOXYGEN_FOUND)
 
-include(CheckIPOSupported)
-check_ipo_supported(RESULT ipo_supported OUTPUT output)
-
 get_property(targets DIRECTORY "${CMAKE_CURRENT_LIST_DIR}" PROPERTY BUILDSYSTEM_TARGETS)
 foreach(tgt ${targets})
-    if(ipo_supported)
+	if(CIO_ENABLE_LTO)
         set_property(TARGET ${tgt} PROPERTY INTERPROCEDURAL_OPTIMIZATION TRUE)
     endif()
 endforeach()
