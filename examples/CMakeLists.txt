@@ -31,9 +31,6 @@ add_executable(periodic_timer
 )
 target_link_libraries (periodic_timer)
 
-include(CheckIPOSupported)
-check_ipo_supported(RESULT ipo_supported OUTPUT output)
-
 get_property(targets DIRECTORY "${CMAKE_CURRENT_LIST_DIR}" PROPERTY BUILDSYSTEM_TARGETS)
 foreach(tgt ${targets})
     get_target_property(target_type ${tgt} TYPE)
@@ -44,7 +41,7 @@ foreach(tgt ${targets})
     		C_EXTENSIONS OFF
         )
     endif()
-    if(ipo_supported)
+	if(CIO_ENABLE_LTO)
         set_property(TARGET ${tgt} PROPERTY INTERPROCEDURAL_OPTIMIZATION TRUE)
     endif()
 endforeach()

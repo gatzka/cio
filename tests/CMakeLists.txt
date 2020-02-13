@@ -62,9 +62,6 @@ add_test(NAME cio.common.test_write_buffer COMMAND test_cio_write_buffer)
 add_executable(test_cio_version test_cio_version.c)
 add_test(NAME cio.common.test_version COMMAND test_cio_version)
 
-include(CheckIPOSupported)
-check_ipo_supported(RESULT ipo_supported OUTPUT output)
-
 get_property(targets DIRECTORY "${CMAKE_CURRENT_LIST_DIR}" PROPERTY BUILDSYSTEM_TARGETS)
 foreach(tgt ${targets})
     get_target_property(target_type ${tgt} TYPE)
@@ -77,7 +74,7 @@ foreach(tgt ${targets})
         )
     endif()
 
-	if(ipo_supported AND NOT ${target_type} STREQUAL "INTERFACE_LIBRARY")
+	if(CIO_ENABLE_LTO AND NOT ${target_type} STREQUAL "INTERFACE_LIBRARY")
         set_property(TARGET ${tgt} PROPERTY INTERPROCEDURAL_OPTIMIZATION TRUE)
     endif()
 endforeach()
