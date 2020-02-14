@@ -158,7 +158,7 @@ static enum cio_http_cb_return handle_value(struct cio_http_client *client, cons
 
 	struct cio_websocket_location_handler *wslh = cio_container_of(client->current_handler, struct cio_websocket_location_handler, http_location);
 
-	unsigned char header_field = wslh->flags.current_header_field;
+	uint_fast8_t header_field = (uint_fast8_t)wslh->flags.current_header_field;
 
 	switch (header_field) {
 	case CIO_WS_HEADER_SEC_WEBSOCKET_KEY:
