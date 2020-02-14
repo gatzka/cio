@@ -528,7 +528,7 @@ static void handle_frame(struct cio_websocket *ws, uint8_t *data, uint64_t lengt
 		cio_websocket_mask(data, (size_t)length, ws->ws_private.received_mask);
 	}
 
-	unsigned char opcode = ws->ws_private.ws_flags.opcode;
+	uint_fast8_t opcode = (uint_fast8_t)ws->ws_private.ws_flags.opcode;
 	switch (opcode) {
 	case CIO_WEBSOCKET_BINARY_FRAME:
 		handle_binary_frame(ws, data, length, ws->ws_private.ws_flags.fin == 1U);
