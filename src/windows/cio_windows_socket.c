@@ -303,6 +303,7 @@ enum cio_error cio_socket_connect(struct cio_socket *socket, struct cio_inet_soc
 		addr = (struct sockaddr *)&addr6;
 		addr_len = sizeof(addr6);
 	}
+
 	int rc = bind((SOCKET)socket->impl.fd, addr, addr_len);
 	if (rc != 0) {
 		int err = WSAGetLastError();
@@ -339,7 +340,7 @@ enum cio_error cio_socket_connect(struct cio_socket *socket, struct cio_inet_soc
 	if (ret == TRUE) {
 		handler(socket, handler_context, CIO_SUCCESS);
 	} else {
-		int rc = WSAGetLastError();
+		rc = WSAGetLastError();
 		if (cio_likely(rc != WSA_IO_PENDING)) {
 			return (enum cio_error)(-rc);
 		}
