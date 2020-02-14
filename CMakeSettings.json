@@ -7,7 +7,6 @@
       "inheritEnvironments": [ "msvc_x64_x64" ],
       "buildRoot": "${env.USERPROFILE}\\CMakeBuilds\\${workspaceHash}\\build\\${name}",
       "installRoot": "${env.USERPROFILE}\\CMakeBuilds\\${workspaceHash}\\install\\${name}",
-      "cmakeCommandArgs": "-DCMAKE_C_FLAGS:STRING=\"/W4\"",
       "buildCommandArgs": "-v",
       "ctestCommandArgs": "",
       "cmakeToolchain": "${env.USERPROFILE}\\CMakeBuilds\\${workspaceHash}\\build\\${name}\\toolchains\\x86_windows_msvc.cmake",
