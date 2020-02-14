@@ -34,6 +34,7 @@
 #include "cio_endian.h"
 #include "cio_error_code.h"
 #include "cio_eventloop_impl.h"
+#include "cio_inet_address.h"
 #include "cio_server_socket.h"
 #include "cio_windows_socket_utils.h"
 #include "cio_util.h"
@@ -168,7 +169,7 @@ static void close_listen_socket(struct cio_windows_listen_socket *wls)
 	try_free(wls);
 }
 
-static enum cio_error create_listen_socket(struct cio_windows_listen_socket *socket, enum cio_address_family address_family, struct cio_eventloop *loop)
+static enum cio_error create_listen_socket(struct cio_windows_listen_socket *socket, enum cio_socket_address_family address_family, struct cio_eventloop *loop)
 {
 	int err;
 	if (address_family == CIO_INET4_ADDRESS) {
