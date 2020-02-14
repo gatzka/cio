@@ -116,7 +116,11 @@ static void bs_init(struct cio_buffered_stream *bs)
 static struct cio_socket *alloc_dummy_client(void)
 {
 	struct cio_http_client *client = malloc(sizeof(*client) + read_buffer_size);
-	memset(client, 0xaf, sizeof(*client));
+	if (client == NULL) {
+		return NULL;
+	}
+	
+	memset(client, 0xaf, sizeof(*client) + read_buffer_size);
 	client->buffer_size = read_buffer_size;
 	client->socket.close_hook = free_dummy_client;
 	bs_init(&client->bs);
