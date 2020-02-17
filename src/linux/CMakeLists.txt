@@ -8,11 +8,13 @@ if(NOT HAVE_BSD_LIB)
 	message(WARNING "libbsd not found! Using unsafe random number generator!")
 endif()
 
-configure_file(os_config.h.in ${PROJECT_BINARY_DIR}/generated/os_config.h)
+configure_file(cio_os_config.h.in ${PROJECT_BINARY_DIR}/generated/cio_os_config.h)
 
 add_library(PLATFORM OBJECT
     cio_error_code_impl.h
     cio_eventloop_impl.h
+    cio_inet4_address_impl.h
+    cio_inet6_address_impl.h
     cio_linux_endian.c
     cio_linux_epoll.c
     cio_linux_server_socket.c
@@ -22,10 +24,12 @@ add_library(PLATFORM OBJECT
     cio_linux_socket_utils.h
     cio_linux_string.c
     cio_linux_timer.c
+    cio_os_config.h.in
     cio_server_socket_impl.h
     cio_socket_address_impl.h
     cio_socket_impl.h
     cio_timer_impl.h
+    cio_unix_address.h
 )
 
 target_sources(PLATFORM

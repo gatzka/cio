@@ -26,25 +26,22 @@
  * SOFTWARE.
  */
 
-#ifndef CIO_SOCKET_ADDRESS_H
-#define CIO_SOCKET_ADDRESS_H
+#ifndef CIO_INET4_ADDRESS_IMPL_H
+#define CIO_INET4_ADDRESS_IMPL_H
 
-#include "cio_socket_address_impl.h"
+#include <netinet/in.h>
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-enum cio_socket_address_family {
-	CIO_SA_UNSPEC = CIO_SA_UNSPEC_IMPL,
-	CIO_SA_INET4_ADDRESS = CIO_SA_INET4_ADDRESS_IMPL,
-	CIO_SA_INET6_ADDRESS = CIO_SA_INET6_ADDRESS_IMPL,
-	CIO_SA_UNIX = CIO_SA_UNIX_IMPL
-};
+/**
+ * @file
+ * @brief Internal representation of an Internet Protocol Version 4 (IPv4) address.
+ */
 
-struct cio_socket_address {
-	enum cio_socket_address_family family;
-	union cio_socket_address_impl impl;
+struct cio_inet4_address_impl {
+	struct sockaddr_in in;
 };
 
 #ifdef __cplusplus

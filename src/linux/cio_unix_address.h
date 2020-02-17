@@ -26,25 +26,22 @@
  * SOFTWARE.
  */
 
-#ifndef CIO_SOCKET_ADDRESS_H
-#define CIO_SOCKET_ADDRESS_H
+#ifndef CIO_UNIX_ADDRESS_H
+#define CIO_UNIX_ADDRESS_H
 
-#include "cio_socket_address_impl.h"
+#include <sys/un.h>
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-enum cio_socket_address_family {
-	CIO_SA_UNSPEC = CIO_SA_UNSPEC_IMPL,
-	CIO_SA_INET4_ADDRESS = CIO_SA_INET4_ADDRESS_IMPL,
-	CIO_SA_INET6_ADDRESS = CIO_SA_INET6_ADDRESS_IMPL,
-	CIO_SA_UNIX = CIO_SA_UNIX_IMPL
-};
+/**
+ * @file
+ * @brief Representation of a Unix domain socket address.
+ */
 
-struct cio_socket_address {
-	enum cio_socket_address_family family;
-	union cio_socket_address_impl impl;
+struct cio_unix_address {
+	struct sockaddr_un un;
 };
 
 #ifdef __cplusplus

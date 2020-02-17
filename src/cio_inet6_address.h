@@ -29,6 +29,8 @@
 #ifndef CIO_INET6_ADDRESS_H
 #define CIO_INET6_ADDRESS_H
 
+#include "cio_inet6_address_impl.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -38,14 +40,8 @@ extern "C" {
  * @brief Representation of an Internet Protocol Version 4 (IPv4) address.
  */
 
-#include <stdint.h>
-
-enum {
-	CIO_IPV6_ADDRESS_SIZE = 16
-};
-
 struct cio_inet6_address {
-	uint8_t addr[CIO_IPV6_ADDRESS_SIZE];
+	struct cio_inet6_address_impl impl;
 };
 
 #ifdef __cplusplus

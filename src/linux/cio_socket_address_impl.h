@@ -31,6 +31,10 @@
 
 #include <sys/socket.h>
 
+#include "cio_inet4_address.h"
+#include "cio_inet6_address.h"
+#include "cio_unix_address.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -40,6 +44,12 @@ enum cio_socket_address_family_impl {
 	CIO_SA_INET4_ADDRESS_IMPL = AF_INET,
 	CIO_SA_INET6_ADDRESS_IMPL = AF_INET6,
 	CIO_SA_UNIX_IMPL = AF_UNIX
+};
+
+union cio_socket_address_impl {
+	struct cio_inet4_address inet_addr4;
+	struct cio_inet6_address inet_addr6;
+	struct cio_unix_address unix_address;
 };
 
 #ifdef __cplusplus
