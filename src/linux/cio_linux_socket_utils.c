@@ -38,10 +38,10 @@ int cio_linux_socket_create(enum cio_socket_address_family address_family)
 {
 	int domain;
 	switch (address_family) {
-	case CIO_INET4_ADDRESS:
+	case CIO_SA_INET4_ADDRESS:
 		domain = AF_INET;
 		break;
-	case CIO_INET6_ADDRESS:
+	case CIO_SA_INET6_ADDRESS:
 		domain = AF_INET6;
 		break;
 	default:

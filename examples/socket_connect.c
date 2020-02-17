@@ -36,6 +36,7 @@
 #include "cio_eventloop.h"
 #include "cio_inet_address.h"
 #include "cio_socket.h"
+#include "cio_socket_address.h"
 
 static struct cio_eventloop loop;
 static const uint64_t CLOSE_TIMEOUT_NS = UINT64_C(1) * UINT64_C(1000) * UINT64_C(1000) * UINT64_C(1000);
@@ -126,7 +127,7 @@ int main(int argc, char *argv[])
 
 	struct cio_socket socket;
 
-	err = cio_socket_init(&socket, CIO_INET4_ADDRESS, &loop, CLOSE_TIMEOUT_NS, NULL);
+	err = cio_socket_init(&socket, CIO_SA_INET4_ADDRESS, &loop, CLOSE_TIMEOUT_NS, NULL);
 	if (err != CIO_SUCCESS) {
 		ret = EXIT_FAILURE;
 		goto destroy_loop;

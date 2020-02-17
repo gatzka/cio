@@ -163,7 +163,7 @@ enum cio_error cio_server_socket_bind(struct cio_server_socket *ss, const struct
 	struct sockaddr_in6 addr6;
 	struct sockaddr *addr;
 	socklen_t addr_len;
-	if (endpoint->inet_address.type == CIO_INET4_ADDRESS) {
+	if (endpoint->inet_address.type == CIO_SA_INET4_ADDRESS) {
 		memset(&addr4, 0, sizeof(addr4));
 		addr4.sin_family = AF_INET;
 		memcpy(&addr4.sin_addr.s_addr, endpoint->inet_address.address.addr4.addr, sizeof(endpoint->inet_address.address.addr4.addr));

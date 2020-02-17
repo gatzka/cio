@@ -45,11 +45,7 @@ extern "C" {
 #include "cio_export.h"
 #include "cio_inet4_address.h"
 #include "cio_inet6_address.h"
-
-enum cio_socket_address_family {
-	CIO_INET4_ADDRESS,
-	CIO_INET6_ADDRESS
-};
+#include "cio_socket_address.h"
 
 struct cio_inet_address {
 	enum cio_socket_address_family type;
@@ -60,11 +56,11 @@ struct cio_inet_address {
 };
 
 static const struct cio_inet_address cio_inet_address_any6 = {
-    .type = CIO_INET6_ADDRESS,
+	.type = CIO_SA_INET6_ADDRESS,
 	.address = {.addr6 = {{0}}}};
 
 static const struct cio_inet_address cio_inet_address_any4 = {
-    .type = CIO_INET4_ADDRESS,
+	.type = CIO_SA_INET4_ADDRESS,
 	.address = {.addr4 = {{0}}}};
 
 /**

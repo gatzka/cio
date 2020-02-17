@@ -26,29 +26,24 @@
  * SOFTWARE.
  */
 
-#include <stddef.h>
-#include <stdint.h>
-#include <string.h>
+#ifndef CIO_SOCKET_ADDRESS_IMPL_H
+#define CIO_SOCKET_ADDRESS_IMPL_H
 
-#include "cio_compiler.h"
-#include "cio_error_code.h"
-#include "cio_inet4_address.h"
-#include "cio_inet6_address.h"
-#include "cio_inet_address.h"
+#include <sys/socket.h>
 
-enum cio_error cio_init_inet_address(struct cio_inet_address *inet_address, const uint8_t *address, size_t address_length)
-{
-	if (cio_unlikely((inet_address == NULL) || (address == NULL) || !((address_length == CIO_IPV4_ADDRESS_SIZE) || (address_length == CIO_IPV6_ADDRESS_SIZE)))) {
-		return CIO_INVALID_ARGUMENT;
-	}
+#ifdef __cplusplus
+extern "C" {
+#endif
 
-	if (address_length == CIO_IPV4_ADDRESS_SIZE) {
-		inet_address->type = CIO_SA_INET4_ADDRESS;
-		memcpy(inet_address->address.addr4.addr, address, CIO_IPV4_ADDRESS_SIZE);
-	} else {
-		inet_address->type = CIO_SA_INET6_ADDRESS;
-		memcpy(inet_address->address.addr6.addr, address, CIO_IPV6_ADDRESS_SIZE);
-	}
+enum cio_socket_address_family_impl {
+	CIO_SA_UNSPEC_IMPL = AF_UNSPEC,
+	CIO_SA_INET4_ADDRESS_IMPL = AF_INET,
+	CIO_SA_INET6_ADDRESS_IMPL = AF_INET6,
+	CIO_SA_UNIX_IMPL = AF_UNIX
+};
 
-	return CIO_SUCCESS;
+#ifdef __cplusplus
 }
+#endif
+
+#endif

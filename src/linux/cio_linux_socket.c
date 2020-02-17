@@ -44,6 +44,7 @@
 #include "cio_linux_socket.h"
 #include "cio_read_buffer.h"
 #include "cio_socket.h"
+#include "cio_socket_address.h"
 #include "cio_timer.h"
 #include "cio_util.h"
 #include "cio_write_buffer.h"
@@ -355,7 +356,7 @@ enum cio_error cio_socket_connect(struct cio_socket *socket, struct cio_inet_soc
 	struct sockaddr_in6 addr6;
 	struct sockaddr *addr;
 	socklen_t addr_len;
-	if (endpoint->inet_address.type == CIO_INET4_ADDRESS) {
+	if (endpoint->inet_address.type == CIO_SA_INET4_ADDRESS) {
 		memset(&addr4, 0, sizeof(addr4));
 		addr4.sin_family = AF_INET;
 		memcpy(&addr4.sin_addr.s_addr, endpoint->inet_address.address.addr4.addr, sizeof(endpoint->inet_address.address.addr4.addr));
