@@ -6,3 +6,4 @@ build/*
 .vs
 CMakeLists.txt.user
 .vscode/ipch/
+build*
