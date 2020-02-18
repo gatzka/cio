@@ -52,8 +52,6 @@ const struct cio_inet_address *cio_get_inet_address_any6(void) {
 	return &inet_address_any6;
 }
 
-CIO_EXPORT const struct cio_inet_address *cio_get_inet_address_any6(void);
-
 enum cio_error cio_init_inet_address(struct cio_inet_address *inet_address, const uint8_t *address, size_t address_length)
 {
 	size_t v4_size = sizeof(inet_address->impl.in.s_addr);
@@ -71,4 +69,9 @@ enum cio_error cio_init_inet_address(struct cio_inet_address *inet_address, cons
 	}
 
 	return CIO_SUCCESS;
+}
+
+enum cio_socket_address_family cio_inet_address_get_family(const struct cio_inet_address *endpoint)
+{
+	return endpoint->impl.family;
 }

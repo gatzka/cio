@@ -68,6 +68,8 @@ CIO_EXPORT const struct cio_inet_address *cio_get_inet_address_any4(void);
 
 CIO_EXPORT const struct cio_inet_address *cio_get_inet_address_any6(void);
 
+CIO_EXPORT enum cio_socket_address_family cio_inet_address_get_family(const struct cio_inet_address *endpoint);
+
 #ifdef __cplusplus
 }
 #endif
