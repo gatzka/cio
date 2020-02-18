@@ -53,7 +53,6 @@ add_library(${PROJECT_NAME}
     "cio_inet4_socket_address.h"
     "cio_inet6_socket_address.h"
     "cio_inet_address.h"
-    "cio_inet_socket_address.h"
     "cio_io_stream.h"
     "cio_random.c"
     "cio_random.h"
