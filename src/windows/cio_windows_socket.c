@@ -39,6 +39,7 @@
 #include "cio_error_code.h"
 #include "cio_eventloop.h"
 #include "cio_socket.h"
+#include "cio_socket_address.h"
 #include "cio_util.h"
 #include "cio_windows_socket.h"
 #include "cio_windows_socket_utils.h"
@@ -218,18 +219,13 @@ enum cio_error cio_socket_init(struct cio_socket *socket,
 	if (cio_unlikely(socket == NULL) || (loop == NULL)) {
 		return CIO_INVALID_ARGUMENT;
 	}
-
-	int domain;
-	switch (address_family) {
-	case CIO_INET4_ADDRESS:
-		domain = AF_INET;
-		break;
-	case CIO_INET6_ADDRESS:
-		domain = AF_INET6;
-		break;
-	default:
+	
+	if (cio_unlikely((address_family != CIO_ADDRESS_FAMILY_INET4) && (address_family != CIO_ADDRESS_FAMILY_INET6))) {
 		return CIO_INVALID_ARGUMENT;
 	}
+
+	int domain = (int)address_family;
+
 	SOCKET socket_fd = cio_windows_socket_create(domain, loop, &socket->impl);
 	if (cio_unlikely(socket_fd == -1)) {
 		return (enum cio_error)(-errno);
@@ -278,17 +274,21 @@ static void connect_callback(struct cio_event_notifier *ev)
 	socket->handler(socket, socket->handler_context, CIO_SUCCESS);
 }
 
-enum cio_error cio_socket_connect(struct cio_socket *socket, struct cio_inet_socket_address *address, cio_connect_handler handler, void *handler_context)
+enum cio_error cio_socket_connect(struct cio_socket *socket, const struct cio_socket_address *endpoint, cio_connect_handler handler, void *handler_context)
 {
-	if (cio_unlikely(socket == NULL) || (address == NULL)) {
+	if (cio_unlikely(socket == NULL) || (endpoint == NULL)) {
 		return CIO_INVALID_ARGUMENT;
 	}
 
-	struct sockaddr *addr;
+	if (cio_unlikely((enum cio_address_family)endpoint->impl.socket_address.addr.sa_family == CIO_ADDRESS_FAMILY_UNSPEC)) {
+		return CIO_INVALID_ARGUMENT;
+	}
+
+	const struct sockaddr *addr;
 	struct sockaddr_in addr4;
 	struct sockaddr_in6 addr6;
 	int addr_len;
-	if (address->inet_address.type == CIO_INET4_ADDRESS) {
+	if (endpoint->impl.socket_address.addr.sa_family == CIO_ADDRESS_FAMILY_INET4) {
 		memset(&addr4, 0, sizeof(addr4));
 		addr4.sin_family = AF_INET;
 		addr4.sin_addr.s_addr = INADDR_ANY;
@@ -310,20 +310,20 @@ enum cio_error cio_socket_connect(struct cio_socket *socket, struct cio_inet_soc
 		return (enum cio_error)(-err);
 	}
 
-	if (address->inet_address.type == CIO_INET4_ADDRESS) {
-		memset(&addr4, 0, sizeof(addr4));
-		addr4.sin_family = AF_INET;
-		memcpy(&addr4.sin_addr.s_addr, address->inet_address.address.addr4.addr, sizeof(address->inet_address.address.addr4.addr));
-		addr4.sin_port = htons(address->port);
-		addr = (struct sockaddr *)&addr4;
-		addr_len = sizeof(addr4);
+	if ((enum cio_address_family)endpoint->impl.socket_address.addr.sa_family == CIO_ADDRESS_FAMILY_INET4) {
+		addr = (const struct sockaddr *)&endpoint->impl.inet_addr4.impl.in;
+		addr_len = sizeof(endpoint->impl.inet_addr4.impl.in);
 	} else {
-		memset(&addr6, 0, sizeof(addr6));
-		addr6.sin6_family = AF_INET6;
-		memcpy(&addr6.sin6_addr, address->inet_address.address.addr6.addr, sizeof(address->inet_address.address.addr6.addr));
-		addr6.sin6_port = htons(address->port);
-		addr = (struct sockaddr *)&addr6;
-		addr_len = sizeof(addr6);
+		addr = (const struct sockaddr *)&endpoint->impl.inet_addr6.impl.in6;
+		addr_len = sizeof(endpoint->impl.inet_addr6.impl.in6);
+	}
+
+	if (endpoint->impl.socket_address.addr.sa_family == CIO_ADDRESS_FAMILY_INET4) {
+		addr = (const struct sockaddr *)&endpoint->impl.inet_addr4.impl.in;
+		addr_len = sizeof(endpoint->impl.inet_addr4.impl.in);
+	} else {
+		addr = (const struct sockaddr *)&endpoint->impl.inet_addr6.impl.in6;
+		addr_len = sizeof(endpoint->impl.inet_addr6.impl.in6);
 	}
 
 	DWORD dw_bytes;

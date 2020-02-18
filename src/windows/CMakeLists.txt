@@ -3,9 +3,11 @@ cmake_minimum_required(VERSION 3.9)
 add_library(PLATFORM OBJECT
     cio_windows_iocp.c
     cio_windows_endian.c
+    cio_windows_inet_address_impl.c
     cio_windows_random.c
     cio_windows_server_socket.c
     cio_windows_socket.c
+    cio_windows_socket_address_impl.c
     cio_windows_socket_utils.c
     cio_windows_string.c
     cio_windows_timer.c
