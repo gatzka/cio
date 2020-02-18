@@ -187,7 +187,7 @@ set_target_properties(${PROJECT_NAME} PROPERTIES
 
 set_property(TARGET ${PROJECT_NAME}
     APPEND
-    PROPERTY PUBLIC_HEADER "cio_buffered_stream.h;cio_compiler.h;cio_endian.h;cio_error_code.h;cio_eventloop.h;cio_io_stream.h;cio_random.h;cio_read_buffer.h;cio_server_socket.h;cio_socket.h;cio_string.h;cio_timer.h;cio_util.h;cio_version.h;cio_write_buffer.h"
+    PROPERTY PUBLIC_HEADER "cio_address_family.h;cio_buffered_stream.h;cio_compiler.h;cio_endian.h;cio_error_code.h;cio_eventloop.h;cio_io_stream.h;cio_random.h;cio_read_buffer.h;cio_server_socket.h;cio_socket.h;cio_string.h;cio_timer.h;cio_util.h;cio_version.h;cio_write_buffer.h;cio_inet4_socket_address.h;cio_inet6_socket_address.h;cio_inet_address.h;cio_socket_address.h"
 )
 
 include(GenerateExportHeader)
