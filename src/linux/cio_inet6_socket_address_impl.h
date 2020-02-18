@@ -26,8 +26,10 @@
  * SOFTWARE.
  */
 
-#ifndef CIO_INET_SOCKET_ADDRESS_H
-#define CIO_INET_SOCKET_ADDRESS_H
+#ifndef CIO_LINUX_INET6_SOCKET_ADDRESS_IMPL_H
+#define CIO_LINUX_INET6_SOCKET_ADDRESS_IMPL_H
+
+#include <netinet/in.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -35,30 +37,12 @@ extern "C" {
 
 /**
  * @file
- * @brief Representation of a socket address (IP address plus port number).
+ * @brief Internal representation of an Internet Protocol Version 6 (IPv6) address.
  */
 
-#include <stdint.h>
-
-#include "cio_error_code.h"
-#include "cio_export.h"
-#include "cio_inet_address.h"
-
-struct cio_inet_socket_address {
-	struct cio_inet_address inet_address;
-	uint16_t port;
+struct cio_inet6_socket_address_impl {
+	struct sockaddr_in6 in6;
 };
-
-/**
- * @brief Initializes a inet socket address from an IP address and a port number.
- *
- * @param sock_address The inet socket address to be initalized.
- * @param inet_address The IP address.
- * @param port The port number.
- *
- * @return ::CIO_SUCCESS for success.
- */
-CIO_EXPORT enum cio_error cio_init_inet_socket_address(struct cio_inet_socket_address *sock_address, const struct cio_inet_address *inet_address, uint16_t port);
 
 #ifdef __cplusplus
 }

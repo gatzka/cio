@@ -26,26 +26,20 @@
  * SOFTWARE.
  */
 
-#ifndef CIO_INET6_ADDRESS_H
-#define CIO_INET6_ADDRESS_H
+#ifndef CIO_ADDRESS_FAMILY_H
+#define CIO_ADDRESS_FAMILY_H
+
+#include "cio_address_family_impl.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-/**
- * @file
- * @brief Representation of an Internet Protocol Version 4 (IPv4) address.
- */
-
-#include <stdint.h>
-
-enum {
-	CIO_IPV6_ADDRESS_SIZE = 16
-};
-
-struct cio_inet6_address {
-	uint8_t addr[CIO_IPV6_ADDRESS_SIZE];
+enum cio_address_family {
+	CIO_ADDRESS_FAMILY_UNSPEC = CIO_ADDRESS_FAMILY_UNSPEC_IMPL,
+	CIO_ADDRESS_FAMILY_INET4 = CIO_ADDRESS_FAMILY_INET4_IMPL,
+	CIO_ADDRESS_FAMILY_INET6 = CIO_ADDRESS_FAMILY_INET6_IMPL,
+	CIO_ADDRESS_FAMILY_UNIX = CIO_ADDRESS_FAMILY_UNIX_IMPL
 };
 
 #ifdef __cplusplus

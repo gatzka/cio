@@ -35,8 +35,8 @@
 #include "cio_error_code.h"
 #include "cio_eventloop.h"
 #include "cio_export.h"
-#include "cio_inet_socket_address.h"
 #include "cio_io_stream.h"
+#include "cio_socket_address.h"
 #include "cio_socket_impl.h"
 
 #ifdef __cplusplus
@@ -102,7 +102,7 @@ struct cio_socket {
  * @return ::CIO_SUCCESS for success.
  */
 CIO_EXPORT enum cio_error cio_socket_init(struct cio_socket *socket,
-                                          enum cio_socket_address_family address_family,
+                                          enum cio_address_family address_family,
                                           struct cio_eventloop *loop,
                                           uint64_t close_timeout_ns,
                                           cio_socket_close_hook close_hook);
@@ -121,11 +121,11 @@ CIO_EXPORT enum cio_error cio_socket_close(struct cio_socket *socket);
  * @brief Connects this socket to a server.
  *
  * @param socket A pointer to a cio_socket which shall connect to a server.
- * @param endpoint The endpoint (IP address and port) of the server that should be connected.
+ * @param endpoint The endpoint of the server that should be connected.
  * @param handler The function to be called if the connect fails or succeeds.
  * @param handler_context The context passed to the @a handler function.
  */
-CIO_EXPORT enum cio_error cio_socket_connect(struct cio_socket *socket, struct cio_inet_socket_address *endpoint, cio_connect_handler handler, void *handler_context);
+CIO_EXPORT enum cio_error cio_socket_connect(struct cio_socket *socket, const struct cio_socket_address *endpoint, cio_connect_handler handler, void *handler_context);
 
 /**
  * @brief Gets an I/O stream from the socket.

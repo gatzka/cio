@@ -43,11 +43,30 @@ add_custom_target(generate_semver
 )
 
 add_library(${PROJECT_NAME}
+    "cio_base64.h"
     "cio_buffered_stream.c"
-    "cio_inet_address.c"
-    "cio_inet_socket_address.c"
+    "cio_buffered_stream.h"
+    "cio_compiler.h"
+    "cio_endian.h"
+    "cio_error_code.h"
+    "cio_eventloop.h"
+    "cio_inet4_socket_address.h"
+    "cio_inet6_socket_address.h"
+    "cio_inet_address.h"
+    "cio_io_stream.h"
     "cio_random.c"
+    "cio_random.h"
+    "cio_read_buffer.h"
+    "cio_server_socket.h"
+    "cio_socket.h"
+    "cio_socket_address.h"
+    "cio_address_family.h"
+    "cio_string.h"
+    "cio_timer.h"
+    "cio_util.h"
     "cio_version.c"
+    "cio_version.h"
+    "cio_write_buffer.h"
 )
 target_link_libraries(${PROJECT_NAME} PUBLIC PLATFORM)
 
@@ -66,10 +85,10 @@ if(CIO_CONFIG_HTTP)
         http-parser/http_parser.c
     )
     set_target_properties(http-parser PROPERTIES
-		COMPILE_OPTIONS "$<$<OR:$<C_COMPILER_ID:GNU>,$<C_COMPILER_ID:Clang>>:-Wno-shadow;-Wno-sign-conversion;-Wno-conversion;-Wno-switch-default>"
+        COMPILE_OPTIONS "$<$<OR:$<C_COMPILER_ID:GNU>,$<C_COMPILER_ID:Clang>>:-Wno-shadow;-Wno-sign-conversion;-Wno-conversion;-Wno-switch-default>"
         POSITION_INDEPENDENT_CODE ON
         C_VISIBILITY_PRESET hidden
-		C_CLANG_TIDY ""
+        C_CLANG_TIDY ""
     )
     install(FILES "${CMAKE_CURRENT_LIST_DIR}/http-parser/http_parser.h"
         DESTINATION include/cio/http-parser/
@@ -79,11 +98,21 @@ if(CIO_CONFIG_HTTP)
         cio_http_location.c
         cio_http_location_handler.c
         cio_http_server.c
+        cio_http_client.h
+        cio_http_location.h
+        cio_http_location_handler.h
+        cio_http_method.h
+        cio_http_server.h
+        cio_http_status_code.h
     )
 
-    set_property(TARGET ${PROJECT_NAME}
-        APPEND
-        PROPERTY PUBLIC_HEADER "cio_http_client.h;cio_http_location.h;cio_http_location_handler.h;cio_http_method.h;cio_http_server.h;cio_http_status_code.h"
+    set_property(TARGET ${PROJECT_NAME} APPEND PROPERTY PUBLIC_HEADER 
+        "cio_http_location.h"
+        "cio_http_location_handler.h"
+        "cio_http_method.h"
+        "cio_http_server.h"
+        "cio_http_status_code.h"
+        "cio_http_client.h"
     )
 endif()
 
@@ -100,19 +129,26 @@ if(CIO_CONFIG_WEBSOCKETS)
     	C_STANDARD_REQUIRED ON
     	C_EXTENSIONS OFF
         C_VISIBILITY_PRESET hidden
-		C_CLANG_TIDY ""
+        C_CLANG_TIDY ""
     )
     target_sources(${PROJECT_NAME} PRIVATE
         $<TARGET_OBJECTS:sha>
+        cio_utf8_checker.h
         cio_base64.c
+        cio_base64.h
         cio_utf8_checker.c
         cio_websocket.c
+        cio_websocket.h
         cio_websocket_location_handler.c
+        cio_websocket_location_handler.h
+        cio_websocket_masking.h
     ) 
 
-    set_property(TARGET ${PROJECT_NAME}
-        APPEND
-        PROPERTY PUBLIC_HEADER "cio_base64.h;cio_utf8_checker.h;cio_websocket.h;cio_websocket_location_handler.h"
+    set_property(TARGET ${PROJECT_NAME} APPEND PROPERTY PUBLIC_HEADER
+        "cio_utf8_checker.h"
+        "cio_websocket.h"
+        "cio_websocket_location_handler.h"
+        "cio_base64.h"
     )
 
 endif()
@@ -155,9 +191,27 @@ set_target_properties(${PROJECT_NAME} PROPERTIES
     C_VISIBILITY_PRESET hidden
 )
 
-set_property(TARGET ${PROJECT_NAME}
-    APPEND
-    PROPERTY PUBLIC_HEADER "cio_buffered_stream.h;cio_compiler.h;cio_endian.h;cio_error_code.h;cio_eventloop.h;cio_io_stream.h;cio_random.h;cio_read_buffer.h;cio_server_socket.h;cio_socket.h;cio_string.h;cio_timer.h;cio_util.h;cio_version.h;cio_write_buffer.h"
+set_property(TARGET ${PROJECT_NAME} APPEND PROPERTY PUBLIC_HEADER
+    "cio_address_family.h"
+    "cio_buffered_stream.h"
+    "cio_compiler.h"
+    "cio_endian.h"
+    "cio_error_code.h"
+    "cio_eventloop.h"
+    "cio_inet4_socket_address.h"
+    "cio_inet6_socket_address.h"
+    "cio_inet_address.h"
+    "cio_io_stream.h"
+    "cio_random.h"
+    "cio_read_buffer.h"
+    "cio_server_socket.h"
+    "cio_socket.h"
+    "cio_socket_address.h"
+    "cio_string.h"
+    "cio_timer.h"
+    "cio_util.h"
+    "cio_version.h"
+    "cio_write_buffer.h"
 )
 
 include(GenerateExportHeader)

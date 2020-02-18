@@ -80,7 +80,7 @@ static void test_create_inet4_socket(void)
 {
 	int socket_fd = 5;
 	socket_fake.return_val = socket_fd;
-	int ret = cio_linux_socket_create(CIO_INET4_ADDRESS);
+	int ret = cio_linux_socket_create(CIO_ADDRESS_FAMILY_INET4);
 
 	TEST_ASSERT_EQUAL(ret, socket_fd);
 	TEST_ASSERT_EQUAL(1, socket_fake.call_count);
@@ -90,7 +90,7 @@ static void test_create_inet6_socket(void)
 {
 	int socket_fd = 5;
 	socket_fake.return_val = socket_fd;
-	int ret = cio_linux_socket_create(CIO_INET6_ADDRESS);
+	int ret = cio_linux_socket_create(CIO_ADDRESS_FAMILY_INET6);
 
 	TEST_ASSERT_EQUAL(ret, socket_fd);
 	TEST_ASSERT_EQUAL(1, socket_fake.call_count);
@@ -99,7 +99,7 @@ static void test_create_inet6_socket(void)
 static void test_create_socket_fails(void)
 {
 	socket_fake.return_val = -1;
-	int ret = cio_linux_socket_create(CIO_INET4_ADDRESS);
+	int ret = cio_linux_socket_create(CIO_ADDRESS_FAMILY_INET4);
 
 	TEST_ASSERT_EQUAL(-1, ret);
 	TEST_ASSERT_EQUAL(1, socket_fake.call_count);
@@ -109,7 +109,7 @@ static void test_create_socket_wrong_family(void)
 {
 	int socket_fd = 5;
 	socket_fake.return_val = socket_fd;
-	int ret = cio_linux_socket_create((enum cio_socket_address_family)33);
+	int ret = cio_linux_socket_create((enum cio_address_family)33);
 
 	TEST_ASSERT_EQUAL_MESSAGE(-1, ret, "wrong return value if called with illegal address family!");
 	TEST_ASSERT_EQUAL(0, socket_fake.call_count);

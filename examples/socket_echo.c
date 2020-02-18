@@ -34,7 +34,6 @@
 #include "cio_error_code.h"
 #include "cio_eventloop.h"
 #include "cio_inet_address.h"
-#include "cio_inet_socket_address.h"
 #include "cio_io_stream.h"
 #include "cio_read_buffer.h"
 #include "cio_server_socket.h"
@@ -159,8 +158,8 @@ int main(void)
 		return -1;
 	}
 
-	struct cio_inet_socket_address endpoint;
-	enum cio_error err = cio_init_inet_socket_address(&endpoint, &cio_inet_address_any6, SERVERSOCKET_LISTEN_PORT);
+	struct cio_socket_address endpoint;
+	enum cio_error err = cio_init_inet_socket_address(&endpoint, cio_get_inet_address_any6(), SERVERSOCKET_LISTEN_PORT);
 	if (err != CIO_SUCCESS) {
 		return -1;
 	}
@@ -171,7 +170,7 @@ int main(void)
 	}
 
 	struct cio_server_socket ss;
-	err = cio_server_socket_init(&ss, &loop, SERVERSOCKET_BACKLOG, endpoint.inet_address.type, alloc_echo_client, free_echo_client, CLOSE_TIMEOUT_NS, NULL);
+	err = cio_server_socket_init(&ss, &loop, SERVERSOCKET_BACKLOG, cio_socket_address_get_family(&endpoint), alloc_echo_client, free_echo_client, CLOSE_TIMEOUT_NS, NULL);
 	if (err != CIO_SUCCESS) {
 		ret = EXIT_FAILURE;
 		goto destroy_loop;

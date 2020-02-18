@@ -172,11 +172,7 @@ static void close_listen_socket(struct cio_windows_listen_socket *wls)
 static enum cio_error create_listen_socket(struct cio_windows_listen_socket *socket, enum cio_socket_address_family address_family, struct cio_eventloop *loop)
 {
 	int err;
-	if (address_family == CIO_INET4_ADDRESS) {
-		socket->address_family = AF_INET;
-	} else {
-		socket->address_family = AF_INET6;
-	}
+	socket->address_family = (int)CIO_ADDRESS_FAMILY_INET4;
 
 	socket->bound = false;
 	socket->accept_socket = INVALID_SOCKET;
@@ -273,30 +269,20 @@ enum cio_error cio_server_socket_set_reuse_address(struct cio_server_socket *ss,
 	return CIO_SUCCESS;
 }
 
-enum cio_error cio_server_socket_bind(struct cio_server_socket *ss, const struct cio_inet_socket_address *endpoint)
+enum cio_error cio_server_socket_bind(struct cio_server_socket *ss, const struct cio_socket_address *endpoint)
 {
 	if (cio_unlikely((ss == NULL) || (endpoint == NULL))) {
 		return CIO_INVALID_ARGUMENT;
 	}
 
-	struct sockaddr_in addr4;
-	struct sockaddr_in6 addr6;
-	struct sockaddr *addr;
+	const struct sockaddr *addr;
 	socklen_t addr_len;
-	if (endpoint->inet_address.type == CIO_INET4_ADDRESS) {
-		memset(&addr4, 0, sizeof(addr4));
-		addr4.sin_family = AF_INET;
-		memcpy(&addr4.sin_addr.s_addr, endpoint->inet_address.address.addr4.addr, sizeof(endpoint->inet_address.address.addr4.addr));
-		addr4.sin_port = cio_htobe16(endpoint->port);
-		addr = (struct sockaddr *)&addr4;
-		addr_len = sizeof(addr4);
+	if (endpoint->impl.socket_address.addr.sa_family == CIO_ADDRESS_FAMILY_INET4) {
+		addr = (const struct sockaddr *)&endpoint->impl.inet_addr4.impl.in;
+		addr_len = sizeof(endpoint->impl.inet_addr4.impl.in);
 	} else {
-		memset(&addr6, 0, sizeof(addr6));
-		addr6.sin6_family = AF_INET6;
-		memcpy(&addr6.sin6_addr, endpoint->inet_address.address.addr6.addr, sizeof(endpoint->inet_address.address.addr6.addr));
-		addr6.sin6_port = cio_htobe16(endpoint->port);
-		addr = (struct sockaddr *)&addr6;
-		addr_len = sizeof(addr6);
+		addr = (const struct sockaddr *)&endpoint->impl.inet_addr6.impl.in6;
+		addr_len = sizeof(endpoint->impl.inet_addr6.impl.in6);
 	}
 
 	int ret = bind((SOCKET)ss->impl.listen_socket.fd, addr, addr_len);

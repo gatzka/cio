@@ -34,19 +34,13 @@
 #include "cio_inet_address.h"
 #include "linux/cio_linux_socket_utils.h"
 
-int cio_linux_socket_create(enum cio_socket_address_family address_family)
+int cio_linux_socket_create(enum cio_address_family address_family)
 {
-	int domain;
-	switch (address_family) {
-	case CIO_INET4_ADDRESS:
-		domain = AF_INET;
-		break;
-	case CIO_INET6_ADDRESS:
-		domain = AF_INET6;
-		break;
-	default:
+	if (cio_unlikely((address_family != CIO_ADDRESS_FAMILY_INET4) && (address_family != CIO_ADDRESS_FAMILY_INET6))) {
 		return -1;
 	}
+
+	int domain = (int)address_family;
 
 	int fd = socket(domain, (unsigned int)SOCK_STREAM | (unsigned int)SOCK_CLOEXEC | (unsigned int)SOCK_NONBLOCK, 0U);
 	if (cio_unlikely(fd == -1)) {

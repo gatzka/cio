@@ -26,21 +26,28 @@
  * SOFTWARE.
  */
 
-#include <stddef.h>
-#include <stdint.h>
-#include <string.h>
+#ifndef CIO_WINDOWS_INET6_SOCKET_ADDRESS_IMPL_H
+#define CIO_WINDOWS_INET6_SOCKET_ADDRESS_IMPL_H
 
-#include "cio_compiler.h"
-#include "cio_error_code.h"
-#include "cio_inet_socket_address.h"
+#define WIN32_LEAN_AND_MEAN
 
-enum cio_error cio_init_inet_socket_address(struct cio_inet_socket_address *sock_address, const struct cio_inet_address *inet_address, uint16_t port)
-{
-	if (cio_unlikely((sock_address == NULL) || (inet_address == NULL))) {
-		return CIO_INVALID_ARGUMENT;
-	}
+#include <WinSock2.h>
 
-	sock_address->port = port;
-	memcpy(&sock_address->inet_address, inet_address, sizeof(*inet_address));
-	return CIO_SUCCESS;
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+/**
+ * @file
+ * @brief Internal representation of an Internet Protocol Version 6 (IPv6) address.
+ */
+
+struct cio_inet6_socket_address_impl {
+	struct sockaddr_in6 in6;
+};
+
+#ifdef __cplusplus
 }
+#endif
+
+#endif

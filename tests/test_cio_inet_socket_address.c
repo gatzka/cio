@@ -30,8 +30,7 @@
 #include <stdlib.h>
 
 #include "cio_error_code.h"
-#include "cio_inet_address.h"
-#include "cio_inet_socket_address.h"
+#include "cio_socket_address.h"
 #include "fff.h"
 #include "unity.h"
 
@@ -53,7 +52,7 @@ static void test_init_inet_socket_address(void)
 	enum cio_error err = cio_init_inet_address(&address, ipv4_address, sizeof(ipv4_address));
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "initialization of IPv4 inet address failed!");
 
-	struct cio_inet_socket_address sock_addr;
+	struct cio_socket_address sock_addr;
 	err = cio_init_inet_socket_address(&sock_addr, &address, 12);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "initialization of inet socket address failed!");
 }
@@ -71,9 +70,22 @@ static void test_init_inet_socket_address_no_sock_addr(void)
 
 static void test_init_inet_socket_address_no_inet_address(void)
 {
-	struct cio_inet_socket_address sock_addr;
+	struct cio_socket_address sock_addr;
 	enum cio_error err = cio_init_inet_socket_address(&sock_addr, NULL, 12);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_INVALID_ARGUMENT, err, "initialization of inet socket address didn't fail when no inet address object given!");
+}
+
+static void test_init_inet_socket_address_wrong_family(void)
+{
+	uint8_t ipv4_address[4] = {172, 19, 1, 1};
+	struct cio_inet_address address;
+	enum cio_error err = cio_init_inet_address(&address, ipv4_address, sizeof(ipv4_address));
+	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "initialization of IPv4 inet address failed!");
+
+	address.impl.family = CIO_ADDRESS_FAMILY_UNSPEC;
+	struct cio_socket_address sock_addr;
+	err = cio_init_inet_socket_address(&sock_addr, &address, 12);
+	TEST_ASSERT_EQUAL_MESSAGE(CIO_INVALID_ARGUMENT, err, "initialization of inet socket address did not fail with wrong address family!");
 }
 
 int main(void)
@@ -82,5 +94,6 @@ int main(void)
 	RUN_TEST(test_init_inet_socket_address);
 	RUN_TEST(test_init_inet_socket_address_no_sock_addr);
 	RUN_TEST(test_init_inet_socket_address_no_inet_address);
+	RUN_TEST(test_init_inet_socket_address_wrong_family);
 	return UNITY_END();
 }

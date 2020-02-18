@@ -26,30 +26,31 @@
  * SOFTWARE.
  */
 
-#ifndef CIO_INET4_ADDRESS_H
-#define CIO_INET4_ADDRESS_H
+#ifndef CIO_WINDOWS_INET_ADDRESS_IMPL_H
+#define CIO_WINDOWS_INET_ADDRESS_IMPL_H
+
+#define WIN32_LEAN_AND_MEAN
+
+#include <WinSock2.h>
+#include <Ws2tcpip.h>
+
+#include "cio_address_family.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-/**
- * @file
- * @brief Representation of an Internet Protocol Version 4 (IPv4) address.
- */
+struct cio_inet_address;
 
-#include <stdint.h>
-
-enum {
-	CIO_IPV4_ADDRESS_SIZE = 4
-};
-
-struct cio_inet4_address {
-	uint8_t addr[CIO_IPV4_ADDRESS_SIZE];
+struct cio_inet_address_impl {
+	enum cio_address_family family;
+	union {
+		struct in_addr in;
+		struct in6_addr in6;
+	};
 };
 
 #ifdef __cplusplus
 }
 #endif
-
 #endif

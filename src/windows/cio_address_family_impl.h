@@ -26,45 +26,23 @@
  * SOFTWARE.
  */
 
-#ifndef CIO_INET_ADDRESS_H
-#define CIO_INET_ADDRESS_H
+#ifndef CIO_WINDOWS_ADDRESS_FAMILY_IMPL_H
+#define CIO_WINDOWS_ADDRESS_FAMILY_IMPL_H
+#define WIN32_LEAN_AND_MEAN
 
-/**
- * @file
- * @brief Representation of an Internet Protocol (IP) address.
- */
-
-#include <stddef.h>
-#include <stdint.h>
-
-#include "cio_export.h"
-#include "cio_inet_address_impl.h"
+#include <winsock2.h>
+#include <ws2tcpip.h>
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-struct cio_inet_address {
-	struct cio_inet_address_impl impl;
+enum cio_address_family_impl {
+	CIO_ADDRESS_FAMILY_UNSPEC_IMPL = AF_UNSPEC,
+	CIO_ADDRESS_FAMILY_INET4_IMPL = AF_INET,
+	CIO_ADDRESS_FAMILY_INET6_IMPL = AF_INET6,
+	CIO_ADDRESS_FAMILY_UNIX_IMPL = AF_UNIX
 };
-
-
-/**
- * @brief Initializes a inet address structure.
- *
- * @param inet_address The inet address to be initialized.
- * @param address The buffer that holds the address in network byte order.
- * @param address_length The length of the address buffer. Must be either 4 for IPv4 addresses or 16 for IPv6 addresses.
- *
- * @return ::CIO_SUCCESS for success.
- */
-CIO_EXPORT enum cio_error cio_init_inet_address(struct cio_inet_address *inet_address, const uint8_t *address, size_t address_length);
-
-CIO_EXPORT const struct cio_inet_address *cio_get_inet_address_any4(void);
-
-CIO_EXPORT const struct cio_inet_address *cio_get_inet_address_any6(void);
-
-CIO_EXPORT enum cio_address_family cio_inet_address_get_family(const struct cio_inet_address *endpoint);
 
 #ifdef __cplusplus
 }

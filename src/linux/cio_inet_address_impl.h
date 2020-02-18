@@ -26,28 +26,32 @@
  * SOFTWARE.
  */
 
-#ifndef CIO_INET_ADDRESS_H
-#define CIO_INET_ADDRESS_H
+#ifndef CIO_LINUX_INET_ADDRESS_IMPL_H
+#define CIO_LINUX_INET_ADDRESS_IMPL_H
 
-/**
- * @file
- * @brief Representation of an Internet Protocol (IP) address.
- */
-
+#include <netinet/in.h>
 #include <stddef.h>
 #include <stdint.h>
 
+#include "cio_address_family.h"
+#include "cio_error_code.h"
 #include "cio_export.h"
-#include "cio_inet_address_impl.h"
+#include "cio_inet_address.h"
+#include "cio_socket_address.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-struct cio_inet_address {
-	struct cio_inet_address_impl impl;
-};
+struct cio_inet_address;
 
+struct cio_inet_address_impl {
+	enum cio_address_family family;
+	union {
+		struct in_addr in;
+		struct in6_addr in6;
+	};
+};
 
 /**
  * @brief Initializes a inet address structure.
@@ -69,5 +73,4 @@ CIO_EXPORT enum cio_address_family cio_inet_address_get_family(const struct cio_
 #ifdef __cplusplus
 }
 #endif
-
 #endif

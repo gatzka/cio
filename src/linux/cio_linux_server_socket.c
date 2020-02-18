@@ -42,10 +42,11 @@
 #include "cio_eventloop_impl.h"
 #include "cio_inet_address.h"
 #include "cio_linux_socket.h"
+#include "cio_linux_socket_utils.h"
+#include "cio_os_config.h"
 #include "cio_server_socket.h"
 #include "cio_socket.h"
-#include "linux/cio_linux_socket_utils.h"
-#include "os_config.h"
+#include "cio_socket_address.h"
 
 static void accept_callback(void *context, enum cio_epoll_error error)
 {
@@ -90,7 +91,7 @@ static void accept_callback(void *context, enum cio_epoll_error error)
 enum cio_error cio_server_socket_init(struct cio_server_socket *ss,
                                       struct cio_eventloop *loop,
                                       unsigned int backlog,
-                                      enum cio_socket_address_family family,
+                                      enum cio_address_family family,
                                       cio_alloc_client alloc_client,
                                       cio_free_client free_client,
                                       uint64_t close_timeout_ns,
@@ -153,30 +154,24 @@ void cio_server_socket_close(struct cio_server_socket *ss)
 	}
 }
 
-enum cio_error cio_server_socket_bind(struct cio_server_socket *ss, const struct cio_inet_socket_address *endpoint)
+enum cio_error cio_server_socket_bind(struct cio_server_socket *ss, const struct cio_socket_address *endpoint)
 {
 	if (cio_unlikely((ss == NULL) || (endpoint == NULL))) {
 		return CIO_INVALID_ARGUMENT;
 	}
 
-	struct sockaddr_in addr4;
-	struct sockaddr_in6 addr6;
-	struct sockaddr *addr;
+	if (cio_unlikely((enum cio_address_family)endpoint->impl.socket_address.addr.sa_family == CIO_ADDRESS_FAMILY_UNSPEC)) {
+		return CIO_INVALID_ARGUMENT;
+	}
+
+	const struct sockaddr *addr;
 	socklen_t addr_len;
-	if (endpoint->inet_address.type == CIO_INET4_ADDRESS) {
-		memset(&addr4, 0, sizeof(addr4));
-		addr4.sin_family = AF_INET;
-		memcpy(&addr4.sin_addr.s_addr, endpoint->inet_address.address.addr4.addr, sizeof(endpoint->inet_address.address.addr4.addr));
-		addr4.sin_port = cio_htobe16(endpoint->port);
-		addr = (struct sockaddr *)&addr4;
-		addr_len = sizeof(addr4);
+	if ((enum cio_address_family)endpoint->impl.socket_address.addr.sa_family == CIO_ADDRESS_FAMILY_INET4) {
+		addr = (const struct sockaddr *)&endpoint->impl.inet_addr4.impl.in;
+		addr_len = sizeof(endpoint->impl.inet_addr4.impl.in);
 	} else {
-		memset(&addr6, 0, sizeof(addr6));
-		addr6.sin6_family = AF_INET6;
-		memcpy(&addr6.sin6_addr, endpoint->inet_address.address.addr6.addr, sizeof(endpoint->inet_address.address.addr6.addr));
-		addr6.sin6_port = cio_htobe16(endpoint->port);
-		addr = (struct sockaddr *)&addr6;
-		addr_len = sizeof(addr6);
+		addr = (const struct sockaddr *)&endpoint->impl.inet_addr6.impl.in6;
+		addr_len = sizeof(endpoint->impl.inet_addr6.impl.in6);
 	}
 
 	int ret = bind(ss->impl.ev.fd, addr, addr_len);
