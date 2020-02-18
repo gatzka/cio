@@ -109,7 +109,7 @@ FAKE_VOID_FUNC(serve_error, struct cio_http_server *, const char *)
 FAKE_VALUE_FUNC(enum cio_error, cio_server_socket_accept, struct cio_server_socket *, cio_accept_handler, void *)
 FAKE_VALUE_FUNC(enum cio_error, cio_server_socket_bind, struct cio_server_socket *, const struct cio_socket_address *)
 FAKE_VOID_FUNC(cio_server_socket_close, struct cio_server_socket *)
-FAKE_VALUE_FUNC(enum cio_error, cio_server_socket_init, struct cio_server_socket *, struct cio_eventloop *, unsigned int, enum cio_socket_address_family, cio_alloc_client, cio_free_client, uint64_t, cio_server_socket_close_hook)
+FAKE_VALUE_FUNC(enum cio_error, cio_server_socket_init, struct cio_server_socket *, struct cio_eventloop *, unsigned int, enum cio_address_family, cio_alloc_client, cio_free_client, uint64_t, cio_server_socket_close_hook)
 FAKE_VALUE_FUNC(enum cio_error, cio_server_socket_set_reuse_address, struct cio_server_socket *, bool)
 
 FAKE_VALUE_FUNC(struct cio_io_stream *, cio_socket_get_io_stream, struct cio_socket *)
@@ -203,7 +203,7 @@ static enum cio_error expires_error(struct cio_timer *t, uint64_t timeout_ns, ci
 static enum cio_error cio_server_socket_init_ok(struct cio_server_socket *ss,
                                                 struct cio_eventloop *l,
                                                 unsigned int backlog,
-                                                enum cio_socket_address_family family,
+                                                enum cio_address_family family,
                                                 cio_alloc_client alloc_client,
                                                 cio_free_client free_client,
                                                 uint64_t close_timeout_ns,
@@ -222,7 +222,7 @@ static enum cio_error cio_server_socket_init_ok(struct cio_server_socket *ss,
 static enum cio_error cio_server_socket_init_fails(struct cio_server_socket *ss,
                                                    struct cio_eventloop *l,
                                                    unsigned int backlog,
-                                                   enum cio_socket_address_family family,
+                                                   enum cio_address_family family,
                                                    cio_alloc_client alloc_client,
                                                    cio_free_client free_client,
                                                    uint64_t close_timeout_ns,
@@ -666,7 +666,7 @@ static void test_server_init(void)
 		uint64_t response_timeout;
 		struct cio_socket *(*alloc_client)(void);
 		void (*free_client)(struct cio_socket *socket);
-		enum cio_error (*server_socket_init)(struct cio_server_socket *ss, struct cio_eventloop *loop, unsigned int backlog, enum cio_socket_address_family family, cio_alloc_client alloc_client, cio_free_client free_client, uint64_t close_timeout_ns, cio_server_socket_close_hook close_hook);
+		enum cio_error (*server_socket_init)(struct cio_server_socket *ss, struct cio_eventloop *loop, unsigned int backlog, enum cio_address_family family, cio_alloc_client alloc_client, cio_free_client free_client, uint64_t close_timeout_ns, cio_server_socket_close_hook close_hook);
 		enum cio_error expected_result;
 	};
 
