@@ -292,8 +292,8 @@ int main(int argc, char *argv[])
 		return -1;
 	}
 
-	struct cio_inet_socket_address endpoint;
-	enum cio_error err = cio_init_inet_socket_address(&endpoint, &cio_inet_address_any4, SERVERSOCKET_LISTEN_PORT);
+	struct cio_socket_address endpoint;
+	enum cio_error err = cio_init_inet_socket_address(&endpoint, cio_get_inet_address_any4(), SERVERSOCKET_LISTEN_PORT);
 	if (cio_unlikely(err != CIO_SUCCESS)) {
 		fprintf(stderr, "could no init server socket endpoint!\n");
 		return -1;
@@ -305,7 +305,7 @@ int main(int argc, char *argv[])
 	}
 
 	struct cio_server_socket ss;
-	err = cio_server_socket_init(&ss, &loop, SERVERSOCKET_BACKLOG, endpoint.inet_address.type, alloc_echo_client, free_echo_client, CLOSE_TIMEOUT_NS, NULL);
+	err = cio_server_socket_init(&ss, &loop, SERVERSOCKET_BACKLOG, cio_socket_address_get_family(&endpoint), alloc_echo_client, free_echo_client, CLOSE_TIMEOUT_NS, NULL);
 	if (cio_unlikely(err != CIO_SUCCESS)) {
 		fprintf(stderr, "could not init server socket!\n");
 		ret = EXIT_FAILURE;
@@ -342,7 +342,7 @@ int main(int argc, char *argv[])
 		goto close_server_socket;
 	}
 
-	struct cio_inet_socket_address client_endpoint;
+	struct cio_socket_address client_endpoint;
 	err = cio_init_inet_socket_address(&client_endpoint, &inet_address, SERVERSOCKET_LISTEN_PORT);
 	if (cio_unlikely(err != CIO_SUCCESS)) {
 		fprintf(stderr, "could not init client socket endpoint!\n");
@@ -351,7 +351,7 @@ int main(int argc, char *argv[])
 	}
 
 	struct cio_socket socket;
-	err = cio_socket_init(&socket,inet_address.type, &loop, CLOSE_TIMEOUT_NS, client_socket_close_hook);
+	err = cio_socket_init(&socket, cio_socket_address_get_family(&endpoint), &loop, CLOSE_TIMEOUT_NS, client_socket_close_hook);
 	if (cio_unlikely(err != CIO_SUCCESS)) {
 		fprintf(stderr, "could not init client socket endpoint!\n");
 		ret = EXIT_FAILURE;

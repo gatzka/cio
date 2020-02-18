@@ -35,6 +35,7 @@
 #include "cio_eventloop.h"
 #include "cio_http_location_handler.h"
 #include "cio_http_server.h"
+#include "cio_inet_address.h"
 #include "cio_timer.h"
 #include "cio_util.h"
 #include "cio_websocket_location_handler.h"
@@ -313,7 +314,7 @@ int main(void)
 		.free_client = free_http_client
 	};
 
-	err = cio_init_inet_socket_address(&config.endpoint, &cio_inet_address_any6, HTTPSERVER_LISTEN_PORT);
+	err = cio_init_inet_socket_address(&config.endpoint, cio_get_inet_address_any6(), HTTPSERVER_LISTEN_PORT);
 	if (err != CIO_SUCCESS) {
 		ret = EXIT_FAILURE;
 		goto destroy_loop;
