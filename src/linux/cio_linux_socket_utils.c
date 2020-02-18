@@ -34,7 +34,7 @@
 #include "cio_inet_address.h"
 #include "linux/cio_linux_socket_utils.h"
 
-int cio_linux_socket_create(enum cio_socket_address_family address_family)
+int cio_linux_socket_create(enum cio_address_family address_family)
 {
 	int domain;
 	switch (address_family) {

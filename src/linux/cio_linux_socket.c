@@ -259,7 +259,7 @@ enum cio_error cio_linux_socket_init(struct cio_socket *s, int client_fd,
 }
 
 enum cio_error cio_socket_init(struct cio_socket *socket,
-                               enum cio_socket_address_family address_family,
+                               enum cio_address_family address_family,
                                struct cio_eventloop *loop,
                                uint64_t close_timeout_ns,
                                cio_socket_close_hook close_hook)
@@ -351,13 +351,13 @@ enum cio_error cio_socket_connect(struct cio_socket *socket, const struct cio_so
 		return CIO_INVALID_ARGUMENT;
 	}
 
-	if (cio_unlikely((enum cio_socket_address_family)endpoint->impl.socket_address.addr.sa_family == CIO_ADDRESS_FAMILY_UNSPEC)) {
+	if (cio_unlikely((enum cio_address_family)endpoint->impl.socket_address.addr.sa_family == CIO_ADDRESS_FAMILY_UNSPEC)) {
 		return CIO_INVALID_ARGUMENT;
 	}
 
 	const struct sockaddr *addr;
 	socklen_t addr_len;
-	if ((enum cio_socket_address_family)endpoint->impl.socket_address.addr.sa_family == CIO_ADDRESS_FAMILY_INET4) {
+	if ((enum cio_address_family)endpoint->impl.socket_address.addr.sa_family == CIO_ADDRESS_FAMILY_INET4) {
 		addr = (const struct sockaddr *)&endpoint->impl.inet_addr4.impl.in;
 		addr_len = sizeof(endpoint->impl.inet_addr4.impl.in);
 	} else {

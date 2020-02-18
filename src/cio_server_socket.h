@@ -118,7 +118,7 @@ struct cio_server_socket {
 CIO_EXPORT enum cio_error cio_server_socket_init(struct cio_server_socket *ss,
                                                  struct cio_eventloop *loop,
                                                  unsigned int backlog,
-                                                 enum cio_socket_address_family family,
+                                                 enum cio_address_family family,
                                                  cio_alloc_client alloc_client,
                                                  cio_free_client free_client,
                                                  uint64_t close_timeout_ns,

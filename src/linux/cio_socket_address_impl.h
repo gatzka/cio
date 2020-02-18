@@ -75,7 +75,7 @@ CIO_EXPORT enum cio_error cio_init_inet_socket_address(struct cio_socket_address
  *
  * @return The address family.
  */
-CIO_EXPORT enum cio_socket_address_family cio_socket_address_get_family(const struct cio_socket_address *endpoint);
+CIO_EXPORT enum cio_address_family cio_socket_address_get_family(const struct cio_socket_address *endpoint);
 
 #ifdef __cplusplus
 }

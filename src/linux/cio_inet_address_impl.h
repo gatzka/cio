@@ -46,7 +46,7 @@ extern "C" {
 struct cio_inet_address;
 
 struct cio_inet_address_impl {
-	enum cio_socket_address_family family;
+	enum cio_address_family family;
 	union {
 		struct in_addr in;
 		struct in6_addr in6;
@@ -68,7 +68,7 @@ CIO_EXPORT const struct cio_inet_address *cio_get_inet_address_any4(void);
 
 CIO_EXPORT const struct cio_inet_address *cio_get_inet_address_any6(void);
 
-CIO_EXPORT enum cio_socket_address_family cio_inet_address_get_family(const struct cio_inet_address *endpoint);
+CIO_EXPORT enum cio_address_family cio_inet_address_get_family(const struct cio_inet_address *endpoint);
 
 #ifdef __cplusplus
 }

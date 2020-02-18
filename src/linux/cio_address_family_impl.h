@@ -26,7 +26,6 @@
  * SOFTWARE.
  */
 
-
 #ifndef CIO_ADDRESS_FAMILY_IMPL_H
 #define CIO_ADDRESS_FAMILY_IMPL_H
 
@@ -36,7 +35,7 @@
 extern "C" {
 #endif
 
-enum cio_inet_address_family_impl {
+enum cio_address_family_impl {
 	CIO_ADDRESS_FAMILY_UNSPEC_IMPL = AF_UNSPEC,
 	CIO_ADDRESS_FAMILY_INET4_IMPL = AF_INET,
 	CIO_ADDRESS_FAMILY_INET6_IMPL = AF_INET6,

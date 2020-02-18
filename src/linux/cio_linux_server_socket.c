@@ -91,7 +91,7 @@ static void accept_callback(void *context, enum cio_epoll_error error)
 enum cio_error cio_server_socket_init(struct cio_server_socket *ss,
                                       struct cio_eventloop *loop,
                                       unsigned int backlog,
-                                      enum cio_socket_address_family family,
+                                      enum cio_address_family family,
                                       cio_alloc_client alloc_client,
                                       cio_free_client free_client,
                                       uint64_t close_timeout_ns,
@@ -160,13 +160,13 @@ enum cio_error cio_server_socket_bind(struct cio_server_socket *ss, const struct
 		return CIO_INVALID_ARGUMENT;
 	}
 
-	if (cio_unlikely((enum cio_socket_address_family)endpoint->impl.socket_address.addr.sa_family == CIO_ADDRESS_FAMILY_UNSPEC)) {
+	if (cio_unlikely((enum cio_address_family)endpoint->impl.socket_address.addr.sa_family == CIO_ADDRESS_FAMILY_UNSPEC)) {
 		return CIO_INVALID_ARGUMENT;
 	}
 
 	const struct sockaddr *addr;
 	socklen_t addr_len;
-	if ((enum cio_socket_address_family)endpoint->impl.socket_address.addr.sa_family == CIO_ADDRESS_FAMILY_INET4) {
+	if ((enum cio_address_family)endpoint->impl.socket_address.addr.sa_family == CIO_ADDRESS_FAMILY_INET4) {
 		addr = (const struct sockaddr *)&endpoint->impl.inet_addr4.impl.in;
 		addr_len = sizeof(endpoint->impl.inet_addr4.impl.in);
 	} else {

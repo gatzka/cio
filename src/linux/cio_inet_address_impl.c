@@ -71,7 +71,7 @@ enum cio_error cio_init_inet_address(struct cio_inet_address *inet_address, cons
 	return CIO_SUCCESS;
 }
 
-enum cio_socket_address_family cio_inet_address_get_family(const struct cio_inet_address *endpoint)
+enum cio_address_family cio_inet_address_get_family(const struct cio_inet_address *endpoint)
 {
 	return endpoint->impl.family;
 }

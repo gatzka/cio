@@ -37,9 +37,9 @@
 #include "cio_inet_address.h"
 #include "cio_socket_address.h"
 
-enum cio_socket_address_family cio_socket_address_get_family(const struct cio_socket_address *endpoint)
+enum cio_address_family cio_socket_address_get_family(const struct cio_socket_address *endpoint)
 {
-	return (enum cio_socket_address_family)endpoint->impl.socket_address.addr.sa_family;
+	return (enum cio_address_family)endpoint->impl.socket_address.addr.sa_family;
 }
 
 enum cio_error cio_init_inet_socket_address(struct cio_socket_address *sock_address, const struct cio_inet_address *inet_address, uint16_t port)
@@ -48,7 +48,7 @@ enum cio_error cio_init_inet_socket_address(struct cio_socket_address *sock_addr
 		return CIO_INVALID_ARGUMENT;
 	}
 
-	enum cio_socket_address_family family = inet_address->impl.family;
+	enum cio_address_family family = inet_address->impl.family;
 	if (cio_unlikely((family != CIO_ADDRESS_FAMILY_INET4) && (family != CIO_ADDRESS_FAMILY_INET6))) {
 		return CIO_INVALID_ARGUMENT;
 	}
