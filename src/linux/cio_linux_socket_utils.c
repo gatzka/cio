@@ -37,7 +37,7 @@
 int cio_linux_socket_create(enum cio_address_family address_family)
 {
 	if (cio_unlikely((address_family != CIO_ADDRESS_FAMILY_INET4) && (address_family != CIO_ADDRESS_FAMILY_INET6))) {
-		return CIO_INVALID_ARGUMENT;
+		return -1;
 	}
 
 	int domain = (int)address_family;
