@@ -671,6 +671,27 @@ static void test_accept_bind_ipv6(void)
 	TEST_ASSERT_EQUAL(1, close_fake.call_count);
 }
 
+static void test_accept_bind_wrong_family(void)
+{
+	struct cio_eventloop loop;
+	struct cio_server_socket ss;
+
+	struct cio_socket_address endpoint;
+	fill_inet_socket_address_v6(&endpoint);
+
+	enum cio_error err = cio_server_socket_init(&ss, &loop, 5, cio_socket_address_get_family(&endpoint), alloc_client, free_client, 10, on_close);
+	TEST_ASSERT_EQUAL(CIO_SUCCESS, err);
+
+	endpoint.impl.socket_address.addr.sa_family = (sa_family_t)CIO_ADDRESS_FAMILY_UNSPEC;
+
+	err = cio_server_socket_bind(&ss, &endpoint);
+	TEST_ASSERT_EQUAL_MESSAGE(CIO_INVALID_ARGUMENT, err, "bind did not fail if called with an unspecified address family!");
+
+	TEST_ASSERT_EQUAL(0, close_fake.call_count);
+	cio_server_socket_close(&ss);
+	TEST_ASSERT_EQUAL(1, close_fake.call_count);
+}
+
 static void test_init_bind_fails(void)
 {
 	bind_fake.custom_fake = bind_fails;
@@ -848,6 +869,7 @@ int main(void)
 	RUN_TEST(test_init_listen_fails);
 	RUN_TEST(test_init_setsockopt_fails);
 	RUN_TEST(test_accept_bind_ipv6);
+	RUN_TEST(test_accept_bind_wrong_family);
 	RUN_TEST(test_init_bind_fails);
 	RUN_TEST(test_init_bind_no_server_socket);
 	RUN_TEST(test_init_bind_no_endpoint);
