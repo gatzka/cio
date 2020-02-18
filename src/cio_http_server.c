@@ -751,7 +751,8 @@ CIO_EXPORT enum cio_error cio_http_server_init(struct cio_http_server *server,
 	uint32_t keep_alive = (uint32_t)(config->read_header_timeout_ns / NANO_SECONDS_IN_SECONDS);
 	snprintf(server->keepalive_header, sizeof(server->keepalive_header), "Keep-Alive: timeout=%" PRIu32 "\r\n", keep_alive);
 
-	return cio_server_socket_init(&server->server_socket, server->loop, DEFAULT_BACKLOG, server->endpoint.inet_address.type, server->alloc_client, server->free_client, config->close_timeout_ns, server_socket_closed);
+	enum cio_socket_address_family family = cio_socket_address_get_family(&server->endpoint);
+	return cio_server_socket_init(&server->server_socket, server->loop, DEFAULT_BACKLOG, family, server->alloc_client, server->free_client, config->close_timeout_ns, server_socket_closed);
 }
 
 enum cio_error cio_http_server_serve(struct cio_http_server *server)

@@ -31,8 +31,11 @@
 
 #include <sys/socket.h>
 
-#include "cio_inet4_address.h"
-#include "cio_inet6_address.h"
+#include "cio_error_code.h"
+#include "cio_export.h"
+#include "cio_inet4_socket_address.h"
+#include "cio_inet6_socket_address.h"
+#include "cio_socket_address.h"
 #include "cio_unix_address.h"
 
 #ifdef __cplusplus
@@ -46,11 +49,27 @@ enum cio_socket_address_family_impl {
 	CIO_SA_UNIX_IMPL = AF_UNIX
 };
 
+struct cio_socket_address_common {
+	struct sockaddr addr;
+};
+
 union cio_socket_address_impl {
-	struct cio_inet4_address inet_addr4;
-	struct cio_inet6_address inet_addr6;
+	struct cio_socket_address_common socket_address;
+	struct cio_inet4_socket_address inet_addr4;
+	struct cio_inet6_socket_address inet_addr6;
 	struct cio_unix_address unix_address;
 };
+
+/**
+ * @brief Initializes a inet socket address from an IP address and a port number.
+ *
+ * @param sock_address The inet socket address to be initalized.
+ * @param inet_address The IP address.
+ * @param port The port number.
+ *
+ * @return ::CIO_SUCCESS for success.
+ */
+CIO_EXPORT enum cio_error cio_init_inet_socket_address(struct cio_socket_address *sock_address, const struct cio_inet_address *inet_address, uint16_t port);
 
 #ifdef __cplusplus
 }

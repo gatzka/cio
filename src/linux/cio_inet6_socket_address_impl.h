@@ -26,47 +26,23 @@
  * SOFTWARE.
  */
 
-#ifndef CIO_INET_ADDRESS_H
-#define CIO_INET_ADDRESS_H
+#ifndef CIO_INET6_SOCKET_ADDRESS_IMPL_H
+#define CIO_INET6_SOCKET_ADDRESS_IMPL_H
 
-/**
- * @file
- * @brief Representation of an Internet Protocol (IP) address.
- */
-
-#include <stddef.h>
-#include <stdint.h>
-
-#include "cio_socket_address.h"
-#include "cio_error_code.h"
-#include "cio_export.h"
+#include <netinet/in.h>
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-struct cio_inet_address {
-	struct cio_inet_address_impl impl;
-};
-
-static const struct cio_inet_address cio_inet_address_any6 = {
-	.type = CIO_SA_INET6_ADDRESS,
-	.address = {.addr6 = {{0}}}};
-
-static const struct cio_inet_address cio_inet_address_any4 = {
-	.type = CIO_SA_INET4_ADDRESS,
-	.address = {.addr4 = {{0}}}};
-
 /**
- * @brief Initializes a inet address structure.
- *
- * @param inet_address The inet address to be initialized.
- * @param address The buffer that holds the address in network byte order.
- * @param address_length The length of the address buffer. Must be either 4 for IPv4 addresses or 16 for IPv6 addresses.
- *
- * @return ::CIO_SUCCESS for success.
+ * @file
+ * @brief Internal representation of an Internet Protocol Version 6 (IPv6) address.
  */
-CIO_EXPORT enum cio_error cio_init_inet_address(struct cio_inet_address *inet_address, const uint8_t *address, size_t address_length);
+
+struct cio_inet6_socket_address_impl {
+	struct sockaddr_in6 in6;
+};
 
 #ifdef __cplusplus
 }

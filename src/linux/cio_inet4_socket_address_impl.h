@@ -26,10 +26,10 @@
  * SOFTWARE.
  */
 
-#ifndef CIO_INET6_ADDRESS_H
-#define CIO_INET6_ADDRESS_H
+#ifndef CIO_INET4_SOCKET_ADDRESS_IMPL_H
+#define CIO_INET4_SOCKET_ADDRESS_IMPL_H
 
-#include "cio_inet6_address_impl.h"
+#include <netinet/in.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -37,11 +37,11 @@ extern "C" {
 
 /**
  * @file
- * @brief Representation of an Internet Protocol Version 4 (IPv4) address.
+ * @brief Internal representation of an Internet Protocol Version 4 (IPv4) address.
  */
 
-struct cio_inet6_address {
-	struct cio_inet6_address_impl impl;
+struct cio_inet4_socket_address_impl {
+	struct sockaddr_in in;
 };
 
 #ifdef __cplusplus

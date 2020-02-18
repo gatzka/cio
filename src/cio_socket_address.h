@@ -29,6 +29,7 @@
 #ifndef CIO_SOCKET_ADDRESS_H
 #define CIO_SOCKET_ADDRESS_H
 
+#include "cio_export.h"
 #include "cio_socket_address_impl.h"
 
 #ifdef __cplusplus
@@ -43,9 +44,10 @@ enum cio_socket_address_family {
 };
 
 struct cio_socket_address {
-	enum cio_socket_address_family family;
 	union cio_socket_address_impl impl;
 };
+
+CIO_EXPORT enum cio_socket_address_family cio_socket_address_get_family(const struct cio_socket_address *endpoint);
 
 #ifdef __cplusplus
 }

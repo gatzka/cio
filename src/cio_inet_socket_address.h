@@ -33,32 +33,7 @@
 extern "C" {
 #endif
 
-/**
- * @file
- * @brief Representation of a socket address (IP address plus port number).
- */
 
-#include <stdint.h>
-
-#include "cio_error_code.h"
-#include "cio_export.h"
-#include "cio_inet_address.h"
-
-struct cio_inet_socket_address {
-	struct cio_inet_address inet_address;
-	uint16_t port;
-};
-
-/**
- * @brief Initializes a inet socket address from an IP address and a port number.
- *
- * @param sock_address The inet socket address to be initalized.
- * @param inet_address The IP address.
- * @param port The port number.
- *
- * @return ::CIO_SUCCESS for success.
- */
-CIO_EXPORT enum cio_error cio_init_inet_socket_address(struct cio_inet_socket_address *sock_address, const struct cio_inet_address *inet_address, uint16_t port);
 
 #ifdef __cplusplus
 }
