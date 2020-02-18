@@ -1265,6 +1265,27 @@ static void test_socket_connect_immediatly_ipv6(void)
 	TEST_ASSERT_EQUAL_MESSAGE(1, connect_handler_fake.call_count, "connect_handler was not called exactly once!");
 }
 
+static void test_socket_connect_wrong_address_family(void)
+{
+	uint8_t ip_address[4] = {172, 19, 1, 1};
+	struct cio_inet_address inet_address;
+	enum cio_error err = cio_init_inet_address(&inet_address, ip_address, sizeof(ip_address));
+	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "cio_init_inet_address did not succeed!");
+
+	struct cio_socket_address socket_address;
+	err = cio_init_inet_socket_address(&socket_address, &inet_address, 80);
+	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "cio_init_inet_socket_address did not succeed!");
+
+	struct cio_socket s;
+	err = cio_socket_init(&s, cio_socket_address_get_family(&socket_address), &loop, 10, on_close);
+	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Return value of cio_socket_init not correct!");
+
+	socket_address.impl.socket_address.addr.sa_family = (sa_family_t)CIO_ADDRESS_FAMILY_UNSPEC;
+	err = cio_socket_connect(&s, &socket_address, connect_handler, NULL);
+	TEST_ASSERT_EQUAL_MESSAGE(CIO_INVALID_ARGUMENT, err, "cio_socket_connect did not fail when unspecified address family given!");
+	TEST_ASSERT_EQUAL_MESSAGE(0, connect_handler_fake.call_count, "connect_handler was called despite no connection!");
+}
+
 static void test_socket_connect_no_socket(void)
 {
 	uint8_t ip_address[4] = {172, 19, 1, 1};
@@ -1430,6 +1451,7 @@ int main(void)
 
 	RUN_TEST(test_socket_connect_immediatly);
 	RUN_TEST(test_socket_connect_immediatly_ipv6);
+	RUN_TEST(test_socket_connect_wrong_address_family);
 	RUN_TEST(test_socket_connect_no_socket);
 	RUN_TEST(test_socket_connect_no_address);
 	RUN_TEST(test_socket_connect_later);
