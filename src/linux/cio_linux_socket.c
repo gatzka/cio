@@ -351,7 +351,7 @@ enum cio_error cio_socket_connect(struct cio_socket *socket, const struct cio_so
 		return CIO_INVALID_ARGUMENT;
 	}
 
-	if (cio_unlikely((enum cio_socket_address_family)endpoint->impl.socket_address.addr.sa_family != CIO_ADDRESS_FAMILY_UNSPEC)) {
+	if (cio_unlikely((enum cio_socket_address_family)endpoint->impl.socket_address.addr.sa_family == CIO_ADDRESS_FAMILY_UNSPEC)) {
 		return CIO_INVALID_ARGUMENT;
 	}
 

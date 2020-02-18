@@ -160,7 +160,7 @@ enum cio_error cio_server_socket_bind(struct cio_server_socket *ss, const struct
 		return CIO_INVALID_ARGUMENT;
 	}
 
-	if (cio_unlikely((enum cio_socket_address_family)endpoint->impl.socket_address.addr.sa_family != CIO_ADDRESS_FAMILY_UNSPEC)) {
+	if (cio_unlikely((enum cio_socket_address_family)endpoint->impl.socket_address.addr.sa_family == CIO_ADDRESS_FAMILY_UNSPEC)) {
 		return CIO_INVALID_ARGUMENT;
 	}
 
