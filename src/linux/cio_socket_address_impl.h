@@ -66,8 +66,16 @@ union cio_socket_address_impl {
  *
  * @return ::CIO_SUCCESS for success.
  */
-CIO_EXPORT enum cio_socket_address_family cio_socket_address_get_family(const struct cio_socket_address *endpoint);
 CIO_EXPORT enum cio_error cio_init_inet_socket_address(struct cio_socket_address *sock_address, const struct cio_inet_address *inet_address, uint16_t port);
+
+/**
+ * @brief Get the address family of an initialized socket address.
+ *
+ * @param endpoint The socket address endpoint from which the address family should be retrieved.
+ *
+ * @return The address family.
+ */
+CIO_EXPORT enum cio_socket_address_family cio_socket_address_get_family(const struct cio_socket_address *endpoint);
 
 #ifdef __cplusplus
 }
