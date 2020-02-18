@@ -57,26 +57,6 @@ union cio_socket_address_impl {
 	struct cio_unix_address unix_address;
 };
 
-/**
- * @brief Initializes a inet socket address from an IP address and a port number.
- *
- * @param sock_address The inet socket address to be initalized.
- * @param inet_address The IP address.
- * @param port The port number.
- *
- * @return ::CIO_SUCCESS for success.
- */
-CIO_EXPORT enum cio_error cio_init_inet_socket_address(struct cio_socket_address *sock_address, const struct cio_inet_address *inet_address, uint16_t port);
-
-/**
- * @brief Get the address family of an initialized socket address.
- *
- * @param endpoint The socket address endpoint from which the address family should be retrieved.
- *
- * @return The address family.
- */
-CIO_EXPORT enum cio_address_family cio_socket_address_get_family(const struct cio_socket_address *endpoint);
-
 #ifdef __cplusplus
 }
 #endif
