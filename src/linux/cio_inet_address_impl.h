@@ -53,14 +53,6 @@ struct cio_inet_address_impl {
 	};
 };
 
-//static const struct cio_inet_address cio_inet_address_any6 = {
-//	.impl = {.family = CIO_SA_INET6_ADDRESS, .in6.s6_addr = {{0}}}
-//};
-//
-//static const struct cio_inet_address cio_inet_address_any4 = {
-//	.impl = {.family = CIO_SA_INET4_ADDRESS, .in.s_addr = {0}}
-//};
-
 /**
  * @brief Initializes a inet address structure.
  *
@@ -71,6 +63,10 @@ struct cio_inet_address_impl {
  * @return ::CIO_SUCCESS for success.
  */
 CIO_EXPORT enum cio_error cio_init_inet_address(struct cio_inet_address *inet_address, const uint8_t *address, size_t address_length);
+
+CIO_EXPORT const struct cio_inet_address *cio_get_inet_address_any4(void);
+
+CIO_EXPORT const struct cio_inet_address *cio_get_inet_address_any6(void);
 
 #ifdef __cplusplus
 }

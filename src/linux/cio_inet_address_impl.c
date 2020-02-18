@@ -36,6 +36,24 @@
 #include "cio_inet_address_impl.h"
 #include "cio_socket_address_family.h"
 
+static const struct cio_inet_address inet_address_any6 = {
+	.impl = {.family = CIO_SA_INET6_ADDRESS, .in6.s6_addr = {0}}
+};
+
+static const struct cio_inet_address inet_address_any4 = {
+	.impl = {.family = CIO_SA_INET4_ADDRESS, .in.s_addr = 0}
+};
+
+const struct cio_inet_address *cio_get_inet_address_any4(void) {
+	return &inet_address_any4;
+}
+
+const struct cio_inet_address *cio_get_inet_address_any6(void) {
+	return &inet_address_any6;
+}
+
+CIO_EXPORT const struct cio_inet_address *cio_get_inet_address_any6(void);
+
 enum cio_error cio_init_inet_address(struct cio_inet_address *inet_address, const uint8_t *address, size_t address_length)
 {
 	size_t v4_size = sizeof(inet_address->impl.in.s_addr);
