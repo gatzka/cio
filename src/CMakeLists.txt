@@ -106,9 +106,13 @@ if(CIO_CONFIG_HTTP)
         cio_http_status_code.h
     )
 
-    set_property(TARGET ${PROJECT_NAME}
-        APPEND
-        PROPERTY PUBLIC_HEADER "cio_http_client.h;cio_http_location.h;cio_http_location_handler.h;cio_http_method.h;cio_http_server.h;cio_http_status_code.h"
+    set_property(TARGET ${PROJECT_NAME} APPEND PROPERTY PUBLIC_HEADER 
+        "cio_http_location.h"
+        "cio_http_location_handler.h"
+        "cio_http_method.h"
+        "cio_http_server.h"
+        "cio_http_status_code.h"
+        "cio_http_client.h"
     )
 endif()
 
@@ -140,9 +144,11 @@ if(CIO_CONFIG_WEBSOCKETS)
         cio_websocket_masking.h
     ) 
 
-    set_property(TARGET ${PROJECT_NAME}
-        APPEND
-        PROPERTY PUBLIC_HEADER "cio_base64.h;cio_utf8_checker.h;cio_websocket.h;cio_websocket_location_handler.h"
+    set_property(TARGET ${PROJECT_NAME} APPEND PROPERTY PUBLIC_HEADER
+        "cio_utf8_checker.h"
+        "cio_websocket.h"
+        "cio_websocket_location_handler.h"
+        "cio_base64.h"
     )
 
 endif()
@@ -185,9 +191,27 @@ set_target_properties(${PROJECT_NAME} PROPERTIES
     C_VISIBILITY_PRESET hidden
 )
 
-set_property(TARGET ${PROJECT_NAME}
-    APPEND
-    PROPERTY PUBLIC_HEADER "cio_address_family.h;cio_buffered_stream.h;cio_compiler.h;cio_endian.h;cio_error_code.h;cio_eventloop.h;cio_io_stream.h;cio_random.h;cio_read_buffer.h;cio_server_socket.h;cio_socket.h;cio_string.h;cio_timer.h;cio_util.h;cio_version.h;cio_write_buffer.h;cio_inet4_socket_address.h;cio_inet6_socket_address.h;cio_inet_address.h;cio_socket_address.h"
+set_property(TARGET ${PROJECT_NAME} APPEND PROPERTY PUBLIC_HEADER
+    "cio_address_family.h"
+    "cio_buffered_stream.h"
+    "cio_compiler.h"
+    "cio_endian.h"
+    "cio_error_code.h"
+    "cio_eventloop.h"
+    "cio_inet4_socket_address.h"
+    "cio_inet6_socket_address.h"
+    "cio_inet_address.h"
+    "cio_io_stream.h"
+    "cio_random.h"
+    "cio_read_buffer.h"
+    "cio_server_socket.h"
+    "cio_socket.h"
+    "cio_socket_address.h"
+    "cio_string.h"
+    "cio_timer.h"
+    "cio_util.h"
+    "cio_version.h"
+    "cio_write_buffer.h"
 )
 
 include(GenerateExportHeader)

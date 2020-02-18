@@ -43,8 +43,18 @@ target_sources(PLATFORM
 
 target_compile_definitions(PLATFORM PRIVATE _GNU_SOURCE)
 
-set_property(TARGET PLATFORM 
-    PROPERTY PUBLIC_HEADER "linux/cio_error_code_impl.h;linux/cio_eventloop_impl.h;linux/cio_server_socket_impl.h;linux/cio_socket_impl.h;linux/cio_address_family_impl.h;linux/cio_inet4_socket_address_impl.h;linux/cio_inet6_socket_address_impl.h;linux/cio_inet_address_impl.h;linux/cio_socket_address_impl.h;linux/cio_unix_address.h;linux/cio_timer_impl.h"
+set_property(TARGET PLATFORM PROPERTY PUBLIC_HEADER
+    "linux/cio_address_family_impl.h"
+    "linux/cio_error_code_impl.h"
+    "linux/cio_eventloop_impl.h"
+    "linux/cio_inet4_socket_address_impl.h"
+    "linux/cio_inet6_socket_address_impl.h"
+    "linux/cio_inet_address_impl.h"
+    "linux/cio_server_socket_impl.h"
+    "linux/cio_socket_address_impl.h"
+    "linux/cio_socket_impl.h"
+    "linux/cio_timer_impl.h"
+    "linux/cio_unix_address.h"
 )
 
 target_include_directories(PLATFORM
