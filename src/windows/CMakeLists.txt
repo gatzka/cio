@@ -12,19 +12,24 @@ add_library(PLATFORM OBJECT
 )
 
 set_property(TARGET PLATFORM 
-    PROPERTY PUBLIC_HEADER "windows/cio_error_code_impl.h;windows/cio_eventloop_impl.h;windows/cio_server_socket_impl.h;windows/cio_socket_impl.h"
+    PROPERTY PUBLIC_HEADER
+        "windows/cio_error_code_impl.h"
+        "windows/cio_eventloop_impl.h"
+        "windows/cio_server_socket_impl.h"
+        "windows/cio_socket_impl.h"
+        "windows/cio_timer_impl.h"
 )
 
 target_include_directories(PLATFORM
     PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/>
-	PRIVATE ${CMAKE_CURRENT_BINARY_DIR}/../generated/ ${CMAKE_CURRENT_LIST_DIR}/../
+    PRIVATE ${CMAKE_CURRENT_BINARY_DIR}/../generated/ ${CMAKE_CURRENT_LIST_DIR}/../
 )
 
 target_link_libraries(PLATFORM bcrypt ws2_32)
 
 get_property(targets DIRECTORY "${CMAKE_CURRENT_LIST_DIR}" PROPERTY BUILDSYSTEM_TARGETS)
 foreach(tgt ${targets})
-	if(CIO_ENABLE_LTO)
+    if(CIO_ENABLE_LTO)
         set_property(TARGET ${tgt} PROPERTY INTERPROCEDURAL_OPTIMIZATION TRUE)
     endif()
 endforeach()
