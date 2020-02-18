@@ -15,13 +15,14 @@ add_library(PLATFORM OBJECT
     cio_eventloop_impl.h
     cio_inet4_socket_address_impl.h
     cio_inet6_socket_address_impl.h
-    cio_inet_address_impl.c
     cio_inet_address_impl.h
     cio_linux_endian.c
     cio_linux_epoll.c
+    cio_linux_inet_address_impl.c
     cio_linux_server_socket.c
     cio_linux_socket.c
     cio_linux_socket.h
+    cio_linux_socket_address_impl.c
     cio_linux_socket_utils.c
     cio_linux_socket_utils.h
     cio_linux_string.c
@@ -29,7 +30,6 @@ add_library(PLATFORM OBJECT
     cio_os_config.h.in
     cio_server_socket_impl.h
     cio_address_family_impl.h
-    cio_socket_address_impl.c
     cio_socket_address_impl.h
     cio_socket_impl.h
     cio_timer_impl.h

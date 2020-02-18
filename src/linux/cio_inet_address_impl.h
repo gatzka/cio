@@ -26,8 +26,8 @@
  * SOFTWARE.
  */
 
-#ifndef CIO_INET_ADDRESS_IMPL_H
-#define CIO_INET_ADDRESS_IMPL_H
+#ifndef CIO_LINUX_INET_ADDRESS_IMPL_H
+#define CIO_LINUX_INET_ADDRESS_IMPL_H
 
 #include <netinet/in.h>
 #include <stddef.h>

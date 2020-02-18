@@ -26,8 +26,8 @@
  * SOFTWARE.
  */
 
-#ifndef CIO_ADDRESS_FAMILY_IMPL_H
-#define CIO_ADDRESS_FAMILY_IMPL_H
+#ifndef CIO_LINUX_ADDRESS_FAMILY_IMPL_H
+#define CIO_LINUX_ADDRESS_FAMILY_IMPL_H
 
 #include <sys/socket.h>
 

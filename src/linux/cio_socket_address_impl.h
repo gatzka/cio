@@ -26,8 +26,8 @@
  * SOFTWARE.
  */
 
-#ifndef CIO_SOCKET_ADDRESS_IMPL_H
-#define CIO_SOCKET_ADDRESS_IMPL_H
+#ifndef CIO_LINUX_SOCKET_ADDRESS_IMPL_H
+#define CIO_LINUX_SOCKET_ADDRESS_IMPL_H
 
 #include <sys/socket.h>
 

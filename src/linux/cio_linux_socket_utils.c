@@ -36,17 +36,11 @@
 
 int cio_linux_socket_create(enum cio_address_family address_family)
 {
-	int domain;
-	switch (address_family) {
-	case CIO_ADDRESS_FAMILY_INET4:
-		domain = AF_INET;
-		break;
-	case CIO_ADDRESS_FAMILY_INET6:
-		domain = AF_INET6;
-		break;
-	default:
-		return -1;
+	if (cio_unlikely((address_family != CIO_ADDRESS_FAMILY_INET4) && (address_family != CIO_ADDRESS_FAMILY_INET6))) {
+		return CIO_INVALID_ARGUMENT;
 	}
+
+	int domain = (int)address_family;
 
 	int fd = socket(domain, (unsigned int)SOCK_STREAM | (unsigned int)SOCK_CLOEXEC | (unsigned int)SOCK_NONBLOCK, 0U);
 	if (cio_unlikely(fd == -1)) {
