@@ -26,41 +26,53 @@
  * SOFTWARE.
  */
 
+#ifndef CIO_INET_ADDRESS_IMPL_H
+#define CIO_INET_ADDRESS_IMPL_H
+
+#include <netinet/in.h>
 #include <stddef.h>
 #include <stdint.h>
-#include <string.h>
 
-#include "cio_compiler.h"
-#include "cio_endian.h"
 #include "cio_error_code.h"
+#include "cio_export.h"
 #include "cio_inet_address.h"
 #include "cio_socket_address.h"
 #include "cio_socket_address_family.h"
 
-enum cio_socket_address_family cio_socket_address_get_family(const struct cio_socket_address *endpoint)
-{
-	return (enum cio_socket_address_family)endpoint->impl.socket_address.addr.sa_family;
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+struct cio_inet_address;
+
+struct cio_inet_address_impl {
+	enum cio_socket_address_family family;
+	union {
+		struct in_addr in;
+		struct in6_addr in6;
+	};
+};
+
+//static const struct cio_inet_address cio_inet_address_any6 = {
+//	.impl = {.family = CIO_SA_INET6_ADDRESS, .in6.s6_addr = {{0}}}
+//};
+//
+//static const struct cio_inet_address cio_inet_address_any4 = {
+//	.impl = {.family = CIO_SA_INET4_ADDRESS, .in.s_addr = {0}}
+//};
+
+/**
+ * @brief Initializes a inet address structure.
+ *
+ * @param inet_address The inet address to be initialized.
+ * @param address The buffer that holds the address in network byte order.
+ * @param address_length The length of the address buffer. Must be either 4 for IPv4 addresses or 16 for IPv6 addresses.
+ *
+ * @return ::CIO_SUCCESS for success.
+ */
+CIO_EXPORT enum cio_error cio_init_inet_address(struct cio_inet_address *inet_address, const uint8_t *address, size_t address_length);
+
+#ifdef __cplusplus
 }
-
-enum cio_error cio_init_inet_socket_address(struct cio_socket_address *sock_address, const struct cio_inet_address *inet_address, uint16_t port)
-{
-	if (cio_unlikely((sock_address == NULL) || (inet_address == NULL))) {
-		return CIO_INVALID_ARGUMENT;
-	}
-
-	enum cio_socket_address_family family = inet_address->impl.family;
-	if (cio_unlikely((family != CIO_SA_INET4_ADDRESS) && (family != CIO_SA_INET6_ADDRESS))) {
-		return CIO_INVALID_ARGUMENT;
-	}
-
-	sock_address->impl.socket_address.addr.sa_family = (sa_family_t)family;
-	if (family == CIO_SA_INET4_ADDRESS) {
-		memcpy(&sock_address->impl.inet_addr4.impl.in.sin_addr, &inet_address->impl.in.s_addr, sizeof(inet_address->impl.in.s_addr));
-		sock_address->impl.inet_addr4.impl.in.sin_port = cio_htobe16(port);
-	} else {
-		memcpy(sock_address->impl.inet_addr6.impl.in6.sin6_addr.s6_addr, inet_address->impl.in6.s6_addr, sizeof(inet_address->impl.in6.s6_addr));
-		sock_address->impl.inet_addr6.impl.in6.sin6_port = cio_htobe16(port);
-	}
-
-	return CIO_SUCCESS;
-}
+#endif
+#endif

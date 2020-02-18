@@ -32,15 +32,25 @@
 
 #include "cio_compiler.h"
 #include "cio_error_code.h"
-#include "cio_inet_socket_address.h"
+#include "cio_inet_address.h"
+#include "cio_inet_address_impl.h"
+#include "cio_socket_address_family.h"
 
-enum cio_error cio_init_inet_socket_address(struct cio_inet_socket_address *sock_address, const struct cio_inet_address *inet_address, uint16_t port)
+enum cio_error cio_init_inet_address(struct cio_inet_address *inet_address, const uint8_t *address, size_t address_length)
 {
-	if (cio_unlikely((sock_address == NULL) || (inet_address == NULL))) {
+	size_t v4_size = sizeof(inet_address->impl.in.s_addr);
+	size_t v6_size = sizeof(inet_address->impl.in6.s6_addr);
+	if (cio_unlikely((inet_address == NULL) || (address == NULL) || !((address_length == v4_size) || (address_length == v6_size)))) {
 		return CIO_INVALID_ARGUMENT;
 	}
 
-	sock_address->port = port;
-	memcpy(&sock_address->inet_address, inet_address, sizeof(*inet_address));
+	if (address_length == v4_size) {
+		inet_address->impl.family = CIO_SA_INET4_ADDRESS;
+		memcpy(&inet_address->impl.in.s_addr, address, address_length);
+	} else {
+		inet_address->impl.family = CIO_SA_INET6_ADDRESS;
+		memcpy(&inet_address->impl.in6.s6_addr, address, address_length);
+	}
+
 	return CIO_SUCCESS;
 }

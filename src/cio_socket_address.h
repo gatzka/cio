@@ -36,18 +36,9 @@
 extern "C" {
 #endif
 
-enum cio_socket_address_family {
-	CIO_SA_UNSPEC = CIO_SA_UNSPEC_IMPL,
-	CIO_SA_INET4_ADDRESS = CIO_SA_INET4_ADDRESS_IMPL,
-	CIO_SA_INET6_ADDRESS = CIO_SA_INET6_ADDRESS_IMPL,
-	CIO_SA_UNIX = CIO_SA_UNIX_IMPL
-};
-
 struct cio_socket_address {
 	union cio_socket_address_impl impl;
 };
-
-CIO_EXPORT enum cio_socket_address_family cio_socket_address_get_family(const struct cio_socket_address *endpoint);
 
 #ifdef __cplusplus
 }

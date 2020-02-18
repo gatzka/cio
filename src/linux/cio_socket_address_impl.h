@@ -33,6 +33,7 @@
 
 #include "cio_error_code.h"
 #include "cio_export.h"
+#include "cio_inet_address.h"
 #include "cio_inet4_socket_address.h"
 #include "cio_inet6_socket_address.h"
 #include "cio_socket_address.h"
@@ -42,12 +43,8 @@
 extern "C" {
 #endif
 
-enum cio_socket_address_family_impl {
-	CIO_SA_UNSPEC_IMPL = AF_UNSPEC,
-	CIO_SA_INET4_ADDRESS_IMPL = AF_INET,
-	CIO_SA_INET6_ADDRESS_IMPL = AF_INET6,
-	CIO_SA_UNIX_IMPL = AF_UNIX
-};
+struct cio_inet_address;
+struct cio_socket_address;
 
 struct cio_socket_address_common {
 	struct sockaddr addr;
@@ -69,6 +66,7 @@ union cio_socket_address_impl {
  *
  * @return ::CIO_SUCCESS for success.
  */
+CIO_EXPORT enum cio_socket_address_family cio_socket_address_get_family(const struct cio_socket_address *endpoint);
 CIO_EXPORT enum cio_error cio_init_inet_socket_address(struct cio_socket_address *sock_address, const struct cio_inet_address *inet_address, uint16_t port);
 
 #ifdef __cplusplus

@@ -26,22 +26,20 @@
  * SOFTWARE.
  */
 
-#ifndef CIO_INET_ADDRESS_H
-#define CIO_INET_ADDRESS_H
+#ifndef CIO_SOCKET_ADDRESS_FAMILY_H
+#define CIO_SOCKET_ADDRESS_FAMILY_H
 
-/**
- * @file
- * @brief Representation of an Internet Protocol (IP) address.
- */
-
-#include "cio_inet_address_impl.h"
+#include "cio_socket_address_family_impl.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-struct cio_inet_address {
-	struct cio_inet_address_impl impl;
+enum cio_socket_address_family {
+	CIO_SA_UNSPEC = CIO_SA_UNSPEC_IMPL,
+	CIO_SA_INET4_ADDRESS = CIO_SA_INET4_ADDRESS_IMPL,
+	CIO_SA_INET6_ADDRESS = CIO_SA_INET6_ADDRESS_IMPL,
+	CIO_SA_UNIX = CIO_SA_UNIX_IMPL
 };
 
 #ifdef __cplusplus
