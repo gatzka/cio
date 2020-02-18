@@ -54,7 +54,9 @@ set_property(TARGET PLATFORM PROPERTY PUBLIC_HEADER
     "linux/cio_socket_address_impl.h"
     "linux/cio_socket_impl.h"
     "linux/cio_timer_impl.h"
-    "linux/cio_unix_address.h"
+)
+install(FILES "${CMAKE_CURRENT_LIST_DIR}/cio_unix_address.h"
+    DESTINATION include/cio/linux/
 )
 
 target_include_directories(PLATFORM
