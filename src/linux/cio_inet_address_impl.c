@@ -30,18 +30,18 @@
 #include <stdint.h>
 #include <string.h>
 
+#include "cio_address_family.h"
 #include "cio_compiler.h"
 #include "cio_error_code.h"
 #include "cio_inet_address.h"
 #include "cio_inet_address_impl.h"
-#include "cio_socket_address_family.h"
 
 static const struct cio_inet_address inet_address_any6 = {
-	.impl = {.family = CIO_SA_INET6_ADDRESS, .in6.s6_addr = {0}}
+	.impl = {.family = CIO_ADDRESS_FAMILY_INET6, .in6.s6_addr = {0}}
 };
 
 static const struct cio_inet_address inet_address_any4 = {
-	.impl = {.family = CIO_SA_INET4_ADDRESS, .in.s_addr = 0}
+	.impl = {.family = CIO_ADDRESS_FAMILY_INET4, .in.s_addr = 0}
 };
 
 const struct cio_inet_address *cio_get_inet_address_any4(void) {
@@ -63,10 +63,10 @@ enum cio_error cio_init_inet_address(struct cio_inet_address *inet_address, cons
 	}
 
 	if (address_length == v4_size) {
-		inet_address->impl.family = CIO_SA_INET4_ADDRESS;
+		inet_address->impl.family = CIO_ADDRESS_FAMILY_INET4;
 		memcpy(&inet_address->impl.in.s_addr, address, address_length);
 	} else {
-		inet_address->impl.family = CIO_SA_INET6_ADDRESS;
+		inet_address->impl.family = CIO_ADDRESS_FAMILY_INET6;
 		memcpy(&inet_address->impl.in6.s6_addr, address, address_length);
 	}
 

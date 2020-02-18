@@ -27,8 +27,8 @@
  */
 
 
-#ifndef CIO_SOCKET_ADDRESS_FAMILY_IMPL_H
-#define CIO_SOCKET_ADDRESS_FAMILY_IMPL_H
+#ifndef CIO_ADDRESS_FAMILY_IMPL_H
+#define CIO_ADDRESS_FAMILY_IMPL_H
 
 #include <sys/socket.h>
 
@@ -36,11 +36,11 @@
 extern "C" {
 #endif
 
-enum cio_socket_address_family_impl {
-	CIO_SA_UNSPEC_IMPL = AF_UNSPEC,
-	CIO_SA_INET4_ADDRESS_IMPL = AF_INET,
-	CIO_SA_INET6_ADDRESS_IMPL = AF_INET6,
-	CIO_SA_UNIX_IMPL = AF_UNIX
+enum cio_inet_address_family_impl {
+	CIO_ADDRESS_FAMILY_UNSPEC_IMPL = AF_UNSPEC,
+	CIO_ADDRESS_FAMILY_INET4_IMPL = AF_INET,
+	CIO_ADDRESS_FAMILY_INET6_IMPL = AF_INET6,
+	CIO_ADDRESS_FAMILY_UNIX_IMPL = AF_UNIX
 };
 
 #ifdef __cplusplus

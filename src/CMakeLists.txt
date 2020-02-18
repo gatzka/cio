@@ -61,7 +61,7 @@ add_library(${PROJECT_NAME}
     "cio_server_socket.h"
     "cio_socket.h"
     "cio_socket_address.h"
-    "cio_socket_address_family.h"
+    "cio_address_family.h"
     "cio_string.h"
     "cio_timer.h"
     "cio_util.h"

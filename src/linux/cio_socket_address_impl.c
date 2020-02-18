@@ -30,12 +30,12 @@
 #include <stdint.h>
 #include <string.h>
 
+#include "cio_address_family.h"
 #include "cio_compiler.h"
 #include "cio_endian.h"
 #include "cio_error_code.h"
 #include "cio_inet_address.h"
 #include "cio_socket_address.h"
-#include "cio_socket_address_family.h"
 
 enum cio_socket_address_family cio_socket_address_get_family(const struct cio_socket_address *endpoint)
 {
@@ -49,12 +49,12 @@ enum cio_error cio_init_inet_socket_address(struct cio_socket_address *sock_addr
 	}
 
 	enum cio_socket_address_family family = inet_address->impl.family;
-	if (cio_unlikely((family != CIO_SA_INET4_ADDRESS) && (family != CIO_SA_INET6_ADDRESS))) {
+	if (cio_unlikely((family != CIO_ADDRESS_FAMILY_INET4) && (family != CIO_ADDRESS_FAMILY_INET6))) {
 		return CIO_INVALID_ARGUMENT;
 	}
 
 	sock_address->impl.socket_address.addr.sa_family = (sa_family_t)family;
-	if (family == CIO_SA_INET4_ADDRESS) {
+	if (family == CIO_ADDRESS_FAMILY_INET4) {
 		memcpy(&sock_address->impl.inet_addr4.impl.in.sin_addr, &inet_address->impl.in.s_addr, sizeof(inet_address->impl.in.s_addr));
 		sock_address->impl.inet_addr4.impl.in.sin_port = cio_htobe16(port);
 	} else {
