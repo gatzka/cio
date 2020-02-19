@@ -143,7 +143,12 @@ static struct cio_http_location_handler *alloc_autobahn_handler(const void *conf
 		return NULL;
 	}
 
-	cio_websocket_location_handler_init(&handler->ws_handler, NULL, 0, on_connect, free_autobahn_handler);
+	enum cio_error err = cio_websocket_location_handler_init(&handler->ws_handler, NULL, 0, on_connect, free_autobahn_handler);
+	if (cio_unlikely(err != CIO_SUCCESS)) {
+		free(handler);
+		return NULL;
+	}
+
 	cio_websocket_set_on_error_cb(&handler->ws_handler.websocket, on_error);
 	handler->echo_write_index = 0;
 	handler->start_new_write_chunk = true;

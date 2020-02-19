@@ -28,21 +28,30 @@
 
 #define _DEFAULT_SOURCE
 
+#include <errno.h>
 #include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
 
+#include "cio_compiler.h"
+#include "cio_error_code.h"
 #include "cio_random.h"
 
-void cio_entropy_get_bytes(void *bytes, size_t num_bytes)
+enum cio_error cio_entropy_get_bytes(void *bytes, size_t num_bytes)
 {
 	FILE *dev_urandom = fopen("/dev/urandom", "re");
+	if (cio_unlikely(dev_urandom == NULL)) {
+		return (enum cio_error)(-errno);
+	}
 
-	size_t ret = fread(bytes, 1, num_bytes, dev_urandom);
-	/* Ignore return value deliberately.
-	 * There is no good error handling when this call fails
-	 * besides shutting down cjet completely.
-	 */
-	(void)ret;
+	size_t ret = fread_unlocked(bytes, 1, num_bytes, dev_urandom);
+	enum cio_error err;
+	if (cio_unlikely(ret < num_bytes)) {
+		err = CIO_EOF;
+	} else {
+		err = CIO_SUCCESS;
+	}
+
 	fclose(dev_urandom);
+	return err;
 }

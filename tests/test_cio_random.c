@@ -26,6 +26,7 @@
  * SOFTWARE.
  */
 
+#include "cio_error_code.h"
 #include "cio_random.h"
 #include "fff.h"
 #include "unity.h"
@@ -34,7 +35,7 @@ DEFINE_FFF_GLOBALS
 
 void setUp(void)
 {
-	FFF_RESET_HISTORY();
+	FFF_RESET_HISTORY()
 }
 
 void tearDown(void)
@@ -45,7 +46,8 @@ static void test_two_randoms(void)
 {
 	cio_rng rng;
 
-	cio_random_seed_rng(&rng);
+	enum cio_error err = cio_random_seed_rng(&rng);
+	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "cio_random_seed_rng did not succeed!");
 
 	uint64_t first_rand;
 	uint64_t second_rand;
@@ -54,7 +56,7 @@ static void test_two_randoms(void)
 	cio_random_get_bytes(&rng, &second_rand, sizeof(second_rand));
 
 	int equal = memcmp(&first_rand, &second_rand, sizeof(first_rand));
-	TEST_ASSERT_NOT_EQUAL_MESSAGE(0, equal, "Two calls for random lead to the same result!");
+	TEST_ASSERT_NOT_EQUAL_MESSAGE(0, equal, "Two calls for random lead to the same result!")
 }
 
 int main(void)

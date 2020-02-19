@@ -2,12 +2,6 @@ cmake_minimum_required(VERSION 3.9)
 include(CheckLibraryExists)
 include(defaults.cmake)
 
-check_library_exists(bsd arc4random "/lib;/usr/lib;/usr/local/lib" HAVE_BSD_LIB)
-
-if(NOT HAVE_BSD_LIB)
-    message(WARNING "libbsd not found! Using unsafe random number generator!")
-endif()
-
 configure_file(cio_os_config.h.in ${PROJECT_BINARY_DIR}/generated/cio_os_config.h)
 
 add_library(PLATFORM OBJECT
@@ -19,6 +13,7 @@ add_library(PLATFORM OBJECT
     cio_linux_endian.c
     cio_linux_epoll.c
     cio_linux_inet_address_impl.c
+    cio_linux_random.c
     cio_linux_server_socket.c
     cio_linux_socket.c
     cio_linux_socket.h
@@ -34,11 +29,6 @@ add_library(PLATFORM OBJECT
     cio_socket_impl.h
     cio_timer_impl.h
     cio_unix_address.h
-)
-
-target_sources(PLATFORM
-    PRIVATE $<$<BOOL:${HAVE_BSD_LIB}>:cio_linux_bsd_random.c>
-    PRIVATE $<$<NOT:$<BOOL:${HAVE_BSD_LIB}>>:cio_linux_random.c>
 )
 
 target_compile_definitions(PLATFORM PRIVATE _GNU_SOURCE)
@@ -63,8 +53,6 @@ target_include_directories(PLATFORM
     PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/>
     PRIVATE ${CMAKE_CURRENT_BINARY_DIR}/../generated/ ${CMAKE_CURRENT_LIST_DIR}/../
 )
-
-target_link_libraries(PLATFORM $<$<BOOL:${HAVE_BSD_LIB}>:bsd>)
 
 get_property(targets DIRECTORY "${CMAKE_CURRENT_LIST_DIR}" PROPERTY BUILDSYSTEM_TARGETS)
 foreach(tgt ${targets})
