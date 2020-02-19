@@ -33,6 +33,7 @@ foreach(tgt ${targets})
         target_link_libraries(${tgt} fff unity cio:cio)
         set_target_properties(${tgt} PROPERTIES
             C_CLANG_TIDY ""
+    	    C_EXTENSIONS OFF
         )
     endif()
 
