@@ -33,11 +33,13 @@ foreach(tgt ${targets})
         target_link_libraries(${tgt} fff unity cio:cio)
         set_target_properties(${tgt} PROPERTIES
             C_CLANG_TIDY ""
-    	    C_EXTENSIONS OFF
+            C_STANDARD 11
+    	    C_STANDARD_REQUIRED ON
+            C_EXTENSIONS OFF
         )
     endif()
 
-	if(CIO_ENABLE_LTO AND NOT ${target_type} STREQUAL "INTERFACE_LIBRARY")
+    if(CIO_ENABLE_LTO AND NOT ${target_type} STREQUAL "INTERFACE_LIBRARY")
         set_property(TARGET ${tgt} PROPERTY INTERPROCEDURAL_OPTIMIZATION TRUE)
     endif()
 endforeach()
