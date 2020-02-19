@@ -34,14 +34,9 @@
 
 #include "cio_random.h"
 
-static FILE *dev_urandom = NULL;
-
 void cio_entropy_get_bytes(void *bytes, size_t num_bytes)
 {
-
-	if (dev_urandom == NULL) {
-		dev_urandom = fopen("/dev/urandom", "re");
-	}
+	FILE *dev_urandom = fopen("/dev/urandom", "re");
 
 	size_t ret = fread(bytes, 1, num_bytes, dev_urandom);
 	/* Ignore return value deliberately.
@@ -49,4 +44,5 @@ void cio_entropy_get_bytes(void *bytes, size_t num_bytes)
 	 * besides shutting down cjet completely.
 	 */
 	(void)ret;
+	fclose(dev_urandom);
 }
