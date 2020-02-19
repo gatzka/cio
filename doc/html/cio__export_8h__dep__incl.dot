@@ -41,7 +41,7 @@ digraph "cio_export.h"
   Node11 -> Node9 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
   Node1 -> Node12 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
   Node1 -> Node15 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
-  Node15 [label="cio_inet_socket_address.h",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$cio__inet__socket__address_8h.html",tooltip="Representation of a socket address (IP address plus port number). "];
+  Node15 [label="cio_socket_address.h",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$cio__socket__address_8h.html"];
   Node15 -> Node12 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
   Node15 -> Node7 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
   Node15 -> Node13 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];

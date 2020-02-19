@@ -15,6 +15,6 @@ var searchData=
   ['write_5fpong_5fjob',['write_pong_job',['../structcio__websocket__private.html#a4f63fe3c897fc27e34b5b3fabfd0fc7a',1,'cio_websocket_private']]],
   ['write_5fresponse',['write_response',['../structcio__http__client.html#ad79dcfbaf16f820fb698ac95735dcac7',1,'cio_http_client']]],
   ['write_5fsome',['write_some',['../structcio__io__stream.html#ab173b100937d1e1d9d601ea3156624e3',1,'cio_io_stream']]],
-  ['ws_5fflags',['ws_flags',['../structcio__websocket__private.html#a3013b4fc29b443464ffc93c2ba958620',1,'cio_websocket_private']]],
+  ['ws_5fflags',['ws_flags',['../structcio__websocket__private.html#a41b8d0e6181ad659a77f0cbd308dc5c6',1,'cio_websocket_private']]],
   ['ws_5fversion_5fok',['ws_version_ok',['../structcio__websocket__location__handler.html#a36868d423b5fcc2c0095c2123876ff0a',1,'cio_websocket_location_handler']]]
 ];

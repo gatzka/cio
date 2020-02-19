@@ -3,16 +3,10 @@ digraph "cio_http_server_configuration"
   edge [fontname="Helvetica",fontsize="10",labelfontname="Helvetica",labelfontsize="10"];
   node [fontname="Helvetica",fontsize="10",shape=record];
   Node1 [label="cio_http_server_configuration",height=0.2,width=0.4,color="black", fillcolor="grey75", style="filled", fontcolor="black"];
-  Node2 -> Node1 [dir="back",color="darkorchid3",fontsize="10",style="dashed",label=" endpoint" ,fontname="Helvetica"];
-  Node2 [label="cio_inet_socket_address",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$structcio__inet__socket__address.html"];
-  Node3 -> Node2 [dir="back",color="darkorchid3",fontsize="10",style="dashed",label=" inet_address" ,fontname="Helvetica"];
-  Node3 [label="cio_inet_address",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$structcio__inet__address.html"];
-  Node4 -> Node3 [dir="back",color="darkorchid3",fontsize="10",style="dashed",label=" addr4" ,fontname="Helvetica"];
-  Node4 [label="cio_inet4_address",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$structcio__inet4__address.html"];
-  Node5 -> Node3 [dir="back",color="darkorchid3",fontsize="10",style="dashed",label=" addr6" ,fontname="Helvetica"];
-  Node5 [label="cio_inet6_address",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$structcio__inet6__address.html"];
-  Node6 -> Node1 [dir="back",color="darkorchid3",fontsize="10",style="dashed",label=" free_client\nalloc_client" ,fontname="Helvetica"];
-  Node6 [label="cio_socket",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$structcio__socket.html"];
-  Node7 -> Node1 [dir="back",color="darkorchid3",fontsize="10",style="dashed",label=" on_error" ,fontname="Helvetica"];
-  Node7 [label="cio_http_server",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$structcio__http__server.html",tooltip="The cio_http_server structure provides the implementation of a simple HTTP server. "];
+  Node2 -> Node1 [dir="back",color="darkorchid3",fontsize="10",style="dashed",label=" free_client\nalloc_client" ,fontname="Helvetica"];
+  Node2 [label="cio_socket",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$structcio__socket.html"];
+  Node3 -> Node1 [dir="back",color="darkorchid3",fontsize="10",style="dashed",label=" endpoint" ,fontname="Helvetica"];
+  Node3 [label="cio_socket_address",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$structcio__socket__address.html"];
+  Node4 -> Node1 [dir="back",color="darkorchid3",fontsize="10",style="dashed",label=" on_error" ,fontname="Helvetica"];
+  Node4 [label="cio_http_server",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$structcio__http__server.html",tooltip="The cio_http_server structure provides the implementation of a simple HTTP server. "];
 }

@@ -1,7 +1,8 @@
 var files =
 [
     [ "cio_export.h", "cio__export_8h.html", "cio__export_8h" ],
-    [ "os_config.h", "os__config_8h.html", "os__config_8h" ],
+    [ "cio_os_config.h", "cio__os__config_8h.html", "cio__os__config_8h" ],
+    [ "cio_address_family.h", "cio__address__family_8h.html", "cio__address__family_8h" ],
     [ "cio_base64.h", "cio__base64_8h.html", "cio__base64_8h" ],
     [ "cio_buffered_stream.h", "cio__buffered__stream_8h.html", "cio__buffered__stream_8h" ],
     [ "cio_compiler.h", "cio__compiler_8h.html", null ],
@@ -14,15 +15,19 @@ var files =
     [ "cio_http_method.h", "cio__http__method_8h.html", "cio__http__method_8h" ],
     [ "cio_http_server.h", "cio__http__server_8h.html", "cio__http__server_8h" ],
     [ "cio_http_status_code.h", "cio__http__status__code_8h.html", "cio__http__status__code_8h" ],
-    [ "cio_inet4_address.h", "cio__inet4__address_8h.html", "cio__inet4__address_8h" ],
-    [ "cio_inet6_address.h", "cio__inet6__address_8h.html", "cio__inet6__address_8h" ],
+    [ "cio_inet4_socket_address.h", "cio__inet4__socket__address_8h.html", [
+      [ "cio_inet4_socket_address", "structcio__inet4__socket__address.html", "structcio__inet4__socket__address" ]
+    ] ],
+    [ "cio_inet6_socket_address.h", "cio__inet6__socket__address_8h.html", [
+      [ "cio_inet6_socket_address", "structcio__inet6__socket__address.html", "structcio__inet6__socket__address" ]
+    ] ],
     [ "cio_inet_address.h", "cio__inet__address_8h.html", "cio__inet__address_8h" ],
-    [ "cio_inet_socket_address.h", "cio__inet__socket__address_8h.html", "cio__inet__socket__address_8h" ],
     [ "cio_io_stream.h", "cio__io__stream_8h.html", "cio__io__stream_8h" ],
     [ "cio_random.h", "cio__random_8h.html", "cio__random_8h" ],
     [ "cio_read_buffer.h", "cio__read__buffer_8h.html", "cio__read__buffer_8h" ],
     [ "cio_server_socket.h", "cio__server__socket_8h.html", "cio__server__socket_8h" ],
     [ "cio_socket.h", "cio__socket_8h.html", "cio__socket_8h" ],
+    [ "cio_socket_address.h", "cio__socket__address_8h.html", "cio__socket__address_8h" ],
     [ "cio_string.h", "cio__string_8h.html", "cio__string_8h" ],
     [ "cio_timer.h", "cio__timer_8h.html", "cio__timer_8h" ],
     [ "cio_utf8_checker.h", "cio__utf8__checker_8h.html", "cio__utf8__checker_8h" ],
