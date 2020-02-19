@@ -27,17 +27,19 @@
  */
 
 #include <windows.h>
+#include <ntstatus.h>
 #include <bcrypt.h>
 #include <stddef.h>
 
+#include "cio_error_code.h"
 #include "cio_compiler.h"
 #include "cio_random.h"
 
-void cio_entropy_get_bytes(void *bytes, size_t num_bytes)
+enum cio_error cio_entropy_get_bytes(void *bytes, size_t num_bytes)
 {
-	HRESULT hr = BCryptGenRandom(NULL, bytes, (ULONG)num_bytes, BCRYPT_USE_SYSTEM_PREFERRED_RNG);
+	NTSTATUS hr = BCryptGenRandom(NULL, bytes, (ULONG)num_bytes, BCRYPT_USE_SYSTEM_PREFERRED_RNG);
 	if (cio_unlikely(hr != STATUS_SUCCESS)) {
-		return = CIO_INVALID_ARGUMENT;
+		return CIO_INVALID_ARGUMENT;
 	}
 
 	return CIO_SUCCESS;
