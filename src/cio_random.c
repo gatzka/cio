@@ -26,6 +26,7 @@
 #include <stdint.h>
 
 #include "cio_compiler.h"
+#include "cio_error_code.h"
 #include "cio_random.h"
 
 static const uint64_t MULTIPLIER = 6364136223846793005ULL;
@@ -66,11 +67,15 @@ static uint32_t pcg32_random_r(cio_rng *rng)
 	return pcg_output_xsh_rr_64_32(oldstate);
 }
 
-void cio_random_seed_rng(cio_rng *rng)
+enum cio_error cio_random_seed_rng(cio_rng *rng)
 {
 	uint64_t seeds[2];
-	cio_entropy_get_bytes(&seeds, sizeof(seeds));
-	pcg_setseq_64_srandom_r(rng, seeds[0], seeds[1]);
+	enum cio_error err = cio_entropy_get_bytes(&seeds, sizeof(seeds));
+	if (cio_likely(err == CIO_SUCCESS)) {
+		pcg_setseq_64_srandom_r(rng, seeds[0], seeds[1]);
+	}
+
+	return err;
 }
 
 void cio_random_get_bytes(cio_rng *rng, void *bytes, size_t num_bytes)

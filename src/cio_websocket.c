@@ -851,9 +851,7 @@ enum cio_error cio_websocket_init(struct cio_websocket *ws, bool is_server, cio_
 
 	cio_utf8_init(&ws->ws_private.utf8_state);
 
-	cio_random_seed_rng(&ws->ws_private.rng);
-
-	return CIO_SUCCESS;
+	return cio_random_seed_rng(&ws->ws_private.rng);
 }
 
 enum cio_error cio_websocket_close(struct cio_websocket *ws, enum cio_websocket_status_code status_code, const char *reason, cio_websocket_write_handler handler, void *handler_context)

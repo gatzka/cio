@@ -37,6 +37,7 @@ extern "C" {
 #include <stddef.h>
 #include <stdint.h>
 
+#include "cio_error_code.h"
 #include "cio_export.h"
 
 struct pcg_state_setseq_64 {
@@ -46,10 +47,10 @@ struct pcg_state_setseq_64 {
 
 typedef struct pcg_state_setseq_64 cio_rng;
 
-CIO_EXPORT void cio_random_seed_rng(cio_rng *rng);
+CIO_EXPORT enum cio_error cio_random_seed_rng(cio_rng *rng);
 CIO_EXPORT void cio_random_get_bytes(cio_rng *rng, void *bytes, size_t num_bytes);
 
-void cio_entropy_get_bytes(void *bytes, size_t num_bytes);
+enum cio_error cio_entropy_get_bytes(void *bytes, size_t num_bytes);
 
 #ifdef __cplusplus
 }
