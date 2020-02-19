@@ -38,9 +38,6 @@ add_test(NAME cio.common.test_inet_socket_address COMMAND test_cio_inet_socket_a
 add_executable(test_cio_random test_cio_random.c)
 add_test(NAME cio.common.test_random COMMAND test_cio_random)
 
-add_executable(test_cio_random_errors test_cio_random_errors.c)
-add_test(NAME cio.common.test_random_errors COMMAND test_cio_random_errors)
-
 add_executable(test_cio_read_buffer test_cio_read_buffer.c)
 add_test(NAME cio.common.test_read_buffer COMMAND test_cio_read_buffer)
  
