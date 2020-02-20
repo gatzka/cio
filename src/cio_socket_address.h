@@ -57,6 +57,20 @@ struct cio_socket_address {
 CIO_EXPORT enum cio_error cio_init_inet_socket_address(struct cio_socket_address *sock_address, const struct cio_inet_address *inet_address, uint16_t port);
 
 /**
+ * @brief Initializes a inet socket address from an IP address and a port number.
+ *
+ * @param sock_address The inet socket address to be initalized.
+ * @param path The path to the unix domain socket file.
+ * @note Linux systems have the special ability to create an "abstract" unix domain socket.
+ * Abstract domain sockets do note reside as a file in a filesystem so they have the advantage
+ * that they disappear when all open references to that socket are closed.
+ * @note Abstract sockets are distinguished by the fact that path[0] is a null byte ('\0').
+ *
+ * @return ::CIO_SUCCESS for success.
+ */
+CIO_EXPORT enum cio_error cio_init_uds_socket_address(struct cio_socket_address *sock_address, const char *path);
+
+/**
  * @brief Get the address family of an initialized socket address.
  *
  * @param endpoint The socket address endpoint from which the address family should be retrieved.
