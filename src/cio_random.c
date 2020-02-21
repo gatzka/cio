@@ -73,6 +73,8 @@ enum cio_error cio_random_seed_rng(cio_rng *rng)
 	enum cio_error err = cio_entropy_get_bytes(&seeds, sizeof(seeds));
 	if (cio_likely(err == CIO_SUCCESS)) {
 		pcg_setseq_64_srandom_r(rng, seeds[0], seeds[1]);
+	} else {
+		pcg_setseq_64_srandom_r(rng, UINT64_C(0), UINT64_C(0));
 	}
 
 	return err;
