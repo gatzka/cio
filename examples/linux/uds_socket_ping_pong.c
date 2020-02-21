@@ -95,6 +95,13 @@ static void free_echo_client(struct cio_socket *socket)
 	free(client);
 }
 
+static void handle_accept(struct cio_server_socket *ss, void *handler_context, enum cio_error err, struct cio_socket *socket)
+{
+	(void)ss;
+	(void)handler_context;
+	(void)err;
+	(void)socket;
+}
 
 #if 0
 static const char hello[] = "Hello";
@@ -331,14 +338,14 @@ int main(int argc, char *argv[])
 		ret = EXIT_FAILURE;
 		goto close_server_socket;
 	}
-#if 0
+
 	err = cio_server_socket_accept(&ss, handle_accept, NULL);
 	if (cio_unlikely(err != CIO_SUCCESS)) {
 		fprintf(stderr, "could not run accept on server socket!\n");
 		ret = EXIT_FAILURE;
 		goto close_server_socket;
 	}
-
+#if 0
 	static const uint8_t ip[4] = {127, 0, 0, 1};
 	struct cio_inet_address inet_address;
 	err = cio_init_inet_address(&inet_address, ip, sizeof(ip));
@@ -374,12 +381,11 @@ int main(int argc, char *argv[])
 		ret = EXIT_FAILURE;
 		goto close_server_socket;
 	}
-
+#endif
 	err = cio_eventloop_run(&loop);
 	if (err != CIO_SUCCESS) {
 		ret = EXIT_FAILURE;
 	}
-#endif
 
 close_server_socket:
 	cio_server_socket_close(&ss);
