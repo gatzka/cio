@@ -154,6 +154,32 @@ void cio_server_socket_close(struct cio_server_socket *ss)
 	}
 }
 
+static bool is_standard_uds_socket(const struct cio_socket_address *endpoint)
+{
+	if (endpoint->impl.sa.socket_address.addr.sa_family != (sa_family_t)CIO_ADDRESS_FAMILY_UNIX) {
+		return false;
+	}
+
+	if (endpoint->impl.sa.unix_address.un.sun_path[0] == '\0') {
+		return false;
+	}
+
+	return true;
+}
+
+static enum cio_error try_removing_uds_file(const struct cio_socket_address *endpoint)
+{
+	int ret = unlink(endpoint->impl.sa.unix_address.un.sun_path);
+	enum cio_error err;
+	if (cio_unlikely(ret == -1)) {
+		err = (enum cio_error)(-errno);
+	} else {
+		err = CIO_SUCCESS;
+	}
+
+	return err;
+}
+
 enum cio_error cio_server_socket_bind(struct cio_server_socket *ss, const struct cio_socket_address *endpoint)
 {
 	if (cio_unlikely((ss == NULL) || (endpoint == NULL))) {
@@ -162,6 +188,10 @@ enum cio_error cio_server_socket_bind(struct cio_server_socket *ss, const struct
 
 	if (cio_unlikely((enum cio_address_family)endpoint->impl.sa.socket_address.addr.sa_family == CIO_ADDRESS_FAMILY_UNSPEC)) {
 		return CIO_INVALID_ARGUMENT;
+	}
+
+	if (is_standard_uds_socket(endpoint)) {
+		try_removing_uds_file(endpoint);
 	}
 
 	const struct sockaddr *addr = &endpoint->impl.sa.socket_address.addr;
