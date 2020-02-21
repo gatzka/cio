@@ -46,6 +46,7 @@
 static unsigned long long max_pings;
 static struct cio_eventloop loop;
 
+static const char hello[] = "Hello";
 static const uint64_t CLOSE_TIMEOUT_NS = UINT64_C(1) * UINT64_C(1000) * UINT64_C(1000) * UINT64_C(1000);
 enum {BASE_10 = 10};
 enum {SERVERSOCKET_BACKLOG = 5};
@@ -95,20 +96,12 @@ static void free_echo_client(struct cio_socket *socket)
 	free(client);
 }
 
-static void handle_accept(struct cio_server_socket *ss, void *handler_context, enum cio_error err, struct cio_socket *socket)
+static void client_socket_close_hook(struct cio_socket *socket)
 {
-	(void)ss;
-	(void)handler_context;
-	(void)err;
 	(void)socket;
+	fprintf(stdout, "connection closed by server peer\n");
+	cio_eventloop_cancel(&loop);
 }
-
-#if 0
-static const char hello[] = "Hello";
-
-enum {SERVERSOCKET_LISTEN_PORT = 12345};
-enum {IPV6_ADDRESS_SIZE = 16};
-
 
 static void server_handle_read(struct cio_buffered_stream *bs, void *handler_context, enum cio_error err, struct cio_read_buffer *read_buffer, size_t num_bytes);
 
@@ -241,13 +234,6 @@ static void client_handle_write(struct cio_buffered_stream *bs, void *handler_co
 	}
 }
 
-static void client_socket_close_hook(struct cio_socket *socket)
-{
-	(void)socket;
-	fprintf(stdout, "connection closed by server peer\n");
-	cio_eventloop_cancel(&loop);
-}
-
 static void handle_connect(struct cio_socket *socket, void *handler_context, enum cio_error err)
 {
 	if (cio_unlikely(err != CIO_SUCCESS)) {
@@ -272,7 +258,6 @@ static void handle_connect(struct cio_socket *socket, void *handler_context, enu
 		return;
 	}
 }
-#endif
 
 static void usage(const char *name)
 {
@@ -345,18 +330,9 @@ int main(int argc, char *argv[])
 		ret = EXIT_FAILURE;
 		goto close_server_socket;
 	}
-#if 0
-	static const uint8_t ip[4] = {127, 0, 0, 1};
-	struct cio_inet_address inet_address;
-	err = cio_init_inet_address(&inet_address, ip, sizeof(ip));
-	if (cio_unlikely(err != CIO_SUCCESS)) {
-		fprintf(stderr, "could not init client socket inet address!\n");
-		ret = EXIT_FAILURE;
-		goto close_server_socket;
-	}
 
 	struct cio_socket_address client_endpoint;
-	err = cio_init_inet_socket_address(&client_endpoint, &inet_address, SERVERSOCKET_LISTEN_PORT);
+	err = cio_init_uds_socket_address(&client_endpoint, path);
 	if (cio_unlikely(err != CIO_SUCCESS)) {
 		fprintf(stderr, "could not init client socket endpoint!\n");
 		ret = EXIT_FAILURE;
@@ -364,7 +340,7 @@ int main(int argc, char *argv[])
 	}
 
 	struct cio_socket socket;
-	err = cio_socket_init(&socket, cio_socket_address_get_family(&endpoint), &loop, CLOSE_TIMEOUT_NS, client_socket_close_hook);
+	err = cio_socket_init(&socket, cio_socket_address_get_family(&client_endpoint), &loop, CLOSE_TIMEOUT_NS, client_socket_close_hook);
 	if (cio_unlikely(err != CIO_SUCCESS)) {
 		fprintf(stderr, "could not init client socket endpoint!\n");
 		ret = EXIT_FAILURE;
@@ -381,7 +357,7 @@ int main(int argc, char *argv[])
 		ret = EXIT_FAILURE;
 		goto close_server_socket;
 	}
-#endif
+
 	err = cio_eventloop_run(&loop);
 	if (err != CIO_SUCCESS) {
 		ret = EXIT_FAILURE;
