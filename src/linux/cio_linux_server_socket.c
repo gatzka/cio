@@ -160,22 +160,12 @@ enum cio_error cio_server_socket_bind(struct cio_server_socket *ss, const struct
 		return CIO_INVALID_ARGUMENT;
 	}
 
-	if (cio_unlikely((enum cio_address_family)endpoint->impl.socket_address.addr.sa_family == CIO_ADDRESS_FAMILY_UNSPEC)) {
+	if (cio_unlikely((enum cio_address_family)endpoint->impl.sa.socket_address.addr.sa_family == CIO_ADDRESS_FAMILY_UNSPEC)) {
 		return CIO_INVALID_ARGUMENT;
 	}
 
-	const struct sockaddr *addr;
-	socklen_t addr_len;
-	if ((enum cio_address_family)endpoint->impl.socket_address.addr.sa_family == CIO_ADDRESS_FAMILY_INET4) {
-		addr = (const struct sockaddr *)&endpoint->impl.inet_addr4.impl.in;
-		addr_len = sizeof(endpoint->impl.inet_addr4.impl.in);
-	} else if ((enum cio_address_family)endpoint->impl.socket_address.addr.sa_family == CIO_ADDRESS_FAMILY_INET6) {
-		addr = (const struct sockaddr *)&endpoint->impl.inet_addr6.impl.in6;
-		addr_len = sizeof(endpoint->impl.inet_addr6.impl.in6);
-	} else {
-		addr = (const struct sockaddr *)&endpoint->impl.unix_address.un;
-		addr_len = sizeof(endpoint->impl.unix_address.un);
-	}
+	const struct sockaddr *addr = &endpoint->impl.sa.socket_address.addr;
+	socklen_t addr_len = endpoint->impl.len;
 
 	int ret = bind(ss->impl.ev.fd, addr, addr_len);
 	if (cio_unlikely(ret != 0)) {

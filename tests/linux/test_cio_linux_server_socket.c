@@ -682,7 +682,7 @@ static void test_accept_bind_wrong_family(void)
 	enum cio_error err = cio_server_socket_init(&ss, &loop, 5, cio_socket_address_get_family(&endpoint), alloc_client, free_client, 10, on_close);
 	TEST_ASSERT_EQUAL(CIO_SUCCESS, err);
 
-	endpoint.impl.socket_address.addr.sa_family = (sa_family_t)CIO_ADDRESS_FAMILY_UNSPEC;
+	endpoint.impl.sa.socket_address.addr.sa_family = (sa_family_t)CIO_ADDRESS_FAMILY_UNSPEC;
 
 	err = cio_server_socket_bind(&ss, &endpoint);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_INVALID_ARGUMENT, err, "bind did not fail if called with an unspecified address family!");

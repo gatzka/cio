@@ -305,7 +305,7 @@ int main(int argc, char *argv[])
 	}
 
 	struct cio_socket_address endpoint;
-	const char path[] = {"\0foobar"};
+	const char path[] = {"\0/tmp/foobar"};
 	enum cio_error err = cio_init_uds_socket_address(&endpoint, path);
 	if (cio_unlikely(err != CIO_SUCCESS)) {
 		fprintf(stderr, "could no init server socket endpoint!\n");

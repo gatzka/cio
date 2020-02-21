@@ -42,7 +42,7 @@ extern "C" {
 #endif
 
 struct cio_socket_address {
-	union cio_socket_address_impl impl;
+	struct cio_socket_address_impl impl;
 };
 
 /**

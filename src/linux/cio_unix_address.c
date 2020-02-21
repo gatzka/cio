@@ -46,10 +46,10 @@ CIO_EXPORT enum cio_error cio_init_uds_socket_address(struct cio_socket_address 
 		return CIO_INVALID_ARGUMENT;
 	}
 
-	size_t max_path_length = sizeof(sock_address->impl.unix_address.un.sun_path);
+	size_t max_path_length = sizeof(sock_address->impl.sa.unix_address.un.sun_path);
 	size_t path_length;
 	if (is_abstract_uds(path)) {
-		path_length = strlen(path + 1) + 2;
+		path_length = strlen(path + 1) + 1;
 	} else {
 		path_length = strlen(path) + 1;
 	}
@@ -58,9 +58,10 @@ CIO_EXPORT enum cio_error cio_init_uds_socket_address(struct cio_socket_address 
 		return CIO_INVALID_ARGUMENT;
 	}
 
-	memset(&sock_address->impl.unix_address.un, 0x0, sizeof(sock_address->impl.unix_address.un));
-	sock_address->impl.socket_address.addr.sa_family = (sa_family_t)CIO_ADDRESS_FAMILY_UNIX;
-	memcpy(sock_address->impl.unix_address.un.sun_path, path, path_length);
+	memset(&sock_address->impl.sa.unix_address.un, 0x0, sizeof(sock_address->impl.sa.unix_address.un));
+	sock_address->impl.sa.socket_address.addr.sa_family = (sa_family_t)CIO_ADDRESS_FAMILY_UNIX;
+	memcpy(sock_address->impl.sa.unix_address.un.sun_path, path, path_length);
+	sock_address->impl.len = (socklen_t)(offsetof(struct sockaddr_un, sun_path) + path_length);
 
 	return CIO_SUCCESS;
 }
