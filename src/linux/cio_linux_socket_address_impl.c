@@ -53,14 +53,17 @@ enum cio_error cio_init_inet_socket_address(struct cio_socket_address *sock_addr
 		return CIO_INVALID_ARGUMENT;
 	}
 
-	sock_address->impl.socket_address.addr.sa_family = (sa_family_t)family;
 	if (family == CIO_ADDRESS_FAMILY_INET4) {
+		memset(&sock_address->impl.inet_addr4.impl.in, 0x0, sizeof(sock_address->impl.inet_addr4.impl.in));
 		memcpy(&sock_address->impl.inet_addr4.impl.in.sin_addr, &inet_address->impl.in.s_addr, sizeof(inet_address->impl.in.s_addr));
 		sock_address->impl.inet_addr4.impl.in.sin_port = cio_htobe16(port);
 	} else {
+		memset(&sock_address->impl.inet_addr6.impl.in6, 0x0, sizeof(sock_address->impl.inet_addr6.impl.in6));
 		memcpy(sock_address->impl.inet_addr6.impl.in6.sin6_addr.s6_addr, inet_address->impl.in6.s6_addr, sizeof(inet_address->impl.in6.s6_addr));
 		sock_address->impl.inet_addr6.impl.in6.sin6_port = cio_htobe16(port);
 	}
+
+	sock_address->impl.socket_address.addr.sa_family = (sa_family_t)family;
 
 	return CIO_SUCCESS;
 }
