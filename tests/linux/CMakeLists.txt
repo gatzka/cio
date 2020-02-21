@@ -26,6 +26,9 @@ add_test(NAME cio.linux.test_string COMMAND test_cio_linux_string)
 add_executable(test_cio_linux_timer test_cio_linux_timer.c)
 add_test(NAME cio.linux.test_timer COMMAND test_cio_linux_timer)
 
+add_executable(test_cio_linux_unix_socket_address test_cio_linux_unix_socket_address.c)
+add_test(NAME cio.linux.test_unix_socket_address COMMAND test_cio_linux_unix_socket_address)
+
 get_property(targets DIRECTORY "${CMAKE_CURRENT_LIST_DIR}" PROPERTY BUILDSYSTEM_TARGETS)
 foreach(tgt ${targets})
     get_target_property(target_type ${tgt} TYPE)
