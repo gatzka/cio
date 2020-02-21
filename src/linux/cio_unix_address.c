@@ -58,6 +58,7 @@ CIO_EXPORT enum cio_error cio_init_uds_socket_address(struct cio_socket_address 
 		return CIO_INVALID_ARGUMENT;
 	}
 
+	memset(&sock_address->impl.unix_address.un, 0x0, sizeof(sock_address->impl.unix_address.un));
 	sock_address->impl.socket_address.addr.sa_family = (sa_family_t)CIO_ADDRESS_FAMILY_UNIX;
 	memcpy(sock_address->impl.unix_address.un.sun_path, path, path_length);
 
