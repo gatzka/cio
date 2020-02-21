@@ -36,7 +36,8 @@
 
 int cio_linux_socket_create(enum cio_address_family address_family)
 {
-	if (cio_unlikely((address_family != CIO_ADDRESS_FAMILY_INET4) && (address_family != CIO_ADDRESS_FAMILY_INET6))) {
+	if (cio_unlikely(address_family == CIO_ADDRESS_FAMILY_UNSPEC)) {
+		errno = EINVAL;
 		return -1;
 	}
 
