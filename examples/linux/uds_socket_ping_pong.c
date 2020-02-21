@@ -34,25 +34,22 @@
 #include "cio_buffered_stream.h"
 #include "cio_error_code.h"
 #include "cio_eventloop.h"
-#include "cio_inet_address.h"
 #include "cio_io_stream.h"
 #include "cio_read_buffer.h"
 #include "cio_server_socket.h"
 #include "cio_socket.h"
+#include "cio_socket_address.h"
 #include "cio_util.h"
 #include "cio_write_buffer.h"
-
-static const char hello[] = "Hello";
-
-static struct cio_eventloop loop;
-enum {SERVERSOCKET_BACKLOG = 5};
-enum {SERVERSOCKET_LISTEN_PORT = 12345};
-static const uint64_t CLOSE_TIMEOUT_NS = UINT64_C(1) * UINT64_C(1000) * UINT64_C(1000) * UINT64_C(1000);
-enum {BUFFER_SIZE = 128};
-enum {IPV6_ADDRESS_SIZE = 16};
-enum {BASE_10 = 10};
+#include "linux/cio_unix_address.h"
 
 static unsigned long long max_pings;
+static struct cio_eventloop loop;
+
+static const uint64_t CLOSE_TIMEOUT_NS = UINT64_C(1) * UINT64_C(1000) * UINT64_C(1000) * UINT64_C(1000);
+enum {BASE_10 = 10};
+enum {SERVERSOCKET_BACKLOG = 5};
+enum {BUFFER_SIZE = 128};
 
 struct echo_client {
 	size_t bytes_read;
@@ -74,6 +71,12 @@ struct client {
 	uint8_t buffer[BUFFER_SIZE];
 };
 
+static void sighandler(int signum)
+{
+	(void)signum;
+	cio_eventloop_cancel(&loop);
+}
+
 static struct cio_socket *alloc_echo_client(void)
 {
 	struct echo_client *client = malloc(sizeof(*client));
@@ -92,11 +95,13 @@ static void free_echo_client(struct cio_socket *socket)
 	free(client);
 }
 
-static void sighandler(int signum)
-{
-	(void)signum;
-	cio_eventloop_cancel(&loop);
-}
+
+#if 0
+static const char hello[] = "Hello";
+
+enum {SERVERSOCKET_LISTEN_PORT = 12345};
+enum {IPV6_ADDRESS_SIZE = 16};
+
 
 static void server_handle_read(struct cio_buffered_stream *bs, void *handler_context, enum cio_error err, struct cio_read_buffer *read_buffer, size_t num_bytes);
 
@@ -260,6 +265,7 @@ static void handle_connect(struct cio_socket *socket, void *handler_context, enu
 		return;
 	}
 }
+#endif
 
 static void usage(const char *name)
 {
@@ -292,7 +298,8 @@ int main(int argc, char *argv[])
 	}
 
 	struct cio_socket_address endpoint;
-	enum cio_error err = cio_init_inet_socket_address(&endpoint, cio_get_inet_address_any4(), SERVERSOCKET_LISTEN_PORT);
+	const char path[] = {"\0foobar"};
+	enum cio_error err = cio_init_uds_socket_address(&endpoint, path);
 	if (cio_unlikely(err != CIO_SUCCESS)) {
 		fprintf(stderr, "could no init server socket endpoint!\n");
 		return -1;
@@ -324,7 +331,7 @@ int main(int argc, char *argv[])
 		ret = EXIT_FAILURE;
 		goto close_server_socket;
 	}
-
+#if 0
 	err = cio_server_socket_accept(&ss, handle_accept, NULL);
 	if (cio_unlikely(err != CIO_SUCCESS)) {
 		fprintf(stderr, "could not run accept on server socket!\n");
@@ -372,6 +379,7 @@ int main(int argc, char *argv[])
 	if (err != CIO_SUCCESS) {
 		ret = EXIT_FAILURE;
 	}
+#endif
 
 close_server_socket:
 	cio_server_socket_close(&ss);
