@@ -355,17 +355,7 @@ enum cio_error cio_socket_connect(struct cio_socket *socket, const struct cio_so
 		return CIO_INVALID_ARGUMENT;
 	}
 
-	const struct sockaddr *addr;
-	socklen_t addr_len;
-	if ((enum cio_address_family)endpoint->impl.sa.socket_address.addr.sa_family == CIO_ADDRESS_FAMILY_INET4) {
-		addr = (const struct sockaddr *)&endpoint->impl.sa.inet_addr4.impl.in;
-		addr_len = sizeof(endpoint->impl.sa.inet_addr4.impl.in);
-	} else {
-		addr = (const struct sockaddr *)&endpoint->impl.sa.inet_addr6.impl.in6;
-		addr_len = sizeof(endpoint->impl.sa.inet_addr6.impl.in6);
-	}
-
-	int ret = connect(socket->impl.ev.fd, addr, addr_len);
+	int ret = connect(socket->impl.ev.fd, &endpoint->impl.sa.socket_address.addr, endpoint->impl.len);
 	if (ret == 0) {
 		handler(socket, handler_context, CIO_SUCCESS);
 	} else {
