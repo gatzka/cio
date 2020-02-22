@@ -85,7 +85,7 @@ static void test_init_inet_socket_address_wrong_family(void)
 	address.impl.family = CIO_ADDRESS_FAMILY_UNSPEC;
 	struct cio_socket_address sock_addr;
 	err = cio_init_inet_socket_address(&sock_addr, &address, 12);
-	TEST_ASSERT_EQUAL_MESSAGE(CIO_INVALID_ARGUMENT, err, "initialization of inet socket address did not fail with wrong address family!");
+	TEST_ASSERT_EQUAL_MESSAGE(CIO_ADDRESS_FAMILY_NOT_SUPPORTED, err, "initialization of inet socket address did not fail with wrong address family!");
 }
 
 int main(void)
