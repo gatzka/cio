@@ -41,8 +41,6 @@
 
 DEFINE_FFF_GLOBALS
 
-int accept4(int, struct sockaddr *, socklen_t *, int);
-FAKE_VALUE_FUNC(int, accept4, int, struct sockaddr *, socklen_t *, int)
 void accept_handler(struct cio_server_socket *ss, void *handler_context, enum cio_error err, struct cio_socket *socket);
 FAKE_VOID_FUNC(accept_handler, struct cio_server_socket *, void *, enum cio_error, struct cio_socket *)
 
@@ -54,12 +52,14 @@ FAKE_VOID_FUNC(cio_linux_eventloop_remove, struct cio_eventloop *, const struct 
 void on_close(struct cio_server_socket *ss);
 FAKE_VOID_FUNC(on_close, struct cio_server_socket *)
 
+FAKE_VALUE_FUNC(int, accept4, int, struct sockaddr *, socklen_t *, int)
 FAKE_VALUE_FUNC(int, getsockopt, int, int, int, void *, socklen_t *)
 FAKE_VALUE_FUNC(int, setsockopt, int, int, int, const void *, socklen_t)
 FAKE_VALUE_FUNC(int, bind, int, const struct sockaddr *, socklen_t)
 FAKE_VALUE_FUNC(int, listen, int, int)
 FAKE_VALUE_FUNC(int, close, int)
 FAKE_VALUE_FUNC(int, socket, int, int, int)
+FAKE_VALUE_FUNC(int, unlink, const char *)
 
 struct cio_socket *alloc_client(void);
 FAKE_VALUE_FUNC0(struct cio_socket *, alloc_client)
@@ -100,7 +100,6 @@ static enum cio_error socket_close(struct cio_socket *s)
 void setUp(void)
 {
 	FFF_RESET_HISTORY()
-	RESET_FAKE(accept4)
 	RESET_FAKE(accept_handler)
 	RESET_FAKE(cio_socket_close)
 
@@ -111,12 +110,15 @@ void setUp(void)
 
 	RESET_FAKE(on_close)
 
-	RESET_FAKE(socket)
-	RESET_FAKE(getsockopt)
-	RESET_FAKE(setsockopt)
+	RESET_FAKE(accept4)
 	RESET_FAKE(bind)
-	RESET_FAKE(listen)
 	RESET_FAKE(close)
+	RESET_FAKE(getsockopt)
+	RESET_FAKE(listen)
+	RESET_FAKE(setsockopt)
+	RESET_FAKE(socket)
+	RESET_FAKE(unlink)
+
 	RESET_FAKE(alloc_client)
 	RESET_FAKE(free_client)
 
@@ -671,6 +673,102 @@ static void test_accept_bind_ipv6(void)
 	TEST_ASSERT_EQUAL(1, close_fake.call_count);
 }
 
+static void test_accept_bind_abstract_uds(void)
+{
+	struct cio_eventloop loop;
+	struct cio_server_socket ss;
+
+	struct cio_socket_address endpoint;
+	cio_init_uds_socket_address(&endpoint, "\0/tmp/foobar");
+
+	enum cio_error err = cio_server_socket_init(&ss, &loop, 5, cio_socket_address_get_family(&endpoint), alloc_client, free_client, 10, on_close);
+	TEST_ASSERT_EQUAL(CIO_SUCCESS, err);
+
+	unlink_fake.return_val = -1;
+	errno = ENOENT;
+
+	err = cio_server_socket_bind(&ss, &endpoint);
+	TEST_ASSERT_EQUAL(CIO_SUCCESS, err);
+
+	TEST_ASSERT_EQUAL(0, close_fake.call_count);
+	cio_server_socket_close(&ss);
+	TEST_ASSERT_EQUAL(1, close_fake.call_count);
+
+	TEST_ASSERT_EQUAL_MESSAGE(0, unlink_fake.call_count, "unlink was called");
+}
+
+
+static void test_accept_bind_uds_no_stale_file(void)
+{
+	struct cio_eventloop loop;
+	struct cio_server_socket ss;
+
+	struct cio_socket_address endpoint;
+	cio_init_uds_socket_address(&endpoint, "/tmp/foobar");
+
+	enum cio_error err = cio_server_socket_init(&ss, &loop, 5, cio_socket_address_get_family(&endpoint), alloc_client, free_client, 10, on_close);
+	TEST_ASSERT_EQUAL(CIO_SUCCESS, err);
+
+	unlink_fake.return_val = -1;
+	errno = ENOENT;
+
+	err = cio_server_socket_bind(&ss, &endpoint);
+	TEST_ASSERT_EQUAL(CIO_SUCCESS, err);
+
+	TEST_ASSERT_EQUAL(0, close_fake.call_count);
+	cio_server_socket_close(&ss);
+	TEST_ASSERT_EQUAL(1, close_fake.call_count);
+
+	TEST_ASSERT_EQUAL_MESSAGE(1, unlink_fake.call_count, "unlink was called");
+}
+
+static void test_accept_bind_uds_stale_file(void)
+{
+	struct cio_eventloop loop;
+	struct cio_server_socket ss;
+
+	struct cio_socket_address endpoint;
+	cio_init_uds_socket_address(&endpoint, "/tmp/foobar");
+
+	enum cio_error err = cio_server_socket_init(&ss, &loop, 5, cio_socket_address_get_family(&endpoint), alloc_client, free_client, 10, on_close);
+	TEST_ASSERT_EQUAL(CIO_SUCCESS, err);
+
+	unlink_fake.return_val = 0;
+
+	err = cio_server_socket_bind(&ss, &endpoint);
+	TEST_ASSERT_EQUAL(CIO_SUCCESS, err);
+
+	TEST_ASSERT_EQUAL(0, close_fake.call_count);
+	cio_server_socket_close(&ss);
+	TEST_ASSERT_EQUAL(1, close_fake.call_count);
+
+	TEST_ASSERT_EQUAL_MESSAGE(1, unlink_fake.call_count, "unlink was called");
+}
+
+static void test_accept_bind_uds_stale_file_cant_remove(void)
+{
+	struct cio_eventloop loop;
+	struct cio_server_socket ss;
+
+	struct cio_socket_address endpoint;
+	cio_init_uds_socket_address(&endpoint, "/tmp/foobar");
+
+	enum cio_error err = cio_server_socket_init(&ss, &loop, 5, cio_socket_address_get_family(&endpoint), alloc_client, free_client, 10, on_close);
+	TEST_ASSERT_EQUAL(CIO_SUCCESS, err);
+
+	unlink_fake.return_val = -1;
+	errno = EPERM;
+
+	err = cio_server_socket_bind(&ss, &endpoint);
+	TEST_ASSERT_EQUAL_MESSAGE(CIO_OPERATION_NOT_PERMITTED, err, "bind did not fail if removal of udsw file failed");
+
+	TEST_ASSERT_EQUAL(0, close_fake.call_count);
+	cio_server_socket_close(&ss);
+	TEST_ASSERT_EQUAL(1, close_fake.call_count);
+
+	TEST_ASSERT_EQUAL_MESSAGE(1, unlink_fake.call_count, "unlink was not called");
+}
+
 static void test_accept_bind_wrong_family(void)
 {
 	struct cio_eventloop loop;
@@ -869,6 +967,10 @@ int main(void)
 	RUN_TEST(test_init_listen_fails);
 	RUN_TEST(test_init_setsockopt_fails);
 	RUN_TEST(test_accept_bind_ipv6);
+	RUN_TEST(test_accept_bind_abstract_uds);
+	RUN_TEST(test_accept_bind_uds_no_stale_file);
+	RUN_TEST(test_accept_bind_uds_stale_file);
+	RUN_TEST(test_accept_bind_uds_stale_file_cant_remove);
 	RUN_TEST(test_accept_bind_wrong_family);
 	RUN_TEST(test_init_bind_fails);
 	RUN_TEST(test_init_bind_no_server_socket);
