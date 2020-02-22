@@ -50,7 +50,7 @@ enum cio_error cio_init_inet_socket_address(struct cio_socket_address *sock_addr
 
 	enum cio_address_family family = inet_address->impl.family;
 	if (cio_unlikely((family != CIO_ADDRESS_FAMILY_INET4) && (family != CIO_ADDRESS_FAMILY_INET6))) {
-		return CIO_INVALID_ARGUMENT;
+		return CIO_ADDRESS_FAMILY_NOT_SUPPORTED;
 	}
 
 	if (family == CIO_ADDRESS_FAMILY_INET4) {
