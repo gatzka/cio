@@ -112,7 +112,7 @@ struct cio_server_socket {
  * @ref cio_server_socket_close "closing" the cio_server_socket.
  * It is guaranteed the the cio library will not access any memory of
  * cio_server_socket that is passed to the close hook. Therefore
- * the hook could be used to free the memory of the server socket.
+ * the hook could be used to free the memory associated with the server socket.
  * @return ::CIO_SUCCESS for success.
  */
 CIO_EXPORT enum cio_error cio_server_socket_init(struct cio_server_socket *ss,

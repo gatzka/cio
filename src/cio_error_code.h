@@ -49,6 +49,7 @@ extern "C" {
 enum cio_error {
 	CIO_EOF = 1,                                                                                /*!< End of File occured. */
 	CIO_SUCCESS = 0,                                                                            /*!< No error occured. */
+	CIO_NO_SUCH_FILE_OR_DIRECTORY = -CIO_WINDOWS_UNIX_SOCKET_ERROR(EACCES, ENOENT),             /*!< No such file or directory. */
 	CIO_ADDRESS_FAMILY_NOT_SUPPORTED = -CIO_SOCKET_ERROR(EAFNOSUPPORT),                         /*!< Address family not supported. */
 	CIO_ADDRESS_IN_USE = -CIO_SOCKET_ERROR(EADDRINUSE),                                         /*!< Address is already in use. */
 	CIO_ADDRESS_NOT_AVAILABLE = -CIO_SOCKET_ERROR(EADDRNOTAVAIL),                               /*!< Address not available */

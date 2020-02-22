@@ -3,7 +3,7 @@
  *
  * The MIT License (MIT)
  *
- * Copyright (c) <2017> <Stephan Gatzka>
+ * Copyright (c) <2020> <Stephan Gatzka>
  *
  * Permission is hereby granted, free of charge, to any person obtaining
  * a copy of this software and associated documentation files (the
@@ -26,39 +26,42 @@
  * SOFTWARE.
  */
 
-#include <errno.h>
-#include <sys/socket.h>
+#include <stdbool.h>
+#include <string.h>
 
 #include "cio_compiler.h"
 #include "cio_error_code.h"
-#include "cio_inet_address.h"
-#include "linux/cio_linux_socket_utils.h"
+#include "cio_export.h"
+#include "cio_socket_address.h"
+#include "linux/cio_unix_address.h"
 
-int cio_linux_socket_create(enum cio_address_family address_family)
+static bool is_abstract_uds(const char *path)
 {
-	if (cio_unlikely(address_family == CIO_ADDRESS_FAMILY_UNSPEC)) {
-		errno = EINVAL;
-		return -1;
-	}
-
-	int domain = (int)address_family;
-
-	int fd = socket(domain, (unsigned int)SOCK_STREAM | (unsigned int)SOCK_CLOEXEC | (unsigned int)SOCK_NONBLOCK, 0U);
-	if (cio_unlikely(fd == -1)) {
-		return -1;
-	}
-
-	return fd;
+	return path[0] == '\0';
 }
 
-enum cio_error cio_linux_get_socket_error(int fd)
+CIO_EXPORT enum cio_error cio_init_uds_socket_address(struct cio_socket_address *sock_address, const char *path)
 {
-	int error = 0;
-	socklen_t len = sizeof(error);
-	int ret = getsockopt(fd, SOL_SOCKET, SO_ERROR, &error, &len);
-	if (cio_unlikely(ret != 0)) {
-		return (enum cio_error)(-errno);
+	if (cio_unlikely((sock_address == NULL) || (path == NULL))) {
+		return CIO_INVALID_ARGUMENT;
 	}
 
-	return (enum cio_error)(-error);
+	size_t max_path_length = sizeof(sock_address->impl.sa.unix_address.un.sun_path);
+	size_t path_length;
+	if (is_abstract_uds(path)) {
+		path_length = strlen(path + 1) + 1;
+	} else {
+		path_length = strlen(path) + 1;
+	}
+
+	if (cio_unlikely(path_length > max_path_length)) {
+		return CIO_INVALID_ARGUMENT;
+	}
+
+	memset(&sock_address->impl.sa.unix_address.un, 0x0, sizeof(sock_address->impl.sa.unix_address.un));
+	sock_address->impl.sa.socket_address.addr.sa_family = (sa_family_t)CIO_ADDRESS_FAMILY_UNIX;
+	memcpy(sock_address->impl.sa.unix_address.un.sun_path, path, path_length);
+	sock_address->impl.len = (socklen_t)(offsetof(struct sockaddr_un, sun_path) + path_length);
+
+	return CIO_SUCCESS;
 }

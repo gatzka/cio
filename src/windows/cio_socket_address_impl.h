@@ -51,7 +51,7 @@ struct cio_socket_address_common {
 	struct sockaddr addr;
 };
 
-union cio_socket_address_impl {
+struct cio_socket_address_impl {
 	struct cio_socket_address_common socket_address;
 	struct cio_inet4_socket_address inet_addr4;
 	struct cio_inet6_socket_address inet_addr6;

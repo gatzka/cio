@@ -1280,7 +1280,7 @@ static void test_socket_connect_wrong_address_family(void)
 	err = cio_socket_init(&s, cio_socket_address_get_family(&socket_address), &loop, 10, on_close);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Return value of cio_socket_init not correct!");
 
-	socket_address.impl.socket_address.addr.sa_family = (sa_family_t)CIO_ADDRESS_FAMILY_UNSPEC;
+	socket_address.impl.sa.socket_address.addr.sa_family = (sa_family_t)CIO_ADDRESS_FAMILY_UNSPEC;
 	err = cio_socket_connect(&s, &socket_address, connect_handler, NULL);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_INVALID_ARGUMENT, err, "cio_socket_connect did not fail when unspecified address family given!");
 	TEST_ASSERT_EQUAL_MESSAGE(0, connect_handler_fake.call_count, "connect_handler was called despite no connection!");
