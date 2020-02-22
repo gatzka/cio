@@ -86,6 +86,8 @@ struct cio_socket {
 /**
  * @brief Initializes a cio_socket.
  *
+ * @warning Please note that @p close_hook will NOT be called if this functions fails.
+ *
  * @param socket The cio_socket that should be initialized.
  * @param address_family The address family like ::CIO_ADDRESS_FAMILY_INET4 or ::CIO_ADDRESS_FAMILY_INET6.
  * @param loop The event loop the socket shall operate on.
