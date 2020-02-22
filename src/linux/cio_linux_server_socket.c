@@ -173,6 +173,9 @@ static enum cio_error try_removing_uds_file(const struct cio_socket_address *end
 	enum cio_error err;
 	if (cio_unlikely(ret == -1)) {
 		err = (enum cio_error)(-errno);
+		if (cio_likely(err == CIO_NO_SUCH_FILE_OR_DIRECTORY)) {
+			err = CIO_SUCCESS;
+		}
 	} else {
 		err = CIO_SUCCESS;
 	}
@@ -191,7 +194,10 @@ enum cio_error cio_server_socket_bind(struct cio_server_socket *ss, const struct
 	}
 
 	if (is_standard_uds_socket(endpoint)) {
-		try_removing_uds_file(endpoint);
+		enum cio_error err = try_removing_uds_file(endpoint);
+		if (cio_unlikely(err != CIO_SUCCESS)) {
+			return err;
+		}
 	}
 
 	const struct sockaddr *addr = &endpoint->impl.sa.socket_address.addr;
