@@ -59,6 +59,7 @@ var searchData=
   ['cio_5fno_5fbuffer_5fspace',['CIO_NO_BUFFER_SPACE',['../cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afea10aa72394024ba09c852f329c4837f17',1,'cio_error_code.h']]],
   ['cio_5fno_5fmemory',['CIO_NO_MEMORY',['../cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afea1126c8775173ab8cb253de612ede0ee1',1,'cio_error_code.h']]],
   ['cio_5fno_5fprotocol_5foption',['CIO_NO_PROTOCOL_OPTION',['../cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afeaccb75f5d6425bab75f8d1e168b8c89f0',1,'cio_error_code.h']]],
+  ['cio_5fno_5fsuch_5ffile_5for_5fdirectory',['CIO_NO_SUCH_FILE_OR_DIRECTORY',['../cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afea321fe4471f51fe768664a35ea47d232f',1,'cio_error_code.h']]],
   ['cio_5fnot_5fa_5fsocket',['CIO_NOT_A_SOCKET',['../cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afeafc3bd27c9e2e382af600c9b7a95895ad',1,'cio_error_code.h']]],
   ['cio_5foperation_5faborted',['CIO_OPERATION_ABORTED',['../cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afea9edd632146fdf8840413b990dcef02dd',1,'cio_error_code.h']]],
   ['cio_5foperation_5fnot_5fpermitted',['CIO_OPERATION_NOT_PERMITTED',['../cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afeaec9e03ebc85d2450c4d5d476cfa89881',1,'cio_error_code.h']]],

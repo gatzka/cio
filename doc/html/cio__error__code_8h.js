@@ -3,6 +3,7 @@ var cio__error__code_8h =
     [ "cio_error", "cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afe", [
       [ "CIO_EOF", "cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afea237cc68c5cce982ac9a6e9a434a28dc1", null ],
       [ "CIO_SUCCESS", "cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afea6bb29544c99750c61f70b10a1e17d96a", null ],
+      [ "CIO_NO_SUCH_FILE_OR_DIRECTORY", "cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afea321fe4471f51fe768664a35ea47d232f", null ],
       [ "CIO_ADDRESS_FAMILY_NOT_SUPPORTED", "cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afea89af0f02cdb0a645ebf882ee050834b0", null ],
       [ "CIO_ADDRESS_IN_USE", "cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afeadf0bd784ff7c9e9595c83bf56d640f1e", null ],
       [ "CIO_ADDRESS_NOT_AVAILABLE", "cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afea4d817787a1b17dc612605a939d294a3a", null ],

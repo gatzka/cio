@@ -107,6 +107,9 @@ Functions</h2></td></tr>
 <tr class="memitem:ac3c64eb47c2e7a4528d987a2badfc2bd"><td class="memItemLeft" align="right" valign="top"><a class="el" href="cio__export_8h.html#ab971b12fa232c415369be66dfaca507a">CIO_EXPORT</a> enum <a class="el" href="cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afe">cio_error</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="cio__socket__address_8h.html#ac3c64eb47c2e7a4528d987a2badfc2bd">cio_init_inet_socket_address</a> (struct <a class="el" href="structcio__socket__address.html">cio_socket_address</a> *sock_address, const struct <a class="el" href="structcio__inet__address.html">cio_inet_address</a> *inet_address, uint16_t port)</td></tr>
 <tr class="memdesc:ac3c64eb47c2e7a4528d987a2badfc2bd"><td class="mdescLeft">&#160;</td><td class="mdescRight">Initializes a inet socket address from an IP address and a port number.  <a href="#ac3c64eb47c2e7a4528d987a2badfc2bd">More...</a><br /></td></tr>
 <tr class="separator:ac3c64eb47c2e7a4528d987a2badfc2bd"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab3d7cd5e6e03c24556a60a57827c21cf"><td class="memItemLeft" align="right" valign="top"><a class="el" href="cio__export_8h.html#ab971b12fa232c415369be66dfaca507a">CIO_EXPORT</a> enum <a class="el" href="cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afe">cio_error</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="cio__socket__address_8h.html#ab3d7cd5e6e03c24556a60a57827c21cf">cio_init_uds_socket_address</a> (struct <a class="el" href="structcio__socket__address.html">cio_socket_address</a> *sock_address, const char *path)</td></tr>
+<tr class="memdesc:ab3d7cd5e6e03c24556a60a57827c21cf"><td class="mdescLeft">&#160;</td><td class="mdescRight">Initializes a inet socket address from an IP address and a port number.  <a href="#ab3d7cd5e6e03c24556a60a57827c21cf">More...</a><br /></td></tr>
+<tr class="separator:ab3d7cd5e6e03c24556a60a57827c21cf"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a1639c38afdfab21d4d4b7f159eb032e2"><td class="memItemLeft" align="right" valign="top"><a class="el" href="cio__export_8h.html#ab971b12fa232c415369be66dfaca507a">CIO_EXPORT</a> enum <a class="el" href="cio__address__family_8h.html#afe76b1062e903b21af3c397ca6c98b7c">cio_address_family</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="cio__socket__address_8h.html#a1639c38afdfab21d4d4b7f159eb032e2">cio_socket_address_get_family</a> (const struct <a class="el" href="structcio__socket__address.html">cio_socket_address</a> *endpoint)</td></tr>
 <tr class="memdesc:a1639c38afdfab21d4d4b7f159eb032e2"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get the address family of an initialized socket address.  <a href="#a1639c38afdfab21d4d4b7f159eb032e2">More...</a><br /></td></tr>
 <tr class="separator:a1639c38afdfab21d4d4b7f159eb032e2"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -153,6 +156,48 @@ Functions</h2></td></tr>
   </table>
   </dd>
 </dl>
+<dl class="section return"><dt>Returns</dt><dd><a class="el" href="cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afea6bb29544c99750c61f70b10a1e17d96a">CIO_SUCCESS</a> for success. </dd></dl>
+
+</div>
+</div>
+<a id="ab3d7cd5e6e03c24556a60a57827c21cf"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ab3d7cd5e6e03c24556a60a57827c21cf">&#9670;&nbsp;</a></span>cio_init_uds_socket_address()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="cio__export_8h.html#ab971b12fa232c415369be66dfaca507a">CIO_EXPORT</a> enum <a class="el" href="cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afe">cio_error</a> cio_init_uds_socket_address </td>
+          <td>(</td>
+          <td class="paramtype">struct <a class="el" href="structcio__socket__address.html">cio_socket_address</a> *&#160;</td>
+          <td class="paramname"><em>sock_address</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const char *&#160;</td>
+          <td class="paramname"><em>path</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Initializes a inet socket address from an IP address and a port number. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">sock_address</td><td>The inet socket address to be initalized. </td></tr>
+    <tr><td class="paramname">path</td><td>The path to the unix domain socket file. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section note"><dt>Note</dt><dd>Linux systems have the special ability to create an "abstract" unix domain socket. Abstract domain sockets do note reside as a file in a filesystem so they have the advantage that they disappear when all open references to that socket are closed. </dd>
+<dd>
+Abstract sockets are distinguished by the fact that path[0] is a null byte ('\0'). </dd></dl>
+<dl class="section warning"><dt>Warning</dt><dd>Please note if you are using non-abstract domain sockets, it is the responsibility of the user of this library to remove the unix domain socket file when the program ends. A natural place to do this would be the close_hook provided in <a class="el" href="cio__server__socket_8h.html#a8a0cbb92a7744bd93d8dfe8dbef91202" title="Initializes a cio_server_socket. ">cio_server_socket_init</a>.</dd></dl>
 <dl class="section return"><dt>Returns</dt><dd><a class="el" href="cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afea6bb29544c99750c61f70b10a1e17d96a">CIO_SUCCESS</a> for success. </dd></dl>
 
 </div>

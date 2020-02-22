@@ -31,6 +31,7 @@ var searchData=
   ['cio_5finet_5faddress_5fget_5ffamily',['cio_inet_address_get_family',['../cio__inet__address_8h.html#a30c2de76a7d90a066cc0e7940206b9f8',1,'cio_inet_address.h']]],
   ['cio_5finit_5finet_5faddress',['cio_init_inet_address',['../cio__inet__address_8h.html#a58b575f4607d3f55e3a9ab97b9be3403',1,'cio_inet_address.h']]],
   ['cio_5finit_5finet_5fsocket_5faddress',['cio_init_inet_socket_address',['../cio__socket__address_8h.html#ac3c64eb47c2e7a4528d987a2badfc2bd',1,'cio_socket_address.h']]],
+  ['cio_5finit_5fuds_5fsocket_5faddress',['cio_init_uds_socket_address',['../cio__socket__address_8h.html#ab3d7cd5e6e03c24556a60a57827c21cf',1,'cio_socket_address.h']]],
   ['cio_5fmemmem',['cio_memmem',['../cio__string_8h.html#a15c5a92b8872b62342ef86fa20d1e8d8',1,'cio_string.h']]],
   ['cio_5frandom_5fget_5fbytes',['cio_random_get_bytes',['../cio__random_8h.html#ae952e10305a8f91866b998d2d1025995',1,'cio_random.h']]],
   ['cio_5frandom_5fseed_5frng',['cio_random_seed_rng',['../cio__random_8h.html#a1c798e7c60ef99eb3fc6c8629c285886',1,'cio_random.h']]],

@@ -1,5 +1,7 @@
 var NAVTREEINDEX1 =
 {
+"cio__websocket_8h.html#aa24c9894ba2ee9dc5b0ebbc1c8809701a8ee520b364af620ff44e60a09c393b97":[1,0,29,11,1],
+"cio__websocket_8h.html#aa24c9894ba2ee9dc5b0ebbc1c8809701aafc6ff9d1c633323a43641cc8b25dd9a":[1,0,29,11,4],
 "cio__websocket_8h.html#aa24c9894ba2ee9dc5b0ebbc1c8809701ac561a452a68e836193daadbdf1db5c10":[1,0,29,11,5],
 "cio__websocket_8h.html#aa24c9894ba2ee9dc5b0ebbc1c8809701af96f1ba0788e17c59249f12a74defd2d":[1,0,29,11,14],
 "cio__websocket_8h.html#aacf85224ea29aeda0f69513d1e9a69b1":[1,0,29,17],
@@ -49,8 +51,8 @@ var NAVTREEINDEX1 =
 "files.html":[1,0],
 "functions.html":[0,2,0],
 "functions_vars.html":[0,2,1],
-"globals.html":[1,1,0],
 "globals.html":[1,1,0,0],
+"globals.html":[1,1,0],
 "globals_defs.html":[1,1,5],
 "globals_enum.html":[1,1,3],
 "globals_eval.html":[1,1,4],
@@ -133,7 +135,7 @@ var NAVTREEINDEX1 =
 "structcio__server__socket.html":[0,0,13],
 "structcio__socket.html":[0,0,14],
 "structcio__socket__address.html":[0,0,15],
-"structcio__socket__address.html#a7fa1fcfe1c7d80aac880c7339cbdc35d":[0,0,15,0],
+"structcio__socket__address.html#a1894efc46acb13540dfa86bebf402be5":[0,0,15,0],
 "structcio__timer.html":[0,0,16],
 "structcio__utf8__state.html":[0,0,17],
 "structcio__utf8__state.html#a5e66194d8cc9ec2b85acd00e4b4fccfb":[0,0,17,0],
