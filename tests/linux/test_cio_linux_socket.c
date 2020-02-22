@@ -527,18 +527,9 @@ static void test_socket_close_register_read_fails(void)
 
 	cio_linux_eventloop_register_read_fake.return_val = CIO_INVALID_ARGUMENT;
 	enum cio_error err = cio_socket_init(&s, CIO_ADDRESS_FAMILY_INET4, &loop, 10, on_close);
-	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Return value of cio_socket_init not correct!");
-
-	err = cio_socket_close(&s);
-	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Return value of close() not correct!");
+	TEST_ASSERT_EQUAL_MESSAGE(CIO_INVALID_ARGUMENT, err, "Return value of cio_socket_init not correct!");
 
 	TEST_ASSERT_EQUAL_MESSAGE(1, close_fake.call_count, "Socket was not closed correctly!");
-	TEST_ASSERT_EQUAL_MESSAGE(s.impl.ev.fd, close_fake.arg0_val, "Socket close was not called with correct parameter!");
-
-	TEST_ASSERT_EQUAL_MESSAGE(1, setsockopt_fake.call_count, "setsockopt was not called!");
-	TEST_ASSERT_EQUAL_MESSAGE(s.impl.ev.fd, setsockopt_fake.arg0_val, "fd for setsockopt not correct!");
-	TEST_ASSERT_EQUAL_MESSAGE(SOL_SOCKET, setsockopt_fake.arg1_val, "level for setsockopt not correct!");
-	TEST_ASSERT_EQUAL_MESSAGE(SO_LINGER, setsockopt_fake.arg2_val, "option name for setsockopt not correct!");
 }
 
 static void test_socket_close_expire_fails(void)
@@ -774,26 +765,6 @@ static void test_socket_readsome(void)
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, read_handler_fake.arg2_val, "Read handler was not called with CIO_SUCCESS!");
 	TEST_ASSERT_EQUAL_MESSAGE(&rb, read_handler_fake.arg3_val, "Original buffer was not passed to read handler!");
 	TEST_ASSERT_EQUAL_MESSAGE(0, memcmp(read_buffer, readback_buffer, data_to_read), "Content of data passed to read handler is not correct!");
-}
-
-static void test_socket_readsome_register_read_fails(void)
-{
-	static const size_t data_to_read = 12;
-	available_read_data = data_to_read;
-	memset(read_buffer, 0x12, data_to_read);
-	read_fake.custom_fake = read_ok;
-	cio_linux_eventloop_register_read_fake.return_val = CIO_INVALID_ARGUMENT;
-
-	struct cio_socket s;
-	enum cio_error err = cio_socket_init(&s, CIO_ADDRESS_FAMILY_INET4, &loop, 10, on_close);
-	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Return value of cio_socket_init not correct!");
-
-	struct cio_read_buffer rb;
-	cio_read_buffer_init(&rb, readback_buffer, sizeof(readback_buffer));
-	struct cio_io_stream *stream = cio_socket_get_io_stream(&s);
-	err = stream->read_some(stream, &rb, read_handler, NULL);
-	TEST_ASSERT_EQUAL_MESSAGE(CIO_INVALID_ARGUMENT, err, "Return value not correct!");
-	TEST_ASSERT_EQUAL_MESSAGE(0, read_handler_fake.call_count, "Handler was called!");
 }
 
 static void test_socket_readsome_read_blocks(void)
@@ -1430,7 +1401,6 @@ int main(void)
 	RUN_TEST(test_socket_stream_close);
 
 	RUN_TEST(test_socket_readsome);
-	RUN_TEST(test_socket_readsome_register_read_fails);
 	RUN_TEST(test_socket_readsome_read_blocks);
 	RUN_TEST(test_socket_readsome_read_blocks_eventloop_fails);
 	RUN_TEST(test_socket_readsome_read_fails);
