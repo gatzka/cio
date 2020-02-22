@@ -283,7 +283,12 @@ enum cio_error cio_socket_init(struct cio_socket *socket,
 		return (enum cio_error)(-errno);
 	}
 
-	return cio_linux_socket_init(socket, socket_fd, loop, close_timeout_ns, close_hook);
+	enum cio_error err = cio_linux_socket_init(socket, socket_fd, loop, close_timeout_ns, close_hook);
+	if (cio_unlikely(err != CIO_SUCCESS)) {
+		close(socket_fd);
+	}
+
+	return err;
 }
 
 static void close_timeout_handler(struct cio_timer *timer, void *handler_context, enum cio_error err)
