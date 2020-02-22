@@ -4,6 +4,6 @@ build/*
 *.qbs.user*
 *.obj
 .vs
-CMakeLists.txt.user
+CMakeLists.txt.user*
 .vscode/ipch/
 build*
