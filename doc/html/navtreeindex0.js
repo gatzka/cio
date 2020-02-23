@@ -158,7 +158,7 @@ var NAVTREEINDEX0 =
 "cio__io__stream_8h.html#abfd8e6d3e5462389746e0ae5694a4593":[1,0,18,1],
 "cio__io__stream_8h_source.html":[1,0,18],
 "cio__os__config_8h.html":[1,0,1],
-"cio__os__config_8h.html#abed82baf7f470b522273a3e37c24c600a1ff311fb81f3d4d3b286feab82ac8ad5":[1,0,1,0],
+"cio__os__config_8h.html#abc5c98fcc1211af2b80116dd6e0a035da1ff311fb81f3d4d3b286feab82ac8ad5":[1,0,1,0],
 "cio__os__config_8h_source.html":[1,0,1],
 "cio__random_8h.html":[1,0,19],
 "cio__random_8h.html#a07efac2e01e49ff81e9eb9e65006b46d":[1,0,19,1],

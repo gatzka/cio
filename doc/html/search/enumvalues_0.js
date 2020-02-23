@@ -65,6 +65,9 @@ var searchData=
   ['cio_5foperation_5fnot_5fpermitted',['CIO_OPERATION_NOT_PERMITTED',['../cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afeaec9e03ebc85d2450c4d5d476cfa89881',1,'cio_error_code.h']]],
   ['cio_5fpermission_5fdenied',['CIO_PERMISSION_DENIED',['../cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afeacbe96e6c41d13351a99ed59d910e146f',1,'cio_error_code.h']]],
   ['cio_5fprotocol_5fnot_5fsupported',['CIO_PROTOCOL_NOT_SUPPORTED',['../cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afea2b17f2123e380cd5580bb6e614f9789a',1,'cio_error_code.h']]],
+  ['cio_5fsec_5fweb_5fsocket_5fguid_5flength',['CIO_SEC_WEB_SOCKET_GUID_LENGTH',['../cio__websocket__location__handler_8h.html#abc6126af1d45847bc59afa0aa3216b04aedcbf25ba4c5f781c2ef10474e1bb4a0',1,'cio_websocket_location_handler.h']]],
+  ['cio_5fsec_5fweb_5fsocket_5fkey_5flength',['CIO_SEC_WEB_SOCKET_KEY_LENGTH',['../cio__websocket__location__handler_8h.html#a99fb83031ce9923c84392b4e92f956b5a2368209f8f42c8676f2b35650eeabf70',1,'cio_websocket_location_handler.h']]],
+  ['cio_5fsec_5fwebsocket_5faccept_5flength',['CIO_SEC_WEBSOCKET_ACCEPT_LENGTH',['../cio__websocket__location__handler_8h.html#adc29c2ff13d900c2f185ee95427fb06caec51d41807d6dca0ca01eb048ccd4cb7',1,'cio_websocket_location_handler.h']]],
   ['cio_5fsuccess',['CIO_SUCCESS',['../cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afea6bb29544c99750c61f70b10a1e17d96a',1,'cio_error_code.h']]],
   ['cio_5ftimedout',['CIO_TIMEDOUT',['../cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afea786707b1f9c68c3dc296ce63fe8307ae',1,'cio_error_code.h']]],
   ['cio_5ftoo_5fmany_5ffiles_5fopen',['CIO_TOO_MANY_FILES_OPEN',['../cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afea5943517bd1417748a5861a147db26657',1,'cio_error_code.h']]],
@@ -93,5 +96,5 @@ var searchData=
   ['cio_5fwebsocket_5fpong_5fframe',['CIO_WEBSOCKET_PONG_FRAME',['../cio__websocket_8h.html#af33fb069400eeffde11ab324bf2245e9ac89c2941151a6830f7cf69729ee9693c',1,'cio_websocket.h']]],
   ['cio_5fwebsocket_5ftext_5fframe',['CIO_WEBSOCKET_TEXT_FRAME',['../cio__websocket_8h.html#af33fb069400eeffde11ab324bf2245e9a4698fc6e497c243a27b44361cf407090',1,'cio_websocket.h']]],
   ['cio_5fwouldblock',['CIO_WOULDBLOCK',['../cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afead160eb0012c00d7cbbbfa411d15c5b79',1,'cio_error_code.h']]],
-  ['config_5ftcp_5ffastopen_5fqueue_5fsize',['CONFIG_TCP_FASTOPEN_QUEUE_SIZE',['../cio__os__config_8h.html#abed82baf7f470b522273a3e37c24c600a1ff311fb81f3d4d3b286feab82ac8ad5',1,'cio_os_config.h']]]
+  ['config_5ftcp_5ffastopen_5fqueue_5fsize',['CONFIG_TCP_FASTOPEN_QUEUE_SIZE',['../cio__os__config_8h.html#abc5c98fcc1211af2b80116dd6e0a035da1ff311fb81f3d4d3b286feab82ac8ad5',1,'cio_os_config.h']]]
 ];
