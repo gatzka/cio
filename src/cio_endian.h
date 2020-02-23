@@ -29,13 +29,13 @@
 #ifndef CIO_ENDIAN_H
 #define CIO_ENDIAN_H
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 #include <stdint.h>
 
 #include "cio_export.h"
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 CIO_EXPORT uint16_t cio_be16toh(uint16_t big_endian_16bits);
 CIO_EXPORT uint64_t cio_be64toh(uint64_t big_endian_64bits);

@@ -29,12 +29,12 @@
 #ifndef CIO_WINDOWS_ERROR_CODE_IMPL_H
 #define CIO_WINDOWS_ERROR_CODE_IMPL_H
 
+#include <Winerror.h>
+#include <errno.h>
+
 #ifdef __cplusplus
 extern "C" {
 #endif
-
-#include <Winerror.h>
-#include <errno.h>
 
 #define CIO_SOCKET_ERROR(e) WSA ## e
 #define CIO_WINDOWS_UNIX_SOCKET_ERROR(win_error, unix_error) win_error

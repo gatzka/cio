@@ -29,11 +29,6 @@
 #ifndef CIO_INET_ADDRESS_H
 #define CIO_INET_ADDRESS_H
 
-/**
- * @file
- * @brief Representation of an Internet Protocol (IP) address.
- */
-
 #include <stddef.h>
 #include <stdint.h>
 
@@ -43,6 +38,11 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+/**
+ * @file
+ * @brief Representation of an Internet Protocol (IP) address.
+ */
 
 struct cio_inet_address {
 	struct cio_inet_address_impl impl;

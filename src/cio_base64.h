@@ -29,6 +29,11 @@
 #ifndef CIO_BASE64_H
 #define CIO_BASE64_H
 
+#include <stddef.h>
+#include <stdint.h>
+
+#include "cio_export.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -38,10 +43,6 @@ extern "C" {
  * @brief Declarations to <a href="https://en.wikipedia.org/wiki/Base64" target="_blank">Base64</a>-encode buffers.
  */
 
-#include <stddef.h>
-#include <stdint.h>
-
-#include "cio_export.h"
 
 /**
  * @brief <a href="https://en.wikipedia.org/wiki/Base64" target="_blank">Base64</a>-encodes a buffer

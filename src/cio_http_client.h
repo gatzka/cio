@@ -29,10 +29,6 @@
 #ifndef CIO_HTTP_CLIENT_H
 #define CIO_HTTP_CLIENT_H
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
@@ -45,6 +41,10 @@ extern "C" {
 #include "cio_timer.h"
 #include "cio_write_buffer.h"
 #include "http-parser/http_parser.h"
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 /**
  * @file

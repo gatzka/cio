@@ -29,20 +29,6 @@
 #ifndef CIO_WEBSOCKET_H
 #define CIO_WEBSOCKET_H
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-/**
- * @file
- * @brief This file contains the declarations all users of a
- * cio_websocket need to know.
- *
- * @warning Please note that you always have to wait for the completion of
- * a write call (@ref cio_websocket_write_message_first_chunk)
- * before issuing a new write call. Otherwise, you risk loss of data to be written!
- */
-
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
@@ -56,6 +42,20 @@ extern "C" {
 #include "cio_timer.h"
 #include "cio_utf8_checker.h"
 #include "cio_write_buffer.h"
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+/**
+ * @file
+ * @brief This file contains the declarations all users of a
+ * cio_websocket need to know.
+ *
+ * @warning Please note that you always have to wait for the completion of
+ * a write call (@ref cio_websocket_write_message_first_chunk)
+ * before issuing a new write call. Otherwise, you risk loss of data to be written!
+ */
 
 struct cio_websocket;
 

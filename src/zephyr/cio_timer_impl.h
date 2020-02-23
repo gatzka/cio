@@ -30,13 +30,13 @@
 #define CIO_ZEPHYR_TIMER_IMPL_H
 
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 #include <kernel.h>
 
 #include "cio_eventloop.h"
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 struct cio_timer_impl {
 	struct k_timer timer;

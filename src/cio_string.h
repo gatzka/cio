@@ -29,13 +29,13 @@
 #ifndef CIO_STRING_H
 #define CIO_STRING_H
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 #include <stddef.h>
 
 #include "cio_export.h"
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 /**
  * @file
