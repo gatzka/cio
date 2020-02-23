@@ -29,10 +29,6 @@
 #ifndef CIO_WINDOWS_SOCKET_IMPL_H
 #define CIO_WINDOWS_SOCKET_IMPL_H
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 #include <winsock2.h>
 #include <ws2tcpip.h>
 #include <mswsock.h>
@@ -40,6 +36,10 @@ extern "C" {
 
 #include "cio_eventloop.h"
 #include "cio_eventloop_impl.h"
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 struct cio_socket_impl {
 	HANDLE fd;

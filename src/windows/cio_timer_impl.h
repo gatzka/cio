@@ -29,12 +29,12 @@
 #ifndef CIO_WINDOWS_TIMER_IMPL_H
 #define CIO_WINDOWS_TIMER_IMPL_H
 
+#include "cio_eventloop.h"
+#include "windows/cio_eventloop_impl.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
-
-#include "cio_eventloop.h"
-#include "windows/cio_eventloop_impl.h"
 
 struct cio_timer_impl {
 	struct cio_event_notifier ev;

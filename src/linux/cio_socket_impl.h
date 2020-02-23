@@ -29,15 +29,15 @@
 #ifndef CIO_LINUX_SOCKET_IMPL_H
 #define CIO_LINUX_SOCKET_IMPL_H
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 #include <stdbool.h>
 #include <stdint.h>
 
 #include "cio_eventloop.h"
 #include "cio_timer.h"
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 struct cio_socket_impl {
 	uint64_t close_timeout_ns;

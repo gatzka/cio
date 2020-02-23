@@ -29,10 +29,6 @@
 #ifndef CIO_WEBSOCKET_LOCATION_HANDLER_H
 #define CIO_WEBSOCKET_LOCATION_HANDLER_H
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 #include <stdint.h>
 
 #include "cio_export.h"
@@ -41,9 +37,13 @@ extern "C" {
 #include "cio_websocket.h"
 #include "cio_write_buffer.h"
 
-#define CIO_SEC_WEB_SOCKET_KEY_LENGTH 24
-#define CIO_SEC_WEB_SOCKET_GUID_LENGTH 36
-#define CIO_SEC_WEBSOCKET_ACCEPT_LENGTH 30
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+enum {CIO_SEC_WEB_SOCKET_KEY_LENGTH = 24};
+enum {CIO_SEC_WEB_SOCKET_GUID_LENGTH = 36};
+enum {CIO_SEC_WEBSOCKET_ACCEPT_LENGTH = 30};
 
 struct cio_websocket_location_handler {
 

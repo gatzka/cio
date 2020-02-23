@@ -29,13 +29,13 @@
 #ifndef CIO_WEBSOCKET_MASKING_H
 #define CIO_WEBSOCKET_MASKING_H
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 #include <stddef.h>
 #include <stdint.h>
 #include <string.h>
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 static inline void cio_websocket_correct_mask(uint8_t mask[4], size_t consumed_bytes)
 {

@@ -29,10 +29,6 @@
 #ifndef CIO_WINDOWS_SERVER_SOCKET_IMPL_H
 #define CIO_WINDOWS_SERVER_SOCKET_IMPL_H
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 #define WIN32_LEAN_AND_MEAN
 
 #include <winsock2.h>
@@ -41,6 +37,10 @@ extern "C" {
 
 #include "cio_eventloop.h"
 #include "cio_eventloop_impl.h"
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 struct cio_windows_listen_socket {
 	SOCKET accept_socket;

@@ -29,15 +29,15 @@
 #ifndef CIO_HTTP_LOCATION_HANDLER_H
 #define CIO_HTTP_LOCATION_HANDLER_H
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 #include <stdbool.h>
 #include <stddef.h>
 
 #include "cio_export.h"
 #include "cio_http_client.h"
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 /**
  * @file

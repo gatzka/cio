@@ -29,11 +29,11 @@
 #ifndef CIO_VERSION_H
 #define CIO_VERSION_H
 
+#include "cio_export.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
-
-#include "cio_export.h"
 
 /**
  * @file

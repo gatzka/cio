@@ -31,6 +31,10 @@
 
 #include <stddef.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /**
  * @file
  * @brief Utility functions.
@@ -49,5 +53,9 @@
  */
 #define cio_const_container_of(ptr, type, member) ( \
     (const void *)((const char *)(ptr)-offsetof(type, member)))
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

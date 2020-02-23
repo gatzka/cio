@@ -29,11 +29,11 @@
 #ifndef CIO_ZEPHYR_ERROR_CODE_IMPL_H
 #define CIO_ZEPHYR_ERROR_CODE_IMPL_H
 
+#include <errno.h>
+
 #ifdef __cplusplus
 extern "C" {
 #endif
-
-#include <errno.h>
 
 #define CIO_SOCKET_ERROR(e) e
 #define CIO_WINDOWS_UNIX_SOCKET_ERROR(win_error, unix_error) unix_error

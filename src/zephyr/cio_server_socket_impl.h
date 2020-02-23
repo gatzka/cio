@@ -29,15 +29,15 @@
 #ifndef CIO_LINUX_SERVER_SOCKET_IMPL_H
 #define CIO_LINUX_SERVER_SOCKET_IMPL_H
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 #include <kernel.h>
 #include <stdint.h>
 #include <zephyr.h>
 
 #include "cio_eventloop.h"
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 struct cio_server_socket_impl {
 	int fd;

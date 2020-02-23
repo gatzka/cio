@@ -29,16 +29,16 @@
 #ifndef CIO_RANDOM_H
 #define CIO_RANDOM_H
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
 
 #include "cio_error_code.h"
 #include "cio_export.h"
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 struct pcg_state_setseq_64 {
 	uint64_t state; // RNG state. All values are possible.
