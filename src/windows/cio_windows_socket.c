@@ -145,7 +145,7 @@ static void write_callback(struct cio_event_notifier *ev)
 	s->stream.write_handler(&s->stream, s->stream.write_handler_context, s->stream.write_buffer, error_code, (size_t)bytes_sent);
 }
 
-static enum cio_error stream_write(struct cio_io_stream *stream, const struct cio_write_buffer *buffer, cio_io_stream_write_handler handler, void *handler_context)
+static enum cio_error stream_write(struct cio_io_stream *stream, struct cio_write_buffer *buffer, cio_io_stream_write_handler handler, void *handler_context)
 {
 	if (cio_unlikely((stream == NULL) || (buffer == NULL) || (handler == NULL))) {
 		return CIO_INVALID_ARGUMENT;
