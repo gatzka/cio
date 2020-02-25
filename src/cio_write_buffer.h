@@ -308,6 +308,34 @@ static inline size_t cio_write_buffer_get_num_buffer_elements(const struct cio_w
 	return head->data.head.q_len;
 }
 
+static inline void cio_write_buffer_split_and_append(struct cio_write_buffer *to_head, struct cio_write_buffer *from_head, struct cio_write_buffer *wbe)
+{
+	struct cio_write_buffer *to_last = to_head->prev;
+	struct cio_write_buffer *from_last = from_head->prev;
+	size_t tail_length = 0;
+	size_t tail_qlen = 0;
+
+	struct cio_write_buffer *e = wbe;
+	while (e != from_head) {
+		tail_qlen += e->data.element.length;
+		tail_qlen++;
+		e = e->next;
+	}
+
+	struct cio_write_buffer *wbe_prev = wbe->prev;
+	wbe_prev->next = from_head;
+	from_head->prev = wbe_prev;
+	from_head->data.head.q_len -= tail_qlen;
+	from_head->data.head.total_length -= tail_length;
+
+	from_last->next = to_head;
+	to_head->prev = from_last;
+	to_last->next = wbe;
+	wbe->prev = to_last;
+	to_head->data.head.q_len += tail_qlen;
+	to_head->data.head.total_length += tail_length;
+}
+
 #ifdef __cplusplus
 }
 #endif
