@@ -38,7 +38,7 @@ DEFINE_FFF_GLOBALS
 
 void setUp(void)
 {
-	FFF_RESET_HISTORY();
+	FFF_RESET_HISTORY()
 }
 
 void tearDown(void)
@@ -63,7 +63,7 @@ static void test_cio_write_buffer_head_init(void)
 {
 	struct cio_write_buffer wbh;
 	cio_write_buffer_head_init(&wbh);
-	TEST_ASSERT_TRUE_MESSAGE(cio_write_buffer_queue_empty(&wbh), "Write buffer not empty after initialization of write_buffer_head!");
+	TEST_ASSERT_TRUE_MESSAGE(cio_write_buffer_queue_empty(&wbh), "Write buffer not empty after initialization of write_buffer_head!")
 }
 
 static void test_cio_write_buffer_queue_tail(void)
@@ -238,7 +238,7 @@ static void test_cio_write_buffer_splice(void)
 	cio_write_buffer_splice(&wbh_two, &wbh_one);
 	num_elements = cio_write_buffer_get_num_buffer_elements(&wbh_two);
 	TEST_ASSERT_EQUAL_MESSAGE(0, num_elements, "Number of elements in write buffer two not '0' after splicing to another list!");
-	TEST_ASSERT_TRUE_MESSAGE(cio_write_buffer_queue_empty(&wbh_two), "Write buffer not empty after splicing!");
+	TEST_ASSERT_TRUE_MESSAGE(cio_write_buffer_queue_empty(&wbh_two), "Write buffer not empty after splicing!")
 	num_elements = cio_write_buffer_get_num_buffer_elements(&wbh_one);
 	TEST_ASSERT_EQUAL_MESSAGE(4, num_elements, "Number of elements in write buffer two not '4' after splicing from another list!");
 	TEST_ASSERT_EQUAL_MESSAGE(sizeof(data1) + sizeof(data2) + sizeof(data1) + sizeof(data2), cio_write_buffer_get_total_size(&wbh_one), "Write buffer total length not correct!");
