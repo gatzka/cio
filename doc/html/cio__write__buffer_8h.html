@@ -123,6 +123,9 @@ Functions</h2></td></tr>
 <tr class="memitem:afd5f5930223e8b3ea17a291283689887"><td class="memItemLeft" align="right" valign="top">static bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="cio__write__buffer_8h.html#afd5f5930223e8b3ea17a291283689887">cio_write_buffer_queue_empty</a> (const struct <a class="el" href="structcio__write__buffer.html">cio_write_buffer</a> *wbh)</td></tr>
 <tr class="memdesc:afd5f5930223e8b3ea17a291283689887"><td class="mdescLeft">&#160;</td><td class="mdescRight">Determine if the write buffer chain is empty.  <a href="#afd5f5930223e8b3ea17a291283689887">More...</a><br /></td></tr>
 <tr class="separator:afd5f5930223e8b3ea17a291283689887"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a5cf4e5238dcc3986ccf619fbb8e91d93"><td class="memItemLeft" align="right" valign="top">static bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="cio__write__buffer_8h.html#a5cf4e5238dcc3986ccf619fbb8e91d93">cio_write_buffer_is_last_element</a> (const struct <a class="el" href="structcio__write__buffer.html">cio_write_buffer</a> *wbh, const struct <a class="el" href="structcio__write__buffer.html">cio_write_buffer</a> *wb)</td></tr>
+<tr class="memdesc:a5cf4e5238dcc3986ccf619fbb8e91d93"><td class="mdescLeft">&#160;</td><td class="mdescRight">Determine if the write buffer chain is empty.  <a href="#a5cf4e5238dcc3986ccf619fbb8e91d93">More...</a><br /></td></tr>
+<tr class="separator:a5cf4e5238dcc3986ccf619fbb8e91d93"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:adb045a192be8efeacff4cce5d05cf011"><td class="memItemLeft" align="right" valign="top">static struct <a class="el" href="structcio__write__buffer.html">cio_write_buffer</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="cio__write__buffer_8h.html#adb045a192be8efeacff4cce5d05cf011">cio_write_buffer_queue_peek</a> (const struct <a class="el" href="structcio__write__buffer.html">cio_write_buffer</a> *wbh)</td></tr>
 <tr class="memdesc:adb045a192be8efeacff4cce5d05cf011"><td class="mdescLeft">&#160;</td><td class="mdescRight">Access the first element of a write buffer chain without removing it.  <a href="#adb045a192be8efeacff4cce5d05cf011">More...</a><br /></td></tr>
 <tr class="separator:adb045a192be8efeacff4cce5d05cf011"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -423,6 +426,52 @@ Functions</h2></td></tr>
   </table>
   </dd>
 </dl>
+
+</div>
+</div>
+<a id="a5cf4e5238dcc3986ccf619fbb8e91d93"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a5cf4e5238dcc3986ccf619fbb8e91d93">&#9670;&nbsp;</a></span>cio_write_buffer_is_last_element()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static bool cio_write_buffer_is_last_element </td>
+          <td>(</td>
+          <td class="paramtype">const struct <a class="el" href="structcio__write__buffer.html">cio_write_buffer</a> *&#160;</td>
+          <td class="paramname"><em>wbh</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const struct <a class="el" href="structcio__write__buffer.html">cio_write_buffer</a> *&#160;</td>
+          <td class="paramname"><em>wb</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Determine if the write buffer chain is empty. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">wbh</td><td>The write buffer chain that is asked. </td></tr>
+    <tr><td class="paramname">wb</td><td>The write buffer element that is asked if it is the last in the queue. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd><code>true</code> if the chain is empty, <code>false</code> otherwise. </dd></dl>
 
 </div>
 </div>
