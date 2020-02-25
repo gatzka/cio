@@ -214,7 +214,7 @@ static inline void cio_write_buffer_unlink(struct cio_write_buffer *wbh, struct 
 }
 
 /**
- * @brief Accesses and removes the first element of
+ * @brief Accesses and removes the first element from the write buffer chain
  * @param wbh The write buffer chain that is manipulated.
  * @return The first element of the queue, @c NULL if empty.
  */
@@ -317,7 +317,7 @@ static inline void cio_write_buffer_split_and_append(struct cio_write_buffer *to
 
 	struct cio_write_buffer *e = wbe;
 	while (e != from_head) {
-		tail_qlen += e->data.element.length;
+		tail_length += e->data.element.length;
 		tail_qlen++;
 		e = e->next;
 	}
