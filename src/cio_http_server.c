@@ -271,6 +271,7 @@ static enum cio_error write_response(struct cio_http_client *client, enum cio_ht
 	struct cio_http_server *server = (struct cio_http_server *)client->parser.data;
 	enum cio_error err = cio_timer_expires_from_now(&client->http_private.response_timer, server->response_timeout_ns, client_timeout_handler, client);
 	if (cio_unlikely(err != CIO_SUCCESS)) {
+		cio_write_buffer_unlink(&client->response_wbh, &client->http_private.wb_http_content_length);
 		handle_error(server, "Arming of response timer failed!");
 		mark_to_be_closed(client);
 		return 0;

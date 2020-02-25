@@ -74,8 +74,8 @@ FAKE_VOID_FUNC(on_close, struct cio_socket *)
 void read_handler(struct cio_io_stream *context, void *handler_context, enum cio_error err, struct cio_read_buffer *buffer);
 FAKE_VOID_FUNC(read_handler, struct cio_io_stream *, void *, enum cio_error, struct cio_read_buffer *)
 
-void write_handler(struct cio_io_stream *stream, void *handler_context, const struct cio_write_buffer *, enum cio_error err, size_t bytes_transferred);
-FAKE_VOID_FUNC(write_handler, struct cio_io_stream *, void *, const struct cio_write_buffer *, enum cio_error, size_t)
+void write_handler(struct cio_io_stream *stream, void *handler_context, struct cio_write_buffer *, enum cio_error err, size_t bytes_transferred);
+FAKE_VOID_FUNC(write_handler, struct cio_io_stream *, void *, struct cio_write_buffer *, enum cio_error, size_t)
 
 void connect_handler(struct cio_socket *socket, void *handler_context, enum cio_error err);
 FAKE_VOID_FUNC(connect_handler, struct cio_socket *, void *, enum cio_error)
