@@ -87,7 +87,7 @@ struct memory_stream {
 	size_t write_pos;
 	cio_io_stream_write_handler handler;
 	void *handler_context;
-	const struct cio_write_buffer *buf;
+	struct cio_write_buffer *buf;
 	size_t bytes_transferred;
 };
 
@@ -155,7 +155,7 @@ FAKE_VOID_FUNC0(sub_location_handler_called)
 
 FAKE_VOID_FUNC(response_written_cb, struct cio_http_client *, enum cio_error)
 
-FAKE_VALUE_FUNC(enum cio_error, write_wrapper, struct cio_io_stream *, const struct cio_write_buffer *, cio_io_stream_write_handler, void *)
+FAKE_VALUE_FUNC(enum cio_error, write_wrapper, struct cio_io_stream *, struct cio_write_buffer *, cio_io_stream_write_handler, void *)
 
 static enum cio_error cio_timer_init_fails(struct cio_timer *timer, struct cio_eventloop *l, cio_timer_close_hook hook)
 {
@@ -506,7 +506,7 @@ static enum cio_error read_some_error(struct cio_io_stream *ios, struct cio_read
 	return CIO_BAD_FILE_DESCRIPTOR;
 }
 
-static enum cio_error write_all(struct cio_io_stream *ios, const struct cio_write_buffer *buf, cio_io_stream_write_handler handler, void *handler_context)
+static enum cio_error write_all(struct cio_io_stream *ios, struct cio_write_buffer *buf, cio_io_stream_write_handler handler, void *handler_context)
 {
 	struct memory_stream *memory_stream = cio_container_of(ios, struct memory_stream, ios);
 
@@ -525,7 +525,7 @@ static enum cio_error write_all(struct cio_io_stream *ios, const struct cio_writ
 	return CIO_SUCCESS;
 }
 
-static enum cio_error write_blocks(struct cio_io_stream *ios, const struct cio_write_buffer *buf, cio_io_stream_write_handler handler, void *handler_context)
+static enum cio_error write_blocks(struct cio_io_stream *ios, struct cio_write_buffer *buf, cio_io_stream_write_handler handler, void *handler_context)
 {
 	struct memory_stream *memory_stream = cio_container_of(ios, struct memory_stream, ios);
 
@@ -548,7 +548,7 @@ static enum cio_error write_blocks(struct cio_io_stream *ios, const struct cio_w
 	return CIO_SUCCESS;
 }
 
-static enum cio_error write_error(struct cio_io_stream *ios, const struct cio_write_buffer *buf, cio_io_stream_write_handler handler, void *handler_context)
+static enum cio_error write_error(struct cio_io_stream *ios, struct cio_write_buffer *buf, cio_io_stream_write_handler handler, void *handler_context)
 {
 	(void)ios;
 	(void)buf;
@@ -977,7 +977,7 @@ static void test_response_callback_after_message_complete(void)
 	memory_stream_init(&ms, "GET /foo HTTP/1.1" CRLF "Content-Length: 0" CRLF CRLF, s);
 	ms.ios.write_some = write_wrapper;
 
-	enum cio_error (*write_fakes[])(struct cio_io_stream * stream, const struct cio_write_buffer *wb, cio_io_stream_write_handler handler, void *context) = {
+	enum cio_error (*write_fakes[])(struct cio_io_stream * stream, struct cio_write_buffer *wb, cio_io_stream_write_handler handler, void *context) = {
 	    write_blocks,
 	    write_all};
 	write_wrapper_fake.custom_fake = NULL;
@@ -1421,7 +1421,7 @@ static void test_errors_in_accept(void)
 		    accept_test.request_timer_init};
 
 		cio_timer_init_fake.custom_fake = NULL;
-		SET_CUSTOM_FAKE_SEQ(cio_timer_init, timer_init_fakes, ARRAY_SIZE(timer_init_fakes));
+		SET_CUSTOM_FAKE_SEQ(cio_timer_init, timer_init_fakes, ARRAY_SIZE(timer_init_fakes))
 
 		cio_timer_expires_from_now_fake.custom_fake = accept_test.timer_expires;
 
@@ -1467,7 +1467,7 @@ static void test_parse_errors(void)
 {
 	struct parse_test {
 		enum cio_error (*read_some)(struct cio_io_stream *io_stream, struct cio_read_buffer *buffer, cio_io_stream_read_handler handler, void *handler_context);
-		enum cio_error (*write_some)(struct cio_io_stream *io_stream, const struct cio_write_buffer *buf, cio_io_stream_write_handler handler, void *handler_context);
+		enum cio_error (*write_some)(struct cio_io_stream *io_stream, struct cio_write_buffer *buf, cio_io_stream_write_handler handler, void *handler_context);
 		const char *request;
 		bool simulate_write_error;
 		int expected_response;
@@ -1644,7 +1644,7 @@ static void test_timer_cancel_errors(void)
 		timer_cancel_fakes[i] = cancel_timer_error;
 
 		cio_timer_cancel_fake.custom_fake = NULL;
-		SET_CUSTOM_FAKE_SEQ(cio_timer_cancel, timer_cancel_fakes, ARRAY_SIZE(timer_cancel_fakes));
+		SET_CUSTOM_FAKE_SEQ(cio_timer_cancel, timer_cancel_fakes, ARRAY_SIZE(timer_cancel_fakes))
 
 		on_header_complete_fake.custom_fake = header_complete_write_response;
 

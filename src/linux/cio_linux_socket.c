@@ -172,7 +172,7 @@ static void write_callback(void *context, enum cio_epoll_error error)
 	stream->write_handler(stream, stream->write_handler_context, stream->write_buffer, err, 0);
 }
 
-static enum cio_error stream_write(struct cio_io_stream *stream, const struct cio_write_buffer *buffer, cio_io_stream_write_handler handler, void *handler_context)
+static enum cio_error stream_write(struct cio_io_stream *stream, struct cio_write_buffer *buffer, cio_io_stream_write_handler handler, void *handler_context)
 {
 	if (cio_unlikely((stream == NULL) || (buffer == NULL) || (handler == NULL))) {
 		return CIO_INVALID_ARGUMENT;
@@ -192,10 +192,7 @@ static enum cio_error stream_write(struct cio_io_stream *stream, const struct ci
 
 	struct cio_write_buffer *wb = buffer->next;
 	for (size_t i = 0; i < chain_length; i++) {
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wcast-qual"
-		msg_iov[i].iov_base = (void *)wb->data.element.const_data;
-#pragma GCC diagnostic pop
+		msg_iov[i].iov_base = wb->data.element.data;
 		msg_iov[i].iov_len = wb->data.element.length;
 		wb = wb->next;
 	}
