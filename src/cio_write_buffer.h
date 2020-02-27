@@ -33,6 +33,8 @@
 #include <stddef.h>
 #include <stdint.h>
 
+#include "cio_compiler.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -310,6 +312,14 @@ static inline size_t cio_write_buffer_get_num_buffer_elements(const struct cio_w
 
 static inline void cio_write_buffer_split_and_append(struct cio_write_buffer *to_head, struct cio_write_buffer *from_head, struct cio_write_buffer *wbe)
 {
+	if (cio_unlikely(cio_write_buffer_queue_empty(from_head))) {
+		return;
+	}
+
+	if (cio_unlikely(from_head == wbe)) {
+		wbe = from_head->next;
+	}
+
 	struct cio_write_buffer *to_last = to_head->prev;
 	struct cio_write_buffer *from_last = from_head->prev;
 	size_t tail_length = 0;
