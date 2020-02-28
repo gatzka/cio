@@ -33,6 +33,8 @@
 #include <stddef.h>
 #include <stdint.h>
 
+#include "cio_compiler.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -214,7 +216,7 @@ static inline void cio_write_buffer_unlink(struct cio_write_buffer *wbh, struct 
 }
 
 /**
- * @brief Accesses and removes the first element of
+ * @brief Accesses and removes the first element from the write buffer chain
  * @param wbh The write buffer chain that is manipulated.
  * @return The first element of the queue, @c NULL if empty.
  */
@@ -306,6 +308,42 @@ static inline size_t cio_write_buffer_get_total_size(const struct cio_write_buff
 static inline size_t cio_write_buffer_get_num_buffer_elements(const struct cio_write_buffer *head)
 {
 	return head->data.head.q_len;
+}
+
+static inline void cio_write_buffer_split_and_append(struct cio_write_buffer *to_head, struct cio_write_buffer *from_head, struct cio_write_buffer *wbe)
+{
+	if (cio_unlikely(cio_write_buffer_queue_empty(from_head))) {
+		return;
+	}
+
+	if (cio_unlikely(from_head == wbe)) {
+		wbe = from_head->next;
+	}
+
+	struct cio_write_buffer *to_last = to_head->prev;
+	struct cio_write_buffer *from_last = from_head->prev;
+	size_t tail_length = 0;
+	size_t tail_qlen = 0;
+
+	struct cio_write_buffer *e = wbe;
+	while (e != from_head) {
+		tail_length += e->data.element.length;
+		tail_qlen++;
+		e = e->next;
+	}
+
+	struct cio_write_buffer *wbe_prev = wbe->prev;
+	wbe_prev->next = from_head;
+	from_head->prev = wbe_prev;
+	from_head->data.head.q_len -= tail_qlen;
+	from_head->data.head.total_length -= tail_length;
+
+	from_last->next = to_head;
+	to_head->prev = from_last;
+	to_last->next = wbe;
+	wbe->prev = to_last;
+	to_head->data.head.q_len += tail_qlen;
+	to_head->data.head.total_length += tail_length;
 }
 
 #ifdef __cplusplus
