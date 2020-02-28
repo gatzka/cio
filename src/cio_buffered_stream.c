@@ -206,12 +206,23 @@ static void handle_partial_writes(struct cio_buffered_stream *bs, struct cio_io_
 	cio_write_buffer_head_init(&bs->wbh);
 	bs->original_wbh = buffer;
 
-	while (!cio_write_buffer_queue_empty(buffer)) {
-		struct cio_write_buffer *wb = cio_write_buffer_queue_dequeue(buffer);
-		cio_write_buffer_queue_tail(&bs->wbh, wb);
+	buffer = buffer->next;
+	while (!buffer_partially_written(buffer, bytes_transferred)) {
+		bytes_transferred -= buffer->data.element.length;
+		buffer = buffer->next;
 	}
 
-	handle_write(io_stream, bs, &bs->wbh, CIO_SUCCESS, bytes_transferred);
+	const void *new_data = &((const uint8_t *)buffer->data.element.const_data)[bytes_transferred];
+	size_t new_length = buffer->data.element.length - bytes_transferred;
+	cio_write_buffer_const_element_init(&bs->wb, new_data, new_length);
+	cio_write_buffer_queue_head(&bs->wbh, &bs->wb);
+
+	cio_write_buffer_split_and_append(&bs->wbh, bs->original_wbh, buffer->next);
+
+	enum cio_error err = bs->stream->write_some(io_stream, &bs->wbh, handle_write, bs);
+	if (cio_unlikely(err != CIO_SUCCESS)) {
+		bs->write_handler(bs, bs->write_handler_context, err);
+	}
 }
 
 static void handle_first_write(struct cio_io_stream *io_stream, void *handler_context, struct cio_write_buffer *buffer, enum cio_error err, size_t bytes_transferred)
