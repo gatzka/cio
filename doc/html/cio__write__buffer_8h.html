@@ -94,6 +94,7 @@ $(document).ready(function(){initNavTree('cio__write__buffer_8h.html','');});
 <div class="textblock"><code>#include &lt;stdbool.h&gt;</code><br />
 <code>#include &lt;stddef.h&gt;</code><br />
 <code>#include &lt;stdint.h&gt;</code><br />
+<code>#include &quot;<a class="el" href="cio__compiler_8h_source.html">cio_compiler.h</a>&quot;</code><br />
 </div>
 <p><a href="cio__write__buffer_8h_source.html">Go to the source code of this file.</a></p>
 <table class="memberdecls">
@@ -136,7 +137,7 @@ Functions</h2></td></tr>
 <tr class="memdesc:a066ea453286fd70035fd26e8996a9f73"><td class="mdescLeft">&#160;</td><td class="mdescRight">Removes a write buffer element from the write buffer chain.  <a href="#a066ea453286fd70035fd26e8996a9f73">More...</a><br /></td></tr>
 <tr class="separator:a066ea453286fd70035fd26e8996a9f73"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ad37228856b0ba01a5d7adc63661c9d94"><td class="memItemLeft" align="right" valign="top">static struct <a class="el" href="structcio__write__buffer.html">cio_write_buffer</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="cio__write__buffer_8h.html#ad37228856b0ba01a5d7adc63661c9d94">cio_write_buffer_queue_dequeue</a> (struct <a class="el" href="structcio__write__buffer.html">cio_write_buffer</a> *wbh)</td></tr>
-<tr class="memdesc:ad37228856b0ba01a5d7adc63661c9d94"><td class="mdescLeft">&#160;</td><td class="mdescRight">Accesses and removes the first element of.  <a href="#ad37228856b0ba01a5d7adc63661c9d94">More...</a><br /></td></tr>
+<tr class="memdesc:ad37228856b0ba01a5d7adc63661c9d94"><td class="mdescLeft">&#160;</td><td class="mdescRight">Accesses and removes the first element from the write buffer chain.  <a href="#ad37228856b0ba01a5d7adc63661c9d94">More...</a><br /></td></tr>
 <tr class="separator:ad37228856b0ba01a5d7adc63661c9d94"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a6ffc05a5f989795e866347fe06b34afb"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="cio__write__buffer_8h.html#a6ffc05a5f989795e866347fe06b34afb">cio_write_buffer_head_init</a> (struct <a class="el" href="structcio__write__buffer.html">cio_write_buffer</a> *wbh)</td></tr>
 <tr class="memdesc:a6ffc05a5f989795e866347fe06b34afb"><td class="mdescLeft">&#160;</td><td class="mdescRight">Initializes a write buffer head.  <a href="#a6ffc05a5f989795e866347fe06b34afb">More...</a><br /></td></tr>
@@ -156,6 +157,8 @@ Functions</h2></td></tr>
 <tr class="memitem:a2e2e811c31ff926729365c89002bed54"><td class="memItemLeft" align="right" valign="top">static size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="cio__write__buffer_8h.html#a2e2e811c31ff926729365c89002bed54">cio_write_buffer_get_num_buffer_elements</a> (const struct <a class="el" href="structcio__write__buffer.html">cio_write_buffer</a> *head)</td></tr>
 <tr class="memdesc:a2e2e811c31ff926729365c89002bed54"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get the number of individual buffer elements queued in this write buffer.  <a href="#a2e2e811c31ff926729365c89002bed54">More...</a><br /></td></tr>
 <tr class="separator:a2e2e811c31ff926729365c89002bed54"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a62b50a50805bcaab24eadd3cf78698d8"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="cio__write__buffer_8h.html#a62b50a50805bcaab24eadd3cf78698d8">cio_write_buffer_split_and_append</a> (struct <a class="el" href="structcio__write__buffer.html">cio_write_buffer</a> *to_head, struct <a class="el" href="structcio__write__buffer.html">cio_write_buffer</a> *from_head, struct <a class="el" href="structcio__write__buffer.html">cio_write_buffer</a> *wbe)</td></tr>
+<tr class="separator:a62b50a50805bcaab24eadd3cf78698d8"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Functions to manage a write buffer. </p>
@@ -603,7 +606,7 @@ Functions</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p>Accesses and removes the first element of. </p>
+<p>Accesses and removes the first element from the write buffer chain. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">wbh</td><td>The write buffer chain that is manipulated. </td></tr>
@@ -851,6 +854,48 @@ Functions</h2></td></tr>
   </table>
   </dd>
 </dl>
+
+</div>
+</div>
+<a id="a62b50a50805bcaab24eadd3cf78698d8"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a62b50a50805bcaab24eadd3cf78698d8">&#9670;&nbsp;</a></span>cio_write_buffer_split_and_append()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static void cio_write_buffer_split_and_append </td>
+          <td>(</td>
+          <td class="paramtype">struct <a class="el" href="structcio__write__buffer.html">cio_write_buffer</a> *&#160;</td>
+          <td class="paramname"><em>to_head</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">struct <a class="el" href="structcio__write__buffer.html">cio_write_buffer</a> *&#160;</td>
+          <td class="paramname"><em>from_head</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">struct <a class="el" href="structcio__write__buffer.html">cio_write_buffer</a> *&#160;</td>
+          <td class="paramname"><em>wbe</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
 
 </div>
 </div>
