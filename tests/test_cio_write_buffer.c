@@ -342,6 +342,85 @@ static void test_cio_write_buffer_split_and_append(void)
 	}
 }
 
+static void test_cio_write_buffer_split_and_append_empty_list(void)
+{
+	struct cio_write_buffer wbh_to_split;
+	cio_write_buffer_head_init(&wbh_to_split);
+
+	struct cio_write_buffer wbh_to_append;
+	cio_write_buffer_head_init(&wbh_to_append);
+
+	enum {DATA_BUFFER_LENGTH = 100};
+	enum {APPEND_LIST_LENGTH = 2};
+	for (unsigned int i = 0; i < APPEND_LIST_LENGTH; i++) {
+		struct cio_write_buffer *wb = malloc(sizeof(*wb));
+		TEST_ASSERT_NOT_NULL_MESSAGE(wb, "allocation of writebuffer element failed!")
+		char *data = malloc(DATA_BUFFER_LENGTH);
+		TEST_ASSERT_NOT_NULL_MESSAGE(data, "allocation of writebuffer data element failed!")
+		snprintf(data, DATA_BUFFER_LENGTH - 1, "AL_BUFFER%d", i);
+		cio_write_buffer_const_element_init(wb, data, DATA_BUFFER_LENGTH);
+		cio_write_buffer_queue_tail(&wbh_to_append, wb);
+	}
+
+	struct cio_write_buffer *e = &wbh_to_split;
+
+	cio_write_buffer_split_and_append(&wbh_to_append, &wbh_to_split, e);
+	TEST_ASSERT_EQUAL_MESSAGE(0, cio_write_buffer_get_num_buffer_elements(&wbh_to_split), "Number of elements in splitted list not correct!");
+	TEST_ASSERT_EQUAL_MESSAGE(0, cio_write_buffer_get_total_size(&wbh_to_split), "Total size of splitted list not correct!");
+	TEST_ASSERT_EQUAL_MESSAGE(APPEND_LIST_LENGTH, cio_write_buffer_get_num_buffer_elements(&wbh_to_append), "Number of elements in appended list not correct!");
+	TEST_ASSERT_EQUAL_MESSAGE(APPEND_LIST_LENGTH * DATA_BUFFER_LENGTH, cio_write_buffer_get_total_size(&wbh_to_append), "Total size of appended list not correct!");
+
+	while (!cio_write_buffer_queue_empty(&wbh_to_append)) {
+		struct cio_write_buffer *buf = cio_write_buffer_queue_dequeue(&wbh_to_append);
+		free(buf->data.element.data);
+		free(buf);
+	}
+}
+
+static void test_cio_write_buffer_split_and_append_head(void)
+{
+	enum {DATA_BUFFER_LENGTH = 100};
+
+	struct cio_write_buffer wbh_to_split;
+	cio_write_buffer_head_init(&wbh_to_split);
+
+	struct cio_write_buffer *wb_split = malloc(sizeof(*wb_split));
+	TEST_ASSERT_NOT_NULL_MESSAGE(wb_split, "allocation of writebuffer element failed!")
+	char *data_split = malloc(DATA_BUFFER_LENGTH);
+	TEST_ASSERT_NOT_NULL_MESSAGE(data_split, "allocation of writebuffer data element failed!")
+	snprintf(data_split, DATA_BUFFER_LENGTH - 1, "SL_BUFFER%d", 0);
+	cio_write_buffer_const_element_init(wb_split, data_split, DATA_BUFFER_LENGTH);
+	cio_write_buffer_queue_tail(&wbh_to_split, wb_split);
+
+	struct cio_write_buffer wbh_to_append;
+	cio_write_buffer_head_init(&wbh_to_append);
+
+	enum {APPEND_LIST_LENGTH = 2};
+	for (unsigned int i = 0; i < APPEND_LIST_LENGTH; i++) {
+		struct cio_write_buffer *wb = malloc(sizeof(*wb));
+		TEST_ASSERT_NOT_NULL_MESSAGE(wb, "allocation of writebuffer element failed!")
+		char *data = malloc(DATA_BUFFER_LENGTH);
+		TEST_ASSERT_NOT_NULL_MESSAGE(data, "allocation of writebuffer data element failed!")
+		snprintf(data, DATA_BUFFER_LENGTH - 1, "AL_BUFFER%d", i);
+		cio_write_buffer_const_element_init(wb, data, DATA_BUFFER_LENGTH);
+		cio_write_buffer_queue_tail(&wbh_to_append, wb);
+	}
+
+	struct cio_write_buffer *e = &wbh_to_split;
+
+	cio_write_buffer_split_and_append(&wbh_to_append, &wbh_to_split, e);
+	TEST_ASSERT_EQUAL_MESSAGE(0, cio_write_buffer_get_num_buffer_elements(&wbh_to_split), "Number of elements in splitted list not correct!");
+	TEST_ASSERT_EQUAL_MESSAGE(0, cio_write_buffer_get_total_size(&wbh_to_split), "Total size of splitted list not correct!");
+	TEST_ASSERT_EQUAL_MESSAGE(APPEND_LIST_LENGTH + 1, cio_write_buffer_get_num_buffer_elements(&wbh_to_append), "Number of elements in appended list not correct!");
+	TEST_ASSERT_EQUAL_MESSAGE((APPEND_LIST_LENGTH + 1)* DATA_BUFFER_LENGTH, cio_write_buffer_get_total_size(&wbh_to_append), "Total size of appended list not correct!");
+
+	while (!cio_write_buffer_queue_empty(&wbh_to_append)) {
+		struct cio_write_buffer *buf = cio_write_buffer_queue_dequeue(&wbh_to_append);
+		free(buf->data.element.data);
+		free(buf);
+	}
+}
+
 int main(void)
 {
 	UNITY_BEGIN();
@@ -356,5 +435,7 @@ int main(void)
 	RUN_TEST(test_cio_write_buffer_splice);
 	RUN_TEST(test_cio_write_buffer_splice_empty_list);
 	RUN_TEST(test_cio_write_buffer_split_and_append);
+	RUN_TEST(test_cio_write_buffer_split_and_append_empty_list);
+	RUN_TEST(test_cio_write_buffer_split_and_append_head);
 	return UNITY_END();
 }
