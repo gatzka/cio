@@ -228,6 +228,25 @@ static enum cio_error write_some_first_write_partial_second_error_sync(struct ci
 	return CIO_SUCCESS;
 }
 
+static enum cio_error write_some_first_writes_partial_third_error_sync(struct cio_io_stream *io_stream, struct cio_write_buffer *buf, cio_io_stream_write_handler handler, void *handler_context)
+{
+	if (write_some_fake.call_count < 3) {
+		struct cio_write_buffer *wb = buf->next;
+		if (cio_write_buffer_get_num_buffer_elements(buf) >= 1) {
+			memcpy(&write_check_buffer[write_check_buffer_pos], wb->data.element.const_data, wb->data.element.length / 2);
+			write_check_buffer_pos += wb->data.element.length / 2;
+		}
+
+		handler(io_stream, handler_context, buf, CIO_SUCCESS, wb->data.element.length / 2);
+	} else if (write_some_fake.call_count == 3) {
+		return CIO_INVALID_ARGUMENT;
+	} else {
+		write_some_all(io_stream, buf, handler, handler_context);
+	}
+
+	return CIO_SUCCESS;
+}
+
 static enum cio_error write_some_error(struct cio_io_stream *io_stream, struct cio_write_buffer *buf, cio_io_stream_write_handler handler, void *handler_context)
 {
 	handler(io_stream, handler_context, buf, CIO_MESSAGE_TOO_LONG, 0);
@@ -390,6 +409,36 @@ static enum cio_error write_some_first_write_partial(struct cio_io_stream *io_st
 		}
 
 		handler(io_stream, handler_context, buf, CIO_SUCCESS, wb->data.element.length / 2);
+	} else {
+		write_some_all(io_stream, buf, handler, handler_context);
+	}
+
+	return CIO_SUCCESS;
+}
+
+static enum cio_error write_some_first_and_second_write_partial(struct cio_io_stream *io_stream, struct cio_write_buffer *buf, cio_io_stream_write_handler handler, void *handler_context)
+{
+	if (write_some_fake.call_count == 1) {
+		struct cio_write_buffer *wb = buf->next;
+		if (cio_write_buffer_get_num_buffer_elements(buf) >= 1) {
+			memcpy(&write_check_buffer[write_check_buffer_pos], wb->data.element.const_data, wb->data.element.length / 2);
+			write_check_buffer_pos += wb->data.element.length / 2;
+		}
+
+		handler(io_stream, handler_context, buf, CIO_SUCCESS, wb->data.element.length / 2);
+	} else if (write_some_fake.call_count == 2) {
+		struct cio_write_buffer *wb = buf->next;
+		if (cio_write_buffer_get_num_buffer_elements(buf) >= 2) {
+			memcpy(&write_check_buffer[write_check_buffer_pos], wb->data.element.const_data, wb->data.element.length);
+			write_check_buffer_pos += wb->data.element.length;
+			size_t written = wb->data.element.length;
+
+			wb = wb->next;
+			memcpy(&write_check_buffer[write_check_buffer_pos], wb->data.element.const_data, wb->data.element.length / 2);
+			write_check_buffer_pos += wb->data.element.length / 2;
+			written += (wb->data.element.length / 2);
+			handler(io_stream, handler_context, buf, CIO_SUCCESS, written);
+		}
 	} else {
 		write_some_all(io_stream, buf, handler, handler_context);
 	}
@@ -1101,6 +1150,48 @@ static void test_write_two_buffers_partial_write(void)
 	TEST_ASSERT_MESSAGE(memcmp((const char *)write_check_buffer, test_data, strlen(test_data)) == 0, "Data was not written correctly!")
 }
 
+static void test_write_three_buffers_two_partial_writes(void)
+{
+	#define test_data_chunk "Hello"
+	static const char test_data[] = test_data_chunk test_data_chunk test_data_chunk;
+	struct client *client = malloc(sizeof(*client));
+	int dummy_context;
+
+	struct cio_write_buffer wbh;
+	cio_write_buffer_head_init(&wbh);
+	struct cio_write_buffer wb1;
+	cio_write_buffer_const_element_init(&wb1, test_data, strlen(test_data_chunk));
+	cio_write_buffer_queue_tail(&wbh, &wb1);
+	struct cio_write_buffer wb2;
+	cio_write_buffer_const_element_init(&wb2, test_data + (strlen(test_data_chunk)), strlen(test_data_chunk));
+	cio_write_buffer_queue_tail(&wbh, &wb2);
+	struct cio_write_buffer wb3;
+	cio_write_buffer_const_element_init(&wb3, test_data + (2 * (strlen(test_data_chunk))), strlen(test_data_chunk));
+	cio_write_buffer_queue_tail(&wbh, &wb3);
+
+	memory_stream_init(&client->ms, "");
+	write_some_fake.custom_fake = write_some_first_and_second_write_partial;
+
+	uint8_t buffer[40];
+	struct cio_read_buffer rb;
+	enum cio_error err = cio_read_buffer_init(&rb, &buffer, sizeof(buffer));
+	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Read buffer was not initialized correctly!");
+
+	err = cio_buffered_stream_init(&client->bs, &client->ms.ios);
+	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Buffer was not initialized correctly!");
+	err = cio_buffered_stream_write(&client->bs, &wbh, dummy_write_handler, &dummy_context);
+	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Return value not correct!");
+
+	err = cio_buffered_stream_close(&client->bs);
+	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Return value not correct!");
+	TEST_ASSERT_EQUAL_MESSAGE(1, close_fake.call_count, "Underlying cio_iostream was not closed!");
+	TEST_ASSERT_EQUAL_MESSAGE(1, dummy_write_handler_fake.call_count, "Handler was not called!");
+	TEST_ASSERT_EQUAL_MESSAGE(&client->bs, dummy_write_handler_fake.arg0_val, "Handler was not called with original buffered_stream!");
+	TEST_ASSERT_EQUAL_MESSAGE(&dummy_context, dummy_write_handler_fake.arg1_val, "Handler was not called with correct context!");
+	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, dummy_write_handler_fake.arg2_val, "Handler was not called with CIO_SUCCESS!");
+	TEST_ASSERT_MESSAGE(memcmp((const char *)write_check_buffer, test_data, strlen(test_data)) == 0, "Data was not written correctly!")
+}
+
 static void test_write_one_buffer_one_chunk(void)
 {
 	static const char *test_data = "Hello";
@@ -1474,6 +1565,33 @@ static void test_write_one_buffer_partial_write_error_sync(void)
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_INVALID_ARGUMENT, dummy_write_handler_fake.arg2_val, "Handler was not called with CIO_INVALID_ARGUMENT!");
 }
 
+static void test_write_one_buffer_partial_write_third_write_error_sync(void)
+{
+	static const char *test_data = "HelloHelloHello";
+
+	struct client *client = malloc(sizeof(*client));
+
+	struct cio_write_buffer wbh;
+	cio_write_buffer_head_init(&wbh);
+	struct cio_write_buffer wb;
+	cio_write_buffer_const_element_init(&wb, test_data, strlen(test_data));
+	cio_write_buffer_queue_tail(&wbh, &wb);
+
+	memory_stream_init(&client->ms, "");
+	write_some_fake.custom_fake = write_some_first_writes_partial_third_error_sync;
+
+	enum cio_error err = cio_buffered_stream_init(&client->bs, &client->ms.ios);
+	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Buffer was not initialized correctly!");
+	err = cio_buffered_stream_write(&client->bs, &wbh, dummy_write_handler, NULL);
+	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Return value not correct!");
+
+	err = cio_buffered_stream_close(&client->bs);
+	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Return value not correct!");
+	TEST_ASSERT_EQUAL_MESSAGE(1, close_fake.call_count, "Underlying cio_iostream was not closed!");
+	TEST_ASSERT_EQUAL_MESSAGE(1, dummy_write_handler_fake.call_count, "Handler was not called!");
+	TEST_ASSERT_EQUAL_MESSAGE(CIO_INVALID_ARGUMENT, dummy_write_handler_fake.arg2_val, "Handler was not called with CIO_INVALID_ARGUMENT!");
+}
+
 static void test_write_two_buffers_one_chunk(void)
 {
 	static const char *test_data = "HelloWorld";
@@ -1580,11 +1698,14 @@ int main(void)
 	RUN_TEST(test_read_until_no_handler);
 	RUN_TEST(test_read_until_second_read_in_callback);
 	RUN_TEST(test_read_exactly_then_until);
+
 	RUN_TEST(test_write_one_buffer_one_chunk);
 	RUN_TEST(test_write_one_buffer_one_chunk_read_in_callbacks_then_close);
 	RUN_TEST(test_write_two_buffers_one_chunk);
 	RUN_TEST(test_write_two_buffers_one_chunk_last_buffer_empty);
 	RUN_TEST(test_write_two_buffers_partial_write);
+	RUN_TEST(test_write_three_buffers_two_partial_writes);
+
 	RUN_TEST(test_write_two_buffers_double_partial_write);
 	RUN_TEST(test_write_two_buffers_partial_write_at_buffer_boundary);
 	RUN_TEST(test_write_one_buffer_one_chunk_error);
@@ -1592,6 +1713,7 @@ int main(void)
 	RUN_TEST(test_write_one_buffer_partial_write_error);
 	RUN_TEST(test_write_one_buffer_partial_write_error_at_element_boundary);
 	RUN_TEST(test_write_one_buffer_partial_write_error_sync);
+	RUN_TEST(test_write_one_buffer_partial_write_third_write_error_sync);
 	RUN_TEST(test_write_no_buffered_stream_for_write);
 	RUN_TEST(test_write_no_buffer_for_write);
 	RUN_TEST(test_write_no_handler_for_write);
