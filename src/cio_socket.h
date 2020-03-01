@@ -149,6 +149,22 @@ CIO_EXPORT struct cio_io_stream *cio_socket_get_io_stream(struct cio_socket *soc
 CIO_EXPORT enum cio_error cio_socket_set_tcp_no_delay(struct cio_socket *socket, bool on);
 
 /**
+ * @brief Enables/disables TCP Fast Open.
+ *
+ * This function enables TCP Fast Open according to <a href="https://tools.ietf.org/html/rfc7413">RFC 7413</a>.
+ * Please not that it might not be sufficient to enable this socket option to
+ * use TCP Fast Open. Operating systems may require to enable this feature. On Linux you have to set
+ * <tt>sysctl -w net.ipv4.tcp_fastopen=1</tt> to enable TCP Fast Open for client sockets,
+ * <tt>sysctl -w net.ipv4.tcp_fastopen=2</tt> to enable TCP Fast Open for listen sockets and
+ * <tt>sysctl -w net.ipv4.tcp_fastopen=3</tt> to enable TCP Fast Open for both client and listen sockets.
+ *
+ * @param socket The socket for which TCP Fast Open should be enabled.
+ * @param on @p true if TCP Fast Opens should be enabled, @p false if not.
+ * @return :: CIO_SUCCESS for success.
+ */
+CIO_EXPORT enum cio_error cio_socket_set_tcp_fast_open(struct cio_socket *socket, bool on);
+
+/**
  * @brief Enables/disables TCP keepalive messages.
  *
  * @param socket A pointer to a cio_socket for which TCP keepalive should be changed.
