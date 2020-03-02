@@ -310,22 +310,6 @@ enum cio_error cio_socket_connect(struct cio_socket *socket, const struct cio_so
 		return (enum cio_error)(-err);
 	}
 
-	if ((enum cio_address_family)endpoint->impl.sa.socket_address.addr.sa_family == CIO_ADDRESS_FAMILY_INET4) {
-		addr = (const struct sockaddr *)&endpoint->impl.sa.inet_addr4.impl.in;
-		addr_len = sizeof(endpoint->impl.sa.inet_addr4.impl.in);
-	} else {
-		addr = (const struct sockaddr *)&endpoint->impl.sa.inet_addr6.impl.in6;
-		addr_len = sizeof(endpoint->impl.sa.inet_addr6.impl.in6);
-	}
-
-	if (endpoint->impl.sa.socket_address.addr.sa_family == CIO_ADDRESS_FAMILY_INET4) {
-		addr = (const struct sockaddr *)&endpoint->impl.sa.inet_addr4.impl.in;
-		addr_len = sizeof(endpoint->impl.sa.inet_addr4.impl.in);
-	} else {
-		addr = (const struct sockaddr *)&endpoint->impl.sa.inet_addr6.impl.in6;
-		addr_len = sizeof(endpoint->impl.sa.inet_addr6.impl.in6);
-	}
-
 	DWORD dw_bytes;
 	GUID guid_connect_ex = WSAID_CONNECTEX;
 	int status = WSAIoctl((SOCKET)socket->impl.fd, SIO_GET_EXTENSION_FUNCTION_POINTER, &guid_connect_ex, sizeof(guid_connect_ex), &socket->impl.connect_ex, sizeof(socket->impl.connect_ex), &dw_bytes, NULL, NULL);
@@ -337,7 +321,7 @@ enum cio_error cio_socket_connect(struct cio_socket *socket, const struct cio_so
 	DWORD bytes_sent = 0;
 	memset(&socket->impl.write_event.overlapped, 0, sizeof(socket->impl.write_event.overlapped));
 
-	BOOL ret = socket->impl.connect_ex((SOCKET)socket->impl.fd, addr, addr_len, NULL, 0, &bytes_sent, &socket->impl.write_event.overlapped);
+	BOOL ret = socket->impl.connect_ex((SOCKET)socket->impl.fd, &endpoint->impl.sa.socket_address.addr, endpoint->impl.len, NULL, 0, &bytes_sent, &socket->impl.write_event.overlapped);
 	if (ret == TRUE) {
 		handler(socket, handler_context, CIO_SUCCESS);
 	} else {

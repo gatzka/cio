@@ -270,17 +270,7 @@ enum cio_error cio_server_socket_bind(struct cio_server_socket *ss, const struct
 		return CIO_INVALID_ARGUMENT;
 	}
 
-	const struct sockaddr *addr;
-	socklen_t addr_len;
-	if (endpoint->impl.sa.socket_address.addr.sa_family == CIO_ADDRESS_FAMILY_INET4) {
-		addr = (const struct sockaddr *)&endpoint->impl.sa.inet_addr4.impl.in;
-		addr_len = sizeof(endpoint->impl.sa.inet_addr4.impl.in);
-	} else {
-		addr = (const struct sockaddr *)&endpoint->impl.sa.inet_addr6.impl.in6;
-		addr_len = sizeof(endpoint->impl.sa.inet_addr6.impl.in6);
-	}
-
-	int ret = bind((SOCKET)ss->impl.listen_socket.fd, addr, addr_len);
+	int ret = bind((SOCKET)ss->impl.listen_socket.fd, &endpoint->impl.sa.socket_address.addr, endpoint->impl.len);
 	if (cio_unlikely(ret != 0)) {
 		int err = GetLastError();
 		return (enum cio_error)(-err);
