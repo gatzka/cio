@@ -288,6 +288,13 @@ int main(void)
 		goto destroy_loop;
 	}
 
+	err = cio_server_socket_set_tcp_fast_open(&ss, true);
+	if (cio_unlikely(err != CIO_SUCCESS)) {
+		fprintf(stderr, "could not set TCP FASTOPEN for server socket!\n");
+		ret = EXIT_FAILURE;
+		goto close_server_socket;
+	}
+
 	err = cio_server_socket_set_reuse_address(&ss, true);
 	if (cio_unlikely(err != CIO_SUCCESS)) {
 		fprintf(stderr, "could not set reuse_address for server socket!\n");
