@@ -167,6 +167,22 @@ CIO_EXPORT enum cio_error cio_server_socket_bind(struct cio_server_socket *ss, c
  */
 CIO_EXPORT enum cio_error cio_server_socket_set_reuse_address(struct cio_server_socket *ss, bool on);
 
+/**
+ * @brief Enables/disables TCP Fast Open.
+ *
+ * This function enables TCP Fast Open according to <a href="https://tools.ietf.org/html/rfc7413">RFC 7413</a>.
+ * Please not that it might not be sufficient to enable this socket option to
+ * use TCP Fast Open. Operating systems may require to enable this feature. On Linux you have to set
+ * <tt>sysctl -w net.ipv4.tcp_fastopen=1</tt> to enable TCP Fast Open for client sockets,
+ * <tt>sysctl -w net.ipv4.tcp_fastopen=2</tt> to enable TCP Fast Open for listen sockets and
+ * <tt>sysctl -w net.ipv4.tcp_fastopen=3</tt> to enable TCP Fast Open for both client and listen sockets.
+ *
+ * @param ss The server socket for which TCP Fast Open should be enabled.
+ * @param on @p true if TCP Fast Opens should be enabled, @p false if not.
+ * @return :: CIO_SUCCESS for success.
+ */
+CIO_EXPORT enum cio_error cio_server_socket_set_tcp_fast_open(struct cio_server_socket *ss, bool on);
+
 #ifdef __cplusplus
 }
 #endif
