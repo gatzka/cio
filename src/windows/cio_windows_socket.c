@@ -388,8 +388,12 @@ struct cio_io_stream *cio_socket_get_io_stream(struct cio_socket *s)
 
 enum cio_error cio_socket_set_tcp_fast_open(struct cio_socket *socket, bool on)
 {
-	(void)socket;
-	(void)on;
+	DWORD tcp_fast_open = on ? 1 : 0;
+
+	if (cio_unlikely(setsockopt((SOCKET)socket->impl.fd, IPPROTO_TCP, TCP_FASTOPEN, (const char *)&tcp_fast_open, sizeof(tcp_fast_open)) < 0)) {
+		int err = GetLastError();
+		return (enum cio_error)(-err);
+	}
 
 	return CIO_SUCCESS;
 }

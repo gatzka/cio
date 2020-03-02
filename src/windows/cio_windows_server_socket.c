@@ -254,12 +254,7 @@ enum cio_error cio_server_socket_accept(struct cio_server_socket *ss, cio_accept
 
 enum cio_error cio_server_socket_set_reuse_address(struct cio_server_socket *ss, bool on)
 {
-	char reuse;
-	if (on) {
-		reuse = 1;
-	} else {
-		reuse = 0;
-	}
+	DWORD reuse = on ? 1 : 0;
 
 	if (cio_unlikely(setsockopt((SOCKET)ss->impl.listen_socket.fd, SOL_SOCKET, SO_REUSEADDR, &reuse, sizeof(reuse)) < 0)) {
 		int err = GetLastError();
@@ -302,8 +297,12 @@ void cio_server_socket_close(struct cio_server_socket *ss)
 
 enum cio_error cio_server_socket_set_tcp_fast_open(struct cio_server_socket *ss, bool on)
 {
-	(void)ss;
-	(void)on;
+	DWORD tcp_fast_open = on ? 1 : 0;
+
+	if (cio_unlikely(setsockopt((SOCKET)ss->impl.listen_socket.fd, IPPROTO_TCP, TCP_FASTOPEN, (const char *)&tcp_fast_open, sizeof(tcp_fast_open)) < 0)) {
+		int err = GetLastError();
+		return (enum cio_error)(-err);
+	}
 
 	return CIO_SUCCESS;
 }
