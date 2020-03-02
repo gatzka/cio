@@ -299,3 +299,11 @@ void cio_server_socket_close(struct cio_server_socket *ss)
 {
 	close_listen_socket(&ss->impl.listen_socket);
 }
+
+enum cio_error cio_server_socket_set_tcp_fast_open(struct cio_server_socket *ss, bool on)
+{
+	(void)ss;
+	(void)on;
+
+	return CIO_SUCCESS;
+}

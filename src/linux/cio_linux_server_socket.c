@@ -129,8 +129,6 @@ enum cio_error cio_server_socket_accept(struct cio_server_socket *ss, cio_accept
 	ss->impl.ev.read_callback = accept_callback;
 	ss->impl.ev.context = ss;
 
-	int qlen = CONFIG_TCP_FASTOPEN_QUEUE_SIZE;
-	setsockopt(ss->impl.ev.fd, SOL_TCP, TCP_FASTOPEN, &qlen, sizeof(qlen));
 	if (cio_unlikely(listen(ss->impl.ev.fd, ss->backlog) < 0)) {
 		return (enum cio_error)(-errno);
 	}
@@ -226,6 +224,23 @@ enum cio_error cio_server_socket_set_reuse_address(struct cio_server_socket *ss,
 
 	if (cio_unlikely(setsockopt(ss->impl.ev.fd, SOL_SOCKET, SO_REUSEADDR, &reuse,
 	                            sizeof(reuse)) < 0)) {
+		return (enum cio_error)(-errno);
+	}
+
+	return CIO_SUCCESS;
+}
+
+enum cio_error cio_server_socket_set_tcp_fast_open(struct cio_server_socket *ss, bool on)
+{
+	int qlen;
+	if (on) {
+		qlen = CONFIG_TCP_FASTOPEN_QUEUE_SIZE;
+	} else {
+		qlen = 0;
+	}
+
+	int ret = setsockopt(ss->impl.ev.fd, SOL_TCP, TCP_FASTOPEN, &qlen, sizeof(qlen));
+	if (cio_unlikely(ret != 0)) {
 		return (enum cio_error)(-errno);
 	}
 
