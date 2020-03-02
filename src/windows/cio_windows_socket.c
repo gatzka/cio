@@ -280,7 +280,7 @@ enum cio_error cio_socket_connect(struct cio_socket *socket, const struct cio_so
 		return CIO_INVALID_ARGUMENT;
 	}
 
-	if (cio_unlikely((enum cio_address_family)endpoint->impl.socket_address.addr.sa_family == CIO_ADDRESS_FAMILY_UNSPEC)) {
+	if (cio_unlikely((enum cio_address_family)endpoint->impl.sa.socket_address.addr.sa_family == CIO_ADDRESS_FAMILY_UNSPEC)) {
 		return CIO_INVALID_ARGUMENT;
 	}
 
@@ -288,7 +288,7 @@ enum cio_error cio_socket_connect(struct cio_socket *socket, const struct cio_so
 	struct sockaddr_in addr4;
 	struct sockaddr_in6 addr6;
 	int addr_len;
-	if (endpoint->impl.socket_address.addr.sa_family == CIO_ADDRESS_FAMILY_INET4) {
+	if (endpoint->impl.sa.socket_address.addr.sa_family == CIO_ADDRESS_FAMILY_INET4) {
 		memset(&addr4, 0, sizeof(addr4));
 		addr4.sin_family = AF_INET;
 		addr4.sin_addr.s_addr = INADDR_ANY;
@@ -310,20 +310,20 @@ enum cio_error cio_socket_connect(struct cio_socket *socket, const struct cio_so
 		return (enum cio_error)(-err);
 	}
 
-	if ((enum cio_address_family)endpoint->impl.socket_address.addr.sa_family == CIO_ADDRESS_FAMILY_INET4) {
-		addr = (const struct sockaddr *)&endpoint->impl.inet_addr4.impl.in;
-		addr_len = sizeof(endpoint->impl.inet_addr4.impl.in);
+	if ((enum cio_address_family)endpoint->impl.sa.socket_address.addr.sa_family == CIO_ADDRESS_FAMILY_INET4) {
+		addr = (const struct sockaddr *)&endpoint->impl.sa.inet_addr4.impl.in;
+		addr_len = sizeof(endpoint->impl.sa.inet_addr4.impl.in);
 	} else {
-		addr = (const struct sockaddr *)&endpoint->impl.inet_addr6.impl.in6;
-		addr_len = sizeof(endpoint->impl.inet_addr6.impl.in6);
+		addr = (const struct sockaddr *)&endpoint->impl.sa.inet_addr6.impl.in6;
+		addr_len = sizeof(endpoint->impl.sa.inet_addr6.impl.in6);
 	}
 
-	if (endpoint->impl.socket_address.addr.sa_family == CIO_ADDRESS_FAMILY_INET4) {
-		addr = (const struct sockaddr *)&endpoint->impl.inet_addr4.impl.in;
-		addr_len = sizeof(endpoint->impl.inet_addr4.impl.in);
+	if (endpoint->impl.sa.socket_address.addr.sa_family == CIO_ADDRESS_FAMILY_INET4) {
+		addr = (const struct sockaddr *)&endpoint->impl.sa.inet_addr4.impl.in;
+		addr_len = sizeof(endpoint->impl.sa.inet_addr4.impl.in);
 	} else {
-		addr = (const struct sockaddr *)&endpoint->impl.inet_addr6.impl.in6;
-		addr_len = sizeof(endpoint->impl.inet_addr6.impl.in6);
+		addr = (const struct sockaddr *)&endpoint->impl.sa.inet_addr6.impl.in6;
+		addr_len = sizeof(endpoint->impl.sa.inet_addr6.impl.in6);
 	}
 
 	DWORD dw_bytes;
@@ -336,6 +336,7 @@ enum cio_error cio_socket_connect(struct cio_socket *socket, const struct cio_so
 
 	DWORD bytes_sent = 0;
 	memset(&socket->impl.write_event.overlapped, 0, sizeof(socket->impl.write_event.overlapped));
+
 	BOOL ret = socket->impl.connect_ex((SOCKET)socket->impl.fd, addr, addr_len, NULL, 0, &bytes_sent, &socket->impl.write_event.overlapped);
 	if (ret == TRUE) {
 		handler(socket, handler_context, CIO_SUCCESS);
@@ -388,6 +389,7 @@ struct cio_io_stream *cio_socket_get_io_stream(struct cio_socket *s)
 
 enum cio_error cio_socket_set_tcp_fast_open(struct cio_socket *socket, bool on)
 {
+#if 0
 	DWORD tcp_fast_open = on ? 1 : 0;
 
 	if (cio_unlikely(setsockopt((SOCKET)socket->impl.fd, IPPROTO_TCP, TCP_FASTOPEN, (const char *)&tcp_fast_open, sizeof(tcp_fast_open)) < 0)) {
@@ -396,4 +398,9 @@ enum cio_error cio_socket_set_tcp_fast_open(struct cio_socket *socket, bool on)
 	}
 
 	return CIO_SUCCESS;
+#endif
+	(void)socket;
+	(void)on;
+
+	return CIO_OPERATION_NOT_SUPPORTED;
 }
