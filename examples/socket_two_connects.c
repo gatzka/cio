@@ -345,6 +345,7 @@ int main(void)
 	if (cio_unlikely(err != CIO_SUCCESS)) {
 		fprintf(stderr, "could not enable TCP FASTOPEN for active (connect) socket!\n");
 		ret = EXIT_FAILURE;
+		cio_socket_close(&socket);
 		goto close_server_socket;
 	}
 
@@ -356,6 +357,7 @@ int main(void)
 	if (err != CIO_SUCCESS) {
 		fprintf(stderr, "could not connect to server!\n");
 		ret = EXIT_FAILURE;
+		cio_socket_close(&socket);
 		goto close_server_socket;
 	}
 

@@ -364,6 +364,13 @@ int main(int argc, char *argv[])
 		goto close_server_socket;
 	}
 
+	err = cio_socket_set_tcp_fast_open(&socket, true);
+	if (cio_unlikely(err != CIO_SUCCESS)) {
+		fprintf(stderr, "could not enable TCP FASTOPEN for active (connect) socket!\n");
+		cio_socket_close(&socket);
+		goto close_server_socket;
+	}
+
 	struct client client;
 	client.bytes_read = 0;
 	client.number_of_pings = 0;
@@ -372,6 +379,7 @@ int main(int argc, char *argv[])
 	if (err != CIO_SUCCESS) {
 		fprintf(stderr, "could not connect to server!\n");
 		ret = EXIT_FAILURE;
+		cio_socket_close(&socket);
 		goto close_server_socket;
 	}
 
