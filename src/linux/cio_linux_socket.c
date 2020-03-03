@@ -383,6 +383,7 @@ enum cio_error cio_socket_connect(struct cio_socket *socket, const struct cio_so
 	return CIO_SUCCESS;
 }
 
+#pragma weak cio_socket_get_io_stream
 struct cio_io_stream *cio_socket_get_io_stream(struct cio_socket *socket)
 {
 	return &socket->stream;
