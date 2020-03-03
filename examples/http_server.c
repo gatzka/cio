@@ -154,6 +154,7 @@ int main(void)
 		.read_body_timeout_ns = BODY_READ_TIMEOUT,
 		.response_timeout_ns = RESPONSE_TIMEOUT,
 		.close_timeout_ns = CLOSE_TIMEOUT_NS,
+		.use_tcp_fastopen = true,
 		.alloc_client = alloc_http_client,
 		.free_client = free_http_client
 	};
