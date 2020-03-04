@@ -92,7 +92,6 @@ static void accept_callback(void *context, enum cio_epoll_error error)
 	}
 }
 
-#pragma weak cio_server_socket_init
 enum cio_error cio_server_socket_init(struct cio_server_socket *ss,
                                       struct cio_eventloop *loop,
                                       unsigned int backlog,
@@ -118,7 +117,6 @@ enum cio_error cio_server_socket_init(struct cio_server_socket *ss,
 	return CIO_SUCCESS;
 }
 
-#pragma weak cio_server_socket_accept
 enum cio_error cio_server_socket_accept(struct cio_server_socket *ss, cio_accept_handler handler, void *handler_context)
 {
 	enum cio_error err;
@@ -148,7 +146,6 @@ enum cio_error cio_server_socket_accept(struct cio_server_socket *ss, cio_accept
 	return CIO_SUCCESS;
 }
 
-#pragma weak cio_server_socket_close
 void cio_server_socket_close(struct cio_server_socket *ss)
 {
 	cio_linux_eventloop_remove(ss->impl.loop, &ss->impl.ev);
@@ -188,7 +185,6 @@ static enum cio_error try_removing_uds_file(const struct cio_socket_address *end
 	return err;
 }
 
-#pragma weak cio_server_socket_bind
 enum cio_error cio_server_socket_bind(struct cio_server_socket *ss, const struct cio_socket_address *endpoint)
 {
 	if (cio_unlikely((ss == NULL) || (endpoint == NULL))) {
@@ -217,7 +213,6 @@ enum cio_error cio_server_socket_bind(struct cio_server_socket *ss, const struct
 	return CIO_SUCCESS;
 }
 
-#pragma weak cio_server_socket_set_reuse_address
 enum cio_error cio_server_socket_set_reuse_address(struct cio_server_socket *ss, bool on)
 {
 	int reuse;
