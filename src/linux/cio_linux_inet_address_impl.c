@@ -56,7 +56,7 @@ enum cio_error cio_init_inet_address(struct cio_inet_address *inet_address, cons
 {
 	size_t v4_size = sizeof(inet_address->impl.in.s_addr);
 	size_t v6_size = sizeof(inet_address->impl.in6.s6_addr);
-	if (cio_unlikely((inet_address == NULL) || (address == NULL) || !((address_length == v4_size) || (address_length == v6_size)))) {
+	if (cio_unlikely((inet_address == NULL) || (address == NULL) || ((address_length != v4_size) && (address_length != v6_size)))) {
 		return CIO_INVALID_ARGUMENT;
 	}
 
