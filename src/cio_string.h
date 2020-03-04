@@ -50,7 +50,7 @@ extern "C" {
  * @param needlelen The length of the substring to be searched for.
  * @return Pointer to the beginning of the substring, @c NULL otherwise.
  */
-CIO_EXPORT void *cio_memmem(const void *haystack, size_t haystacklen, const void *needle, size_t needlelen);
+CIO_EXPORT const void *cio_memmem(const void *haystack, size_t haystacklen, const void *needle, size_t needlelen);
 
 /**
  * @brief Compare two strings ignoring case.

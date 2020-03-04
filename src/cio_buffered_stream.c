@@ -119,7 +119,7 @@ static enum cio_bs_state internal_read_until(struct cio_buffered_stream *bs)
 	const uint8_t *haystack = rb->fetch_ptr;
 	const char *needle = bs->read_info.until.delim;
 	size_t needle_length = bs->read_info.until.delim_length;
-	uint8_t *found = cio_memmem(haystack, cio_read_buffer_unread_bytes(rb), needle, needle_length);
+	const uint8_t *found = cio_memmem(haystack, cio_read_buffer_unread_bytes(rb), needle, needle_length);
 	if (found != NULL) {
 		ptrdiff_t diff = (found + needle_length) - rb->fetch_ptr;
 		return call_handler(bs, CIO_SUCCESS, rb, (size_t)diff);

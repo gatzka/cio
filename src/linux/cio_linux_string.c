@@ -32,7 +32,7 @@
 
 #include "cio_string.h"
 
-void *cio_memmem(const void *haystack, size_t haystacklen, const void *needle, size_t needlelen)
+const void *cio_memmem(const void *haystack, size_t haystacklen, const void *needle, size_t needlelen)
 {
 	return memmem(haystack, haystacklen, needle, needlelen);
 }

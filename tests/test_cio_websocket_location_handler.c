@@ -73,6 +73,10 @@ FAKE_VALUE_FUNC(enum cio_error, cio_timer_cancel, struct cio_timer *)
 FAKE_VOID_FUNC(cio_timer_close, struct cio_timer *)
 FAKE_VALUE_FUNC(enum cio_error, cio_timer_expires_from_now, struct cio_timer *, uint64_t, cio_timer_handler, void *)
 
+FAKE_VALUE_FUNC(enum cio_error, cio_init_inet_address, struct cio_inet_address *, const uint8_t *, size_t)
+
+FAKE_VALUE_FUNC(enum cio_error, cio_init_inet_socket_address, struct cio_socket_address *, const struct cio_inet_address *, uint16_t)
+
 static void on_control(const struct cio_websocket *ws, enum cio_websocket_frame_type type, const uint8_t *data, uint_fast8_t length);
 FAKE_VOID_FUNC(on_control, const struct cio_websocket *, enum cio_websocket_frame_type, const uint8_t *, uint_fast8_t)
 

@@ -83,6 +83,37 @@ FAKE_VOID_FUNC(close_handler, struct cio_websocket *, void *, enum cio_error)
 static void write_handler(struct cio_websocket *ws, void *context, enum cio_error err);
 FAKE_VOID_FUNC(write_handler, struct cio_websocket *, void *, enum cio_error)
 
+FAKE_VALUE_FUNC(enum cio_error, cio_random_seed_rng, cio_rng *)
+
+uint16_t cio_be16toh(uint16_t big_endian_16bits)
+{
+	return big_endian_16bits;
+}
+
+uint16_t cio_htobe16(uint16_t big_endian_16bits)
+{
+	return big_endian_16bits;
+}
+
+uint64_t cio_be64toh(uint64_t big_endian_64bits)
+{
+	return big_endian_64bits;
+}
+
+uint64_t cio_htobe64(uint64_t big_endian_64bits)
+{
+	return big_endian_64bits;
+}
+
+void cio_random_get_bytes(cio_rng *rng, void *bytes, size_t num_bytes)
+{
+	(void)rng;
+	uint8_t *b = bytes;
+	for (size_t i = 0; i < num_bytes; i++) {
+		b[i] = (uint8_t)i;
+	}
+}
+
 #ifndef ARRAY_SIZE
 #define ARRAY_SIZE(a) (sizeof(a) / sizeof((a)[0]))
 #endif
@@ -555,7 +586,7 @@ static void test_incoming_ping_pong_send_fails(void)
 
 static void test_close_close_response_fails(void)
 {
-	uint8_t data[] = {0x3, 0xe8, 'G', 'o', 'o', 'd', ' ', 'B', 'y', 'e'};
+	uint8_t data[] = {0xe8, 0x3, 'G', 'o', 'o', 'd', ' ', 'B', 'y', 'e'};
 
 	struct ws_frame frames[] = {
 	    {.frame_type = CIO_WEBSOCKET_CLOSE_FRAME, .direction = FROM_CLIENT, .data = data, .data_length = sizeof(data), .last_frame = true, .rsv = false},
@@ -1144,7 +1175,7 @@ static void test_close_in_get_payload(void)
 
 static void test_close_self_no_reason(void)
 {
-	uint8_t data[] = {0x3, 0xe8};
+	uint8_t data[] = {0xe8, 0x3};
 
 	struct ws_frame frames[] = {
 	    {.frame_type = CIO_WEBSOCKET_CLOSE_FRAME, .direction = FROM_CLIENT, .data = data, .data_length = sizeof(data), .last_frame = true, .rsv = false},
@@ -1174,7 +1205,7 @@ static void test_close_self_no_reason(void)
 
 static void test_close_self_with_reason(void)
 {
-	uint8_t data[] = {0x3, 0xe8};
+	uint8_t data[] = {0xe8, 0x3};
 
 	struct ws_frame frames[] = {
 	    {.frame_type = CIO_WEBSOCKET_CLOSE_FRAME, .direction = FROM_CLIENT, .data = data, .data_length = sizeof(data), .last_frame = true, .rsv = false},
@@ -1266,7 +1297,7 @@ static void test_close_self_without_close_hook(void)
 
 	my_ws.ws_private.http_client = &http_client;
 
-	uint8_t data[] = {0x3, 0xe8};
+	uint8_t data[] = {0xe8, 0x3};
 
 	struct ws_frame frames[] = {
 	    {.frame_type = CIO_WEBSOCKET_CLOSE_FRAME, .direction = FROM_CLIENT, .data = data, .data_length = sizeof(data), .last_frame = true, .rsv = false},

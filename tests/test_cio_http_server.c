@@ -86,6 +86,14 @@ FAKE_VALUE_FUNC(enum cio_error, cio_buffered_stream_read_at_least, struct cio_bu
 FAKE_VALUE_FUNC(enum cio_error, cio_buffered_stream_close, struct cio_buffered_stream *)
 FAKE_VALUE_FUNC(enum cio_error, cio_buffered_stream_write, struct cio_buffered_stream *, struct cio_write_buffer *, cio_buffered_stream_write_handler, void *)
 
+FAKE_VALUE_FUNC(enum cio_error, cio_init_inet_socket_address, struct cio_socket_address *, const struct cio_inet_address *, uint16_t)
+FAKE_VALUE_FUNC0(const struct cio_inet_address *, cio_get_inet_address_any4)
+
+FAKE_VALUE_FUNC(enum cio_address_family, cio_socket_address_get_family, const struct cio_socket_address *)
+
+FAKE_VALUE_FUNC(enum cio_error, cio_server_socket_set_tcp_fast_open, struct cio_server_socket *, bool)
+
+
 static enum cio_error cancel_timer(struct cio_timer *t)
 {
 	t->handler(t, t->handler_context, CIO_OPERATION_ABORTED);
