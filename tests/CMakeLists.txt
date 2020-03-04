@@ -68,6 +68,7 @@ get_property(targets DIRECTORY "${CMAKE_CURRENT_LIST_DIR}" PROPERTY BUILDSYSTEM_
 foreach(tgt ${targets})
     get_target_property(target_type ${tgt} TYPE)
     if (target_type STREQUAL "EXECUTABLE")
+        add_dependencies(${tgt} cio:cio) # Necessary to generage cio_version_private.h before compiling the tests.
         target_link_libraries(${tgt} fff unity)
 		#target_link_libraries(${tgt} fff unity cio:cio)
         set_target_properties(${tgt} PROPERTIES
