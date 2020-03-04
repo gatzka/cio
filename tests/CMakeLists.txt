@@ -20,7 +20,7 @@ add_test(NAME cio.common.test_base64 COMMAND test_cio_base64)
 add_executable(test_cio_buffered_stream test_cio_buffered_stream.c ../src/cio_buffered_stream.c)
 add_test(NAME cio.common.test_buffered_stream COMMAND test_cio_buffered_stream)
 
-set_source_files_properties(../src/http-parser/http_parser.c PROPERTIES COMPILE_OPTIONS "-Wno-shadow;-Wno-sign-conversion;-Wno-conversion;-Wno-switch-default")
+set_source_files_properties(../src/http-parser/http_parser.c PROPERTIES COMPILE_OPTIONS "$<$<OR:$<C_COMPILER_ID:GNU>,$<C_COMPILER_ID:Clang>>:-Wno-shadow;-Wno-sign-conversion;-Wno-conversion;-Wno-switch-default>")
 add_executable(test_cio_http_server test_cio_http_server.c ../src/cio_http_server.c ../src/cio_http_location.c ../src/cio_http_location_handler.c ../src/http-parser/http_parser.c)
 add_test(NAME cio.common.test_http_server COMMAND test_cio_http_server)
 
