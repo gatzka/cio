@@ -85,6 +85,10 @@ FAKE_VOID_FUNC(write_handler, struct cio_websocket *, void *, enum cio_error)
 
 FAKE_VALUE_FUNC(enum cio_error, cio_random_seed_rng, cio_rng *)
 
+
+FAKE_VALUE_FUNC(uint8_t, cio_check_utf8, struct cio_utf8_state *, const uint8_t *, size_t)
+FAKE_VOID_FUNC(cio_utf8_init, struct cio_utf8_state *)
+
 uint16_t cio_be16toh(uint16_t big_endian_16bits)
 {
 	return big_endian_16bits;
@@ -500,6 +504,11 @@ void setUp(void)
 
 	RESET_FAKE(close_handler);
 	RESET_FAKE(write_handler);
+
+	RESET_FAKE(cio_utf8_init);
+	RESET_FAKE(cio_check_utf8);
+
+	cio_check_utf8_fake.return_val = CIO_UTF8_ACCEPT;
 
 	cio_read_buffer_init(&http_client.rb, read_buffer, sizeof(read_buffer));
 	ws = malloc(sizeof(*ws));
@@ -998,6 +1007,35 @@ static void test_read_error_in_get_payload(void)
 	TEST_ASSERT_EQUAL_MESSAGE(1, on_error_fake.call_count, "error callback was called");
 	TEST_ASSERT_EQUAL_MESSAGE(ws, on_error_fake.arg0_val, "ws parameter in error callback not correct");
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_OPERATION_NOT_PERMITTED, on_error_fake.arg1_val, "error callback called with wrong status code");
+}
+
+static void test_read_no_utf8(void)
+{
+	unsigned int frame_type = CIO_WEBSOCKET_TEXT_FRAME;
+	char data[5];
+	memset(data, 'a', sizeof(data));
+	struct ws_frame frames[] = {
+	    {.frame_type = frame_type, .direction = FROM_CLIENT, .data = data, .data_length = sizeof(data), .last_frame = true, .rsv = false},
+	    {.frame_type = CIO_WEBSOCKET_CLOSE_FRAME, .direction = FROM_CLIENT, .data = NULL, .data_length = 0, .last_frame = true, .rsv = false},
+	};
+
+	serialize_frames(frames, ARRAY_SIZE(frames));
+	cio_buffered_stream_read_at_least_fake.custom_fake = bs_read_at_least_from_buffer;
+	cio_check_utf8_fake.return_val = CIO_UTF8_REJECT;
+
+	enum cio_error err = cio_websocket_read_message(ws, read_handler, NULL);
+	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Could not start reading a message!");
+
+	TEST_ASSERT_EQUAL_MESSAGE(1, read_handler_fake.call_count, "read_handler was not called");
+	TEST_ASSERT_EQUAL_PTR_MESSAGE(ws, read_handler_fake.arg0_val, "websocket parameter of read_handler not correct");
+	TEST_ASSERT_NULL_MESSAGE(read_handler_fake.arg1_val, "context parameter of read_handler not correct");
+	TEST_ASSERT_EQUAL_MESSAGE(CIO_EOF, read_handler_fake.arg2_val, "error parameter of read_handler not correct");
+	TEST_ASSERT_NULL_MESSAGE(read_handler_fake.arg4_val, "data parameter of read_handler not correct");
+	TEST_ASSERT_EQUAL_MESSAGE(0, read_handler_fake.arg5_val, "length parameter of read_handler not correct");
+
+	TEST_ASSERT_EQUAL_MESSAGE(1, on_error_fake.call_count, "error callback was called");
+	TEST_ASSERT_EQUAL_MESSAGE(ws, on_error_fake.arg0_val, "ws parameter in error callback not correct");
+	TEST_ASSERT_EQUAL_MESSAGE(CIO_PROTOCOL_NOT_SUPPORTED, on_error_fake.arg1_val, "error callback called with wrong status code");
 }
 
 static void test_close_self_no_answer(void)
@@ -1833,6 +1871,7 @@ int main(void)
 	RUN_TEST(test_read_error_in_get_header);
 	RUN_TEST(test_read_error_in_get_mask);
 	RUN_TEST(test_read_error_in_get_payload);
+	RUN_TEST(test_read_no_utf8);
 
 	RUN_TEST(test_close_self_no_answer);
 

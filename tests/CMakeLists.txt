@@ -47,7 +47,7 @@ add_test(NAME cio.common.test_read_buffer COMMAND test_cio_read_buffer)
 add_executable(test_cio_utf8_checker test_cio_utf8_checker.c ../src/cio_utf8_checker.c)
 add_test(NAME cio.common.test_utf8_checker COMMAND test_cio_utf8_checker)
 
-add_executable(test_cio_websocket test_cio_websocket.c ../src/cio_websocket.c ../src/cio_utf8_checker.c)
+add_executable(test_cio_websocket test_cio_websocket.c ../src/cio_websocket.c)
 add_test(NAME cio.common.test_websocket COMMAND test_cio_websocket)
 
 #add_executable(test_cio_websocket_iostream test_cio_websocket_iostream.c)
