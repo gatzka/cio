@@ -37,6 +37,10 @@
 #include "cio_string.h"
 #include "cio_write_buffer.h"
 
+#ifndef MIN
+#define MIN(a, b) ((a) < (b) ? (a) : (b))
+#endif
+
 static void run_read(struct cio_buffered_stream *bs);
 
 static void handle_read(struct cio_io_stream *stream, void *handler_context, enum cio_error err, struct cio_read_buffer *buffer)
@@ -106,6 +110,24 @@ static void start_read(struct cio_buffered_stream *bs)
 	if (bs->callback_is_running == 0) {
 		run_read(bs);
 	}
+}
+
+static enum cio_bs_state internal_read_max(struct cio_buffered_stream *bs)
+{
+	struct cio_read_buffer *rb = bs->read_buffer;
+
+
+	if (cio_unlikely(bs->last_error != CIO_SUCCESS)) {
+		return call_handler(bs, bs->last_error, rb, 0);
+	}
+
+	size_t available = cio_read_buffer_unread_bytes(rb);
+	if (available > 0) {
+		size_t bytes_to_read = MIN(available, bs->read_info.bytes_to_read);
+		return call_handler(bs, CIO_SUCCESS, rb, bytes_to_read);
+	}
+
+	return CIO_BS_AGAIN;
 }
 
 static enum cio_bs_state internal_read_until(struct cio_buffered_stream *bs)
@@ -285,6 +307,27 @@ enum cio_error cio_buffered_stream_read_until(struct cio_buffered_stream *bs, st
 	bs->read_info.until.delim = delim;
 	bs->read_info.until.delim_length = strlen(delim);
 	bs->read_job = internal_read_until;
+	bs->read_buffer = buffer;
+	bs->read_handler = handler;
+	bs->read_handler_context = handler_context;
+	bs->last_error = CIO_SUCCESS;
+	start_read(bs);
+
+	return CIO_SUCCESS;
+}
+
+enum cio_error cio_buffered_stream_read_max(struct cio_buffered_stream *bs, struct cio_read_buffer *buffer, size_t num, cio_buffered_stream_read_handler handler, void *handler_context)
+{
+	if (cio_unlikely((bs == NULL) || (handler == NULL) || (buffer == NULL))) {
+		return CIO_INVALID_ARGUMENT;
+	}
+
+	if (cio_unlikely(num > cio_read_buffer_size(buffer))) {
+		return CIO_MESSAGE_TOO_LONG;
+	}
+
+	bs->read_info.bytes_to_read = num;
+	bs->read_job = internal_read_max;
 	bs->read_buffer = buffer;
 	bs->read_handler = handler;
 	bs->read_handler_context = handler_context;

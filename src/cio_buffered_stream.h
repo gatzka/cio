@@ -179,6 +179,8 @@ CIO_EXPORT enum cio_error cio_buffered_stream_read_at_least(struct cio_buffered_
  */
 CIO_EXPORT enum cio_error cio_buffered_stream_read_until(struct cio_buffered_stream *bs, struct cio_read_buffer *buffer, const char *delim, cio_buffered_stream_read_handler handler, void *handler_context);
 
+CIO_EXPORT enum cio_error cio_buffered_stream_read_max(struct cio_buffered_stream *bs, struct cio_read_buffer *buffer, size_t num, cio_buffered_stream_read_handler handler, void *handler_context);
+
 /**
  * @brief Closes the stream.
  *
