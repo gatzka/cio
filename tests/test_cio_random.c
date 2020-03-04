@@ -33,7 +33,6 @@
 
 DEFINE_FFF_GLOBALS
 
-
 enum cio_error cio_entropy_get_bytes(void *bytes, size_t num_bytes)
 {
 	uint8_t *b = bytes;

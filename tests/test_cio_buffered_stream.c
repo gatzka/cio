@@ -1183,7 +1183,7 @@ static void test_write_two_buffers_partial_write(void)
 
 static void test_write_three_buffers_two_partial_writes(void)
 {
-	#define test_data_chunk "Hello"
+#define test_data_chunk "Hello"
 	static const char test_data[] = test_data_chunk test_data_chunk test_data_chunk;
 	struct client *client = malloc(sizeof(*client));
 	int dummy_context;

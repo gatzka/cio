@@ -977,7 +977,7 @@ static void test_response_callback_after_message_complete(void)
 	memory_stream_init(&ms, "GET /foo HTTP/1.1" CRLF "Content-Length: 0" CRLF CRLF, s);
 	ms.ios.write_some = write_wrapper;
 
-	enum cio_error (*write_fakes[])(struct cio_io_stream * stream, struct cio_write_buffer *wb, cio_io_stream_write_handler handler, void *context) = {
+	enum cio_error (*write_fakes[])(struct cio_io_stream *stream, struct cio_write_buffer *wb, cio_io_stream_write_handler handler, void *context) = {
 	    write_blocks,
 	    write_all};
 	write_wrapper_fake.custom_fake = NULL;

@@ -93,7 +93,6 @@ FAKE_VALUE_FUNC(enum cio_address_family, cio_socket_address_get_family, const st
 
 FAKE_VALUE_FUNC(enum cio_error, cio_server_socket_set_tcp_fast_open, struct cio_server_socket *, bool)
 
-
 static enum cio_error cancel_timer(struct cio_timer *t)
 {
 	t->handler(t, t->handler_context, CIO_OPERATION_ABORTED);

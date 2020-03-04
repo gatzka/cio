@@ -41,9 +41,9 @@
 extern "C" {
 #endif
 
-enum {CIO_SEC_WEB_SOCKET_KEY_LENGTH = 24};
-enum {CIO_SEC_WEB_SOCKET_GUID_LENGTH = 36};
-enum {CIO_SEC_WEBSOCKET_ACCEPT_LENGTH = 30};
+enum { CIO_SEC_WEB_SOCKET_KEY_LENGTH = 24 };
+enum { CIO_SEC_WEB_SOCKET_GUID_LENGTH = 36 };
+enum { CIO_SEC_WEBSOCKET_ACCEPT_LENGTH = 30 };
 
 struct cio_websocket_location_handler {
 

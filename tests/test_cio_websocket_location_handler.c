@@ -122,7 +122,7 @@ static struct cio_socket *alloc_dummy_client(void)
 	if (client == NULL) {
 		return NULL;
 	}
-	
+
 	memset(client, 0xaf, sizeof(*client) + read_buffer_size);
 	client->buffer_size = read_buffer_size;
 	client->socket.close_hook = free_dummy_client;
