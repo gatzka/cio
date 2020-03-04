@@ -30,12 +30,14 @@ add_test(NAME cio.common.test_http_server COMMAND test_cio_http_server)
 add_executable(test_cio_http_location test_cio_http_location.c ../src/cio_http_location.c ../src/cio_http_location_handler.c)
 add_test(NAME cio.common.test_http_location COMMAND test_cio_http_location)
 
-#add_executable(test_cio_inet_address test_cio_inet_address.c)
-#add_test(NAME cio.common.test_inet_address COMMAND test_cio_inet_address)
+add_executable(test_cio_inet_address test_cio_inet_address.c)
+target_link_libraries(test_cio_inet_address cio:cio)
+add_test(NAME cio.common.test_inet_address COMMAND test_cio_inet_address)
 
-#add_executable(test_cio_inet_socket_address test_cio_inet_socket_address.c)
-#add_test(NAME cio.common.test_inet_socket_address COMMAND test_cio_inet_socket_address)
-#
+add_executable(test_cio_inet_socket_address test_cio_inet_socket_address.c)
+target_link_libraries(test_cio_inet_socket_address cio:cio)
+add_test(NAME cio.common.test_inet_socket_address COMMAND test_cio_inet_socket_address)
+
 add_executable(test_cio_random test_cio_random.c ../src/cio_random.c)
 add_test(NAME cio.common.test_random COMMAND test_cio_random)
 
