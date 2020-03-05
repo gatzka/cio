@@ -50,9 +50,6 @@ add_test(NAME cio.common.test_utf8_checker COMMAND test_cio_utf8_checker)
 add_executable(test_cio_websocket test_cio_websocket.c ../src/cio_websocket.c)
 add_test(NAME cio.common.test_websocket COMMAND test_cio_websocket)
 
-#add_executable(test_cio_websocket_iostream test_cio_websocket_iostream.c)
-#add_test(NAME cio.common.test_websocket_iostream COMMAND test_cio_websocket_iostream)
-#
 # add_executable(test_cio_websocket_location_handler test_cio_websocket_location_handler.c ../src/cio_websocket_location_handler.c ../src/sha1/sha1.c ../src/cio_base64.c  ../src/http-parser/http_parser.c ../src/cio_http_location.c)
 # add_test(NAME cio.common.test_websocket_location_handler COMMAND test_cio_websocket_location_handler)
 
