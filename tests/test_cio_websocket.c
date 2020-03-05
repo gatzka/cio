@@ -1571,6 +1571,46 @@ static void test_control_frame_within_fragment(void)
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_WEBSOCKET_CLOSE_FRAME, on_control_fake.arg1_history[1], "control frame type of control callback not correct");
 }
 
+static void test_binary_frame_within_text_fragments(void)
+{
+	char data[12];
+	memset(data, 'a', sizeof(data));
+
+	struct ws_frame frames[] = {
+		{.frame_type = CIO_WEBSOCKET_TEXT_FRAME, .direction = FROM_CLIENT, .data = data, .data_length = sizeof(data), .last_frame = false, .rsv = false},
+		{.frame_type = CIO_WEBSOCKET_CONTINUATION_FRAME, .direction = FROM_CLIENT, .data = data, .data_length = sizeof(data), .last_frame = false, .rsv = false},
+		{.frame_type = CIO_WEBSOCKET_BINARY_FRAME, .direction = FROM_CLIENT, .data = data, .data_length = sizeof(data), .last_frame = true, .rsv = false},
+		{.frame_type = CIO_WEBSOCKET_CONTINUATION_FRAME, .direction = FROM_CLIENT, .data = data, .data_length = sizeof(data), .last_frame = true, .rsv = false},
+		{.frame_type = CIO_WEBSOCKET_CLOSE_FRAME, .direction = FROM_CLIENT, .data = NULL, .data_length = 0, .last_frame = true, .rsv = false},
+	};
+
+	serialize_frames(frames, ARRAY_SIZE(frames));
+
+	ws->ws_private.ws_flags.is_server = (frames[0].direction == FROM_CLIENT) ? 1 : 0;
+	enum cio_error err = cio_websocket_read_message(ws, read_handler, NULL);
+	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Could not start reading a message!");
+
+	TEST_ASSERT_GREATER_OR_EQUAL_MESSAGE(3, read_handler_fake.call_count, "number of read_handler callbacks called not correct");
+
+	for (unsigned int i = 0; i < read_handler_fake.call_count - 1; i++) {
+		TEST_ASSERT_EQUAL_PTR_MESSAGE(ws, read_handler_fake.arg0_history[i], "websocket parameter of read_handler not correct");
+		TEST_ASSERT_NULL_MESSAGE(read_handler_fake.arg1_history[i], "context parameter of read_handler not correct")
+		TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, read_handler_fake.arg2_history[i], "err parameter of read_handler not correct");
+		TEST_ASSERT_NOT_NULL_MESSAGE(read_handler_fake.arg4_history[i], "data parameter of read_handler not correct")
+		TEST_ASSERT_EQUAL_MESSAGE(sizeof(data), read_handler_fake.arg5_history[i], "length parameter of read_handler not correct");
+		TEST_ASSERT_FALSE_MESSAGE(read_handler_fake.arg7_history[i], "last_frame parameter of read_handler not correct")
+		TEST_ASSERT_FALSE_MESSAGE(read_handler_fake.arg8_history[i], "is_binary parameter of read_handler not correct")
+	}
+
+	TEST_ASSERT_EQUAL_PTR_MESSAGE(ws, read_handler_fake.arg0_history[read_handler_fake.call_count - 1], "websocket parameter of read_handler not correct");
+	TEST_ASSERT_NULL_MESSAGE(read_handler_fake.arg1_history[read_handler_fake.call_count - 1], "context parameter of read_handler not correct")
+	TEST_ASSERT_EQUAL_MESSAGE(CIO_EOF, read_handler_fake.arg2_history[read_handler_fake.call_count - 1], "err parameter of read_handler not correct");
+
+	TEST_ASSERT_EQUAL_MESSAGE(1, on_error_fake.call_count, "error callback was not called");
+
+	TEST_ASSERT_EQUAL_MESSAGE(0, on_control_fake.call_count, "control callback was called for close frame");
+}
+
 static void test_rsv_bit_in_header(void)
 {
 	char data[9];
@@ -2632,6 +2672,30 @@ static void test_send_multiple_jobs_starting_with_close(void)
 	TEST_ASSERT_TRUE_MESSAGE(is_close_frame(CIO_WEBSOCKET_CLOSE_NORMAL, true), "Written close frame not correct")
 }
 
+static void test_init_without_ws(void)
+{
+	enum cio_error err = cio_websocket_init(NULL, true, on_connect, NULL);
+	TEST_ASSERT_EQUAL_MESSAGE(CIO_INVALID_ARGUMENT, err, "Wrong error code if no ws pointer provided");
+}
+
+static void test_init_without_on_connect(void)
+{
+	enum cio_error err = cio_websocket_init(ws, true, NULL, NULL);
+	TEST_ASSERT_EQUAL_MESSAGE(CIO_INVALID_ARGUMENT, err, "Wrong error code if no on_connect function provided");
+}
+
+static void test_read_message_no_websocket(void)
+{
+	enum cio_error err = cio_websocket_read_message(NULL, read_handler, NULL);
+	TEST_ASSERT_EQUAL_MESSAGE(CIO_INVALID_ARGUMENT, err, "Wrong error code if no websocket pointer is provided!");
+}
+
+static void test_read_message_no_handler(void)
+{
+	enum cio_error err = cio_websocket_read_message(ws, NULL, NULL);
+	TEST_ASSERT_EQUAL_MESSAGE(CIO_INVALID_ARGUMENT, err, "Wrong error code if no handler is provided!");
+}
+
 int main(void)
 {
 	UNITY_BEGIN();
@@ -2669,6 +2733,7 @@ int main(void)
 	RUN_TEST(test_wrong_opcode_between_fragments);
 	RUN_TEST(test_wrong_opcode_in_fragment);
 	RUN_TEST(test_control_frame_within_fragment);
+	RUN_TEST(test_binary_frame_within_text_fragments);
 
 	RUN_TEST(test_rsv_bit_in_header);
 	RUN_TEST(test_fragmented_control_frame);
@@ -2715,6 +2780,12 @@ int main(void)
 
 	RUN_TEST(test_send_multiple_jobs);
 	RUN_TEST(test_send_multiple_jobs_starting_with_close);
+
+	RUN_TEST(test_init_without_ws);
+	RUN_TEST(test_init_without_on_connect);
+
+	RUN_TEST(test_read_message_no_websocket);
+	RUN_TEST(test_read_message_no_handler);
 
 	return UNITY_END();
 }
