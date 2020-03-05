@@ -316,7 +316,7 @@ enum cio_error cio_buffered_stream_read_until(struct cio_buffered_stream *bs, st
 	return CIO_SUCCESS;
 }
 
-enum cio_error cio_buffered_stream_read_max(struct cio_buffered_stream *bs, struct cio_read_buffer *buffer, size_t num, cio_buffered_stream_read_handler handler, void *handler_context)
+enum cio_error cio_buffered_stream_read_at_most(struct cio_buffered_stream *bs, struct cio_read_buffer *buffer, size_t num, cio_buffered_stream_read_handler handler, void *handler_context)
 {
 	if (cio_unlikely((bs == NULL) || (handler == NULL) || (buffer == NULL))) {
 		return CIO_INVALID_ARGUMENT;

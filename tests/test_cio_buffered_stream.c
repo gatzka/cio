@@ -1719,6 +1719,7 @@ int main(void)
 	RUN_TEST(test_read_exactly_chunks);
 	RUN_TEST(test_read_exactly_zero_length);
 	RUN_TEST(test_read_exactly_second_read_in_callback);
+
 	RUN_TEST(test_read_until);
 	RUN_TEST(test_read_until_and_close);
 	RUN_TEST(test_read_until_not_found);
