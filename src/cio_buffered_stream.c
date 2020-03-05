@@ -116,7 +116,6 @@ static enum cio_bs_state internal_read_max(struct cio_buffered_stream *bs)
 {
 	struct cio_read_buffer *rb = bs->read_buffer;
 
-
 	if (cio_unlikely(bs->last_error != CIO_SUCCESS)) {
 		return call_handler(bs, bs->last_error, rb, 0);
 	}
