@@ -322,10 +322,6 @@ enum cio_error cio_buffered_stream_read_at_most(struct cio_buffered_stream *bs, 
 		return CIO_INVALID_ARGUMENT;
 	}
 
-	if (cio_unlikely(num > cio_read_buffer_size(buffer))) {
-		return CIO_MESSAGE_TOO_LONG;
-	}
-
 	bs->read_info.bytes_to_read = num;
 	bs->read_job = internal_read_max;
 	bs->read_buffer = buffer;
