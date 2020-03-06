@@ -179,6 +179,18 @@ CIO_EXPORT enum cio_error cio_buffered_stream_read_at_least(struct cio_buffered_
  */
 CIO_EXPORT enum cio_error cio_buffered_stream_read_until(struct cio_buffered_stream *bs, struct cio_read_buffer *buffer, const char *delim, cio_buffered_stream_read_handler handler, void *handler_context);
 
+/**
+ * @anchor cio_buffered_stream_at_most
+ * @brief Call @p handler with at least 1 byte in @p buffer but at most @p num bytes in buffer.
+ * @param bs A pointer to the cio_buffered_stream of the on which the operation should be performed.
+ * @param buffer The buffer that should be used for reading.
+ * @param num The number of bytes the should be read at most.
+ * @param handler The callback function to be called when the read
+ * request is fulfilled.
+ * @param handler_context A pointer to a context which might be
+ * useful inside @p handler
+ * @return ::CIO_SUCCESS for success..
+ */
 CIO_EXPORT enum cio_error cio_buffered_stream_read_at_most(struct cio_buffered_stream *bs, struct cio_read_buffer *buffer, size_t num, cio_buffered_stream_read_handler handler, void *handler_context);
 
 /**
