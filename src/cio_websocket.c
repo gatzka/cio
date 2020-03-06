@@ -604,9 +604,7 @@ static void read_payload(struct cio_websocket *ws, struct cio_buffered_stream *b
 		if (cio_unlikely(is_control_frame(ws->ws_private.ws_flags.opcode))) {
 			err = cio_buffered_stream_read_at_least(bs, buffer, ws->ws_private.remaining_read_frame_length, get_payload, ws);
 		} else {
-			size_t available = cio_read_buffer_space_available(buffer);
-			size_t read_len = MIN(available, ws->ws_private.remaining_read_frame_length);
-			err = cio_buffered_stream_read_at_most(bs, buffer, read_len, get_payload, ws);
+			err = cio_buffered_stream_read_at_most(bs, buffer, ws->ws_private.remaining_read_frame_length, get_payload, ws);
 		}
 
 		if (cio_unlikely(err != CIO_SUCCESS)) {
@@ -904,9 +902,7 @@ enum cio_error cio_websocket_read_message(struct cio_websocket *ws, cio_websocke
 	if (ws->ws_private.remaining_read_frame_length == 0) {
 		err = cio_buffered_stream_read_at_least(&c->bs, &c->rb, 1, get_header, ws);
 	} else {
-		size_t available = cio_read_buffer_space_available(&c->rb);
-		size_t read_len = MIN(available, ws->ws_private.remaining_read_frame_length);
-		err = cio_buffered_stream_read_at_most(&c->bs, &c->rb, read_len, get_payload, ws);
+		err = cio_buffered_stream_read_at_most(&c->bs, &c->rb, ws->ws_private.remaining_read_frame_length, get_payload, ws);
 	}
 
 	if (cio_unlikely(err != CIO_SUCCESS)) {
