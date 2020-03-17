@@ -31,11 +31,11 @@ add_executable(test_cio_http_location test_cio_http_location.c ../src/cio_http_l
 add_test(NAME cio.common.test_http_location COMMAND test_cio_http_location)
 
 add_executable(test_cio_inet_address test_cio_inet_address.c)
-target_link_libraries(test_cio_inet_address cio:cio)
+target_link_libraries(test_cio_inet_address cio::cio)
 add_test(NAME cio.common.test_inet_address COMMAND test_cio_inet_address)
 
 add_executable(test_cio_inet_socket_address test_cio_inet_socket_address.c)
-target_link_libraries(test_cio_inet_socket_address cio:cio)
+target_link_libraries(test_cio_inet_socket_address cio::cio)
 add_test(NAME cio.common.test_inet_socket_address COMMAND test_cio_inet_socket_address)
 
 add_executable(test_cio_random test_cio_random.c ../src/cio_random.c)
@@ -62,14 +62,14 @@ add_test(NAME cio.common.test_write_buffer COMMAND test_cio_write_buffer)
 add_executable(test_cio_version test_cio_version.c ../src/cio_version.c)
 add_test(NAME cio.common.test_version COMMAND test_cio_version)
 
-get_property(includes TARGET cio:cio PROPERTY INTERFACE_INCLUDE_DIRECTORIES)
+get_property(includes TARGET cio::cio PROPERTY INTERFACE_INCLUDE_DIRECTORIES)
 get_property(targets DIRECTORY "${CMAKE_CURRENT_LIST_DIR}" PROPERTY BUILDSYSTEM_TARGETS)
 foreach(tgt ${targets})
     get_target_property(target_type ${tgt} TYPE)
     if (target_type STREQUAL "EXECUTABLE")
-        add_dependencies(${tgt} cio:cio) # Necessary to generage cio_version_private.h before compiling the tests.
+        add_dependencies(${tgt} cio::cio) # Necessary to generage cio_version_private.h before compiling the tests.
         target_link_libraries(${tgt} fff unity)
-		#target_link_libraries(${tgt} fff unity cio:cio)
+		#target_link_libraries(${tgt} fff unity cio::cio)
         set_target_properties(${tgt} PROPERTIES
             C_STANDARD_REQUIRED ON
             C_EXTENSIONS OFF

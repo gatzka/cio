@@ -70,7 +70,7 @@ add_library(${PROJECT_NAME}
 )
 target_link_libraries(${PROJECT_NAME} PUBLIC PLATFORM)
 
-add_library(${PROJECT_NAME}:${PROJECT_NAME} ALIAS ${PROJECT_NAME})
+add_library(${PROJECT_NAME}::${PROJECT_NAME} ALIAS ${PROJECT_NAME})
 
 add_dependencies(${PROJECT_NAME} generate_semver)
 
