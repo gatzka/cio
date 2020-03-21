@@ -223,7 +223,6 @@ static void free_dummy_client(struct cio_socket *socket)
 {
 	struct cio_http_client *client = cio_container_of(socket, struct cio_http_client, socket);
 	free(client);
-	client_socket = NULL;
 }
 
 static struct cio_socket *alloc_dummy_client(void)
@@ -263,7 +262,6 @@ static enum cio_http_cb_return callback_write_ok_response(struct cio_http_client
 	return callback_write_response(c, CIO_HTTP_STATUS_OK);
 }
 
-#if 0
 static enum cio_http_cb_return message_complete_write_response(struct cio_http_client *c)
 {
 	static const char data[] = "Hello World!";
@@ -274,7 +272,6 @@ static enum cio_http_cb_return message_complete_write_response(struct cio_http_c
 	c->write_response(c, CIO_HTTP_STATUS_OK, &dh->wbh, NULL);
 	return CIO_HTTP_CB_SUCCESS;
 }
-#endif
 
 static enum cio_http_cb_return callback_write_not_found_response(struct cio_http_client *c)
 {
@@ -349,6 +346,22 @@ static struct cio_http_location_handler *alloc_handler_for_callback_test(const v
 
 		return &handler->handler;
 	}
+}
+
+static struct cio_http_location_handler *alloc_failing_handler(const void *config)
+{
+	(void)config;
+	return NULL;
+}
+
+static struct dummy_handler handler_with_no_free = {
+    .handler = {.free = NULL}};
+
+static struct cio_http_location_handler *alloc_handler_with_no_free(const void *config)
+{
+	(void)config;
+
+	return &handler_with_no_free.handler;
 }
 
 #if 0
@@ -1115,7 +1128,7 @@ static void test_callbacks_after_response_sent(void)
 	    {.expected_response = 500, .who_sends_response = NO_RESPONSE, .request = "GET http://172.19.1.1:8080/foo?search=qry#fraggy" CRLF "Content-Length: 7" CRLF CRLF, .keep_alive = false},
 	    {.expected_response = 404, .who_sends_response = ON_SCHEMA_SENDS_RESPONSE, .request = "GET http://172.19.1.1:8080/foo?search=qry#fraggy" CRLF "Content-Length: 5" CRLF CRLF, .keep_alive = false},
 	    {.expected_response = 404, .who_sends_response = ON_HOST_SENDS_RESPONSE, .request = "GET http://172.19.1.1:8080/foo?search=qry#fraggy" CRLF "Content-Length: 5" CRLF CRLF, .keep_alive = false},
-	    {.expected_response = 404, .who_sends_response = ON_PORT_SENDS_RESPONSE, .request = "GET http://172.19.1.1:8080/foo?search=qry#fraggy" CRLF "Content-Length: 5" CRLF CRLF,.keep_alive = false},
+	    {.expected_response = 404, .who_sends_response = ON_PORT_SENDS_RESPONSE, .request = "GET http://172.19.1.1:8080/foo?search=qry#fraggy" CRLF "Content-Length: 5" CRLF CRLF, .keep_alive = false},
 	    {.expected_response = 404, .who_sends_response = ON_PATH_SENDS_RESPONSE, .request = "GET http://172.19.1.1:8080/foo?search=qry#fraggy" CRLF "Content-Length: 5" CRLF CRLF, .keep_alive = false},
 	    {.expected_response = 404, .who_sends_response = ON_QUERY_SENDS_RESPONSE, .request = "GET http://172.19.1.1:8080/foo?search=qry#fraggy" CRLF "Content-Length: 5" CRLF CRLF, .keep_alive = false},
 	    {.expected_response = 404, .who_sends_response = ON_FRAGMENT_SENDS_RESPONSE, .request = "GET http://172.19.1.1:8080/foo?search=qry#fraggy" CRLF "Content-Length: 5" CRLF CRLF, .keep_alive = false},
@@ -1127,7 +1140,6 @@ static void test_callbacks_after_response_sent(void)
 	    {.expected_response = 404, .who_sends_response = ON_MESSAGE_COMPLETE_SENDS_RESPONSE, .request = "GET http://172.19.1.1:8080/foo?search=qry#fraggy" CRLF "Content-Length: 5" CRLF CRLF, .keep_alive = false},
 	    {.expected_response = 200, .who_sends_response = ON_HEADER_COMPLETE_SENDS_RESPONSE, .request = "GET http://172.19.1.1:8080/foo?search=qry#fraggy HTTP/1.1" CRLF "Content-Length: 5" CRLF CRLF, .keep_alive = true},
 	};
-
 
 	for (unsigned int i = 0; i < ARRAY_SIZE(tests); i++) {
 		cio_server_socket_accept_fake.custom_fake = accept_call_handler;
@@ -1147,7 +1159,6 @@ static void test_callbacks_after_response_sent(void)
 		    .on_body = on_body,
 		    .on_message_complete = on_message_complete,
 		};
-
 
 		enum cio_error (*bs_read_until_fakes[4])(struct cio_buffered_stream *, struct cio_read_buffer *, const char *, cio_buffered_stream_read_handler, void *);
 		size_t array_size = ARRAY_SIZE(bs_read_until_fakes);
@@ -1305,6 +1316,114 @@ static void test_callbacks_after_response_sent(void)
 	free_dummy_client(client_socket);
 }
 
+static void test_url_callbacks(void)
+{
+	static const struct request_test request_tests[] = {
+	    {.on_scheme = on_schema, .on_message_complete = message_complete_write_response, .alloc_handler = alloc_handler_for_callback_test, .callback_return = CIO_HTTP_CB_SUCCESS, .expected_response = 200},
+	    {.on_host = on_host, .on_message_complete = message_complete_write_response, .alloc_handler = alloc_handler_for_callback_test, .callback_return = CIO_HTTP_CB_SUCCESS, .expected_response = 200},
+	    {.on_port = on_port, .on_message_complete = message_complete_write_response, .alloc_handler = alloc_handler_for_callback_test, .callback_return = CIO_HTTP_CB_SUCCESS, .expected_response = 200},
+	    {.on_path = on_path, .on_message_complete = message_complete_write_response, .alloc_handler = alloc_handler_for_callback_test, .callback_return = CIO_HTTP_CB_SUCCESS, .expected_response = 200},
+	    {.on_query = on_query, .on_message_complete = message_complete_write_response, .alloc_handler = alloc_handler_for_callback_test, .callback_return = CIO_HTTP_CB_SUCCESS, .expected_response = 200},
+	    {.on_fragment = on_fragment, .on_message_complete = message_complete_write_response, .alloc_handler = alloc_handler_for_callback_test, .callback_return = CIO_HTTP_CB_SUCCESS, .expected_response = 200},
+	    {.on_scheme = on_schema, .on_message_complete = message_complete_write_response, .alloc_handler = alloc_handler_for_callback_test, .callback_return = CIO_HTTP_CB_ERROR, .expected_response = 400},
+	    {.on_host = on_host, .on_message_complete = message_complete_write_response, .alloc_handler = alloc_handler_for_callback_test, .callback_return = CIO_HTTP_CB_ERROR, .expected_response = 400},
+	    {.on_port = on_port, .on_message_complete = message_complete_write_response, .alloc_handler = alloc_handler_for_callback_test, .callback_return = CIO_HTTP_CB_ERROR, .expected_response = 400},
+	    {.on_path = on_path, .on_message_complete = message_complete_write_response, .alloc_handler = alloc_handler_for_callback_test, .callback_return = CIO_HTTP_CB_ERROR, .expected_response = 400},
+	    {.on_query = on_query, .on_message_complete = message_complete_write_response, .alloc_handler = alloc_handler_for_callback_test, .callback_return = CIO_HTTP_CB_ERROR, .expected_response = 400},
+	    {.on_fragment = on_fragment, .on_message_complete = message_complete_write_response, .alloc_handler = alloc_handler_for_callback_test, .callback_return = CIO_HTTP_CB_ERROR, .expected_response = 400},
+	    {.alloc_handler = alloc_handler_for_callback_test, .expected_response = 500},
+	    {.on_scheme = on_schema, .alloc_handler = alloc_handler_for_callback_test, .expected_response = 500},
+	    {.alloc_handler = alloc_failing_handler, .expected_response = 500},
+	    {.alloc_handler = alloc_handler_with_no_free, .expected_response = 500},
+	};
+
+	for (unsigned int i = 0; i < ARRAY_SIZE(request_tests); i++) {
+		cio_server_socket_accept_fake.custom_fake = accept_call_handler;
+		struct request_test request_test = request_tests[i];
+
+		struct cio_http_server_configuration config = {
+		    .on_error = serve_error,
+		    .read_header_timeout_ns = header_read_timeout,
+		    .read_body_timeout_ns = body_read_timeout,
+		    .response_timeout_ns = response_timeout,
+		    .close_timeout_ns = 10,
+		    .alloc_client = alloc_dummy_client,
+		    .free_client = free_dummy_client};
+
+		cio_init_inet_socket_address(&config.endpoint, cio_get_inet_address_any4(), 8080);
+
+		struct cio_http_server server;
+		enum cio_error err = cio_http_server_init(&server, &loop, &config);
+		TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Server initialization failed!");
+
+		struct cio_http_location target;
+		err = cio_http_location_init(&target, "/foo", &request_test, request_test.alloc_handler);
+		TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Request target initialization failed!");
+		err = cio_http_server_register_location(&server, &target);
+		TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Register request target failed!");
+
+		static const char *scheme = "http";
+		static const char *host = "172.19.1.1";
+		static const char *port = "8080";
+		static const char *path = "/foo";
+		static const char *query = "search=qry";
+		static const char *fragment = "fraggy";
+
+		char buffer[200];
+		snprintf(buffer, sizeof(buffer) - 1, "GET %s://%s:%s%s?%s#%s HTTP/1.1" CRLF "Content-Length: 5" CRLF CRLF "Hello", scheme, host, port, path, query, fragment);
+
+		split_request(buffer);
+
+		err = cio_http_server_serve(&server);
+		TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Serving http failed!");
+		TEST_ASSERT_EQUAL_MESSAGE(request_test.expected_response == 500 ? 1 : 0, serve_error_fake.call_count, "Serve error callback was called!");
+
+		struct cio_http_client *client = cio_container_of(client_socket, struct cio_http_client, socket);
+
+		if (request_test.on_scheme) {
+			TEST_ASSERT_EQUAL_MESSAGE(1, on_schema_fake.call_count, "on_scheme callback was not called correctly!");
+			TEST_ASSERT_EQUAL_MESSAGE(client, on_schema_fake.arg0_val, "'client' parameter in on_scheme not correct");
+			TEST_ASSERT_EQUAL_MESSAGE(strlen(scheme), on_schema_fake.arg2_val, "'size' parameter in on_scheme not correct");
+		}
+
+		if (request_test.on_host) {
+			TEST_ASSERT_EQUAL_MESSAGE(1, on_host_fake.call_count, "on_host callback was not called correctly!");
+			TEST_ASSERT_EQUAL_MESSAGE(client, on_host_fake.arg0_val, "'client' parameter in on_host not correct");
+			TEST_ASSERT_EQUAL_MESSAGE(strlen(host), on_host_fake.arg2_val, "'size' parameter in on_host not correct");
+		}
+
+		if (request_test.on_port) {
+			TEST_ASSERT_EQUAL_MESSAGE(1, on_port_fake.call_count, "on_port callback was not called correctly!");
+			TEST_ASSERT_EQUAL_MESSAGE(client, on_port_fake.arg0_val, "'client' parameter in on_port not correct");
+			TEST_ASSERT_EQUAL_MESSAGE(strlen(port), on_port_fake.arg2_val, "'size' parameter in on_port not correct");
+		}
+
+		if (request_test.on_path) {
+			TEST_ASSERT_EQUAL_MESSAGE(1, on_path_fake.call_count, "on_path callback was not called correctly!");
+			TEST_ASSERT_EQUAL_MESSAGE(client, on_path_fake.arg0_val, "'client' parameter in on_path not correct");
+			TEST_ASSERT_EQUAL_MESSAGE(strlen(path), on_path_fake.arg2_val, "'size' parameter in on_path not correct");
+		}
+
+		if (request_test.on_query) {
+			TEST_ASSERT_EQUAL_MESSAGE(1, on_query_fake.call_count, "on_query callback was not called correctly!");
+			TEST_ASSERT_EQUAL_MESSAGE(client, on_query_fake.arg0_val, "'client' parameter in on_query not correct");
+			TEST_ASSERT_EQUAL_MESSAGE(strlen(query), on_query_fake.arg2_val, "'size' parameter in on_query not correct");
+		}
+
+		if (request_test.on_fragment) {
+			TEST_ASSERT_EQUAL_MESSAGE(1, on_fragment_fake.call_count, "on_fragment callback was not called correctly!");
+			TEST_ASSERT_EQUAL_MESSAGE(client, on_fragment_fake.arg0_val, "'client' parameter in on_fragment not correct");
+			TEST_ASSERT_EQUAL_MESSAGE(strlen(fragment), on_fragment_fake.arg2_val, "'size' parameter in on_fragment not correct");
+		}
+
+		check_http_response(request_test.expected_response);
+
+		setUp();
+	}
+
+	free_dummy_client(client_socket);
+}
+
 int main(void)
 {
 	UNITY_BEGIN();
@@ -1322,6 +1441,7 @@ int main(void)
 	RUN_TEST(test_serve_locations);
 	RUN_TEST(test_keepalive_handling);
 	RUN_TEST(test_callbacks_after_response_sent);
+	RUN_TEST(test_url_callbacks);
 
 	return UNITY_END();
 }
