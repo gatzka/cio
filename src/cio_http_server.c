@@ -681,8 +681,12 @@ static void handle_accept(struct cio_server_socket *ss, void *handler_context, e
 		return;
 	}
 
-	// Deliberatly no check for return value. bs is part of client and the check for stream != NULL was done before.
-	cio_buffered_stream_init(&client->bs, stream);
+	err = cio_buffered_stream_init(&client->bs, stream);
+	if (cio_unlikely(err != CIO_SUCCESS)) {
+		handle_error(server, "buffered_stream init failed");
+		stream->close(stream);
+		return;
+	}
 
 	err = cio_timer_init(&client->http_private.response_timer, server->loop, NULL);
 	if (cio_unlikely(err != CIO_SUCCESS)) {
