@@ -1424,6 +1424,54 @@ static void test_url_callbacks(void)
 	free_dummy_client(client_socket);
 }
 
+static void test_errors_in_serve(void)
+{
+	struct serve_test {
+		enum cio_error reuse_addres_retval;
+		enum cio_error bind_retval;
+		enum cio_error accept_retval;
+	};
+
+	static const struct serve_test serve_tests[] = {
+	    {.reuse_addres_retval = CIO_INVALID_ARGUMENT, .bind_retval = CIO_SUCCESS, .accept_retval = CIO_SUCCESS},
+	    {.reuse_addres_retval = CIO_SUCCESS, .bind_retval = CIO_INVALID_ARGUMENT, .accept_retval = CIO_SUCCESS},
+	    {.reuse_addres_retval = CIO_SUCCESS, .bind_retval = CIO_SUCCESS, .accept_retval = CIO_INVALID_ARGUMENT},
+	};
+
+	for (unsigned int i = 0; i < ARRAY_SIZE(serve_tests); i++) {
+		struct serve_test serve_test = serve_tests[i];
+
+		cio_server_socket_set_reuse_address_fake.return_val = serve_test.reuse_addres_retval;
+		cio_server_socket_bind_fake.return_val = serve_test.bind_retval;
+		cio_server_socket_accept_fake.custom_fake = NULL;
+		cio_server_socket_accept_fake.return_val = serve_test.accept_retval;
+
+		struct cio_http_server_configuration config = {
+		    .on_error = serve_error,
+		    .read_header_timeout_ns = header_read_timeout,
+		    .read_body_timeout_ns = body_read_timeout,
+		    .response_timeout_ns = response_timeout,
+		    .close_timeout_ns = 10,
+		    .alloc_client = alloc_dummy_client,
+		    .free_client = free_dummy_client};
+
+		cio_init_inet_socket_address(&config.endpoint, cio_get_inet_address_any4(), 8080);
+
+		struct cio_http_server server;
+		enum cio_error err = cio_http_server_init(&server, &loop, &config);
+		TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Server initialization failed!");
+
+		err = cio_http_server_serve(&server);
+		TEST_ASSERT_NOT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Serving http did not fail!")
+		TEST_ASSERT_EQUAL_MESSAGE(1, cio_server_socket_close_fake.call_count, "Close was not called!");
+
+		free_dummy_client(client_socket);
+		setUp();
+	}
+
+	free_dummy_client(client_socket);
+}
+
 int main(void)
 {
 	UNITY_BEGIN();
@@ -1442,6 +1490,7 @@ int main(void)
 	RUN_TEST(test_keepalive_handling);
 	RUN_TEST(test_callbacks_after_response_sent);
 	RUN_TEST(test_url_callbacks);
+	RUN_TEST(test_errors_in_serve);
 
 	return UNITY_END();
 }
