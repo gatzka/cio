@@ -1839,6 +1839,53 @@ static void test_timer_cancel_errors(void)
 	}
 }
 
+static void test_timer_expires_errors(void)
+{
+	enum cio_error (*timer_expires_fakes[4])(struct cio_timer * timer, uint64_t timeout_ns, cio_timer_handler handler, void *handler_context);
+
+	for (unsigned int i = 0; i < ARRAY_SIZE(timer_expires_fakes); i++) {
+		timer_expires_fakes[0] = expires;
+		timer_expires_fakes[1] = expires;
+		timer_expires_fakes[2] = expires;
+		timer_expires_fakes[3] = expires;
+
+		timer_expires_fakes[i] = expires_error;
+
+		cio_timer_expires_from_now_fake.custom_fake = NULL;
+		SET_CUSTOM_FAKE_SEQ(cio_timer_expires_from_now, timer_expires_fakes, ARRAY_SIZE(timer_expires_fakes))
+
+		header_complete_fake.custom_fake = callback_write_ok_response;
+
+		struct cio_http_server_configuration config = {
+		    .on_error = serve_error,
+		    .read_header_timeout_ns = header_read_timeout,
+		    .read_body_timeout_ns = body_read_timeout,
+		    .response_timeout_ns = response_timeout,
+		    .close_timeout_ns = 10,
+		    .alloc_client = alloc_dummy_client,
+		    .free_client = free_dummy_client};
+
+		cio_init_inet_socket_address(&config.endpoint, cio_get_inet_address_any4(), 8080);
+		struct cio_http_server server;
+		enum cio_error err = cio_http_server_init(&server, &loop, &config);
+		TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Server initialization failed!");
+		struct cio_http_location target;
+		err = cio_http_location_init(&target, "/foo", NULL, alloc_dummy_handler);
+		TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Request target initialization failed!");
+		err = cio_http_server_register_location(&server, &target);
+		TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Register request target failed!");
+
+		split_request("GET /foo HTTP/1.1" CRLF CRLF);
+
+		err = cio_http_server_serve(&server);
+		TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Serving http failed!");
+		TEST_ASSERT_GREATER_THAN_MESSAGE(0, serve_error_fake.call_count, "Serve error callback was called!");
+		TEST_ASSERT_EQUAL_MESSAGE(1, cio_buffered_stream_close_fake.call_count, "buffered stream was not closed after keepalive timeout triggered!");
+
+		setUp();
+	}
+}
+
 int main(void)
 {
 	UNITY_BEGIN();
@@ -1864,6 +1911,7 @@ int main(void)
 	RUN_TEST(test_connection_upgrade);
 
 	RUN_TEST(test_timer_cancel_errors);
+	RUN_TEST(test_timer_expires_errors);
 
 	return UNITY_END();
 }
