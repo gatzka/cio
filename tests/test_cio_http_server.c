@@ -660,6 +660,8 @@ void setUp(void)
 
 	client_socket = alloc_dummy_client();
 
+	cio_server_socket_accept_fake.custom_fake = accept_call_handler;
+
 	memset(line_buffer, 'A', sizeof line_buffer);
 }
 
@@ -683,7 +685,6 @@ static void test_read_until_errors(void)
 
 	enum cio_error (*bs_read_until_fakes[ARRAY_SIZE(tests)])(struct cio_buffered_stream *, struct cio_read_buffer *, const char *, cio_buffered_stream_read_handler, void *);
 	for (unsigned int i = 0; i < ARRAY_SIZE(tests); i++) {
-		cio_server_socket_accept_fake.custom_fake = accept_call_handler;
 		struct test test = tests[i];
 
 		unsigned int array_size = ARRAY_SIZE(bs_read_until_fakes);
@@ -694,8 +695,6 @@ static void test_read_until_errors(void)
 		cio_buffered_stream_read_until_fake.custom_fake = NULL;
 		bs_read_until_fakes[test.which_read_until_fails] = bs_read_until_call_fails;
 		SET_CUSTOM_FAKE_SEQ(cio_buffered_stream_read_until, bs_read_until_fakes, (int)array_size)
-
-		cio_server_socket_accept_fake.custom_fake = accept_call_handler;
 
 		header_complete_fake.custom_fake = callback_write_ok_response;
 
@@ -739,7 +738,6 @@ static void test_read_until_errors(void)
 
 static void test_close_error(void)
 {
-	cio_server_socket_accept_fake.custom_fake = accept_call_handler;
 	cio_buffered_stream_close_fake.custom_fake = bs_close_fails;
 
 	header_complete_fake.custom_fake = callback_write_ok_response;
@@ -783,7 +781,6 @@ static void test_close_error(void)
 static void test_read_at_least_error(void)
 {
 	cio_buffered_stream_read_at_least_fake.custom_fake = bs_read_at_least_call_fails;
-	cio_server_socket_accept_fake.custom_fake = accept_call_handler;
 
 	struct cio_http_server_configuration config = {
 	    .on_error = serve_error,
@@ -821,7 +818,6 @@ static void test_read_at_least_error(void)
 
 static void test_write_error(void)
 {
-	cio_server_socket_accept_fake.custom_fake = accept_call_handler;
 	header_complete_fake.custom_fake = callback_write_ok_response;
 	cio_buffered_stream_write_fake.custom_fake = bs_write_error;
 
@@ -1035,7 +1031,6 @@ static void test_serve_locations(void)
 
 	for (unsigned int i = 0; i < ARRAY_SIZE(location_tests); i++) {
 		header_complete_fake.custom_fake = callback_write_ok_response;
-		cio_server_socket_accept_fake.custom_fake = accept_call_handler;
 
 		struct cio_http_server_configuration config = {
 		    .on_error = serve_error,
@@ -1122,7 +1117,6 @@ static void test_keepalive_handling(void)
 			SET_CUSTOM_FAKE_SEQ(cio_buffered_stream_read_until, bs_read_until_fakes, (int)array_size)
 
 			header_complete_fake.custom_fake = callback_write_ok_response;
-			cio_server_socket_accept_fake.custom_fake = accept_call_handler;
 
 			struct cio_http_server_configuration config = {
 			    .on_error = serve_error,
@@ -1206,7 +1200,6 @@ static void test_callbacks_after_response_sent(void)
 	};
 
 	for (unsigned int i = 0; i < ARRAY_SIZE(tests); i++) {
-		cio_server_socket_accept_fake.custom_fake = accept_call_handler;
 		struct tests test = tests[i];
 
 		struct request_test callbacks = {
@@ -1402,7 +1395,6 @@ static void test_url_callbacks(void)
 	};
 
 	for (unsigned int i = 0; i < ARRAY_SIZE(request_tests); i++) {
-		cio_server_socket_accept_fake.custom_fake = accept_call_handler;
 		struct request_test request_test = request_tests[i];
 
 		struct cio_http_server_configuration config = {
