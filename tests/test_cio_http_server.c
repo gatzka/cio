@@ -152,8 +152,7 @@ FAKE_VOID_FUNC0(sub_location_handler_called)
 FAKE_VALUE_FUNC(enum cio_error, stream_close, struct cio_io_stream *)
 
 struct cio_io_stream dummy_stream = {
-	.close = stream_close
-};
+    .close = stream_close};
 
 static struct cio_io_stream *get_dummy_io_stream(struct cio_socket *s)
 {
@@ -397,6 +396,37 @@ static struct cio_http_location_handler *alloc_handler_for_callback_test(const v
 		on_query_fake.return_val = test->callback_return;
 		on_fragment_fake.return_val = test->callback_return;
 
+		return &handler->handler;
+	}
+}
+
+static enum cio_http_cb_return on_header_complete_upgrade(struct cio_http_client *c)
+{
+	static const char data[] = "Hello World!";
+	struct cio_http_location_handler *handler = c->current_handler;
+	struct dummy_handler *dh = cio_container_of(handler, struct dummy_handler, handler);
+	cio_write_buffer_const_element_init(&dh->wb, data, sizeof(data));
+	cio_write_buffer_queue_tail(&dh->wbh, &dh->wb);
+	c->write_response(c, CIO_HTTP_STATUS_SWITCHING_PROTOCOLS, &dh->wbh, NULL);
+	return CIO_HTTP_CB_SKIP_BODY;
+}
+
+static struct cio_http_location_handler *alloc_upgrade_handler(const void *config)
+{
+	uintptr_t location = (uintptr_t)config;
+	if (location == 0) {
+		location_handler_called();
+	} else if (location == 1) {
+		sub_location_handler_called();
+	}
+	struct dummy_handler *handler = malloc(sizeof(*handler));
+	if (cio_unlikely(handler == NULL)) {
+		return NULL;
+	} else {
+		cio_http_location_handler_init(&handler->handler);
+		cio_write_buffer_head_init(&handler->wbh);
+		handler->handler.free = free_dummy_handler;
+		handler->handler.on_headers_complete = on_header_complete_upgrade;
 		return &handler->handler;
 	}
 }
@@ -1607,7 +1637,6 @@ static void test_errors_in_accept(void)
 		free_dummy_client(client_socket);
 		client_socket = accept_test.alloc_client();
 
-
 		enum cio_error (*timer_init_fakes[])(struct cio_timer * timer, struct cio_eventloop * l, cio_timer_close_hook hook) = {
 		    accept_test.response_timer_init,
 		    accept_test.request_timer_init};
@@ -1648,6 +1677,40 @@ static void test_errors_in_accept(void)
 	free_dummy_client(client_socket);
 }
 
+static void test_connection_upgrade(void)
+{
+	struct cio_http_server_configuration config = {
+	    .on_error = serve_error,
+	    .read_header_timeout_ns = header_read_timeout,
+	    .read_body_timeout_ns = body_read_timeout,
+	    .response_timeout_ns = response_timeout,
+	    .close_timeout_ns = 10,
+	    .alloc_client = alloc_dummy_client,
+	    .free_client = free_dummy_client};
+
+	cio_init_inet_socket_address(&config.endpoint, cio_get_inet_address_any4(), 8080);
+
+	struct cio_http_server server;
+	on_header_complete_fake.custom_fake = callback_write_ok_response;
+	enum cio_error err = cio_http_server_init(&server, &loop, &config);
+	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Server initialization failed!");
+
+	struct cio_http_location target;
+	err = cio_http_location_init(&target, "/foo", NULL, alloc_upgrade_handler);
+	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Request target initialization failed!");
+	err = cio_http_server_register_location(&server, &target);
+	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Register request target failed!");
+
+	split_request("GET /foo HTTP/1.1" CRLF "Upgrade: websocket" CRLF "Connection: Upgrade" CRLF CRLF);
+
+	err = cio_http_server_serve(&server);
+	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Serving http failed!");
+
+	TEST_ASSERT_EQUAL_MESSAGE(0, serve_error_fake.call_count, "Serve error callback was called!");
+	check_http_response(101);
+	fire_keepalive_timeout(client_socket);
+}
+
 int main(void)
 {
 	UNITY_BEGIN();
@@ -1668,6 +1731,8 @@ int main(void)
 	RUN_TEST(test_url_callbacks);
 	RUN_TEST(test_errors_in_serve);
 	RUN_TEST(test_errors_in_accept);
+
+	RUN_TEST(test_connection_upgrade);
 
 	return UNITY_END();
 }
