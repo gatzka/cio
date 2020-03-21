@@ -501,6 +501,14 @@ static enum cio_error bs_read_until_call_fails(struct cio_buffered_stream *bs, s
 	return CIO_BAD_FILE_DESCRIPTOR;
 }
 
+static enum cio_error bs_read_until_error_in_callback(struct cio_buffered_stream *bs, struct cio_read_buffer *buffer, const char *delim, cio_buffered_stream_read_handler handler, void *handler_context)
+{
+	(void)delim;
+
+	handler(bs, handler_context, CIO_BAD_FILE_DESCRIPTOR, buffer, 0);
+	return CIO_SUCCESS;
+}
+
 static enum cio_error bs_read_at_least_ok(struct cio_buffered_stream *bs, struct cio_read_buffer *buffer, size_t num, cio_buffered_stream_read_handler handler, void *handler_context)
 {
 
@@ -552,11 +560,21 @@ static enum cio_error bs_write_all(struct cio_buffered_stream *bs, struct cio_wr
 	return CIO_SUCCESS;
 }
 
-static enum cio_error bs_write_error(struct cio_buffered_stream *bs, struct cio_write_buffer *buf, cio_buffered_stream_write_handler handler, void *handler_context)
+static enum cio_error bs_write_error_in_callback(struct cio_buffered_stream *bs, struct cio_write_buffer *buf, cio_buffered_stream_write_handler handler, void *handler_context)
 {
 	(void)buf;
 	handler(bs, handler_context, CIO_ADDRESS_IN_USE);
 	return CIO_SUCCESS;
+}
+
+static enum cio_error bs_write_error(struct cio_buffered_stream *bs, struct cio_write_buffer *buf, cio_buffered_stream_write_handler handler, void *handler_context)
+{
+	(void)bs;
+	(void)buf;
+	(void)handler;
+	(void)handler_context;
+
+	return CIO_BAD_FILE_DESCRIPTOR;
 }
 
 static struct cio_eventloop loop;
@@ -849,7 +867,7 @@ static void test_read_at_least_error(void)
 static void test_write_error(void)
 {
 	header_complete_fake.custom_fake = callback_write_ok_response;
-	cio_buffered_stream_write_fake.custom_fake = bs_write_error;
+	cio_buffered_stream_write_fake.custom_fake = bs_write_error_in_callback;
 
 	struct cio_http_server_configuration config = {
 	    .on_error = serve_error,
@@ -1711,6 +1729,61 @@ static void test_connection_upgrade(void)
 	fire_keepalive_timeout(client_socket);
 }
 
+static void test_parse_errors(void)
+{
+	struct parse_test {
+		enum cio_error (*read_until)(struct cio_buffered_stream *bs, struct cio_read_buffer *buffer, const char *delim, cio_buffered_stream_read_handler handler, void *handler_context);
+		enum cio_error (*write_all)(struct cio_buffered_stream *bs, struct cio_write_buffer *buf, cio_buffered_stream_write_handler handler, void *handler_context);
+		const char *request;
+		int expected_response;
+	};
+
+	static struct parse_test parse_tests[] = {
+	    {.read_until = bs_read_until_error_in_callback, .write_all = bs_write_all, .request = "GET /foo HTTP/1.1" CRLF CRLF, .expected_response = 500},
+	    {.read_until = bs_read_until_ok, .write_all = bs_write_all, .request = "GT /foo HTTP/1.1" CRLF CRLF, .expected_response = 400},
+	    {.read_until = bs_read_until_ok, .write_all = bs_write_error, .request = "GT /foo HTTP/1.1" CRLF CRLF},
+	    {.read_until = bs_read_until_ok, .write_all = bs_write_all, .request = "GET http://ww%.google.de/ HTTP/1.1" CRLF CRLF, .expected_response = 400},
+	    {.read_until = bs_read_until_ok, .write_all = bs_write_all, .request = "CONNECT www.google.de:80 HTTP/1.1" CRLF CRLF, .expected_response = 400},
+	};
+
+	for (unsigned int i = 0; i < ARRAY_SIZE(parse_tests); i++) {
+		struct parse_test parse_test = parse_tests[i];
+
+		struct cio_http_server_configuration config = {
+		    .on_error = serve_error,
+		    .read_header_timeout_ns = header_read_timeout,
+		    .read_body_timeout_ns = body_read_timeout,
+		    .response_timeout_ns = response_timeout,
+		    .close_timeout_ns = 10,
+		    .alloc_client = alloc_dummy_client,
+		    .free_client = free_dummy_client};
+
+		cio_init_inet_socket_address(&config.endpoint, cio_get_inet_address_any4(), 8080);
+
+		cio_buffered_stream_read_until_fake.custom_fake = parse_test.read_until;
+		cio_buffered_stream_write_fake.custom_fake = parse_test.write_all;
+
+		struct cio_http_server server;
+		enum cio_error err = cio_http_server_init(&server, &loop, &config);
+		TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Server initialization failed!");
+
+		split_request(parse_test.request);
+
+		err = cio_http_server_serve(&server);
+		TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Serving http failed!");
+
+		check_http_response(parse_test.expected_response);
+
+		if (parse_test.expected_response == 500) {
+			TEST_ASSERT_EQUAL_MESSAGE(1, serve_error_fake.call_count, "Serve error callback was not called!");
+		}
+
+		setUp();
+	}
+
+	free_dummy_client(client_socket);
+}
+
 int main(void)
 {
 	UNITY_BEGIN();
@@ -1731,6 +1804,7 @@ int main(void)
 	RUN_TEST(test_url_callbacks);
 	RUN_TEST(test_errors_in_serve);
 	RUN_TEST(test_errors_in_accept);
+	RUN_TEST(test_parse_errors);
 
 	RUN_TEST(test_connection_upgrade);
 
