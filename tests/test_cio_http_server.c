@@ -1837,6 +1837,8 @@ static void test_timer_cancel_errors(void)
 
 		setUp();
 	}
+
+	free_dummy_client(client_socket);
 }
 
 static void test_timer_expires_errors(void)
@@ -1884,6 +1886,36 @@ static void test_timer_expires_errors(void)
 
 		setUp();
 	}
+
+	free_dummy_client(client_socket);
+}
+
+static void test_error_without_error_callback(void)
+{
+	struct cio_http_server_configuration config = {
+	    .on_error = NULL,
+	    .read_header_timeout_ns = header_read_timeout,
+	    .read_body_timeout_ns = body_read_timeout,
+	    .response_timeout_ns = response_timeout,
+	    .close_timeout_ns = 10,
+	    .alloc_client = alloc_dummy_client_no_buffer,
+	    .free_client = free_dummy_client};
+
+	cio_init_inet_socket_address(&config.endpoint, cio_get_inet_address_any4(), 8080);
+
+	struct cio_http_server server;
+	enum cio_error err = cio_http_server_init(&server, &loop, &config);
+	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Server initialization failed!");
+
+	free_dummy_client(client_socket);
+	client_socket = alloc_dummy_client_no_buffer();
+
+	split_request("GET /foo HTTP/1.1" CRLF CRLF);
+
+	err = cio_http_server_serve(&server);
+	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Serving http failed!");
+
+	TEST_ASSERT_EQUAL_MESSAGE(0, serve_error_fake.call_count, "Serve error callback was not called!");
 }
 
 int main(void)
@@ -1905,6 +1937,7 @@ int main(void)
 	RUN_TEST(test_callbacks_after_response_sent);
 	RUN_TEST(test_url_callbacks);
 	RUN_TEST(test_errors_in_serve);
+	RUN_TEST(test_error_without_error_callback);
 	RUN_TEST(test_errors_in_accept);
 	RUN_TEST(test_parse_errors);
 
