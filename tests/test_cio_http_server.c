@@ -149,6 +149,18 @@ FAKE_VOID_FUNC(response_written_cb, struct cio_http_client *, enum cio_error)
 FAKE_VOID_FUNC0(location_handler_called)
 FAKE_VOID_FUNC0(sub_location_handler_called)
 
+FAKE_VALUE_FUNC(enum cio_error, stream_close, struct cio_io_stream *)
+
+struct cio_io_stream dummy_stream = {
+	.close = stream_close
+};
+
+static struct cio_io_stream *get_dummy_io_stream(struct cio_socket *s)
+{
+	(void)s;
+	return &dummy_stream;
+}
+
 static enum cio_error cancel_timer(struct cio_timer *t)
 {
 	t->handler(t, t->handler_context, CIO_OPERATION_ABORTED);
@@ -163,11 +175,27 @@ static enum cio_error expires(struct cio_timer *t, uint64_t timeout_ns, cio_time
 	return CIO_SUCCESS;
 }
 
+static enum cio_error expires_error(struct cio_timer *t, uint64_t timeout_ns, cio_timer_handler handler, void *handler_context)
+{
+	(void)timeout_ns;
+	t->handler = handler;
+	t->handler_context = handler_context;
+	return CIO_INVALID_ARGUMENT;
+}
+
 static enum cio_error cio_timer_init_ok(struct cio_timer *timer, struct cio_eventloop *loop, cio_timer_close_hook hook)
 {
 	(void)loop;
 	timer->close_hook = hook;
 	return CIO_SUCCESS;
+}
+
+static enum cio_error cio_timer_init_fails(struct cio_timer *timer, struct cio_eventloop *l, cio_timer_close_hook hook)
+{
+	(void)l;
+	(void)timer;
+	(void)hook;
+	return CIO_INVALID_ARGUMENT;
 }
 
 static enum cio_error cio_server_socket_init_ok(struct cio_server_socket *ss,
@@ -237,6 +265,31 @@ static struct cio_socket *alloc_dummy_client(void)
 	client->socket.close_hook = free_dummy_client;
 	bs_init(&client->bs);
 	client_socket = &client->socket;
+	return &client->socket;
+}
+
+static struct cio_socket *alloc_dummy_client_no_buffer(void)
+{
+	struct cio_http_client *client = malloc(sizeof(*client) + 0);
+	memset(client, 0xaf, sizeof(*client));
+	client->buffer_size = 0;
+	client->socket.close_hook = free_dummy_client;
+	return &client->socket;
+}
+
+static struct cio_io_stream *get_null_io_stream(struct cio_socket *context)
+{
+	(void)context;
+	return NULL;
+}
+
+static struct cio_socket *alloc_dummy_client_no_iostream(void)
+{
+	struct cio_http_client *client = malloc(sizeof(*client) + read_buffer_size);
+	memset(client, 0xaf, sizeof(*client));
+	client->buffer_size = read_buffer_size;
+	cio_socket_get_io_stream_fake.custom_fake = get_null_io_stream;
+	client->socket.close_hook = free_dummy_client;
 	return &client->socket;
 }
 
@@ -438,15 +491,10 @@ static enum cio_error bs_read_at_least_call_fails(struct cio_buffered_stream *bs
 	return CIO_BAD_FILE_DESCRIPTOR;
 }
 
-static void close_client(struct cio_http_client *client)
-{
-	free_dummy_client(&client->socket);
-}
-
 static enum cio_error bs_close_ok(struct cio_buffered_stream *bs)
 {
-	struct cio_http_client *client = cio_container_of(bs, struct cio_http_client, bs);
-	close_client(client);
+	(void)bs;
+	stream_close(NULL);
 	return CIO_SUCCESS;
 }
 
@@ -506,6 +554,12 @@ static enum cio_error accept_call_handler(struct cio_server_socket *ss, cio_acce
 	return CIO_SUCCESS;
 }
 
+static enum cio_error accept_error_handler(struct cio_server_socket *ss, cio_accept_handler handler, void *handler_context)
+{
+	handler(ss, handler_context, CIO_INVALID_ARGUMENT, client_socket);
+	return CIO_SUCCESS;
+}
+
 static void split_request(const char *request)
 {
 	num_of_request_lines = 0;
@@ -526,6 +580,13 @@ static void fire_keepalive_timeout(struct cio_socket *s)
 {
 	struct cio_http_client *client = cio_container_of(s, struct cio_http_client, socket);
 	client->http_private.request_timer.handler(&client->http_private.request_timer, client->http_private.request_timer.handler_context, CIO_SUCCESS);
+}
+
+static enum cio_error stream_close_free(struct cio_io_stream *s)
+{
+	(void)s;
+	free_dummy_client(client_socket);
+	return CIO_SUCCESS;
 }
 
 void setUp(void)
@@ -574,6 +635,9 @@ void setUp(void)
 	RESET_FAKE(location_handler_called)
 	RESET_FAKE(sub_location_handler_called)
 
+	RESET_FAKE(stream_close)
+	stream_close_fake.custom_fake = stream_close_free;
+
 	http_parser_settings_init(&parser_settings);
 	http_parser_init(&parser, HTTP_RESPONSE);
 
@@ -592,7 +656,7 @@ void setUp(void)
 	cio_server_socket_init_fake.custom_fake = cio_server_socket_init_ok;
 	cio_server_socket_close_fake.custom_fake = close_server_socket;
 
-	cio_socket_get_io_stream_fake.return_val = (struct cio_io_stream *)1;
+	cio_socket_get_io_stream_fake.custom_fake = get_dummy_io_stream;
 
 	client_socket = alloc_dummy_client();
 
@@ -1472,6 +1536,126 @@ static void test_errors_in_serve(void)
 	free_dummy_client(client_socket);
 }
 
+static void test_errors_in_accept(void)
+{
+	struct accept_test {
+		struct cio_socket *(*alloc_client)(void);
+		enum cio_error (*response_timer_init)(struct cio_timer *timer, struct cio_eventloop *l, cio_timer_close_hook hook);
+		enum cio_error (*request_timer_init)(struct cio_timer *timer, struct cio_eventloop *l, cio_timer_close_hook hook);
+		enum cio_error (*timer_expires)(struct cio_timer *t, uint64_t timeout_ns, cio_timer_handler handler, void *handler_context);
+		enum cio_error buffered_stream_init_return_val;
+		enum cio_error (*accept_handler)(struct cio_server_socket *ss, cio_accept_handler handler, void *handler_context);
+
+		const char *request;
+	};
+
+	static const struct accept_test accept_tests[] = {
+	    {.accept_handler = accept_error_handler,
+	     .alloc_client = alloc_dummy_client,
+	     .response_timer_init = cio_timer_init_ok,
+	     .request_timer_init = cio_timer_init_ok,
+	     .timer_expires = expires,
+	     .buffered_stream_init_return_val = CIO_SUCCESS,
+	     .request = "GET /foo HTTP/1.1" CRLF CRLF},
+	    {.accept_handler = accept_call_handler,
+	     .alloc_client = alloc_dummy_client,
+	     .response_timer_init = cio_timer_init_ok,
+	     .request_timer_init = cio_timer_init_ok,
+	     .timer_expires = expires,
+	     .buffered_stream_init_return_val = CIO_NO_MEMORY,
+	     .request = "GET /foo HTTP/1.1" CRLF CRLF},
+	    {.accept_handler = accept_call_handler,
+	     .alloc_client = alloc_dummy_client_no_buffer,
+	     .response_timer_init = cio_timer_init_ok,
+	     .request_timer_init = cio_timer_init_ok,
+	     .timer_expires = expires,
+	     .buffered_stream_init_return_val = CIO_SUCCESS,
+	     .request = "GET /foo HTTP/1.1" CRLF CRLF},
+	    {.accept_handler = accept_call_handler,
+	     .alloc_client = alloc_dummy_client_no_iostream,
+	     .response_timer_init = cio_timer_init_ok,
+	     .request_timer_init = cio_timer_init_ok,
+	     .timer_expires = expires,
+	     .buffered_stream_init_return_val = CIO_SUCCESS,
+	     .request = "GET /foo HTTP/1.1" CRLF CRLF},
+	    {.accept_handler = accept_error_handler,
+	     .alloc_client = alloc_dummy_client_no_iostream,
+	     .response_timer_init = cio_timer_init_ok,
+	     .request_timer_init = cio_timer_init_ok,
+	     .timer_expires = expires,
+	     .buffered_stream_init_return_val = CIO_SUCCESS,
+	     .request = "GET /foo HTTP/1.1" CRLF CRLF},
+	    {.accept_handler = accept_call_handler,
+	     .alloc_client = alloc_dummy_client,
+	     .response_timer_init = cio_timer_init_fails,
+	     .request_timer_init = cio_timer_init_ok,
+	     .timer_expires = expires,
+	     .buffered_stream_init_return_val = CIO_SUCCESS,
+	     .request = "GET /foo HTTP/1.1" CRLF CRLF},
+	    {.accept_handler = accept_call_handler,
+	     .alloc_client = alloc_dummy_client,
+	     .response_timer_init = cio_timer_init_ok,
+	     .request_timer_init = cio_timer_init_fails,
+	     .timer_expires = expires,
+	     .buffered_stream_init_return_val = CIO_SUCCESS,
+	     .request = "GET /foo HTTP/1.1" CRLF CRLF},
+	    {.accept_handler = accept_call_handler,
+	     .alloc_client = alloc_dummy_client,
+	     .response_timer_init = cio_timer_init_ok,
+	     .request_timer_init = cio_timer_init_ok,
+	     .timer_expires = expires_error,
+	     .buffered_stream_init_return_val = CIO_SUCCESS,
+	     .request = "GET /foo HTTP/1.1" CRLF CRLF},
+	};
+
+	for (unsigned int i = 0; i < ARRAY_SIZE(accept_tests); i++) {
+		struct accept_test accept_test = accept_tests[i];
+		cio_server_socket_accept_fake.custom_fake = accept_test.accept_handler;
+
+		free_dummy_client(client_socket);
+		client_socket = accept_test.alloc_client();
+
+
+		enum cio_error (*timer_init_fakes[])(struct cio_timer * timer, struct cio_eventloop * l, cio_timer_close_hook hook) = {
+		    accept_test.response_timer_init,
+		    accept_test.request_timer_init};
+
+		cio_timer_init_fake.custom_fake = NULL;
+		SET_CUSTOM_FAKE_SEQ(cio_timer_init, timer_init_fakes, ARRAY_SIZE(timer_init_fakes))
+
+		cio_timer_expires_from_now_fake.custom_fake = accept_test.timer_expires;
+		cio_buffered_stream_init_fake.return_val = accept_test.buffered_stream_init_return_val;
+
+		struct cio_http_server_configuration config = {
+		    .on_error = serve_error,
+		    .read_header_timeout_ns = header_read_timeout,
+		    .read_body_timeout_ns = body_read_timeout,
+		    .response_timeout_ns = response_timeout,
+		    .close_timeout_ns = 10,
+		    .alloc_client = accept_test.alloc_client,
+		    .free_client = free_dummy_client};
+
+		cio_init_inet_socket_address(&config.endpoint, cio_get_inet_address_any4(), 8080);
+
+		struct cio_http_server server;
+		enum cio_error err = cio_http_server_init(&server, &loop, &config);
+		TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Server initialization failed!");
+
+		split_request(accept_test.request);
+		err = cio_http_server_serve(&server);
+		TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Serving http failed!");
+		TEST_ASSERT_EQUAL_MESSAGE(1, serve_error_fake.call_count, "Serve error callback was not called!");
+
+		if (accept_test.alloc_client != alloc_dummy_client_no_iostream) {
+			TEST_ASSERT_EQUAL_MESSAGE(1, stream_close_fake.call_count, "stream was not closed!");
+		}
+
+		setUp();
+	}
+
+	free_dummy_client(client_socket);
+}
+
 int main(void)
 {
 	UNITY_BEGIN();
@@ -1491,6 +1675,7 @@ int main(void)
 	RUN_TEST(test_callbacks_after_response_sent);
 	RUN_TEST(test_url_callbacks);
 	RUN_TEST(test_errors_in_serve);
+	RUN_TEST(test_errors_in_accept);
 
 	return UNITY_END();
 }
