@@ -24,9 +24,6 @@ set_source_files_properties(../src/http-parser/http_parser.c PROPERTIES COMPILE_
 add_executable(test_cio_http_server test_cio_http_server.c ../src/cio_http_server.c ../src/cio_http_location.c ../src/cio_http_location_handler.c ../src/http-parser/http_parser.c)
 add_test(NAME cio.common.test_http_server COMMAND test_cio_http_server)
 
-# add_executable(test_cio_http_server_iostream test_cio_http_server_iostream.c ../src/cio_http_server.c ../src/cio_http_location.c ../src/cio_http_location_handler.c ../src/http-parser/http_parser.c ../src/cio_buffered_stream.c)
-# add_test(NAME cio.common.test_http_server_iostream COMMAND test_cio_http_server_iostream)
-
 add_executable(test_cio_http_location test_cio_http_location.c ../src/cio_http_location.c ../src/cio_http_location_handler.c)
 add_test(NAME cio.common.test_http_location COMMAND test_cio_http_location)
 
