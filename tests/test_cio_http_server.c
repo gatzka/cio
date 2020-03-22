@@ -1174,12 +1174,12 @@ static void test_keepalive_handling(void)
 		split_request(keepalive_test.request);
 
 		if (num_of_request_lines > 0) {
-			enum cio_error (*bs_read_until_fakes[num_of_request_lines])(struct cio_buffered_stream *, struct cio_read_buffer *, const char *, cio_buffered_stream_read_handler, void *);
+			enum cio_error (*bs_read_until_fakes[10])(struct cio_buffered_stream *, struct cio_read_buffer *, const char *, cio_buffered_stream_read_handler, void *);
 			size_t array_size = ARRAY_SIZE(bs_read_until_fakes);
 			for (unsigned int j = 0; j < array_size - 1; j++) {
 				bs_read_until_fakes[j] = bs_read_until_ok;
 			}
-			bs_read_until_fakes[array_size - 1] = bs_read_until_blocks;
+			bs_read_until_fakes[num_of_request_lines - 1] = bs_read_until_blocks;
 			cio_buffered_stream_read_until_fake.custom_fake = NULL;
 			SET_CUSTOM_FAKE_SEQ(cio_buffered_stream_read_until, bs_read_until_fakes, (int)array_size)
 
