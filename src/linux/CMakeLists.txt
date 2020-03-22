@@ -32,8 +32,6 @@ add_library(PLATFORM OBJECT
     cio_unix_address.h
 )
 
-target_compile_definitions(PLATFORM PRIVATE _GNU_SOURCE)
-
 set_property(TARGET PLATFORM PROPERTY PUBLIC_HEADER
     "linux/cio_address_family_impl.h"
     "linux/cio_error_code_impl.h"
