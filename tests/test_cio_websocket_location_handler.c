@@ -40,15 +40,17 @@
 
 DEFINE_FFF_GLOBALS
 
-FAKE_VOID_FUNC(cio_http_location_handler_init, struct cio_http_location_handler *)
-FAKE_VALUE_FUNC(enum cio_error, cio_websocket_init, struct cio_websocket *, bool, cio_websocket_on_connect, cio_websocket_close_hook)
-FAKE_VOID_FUNC(fake_handler_free, struct cio_websocket_location_handler *)
-
-
-#if 0
 #ifndef ARRAY_SIZE
 #define ARRAY_SIZE(a) (sizeof(a) / sizeof((a)[0]))
 #endif
+
+FAKE_VOID_FUNC(cio_http_location_handler_init, struct cio_http_location_handler *)
+FAKE_VALUE_FUNC(enum cio_error, cio_websocket_init, struct cio_websocket *, bool, cio_websocket_on_connect, cio_websocket_close_hook)
+FAKE_VOID_FUNC(fake_handler_free, struct cio_websocket_location_handler *)
+FAKE_VOID_FUNC(fake_add_response_header, struct cio_http_client *, struct cio_write_buffer *)
+FAKE_VALUE_FUNC(enum cio_error, fake_write_response, struct cio_http_client *, enum cio_http_status_code , struct cio_write_buffer *, cio_response_written_cb)
+
+#if 0
 
 #define REQUEST_TARGET "/ws/"
 #define CRLF "\r\n"
@@ -304,6 +306,7 @@ void setUp(void)
 	RESET_FAKE(cio_http_location_handler_init)
 	RESET_FAKE(cio_websocket_init)
 	RESET_FAKE(fake_handler_free)
+	RESET_FAKE(fake_add_response_header);
 
 	cio_websocket_init_fake.return_val = CIO_SUCCESS;
 
@@ -870,7 +873,7 @@ static void test_ws_location_init_ok(void)
 {
 	struct cio_websocket_location_handler handler;
 	enum cio_error err = cio_websocket_location_handler_init(&handler, NULL, 0, NULL, fake_handler_free);
-	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "web socket handler initialization did not failed if no location free function is provided!");
+	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "web socket handler initialization failed!");
 }
 
 static void test_ws_location_init_fails(void)
@@ -883,12 +886,74 @@ static void test_ws_location_init_fails(void)
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_INVALID_ARGUMENT, err, "web socket handler initialization did not failed if no location free function is provided!");
 }
 
+static void test_free_resources(void)
+{
+	struct cio_websocket_location_handler handler;
+	enum cio_error err = cio_websocket_location_handler_init(&handler, NULL, 0, NULL, fake_handler_free);
+	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "web socket handler initialization failed!");
+
+	handler.http_location.free(&handler.http_location);
+	TEST_ASSERT_EQUAL_MESSAGE(1, fake_handler_free_fake.call_count, "free_resources was not called when http_location is freed!");
+}
+
+static void test_ws_locaation_http_versions(void)
+{
+	struct upgrade_test {
+		uint16_t major;
+		uint16_t minor;
+	};
+
+	struct upgrade_test tests[] = {
+		{.major = 1, .minor = 1},
+	};
+
+	for (unsigned int i = 0; i < ARRAY_SIZE(tests); i++) {
+		struct upgrade_test test = tests[i];
+
+		struct cio_websocket_location_handler handler;
+		enum cio_error err = cio_websocket_location_handler_init(&handler, NULL, 0, NULL, fake_handler_free);
+		TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "web socket handler initialization failed!");
+
+		struct cio_http_client client;
+
+		handler.websocket.ws_private.http_client =  &client;
+		handler.websocket.ws_private.http_client->current_handler = &handler.http_location;
+		handler.websocket.ws_private.http_client->add_response_header = fake_add_response_header;
+		handler.websocket.ws_private.http_client->write_response = fake_write_response;
+
+		handler.websocket.ws_private.http_client->parser.upgrade = 1;
+		handler.websocket.ws_private.http_client->http_method = CIO_HTTP_GET;
+		handler.websocket.ws_private.http_client->http_major = test.major;
+		handler.websocket.ws_private.http_client->http_minor = test.minor;
+
+		static const char sec_ws_version_field[] = "Sec-WebSocket-Version";
+		static const char sec_ws_version_value[] = "13";
+		enum cio_http_cb_return cb_ret = handler.http_location.on_header_field(handler.websocket.ws_private.http_client, sec_ws_version_field, sizeof(sec_ws_version_field) - 1);
+		TEST_ASSERT_EQUAL_MESSAGE(CIO_HTTP_CB_SUCCESS, cb_ret, "on_header_field returned wrong value for sec_ws_version_field");
+		cb_ret = handler.http_location.on_header_value(handler.websocket.ws_private.http_client, sec_ws_version_value, sizeof(sec_ws_version_value) - 1);
+		TEST_ASSERT_EQUAL_MESSAGE(CIO_HTTP_CB_SUCCESS, cb_ret, "on_header_value returned wrong value for sec_ws_version_value");
+
+		static const char sec_ws_key_field[] = "Sec-WebSocket-Key";
+		static const char sec_ws_key_value[] = "dGhlIHNhbXBsZSBub25jZQ==";
+		cb_ret = handler.http_location.on_header_field(handler.websocket.ws_private.http_client, sec_ws_key_field, sizeof(sec_ws_key_field) - 1);
+		TEST_ASSERT_EQUAL_MESSAGE(CIO_HTTP_CB_SUCCESS, cb_ret, "on_header_field returned wrong value for sec_ws_key_field");
+		cb_ret = handler.http_location.on_header_value(handler.websocket.ws_private.http_client, sec_ws_key_value, sizeof(sec_ws_key_value) - 1);
+		TEST_ASSERT_EQUAL_MESSAGE(CIO_HTTP_CB_SUCCESS, cb_ret, "on_header_value returned wrong value for sec_ws_key_value");
+
+		cb_ret = handler.http_location.on_headers_complete(handler.websocket.ws_private.http_client);
+		TEST_ASSERT_EQUAL_MESSAGE(CIO_HTTP_CB_SKIP_BODY, cb_ret, "on_header_complete returned wrong value");
+	}
+}
+
 int main(void)
 {
 	UNITY_BEGIN();
 
 	RUN_TEST(test_ws_location_init_fails);
 	RUN_TEST(test_ws_location_init_ok);
+	RUN_TEST(test_free_resources);
+
+	RUN_TEST(test_ws_locaation_http_versions);;
 
 	//RUN_TEST(test_ws_location_wrong_http_version);
 	//RUN_TEST(test_ws_location_wrong_http_method);
