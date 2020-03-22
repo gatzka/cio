@@ -47,8 +47,15 @@ add_test(NAME cio.common.test_utf8_checker COMMAND test_cio_utf8_checker)
 add_executable(test_cio_websocket test_cio_websocket.c ../src/cio_websocket.c)
 add_test(NAME cio.common.test_websocket COMMAND test_cio_websocket)
 
-# add_executable(test_cio_websocket_location_handler test_cio_websocket_location_handler.c ../src/cio_websocket_location_handler.c ../src/sha1/sha1.c ../src/cio_base64.c  ../src/http-parser/http_parser.c ../src/cio_http_location.c)
-# add_test(NAME cio.common.test_websocket_location_handler COMMAND test_cio_websocket_location_handler)
+add_executable(test_cio_websocket_location_handler
+    test_cio_websocket_location_handler.c
+    ../src/cio_websocket_location_handler.c
+    ../src/sha1/sha1.c
+    ../src/cio_base64.c
+    $<$<PLATFORM_ID:Linux>:../src/linux/cio_linux_string.c>
+    $<$<PLATFORM_ID:Windows>:../src/windows/cio_windows_string.c>
+)
+add_test(NAME cio.common.test_websocket_location_handler COMMAND test_cio_websocket_location_handler)
 
 add_executable(test_cio_websocket_mask test_cio_websocket_mask.c)
 add_test(NAME cio.common.test_websocket_mask COMMAND test_cio_websocket_mask)
@@ -66,7 +73,6 @@ foreach(tgt ${targets})
     if (target_type STREQUAL "EXECUTABLE")
         add_dependencies(${tgt} cio::cio) # Necessary to generage cio_version_private.h before compiling the tests.
         target_link_libraries(${tgt} fff unity)
-		#target_link_libraries(${tgt} fff unity cio::cio)
         set_target_properties(${tgt} PROPERTIES
             C_STANDARD_REQUIRED ON
             C_EXTENSIONS OFF
