@@ -453,15 +453,6 @@ static struct cio_http_location_handler *alloc_handler_with_no_free(const void *
 	return &handler_with_no_free.handler;
 }
 
-#if 0
-static enum cio_error accept_save_handler(struct cio_server_socket *ss, cio_accept_handler handler, void *handler_context)
-{
-	ss->handler = handler;
-	ss->handler_context = handler_context;
-	return CIO_SUCCESS;
-}
-#endif
-
 static size_t num_of_request_lines;
 static unsigned int current_line;
 
@@ -551,6 +542,10 @@ static enum cio_error bs_close_fails(struct cio_buffered_stream *bs)
 static uint8_t write_buffer[1000];
 static size_t write_pos;
 
+static cio_buffered_stream_write_handler blocked_write_handler;
+static void *blocked_write_handler_context;
+static struct cio_buffered_stream *blocked_write_bs;
+
 static enum cio_error bs_write_all(struct cio_buffered_stream *bs, struct cio_write_buffer *buf, cio_buffered_stream_write_handler handler, void *handler_context)
 {
 	size_t buffer_len = cio_write_buffer_get_num_buffer_elements(buf);
@@ -581,6 +576,24 @@ static enum cio_error bs_write_error(struct cio_buffered_stream *bs, struct cio_
 	(void)handler_context;
 
 	return CIO_BAD_FILE_DESCRIPTOR;
+}
+
+static enum cio_error bs_write_blocks(struct cio_buffered_stream *bs, struct cio_write_buffer *buf, cio_buffered_stream_write_handler handler, void *handler_context)
+{
+	size_t buffer_len = cio_write_buffer_get_num_buffer_elements(buf);
+	const struct cio_write_buffer *data_buf = buf;
+
+	for (unsigned int i = 0; i < buffer_len; i++) {
+		data_buf = data_buf->next;
+		memcpy(&write_buffer[write_pos], data_buf->data.element.const_data, data_buf->data.element.length);
+		write_pos += data_buf->data.element.length;
+	}
+
+	blocked_write_handler = handler;
+	blocked_write_handler_context = handler_context;
+	blocked_write_bs = bs;
+
+	return CIO_SUCCESS;
 }
 
 static struct cio_eventloop loop;
@@ -1882,7 +1895,7 @@ static void test_timer_expires_errors(void)
 		err = cio_http_server_serve(&server);
 		TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Serving http failed!");
 		TEST_ASSERT_GREATER_THAN_MESSAGE(0, serve_error_fake.call_count, "Serve error callback was called!");
-		TEST_ASSERT_EQUAL_MESSAGE(1, cio_buffered_stream_close_fake.call_count, "buffered stream was not closed after keepalive timeout triggered!");
+		TEST_ASSERT_EQUAL_MESSAGE(1, cio_buffered_stream_close_fake.call_count, "buffered stream was not closed!");
 
 		setUp();
 	}
@@ -1918,6 +1931,45 @@ static void test_error_without_error_callback(void)
 	TEST_ASSERT_EQUAL_MESSAGE(0, serve_error_fake.call_count, "Serve error callback was not called!");
 }
 
+static void test_response_callback_after_message_complete(void)
+{
+	on_header_complete_fake.custom_fake = message_complete_write_response;
+
+	struct cio_http_server_configuration config = {
+	    .on_error = serve_error,
+	    .read_header_timeout_ns = header_read_timeout,
+	    .read_body_timeout_ns = body_read_timeout,
+	    .response_timeout_ns = response_timeout,
+	    .close_timeout_ns = 10,
+	    .alloc_client = alloc_dummy_client,
+	    .free_client = free_dummy_client};
+
+	cio_init_inet_socket_address(&config.endpoint, cio_get_inet_address_any4(), 8080);
+
+	cio_buffered_stream_write_fake.custom_fake = bs_write_blocks;
+	header_complete_fake.custom_fake = callback_write_ok_response;
+
+	struct cio_http_server server;
+	enum cio_error err = cio_http_server_init(&server, &loop, &config);
+	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Server initialization failed!");
+
+	struct cio_http_location target;
+	err = cio_http_location_init(&target, "/foo", NULL, alloc_dummy_handler);
+	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Request target initialization failed!");
+	err = cio_http_server_register_location(&server, &target);
+	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Register request target failed!");
+
+	split_request("GET /foo HTTP/1.1" CRLF "Content-Length: 0" CRLF CRLF);
+
+	err = cio_http_server_serve(&server);
+	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Serving http failed!");
+
+	blocked_write_handler(blocked_write_bs, blocked_write_handler_context, CIO_SUCCESS);
+	check_http_response(200);
+
+	TEST_ASSERT_EQUAL_MESSAGE(1, cio_buffered_stream_close_fake.call_count, "buffered stream was not closed!");
+}
+
 int main(void)
 {
 	UNITY_BEGIN();
@@ -1945,6 +1997,8 @@ int main(void)
 
 	RUN_TEST(test_timer_cancel_errors);
 	RUN_TEST(test_timer_expires_errors);
+
+	RUN_TEST(test_response_callback_after_message_complete);
 
 	return UNITY_END();
 }
