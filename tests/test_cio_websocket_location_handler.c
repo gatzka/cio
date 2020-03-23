@@ -986,6 +986,139 @@ static void test_ws_location_http_versions(void)
 	}
 }
 
+static void test_ws_location_wrong_http_method(void)
+{
+	struct cio_websocket_location_handler handler;
+	enum cio_error err = cio_websocket_location_handler_init(&handler, NULL, 0, on_connect, fake_handler_free);
+	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "web socket handler initialization failed!");
+
+	struct cio_http_client client;
+
+	handler.websocket.ws_private.http_client =  &client;
+	handler.websocket.ws_private.http_client->current_handler = &handler.http_location;
+	handler.websocket.ws_private.http_client->add_response_header = fake_add_response_header;
+	handler.websocket.ws_private.http_client->write_response = fake_write_response;
+
+	handler.websocket.ws_private.http_client->parser.upgrade = 1;
+	handler.websocket.ws_private.http_client->http_method = CIO_HTTP_POST;
+	handler.websocket.ws_private.http_client->http_major = 1;
+	handler.websocket.ws_private.http_client->http_minor = 1;
+
+	static const char sec_ws_version_field[] = "Sec-WebSocket-Version";
+	static const char sec_ws_version_value[] = "13";
+	enum cio_http_cb_return cb_ret = handler.http_location.on_header_field(handler.websocket.ws_private.http_client, sec_ws_version_field, sizeof(sec_ws_version_field) - 1);
+	TEST_ASSERT_EQUAL_MESSAGE(CIO_HTTP_CB_SUCCESS, cb_ret, "on_header_field returned wrong value for sec_ws_version_field");
+	cb_ret = handler.http_location.on_header_value(handler.websocket.ws_private.http_client, sec_ws_version_value, sizeof(sec_ws_version_value) - 1);
+	TEST_ASSERT_EQUAL_MESSAGE(CIO_HTTP_CB_SUCCESS, cb_ret, "on_header_value returned wrong value for sec_ws_version_value");
+
+	static const char sec_ws_key_field[] = "Sec-WebSocket-Key";
+	static const char sec_ws_key_value[] = "dGhlIHNhbXBsZSBub25jZQ==";
+	cb_ret = handler.http_location.on_header_field(handler.websocket.ws_private.http_client, sec_ws_key_field, sizeof(sec_ws_key_field) - 1);
+	TEST_ASSERT_EQUAL_MESSAGE(CIO_HTTP_CB_SUCCESS, cb_ret, "on_header_field returned wrong value for sec_ws_key_field");
+	cb_ret = handler.http_location.on_header_value(handler.websocket.ws_private.http_client, sec_ws_key_value, sizeof(sec_ws_key_value) - 1);
+	TEST_ASSERT_EQUAL_MESSAGE(CIO_HTTP_CB_SUCCESS, cb_ret, "on_header_value returned wrong value for sec_ws_key_value");
+
+	cb_ret = handler.http_location.on_headers_complete(handler.websocket.ws_private.http_client);
+	TEST_ASSERT_EQUAL_MESSAGE(CIO_HTTP_CB_ERROR, cb_ret, "on_header_complete returned wrong value");
+}
+
+static void test_ws_location_no_http_upgrade(void)
+{
+	struct cio_websocket_location_handler handler;
+	enum cio_error err = cio_websocket_location_handler_init(&handler, NULL, 0, on_connect, fake_handler_free);
+	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "web socket handler initialization failed!");
+
+	struct cio_http_client client;
+
+	handler.websocket.ws_private.http_client =  &client;
+	handler.websocket.ws_private.http_client->current_handler = &handler.http_location;
+	handler.websocket.ws_private.http_client->add_response_header = fake_add_response_header;
+	handler.websocket.ws_private.http_client->write_response = fake_write_response;
+
+	handler.websocket.ws_private.http_client->parser.upgrade = 0;
+	handler.websocket.ws_private.http_client->http_method = CIO_HTTP_GET;
+	handler.websocket.ws_private.http_client->http_major = 1;
+	handler.websocket.ws_private.http_client->http_minor = 1;
+
+	static const char sec_ws_version_field[] = "Sec-WebSocket-Version";
+	static const char sec_ws_version_value[] = "13";
+	enum cio_http_cb_return cb_ret = handler.http_location.on_header_field(handler.websocket.ws_private.http_client, sec_ws_version_field, sizeof(sec_ws_version_field) - 1);
+	TEST_ASSERT_EQUAL_MESSAGE(CIO_HTTP_CB_SUCCESS, cb_ret, "on_header_field returned wrong value for sec_ws_version_field");
+	cb_ret = handler.http_location.on_header_value(handler.websocket.ws_private.http_client, sec_ws_version_value, sizeof(sec_ws_version_value) - 1);
+	TEST_ASSERT_EQUAL_MESSAGE(CIO_HTTP_CB_SUCCESS, cb_ret, "on_header_value returned wrong value for sec_ws_version_value");
+
+	static const char sec_ws_key_field[] = "Sec-WebSocket-Key";
+	static const char sec_ws_key_value[] = "dGhlIHNhbXBsZSBub25jZQ==";
+	cb_ret = handler.http_location.on_header_field(handler.websocket.ws_private.http_client, sec_ws_key_field, sizeof(sec_ws_key_field) - 1);
+	TEST_ASSERT_EQUAL_MESSAGE(CIO_HTTP_CB_SUCCESS, cb_ret, "on_header_field returned wrong value for sec_ws_key_field");
+	cb_ret = handler.http_location.on_header_value(handler.websocket.ws_private.http_client, sec_ws_key_value, sizeof(sec_ws_key_value) - 1);
+	TEST_ASSERT_EQUAL_MESSAGE(CIO_HTTP_CB_SUCCESS, cb_ret, "on_header_value returned wrong value for sec_ws_key_value");
+
+	cb_ret = handler.http_location.on_headers_complete(handler.websocket.ws_private.http_client);
+	TEST_ASSERT_EQUAL_MESSAGE(CIO_HTTP_CB_ERROR, cb_ret, "on_header_complete returned wrong value");
+}
+
+static void test_ws_location_wrong_http_headers(void)
+{
+	struct upgrade_test {
+		const char *sec_key_field;
+		const char *sec_key_value;
+		const char *version_field;
+		const char *version_value;
+		enum cio_http_cb_return on_headers_retval;
+	};
+
+	struct upgrade_test tests[] = {
+		{
+			.sec_key_field = "Sec-WebSocket-Key",
+			.sec_key_value = "dGhlIHNhbXBsZSBub25jZQ==",
+			.version_field = "Sec-WebSocket-Version",
+			.version_value = "13",
+			.on_headers_retval = CIO_HTTP_CB_SKIP_BODY
+		},
+	};
+
+	for (unsigned int i = 0; i < ARRAY_SIZE(tests); i++) {
+		struct upgrade_test test = tests[i];
+
+		struct cio_websocket_location_handler handler;
+		enum cio_error err = cio_websocket_location_handler_init(&handler, NULL, 0, on_connect, fake_handler_free);
+		TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "web socket handler initialization failed!");
+
+		struct cio_http_client client;
+
+		handler.websocket.ws_private.http_client =  &client;
+		handler.websocket.ws_private.http_client->current_handler = &handler.http_location;
+		handler.websocket.ws_private.http_client->add_response_header = fake_add_response_header;
+		handler.websocket.ws_private.http_client->write_response = fake_write_response;
+
+		handler.websocket.ws_private.http_client->parser.upgrade = 1;
+		handler.websocket.ws_private.http_client->http_method = CIO_HTTP_GET;
+		handler.websocket.ws_private.http_client->http_major = 1;
+		handler.websocket.ws_private.http_client->http_minor = 1;
+
+		enum cio_http_cb_return cb_ret = handler.http_location.on_header_field(handler.websocket.ws_private.http_client, test.version_field, strlen(test.version_field));
+		TEST_ASSERT_EQUAL_MESSAGE(CIO_HTTP_CB_SUCCESS, cb_ret, "on_header_field returned wrong value for sec_ws_version_field");
+		cb_ret = handler.http_location.on_header_value(handler.websocket.ws_private.http_client, test.version_value, strlen(test.version_value));
+		TEST_ASSERT_EQUAL_MESSAGE(CIO_HTTP_CB_SUCCESS, cb_ret, "on_header_value returned wrong value for sec_ws_version_value");
+
+		cb_ret = handler.http_location.on_header_field(handler.websocket.ws_private.http_client, test.sec_key_field, strlen(test.sec_key_field));
+		TEST_ASSERT_EQUAL_MESSAGE(CIO_HTTP_CB_SUCCESS, cb_ret, "on_header_field returned wrong value for sec_ws_key_field");
+		cb_ret = handler.http_location.on_header_value(handler.websocket.ws_private.http_client, test.sec_key_value, strlen(test.sec_key_value));
+		TEST_ASSERT_EQUAL_MESSAGE(CIO_HTTP_CB_SUCCESS, cb_ret, "on_header_value returned wrong value for sec_ws_key_value");
+
+		cb_ret = handler.http_location.on_headers_complete(handler.websocket.ws_private.http_client);
+		TEST_ASSERT_EQUAL_MESSAGE(test.on_headers_retval, cb_ret, "on_header_complete returned wrong value");
+		if (test.on_headers_retval == CIO_HTTP_CB_SKIP_BODY) {
+			TEST_ASSERT_EQUAL_MESSAGE(1, fake_write_response_fake.call_count, "write_response was not called");
+			TEST_ASSERT_EQUAL_MESSAGE(1, on_connect_fake.call_count, "websocket on_connect was not called");
+			TEST_ASSERT_EQUAL_MESSAGE(CIO_HTTP_STATUS_SWITCHING_PROTOCOLS, fake_write_response_fake.arg1_val, "write_response was not called with CIO_HTTP_STATUS_SWITCHING_PROTOCOLS");
+		}
+
+		setUp();
+	}
+}
+
 int main(void)
 {
 	UNITY_BEGIN();
@@ -996,6 +1129,9 @@ int main(void)
 	RUN_TEST(test_free_resources);
 
 	RUN_TEST(test_ws_location_http_versions);;
+	RUN_TEST(test_ws_location_wrong_http_method);
+	RUN_TEST(test_ws_location_no_http_upgrade);
+	RUN_TEST(test_ws_location_wrong_http_headers);
 
 	//RUN_TEST(test_ws_location_wrong_http_version);
 	//RUN_TEST(test_ws_location_wrong_http_method);
