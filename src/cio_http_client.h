@@ -63,7 +63,8 @@ struct cio_http_client;
  */
 typedef void (*cio_response_written_cb)(struct cio_http_client *client, enum cio_error err);
 
-#define CIO_HTTP_CLIENT_CONTENT_LENGTH_BUFFER_LENGTH 30
+enum { CIO_HTTP_CLIENT_CONTENT_LENGTH_BUFFER_LENGTH = 30};
+
 struct cio_http_client_private {
 	struct cio_write_buffer wb_http_response_statusline;
 	struct cio_write_buffer wb_http_content_length;
