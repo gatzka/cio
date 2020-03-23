@@ -34,7 +34,9 @@
 #include <stdint.h>
 
 #include "cio_buffered_stream.h"
+#include "cio_export.h"
 #include "cio_http_method.h"
+#include "cio_http_server.h"
 #include "cio_http_status_code.h"
 #include "cio_read_buffer.h"
 #include "cio_socket.h"
@@ -217,6 +219,11 @@ struct cio_http_client {
 	uint8_t buffer[];
 	/*! @endcond */
 };
+
+static inline struct cio_http_server *cio_http_client_get_server(const struct cio_http_client *client)
+{
+	return (struct cio_http_server *)client->parser.data;
+}
 
 #ifdef __cplusplus
 }
