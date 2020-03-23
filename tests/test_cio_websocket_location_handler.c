@@ -49,6 +49,16 @@ FAKE_VALUE_FUNC(enum cio_error, cio_websocket_init, struct cio_websocket *, bool
 FAKE_VOID_FUNC(fake_handler_free, struct cio_websocket_location_handler *)
 FAKE_VOID_FUNC(fake_add_response_header, struct cio_http_client *, struct cio_write_buffer *)
 FAKE_VALUE_FUNC(enum cio_error, fake_write_response, struct cio_http_client *, enum cio_http_status_code , struct cio_write_buffer *, cio_response_written_cb)
+FAKE_VOID_FUNC(on_connect, struct cio_websocket *)
+
+static enum cio_error write_response_call_callback (struct cio_http_client *client, enum cio_http_status_code status, struct cio_write_buffer *buf, cio_response_written_cb response_callback)
+{
+	(void) status;
+	(void)buf;
+
+	response_callback(client, CIO_SUCCESS);
+	return CIO_SUCCESS;
+}
 
 #if 0
 
@@ -308,8 +318,10 @@ void setUp(void)
 	RESET_FAKE(fake_handler_free)
 	RESET_FAKE(fake_add_response_header);
 	RESET_FAKE(fake_write_response);
+	RESET_FAKE(on_connect);
 
 	cio_websocket_init_fake.return_val = CIO_SUCCESS;
+	fake_write_response_fake.custom_fake = write_response_call_callback;
 
 #if 0
 	RESET_FAKE(cio_buffered_stream_init)
@@ -921,6 +933,7 @@ static void test_ws_location_http_versions(void)
 
 		struct cio_http_client client;
 
+		handler.websocket.on_connect = on_connect;
 		handler.websocket.ws_private.http_client =  &client;
 		handler.websocket.ws_private.http_client->current_handler = &handler.http_location;
 		handler.websocket.ws_private.http_client->add_response_header = fake_add_response_header;
@@ -949,6 +962,7 @@ static void test_ws_location_http_versions(void)
 		TEST_ASSERT_EQUAL_MESSAGE(test.expected_ret_val, cb_ret, "on_header_complete returned wrong value");
 		if (test.expected_ret_val == CIO_HTTP_CB_SKIP_BODY) {
 			TEST_ASSERT_EQUAL_MESSAGE(1, fake_write_response_fake.call_count, "write_response was not called");
+			TEST_ASSERT_EQUAL_MESSAGE(1, on_connect_fake.call_count, "websocket on_connect was not called");
 			TEST_ASSERT_EQUAL_MESSAGE(CIO_HTTP_STATUS_SWITCHING_PROTOCOLS, fake_write_response_fake.arg1_val, "write_response was not called with CIO_HTTP_STATUS_SWITCHING_PROTOCOLS");
 		}
 
