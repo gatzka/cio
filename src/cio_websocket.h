@@ -106,8 +106,8 @@ enum cio_websocket_frame_type {
 	CIO_WEBSOCKET_PONG_FRAME = 0x0a,
 };
 
-#define CIO_WEBSOCKET_SMALL_FRAME_SIZE 125
-#define CIO_WEBSOCKET_MAX_HEADER_SIZE 14
+enum {CIO_WEBSOCKET_SMALL_FRAME_SIZE = 125};
+enum {CIO_WEBSOCKET_MAX_HEADER_SIZE = 14};
 
 struct cio_websocket_write_job {
 	struct cio_websocket_write_job *next;
