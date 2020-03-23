@@ -307,6 +307,7 @@ void setUp(void)
 	RESET_FAKE(cio_websocket_init)
 	RESET_FAKE(fake_handler_free)
 	RESET_FAKE(fake_add_response_header);
+	RESET_FAKE(fake_write_response);
 
 	cio_websocket_init_fake.return_val = CIO_SUCCESS;
 
@@ -896,15 +897,19 @@ static void test_free_resources(void)
 	TEST_ASSERT_EQUAL_MESSAGE(1, fake_handler_free_fake.call_count, "free_resources was not called when http_location is freed!");
 }
 
-static void test_ws_locaation_http_versions(void)
+static void test_ws_location_http_versions(void)
 {
 	struct upgrade_test {
 		uint16_t major;
 		uint16_t minor;
+		enum cio_http_cb_return expected_ret_val;
 	};
 
 	struct upgrade_test tests[] = {
-		{.major = 1, .minor = 1},
+		{.major = 1, .minor = 1, .expected_ret_val = CIO_HTTP_CB_SKIP_BODY},
+		{.major = 2, .minor = 0, .expected_ret_val = CIO_HTTP_CB_SKIP_BODY},
+		{.major = 1, .minor = 0, .expected_ret_val = CIO_HTTP_CB_ERROR},
+		{.major = 0, .minor = 9, .expected_ret_val = CIO_HTTP_CB_ERROR},
 	};
 
 	for (unsigned int i = 0; i < ARRAY_SIZE(tests); i++) {
@@ -941,7 +946,13 @@ static void test_ws_locaation_http_versions(void)
 		TEST_ASSERT_EQUAL_MESSAGE(CIO_HTTP_CB_SUCCESS, cb_ret, "on_header_value returned wrong value for sec_ws_key_value");
 
 		cb_ret = handler.http_location.on_headers_complete(handler.websocket.ws_private.http_client);
-		TEST_ASSERT_EQUAL_MESSAGE(CIO_HTTP_CB_SKIP_BODY, cb_ret, "on_header_complete returned wrong value");
+		TEST_ASSERT_EQUAL_MESSAGE(test.expected_ret_val, cb_ret, "on_header_complete returned wrong value");
+		if (test.expected_ret_val == CIO_HTTP_CB_SKIP_BODY) {
+			TEST_ASSERT_EQUAL_MESSAGE(1, fake_write_response_fake.call_count, "write_response was not called");
+			TEST_ASSERT_EQUAL_MESSAGE(CIO_HTTP_STATUS_SWITCHING_PROTOCOLS, fake_write_response_fake.arg1_val, "write_response was not called with CIO_HTTP_STATUS_SWITCHING_PROTOCOLS");
+		}
+
+		setUp();
 	}
 }
 
@@ -953,7 +964,7 @@ int main(void)
 	RUN_TEST(test_ws_location_init_ok);
 	RUN_TEST(test_free_resources);
 
-	RUN_TEST(test_ws_locaation_http_versions);;
+	RUN_TEST(test_ws_location_http_versions);;
 
 	//RUN_TEST(test_ws_location_wrong_http_version);
 	//RUN_TEST(test_ws_location_wrong_http_method);
