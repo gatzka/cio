@@ -897,6 +897,15 @@ static void test_ws_location_init_ok(void)
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "web socket handler initialization failed!");
 }
 
+static void test_ws_location_ws_init_fails(void)
+{
+	struct cio_websocket_location_handler handler;
+	cio_websocket_init_fake.custom_fake = NULL;
+	cio_websocket_init_fake.return_val = CIO_INVALID_ARGUMENT;
+	enum cio_error err = cio_websocket_location_handler_init(&handler, NULL, 0, NULL, fake_handler_free);
+	TEST_ASSERT_EQUAL_MESSAGE(CIO_INVALID_ARGUMENT, err, "web socket handler initialization didn't fail!");
+}
+
 static void test_ws_location_init_fails(void)
 {
 	struct cio_websocket_location_handler handler;
@@ -983,6 +992,7 @@ int main(void)
 
 	RUN_TEST(test_ws_location_init_fails);
 	RUN_TEST(test_ws_location_init_ok);
+	RUN_TEST(test_ws_location_ws_init_fails);
 	RUN_TEST(test_free_resources);
 
 	RUN_TEST(test_ws_location_http_versions);;
