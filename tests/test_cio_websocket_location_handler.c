@@ -60,6 +60,14 @@ static enum cio_error write_response_call_callback (struct cio_http_client *clie
 	return CIO_SUCCESS;
 }
 
+static enum cio_error websocket_init_save_params(struct cio_websocket *ws, bool is_server, cio_websocket_on_connect on_connect_cb, cio_websocket_close_hook close_hook)
+{
+	ws->on_connect = on_connect_cb;
+	ws->ws_private.close_hook = close_hook;
+	ws->ws_private.ws_flags.is_server = is_server;
+	return CIO_SUCCESS;
+}
+
 #if 0
 
 #define REQUEST_TARGET "/ws/"
@@ -320,7 +328,7 @@ void setUp(void)
 	RESET_FAKE(fake_write_response);
 	RESET_FAKE(on_connect);
 
-	cio_websocket_init_fake.return_val = CIO_SUCCESS;
+	cio_websocket_init_fake.custom_fake = websocket_init_save_params;
 	fake_write_response_fake.custom_fake = write_response_call_callback;
 
 #if 0
@@ -928,12 +936,11 @@ static void test_ws_location_http_versions(void)
 		struct upgrade_test test = tests[i];
 
 		struct cio_websocket_location_handler handler;
-		enum cio_error err = cio_websocket_location_handler_init(&handler, NULL, 0, NULL, fake_handler_free);
+		enum cio_error err = cio_websocket_location_handler_init(&handler, NULL, 0, on_connect, fake_handler_free);
 		TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "web socket handler initialization failed!");
 
 		struct cio_http_client client;
 
-		handler.websocket.on_connect = on_connect;
 		handler.websocket.ws_private.http_client =  &client;
 		handler.websocket.ws_private.http_client->current_handler = &handler.http_location;
 		handler.websocket.ws_private.http_client->add_response_header = fake_add_response_header;
