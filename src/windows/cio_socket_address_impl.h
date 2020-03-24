@@ -51,10 +51,15 @@ struct cio_socket_address_common {
 	struct sockaddr addr;
 };
 
-struct cio_socket_address_impl {
+union cio_sa {
 	struct cio_socket_address_common socket_address;
 	struct cio_inet4_socket_address inet_addr4;
 	struct cio_inet6_socket_address inet_addr6;
+};
+
+struct cio_socket_address_impl {
+	socklen_t len;
+	union cio_sa sa;
 };
 
 #ifdef __cplusplus
