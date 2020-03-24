@@ -4,37 +4,30 @@ project(cio-examples C)
 add_executable(socket_echo
     socket_echo.c
 )
-target_link_libraries(socket_echo)
 
 add_executable(socket_connect
     socket_connect.c
 )
-target_link_libraries(socket_connect)
 
 add_executable(socket_ping_pong
     socket_ping_pong.c
 )
-target_link_libraries(socket_ping_pong)
 
 add_executable(socket_two_connects
     socket_two_connects.c
 )
-target_link_libraries(socket_two_connects)
 
 add_executable(http_server
     http_server.c
 )
-target_link_libraries(http_server)
 
 add_executable(websocket_server
     websocket_server.c
 )
-target_link_libraries(websocket_server)
 
 add_executable(periodic_timer
     periodic_timer.c
 )
-target_link_libraries(periodic_timer)
 
 if(${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
     add_subdirectory(linux)
