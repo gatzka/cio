@@ -1213,17 +1213,21 @@ static void test_ws_location_sub_protocols(void)
 		const char *protocol_field;
 		const char *protocol_value;
 		enum cio_http_cb_return expected_ret_val;
+		const char **sub_protocols;
+		size_t num_sub_protocols;
 	};
 
+	const char *sub_protocols[] = {"echo", "jet"};
+
 	struct upgrade_test tests[] = {
-	    {.protocol_field = "Sec-WebSocket-Protocol", .protocol_value = "jet", .expected_ret_val = CIO_HTTP_CB_SKIP_BODY},
-	    {.protocol_field = "Sec-WebSocket-Protocol", .protocol_value = "jet,jetty",.expected_ret_val = CIO_HTTP_CB_SKIP_BODY},
-	    {.protocol_field = "Sec-WebSocket-Protocol", .protocol_value = "foo, bar",.expected_ret_val = CIO_HTTP_CB_ERROR},
-	    {.protocol_field = "Sec-WebSocket-Protocol", .protocol_value = "je",.expected_ret_val = CIO_HTTP_CB_ERROR},
-	    {.protocol_field = "Sec-WebSocket-Protocol", .protocol_value = "bar",.expected_ret_val = CIO_HTTP_CB_ERROR},
-	    {.protocol_field = "foo", .protocol_value = "bar",.expected_ret_val = CIO_HTTP_CB_SKIP_BODY},
-	    //{.protocol_field = "foo", .protocol_value = "bar", .handler = alloc_websocket_handler_no_subprotocol, .expected_ret_val = CIO_HTTP_CB_SKIP_BODY},
-	    //{.protocol_field = "Sec-WebSocket-Protocol", .protocol_value = "jet", .handler = alloc_websocket_handler_no_subprotocol, .expected_ret_val = CIO_HTTP_CB_ERROR},
+	    {.protocol_field = "Sec-WebSocket-Protocol", .protocol_value = "jet", .expected_ret_val = CIO_HTTP_CB_SKIP_BODY, .sub_protocols = sub_protocols, .num_sub_protocols = ARRAY_SIZE(sub_protocols)},
+	    {.protocol_field = "Sec-WebSocket-Protocol", .protocol_value = "jet,jetty",.expected_ret_val = CIO_HTTP_CB_SKIP_BODY, .sub_protocols = sub_protocols, .num_sub_protocols = ARRAY_SIZE(sub_protocols)},
+	    {.protocol_field = "Sec-WebSocket-Protocol", .protocol_value = "foo, bar",.expected_ret_val = CIO_HTTP_CB_ERROR, .sub_protocols = sub_protocols, .num_sub_protocols = ARRAY_SIZE(sub_protocols)},
+	    {.protocol_field = "Sec-WebSocket-Protocol", .protocol_value = "je",.expected_ret_val = CIO_HTTP_CB_ERROR, .sub_protocols = sub_protocols, .num_sub_protocols = ARRAY_SIZE(sub_protocols)},
+	    {.protocol_field = "Sec-WebSocket-Protocol", .protocol_value = "bar",.expected_ret_val = CIO_HTTP_CB_ERROR, .sub_protocols = sub_protocols, .num_sub_protocols = ARRAY_SIZE(sub_protocols)},
+	    {.protocol_field = "foo", .protocol_value = "bar",.expected_ret_val = CIO_HTTP_CB_SKIP_BODY, .sub_protocols = sub_protocols, .num_sub_protocols = ARRAY_SIZE(sub_protocols)},
+	    {.protocol_field = "foo", .protocol_value = "bar",.expected_ret_val = CIO_HTTP_CB_SKIP_BODY, .sub_protocols = NULL, .num_sub_protocols = 0},
+	    {.protocol_field = "Sec-WebSocket-Protocol", .protocol_value = "jet",.expected_ret_val = CIO_HTTP_CB_ERROR, .sub_protocols = NULL, .num_sub_protocols = 0},
 	};
 
 	for (unsigned int i = 0; i < ARRAY_SIZE(tests); i++) {
@@ -1231,8 +1235,7 @@ static void test_ws_location_sub_protocols(void)
 
 		struct cio_websocket_location_handler handler;
 
-		static const char *subprotocols[2] = {"echo", "jet"};
-		enum cio_error err =cio_websocket_location_handler_init(&handler, subprotocols, ARRAY_SIZE(subprotocols), on_connect, fake_handler_free);
+		enum cio_error err =cio_websocket_location_handler_init(&handler, test.sub_protocols, test.num_sub_protocols, on_connect, fake_handler_free);
 		TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "web socket handler initialization failed!");
 
 		struct cio_http_client client;

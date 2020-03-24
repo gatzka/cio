@@ -301,7 +301,7 @@ static void free_resources(struct cio_http_location_handler *handler)
 
 enum cio_error cio_websocket_location_handler_init(struct cio_websocket_location_handler *handler,
                                                    const char *subprotocols[],
-                                                   unsigned int num_subprotocols,
+                                                   size_t num_subprotocols,
                                                    cio_websocket_on_connect on_connect,
                                                    void (*location_handler_free)(struct cio_websocket_location_handler *))
 {
