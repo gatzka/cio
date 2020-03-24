@@ -172,7 +172,7 @@ static void close_listen_socket(struct cio_windows_listen_socket *wls)
 static enum cio_error create_listen_socket(struct cio_windows_listen_socket *socket, enum cio_socket_address_family address_family, struct cio_eventloop *loop)
 {
 	int err;
-	socket->address_family = (int)CIO_ADDRESS_FAMILY_INET4;
+	socket->address_family = (int)address_family;
 
 	socket->bound = false;
 	socket->accept_socket = INVALID_SOCKET;
@@ -254,14 +254,9 @@ enum cio_error cio_server_socket_accept(struct cio_server_socket *ss, cio_accept
 
 enum cio_error cio_server_socket_set_reuse_address(struct cio_server_socket *ss, bool on)
 {
-	char reuse;
-	if (on) {
-		reuse = 1;
-	} else {
-		reuse = 0;
-	}
+	DWORD reuse = on ? 1 : 0;
 
-	if (cio_unlikely(setsockopt((SOCKET)ss->impl.listen_socket.fd, SOL_SOCKET, SO_REUSEADDR, &reuse, sizeof(reuse)) < 0)) {
+	if (cio_unlikely(setsockopt((SOCKET)ss->impl.listen_socket.fd, SOL_SOCKET, SO_REUSEADDR, (const char *)&reuse, sizeof(reuse)) < 0)) {
 		int err = GetLastError();
 		return (enum cio_error)(-err);
 	}
@@ -275,17 +270,7 @@ enum cio_error cio_server_socket_bind(struct cio_server_socket *ss, const struct
 		return CIO_INVALID_ARGUMENT;
 	}
 
-	const struct sockaddr *addr;
-	socklen_t addr_len;
-	if (endpoint->impl.socket_address.addr.sa_family == CIO_ADDRESS_FAMILY_INET4) {
-		addr = (const struct sockaddr *)&endpoint->impl.inet_addr4.impl.in;
-		addr_len = sizeof(endpoint->impl.inet_addr4.impl.in);
-	} else {
-		addr = (const struct sockaddr *)&endpoint->impl.inet_addr6.impl.in6;
-		addr_len = sizeof(endpoint->impl.inet_addr6.impl.in6);
-	}
-
-	int ret = bind((SOCKET)ss->impl.listen_socket.fd, addr, addr_len);
+	int ret = bind((SOCKET)ss->impl.listen_socket.fd, &endpoint->impl.sa.socket_address.addr, endpoint->impl.len);
 	if (cio_unlikely(ret != 0)) {
 		int err = GetLastError();
 		return (enum cio_error)(-err);
@@ -298,4 +283,22 @@ enum cio_error cio_server_socket_bind(struct cio_server_socket *ss, const struct
 void cio_server_socket_close(struct cio_server_socket *ss)
 {
 	close_listen_socket(&ss->impl.listen_socket);
+}
+
+enum cio_error cio_server_socket_set_tcp_fast_open(struct cio_server_socket *ss, bool on)
+{
+#if 0
+	DWORD tcp_fast_open = on ? 1 : 0;
+
+	if (cio_unlikely(setsockopt((SOCKET)ss->impl.listen_socket.fd, IPPROTO_TCP, TCP_FASTOPEN, (const char *)&tcp_fast_open, sizeof(tcp_fast_open)) < 0)) {
+		int err = GetLastError();
+		return (enum cio_error)(-err);
+	}
+
+	return CIO_SUCCESS;
+#endif
+	(void)ss;
+	(void)on;
+
+	return CIO_OPERATION_NOT_SUPPORTED;
 }

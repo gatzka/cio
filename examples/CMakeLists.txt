@@ -16,6 +16,11 @@ add_executable(socket_ping_pong
 )
 target_link_libraries(socket_ping_pong)
 
+add_executable(socket_two_connects
+    socket_two_connects.c
+)
+target_link_libraries(socket_two_connects)
+
 add_executable(http_server
     http_server.c
 )

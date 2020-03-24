@@ -25,11 +25,11 @@
  */
 
 #include <errno.h>
+#include <string.h>
+#include <sys/types.h>
+#include <sys/socket.h>
 #include <netinet/in.h>
 #include <netinet/tcp.h>
-#include <string.h>
-#include <sys/socket.h>
-#include <sys/types.h>
 #include <unistd.h>
 
 #include "fff.h"
@@ -45,6 +45,14 @@
 
 #undef MIN
 #define MIN(X, Y) (((X) < (Y)) ? (X) : (Y))
+
+#ifndef SOL_TCP
+#define SOL_TCP	IPPROTO_TCP
+#endif
+
+#ifndef TCP_FASTOPEN_CONNECT
+#define TCP_FASTOPEN_CONNECT 30 // Define it for older kernels (pre 4.11)
+#endif
 
 DEFINE_FFF_GLOBALS
 
@@ -621,6 +629,53 @@ static void test_socket_nodelay_setsockopt_fails(void)
 	TEST_ASSERT_EQUAL_MESSAGE(s.impl.ev.fd, setsockopt_fake.arg0_val, "fd for setsockopt not correct!");
 	TEST_ASSERT_EQUAL_MESSAGE(IPPROTO_TCP, setsockopt_fake.arg1_val, "level for setsockopt not correct!");
 	TEST_ASSERT_EQUAL_MESSAGE(TCP_NODELAY, setsockopt_fake.arg2_val, "option name for setsockopt not correct!");
+}
+
+static void test_socket_enable_tfo(void)
+{
+	struct cio_socket s;
+
+	enum cio_error err = cio_socket_init(&s, CIO_ADDRESS_FAMILY_INET4, &loop, 10, NULL);
+	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Return value of cio_socket_init not correct!");
+
+	err = cio_socket_set_tcp_fast_open(&s, true);
+	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Return value of cio_socket_set_tcp_fast_open not correct!");
+	TEST_ASSERT_EQUAL_MESSAGE(1, setsockopt_fake.call_count, "setsockopt was not called!");
+	TEST_ASSERT_EQUAL_MESSAGE(s.impl.ev.fd, setsockopt_fake.arg0_val, "fd for setsockopt not correct!");
+	TEST_ASSERT_EQUAL_MESSAGE(SOL_TCP, setsockopt_fake.arg1_val, "level for setsockopt not correct!");
+	TEST_ASSERT_EQUAL_MESSAGE(TCP_FASTOPEN_CONNECT, setsockopt_fake.arg2_val, "option name for setsockopt not correct!");
+}
+
+static void test_socket_disable_tfo(void)
+{
+	struct cio_socket s;
+
+	enum cio_error err = cio_socket_init(&s, CIO_ADDRESS_FAMILY_INET4, &loop, 10, NULL);
+	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Return value of cio_socket_init not correct!");
+
+	err = cio_socket_set_tcp_fast_open(&s, false);
+	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Return value of cio_socket_set_tcp_fast_open not correct!");
+	TEST_ASSERT_EQUAL_MESSAGE(1, setsockopt_fake.call_count, "setsockopt was not called!");
+	TEST_ASSERT_EQUAL_MESSAGE(s.impl.ev.fd, setsockopt_fake.arg0_val, "fd for setsockopt not correct!");
+	TEST_ASSERT_EQUAL_MESSAGE(SOL_TCP, setsockopt_fake.arg1_val, "level for setsockopt not correct!");
+	TEST_ASSERT_EQUAL_MESSAGE(TCP_FASTOPEN_CONNECT, setsockopt_fake.arg2_val, "option name for setsockopt not correct!");
+}
+
+static void test_socket_tfo_setsockopt_fails(void)
+{
+	struct cio_socket s;
+
+	setsockopt_fake.custom_fake = setsockopt_fails;
+
+	enum cio_error err = cio_socket_init(&s, CIO_ADDRESS_FAMILY_INET4, &loop, 10, NULL);
+	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Return value of cio_socket_init not correct!");
+
+	err = cio_socket_set_tcp_fast_open(&s, false);
+	TEST_ASSERT_NOT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Return value of cio_socket_set_tcp_fast_open not correct!")
+	TEST_ASSERT_EQUAL_MESSAGE(1, setsockopt_fake.call_count, "setsockopt was not called!");
+	TEST_ASSERT_EQUAL_MESSAGE(s.impl.ev.fd, setsockopt_fake.arg0_val, "fd for setsockopt not correct!");
+	TEST_ASSERT_EQUAL_MESSAGE(SOL_TCP, setsockopt_fake.arg1_val, "level for setsockopt not correct!");
+	TEST_ASSERT_EQUAL_MESSAGE(TCP_FASTOPEN_CONNECT, setsockopt_fake.arg2_val, "option name for setsockopt not correct!");
 }
 
 static void test_socket_enable_keepalive(void)
@@ -1391,6 +1446,11 @@ int main(void)
 	RUN_TEST(test_socket_enable_nodelay);
 	RUN_TEST(test_socket_disable_nodelay);
 	RUN_TEST(test_socket_nodelay_setsockopt_fails);
+
+	RUN_TEST(test_socket_enable_tfo);
+	RUN_TEST(test_socket_disable_tfo);
+	RUN_TEST(test_socket_tfo_setsockopt_fails);
+
 	RUN_TEST(test_socket_enable_keepalive);
 	RUN_TEST(test_socket_disable_keepalive);
 	RUN_TEST(test_socket_disable_keepalive_setsockopt_fails);

@@ -29,6 +29,7 @@
 #ifndef CIO_HTTP_SERVER_H
 #define CIO_HTTP_SERVER_H
 
+#include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
 
@@ -129,6 +130,11 @@ struct cio_http_server_configuration {
 	 * parameter to 0 leaves it up to the operating system to get the socket out of FIN_WAIT_2.
 	 */
 	uint64_t close_timeout_ns;
+
+	/**
+	 * @brief Flag if @ref cio_server_socket_set_tcp_fast_open "TCP FASTOPEN" should be enabled for the http server.
+	 */
+	bool use_tcp_fastopen;
 
 	/**
 	 * @anchor cio_http_server_init_alloc_client

@@ -49,6 +49,10 @@
 #include "cio_util.h"
 #include "cio_write_buffer.h"
 
+#ifndef TCP_FASTOPEN_CONNECT
+#define TCP_FASTOPEN_CONNECT 30 // Define it for older kernels (pre 4.11)
+#endif
+
 static void read_callback(void *context, enum cio_epoll_error error)
 {
 	struct cio_io_stream *stream = context;
@@ -396,7 +400,7 @@ enum cio_error cio_socket_set_tcp_no_delay(struct cio_socket *socket, bool on)
 	return CIO_SUCCESS;
 }
 
-enum cio_error cio_socket_set_keep_alive(struct cio_socket *socket, bool on, unsigned int keep_idle_s,
+enum cio_error cio_socket_set_keep_alive(const struct cio_socket *socket, bool on, unsigned int keep_idle_s,
                                          unsigned int keep_intvl_s, unsigned int keep_cnt)
 {
 	int keep_alive;
@@ -419,6 +423,18 @@ enum cio_error cio_socket_set_keep_alive(struct cio_socket *socket, bool on, uns
 	}
 
 	if (setsockopt(socket->impl.ev.fd, SOL_SOCKET, SO_KEEPALIVE, &keep_alive, sizeof(keep_alive)) == -1) {
+		return (enum cio_error)(-errno);
+	}
+
+	return CIO_SUCCESS;
+}
+
+enum cio_error cio_socket_set_tcp_fast_open(const struct cio_socket *socket, bool on)
+{
+	int opt = on ? 1 : 0;
+
+	int ret = setsockopt(socket->impl.ev.fd, SOL_TCP, TCP_FASTOPEN_CONNECT, &opt, sizeof(opt));
+	if (cio_unlikely(ret != 0)) {
 		return (enum cio_error)(-errno);
 	}
 

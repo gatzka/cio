@@ -27,6 +27,7 @@
 #include <errno.h>
 #include <stdlib.h>
 #include <sys/socket.h>
+#include <netinet/tcp.h>
 #include <unistd.h>
 
 #include "fff.h"
@@ -38,6 +39,10 @@
 #include "cio_linux_socket_utils.h"
 #include "cio_server_socket.h"
 #include "cio_socket.h"
+
+#ifndef SOL_TCP
+#define SOL_TCP	IPPROTO_TCP
+#endif
 
 DEFINE_FFF_GLOBALS
 
@@ -654,6 +659,56 @@ static void test_disable_reuse_address(void)
 	cio_server_socket_close(&ss);
 }
 
+static void test_enable_tfo(void)
+{
+	struct cio_eventloop loop;
+	struct cio_server_socket ss;
+
+	enum cio_error err = cio_server_socket_init(&ss, &loop, 5, CIO_ADDRESS_FAMILY_INET4, alloc_client, free_client, 10, on_close);
+	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Initialization of server socket failed!");
+
+	err = cio_server_socket_set_tcp_fast_open(&ss, true);
+	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Return value of cio_socket_set_tcp_fast_open not correct!");
+	TEST_ASSERT_EQUAL_MESSAGE(1, setsockopt_fake.call_count, "setsockopt was not called!");
+	TEST_ASSERT_EQUAL_MESSAGE(ss.impl.ev.fd, setsockopt_fake.arg0_val, "fd for setsockopt not correct!");
+	TEST_ASSERT_EQUAL_MESSAGE(SOL_TCP, setsockopt_fake.arg1_val, "level for setsockopt not correct!");
+	TEST_ASSERT_EQUAL_MESSAGE(TCP_FASTOPEN, setsockopt_fake.arg2_val, "option name for setsockopt not correct!");
+}
+
+static void test_disable_tfo(void)
+{
+	struct cio_eventloop loop;
+	struct cio_server_socket ss;
+
+	enum cio_error err = cio_server_socket_init(&ss, &loop, 5, CIO_ADDRESS_FAMILY_INET4, alloc_client, free_client, 10, on_close);
+	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Initialization of server socket failed!");
+
+	err = cio_server_socket_set_tcp_fast_open(&ss, false);
+	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Return value of cio_socket_set_tcp_fast_open not correct!");
+	TEST_ASSERT_EQUAL_MESSAGE(1, setsockopt_fake.call_count, "setsockopt was not called!");
+	TEST_ASSERT_EQUAL_MESSAGE(ss.impl.ev.fd, setsockopt_fake.arg0_val, "fd for setsockopt not correct!");
+	TEST_ASSERT_EQUAL_MESSAGE(SOL_TCP, setsockopt_fake.arg1_val, "level for setsockopt not correct!");
+	TEST_ASSERT_EQUAL_MESSAGE(TCP_FASTOPEN, setsockopt_fake.arg2_val, "option name for setsockopt not correct!");
+}
+
+static void test_tfo_setsockopt_fails(void)
+{
+	setsockopt_fake.custom_fake = setsockopt_fails;
+
+	struct cio_eventloop loop;
+	struct cio_server_socket ss;
+
+	enum cio_error err = cio_server_socket_init(&ss, &loop, 5, CIO_ADDRESS_FAMILY_INET4, alloc_client, free_client, 10, on_close);
+	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Initialization of server socket failed!");
+
+	err = cio_server_socket_set_tcp_fast_open(&ss, false);
+	TEST_ASSERT_NOT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Return value of cio_socket_set_tcp_fast_open not correct!");
+	TEST_ASSERT_EQUAL_MESSAGE(1, setsockopt_fake.call_count, "setsockopt was not called!");
+	TEST_ASSERT_EQUAL_MESSAGE(ss.impl.ev.fd, setsockopt_fake.arg0_val, "fd for setsockopt not correct!");
+	TEST_ASSERT_EQUAL_MESSAGE(SOL_TCP, setsockopt_fake.arg1_val, "level for setsockopt not correct!");
+	TEST_ASSERT_EQUAL_MESSAGE(TCP_FASTOPEN, setsockopt_fake.arg2_val, "option name for setsockopt not correct!");
+}
+
 static void test_accept_bind_ipv6(void)
 {
 	struct cio_eventloop loop;
@@ -978,6 +1033,11 @@ int main(void)
 	RUN_TEST(test_accept_malloc_fails);
 	RUN_TEST(test_enable_reuse_address);
 	RUN_TEST(test_disable_reuse_address);
+
+	RUN_TEST(test_enable_tfo);
+	RUN_TEST(test_disable_tfo);
+	RUN_TEST(test_tfo_setsockopt_fails);
+
 	RUN_TEST(test_init_register_read_fails);
 	RUN_TEST(test_accept_socket_init_fails);
 	RUN_TEST(test_accept_socket_close_socket);

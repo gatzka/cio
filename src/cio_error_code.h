@@ -70,7 +70,8 @@ enum cio_error {
 	CIO_NO_MEMORY = -CIO_WINDOWS_UNIX_SOCKET_ERROR(ERROR_OUTOFMEMORY, ENOMEM),                  /*!< Out of memory. */
 	CIO_MESSAGE_TOO_LONG = -CIO_SOCKET_ERROR(EMSGSIZE),                                         /*!< Message too long. */
 	CIO_NETRESET = -CIO_SOCKET_ERROR(ENETRESET),                                                /*!< Network dropped connection because of reset. */
-	CIO_TIMEDOUT = -CIO_SOCKET_ERROR(ETIMEDOUT)                                                 /*!< Timeout while attempting connection. */
+	CIO_TIMEDOUT = -CIO_SOCKET_ERROR(ETIMEDOUT),                                                /*!< Timeout while attempting connection. */
+	CIO_OPERATION_NOT_SUPPORTED = -CIO_SOCKET_ERROR(EOPNOTSUPP),                                /*!< Operation not supported. */
 };
 
 #ifdef __cplusplus

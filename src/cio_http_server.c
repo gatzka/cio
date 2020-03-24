@@ -756,7 +756,16 @@ CIO_EXPORT enum cio_error cio_http_server_init(struct cio_http_server *server,
 	snprintf(server->keepalive_header, sizeof(server->keepalive_header), "Keep-Alive: timeout=%" PRIu32 "\r\n", keep_alive);
 
 	enum cio_address_family family = cio_socket_address_get_family(&server->endpoint);
-	return cio_server_socket_init(&server->server_socket, server->loop, DEFAULT_BACKLOG, family, server->alloc_client, server->free_client, config->close_timeout_ns, server_socket_closed);
+	enum cio_error err = cio_server_socket_init(&server->server_socket, server->loop, DEFAULT_BACKLOG, family, server->alloc_client, server->free_client, config->close_timeout_ns, server_socket_closed);
+	if (cio_unlikely(err != CIO_SUCCESS)) {
+		return err;
+	}
+
+	if (config->use_tcp_fastopen) {
+		return cio_server_socket_set_tcp_fast_open(&server->server_socket, true);
+	}
+
+	return CIO_SUCCESS;
 }
 
 enum cio_error cio_http_server_serve(struct cio_http_server *server)
