@@ -48,7 +48,7 @@ static void test_cio_memmem(void)
 	const char haystack[] = "abcd";
 	const char needle_found[] = "a";
 
-	void *found = cio_memmem(haystack, sizeof(haystack), needle_found, strlen(needle_found));
+	const void *found = cio_memmem(haystack, sizeof(haystack), needle_found, strlen(needle_found));
 	TEST_ASSERT_EQUAL_MESSAGE(found, haystack, "Needle was not found in haystack!");
 
 	char needle_not_found[] = "e";

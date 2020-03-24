@@ -42,7 +42,7 @@ static struct cio_http_server http_server;
 
 enum {AUTOBAHN_SERVER_PORT = 9001};
 
-enum {READ_BUFFER_SIZE = 1024};
+enum {READ_BUFFER_SIZE = 10240};
 enum {IPV6_ADDRESS_SIZE = 16};
 
 static const uint64_t HEADER_READ_TIMEOUT = UINT64_C(5) * UINT64_C(1000) * UINT64_C(1000) * UINT64_C(1000);

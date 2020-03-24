@@ -31,7 +31,7 @@
 
 #include "cio_string.h"
 
-void *cio_memmem(const void *haystack, size_t haystacklen, const void *needle, size_t needlelen)
+const void *cio_memmem(const void *haystack, size_t haystacklen, const void *needle, size_t needlelen)
 {
 	const char *begin = haystack;
 	const char *last_possible = begin + haystacklen - needlelen;
@@ -43,7 +43,7 @@ void *cio_memmem(const void *haystack, size_t haystacklen, const void *needle, s
 	 * the beginning of the string.
 	 */
 	if (needlelen == 0)
-		return (void *)begin;
+		return begin;
 
 	/*
 	 * Sanity check, otherwise the loop might search through the whole
@@ -55,7 +55,7 @@ void *cio_memmem(const void *haystack, size_t haystacklen, const void *needle, s
 	point = *tail++;
 	for (; begin <= last_possible; begin++) {
 		if (*begin == point && !memcmp(begin + 1, tail, needlelen - 1))
-			return (void *)begin;
+			return begin;
 	}
 
 	return NULL;

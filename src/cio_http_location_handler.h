@@ -39,6 +39,8 @@
 extern "C" {
 #endif
 
+struct cio_http_client;
+
 /**
  * @file
  * @brief Generic interface to write user specific HTTP handlers.

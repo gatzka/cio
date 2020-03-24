@@ -36,8 +36,8 @@
 #include "cio_eventloop.h"
 #include "cio_export.h"
 #include "cio_http_location.h"
-#include "cio_socket_address.h"
 #include "cio_server_socket.h"
+#include "cio_socket_address.h"
 
 #ifdef __cplusplus
 extern "C" {

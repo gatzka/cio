@@ -41,6 +41,14 @@ FAKE_VALUE_FUNC(FILE *, fopen, const char *, const char *)
 FAKE_VALUE_FUNC(size_t, fread_unlocked, void *, size_t, size_t, FILE *)
 FAKE_VALUE_FUNC(int, fclose, FILE *)
 
+static size_t fread_ok(void *ptr, size_t size, size_t n, FILE *stream)
+{
+	(void)stream;
+
+	memset(ptr, 0xaa, size * n);
+	return size * n;
+}
+
 void setUp(void)
 {
 	FFF_RESET_HISTORY()
@@ -73,10 +81,20 @@ static void test_fread_short(void)
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_EOF, err, "cio_random_seed_rng did not fail on short freads");
 }
 
+static void test_fread_ok(void)
+{
+	cio_rng rng;
+	fopen_fake.return_val = (FILE *)8;
+	fread_unlocked_fake.custom_fake = fread_ok;
+	enum cio_error err = cio_random_seed_rng(&rng);
+	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "cio_random_seed_rng did failed");
+}
+
 int main(void)
 {
 	UNITY_BEGIN();
 	RUN_TEST(test_random_seed_fails);
 	RUN_TEST(test_fread_short);
+	RUN_TEST(test_fread_ok);
 	return UNITY_END();
 }

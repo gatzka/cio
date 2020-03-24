@@ -29,6 +29,7 @@
 #ifndef CIO_WEBSOCKET_LOCATION_HANDLER_H
 #define CIO_WEBSOCKET_LOCATION_HANDLER_H
 
+#include <stddef.h>
 #include <stdint.h>
 
 #include "cio_export.h"
@@ -41,9 +42,9 @@
 extern "C" {
 #endif
 
-enum {CIO_SEC_WEB_SOCKET_KEY_LENGTH = 24};
-enum {CIO_SEC_WEB_SOCKET_GUID_LENGTH = 36};
-enum {CIO_SEC_WEBSOCKET_ACCEPT_LENGTH = 30};
+enum { CIO_SEC_WEB_SOCKET_KEY_LENGTH = 24 };
+enum { CIO_SEC_WEB_SOCKET_GUID_LENGTH = 36 };
+enum { CIO_SEC_WEBSOCKET_ACCEPT_LENGTH = 30 };
 
 struct cio_websocket_location_handler {
 
@@ -57,7 +58,7 @@ struct cio_websocket_location_handler {
 	uint8_t sec_websocket_key[CIO_SEC_WEB_SOCKET_KEY_LENGTH + CIO_SEC_WEB_SOCKET_GUID_LENGTH];
 
 	const char **subprotocols;
-	unsigned int number_subprotocols;
+	size_t number_subprotocols;
 	struct {
 		unsigned int current_header_field : 2;
 		unsigned int subprotocol_requested : 1;
@@ -98,7 +99,7 @@ struct cio_websocket_location_config {
  */
 CIO_EXPORT enum cio_error cio_websocket_location_handler_init(struct cio_websocket_location_handler *handler,
                                                               const char *subprotocols[],
-                                                              unsigned int num_subprotocols,
+                                                              size_t num_subprotocols,
                                                               cio_websocket_on_connect on_connect,
                                                               void (*location_handler_free)(struct cio_websocket_location_handler *));
 
