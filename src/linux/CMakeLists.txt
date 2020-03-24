@@ -1,5 +1,4 @@
 cmake_minimum_required(VERSION 3.9)
-include(CheckLibraryExists)
 include(defaults.cmake)
 
 configure_file(cio_os_config.h.in ${PROJECT_BINARY_DIR}/generated/cio_os_config.h)
