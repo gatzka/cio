@@ -24,6 +24,7 @@ var cio__error__code_8h =
       [ "CIO_NO_MEMORY", "cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afea1126c8775173ab8cb253de612ede0ee1", null ],
       [ "CIO_MESSAGE_TOO_LONG", "cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afeac9b795483cae05076b54df12ff247712", null ],
       [ "CIO_NETRESET", "cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afea06200e7e0c85f55eb1ba3468fc2c6d70", null ],
-      [ "CIO_TIMEDOUT", "cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afea786707b1f9c68c3dc296ce63fe8307ae", null ]
+      [ "CIO_TIMEDOUT", "cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afea786707b1f9c68c3dc296ce63fe8307ae", null ],
+      [ "CIO_OPERATION_NOT_SUPPORTED", "cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afeaeece67f2dad04e74c7d6830f6b840365", null ]
     ] ]
 ];

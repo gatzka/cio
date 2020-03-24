@@ -1,5 +1,8 @@
 var NAVTREEINDEX1 =
 {
+"cio__websocket_8h.html#aa24c9894ba2ee9dc5b0ebbc1c8809701a5a7495da78c928168a5746962e7e595c":[1,0,29,11,2],
+"cio__websocket_8h.html#aa24c9894ba2ee9dc5b0ebbc1c8809701a82f24208e6292926e8e02352913d1e09":[1,0,29,11,0],
+"cio__websocket_8h.html#aa24c9894ba2ee9dc5b0ebbc1c8809701a89041f290dedaca9d7b32b434f57063b":[1,0,29,11,12],
 "cio__websocket_8h.html#aa24c9894ba2ee9dc5b0ebbc1c8809701a8dd8f47511214b8ed8b6901de272e845":[1,0,29,11,9],
 "cio__websocket_8h.html#aa24c9894ba2ee9dc5b0ebbc1c8809701a8ee520b364af620ff44e60a09c393b97":[1,0,29,11,1],
 "cio__websocket_8h.html#aa24c9894ba2ee9dc5b0ebbc1c8809701aafc6ff9d1c633323a43641cc8b25dd9a":[1,0,29,11,4],
@@ -118,6 +121,7 @@ var NAVTREEINDEX1 =
 "structcio__http__server__configuration.html#a1ee6a81d5ce2c810cf7cc55169c71b2e":[0,0,6,4],
 "structcio__http__server__configuration.html#a2715e1ce9a8c2c31d6cfc33b23c26822":[0,0,6,7],
 "structcio__http__server__configuration.html#a2f331c78be1245119bdf97276aae3012":[0,0,6,3],
+"structcio__http__server__configuration.html#a815bfe1eea4b68234c9baeaeeb676660":[0,0,6,8],
 "structcio__http__server__configuration.html#a85a3b677ba47f5e241e6a537fcab372e":[0,0,6,6],
 "structcio__http__server__configuration.html#aa057f561b45a042bcbe1c47fdcd5da19":[0,0,6,5],
 "structcio__http__server__configuration.html#ab56ef210dbb695628b063e68645d6fed":[0,0,6,2],
