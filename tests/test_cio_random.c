@@ -33,6 +33,16 @@
 
 DEFINE_FFF_GLOBALS
 
+enum cio_error cio_entropy_get_bytes(void *bytes, size_t num_bytes)
+{
+	uint8_t *b = bytes;
+	for (size_t i = 0; i < num_bytes; i++) {
+		b[i] = (uint8_t)i;
+	}
+
+	return CIO_SUCCESS;
+}
+
 void setUp(void)
 {
 	FFF_RESET_HISTORY()

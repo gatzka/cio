@@ -42,6 +42,8 @@
 
 DEFINE_FFF_GLOBALS
 
+FAKE_VALUE_FUNC(enum cio_error, cio_random_seed_rng, cio_rng *)
+
 static cio_rng global_rng;
 
 void setUp(void)
@@ -52,6 +54,15 @@ void setUp(void)
 
 void tearDown(void)
 {
+}
+
+void cio_random_get_bytes(cio_rng *rng, void *bytes, size_t num_bytes)
+{
+	(void)rng;
+	uint8_t *b = bytes;
+	for (size_t i = 0; i < num_bytes; i++) {
+		b[i] = (uint8_t)i;
+	}
 }
 
 static void fill_random(uint8_t *buffer, size_t length)

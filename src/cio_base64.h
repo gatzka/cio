@@ -43,7 +43,6 @@ extern "C" {
  * @brief Declarations to <a href="https://en.wikipedia.org/wiki/Base64" target="_blank">Base64</a>-encode buffers.
  */
 
-
 /**
  * @brief <a href="https://en.wikipedia.org/wiki/Base64" target="_blank">Base64</a>-encodes a buffer
  *

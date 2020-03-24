@@ -38,6 +38,7 @@
 #include "cio_http_client.h"
 #include "cio_http_location_handler.h"
 #include "cio_http_method.h"
+#include "cio_http_server.h"
 #include "cio_http_status_code.h"
 #include "cio_string.h"
 #include "cio_timer.h"
@@ -199,18 +200,23 @@ static bool check_http_version(const struct cio_http_client *client)
 
 static void response_written(struct cio_http_client *client, enum cio_error err)
 {
+	struct cio_websocket_location_handler *wslh = cio_container_of(client->current_handler, struct cio_websocket_location_handler, http_location);
+	struct cio_websocket *ws = &wslh->websocket;
+
 	if (cio_unlikely(err != CIO_SUCCESS)) {
+		struct cio_http_server *server = cio_http_client_get_server(client);
+		if (server->on_error != NULL) {
+			server->on_error(server, "error while writing http upgrade response");
+		}
+
 		return;
 	}
 
-	struct cio_websocket_location_handler *wslh = cio_container_of(client->current_handler, struct cio_websocket_location_handler, http_location);
-	struct cio_websocket *ws = &wslh->websocket;
 	ws->ws_private.http_client = client;
-
 	ws->on_connect(ws);
 }
 
-static void send_upgrade_response(struct cio_http_client *client)
+static enum cio_error send_upgrade_response(struct cio_http_client *client)
 {
 	struct SHA1Context context;
 	SHA1Reset(&context);
@@ -244,7 +250,7 @@ static void send_upgrade_response(struct cio_http_client *client)
 		client->add_response_header(client, &ws->wb_protocol_end);
 	}
 
-	client->write_response(client, CIO_HTTP_STATUS_SWITCHING_PROTOCOLS, NULL, response_written);
+	return client->write_response(client, CIO_HTTP_STATUS_SWITCHING_PROTOCOLS, NULL, response_written);
 }
 
 static enum cio_http_cb_return handle_headers_complete(struct cio_http_client *client)
@@ -274,7 +280,10 @@ static enum cio_http_cb_return handle_headers_complete(struct cio_http_client *c
 		return CIO_HTTP_CB_ERROR;
 	}
 
-	send_upgrade_response(client);
+	enum cio_error err = send_upgrade_response(client);
+	if (cio_unlikely(err != CIO_SUCCESS)) {
+		return CIO_HTTP_CB_ERROR;
+	}
 
 	return CIO_HTTP_CB_SKIP_BODY;
 }
@@ -292,7 +301,7 @@ static void free_resources(struct cio_http_location_handler *handler)
 
 enum cio_error cio_websocket_location_handler_init(struct cio_websocket_location_handler *handler,
                                                    const char *subprotocols[],
-                                                   unsigned int num_subprotocols,
+                                                   size_t num_subprotocols,
                                                    cio_websocket_on_connect on_connect,
                                                    void (*location_handler_free)(struct cio_websocket_location_handler *))
 {
@@ -315,5 +324,10 @@ enum cio_error cio_websocket_location_handler_init(struct cio_websocket_location
 	handler->http_location.on_headers_complete = handle_headers_complete;
 	handler->http_location.free = free_resources;
 
-	return cio_websocket_init(&handler->websocket, true, on_connect, close_server_websocket);
+	enum cio_error err = cio_websocket_init(&handler->websocket, true, on_connect, close_server_websocket);
+	if (cio_unlikely(err != CIO_SUCCESS)) {
+		return err;
+	}
+
+	return CIO_SUCCESS;
 }

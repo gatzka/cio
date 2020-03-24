@@ -37,18 +37,18 @@
 #include "cio_inet_address_impl.h"
 
 static const struct cio_inet_address inet_address_any6 = {
-	.impl = {.family = CIO_ADDRESS_FAMILY_INET6, .in6.s6_addr = {0}}
-};
+    .impl = {.family = CIO_ADDRESS_FAMILY_INET6, .in6.s6_addr = {0}}};
 
 static const struct cio_inet_address inet_address_any4 = {
-	.impl = {.family = CIO_ADDRESS_FAMILY_INET4, .in.s_addr = 0}
-};
+    .impl = {.family = CIO_ADDRESS_FAMILY_INET4, .in.s_addr = 0}};
 
-const struct cio_inet_address *cio_get_inet_address_any4(void) {
+const struct cio_inet_address *cio_get_inet_address_any4(void)
+{
 	return &inet_address_any4;
 }
 
-const struct cio_inet_address *cio_get_inet_address_any6(void) {
+const struct cio_inet_address *cio_get_inet_address_any6(void)
+{
 	return &inet_address_any6;
 }
 
@@ -56,7 +56,7 @@ enum cio_error cio_init_inet_address(struct cio_inet_address *inet_address, cons
 {
 	size_t v4_size = sizeof(inet_address->impl.in.s_addr);
 	size_t v6_size = sizeof(inet_address->impl.in6.s6_addr);
-	if (cio_unlikely((inet_address == NULL) || (address == NULL) || !((address_length == v4_size) || (address_length == v6_size)))) {
+	if (cio_unlikely((inet_address == NULL) || (address == NULL) || ((address_length != v4_size) && (address_length != v6_size)))) {
 		return CIO_INVALID_ARGUMENT;
 	}
 

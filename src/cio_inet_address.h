@@ -48,7 +48,6 @@ struct cio_inet_address {
 	struct cio_inet_address_impl impl;
 };
 
-
 /**
  * @brief Initializes a inet address structure.
  *
