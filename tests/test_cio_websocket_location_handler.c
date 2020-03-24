@@ -48,28 +48,27 @@ FAKE_VOID_FUNC(cio_http_location_handler_init, struct cio_http_location_handler 
 FAKE_VALUE_FUNC(enum cio_error, cio_websocket_init, struct cio_websocket *, bool, cio_websocket_on_connect, cio_websocket_close_hook)
 FAKE_VOID_FUNC(fake_handler_free, struct cio_websocket_location_handler *)
 FAKE_VOID_FUNC(fake_add_response_header, struct cio_http_client *, struct cio_write_buffer *)
-FAKE_VALUE_FUNC(enum cio_error, fake_write_response, struct cio_http_client *, enum cio_http_status_code , struct cio_write_buffer *, cio_response_written_cb)
+FAKE_VALUE_FUNC(enum cio_error, fake_write_response, struct cio_http_client *, enum cio_http_status_code, struct cio_write_buffer *, cio_response_written_cb)
 FAKE_VOID_FUNC(on_connect, struct cio_websocket *)
 FAKE_VOID_FUNC(on_error, struct cio_http_server *, const char *)
 
-static enum cio_error write_response_call_callback (struct cio_http_client *client, enum cio_http_status_code status, struct cio_write_buffer *buf, cio_response_written_cb response_callback)
+static enum cio_error write_response_call_callback(struct cio_http_client *client, enum cio_http_status_code status, struct cio_write_buffer *buf, cio_response_written_cb response_callback)
 {
-	(void) status;
+	(void)status;
 	(void)buf;
 
 	response_callback(client, CIO_SUCCESS);
 	return CIO_SUCCESS;
 }
 
-static enum cio_error write_response_call_callback_with_error (struct cio_http_client *client, enum cio_http_status_code status, struct cio_write_buffer *buf, cio_response_written_cb response_callback)
+static enum cio_error write_response_call_callback_with_error(struct cio_http_client *client, enum cio_http_status_code status, struct cio_write_buffer *buf, cio_response_written_cb response_callback)
 {
-	(void) status;
+	(void)status;
 	(void)buf;
 
 	response_callback(client, CIO_NO_MEMORY);
 	return CIO_SUCCESS;
 }
-
 
 static enum cio_error websocket_init_save_params(struct cio_websocket *ws, bool is_server, cio_websocket_on_connect on_connect_cb, cio_websocket_close_hook close_hook)
 {
@@ -144,10 +143,10 @@ static void test_ws_location_http_versions(void)
 	};
 
 	struct upgrade_test tests[] = {
-		{.major = 1, .minor = 1, .expected_ret_val = CIO_HTTP_CB_SKIP_BODY},
-		{.major = 2, .minor = 0, .expected_ret_val = CIO_HTTP_CB_SKIP_BODY},
-		{.major = 1, .minor = 0, .expected_ret_val = CIO_HTTP_CB_ERROR},
-		{.major = 0, .minor = 9, .expected_ret_val = CIO_HTTP_CB_ERROR},
+	    {.major = 1, .minor = 1, .expected_ret_val = CIO_HTTP_CB_SKIP_BODY},
+	    {.major = 2, .minor = 0, .expected_ret_val = CIO_HTTP_CB_SKIP_BODY},
+	    {.major = 1, .minor = 0, .expected_ret_val = CIO_HTTP_CB_ERROR},
+	    {.major = 0, .minor = 9, .expected_ret_val = CIO_HTTP_CB_ERROR},
 	};
 
 	for (unsigned int i = 0; i < ARRAY_SIZE(tests); i++) {
@@ -159,7 +158,7 @@ static void test_ws_location_http_versions(void)
 
 		struct cio_http_client client;
 
-		handler.websocket.ws_private.http_client =  &client;
+		handler.websocket.ws_private.http_client = &client;
 		handler.websocket.ws_private.http_client->current_handler = &handler.http_location;
 		handler.websocket.ws_private.http_client->add_response_header = fake_add_response_header;
 		handler.websocket.ws_private.http_client->write_response = fake_write_response;
@@ -203,7 +202,7 @@ static void test_ws_location_wrong_http_method(void)
 
 	struct cio_http_client client;
 
-	handler.websocket.ws_private.http_client =  &client;
+	handler.websocket.ws_private.http_client = &client;
 	handler.websocket.ws_private.http_client->current_handler = &handler.http_location;
 	handler.websocket.ws_private.http_client->add_response_header = fake_add_response_header;
 	handler.websocket.ws_private.http_client->write_response = fake_write_response;
@@ -239,7 +238,7 @@ static void test_ws_location_no_http_upgrade(void)
 
 	struct cio_http_client client;
 
-	handler.websocket.ws_private.http_client =  &client;
+	handler.websocket.ws_private.http_client = &client;
 	handler.websocket.ws_private.http_client->current_handler = &handler.http_location;
 	handler.websocket.ws_private.http_client->add_response_header = fake_add_response_header;
 	handler.websocket.ws_private.http_client->write_response = fake_write_response;
@@ -282,84 +281,69 @@ static void test_ws_location_wrong_http_headers(void)
 	};
 
 	struct upgrade_test tests[] = {
-		{
-			.sec_key_field = "Sec-WebSocket-Key",
-			.sec_key_value = "dGhlIHNhbXBsZSBub25jZQ==",
-			.on_header_value_retval_key = CIO_HTTP_CB_SUCCESS,
-			.version_field = "Sec-WebSocket-Version",
-			.version_value = "13",
-			.on_header_value_retval_version = CIO_HTTP_CB_SUCCESS,
-			.protocol_field = "Sec-WebSocket-Protocol",
-			.protocol_value = "jet",
-			.on_headers_retval = CIO_HTTP_CB_SKIP_BODY
-		},
-		{
-			.sec_key_field = "Sic-WebSocket-Key",
-			.sec_key_value = "dGhlIHNhbXBsZSBub25jZQ==",
-			.on_header_value_retval_key = CIO_HTTP_CB_SUCCESS,
-			.version_field = "Sec-WebSocket-Version",
-			.version_value = "13",
-			.on_header_value_retval_version = CIO_HTTP_CB_SUCCESS,
-			.protocol_field = "Sec-WebSocket-Protocol",
-			.protocol_value = "jet",
-			.on_headers_retval = CIO_HTTP_CB_ERROR
-		},
-		{
-			.sec_key_field = "Sec-WebSocket-Key",
-			.sec_key_value = "dGhlIHNhbXBsZSBub25jZQ==",
-			.on_header_value_retval_key = CIO_HTTP_CB_SUCCESS,
-			.version_field = "Sec-WebSocket-Wersion",
-			.version_value = "13",
-			.on_header_value_retval_version = CIO_HTTP_CB_SUCCESS,
-			.protocol_field = "Sec-WebSocket-Protocol",
-			.protocol_value = "jet",
-			.on_headers_retval = CIO_HTTP_CB_ERROR
-		},
-		{
-			.sec_key_field = "Sec-WebSocket-Key",
-			.sec_key_value = "lIHNhbXBsZSBub25jZQ==",
-			.on_header_value_retval_key = CIO_HTTP_CB_ERROR,
-			.version_field = "Sec-WebSocket-Version",
-			.version_value = "13",
-			.on_header_value_retval_version = CIO_HTTP_CB_SUCCESS,
-			.protocol_field = "Sec-WebSocket-Protocol",
-			.protocol_value = "jet",
-			.on_headers_retval = CIO_HTTP_CB_ERROR
-		},
-		{
-			.sec_key_field = "Sec-WebSocket-Key",
-			.sec_key_value = "dGhlIHNhbXBsZSBub25jZQ==",
-			.on_header_value_retval_key = CIO_HTTP_CB_SUCCESS,
-			.version_field = "Sec-WebSocket-Version",
-			.version_value = "12",
-			.on_header_value_retval_version = CIO_HTTP_CB_ERROR,
-			.protocol_field = "Sec-WebSocket-Protocol",
-			.protocol_value = "jet",
-			.on_headers_retval = CIO_HTTP_CB_ERROR
-		},
-		{
-			.sec_key_field = "Sec-WebSocket-Key",
-			.sec_key_value = "dGhlIHNhbXBsZSBub25jZQ==",
-			.on_header_value_retval_key = CIO_HTTP_CB_SUCCESS,
-			.version_field = "Sec-WebSocket-Version",
-			.version_value = "2",
-			.on_header_value_retval_version = CIO_HTTP_CB_ERROR,
-			.protocol_field = "Sec-WebSocket-Protocol",
-			.protocol_value = "jet",
-			.on_headers_retval = CIO_HTTP_CB_ERROR
-		},
-		{
-			.sec_key_field = "Sec-WebSocket-Key",
-			.sec_key_value = "dGhlIHNhbXBsZSBub25jZQ==",
-			.on_header_value_retval_key = CIO_HTTP_CB_SUCCESS,
-			.version_field = "Sec-WebSocket-Version",
-			.version_value = "13",
-			.on_header_value_retval_version = CIO_HTTP_CB_SUCCESS,
-			.protocol_field = "Sec-WebSocket-Portocol",
-			.protocol_value = "jet",
-			.on_headers_retval = CIO_HTTP_CB_SKIP_BODY
-		}
-	};
+	    {.sec_key_field = "Sec-WebSocket-Key",
+	     .sec_key_value = "dGhlIHNhbXBsZSBub25jZQ==",
+	     .on_header_value_retval_key = CIO_HTTP_CB_SUCCESS,
+	     .version_field = "Sec-WebSocket-Version",
+	     .version_value = "13",
+	     .on_header_value_retval_version = CIO_HTTP_CB_SUCCESS,
+	     .protocol_field = "Sec-WebSocket-Protocol",
+	     .protocol_value = "jet",
+	     .on_headers_retval = CIO_HTTP_CB_SKIP_BODY},
+	    {.sec_key_field = "Sic-WebSocket-Key",
+	     .sec_key_value = "dGhlIHNhbXBsZSBub25jZQ==",
+	     .on_header_value_retval_key = CIO_HTTP_CB_SUCCESS,
+	     .version_field = "Sec-WebSocket-Version",
+	     .version_value = "13",
+	     .on_header_value_retval_version = CIO_HTTP_CB_SUCCESS,
+	     .protocol_field = "Sec-WebSocket-Protocol",
+	     .protocol_value = "jet",
+	     .on_headers_retval = CIO_HTTP_CB_ERROR},
+	    {.sec_key_field = "Sec-WebSocket-Key",
+	     .sec_key_value = "dGhlIHNhbXBsZSBub25jZQ==",
+	     .on_header_value_retval_key = CIO_HTTP_CB_SUCCESS,
+	     .version_field = "Sec-WebSocket-Wersion",
+	     .version_value = "13",
+	     .on_header_value_retval_version = CIO_HTTP_CB_SUCCESS,
+	     .protocol_field = "Sec-WebSocket-Protocol",
+	     .protocol_value = "jet",
+	     .on_headers_retval = CIO_HTTP_CB_ERROR},
+	    {.sec_key_field = "Sec-WebSocket-Key",
+	     .sec_key_value = "lIHNhbXBsZSBub25jZQ==",
+	     .on_header_value_retval_key = CIO_HTTP_CB_ERROR,
+	     .version_field = "Sec-WebSocket-Version",
+	     .version_value = "13",
+	     .on_header_value_retval_version = CIO_HTTP_CB_SUCCESS,
+	     .protocol_field = "Sec-WebSocket-Protocol",
+	     .protocol_value = "jet",
+	     .on_headers_retval = CIO_HTTP_CB_ERROR},
+	    {.sec_key_field = "Sec-WebSocket-Key",
+	     .sec_key_value = "dGhlIHNhbXBsZSBub25jZQ==",
+	     .on_header_value_retval_key = CIO_HTTP_CB_SUCCESS,
+	     .version_field = "Sec-WebSocket-Version",
+	     .version_value = "12",
+	     .on_header_value_retval_version = CIO_HTTP_CB_ERROR,
+	     .protocol_field = "Sec-WebSocket-Protocol",
+	     .protocol_value = "jet",
+	     .on_headers_retval = CIO_HTTP_CB_ERROR},
+	    {.sec_key_field = "Sec-WebSocket-Key",
+	     .sec_key_value = "dGhlIHNhbXBsZSBub25jZQ==",
+	     .on_header_value_retval_key = CIO_HTTP_CB_SUCCESS,
+	     .version_field = "Sec-WebSocket-Version",
+	     .version_value = "2",
+	     .on_header_value_retval_version = CIO_HTTP_CB_ERROR,
+	     .protocol_field = "Sec-WebSocket-Protocol",
+	     .protocol_value = "jet",
+	     .on_headers_retval = CIO_HTTP_CB_ERROR},
+	    {.sec_key_field = "Sec-WebSocket-Key",
+	     .sec_key_value = "dGhlIHNhbXBsZSBub25jZQ==",
+	     .on_header_value_retval_key = CIO_HTTP_CB_SUCCESS,
+	     .version_field = "Sec-WebSocket-Version",
+	     .version_value = "13",
+	     .on_header_value_retval_version = CIO_HTTP_CB_SUCCESS,
+	     .protocol_field = "Sec-WebSocket-Portocol",
+	     .protocol_value = "jet",
+	     .on_headers_retval = CIO_HTTP_CB_SKIP_BODY}};
 
 	for (unsigned int i = 0; i < ARRAY_SIZE(tests); i++) {
 		struct upgrade_test test = tests[i];
@@ -371,7 +355,7 @@ static void test_ws_location_wrong_http_headers(void)
 
 		struct cio_http_client client;
 
-		handler.websocket.ws_private.http_client =  &client;
+		handler.websocket.ws_private.http_client = &client;
 		handler.websocket.ws_private.http_client->current_handler = &handler.http_location;
 		handler.websocket.ws_private.http_client->add_response_header = fake_add_response_header;
 		handler.websocket.ws_private.http_client->write_response = fake_write_response;
@@ -418,7 +402,7 @@ static void test_ws_location_send_response_fails(void)
 	fake_write_response_fake.custom_fake = NULL;
 	fake_write_response_fake.return_val = CIO_INVALID_ARGUMENT;
 
-	handler.websocket.ws_private.http_client =  &client;
+	handler.websocket.ws_private.http_client = &client;
 	handler.websocket.ws_private.http_client->current_handler = &handler.http_location;
 	handler.websocket.ws_private.http_client->add_response_header = fake_add_response_header;
 	handler.websocket.ws_private.http_client->write_response = fake_write_response;
@@ -448,13 +432,13 @@ static void test_ws_location_send_response_fails(void)
 
 static void test_ws_location_response_written_fails(void)
 {
-	struct test  {
+	struct test {
 		cio_http_serve_on_error on_error;
 	};
 
 	struct test tests[] = {
-		{.on_error = NULL},
-		{.on_error = on_error},
+	    {.on_error = NULL},
+	    {.on_error = on_error},
 	};
 
 	for (unsigned int i = 0; i < ARRAY_SIZE(tests); i++) {
@@ -471,7 +455,7 @@ static void test_ws_location_response_written_fails(void)
 		client.parser.data = &server;
 		fake_write_response_fake.custom_fake = write_response_call_callback_with_error;
 
-		handler.websocket.ws_private.http_client =  &client;
+		handler.websocket.ws_private.http_client = &client;
 		handler.websocket.ws_private.http_client->current_handler = &handler.http_location;
 		handler.websocket.ws_private.http_client->add_response_header = fake_add_response_header;
 		handler.websocket.ws_private.http_client->write_response = fake_write_response;
@@ -517,13 +501,13 @@ static void test_ws_location_sub_protocols(void)
 
 	struct upgrade_test tests[] = {
 	    {.protocol_field = "Sec-WebSocket-Protocol", .protocol_value = "jet", .expected_ret_val = CIO_HTTP_CB_SKIP_BODY, .sub_protocols = sub_protocols, .num_sub_protocols = ARRAY_SIZE(sub_protocols)},
-	    {.protocol_field = "Sec-WebSocket-Protocol", .protocol_value = "jet,jetty",.expected_ret_val = CIO_HTTP_CB_SKIP_BODY, .sub_protocols = sub_protocols, .num_sub_protocols = ARRAY_SIZE(sub_protocols)},
-	    {.protocol_field = "Sec-WebSocket-Protocol", .protocol_value = "foo, bar",.expected_ret_val = CIO_HTTP_CB_ERROR, .sub_protocols = sub_protocols, .num_sub_protocols = ARRAY_SIZE(sub_protocols)},
-	    {.protocol_field = "Sec-WebSocket-Protocol", .protocol_value = "je",.expected_ret_val = CIO_HTTP_CB_ERROR, .sub_protocols = sub_protocols, .num_sub_protocols = ARRAY_SIZE(sub_protocols)},
-	    {.protocol_field = "Sec-WebSocket-Protocol", .protocol_value = "bar",.expected_ret_val = CIO_HTTP_CB_ERROR, .sub_protocols = sub_protocols, .num_sub_protocols = ARRAY_SIZE(sub_protocols)},
-	    {.protocol_field = "foo", .protocol_value = "bar",.expected_ret_val = CIO_HTTP_CB_SKIP_BODY, .sub_protocols = sub_protocols, .num_sub_protocols = ARRAY_SIZE(sub_protocols)},
-	    {.protocol_field = "foo", .protocol_value = "bar",.expected_ret_val = CIO_HTTP_CB_SKIP_BODY, .sub_protocols = NULL, .num_sub_protocols = 0},
-	    {.protocol_field = "Sec-WebSocket-Protocol", .protocol_value = "jet",.expected_ret_val = CIO_HTTP_CB_ERROR, .sub_protocols = NULL, .num_sub_protocols = 0},
+	    {.protocol_field = "Sec-WebSocket-Protocol", .protocol_value = "jet,jetty", .expected_ret_val = CIO_HTTP_CB_SKIP_BODY, .sub_protocols = sub_protocols, .num_sub_protocols = ARRAY_SIZE(sub_protocols)},
+	    {.protocol_field = "Sec-WebSocket-Protocol", .protocol_value = "foo, bar", .expected_ret_val = CIO_HTTP_CB_ERROR, .sub_protocols = sub_protocols, .num_sub_protocols = ARRAY_SIZE(sub_protocols)},
+	    {.protocol_field = "Sec-WebSocket-Protocol", .protocol_value = "je", .expected_ret_val = CIO_HTTP_CB_ERROR, .sub_protocols = sub_protocols, .num_sub_protocols = ARRAY_SIZE(sub_protocols)},
+	    {.protocol_field = "Sec-WebSocket-Protocol", .protocol_value = "bar", .expected_ret_val = CIO_HTTP_CB_ERROR, .sub_protocols = sub_protocols, .num_sub_protocols = ARRAY_SIZE(sub_protocols)},
+	    {.protocol_field = "foo", .protocol_value = "bar", .expected_ret_val = CIO_HTTP_CB_SKIP_BODY, .sub_protocols = sub_protocols, .num_sub_protocols = ARRAY_SIZE(sub_protocols)},
+	    {.protocol_field = "foo", .protocol_value = "bar", .expected_ret_val = CIO_HTTP_CB_SKIP_BODY, .sub_protocols = NULL, .num_sub_protocols = 0},
+	    {.protocol_field = "Sec-WebSocket-Protocol", .protocol_value = "jet", .expected_ret_val = CIO_HTTP_CB_ERROR, .sub_protocols = NULL, .num_sub_protocols = 0},
 	};
 
 	for (unsigned int i = 0; i < ARRAY_SIZE(tests); i++) {
@@ -531,12 +515,12 @@ static void test_ws_location_sub_protocols(void)
 
 		struct cio_websocket_location_handler handler;
 
-		enum cio_error err =cio_websocket_location_handler_init(&handler, test.sub_protocols, test.num_sub_protocols, on_connect, fake_handler_free);
+		enum cio_error err = cio_websocket_location_handler_init(&handler, test.sub_protocols, test.num_sub_protocols, on_connect, fake_handler_free);
 		TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "web socket handler initialization failed!");
 
 		struct cio_http_client client;
 
-		handler.websocket.ws_private.http_client =  &client;
+		handler.websocket.ws_private.http_client = &client;
 		handler.websocket.ws_private.http_client->current_handler = &handler.http_location;
 		handler.websocket.ws_private.http_client->add_response_header = fake_add_response_header;
 		handler.websocket.ws_private.http_client->write_response = fake_write_response;
@@ -586,7 +570,8 @@ int main(void)
 	RUN_TEST(test_ws_location_ws_init_fails);
 	RUN_TEST(test_free_resources);
 
-	RUN_TEST(test_ws_location_http_versions);;
+	RUN_TEST(test_ws_location_http_versions);
+	;
 	RUN_TEST(test_ws_location_wrong_http_method);
 	RUN_TEST(test_ws_location_no_http_upgrade);
 	RUN_TEST(test_ws_location_wrong_http_headers);
