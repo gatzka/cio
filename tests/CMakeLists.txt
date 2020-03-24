@@ -27,12 +27,22 @@ add_test(NAME cio.common.test_http_server COMMAND test_cio_http_server)
 add_executable(test_cio_http_location test_cio_http_location.c ../src/cio_http_location.c ../src/cio_http_location_handler.c)
 add_test(NAME cio.common.test_http_location COMMAND test_cio_http_location)
 
-add_executable(test_cio_inet_address test_cio_inet_address.c)
-target_link_libraries(test_cio_inet_address cio::cio)
+add_executable(test_cio_inet_address
+    test_cio_inet_address.c
+    $<$<PLATFORM_ID:Linux>:../src/linux/cio_linux_inet_address_impl.c>
+    $<$<PLATFORM_ID:Windows>:../src/windows/cio_windows_inet_address_impl.c>
+)
 add_test(NAME cio.common.test_inet_address COMMAND test_cio_inet_address)
 
-add_executable(test_cio_inet_socket_address test_cio_inet_socket_address.c)
-target_link_libraries(test_cio_inet_socket_address cio::cio)
+add_executable(test_cio_inet_socket_address
+    test_cio_inet_socket_address.c
+    $<$<PLATFORM_ID:Linux>:../src/linux/cio_linux_endian.c>
+    $<$<PLATFORM_ID:Linux>:../src/linux/cio_linux_inet_address_impl.c>
+    $<$<PLATFORM_ID:Linux>:../src/linux/cio_linux_socket_address_impl.c>
+    $<$<PLATFORM_ID:Windows>:../src/windows/cio_windows_endian.c>
+    $<$<PLATFORM_ID:Windows>:../src/windows/cio_windows_inet_address_impl.c>
+    $<$<PLATFORM_ID:Windows>:../src/windows/cio_windows_socket_address_impl.c>
+)
 add_test(NAME cio.common.test_inet_socket_address COMMAND test_cio_inet_socket_address)
 
 add_executable(test_cio_random test_cio_random.c ../src/cio_random.c)
