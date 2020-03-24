@@ -400,7 +400,7 @@ enum cio_error cio_socket_set_tcp_no_delay(struct cio_socket *socket, bool on)
 	return CIO_SUCCESS;
 }
 
-enum cio_error cio_socket_set_keep_alive(struct cio_socket *socket, bool on, unsigned int keep_idle_s,
+enum cio_error cio_socket_set_keep_alive(const struct cio_socket *socket, bool on, unsigned int keep_idle_s,
                                          unsigned int keep_intvl_s, unsigned int keep_cnt)
 {
 	int keep_alive;
@@ -429,7 +429,7 @@ enum cio_error cio_socket_set_keep_alive(struct cio_socket *socket, bool on, uns
 	return CIO_SUCCESS;
 }
 
-enum cio_error cio_socket_set_tcp_fast_open(struct cio_socket *socket, bool on)
+enum cio_error cio_socket_set_tcp_fast_open(const struct cio_socket *socket, bool on)
 {
 	int opt = on ? 1 : 0;
 

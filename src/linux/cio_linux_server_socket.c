@@ -185,7 +185,7 @@ static enum cio_error try_removing_uds_file(const struct cio_socket_address *end
 	return err;
 }
 
-enum cio_error cio_server_socket_bind(struct cio_server_socket *ss, const struct cio_socket_address *endpoint)
+enum cio_error cio_server_socket_bind(const struct cio_server_socket *ss, const struct cio_socket_address *endpoint)
 {
 	if (cio_unlikely((ss == NULL) || (endpoint == NULL))) {
 		return CIO_INVALID_ARGUMENT;
@@ -213,7 +213,7 @@ enum cio_error cio_server_socket_bind(struct cio_server_socket *ss, const struct
 	return CIO_SUCCESS;
 }
 
-enum cio_error cio_server_socket_set_reuse_address(struct cio_server_socket *ss, bool on)
+enum cio_error cio_server_socket_set_reuse_address(const struct cio_server_socket *ss, bool on)
 {
 	int reuse;
 	if (on) {
@@ -230,7 +230,7 @@ enum cio_error cio_server_socket_set_reuse_address(struct cio_server_socket *ss,
 	return CIO_SUCCESS;
 }
 
-enum cio_error cio_server_socket_set_tcp_fast_open(struct cio_server_socket *ss, bool on)
+enum cio_error cio_server_socket_set_tcp_fast_open(const struct cio_server_socket *ss, bool on)
 {
 	int qlen;
 	if (on) {

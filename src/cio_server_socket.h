@@ -155,7 +155,7 @@ CIO_EXPORT void cio_server_socket_close(struct cio_server_socket *ss);
  *
  * @return ::CIO_SUCCESS for success.
  */
-CIO_EXPORT enum cio_error cio_server_socket_bind(struct cio_server_socket *ss, const struct cio_socket_address *endpoint);
+CIO_EXPORT enum cio_error cio_server_socket_bind(const struct cio_server_socket *ss, const struct cio_socket_address *endpoint);
 
 /**
  * @brief Sets the SO_REUSEADDR socket option.
@@ -165,7 +165,7 @@ CIO_EXPORT enum cio_error cio_server_socket_bind(struct cio_server_socket *ss, c
  *
  * @return ::CIO_SUCCESS for success.
  */
-CIO_EXPORT enum cio_error cio_server_socket_set_reuse_address(struct cio_server_socket *ss, bool on);
+CIO_EXPORT enum cio_error cio_server_socket_set_reuse_address(const struct cio_server_socket *ss, bool on);
 
 /**
  * @brief Enables/disables TCP Fast Open.
@@ -181,7 +181,7 @@ CIO_EXPORT enum cio_error cio_server_socket_set_reuse_address(struct cio_server_
  * @param on @p true if TCP Fast Opens should be enabled, @p false if not.
  * @return :: CIO_SUCCESS for success.
  */
-CIO_EXPORT enum cio_error cio_server_socket_set_tcp_fast_open(struct cio_server_socket *ss, bool on);
+CIO_EXPORT enum cio_error cio_server_socket_set_tcp_fast_open(const struct cio_server_socket *ss, bool on);
 
 #ifdef __cplusplus
 }

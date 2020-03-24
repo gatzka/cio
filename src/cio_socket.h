@@ -162,7 +162,7 @@ CIO_EXPORT enum cio_error cio_socket_set_tcp_no_delay(struct cio_socket *socket,
  * @param on @p true if TCP Fast Opens should be enabled, @p false if not.
  * @return :: CIO_SUCCESS for success.
  */
-CIO_EXPORT enum cio_error cio_socket_set_tcp_fast_open(struct cio_socket *socket, bool on);
+CIO_EXPORT enum cio_error cio_socket_set_tcp_fast_open(const struct cio_socket *socket, bool on);
 
 /**
  * @brief Enables/disables TCP keepalive messages.
@@ -179,7 +179,7 @@ CIO_EXPORT enum cio_error cio_socket_set_tcp_fast_open(struct cio_socket *socket
  *
  * @return ::CIO_SUCCESS for success.
  */
-CIO_EXPORT enum cio_error cio_socket_set_keep_alive(struct cio_socket *socket, bool on, unsigned int keep_idle_s, unsigned int keep_intvl_s, unsigned int keep_cnt);
+CIO_EXPORT enum cio_error cio_socket_set_keep_alive(const struct cio_socket *socket, bool on, unsigned int keep_idle_s, unsigned int keep_intvl_s, unsigned int keep_cnt);
 
 #ifdef __cplusplus
 }
