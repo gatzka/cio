@@ -51,6 +51,7 @@ FAKE_VOID_FUNC(fake_add_response_header, struct cio_http_client *, struct cio_wr
 FAKE_VALUE_FUNC(enum cio_error, fake_write_response, struct cio_http_client *, enum cio_http_status_code, struct cio_write_buffer *, cio_response_written_cb)
 FAKE_VOID_FUNC(on_connect, struct cio_websocket *)
 FAKE_VOID_FUNC(on_error, struct cio_http_server *, const char *)
+FAKE_VOID_FUNC(client_close, struct cio_http_client *)
 
 static enum cio_error write_response_call_callback(struct cio_http_client *client, enum cio_http_status_code status, struct cio_write_buffer *buf, cio_response_written_cb response_callback)
 {
@@ -89,6 +90,7 @@ void setUp(void)
 	RESET_FAKE(fake_write_response);
 	RESET_FAKE(on_connect);
 	RESET_FAKE(on_error);
+	RESET_FAKE(client_close);
 
 	cio_websocket_init_fake.custom_fake = websocket_init_save_params;
 	fake_write_response_fake.custom_fake = write_response_call_callback;
@@ -359,6 +361,7 @@ static void test_ws_location_wrong_http_headers(void)
 		handler.websocket.ws_private.http_client->current_handler = &handler.http_location;
 		handler.websocket.ws_private.http_client->add_response_header = fake_add_response_header;
 		handler.websocket.ws_private.http_client->write_response = fake_write_response;
+		handler.websocket.ws_private.http_client->close = client_close;
 
 		handler.websocket.ws_private.http_client->parser.upgrade = 1;
 		handler.websocket.ws_private.http_client->http_method = CIO_HTTP_GET;
@@ -386,6 +389,8 @@ static void test_ws_location_wrong_http_headers(void)
 			TEST_ASSERT_EQUAL_MESSAGE(1, fake_write_response_fake.call_count, "write_response was not called");
 			TEST_ASSERT_EQUAL_MESSAGE(1, on_connect_fake.call_count, "websocket on_connect was not called");
 			TEST_ASSERT_EQUAL_MESSAGE(CIO_HTTP_STATUS_SWITCHING_PROTOCOLS, fake_write_response_fake.arg1_val, "write_response was not called with CIO_HTTP_STATUS_SWITCHING_PROTOCOLS");
+
+			handler.websocket.ws_private.close_hook(&handler.websocket);
 		}
 
 		setUp();
