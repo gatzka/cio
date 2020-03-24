@@ -46,7 +46,7 @@ static size_t fread_ok(void *ptr, size_t size, size_t n, FILE *stream)
 	(void)stream;
 
 	memset(ptr, 0xaa, size * n);
-	return size * n;;
+	return size * n;
 }
 
 void setUp(void)
