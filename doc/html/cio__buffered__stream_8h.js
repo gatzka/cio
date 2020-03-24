@@ -11,6 +11,7 @@ var cio__buffered__stream_8h =
     [ "cio_buffered_stream_close", "cio__buffered__stream_8h.html#a88e971f7b4daaac29e531a42f0a3b7d4", null ],
     [ "cio_buffered_stream_init", "cio__buffered__stream_8h.html#ad7a2b4ecadbc810eaada7e14292bb1bd", null ],
     [ "cio_buffered_stream_read_at_least", "cio__buffered__stream_8h.html#a13dbd7b157daa684bd6256b2dadedce0", null ],
+    [ "cio_buffered_stream_read_at_most", "cio__buffered__stream_8h.html#ad8cd27287d66cd7f1e8566b8fd1ff059", null ],
     [ "cio_buffered_stream_read_until", "cio__buffered__stream_8h.html#ace1fccae3e69ff33f1be48b77835c373", null ],
     [ "cio_buffered_stream_write", "cio__buffered__stream_8h.html#a7f5b55199257d85be55363965d5be46b", null ]
 ];

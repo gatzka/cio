@@ -83,8 +83,9 @@ $(document).ready(function(){initNavTree('cio__http__client_8h.html','');});
 <div class="header">
   <div class="summary">
 <a href="#nested-classes">Data Structures</a> &#124;
-<a href="#define-members">Macros</a> &#124;
-<a href="#typedef-members">Typedefs</a>  </div>
+<a href="#typedef-members">Typedefs</a> &#124;
+<a href="#enum-members">Enumerations</a> &#124;
+<a href="#func-members">Functions</a>  </div>
   <div class="headertitle">
 <div class="title">cio_http_client.h File Reference</div>  </div>
 </div><!--header-->
@@ -96,7 +97,9 @@ $(document).ready(function(){initNavTree('cio__http__client_8h.html','');});
 <code>#include &lt;stddef.h&gt;</code><br />
 <code>#include &lt;stdint.h&gt;</code><br />
 <code>#include &quot;<a class="el" href="cio__buffered__stream_8h_source.html">cio_buffered_stream.h</a>&quot;</code><br />
+<code>#include &quot;<a class="el" href="cio__export_8h_source.html">cio_export.h</a>&quot;</code><br />
 <code>#include &quot;<a class="el" href="cio__http__method_8h_source.html">cio_http_method.h</a>&quot;</code><br />
+<code>#include &quot;<a class="el" href="cio__http__server_8h_source.html">cio_http_server.h</a>&quot;</code><br />
 <code>#include &quot;<a class="el" href="cio__http__status__code_8h_source.html">cio_http_status_code.h</a>&quot;</code><br />
 <code>#include &quot;<a class="el" href="cio__read__buffer_8h_source.html">cio_read_buffer.h</a>&quot;</code><br />
 <code>#include &quot;<a class="el" href="cio__socket_8h_source.html">cio_socket.h</a>&quot;</code><br />
@@ -114,35 +117,26 @@ Data Structures</h2></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">A <a class="el" href="structcio__http__client.html" title="A cio_http_client struct represents an HTTP client connection. ">cio_http_client</a> struct represents an HTTP client connection.  <a href="structcio__http__client.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
-<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="define-members"></a>
-Macros</h2></td></tr>
-<tr class="memitem:aee27b80e6d5fa7092144d43a71989264"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="cio__http__client_8h.html#aee27b80e6d5fa7092144d43a71989264">CIO_HTTP_CLIENT_CONTENT_LENGTH_BUFFER_LENGTH</a>&#160;&#160;&#160;30</td></tr>
-<tr class="separator:aee27b80e6d5fa7092144d43a71989264"><td class="memSeparator" colspan="2">&#160;</td></tr>
-</table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="typedef-members"></a>
 Typedefs</h2></td></tr>
 <tr class="memitem:a1d13b2fba00a00f78064e8997d1427cb"><td class="memItemLeft" align="right" valign="top">typedef void(*&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="cio__http__client_8h.html#a1d13b2fba00a00f78064e8997d1427cb">cio_response_written_cb</a>) (struct <a class="el" href="structcio__http__client.html">cio_http_client</a> *client, enum <a class="el" href="cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afe">cio_error</a> err)</td></tr>
 <tr class="memdesc:a1d13b2fba00a00f78064e8997d1427cb"><td class="mdescLeft">&#160;</td><td class="mdescRight">The type of a response callback function passed to the <a class="el" href="structcio__http__client.html#cio_http_client_write_response">write_response</a> function.  <a href="#a1d13b2fba00a00f78064e8997d1427cb">More...</a><br /></td></tr>
 <tr class="separator:a1d13b2fba00a00f78064e8997d1427cb"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="enum-members"></a>
+Enumerations</h2></td></tr>
+<tr class="memitem:adf764cbdea00d65edcd07bb9953ad2b7"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom">{ <a class="el" href="cio__http__client_8h.html#adf764cbdea00d65edcd07bb9953ad2b7a0b22cfa07b6514446d1361f42a990060">CIO_HTTP_CLIENT_CONTENT_LENGTH_BUFFER_LENGTH</a> = 30
+ }</td></tr>
+<tr class="separator:adf764cbdea00d65edcd07bb9953ad2b7"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="func-members"></a>
+Functions</h2></td></tr>
+<tr class="memitem:a0649550bf952ab4d2b09331000517046"><td class="memItemLeft" align="right" valign="top">static struct <a class="el" href="structcio__http__server.html">cio_http_server</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="cio__http__client_8h.html#a0649550bf952ab4d2b09331000517046">cio_http_client_get_server</a> (const struct <a class="el" href="structcio__http__client.html">cio_http_client</a> *client)</td></tr>
+<tr class="separator:a0649550bf952ab4d2b09331000517046"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>The interface to an HTTP client connection. </p>
-</div><h2 class="groupheader">Macro Definition Documentation</h2>
-<a id="aee27b80e6d5fa7092144d43a71989264"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#aee27b80e6d5fa7092144d43a71989264">&#9670;&nbsp;</a></span>CIO_HTTP_CLIENT_CONTENT_LENGTH_BUFFER_LENGTH</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">#define CIO_HTTP_CLIENT_CONTENT_LENGTH_BUFFER_LENGTH&#160;&#160;&#160;30</td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-</div>
-</div>
-<h2 class="groupheader">Typedef Documentation</h2>
+</div><h2 class="groupheader">Typedef Documentation</h2>
 <a id="a1d13b2fba00a00f78064e8997d1427cb"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a1d13b2fba00a00f78064e8997d1427cb">&#9670;&nbsp;</a></span>cio_response_written_cb</h2>
 
@@ -163,6 +157,51 @@ Typedefs</h2></td></tr>
   </table>
   </dd>
 </dl>
+
+</div>
+</div>
+<h2 class="groupheader">Enumeration Type Documentation</h2>
+<a id="adf764cbdea00d65edcd07bb9953ad2b7"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#adf764cbdea00d65edcd07bb9953ad2b7">&#9670;&nbsp;</a></span>anonymous enum</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">anonymous enum</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<table class="fieldtable">
+<tr><th colspan="2">Enumerator</th></tr><tr><td class="fieldname"><a id="adf764cbdea00d65edcd07bb9953ad2b7a0b22cfa07b6514446d1361f42a990060"></a>CIO_HTTP_CLIENT_CONTENT_LENGTH_BUFFER_LENGTH&#160;</td><td class="fielddoc"></td></tr>
+</table>
+
+</div>
+</div>
+<h2 class="groupheader">Function Documentation</h2>
+<a id="a0649550bf952ab4d2b09331000517046"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a0649550bf952ab4d2b09331000517046">&#9670;&nbsp;</a></span>cio_http_client_get_server()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static struct <a class="el" href="structcio__http__server.html">cio_http_server</a>* cio_http_client_get_server </td>
+          <td>(</td>
+          <td class="paramtype">const struct <a class="el" href="structcio__http__client.html">cio_http_client</a> *&#160;</td>
+          <td class="paramname"><em>client</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
 
 </div>
 </div>

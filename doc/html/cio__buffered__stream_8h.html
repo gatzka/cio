@@ -128,6 +128,9 @@ Functions</h2></td></tr>
 <tr class="memitem:ace1fccae3e69ff33f1be48b77835c373"><td class="memItemLeft" align="right" valign="top"><a class="el" href="cio__export_8h.html#ab971b12fa232c415369be66dfaca507a">CIO_EXPORT</a> enum <a class="el" href="cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afe">cio_error</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="cio__buffered__stream_8h.html#ace1fccae3e69ff33f1be48b77835c373">cio_buffered_stream_read_until</a> (struct <a class="el" href="structcio__buffered__stream.html">cio_buffered_stream</a> *bs, struct <a class="el" href="structcio__read__buffer.html">cio_read_buffer</a> *buffer, const char *delim, <a class="el" href="cio__buffered__stream_8h.html#a6fb4f794d90d6a7e17a7bb53f6b4ae14">cio_buffered_stream_read_handler</a> handler, void *handler_context)</td></tr>
 <tr class="memdesc:ace1fccae3e69ff33f1be48b77835c373"><td class="mdescLeft">&#160;</td><td class="mdescRight">Call <code>handler</code> if delimiter <code>delim</code> is encountered.  <a href="#ace1fccae3e69ff33f1be48b77835c373">More...</a><br /></td></tr>
 <tr class="separator:ace1fccae3e69ff33f1be48b77835c373"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad8cd27287d66cd7f1e8566b8fd1ff059"><td class="memItemLeft" align="right" valign="top"><a class="el" href="cio__export_8h.html#ab971b12fa232c415369be66dfaca507a">CIO_EXPORT</a> enum <a class="el" href="cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afe">cio_error</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="cio__buffered__stream_8h.html#ad8cd27287d66cd7f1e8566b8fd1ff059">cio_buffered_stream_read_at_most</a> (struct <a class="el" href="structcio__buffered__stream.html">cio_buffered_stream</a> *bs, struct <a class="el" href="structcio__read__buffer.html">cio_read_buffer</a> *buffer, size_t num, <a class="el" href="cio__buffered__stream_8h.html#a6fb4f794d90d6a7e17a7bb53f6b4ae14">cio_buffered_stream_read_handler</a> handler, void *handler_context)</td></tr>
+<tr class="memdesc:ad8cd27287d66cd7f1e8566b8fd1ff059"><td class="mdescLeft">&#160;</td><td class="mdescRight">Call <code>handler</code> with at least 1 byte in <code>buffer</code> but at most <code>num</code> bytes in buffer.  <a href="#ad8cd27287d66cd7f1e8566b8fd1ff059">More...</a><br /></td></tr>
+<tr class="separator:ad8cd27287d66cd7f1e8566b8fd1ff059"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a88e971f7b4daaac29e531a42f0a3b7d4"><td class="memItemLeft" align="right" valign="top"><a class="el" href="cio__export_8h.html#ab971b12fa232c415369be66dfaca507a">CIO_EXPORT</a> enum <a class="el" href="cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afe">cio_error</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="cio__buffered__stream_8h.html#a88e971f7b4daaac29e531a42f0a3b7d4">cio_buffered_stream_close</a> (struct <a class="el" href="structcio__buffered__stream.html">cio_buffered_stream</a> *bs)</td></tr>
 <tr class="memdesc:a88e971f7b4daaac29e531a42f0a3b7d4"><td class="mdescLeft">&#160;</td><td class="mdescRight">Closes the stream.  <a href="#a88e971f7b4daaac29e531a42f0a3b7d4">More...</a><br /></td></tr>
 <tr class="separator:a88e971f7b4daaac29e531a42f0a3b7d4"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -314,6 +317,65 @@ Functions</h2></td></tr>
   </dd>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd><a class="el" href="cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afea6bb29544c99750c61f70b10a1e17d96a">CIO_SUCCESS</a> for success. </dd></dl>
+
+</div>
+</div>
+<a id="ad8cd27287d66cd7f1e8566b8fd1ff059"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ad8cd27287d66cd7f1e8566b8fd1ff059">&#9670;&nbsp;</a></span>cio_buffered_stream_read_at_most()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="cio__export_8h.html#ab971b12fa232c415369be66dfaca507a">CIO_EXPORT</a> enum <a class="el" href="cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afe">cio_error</a> cio_buffered_stream_read_at_most </td>
+          <td>(</td>
+          <td class="paramtype">struct <a class="el" href="structcio__buffered__stream.html">cio_buffered_stream</a> *&#160;</td>
+          <td class="paramname"><em>bs</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">struct <a class="el" href="structcio__read__buffer.html">cio_read_buffer</a> *&#160;</td>
+          <td class="paramname"><em>buffer</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">size_t&#160;</td>
+          <td class="paramname"><em>num</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="cio__buffered__stream_8h.html#a6fb4f794d90d6a7e17a7bb53f6b4ae14">cio_buffered_stream_read_handler</a>&#160;</td>
+          <td class="paramname"><em>handler</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">void *&#160;</td>
+          <td class="paramname"><em>handler_context</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Call <code>handler</code> with at least 1 byte in <code>buffer</code> but at most <code>num</code> bytes in buffer. </p>
+<p><a class="anchor" id="cio_buffered_stream_at_most"></a></p><dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">bs</td><td>A pointer to the <a class="el" href="structcio__buffered__stream.html">cio_buffered_stream</a> of the on which the operation should be performed. </td></tr>
+    <tr><td class="paramname">buffer</td><td>The buffer that should be used for reading. </td></tr>
+    <tr><td class="paramname">num</td><td>The number of bytes the should be read at most. </td></tr>
+    <tr><td class="paramname">handler</td><td>The callback function to be called when the read request is fulfilled. </td></tr>
+    <tr><td class="paramname">handler_context</td><td>A pointer to a context which might be useful inside <code>handler</code> </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd><a class="el" href="cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afea6bb29544c99750c61f70b10a1e17d96a">CIO_SUCCESS</a> for success.. </dd></dl>
 
 </div>
 </div>

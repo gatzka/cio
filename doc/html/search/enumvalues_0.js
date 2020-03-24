@@ -17,6 +17,7 @@ var searchData=
   ['cio_5fhttp_5fcb_5fskip_5fbody',['CIO_HTTP_CB_SKIP_BODY',['../cio__http__location__handler_8h.html#a6b90057db20102dfa1e40cafc014fbdeae702ea5d11291265d3e736b7b1a60a78',1,'cio_http_location_handler.h']]],
   ['cio_5fhttp_5fcb_5fsuccess',['CIO_HTTP_CB_SUCCESS',['../cio__http__location__handler_8h.html#a6b90057db20102dfa1e40cafc014fbdeaaf9f1469599b7aec8863acbd62cea6a2',1,'cio_http_location_handler.h']]],
   ['cio_5fhttp_5fcheckout',['CIO_HTTP_CHECKOUT',['../cio__http__method_8h.html#af72daec94b7eb3d7c6ba31bdb7ba0ef3ad336912f5af7d7dcfe5b56c7bc7dd516',1,'cio_http_method.h']]],
+  ['cio_5fhttp_5fclient_5fcontent_5flength_5fbuffer_5flength',['CIO_HTTP_CLIENT_CONTENT_LENGTH_BUFFER_LENGTH',['../cio__http__client_8h.html#adf764cbdea00d65edcd07bb9953ad2b7a0b22cfa07b6514446d1361f42a990060',1,'cio_http_client.h']]],
   ['cio_5fhttp_5fconnect',['CIO_HTTP_CONNECT',['../cio__http__method_8h.html#af72daec94b7eb3d7c6ba31bdb7ba0ef3aa9ed68797b869f32c1d26ec2be871f19',1,'cio_http_method.h']]],
   ['cio_5fhttp_5fcopy',['CIO_HTTP_COPY',['../cio__http__method_8h.html#af72daec94b7eb3d7c6ba31bdb7ba0ef3acac0d16f394da2ee6949f9480881c868',1,'cio_http_method.h']]],
   ['cio_5fhttp_5fdelete',['CIO_HTTP_DELETE',['../cio__http__method_8h.html#af72daec94b7eb3d7c6ba31bdb7ba0ef3a9c4124e2b2b74d9225700e2fdf958e93',1,'cio_http_method.h']]],
@@ -65,9 +66,9 @@ var searchData=
   ['cio_5foperation_5fnot_5fpermitted',['CIO_OPERATION_NOT_PERMITTED',['../cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afeaec9e03ebc85d2450c4d5d476cfa89881',1,'cio_error_code.h']]],
   ['cio_5fpermission_5fdenied',['CIO_PERMISSION_DENIED',['../cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afeacbe96e6c41d13351a99ed59d910e146f',1,'cio_error_code.h']]],
   ['cio_5fprotocol_5fnot_5fsupported',['CIO_PROTOCOL_NOT_SUPPORTED',['../cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afea2b17f2123e380cd5580bb6e614f9789a',1,'cio_error_code.h']]],
-  ['cio_5fsec_5fweb_5fsocket_5fguid_5flength',['CIO_SEC_WEB_SOCKET_GUID_LENGTH',['../cio__websocket__location__handler_8h.html#abc6126af1d45847bc59afa0aa3216b04aedcbf25ba4c5f781c2ef10474e1bb4a0',1,'cio_websocket_location_handler.h']]],
-  ['cio_5fsec_5fweb_5fsocket_5fkey_5flength',['CIO_SEC_WEB_SOCKET_KEY_LENGTH',['../cio__websocket__location__handler_8h.html#a99fb83031ce9923c84392b4e92f956b5a2368209f8f42c8676f2b35650eeabf70',1,'cio_websocket_location_handler.h']]],
-  ['cio_5fsec_5fwebsocket_5faccept_5flength',['CIO_SEC_WEBSOCKET_ACCEPT_LENGTH',['../cio__websocket__location__handler_8h.html#adc29c2ff13d900c2f185ee95427fb06caec51d41807d6dca0ca01eb048ccd4cb7',1,'cio_websocket_location_handler.h']]],
+  ['cio_5fsec_5fweb_5fsocket_5fguid_5flength',['CIO_SEC_WEB_SOCKET_GUID_LENGTH',['../cio__websocket__location__handler_8h.html#a726ca809ffd3d67ab4b8476646f26635aedcbf25ba4c5f781c2ef10474e1bb4a0',1,'cio_websocket_location_handler.h']]],
+  ['cio_5fsec_5fweb_5fsocket_5fkey_5flength',['CIO_SEC_WEB_SOCKET_KEY_LENGTH',['../cio__websocket__location__handler_8h.html#a61dadd085c1777f559549e05962b2c9ea2368209f8f42c8676f2b35650eeabf70',1,'cio_websocket_location_handler.h']]],
+  ['cio_5fsec_5fwebsocket_5faccept_5flength',['CIO_SEC_WEBSOCKET_ACCEPT_LENGTH',['../cio__websocket__location__handler_8h.html#a0411cd49bb5b71852cecd93bcbf0ca2daec51d41807d6dca0ca01eb048ccd4cb7',1,'cio_websocket_location_handler.h']]],
   ['cio_5fsuccess',['CIO_SUCCESS',['../cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afea6bb29544c99750c61f70b10a1e17d96a',1,'cio_error_code.h']]],
   ['cio_5ftimedout',['CIO_TIMEDOUT',['../cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afea786707b1f9c68c3dc296ce63fe8307ae',1,'cio_error_code.h']]],
   ['cio_5ftoo_5fmany_5ffiles_5fopen',['CIO_TOO_MANY_FILES_OPEN',['../cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afea5943517bd1417748a5861a147db26657',1,'cio_error_code.h']]],
@@ -92,9 +93,11 @@ var searchData=
   ['cio_5fwebsocket_5fclose_5funsupported',['CIO_WEBSOCKET_CLOSE_UNSUPPORTED',['../cio__websocket_8h.html#aa24c9894ba2ee9dc5b0ebbc1c8809701a0c5ed5627c015f6e7b81c3fc74d7c28e',1,'cio_websocket.h']]],
   ['cio_5fwebsocket_5fclose_5funsupported_5fdata',['CIO_WEBSOCKET_CLOSE_UNSUPPORTED_DATA',['../cio__websocket_8h.html#aa24c9894ba2ee9dc5b0ebbc1c8809701ac561a452a68e836193daadbdf1db5c10',1,'cio_websocket.h']]],
   ['cio_5fwebsocket_5fcontinuation_5fframe',['CIO_WEBSOCKET_CONTINUATION_FRAME',['../cio__websocket_8h.html#af33fb069400eeffde11ab324bf2245e9a268d3844949375e76864185036973bd9',1,'cio_websocket.h']]],
+  ['cio_5fwebsocket_5fmax_5fheader_5fsize',['CIO_WEBSOCKET_MAX_HEADER_SIZE',['../cio__websocket_8h.html#abc6126af1d45847bc59afa0aa3216b04a66accc0b17c00cd228ce2e5d78e609bf',1,'cio_websocket.h']]],
   ['cio_5fwebsocket_5fping_5fframe',['CIO_WEBSOCKET_PING_FRAME',['../cio__websocket_8h.html#af33fb069400eeffde11ab324bf2245e9a42de48db574a3eb78ee662c4683f4ed3',1,'cio_websocket.h']]],
   ['cio_5fwebsocket_5fpong_5fframe',['CIO_WEBSOCKET_PONG_FRAME',['../cio__websocket_8h.html#af33fb069400eeffde11ab324bf2245e9ac89c2941151a6830f7cf69729ee9693c',1,'cio_websocket.h']]],
+  ['cio_5fwebsocket_5fsmall_5fframe_5fsize',['CIO_WEBSOCKET_SMALL_FRAME_SIZE',['../cio__websocket_8h.html#a99fb83031ce9923c84392b4e92f956b5aab5801980f3504f11ccabd66e879281b',1,'cio_websocket.h']]],
   ['cio_5fwebsocket_5ftext_5fframe',['CIO_WEBSOCKET_TEXT_FRAME',['../cio__websocket_8h.html#af33fb069400eeffde11ab324bf2245e9a4698fc6e497c243a27b44361cf407090',1,'cio_websocket.h']]],
   ['cio_5fwouldblock',['CIO_WOULDBLOCK',['../cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afead160eb0012c00d7cbbbfa411d15c5b79',1,'cio_error_code.h']]],
-  ['config_5ftcp_5ffastopen_5fqueue_5fsize',['CONFIG_TCP_FASTOPEN_QUEUE_SIZE',['../cio__os__config_8h.html#abc5c98fcc1211af2b80116dd6e0a035da1ff311fb81f3d4d3b286feab82ac8ad5',1,'cio_os_config.h']]]
+  ['config_5ftcp_5ffastopen_5fqueue_5fsize',['CONFIG_TCP_FASTOPEN_QUEUE_SIZE',['../cio__os__config_8h.html#a16af7b253440dadd46a80a4b9fddba4da1ff311fb81f3d4d3b286feab82ac8ad5',1,'cio_os_config.h']]]
 ];
