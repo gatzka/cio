@@ -16,8 +16,6 @@ if(GIT_FOUND AND EXISTS "${PROJECT_SOURCE_DIR}/../.git")
     endif()
 endif()
 
-include(CMakePackageConfigHelpers)
-
 if(NOT CIO_BUILD_FOR_ZEPHYR)
     include(CheckTypeSize)
     CHECK_TYPE_SIZE(uint_fast32_t UINT_FAST32_T LANGUAGE C)
@@ -107,12 +105,12 @@ if(CIO_CONFIG_HTTP)
     )
 
     set_property(TARGET ${PROJECT_NAME} APPEND PROPERTY PUBLIC_HEADER 
+        "cio_http_client.h"
         "cio_http_location.h"
         "cio_http_location_handler.h"
         "cio_http_method.h"
         "cio_http_server.h"
         "cio_http_status_code.h"
-        "cio_http_client.h"
     )
 endif()
 
@@ -145,12 +143,11 @@ if(CIO_CONFIG_WEBSOCKETS)
     ) 
 
     set_property(TARGET ${PROJECT_NAME} APPEND PROPERTY PUBLIC_HEADER
+        "cio_base64.h"
         "cio_utf8_checker.h"
         "cio_websocket.h"
         "cio_websocket_location_handler.h"
-        "cio_base64.h"
     )
-
 endif()
 
 if(CIO_CONFIG_WEBSOCKET_COMPRESSION)
@@ -171,7 +168,6 @@ target_include_directories(${PROJECT_NAME} PUBLIC
     $<BUILD_INTERFACE:$<$<PLATFORM_ID:Linux>:${CMAKE_CURRENT_LIST_DIR}/linux/>>
     $<BUILD_INTERFACE:$<$<PLATFORM_ID:Windows>:${CMAKE_CURRENT_LIST_DIR}/windows/>>
     $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/generated/>
-    $<INSTALL_INTERFACE:include/cio/>
 )
 
 if(${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
@@ -225,22 +221,16 @@ endif()
 include(GenerateExportHeader)
 generate_export_header(${PROJECT_NAME} EXPORT_FILE_NAME ${CMAKE_CURRENT_BINARY_DIR}/generated/${PROJECT_NAME}_export.h)
 
-# get_target_property(cio_sources cio SOURCES)
-# foreach(CIOSRC IN LISTS cio_sources)
-#   if(EXISTS  ${CMAKE_CURRENT_LIST_DIR}/${CIOSRC})
-#       message(STATUS "----------------- ${CIOSRC}")
-#   else()
-#       message(STATUS "+++++++++++++++++ ${CIOSRC}")
-#   endif()
-# endforeach()
-
+include(GNUInstallDirs)
 install(TARGETS ${PROJECT_NAME} PLATFORM
     EXPORT ${PROJECT_NAME}
-    LIBRARY DESTINATION lib
-    ARCHIVE DESTINATION lib
-    PUBLIC_HEADER DESTINATION include/cio
+    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+    PUBLIC_HEADER DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}"
 )
 
+include(CMakePackageConfigHelpers)
 write_basic_package_version_file("${PROJECT_NAME}ConfigVersion.cmake"
     VERSION ${${PROJECT_NAME}_VERSION}
     COMPATIBILITY SameMajorVersion
