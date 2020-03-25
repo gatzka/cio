@@ -89,7 +89,7 @@ FAKE_VOID_FUNC(serve_error, struct cio_http_server *, const char *)
 
 FAKE_VALUE_FUNC(enum cio_error, cio_server_socket_init, struct cio_server_socket *, struct cio_eventloop *, unsigned int, enum cio_address_family, cio_alloc_client, cio_free_client, uint64_t, cio_server_socket_close_hook)
 FAKE_VALUE_FUNC(enum cio_error, cio_server_socket_accept, struct cio_server_socket *, cio_accept_handler, void *)
-FAKE_VALUE_FUNC(enum cio_error, cio_server_socket_bind, const struct cio_server_socket *, const struct cio_socket_address *)
+FAKE_VALUE_FUNC(enum cio_error, cio_server_socket_bind, struct cio_server_socket *, const struct cio_socket_address *)
 FAKE_VOID_FUNC(cio_server_socket_close, struct cio_server_socket *)
 FAKE_VALUE_FUNC(enum cio_error, cio_server_socket_set_reuse_address, const struct cio_server_socket *, bool)
 

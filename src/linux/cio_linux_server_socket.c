@@ -185,7 +185,7 @@ static enum cio_error try_removing_uds_file(const struct cio_socket_address *end
 	return err;
 }
 
-enum cio_error cio_server_socket_bind(const struct cio_server_socket *ss, const struct cio_socket_address *endpoint)
+enum cio_error cio_server_socket_bind(struct cio_server_socket *ss, const struct cio_socket_address *endpoint)
 {
 	if (cio_unlikely((ss == NULL) || (endpoint == NULL))) {
 		return CIO_INVALID_ARGUMENT;
