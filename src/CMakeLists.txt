@@ -270,6 +270,10 @@ if(DOXYGEN_FOUND)
     set(DOXYGEN_WARN_AS_ERROR YES)
     set(DOXYGEN_PROJECT_NAME ${CMAKE_PROJECT_NAME})
     set(DOXYGEN_EXCLUDE_PATTERNS "*private*;*.c;cio_websocket_masking.h;cio_export.h")
+    set(DOXYGEN_ENABLE_PREPROCESSING YES)
+    set(DOXYGEN_MACRO_EXPANSION YES)
+    set(DOXYGEN_EXPAND_ONLY_PREDEF YES)
+    set(DOXYGEN_PREDEFINED CIO_EXPORT)
 
     doxygen_add_docs(docs
         ${PROJECT_SOURCE_DIR}
