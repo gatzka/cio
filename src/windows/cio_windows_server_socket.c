@@ -252,7 +252,7 @@ enum cio_error cio_server_socket_accept(struct cio_server_socket *ss, cio_accept
 	return CIO_SUCCESS;
 }
 
-enum cio_error cio_server_socket_set_reuse_address(struct cio_server_socket *ss, bool on)
+enum cio_error cio_server_socket_set_reuse_address(const struct cio_server_socket *ss, bool on)
 {
 	DWORD reuse = on ? 1 : 0;
 
@@ -285,7 +285,7 @@ void cio_server_socket_close(struct cio_server_socket *ss)
 	close_listen_socket(&ss->impl.listen_socket);
 }
 
-enum cio_error cio_server_socket_set_tcp_fast_open(struct cio_server_socket *ss, bool on)
+enum cio_error cio_server_socket_set_tcp_fast_open(const struct cio_server_socket *ss, bool on)
 {
 #if 0
 	DWORD tcp_fast_open = on ? 1 : 0;
