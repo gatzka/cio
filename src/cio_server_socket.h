@@ -155,7 +155,7 @@ CIO_EXPORT void cio_server_socket_close(struct cio_server_socket *ss);
  *
  * @return ::CIO_SUCCESS for success.
  */
-CIO_EXPORT enum cio_error cio_server_socket_bind(const struct cio_server_socket *ss, const struct cio_socket_address *endpoint);
+CIO_EXPORT enum cio_error cio_server_socket_bind(struct cio_server_socket *ss, const struct cio_socket_address *endpoint);
 
 /**
  * @brief Sets the SO_REUSEADDR socket option.

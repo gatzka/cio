@@ -351,7 +351,7 @@ enum cio_error cio_socket_set_tcp_no_delay(struct cio_socket *s, bool on)
 	return CIO_SUCCESS;
 }
 
-enum cio_error cio_socket_set_keep_alive(struct cio_socket *s, bool on, unsigned int keep_idle_s,
+enum cio_error cio_socket_set_keep_alive(const struct cio_socket *s, bool on, unsigned int keep_idle_s,
                                          unsigned int keep_intvl_s, unsigned int keep_cnt)
 {
 	(void)keep_cnt;
@@ -371,7 +371,7 @@ struct cio_io_stream *cio_socket_get_io_stream(struct cio_socket *s)
 	return &s->stream;
 }
 
-enum cio_error cio_socket_set_tcp_fast_open(struct cio_socket *socket, bool on)
+enum cio_error cio_socket_set_tcp_fast_open(const struct cio_socket *socket, bool on)
 {
 #if 0
 	DWORD tcp_fast_open = on ? 1 : 0;
