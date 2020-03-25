@@ -269,7 +269,7 @@ if(DOXYGEN_FOUND)
     set(DOXYGEN_STRIP_FROM_PATH ${CMAKE_CURRENT_BINARY_DIR}/generated/ ${CMAKE_CURRENT_SOURCE_DIR})
     set(DOXYGEN_WARN_AS_ERROR YES)
     set(DOXYGEN_PROJECT_NAME ${CMAKE_PROJECT_NAME})
-    set(DOXYGEN_EXCLUDE_PATTERNS "*private*;*.c;cio_websocket_masking.h")
+    set(DOXYGEN_EXCLUDE_PATTERNS "*private*;*.c;cio_websocket_masking.h;cio_export.h")
 
     doxygen_add_docs(docs
         ${PROJECT_SOURCE_DIR}
