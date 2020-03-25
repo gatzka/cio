@@ -8,10 +8,10 @@ var cio__buffered__stream_8h =
       [ "CIO_BS_CLOSED", "cio__buffered__stream_8h.html#a78aa67d350ee50928e889143bc042bc7a11d6ee42955cd51759ef05481da4b9df", null ],
       [ "CIO_BS_AGAIN", "cio__buffered__stream_8h.html#a78aa67d350ee50928e889143bc042bc7abbac42171fbffee5fd8c4e6d682ddd89", null ]
     ] ],
-    [ "cio_buffered_stream_close", "cio__buffered__stream_8h.html#a88e971f7b4daaac29e531a42f0a3b7d4", null ],
-    [ "cio_buffered_stream_init", "cio__buffered__stream_8h.html#ad7a2b4ecadbc810eaada7e14292bb1bd", null ],
-    [ "cio_buffered_stream_read_at_least", "cio__buffered__stream_8h.html#a13dbd7b157daa684bd6256b2dadedce0", null ],
-    [ "cio_buffered_stream_read_at_most", "cio__buffered__stream_8h.html#ad8cd27287d66cd7f1e8566b8fd1ff059", null ],
-    [ "cio_buffered_stream_read_until", "cio__buffered__stream_8h.html#ace1fccae3e69ff33f1be48b77835c373", null ],
-    [ "cio_buffered_stream_write", "cio__buffered__stream_8h.html#a7f5b55199257d85be55363965d5be46b", null ]
+    [ "cio_buffered_stream_close", "cio__buffered__stream_8h.html#a3f71e382e669c221d0874a3e422df346", null ],
+    [ "cio_buffered_stream_init", "cio__buffered__stream_8h.html#a2e92bc0f797448c5a6486be3b0feb43b", null ],
+    [ "cio_buffered_stream_read_at_least", "cio__buffered__stream_8h.html#a582db8b3af41fd8fe6e1d0dcc4c863c8", null ],
+    [ "cio_buffered_stream_read_at_most", "cio__buffered__stream_8h.html#a68dc637d8cc57a62b3592f2fa1f2bee9", null ],
+    [ "cio_buffered_stream_read_until", "cio__buffered__stream_8h.html#aa0d23c5946743e7aa6baf661b0513cf8", null ],
+    [ "cio_buffered_stream_write", "cio__buffered__stream_8h.html#a99e565208c8b65519b62048c1bf00fd3", null ]
 ];

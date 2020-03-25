@@ -8,5 +8,6 @@ var cio__http__location__handler_8h =
       [ "CIO_HTTP_CB_SUCCESS", "cio__http__location__handler_8h.html#a6b90057db20102dfa1e40cafc014fbdeaaf9f1469599b7aec8863acbd62cea6a2", null ],
       [ "CIO_HTTP_CB_ERROR", "cio__http__location__handler_8h.html#a6b90057db20102dfa1e40cafc014fbdea009efa1646e481495db34fe3bc52fd06", null ]
     ] ],
-    [ "cio_http_location_handler_init", "cio__http__location__handler_8h.html#acd33a9c2b0ee1c8688f920dc0794b06d", null ]
+    [ "cio_http_location_handler_init", "cio__http__location__handler_8h.html#ab35cfff4a299f8af85c545452d3035d8", null ],
+    [ "cio_http_location_handler_no_callbacks", "cio__http__location__handler_8h.html#aeb71d9552e8d163cf2f413eed3b87a58", null ]
 ];

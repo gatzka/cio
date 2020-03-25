@@ -83,8 +83,8 @@ $(document).ready(function(){initNavTree('cio__http__server_8h.html','');});
 <div class="header">
   <div class="summary">
 <a href="#nested-classes">Data Structures</a> &#124;
-<a href="#define-members">Macros</a> &#124;
 <a href="#typedef-members">Typedefs</a> &#124;
+<a href="#enum-members">Enumerations</a> &#124;
 <a href="#func-members">Functions</a>  </div>
   <div class="headertitle">
 <div class="title">cio_http_server.h File Reference</div>  </div>
@@ -98,7 +98,7 @@ $(document).ready(function(){initNavTree('cio__http__server_8h.html','');});
 <code>#include &lt;stdint.h&gt;</code><br />
 <code>#include &quot;<a class="el" href="cio__error__code_8h_source.html">cio_error_code.h</a>&quot;</code><br />
 <code>#include &quot;<a class="el" href="cio__eventloop_8h_source.html">cio_eventloop.h</a>&quot;</code><br />
-<code>#include &quot;<a class="el" href="cio__export_8h_source.html">cio_export.h</a>&quot;</code><br />
+<code>#include &quot;cio_export.h&quot;</code><br />
 <code>#include &quot;<a class="el" href="cio__http__location_8h_source.html">cio_http_location.h</a>&quot;</code><br />
 <code>#include &quot;<a class="el" href="cio__server__socket_8h_source.html">cio_server_socket.h</a>&quot;</code><br />
 <code>#include &quot;<a class="el" href="cio__socket__address_8h_source.html">cio_socket_address.h</a>&quot;</code><br />
@@ -113,55 +113,41 @@ Data Structures</h2></td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structcio__http__server__configuration.html">cio_http_server_configuration</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
-<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="define-members"></a>
-Macros</h2></td></tr>
-<tr class="memitem:a2856ec3ea79fad3b6090a2870f700408"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="cio__http__server_8h.html#a2856ec3ea79fad3b6090a2870f700408">KEEPALIVE_TIMEOUT_HEADER_MAX_LENGTH</a>&#160;&#160;&#160;33u</td></tr>
-<tr class="separator:a2856ec3ea79fad3b6090a2870f700408"><td class="memSeparator" colspan="2">&#160;</td></tr>
-</table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="typedef-members"></a>
 Typedefs</h2></td></tr>
 <tr class="memitem:afbb607b74a68fb96dceaf24e3c486490"><td class="memItemLeft" align="right" valign="top">typedef void(*&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="cio__http__server_8h.html#afbb607b74a68fb96dceaf24e3c486490">cio_http_serve_on_error</a>) (struct <a class="el" href="structcio__http__server.html">cio_http_server</a> *server, const char *reason)</td></tr>
-<tr class="memdesc:afbb607b74a68fb96dceaf24e3c486490"><td class="mdescLeft">&#160;</td><td class="mdescRight">The type of an server error function passed to the <a class="el" href="cio__http__server_8h.html#aa40d9f87ca3a2a7433b53d3416485aa4">initialization</a> of an HTTP server.  <a href="#afbb607b74a68fb96dceaf24e3c486490">More...</a><br /></td></tr>
+<tr class="memdesc:afbb607b74a68fb96dceaf24e3c486490"><td class="mdescLeft">&#160;</td><td class="mdescRight">The type of an server error function passed to the <a class="el" href="cio__http__server_8h.html#a3e1a21bea756301a3c9d1a3d83d2dc35">initialization</a> of an HTTP server.  <a href="#afbb607b74a68fb96dceaf24e3c486490">More...</a><br /></td></tr>
 <tr class="separator:afbb607b74a68fb96dceaf24e3c486490"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:af609a6eee53f0b486836ad9095863110"><td class="memItemLeft" align="right" valign="top">typedef void(*&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="cio__http__server_8h.html#af609a6eee53f0b486836ad9095863110">cio_http_server_close_hook</a>) (struct <a class="el" href="structcio__http__server.html">cio_http_server</a> *server)</td></tr>
 <tr class="separator:af609a6eee53f0b486836ad9095863110"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="enum-members"></a>
+Enumerations</h2></td></tr>
+<tr class="memitem:a99fb83031ce9923c84392b4e92f956b5"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom">{ <a class="el" href="cio__http__server_8h.html#a99fb83031ce9923c84392b4e92f956b5a3947ded0786ca68753246e1ded7fa699">CIO_KEEPALIVE_TIMEOUT_HEADER_MAX_LENGTH</a> = 33u
+ }</td></tr>
+<tr class="separator:a99fb83031ce9923c84392b4e92f956b5"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="func-members"></a>
 Functions</h2></td></tr>
-<tr class="memitem:aa40d9f87ca3a2a7433b53d3416485aa4"><td class="memItemLeft" align="right" valign="top"><a class="el" href="cio__export_8h.html#ab971b12fa232c415369be66dfaca507a">CIO_EXPORT</a> enum <a class="el" href="cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afe">cio_error</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="cio__http__server_8h.html#aa40d9f87ca3a2a7433b53d3416485aa4">cio_http_server_init</a> (struct <a class="el" href="structcio__http__server.html">cio_http_server</a> *server, struct cio_eventloop *loop, struct <a class="el" href="structcio__http__server__configuration.html">cio_http_server_configuration</a> *config)</td></tr>
-<tr class="memdesc:aa40d9f87ca3a2a7433b53d3416485aa4"><td class="mdescLeft">&#160;</td><td class="mdescRight">Initializes an HTTP server.  <a href="#aa40d9f87ca3a2a7433b53d3416485aa4">More...</a><br /></td></tr>
-<tr class="separator:aa40d9f87ca3a2a7433b53d3416485aa4"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a1ce671d1b2e92504c6e61e8987fdb2c2"><td class="memItemLeft" align="right" valign="top"><a class="el" href="cio__export_8h.html#ab971b12fa232c415369be66dfaca507a">CIO_EXPORT</a> enum <a class="el" href="cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afe">cio_error</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="cio__http__server_8h.html#a1ce671d1b2e92504c6e61e8987fdb2c2">cio_http_server_serve</a> (struct <a class="el" href="structcio__http__server.html">cio_http_server</a> *server)</td></tr>
-<tr class="memdesc:a1ce671d1b2e92504c6e61e8987fdb2c2"><td class="mdescLeft">&#160;</td><td class="mdescRight">Start serving HTTP client requests.  <a href="#a1ce671d1b2e92504c6e61e8987fdb2c2">More...</a><br /></td></tr>
-<tr class="separator:a1ce671d1b2e92504c6e61e8987fdb2c2"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a1b1c0b2758be0424883cc56c0dd4c3d0"><td class="memItemLeft" align="right" valign="top"><a class="el" href="cio__export_8h.html#ab971b12fa232c415369be66dfaca507a">CIO_EXPORT</a> enum <a class="el" href="cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afe">cio_error</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="cio__http__server_8h.html#a1b1c0b2758be0424883cc56c0dd4c3d0">cio_http_server_register_location</a> (struct <a class="el" href="structcio__http__server.html">cio_http_server</a> *server, struct <a class="el" href="structcio__http__location.html">cio_http_location</a> *location)</td></tr>
-<tr class="memdesc:a1b1c0b2758be0424883cc56c0dd4c3d0"><td class="mdescLeft">&#160;</td><td class="mdescRight">Register a <a class="el" href="structcio__http__location.html">location</a> to the HTTP server.  <a href="#a1b1c0b2758be0424883cc56c0dd4c3d0">More...</a><br /></td></tr>
-<tr class="separator:a1b1c0b2758be0424883cc56c0dd4c3d0"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a3304a64e96e248f1352efbf43d5e6e0e"><td class="memItemLeft" align="right" valign="top"><a class="el" href="cio__export_8h.html#ab971b12fa232c415369be66dfaca507a">CIO_EXPORT</a> enum <a class="el" href="cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afe">cio_error</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="cio__http__server_8h.html#a3304a64e96e248f1352efbf43d5e6e0e">cio_http_server_shutdown</a> (struct <a class="el" href="structcio__http__server.html">cio_http_server</a> *server, <a class="el" href="cio__http__server_8h.html#af609a6eee53f0b486836ad9095863110">cio_http_server_close_hook</a> close_hook)</td></tr>
-<tr class="memdesc:a3304a64e96e248f1352efbf43d5e6e0e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Shuts down the HTTP server, including the underlying server socket.  <a href="#a3304a64e96e248f1352efbf43d5e6e0e">More...</a><br /></td></tr>
-<tr class="separator:a3304a64e96e248f1352efbf43d5e6e0e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a3e1a21bea756301a3c9d1a3d83d2dc35"><td class="memItemLeft" align="right" valign="top">enum <a class="el" href="cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afe">cio_error</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="cio__http__server_8h.html#a3e1a21bea756301a3c9d1a3d83d2dc35">cio_http_server_init</a> (struct <a class="el" href="structcio__http__server.html">cio_http_server</a> *server, struct cio_eventloop *loop, struct <a class="el" href="structcio__http__server__configuration.html">cio_http_server_configuration</a> *config)</td></tr>
+<tr class="memdesc:a3e1a21bea756301a3c9d1a3d83d2dc35"><td class="mdescLeft">&#160;</td><td class="mdescRight">Initializes an HTTP server.  <a href="#a3e1a21bea756301a3c9d1a3d83d2dc35">More...</a><br /></td></tr>
+<tr class="separator:a3e1a21bea756301a3c9d1a3d83d2dc35"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab7b40a1353b03d04aed965bd6b56ea99"><td class="memItemLeft" align="right" valign="top">enum <a class="el" href="cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afe">cio_error</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="cio__http__server_8h.html#ab7b40a1353b03d04aed965bd6b56ea99">cio_http_server_serve</a> (struct <a class="el" href="structcio__http__server.html">cio_http_server</a> *server)</td></tr>
+<tr class="memdesc:ab7b40a1353b03d04aed965bd6b56ea99"><td class="mdescLeft">&#160;</td><td class="mdescRight">Start serving HTTP client requests.  <a href="#ab7b40a1353b03d04aed965bd6b56ea99">More...</a><br /></td></tr>
+<tr class="separator:ab7b40a1353b03d04aed965bd6b56ea99"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a915f43afc1b3e432e34f6f0d0aa6d774"><td class="memItemLeft" align="right" valign="top">enum <a class="el" href="cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afe">cio_error</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="cio__http__server_8h.html#a915f43afc1b3e432e34f6f0d0aa6d774">cio_http_server_register_location</a> (struct <a class="el" href="structcio__http__server.html">cio_http_server</a> *server, struct <a class="el" href="structcio__http__location.html">cio_http_location</a> *location)</td></tr>
+<tr class="memdesc:a915f43afc1b3e432e34f6f0d0aa6d774"><td class="mdescLeft">&#160;</td><td class="mdescRight">Register a <a class="el" href="structcio__http__location.html">location</a> to the HTTP server.  <a href="#a915f43afc1b3e432e34f6f0d0aa6d774">More...</a><br /></td></tr>
+<tr class="separator:a915f43afc1b3e432e34f6f0d0aa6d774"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a1f33eee2e40873639089d89204043d26"><td class="memItemLeft" align="right" valign="top">enum <a class="el" href="cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afe">cio_error</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="cio__http__server_8h.html#a1f33eee2e40873639089d89204043d26">cio_http_server_shutdown</a> (struct <a class="el" href="structcio__http__server.html">cio_http_server</a> *server, <a class="el" href="cio__http__server_8h.html#af609a6eee53f0b486836ad9095863110">cio_http_server_close_hook</a> close_hook)</td></tr>
+<tr class="memdesc:a1f33eee2e40873639089d89204043d26"><td class="mdescLeft">&#160;</td><td class="mdescRight">Shuts down the HTTP server, including the underlying server socket.  <a href="#a1f33eee2e40873639089d89204043d26">More...</a><br /></td></tr>
+<tr class="separator:a1f33eee2e40873639089d89204043d26"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>This file contains the declarations you need to know if you want to implement an HTTP server. </p>
-<p>A <a class="el" href="structcio__http__server.html" title="The cio_http_server structure provides the implementation of a simple HTTP server. ">cio_http_server</a> gives you the ability to <a class="el" href="cio__http__server_8h.html#a1b1c0b2758be0424883cc56c0dd4c3d0">register</a> multiple <a class="el" href="structcio__http__location.html">locations</a> which will be instantianted automatically if an HTTP request matches a location.</p>
+<p>A <a class="el" href="structcio__http__server.html" title="The cio_http_server structure provides the implementation of a simple HTTP server. ">cio_http_server</a> gives you the ability to <a class="el" href="cio__http__server_8h.html#a915f43afc1b3e432e34f6f0d0aa6d774">register</a> multiple <a class="el" href="structcio__http__location.html">locations</a> which will be instantianted automatically if an HTTP request matches a location.</p>
 <p>Inside a <a class="el" href="structcio__http__location__handler.html">request handler</a> you can specify lots of callback functions like <a class="el" href="structcio__http__location__handler.html#cio_http_location_handler_on_header_field">on_header_field</a> or <a class="el" href="structcio__http__location__handler.html#cio_http_location_handler_on_body">on_body</a> which will be called automatically when an HTTP request is processed by the HTTP server.</p>
 <dl class="section note"><dt>Note</dt><dd>Please note that after you've sent a <a class="el" href="structcio__http__client.html#cio_http_client_write_response">cio_http_client_write_response</a>, callbacks you've registered in a <a class="el" href="structcio__http__location__handler.html">request handler</a>! </dd></dl>
-</div><h2 class="groupheader">Macro Definition Documentation</h2>
-<a id="a2856ec3ea79fad3b6090a2870f700408"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a2856ec3ea79fad3b6090a2870f700408">&#9670;&nbsp;</a></span>KEEPALIVE_TIMEOUT_HEADER_MAX_LENGTH</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">#define KEEPALIVE_TIMEOUT_HEADER_MAX_LENGTH&#160;&#160;&#160;33u</td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-</div>
-</div>
-<h2 class="groupheader">Typedef Documentation</h2>
+</div><h2 class="groupheader">Typedef Documentation</h2>
 <a id="afbb607b74a68fb96dceaf24e3c486490"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#afbb607b74a68fb96dceaf24e3c486490">&#9670;&nbsp;</a></span>cio_http_serve_on_error</h2>
 
@@ -174,7 +160,7 @@ Functions</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>The type of an server error function passed to the <a class="el" href="cio__http__server_8h.html#aa40d9f87ca3a2a7433b53d3416485aa4">initialization</a> of an HTTP server. </p>
+<p>The type of an server error function passed to the <a class="el" href="cio__http__server_8h.html#a3e1a21bea756301a3c9d1a3d83d2dc35">initialization</a> of an HTTP server. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">server</td><td>The <a class="el" href="structcio__http__server.html" title="The cio_http_server structure provides the implementation of a simple HTTP server. ">cio_http_server</a> that caused the error. </td></tr>
@@ -199,15 +185,33 @@ Functions</h2></td></tr>
 
 </div>
 </div>
-<h2 class="groupheader">Function Documentation</h2>
-<a id="aa40d9f87ca3a2a7433b53d3416485aa4"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#aa40d9f87ca3a2a7433b53d3416485aa4">&#9670;&nbsp;</a></span>cio_http_server_init()</h2>
+<h2 class="groupheader">Enumeration Type Documentation</h2>
+<a id="a99fb83031ce9923c84392b4e92f956b5"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a99fb83031ce9923c84392b4e92f956b5">&#9670;&nbsp;</a></span>anonymous enum</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="cio__export_8h.html#ab971b12fa232c415369be66dfaca507a">CIO_EXPORT</a> enum <a class="el" href="cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afe">cio_error</a> cio_http_server_init </td>
+          <td class="memname">anonymous enum</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<table class="fieldtable">
+<tr><th colspan="2">Enumerator</th></tr><tr><td class="fieldname"><a id="a99fb83031ce9923c84392b4e92f956b5a3947ded0786ca68753246e1ded7fa699"></a>CIO_KEEPALIVE_TIMEOUT_HEADER_MAX_LENGTH&#160;</td><td class="fielddoc"></td></tr>
+</table>
+
+</div>
+</div>
+<h2 class="groupheader">Function Documentation</h2>
+<a id="a3e1a21bea756301a3c9d1a3d83d2dc35"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a3e1a21bea756301a3c9d1a3d83d2dc35">&#9670;&nbsp;</a></span>cio_http_server_init()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">enum <a class="el" href="cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afe">cio_error</a> cio_http_server_init </td>
           <td>(</td>
           <td class="paramtype">struct <a class="el" href="structcio__http__server.html">cio_http_server</a> *&#160;</td>
           <td class="paramname"><em>server</em>, </td>
@@ -245,14 +249,14 @@ Functions</h2></td></tr>
 
 </div>
 </div>
-<a id="a1b1c0b2758be0424883cc56c0dd4c3d0"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a1b1c0b2758be0424883cc56c0dd4c3d0">&#9670;&nbsp;</a></span>cio_http_server_register_location()</h2>
+<a id="a915f43afc1b3e432e34f6f0d0aa6d774"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a915f43afc1b3e432e34f6f0d0aa6d774">&#9670;&nbsp;</a></span>cio_http_server_register_location()</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="cio__export_8h.html#ab971b12fa232c415369be66dfaca507a">CIO_EXPORT</a> enum <a class="el" href="cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afe">cio_error</a> cio_http_server_register_location </td>
+          <td class="memname">enum <a class="el" href="cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afe">cio_error</a> cio_http_server_register_location </td>
           <td>(</td>
           <td class="paramtype">struct <a class="el" href="structcio__http__server.html">cio_http_server</a> *&#160;</td>
           <td class="paramname"><em>server</em>, </td>
@@ -284,14 +288,14 @@ Functions</h2></td></tr>
 
 </div>
 </div>
-<a id="a1ce671d1b2e92504c6e61e8987fdb2c2"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a1ce671d1b2e92504c6e61e8987fdb2c2">&#9670;&nbsp;</a></span>cio_http_server_serve()</h2>
+<a id="ab7b40a1353b03d04aed965bd6b56ea99"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ab7b40a1353b03d04aed965bd6b56ea99">&#9670;&nbsp;</a></span>cio_http_server_serve()</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="cio__export_8h.html#ab971b12fa232c415369be66dfaca507a">CIO_EXPORT</a> enum <a class="el" href="cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afe">cio_error</a> cio_http_server_serve </td>
+          <td class="memname">enum <a class="el" href="cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afe">cio_error</a> cio_http_server_serve </td>
           <td>(</td>
           <td class="paramtype">struct <a class="el" href="structcio__http__server.html">cio_http_server</a> *&#160;</td>
           <td class="paramname"><em>server</em></td><td>)</td>
@@ -311,14 +315,14 @@ Functions</h2></td></tr>
 
 </div>
 </div>
-<a id="a3304a64e96e248f1352efbf43d5e6e0e"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a3304a64e96e248f1352efbf43d5e6e0e">&#9670;&nbsp;</a></span>cio_http_server_shutdown()</h2>
+<a id="a1f33eee2e40873639089d89204043d26"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a1f33eee2e40873639089d89204043d26">&#9670;&nbsp;</a></span>cio_http_server_shutdown()</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="cio__export_8h.html#ab971b12fa232c415369be66dfaca507a">CIO_EXPORT</a> enum <a class="el" href="cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afe">cio_error</a> cio_http_server_shutdown </td>
+          <td class="memname">enum <a class="el" href="cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afe">cio_error</a> cio_http_server_shutdown </td>
           <td>(</td>
           <td class="paramtype">struct <a class="el" href="structcio__http__server.html">cio_http_server</a> *&#160;</td>
           <td class="paramname"><em>server</em>, </td>

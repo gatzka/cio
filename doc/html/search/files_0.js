@@ -7,7 +7,6 @@ var searchData=
   ['cio_5fendian_2eh',['cio_endian.h',['../cio__endian_8h.html',1,'']]],
   ['cio_5ferror_5fcode_2eh',['cio_error_code.h',['../cio__error__code_8h.html',1,'']]],
   ['cio_5feventloop_2eh',['cio_eventloop.h',['../cio__eventloop_8h.html',1,'']]],
-  ['cio_5fexport_2eh',['cio_export.h',['../cio__export_8h.html',1,'']]],
   ['cio_5fhttp_5fclient_2eh',['cio_http_client.h',['../cio__http__client_8h.html',1,'']]],
   ['cio_5fhttp_5flocation_2eh',['cio_http_location.h',['../cio__http__location_8h.html',1,'']]],
   ['cio_5fhttp_5flocation_5fhandler_2eh',['cio_http_location_handler.h',['../cio__http__location__handler_8h.html',1,'']]],
@@ -31,6 +30,5 @@ var searchData=
   ['cio_5fversion_2eh',['cio_version.h',['../cio__version_8h.html',1,'']]],
   ['cio_5fwebsocket_2eh',['cio_websocket.h',['../cio__websocket_8h.html',1,'']]],
   ['cio_5fwebsocket_5flocation_5fhandler_2eh',['cio_websocket_location_handler.h',['../cio__websocket__location__handler_8h.html',1,'']]],
-  ['cio_5fwebsocket_5fmasking_2eh',['cio_websocket_masking.h',['../cio__websocket__masking_8h.html',1,'']]],
   ['cio_5fwrite_5fbuffer_2eh',['cio_write_buffer.h',['../cio__write__buffer_8h.html',1,'']]]
 ];

@@ -26,7 +26,7 @@ var NAVTREE =
 var NAVTREEINDEX =
 [
 "annotated.html",
-"cio__websocket_8h.html#aa24c9894ba2ee9dc5b0ebbc1c8809701a5a7495da78c928168a5746962e7e595c"
+"cio__websocket_8h.html#aa24c9894ba2ee9dc5b0ebbc1c8809701af96f1ba0788e17c59249f12a74defd2d"
 ];
 
 var SYNCONMSG = 'click to disable panel synchronisation';

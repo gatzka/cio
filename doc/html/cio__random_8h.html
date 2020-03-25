@@ -83,7 +83,6 @@ $(document).ready(function(){initNavTree('cio__random_8h.html','');});
 <div class="header">
   <div class="summary">
 <a href="#nested-classes">Data Structures</a> &#124;
-<a href="#typedef-members">Typedefs</a> &#124;
 <a href="#func-members">Functions</a>  </div>
   <div class="headertitle">
 <div class="title">cio_random.h File Reference</div>  </div>
@@ -93,83 +92,28 @@ $(document).ready(function(){initNavTree('cio__random_8h.html','');});
 <code>#include &lt;stddef.h&gt;</code><br />
 <code>#include &lt;stdint.h&gt;</code><br />
 <code>#include &quot;<a class="el" href="cio__error__code_8h_source.html">cio_error_code.h</a>&quot;</code><br />
-<code>#include &quot;<a class="el" href="cio__export_8h_source.html">cio_export.h</a>&quot;</code><br />
+<code>#include &quot;cio_export.h&quot;</code><br />
 </div>
 <p><a href="cio__random_8h_source.html">Go to the source code of this file.</a></p>
 <table class="memberdecls">
-<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="nested-classes"></a>
-Data Structures</h2></td></tr>
-<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structpcg__state__setseq__64.html">pcg_state_setseq_64</a></td></tr>
-<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
-</table><table class="memberdecls">
-<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="typedef-members"></a>
-Typedefs</h2></td></tr>
-<tr class="memitem:a07efac2e01e49ff81e9eb9e65006b46d"><td class="memItemLeft" align="right" valign="top">typedef struct <a class="el" href="structpcg__state__setseq__64.html">pcg_state_setseq_64</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="cio__random_8h.html#a07efac2e01e49ff81e9eb9e65006b46d">cio_rng</a></td></tr>
-<tr class="separator:a07efac2e01e49ff81e9eb9e65006b46d"><td class="memSeparator" colspan="2">&#160;</td></tr>
-</table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="func-members"></a>
 Functions</h2></td></tr>
-<tr class="memitem:a1c798e7c60ef99eb3fc6c8629c285886"><td class="memItemLeft" align="right" valign="top"><a class="el" href="cio__export_8h.html#ab971b12fa232c415369be66dfaca507a">CIO_EXPORT</a> enum <a class="el" href="cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afe">cio_error</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="cio__random_8h.html#a1c798e7c60ef99eb3fc6c8629c285886">cio_random_seed_rng</a> (<a class="el" href="cio__random_8h.html#a07efac2e01e49ff81e9eb9e65006b46d">cio_rng</a> *rng)</td></tr>
-<tr class="separator:a1c798e7c60ef99eb3fc6c8629c285886"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ae952e10305a8f91866b998d2d1025995"><td class="memItemLeft" align="right" valign="top"><a class="el" href="cio__export_8h.html#ab971b12fa232c415369be66dfaca507a">CIO_EXPORT</a> void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="cio__random_8h.html#ae952e10305a8f91866b998d2d1025995">cio_random_get_bytes</a> (<a class="el" href="cio__random_8h.html#a07efac2e01e49ff81e9eb9e65006b46d">cio_rng</a> *rng, void *bytes, size_t num_bytes)</td></tr>
-<tr class="separator:ae952e10305a8f91866b998d2d1025995"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a26f64df461fed3263d47cf7e1149dfeb"><td class="memItemLeft" align="right" valign="top">enum <a class="el" href="cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afe">cio_error</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="cio__random_8h.html#a26f64df461fed3263d47cf7e1149dfeb">cio_entropy_get_bytes</a> (void *bytes, size_t num_bytes)</td></tr>
-<tr class="separator:a26f64df461fed3263d47cf7e1149dfeb"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a2597c848c1f601adddd87223324d0e39"><td class="memItemLeft" align="right" valign="top">enum <a class="el" href="cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afe">cio_error</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="cio__random_8h.html#a2597c848c1f601adddd87223324d0e39">cio_random_seed_rng</a> (cio_rng *rng)</td></tr>
+<tr class="separator:a2597c848c1f601adddd87223324d0e39"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a8622e68fce963de8c7670df2ff49ac26"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="cio__random_8h.html#a8622e68fce963de8c7670df2ff49ac26">cio_random_get_bytes</a> (cio_rng *rng, void *bytes, size_t num_bytes)</td></tr>
+<tr class="separator:a8622e68fce963de8c7670df2ff49ac26"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
-<h2 class="groupheader">Typedef Documentation</h2>
-<a id="a07efac2e01e49ff81e9eb9e65006b46d"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a07efac2e01e49ff81e9eb9e65006b46d">&#9670;&nbsp;</a></span>cio_rng</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">typedef struct <a class="el" href="structpcg__state__setseq__64.html">pcg_state_setseq_64</a> <a class="el" href="cio__random_8h.html#a07efac2e01e49ff81e9eb9e65006b46d">cio_rng</a></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-</div>
-</div>
 <h2 class="groupheader">Function Documentation</h2>
-<a id="a26f64df461fed3263d47cf7e1149dfeb"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a26f64df461fed3263d47cf7e1149dfeb">&#9670;&nbsp;</a></span>cio_entropy_get_bytes()</h2>
+<a id="a8622e68fce963de8c7670df2ff49ac26"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a8622e68fce963de8c7670df2ff49ac26">&#9670;&nbsp;</a></span>cio_random_get_bytes()</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">enum <a class="el" href="cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afe">cio_error</a> cio_entropy_get_bytes </td>
+          <td class="memname">void cio_random_get_bytes </td>
           <td>(</td>
-          <td class="paramtype">void *&#160;</td>
-          <td class="paramname"><em>bytes</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">size_t&#160;</td>
-          <td class="paramname"><em>num_bytes</em>&#160;</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>)</td>
-          <td></td><td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-</div>
-</div>
-<a id="ae952e10305a8f91866b998d2d1025995"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ae952e10305a8f91866b998d2d1025995">&#9670;&nbsp;</a></span>cio_random_get_bytes()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname"><a class="el" href="cio__export_8h.html#ab971b12fa232c415369be66dfaca507a">CIO_EXPORT</a> void cio_random_get_bytes </td>
-          <td>(</td>
-          <td class="paramtype"><a class="el" href="cio__random_8h.html#a07efac2e01e49ff81e9eb9e65006b46d">cio_rng</a> *&#160;</td>
+          <td class="paramtype">cio_rng *&#160;</td>
           <td class="paramname"><em>rng</em>, </td>
         </tr>
         <tr>
@@ -194,16 +138,16 @@ Functions</h2></td></tr>
 
 </div>
 </div>
-<a id="a1c798e7c60ef99eb3fc6c8629c285886"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a1c798e7c60ef99eb3fc6c8629c285886">&#9670;&nbsp;</a></span>cio_random_seed_rng()</h2>
+<a id="a2597c848c1f601adddd87223324d0e39"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a2597c848c1f601adddd87223324d0e39">&#9670;&nbsp;</a></span>cio_random_seed_rng()</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="cio__export_8h.html#ab971b12fa232c415369be66dfaca507a">CIO_EXPORT</a> enum <a class="el" href="cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afe">cio_error</a> cio_random_seed_rng </td>
+          <td class="memname">enum <a class="el" href="cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afe">cio_error</a> cio_random_seed_rng </td>
           <td>(</td>
-          <td class="paramtype"><a class="el" href="cio__random_8h.html#a07efac2e01e49ff81e9eb9e65006b46d">cio_rng</a> *&#160;</td>
+          <td class="paramtype">cio_rng *&#160;</td>
           <td class="paramname"><em>rng</em></td><td>)</td>
           <td></td>
         </tr>

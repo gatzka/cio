@@ -23,6 +23,5 @@ var annotated_dup =
     [ "cio_websocket_location_handler", "structcio__websocket__location__handler.html", "structcio__websocket__location__handler" ],
     [ "cio_websocket_private", "structcio__websocket__private.html", "structcio__websocket__private" ],
     [ "cio_websocket_write_job", "structcio__websocket__write__job.html", "structcio__websocket__write__job" ],
-    [ "cio_write_buffer", "structcio__write__buffer.html", "structcio__write__buffer" ],
-    [ "pcg_state_setseq_64", "structpcg__state__setseq__64.html", "structpcg__state__setseq__64" ]
+    [ "cio_write_buffer", "structcio__write__buffer.html", "structcio__write__buffer" ]
 ];

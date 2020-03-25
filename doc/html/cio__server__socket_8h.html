@@ -96,7 +96,7 @@ $(document).ready(function(){initNavTree('cio__server__socket_8h.html','');});
 <code>#include &lt;stdint.h&gt;</code><br />
 <code>#include &quot;<a class="el" href="cio__error__code_8h_source.html">cio_error_code.h</a>&quot;</code><br />
 <code>#include &quot;<a class="el" href="cio__eventloop_8h_source.html">cio_eventloop.h</a>&quot;</code><br />
-<code>#include &quot;<a class="el" href="cio__export_8h_source.html">cio_export.h</a>&quot;</code><br />
+<code>#include &quot;cio_export.h&quot;</code><br />
 <code>#include &quot;cio_server_socket_impl.h&quot;</code><br />
 <code>#include &quot;<a class="el" href="cio__socket_8h_source.html">cio_socket.h</a>&quot;</code><br />
 <code>#include &quot;<a class="el" href="cio__socket__address_8h_source.html">cio_socket_address.h</a>&quot;</code><br />
@@ -116,7 +116,7 @@ Typedefs</h2></td></tr>
 <tr class="memitem:a98250f8c1c19c251e2541a6f618b7050"><td class="memItemLeft" align="right" valign="top">typedef void(*&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="cio__server__socket_8h.html#a98250f8c1c19c251e2541a6f618b7050">cio_free_client</a>) (struct <a class="el" href="structcio__socket.html">cio_socket</a> *socket)</td></tr>
 <tr class="separator:a98250f8c1c19c251e2541a6f618b7050"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a275308640d4e47830f5cdc19635975a1"><td class="memItemLeft" align="right" valign="top">typedef void(*&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="cio__server__socket_8h.html#a275308640d4e47830f5cdc19635975a1">cio_accept_handler</a>) (struct <a class="el" href="structcio__server__socket.html">cio_server_socket</a> *ss, void *handler_context, enum <a class="el" href="cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afe">cio_error</a> err, struct <a class="el" href="structcio__socket.html">cio_socket</a> *socket)</td></tr>
-<tr class="memdesc:a275308640d4e47830f5cdc19635975a1"><td class="mdescLeft">&#160;</td><td class="mdescRight">The type of a function that is called when <a class="el" href="cio__server__socket_8h.html#a3a9f39ce9a31407cced7cfb5fe824bbb">accept task</a> succeeds or fails.  <a href="#a275308640d4e47830f5cdc19635975a1">More...</a><br /></td></tr>
+<tr class="memdesc:a275308640d4e47830f5cdc19635975a1"><td class="mdescLeft">&#160;</td><td class="mdescRight">The type of a function that is called when <a class="el" href="cio__server__socket_8h.html#af41cc6c553b2dd2c9d38ba8bbc1edadc">accept task</a> succeeds or fails.  <a href="#a275308640d4e47830f5cdc19635975a1">More...</a><br /></td></tr>
 <tr class="separator:a275308640d4e47830f5cdc19635975a1"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a0620ba7743a102a1d42cdbab391a2eb2"><td class="memItemLeft" align="right" valign="top">typedef void(*&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="cio__server__socket_8h.html#a0620ba7743a102a1d42cdbab391a2eb2">cio_server_socket_close_hook</a>) (struct <a class="el" href="structcio__server__socket.html">cio_server_socket</a> *ss)</td></tr>
 <tr class="memdesc:a0620ba7743a102a1d42cdbab391a2eb2"><td class="mdescLeft">&#160;</td><td class="mdescRight">The type of close hook function.  <a href="#a0620ba7743a102a1d42cdbab391a2eb2">More...</a><br /></td></tr>
@@ -124,28 +124,28 @@ Typedefs</h2></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="func-members"></a>
 Functions</h2></td></tr>
-<tr class="memitem:a8a0cbb92a7744bd93d8dfe8dbef91202"><td class="memItemLeft" align="right" valign="top"><a class="el" href="cio__export_8h.html#ab971b12fa232c415369be66dfaca507a">CIO_EXPORT</a> enum <a class="el" href="cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afe">cio_error</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="cio__server__socket_8h.html#a8a0cbb92a7744bd93d8dfe8dbef91202">cio_server_socket_init</a> (struct <a class="el" href="structcio__server__socket.html">cio_server_socket</a> *ss, struct cio_eventloop *loop, unsigned int backlog, enum <a class="el" href="cio__address__family_8h.html#afe76b1062e903b21af3c397ca6c98b7c">cio_address_family</a> family, <a class="el" href="cio__server__socket_8h.html#aa2e1635c0e881376182d1ea0a719dbf5">cio_alloc_client</a> alloc_client, <a class="el" href="cio__server__socket_8h.html#a98250f8c1c19c251e2541a6f618b7050">cio_free_client</a> free_client, uint64_t close_timeout_ns, <a class="el" href="cio__server__socket_8h.html#a0620ba7743a102a1d42cdbab391a2eb2">cio_server_socket_close_hook</a> close_hook)</td></tr>
-<tr class="memdesc:a8a0cbb92a7744bd93d8dfe8dbef91202"><td class="mdescLeft">&#160;</td><td class="mdescRight">Initializes a <a class="el" href="structcio__server__socket.html" title="The cio_server_socket struct describes a server socket. ">cio_server_socket</a>.  <a href="#a8a0cbb92a7744bd93d8dfe8dbef91202">More...</a><br /></td></tr>
-<tr class="separator:a8a0cbb92a7744bd93d8dfe8dbef91202"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a3a9f39ce9a31407cced7cfb5fe824bbb"><td class="memItemLeft" align="right" valign="top"><a class="el" href="cio__export_8h.html#ab971b12fa232c415369be66dfaca507a">CIO_EXPORT</a> enum <a class="el" href="cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afe">cio_error</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="cio__server__socket_8h.html#a3a9f39ce9a31407cced7cfb5fe824bbb">cio_server_socket_accept</a> (struct <a class="el" href="structcio__server__socket.html">cio_server_socket</a> *ss, <a class="el" href="cio__server__socket_8h.html#a275308640d4e47830f5cdc19635975a1">cio_accept_handler</a> handler, void *handler_context)</td></tr>
-<tr class="memdesc:a3a9f39ce9a31407cced7cfb5fe824bbb"><td class="mdescLeft">&#160;</td><td class="mdescRight">Accepts an incoming socket connection.  <a href="#a3a9f39ce9a31407cced7cfb5fe824bbb">More...</a><br /></td></tr>
-<tr class="separator:a3a9f39ce9a31407cced7cfb5fe824bbb"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a11ced650bee4e5106874e257670656b3"><td class="memItemLeft" align="right" valign="top"><a class="el" href="cio__export_8h.html#ab971b12fa232c415369be66dfaca507a">CIO_EXPORT</a> void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="cio__server__socket_8h.html#a11ced650bee4e5106874e257670656b3">cio_server_socket_close</a> (struct <a class="el" href="structcio__server__socket.html">cio_server_socket</a> *ss)</td></tr>
-<tr class="memdesc:a11ced650bee4e5106874e257670656b3"><td class="mdescLeft">&#160;</td><td class="mdescRight">Closes the server socket.  <a href="#a11ced650bee4e5106874e257670656b3">More...</a><br /></td></tr>
-<tr class="separator:a11ced650bee4e5106874e257670656b3"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:afca2573cc384a5b6752b8f03029cb818"><td class="memItemLeft" align="right" valign="top"><a class="el" href="cio__export_8h.html#ab971b12fa232c415369be66dfaca507a">CIO_EXPORT</a> enum <a class="el" href="cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afe">cio_error</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="cio__server__socket_8h.html#afca2573cc384a5b6752b8f03029cb818">cio_server_socket_bind</a> (const struct <a class="el" href="structcio__server__socket.html">cio_server_socket</a> *ss, const struct <a class="el" href="structcio__socket__address.html">cio_socket_address</a> *endpoint)</td></tr>
-<tr class="memdesc:afca2573cc384a5b6752b8f03029cb818"><td class="mdescLeft">&#160;</td><td class="mdescRight">Binds the <a class="el" href="structcio__server__socket.html" title="The cio_server_socket struct describes a server socket. ">cio_server_socket</a> to a specific address.  <a href="#afca2573cc384a5b6752b8f03029cb818">More...</a><br /></td></tr>
-<tr class="separator:afca2573cc384a5b6752b8f03029cb818"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a740f7f19bc0ac74a2acdb49c8b1164be"><td class="memItemLeft" align="right" valign="top"><a class="el" href="cio__export_8h.html#ab971b12fa232c415369be66dfaca507a">CIO_EXPORT</a> enum <a class="el" href="cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afe">cio_error</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="cio__server__socket_8h.html#a740f7f19bc0ac74a2acdb49c8b1164be">cio_server_socket_set_reuse_address</a> (const struct <a class="el" href="structcio__server__socket.html">cio_server_socket</a> *ss, bool on)</td></tr>
-<tr class="memdesc:a740f7f19bc0ac74a2acdb49c8b1164be"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sets the SO_REUSEADDR socket option.  <a href="#a740f7f19bc0ac74a2acdb49c8b1164be">More...</a><br /></td></tr>
-<tr class="separator:a740f7f19bc0ac74a2acdb49c8b1164be"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a92dd886ce6501b5e0ea7646b74ed8abd"><td class="memItemLeft" align="right" valign="top"><a class="el" href="cio__export_8h.html#ab971b12fa232c415369be66dfaca507a">CIO_EXPORT</a> enum <a class="el" href="cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afe">cio_error</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="cio__server__socket_8h.html#a92dd886ce6501b5e0ea7646b74ed8abd">cio_server_socket_set_tcp_fast_open</a> (const struct <a class="el" href="structcio__server__socket.html">cio_server_socket</a> *ss, bool on)</td></tr>
-<tr class="memdesc:a92dd886ce6501b5e0ea7646b74ed8abd"><td class="mdescLeft">&#160;</td><td class="mdescRight">Enables/disables TCP Fast Open.  <a href="#a92dd886ce6501b5e0ea7646b74ed8abd">More...</a><br /></td></tr>
-<tr class="separator:a92dd886ce6501b5e0ea7646b74ed8abd"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6bd2c4f747048d1b08bdaa6bf72e15fa"><td class="memItemLeft" align="right" valign="top">enum <a class="el" href="cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afe">cio_error</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="cio__server__socket_8h.html#a6bd2c4f747048d1b08bdaa6bf72e15fa">cio_server_socket_init</a> (struct <a class="el" href="structcio__server__socket.html">cio_server_socket</a> *ss, struct cio_eventloop *loop, unsigned int backlog, enum <a class="el" href="cio__address__family_8h.html#afe76b1062e903b21af3c397ca6c98b7c">cio_address_family</a> family, <a class="el" href="cio__server__socket_8h.html#aa2e1635c0e881376182d1ea0a719dbf5">cio_alloc_client</a> alloc_client, <a class="el" href="cio__server__socket_8h.html#a98250f8c1c19c251e2541a6f618b7050">cio_free_client</a> free_client, uint64_t close_timeout_ns, <a class="el" href="cio__server__socket_8h.html#a0620ba7743a102a1d42cdbab391a2eb2">cio_server_socket_close_hook</a> close_hook)</td></tr>
+<tr class="memdesc:a6bd2c4f747048d1b08bdaa6bf72e15fa"><td class="mdescLeft">&#160;</td><td class="mdescRight">Initializes a <a class="el" href="structcio__server__socket.html" title="The cio_server_socket struct describes a server socket. ">cio_server_socket</a>.  <a href="#a6bd2c4f747048d1b08bdaa6bf72e15fa">More...</a><br /></td></tr>
+<tr class="separator:a6bd2c4f747048d1b08bdaa6bf72e15fa"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af41cc6c553b2dd2c9d38ba8bbc1edadc"><td class="memItemLeft" align="right" valign="top">enum <a class="el" href="cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afe">cio_error</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="cio__server__socket_8h.html#af41cc6c553b2dd2c9d38ba8bbc1edadc">cio_server_socket_accept</a> (struct <a class="el" href="structcio__server__socket.html">cio_server_socket</a> *ss, <a class="el" href="cio__server__socket_8h.html#a275308640d4e47830f5cdc19635975a1">cio_accept_handler</a> handler, void *handler_context)</td></tr>
+<tr class="memdesc:af41cc6c553b2dd2c9d38ba8bbc1edadc"><td class="mdescLeft">&#160;</td><td class="mdescRight">Accepts an incoming socket connection.  <a href="#af41cc6c553b2dd2c9d38ba8bbc1edadc">More...</a><br /></td></tr>
+<tr class="separator:af41cc6c553b2dd2c9d38ba8bbc1edadc"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7c3e9019c9e894450ab524a93488fb55"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="cio__server__socket_8h.html#a7c3e9019c9e894450ab524a93488fb55">cio_server_socket_close</a> (struct <a class="el" href="structcio__server__socket.html">cio_server_socket</a> *ss)</td></tr>
+<tr class="memdesc:a7c3e9019c9e894450ab524a93488fb55"><td class="mdescLeft">&#160;</td><td class="mdescRight">Closes the server socket.  <a href="#a7c3e9019c9e894450ab524a93488fb55">More...</a><br /></td></tr>
+<tr class="separator:a7c3e9019c9e894450ab524a93488fb55"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a2e671a0af3c2f4deb1ce33119bbce6a5"><td class="memItemLeft" align="right" valign="top">enum <a class="el" href="cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afe">cio_error</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="cio__server__socket_8h.html#a2e671a0af3c2f4deb1ce33119bbce6a5">cio_server_socket_bind</a> (const struct <a class="el" href="structcio__server__socket.html">cio_server_socket</a> *ss, const struct <a class="el" href="structcio__socket__address.html">cio_socket_address</a> *endpoint)</td></tr>
+<tr class="memdesc:a2e671a0af3c2f4deb1ce33119bbce6a5"><td class="mdescLeft">&#160;</td><td class="mdescRight">Binds the <a class="el" href="structcio__server__socket.html" title="The cio_server_socket struct describes a server socket. ">cio_server_socket</a> to a specific address.  <a href="#a2e671a0af3c2f4deb1ce33119bbce6a5">More...</a><br /></td></tr>
+<tr class="separator:a2e671a0af3c2f4deb1ce33119bbce6a5"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a5742cb9ef0da0f51334a95823f895578"><td class="memItemLeft" align="right" valign="top">enum <a class="el" href="cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afe">cio_error</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="cio__server__socket_8h.html#a5742cb9ef0da0f51334a95823f895578">cio_server_socket_set_reuse_address</a> (const struct <a class="el" href="structcio__server__socket.html">cio_server_socket</a> *ss, bool on)</td></tr>
+<tr class="memdesc:a5742cb9ef0da0f51334a95823f895578"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sets the SO_REUSEADDR socket option.  <a href="#a5742cb9ef0da0f51334a95823f895578">More...</a><br /></td></tr>
+<tr class="separator:a5742cb9ef0da0f51334a95823f895578"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a04ca2425c4540bff2235447c9ef3a801"><td class="memItemLeft" align="right" valign="top">enum <a class="el" href="cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afe">cio_error</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="cio__server__socket_8h.html#a04ca2425c4540bff2235447c9ef3a801">cio_server_socket_set_tcp_fast_open</a> (const struct <a class="el" href="structcio__server__socket.html">cio_server_socket</a> *ss, bool on)</td></tr>
+<tr class="memdesc:a04ca2425c4540bff2235447c9ef3a801"><td class="mdescLeft">&#160;</td><td class="mdescRight">Enables/disables TCP Fast Open.  <a href="#a04ca2425c4540bff2235447c9ef3a801">More...</a><br /></td></tr>
+<tr class="separator:a04ca2425c4540bff2235447c9ef3a801"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>This file contains the interface of a server socket. </p>
-<p>A server socket can be <a class="el" href="cio__server__socket_8h.html#a8a0cbb92a7744bd93d8dfe8dbef91202">initialized</a>, <a class="el" href="cio__server__socket_8h.html#a3a9f39ce9a31407cced7cfb5fe824bbb">accept connections</a> and can be <a class="el" href="cio__server__socket_8h.html#a11ced650bee4e5106874e257670656b3">closed</a>. </p>
+<p>A server socket can be <a class="el" href="cio__server__socket_8h.html#a6bd2c4f747048d1b08bdaa6bf72e15fa">initialized</a>, <a class="el" href="cio__server__socket_8h.html#af41cc6c553b2dd2c9d38ba8bbc1edadc">accept connections</a> and can be <a class="el" href="cio__server__socket_8h.html#a7c3e9019c9e894450ab524a93488fb55">closed</a>. </p>
 </div><h2 class="groupheader">Typedef Documentation</h2>
 <a id="a275308640d4e47830f5cdc19635975a1"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a275308640d4e47830f5cdc19635975a1">&#9670;&nbsp;</a></span>cio_accept_handler</h2>
@@ -159,7 +159,7 @@ Functions</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>The type of a function that is called when <a class="el" href="cio__server__socket_8h.html#a3a9f39ce9a31407cced7cfb5fe824bbb">accept task</a> succeeds or fails. </p>
+<p>The type of a function that is called when <a class="el" href="cio__server__socket_8h.html#af41cc6c553b2dd2c9d38ba8bbc1edadc">accept task</a> succeeds or fails. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">ss</td><td>The server socket where the accept was called on. </td></tr>
@@ -223,14 +223,14 @@ Functions</h2></td></tr>
 </div>
 </div>
 <h2 class="groupheader">Function Documentation</h2>
-<a id="a3a9f39ce9a31407cced7cfb5fe824bbb"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a3a9f39ce9a31407cced7cfb5fe824bbb">&#9670;&nbsp;</a></span>cio_server_socket_accept()</h2>
+<a id="af41cc6c553b2dd2c9d38ba8bbc1edadc"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#af41cc6c553b2dd2c9d38ba8bbc1edadc">&#9670;&nbsp;</a></span>cio_server_socket_accept()</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="cio__export_8h.html#ab971b12fa232c415369be66dfaca507a">CIO_EXPORT</a> enum <a class="el" href="cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afe">cio_error</a> cio_server_socket_accept </td>
+          <td class="memname">enum <a class="el" href="cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afe">cio_error</a> cio_server_socket_accept </td>
           <td>(</td>
           <td class="paramtype">struct <a class="el" href="structcio__server__socket.html">cio_server_socket</a> *&#160;</td>
           <td class="paramname"><em>ss</em>, </td>
@@ -269,14 +269,14 @@ Functions</h2></td></tr>
 
 </div>
 </div>
-<a id="afca2573cc384a5b6752b8f03029cb818"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#afca2573cc384a5b6752b8f03029cb818">&#9670;&nbsp;</a></span>cio_server_socket_bind()</h2>
+<a id="a2e671a0af3c2f4deb1ce33119bbce6a5"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a2e671a0af3c2f4deb1ce33119bbce6a5">&#9670;&nbsp;</a></span>cio_server_socket_bind()</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="cio__export_8h.html#ab971b12fa232c415369be66dfaca507a">CIO_EXPORT</a> enum <a class="el" href="cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afe">cio_error</a> cio_server_socket_bind </td>
+          <td class="memname">enum <a class="el" href="cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afe">cio_error</a> cio_server_socket_bind </td>
           <td>(</td>
           <td class="paramtype">const struct <a class="el" href="structcio__server__socket.html">cio_server_socket</a> *&#160;</td>
           <td class="paramname"><em>ss</em>, </td>
@@ -307,14 +307,14 @@ Functions</h2></td></tr>
 
 </div>
 </div>
-<a id="a11ced650bee4e5106874e257670656b3"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a11ced650bee4e5106874e257670656b3">&#9670;&nbsp;</a></span>cio_server_socket_close()</h2>
+<a id="a7c3e9019c9e894450ab524a93488fb55"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a7c3e9019c9e894450ab524a93488fb55">&#9670;&nbsp;</a></span>cio_server_socket_close()</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="cio__export_8h.html#ab971b12fa232c415369be66dfaca507a">CIO_EXPORT</a> void cio_server_socket_close </td>
+          <td class="memname">void cio_server_socket_close </td>
           <td>(</td>
           <td class="paramtype">struct <a class="el" href="structcio__server__socket.html">cio_server_socket</a> *&#160;</td>
           <td class="paramname"><em>ss</em></td><td>)</td>
@@ -333,14 +333,14 @@ Functions</h2></td></tr>
 
 </div>
 </div>
-<a id="a8a0cbb92a7744bd93d8dfe8dbef91202"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a8a0cbb92a7744bd93d8dfe8dbef91202">&#9670;&nbsp;</a></span>cio_server_socket_init()</h2>
+<a id="a6bd2c4f747048d1b08bdaa6bf72e15fa"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a6bd2c4f747048d1b08bdaa6bf72e15fa">&#9670;&nbsp;</a></span>cio_server_socket_init()</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="cio__export_8h.html#ab971b12fa232c415369be66dfaca507a">CIO_EXPORT</a> enum <a class="el" href="cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afe">cio_error</a> cio_server_socket_init </td>
+          <td class="memname">enum <a class="el" href="cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afe">cio_error</a> cio_server_socket_init </td>
           <td>(</td>
           <td class="paramtype">struct <a class="el" href="structcio__server__socket.html">cio_server_socket</a> *&#160;</td>
           <td class="paramname"><em>ss</em>, </td>
@@ -405,7 +405,7 @@ Functions</h2></td></tr>
     <tr><td class="paramname">alloc_client</td><td>An allocator function that is called if a client connects to the server. </td></tr>
     <tr><td class="paramname">free_client</td><td>This function is called after closing a <a class="el" href="structcio__socket.html">cio_socket</a>. It can and should be used to free resources allocated with <code>alloc_client</code>. </td></tr>
     <tr><td class="paramname">close_timeout_ns</td><td>The timeout in ns until a closed TCP connection waits for a TCP FIN packet from teh remote peer before sending a TCP RST.If you set this parameter to &gt;0, you can effectivly control how long the TCP socket stays in the FIN_WAIT_2 state. Setting this parameter to 0 leaves it up to the operating system to get the socket out of FIN_WAIT_2. </td></tr>
-    <tr><td class="paramname">close_hook</td><td>A close hook function. If this parameter is non <code>NULL</code>, the function will be called directly after <a class="el" href="cio__server__socket_8h.html#a11ced650bee4e5106874e257670656b3">closing</a> the <a class="el" href="structcio__server__socket.html" title="The cio_server_socket struct describes a server socket. ">cio_server_socket</a>. It is guaranteed the the cio library will not access any memory of <a class="el" href="structcio__server__socket.html" title="The cio_server_socket struct describes a server socket. ">cio_server_socket</a> that is passed to the close hook. Therefore the hook could be used to free the memory associated with the server socket. </td></tr>
+    <tr><td class="paramname">close_hook</td><td>A close hook function. If this parameter is non <code>NULL</code>, the function will be called directly after <a class="el" href="cio__server__socket_8h.html#a7c3e9019c9e894450ab524a93488fb55">closing</a> the <a class="el" href="structcio__server__socket.html" title="The cio_server_socket struct describes a server socket. ">cio_server_socket</a>. It is guaranteed the the cio library will not access any memory of <a class="el" href="structcio__server__socket.html" title="The cio_server_socket struct describes a server socket. ">cio_server_socket</a> that is passed to the close hook. Therefore the hook could be used to free the memory associated with the server socket. </td></tr>
   </table>
   </dd>
 </dl>
@@ -413,14 +413,14 @@ Functions</h2></td></tr>
 
 </div>
 </div>
-<a id="a740f7f19bc0ac74a2acdb49c8b1164be"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a740f7f19bc0ac74a2acdb49c8b1164be">&#9670;&nbsp;</a></span>cio_server_socket_set_reuse_address()</h2>
+<a id="a5742cb9ef0da0f51334a95823f895578"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a5742cb9ef0da0f51334a95823f895578">&#9670;&nbsp;</a></span>cio_server_socket_set_reuse_address()</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="cio__export_8h.html#ab971b12fa232c415369be66dfaca507a">CIO_EXPORT</a> enum <a class="el" href="cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afe">cio_error</a> cio_server_socket_set_reuse_address </td>
+          <td class="memname">enum <a class="el" href="cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afe">cio_error</a> cio_server_socket_set_reuse_address </td>
           <td>(</td>
           <td class="paramtype">const struct <a class="el" href="structcio__server__socket.html">cio_server_socket</a> *&#160;</td>
           <td class="paramname"><em>ss</em>, </td>
@@ -451,14 +451,14 @@ Functions</h2></td></tr>
 
 </div>
 </div>
-<a id="a92dd886ce6501b5e0ea7646b74ed8abd"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a92dd886ce6501b5e0ea7646b74ed8abd">&#9670;&nbsp;</a></span>cio_server_socket_set_tcp_fast_open()</h2>
+<a id="a04ca2425c4540bff2235447c9ef3a801"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a04ca2425c4540bff2235447c9ef3a801">&#9670;&nbsp;</a></span>cio_server_socket_set_tcp_fast_open()</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="cio__export_8h.html#ab971b12fa232c415369be66dfaca507a">CIO_EXPORT</a> enum <a class="el" href="cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afe">cio_error</a> cio_server_socket_set_tcp_fast_open </td>
+          <td class="memname">enum <a class="el" href="cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afe">cio_error</a> cio_server_socket_set_tcp_fast_open </td>
           <td>(</td>
           <td class="paramtype">const struct <a class="el" href="structcio__server__socket.html">cio_server_socket</a> *&#160;</td>
           <td class="paramname"><em>ss</em>, </td>
