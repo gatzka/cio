@@ -22,7 +22,8 @@
       "cmakeCommandArgs": "",
       "buildCommandArgs": "-v",
       "ctestCommandArgs": "",
-      "variables": []
+      "variables": [],
+      "cmakeToolchain": "${env.USERPROFILE}\\CMakeBuilds\\${workspaceHash}\\build\\${name}\\toolchains\\x86_windows_msvc.cmake"
     }
   ]
 }
