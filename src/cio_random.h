@@ -40,16 +40,25 @@
 extern "C" {
 #endif
 
+/**
+ * @private
+ */
 struct pcg_state_setseq_64 {
 	uint64_t state; // RNG state. All values are possible.
 	uint64_t inc;   // Controls which RNG sequence (stream) is selected. Must *always* be odd.
 };
 
+/**
+ * @private
+ */
 typedef struct pcg_state_setseq_64 cio_rng;
 
 CIO_EXPORT enum cio_error cio_random_seed_rng(cio_rng *rng);
 CIO_EXPORT void cio_random_get_bytes(cio_rng *rng, void *bytes, size_t num_bytes);
 
+/**
+ * @private
+ */
 enum cio_error cio_entropy_get_bytes(void *bytes, size_t num_bytes);
 
 #ifdef __cplusplus

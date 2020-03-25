@@ -74,7 +74,7 @@ typedef void (*cio_http_serve_on_error)(struct cio_http_server *server, const ch
 
 typedef void (*cio_http_server_close_hook)(struct cio_http_server *server);
 
-#define KEEPALIVE_TIMEOUT_HEADER_MAX_LENGTH 33u // "Keep-Alive: timeout= + uint32 as string + CR + LF + \0"
+enum {CIO_KEEPALIVE_TIMEOUT_HEADER_MAX_LENGTH = 33u}; // "Keep-Alive: timeout= + uint32 as string + CR + LF + \0"
 
 /**
  * @brief The cio_http_server structure provides the implementation of a simple HTTP server.
@@ -96,7 +96,7 @@ struct cio_http_server {
 	struct cio_http_location *first_location;
 	size_t num_handlers;
 	cio_http_server_close_hook close_hook;
-	char keepalive_header[KEEPALIVE_TIMEOUT_HEADER_MAX_LENGTH]; // "Keep-Alive: timeout= + uint32 as string + CR + LF + \0"
+	char keepalive_header[CIO_KEEPALIVE_TIMEOUT_HEADER_MAX_LENGTH];
 };
 
 struct cio_http_server_configuration {

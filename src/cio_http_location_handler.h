@@ -179,9 +179,10 @@ struct cio_http_location_handler {
  */
 CIO_EXPORT void cio_http_location_handler_init(struct cio_http_location_handler *handler);
 
-/*! @cond PRIVATE */
+/**
+ * @private
+ */
 bool cio_http_location_handler_no_callbacks(const struct cio_http_location_handler *handler);
-/*! @endcond */
 
 #ifdef __cplusplus
 }
