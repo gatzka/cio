@@ -287,7 +287,6 @@ void cio_server_socket_close(struct cio_server_socket *ss)
 
 enum cio_error cio_server_socket_set_tcp_fast_open(const struct cio_server_socket *ss, bool on)
 {
-#if 0
 	DWORD tcp_fast_open = on ? 1 : 0;
 
 	if (cio_unlikely(setsockopt((SOCKET)ss->impl.listen_socket.fd, IPPROTO_TCP, TCP_FASTOPEN, (const char *)&tcp_fast_open, sizeof(tcp_fast_open)) < 0)) {
@@ -296,9 +295,4 @@ enum cio_error cio_server_socket_set_tcp_fast_open(const struct cio_server_socke
 	}
 
 	return CIO_SUCCESS;
-#endif
-	(void)ss;
-	(void)on;
-
-	return CIO_OPERATION_NOT_SUPPORTED;
 }
