@@ -159,7 +159,7 @@ int main(void)
 		.free_client = free_http_client
 	};
 
-	err = cio_init_inet_socket_address(&config.endpoint, cio_get_inet_address_any6(), HTTPSERVER_LISTEN_PORT);
+	err = cio_init_inet_socket_address(&config.endpoint, cio_get_inet_address_any4(), HTTPSERVER_LISTEN_PORT);
 	if (err != CIO_SUCCESS) {
 		ret = EXIT_FAILURE;
 		goto destroy_loop;
