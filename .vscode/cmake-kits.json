@@ -1,6 +1,10 @@
 [
     {
-        "name": "gcc 8 for x64",
-        "toolchainFile": "${workspaceFolder}/cmake/x86-linux-gcc-8.cmake"
+        "name": "standard host gcc for x64",
+        "toolchainFile": "${workspaceRoot}/build/toolchains/x86-linux-gcc.cmake"
+    },
+    {
+        "name": "standard host clang for x64",
+        "toolchainFile": "${workspaceRoot}/build/toolchains/x86-linux-clang.cmake"
     }
 ]
