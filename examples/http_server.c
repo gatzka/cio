@@ -43,14 +43,14 @@
 static struct cio_eventloop loop;
 static struct cio_http_server server;
 
-enum {HTTPSERVER_LISTEN_PORT = 8080};
-enum {read_buffer_size = 2000};
+enum { HTTPSERVER_LISTEN_PORT = 8080 };
+enum { read_buffer_size = 2000 };
 
 static const uint64_t HEADER_READ_TIMEOUT = UINT64_C(5) * UINT64_C(1000) * UINT64_C(1000) * UINT64_C(1000);
 static const uint64_t BODY_READ_TIMEOUT = UINT64_C(5) * UINT64_C(1000) * UINT64_C(1000) * UINT64_C(1000);
 static const uint64_t RESPONSE_TIMEOUT = UINT64_C(1) * UINT64_C(1000) * UINT64_C(1000) * UINT64_C(1000);
 static const uint64_t CLOSE_TIMEOUT_NS = UINT64_C(1) * UINT64_C(1000) * UINT64_C(1000) * UINT64_C(1000);
-enum {IPV6_ADDRESS_SIZE = 16};
+enum { IPV6_ADDRESS_SIZE = 16 };
 
 static const char data[] = "<html><body><h1>Hello, World!</h1></body></html>";
 
@@ -149,15 +149,14 @@ int main(void)
 	}
 
 	struct cio_http_server_configuration config = {
-		.on_error = serve_error,
-		.read_header_timeout_ns = HEADER_READ_TIMEOUT,
-		.read_body_timeout_ns = BODY_READ_TIMEOUT,
-		.response_timeout_ns = RESPONSE_TIMEOUT,
-		.close_timeout_ns = CLOSE_TIMEOUT_NS,
-		.use_tcp_fastopen = true,
-		.alloc_client = alloc_http_client,
-		.free_client = free_http_client
-	};
+	    .on_error = serve_error,
+	    .read_header_timeout_ns = HEADER_READ_TIMEOUT,
+	    .read_body_timeout_ns = BODY_READ_TIMEOUT,
+	    .response_timeout_ns = RESPONSE_TIMEOUT,
+	    .close_timeout_ns = CLOSE_TIMEOUT_NS,
+	    .use_tcp_fastopen = true,
+	    .alloc_client = alloc_http_client,
+	    .free_client = free_http_client};
 
 	err = cio_init_inet_socket_address(&config.endpoint, cio_get_inet_address_any4(), HTTPSERVER_LISTEN_PORT);
 	if (err != CIO_SUCCESS) {
