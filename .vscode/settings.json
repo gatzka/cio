@@ -1,9 +1,6 @@
 {
     "cmake.configureOnOpen": true,
     "files.associations": {
-        "cio_error_code.h": "c",
-        "cio_error_code_impl.h": "c",
-        "cio_buffered_stream.h": "c",
-        "cio_endian.h": "c"
+        ".h": "c"
     }
 }
