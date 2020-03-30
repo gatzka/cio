@@ -124,8 +124,8 @@ if(CIO_CONFIG_WEBSOCKETS)
 
     set_target_properties(sha PROPERTIES
         POSITION_INDEPENDENT_CODE ON
-    	C_STANDARD_REQUIRED ON
-    	C_EXTENSIONS OFF
+        C_STANDARD_REQUIRED ON
+        C_EXTENSIONS OFF
         C_VISIBILITY_PRESET hidden
         C_CLANG_TIDY ""
     )
@@ -286,7 +286,7 @@ endif(DOXYGEN_FOUND)
 
 get_property(targets DIRECTORY "${CMAKE_CURRENT_LIST_DIR}" PROPERTY BUILDSYSTEM_TARGETS)
 foreach(tgt ${targets})
-	if(CIO_ENABLE_LTO)
+    if(CIO_ENABLE_LTO)
         set_property(TARGET ${tgt} PROPERTY INTERPROCEDURAL_OPTIMIZATION TRUE)
     endif()
 endforeach()

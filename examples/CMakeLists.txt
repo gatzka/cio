@@ -39,8 +39,8 @@ foreach(tgt ${targets})
     if (target_type STREQUAL "EXECUTABLE")
         target_link_libraries(${tgt} cio::cio)
         set_target_properties(${tgt} PROPERTIES
-    		C_STANDARD_REQUIRED ON
-    		C_EXTENSIONS OFF
+            C_STANDARD_REQUIRED ON
+            C_EXTENSIONS OFF
         )
     endif()
 	if(CIO_ENABLE_LTO)

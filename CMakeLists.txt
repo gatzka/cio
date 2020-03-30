@@ -2,44 +2,44 @@ cmake_minimum_required(VERSION 3.11)
 
 include(FetchContent)
 FetchContent_Declare(GatzkaToolchainFiles
-  GIT_REPOSITORY https://github.com/gatzka/cmake-toolchain-files.git
-  SOURCE_DIR ${CMAKE_BINARY_DIR}/toolchains
+    GIT_REPOSITORY https://github.com/gatzka/cmake-toolchain-files.git
+    SOURCE_DIR ${CMAKE_BINARY_DIR}/toolchains
 )
 FetchContent_GetProperties(GatzkaToolchainFiles)
 if(NOT GatzkaToolchainFiles_POPULATED)
-  FetchContent_Populate(GatzkaToolchainFiles)
+    FetchContent_Populate(GatzkaToolchainFiles)
 endif()
 
 project(cioall C)
 
 if(CMAKE_CONFIGURATION_TYPES)
-  if(NOT "MemorySanitizer" IN_LIST CMAKE_CONFIGURATION_TYPES)
-    list(APPEND CMAKE_CONFIGURATION_TYPES MemorySanitizer)
-  endif()
-  if(NOT "AddressSanitizer" IN_LIST CMAKE_CONFIGURATION_TYPES)
-    list(APPEND CMAKE_CONFIGURATION_TYPES AddressSanitizer)
-  endif()
-  if(NOT "LeakSanitizer" IN_LIST CMAKE_CONFIGURATION_TYPES)
-    list(APPEND CMAKE_CONFIGURATION_TYPES LeakSanitizer)
-  endif()
-  if(NOT "UndefinedBehaviorSanitizer" IN_LIST CMAKE_CONFIGURATION_TYPES)
-    list(APPEND CMAKE_CONFIGURATION_TYPES UndefinedBehaviorSanitizer)
-  endif()
-  if(NOT "Coverage" IN_LIST CMAKE_CONFIGURATION_TYPES)
-    list(APPEND CMAKE_CONFIGURATION_TYPES Coverage)
-  endif()
-  if(NOT "Profile" IN_LIST CMAKE_CONFIGURATION_TYPES)
-    list(APPEND CMAKE_CONFIGURATION_TYPES Profile)
-  endif()
+    if(NOT "MemorySanitizer" IN_LIST CMAKE_CONFIGURATION_TYPES)
+        list(APPEND CMAKE_CONFIGURATION_TYPES MemorySanitizer)
+    endif()
+    if(NOT "AddressSanitizer" IN_LIST CMAKE_CONFIGURATION_TYPES)
+        list(APPEND CMAKE_CONFIGURATION_TYPES AddressSanitizer)
+    endif()
+    if(NOT "LeakSanitizer" IN_LIST CMAKE_CONFIGURATION_TYPES)
+        list(APPEND CMAKE_CONFIGURATION_TYPES LeakSanitizer)
+    endif()
+    if(NOT "UndefinedBehaviorSanitizer" IN_LIST CMAKE_CONFIGURATION_TYPES)
+        list(APPEND CMAKE_CONFIGURATION_TYPES UndefinedBehaviorSanitizer)
+    endif()
+    if(NOT "Coverage" IN_LIST CMAKE_CONFIGURATION_TYPES)
+        list(APPEND CMAKE_CONFIGURATION_TYPES Coverage)
+    endif()
+    if(NOT "Profile" IN_LIST CMAKE_CONFIGURATION_TYPES)
+        list(APPEND CMAKE_CONFIGURATION_TYPES Profile)
+    endif()
 else()
-  set(allowableBuildTypes Debug Release RelWithDebInfo MemorySanitizer AddressSanitizer LeakSanitizer UndefinedBehaviorSanitizer Coverage Profile)
-  set_property(CACHE CMAKE_BUILD_TYPE PROPERTY
-  STRINGS "${allowableBuildTypes}")
-  if(NOT CMAKE_BUILD_TYPE)
-    set(CMAKE_BUILD_TYPE Debug CACHE STRING "" FORCE)
-  elseif(NOT CMAKE_BUILD_TYPE IN_LIST allowableBuildTypes)
-    message(FATAL_ERROR "Invalid build type: ${CMAKE_BUILD_TYPE}")
-  endif()
+    set(allowableBuildTypes Debug Release RelWithDebInfo MemorySanitizer AddressSanitizer LeakSanitizer UndefinedBehaviorSanitizer Coverage Profile)
+    set_property(CACHE CMAKE_BUILD_TYPE PROPERTY
+    STRINGS "${allowableBuildTypes}")
+    if(NOT CMAKE_BUILD_TYPE)
+        set(CMAKE_BUILD_TYPE Debug CACHE STRING "" FORCE)
+    elseif(NOT CMAKE_BUILD_TYPE IN_LIST allowableBuildTypes)
+        message(FATAL_ERROR "Invalid build type: ${CMAKE_BUILD_TYPE}")
+    endif()
 endif()
 
 set(CMAKE_C_FLAGS_ADDRESSSANITIZER "${CMAKE_C_FLAGS_RELWITHDEBINFO} ${ASAN_FLAGS}" CACHE STRING "Flags used by the C compiler during address sanitizer builds." FORCE)
@@ -89,7 +89,7 @@ include(CTest)
 include(CheckIPOSupported)
 check_ipo_supported(RESULT ipo_supported OUTPUT output)
 if(ipo_supported)
-	option(CIO_ENABLE_LTO "Build everithing with link time optization" OFF)
+    option(CIO_ENABLE_LTO "Build everithing with link time optization" OFF)
 endif()
 
 add_subdirectory(src)
@@ -103,12 +103,12 @@ set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake/)
 include(ClangFormat)
 
 file(GLOB FILES_TO_FORMAT
-   ${PROJECT_SOURCE_DIR}/src/*.c
-   ${PROJECT_SOURCE_DIR}/src/*.h
-   ${PROJECT_SOURCE_DIR}/src/linux/*.c
-   ${PROJECT_SOURCE_DIR}/src/linux/*.h
-   ${PROJECT_SOURCE_DIR}/tests/*.c
-   ${PROJECT_SOURCE_DIR}/tests/*.h
+    ${PROJECT_SOURCE_DIR}/src/*.c
+    ${PROJECT_SOURCE_DIR}/src/*.h
+    ${PROJECT_SOURCE_DIR}/src/linux/*.c
+    ${PROJECT_SOURCE_DIR}/src/linux/*.h
+    ${PROJECT_SOURCE_DIR}/tests/*.c
+    ${PROJECT_SOURCE_DIR}/tests/*.h
 )
 
 add_custom_target(cio-format SOURCES ${FILES_TO_FORMAT})
