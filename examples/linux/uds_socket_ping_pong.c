@@ -48,9 +48,9 @@ static struct cio_eventloop loop;
 
 static const char hello[] = "Hello";
 static const uint64_t CLOSE_TIMEOUT_NS = UINT64_C(1) * UINT64_C(1000) * UINT64_C(1000) * UINT64_C(1000);
-enum {BASE_10 = 10};
-enum {SERVERSOCKET_BACKLOG = 5};
-enum {BUFFER_SIZE = 128};
+enum { BASE_10 = 10 };
+enum { SERVERSOCKET_BACKLOG = 5 };
+enum { BUFFER_SIZE = 128 };
 
 struct echo_client {
 	size_t bytes_read;
@@ -171,7 +171,6 @@ static void handle_accept(struct cio_server_socket *ss, void *handler_context, e
 		fprintf(stderr, "failed to init buffered stream!\n");
 		goto error;
 	}
-
 
 	err = cio_buffered_stream_read_at_least(bs, &client->rb, sizeof(hello), server_handle_read, client);
 	if (cio_unlikely(err != CIO_SUCCESS)) {
