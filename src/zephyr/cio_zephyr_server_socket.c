@@ -42,6 +42,7 @@ static K_THREAD_STACK_ARRAY_DEFINE(stacks, CONFIG_CIO_NUM_SERVER_SOCKETS, STACK_
 enum cio_error cio_server_socket_init(struct cio_server_socket *ss,
                                       struct cio_eventloop *loop,
                                       unsigned int backlog,
+                                      enum cio_address_family family,
                                       cio_alloc_client alloc_client,
                                       cio_free_client free_client,
                                       uint64_t close_timeout_ns,
@@ -64,7 +65,7 @@ enum cio_error cio_server_socket_init(struct cio_server_socket *ss,
 	return CIO_SUCCESS;
 }
 
-enum cio_error cio_server_socket_set_reuse_address(struct cio_server_socket *ss, bool on)
+enum cio_error cio_server_socket_set_reuse_address(const struct cio_server_socket *ss, bool on)
 {
 	int reuse;
 	if (on) {
@@ -81,8 +82,9 @@ enum cio_error cio_server_socket_set_reuse_address(struct cio_server_socket *ss,
 	return CIO_SUCCESS;
 }
 
-enum cio_error cio_server_socket_bind(struct cio_server_socket *ss, const char *bind_address, uint16_t port)
+enum cio_error cio_server_socket_bind(struct cio_server_socket *ss, const struct cio_socket_address *endpoint)
 {
+#if 0
 	struct sockaddr addr;
 
 	const char *address = bind_address;
@@ -129,6 +131,7 @@ enum cio_error cio_server_socket_bind(struct cio_server_socket *ss, const char *
 		return (enum cio_error)(-errno);
 	}
 
+#endif
 	return CIO_SUCCESS;
 }
 

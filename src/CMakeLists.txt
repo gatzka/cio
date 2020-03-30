@@ -175,7 +175,7 @@ if(${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
 elseif(${CMAKE_SYSTEM_NAME} STREQUAL "Windows")
     add_subdirectory(windows)
 elseif(${CIO_BUILD_FOR_ZEPHYR})
-    include(zephyr/CMakeLists.txt)
+    add_subdirectory(zephyr)
 endif()
 
 if(NOT CIO_BUILD_FOR_ZEPHYR)
