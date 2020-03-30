@@ -3,5 +3,9 @@
     "files.associations": {
         ".h": "c"
     },
-    "editor.renderWhitespace": "all"
+    "editor.renderWhitespace": "all",
+    "cmake.preferredGenerators":[
+        "Ninja",
+        "Unix Makefiles"
+    ]
 }
