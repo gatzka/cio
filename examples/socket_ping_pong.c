@@ -45,12 +45,12 @@
 static const char hello[] = "Hello";
 
 static struct cio_eventloop loop;
-enum {SERVERSOCKET_BACKLOG = 5};
-enum {SERVERSOCKET_LISTEN_PORT = 12345};
+enum { SERVERSOCKET_BACKLOG = 5 };
+enum { SERVERSOCKET_LISTEN_PORT = 12345 };
 static const uint64_t CLOSE_TIMEOUT_NS = UINT64_C(1) * UINT64_C(1000) * UINT64_C(1000) * UINT64_C(1000);
-enum {BUFFER_SIZE = 128};
-enum {IPV6_ADDRESS_SIZE = 16};
-enum {BASE_10 = 10};
+enum { BUFFER_SIZE = 128 };
+enum { IPV6_ADDRESS_SIZE = 16 };
+enum { BASE_10 = 10 };
 
 static unsigned long long max_pings;
 
@@ -166,7 +166,6 @@ static void handle_accept(struct cio_server_socket *ss, void *handler_context, e
 		fprintf(stderr, "failed to init buffered stream!\n");
 		goto error;
 	}
-
 
 	err = cio_buffered_stream_read_at_least(bs, &client->rb, sizeof(hello), server_handle_read, client);
 	if (cio_unlikely(err != CIO_SUCCESS)) {

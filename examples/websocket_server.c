@@ -48,9 +48,9 @@
 static struct cio_eventloop loop;
 static struct cio_http_server server;
 
-enum {READ_BUFFER_SIZE = 2000};
-enum {HTTPSERVER_LISTEN_PORT = 8080};
-enum {IPV6_ADDRESS_SIZE = 16};
+enum { READ_BUFFER_SIZE = 2000 };
+enum { HTTPSERVER_LISTEN_PORT = 8080 };
+enum { IPV6_ADDRESS_SIZE = 16 };
 
 static const uint64_t header_read_timeout = UINT64_C(5) * UINT64_C(1000) * UINT64_C(1000) * UINT64_C(1000);
 static const uint64_t body_read_timeout = UINT64_C(5) * UINT64_C(1000) * UINT64_C(1000) * UINT64_C(1000);
@@ -114,7 +114,7 @@ static void send_ping(struct cio_timer *timer, void *handler_context, enum cio_e
 		if (err != CIO_SUCCESS) {
 			fprintf(stderr, "Could not start writing websocket ping!\n");
 		}
-	} else if (err != CIO_OPERATION_ABORTED){
+	} else if (err != CIO_OPERATION_ABORTED) {
 		fprintf(stderr, "ping timer failed!\n");
 		err = cio_websocket_close(ws, CIO_WEBSOCKET_CLOSE_INTERNAL_ERROR, NULL, NULL, NULL);
 		if (err != CIO_SUCCESS) {
@@ -155,24 +155,24 @@ static void on_control(const struct cio_websocket *ws, enum cio_websocket_frame_
 	(void)ws;
 
 	switch (type) {
-		case CIO_WEBSOCKET_CLOSE_FRAME:
-			fprintf(stdout, "Got close frame: ");
-			print_payload(data, length);
-			break;
+	case CIO_WEBSOCKET_CLOSE_FRAME:
+		fprintf(stdout, "Got close frame: ");
+		print_payload(data, length);
+		break;
 
-		case CIO_WEBSOCKET_PING_FRAME:
-			fprintf(stdout, "Got ping frame: ");
-			print_payload(data, length);
-			break;
+	case CIO_WEBSOCKET_PING_FRAME:
+		fprintf(stdout, "Got ping frame: ");
+		print_payload(data, length);
+		break;
 
-		case CIO_WEBSOCKET_PONG_FRAME:
-			fprintf(stdout, "Got pong frame: ");
-			print_payload(data, length);
-			break;
+	case CIO_WEBSOCKET_PONG_FRAME:
+		fprintf(stdout, "Got pong frame: ");
+		print_payload(data, length);
+		break;
 
-		default:
-			fprintf(stderr, "Got unknown control frame: %x\n", type);
-			break;
+	default:
+		fprintf(stderr, "Got unknown control frame: %x\n", type);
+		break;
 	}
 }
 
@@ -310,14 +310,13 @@ int main(void)
 	}
 
 	struct cio_http_server_configuration config = {
-		.on_error = serve_error,
-		.read_header_timeout_ns = header_read_timeout,
-		.read_body_timeout_ns = body_read_timeout,
-		.response_timeout_ns = response_timeout,
-		.close_timeout_ns = close_timeout_ns,
-		.alloc_client = alloc_http_client,
-		.free_client = free_http_client
-	};
+	    .on_error = serve_error,
+	    .read_header_timeout_ns = header_read_timeout,
+	    .read_body_timeout_ns = body_read_timeout,
+	    .response_timeout_ns = response_timeout,
+	    .close_timeout_ns = close_timeout_ns,
+	    .alloc_client = alloc_http_client,
+	    .free_client = free_http_client};
 
 	err = cio_init_inet_socket_address(&config.endpoint, cio_get_inet_address_any6(), HTTPSERVER_LISTEN_PORT);
 	if (err != CIO_SUCCESS) {
