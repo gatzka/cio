@@ -3,7 +3,7 @@
  *
  * The MIT License (MIT)
  *
- * Copyright (c) <2019> <Stephan Gatzka>
+ * Copyright (c) <2020> <Stephan Gatzka>
  *
  * Permission is hereby granted, free of charge, to any person obtaining
  * a copy of this software and associated documentation files (the
@@ -26,20 +26,26 @@
  * SOFTWARE.
  */
 
+#include <sys/byteorder.h>
 
-#include <stddef.h>
-#include <stdint.h>
+#include "cio_endian.h"
 
-#include <drivers/entropy.h>
-
-#include "cio_error_code.h"
-#include "cio_random.h"
-
-enum cio_error cio_entropy_get_bytes(void *bytes, size_t num_bytes)
+uint16_t cio_be16toh(uint16_t big_endian_16bits)
 {
-	struct device *dev;
-	dev = device_get_binding(CONFIG_ENTROPY_NAME);
-	entropy_get_entropy(dev, bytes, (uint16_t)num_bytes);
+	return sys_be16_to_cpu(big_endian_16bits);
+}
 
-	return CIO_SUCCESS;
+uint64_t cio_be64toh(uint64_t big_endian_64bits)
+{
+	return sys_be64_to_cpu(big_endian_64bits);
+}
+
+uint16_t cio_htobe16(uint16_t host_endian_16bits)
+{
+	return sys_cpu_to_be16(host_endian_16bits);
+}
+
+uint64_t cio_htobe64(uint64_t host_endian_64bits)
+{
+	return sys_cpu_to_be64(host_endian_64bits);
 }

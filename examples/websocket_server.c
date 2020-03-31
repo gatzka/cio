@@ -315,6 +315,7 @@ int main(void)
 	    .read_body_timeout_ns = body_read_timeout,
 	    .response_timeout_ns = response_timeout,
 	    .close_timeout_ns = close_timeout_ns,
+	    .use_tcp_fastopen = false,
 	    .alloc_client = alloc_http_client,
 	    .free_client = free_http_client};
 

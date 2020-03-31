@@ -79,20 +79,25 @@ cmake_dependent_option(CIO_CONFIG_WEBSOCKETS "Add Websocket support to the libra
 cmake_dependent_option(CIO_CONFIG_WEBSOCKET_COMPRESSION "Add Websocket compression support to the library" OFF "CIO_CONFIG_WEBSOCKETS" OFF)
 
 if(CIO_CONFIG_HTTP)
-    add_library(http-parser OBJECT
+    add_library(http_parser OBJECT
         http-parser/http_parser.c
+        http-parser/http_parser.h
     )
-    set_target_properties(http-parser PROPERTIES
+    set_target_properties(http_parser PROPERTIES
         COMPILE_OPTIONS "$<$<OR:$<C_COMPILER_ID:GNU>,$<C_COMPILER_ID:Clang>>:-Wno-shadow;-Wno-sign-conversion;-Wno-conversion;-Wno-switch-default>"
         POSITION_INDEPENDENT_CODE ON
         C_VISIBILITY_PRESET hidden
         C_CLANG_TIDY ""
     )
+    if(CIO_BUILD_FOR_ZEPHYR)
+        target_link_libraries(http_parser PRIVATE zephyr)
+    endif()
+
     install(FILES "${CMAKE_CURRENT_LIST_DIR}/http-parser/http_parser.h"
         DESTINATION include/cio/http-parser/
     )
     target_sources(${PROJECT_NAME} PRIVATE
-        $<TARGET_OBJECTS:http-parser>
+        $<TARGET_OBJECTS:http_parser>
         cio_http_location.c
         cio_http_location_handler.c
         cio_http_server.c
@@ -118,10 +123,6 @@ if(CIO_CONFIG_WEBSOCKETS)
     add_library(sha OBJECT
         sha1/sha1.c
     )
-    if(NOT CIO_BUILD_FOR_ZEPHYR)
-        target_compile_features(sha PRIVATE $<$<NOT:$<C_COMPILER_ID:MSVC>>:c_std_99>)
-    endif()
-
     set_target_properties(sha PROPERTIES
         POSITION_INDEPENDENT_CODE ON
         C_STANDARD_REQUIRED ON
@@ -129,6 +130,12 @@ if(CIO_CONFIG_WEBSOCKETS)
         C_VISIBILITY_PRESET hidden
         C_CLANG_TIDY ""
     )
+    if(NOT CIO_BUILD_FOR_ZEPHYR)
+        target_compile_features(sha PRIVATE $<$<NOT:$<C_COMPILER_ID:MSVC>>:c_std_99>)
+    else()
+        target_link_libraries(sha PRIVATE zephyr)
+    endif()
+
     target_sources(${PROJECT_NAME} PRIVATE
         $<TARGET_OBJECTS:sha>
         cio_utf8_checker.h
@@ -175,7 +182,7 @@ if(${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
 elseif(${CMAKE_SYSTEM_NAME} STREQUAL "Windows")
     add_subdirectory(windows)
 elseif(${CIO_BUILD_FOR_ZEPHYR})
-    include(zephyr/CMakeLists.txt)
+    add_subdirectory(zephyr)
 endif()
 
 if(NOT CIO_BUILD_FOR_ZEPHYR)
@@ -221,29 +228,29 @@ endif()
 include(GenerateExportHeader)
 generate_export_header(${PROJECT_NAME} EXPORT_FILE_NAME ${CMAKE_CURRENT_BINARY_DIR}/generated/${PROJECT_NAME}_export.h)
 
-include(GNUInstallDirs)
-install(TARGETS ${PROJECT_NAME} PLATFORM
-    EXPORT ${PROJECT_NAME}
-    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
-    ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
-    RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
-    PUBLIC_HEADER DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
-)
-
-include(CMakePackageConfigHelpers)
-write_basic_package_version_file("${PROJECT_NAME}ConfigVersion.cmake"
-    VERSION ${${PROJECT_NAME}_VERSION}
-    COMPATIBILITY SameMajorVersion
-)
-
-install(FILES "${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}ConfigVersion.cmake"
-    DESTINATION lib/cmake/${PROJECT_NAME}
-)
-install(FILES "${CMAKE_CURRENT_BINARY_DIR}/generated/${PROJECT_NAME}_export.h"
-    DESTINATION include/cio/
-)
-
 if(NOT CIO_BUILD_FOR_ZEPHYR)
+    include(GNUInstallDirs)
+    install(TARGETS ${PROJECT_NAME} PLATFORM
+        EXPORT ${PROJECT_NAME}
+        LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+        ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+        RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+        PUBLIC_HEADER DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
+    )
+    
+    include(CMakePackageConfigHelpers)
+    write_basic_package_version_file("${PROJECT_NAME}ConfigVersion.cmake"
+        VERSION ${${PROJECT_NAME}_VERSION}
+        COMPATIBILITY SameMajorVersion
+    )
+    
+    install(FILES "${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}ConfigVersion.cmake"
+        DESTINATION lib/cmake/${PROJECT_NAME}
+    )
+    install(FILES "${CMAKE_CURRENT_BINARY_DIR}/generated/${PROJECT_NAME}_export.h"
+        DESTINATION include/cio/
+    )
+
     install(EXPORT ${PROJECT_NAME}
         NAMESPACE ${PROJECT_NAME}::
         DESTINATION lib/cmake/${PROJECT_NAME}

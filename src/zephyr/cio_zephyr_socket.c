@@ -3,7 +3,7 @@
  *
  * The MIT License (MIT)
  *
- * Copyright (c) <2019> <Stephan Gatzka>
+ * Copyright (c) <2020> <Stephan Gatzka>
  *
  * Permission is hereby granted, free of charge, to any person obtaining
  * a copy of this software and associated documentation files (the
@@ -26,20 +26,22 @@
  * SOFTWARE.
  */
 
-
-#include <stddef.h>
-#include <stdint.h>
-
-#include <drivers/entropy.h>
-
+#include "cio_compiler.h"
+#include "cio_endian.h"
 #include "cio_error_code.h"
-#include "cio_random.h"
+#include "cio_eventloop_impl.h"
+#include "cio_io_stream.h"
+#include "cio_read_buffer.h"
+#include "cio_socket.h"
+#include "cio_socket_address.h"
+#include "cio_timer.h"
+#include "cio_util.h"
+#include "cio_write_buffer.h"
 
-enum cio_error cio_entropy_get_bytes(void *bytes, size_t num_bytes)
+
+struct cio_io_stream *cio_socket_get_io_stream(struct cio_socket *socket)
 {
-	struct device *dev;
-	dev = device_get_binding(CONFIG_ENTROPY_NAME);
-	entropy_get_entropy(dev, bytes, (uint16_t)num_bytes);
-
-	return CIO_SUCCESS;
+	return &socket->stream;
 }
+
+
