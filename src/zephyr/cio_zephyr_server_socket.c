@@ -3,7 +3,7 @@
  *
  * The MIT License (MIT)
  *
- * Copyright (c) <2019> <Stephan Gatzka>
+ * Copyright (c) <2020> <Stephan Gatzka>
  *
  * Permission is hereby granted, free of charge, to any person obtaining
  * a copy of this software and associated documentation files (the
@@ -190,4 +190,11 @@ void cio_server_socket_close(struct cio_server_socket *ss)
 	printk("end of cio_server_socket_close!\n");
 }
 
+enum cio_error cio_server_socket_set_tcp_fast_open(const struct cio_server_socket *ss, bool on)
+{
+	(void)ss;
+	(void)on;
+
+	return CIO_OPERATION_NOT_SUPPORTED;
+}
 

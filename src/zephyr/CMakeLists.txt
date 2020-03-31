@@ -6,7 +6,9 @@ add_library(PLATFORM OBJECT
     cio_zephyr_inet_address_impl.c
     cio_zephyr_random.c
     cio_zephyr_server_socket.c
+    cio_zephyr_socket.c
     cio_zephyr_socket_address_impl.c
+    cio_zephyr_string.c
     cio_zephyr_timer.c
 )
 
