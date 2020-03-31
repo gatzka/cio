@@ -84,54 +84,22 @@ enum cio_error cio_server_socket_set_reuse_address(const struct cio_server_socke
 
 enum cio_error cio_server_socket_bind(struct cio_server_socket *ss, const struct cio_socket_address *endpoint)
 {
-#if 0
-	struct sockaddr addr;
-
-	const char *address = bind_address;
-	memset(&addr, 0, sizeof(addr));
-
-	if (address == NULL) {
-		// bind to all interfaces
-		address = "::";
-	}
-
-	if (!net_ipaddr_parse(address, strlen(address), &addr)) {
+	if (cio_unlikely((ss == NULL) || (endpoint == NULL))) {
 		return CIO_INVALID_ARGUMENT;
 	}
 
-	struct sockaddr *bind_addr;
-	size_t addr_size;
-	struct sockaddr_in addr4;
-	struct sockaddr_in6 addr6;
-
-	if (addr.sa_family == AF_INET) {
-
-		(void)memset(&addr4, 0, sizeof(addr4));
-		addr4.sin_family = AF_INET;
-		addr4.sin_port = htons(port);
-		//if ((bind_address != NULL) && !net_ipv4_is_my_addr(&addr4->sin_addr)) {
-		//	return CIO_INVALID_ARGUMENT;
-		//}
-		printk("bind to ipv4 address: %s port: %u\n", bind_address, port);
-		bind_addr = (struct sockaddr *)&addr4;
-		addr_size = sizeof(addr4);
-	} else {
-		(void)memset(&addr6, 0, sizeof(addr6));
-		addr6.sin6_family = AF_INET6;
-		addr6.sin6_port = htons(port);
-		//if ((bind_address != NULL) && !net_ipv6_is_my_addr(&addr6->sin6_addr)) {
-		//	return CIO_INVALID_ARGUMENT;
-		//}
-		bind_addr = (struct sockaddr *)&addr6;
-		addr_size = sizeof(addr6);
+	if (cio_unlikely((enum cio_address_family)endpoint->impl.sa.socket_address.addr.sa_family == CIO_ADDRESS_FAMILY_UNSPEC)) {
+		return CIO_INVALID_ARGUMENT;
 	}
 
-	int ret = zsock_bind(ss->impl.fd, bind_addr, addr_size);
+	const struct sockaddr *addr = &endpoint->impl.sa.socket_address.addr;
+	socklen_t addr_len = endpoint->impl.len;
+
+	int ret = zsock_bind(ss->impl.fd, addr, addr_len);
 	if (cio_unlikely(ret < 0)) {
 		return (enum cio_error)(-errno);
 	}
 
-#endif
 	return CIO_SUCCESS;
 }
 
