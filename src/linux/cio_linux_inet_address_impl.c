@@ -37,10 +37,10 @@
 #include "cio_inet_address_impl.h"
 
 static const struct cio_inet_address inet_address_any6 = {
-    .impl = {.family = CIO_ADDRESS_FAMILY_INET6, .in6.s6_addr = {0}}};
+    .impl = {.family = CIO_ADDRESS_FAMILY_INET6, .in6 = IN6ADDR_ANY_INIT}};
 
 static const struct cio_inet_address inet_address_any4 = {
-    .impl = {.family = CIO_ADDRESS_FAMILY_INET4, .in.s_addr = 0}};
+    .impl = {.family = CIO_ADDRESS_FAMILY_INET4, .in.s_addr = INADDR_ANY}};
 
 const struct cio_inet_address *cio_get_inet_address_any4(void)
 {
