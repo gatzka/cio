@@ -3,7 +3,7 @@
  *
  * The MIT License (MIT)
  *
- * Copyright (c) <2019> <Stephan Gatzka>
+ * Copyright (c) <2020> <Stephan Gatzka>
  *
  * Permission is hereby granted, free of charge, to any person obtaining
  * a copy of this software and associated documentation files (the
@@ -26,20 +26,24 @@
  * SOFTWARE.
  */
 
+#ifndef CIO_ZEPHYR_ADDRESS_FAMILY_IMPL_H
+#define CIO_ZEPHYR_ADDRESS_FAMILY_IMPL_H
 
-#include <stddef.h>
-#include <stdint.h>
+#include <net/net_ip.h>
 
-#include <drivers/entropy.h>
+#ifdef __cplusplus
+extern "C" {
+#endif
 
-#include "cio_error_code.h"
-#include "cio_random.h"
+enum cio_address_family_impl {
+	CIO_ADDRESS_FAMILY_UNSPEC_IMPL = AF_UNSPEC,
+	CIO_ADDRESS_FAMILY_INET4_IMPL = AF_INET,
+	CIO_ADDRESS_FAMILY_INET6_IMPL = AF_INET6,
+	CIO_ADDRESS_FAMILY_UNIX_IMPL = AF_UNSPEC
+};
 
-enum cio_error cio_entropy_get_bytes(void *bytes, size_t num_bytes)
-{
-	struct device *dev;
-	dev = device_get_binding(CONFIG_ENTROPY_NAME);
-	entropy_get_entropy(dev, bytes, (uint16_t)num_bytes);
-
-	return CIO_SUCCESS;
+#ifdef __cplusplus
 }
+#endif
+
+#endif

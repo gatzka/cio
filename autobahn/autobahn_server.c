@@ -40,10 +40,10 @@
 static struct cio_eventloop loop;
 static struct cio_http_server http_server;
 
-enum {AUTOBAHN_SERVER_PORT = 9001};
+enum { AUTOBAHN_SERVER_PORT = 9001 };
 
-enum {READ_BUFFER_SIZE = 10240};
-enum {IPV6_ADDRESS_SIZE = 16};
+enum { READ_BUFFER_SIZE = 10240 };
+enum { IPV6_ADDRESS_SIZE = 16 };
 
 static const uint64_t HEADER_READ_TIMEOUT = UINT64_C(5) * UINT64_C(1000) * UINT64_C(1000) * UINT64_C(1000);
 static const uint64_t BODY_READ_TIMEOUT = UINT64_C(5) * UINT64_C(1000) * UINT64_C(1000) * UINT64_C(1000);
@@ -88,7 +88,7 @@ static void read_handler(struct cio_websocket *ws, void *handler_context, enum c
 
 		if (frame_length <= READ_BUFFER_SIZE) {
 			memcpy(ah->echo_buffer + ah->echo_write_index, data, length);
-			ah->echo_write_index +=length;
+			ah->echo_write_index += length;
 			if (last_chunk) {
 				ah->echo_write_index = 0;
 				cio_write_buffer_head_init(&ah->wbh);
@@ -208,19 +208,20 @@ int main(void)
 	}
 
 	struct cio_http_server_configuration config = {
-		.on_error = serve_error,
-		.read_header_timeout_ns = HEADER_READ_TIMEOUT,
-		.read_body_timeout_ns = BODY_READ_TIMEOUT,
-		.response_timeout_ns = RESPONSE_TIMEOUT,
-		.close_timeout_ns = CLOSE_TIMEOUT_NS,
-		.alloc_client = alloc_http_client,
-		.free_client = free_http_client
-	};
+	    .on_error = serve_error,
+	    .read_header_timeout_ns = HEADER_READ_TIMEOUT,
+	    .read_body_timeout_ns = BODY_READ_TIMEOUT,
+	    .response_timeout_ns = RESPONSE_TIMEOUT,
+	    .close_timeout_ns = CLOSE_TIMEOUT_NS,
+	    .alloc_client = alloc_http_client,
+	    .free_client = free_http_client,
+	    .use_tcp_fastopen = false};
 
-	uint8_t ip[IPV6_ADDRESS_SIZE] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-	struct cio_inet_address address;
-	cio_init_inet_address(&address, ip, sizeof(ip));
-	cio_init_inet_socket_address(&config.endpoint, &address, AUTOBAHN_SERVER_PORT);
+	err = cio_init_inet_socket_address(&config.endpoint, cio_get_inet_address_any4(), AUTOBAHN_SERVER_PORT);
+	if (err != CIO_SUCCESS) {
+		ret = EXIT_FAILURE;
+		goto destroy_loop;
+	}
 
 	err = cio_http_server_init(&http_server, &loop, &config);
 	if (err != CIO_SUCCESS) {

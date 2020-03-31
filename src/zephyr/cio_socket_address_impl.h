@@ -3,7 +3,7 @@
  *
  * The MIT License (MIT)
  *
- * Copyright (c) <2019> <Stephan Gatzka>
+ * Copyright (c) <2020> <Stephan Gatzka>
  *
  * Permission is hereby granted, free of charge, to any person obtaining
  * a copy of this software and associated documentation files (the
@@ -26,20 +26,42 @@
  * SOFTWARE.
  */
 
+#ifndef CIO_ZEPHYR_SOCKET_ADDRESS_IMPL_H
+#define CIO_ZEPHYR_SOCKET_ADDRESS_IMPL_H
 
-#include <stddef.h>
-#include <stdint.h>
-
-#include <drivers/entropy.h>
+#include <net/net_ip.h>
 
 #include "cio_error_code.h"
-#include "cio_random.h"
+#include "cio_export.h"
+#include "cio_inet4_socket_address.h"
+#include "cio_inet6_socket_address.h"
+#include "cio_inet_address.h"
+#include "cio_socket_address.h"
 
-enum cio_error cio_entropy_get_bytes(void *bytes, size_t num_bytes)
-{
-	struct device *dev;
-	dev = device_get_binding(CONFIG_ENTROPY_NAME);
-	entropy_get_entropy(dev, bytes, (uint16_t)num_bytes);
+#ifdef __cplusplus
+extern "C" {
+#endif
 
-	return CIO_SUCCESS;
+struct cio_inet_address;
+struct cio_socket_address;
+
+struct cio_socket_address_common {
+	struct sockaddr addr;
+};
+
+union cio_sa {
+	struct cio_socket_address_common socket_address;
+	struct cio_inet4_socket_address inet_addr4;
+	struct cio_inet6_socket_address inet_addr6;
+};
+
+struct cio_socket_address_impl {
+	socklen_t len;
+	union cio_sa sa;
+};
+
+#ifdef __cplusplus
 }
+#endif
+
+#endif

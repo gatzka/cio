@@ -3,7 +3,7 @@
  *
  * The MIT License (MIT)
  *
- * Copyright (c) <2019> <Stephan Gatzka>
+ * Copyright (c) <2020> <Stephan Gatzka>
  *
  * Permission is hereby granted, free of charge, to any person obtaining
  * a copy of this software and associated documentation files (the
@@ -26,20 +26,43 @@
  * SOFTWARE.
  */
 
-
 #include <stddef.h>
-#include <stdint.h>
+#include <string.h>
+#include <strings.h>
 
-#include <drivers/entropy.h>
+#include "cio_string.h"
 
-#include "cio_error_code.h"
-#include "cio_random.h"
-
-enum cio_error cio_entropy_get_bytes(void *bytes, size_t num_bytes)
+const void *cio_memmem(const void *haystack, size_t haystacklen, const void *needle, size_t needlelen)
 {
-	struct device *dev;
-	dev = device_get_binding(CONFIG_ENTROPY_NAME);
-	entropy_get_entropy(dev, bytes, (uint16_t)num_bytes);
+	const char *begin = haystack;
+	const char *last_possible = begin + haystacklen - needlelen;
+	const char *tail = needle;
+	char point;
 
-	return CIO_SUCCESS;
+	/*
+	 *      * The first occurrence of the empty string is deemed to occur at
+	 *           * the beginning of the string.
+	 *                */
+	if (needlelen == 0)
+		return begin;
+
+	/*
+	 *      * Sanity check, otherwise the loop might search through the whole
+	 *           * memory.
+	 *                */
+	if (haystacklen < needlelen)
+		return NULL;
+
+	point = *tail++;
+	for (; begin <= last_possible; begin++) {
+		if (*begin == point && !memcmp(begin + 1, tail, needlelen - 1))
+			return begin;
+	}
+
+	return NULL;
+}
+
+int cio_strncasecmp(const char *s1, const char *s2, size_t n)
+{
+	return strncasecmp(s1, s2, n);
 }
