@@ -5,6 +5,7 @@ configure_file(cio_os_config.h.in ${PROJECT_BINARY_DIR}/generated/cio_os_config.
 
 add_library(PLATFORM OBJECT
     ../platform/shared/cio_inet_address_impl.c
+    ../platform/shared/cio_socket_address_impl.c
     cio_error_code_impl.h
     cio_eventloop_impl.h
     cio_inet4_socket_address_impl.h
@@ -16,7 +17,6 @@ add_library(PLATFORM OBJECT
     cio_linux_server_socket.c
     cio_linux_socket.c
     cio_linux_socket.h
-    cio_linux_socket_address_impl.c
     cio_linux_socket_utils.c
     cio_linux_socket_utils.h
     cio_linux_string.c
