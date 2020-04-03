@@ -29,5 +29,5 @@ cmake -DBUILD_SHARED_LIBS=ON <path-to-cio-project>
 
 ## Documentation
 
-The generated [doxygen](https://www.stack.nl/~dimitri/doxygen/) documentation can be found
+The generated [doxygen](http://www.doxygen.nl/) documentation can be found
 [here](https://gatzka.github.io/cio/doc/html).
