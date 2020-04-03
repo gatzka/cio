@@ -224,6 +224,8 @@ jobs:
     steps:
     - name: Checkout
       uses: actions/checkout@v2
+      with:
+        fetch-depth: 0
     - name: sonarcloud cmake build
       uses: gatzka/sonarcloud-cmake-build-action@v1.1.0
       with:
