@@ -25,17 +25,15 @@ add_executable(test_cio_http_location test_cio_http_location.c ../src/cio_http_l
 
 add_executable(test_cio_inet_address
     test_cio_inet_address.c
-    $<$<PLATFORM_ID:Linux>:../src/linux/cio_linux_inet_address_impl.c>
-    $<$<PLATFORM_ID:Windows>:../src/windows/cio_windows_inet_address_impl.c>
+    ../src/platform/shared/cio_inet_address_impl.c
 )
 
 add_executable(test_cio_inet_socket_address
     test_cio_inet_socket_address.c
+    ../src/platform/shared/cio_inet_address_impl.c
     $<$<PLATFORM_ID:Linux>:../src/linux/cio_linux_endian.c>
-    $<$<PLATFORM_ID:Linux>:../src/linux/cio_linux_inet_address_impl.c>
     $<$<PLATFORM_ID:Linux>:../src/linux/cio_linux_socket_address_impl.c>
     $<$<PLATFORM_ID:Windows>:../src/windows/cio_windows_endian.c>
-    $<$<PLATFORM_ID:Windows>:../src/windows/cio_windows_inet_address_impl.c>
     $<$<PLATFORM_ID:Windows>:../src/windows/cio_windows_socket_address_impl.c>
 )
 
