@@ -66,36 +66,6 @@ static uint8_t second_check_buffer[100];
 static size_t second_check_buffer_pos = 0;
 static size_t chunk_bytes_written = 0;
 
-const void *cio_memmem(const void *haystack, size_t haystacklen, const void *needle, size_t needlelen)
-{
-	const char *begin = haystack;
-	const char *last_possible = begin + haystacklen - needlelen;
-	const char *tail = needle;
-	char point;
-
-	/*
-	 * The first occurrence of the empty string is deemed to occur at
-	 * the beginning of the string.
-	 */
-	if (needlelen == 0)
-		return begin;
-
-	/*
-	 * Sanity check, otherwise the loop might search through the whole
-	 * memory.
-	 */
-	if (haystacklen < needlelen)
-		return NULL;
-
-	point = *tail++;
-	for (; begin <= last_possible; begin++) {
-		if (*begin == point && !memcmp(begin + 1, tail, needlelen - 1))
-			return begin;
-	}
-
-	return NULL;
-}
-
 enum cio_error read_some(struct cio_io_stream *ios, struct cio_read_buffer *buffer, cio_io_stream_read_handler handler, void *context);
 FAKE_VALUE_FUNC(enum cio_error, read_some, struct cio_io_stream *, struct cio_read_buffer *, cio_io_stream_read_handler, void *)
 
