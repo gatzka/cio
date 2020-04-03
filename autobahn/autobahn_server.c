@@ -172,7 +172,7 @@ static void free_http_client(struct cio_socket *socket)
 	free(client);
 }
 
-static void http_server_closed(struct cio_http_server *s)
+static void http_server_closed(const struct cio_http_server *s)
 {
 	(void)s;
 	cio_eventloop_cancel(&loop);
