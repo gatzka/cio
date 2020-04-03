@@ -726,7 +726,7 @@ response_timer_init_err:
 
 static void server_socket_closed(struct cio_server_socket *ss)
 {
-	struct cio_http_server *server = cio_container_of(ss, struct cio_http_server, server_socket);
+	const struct cio_http_server *server = cio_container_of(ss, struct cio_http_server, server_socket);
 	if (server->close_hook != NULL) {
 		server->close_hook(server);
 	}
