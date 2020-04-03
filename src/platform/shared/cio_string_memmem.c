@@ -31,7 +31,7 @@
 
 #include "cio_string.h"
 
-static inline const void *cio_string_memmem(const void *haystack, size_t haystacklen, const void *needle, size_t needlelen)
+const void *cio_memmem(const void *haystack, size_t haystacklen, const void *needle, size_t needlelen)
 {
 	const char *begin = haystack;
 	const char *last_possible = begin + haystacklen - needlelen;
