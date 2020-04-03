@@ -16,7 +16,7 @@ target_include_directories(unity PUBLIC ${CMAKE_CURRENT_LIST_DIR}/unity/src/)
 
 add_executable(test_cio_base64 test_cio_base64.c ../src/cio_base64.c)
 
-add_executable(test_cio_buffered_stream test_cio_buffered_stream.c ../src/cio_buffered_stream.c)
+add_executable(test_cio_buffered_stream test_cio_buffered_stream.c ../src/cio_buffered_stream.c ../src/platform/shared/cio_string_memmem.c)
 
 set_source_files_properties(../src/http-parser/http_parser.c PROPERTIES COMPILE_OPTIONS "$<$<OR:$<C_COMPILER_ID:GNU>,$<C_COMPILER_ID:Clang>>:-Wno-shadow;-Wno-sign-conversion;-Wno-conversion;-Wno-switch-default>")
 add_executable(test_cio_http_server test_cio_http_server.c ../src/cio_http_server.c ../src/cio_http_location.c ../src/cio_http_location_handler.c ../src/http-parser/http_parser.c)
