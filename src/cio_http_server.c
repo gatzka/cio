@@ -289,6 +289,10 @@ static enum cio_error write_response(struct cio_http_client *client, enum cio_ht
 
 static bool location_match(const char *location, size_t location_length, const char *request_target, size_t request_target_length)
 {
+	if (location_length == 0) {
+		return false;
+	}
+
 	if (request_target_length < location_length) {
 		return false;
 	}
@@ -318,7 +322,7 @@ static const struct cio_http_location *find_location(const struct cio_http_serve
 	const struct cio_http_location *location = server->first_location;
 	for (size_t i = 0; i < server->num_handlers; i++) {
 		size_t location_length = strlen(location->path);
-		if ((location_length > 0) && (location_match(location->path, location_length, request_target, url_length)) && (location_length > best_match_length)) {
+		if ((location_match(location->path, location_length, request_target, url_length)) && (location_length > best_match_length)) {
 			best_match_length = location_length;
 			best_match = location;
 		}
