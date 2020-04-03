@@ -29,7 +29,6 @@
 #ifndef CIO_ZEPHYR_TIMER_IMPL_H
 #define CIO_ZEPHYR_TIMER_IMPL_H
 
-
 #include <kernel.h>
 
 #include "cio_eventloop.h"
@@ -50,4 +49,3 @@ struct cio_timer_impl {
 #endif
 
 #endif
-

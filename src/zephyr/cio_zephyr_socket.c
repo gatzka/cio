@@ -38,10 +38,7 @@
 #include "cio_util.h"
 #include "cio_write_buffer.h"
 
-
 struct cio_io_stream *cio_socket_get_io_stream(struct cio_socket *socket)
 {
 	return &socket->stream;
 }
-
-

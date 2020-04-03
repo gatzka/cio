@@ -29,9 +29,9 @@
 #ifndef CIO_ZEPHYR__INET_ADDRESS_IMPL_H
 #define CIO_ZEPHYR__INET_ADDRESS_IMPL_H
 
+#include <net/net_ip.h>
 #include <stddef.h>
 #include <stdint.h>
-#include <net/net_ip.h>
 
 #include "cio_address_family.h"
 #include "cio_error_code.h"
