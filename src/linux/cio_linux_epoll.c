@@ -191,7 +191,7 @@ enum cio_error cio_eventloop_run(struct cio_eventloop *loop)
 			/*
 			 * The current event could have been removed via cio_linux_eventloop_remove
 			 */
-			if (cio_likely(loop->current_ev != NULL) && (events_type & (uint32_t)EPOLLOUT & ev->registered_events) != 0) {
+			if (cio_likely(loop->current_ev != NULL) && ((events_type & (uint32_t)EPOLLOUT & ev->registered_events) != 0)) {
 				enum cio_epoll_error err;
 				if (cio_unlikely(((events_type & (uint32_t)EPOLLERR) != 0) || ((events_type & (uint32_t)EPOLLHUP) != 0))) {
 					err = CIO_EPOLL_ERROR;
