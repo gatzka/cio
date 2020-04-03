@@ -4,6 +4,7 @@ include(defaults.cmake)
 configure_file(cio_os_config.h.in ${PROJECT_BINARY_DIR}/generated/cio_os_config.h)
 
 add_library(PLATFORM OBJECT
+    ../platform/shared/cio_inet_address_impl.c
     cio_error_code_impl.h
     cio_eventloop_impl.h
     cio_inet4_socket_address_impl.h
@@ -11,7 +12,6 @@ add_library(PLATFORM OBJECT
     cio_inet_address_impl.h
     cio_linux_endian.c
     cio_linux_epoll.c
-    cio_linux_inet_address_impl.c
     cio_linux_random.c
     cio_linux_server_socket.c
     cio_linux_socket.c
