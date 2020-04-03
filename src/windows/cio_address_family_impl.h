@@ -44,6 +44,8 @@ enum cio_address_family_impl {
 	CIO_ADDRESS_FAMILY_UNIX_IMPL = AF_UNIX
 };
 
+#define sa_family_t ADDRESS_FAMILY
+
 #ifdef __cplusplus
 }
 #endif
