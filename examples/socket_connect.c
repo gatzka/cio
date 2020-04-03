@@ -79,7 +79,7 @@ int main(int argc, char *argv[])
 	char *scan = argv[1];
 	for (uint_fast8_t i = 0; i < (uint8_t)NUM_OF_IPV4_OCTETS; i++) {
 		unsigned long octet = strtoul(scan, &scan, BASE_10);
-		if ((octet == ULONG_MAX) || (octet > UINT8_MAX) || ((i < NUM_OF_IPV4_OCTETS - 1) && *scan != '.')) {
+		if ((octet == ULONG_MAX) || (octet > UINT8_MAX) || ((i < NUM_OF_IPV4_OCTETS - 1) && (*scan != '.'))) {
 			usage(argv[0]);
 			return EXIT_FAILURE;
 		}
