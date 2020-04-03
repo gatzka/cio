@@ -159,7 +159,7 @@ int main(void)
 	}
 
 	struct cio_socket_address endpoint;
-	enum cio_error err = cio_init_inet_socket_address(&endpoint, cio_get_inet_address_any6(), SERVERSOCKET_LISTEN_PORT);
+	enum cio_error err = cio_init_inet_socket_address(&endpoint, cio_get_inet_address_any4(), SERVERSOCKET_LISTEN_PORT);
 	if (err != CIO_SUCCESS) {
 		return -1;
 	}
