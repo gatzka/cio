@@ -26,39 +26,14 @@
  * SOFTWARE.
  */
 
-#include <stddef.h>
 #include <string.h>
 
 #include "cio_string.h"
+#include "platform/shared/cio_string_memmem.h"
 
 const void *cio_memmem(const void *haystack, size_t haystacklen, const void *needle, size_t needlelen)
 {
-	const char *begin = haystack;
-	const char *last_possible = begin + haystacklen - needlelen;
-	const char *tail = needle;
-	char point;
-
-	/*
-	 * The first occurrence of the empty string is deemed to occur at
-	 * the beginning of the string.
-	 */
-	if (needlelen == 0)
-		return begin;
-
-	/*
-	 * Sanity check, otherwise the loop might search through the whole
-	 * memory.
-	 */
-	if (haystacklen < needlelen)
-		return NULL;
-
-	point = *tail++;
-	for (; begin <= last_possible; begin++) {
-		if (*begin == point && !memcmp(begin + 1, tail, needlelen - 1))
-			return begin;
-	}
-
-	return NULL;
+	return cio_string_mememem(haystack, haystacklen, needle, needlelen)
 }
 
 int cio_strncasecmp(const char *s1, const char *s2, size_t n)
