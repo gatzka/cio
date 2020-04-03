@@ -218,14 +218,14 @@ static void response_written(struct cio_http_client *client, enum cio_error err)
 
 static enum cio_error send_upgrade_response(struct cio_http_client *client)
 {
-	struct SHA1Context context;
-	SHA1Reset(&context);
+	struct sha1_context context;
+	sha1_reset(&context);
 
 	struct cio_websocket_location_handler *ws = cio_container_of(client->current_handler, struct cio_websocket_location_handler, http_location);
-	SHA1Input(&context, ws->sec_websocket_key, CIO_SEC_WEB_SOCKET_GUID_LENGTH + CIO_SEC_WEB_SOCKET_KEY_LENGTH);
-	uint8_t sha1_buffer[SHA1HashSize];
-	SHA1Result(&context, sha1_buffer);
-	cio_b64_encode_buffer(sha1_buffer, SHA1HashSize, ws->accept_value);
+	sha1_input(&context, ws->sec_websocket_key, CIO_SEC_WEB_SOCKET_GUID_LENGTH + CIO_SEC_WEB_SOCKET_KEY_LENGTH);
+	uint8_t sha1_buffer[SHA1_HASH_SIZE];
+	sha1_result(&context, sha1_buffer);
+	cio_b64_encode_buffer(sha1_buffer, SHA1_HASH_SIZE, ws->accept_value);
 	ws->accept_value[CIO_SEC_WEBSOCKET_ACCEPT_LENGTH - 2] = '\r';
 	ws->accept_value[CIO_SEC_WEBSOCKET_ACCEPT_LENGTH - 1] = '\n';
 

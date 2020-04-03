@@ -14,8 +14,8 @@
  *
  */
 
-#ifndef _SHA1_H_
-#define _SHA1_H_
+#ifndef CIO_SHA1_H
+#define CIO_SHA1_H
 
 #include <stdint.h>
 /*
@@ -28,44 +28,42 @@
  *
  */
 
-#ifndef _SHA_enum_
-#define _SHA_enum_
 enum {
-	shaSuccess = 0,
-	shaNull,         /* Null pointer parameter */
-	shaInputTooLong, /* input data too long */
-	shaStateError    /* called Input after Result */
+	SHA_SUCCESS = 0,
+	SHA_NULL,           /* Null pointer parameter */
+	SHA_INPUT_TOO_LONG, /* input data too long */
+	SHA_STATE_ERROR     /* called Input after Result */
 };
-#endif
-#define SHA1HashSize 20
+
+enum { SHA1_HASH_SIZE = 20 };
 
 /*
  *  This structure will hold context information for the SHA-1
  *  hashing operation
  */
-typedef struct SHA1Context {
-	uint32_t Intermediate_Hash[SHA1HashSize / 4]; /* Message Digest  */
+typedef struct sha1_context {
+	uint32_t intermediate_hash[SHA1_HASH_SIZE / 4]; /* Message Digest  */
 
-	uint32_t Length_Low;  /* Message length in bits      */
-	uint32_t Length_High; /* Message length in bits      */
+	uint32_t length_low;  /* Message length in bits      */
+	uint32_t length_high; /* Message length in bits      */
 
 	/* Index into message block array   */
-	int_least16_t Message_Block_Index;
-	uint8_t Message_Block[64]; /* 512-bit message blocks      */
+	int_least16_t message_block_index;
+	uint8_t message_block[64]; /* 512-bit message blocks      */
 
-	int Computed;  /* Is the digest computed?         */
-	int Corrupted; /* Is the message digest corrupted? */
-} SHA1Context;
+	int computed;  /* Is the digest computed?         */
+	int corrupted; /* Is the message digest corrupted? */
+} sha1_context;
 
 /*
  *  Function Prototypes
  */
 
-int SHA1Reset(SHA1Context *context);
-int SHA1Input(SHA1Context *context,
-			  const uint8_t *message_array,
-			  unsigned int length);
-int SHA1Result(SHA1Context *context,
-               uint8_t Message_Digest[SHA1HashSize]);
+int sha1_reset(sha1_context *context);
+int sha1_input(sha1_context *context,
+               const uint8_t *message_array,
+               unsigned int length);
+int sha1_result(sha1_context *context,
+                uint8_t Message_Digest[SHA1_HASH_SIZE]);
 
 #endif
