@@ -2,6 +2,7 @@ cmake_minimum_required(VERSION 3.9)
 
 add_library(PLATFORM OBJECT
     ../platform/shared/cio_inet_address_impl.c
+    ../platform/shared/cio_socket_address_impl.c
     ../platform/shared/cio_string_memmem.c
     cio_address_family_impl.h
     cio_error_code_impl.h
@@ -19,7 +20,6 @@ add_library(PLATFORM OBJECT
     cio_windows_server_socket.c
     cio_windows_socket.c
     cio_windows_socket.h
-    cio_windows_socket_address_impl.c
     cio_windows_socket_utils.c
     cio_windows_socket_utils.h
     cio_windows_string.c
