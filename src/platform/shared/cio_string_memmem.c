@@ -54,7 +54,7 @@ const void *cio_memmem(const void *haystack, size_t haystacklen, const void *nee
 
 	point = *tail++;
 	for (; begin <= last_possible; begin++) {
-		if ((*begin == point) && !memcmp(begin + 1, tail, needlelen - 1))
+		if ((*begin == point) && (!memcmp(begin + 1, tail, needlelen - 1)))
 			return begin;
 	}
 
