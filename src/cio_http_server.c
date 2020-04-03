@@ -59,8 +59,7 @@
 #define CIO_HTTP_CONNECTION_UPGRADE "Connection: Upgrade" CIO_CRLF
 
 #define CIO_HTTP_VERSION "HTTP/1.1"
-#undef MIN
-#define MIN(x, y) (((x) < (y)) ? (x) : (y))
+#define CIO_MIN(x, y) (((x) < (y)) ? (x) : (y))
 
 static const uint32_t NANO_SECONDS_IN_SECONDS = 1000000000;
 
@@ -579,7 +578,7 @@ static void parse(struct cio_buffered_stream *bs, void *handler_context, enum ci
 
 	if (client->http_private.remaining_content_length > 0) {
 		size_t available = cio_read_buffer_unread_bytes(read_buffer);
-		bytes_to_parse = MIN(available, client->http_private.remaining_content_length);
+		bytes_to_parse = CIO_MIN(available, client->http_private.remaining_content_length);
 		client->http_private.remaining_content_length -= bytes_to_parse;
 	}
 
