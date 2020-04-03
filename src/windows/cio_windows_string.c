@@ -29,12 +29,6 @@
 #include <string.h>
 
 #include "cio_string.h"
-#include "platform/shared/cio_string_memmem.h"
-
-const void *cio_memmem(const void *haystack, size_t haystacklen, const void *needle, size_t needlelen)
-{
-	return cio_string_mememem(haystack, haystacklen, needle, needlelen)
-}
 
 int cio_strncasecmp(const char *s1, const char *s2, size_t n)
 {

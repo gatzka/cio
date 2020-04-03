@@ -10,6 +10,7 @@ add_library(PLATFORM OBJECT
     cio_zephyr_socket_address_impl.c
     cio_zephyr_string.c
     cio_zephyr_timer.c
+    ../platform/shared/cio_string_memmem.c
 )
 
 target_include_directories(PLATFORM

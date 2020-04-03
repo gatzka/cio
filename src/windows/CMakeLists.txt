@@ -11,6 +11,7 @@ add_library(PLATFORM OBJECT
     cio_windows_socket_utils.c
     cio_windows_string.c
     cio_windows_timer.c
+    ../platform/shared/cio_string_memmem.c
 )
 
 set_property(TARGET PLATFORM 
