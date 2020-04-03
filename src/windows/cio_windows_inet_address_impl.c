@@ -32,38 +32,46 @@
 
 #include "cio_address_family.h"
 #include "cio_compiler.h"
-#include "cio_endian.h"
 #include "cio_error_code.h"
 #include "cio_inet_address.h"
-#include "cio_socket_address.h"
+#include "cio_inet_address_impl.h"
 
-enum cio_address_family cio_socket_address_get_family(const struct cio_socket_address *endpoint)
+static const struct cio_inet_address inet_address_any6 = {
+    .impl = {.family = CIO_ADDRESS_FAMILY_INET6, .in6 = IN6ADDR_ANY_INIT}};
+
+static const struct cio_inet_address inet_address_any4 = {
+    .impl = {.family = CIO_ADDRESS_FAMILY_INET4, .in.s_addr = INADDR_ANY}};
+
+const struct cio_inet_address *cio_get_inet_address_any4(void)
 {
-	return (enum cio_address_family)endpoint->impl.sa.socket_address.addr.sa_family;
+	return &inet_address_any4;
 }
 
-enum cio_error cio_init_inet_socket_address(struct cio_socket_address *sock_address, const struct cio_inet_address *inet_address, uint16_t port)
+const struct cio_inet_address *cio_get_inet_address_any6(void)
 {
-	if (cio_unlikely((sock_address == NULL) || (inet_address == NULL))) {
+	return &inet_address_any6;
+}
+
+enum cio_error cio_init_inet_address(struct cio_inet_address *inet_address, const uint8_t *address, size_t address_length)
+{
+	size_t v4_size = sizeof(inet_address->impl.in.s_addr);
+	size_t v6_size = sizeof(inet_address->impl.in6.s6_addr);
+	if (cio_unlikely((inet_address == NULL) || (address == NULL) || !((address_length == v4_size) || (address_length == v6_size)))) {
 		return CIO_INVALID_ARGUMENT;
 	}
 
-	enum cio_address_family family = inet_address->impl.family;
-	if (cio_unlikely((family != CIO_ADDRESS_FAMILY_INET4) && (family != CIO_ADDRESS_FAMILY_INET6))) {
-		return CIO_ADDRESS_FAMILY_NOT_SUPPORTED;
-	}
-
-	if (family == CIO_ADDRESS_FAMILY_INET4) {
-		memcpy(&sock_address->impl.sa.inet_addr4.impl.in.sin_addr, &inet_address->impl.in.s_addr, sizeof(inet_address->impl.in.s_addr));
-		sock_address->impl.sa.inet_addr4.impl.in.sin_port = cio_htobe16(port);
-		sock_address->impl.len = (socklen_t)sizeof(sock_address->impl.sa.inet_addr4.impl.in);
+	if (address_length == v4_size) {
+		inet_address->impl.family = CIO_ADDRESS_FAMILY_INET4;
+		memcpy(&inet_address->impl.in.s_addr, address, address_length);
 	} else {
-		memcpy(sock_address->impl.sa.inet_addr6.impl.in6.sin6_addr.s6_addr, inet_address->impl.in6.s6_addr, sizeof(inet_address->impl.in6.s6_addr));
-		sock_address->impl.sa.inet_addr6.impl.in6.sin6_port = cio_htobe16(port);
-		sock_address->impl.len = (socklen_t)sizeof(sock_address->impl.sa.inet_addr6.impl.in6);
+		inet_address->impl.family = CIO_ADDRESS_FAMILY_INET6;
+		memcpy(&inet_address->impl.in6.s6_addr, address, address_length);
 	}
-
-	sock_address->impl.sa.socket_address.addr.sa_family = (sa_family_t)family;
 
 	return CIO_SUCCESS;
+}
+
+enum cio_address_family cio_inet_address_get_family(const struct cio_inet_address *endpoint)
+{
+	return endpoint->impl.family;
 }
