@@ -75,7 +75,7 @@ enum cio_error cio_server_socket_set_reuse_address(const struct cio_server_socke
 	}
 
 	if (cio_unlikely(zsock_setsockopt(ss->impl.fd, SOL_SOCKET, SO_REUSEADDR, &reuse,
-					sizeof(reuse)) < 0)) {
+	                                  sizeof(reuse)) < 0)) {
 		return (enum cio_error)(-errno);
 	}
 
@@ -139,8 +139,7 @@ enum cio_error cio_server_socket_accept(struct cio_server_socket *ss, cio_accept
 	}
 
 	k_thread_create(&ss->impl.ipv4_listen_thread, &stacks[0][0], STACK_SIZE,
-			accept_thread, ss, 0, 0, K_PRIO_PREEMPT(10), 0, K_NO_WAIT);
-
+	                accept_thread, ss, 0, 0, K_PRIO_PREEMPT(10), 0, K_NO_WAIT);
 
 	return CIO_SUCCESS;
 }
@@ -165,4 +164,3 @@ enum cio_error cio_server_socket_set_tcp_fast_open(const struct cio_server_socke
 
 	return CIO_OPERATION_NOT_SUPPORTED;
 }
-

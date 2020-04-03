@@ -50,7 +50,6 @@ struct cio_server_socket_impl {
 	struct k_thread ipv6_listen_thread;
 };
 
-
 #ifdef __cplusplus
 }
 #endif
