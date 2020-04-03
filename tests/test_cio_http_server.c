@@ -113,7 +113,7 @@ FAKE_VALUE_FUNC(enum cio_address_family, cio_socket_address_get_family, const st
 
 FAKE_VALUE_FUNC(enum cio_error, cio_server_socket_set_tcp_fast_open, const struct cio_server_socket *, bool)
 
-FAKE_VOID_FUNC(http_close_hook, struct cio_http_server *)
+FAKE_VOID_FUNC(http_close_hook, const struct cio_http_server *)
 
 static enum cio_http_cb_return on_message_complete(struct cio_http_client *c);
 FAKE_VALUE_FUNC(enum cio_http_cb_return, on_message_complete, struct cio_http_client *)
@@ -1001,7 +1001,7 @@ static void test_server_init_no_config(void)
 static void test_shutdown(void)
 {
 	struct shutdown_args {
-		void (*close_hook)(struct cio_http_server *server);
+		void (*close_hook)(const struct cio_http_server *server);
 		unsigned int close_hook_call_count;
 		enum cio_error expected_result;
 	};
