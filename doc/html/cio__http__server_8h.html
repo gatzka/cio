@@ -118,8 +118,8 @@ Typedefs</h2></td></tr>
 <tr class="memitem:afbb607b74a68fb96dceaf24e3c486490"><td class="memItemLeft" align="right" valign="top">typedef void(*&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="cio__http__server_8h.html#afbb607b74a68fb96dceaf24e3c486490">cio_http_serve_on_error</a>) (struct <a class="el" href="structcio__http__server.html">cio_http_server</a> *server, const char *reason)</td></tr>
 <tr class="memdesc:afbb607b74a68fb96dceaf24e3c486490"><td class="mdescLeft">&#160;</td><td class="mdescRight">The type of an server error function passed to the <a class="el" href="cio__http__server_8h.html#a3e1a21bea756301a3c9d1a3d83d2dc35">initialization</a> of an HTTP server.  <a href="#afbb607b74a68fb96dceaf24e3c486490">More...</a><br /></td></tr>
 <tr class="separator:afbb607b74a68fb96dceaf24e3c486490"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:af609a6eee53f0b486836ad9095863110"><td class="memItemLeft" align="right" valign="top">typedef void(*&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="cio__http__server_8h.html#af609a6eee53f0b486836ad9095863110">cio_http_server_close_hook</a>) (struct <a class="el" href="structcio__http__server.html">cio_http_server</a> *server)</td></tr>
-<tr class="separator:af609a6eee53f0b486836ad9095863110"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae29481e6ed72d0701197220c8af79da3"><td class="memItemLeft" align="right" valign="top">typedef void(*&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="cio__http__server_8h.html#ae29481e6ed72d0701197220c8af79da3">cio_http_server_close_hook</a>) (const struct <a class="el" href="structcio__http__server.html">cio_http_server</a> *server)</td></tr>
+<tr class="separator:ae29481e6ed72d0701197220c8af79da3"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="enum-members"></a>
 Enumerations</h2></td></tr>
@@ -138,7 +138,7 @@ Functions</h2></td></tr>
 <tr class="memitem:a915f43afc1b3e432e34f6f0d0aa6d774"><td class="memItemLeft" align="right" valign="top">enum <a class="el" href="cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afe">cio_error</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="cio__http__server_8h.html#a915f43afc1b3e432e34f6f0d0aa6d774">cio_http_server_register_location</a> (struct <a class="el" href="structcio__http__server.html">cio_http_server</a> *server, struct <a class="el" href="structcio__http__location.html">cio_http_location</a> *location)</td></tr>
 <tr class="memdesc:a915f43afc1b3e432e34f6f0d0aa6d774"><td class="mdescLeft">&#160;</td><td class="mdescRight">Register a <a class="el" href="structcio__http__location.html">location</a> to the HTTP server.  <a href="#a915f43afc1b3e432e34f6f0d0aa6d774">More...</a><br /></td></tr>
 <tr class="separator:a915f43afc1b3e432e34f6f0d0aa6d774"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a1f33eee2e40873639089d89204043d26"><td class="memItemLeft" align="right" valign="top">enum <a class="el" href="cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afe">cio_error</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="cio__http__server_8h.html#a1f33eee2e40873639089d89204043d26">cio_http_server_shutdown</a> (struct <a class="el" href="structcio__http__server.html">cio_http_server</a> *server, <a class="el" href="cio__http__server_8h.html#af609a6eee53f0b486836ad9095863110">cio_http_server_close_hook</a> close_hook)</td></tr>
+<tr class="memitem:a1f33eee2e40873639089d89204043d26"><td class="memItemLeft" align="right" valign="top">enum <a class="el" href="cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afe">cio_error</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="cio__http__server_8h.html#a1f33eee2e40873639089d89204043d26">cio_http_server_shutdown</a> (struct <a class="el" href="structcio__http__server.html">cio_http_server</a> *server, <a class="el" href="cio__http__server_8h.html#ae29481e6ed72d0701197220c8af79da3">cio_http_server_close_hook</a> close_hook)</td></tr>
 <tr class="memdesc:a1f33eee2e40873639089d89204043d26"><td class="mdescLeft">&#160;</td><td class="mdescRight">Shuts down the HTTP server, including the underlying server socket.  <a href="#a1f33eee2e40873639089d89204043d26">More...</a><br /></td></tr>
 <tr class="separator:a1f33eee2e40873639089d89204043d26"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
@@ -171,14 +171,14 @@ Functions</h2></td></tr>
 
 </div>
 </div>
-<a id="af609a6eee53f0b486836ad9095863110"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#af609a6eee53f0b486836ad9095863110">&#9670;&nbsp;</a></span>cio_http_server_close_hook</h2>
+<a id="ae29481e6ed72d0701197220c8af79da3"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ae29481e6ed72d0701197220c8af79da3">&#9670;&nbsp;</a></span>cio_http_server_close_hook</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">typedef void(* cio_http_server_close_hook) (struct <a class="el" href="structcio__http__server.html">cio_http_server</a> *server)</td>
+          <td class="memname">typedef void(* cio_http_server_close_hook) (const struct <a class="el" href="structcio__http__server.html">cio_http_server</a> *server)</td>
         </tr>
       </table>
 </div><div class="memdoc">
@@ -330,7 +330,7 @@ Functions</h2></td></tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="cio__http__server_8h.html#af609a6eee53f0b486836ad9095863110">cio_http_server_close_hook</a>&#160;</td>
+          <td class="paramtype"><a class="el" href="cio__http__server_8h.html#ae29481e6ed72d0701197220c8af79da3">cio_http_server_close_hook</a>&#160;</td>
           <td class="paramname"><em>close_hook</em>&#160;</td>
         </tr>
         <tr>

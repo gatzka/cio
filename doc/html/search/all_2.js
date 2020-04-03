@@ -102,7 +102,7 @@ var searchData=
   ['cio_5fhttp_5fserve_5fon_5ferror',['cio_http_serve_on_error',['../cio__http__server_8h.html#afbb607b74a68fb96dceaf24e3c486490',1,'cio_http_server.h']]],
   ['cio_5fhttp_5fserver',['cio_http_server',['../structcio__http__server.html',1,'']]],
   ['cio_5fhttp_5fserver_2eh',['cio_http_server.h',['../cio__http__server_8h.html',1,'']]],
-  ['cio_5fhttp_5fserver_5fclose_5fhook',['cio_http_server_close_hook',['../cio__http__server_8h.html#af609a6eee53f0b486836ad9095863110',1,'cio_http_server.h']]],
+  ['cio_5fhttp_5fserver_5fclose_5fhook',['cio_http_server_close_hook',['../cio__http__server_8h.html#ae29481e6ed72d0701197220c8af79da3',1,'cio_http_server.h']]],
   ['cio_5fhttp_5fserver_5fconfiguration',['cio_http_server_configuration',['../structcio__http__server__configuration.html',1,'']]],
   ['cio_5fhttp_5fserver_5finit',['cio_http_server_init',['../cio__http__server_8h.html#a3e1a21bea756301a3c9d1a3d83d2dc35',1,'cio_http_server.h']]],
   ['cio_5fhttp_5fserver_5fregister_5flocation',['cio_http_server_register_location',['../cio__http__server_8h.html#a915f43afc1b3e432e34f6f0d0aa6d774',1,'cio_http_server.h']]],
