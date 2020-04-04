@@ -158,6 +158,21 @@ void cio_linux_eventloop_remove(struct cio_eventloop *loop, const struct cio_eve
 	}
 }
 
+static void handle_removed_ev(const struct cio_eventloop *loop, struct cio_event_notifier *ev, uint32_t events_type)
+{
+	if (cio_likely(loop->current_ev != NULL) && ((events_type & (uint32_t)EPOLLOUT & ev->registered_events) != 0)) {
+		enum cio_epoll_error err;
+		if (cio_unlikely(((events_type & (uint32_t)EPOLLERR) != 0) || ((events_type & (uint32_t)EPOLLHUP) != 0))) {
+			err = CIO_EPOLL_ERROR;
+		} else {
+			err = CIO_EPOLL_SUCCESS;
+		}
+
+		cio_linux_eventloop_unregister_write(loop, ev);
+		ev->write_callback(ev->context, err);
+	}
+}
+
 enum cio_error cio_eventloop_run(struct cio_eventloop *loop)
 {
 	struct epoll_event *events = loop->epoll_events;
@@ -188,20 +203,7 @@ enum cio_error cio_eventloop_run(struct cio_eventloop *loop)
 				ev->read_callback(ev->context, CIO_EPOLL_SUCCESS);
 			}
 
-			/*
-			 * The current event could have been removed via cio_linux_eventloop_remove
-			 */
-			if (cio_likely(loop->current_ev != NULL) && ((events_type & (uint32_t)EPOLLOUT & ev->registered_events) != 0)) {
-				enum cio_epoll_error err;
-				if (cio_unlikely(((events_type & (uint32_t)EPOLLERR) != 0) || ((events_type & (uint32_t)EPOLLHUP) != 0))) {
-					err = CIO_EPOLL_ERROR;
-				} else {
-					err = CIO_EPOLL_SUCCESS;
-				}
-
-				cio_linux_eventloop_unregister_write(loop, ev);
-				ev->write_callback(ev->context, err);
-			}
+			handle_removed_ev(loop, ev, events_type);
 		}
 	}
 
