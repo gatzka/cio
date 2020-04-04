@@ -276,7 +276,7 @@ if(DOXYGEN_FOUND)
     set(DOXYGEN_EXPAND_ONLY_PREDEF YES)
     set(DOXYGEN_PREDEFINED CIO_EXPORT)
 
-    doxygen_add_docs(docs
+    doxygen_add_docs(${PROJECT_NAME}_docs
         ${PROJECT_SOURCE_DIR}
         ${CMAKE_CURRENT_BINARY_DIR}/generated/
         COMMENT "Generating API documentation with Doxygen"
