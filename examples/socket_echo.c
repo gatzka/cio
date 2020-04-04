@@ -38,6 +38,7 @@
 #include "cio_read_buffer.h"
 #include "cio_server_socket.h"
 #include "cio_socket.h"
+#include "cio_socket_address.h"
 #include "cio_util.h"
 #include "cio_write_buffer.h"
 
