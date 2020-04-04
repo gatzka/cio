@@ -247,7 +247,7 @@ jobs:
       uses: gatzka/cmake-build-action@v1.1.0
       with:
         install_deps: ./.github/workflows/install-deps.sh
-        cmake_build_target: docs
+        cmake_build_target: cio_docs
     - name: GitHub Pages Deploy
       uses: gatzka/publish-gh-pages-action@v1.0.0
       env:
