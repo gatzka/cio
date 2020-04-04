@@ -333,7 +333,7 @@ int sha1_input(sha1_context *context,
 	if (context->corrupted) {
 		return context->corrupted;
 	}
-	while (length-- && (!context->corrupted)) {
+	while ((length--) && (!context->corrupted)) {
 		context->message_block[context->message_block_index++] =
 		    (*message_array & 0xFFU);
 
