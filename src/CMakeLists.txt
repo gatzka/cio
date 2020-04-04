@@ -28,7 +28,7 @@ if(NOT CIO_BUILD_FOR_ZEPHYR)
     endif()
 endif()
 
-add_custom_target(generate_semver
+add_custom_target(${PROJECT_NAME}_generate_semver
     COMMAND ${CMAKE_COMMAND}
         -DPROJECT_NAME=${PROJECT_NAME}
         -DPROJECT_VERSION_MAJOR=${${PROJECT_NAME}_VERSION_MAJOR}
@@ -70,7 +70,7 @@ target_link_libraries(${PROJECT_NAME} PUBLIC PLATFORM)
 
 add_library(${PROJECT_NAME}::${PROJECT_NAME} ALIAS ${PROJECT_NAME})
 
-add_dependencies(${PROJECT_NAME} generate_semver)
+add_dependencies(${PROJECT_NAME} ${PROJECT_NAME}_generate_semver)
 
 include(CMakeDependentOption)
 
