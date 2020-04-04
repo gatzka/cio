@@ -372,7 +372,7 @@ static int on_headers_complete(http_parser *parser)
 		return 0;
 	}
 
-	if (!client->http_private.response_fired && client->current_handler->on_headers_complete) {
+	if ((!client->http_private.response_fired) && client->current_handler->on_headers_complete) {
 		int ret = client->current_handler->on_headers_complete(client);
 		if (cio_unlikely(ret != CIO_HTTP_CB_SUCCESS)) {
 			return ret;
@@ -396,7 +396,7 @@ static int on_headers_complete(http_parser *parser)
 
 static int data_callback(struct cio_http_client *client, const char *at, size_t length, cio_http_data_cb cb)
 {
-	if (!client->http_private.response_fired && cb) {
+	if ((!client->http_private.response_fired) && cb) {
 		return cb(client, at, length);
 	}
 
@@ -430,7 +430,7 @@ static int on_message_complete(http_parser *parser)
 	}
 
 	enum cio_http_cb_return ret;
-	if (!client->http_private.response_fired && client->current_handler->on_message_complete) {
+	if ((!client->http_private.response_fired) && client->current_handler->on_message_complete) {
 		ret = client->current_handler->on_message_complete(client);
 	} else {
 		ret = CIO_HTTP_CB_SUCCESS;
@@ -448,7 +448,7 @@ static int on_message_complete(http_parser *parser)
 static int on_body(http_parser *parser, const char *at, size_t length)
 {
 	struct cio_http_client *client = cio_container_of(parser, struct cio_http_client, parser);
-	if (!client->http_private.response_fired && client->current_handler->on_body) {
+	if ((!client->http_private.response_fired) && client->current_handler->on_body) {
 		return client->current_handler->on_body(client, at, length);
 	}
 
@@ -548,7 +548,7 @@ static int on_url(http_parser *parser, const char *at, size_t length)
 		return -1;
 	}
 
-	if (handler->on_url && !client->http_private.response_fired) {
+	if (handler->on_url && (!client->http_private.response_fired)) {
 		return handler->on_url(client, at, length);
 	}
 

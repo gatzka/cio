@@ -266,7 +266,7 @@ static void sha1_pad_message(sha1_context *context)
 int sha1_result(sha1_context *context,
                 uint8_t Message_Digest[SHA1_HASH_SIZE])
 {
-	if (!context || !Message_Digest) {
+	if ((!context) || (!Message_Digest)) {
 		return SHA_NULL;
 	}
 
@@ -320,7 +320,7 @@ int sha1_input(sha1_context *context,
 		return SHA_SUCCESS;
 	}
 
-	if (!context || !message_array) {
+	if ((!context) || (!message_array)) {
 		return SHA_NULL;
 	}
 
@@ -333,7 +333,7 @@ int sha1_input(sha1_context *context,
 	if (context->corrupted) {
 		return context->corrupted;
 	}
-	while (length-- && !context->corrupted) {
+	while (length-- && (!context->corrupted)) {
 		context->message_block[context->message_block_index++] =
 		    (*message_array & 0xFFU);
 

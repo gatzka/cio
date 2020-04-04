@@ -106,7 +106,7 @@ static void check_websocket_protocol(struct cio_websocket_location_handler *hand
 
 	const char *start = at;
 	while (length > 0) {
-		if (!isspace(*start) && (*start != ',')) {
+		if ((!isspace(*start)) && (*start != ',')) {
 			const char *end = start;
 			while (length > 0) {
 				if (*end == ',') {
