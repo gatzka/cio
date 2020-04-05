@@ -100,6 +100,7 @@ static void accept_callback(void *context)
 static void net_context_accept_cb(struct net_context *new_context, struct sockaddr *addr, socklen_t addrlen, int status, void *user_data)
 {
 	struct cio_server_socket *ss = (struct cio_server_socket *)user_data;
+	ss->impl.new_context = new_context;
 	cio_zephyr_eventloop_add_event(ss->impl.loop, &ss->impl.ev);
 }
 
