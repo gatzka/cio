@@ -32,8 +32,8 @@ add_executable(test_cio_inet_socket_address
     test_cio_inet_socket_address.c
     ../src/platform/shared/cio_inet_address_impl.c
     ../src/platform/shared/cio_socket_address_impl.c
-    $<$<PLATFORM_ID:Linux>:../src/linux/cio_linux_endian.c>
-    $<$<PLATFORM_ID:Windows>:../src/windows/cio_windows_endian.c>
+    $<$<PLATFORM_ID:Linux>:../src/platform/linux/cio_linux_endian.c>
+    $<$<PLATFORM_ID:Windows>:../src/platform/windows/cio_windows_endian.c>
 )
 
 add_executable(test_cio_random test_cio_random.c ../src/cio_random.c)
@@ -49,8 +49,8 @@ add_executable(test_cio_websocket_location_handler
     ../src/cio_websocket_location_handler.c
     ../src/sha1/sha1.c
     ../src/cio_base64.c
-    $<$<PLATFORM_ID:Linux>:../src/linux/cio_linux_string.c>
-    $<$<PLATFORM_ID:Windows>:../src/windows/cio_windows_string.c>
+    $<$<PLATFORM_ID:Linux>:../src/platform/linux/cio_linux_string.c>
+    $<$<PLATFORM_ID:Windows>:../src/platform/windows/cio_windows_string.c>
 )
 
 add_executable(test_cio_websocket_mask test_cio_websocket_mask.c)
