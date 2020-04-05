@@ -119,7 +119,7 @@ enum cio_error cio_server_socket_accept(struct cio_server_socket *ss, cio_accept
 		return (enum cio_error)(ret);
 	}
 
-	ret = net_context_accept(ss->impl.context, net_context_accept_cb,  K_NO_WAIT, ss);
+	ret = net_context_accept(ss->impl.context, net_context_accept_cb, K_NO_WAIT, ss);
 
 	return CIO_SUCCESS;
 }

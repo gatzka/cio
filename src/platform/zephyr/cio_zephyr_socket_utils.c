@@ -51,4 +51,3 @@ struct net_context *cio_zephyr_socket_create(enum cio_address_family address_fam
 
 	return context;
 }
-
