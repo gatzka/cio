@@ -76,18 +76,19 @@ static void accept_callback(void *context, enum cio_epoll_error error)
 		}
 	} else {
 		struct cio_socket *s = ss->alloc_client();
-		if (cio_likely(s != NULL)) {
-			enum cio_error err = cio_linux_socket_init(s, client_fd, ss->impl.loop, ss->impl.close_timeout_ns, ss->free_client);
-			if (cio_likely(err == CIO_SUCCESS)) {
-				ss->handler(ss, ss->handler_context, err, s);
-			} else {
-				ss->handler(ss, ss->handler_context, err, NULL);
-				close(client_fd);
-				ss->free_client(s);
-			}
-		} else {
+		if (cio_unlikely(s == NULL)) {
 			ss->handler(ss, ss->handler_context, CIO_NO_MEMORY, s);
 			close(client_fd);
+			return;
+		}
+
+		enum cio_error err = cio_linux_socket_init(s, client_fd, ss->impl.loop, ss->impl.close_timeout_ns, ss->free_client);
+		if (cio_likely(err == CIO_SUCCESS)) {
+			ss->handler(ss, ss->handler_context, err, s);
+		} else {
+			ss->handler(ss, ss->handler_context, err, NULL);
+			close(client_fd);
+			ss->free_client(s);
 		}
 	}
 }
