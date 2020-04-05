@@ -27,8 +27,7 @@
  */
 
 #include <errno.h>
-#include <kernel.h>
-#include <net/socket.h>
+#include <net/net_context.h>
 
 #include "cio_compiler.h"
 #include "cio_error_code.h"
