@@ -99,7 +99,8 @@ static void accept_callback(void *context)
 
 static void net_context_accept_cb(struct net_context *new_context, struct sockaddr *addr, socklen_t addrlen, int status, void *user_data)
 {
-	printk("In net_context_callback!\n");
+	struct cio_server_socket *ss = (struct cio_server_socket *)user_data;
+	cio_zephyr_eventloop_add_event(ss->impl.loop, &ss->impl.ev);
 }
 
 enum cio_error cio_server_socket_accept(struct cio_server_socket *ss, cio_accept_handler handler, void *handler_context)
