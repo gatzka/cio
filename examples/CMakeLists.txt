@@ -1,33 +1,13 @@
 cmake_minimum_required(VERSION 3.9)
 project(cio-examples C)
 
-add_executable(socket_echo
-    socket_echo.c
-)
-
-add_executable(socket_connect
-    socket_connect.c
-)
-
-add_executable(socket_ping_pong
-    socket_ping_pong.c
-)
-
-add_executable(socket_two_connects
-    socket_two_connects.c
-)
-
-add_executable(http_server
-    http_server.c
-)
-
-add_executable(websocket_server
-    websocket_server.c
-)
-
-add_executable(periodic_timer
-    periodic_timer.c
-)
+add_executable(socket_echo socket_echo.c)
+add_executable(socket_connect socket_connect.c)
+add_executable(socket_ping_pong socket_ping_pong.c)
+add_executable(socket_two_connects socket_two_connects.c)
+add_executable(http_server http_server.c)
+add_executable(websocket_server websocket_server.c)
+add_executable(periodic_timer periodic_timer.c)
 
 if(${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
     add_subdirectory(linux)

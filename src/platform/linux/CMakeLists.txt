@@ -4,8 +4,8 @@ include(defaults.cmake)
 configure_file(cio_os_config.h.in ${PROJECT_BINARY_DIR}/generated/cio_os_config.h)
 
 add_library(PLATFORM OBJECT
-    ../platform/shared/cio_inet_address_impl.c
-    ../platform/shared/cio_socket_address_impl.c
+    ../shared/cio_inet_address_impl.c
+    ../shared/cio_socket_address_impl.c
     cio_error_code_impl.h
     cio_eventloop_impl.h
     cio_inet4_socket_address_impl.h
@@ -49,7 +49,7 @@ install(FILES "${CMAKE_CURRENT_LIST_DIR}/cio_unix_address.h"
 
 target_include_directories(PLATFORM
     PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/>
-    PRIVATE ${CMAKE_CURRENT_BINARY_DIR}/../generated/ ${CMAKE_CURRENT_LIST_DIR}/../
+    PRIVATE ${CMAKE_CURRENT_BINARY_DIR}/../../generated/ ${CMAKE_CURRENT_LIST_DIR}/../../
 )
 
 get_property(targets DIRECTORY "${CMAKE_CURRENT_LIST_DIR}" PROPERTY BUILDSYSTEM_TARGETS)

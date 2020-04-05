@@ -105,12 +105,12 @@ include(ClangFormat)
 file(GLOB FILES_TO_FORMAT
     ${PROJECT_SOURCE_DIR}/src/*.c
     ${PROJECT_SOURCE_DIR}/src/*.h
-    ${PROJECT_SOURCE_DIR}/src/linux/*.c
-    ${PROJECT_SOURCE_DIR}/src/linux/*.h
+    ${PROJECT_SOURCE_DIR}/src/platform/linux/*.c
+    ${PROJECT_SOURCE_DIR}/src/platform/linux/*.h
+    ${PROJECT_SOURCE_DIR}/src/platform/zephyr/*.c
+    ${PROJECT_SOURCE_DIR}/src/platform/zephyr/*.h
     ${PROJECT_SOURCE_DIR}/src/sha1/*.c
     ${PROJECT_SOURCE_DIR}/src/sha1/*.h
-    ${PROJECT_SOURCE_DIR}/src/zephyr/*.c
-    ${PROJECT_SOURCE_DIR}/src/zephyr/*.h
     ${PROJECT_SOURCE_DIR}/tests/*.c
     ${PROJECT_SOURCE_DIR}/tests/*.h
 )

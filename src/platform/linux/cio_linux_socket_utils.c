@@ -3,7 +3,7 @@
  *
  * The MIT License (MIT)
  *
- * Copyright (c) <2019> <Stephan Gatzka>
+ * Copyright (c) <2017> <Stephan Gatzka>
  *
  * Permission is hereby granted, free of charge, to any person obtaining
  * a copy of this software and associated documentation files (the
@@ -26,23 +26,39 @@
  * SOFTWARE.
  */
 
-#ifndef CIO_LINUX_TIMER_IMPL_H
-#define CIO_LINUX_TIMER_IMPL_H
+#include <errno.h>
+#include <sys/socket.h>
 
-#include "cio_eventloop.h"
-#include "linux/cio_eventloop_impl.h"
+#include "cio_compiler.h"
+#include "cio_error_code.h"
+#include "cio_inet_address.h"
+#include "platform/linux/cio_linux_socket_utils.h"
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+int cio_linux_socket_create(enum cio_address_family address_family)
+{
+	if (cio_unlikely(address_family == CIO_ADDRESS_FAMILY_UNSPEC)) {
+		errno = EINVAL;
+		return -1;
+	}
 
-struct cio_timer_impl {
-	struct cio_event_notifier ev;
-	struct cio_eventloop *loop;
-};
+	int domain = (int)address_family;
 
-#ifdef __cplusplus
+	int fd = socket(domain, (unsigned int)SOCK_STREAM | (unsigned int)SOCK_CLOEXEC | (unsigned int)SOCK_NONBLOCK, 0U);
+	if (cio_unlikely(fd == -1)) {
+		return -1;
+	}
+
+	return fd;
 }
-#endif
 
-#endif
+enum cio_error cio_linux_get_socket_error(int fd)
+{
+	int error = 0;
+	socklen_t len = sizeof(error);
+	int ret = getsockopt(fd, SOL_SOCKET, SO_ERROR, &error, &len);
+	if (cio_unlikely(ret != 0)) {
+		return (enum cio_error)(-errno);
+	}
+
+	return (enum cio_error)(-error);
+}

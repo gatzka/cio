@@ -36,7 +36,7 @@
 #include "cio_error_code.h"
 #include "cio_eventloop.h"
 #include "cio_util.h"
-#include "windows/cio_eventloop_impl.h"
+#include "platform/windows/cio_eventloop_impl.h"
 
 static const ULONG_PTR STOP_COMPLETION_KEY = SIZE_MAX;
 

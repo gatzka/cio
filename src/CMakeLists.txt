@@ -172,17 +172,17 @@ endif()
 
 target_include_directories(${PROJECT_NAME} PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}>
-    $<BUILD_INTERFACE:$<$<PLATFORM_ID:Linux>:${CMAKE_CURRENT_LIST_DIR}/linux/>>
-    $<BUILD_INTERFACE:$<$<PLATFORM_ID:Windows>:${CMAKE_CURRENT_LIST_DIR}/windows/>>
+    $<BUILD_INTERFACE:$<$<PLATFORM_ID:Linux>:${CMAKE_CURRENT_LIST_DIR}/platform/linux/>>
+    $<BUILD_INTERFACE:$<$<PLATFORM_ID:Windows>:${CMAKE_CURRENT_LIST_DIR}/platform/windows/>>
     $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/generated/>
 )
 
 if(${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
-    add_subdirectory(linux)
+    add_subdirectory(platform/linux)
 elseif(${CMAKE_SYSTEM_NAME} STREQUAL "Windows")
-    add_subdirectory(windows)
+    add_subdirectory(platform/windows)
 elseif(${CIO_BUILD_FOR_ZEPHYR})
-    add_subdirectory(zephyr)
+    add_subdirectory(platform/zephyr)
 endif()
 
 if(NOT CIO_BUILD_FOR_ZEPHYR)
