@@ -26,28 +26,23 @@
  * SOFTWARE.
  */
 
+#ifndef CIO_ZEPHYR_SOCKET_H
+#define CIO_ZEPHYR_SOCKET_H
+
 #include <net/net_context.h>
 #include <stdint.h>
 
-#include "cio_compiler.h"
-#include "cio_endian.h"
-#include "cio_error_code.h"
-#include "cio_eventloop_impl.h"
-#include "cio_io_stream.h"
-#include "cio_read_buffer.h"
 #include "cio_socket.h"
-#include "cio_socket_address.h"
-#include "cio_timer.h"
-#include "cio_util.h"
-#include "cio_write_buffer.h"
-#include "cio_zephyr_socket.h"
+#include "cio_eventloop_impl.h"
 
-struct cio_io_stream *cio_socket_get_io_stream(struct cio_socket *socket)
-{
-	return &socket->stream;
-}
+#ifdef __cplusplus
+extern "C" {
+#endif
 
-enum cio_error cio_zephyr_socket_init(struct cio_socket *s, struct net_context *net_context, struct cio_eventloop *loop, uint64_t close_timeout_ns, cio_socket_close_hook close_hook)
-{
-	return CIO_SUCCESS;
+enum cio_error cio_zephyr_socket_init(struct cio_socket *s, struct net_context *net_context, struct cio_eventloop *loop, uint64_t close_timeout_ns, cio_socket_close_hook close_hook);
+
+#ifdef __cplusplus
 }
+#endif
+
+#endif

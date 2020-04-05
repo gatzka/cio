@@ -35,6 +35,7 @@
 #include "cio_eventloop_impl.h"
 #include "cio_server_socket.h"
 #include "cio_socket.h"
+#include "cio_zephyr_socket.h"
 #include "cio_zephyr_socket_utils.h"
 
 enum cio_error cio_server_socket_init(struct cio_server_socket *ss,
@@ -94,7 +95,27 @@ enum cio_error cio_server_socket_bind(struct cio_server_socket *ss, const struct
 
 static void accept_callback(void *context)
 {
-	printk("In accept callback!\n");
+	struct cio_server_socket *ss = context;
+	if (cio_unlikely(ss->impl.accept_status != CIO_SUCCESS)) {
+		ss->handler(ss, ss->handler_context, ss->impl.accept_status, NULL);
+		return;
+	}
+
+	struct cio_socket *s = ss->alloc_client();
+	if (cio_unlikely(s == NULL)) {
+		ss->handler(ss, ss->handler_context, CIO_NO_MEMORY, s);
+		net_context_put(ss->impl.new_context);
+		return;
+	}
+
+	enum cio_error err = cio_zephyr_socket_init(s, ss->impl.new_context, ss->impl.loop, ss->impl.close_timeout_ns, ss->free_client);
+	if (cio_likely(err == CIO_SUCCESS)) {
+		ss->handler(ss, ss->handler_context, err, s);
+	} else {
+		ss->handler(ss, ss->handler_context, err, NULL);
+		net_context_put(ss->impl.new_context);
+		ss->free_client(s);
+	}
 }
 
 static void net_context_accept_cb(struct net_context *new_context, struct sockaddr *addr, socklen_t addrlen, int status, void *user_data)
