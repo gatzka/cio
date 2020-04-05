@@ -35,9 +35,7 @@
 #include "cio_eventloop_impl.h"
 #include "cio_server_socket.h"
 #include "cio_socket.h"
-
-#define STACK_SIZE 2048
-static K_THREAD_STACK_ARRAY_DEFINE(stacks, CONFIG_CIO_NUM_SERVER_SOCKETS, STACK_SIZE);
+#include "cio_zephyr_socket_utils.h"
 
 enum cio_error cio_server_socket_init(struct cio_server_socket *ss,
                                       struct cio_eventloop *loop,
@@ -48,12 +46,12 @@ enum cio_error cio_server_socket_init(struct cio_server_socket *ss,
                                       uint64_t close_timeout_ns,
                                       cio_server_socket_close_hook close_hook)
 {
-	int listen_fd = zsock_socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
-	if (cio_unlikely(listen_fd == -1)) {
+	struct net_context *context = cio_zephyr_socket_create(family);
+	if (cio_unlikely(context == NULL)) {
 		return (enum cio_error)(-errno);
 	}
 
-	ss->impl.fd = listen_fd;
+	ss->impl.context = context;
 	ss->impl.close_timeout_ns = close_timeout_ns;
 	ss->impl.loop = loop;
 
@@ -67,19 +65,10 @@ enum cio_error cio_server_socket_init(struct cio_server_socket *ss,
 
 enum cio_error cio_server_socket_set_reuse_address(const struct cio_server_socket *ss, bool on)
 {
-	int reuse;
-	if (on) {
-		reuse = 1;
-	} else {
-		reuse = 0;
-	}
+	(void)ss;
+	(void)on;
 
-	if (cio_unlikely(zsock_setsockopt(ss->impl.fd, SOL_SOCKET, SO_REUSEADDR, &reuse,
-	                                  sizeof(reuse)) < 0)) {
-		return (enum cio_error)(-errno);
-	}
-
-	return CIO_SUCCESS;
+	return CIO_OPERATION_NOT_SUPPORTED;
 }
 
 enum cio_error cio_server_socket_bind(struct cio_server_socket *ss, const struct cio_socket_address *endpoint)
@@ -95,9 +84,9 @@ enum cio_error cio_server_socket_bind(struct cio_server_socket *ss, const struct
 	const struct sockaddr *addr = &endpoint->impl.sa.socket_address.addr;
 	socklen_t addr_len = endpoint->impl.len;
 
-	int ret = zsock_bind(ss->impl.fd, addr, addr_len);
+	int ret = net_context_bind(ss->impl.context, addr, addr_len);
 	if (cio_unlikely(ret < 0)) {
-		return (enum cio_error)(-errno);
+		return (enum cio_error)(ret);
 	}
 
 	return CIO_SUCCESS;
@@ -108,19 +97,9 @@ static void accept_callback(void *context)
 	printk("In accept callback!\n");
 }
 
-static void accept_thread(void *arg1, void *arg2, void *arg3)
+static void net_context_accept_cb(struct net_context *new_context, struct sockaddr *addr, socklen_t addrlen, int status, void *user_data)
 {
-	struct cio_server_socket *ss = (struct cio_server_socket *)arg1;
-
-	while (true) {
-		printk("Before accept!\n");
-
-		if (cio_unlikely(zsock_accept(ss->impl.fd, NULL, NULL) < 0)) {
-			printk("Error in accept!\n");
-		}
-
-		printk("After accept!\n");
-	}
+	printk("In net_context_callback!\n");
 }
 
 enum cio_error cio_server_socket_accept(struct cio_server_socket *ss, cio_accept_handler handler, void *handler_context)
@@ -134,27 +113,24 @@ enum cio_error cio_server_socket_accept(struct cio_server_socket *ss, cio_accept
 	ss->impl.ev.callback = accept_callback;
 	ss->impl.ev.context = ss;
 
-	if (cio_unlikely(zsock_listen(ss->impl.fd, ss->backlog) < 0)) {
-		return (enum cio_error)(-errno);
+	int ret = net_context_listen(ss->impl.context, ss->backlog);
+	if (cio_unlikely(ret < 0)) {
+		return (enum cio_error)(ret);
 	}
 
-	k_thread_create(&ss->impl.ipv4_listen_thread, &stacks[0][0], STACK_SIZE,
-	                accept_thread, ss, 0, 0, K_PRIO_PREEMPT(10), 0, K_NO_WAIT);
+	ret = net_context_accept(ss->impl.context, net_context_accept_cb,  K_NO_WAIT, ss);
 
 	return CIO_SUCCESS;
 }
 
 void cio_server_socket_close(struct cio_server_socket *ss)
 {
-	//cio_zephyr_eventloop_remove_event(&ss->impl.ev);
+	cio_zephyr_eventloop_remove_event(&ss->impl.ev);
 
-	printk("zsock_close!\n");
-	zsock_close(ss->impl.fd);
-	//if (ss->close_hook != NULL) {
-	//	ss->close_hook(ss);
-	//}
-
-	printk("end of cio_server_socket_close!\n");
+	net_context_put(ss->impl.context);
+	if (ss->close_hook != NULL) {
+		ss->close_hook(ss);
+	}
 }
 
 enum cio_error cio_server_socket_set_tcp_fast_open(const struct cio_server_socket *ss, bool on)
