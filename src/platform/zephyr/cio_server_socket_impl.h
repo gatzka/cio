@@ -32,8 +32,8 @@
 #include <kernel.h>
 #include <net/net_context.h>
 #include <stdint.h>
-#include <zephyr.h>
 
+#include "cio_error_code.h"
 #include "cio_eventloop.h"
 
 #ifdef __cplusplus
@@ -41,11 +41,12 @@ extern "C" {
 #endif
 
 struct cio_server_socket_impl {
-	struct net_context *context;
-	struct net_context *new_context;
 	uint64_t close_timeout_ns;
 	struct cio_event_notifier ev;
 	struct cio_eventloop *loop;
+	struct net_context *context;
+	struct net_context *new_context;
+	enum cio_error accept_status;
 };
 
 #ifdef __cplusplus
