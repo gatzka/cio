@@ -47,8 +47,79 @@ struct cio_io_stream *cio_socket_get_io_stream(struct cio_socket *socket)
 	return &socket->stream;
 }
 
-enum cio_error cio_zephyr_socket_init(struct cio_socket *s, struct net_context *net_context, struct cio_eventloop *loop, uint64_t close_timeout_ns, cio_socket_close_hook close_hook)
+static enum cio_error stream_read(struct cio_io_stream *stream, struct cio_read_buffer *buffer, cio_io_stream_read_handler handler, void *handler_context)
 {
-	s->impl.context = net_context;
+	return CIO_SUCCESS;
+}
+
+static enum cio_error stream_write(struct cio_io_stream *stream, struct cio_write_buffer *buffer, cio_io_stream_write_handler handler, void *handler_context)
+{
+	return CIO_SUCCESS;
+}
+
+static enum cio_error stream_close(struct cio_io_stream *stream)
+{
+	struct cio_socket *s = cio_container_of(stream, struct cio_socket, stream);
+	return cio_socket_close(s);
+}
+
+static void close_and_call_hook(struct cio_socket *socket)
+{
+	net_context_put(socket->impl.context);
+	if (socket->close_hook != NULL) {
+		socket->close_hook(socket);
+	}
+}
+
+static void close_socket(struct cio_socket *socket)
+{
+	// TODO: Implement close timeout
+	// cio_timer_close(&socket->impl.close_timer);
+	close_and_call_hook(socket);
+}
+
+enum cio_error cio_socket_close(struct cio_socket *socket)
+{
+	if (cio_unlikely(socket == NULL)) {
+		return CIO_INVALID_ARGUMENT;
+	}
+
+	if (socket->impl.peer_closed_connection) {
+		close_socket(socket);
+		return CIO_SUCCESS;
+	}
+
+	// TODO
+	// if (socket->impl.close_timeout_ns > 0) {
+	// 	shutdown_socket(socket, socket->impl.close_timeout_ns);
+	// 	return CIO_SUCCESS;
+	// }
+
+	close_socket(socket);
+	return CIO_SUCCESS;
+}
+
+enum cio_error cio_zephyr_socket_init(struct cio_socket *socket, struct net_context *net_context, struct cio_eventloop *loop, uint64_t close_timeout_ns, cio_socket_close_hook close_hook)
+{
+	socket->impl.context = net_context;
+	socket->impl.ev.callback = NULL;
+	socket->impl.ev.context = socket;
+	socket->impl.close_timeout_ns = close_timeout_ns;
+
+	socket->impl.peer_closed_connection = false;
+
+	socket->stream.read_some = stream_read;
+	socket->stream.write_some = stream_write;
+	socket->stream.close = stream_close;
+
+	socket->impl.loop = loop;
+	socket->close_hook = close_hook;
+
+	// TODO: Implement close timeout
+	// enum cio_error err = cio_timer_init(&s->impl.close_timer, s->impl.loop, NULL);
+	// if (cio_unlikely(err != CIO_SUCCESS)) {
+	// 	return err;
+	// }
+
 	return CIO_SUCCESS;
 }
