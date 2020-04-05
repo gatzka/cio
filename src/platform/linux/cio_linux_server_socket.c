@@ -102,7 +102,7 @@ enum cio_error cio_server_socket_init(struct cio_server_socket *ss,
                                       cio_server_socket_close_hook close_hook)
 {
 	int listen_fd = cio_linux_socket_create(family);
-	if (listen_fd == -1) {
+	if (cio_unlikely(listen_fd == -1)) {
 		return (enum cio_error)(-errno);
 	}
 
