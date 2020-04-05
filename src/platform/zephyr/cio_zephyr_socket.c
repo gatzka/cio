@@ -69,6 +69,7 @@ static enum cio_error stream_read(struct cio_io_stream *stream, struct cio_read_
 		return (enum cio_error)(ret);
 	}
 
+	printk("state of connection: %d\n", net_context_get_state(socket->impl.context));
 	return CIO_SUCCESS;
 }
 
