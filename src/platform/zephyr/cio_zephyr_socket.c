@@ -47,10 +47,26 @@ struct cio_io_stream *cio_socket_get_io_stream(struct cio_socket *socket)
 	return &socket->stream;
 }
 
+static void tcp_received(struct net_context *context, struct net_pkt *pkt, union net_ip_header *ip_hdr, union net_proto_header *proto_hdr, int status, void *user_data)
+{
+printk("received data!\n");
+}
+
 static enum cio_error stream_read(struct cio_io_stream *stream, struct cio_read_buffer *buffer, cio_io_stream_read_handler handler, void *handler_context)
 {
 	if (cio_unlikely((stream == NULL) || (buffer == NULL) || (handler == NULL))) {
 		return CIO_INVALID_ARGUMENT;
+	}
+
+	struct cio_socket *socket = cio_container_of(stream, struct cio_socket, stream);
+
+	socket->stream.read_buffer = buffer;
+	socket->stream.read_handler = handler;
+	socket->stream.read_handler_context = handler_context;
+
+	int ret = net_context_recv(socket->impl.context, tcp_received, K_NO_WAIT, socket);
+	if (cio_unlikely(ret < 0)) {
+		return (enum cio_error)(ret);
 	}
 
 	return CIO_SUCCESS;
