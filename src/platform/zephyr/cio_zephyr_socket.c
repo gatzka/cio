@@ -49,5 +49,6 @@ struct cio_io_stream *cio_socket_get_io_stream(struct cio_socket *socket)
 
 enum cio_error cio_zephyr_socket_init(struct cio_socket *s, struct net_context *net_context, struct cio_eventloop *loop, uint64_t close_timeout_ns, cio_socket_close_hook close_hook)
 {
+	s->impl.context = net_context;
 	return CIO_SUCCESS;
 }

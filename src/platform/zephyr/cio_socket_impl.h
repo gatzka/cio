@@ -29,6 +29,7 @@
 #ifndef CIO_ZEPHYR_SOCKET_IMPL_H
 #define CIO_ZEPHYR_SOCKET_IMPL_H
 
+#include <net/net_context.h>
 #include <stdbool.h>
 #include <stdint.h>
 
@@ -45,6 +46,7 @@ struct cio_socket_impl {
 	struct cio_timer close_timer;
 	struct cio_eventloop *loop;
 	bool peer_closed_connection;
+	struct net_context *context;
 };
 
 #ifdef __cplusplus
