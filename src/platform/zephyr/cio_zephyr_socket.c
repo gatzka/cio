@@ -49,11 +49,19 @@ struct cio_io_stream *cio_socket_get_io_stream(struct cio_socket *socket)
 
 static enum cio_error stream_read(struct cio_io_stream *stream, struct cio_read_buffer *buffer, cio_io_stream_read_handler handler, void *handler_context)
 {
+	if (cio_unlikely((stream == NULL) || (buffer == NULL) || (handler == NULL))) {
+		return CIO_INVALID_ARGUMENT;
+	}
+
 	return CIO_SUCCESS;
 }
 
 static enum cio_error stream_write(struct cio_io_stream *stream, struct cio_write_buffer *buffer, cio_io_stream_write_handler handler, void *handler_context)
 {
+	if (cio_unlikely((stream == NULL) || (buffer == NULL) || (handler == NULL))) {
+		return CIO_INVALID_ARGUMENT;
+	}
+
 	return CIO_SUCCESS;
 }
 
