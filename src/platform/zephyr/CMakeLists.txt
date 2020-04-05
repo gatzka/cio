@@ -1,9 +1,9 @@
 cmake_minimum_required(VERSION 3.8)
 
 add_library(PLATFORM OBJECT
-    ../platform/shared/cio_inet_address_impl.c
-    ../platform/shared/cio_socket_address_impl.c
-    ../platform/shared/cio_string_memmem.c
+    ../shared/cio_inet_address_impl.c
+    ../shared/cio_socket_address_impl.c
+    ../shared/cio_string_memmem.c
     cio_address_family_impl.h
     cio_error_code_impl.h
     cio_eventloop_impl.h
@@ -25,7 +25,7 @@ add_library(PLATFORM OBJECT
 
 target_include_directories(PLATFORM
     PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/>
-    PRIVATE ${CMAKE_CURRENT_BINARY_DIR}/../generated/ ${CMAKE_CURRENT_LIST_DIR}/../
+    PRIVATE ${CMAKE_CURRENT_BINARY_DIR}/../../generated/ ${CMAKE_CURRENT_LIST_DIR}/../../
 )
 
 target_link_libraries (PLATFORM PUBLIC zephyr kernel)

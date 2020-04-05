@@ -31,7 +31,7 @@
 #include "cio_compiler.h"
 #include "cio_error_code.h"
 #include "cio_eventloop.h"
-#include "zephyr/cio_eventloop_impl.h"
+#include "platform/zephyr/cio_eventloop_impl.h"
 
 static struct cio_event_notifier stop_ev;
 

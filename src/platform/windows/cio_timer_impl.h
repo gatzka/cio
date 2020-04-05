@@ -30,7 +30,7 @@
 #define CIO_WINDOWS_TIMER_IMPL_H
 
 #include "cio_eventloop.h"
-#include "windows/cio_eventloop_impl.h"
+#include "platform/windows/cio_eventloop_impl.h"
 
 #ifdef __cplusplus
 extern "C" {

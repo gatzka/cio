@@ -32,7 +32,7 @@
 #include "cio_compiler.h"
 #include "cio_error_code.h"
 #include "cio_inet_address.h"
-#include "linux/cio_linux_socket_utils.h"
+#include "platform/linux/cio_linux_socket_utils.h"
 
 int cio_linux_socket_create(enum cio_address_family address_family)
 {
