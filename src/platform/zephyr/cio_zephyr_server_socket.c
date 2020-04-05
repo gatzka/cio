@@ -26,7 +26,6 @@
  * SOFTWARE.
  */
 
-#include <errno.h>
 #include <net/net_context.h>
 
 #include "cio_compiler.h"
@@ -46,12 +45,11 @@ enum cio_error cio_server_socket_init(struct cio_server_socket *ss,
                                       uint64_t close_timeout_ns,
                                       cio_server_socket_close_hook close_hook)
 {
-	struct net_context *context = cio_zephyr_socket_create(family);
-	if (cio_unlikely(context == NULL)) {
-		return (enum cio_error)(-errno);
+	int ret = cio_zephyr_socket_create(family, &ss->impl.context);
+	if (cio_unlikely(ret < 0)) {
+		return (enum cio_error)(ret);
 	}
 
-	ss->impl.context = context;
 	ss->impl.close_timeout_ns = close_timeout_ns;
 	ss->impl.loop = loop;
 

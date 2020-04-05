@@ -26,7 +26,6 @@
  * SOFTWARE.
  */
 
-#include <errno.h>
 #include <net/net_context.h>
 
 #include "cio_compiler.h"
@@ -34,20 +33,17 @@
 #include "cio_inet_address.h"
 #include "cio_zephyr_socket_utils.h"
 
-struct net_context *cio_zephyr_socket_create(enum cio_address_family address_family)
+int cio_zephyr_socket_create(enum cio_address_family address_family, struct net_context **context)
 {
 	if (cio_unlikely(address_family == CIO_ADDRESS_FAMILY_UNSPEC)) {
-		errno = EINVAL;
-		return NULL;
+		return -EINVAL;
 	}
 
 	sa_family_t domain = (sa_family_t)address_family;
-	struct net_context *context = NULL;
-	int ret = net_context_get(domain, SOCK_STREAM, IPPROTO_TCP, &context);
+	int ret = net_context_get(domain, SOCK_STREAM, IPPROTO_TCP, context);
 	if (cio_unlikely(ret < 0)) {
-		errno = -ret;
-		return NULL;
+		return ret;
 	}
 
-	return context;
+	return 0;
 }
