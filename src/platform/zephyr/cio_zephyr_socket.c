@@ -27,6 +27,7 @@
  */
 
 #include <net/net_context.h>
+#include <net/net_pkt.h>
 #include <stdint.h>
 
 #include "cio_compiler.h"
@@ -42,6 +43,10 @@
 #include "cio_write_buffer.h"
 #include "cio_zephyr_socket.h"
 
+#ifndef MIN
+#define MIN(X, Y) (((X) < (Y)) ? (X) : (Y))
+#endif
+
 struct cio_io_stream *cio_socket_get_io_stream(struct cio_socket *socket)
 {
 	return &socket->stream;
@@ -49,7 +54,34 @@ struct cio_io_stream *cio_socket_get_io_stream(struct cio_socket *socket)
 
 static void tcp_received(struct net_context *context, struct net_pkt *pkt, union net_ip_header *ip_hdr, union net_proto_header *proto_hdr, int status, void *user_data)
 {
-printk("received data!\n");
+	struct cio_io_stream *stream = user_data;
+	struct cio_read_buffer *rb = stream->read_buffer;
+	struct cio_socket *s = cio_container_of(stream, struct cio_socket, stream);
+
+	if ((pkt == NULL) && (status == 0)) {
+		s->impl.peer_closed_connection = true;
+		stream->read_handler(stream, stream->read_handler_context, CIO_EOF, rb);
+		return;
+	}
+
+	enum cio_error err;
+	if (cio_likely(status == 0)) {
+		size_t number_of_bytes_in_pkt = net_pkt_remaining_data(pkt);
+		size_t available_space_in_buffer = cio_read_buffer_space_available(rb);
+		size_t data_to_read = MIN(number_of_bytes_in_pkt, available_space_in_buffer);
+		int ret = net_pkt_read(pkt, rb->add_ptr, data_to_read);
+		if (cio_unlikely(ret < 0)) {
+			err = (enum cio_error)ret;
+		} else {
+			err = CIO_SUCCESS;
+			rb->add_ptr += (size_t)data_to_read;
+		}
+	} else {
+		err = (enum cio_error)status;
+	}
+
+	net_pkt_unref(pkt);
+	stream->read_handler(stream, stream->read_handler_context, err, rb);
 }
 
 static enum cio_error stream_read(struct cio_io_stream *stream, struct cio_read_buffer *buffer, cio_io_stream_read_handler handler, void *handler_context)
@@ -64,12 +96,11 @@ static enum cio_error stream_read(struct cio_io_stream *stream, struct cio_read_
 	socket->stream.read_handler = handler;
 	socket->stream.read_handler_context = handler_context;
 
-	int ret = net_context_recv(socket->impl.context, tcp_received, K_NO_WAIT, socket);
+	int ret = net_context_recv(socket->impl.context, tcp_received, K_NO_WAIT, stream);
 	if (cio_unlikely(ret < 0)) {
 		return (enum cio_error)(ret);
 	}
 
-	printk("state of connection: %d\n", net_context_get_state(socket->impl.context));
 	return CIO_SUCCESS;
 }
 
