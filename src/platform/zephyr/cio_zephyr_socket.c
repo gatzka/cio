@@ -75,6 +75,7 @@ static void tcp_received(struct net_context *context, struct net_pkt *pkt, union
 		} else {
 			err = CIO_SUCCESS;
 			rb->add_ptr += (size_t)data_to_read;
+			net_context_update_recv_wnd(context, data_to_read);
 		}
 	} else {
 		err = (enum cio_error)status;
