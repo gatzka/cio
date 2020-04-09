@@ -56,33 +56,40 @@ static void tcp_received(struct net_context *context, struct net_pkt *pkt, union
 {
 	struct cio_io_stream *stream = user_data;
 	struct cio_read_buffer *rb = stream->read_buffer;
-	struct cio_socket *s = cio_container_of(stream, struct cio_socket, stream);
+	struct cio_socket *socket = cio_container_of(stream, struct cio_socket, stream);
 
 	if ((pkt == NULL) && (status == 0)) {
-		s->impl.peer_closed_connection = true;
-		stream->read_handler(stream, stream->read_handler_context, CIO_EOF, rb);
-		return;
-	}
-
-	enum cio_error err;
-	if (cio_likely(status == 0)) {
-		size_t number_of_bytes_in_pkt = net_pkt_remaining_data(pkt);
-		size_t available_space_in_buffer = cio_read_buffer_space_available(rb);
-		size_t data_to_read = MIN(number_of_bytes_in_pkt, available_space_in_buffer);
-		int ret = net_pkt_read(pkt, rb->add_ptr, data_to_read);
-		if (cio_unlikely(ret < 0)) {
-			err = (enum cio_error)ret;
-		} else {
-			err = CIO_SUCCESS;
-			rb->add_ptr += (size_t)data_to_read;
-			net_context_update_recv_wnd(context, data_to_read);
-		}
+		socket->impl.peer_closed_connection = true;
+		socket->impl.read_status = CIO_EOF;
 	} else {
-		err = (enum cio_error)status;
+		if (cio_likely(status == 0)) {
+			size_t number_of_bytes_in_pkt = net_pkt_remaining_data(pkt);
+			size_t available_space_in_buffer = cio_read_buffer_space_available(rb);
+			size_t data_to_read = MIN(number_of_bytes_in_pkt, available_space_in_buffer);
+			int ret = net_pkt_read(pkt, rb->add_ptr, data_to_read);
+			if (cio_unlikely(ret < 0)) {
+				socket->impl.read_status = (enum cio_error)ret;
+			} else {
+				socket->impl.read_status = CIO_SUCCESS;
+				rb->add_ptr += (size_t)data_to_read;
+				net_context_update_recv_wnd(context, data_to_read);
+			}
+		} else {
+			socket->impl.read_status = (enum cio_error)status;
+		}
+
+		net_pkt_unref(pkt);
 	}
 
-	net_pkt_unref(pkt);
-	stream->read_handler(stream, stream->read_handler_context, err, rb);
+	cio_zephyr_eventloop_add_event(socket->impl.loop, &socket->impl.ev);
+}
+
+static void read_callback(void *context)
+{
+	struct cio_io_stream *stream = context;
+	struct cio_socket *socket = cio_container_of(stream, struct cio_socket, stream);
+	enum cio_error err = socket->impl.read_status;
+	stream->read_handler(stream, stream->read_handler_context, err, stream->read_buffer);
 }
 
 static enum cio_error stream_read(struct cio_io_stream *stream, struct cio_read_buffer *buffer, cio_io_stream_read_handler handler, void *handler_context)
@@ -96,6 +103,8 @@ static enum cio_error stream_read(struct cio_io_stream *stream, struct cio_read_
 	socket->stream.read_buffer = buffer;
 	socket->stream.read_handler = handler;
 	socket->stream.read_handler_context = handler_context;
+	socket->impl.ev.callback = read_callback;
+	socket->impl.ev.context = stream;
 
 	int ret = net_context_recv(socket->impl.context, tcp_received, K_NO_WAIT, stream);
 	if (cio_unlikely(ret < 0)) {
