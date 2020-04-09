@@ -46,6 +46,7 @@ struct cio_socket_impl {
 	struct cio_timer close_timer;
 	uint64_t close_timeout_ns;
 	size_t bytes_to_send;
+	size_t send_status;
 	struct cio_eventloop *loop;
 	bool peer_closed_connection;
 	struct net_context *context;

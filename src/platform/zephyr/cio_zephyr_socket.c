@@ -105,6 +105,20 @@ static enum cio_error stream_read(struct cio_io_stream *stream, struct cio_read_
 	return CIO_SUCCESS;
 }
 
+static void written_callback(void *context)
+{
+	struct cio_io_stream *stream = context;
+	struct cio_socket *socket = cio_container_of(stream, struct cio_socket, stream);
+	int status = socket->impl.send_status;
+
+	if (cio_unlikely(status < 0)) {
+		stream->write_handler(stream, stream->write_handler_context, stream->write_buffer, (enum cio_error)status, 0);
+		return;
+	}
+
+	stream->write_handler(stream, stream->write_handler_context, stream->write_buffer, CIO_SUCCESS, socket->impl.bytes_to_send);
+}
+
 static void tcp_sent(struct net_context *context, int status, void *user_data)
 {
 	if (status == 0) {
@@ -114,14 +128,11 @@ static void tcp_sent(struct net_context *context, int status, void *user_data)
 	}
 
 	struct cio_io_stream *stream = user_data;
-	if (cio_unlikely(status < 0)) {
-		stream->write_handler(stream, stream->write_handler_context, stream->write_buffer, (enum cio_error)status, 0);
-		return;
-	}
+	struct cio_socket *socket = cio_container_of(stream, struct cio_socket, stream);
+	socket->impl.send_status = status;
 
 	context->send_cb = NULL;
-	struct cio_socket *socket = cio_container_of(stream, struct cio_socket, stream);
-	stream->write_handler(stream, stream->write_handler_context, stream->write_buffer, CIO_SUCCESS, socket->impl.bytes_to_send);
+	cio_zephyr_eventloop_add_event(socket->impl.loop, &socket->impl.ev);
 }
 
 static enum cio_error stream_write(struct cio_io_stream *stream, struct cio_write_buffer *buffer, cio_io_stream_write_handler handler, void *handler_context)
@@ -135,6 +146,7 @@ static enum cio_error stream_write(struct cio_io_stream *stream, struct cio_writ
 	stream->write_handler = handler;
 	stream->write_handler_context = handler_context;
 	stream->write_buffer = buffer;
+	socket->impl.ev.callback = written_callback;
 	socket->impl.ev.context = stream;
 
 	size_t chain_length = cio_write_buffer_get_num_buffer_elements(buffer);
