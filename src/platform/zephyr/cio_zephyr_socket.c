@@ -160,29 +160,28 @@ static enum cio_error stream_write(struct cio_io_stream *stream, struct cio_writ
 
 	size_t chain_length = cio_write_buffer_get_num_buffer_elements(buffer);
 
+	struct iovec msg_iov[chain_length];
+	struct msghdr msg;
+	msg.msg_name = NULL;
+	msg.msg_namelen = 0;
+	msg.msg_control = NULL;
+	msg.msg_controllen = 0;
+	msg.msg_flags = 0;
+	msg.msg_iov = msg_iov;
+	msg.msg_iovlen = chain_length;
+
 	size_t bytes_to_send = 0;
 	struct cio_write_buffer *wb = buffer->next;
 	for (size_t i = 0; i < chain_length; i++) {
+		msg_iov[i].iov_base = wb->data.element.data;
+		msg_iov[i].iov_len = wb->data.element.length;
 		bytes_to_send += wb->data.element.length;
 		wb = wb->next;
 	}
 
 	socket->impl.bytes_to_send = bytes_to_send;
 
-	void *send_buffer = alloca(bytes_to_send);
-	if (cio_unlikely(send_buffer == NULL)) {
-		return CIO_NO_MEMORY;
-	}
-
-	wb = buffer->next;
-	char *ptr = send_buffer;
-	for (size_t i = 0; i < chain_length; i++) {
-		memcpy(ptr, wb->data.element.data, wb->data.element.length);
-		ptr += wb->data.element.length;
-		wb = wb->next;
-	}
-
-	int ret = net_context_send(socket->impl.context, send_buffer, bytes_to_send, tcp_sent, K_NO_WAIT, stream);
+	int ret = net_context_sendmsg(socket->impl.context, &msg, 0, tcp_sent, K_NO_WAIT, stream);
 	if (cio_unlikely(ret < 0)) {
 		return (enum cio_error)ret;
 	}
