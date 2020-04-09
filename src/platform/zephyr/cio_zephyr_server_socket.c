@@ -125,6 +125,7 @@ static void net_context_accept_cb(struct net_context *new_context, struct sockad
 		ss->impl.new_context = new_context;
 		ss->impl.accept_status = CIO_SUCCESS;
 	}
+
 	cio_zephyr_eventloop_add_event(ss->impl.loop, &ss->impl.ev);
 }
 
