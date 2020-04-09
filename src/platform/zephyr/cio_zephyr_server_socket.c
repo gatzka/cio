@@ -52,6 +52,7 @@ enum cio_error cio_server_socket_init(struct cio_server_socket *ss,
 
 	ss->impl.close_timeout_ns = close_timeout_ns;
 	ss->impl.loop = loop;
+	cio_zephyr_ev_init(&ss->impl.ev);
 
 	ss->alloc_client = alloc_client;
 	ss->free_client = free_client;

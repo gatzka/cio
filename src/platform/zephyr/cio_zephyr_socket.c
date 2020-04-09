@@ -234,9 +234,11 @@ enum cio_error cio_socket_close(struct cio_socket *socket)
 enum cio_error cio_zephyr_socket_init(struct cio_socket *socket, struct net_context *net_context, struct cio_eventloop *loop, uint64_t close_timeout_ns, cio_socket_close_hook close_hook)
 {
 	socket->impl.context = net_context;
+	socket->impl.close_timeout_ns = close_timeout_ns;
+
+	cio_zephyr_ev_init(&socket->impl.ev);
 	socket->impl.ev.callback = NULL;
 	socket->impl.ev.context = socket;
-	socket->impl.close_timeout_ns = close_timeout_ns;
 
 	socket->impl.peer_closed_connection = false;
 
