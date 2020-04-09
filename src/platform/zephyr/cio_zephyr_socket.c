@@ -105,7 +105,6 @@ static enum cio_error stream_read(struct cio_io_stream *stream, struct cio_read_
 	return CIO_SUCCESS;
 }
 
-#include <stdio.h>
 static void tcp_sent(struct net_context *context, int status, void *user_data)
 {
 	if (status == 0) {
@@ -120,7 +119,9 @@ static void tcp_sent(struct net_context *context, int status, void *user_data)
 		return;
 	}
 
-	fprintf(stderr, "bytes were sent! %d\n", status);
+	context->send_cb = NULL;
+	struct cio_socket *socket = cio_container_of(stream, struct cio_socket, stream);
+	stream->write_handler(stream, stream->write_handler_context, stream->write_buffer, CIO_SUCCESS, socket->impl.bytes_to_send);
 }
 
 static enum cio_error stream_write(struct cio_io_stream *stream, struct cio_write_buffer *buffer, cio_io_stream_write_handler handler, void *handler_context)
@@ -128,6 +129,13 @@ static enum cio_error stream_write(struct cio_io_stream *stream, struct cio_writ
 	if (cio_unlikely((stream == NULL) || (buffer == NULL) || (handler == NULL))) {
 		return CIO_INVALID_ARGUMENT;
 	}
+
+	struct cio_socket *socket = cio_container_of(stream, struct cio_socket, stream);
+
+	stream->write_handler = handler;
+	stream->write_handler_context = handler_context;
+	stream->write_buffer = buffer;
+	socket->impl.ev.context = stream;
 
 	size_t chain_length = cio_write_buffer_get_num_buffer_elements(buffer);
 
@@ -137,6 +145,8 @@ static enum cio_error stream_write(struct cio_io_stream *stream, struct cio_writ
 		bytes_to_send += wb->data.element.length;
 		wb = wb->next;
 	}
+
+	socket->impl.bytes_to_send = bytes_to_send;
 
 	void *send_buffer = alloca(bytes_to_send);
 	if (cio_unlikely(send_buffer == NULL)) {
@@ -151,7 +161,6 @@ static enum cio_error stream_write(struct cio_io_stream *stream, struct cio_writ
 		wb = wb->next;
 	}
 
-	struct cio_socket *socket = cio_container_of(stream, struct cio_socket, stream);
 	int ret = net_context_send(socket->impl.context, send_buffer, bytes_to_send, tcp_sent, K_NO_WAIT, stream);
 	if (cio_unlikely(ret < 0)) {
 		return (enum cio_error)ret;

@@ -31,6 +31,7 @@
 
 #include <net/net_context.h>
 #include <stdbool.h>
+#include <stddef.h>
 #include <stdint.h>
 
 #include "cio_eventloop.h"
@@ -41,9 +42,10 @@ extern "C" {
 #endif
 
 struct cio_socket_impl {
-	uint64_t close_timeout_ns;
 	struct cio_event_notifier ev;
 	struct cio_timer close_timer;
+	uint64_t close_timeout_ns;
+	size_t bytes_to_send;
 	struct cio_eventloop *loop;
 	bool peer_closed_connection;
 	struct net_context *context;
