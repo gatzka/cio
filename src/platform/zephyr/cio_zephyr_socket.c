@@ -99,16 +99,62 @@ static enum cio_error stream_read(struct cio_io_stream *stream, struct cio_read_
 
 	int ret = net_context_recv(socket->impl.context, tcp_received, K_NO_WAIT, stream);
 	if (cio_unlikely(ret < 0)) {
-		return (enum cio_error)(ret);
+		return (enum cio_error)ret;
 	}
 
 	return CIO_SUCCESS;
+}
+
+#include <stdio.h>
+static void tcp_sent(struct net_context *context, int status, void *user_data)
+{
+	if (status == 0) {
+		// This is an artefact because the zephyr stack immediatly calls the callback
+		// in the context of net_context_send() with status == 0
+		return;
+	}
+
+	struct cio_io_stream *stream = user_data;
+	if (cio_unlikely(status < 0)) {
+		stream->write_handler(stream, stream->write_handler_context, stream->write_buffer, (enum cio_error)status, 0);
+		return;
+	}
+
+	fprintf(stderr, "bytes were sent! %d\n", status);
 }
 
 static enum cio_error stream_write(struct cio_io_stream *stream, struct cio_write_buffer *buffer, cio_io_stream_write_handler handler, void *handler_context)
 {
 	if (cio_unlikely((stream == NULL) || (buffer == NULL) || (handler == NULL))) {
 		return CIO_INVALID_ARGUMENT;
+	}
+
+	size_t chain_length = cio_write_buffer_get_num_buffer_elements(buffer);
+
+	size_t bytes_to_send = 0;
+	struct cio_write_buffer *wb = buffer->next;
+	for (size_t i = 0; i < chain_length; i++) {
+		bytes_to_send += wb->data.element.length;
+		wb = wb->next;
+	}
+
+	void *send_buffer = alloca(bytes_to_send);
+	if (cio_unlikely(send_buffer == NULL)) {
+		return CIO_NO_MEMORY;
+	}
+
+	wb = buffer->next;
+	char *ptr = send_buffer;
+	for (size_t i = 0; i < chain_length; i++) {
+		memcpy(ptr, wb->data.element.data, wb->data.element.length);
+		ptr += wb->data.element.length;
+		wb = wb->next;
+	}
+
+	struct cio_socket *socket = cio_container_of(stream, struct cio_socket, stream);
+	int ret = net_context_send(socket->impl.context, send_buffer, bytes_to_send, tcp_sent, K_NO_WAIT, stream);
+	if (cio_unlikely(ret < 0)) {
+		return (enum cio_error)ret;
 	}
 
 	return CIO_SUCCESS;
