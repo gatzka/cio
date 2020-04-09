@@ -54,6 +54,8 @@ struct cio_io_stream *cio_socket_get_io_stream(struct cio_socket *socket)
 
 static void tcp_received(struct net_context *context, struct net_pkt *pkt, union net_ip_header *ip_hdr, union net_proto_header *proto_hdr, int status, void *user_data)
 {
+	context->recv_cb = NULL;
+
 	struct cio_io_stream *stream = user_data;
 	struct cio_read_buffer *rb = stream->read_buffer;
 	struct cio_socket *socket = cio_container_of(stream, struct cio_socket, stream);
