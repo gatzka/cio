@@ -39,7 +39,6 @@ extern "C" {
 
 struct cio_timer_impl {
 	struct k_timer timer;
-	bool cancelled;
 	struct cio_eventloop *loop;
 	struct cio_event_notifier ev;
 };
