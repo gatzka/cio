@@ -65,7 +65,7 @@ static void timer_read(void *context, enum cio_epoll_error error)
 		return;
 	}
 
-	uint64_t number_of_expirations;
+	uint64_t number_of_expirations = 0;
 
 	ssize_t ret = read(t->impl.ev.fd, &number_of_expirations, sizeof(number_of_expirations));
 	if (cio_unlikely(ret == -1)) {
@@ -82,7 +82,6 @@ static void timer_read(void *context, enum cio_epoll_error error)
 enum cio_error cio_timer_init(struct cio_timer *timer, struct cio_eventloop *loop,
                               cio_timer_close_hook close_hook)
 {
-	enum cio_error ret_val;
 	int fd = timerfd_create(CLOCK_MONOTONIC, O_NONBLOCK);
 	if (cio_unlikely(fd == -1)) {
 		return (enum cio_error)(-errno);
@@ -97,7 +96,7 @@ enum cio_error cio_timer_init(struct cio_timer *timer, struct cio_eventloop *loo
 	timer->impl.ev.write_callback = NULL;
 	timer->impl.ev.fd = fd;
 
-	ret_val = cio_linux_eventloop_add(timer->impl.loop, &timer->impl.ev);
+	enum cio_error ret_val = cio_linux_eventloop_add(timer->impl.loop, &timer->impl.ev);
 	if (cio_unlikely(ret_val != CIO_SUCCESS)) {
 		goto eventloop_add_failed;
 	}
@@ -119,13 +118,12 @@ eventloop_add_failed:
 enum cio_error cio_timer_expires_from_now(struct cio_timer *t, uint64_t timeout_ns, cio_timer_handler handler, void *handler_context)
 {
 	struct itimerspec timeout = convert_timeoutns_to_itimerspec(timeout_ns);
-	int ret;
 
 	t->handler = handler;
 	t->handler_context = handler_context;
 	t->impl.ev.context = t;
 
-	ret = timerfd_settime(t->impl.ev.fd, 0, &timeout, NULL);
+	int ret = timerfd_settime(t->impl.ev.fd, 0, &timeout, NULL);
 	if (cio_unlikely(ret != 0)) {
 		return (enum cio_error)(-errno);
 	}
@@ -137,14 +135,13 @@ enum cio_error cio_timer_expires_from_now(struct cio_timer *t, uint64_t timeout_
 enum cio_error cio_timer_cancel(struct cio_timer *t)
 {
 	struct itimerspec timeout;
-	int ret;
 
 	if (t->handler == NULL) {
 		return CIO_OPERATION_NOT_PERMITTED;
 	}
 
 	memset(&timeout, 0x0, sizeof(timeout));
-	ret = timerfd_settime(t->impl.ev.fd, 0, &timeout, NULL);
+	int ret = timerfd_settime(t->impl.ev.fd, 0, &timeout, NULL);
 	if (cio_likely(ret == 0)) {
 		t->handler(t, t->handler_context, CIO_OPERATION_ABORTED);
 		t->handler = NULL;

@@ -47,7 +47,7 @@ CIO_EXPORT enum cio_error cio_init_uds_socket_address(struct cio_socket_address 
 	}
 
 	size_t max_path_length = sizeof(sock_address->impl.sa.unix_address.un.sun_path);
-	size_t path_length;
+	size_t path_length = 0;
 	if (is_abstract_uds(path)) {
 		path_length = strlen(path + 1) + 1;
 	} else {

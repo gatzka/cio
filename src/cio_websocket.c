@@ -115,7 +115,7 @@ static void mask_write_buffer(struct cio_write_buffer *wb, uint8_t *mask, size_t
 static enum cio_error send_frame(struct cio_websocket *ws, struct cio_websocket_write_job *job, size_t frame_length)
 {
 	if (!job->is_continuation_chunk) {
-		uint8_t first_len;
+		uint8_t first_len = 0;
 		size_t header_index = 2;
 
 		uint8_t first_byte = (uint8_t)job->frame_type;
@@ -245,11 +245,9 @@ static void prepare_close_job(struct cio_websocket *ws, enum cio_websocket_statu
 
 static void prepare_close_job_string(struct cio_websocket *ws, enum cio_websocket_status_code status_code, const char *reason, cio_websocket_write_handler handler, void *handler_context, cio_buffered_stream_write_handler stream_handler)
 {
-	size_t length;
+	size_t length = 0;
 
-	if (reason == NULL) {
-		length = 0;
-	} else {
+	if (reason != NULL) {
 		length = strlen(reason);
 	}
 
@@ -432,7 +430,7 @@ static void handle_close_frame(struct cio_websocket *ws, uint8_t *data, uint_fas
 		return;
 	}
 
-	uint16_t status_code;
+	uint16_t status_code = CIO_WEBSOCKET_CLOSE_NORMAL;
 	if (length >= 2) {
 		memcpy(&status_code, data, sizeof(status_code));
 		status_code = cio_be16toh(status_code);
@@ -442,8 +440,6 @@ static void handle_close_frame(struct cio_websocket *ws, uint8_t *data, uint_fas
 		}
 
 		length = (uint_fast8_t)(length - sizeof(status_code));
-	} else {
-		status_code = CIO_WEBSOCKET_CLOSE_NORMAL;
 	}
 
 	if (length > 0) {
@@ -464,7 +460,7 @@ static void handle_close_frame(struct cio_websocket *ws, uint8_t *data, uint_fas
 		cio_timer_close(&ws->ws_private.close_timer);
 		close(ws);
 	} else {
-		const uint8_t *reason;
+		const uint8_t *reason = NULL;
 		if (length > 0) {
 			reason = data + sizeof(status_code);
 		} else {
@@ -600,7 +596,7 @@ static void read_payload(struct cio_websocket *ws, struct cio_buffered_stream *b
 			return;
 		}
 
-		enum cio_error err;
+		enum cio_error err = CIO_SUCCESS;
 		if (cio_unlikely(is_control_frame(ws->ws_private.ws_flags.opcode))) {
 			err = cio_buffered_stream_read_at_least(bs, buffer, ws->ws_private.remaining_read_frame_length, get_payload, ws);
 		} else {
@@ -631,9 +627,8 @@ static void get_mask(struct cio_buffered_stream *bs, void *handler_context, enum
 
 static void get_mask_or_payload(struct cio_websocket *ws, struct cio_buffered_stream *bs, struct cio_read_buffer *buffer)
 {
-	enum cio_error err;
 	if (ws->ws_private.ws_flags.is_server == 1U) {
-		err = cio_buffered_stream_read_at_least(bs, buffer, sizeof(ws->ws_private.received_mask), get_mask, ws);
+		enum cio_error err = cio_buffered_stream_read_at_least(bs, buffer, sizeof(ws->ws_private.received_mask), get_mask, ws);
 		if (cio_unlikely(err != CIO_SUCCESS)) {
 			handle_error(ws, err, CIO_WEBSOCKET_CLOSE_INTERNAL_ERROR, "error while start reading websocket mask");
 		}
@@ -651,7 +646,7 @@ static void get_length16(struct cio_buffered_stream *bs, void *handler_context, 
 
 	uint8_t *ptr = cio_read_buffer_get_read_ptr(buffer);
 
-	uint16_t field;
+	uint16_t field = 0;
 	memcpy(&field, ptr, num_bytes);
 	cio_read_buffer_consume(buffer, num_bytes);
 	field = cio_be16toh(field);
@@ -669,7 +664,7 @@ static void get_length64(struct cio_buffered_stream *bs, void *handler_context, 
 
 	uint8_t *ptr = cio_read_buffer_get_read_ptr(buffer);
 
-	uint64_t field;
+	uint64_t field = 0;
 	memcpy(&field, ptr, num_bytes);
 	cio_read_buffer_consume(buffer, num_bytes);
 	field = cio_be64toh(field);
@@ -898,7 +893,8 @@ enum cio_error cio_websocket_read_message(struct cio_websocket *ws, cio_websocke
 	ws->ws_private.read_handler = handler;
 	ws->ws_private.read_handler_context = handler_context;
 	struct cio_http_client *c = ws->ws_private.http_client;
-	enum cio_error err;
+	enum cio_error err = CIO_SUCCESS;
+
 	if (ws->ws_private.remaining_read_frame_length == 0) {
 		err = cio_buffered_stream_read_at_least(&c->bs, &c->rb, 1, get_header, ws);
 	} else {
@@ -923,13 +919,11 @@ enum cio_error cio_websocket_write_message_first_chunk(struct cio_websocket *ws,
 		return CIO_OPERATION_NOT_PERMITTED;
 	}
 
-	enum cio_websocket_frame_type kind;
+	enum cio_websocket_frame_type kind = CIO_WEBSOCKET_TEXT_FRAME;
 
 	if (ws->ws_private.ws_flags.fragmented_write == 1U) {
 		if (is_binary) {
 			kind = CIO_WEBSOCKET_BINARY_FRAME;
-		} else {
-			kind = CIO_WEBSOCKET_TEXT_FRAME;
 		}
 
 		if (!last_frame) {
