@@ -40,8 +40,7 @@
 
 static void erase_pending_event(struct cio_eventloop *loop, const struct cio_event_notifier *ev)
 {
-	unsigned int i;
-	for (i = loop->event_counter + 1; i < loop->num_events; i++) {
+	for (unsigned int i = loop->event_counter + 1; i < loop->num_events; i++) {
 		if (loop->epoll_events[i].data.ptr == ev) {
 			memmove(&loop->epoll_events[i], &loop->epoll_events[i + 1], (loop->num_events - (i + 1)) * sizeof(loop->epoll_events[0]));
 			loop->num_events--;
