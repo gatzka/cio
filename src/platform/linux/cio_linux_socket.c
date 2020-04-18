@@ -390,7 +390,7 @@ struct cio_io_stream *cio_socket_get_io_stream(struct cio_socket *socket)
 
 enum cio_error cio_socket_set_tcp_no_delay(struct cio_socket *socket, bool on)
 {
-	int tcp_no_delay = (char)on;
+	int tcp_no_delay = (int)on;
 
 	if (setsockopt(socket->impl.ev.fd, IPPROTO_TCP, TCP_NODELAY, &tcp_no_delay,
 	               sizeof(tcp_no_delay)) < 0) {
@@ -431,7 +431,7 @@ enum cio_error cio_socket_set_keep_alive(const struct cio_socket *socket, bool o
 
 enum cio_error cio_socket_set_tcp_fast_open(const struct cio_socket *socket, bool on)
 {
-	int opt = on ? 1 : 0;
+	int opt = (int)on;
 
 	int ret = setsockopt(socket->impl.ev.fd, SOL_TCP, TCP_FASTOPEN_CONNECT, &opt, sizeof(opt));
 	if (cio_unlikely(ret != 0)) {
