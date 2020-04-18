@@ -151,7 +151,7 @@ jobs:
       with:
         install_deps: ./.github/workflows/install-deps.sh
         ctest_toolchain_file: /tmp/cio/toolchains/x86-linux-clang-10.cmake
-        ctest_analyzer: scan-build-9
+        ctest_analyzer: scan-build-10
 
   clang-10-clangtidy:
     name: x86 clang-10 clang-tidy
