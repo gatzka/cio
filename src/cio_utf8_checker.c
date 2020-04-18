@@ -396,16 +396,12 @@ static inline uint8_t decode(uint8_t *state, uint8_t *codep, uint8_t byte)
 
 uint8_t cio_check_utf8(struct cio_utf8_state *state, const uint8_t *s, size_t count)
 {
-	const uint_fast32_t *s_aligned;
-	unsigned int pre_length;
-	size_t main_length;
-	unsigned int post_length;
+	const uint_fast32_t *s_aligned = NULL;
+	unsigned int pre_length = (unsigned int)count;
+	size_t main_length = 0;
+	unsigned int post_length = 0;
 
-	if (count < sizeof(*s_aligned)) {
-		pre_length = (unsigned int)count;
-		main_length = 0;
-		post_length = 0;
-	} else {
+	if (count >= sizeof(*s_aligned)) {
 		pre_length = ((uintptr_t)s) % sizeof(*s_aligned);
 		pre_length = (sizeof(*s_aligned) - pre_length) % sizeof(*s_aligned);
 		main_length = (count - pre_length) / sizeof(*s_aligned);

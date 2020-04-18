@@ -252,11 +252,9 @@ static enum cio_error write_response(struct cio_http_client *client, enum cio_ht
 
 	client->response_written_cb = written_cb;
 	client->http_private.response_fired = true;
-	size_t content_length;
+	size_t content_length = 0;
 	if (wbh_body) {
 		content_length = cio_write_buffer_get_total_size(wbh_body);
-	} else {
-		content_length = 0;
 	}
 
 	int written = snprintf(client->http_private.content_length_buffer, sizeof(client->http_private.content_length_buffer) - 1, "Content-Length: %zu" CIO_CRLF, content_length);
@@ -429,16 +427,14 @@ static int on_message_complete(http_parser *parser)
 		client->http_private.finish_func = restart_read_request;
 	}
 
-	enum cio_http_cb_return ret;
+	enum cio_http_cb_return ret = CIO_HTTP_CB_SUCCESS;
 	if ((!client->http_private.response_fired) && client->current_handler->on_message_complete) {
 		ret = client->current_handler->on_message_complete(client);
-	} else {
-		ret = CIO_HTTP_CB_SUCCESS;
 	}
 
 	if (cio_unlikely(!client->http_private.response_written)) {
 		handle_server_error(client, "After receiving the complete message, no response was written!");
-		return 0;
+		return CIO_HTTP_CB_SUCCESS;
 	}
 
 	client->http_private.request_complete = true;

@@ -155,7 +155,7 @@ static enum cio_http_cb_return handle_field(struct cio_http_client *client, cons
 
 static enum cio_http_cb_return handle_value(struct cio_http_client *client, const char *at, size_t length)
 {
-	enum cio_http_cb_return ret;
+	enum cio_http_cb_return ret = CIO_HTTP_CB_SUCCESS;
 
 	struct cio_websocket_location_handler *wslh = cio_container_of(client->current_handler, struct cio_websocket_location_handler, http_location);
 
@@ -172,12 +172,10 @@ static enum cio_http_cb_return handle_value(struct cio_http_client *client, cons
 
 	case CIO_WS_HEADER_SEC_WEBSOCKET_PROTOCOL:
 		wslh->flags.subprotocol_requested = 1;
-		ret = CIO_HTTP_CB_SUCCESS;
 		check_websocket_protocol(wslh, at, length);
 		break;
 
 	default:
-		ret = CIO_HTTP_CB_SUCCESS;
 		break;
 	}
 

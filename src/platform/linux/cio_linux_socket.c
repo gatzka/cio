@@ -59,7 +59,8 @@ static void read_callback(void *context, enum cio_epoll_error error)
 	struct cio_read_buffer *rb = stream->read_buffer;
 	struct cio_socket *s = cio_container_of(stream, struct cio_socket, stream);
 
-	enum cio_error err;
+	enum cio_error err = CIO_SUCCESS;
+
 	if (cio_unlikely(error != CIO_EPOLL_SUCCESS)) {
 		err = cio_linux_get_socket_error(s->impl.ev.fd);
 		stream->read_handler(stream, stream->read_handler_context, err, rb);
@@ -77,7 +78,6 @@ static void read_callback(void *context, enum cio_epoll_error error)
 			s->impl.peer_closed_connection = true;
 		} else {
 			rb->add_ptr += (size_t)ret;
-			err = CIO_SUCCESS;
 		}
 
 		stream->read_handler(stream, stream->read_handler_context, err, rb);
@@ -165,12 +165,11 @@ static void write_callback(void *context, enum cio_epoll_error error)
 {
 	struct cio_io_stream *stream = context;
 
-	enum cio_error err;
+	enum cio_error err = CIO_SUCCESS;
+
 	if (cio_unlikely(error != CIO_EPOLL_SUCCESS)) {
 		struct cio_socket *s = cio_container_of(stream, struct cio_socket, stream);
 		err = cio_linux_get_socket_error(s->impl.ev.fd);
-	} else {
-		err = CIO_SUCCESS;
 	}
 
 	stream->write_handler(stream, stream->write_handler_context, stream->write_buffer, err, 0);
@@ -346,11 +345,10 @@ enum cio_error cio_socket_close(struct cio_socket *socket)
 static void connect_callback(void *context, enum cio_epoll_error error)
 {
 	struct cio_socket *socket = context;
-	enum cio_error err;
+	enum cio_error err = CIO_SUCCESS;
+
 	if (cio_unlikely(error != CIO_EPOLL_SUCCESS)) {
 		err = cio_linux_get_socket_error(socket->impl.ev.fd);
-	} else {
-		err = CIO_SUCCESS;
 	}
 	socket->handler(socket, socket->handler_context, err);
 }
@@ -403,7 +401,7 @@ enum cio_error cio_socket_set_tcp_no_delay(struct cio_socket *socket, bool on)
 enum cio_error cio_socket_set_keep_alive(const struct cio_socket *socket, bool on, unsigned int keep_idle_s,
                                          unsigned int keep_intvl_s, unsigned int keep_cnt)
 {
-	int keep_alive;
+	int keep_alive = 0;
 
 	if (on) {
 		keep_alive = 1;
@@ -418,8 +416,6 @@ enum cio_error cio_socket_set_keep_alive(const struct cio_socket *socket, bool o
 		if (setsockopt(socket->impl.ev.fd, SOL_TCP, TCP_KEEPCNT, &keep_cnt, sizeof(keep_cnt)) == -1) {
 			return (enum cio_error)(-errno);
 		}
-	} else {
-		keep_alive = 0;
 	}
 
 	if (setsockopt(socket->impl.ev.fd, SOL_SOCKET, SO_KEEPALIVE, &keep_alive, sizeof(keep_alive)) == -1) {
