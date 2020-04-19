@@ -57,8 +57,8 @@ struct request_test {
 	cio_http_data_cb on_query;
 	cio_http_data_cb on_fragment;
 	cio_http_data_cb on_url;
-	cio_http_data_cb on_header_field;
-	cio_http_data_cb on_header_value;
+	cio_http_data_cb on_header_field_name;
+	cio_http_data_cb on_header_field_value;
 	cio_http_cb on_header_complete;
 	cio_http_data_cb on_body;
 	cio_http_cb on_message_complete;
@@ -382,8 +382,8 @@ static struct cio_http_location_handler *alloc_handler_for_callback_test(const v
 		cio_http_location_handler_init(&handler->handler);
 		cio_write_buffer_head_init(&handler->wbh);
 		handler->handler.free = free_dummy_handler;
-		handler->handler.on_header_field = test->on_header_field;
-		handler->handler.on_header_value = test->on_header_value;
+		handler->handler.on_header_field_name = test->on_header_field_name;
+		handler->handler.on_header_field_value = test->on_header_field_value;
 		handler->handler.on_url = test->on_url;
 		handler->handler.on_headers_complete = test->on_header_complete;
 		handler->handler.on_body = test->on_body;
@@ -1289,8 +1289,8 @@ static void test_callbacks_after_response_sent(void)
 		    .on_query = on_query,
 		    .on_fragment = on_fragment,
 		    .on_url = on_url,
-		    .on_header_field = on_header_field,
-		    .on_header_value = on_header_value,
+		    .on_header_field_name = on_header_field,
+		    .on_header_field_value = on_header_value,
 		    .on_header_complete = on_header_complete,
 		    .on_body = on_body,
 		    .on_message_complete = on_message_complete,
