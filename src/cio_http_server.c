@@ -401,16 +401,16 @@ static int data_callback(struct cio_http_client *client, const char *at, size_t 
 	return CIO_HTTP_CB_SUCCESS;
 }
 
-static int on_header_field(http_parser *parser, const char *at, size_t length)
+static int on_header_field_name(http_parser *parser, const char *at, size_t length)
 {
 	struct cio_http_client *client = cio_container_of(parser, struct cio_http_client, parser);
-	return data_callback(client, at, length, client->current_handler->on_header_field);
+	return data_callback(client, at, length, client->current_handler->on_header_field_name);
 }
 
-static int on_header_value(http_parser *parser, const char *at, size_t length)
+static int on_header_field_value(http_parser *parser, const char *at, size_t length)
 {
 	struct cio_http_client *client = cio_container_of(parser, struct cio_http_client, parser);
-	return data_callback(client, at, length, client->current_handler->on_header_value);
+	return data_callback(client, at, length, client->current_handler->on_header_field_value);
 }
 
 static int on_message_complete(http_parser *parser)
@@ -472,8 +472,8 @@ static int on_url(http_parser *parser, const char *at, size_t length)
 	client->http_method = (enum cio_http_method)client->parser.method;
 
 	client->parser_settings.on_headers_complete = on_headers_complete;
-	client->parser_settings.on_header_field = on_header_field;
-	client->parser_settings.on_header_value = on_header_value;
+	client->parser_settings.on_header_field = on_header_field_name;
+	client->parser_settings.on_header_value = on_header_field_value;
 	client->parser_settings.on_body = on_body;
 	client->parser_settings.on_message_complete = on_message_complete;
 

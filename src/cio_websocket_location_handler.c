@@ -134,7 +134,7 @@ static void check_websocket_protocol(struct cio_websocket_location_handler *hand
 	}
 }
 
-static enum cio_http_cb_return handle_field(struct cio_http_client *client, const char *at, size_t length)
+static enum cio_http_cb_return handle_field_name(struct cio_http_client *client, const char *at, size_t length)
 {
 	static const char sec_key[] = "Sec-WebSocket-Key";
 	static const char ws_version[] = "Sec-WebSocket-Version";
@@ -153,7 +153,7 @@ static enum cio_http_cb_return handle_field(struct cio_http_client *client, cons
 	return CIO_HTTP_CB_SUCCESS;
 }
 
-static enum cio_http_cb_return handle_value(struct cio_http_client *client, const char *at, size_t length)
+static enum cio_http_cb_return handle_field_value(struct cio_http_client *client, const char *at, size_t length)
 {
 	enum cio_http_cb_return ret = CIO_HTTP_CB_SUCCESS;
 
@@ -307,7 +307,7 @@ enum cio_error cio_websocket_location_handler_init(struct cio_websocket_location
 		return CIO_INVALID_ARGUMENT;
 	}
 
-	handler->flags.current_header_field = 0;
+	handler->flags.current_header_field = CIO_WS_HEADER_UNKNOWN;
 	handler->flags.ws_version_ok = 0;
 	handler->flags.subprotocol_requested = 0;
 	handler->chosen_subprotocol = -1;
@@ -317,8 +317,8 @@ enum cio_error cio_websocket_location_handler_init(struct cio_websocket_location
 	handler->location_handler_free = location_handler_free;
 
 	cio_http_location_handler_init(&handler->http_location);
-	handler->http_location.on_header_field = handle_field;
-	handler->http_location.on_header_value = handle_value;
+	handler->http_location.on_header_field_name = handle_field_name;
+	handler->http_location.on_header_field_value = handle_field_value;
 	handler->http_location.on_headers_complete = handle_headers_complete;
 	handler->http_location.free = free_resources;
 

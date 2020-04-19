@@ -39,8 +39,8 @@ void cio_http_location_handler_init(struct cio_http_location_handler *handler)
 	handler->on_path = NULL;
 	handler->on_query = NULL;
 	handler->on_fragment = NULL;
-	handler->on_header_field = NULL;
-	handler->on_header_value = NULL;
+	handler->on_header_field_name = NULL;
+	handler->on_header_field_value = NULL;
 	handler->on_headers_complete = NULL;
 	handler->on_body = NULL;
 	handler->on_message_complete = NULL;
@@ -52,8 +52,8 @@ bool cio_http_location_handler_no_callbacks(const struct cio_http_location_handl
 	if (handler->on_url ||
 	    handler->on_headers_complete ||
 	    handler->on_message_complete ||
-	    handler->on_header_field ||
-	    handler->on_header_value ||
+	    handler->on_header_field_name ||
+	    handler->on_header_field_value ||
 	    handler->on_body ||
 	    handler->on_port ||
 	    handler->on_host ||

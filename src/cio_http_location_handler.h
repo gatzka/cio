@@ -132,16 +132,16 @@ struct cio_http_location_handler {
 	cio_http_data_cb on_fragment;
 
 	/**
-	 * @anchor cio_http_location_handler_on_header_field
-	 * @brief Called for every header field inside an HTTP header.
+	 * @anchor cio_http_location_handler_on_header_field_name
+	 * @brief Called for every header field name inside an HTTP header.
 	 */
-	cio_http_data_cb on_header_field;
+	cio_http_data_cb on_header_field_name;
 
 	/**
-	 * @anchor cio_http_location_handler_on_header_value
-	 * @brief Called for every header value inside an HTTP header.
+	 * @anchor cio_http_location_handler_on_header_field_value
+	 * @brief Called for every header field value inside an HTTP header.
 	 */
-	cio_http_data_cb on_header_value;
+	cio_http_data_cb on_header_field_value;
 
 	/**
 	 * @anchor cio_http_location_handler_on_headers_complete
