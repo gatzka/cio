@@ -214,6 +214,12 @@ set_property(TARGET ${PROJECT_NAME} APPEND PROPERTY PUBLIC_HEADER
     "cio_write_buffer.h"
 )
 
+if(${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
+    set_property(TARGET ${PROJECT_NAME} APPEND PROPERTY PUBLIC_HEADER
+        "linux/cio_unix_address.h"
+    )
+endif()
+
 include(GenerateExportHeader)
 generate_export_header(${PROJECT_NAME} EXPORT_FILE_NAME ${CMAKE_CURRENT_BINARY_DIR}/generated/${PROJECT_NAME}_export.h)
 
