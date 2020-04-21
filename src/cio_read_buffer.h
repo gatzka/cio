@@ -90,10 +90,10 @@ static inline enum cio_error cio_read_buffer_init(struct cio_read_buffer *rb, vo
 		return CIO_INVALID_ARGUMENT;
 	}
 
-	rb->data = data;
+	rb->data = (uint8_t *)data;
 	rb->end = (uint8_t *)data + size;
-	rb->fetch_ptr = data;
-	rb->add_ptr = data;
+	rb->fetch_ptr = (uint8_t *)data;
+	rb->add_ptr = (uint8_t *)data;
 
 	return CIO_SUCCESS;
 }
