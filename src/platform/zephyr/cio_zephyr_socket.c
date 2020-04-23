@@ -94,7 +94,7 @@ static void read_callback(void *context)
 	stream->read_handler(stream, stream->read_handler_context, err, stream->read_buffer);
 }
 
-static enum cio_error stream_read(struct cio_io_stream *stream, struct cio_read_buffer *buffer, cio_io_stream_read_handler handler, void *handler_context)
+static enum cio_error stream_read(struct cio_io_stream *stream, struct cio_read_buffer *buffer, cio_io_stream_read_handler_t handler, void *handler_context)
 {
 	if (cio_unlikely((stream == NULL) || (buffer == NULL) || (handler == NULL))) {
 		return CIO_INVALID_ARGUMENT;
@@ -146,7 +146,7 @@ static void tcp_sent(struct net_context *context, int status, void *user_data)
 	cio_zephyr_eventloop_add_event(socket->impl.loop, &socket->impl.ev);
 }
 
-static enum cio_error stream_write(struct cio_io_stream *stream, struct cio_write_buffer *buffer, cio_io_stream_write_handler handler, void *handler_context)
+static enum cio_error stream_write(struct cio_io_stream *stream, struct cio_write_buffer *buffer, cio_io_stream_write_handler_t handler, void *handler_context)
 {
 	if (cio_unlikely((stream == NULL) || (buffer == NULL) || (handler == NULL))) {
 		return CIO_INVALID_ARGUMENT;
@@ -233,7 +233,7 @@ enum cio_error cio_socket_close(struct cio_socket *socket)
 	return CIO_SUCCESS;
 }
 
-enum cio_error cio_zephyr_socket_init(struct cio_socket *socket, struct net_context *net_context, struct cio_eventloop *loop, uint64_t close_timeout_ns, cio_socket_close_hook close_hook)
+enum cio_error cio_zephyr_socket_init(struct cio_socket *socket, struct net_context *net_context, struct cio_eventloop *loop, uint64_t close_timeout_ns, cio_socket_close_hook_t close_hook)
 {
 	socket->impl.context = net_context;
 	socket->impl.close_timeout_ns = close_timeout_ns;

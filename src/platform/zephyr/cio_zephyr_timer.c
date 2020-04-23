@@ -58,7 +58,7 @@ static void stop(struct k_timer *work)
 {
 	struct cio_timer_impl *impl = cio_container_of(work, struct cio_timer_impl, timer);
 	struct cio_timer *timer = cio_container_of(impl, struct cio_timer, impl);
-	cio_timer_handler handler = timer->handler;
+	cio_timer_handler_t handler = timer->handler;
 	timer->handler = NULL;
 
 	handler(timer, timer->handler_context, CIO_OPERATION_ABORTED);

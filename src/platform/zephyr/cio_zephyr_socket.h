@@ -40,7 +40,7 @@
 extern "C" {
 #endif
 
-enum cio_error cio_zephyr_socket_init(struct cio_socket *s, struct net_context *net_context, struct cio_eventloop *loop, uint64_t close_timeout_ns, cio_socket_close_hook close_hook);
+enum cio_error cio_zephyr_socket_init(struct cio_socket *s, struct net_context *net_context, struct cio_eventloop *loop, uint64_t close_timeout_ns, cio_socket_close_hook_t close_hook);
 
 #ifdef __cplusplus
 }
