@@ -42,9 +42,9 @@
 
 DEFINE_FFF_GLOBALS
 
-FAKE_VALUE_FUNC(enum cio_error, cio_random_seed_rng, cio_rng *)
+FAKE_VALUE_FUNC(enum cio_error, cio_random_seed_rng, cio_rng_t *)
 
-static cio_rng global_rng;
+static cio_rng_t global_rng;
 
 void setUp(void)
 {
@@ -56,7 +56,7 @@ void tearDown(void)
 {
 }
 
-void cio_random_get_bytes(cio_rng *rng, void *bytes, size_t num_bytes)
+void cio_random_get_bytes(cio_rng_t *rng, void *bytes, size_t num_bytes)
 {
 	(void)rng;
 	uint8_t *b = bytes;

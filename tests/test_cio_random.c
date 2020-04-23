@@ -54,7 +54,7 @@ void tearDown(void)
 
 static void test_two_randoms(void)
 {
-	cio_rng rng;
+	cio_rng_t rng;
 
 	enum cio_error err = cio_random_seed_rng(&rng);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "cio_random_seed_rng did not succeed!");

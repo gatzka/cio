@@ -146,7 +146,7 @@ static void read_until_close_callback(void *context, enum cio_epoll_error error)
 	}
 }
 
-static enum cio_error stream_read(struct cio_io_stream *stream, struct cio_read_buffer *buffer, cio_io_stream_read_handler handler, void *handler_context)
+static enum cio_error stream_read(struct cio_io_stream *stream, struct cio_read_buffer *buffer, cio_io_stream_read_handler_t handler, void *handler_context)
 {
 	if (cio_unlikely((stream == NULL) || (buffer == NULL) || (handler == NULL))) {
 		return CIO_INVALID_ARGUMENT;
@@ -175,7 +175,7 @@ static void write_callback(void *context, enum cio_epoll_error error)
 	stream->write_handler(stream, stream->write_handler_context, stream->write_buffer, err, 0);
 }
 
-static enum cio_error stream_write(struct cio_io_stream *stream, struct cio_write_buffer *buffer, cio_io_stream_write_handler handler, void *handler_context)
+static enum cio_error stream_write(struct cio_io_stream *stream, struct cio_write_buffer *buffer, cio_io_stream_write_handler_t handler, void *handler_context)
 {
 	if (cio_unlikely((stream == NULL) || (buffer == NULL) || (handler == NULL))) {
 		return CIO_INVALID_ARGUMENT;
@@ -228,7 +228,7 @@ static enum cio_error stream_close(struct cio_io_stream *stream)
 enum cio_error cio_linux_socket_init(struct cio_socket *s, int client_fd,
                                      struct cio_eventloop *loop,
                                      uint64_t close_timeout_ns,
-                                     cio_socket_close_hook close_hook)
+                                     cio_socket_close_hook_t close_hook)
 {
 	s->impl.ev.fd = client_fd;
 	s->impl.ev.write_callback = NULL;
@@ -272,7 +272,7 @@ enum cio_error cio_socket_init(struct cio_socket *socket,
                                enum cio_address_family address_family,
                                struct cio_eventloop *loop,
                                uint64_t close_timeout_ns,
-                               cio_socket_close_hook close_hook)
+                               cio_socket_close_hook_t close_hook)
 {
 	if (cio_unlikely(socket == NULL) || (loop == NULL)) {
 		return CIO_INVALID_ARGUMENT;
@@ -353,7 +353,7 @@ static void connect_callback(void *context, enum cio_epoll_error error)
 	socket->handler(socket, socket->handler_context, err);
 }
 
-enum cio_error cio_socket_connect(struct cio_socket *socket, const struct cio_socket_address *endpoint, cio_connect_handler handler, void *handler_context)
+enum cio_error cio_socket_connect(struct cio_socket *socket, const struct cio_socket_address *endpoint, cio_connect_handler_t handler, void *handler_context)
 {
 	if (cio_unlikely(socket == NULL) || (endpoint == NULL)) {
 		return CIO_INVALID_ARGUMENT;

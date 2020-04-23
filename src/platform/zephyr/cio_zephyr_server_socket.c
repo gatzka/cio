@@ -43,10 +43,10 @@ enum cio_error cio_server_socket_init(struct cio_server_socket *ss,
                                       struct cio_eventloop *loop,
                                       unsigned int backlog,
                                       enum cio_address_family family,
-                                      cio_alloc_client alloc_client,
-                                      cio_free_client free_client,
+                                      cio_alloc_client_t alloc_client,
+                                      cio_free_client_t free_client,
                                       uint64_t close_timeout_ns,
-                                      cio_server_socket_close_hook close_hook)
+                                      cio_server_socket_close_hook_t close_hook)
 {
 	int listen_fd = zsock_socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
 	if (cio_unlikely(listen_fd == -1)) {
@@ -123,7 +123,7 @@ static void accept_thread(void *arg1, void *arg2, void *arg3)
 	}
 }
 
-enum cio_error cio_server_socket_accept(struct cio_server_socket *ss, cio_accept_handler handler, void *handler_context)
+enum cio_error cio_server_socket_accept(struct cio_server_socket *ss, cio_accept_handler_t handler, void *handler_context)
 {
 	if (cio_unlikely(handler == NULL)) {
 		return CIO_INVALID_ARGUMENT;

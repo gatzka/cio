@@ -63,7 +63,7 @@ struct cio_http_client;
  * @ref cio_http_client_close "close" the client in the callback function. Any other resources not associated with @c client should
  * be cleaned up here.
  */
-typedef void (*cio_response_written_cb)(struct cio_http_client *client, enum cio_error err);
+typedef void (*cio_response_written_cb_t)(struct cio_http_client *client, enum cio_error err);
 
 enum { CIO_HTTP_CLIENT_CONTENT_LENGTH_BUFFER_LENGTH = 30 };
 
@@ -136,7 +136,7 @@ struct cio_http_client {
 	 * @return ::CIO_SUCCESS for success. If return value not ::CIO_SUCCESS, this typically means that you tried
 	 * to send two responses per request.
 	 */
-	enum cio_error (*write_response)(struct cio_http_client *client, enum cio_http_status_code status_code, struct cio_write_buffer *wbh_body, cio_response_written_cb written_cb);
+	enum cio_error (*write_response)(struct cio_http_client *client, enum cio_http_status_code status_code, struct cio_write_buffer *wbh_body, cio_response_written_cb_t written_cb);
 
 	/**
 	 * @anchor cio_http_client_add_response_header
@@ -210,7 +210,7 @@ struct cio_http_client {
 	struct cio_socket socket;
 	struct cio_write_buffer response_wbh;
 	struct cio_http_client_private http_private;
-	cio_response_written_cb response_written_cb;
+	cio_response_written_cb_t response_written_cb;
 
 	http_parser parser;
 	http_parser_settings parser_settings;

@@ -33,7 +33,7 @@
 #include "cio_base64.h"
 #include "cio_compiler.h"
 
-static const char encode_table[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+static const char ENCODE_TABLE[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
 
 void cio_b64_encode_buffer(const uint8_t *__restrict in, size_t in_length, char *__restrict out)
 {
@@ -51,15 +51,15 @@ void cio_b64_encode_buffer(const uint8_t *__restrict in, size_t in_length, char 
 		}
 
 		char tmp[4];
-		tmp[0] = encode_table[triple[0] >> 2U];
-		tmp[1] = encode_table[((triple[0] & 0x03U) << 4U) | ((triple[1] & 0xf0U) >> 4U)]; // NOLINT
+		tmp[0] = ENCODE_TABLE[triple[0] >> 2U];
+		tmp[1] = ENCODE_TABLE[((triple[0] & 0x03U) << 4U) | ((triple[1] & 0xf0U) >> 4U)]; // NOLINT
 		if (cio_likely(len > 1)) {
-			tmp[2] = encode_table[((triple[1] & 0x0fU) << 2U) | ((triple[2] & 0xc0U) >> 6U)]; // NOLINT
+			tmp[2] = ENCODE_TABLE[((triple[1] & 0x0fU) << 2U) | ((triple[2] & 0xc0U) >> 6U)]; // NOLINT
 		} else {
 			tmp[2] = '=';
 		}
 		if (cio_likely(len > 2)) {
-			tmp[3] = encode_table[triple[2] & 0x3fU]; // NOLINT
+			tmp[3] = ENCODE_TABLE[triple[2] & 0x3fU]; // NOLINT
 		} else {
 			tmp[3] = '=';
 		}

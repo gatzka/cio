@@ -52,8 +52,8 @@ extern "C" {
  * @ref cio_server_socket_close "closed".
  */
 
-typedef struct cio_socket *(*cio_alloc_client)(void);
-typedef void (*cio_free_client)(struct cio_socket *socket);
+typedef struct cio_socket *(*cio_alloc_client_t)(void);
+typedef void (*cio_free_client_t)(struct cio_socket *socket);
 
 struct cio_server_socket;
 
@@ -67,14 +67,14 @@ struct cio_server_socket;
  * allocated if err != ::CIO_SUCCESS. So NEVER close @a socket in that case.
  * @param socket The client socket that was created from the accept.
  */
-typedef void (*cio_accept_handler)(struct cio_server_socket *ss, void *handler_context, enum cio_error err, struct cio_socket *socket);
+typedef void (*cio_accept_handler_t)(struct cio_server_socket *ss, void *handler_context, enum cio_error err, struct cio_socket *socket);
 
 /**
  * @brief The type of close hook function.
  *
  * @param ss The cio_linux_server_socket the close hook was called on.
  */
-typedef void (*cio_server_socket_close_hook)(struct cio_server_socket *ss);
+typedef void (*cio_server_socket_close_hook_t)(struct cio_server_socket *ss);
 
 /**
  * @brief The cio_server_socket struct describes a server socket.
@@ -85,11 +85,11 @@ struct cio_server_socket {
 	 */
 	struct cio_server_socket_impl impl;
 	int backlog;
-	cio_server_socket_close_hook close_hook;
-	cio_accept_handler handler;
+	cio_server_socket_close_hook_t close_hook;
+	cio_accept_handler_t handler;
 	void *handler_context;
-	cio_alloc_client alloc_client;
-	cio_free_client free_client;
+	cio_alloc_client_t alloc_client;
+	cio_free_client_t free_client;
 };
 
 /**
@@ -119,10 +119,10 @@ CIO_EXPORT enum cio_error cio_server_socket_init(struct cio_server_socket *ss,
                                                  struct cio_eventloop *loop,
                                                  unsigned int backlog,
                                                  enum cio_address_family family,
-                                                 cio_alloc_client alloc_client,
-                                                 cio_free_client free_client,
+                                                 cio_alloc_client_t alloc_client,
+                                                 cio_free_client_t free_client,
                                                  uint64_t close_timeout_ns,
-                                                 cio_server_socket_close_hook close_hook);
+                                                 cio_server_socket_close_hook_t close_hook);
 
 /**
  * @brief Accepts an incoming socket connection.
@@ -138,7 +138,7 @@ CIO_EXPORT enum cio_error cio_server_socket_init(struct cio_server_socket *ss,
  *
  * @return ::CIO_SUCCESS for success.
  */
-CIO_EXPORT enum cio_error cio_server_socket_accept(struct cio_server_socket *ss, cio_accept_handler handler, void *handler_context);
+CIO_EXPORT enum cio_error cio_server_socket_accept(struct cio_server_socket *ss, cio_accept_handler_t handler, void *handler_context);
 
 /**
  * @brief Closes the server socket.

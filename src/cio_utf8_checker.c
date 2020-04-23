@@ -7,7 +7,7 @@
 
 #include "cio_utf8_checker.h"
 
-static const uint8_t utf8d[] = {
+static const uint8_t UTF8D[] = {
     // The first part of the table maps bytes to character classes that
     // to reduce the size of the transition table and create bitmasks.
     CIO_UTF8_ACCEPT,
@@ -379,18 +379,18 @@ static const uint8_t utf8d[] = {
     CIO_UTF8_REJECT,
 };
 
-static const uint8_t type_mask = 0x3fU;
-static const uint8_t shift = 6U;
-static const uint8_t byte_mask = 0xffU;
-static const unsigned int next_byte = 256U;
+static const uint8_t TYPE_MASK = 0x3fU;
+static const uint8_t SHIFT = 6U;
+static const uint8_t BYTE_MASK = 0xffU;
+static const unsigned int NEXT_BYTE = 256U;
 
 static inline uint8_t decode(uint8_t *state, uint8_t *codep, uint8_t byte)
 {
-	uint8_t type = utf8d[byte];
+	uint8_t type = UTF8D[byte];
 
-	*codep = (uint8_t)((*state != CIO_UTF8_ACCEPT) ? ((uint8_t)(byte & type_mask) | (uint8_t)(*codep << shift)) : ((uint8_t)(byte_mask >> type) & byte));
+	*codep = (uint8_t)((*state != CIO_UTF8_ACCEPT) ? ((uint8_t)(byte & TYPE_MASK) | (uint8_t)(*codep << SHIFT)) : ((uint8_t)(BYTE_MASK >> type) & byte));
 
-	*state = utf8d[next_byte + *state + type];
+	*state = UTF8D[NEXT_BYTE + *state + type];
 	return *state;
 }
 

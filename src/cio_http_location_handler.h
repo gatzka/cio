@@ -77,7 +77,7 @@ enum cio_http_cb_return {
  *
  * @param client The client which made the HTTP request.
  */
-typedef enum cio_http_cb_return (*cio_http_cb)(struct cio_http_client *client);
+typedef enum cio_http_cb_return (*cio_http_cb_t)(struct cio_http_client *client);
 
 /**
  * @brief The type of an HTTP callback function which will get data.
@@ -86,84 +86,84 @@ typedef enum cio_http_cb_return (*cio_http_cb)(struct cio_http_client *client);
  * @param at The pointer from where to read.
  * @param length The maximum number of bytes the callback function is allowed to read.
  */
-typedef enum cio_http_cb_return (*cio_http_data_cb)(struct cio_http_client *client, const char *at, size_t length);
+typedef enum cio_http_cb_return (*cio_http_data_cb_t)(struct cio_http_client *client, const char *at, size_t length);
 
 struct cio_http_location_handler {
 	/**
 	 * @anchor cio_http_location_handler_on_url
 	 * @brief Called after the complete request URL was parsed.
 	 */
-	cio_http_data_cb on_url;
+	cio_http_data_cb_t on_url;
 
 	/**
 	 * @anchor cio_http_location_handler_on_schema
 	 * @brief Called with the schema part of the URL.
 	 */
-	cio_http_data_cb on_schema;
+	cio_http_data_cb_t on_schema;
 
 	/**
 	 * @anchor cio_http_location_handler_on_host
 	 * @brief Called with the host part of the URL.
 	 */
-	cio_http_data_cb on_host;
+	cio_http_data_cb_t on_host;
 
 	/**
 	 * @anchor cio_http_location_handler_on_port
 	 * @brief Called with the port part of the URL.
 	 */
-	cio_http_data_cb on_port;
+	cio_http_data_cb_t on_port;
 
 	/**
 	 * @anchor cio_http_location_handler_on_path
 	 * @brief Called with the path part of the URL.
 	 */
-	cio_http_data_cb on_path;
+	cio_http_data_cb_t on_path;
 
 	/**
 	 * @anchor cio_http_location_handler_on_query
 	 * @brief Called with the query part of the URL.
 	 */
-	cio_http_data_cb on_query;
+	cio_http_data_cb_t on_query;
 
 	/**
 	 * @anchor cio_http_location_handler_on_fragment
 	 * @brief Called with the fragment part of the URL.
 	 */
-	cio_http_data_cb on_fragment;
+	cio_http_data_cb_t on_fragment;
 
 	/**
 	 * @anchor cio_http_location_handler_on_header_field_name
 	 * @brief Called for every header field name inside an HTTP header.
 	 */
-	cio_http_data_cb on_header_field_name;
+	cio_http_data_cb_t on_header_field_name;
 
 	/**
 	 * @anchor cio_http_location_handler_on_header_field_value
 	 * @brief Called for every header field value inside an HTTP header.
 	 */
-	cio_http_data_cb on_header_field_value;
+	cio_http_data_cb_t on_header_field_value;
 
 	/**
 	 * @anchor cio_http_location_handler_on_headers_complete
 	 * @brief Called if the HTTP header was parsed completely.
 	 */
-	cio_http_cb on_headers_complete;
+	cio_http_cb_t on_headers_complete;
 
 	/**
 	 * @anchor cio_http_location_handler_on_body
 	 * @brief Called for processed chunks of an HTTP body.
 	 */
-	cio_http_data_cb on_body;
+	cio_http_data_cb_t on_body;
 
 	/**
 	 * @anchor cio_http_location_handler_on_message_complete
 	 * @brief Called if the HTTP message was parsed completely.
 	 */
-	cio_http_cb on_message_complete;
+	cio_http_cb_t on_message_complete;
 
 	/**
 	 * @anchor cio_http_location_handler_free
-	 * @brief Frees the resources @ref cio_http_alloc_handler_handler "allocated" for this handler.
+	 * @brief Frees the resources @ref cio_http_alloc_handler_t_handler "allocated" for this handler.
 	 *
 	 * This callback function is called automatically when an HTTP client
 	 * connection is @ref cio_http_client_close "closed".

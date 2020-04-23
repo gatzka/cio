@@ -204,8 +204,8 @@ static inline struct cio_write_buffer *cio_write_buffer_queue_last(const struct 
  */
 static inline void cio_write_buffer_unlink(struct cio_write_buffer *wbh, struct cio_write_buffer *wbe)
 {
-	struct cio_write_buffer *next;
-	struct cio_write_buffer *prev;
+	struct cio_write_buffer *next = NULL;
+	struct cio_write_buffer *prev = NULL;
 
 	wbh->data.head.q_len--;
 	wbh->data.head.total_length -= wbe->data.element.length;
