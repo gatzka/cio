@@ -59,8 +59,8 @@ extern "C" {
 
 struct cio_websocket;
 
-typedef void (*cio_websocket_close_hook)(struct cio_websocket *s);
-typedef void (*cio_websocket_on_connect)(struct cio_websocket *s);
+typedef void (*cio_websocket_close_hook_t)(struct cio_websocket *s);
+typedef void (*cio_websocket_on_connect_t)(struct cio_websocket *s);
 
 /**
  * @brief The type of websocket read callback functions.
@@ -76,8 +76,8 @@ typedef void (*cio_websocket_on_connect)(struct cio_websocket *s);
  * @param last_frame Shows if this frame is the last frame of a fragmented WebSocket message.
  * @param is_binary Shows if the frame is a binary or a text frame
  */
-typedef void (*cio_websocket_read_handler)(struct cio_websocket *ws, void *handler_context, enum cio_error err, size_t frame_length, uint8_t *data, size_t chunk_length, bool last_chunk, bool last_frame, bool is_binary);
-typedef void (*cio_websocket_write_handler)(struct cio_websocket *ws, void *handler_context, enum cio_error err);
+typedef void (*cio_websocket_read_handler_t)(struct cio_websocket *ws, void *handler_context, enum cio_error err, size_t frame_length, uint8_t *data, size_t chunk_length, bool last_chunk, bool last_frame, bool is_binary);
+typedef void (*cio_websocket_write_handler_t)(struct cio_websocket *ws, void *handler_context, enum cio_error err);
 
 enum cio_websocket_status_code {
 	CIO_WEBSOCKET_CLOSE_NORMAL = 1000,
@@ -114,12 +114,12 @@ struct cio_websocket_write_job {
 	struct cio_write_buffer *wbh;
 	struct cio_write_buffer websocket_header;
 	uint8_t send_header[CIO_WEBSOCKET_MAX_HEADER_SIZE];
-	cio_websocket_write_handler handler;
+	cio_websocket_write_handler_t handler;
 	void *handler_context;
 	enum cio_websocket_frame_type frame_type;
 	bool last_frame;
 	bool is_continuation_chunk;
-	cio_buffered_stream_write_handler stream_handler;
+	cio_buffered_stream_write_handler_t stream_handler;
 };
 
 struct cio_response_buffer {
@@ -142,18 +142,18 @@ struct cio_websocket_private {
 		unsigned int closed_by_error : 1;
 	} ws_flags;
 
-	cio_websocket_read_handler read_handler;
+	cio_websocket_read_handler_t read_handler;
 	void *read_handler_context;
 
 	struct cio_http_client *http_client;
 
 	struct cio_timer close_timer;
 	struct cio_utf8_state utf8_state;
-	cio_websocket_close_hook close_hook;
+	cio_websocket_close_hook_t close_hook;
 	uint8_t received_mask[4];
 	uint8_t chunk_send_mask[4];
 
-	cio_rng rng;
+	cio_rng_t rng;
 
 	struct cio_websocket_write_job write_message_job;
 	struct cio_websocket_write_job write_ping_job;
@@ -177,7 +177,7 @@ struct cio_websocket {
 	void (*on_control)(const struct cio_websocket *ws, enum cio_websocket_frame_type kind, const uint8_t *data, uint_fast8_t length);
 };
 
-CIO_EXPORT enum cio_error cio_websocket_init(struct cio_websocket *ws, bool is_server, cio_websocket_on_connect on_connect, cio_websocket_close_hook close_hook);
+CIO_EXPORT enum cio_error cio_websocket_init(struct cio_websocket *ws, bool is_server, cio_websocket_on_connect_t on_connect, cio_websocket_close_hook_t close_hook);
 
 /**
  * @brief Closes a websocket.
@@ -189,7 +189,7 @@ CIO_EXPORT enum cio_error cio_websocket_init(struct cio_websocket *ws, bool is_s
  * @param handler_context A context pointer which will the argument of @p handler.
  * @return ::CIO_SUCCESS for success.
  */
-CIO_EXPORT enum cio_error cio_websocket_close(struct cio_websocket *ws, enum cio_websocket_status_code status, const char *reason, cio_websocket_write_handler handler, void *handler_context);
+CIO_EXPORT enum cio_error cio_websocket_close(struct cio_websocket *ws, enum cio_websocket_status_code status, const char *reason, cio_websocket_write_handler_t handler, void *handler_context);
 
 /**
  * @brief Reads a message from a websocket.
@@ -199,7 +199,7 @@ CIO_EXPORT enum cio_error cio_websocket_close(struct cio_websocket *ws, enum cio
  * @param handler_context A context pointer given to @p handler when called.
  * @return ::CIO_SUCCESS for success.
  */
-CIO_EXPORT enum cio_error cio_websocket_read_message(struct cio_websocket *ws, cio_websocket_read_handler handler, void *handler_context);
+CIO_EXPORT enum cio_error cio_websocket_read_message(struct cio_websocket *ws, cio_websocket_read_handler_t handler, void *handler_context);
 
 /**
  * @brief Writes a complete message to the websocket.
@@ -222,7 +222,7 @@ CIO_EXPORT enum cio_error cio_websocket_read_message(struct cio_websocket *ws, c
  * @param handler_context A context pointer given to @p handler when called.
  * @return ::CIO_SUCCESS for success.
  */
-CIO_EXPORT enum cio_error cio_websocket_write_message_first_chunk(struct cio_websocket *ws, size_t frame_length, struct cio_write_buffer *payload, bool last_frame, bool is_binary, cio_websocket_write_handler handler, void *handler_context);
+CIO_EXPORT enum cio_error cio_websocket_write_message_first_chunk(struct cio_websocket *ws, size_t frame_length, struct cio_write_buffer *payload, bool last_frame, bool is_binary, cio_websocket_write_handler_t handler, void *handler_context);
 
 /**
  * @brief Continuous to write data to a websocket message which was started with @ref cio_websocket_write_message_first_chunk.
@@ -239,7 +239,7 @@ CIO_EXPORT enum cio_error cio_websocket_write_message_first_chunk(struct cio_web
  * @param handler_context A context pointer given to @p handler when called.
  * @return ::CIO_SUCCESS for success.
  */
-CIO_EXPORT enum cio_error cio_websocket_write_message_continuation_chunk(struct cio_websocket *ws, struct cio_write_buffer *payload, cio_websocket_write_handler handler, void *handler_context);
+CIO_EXPORT enum cio_error cio_websocket_write_message_continuation_chunk(struct cio_websocket *ws, struct cio_write_buffer *payload, cio_websocket_write_handler_t handler, void *handler_context);
 
 /**
  * @brief Writes a ping frame to the websocket.
@@ -256,7 +256,7 @@ CIO_EXPORT enum cio_error cio_websocket_write_message_continuation_chunk(struct 
  * @param handler_context A context pointer given to @p handler when called.
  * @return ::CIO_SUCCESS for success.
  */
-CIO_EXPORT enum cio_error cio_websocket_write_ping(struct cio_websocket *ws, struct cio_write_buffer *payload, cio_websocket_write_handler handler, void *handler_context);
+CIO_EXPORT enum cio_error cio_websocket_write_ping(struct cio_websocket *ws, struct cio_write_buffer *payload, cio_websocket_write_handler_t handler, void *handler_context);
 
 /**
  * @brief Writes a pong frame to the websocket.
@@ -273,7 +273,7 @@ CIO_EXPORT enum cio_error cio_websocket_write_ping(struct cio_websocket *ws, str
  * @param handler_context A context pointer given to @p handler when called.
  * @return ::CIO_SUCCESS for success.
  */
-enum cio_error cio_websocket_write_pong(struct cio_websocket *ws, struct cio_write_buffer *payload, cio_websocket_write_handler handler, void *handler_context);
+enum cio_error cio_websocket_write_pong(struct cio_websocket *ws, struct cio_write_buffer *payload, cio_websocket_write_handler_t handler, void *handler_context);
 
 /**
  * @brief Set a callback function that will be called if an error occurred.

@@ -40,8 +40,7 @@
 
 static void erase_pending_event(struct cio_eventloop *loop, const struct cio_event_notifier *ev)
 {
-	unsigned int i;
-	for (i = loop->event_counter + 1; i < loop->num_events; i++) {
+	for (unsigned int i = loop->event_counter + 1; i < loop->num_events; i++) {
 		if (loop->epoll_events[i].data.ptr == ev) {
 			memmove(&loop->epoll_events[i], &loop->epoll_events[i + 1], (loop->num_events - (i + 1)) * sizeof(loop->epoll_events[0]));
 			loop->num_events--;
@@ -65,7 +64,7 @@ static enum cio_error epoll_mod(const struct cio_eventloop *loop, struct cio_eve
 
 enum cio_error cio_eventloop_init(struct cio_eventloop *loop)
 {
-	enum cio_error err;
+	enum cio_error err = CIO_SUCCESS;
 
 	loop->num_events = 0;
 	loop->event_counter = 0;
@@ -161,11 +160,9 @@ void cio_linux_eventloop_remove(struct cio_eventloop *loop, const struct cio_eve
 static void handle_removed_ev(const struct cio_eventloop *loop, struct cio_event_notifier *ev, uint32_t events_type)
 {
 	if (cio_likely(loop->current_ev != NULL) && ((events_type & (uint32_t)EPOLLOUT & ev->registered_events) != 0)) {
-		enum cio_epoll_error err;
+		enum cio_epoll_error err = CIO_EPOLL_SUCCESS;
 		if (cio_unlikely(((events_type & (uint32_t)EPOLLERR) != 0) || ((events_type & (uint32_t)EPOLLHUP) != 0))) {
 			err = CIO_EPOLL_ERROR;
-		} else {
-			err = CIO_EPOLL_SUCCESS;
 		}
 
 		cio_linux_eventloop_unregister_write(loop, ev);

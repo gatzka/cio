@@ -62,14 +62,14 @@ struct cio_socket;
  * @param handler_context The context the functions works on.
  * @param err If err != ::CIO_SUCCESS, the connect call failed.
  */
-typedef void (*cio_connect_handler)(struct cio_socket *socket, void *handler_context, enum cio_error err);
+typedef void (*cio_connect_handler_t)(struct cio_socket *socket, void *handler_context, enum cio_error err);
 
 /**
  * @brief The type of close hook function.
  *
  * @param socket The cio_socket the close hook was called on.
  */
-typedef void (*cio_socket_close_hook)(struct cio_socket *socket);
+typedef void (*cio_socket_close_hook_t)(struct cio_socket *socket);
 
 struct cio_socket {
 
@@ -77,8 +77,8 @@ struct cio_socket {
 	 * @privatesection
 	 */
 	struct cio_io_stream stream;
-	cio_socket_close_hook close_hook;
-	cio_connect_handler handler;
+	cio_socket_close_hook_t close_hook;
+	cio_connect_handler_t handler;
 	void *handler_context;
 	struct cio_socket_impl impl;
 };
@@ -107,7 +107,7 @@ CIO_EXPORT enum cio_error cio_socket_init(struct cio_socket *socket,
                                           enum cio_address_family address_family,
                                           struct cio_eventloop *loop,
                                           uint64_t close_timeout_ns,
-                                          cio_socket_close_hook close_hook);
+                                          cio_socket_close_hook_t close_hook);
 
 /**
  * @brief Closes the cio_socket.
@@ -127,7 +127,7 @@ CIO_EXPORT enum cio_error cio_socket_close(struct cio_socket *socket);
  * @param handler The function to be called if the connect fails or succeeds.
  * @param handler_context The context passed to the @a handler function.
  */
-CIO_EXPORT enum cio_error cio_socket_connect(struct cio_socket *socket, const struct cio_socket_address *endpoint, cio_connect_handler handler, void *handler_context);
+CIO_EXPORT enum cio_error cio_socket_connect(struct cio_socket *socket, const struct cio_socket_address *endpoint, cio_connect_handler_t handler, void *handler_context);
 
 /**
  * @brief Gets an I/O stream from the socket.

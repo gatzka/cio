@@ -60,14 +60,14 @@ static uint32_t pcg_output_xsh_rr_64_32(uint64_t state)
 	return pcg_rotr_32((uint32_t)(((state >> FIRST_XOR_SHIFT) ^ state) >> SECOND_XOR_SHIFT), (unsigned int)(state >> ROT_SHIFT));
 }
 
-static uint32_t pcg32_random_r(cio_rng *rng)
+static uint32_t pcg32_random_r(cio_rng_t *rng)
 {
 	uint64_t oldstate = rng->state;
 	pcg_setseq_64_step_r(rng);
 	return pcg_output_xsh_rr_64_32(oldstate);
 }
 
-enum cio_error cio_random_seed_rng(cio_rng *rng)
+enum cio_error cio_random_seed_rng(cio_rng_t *rng)
 {
 	uint64_t seeds[2];
 	enum cio_error err = cio_entropy_get_bytes(&seeds, sizeof(seeds));
@@ -80,7 +80,7 @@ enum cio_error cio_random_seed_rng(cio_rng *rng)
 	return err;
 }
 
-void cio_random_get_bytes(cio_rng *rng, void *bytes, size_t num_bytes)
+void cio_random_get_bytes(cio_rng_t *rng, void *bytes, size_t num_bytes)
 {
 	uint8_t *dest = bytes;
 	for (size_t i = 0; i < num_bytes; i++) {

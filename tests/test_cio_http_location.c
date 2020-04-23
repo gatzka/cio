@@ -75,7 +75,7 @@ static void test_request_target_init(void)
 	struct location_init_arguments {
 		struct cio_http_location *target;
 		const char *path;
-		cio_http_alloc_handler handler;
+		cio_http_alloc_handler_t handler;
 		enum cio_error expected_result;
 	};
 
@@ -148,11 +148,11 @@ static void test_location_callback_test(void)
 	TEST_ASSERT_FALSE_MESSAGE(cio_http_location_handler_no_callbacks(&handler), "cio_http_location_handler_no_callbacks did not return false if a handler was set!");
 
 	cio_http_location_handler_init(&handler);
-	handler.on_header_field = data_cb;
+	handler.on_header_field_name = data_cb;
 	TEST_ASSERT_FALSE_MESSAGE(cio_http_location_handler_no_callbacks(&handler), "cio_http_location_handler_no_callbacks did not return false if a handler was set!");
 
 	cio_http_location_handler_init(&handler);
-	handler.on_header_value = data_cb;
+	handler.on_header_field_value = data_cb;
 	TEST_ASSERT_FALSE_MESSAGE(cio_http_location_handler_no_callbacks(&handler), "cio_http_location_handler_no_callbacks did not return false if a handler was set!");
 
 	cio_http_location_handler_init(&handler);

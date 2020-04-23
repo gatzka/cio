@@ -40,10 +40,10 @@ enum cio_error cio_server_socket_init(struct cio_server_socket *ss,
                                       struct cio_eventloop *loop,
                                       unsigned int backlog,
                                       enum cio_address_family family,
-                                      cio_alloc_client alloc_client,
-                                      cio_free_client free_client,
+                                      cio_alloc_client_t alloc_client,
+                                      cio_free_client_t free_client,
                                       uint64_t close_timeout_ns,
-                                      cio_server_socket_close_hook close_hook)
+                                      cio_server_socket_close_hook_t close_hook)
 {
 	int ret = cio_zephyr_socket_create(family, &ss->impl.context);
 	if (cio_unlikely(ret < 0)) {
@@ -130,7 +130,7 @@ static void net_context_accept_cb(struct net_context *new_context, struct sockad
 	cio_zephyr_eventloop_add_event(ss->impl.loop, &ss->impl.ev);
 }
 
-enum cio_error cio_server_socket_accept(struct cio_server_socket *ss, cio_accept_handler handler, void *handler_context)
+enum cio_error cio_server_socket_accept(struct cio_server_socket *ss, cio_accept_handler_t handler, void *handler_context)
 {
 	if (cio_unlikely(handler == NULL)) {
 		return CIO_INVALID_ARGUMENT;

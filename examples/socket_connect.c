@@ -88,13 +88,12 @@ int main(int argc, char *argv[])
 		ip[i] = (uint8_t)octet;
 	}
 
-	uint16_t port;
 	unsigned long int port_number = strtoul(argv[2], NULL, BASE_10);
 	if ((port_number == ULONG_MAX) || (port_number > UINT16_MAX)) {
 		usage(argv[0]);
 		return EXIT_FAILURE;
 	}
-	port = (uint16_t)port_number;
+	uint16_t port = (uint16_t)port_number;
 
 	int ret = EXIT_SUCCESS;
 	if (signal(SIGTERM, sighandler) == SIG_ERR) {

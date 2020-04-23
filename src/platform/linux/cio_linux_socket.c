@@ -59,7 +59,8 @@ static void read_callback(void *context, enum cio_epoll_error error)
 	struct cio_read_buffer *rb = stream->read_buffer;
 	struct cio_socket *s = cio_container_of(stream, struct cio_socket, stream);
 
-	enum cio_error err;
+	enum cio_error err = CIO_SUCCESS;
+
 	if (cio_unlikely(error != CIO_EPOLL_SUCCESS)) {
 		err = cio_linux_get_socket_error(s->impl.ev.fd);
 		stream->read_handler(stream, stream->read_handler_context, err, rb);
@@ -77,7 +78,6 @@ static void read_callback(void *context, enum cio_epoll_error error)
 			s->impl.peer_closed_connection = true;
 		} else {
 			rb->add_ptr += (size_t)ret;
-			err = CIO_SUCCESS;
 		}
 
 		stream->read_handler(stream, stream->read_handler_context, err, rb);
@@ -146,7 +146,7 @@ static void read_until_close_callback(void *context, enum cio_epoll_error error)
 	}
 }
 
-static enum cio_error stream_read(struct cio_io_stream *stream, struct cio_read_buffer *buffer, cio_io_stream_read_handler handler, void *handler_context)
+static enum cio_error stream_read(struct cio_io_stream *stream, struct cio_read_buffer *buffer, cio_io_stream_read_handler_t handler, void *handler_context)
 {
 	if (cio_unlikely((stream == NULL) || (buffer == NULL) || (handler == NULL))) {
 		return CIO_INVALID_ARGUMENT;
@@ -165,18 +165,17 @@ static void write_callback(void *context, enum cio_epoll_error error)
 {
 	struct cio_io_stream *stream = context;
 
-	enum cio_error err;
+	enum cio_error err = CIO_SUCCESS;
+
 	if (cio_unlikely(error != CIO_EPOLL_SUCCESS)) {
 		struct cio_socket *s = cio_container_of(stream, struct cio_socket, stream);
 		err = cio_linux_get_socket_error(s->impl.ev.fd);
-	} else {
-		err = CIO_SUCCESS;
 	}
 
 	stream->write_handler(stream, stream->write_handler_context, stream->write_buffer, err, 0);
 }
 
-static enum cio_error stream_write(struct cio_io_stream *stream, struct cio_write_buffer *buffer, cio_io_stream_write_handler handler, void *handler_context)
+static enum cio_error stream_write(struct cio_io_stream *stream, struct cio_write_buffer *buffer, cio_io_stream_write_handler_t handler, void *handler_context)
 {
 	if (cio_unlikely((stream == NULL) || (buffer == NULL) || (handler == NULL))) {
 		return CIO_INVALID_ARGUMENT;
@@ -229,7 +228,7 @@ static enum cio_error stream_close(struct cio_io_stream *stream)
 enum cio_error cio_linux_socket_init(struct cio_socket *s, int client_fd,
                                      struct cio_eventloop *loop,
                                      uint64_t close_timeout_ns,
-                                     cio_socket_close_hook close_hook)
+                                     cio_socket_close_hook_t close_hook)
 {
 	s->impl.ev.fd = client_fd;
 	s->impl.ev.write_callback = NULL;
@@ -273,7 +272,7 @@ enum cio_error cio_socket_init(struct cio_socket *socket,
                                enum cio_address_family address_family,
                                struct cio_eventloop *loop,
                                uint64_t close_timeout_ns,
-                               cio_socket_close_hook close_hook)
+                               cio_socket_close_hook_t close_hook)
 {
 	if (cio_unlikely(socket == NULL) || (loop == NULL)) {
 		return CIO_INVALID_ARGUMENT;
@@ -346,16 +345,15 @@ enum cio_error cio_socket_close(struct cio_socket *socket)
 static void connect_callback(void *context, enum cio_epoll_error error)
 {
 	struct cio_socket *socket = context;
-	enum cio_error err;
+	enum cio_error err = CIO_SUCCESS;
+
 	if (cio_unlikely(error != CIO_EPOLL_SUCCESS)) {
 		err = cio_linux_get_socket_error(socket->impl.ev.fd);
-	} else {
-		err = CIO_SUCCESS;
 	}
 	socket->handler(socket, socket->handler_context, err);
 }
 
-enum cio_error cio_socket_connect(struct cio_socket *socket, const struct cio_socket_address *endpoint, cio_connect_handler handler, void *handler_context)
+enum cio_error cio_socket_connect(struct cio_socket *socket, const struct cio_socket_address *endpoint, cio_connect_handler_t handler, void *handler_context)
 {
 	if (cio_unlikely(socket == NULL) || (endpoint == NULL)) {
 		return CIO_INVALID_ARGUMENT;
@@ -390,7 +388,7 @@ struct cio_io_stream *cio_socket_get_io_stream(struct cio_socket *socket)
 
 enum cio_error cio_socket_set_tcp_no_delay(struct cio_socket *socket, bool on)
 {
-	int tcp_no_delay = (char)on;
+	int tcp_no_delay = (int)on;
 
 	if (setsockopt(socket->impl.ev.fd, IPPROTO_TCP, TCP_NODELAY, &tcp_no_delay,
 	               sizeof(tcp_no_delay)) < 0) {
@@ -403,7 +401,7 @@ enum cio_error cio_socket_set_tcp_no_delay(struct cio_socket *socket, bool on)
 enum cio_error cio_socket_set_keep_alive(const struct cio_socket *socket, bool on, unsigned int keep_idle_s,
                                          unsigned int keep_intvl_s, unsigned int keep_cnt)
 {
-	int keep_alive;
+	int keep_alive = 0;
 
 	if (on) {
 		keep_alive = 1;
@@ -418,8 +416,6 @@ enum cio_error cio_socket_set_keep_alive(const struct cio_socket *socket, bool o
 		if (setsockopt(socket->impl.ev.fd, SOL_TCP, TCP_KEEPCNT, &keep_cnt, sizeof(keep_cnt)) == -1) {
 			return (enum cio_error)(-errno);
 		}
-	} else {
-		keep_alive = 0;
 	}
 
 	if (setsockopt(socket->impl.ev.fd, SOL_SOCKET, SO_KEEPALIVE, &keep_alive, sizeof(keep_alive)) == -1) {
@@ -431,7 +427,7 @@ enum cio_error cio_socket_set_keep_alive(const struct cio_socket *socket, bool o
 
 enum cio_error cio_socket_set_tcp_fast_open(const struct cio_socket *socket, bool on)
 {
-	int opt = on ? 1 : 0;
+	int opt = (int)on;
 
 	int ret = setsockopt(socket->impl.ev.fd, SOL_TCP, TCP_FASTOPEN_CONNECT, &opt, sizeof(opt));
 	if (cio_unlikely(ret != 0)) {

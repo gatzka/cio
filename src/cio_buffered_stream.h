@@ -72,7 +72,7 @@ struct cio_buffered_stream;
  * @param num_bytes The number of bytes until the delimiter was found (when called via @ref cio_buffered_stream_read_until "read_until()"), or
  * the number of bytes that should have been read at least (when called via @ref cio_buffered_stream_read_at_least "read_at_least()")
  */
-typedef void (*cio_buffered_stream_read_handler)(struct cio_buffered_stream *bs, void *handler_context, enum cio_error err, struct cio_read_buffer *buffer, size_t num_bytes);
+typedef void (*cio_buffered_stream_read_handler_t)(struct cio_buffered_stream *bs, void *handler_context, enum cio_error err, struct cio_read_buffer *buffer, size_t num_bytes);
 
 /**
  * @brief The type of a function passed to all cio_buffered_stream write callback functions.
@@ -81,7 +81,7 @@ typedef void (*cio_buffered_stream_read_handler)(struct cio_buffered_stream *bs,
  * @param handler_context The context the functions works on.
  * @param err If err != ::CIO_SUCCESS, the write operation failed.
  */
-typedef void (*cio_buffered_stream_write_handler)(struct cio_buffered_stream *bs, void *handler_context, enum cio_error err);
+typedef void (*cio_buffered_stream_write_handler_t)(struct cio_buffered_stream *bs, void *handler_context, enum cio_error err);
 
 /**
  * @private
@@ -114,14 +114,14 @@ struct cio_buffered_stream {
 	struct cio_io_stream *stream;
 
 	struct cio_read_buffer *read_buffer;
-	cio_buffered_stream_read_handler read_handler;
+	cio_buffered_stream_read_handler_t read_handler;
 	void *read_handler_context;
 
 	enum cio_bs_state (*read_job)(struct cio_buffered_stream *bs);
 
 	union cio_read_info read_info;
 
-	cio_buffered_stream_write_handler write_handler;
+	cio_buffered_stream_write_handler_t write_handler;
 	void *write_handler_context;
 
 	struct cio_write_buffer *original_wbh;
@@ -160,7 +160,7 @@ CIO_EXPORT enum cio_error cio_buffered_stream_init(struct cio_buffered_stream *b
  *
  * @return ::CIO_SUCCESS for success.
  */
-CIO_EXPORT enum cio_error cio_buffered_stream_read_at_least(struct cio_buffered_stream *bs, struct cio_read_buffer *buffer, size_t num, cio_buffered_stream_read_handler handler, void *handler_context);
+CIO_EXPORT enum cio_error cio_buffered_stream_read_at_least(struct cio_buffered_stream *bs, struct cio_read_buffer *buffer, size_t num, cio_buffered_stream_read_handler_t handler, void *handler_context);
 
 /**
  * @anchor cio_buffered_stream_read_until
@@ -177,7 +177,7 @@ CIO_EXPORT enum cio_error cio_buffered_stream_read_at_least(struct cio_buffered_
  *
  * @return ::CIO_SUCCESS for success.
  */
-CIO_EXPORT enum cio_error cio_buffered_stream_read_until(struct cio_buffered_stream *bs, struct cio_read_buffer *buffer, const char *delim, cio_buffered_stream_read_handler handler, void *handler_context);
+CIO_EXPORT enum cio_error cio_buffered_stream_read_until(struct cio_buffered_stream *bs, struct cio_read_buffer *buffer, const char *delim, cio_buffered_stream_read_handler_t handler, void *handler_context);
 
 /**
  * @anchor cio_buffered_stream_at_most
@@ -191,7 +191,7 @@ CIO_EXPORT enum cio_error cio_buffered_stream_read_until(struct cio_buffered_str
  * useful inside @p handler
  * @return ::CIO_SUCCESS for success..
  */
-CIO_EXPORT enum cio_error cio_buffered_stream_read_at_most(struct cio_buffered_stream *bs, struct cio_read_buffer *buffer, size_t num, cio_buffered_stream_read_handler handler, void *handler_context);
+CIO_EXPORT enum cio_error cio_buffered_stream_read_at_most(struct cio_buffered_stream *bs, struct cio_read_buffer *buffer, size_t num, cio_buffered_stream_read_handler_t handler, void *handler_context);
 
 /**
  * @brief Closes the stream.
@@ -216,7 +216,7 @@ CIO_EXPORT enum cio_error cio_buffered_stream_close(struct cio_buffered_stream *
  *
  * @return ::CIO_SUCCESS for success.
  */
-CIO_EXPORT enum cio_error cio_buffered_stream_write(struct cio_buffered_stream *bs, struct cio_write_buffer *buffer, cio_buffered_stream_write_handler handler, void *handler_context);
+CIO_EXPORT enum cio_error cio_buffered_stream_write(struct cio_buffered_stream *bs, struct cio_write_buffer *buffer, cio_buffered_stream_write_handler_t handler, void *handler_context);
 
 #ifdef __cplusplus
 }

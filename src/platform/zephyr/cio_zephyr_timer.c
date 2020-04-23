@@ -39,7 +39,7 @@
 static void timer_callback(void *context)
 {
 	struct cio_timer *t = context;
-	cio_timer_handler handler = t->handler;
+	cio_timer_handler_t handler = t->handler;
 	t->handler = NULL;
 
 	handler(t, t->handler_context, CIO_SUCCESS);
@@ -65,7 +65,7 @@ static void stop(struct k_timer *work)
 }
 
 enum cio_error cio_timer_init(struct cio_timer *timer, struct cio_eventloop *loop,
-                              cio_timer_close_hook close_hook)
+                              cio_timer_close_hook_t close_hook)
 {
 	enum cio_error ret_val = CIO_SUCCESS;
 
@@ -81,7 +81,7 @@ enum cio_error cio_timer_init(struct cio_timer *timer, struct cio_eventloop *loo
 	return ret_val;
 }
 
-enum cio_error cio_timer_expires_from_now(struct cio_timer *t, uint64_t timeout_ns, cio_timer_handler handler, void *handler_context)
+enum cio_error cio_timer_expires_from_now(struct cio_timer *t, uint64_t timeout_ns, cio_timer_handler_t handler, void *handler_context)
 {
 	t->handler = handler;
 	t->handler_context = handler_context;

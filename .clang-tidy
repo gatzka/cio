@@ -1,5 +1,21 @@
 ---
-Checks: "*,-llvm-header-guard,-clang-analyzer-security.insecureAPI.DeprecatedOrUnsafeBufferHandling"
-WarningsAsErrors: "*"
-HeaderFilterRegex: 'cio_*.h$'
+Checks: '*,-llvm-header-guard,-clang-analyzer-security.insecureAPI.DeprecatedOrUnsafeBufferHandling'
+CheckOptions:
+  - { key: readability-identifier-naming.ConstantCase,        value: UPPER_CASE }
+  - { key: readability-identifier-naming.EnumCase,            value: lower_case }
+  - { key: readability-identifier-naming.EnumConstantCase,    value: UPPER_CASE }
+  - { key: readability-identifier-naming.FunctionCase,        value: lower_case }
+  - { key: readability-identifier-naming.GlobalConstantCase,  value: UPPER_CASE }
+  - { key: readability-identifier-naming.GlobalPointerCase,   value: lower_case }
+  - { key: readability-identifier-naming.GlobalVariableCase,  value: lower_case }
+  - { key: readability-identifier-naming.LocalConstantCase,   value: UPPER_CASE }
+  - { key: readability-identifier-naming.StaticConstantCase,  value: UPPER_CASE }
+  - { key: readability-identifier-naming.StructCase,          value: lower_case }
+  - { key: readability-identifier-naming.TypedefCase,         value: lower_case }
+  - { key: readability-identifier-naming.TypedefSuffix,       value: _t }
+  - { key: readability-identifier-naming.UnionCase,           value: lower_case }
+  - { key: readability-identifier-naming.VariableCase,        value: lower_case }
+WarningsAsErrors: '*'
+HeaderFilterRegex: 'cio_.*'
+FormatStyle: file
 ---

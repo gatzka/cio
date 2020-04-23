@@ -44,7 +44,7 @@ static struct cio_eventloop loop;
 static struct cio_http_server server;
 
 enum { HTTPSERVER_LISTEN_PORT = 8080 };
-enum { read_buffer_size = 2000 };
+enum { READ_BUFFER_SIZE = 2000 };
 
 static const uint64_t HEADER_READ_TIMEOUT = UINT64_C(5) * UINT64_C(1000) * UINT64_C(1000) * UINT64_C(1000);
 static const uint64_t BODY_READ_TIMEOUT = UINT64_C(5) * UINT64_C(1000) * UINT64_C(1000) * UINT64_C(1000);
@@ -52,7 +52,7 @@ static const uint64_t RESPONSE_TIMEOUT = UINT64_C(1) * UINT64_C(1000) * UINT64_C
 static const uint64_t CLOSE_TIMEOUT_NS = UINT64_C(1) * UINT64_C(1000) * UINT64_C(1000) * UINT64_C(1000);
 enum { IPV6_ADDRESS_SIZE = 16 };
 
-static const char data[] = "<html><body><h1>Hello, World!</h1></body></html>";
+static const char DATA[] = "<html><body><h1>Hello, World!</h1></body></html>";
 
 struct dummy_handler {
 	struct cio_http_location_handler handler;
@@ -70,7 +70,7 @@ static enum cio_http_cb_return dummy_on_message_complete(struct cio_http_client 
 {
 	struct cio_http_location_handler *handler = client->current_handler;
 	struct dummy_handler *dh = cio_container_of(handler, struct dummy_handler, handler);
-	cio_write_buffer_const_element_init(&dh->wb, data, sizeof(data) - 1);
+	cio_write_buffer_const_element_init(&dh->wb, DATA, sizeof(DATA) - 1);
 	cio_write_buffer_queue_tail(&dh->wbh, &dh->wb);
 	enum cio_error err = client->write_response(client, CIO_HTTP_STATUS_OK, &dh->wbh, NULL);
 	if (cio_unlikely(err != CIO_SUCCESS)) {
@@ -98,12 +98,12 @@ static struct cio_http_location_handler *alloc_dummy_handler(const void *config)
 
 static struct cio_socket *alloc_http_client(void)
 {
-	struct cio_http_client *client = malloc(sizeof(*client) + read_buffer_size);
+	struct cio_http_client *client = malloc(sizeof(*client) + READ_BUFFER_SIZE);
 	if (cio_unlikely(client == NULL)) {
 		return NULL;
 	}
 
-	client->buffer_size = read_buffer_size;
+	client->buffer_size = READ_BUFFER_SIZE;
 	return &client->socket;
 }
 

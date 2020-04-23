@@ -239,12 +239,12 @@ static void end_response_header(struct cio_http_client *client)
 	cio_write_buffer_queue_tail(&client->response_wbh, &client->http_private.wb_http_response_header_end);
 }
 
-static enum cio_error flush(struct cio_http_client *client, cio_buffered_stream_write_handler handler)
+static enum cio_error flush(struct cio_http_client *client, cio_buffered_stream_write_handler_t handler)
 {
 	return cio_buffered_stream_write(&client->bs, &client->response_wbh, handler, client);
 }
 
-static enum cio_error write_response(struct cio_http_client *client, enum cio_http_status_code status_code, struct cio_write_buffer *wbh_body, cio_response_written_cb written_cb)
+static enum cio_error write_response(struct cio_http_client *client, enum cio_http_status_code status_code, struct cio_write_buffer *wbh_body, cio_response_written_cb_t written_cb)
 {
 	if (cio_unlikely(client->http_private.response_written)) {
 		return CIO_OPERATION_NOT_PERMITTED;
@@ -252,11 +252,9 @@ static enum cio_error write_response(struct cio_http_client *client, enum cio_ht
 
 	client->response_written_cb = written_cb;
 	client->http_private.response_fired = true;
-	size_t content_length;
+	size_t content_length = 0;
 	if (wbh_body) {
 		content_length = cio_write_buffer_get_total_size(wbh_body);
-	} else {
-		content_length = 0;
 	}
 
 	int written = snprintf(client->http_private.content_length_buffer, sizeof(client->http_private.content_length_buffer) - 1, "Content-Length: %zu" CIO_CRLF, content_length);
@@ -394,7 +392,7 @@ static int on_headers_complete(http_parser *parser)
 	return 0;
 }
 
-static int data_callback(struct cio_http_client *client, const char *at, size_t length, cio_http_data_cb cb)
+static int data_callback(struct cio_http_client *client, const char *at, size_t length, cio_http_data_cb_t cb)
 {
 	if ((!client->http_private.response_fired) && cb) {
 		return cb(client, at, length);
@@ -403,16 +401,16 @@ static int data_callback(struct cio_http_client *client, const char *at, size_t 
 	return CIO_HTTP_CB_SUCCESS;
 }
 
-static int on_header_field(http_parser *parser, const char *at, size_t length)
+static int on_header_field_name(http_parser *parser, const char *at, size_t length)
 {
 	struct cio_http_client *client = cio_container_of(parser, struct cio_http_client, parser);
-	return data_callback(client, at, length, client->current_handler->on_header_field);
+	return data_callback(client, at, length, client->current_handler->on_header_field_name);
 }
 
-static int on_header_value(http_parser *parser, const char *at, size_t length)
+static int on_header_field_value(http_parser *parser, const char *at, size_t length)
 {
 	struct cio_http_client *client = cio_container_of(parser, struct cio_http_client, parser);
-	return data_callback(client, at, length, client->current_handler->on_header_value);
+	return data_callback(client, at, length, client->current_handler->on_header_field_value);
 }
 
 static int on_message_complete(http_parser *parser)
@@ -429,16 +427,14 @@ static int on_message_complete(http_parser *parser)
 		client->http_private.finish_func = restart_read_request;
 	}
 
-	enum cio_http_cb_return ret;
+	enum cio_http_cb_return ret = CIO_HTTP_CB_SUCCESS;
 	if ((!client->http_private.response_fired) && client->current_handler->on_message_complete) {
 		ret = client->current_handler->on_message_complete(client);
-	} else {
-		ret = CIO_HTTP_CB_SUCCESS;
 	}
 
 	if (cio_unlikely(!client->http_private.response_written)) {
 		handle_server_error(client, "After receiving the complete message, no response was written!");
-		return 0;
+		return CIO_HTTP_CB_SUCCESS;
 	}
 
 	client->http_private.request_complete = true;
@@ -455,7 +451,7 @@ static int on_body(http_parser *parser, const char *at, size_t length)
 	return 0;
 }
 
-static enum cio_http_cb_return call_url_parts_callback(const struct http_parser_url *u, enum http_parser_url_fields url_field, cio_http_data_cb callback, struct cio_http_client *client, const char *at)
+static enum cio_http_cb_return call_url_parts_callback(const struct http_parser_url *u, enum http_parser_url_fields url_field, cio_http_data_cb_t callback, struct cio_http_client *client, const char *at)
 {
 	if ((u->field_set & (1U << url_field)) == (1U << url_field)) {
 		return data_callback(client, at + u->field_data[url_field].off, u->field_data[url_field].len, callback);
@@ -476,8 +472,8 @@ static int on_url(http_parser *parser, const char *at, size_t length)
 	client->http_method = (enum cio_http_method)client->parser.method;
 
 	client->parser_settings.on_headers_complete = on_headers_complete;
-	client->parser_settings.on_header_field = on_header_field;
-	client->parser_settings.on_header_value = on_header_value;
+	client->parser_settings.on_header_field = on_header_field_name;
+	client->parser_settings.on_header_value = on_header_field_value;
 	client->parser_settings.on_body = on_body;
 	client->parser_settings.on_message_complete = on_message_complete;
 
@@ -807,7 +803,7 @@ enum cio_error cio_http_server_register_location(struct cio_http_server *server,
 	return CIO_SUCCESS;
 }
 
-enum cio_error cio_http_server_shutdown(struct cio_http_server *server, cio_http_server_close_hook close_hook)
+enum cio_error cio_http_server_shutdown(struct cio_http_server *server, cio_http_server_close_hook_t close_hook)
 {
 	server->close_hook = close_hook;
 	cio_server_socket_close(&server->server_socket);

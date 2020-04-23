@@ -50,7 +50,7 @@ static inline void cio_websocket_correct_mask(uint8_t mask[4], size_t consumed_b
 
 static inline void cio_websocket_mask(uint8_t *buffer, size_t length, const uint8_t mask[4])
 {
-	uint_fast32_t aligned_mask;
+	uint_fast32_t aligned_mask = 0;
 
 	if (length < sizeof(aligned_mask)) {
 		for (size_t i = 0; i < length; i++) {

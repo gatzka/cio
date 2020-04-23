@@ -59,14 +59,14 @@ enum header_field {
 
 static enum cio_http_cb_return save_websocket_key(struct cio_websocket_location_handler *wslh, const char *at, size_t length)
 {
-	static const char ws_guid[CIO_SEC_WEB_SOCKET_GUID_LENGTH] = {'2', '5', '8', 'E', 'A', 'F', 'A', '5', '-',
+	static const char WS_GUID[CIO_SEC_WEB_SOCKET_GUID_LENGTH] = {'2', '5', '8', 'E', 'A', 'F', 'A', '5', '-',
 	                                                             'E', '9', '1', '4', '-', '4', '7', 'D', 'A', '-',
 	                                                             '9', '5', 'C', 'A', '-',
 	                                                             'C', '5', 'A', 'B', '0', 'D', 'C', '8', '5', 'B', '1', '1'};
 
 	if (cio_likely(length == CIO_SEC_WEB_SOCKET_KEY_LENGTH)) {
 		memcpy(wslh->sec_websocket_key, at, length);
-		memcpy(&wslh->sec_websocket_key[length], ws_guid, sizeof(ws_guid));
+		memcpy(&wslh->sec_websocket_key[length], WS_GUID, sizeof(WS_GUID));
 		return CIO_HTTP_CB_SUCCESS;
 	}
 
@@ -75,8 +75,8 @@ static enum cio_http_cb_return save_websocket_key(struct cio_websocket_location_
 
 static enum cio_http_cb_return check_websocket_version(struct cio_websocket_location_handler *wslh, const char *at, size_t length)
 {
-	static const char version[2] = {'1', '3'};
-	if (cio_likely((length == sizeof(version)) && (memcmp(at, version, length) == 0))) {
+	static const char VERSION[2] = {'1', '3'};
+	if (cio_likely((length == sizeof(VERSION)) && (memcmp(at, VERSION, length) == 0))) {
 		wslh->flags.ws_version_ok = 1;
 		return CIO_HTTP_CB_SUCCESS;
 	}
@@ -134,28 +134,28 @@ static void check_websocket_protocol(struct cio_websocket_location_handler *hand
 	}
 }
 
-static enum cio_http_cb_return handle_field(struct cio_http_client *client, const char *at, size_t length)
+static enum cio_http_cb_return handle_field_name(struct cio_http_client *client, const char *at, size_t length)
 {
-	static const char sec_key[] = "Sec-WebSocket-Key";
-	static const char ws_version[] = "Sec-WebSocket-Version";
-	static const char ws_protocol[] = "Sec-WebSocket-Protocol";
+	static const char SEC_KEY[] = "Sec-WebSocket-Key";
+	static const char WS_VERSION[] = "Sec-WebSocket-Version";
+	static const char WS_PROTOCOL[] = "Sec-WebSocket-Protocol";
 
 	struct cio_websocket_location_handler *ws = cio_container_of(client->current_handler, struct cio_websocket_location_handler, http_location);
 
-	if ((sizeof(sec_key) - 1 == length) && (cio_strncasecmp(at, sec_key, length) == 0)) {
+	if ((sizeof(SEC_KEY) - 1 == length) && (cio_strncasecmp(at, SEC_KEY, length) == 0)) {
 		ws->flags.current_header_field = CIO_WS_HEADER_SEC_WEBSOCKET_KEY;
-	} else if ((sizeof(ws_version) - 1 == length) && (cio_strncasecmp(at, ws_version, length) == 0)) {
+	} else if ((sizeof(WS_VERSION) - 1 == length) && (cio_strncasecmp(at, WS_VERSION, length) == 0)) {
 		ws->flags.current_header_field = CIO_WS_HEADER_SEC_WEBSOCKET_VERSION;
-	} else if ((sizeof(ws_protocol) - 1 == length) && (cio_strncasecmp(at, ws_protocol, length) == 0)) {
+	} else if ((sizeof(WS_PROTOCOL) - 1 == length) && (cio_strncasecmp(at, WS_PROTOCOL, length) == 0)) {
 		ws->flags.current_header_field = CIO_WS_HEADER_SEC_WEBSOCKET_PROTOCOL;
 	}
 
 	return CIO_HTTP_CB_SUCCESS;
 }
 
-static enum cio_http_cb_return handle_value(struct cio_http_client *client, const char *at, size_t length)
+static enum cio_http_cb_return handle_field_value(struct cio_http_client *client, const char *at, size_t length)
 {
-	enum cio_http_cb_return ret;
+	enum cio_http_cb_return ret = CIO_HTTP_CB_SUCCESS;
 
 	struct cio_websocket_location_handler *wslh = cio_container_of(client->current_handler, struct cio_websocket_location_handler, http_location);
 
@@ -172,12 +172,10 @@ static enum cio_http_cb_return handle_value(struct cio_http_client *client, cons
 
 	case CIO_WS_HEADER_SEC_WEBSOCKET_PROTOCOL:
 		wslh->flags.subprotocol_requested = 1;
-		ret = CIO_HTTP_CB_SUCCESS;
 		check_websocket_protocol(wslh, at, length);
 		break;
 
 	default:
-		ret = CIO_HTTP_CB_SUCCESS;
 		break;
 	}
 
@@ -229,19 +227,19 @@ static enum cio_error send_upgrade_response(struct cio_http_client *client)
 	ws->accept_value[CIO_SEC_WEBSOCKET_ACCEPT_LENGTH - 2] = '\r';
 	ws->accept_value[CIO_SEC_WEBSOCKET_ACCEPT_LENGTH - 1] = '\n';
 
-	static const char upgrade_header[] =
+	static const char UPGRADE_HEADER[] =
 	    "Upgrade: websocket" CIO_CRLF
 	    "Sec-WebSocket-Accept: ";
 
-	cio_write_buffer_const_element_init(&ws->wb_upgrade_header, upgrade_header, sizeof(upgrade_header) - 1);
+	cio_write_buffer_const_element_init(&ws->wb_upgrade_header, UPGRADE_HEADER, sizeof(UPGRADE_HEADER) - 1);
 	client->add_response_header(client, &ws->wb_upgrade_header);
 	cio_write_buffer_const_element_init(&ws->wb_accept_value, &ws->accept_value, sizeof(ws->accept_value));
 	client->add_response_header(client, &ws->wb_accept_value);
 
 	if (ws->chosen_subprotocol != -1) {
-		static const char ws_protocol[] =
+		static const char WS_PROTOCOL[] =
 		    "Sec-Websocket-Protocol: ";
-		cio_write_buffer_const_element_init(&ws->wb_protocol_field, ws_protocol, sizeof(ws_protocol) - 1);
+		cio_write_buffer_const_element_init(&ws->wb_protocol_field, WS_PROTOCOL, sizeof(WS_PROTOCOL) - 1);
 		const char *chosen_subprotocol = ws->subprotocols[ws->chosen_subprotocol];
 		cio_write_buffer_const_element_init(&ws->wb_protocol_value, chosen_subprotocol, strlen(chosen_subprotocol));
 		cio_write_buffer_const_element_init(&ws->wb_protocol_end, CIO_CRLF, strlen(CIO_CRLF));
@@ -302,14 +300,14 @@ static void free_resources(struct cio_http_location_handler *handler)
 enum cio_error cio_websocket_location_handler_init(struct cio_websocket_location_handler *handler,
                                                    const char *subprotocols[],
                                                    size_t num_subprotocols,
-                                                   cio_websocket_on_connect on_connect,
+                                                   cio_websocket_on_connect_t on_connect,
                                                    void (*location_handler_free)(struct cio_websocket_location_handler *))
 {
 	if (cio_unlikely((handler == NULL) || (location_handler_free == NULL))) {
 		return CIO_INVALID_ARGUMENT;
 	}
 
-	handler->flags.current_header_field = 0;
+	handler->flags.current_header_field = CIO_WS_HEADER_UNKNOWN;
 	handler->flags.ws_version_ok = 0;
 	handler->flags.subprotocol_requested = 0;
 	handler->chosen_subprotocol = -1;
@@ -319,8 +317,8 @@ enum cio_error cio_websocket_location_handler_init(struct cio_websocket_location
 	handler->location_handler_free = location_handler_free;
 
 	cio_http_location_handler_init(&handler->http_location);
-	handler->http_location.on_header_field = handle_field;
-	handler->http_location.on_header_value = handle_value;
+	handler->http_location.on_header_field_name = handle_field_name;
+	handler->http_location.on_header_field_value = handle_field_value;
 	handler->http_location.on_headers_complete = handle_headers_complete;
 	handler->http_location.free = free_resources;
 
