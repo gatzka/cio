@@ -107,19 +107,19 @@ Data Structures</h2></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="typedef-members"></a>
 Typedefs</h2></td></tr>
-<tr class="memitem:a73b4ac24026ab136b2637d3ff927a858"><td class="memItemLeft" align="right" valign="top">typedef enum <a class="el" href="cio__http__location__handler_8h.html#a6b90057db20102dfa1e40cafc014fbde">cio_http_cb_return</a>(*&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="cio__http__location__handler_8h.html#a73b4ac24026ab136b2637d3ff927a858">cio_http_cb</a>) (struct <a class="el" href="structcio__http__client.html">cio_http_client</a> *client)</td></tr>
-<tr class="memdesc:a73b4ac24026ab136b2637d3ff927a858"><td class="mdescLeft">&#160;</td><td class="mdescRight">The type of an HTTP callback function which will not get any data.  <a href="#a73b4ac24026ab136b2637d3ff927a858">More...</a><br /></td></tr>
-<tr class="separator:a73b4ac24026ab136b2637d3ff927a858"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a006f0135be844b3aea3c57d74363a397"><td class="memItemLeft" align="right" valign="top">typedef enum <a class="el" href="cio__http__location__handler_8h.html#a6b90057db20102dfa1e40cafc014fbde">cio_http_cb_return</a>(*&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="cio__http__location__handler_8h.html#a006f0135be844b3aea3c57d74363a397">cio_http_data_cb</a>) (struct <a class="el" href="structcio__http__client.html">cio_http_client</a> *client, const char *at, size_t length)</td></tr>
-<tr class="memdesc:a006f0135be844b3aea3c57d74363a397"><td class="mdescLeft">&#160;</td><td class="mdescRight">The type of an HTTP callback function which will get data.  <a href="#a006f0135be844b3aea3c57d74363a397">More...</a><br /></td></tr>
-<tr class="separator:a006f0135be844b3aea3c57d74363a397"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6da35cbc73c854c17de350d1d0fc2f96"><td class="memItemLeft" align="right" valign="top">typedef enum <a class="el" href="cio__http__location__handler_8h.html#a6b90057db20102dfa1e40cafc014fbde">cio_http_cb_return</a>(*&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="cio__http__location__handler_8h.html#a6da35cbc73c854c17de350d1d0fc2f96">cio_http_cb_t</a>) (struct <a class="el" href="structcio__http__client.html">cio_http_client</a> *client)</td></tr>
+<tr class="memdesc:a6da35cbc73c854c17de350d1d0fc2f96"><td class="mdescLeft">&#160;</td><td class="mdescRight">The type of an HTTP callback function which will not get any data.  <a href="#a6da35cbc73c854c17de350d1d0fc2f96">More...</a><br /></td></tr>
+<tr class="separator:a6da35cbc73c854c17de350d1d0fc2f96"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad34c9d11c97048de63ea7dbff4e0469b"><td class="memItemLeft" align="right" valign="top">typedef enum <a class="el" href="cio__http__location__handler_8h.html#a6b90057db20102dfa1e40cafc014fbde">cio_http_cb_return</a>(*&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="cio__http__location__handler_8h.html#ad34c9d11c97048de63ea7dbff4e0469b">cio_http_data_cb_t</a>) (struct <a class="el" href="structcio__http__client.html">cio_http_client</a> *client, const char *at, size_t length)</td></tr>
+<tr class="memdesc:ad34c9d11c97048de63ea7dbff4e0469b"><td class="mdescLeft">&#160;</td><td class="mdescRight">The type of an HTTP callback function which will get data.  <a href="#ad34c9d11c97048de63ea7dbff4e0469b">More...</a><br /></td></tr>
+<tr class="separator:ad34c9d11c97048de63ea7dbff4e0469b"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="enum-members"></a>
 Enumerations</h2></td></tr>
 <tr class="memitem:a6b90057db20102dfa1e40cafc014fbde"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="cio__http__location__handler_8h.html#a6b90057db20102dfa1e40cafc014fbde">cio_http_cb_return</a> { <a class="el" href="cio__http__location__handler_8h.html#a6b90057db20102dfa1e40cafc014fbdeae702ea5d11291265d3e736b7b1a60a78">CIO_HTTP_CB_SKIP_BODY</a> = 1, 
 <a class="el" href="cio__http__location__handler_8h.html#a6b90057db20102dfa1e40cafc014fbdeaaf9f1469599b7aec8863acbd62cea6a2">CIO_HTTP_CB_SUCCESS</a> = 0, 
 <a class="el" href="cio__http__location__handler_8h.html#a6b90057db20102dfa1e40cafc014fbdea009efa1646e481495db34fe3bc52fd06">CIO_HTTP_CB_ERROR</a> = -1
- }<tr class="memdesc:a6b90057db20102dfa1e40cafc014fbde"><td class="mdescLeft">&#160;</td><td class="mdescRight">The cio_http_cb_return enum lists the allowed return values of user specified callback functions like <a class="el" href="structcio__http__location__handler.html#cio_http_location_handler_on_header_field">on_header_field</a>. If the data provided via the callbacks doesn't match to the protocol the <a class="el" href="structcio__http__location__handler.html">HTTP handler</a> handles, return <a class="el" href="cio__http__location__handler_8h.html#a6b90057db20102dfa1e40cafc014fbdea009efa1646e481495db34fe3bc52fd06">CIO_HTTP_CB_ERROR</a>, <a class="el" href="cio__http__location__handler_8h.html#a6b90057db20102dfa1e40cafc014fbdeaaf9f1469599b7aec8863acbd62cea6a2">CIO_HTTP_CB_SUCCESS</a> otherwise.  <a href="cio__http__location__handler_8h.html#a6b90057db20102dfa1e40cafc014fbde">More...</a><br /></td></tr>
+ }<tr class="memdesc:a6b90057db20102dfa1e40cafc014fbde"><td class="mdescLeft">&#160;</td><td class="mdescRight">The cio_http_cb_return enum lists the allowed return values of user specified callback functions like <a class="el" href="structcio__http__location__handler.html#cio_http_location_handler_on_header_field_name">on_header_field</a>. If the data provided via the callbacks doesn't match to the protocol the <a class="el" href="structcio__http__location__handler.html">HTTP handler</a> handles, return <a class="el" href="cio__http__location__handler_8h.html#a6b90057db20102dfa1e40cafc014fbdea009efa1646e481495db34fe3bc52fd06">CIO_HTTP_CB_ERROR</a>, <a class="el" href="cio__http__location__handler_8h.html#a6b90057db20102dfa1e40cafc014fbdeaaf9f1469599b7aec8863acbd62cea6a2">CIO_HTTP_CB_SUCCESS</a> otherwise.  <a href="cio__http__location__handler_8h.html#a6b90057db20102dfa1e40cafc014fbde">More...</a><br /></td></tr>
 </td></tr>
 <tr class="separator:a6b90057db20102dfa1e40cafc014fbde"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
@@ -135,14 +135,14 @@ Functions</h2></td></tr>
 <p>Inside the callback functions you have access to the <a class="el" href="structcio__http__client.html">HTTP client</a> which performed the request. You have to use the client function <a class="el" href="structcio__http__client.html#cio_http_client_write_response">write_response</a> to write HTTP responses (optionally including a body)</p>
 <p>In case of an upgraded HTTP connection, callback have access to the <a class="el" href="structcio__http__client.html#cio_http_client_bs">buffered stream</a> used by the <a class="el" href="structcio__http__client.html">HTTP client</a> and the companion <a class="el" href="structcio__http__client.html#cio_http_client_rb">read buffer</a>. This provides a convenient way to take over a complete HTTP connection. Please note that for upgraded connections this handler is responsible to <a class="el" href="structcio__http__client.html#cio_http_client_close">close</a> the client connection! </p>
 </div><h2 class="groupheader">Typedef Documentation</h2>
-<a id="a73b4ac24026ab136b2637d3ff927a858"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a73b4ac24026ab136b2637d3ff927a858">&#9670;&nbsp;</a></span>cio_http_cb</h2>
+<a id="a6da35cbc73c854c17de350d1d0fc2f96"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a6da35cbc73c854c17de350d1d0fc2f96">&#9670;&nbsp;</a></span>cio_http_cb_t</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">typedef enum <a class="el" href="cio__http__location__handler_8h.html#a6b90057db20102dfa1e40cafc014fbde">cio_http_cb_return</a>(* cio_http_cb) (struct <a class="el" href="structcio__http__client.html">cio_http_client</a> *client)</td>
+          <td class="memname">typedef enum <a class="el" href="cio__http__location__handler_8h.html#a6b90057db20102dfa1e40cafc014fbde">cio_http_cb_return</a>(* cio_http_cb_t) (struct <a class="el" href="structcio__http__client.html">cio_http_client</a> *client)</td>
         </tr>
       </table>
 </div><div class="memdoc">
@@ -157,14 +157,14 @@ Functions</h2></td></tr>
 
 </div>
 </div>
-<a id="a006f0135be844b3aea3c57d74363a397"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a006f0135be844b3aea3c57d74363a397">&#9670;&nbsp;</a></span>cio_http_data_cb</h2>
+<a id="ad34c9d11c97048de63ea7dbff4e0469b"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ad34c9d11c97048de63ea7dbff4e0469b">&#9670;&nbsp;</a></span>cio_http_data_cb_t</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">typedef enum <a class="el" href="cio__http__location__handler_8h.html#a6b90057db20102dfa1e40cafc014fbde">cio_http_cb_return</a>(* cio_http_data_cb) (struct <a class="el" href="structcio__http__client.html">cio_http_client</a> *client, const char *at, size_t length)</td>
+          <td class="memname">typedef enum <a class="el" href="cio__http__location__handler_8h.html#a6b90057db20102dfa1e40cafc014fbde">cio_http_cb_return</a>(* cio_http_data_cb_t) (struct <a class="el" href="structcio__http__client.html">cio_http_client</a> *client, const char *at, size_t length)</td>
         </tr>
       </table>
 </div><div class="memdoc">
@@ -194,7 +194,7 @@ Functions</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>The cio_http_cb_return enum lists the allowed return values of user specified callback functions like <a class="el" href="structcio__http__location__handler.html#cio_http_location_handler_on_header_field">on_header_field</a>. If the data provided via the callbacks doesn't match to the protocol the <a class="el" href="structcio__http__location__handler.html">HTTP handler</a> handles, return <a class="el" href="cio__http__location__handler_8h.html#a6b90057db20102dfa1e40cafc014fbdea009efa1646e481495db34fe3bc52fd06">CIO_HTTP_CB_ERROR</a>, <a class="el" href="cio__http__location__handler_8h.html#a6b90057db20102dfa1e40cafc014fbdeaaf9f1469599b7aec8863acbd62cea6a2">CIO_HTTP_CB_SUCCESS</a> otherwise. </p>
+<p>The cio_http_cb_return enum lists the allowed return values of user specified callback functions like <a class="el" href="structcio__http__location__handler.html#cio_http_location_handler_on_header_field_name">on_header_field</a>. If the data provided via the callbacks doesn't match to the protocol the <a class="el" href="structcio__http__location__handler.html">HTTP handler</a> handles, return <a class="el" href="cio__http__location__handler_8h.html#a6b90057db20102dfa1e40cafc014fbdea009efa1646e481495db34fe3bc52fd06">CIO_HTTP_CB_ERROR</a>, <a class="el" href="cio__http__location__handler_8h.html#a6b90057db20102dfa1e40cafc014fbdeaaf9f1469599b7aec8863acbd62cea6a2">CIO_HTTP_CB_SUCCESS</a> otherwise. </p>
 <table class="fieldtable">
 <tr><th colspan="2">Enumerator</th></tr><tr><td class="fieldname"><a id="a6b90057db20102dfa1e40cafc014fbdeae702ea5d11291265d3e736b7b1a60a78"></a>CIO_HTTP_CB_SKIP_BODY&#160;</td><td class="fielddoc"><p>The callback functions did an HTTP connection upgrade and the HTTP parser shall skip the body. </p>
 </td></tr>

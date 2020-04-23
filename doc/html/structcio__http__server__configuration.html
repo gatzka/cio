@@ -95,9 +95,9 @@ Data Fields</h2></td></tr>
 <tr class="memitem:ab56ef210dbb695628b063e68645d6fed"><td class="memItemLeft" align="right" valign="top">struct <a class="el" href="structcio__socket__address.html">cio_socket_address</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structcio__http__server__configuration.html#ab56ef210dbb695628b063e68645d6fed">endpoint</a></td></tr>
 <tr class="memdesc:ab56ef210dbb695628b063e68645d6fed"><td class="mdescLeft">&#160;</td><td class="mdescRight">The endpoint (IP address and point) the HTTP server listens on.  <a href="#ab56ef210dbb695628b063e68645d6fed">More...</a><br /></td></tr>
 <tr class="separator:ab56ef210dbb695628b063e68645d6fed"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a1ee6a81d5ce2c810cf7cc55169c71b2e"><td class="memItemLeft" align="right" valign="top"><a class="el" href="cio__http__server_8h.html#afbb607b74a68fb96dceaf24e3c486490">cio_http_serve_on_error</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structcio__http__server__configuration.html#a1ee6a81d5ce2c810cf7cc55169c71b2e">on_error</a></td></tr>
-<tr class="memdesc:a1ee6a81d5ce2c810cf7cc55169c71b2e"><td class="mdescLeft">&#160;</td><td class="mdescRight">This callback function will be called if something goes wrong while the HTTP client connection is established.  <a href="#a1ee6a81d5ce2c810cf7cc55169c71b2e">More...</a><br /></td></tr>
-<tr class="separator:a1ee6a81d5ce2c810cf7cc55169c71b2e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a84775d3d9c5c42924402c4131c6c7e0e"><td class="memItemLeft" align="right" valign="top"><a class="el" href="cio__http__server_8h.html#a0b189ea31e61fe89d815727604d4ff32">cio_http_serve_on_error_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structcio__http__server__configuration.html#a84775d3d9c5c42924402c4131c6c7e0e">on_error</a></td></tr>
+<tr class="memdesc:a84775d3d9c5c42924402c4131c6c7e0e"><td class="mdescLeft">&#160;</td><td class="mdescRight">This callback function will be called if something goes wrong while the HTTP client connection is established.  <a href="#a84775d3d9c5c42924402c4131c6c7e0e">More...</a><br /></td></tr>
+<tr class="separator:a84775d3d9c5c42924402c4131c6c7e0e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a85a3b677ba47f5e241e6a537fcab372e"><td class="memItemLeft" align="right" valign="top">uint64_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structcio__http__server__configuration.html#a85a3b677ba47f5e241e6a537fcab372e">read_header_timeout_ns</a></td></tr>
 <tr class="memdesc:a85a3b677ba47f5e241e6a537fcab372e"><td class="mdescLeft">&#160;</td><td class="mdescRight">The timeout in nanoseconds until the complete HTTP header must be received. The timeout is started after the HTTP connection is established and canceled after the complete HTTP header was received. In case of a timeout the client connection is closed automatically.  <a href="#a85a3b677ba47f5e241e6a537fcab372e">More...</a><br /></td></tr>
 <tr class="separator:a85a3b677ba47f5e241e6a537fcab372e"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -112,22 +112,22 @@ Data Fields</h2></td></tr>
 <tr class="memitem:a815bfe1eea4b68234c9baeaeeb676660"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structcio__http__server__configuration.html#a815bfe1eea4b68234c9baeaeeb676660">use_tcp_fastopen</a></td></tr>
 <tr class="memdesc:a815bfe1eea4b68234c9baeaeeb676660"><td class="mdescLeft">&#160;</td><td class="mdescRight">Flag if <a class="el" href="cio__server__socket_8h.html#a04ca2425c4540bff2235447c9ef3a801">TCP FASTOPEN</a> should be enabled for the http server.  <a href="#a815bfe1eea4b68234c9baeaeeb676660">More...</a><br /></td></tr>
 <tr class="separator:a815bfe1eea4b68234c9baeaeeb676660"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a17c3c1a358ae147ddc1d742937f33a9d"><td class="memItemLeft" align="right" valign="top"><a class="el" href="cio__server__socket_8h.html#aa2e1635c0e881376182d1ea0a719dbf5">cio_alloc_client</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structcio__http__server__configuration.html#a17c3c1a358ae147ddc1d742937f33a9d">alloc_client</a></td></tr>
-<tr class="memdesc:a17c3c1a358ae147ddc1d742937f33a9d"><td class="mdescLeft">&#160;</td><td class="mdescRight">alloc_client A user provided function responsible to allocate a <a class="el" href="structcio__http__client.html" title="A cio_http_client struct represents an HTTP client connection. ">cio_http_client</a> structure.  <a href="#a17c3c1a358ae147ddc1d742937f33a9d">More...</a><br /></td></tr>
-<tr class="separator:a17c3c1a358ae147ddc1d742937f33a9d"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a2f331c78be1245119bdf97276aae3012"><td class="memItemLeft" align="right" valign="top"><a class="el" href="cio__server__socket_8h.html#a98250f8c1c19c251e2541a6f618b7050">cio_free_client</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structcio__http__server__configuration.html#a2f331c78be1245119bdf97276aae3012">free_client</a></td></tr>
-<tr class="memdesc:a2f331c78be1245119bdf97276aae3012"><td class="mdescLeft">&#160;</td><td class="mdescRight">free_client A user provided function to free the client memory <a class="el" href="structcio__http__server__configuration.html#cio_http_server_init_alloc_client">allocated</a>.  <a href="#a2f331c78be1245119bdf97276aae3012">More...</a><br /></td></tr>
-<tr class="separator:a2f331c78be1245119bdf97276aae3012"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a4ef880c6861682bf1c2c202aaaa097d0"><td class="memItemLeft" align="right" valign="top"><a class="el" href="cio__server__socket_8h.html#af532bc22ac4d1ab4f2ba957f988f3efc">cio_alloc_client_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structcio__http__server__configuration.html#a4ef880c6861682bf1c2c202aaaa097d0">alloc_client</a></td></tr>
+<tr class="memdesc:a4ef880c6861682bf1c2c202aaaa097d0"><td class="mdescLeft">&#160;</td><td class="mdescRight">alloc_client A user provided function responsible to allocate a <a class="el" href="structcio__http__client.html" title="A cio_http_client struct represents an HTTP client connection. ">cio_http_client</a> structure.  <a href="#a4ef880c6861682bf1c2c202aaaa097d0">More...</a><br /></td></tr>
+<tr class="separator:a4ef880c6861682bf1c2c202aaaa097d0"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a1a959692878fcd6db8ebd7ca6f4de5e6"><td class="memItemLeft" align="right" valign="top"><a class="el" href="cio__server__socket_8h.html#a71896cded3522963b859cd8e32c7f810">cio_free_client_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structcio__http__server__configuration.html#a1a959692878fcd6db8ebd7ca6f4de5e6">free_client</a></td></tr>
+<tr class="memdesc:a1a959692878fcd6db8ebd7ca6f4de5e6"><td class="mdescLeft">&#160;</td><td class="mdescRight">free_client A user provided function to free the client memory <a class="el" href="structcio__http__server__configuration.html#cio_http_server_init_alloc_client">allocated</a>.  <a href="#a1a959692878fcd6db8ebd7ca6f4de5e6">More...</a><br /></td></tr>
+<tr class="separator:a1a959692878fcd6db8ebd7ca6f4de5e6"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <h2 class="groupheader">Field Documentation</h2>
-<a id="a17c3c1a358ae147ddc1d742937f33a9d"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a17c3c1a358ae147ddc1d742937f33a9d">&#9670;&nbsp;</a></span>alloc_client</h2>
+<a id="a4ef880c6861682bf1c2c202aaaa097d0"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a4ef880c6861682bf1c2c202aaaa097d0">&#9670;&nbsp;</a></span>alloc_client</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="cio__server__socket_8h.html#aa2e1635c0e881376182d1ea0a719dbf5">cio_alloc_client</a> cio_http_server_configuration::alloc_client</td>
+          <td class="memname"><a class="el" href="cio__server__socket_8h.html#af532bc22ac4d1ab4f2ba957f988f3efc">cio_alloc_client_t</a> cio_http_server_configuration::alloc_client</td>
         </tr>
       </table>
 </div><div class="memdoc">
@@ -168,14 +168,14 @@ Data Fields</h2></td></tr>
 
 </div>
 </div>
-<a id="a2f331c78be1245119bdf97276aae3012"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a2f331c78be1245119bdf97276aae3012">&#9670;&nbsp;</a></span>free_client</h2>
+<a id="a1a959692878fcd6db8ebd7ca6f4de5e6"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a1a959692878fcd6db8ebd7ca6f4de5e6">&#9670;&nbsp;</a></span>free_client</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="cio__server__socket_8h.html#a98250f8c1c19c251e2541a6f618b7050">cio_free_client</a> cio_http_server_configuration::free_client</td>
+          <td class="memname"><a class="el" href="cio__server__socket_8h.html#a71896cded3522963b859cd8e32c7f810">cio_free_client_t</a> cio_http_server_configuration::free_client</td>
         </tr>
       </table>
 </div><div class="memdoc">
@@ -185,14 +185,14 @@ Data Fields</h2></td></tr>
 
 </div>
 </div>
-<a id="a1ee6a81d5ce2c810cf7cc55169c71b2e"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a1ee6a81d5ce2c810cf7cc55169c71b2e">&#9670;&nbsp;</a></span>on_error</h2>
+<a id="a84775d3d9c5c42924402c4131c6c7e0e"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a84775d3d9c5c42924402c4131c6c7e0e">&#9670;&nbsp;</a></span>on_error</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="cio__http__server_8h.html#afbb607b74a68fb96dceaf24e3c486490">cio_http_serve_on_error</a> cio_http_server_configuration::on_error</td>
+          <td class="memname"><a class="el" href="cio__http__server_8h.html#a0b189ea31e61fe89d815727604d4ff32">cio_http_serve_on_error_t</a> cio_http_server_configuration::on_error</td>
         </tr>
       </table>
 </div><div class="memdoc">

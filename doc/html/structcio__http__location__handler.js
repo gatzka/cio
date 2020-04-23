@@ -1,16 +1,16 @@
 var structcio__http__location__handler =
 [
     [ "free", "structcio__http__location__handler.html#a0bd3bed591b1ccf4fb7f16364e5b325b", null ],
-    [ "on_body", "structcio__http__location__handler.html#a32a7896a868d5778338e015f6610e504", null ],
-    [ "on_fragment", "structcio__http__location__handler.html#a45d7a4048f22f2061f6497e78ac83fa2", null ],
-    [ "on_header_field", "structcio__http__location__handler.html#a4d075f82eb121f4cf2a79aac878bea37", null ],
-    [ "on_header_value", "structcio__http__location__handler.html#ad8af3ab5b547e3462784e00a1e2e056c", null ],
-    [ "on_headers_complete", "structcio__http__location__handler.html#a93fe2f1efef7499635bbaaacd220b72a", null ],
-    [ "on_host", "structcio__http__location__handler.html#a93b3096f39b36deac3c252fa2009c3e9", null ],
-    [ "on_message_complete", "structcio__http__location__handler.html#aa4dc90505b6dfb04a8fba0b99dcd70cd", null ],
-    [ "on_path", "structcio__http__location__handler.html#a8aac155861d376507e3d444fb2793254", null ],
-    [ "on_port", "structcio__http__location__handler.html#a73e8aec754945d52e42bc7207c361387", null ],
-    [ "on_query", "structcio__http__location__handler.html#a474e56be1ac82499b397d07a99a65746", null ],
-    [ "on_schema", "structcio__http__location__handler.html#aa1523567cb959d329891c77d7d340ce7", null ],
-    [ "on_url", "structcio__http__location__handler.html#adc9eb92df5e39f7341ced4fa0a225c68", null ]
+    [ "on_body", "structcio__http__location__handler.html#a631d9cb923c57f5c21444d0aabcf863b", null ],
+    [ "on_fragment", "structcio__http__location__handler.html#ab50de70dbe3a80d42d1d62720c32692f", null ],
+    [ "on_header_field_name", "structcio__http__location__handler.html#ab2bacee277d8849960d7b7e4df2f58b6", null ],
+    [ "on_header_field_value", "structcio__http__location__handler.html#abf1a141bef9badb302d3fe8c3462f4ab", null ],
+    [ "on_headers_complete", "structcio__http__location__handler.html#a63351d34eb7c4803931a395c13f87afd", null ],
+    [ "on_host", "structcio__http__location__handler.html#a20fc062f77467a723c06a592b033664a", null ],
+    [ "on_message_complete", "structcio__http__location__handler.html#a09606e2b7abf525434b75e36dd73a74a", null ],
+    [ "on_path", "structcio__http__location__handler.html#a60f494c77c355c345a5489b2bb231e84", null ],
+    [ "on_port", "structcio__http__location__handler.html#ac66a6ffea47738561bb0f90d91247d42", null ],
+    [ "on_query", "structcio__http__location__handler.html#a6ec9bdd400238fce7da2992cf3cb3d4e", null ],
+    [ "on_schema", "structcio__http__location__handler.html#a5813af6810ca2925bbcfc37b62772b55", null ],
+    [ "on_url", "structcio__http__location__handler.html#a7571d7c38245f46c3ad991b6d3563647", null ]
 ];

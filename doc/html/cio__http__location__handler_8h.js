@@ -1,8 +1,8 @@
 var cio__http__location__handler_8h =
 [
     [ "cio_http_location_handler", "structcio__http__location__handler.html", "structcio__http__location__handler" ],
-    [ "cio_http_cb", "cio__http__location__handler_8h.html#a73b4ac24026ab136b2637d3ff927a858", null ],
-    [ "cio_http_data_cb", "cio__http__location__handler_8h.html#a006f0135be844b3aea3c57d74363a397", null ],
+    [ "cio_http_cb_t", "cio__http__location__handler_8h.html#a6da35cbc73c854c17de350d1d0fc2f96", null ],
+    [ "cio_http_data_cb_t", "cio__http__location__handler_8h.html#ad34c9d11c97048de63ea7dbff4e0469b", null ],
     [ "cio_http_cb_return", "cio__http__location__handler_8h.html#a6b90057db20102dfa1e40cafc014fbde", [
       [ "CIO_HTTP_CB_SKIP_BODY", "cio__http__location__handler_8h.html#a6b90057db20102dfa1e40cafc014fbdeae702ea5d11291265d3e736b7b1a60a78", null ],
       [ "CIO_HTTP_CB_SUCCESS", "cio__http__location__handler_8h.html#a6b90057db20102dfa1e40cafc014fbdeaaf9f1469599b7aec8863acbd62cea6a2", null ],

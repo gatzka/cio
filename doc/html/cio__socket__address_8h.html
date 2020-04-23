@@ -197,7 +197,7 @@ Functions</h2></td></tr>
 <dl class="section note"><dt>Note</dt><dd>Linux systems have the special ability to create an "abstract" unix domain socket. Abstract domain sockets do note reside as a file in a filesystem so they have the advantage that they disappear when all open references to that socket are closed. </dd>
 <dd>
 Abstract sockets are distinguished by the fact that path[0] is a null byte ('\0'). </dd></dl>
-<dl class="section warning"><dt>Warning</dt><dd>Please note if you are using non-abstract domain sockets, it is the responsibility of the user of this library to remove the unix domain socket file when the program ends. A natural place to do this would be the close_hook provided in <a class="el" href="cio__server__socket_8h.html#a6bd2c4f747048d1b08bdaa6bf72e15fa" title="Initializes a cio_server_socket. ">cio_server_socket_init</a>.</dd></dl>
+<dl class="section warning"><dt>Warning</dt><dd>Please note if you are using non-abstract domain sockets, it is the responsibility of the user of this library to remove the unix domain socket file when the program ends. A natural place to do this would be the close_hook provided in <a class="el" href="cio__server__socket_8h.html#ab93d2c8a6278576aa25814dba0965f3a" title="Initializes a cio_server_socket. ">cio_server_socket_init</a>.</dd></dl>
 <dl class="section return"><dt>Returns</dt><dd><a class="el" href="cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afea6bb29544c99750c61f70b10a1e17d96a">CIO_SUCCESS</a> for success. </dd></dl>
 
 </div>

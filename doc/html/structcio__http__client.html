@@ -98,9 +98,9 @@ Data Fields</h2></td></tr>
 <tr class="memitem:a99ea764a1678b2390fb83cbb255b36b1"><td class="memItemLeft" align="right" valign="top">void(*&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structcio__http__client.html#a99ea764a1678b2390fb83cbb255b36b1">close</a> )(struct <a class="el" href="structcio__http__client.html">cio_http_client</a> *client)</td></tr>
 <tr class="memdesc:a99ea764a1678b2390fb83cbb255b36b1"><td class="mdescLeft">&#160;</td><td class="mdescRight">Closes the HTTP client connection.  <a href="#a99ea764a1678b2390fb83cbb255b36b1">More...</a><br /></td></tr>
 <tr class="separator:a99ea764a1678b2390fb83cbb255b36b1"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ad79dcfbaf16f820fb698ac95735dcac7"><td class="memItemLeft" align="right" valign="top">enum <a class="el" href="cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afe">cio_error</a>(*&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structcio__http__client.html#ad79dcfbaf16f820fb698ac95735dcac7">write_response</a> )(struct <a class="el" href="structcio__http__client.html">cio_http_client</a> *client, enum <a class="el" href="cio__http__status__code_8h.html#ac968a65c0166575561fdd18b89ea580c">cio_http_status_code</a> status_code, struct <a class="el" href="structcio__write__buffer.html">cio_write_buffer</a> *wbh_body, <a class="el" href="cio__http__client_8h.html#a1d13b2fba00a00f78064e8997d1427cb">cio_response_written_cb</a> written_cb)</td></tr>
-<tr class="memdesc:ad79dcfbaf16f820fb698ac95735dcac7"><td class="mdescLeft">&#160;</td><td class="mdescRight">Writes a non-chunked response to the requesting client.  <a href="#ad79dcfbaf16f820fb698ac95735dcac7">More...</a><br /></td></tr>
-<tr class="separator:ad79dcfbaf16f820fb698ac95735dcac7"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:abbe9776402a21eed5be77048e92ca256"><td class="memItemLeft" align="right" valign="top">enum <a class="el" href="cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afe">cio_error</a>(*&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structcio__http__client.html#abbe9776402a21eed5be77048e92ca256">write_response</a> )(struct <a class="el" href="structcio__http__client.html">cio_http_client</a> *client, enum <a class="el" href="cio__http__status__code_8h.html#ac968a65c0166575561fdd18b89ea580c">cio_http_status_code</a> status_code, struct <a class="el" href="structcio__write__buffer.html">cio_write_buffer</a> *wbh_body, <a class="el" href="cio__http__client_8h.html#a096cc1891dfa63933b46c7d6c38cb523">cio_response_written_cb_t</a> written_cb)</td></tr>
+<tr class="memdesc:abbe9776402a21eed5be77048e92ca256"><td class="mdescLeft">&#160;</td><td class="mdescRight">Writes a non-chunked response to the requesting client.  <a href="#abbe9776402a21eed5be77048e92ca256">More...</a><br /></td></tr>
+<tr class="separator:abbe9776402a21eed5be77048e92ca256"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ade1524f3104e42fd3096973d08c482c9"><td class="memItemLeft" align="right" valign="top">void(*&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structcio__http__client.html#ade1524f3104e42fd3096973d08c482c9">add_response_header</a> )(struct <a class="el" href="structcio__http__client.html">cio_http_client</a> *client, struct <a class="el" href="structcio__write__buffer.html">cio_write_buffer</a> *wbh)</td></tr>
 <tr class="memdesc:ade1524f3104e42fd3096973d08c482c9"><td class="mdescLeft">&#160;</td><td class="mdescRight">Queues an additional HTTP header entry.  <a href="#ade1524f3104e42fd3096973d08c482c9">More...</a><br /></td></tr>
 <tr class="separator:ade1524f3104e42fd3096973d08c482c9"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -278,14 +278,14 @@ The data <code>wbh</code> points to must be available and valid until the comple
 
 </div>
 </div>
-<a id="ad79dcfbaf16f820fb698ac95735dcac7"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ad79dcfbaf16f820fb698ac95735dcac7">&#9670;&nbsp;</a></span>write_response</h2>
+<a id="abbe9776402a21eed5be77048e92ca256"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#abbe9776402a21eed5be77048e92ca256">&#9670;&nbsp;</a></span>write_response</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">enum <a class="el" href="cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afe">cio_error</a>(* cio_http_client::write_response) (struct <a class="el" href="structcio__http__client.html">cio_http_client</a> *client, enum <a class="el" href="cio__http__status__code_8h.html#ac968a65c0166575561fdd18b89ea580c">cio_http_status_code</a> status_code, struct <a class="el" href="structcio__write__buffer.html">cio_write_buffer</a> *wbh_body, <a class="el" href="cio__http__client_8h.html#a1d13b2fba00a00f78064e8997d1427cb">cio_response_written_cb</a> written_cb)</td>
+          <td class="memname">enum <a class="el" href="cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afe">cio_error</a>(* cio_http_client::write_response) (struct <a class="el" href="structcio__http__client.html">cio_http_client</a> *client, enum <a class="el" href="cio__http__status__code_8h.html#ac968a65c0166575561fdd18b89ea580c">cio_http_status_code</a> status_code, struct <a class="el" href="structcio__write__buffer.html">cio_write_buffer</a> *wbh_body, <a class="el" href="cio__http__client_8h.html#a096cc1891dfa63933b46c7d6c38cb523">cio_response_written_cb_t</a> written_cb)</td>
         </tr>
       </table>
 </div><div class="memdoc">

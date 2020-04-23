@@ -8,5 +8,5 @@ var structcio__http__client =
     [ "http_method", "structcio__http__client.html#a87bb7cbe9882e05b9c2eaace76698246", null ],
     [ "http_minor", "structcio__http__client.html#aaebd126fae4cd5aeaf9b94e65e11548c", null ],
     [ "rb", "structcio__http__client.html#a334814ff33851c173b657e37ec95ea69", null ],
-    [ "write_response", "structcio__http__client.html#ad79dcfbaf16f820fb698ac95735dcac7", null ]
+    [ "write_response", "structcio__http__client.html#abbe9776402a21eed5be77048e92ca256", null ]
 ];

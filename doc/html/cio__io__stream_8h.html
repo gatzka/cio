@@ -107,24 +107,24 @@ Data Structures</h2></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="typedef-members"></a>
 Typedefs</h2></td></tr>
-<tr class="memitem:abfd8e6d3e5462389746e0ae5694a4593"><td class="memItemLeft" align="right" valign="top">typedef void(*&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="cio__io__stream_8h.html#abfd8e6d3e5462389746e0ae5694a4593">cio_io_stream_read_handler</a>) (struct <a class="el" href="structcio__io__stream.html">cio_io_stream</a> *io_stream, void *handler_context, enum <a class="el" href="cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afe">cio_error</a> err, struct <a class="el" href="structcio__read__buffer.html">cio_read_buffer</a> *buffer)</td></tr>
-<tr class="memdesc:abfd8e6d3e5462389746e0ae5694a4593"><td class="mdescLeft">&#160;</td><td class="mdescRight">The type of a function passed to all <a class="el" href="structcio__io__stream.html" title="This structure describes the interface all implementations have to fulfill. ">cio_io_stream</a> read callback functions.  <a href="#abfd8e6d3e5462389746e0ae5694a4593">More...</a><br /></td></tr>
-<tr class="separator:abfd8e6d3e5462389746e0ae5694a4593"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a17033e6850d865852a8d4a419e8ee8c5"><td class="memItemLeft" align="right" valign="top">typedef void(*&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="cio__io__stream_8h.html#a17033e6850d865852a8d4a419e8ee8c5">cio_io_stream_write_handler</a>) (struct <a class="el" href="structcio__io__stream.html">cio_io_stream</a> *io_stream, void *handler_context, struct <a class="el" href="structcio__write__buffer.html">cio_write_buffer</a> *buffer, enum <a class="el" href="cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afe">cio_error</a> err, size_t bytes_transferred)</td></tr>
-<tr class="memdesc:a17033e6850d865852a8d4a419e8ee8c5"><td class="mdescLeft">&#160;</td><td class="mdescRight">The type of a function passed to all <a class="el" href="structcio__io__stream.html" title="This structure describes the interface all implementations have to fulfill. ">cio_io_stream</a> write callback functions.  <a href="#a17033e6850d865852a8d4a419e8ee8c5">More...</a><br /></td></tr>
-<tr class="separator:a17033e6850d865852a8d4a419e8ee8c5"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa1d2b3a7079908874463d6f84547a279"><td class="memItemLeft" align="right" valign="top">typedef void(*&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="cio__io__stream_8h.html#aa1d2b3a7079908874463d6f84547a279">cio_io_stream_read_handler_t</a>) (struct <a class="el" href="structcio__io__stream.html">cio_io_stream</a> *io_stream, void *handler_context, enum <a class="el" href="cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afe">cio_error</a> err, struct <a class="el" href="structcio__read__buffer.html">cio_read_buffer</a> *buffer)</td></tr>
+<tr class="memdesc:aa1d2b3a7079908874463d6f84547a279"><td class="mdescLeft">&#160;</td><td class="mdescRight">The type of a function passed to all <a class="el" href="structcio__io__stream.html" title="This structure describes the interface all implementations have to fulfill. ">cio_io_stream</a> read callback functions.  <a href="#aa1d2b3a7079908874463d6f84547a279">More...</a><br /></td></tr>
+<tr class="separator:aa1d2b3a7079908874463d6f84547a279"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a433a3cac4233dc97696dbd668940eb73"><td class="memItemLeft" align="right" valign="top">typedef void(*&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="cio__io__stream_8h.html#a433a3cac4233dc97696dbd668940eb73">cio_io_stream_write_handler_t</a>) (struct <a class="el" href="structcio__io__stream.html">cio_io_stream</a> *io_stream, void *handler_context, struct <a class="el" href="structcio__write__buffer.html">cio_write_buffer</a> *buffer, enum <a class="el" href="cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afe">cio_error</a> err, size_t bytes_transferred)</td></tr>
+<tr class="memdesc:a433a3cac4233dc97696dbd668940eb73"><td class="mdescLeft">&#160;</td><td class="mdescRight">The type of a function passed to all <a class="el" href="structcio__io__stream.html" title="This structure describes the interface all implementations have to fulfill. ">cio_io_stream</a> write callback functions.  <a href="#a433a3cac4233dc97696dbd668940eb73">More...</a><br /></td></tr>
+<tr class="separator:a433a3cac4233dc97696dbd668940eb73"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>This file contains the definitions all users of a <a class="el" href="structcio__io__stream.html" title="This structure describes the interface all implementations have to fulfill. ">cio_io_stream</a> need to know. </p>
 </div><h2 class="groupheader">Typedef Documentation</h2>
-<a id="abfd8e6d3e5462389746e0ae5694a4593"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#abfd8e6d3e5462389746e0ae5694a4593">&#9670;&nbsp;</a></span>cio_io_stream_read_handler</h2>
+<a id="aa1d2b3a7079908874463d6f84547a279"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aa1d2b3a7079908874463d6f84547a279">&#9670;&nbsp;</a></span>cio_io_stream_read_handler_t</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">typedef void(* cio_io_stream_read_handler) (struct <a class="el" href="structcio__io__stream.html">cio_io_stream</a> *io_stream, void *handler_context, enum <a class="el" href="cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afe">cio_error</a> err, struct <a class="el" href="structcio__read__buffer.html">cio_read_buffer</a> *buffer)</td>
+          <td class="memname">typedef void(* cio_io_stream_read_handler_t) (struct <a class="el" href="structcio__io__stream.html">cio_io_stream</a> *io_stream, void *handler_context, enum <a class="el" href="cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afe">cio_error</a> err, struct <a class="el" href="structcio__read__buffer.html">cio_read_buffer</a> *buffer)</td>
         </tr>
       </table>
 </div><div class="memdoc">
@@ -142,14 +142,14 @@ Typedefs</h2></td></tr>
 
 </div>
 </div>
-<a id="a17033e6850d865852a8d4a419e8ee8c5"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a17033e6850d865852a8d4a419e8ee8c5">&#9670;&nbsp;</a></span>cio_io_stream_write_handler</h2>
+<a id="a433a3cac4233dc97696dbd668940eb73"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a433a3cac4233dc97696dbd668940eb73">&#9670;&nbsp;</a></span>cio_io_stream_write_handler_t</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">typedef void(* cio_io_stream_write_handler) (struct <a class="el" href="structcio__io__stream.html">cio_io_stream</a> *io_stream, void *handler_context, struct <a class="el" href="structcio__write__buffer.html">cio_write_buffer</a> *buffer, enum <a class="el" href="cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afe">cio_error</a> err, size_t bytes_transferred)</td>
+          <td class="memname">typedef void(* cio_io_stream_write_handler_t) (struct <a class="el" href="structcio__io__stream.html">cio_io_stream</a> *io_stream, void *handler_context, struct <a class="el" href="structcio__write__buffer.html">cio_write_buffer</a> *buffer, enum <a class="el" href="cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afe">cio_error</a> err, size_t bytes_transferred)</td>
         </tr>
       </table>
 </div><div class="memdoc">

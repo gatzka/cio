@@ -3,7 +3,7 @@ var searchData=
   ['chunk_5fsend_5fmask',['chunk_send_mask',['../structcio__websocket__private.html#ae19a998d5f10cfff0600352d84105563',1,'cio_websocket_private']]],
   ['close',['close',['../structcio__http__client.html#a99ea764a1678b2390fb83cbb255b36b1',1,'cio_http_client::close()'],['../structcio__io__stream.html#abd9b27a72fea1c39e54a88f3d7251db8',1,'cio_io_stream::close()']]],
   ['close_5fbuffer',['close_buffer',['../structcio__websocket__private.html#acff869ea3c3f402492d30102abe8655d',1,'cio_websocket_private']]],
-  ['close_5fhook',['close_hook',['../structcio__websocket__private.html#a51feb81058faa2b6380050e5a5f9b064',1,'cio_websocket_private']]],
+  ['close_5fhook',['close_hook',['../structcio__websocket__private.html#a8115987f335c7f4278f484cc2fd71be4',1,'cio_websocket_private']]],
   ['close_5fimmediately',['close_immediately',['../structcio__http__client__private.html#afb202d9aa49a35b15cf12621b918d339',1,'cio_http_client_private']]],
   ['close_5ftimeout_5fns',['close_timeout_ns',['../structcio__http__server__configuration.html#a0f8470908a38a448bd15b2c888bb6797',1,'cio_http_server_configuration']]],
   ['close_5ftimer',['close_timer',['../structcio__websocket__private.html#ac449ba2534bcd9691cedd3d4667f827f',1,'cio_websocket_private']]],

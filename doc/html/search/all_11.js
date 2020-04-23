@@ -13,8 +13,8 @@ var searchData=
   ['write_5fmessage_5fjob',['write_message_job',['../structcio__websocket__private.html#ab4860faa72ab9d8a75a65e1376d00089',1,'cio_websocket_private']]],
   ['write_5fping_5fjob',['write_ping_job',['../structcio__websocket__private.html#a26e20e86af1c05a9d401f4ea45d0543c',1,'cio_websocket_private']]],
   ['write_5fpong_5fjob',['write_pong_job',['../structcio__websocket__private.html#a4f63fe3c897fc27e34b5b3fabfd0fc7a',1,'cio_websocket_private']]],
-  ['write_5fresponse',['write_response',['../structcio__http__client.html#ad79dcfbaf16f820fb698ac95735dcac7',1,'cio_http_client']]],
-  ['write_5fsome',['write_some',['../structcio__io__stream.html#a676687d007b627d2c9c6174f0717c241',1,'cio_io_stream']]],
+  ['write_5fresponse',['write_response',['../structcio__http__client.html#abbe9776402a21eed5be77048e92ca256',1,'cio_http_client']]],
+  ['write_5fsome',['write_some',['../structcio__io__stream.html#a3280e6e4cb1512949465b809c16faf1d',1,'cio_io_stream']]],
   ['ws_5fflags',['ws_flags',['../structcio__websocket__private.html#ac4b5a46985a2430326c5f780f1a26508',1,'cio_websocket_private']]],
   ['ws_5fversion_5fok',['ws_version_ok',['../structcio__websocket__location__handler.html#a36868d423b5fcc2c0095c2123876ff0a',1,'cio_websocket_location_handler']]]
 ];
