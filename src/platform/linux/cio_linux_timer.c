@@ -58,7 +58,7 @@ static void timer_read(void *context, enum cio_epoll_error error)
 	struct cio_timer *t = context;
 
 	if (cio_unlikely(error != CIO_EPOLL_SUCCESS)) {
-		cio_timer_handler handler = t->handler;
+		cio_timer_handler_t handler = t->handler;
 		t->handler = NULL;
 		enum cio_error err = cio_linux_get_socket_error(t->impl.ev.fd);
 		handler(t, t->handler_context, err);
@@ -73,14 +73,14 @@ static void timer_read(void *context, enum cio_epoll_error error)
 			t->handler(t, t->handler_context, (enum cio_error)(-errno));
 		}
 	} else {
-		cio_timer_handler handler = t->handler;
+		cio_timer_handler_t handler = t->handler;
 		t->handler = NULL;
 		handler(t, t->handler_context, CIO_SUCCESS);
 	}
 }
 
 enum cio_error cio_timer_init(struct cio_timer *timer, struct cio_eventloop *loop,
-                              cio_timer_close_hook close_hook)
+                              cio_timer_close_hook_t close_hook)
 {
 	int fd = timerfd_create(CLOCK_MONOTONIC, O_NONBLOCK);
 	if (cio_unlikely(fd == -1)) {
@@ -115,7 +115,7 @@ eventloop_add_failed:
 	return ret_val;
 }
 
-enum cio_error cio_timer_expires_from_now(struct cio_timer *t, uint64_t timeout_ns, cio_timer_handler handler, void *handler_context)
+enum cio_error cio_timer_expires_from_now(struct cio_timer *t, uint64_t timeout_ns, cio_timer_handler_t handler, void *handler_context)
 {
 	struct itimerspec timeout = convert_timeoutns_to_itimerspec(timeout_ns);
 

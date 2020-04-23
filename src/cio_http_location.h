@@ -53,7 +53,7 @@ extern "C" {
  *
  * @return The pointer to the allocated handler, \p NULL if the memory could not be allocated.
  */
-typedef struct cio_http_location_handler *(*cio_http_alloc_handler)(const void *config);
+typedef struct cio_http_location_handler *(*cio_http_alloc_handler_t)(const void *config);
 
 /**
  * @brief An opaque structure encapsulating the information of an HTTP location.
@@ -63,7 +63,7 @@ struct cio_http_location {
 	 * @privatesection
 	 */
 	const char *path;
-	cio_http_alloc_handler alloc_handler;
+	cio_http_alloc_handler_t alloc_handler;
 	struct cio_http_location *next;
 	const void *config;
 };
@@ -76,11 +76,11 @@ struct cio_http_location {
  * @param config A configuration which is specific for the location. Consider you want to install a file handler in two different locations,
  * for instance to /html/files/ and css/files. Both file handlers shall have different document roots (where to start looking in a file system).
  * This document root information could be passed to the handler using the \p config parameter.
- * @anchor cio_http_alloc_handler_handler
+ * @anchor cio_http_alloc_handler_t_handler
  * @param handler The allocation handler which is called an HTTP request matches the location.
  * @return ::CIO_SUCCESS if no error occured
  */
-CIO_EXPORT enum cio_error cio_http_location_init(struct cio_http_location *location, const char *path, const void *config, cio_http_alloc_handler handler);
+CIO_EXPORT enum cio_error cio_http_location_init(struct cio_http_location *location, const char *path, const void *config, cio_http_alloc_handler_t handler);
 
 #ifdef __cplusplus
 }

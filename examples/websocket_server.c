@@ -52,11 +52,11 @@ enum { READ_BUFFER_SIZE = 2000 };
 enum { HTTPSERVER_LISTEN_PORT = 8080 };
 enum { IPV6_ADDRESS_SIZE = 16 };
 
-static const uint64_t header_read_timeout = UINT64_C(5) * UINT64_C(1000) * UINT64_C(1000) * UINT64_C(1000);
-static const uint64_t body_read_timeout = UINT64_C(5) * UINT64_C(1000) * UINT64_C(1000) * UINT64_C(1000);
-static const uint64_t response_timeout = UINT64_C(1) * UINT64_C(1000) * UINT64_C(1000) * UINT64_C(1000);
-static const uint64_t close_timeout_ns = UINT64_C(1) * UINT64_C(1000) * UINT64_C(1000) * UINT64_C(1000);
-static const uint64_t ping_period_ns = UINT64_C(1) * UINT64_C(1000) * UINT64_C(1000) * UINT64_C(1000);
+static const uint64_t HEADER_READ_TIMEOUT = UINT64_C(5) * UINT64_C(1000) * UINT64_C(1000) * UINT64_C(1000);
+static const uint64_t BODY_READ_TIMEOUT = UINT64_C(5) * UINT64_C(1000) * UINT64_C(1000) * UINT64_C(1000);
+static const uint64_t RESPONSE_TIMEOUT = UINT64_C(1) * UINT64_C(1000) * UINT64_C(1000) * UINT64_C(1000);
+static const uint64_t CLOSE_TIMEOUT_NS = UINT64_C(1) * UINT64_C(1000) * UINT64_C(1000) * UINT64_C(1000);
+static const uint64_t PING_PERIOD_NS = UINT64_C(1) * UINT64_C(1000) * UINT64_C(1000) * UINT64_C(1000);
 
 struct ws_echo_handler {
 	struct cio_websocket_location_handler ws_handler;
@@ -85,7 +85,7 @@ static void ping_written(struct cio_websocket *ws, void *handler_context, enum c
 		}
 	} else {
 		struct cio_timer *timer = (struct cio_timer *)handler_context;
-		err = cio_timer_expires_from_now(timer, ping_period_ns, send_ping, ws);
+		err = cio_timer_expires_from_now(timer, PING_PERIOD_NS, send_ping, ws);
 		if (err != CIO_SUCCESS) {
 			fprintf(stderr, "Could not start ping timer!\n");
 			err = cio_websocket_close(ws, CIO_WEBSOCKET_CLOSE_NORMAL, NULL, NULL, NULL);
@@ -221,7 +221,7 @@ static void on_connect(struct cio_websocket *ws)
 		return;
 	}
 
-	err = cio_timer_expires_from_now(&eh->ping_timer, ping_period_ns, send_ping, ws);
+	err = cio_timer_expires_from_now(&eh->ping_timer, PING_PERIOD_NS, send_ping, ws);
 	if (err != CIO_SUCCESS) {
 		fprintf(stderr, "Could not start ping timer!\n");
 		err = cio_websocket_close(ws, CIO_WEBSOCKET_CLOSE_NORMAL, NULL, NULL, NULL);
@@ -311,10 +311,10 @@ int main(void)
 
 	struct cio_http_server_configuration config = {
 	    .on_error = serve_error,
-	    .read_header_timeout_ns = header_read_timeout,
-	    .read_body_timeout_ns = body_read_timeout,
-	    .response_timeout_ns = response_timeout,
-	    .close_timeout_ns = close_timeout_ns,
+	    .read_header_timeout_ns = HEADER_READ_TIMEOUT,
+	    .read_body_timeout_ns = BODY_READ_TIMEOUT,
+	    .response_timeout_ns = RESPONSE_TIMEOUT,
+	    .close_timeout_ns = CLOSE_TIMEOUT_NS,
 	    .use_tcp_fastopen = false,
 	    .alloc_client = alloc_http_client,
 	    .free_client = free_http_client};

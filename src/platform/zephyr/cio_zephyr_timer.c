@@ -39,20 +39,13 @@
 static void timer_callback(void *context)
 {
 	struct cio_timer *t = context;
-	cio_timer_handler handler = t->handler;
+	cio_timer_handler_t handler = t->handler;
 	t->handler = NULL;
 
-	enum cio_error err;
-	if (t->impl.cancelled) {
-		err = CIO_OPERATION_ABORTED;
-	} else {
-		err = CIO_SUCCESS;
-	}
-
-	handler(t, t->handler_context, err);
+	handler(t, t->handler_context, CIO_SUCCESS);
 }
 
-static void expire_or_stop(struct k_timer *work)
+static void expire(struct k_timer *work)
 {
 	struct cio_timer_impl *impl = cio_container_of(work, struct cio_timer_impl, timer);
 	struct cio_timer *timer = cio_container_of(impl, struct cio_timer, impl);
@@ -61,8 +54,18 @@ static void expire_or_stop(struct k_timer *work)
 	cio_zephyr_eventloop_add_event(timer->impl.loop, &timer->impl.ev);
 }
 
+static void stop(struct k_timer *work)
+{
+	struct cio_timer_impl *impl = cio_container_of(work, struct cio_timer_impl, timer);
+	struct cio_timer *timer = cio_container_of(impl, struct cio_timer, impl);
+	cio_timer_handler_t handler = timer->handler;
+	timer->handler = NULL;
+
+	handler(timer, timer->handler_context, CIO_OPERATION_ABORTED);
+}
+
 enum cio_error cio_timer_init(struct cio_timer *timer, struct cio_eventloop *loop,
-                              cio_timer_close_hook close_hook)
+                              cio_timer_close_hook_t close_hook)
 {
 	enum cio_error ret_val = CIO_SUCCESS;
 
@@ -73,13 +76,12 @@ enum cio_error cio_timer_init(struct cio_timer *timer, struct cio_eventloop *loo
 	cio_zephyr_ev_init(&timer->impl.ev);
 	timer->impl.ev.callback = timer_callback;
 
-	timer->impl.cancelled = false;
-	k_timer_init(&timer->impl.timer, expire_or_stop, expire_or_stop);
+	k_timer_init(&timer->impl.timer, expire, stop);
 
 	return ret_val;
 }
 
-enum cio_error cio_timer_expires_from_now(struct cio_timer *t, uint64_t timeout_ns, cio_timer_handler handler, void *handler_context)
+enum cio_error cio_timer_expires_from_now(struct cio_timer *t, uint64_t timeout_ns, cio_timer_handler_t handler, void *handler_context)
 {
 	t->handler = handler;
 	t->handler_context = handler_context;
@@ -96,9 +98,7 @@ enum cio_error cio_timer_cancel(struct cio_timer *t)
 		return CIO_OPERATION_NOT_PERMITTED;
 	}
 
-	t->impl.cancelled = true;
 	k_timer_stop(&t->impl.timer);
-
 	return CIO_SUCCESS;
 }
 

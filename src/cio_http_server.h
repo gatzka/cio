@@ -70,9 +70,9 @@ struct cio_http_server;
  * @param server The cio_http_server that caused the error.
  * @param reason A reason describing the error.
  */
-typedef void (*cio_http_serve_on_error)(struct cio_http_server *server, const char *reason);
+typedef void (*cio_http_serve_on_error_t)(struct cio_http_server *server, const char *reason);
 
-typedef void (*cio_http_server_close_hook)(const struct cio_http_server *server);
+typedef void (*cio_http_server_close_hook_t)(const struct cio_http_server *server);
 
 enum { CIO_KEEPALIVE_TIMEOUT_HEADER_MAX_LENGTH = 33U }; // "Keep-Alive: timeout= + uint32 as string + CR + LF + \0"
 
@@ -85,17 +85,17 @@ struct cio_http_server {
 	 */
 	struct cio_socket_address endpoint;
 	struct cio_eventloop *loop;
-	cio_alloc_client alloc_client;
-	cio_free_client free_client;
+	cio_alloc_client_t alloc_client;
+	cio_free_client_t free_client;
 
 	uint64_t read_header_timeout_ns;
 	uint64_t read_body_timeout_ns;
 	uint64_t response_timeout_ns;
-	cio_http_serve_on_error on_error;
+	cio_http_serve_on_error_t on_error;
 	struct cio_server_socket server_socket;
 	struct cio_http_location *first_location;
 	size_t num_handlers;
-	cio_http_server_close_hook close_hook;
+	cio_http_server_close_hook_t close_hook;
 	char keepalive_header[CIO_KEEPALIVE_TIMEOUT_HEADER_MAX_LENGTH];
 };
 
@@ -105,7 +105,7 @@ struct cio_http_server_configuration {
 	struct cio_socket_address endpoint;
 
 	/** @brief This callback function will be called if something goes wrong while the HTTP client connection is established. */
-	cio_http_serve_on_error on_error;
+	cio_http_serve_on_error_t on_error;
 
 	/**
 	 * @brief The timeout in nanoseconds until the complete HTTP header must be received.
@@ -140,13 +140,13 @@ struct cio_http_server_configuration {
 	 * @anchor cio_http_server_init_alloc_client
 	 * @brief alloc_client A user provided function responsible to allocate a cio_http_client structure.
 	 */
-	cio_alloc_client alloc_client;
+	cio_alloc_client_t alloc_client;
 
 	/**
 	 * @anchor cio_http_server_init_free_client
 	 * @brief free_client A user provided function to free the client memory @ref cio_http_server_init_alloc_client "allocated".
 	 */
-	cio_free_client free_client;
+	cio_free_client_t free_client;
 };
 
 /**
@@ -188,7 +188,7 @@ CIO_EXPORT enum cio_error cio_http_server_register_location(struct cio_http_serv
  * @param close_hook A user provided function that will be called after the HTTP server completed the @ref cio_http_server_shutdown "shutdown".
  * @return ::CIO_SUCCESS if the shutdown operation succeeded.
  */
-CIO_EXPORT enum cio_error cio_http_server_shutdown(struct cio_http_server *server, cio_http_server_close_hook close_hook);
+CIO_EXPORT enum cio_error cio_http_server_shutdown(struct cio_http_server *server, cio_http_server_close_hook_t close_hook);
 
 #ifdef __cplusplus
 }

@@ -51,10 +51,10 @@ struct pcg_state_setseq_64 {
 /**
  * @private
  */
-typedef struct pcg_state_setseq_64 cio_rng;
+typedef struct pcg_state_setseq_64 cio_rng_t;
 
-CIO_EXPORT enum cio_error cio_random_seed_rng(cio_rng *rng);
-CIO_EXPORT void cio_random_get_bytes(cio_rng *rng, void *bytes, size_t num_bytes);
+CIO_EXPORT enum cio_error cio_random_seed_rng(cio_rng_t *rng);
+CIO_EXPORT void cio_random_get_bytes(cio_rng_t *rng, void *bytes, size_t num_bytes);
 
 /**
  * @private

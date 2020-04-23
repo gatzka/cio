@@ -3,7 +3,7 @@
  *
  * The MIT License (MIT)
  *
- * Copyright (c) <2016> <Stephan Gatzka>
+ * Copyright (c) <2017> <Stephan Gatzka>
  *
  * Permission is hereby granted, free of charge, to any person obtaining
  * a copy of this software and associated documentation files (the
@@ -26,44 +26,24 @@
  * SOFTWARE.
  */
 
-#include <stddef.h>
-#include <stdint.h>
-#include <string.h>
+#include <net/net_context.h>
 
-#include "cio_base64.h"
 #include "cio_compiler.h"
+#include "cio_error_code.h"
+#include "cio_inet_address.h"
+#include "cio_zephyr_socket_utils.h"
 
-static const char ENCODE_TABLE[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
-
-void cio_b64_encode_buffer(const uint8_t *__restrict in, size_t in_length, char *__restrict out)
+int cio_zephyr_socket_create(enum cio_address_family address_family, struct net_context **context)
 {
-	while (in_length) {
-		unsigned int len = 0;
-		unsigned int triple[3];
-		for (unsigned int i = 0; i < 3; i++) {
-			if (in_length) {
-				triple[i] = *in++;
-				len++;
-				in_length--;
-			} else {
-				triple[i] = 0;
-			}
-		}
-
-		char tmp[4];
-		tmp[0] = ENCODE_TABLE[triple[0] >> 2U];
-		tmp[1] = ENCODE_TABLE[((triple[0] & 0x03U) << 4U) | ((triple[1] & 0xf0U) >> 4U)]; // NOLINT
-		if (cio_likely(len > 1)) {
-			tmp[2] = ENCODE_TABLE[((triple[1] & 0x0fU) << 2U) | ((triple[2] & 0xc0U) >> 6U)]; // NOLINT
-		} else {
-			tmp[2] = '=';
-		}
-		if (cio_likely(len > 2)) {
-			tmp[3] = ENCODE_TABLE[triple[2] & 0x3fU]; // NOLINT
-		} else {
-			tmp[3] = '=';
-		}
-		memcpy(out, tmp, sizeof(tmp));
-		out += 4;
+	if (cio_unlikely(address_family == CIO_ADDRESS_FAMILY_UNSPEC)) {
+		return -EINVAL;
 	}
+
+	sa_family_t domain = (sa_family_t)address_family;
+	int ret = net_context_get(domain, SOCK_STREAM, IPPROTO_TCP, context);
+	if (cio_unlikely(ret < 0)) {
+		return ret;
+	}
+
+	return 0;
 }

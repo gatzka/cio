@@ -62,8 +62,8 @@ FAKE_VALUE_FUNC(enum cio_error, cio_linux_eventloop_unregister_read, const struc
 FAKE_VALUE_FUNC(enum cio_error, cio_linux_eventloop_register_write, const struct cio_eventloop *, struct cio_event_notifier *)
 FAKE_VOID_FUNC(cio_linux_eventloop_remove, struct cio_eventloop *, const struct cio_event_notifier *)
 
-FAKE_VALUE_FUNC(enum cio_error, cio_timer_init, struct cio_timer *, struct cio_eventloop *, cio_timer_close_hook)
-FAKE_VALUE_FUNC(enum cio_error, cio_timer_expires_from_now, struct cio_timer *, uint64_t, cio_timer_handler, void *)
+FAKE_VALUE_FUNC(enum cio_error, cio_timer_init, struct cio_timer *, struct cio_eventloop *, cio_timer_close_hook_t)
+FAKE_VALUE_FUNC(enum cio_error, cio_timer_expires_from_now, struct cio_timer *, uint64_t, cio_timer_handler_t, void *)
 FAKE_VALUE_FUNC(enum cio_error, cio_timer_cancel, struct cio_timer *)
 FAKE_VOID_FUNC(cio_timer_close, struct cio_timer *)
 
@@ -224,7 +224,7 @@ static ssize_t send_blocks(int fd, const struct msghdr *msg, int flags)
 	return -1;
 }
 
-static enum cio_error expires_save_handler(struct cio_timer *t, uint64_t timeout_ns, cio_timer_handler handler, void *handler_context)
+static enum cio_error expires_save_handler(struct cio_timer *t, uint64_t timeout_ns, cio_timer_handler_t handler, void *handler_context)
 {
 	(void)timeout_ns;
 	t->handler = handler;

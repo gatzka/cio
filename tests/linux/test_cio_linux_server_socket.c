@@ -71,7 +71,7 @@ FAKE_VALUE_FUNC0(struct cio_socket *, alloc_client)
 void free_client(struct cio_socket *socket);
 FAKE_VOID_FUNC(free_client, struct cio_socket *)
 
-FAKE_VALUE_FUNC(enum cio_error, cio_linux_socket_init, struct cio_socket *, int, struct cio_eventloop *, uint64_t, cio_socket_close_hook)
+FAKE_VALUE_FUNC(enum cio_error, cio_linux_socket_init, struct cio_socket *, int, struct cio_eventloop *, uint64_t, cio_socket_close_hook_t)
 
 FAKE_VALUE_FUNC(enum cio_error, cio_socket_close, struct cio_socket *)
 
@@ -252,7 +252,7 @@ static void accept_handler_close_server_socket(struct cio_server_socket *ss, voi
 	cio_server_socket_close(ss);
 }
 
-static enum cio_error custom_cio_linux_socket_init(struct cio_socket *s, int fd, struct cio_eventloop *loop, uint64_t close_timeout_ns, cio_socket_close_hook hook)
+static enum cio_error custom_cio_linux_socket_init(struct cio_socket *s, int fd, struct cio_eventloop *loop, uint64_t close_timeout_ns, cio_socket_close_hook_t hook)
 {
 	(void)close_timeout_ns;
 	s->impl.ev.fd = fd;

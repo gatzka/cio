@@ -78,7 +78,7 @@ struct cio_websocket_location_handler {
 
 struct cio_websocket_location_config {
 	uint64_t upgrade_response_timeout;
-	cio_websocket_on_connect on_connect;
+	cio_websocket_on_connect_t on_connect;
 	void (*free)(struct cio_websocket_location_handler *);
 	unsigned int num_sub_protocols;
 	const char *sub_protocols[];
@@ -100,7 +100,7 @@ struct cio_websocket_location_config {
 CIO_EXPORT enum cio_error cio_websocket_location_handler_init(struct cio_websocket_location_handler *handler,
                                                               const char *subprotocols[],
                                                               size_t num_subprotocols,
-                                                              cio_websocket_on_connect on_connect,
+                                                              cio_websocket_on_connect_t on_connect,
                                                               void (*location_handler_free)(struct cio_websocket_location_handler *));
 
 #ifdef __cplusplus

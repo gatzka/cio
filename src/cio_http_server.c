@@ -239,12 +239,12 @@ static void end_response_header(struct cio_http_client *client)
 	cio_write_buffer_queue_tail(&client->response_wbh, &client->http_private.wb_http_response_header_end);
 }
 
-static enum cio_error flush(struct cio_http_client *client, cio_buffered_stream_write_handler handler)
+static enum cio_error flush(struct cio_http_client *client, cio_buffered_stream_write_handler_t handler)
 {
 	return cio_buffered_stream_write(&client->bs, &client->response_wbh, handler, client);
 }
 
-static enum cio_error write_response(struct cio_http_client *client, enum cio_http_status_code status_code, struct cio_write_buffer *wbh_body, cio_response_written_cb written_cb)
+static enum cio_error write_response(struct cio_http_client *client, enum cio_http_status_code status_code, struct cio_write_buffer *wbh_body, cio_response_written_cb_t written_cb)
 {
 	if (cio_unlikely(client->http_private.response_written)) {
 		return CIO_OPERATION_NOT_PERMITTED;
@@ -392,7 +392,7 @@ static int on_headers_complete(http_parser *parser)
 	return 0;
 }
 
-static int data_callback(struct cio_http_client *client, const char *at, size_t length, cio_http_data_cb cb)
+static int data_callback(struct cio_http_client *client, const char *at, size_t length, cio_http_data_cb_t cb)
 {
 	if ((!client->http_private.response_fired) && cb) {
 		return cb(client, at, length);
@@ -451,7 +451,7 @@ static int on_body(http_parser *parser, const char *at, size_t length)
 	return 0;
 }
 
-static enum cio_http_cb_return call_url_parts_callback(const struct http_parser_url *u, enum http_parser_url_fields url_field, cio_http_data_cb callback, struct cio_http_client *client, const char *at)
+static enum cio_http_cb_return call_url_parts_callback(const struct http_parser_url *u, enum http_parser_url_fields url_field, cio_http_data_cb_t callback, struct cio_http_client *client, const char *at)
 {
 	if ((u->field_set & (1U << url_field)) == (1U << url_field)) {
 		return data_callback(client, at + u->field_data[url_field].off, u->field_data[url_field].len, callback);
@@ -803,7 +803,7 @@ enum cio_error cio_http_server_register_location(struct cio_http_server *server,
 	return CIO_SUCCESS;
 }
 
-enum cio_error cio_http_server_shutdown(struct cio_http_server *server, cio_http_server_close_hook close_hook)
+enum cio_error cio_http_server_shutdown(struct cio_http_server *server, cio_http_server_close_hook_t close_hook)
 {
 	server->close_hook = close_hook;
 	cio_server_socket_close(&server->server_socket);

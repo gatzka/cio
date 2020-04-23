@@ -30,9 +30,10 @@
 #define CIO_LINUX_SERVER_SOCKET_IMPL_H
 
 #include <kernel.h>
+#include <net/net_context.h>
 #include <stdint.h>
-#include <zephyr.h>
 
+#include "cio_error_code.h"
 #include "cio_eventloop.h"
 
 #ifdef __cplusplus
@@ -40,14 +41,12 @@ extern "C" {
 #endif
 
 struct cio_server_socket_impl {
-	int fd;
 	uint64_t close_timeout_ns;
 	struct cio_event_notifier ev;
 	struct cio_eventloop *loop;
-	k_tid_t ipv4_listen_thread_id;
-	struct k_thread ipv4_listen_thread;
-	k_tid_t ipv6_listen_thread_id;
-	struct k_thread ipv6_listen_thread;
+	struct net_context *context;
+	struct net_context *new_context;
+	enum cio_error accept_status;
 };
 
 #ifdef __cplusplus

@@ -29,9 +29,12 @@
 #ifndef CIO_ZEPHYR_SOCKET_IMPL_H
 #define CIO_ZEPHYR_SOCKET_IMPL_H
 
+#include <net/net_context.h>
 #include <stdbool.h>
+#include <stddef.h>
 #include <stdint.h>
 
+#include "cio_error_code.h"
 #include "cio_eventloop.h"
 #include "cio_timer.h"
 
@@ -40,11 +43,15 @@ extern "C" {
 #endif
 
 struct cio_socket_impl {
-	uint64_t close_timeout_ns;
 	struct cio_event_notifier ev;
 	struct cio_timer close_timer;
+	uint64_t close_timeout_ns;
+	size_t bytes_to_send;
+	size_t send_status;
+	enum cio_error read_status;
 	struct cio_eventloop *loop;
 	bool peer_closed_connection;
+	struct net_context *context;
 };
 
 #ifdef __cplusplus

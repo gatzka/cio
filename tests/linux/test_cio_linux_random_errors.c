@@ -64,7 +64,7 @@ void tearDown(void)
 
 static void test_random_seed_fails(void)
 {
-	cio_rng rng;
+	cio_rng_t rng;
 	fopen_fake.return_val = NULL;
 	errno = EACCES;
 
@@ -74,7 +74,7 @@ static void test_random_seed_fails(void)
 
 static void test_fread_short(void)
 {
-	cio_rng rng;
+	cio_rng_t rng;
 	fopen_fake.return_val = (FILE *)8;
 	fread_unlocked_fake.return_val = 3;
 	enum cio_error err = cio_random_seed_rng(&rng);
@@ -83,7 +83,7 @@ static void test_fread_short(void)
 
 static void test_fread_ok(void)
 {
-	cio_rng rng;
+	cio_rng_t rng;
 	fopen_fake.return_val = (FILE *)8;
 	fread_unlocked_fake.custom_fake = fread_ok;
 	enum cio_error err = cio_random_seed_rng(&rng);

@@ -36,20 +36,20 @@
 #include "cio_inet_address.h"
 #include "cio_inet_address_impl.h"
 
-static const struct cio_inet_address inet_address_any6 = {
+static const struct cio_inet_address INET_ADDRESS_ANY6 = {
     .impl = {.family = CIO_ADDRESS_FAMILY_INET6, .in6 = IN6ADDR_ANY_INIT}};
 
-static const struct cio_inet_address inet_address_any4 = {
+static const struct cio_inet_address INET_ADDRESS_ANY4 = {
     .impl = {.family = CIO_ADDRESS_FAMILY_INET4, .in.s_addr = INADDR_ANY}};
 
 const struct cio_inet_address *cio_get_inet_address_any4(void)
 {
-	return &inet_address_any4;
+	return &INET_ADDRESS_ANY4;
 }
 
 const struct cio_inet_address *cio_get_inet_address_any6(void)
 {
-	return &inet_address_any6;
+	return &INET_ADDRESS_ANY6;
 }
 
 enum cio_error cio_init_inet_address(struct cio_inet_address *inet_address, const uint8_t *address, size_t address_length)

@@ -46,7 +46,7 @@
 static unsigned long long max_pings;
 static struct cio_eventloop loop;
 
-static const char hello[] = "Hello";
+static const char HELLO[] = "Hello";
 static const uint64_t CLOSE_TIMEOUT_NS = UINT64_C(1) * UINT64_C(1000) * UINT64_C(1000) * UINT64_C(1000);
 enum { BASE_10 = 10 };
 enum { SERVERSOCKET_BACKLOG = 5 };
@@ -116,7 +116,7 @@ static void server_handle_write(struct cio_buffered_stream *bs, void *handler_co
 
 	cio_read_buffer_consume(&client->rb, client->bytes_read);
 
-	err = cio_buffered_stream_read_at_least(bs, &client->rb, sizeof(hello), server_handle_read, client);
+	err = cio_buffered_stream_read_at_least(bs, &client->rb, sizeof(HELLO), server_handle_read, client);
 	if (cio_unlikely(err != CIO_SUCCESS)) {
 		fprintf(stderr, "server could no start reading!\n");
 		return;
@@ -172,7 +172,7 @@ static void handle_accept(struct cio_server_socket *ss, void *handler_context, e
 		goto error;
 	}
 
-	err = cio_buffered_stream_read_at_least(bs, &client->rb, sizeof(hello), server_handle_read, client);
+	err = cio_buffered_stream_read_at_least(bs, &client->rb, sizeof(HELLO), server_handle_read, client);
 	if (cio_unlikely(err != CIO_SUCCESS)) {
 		fprintf(stderr, "server could no start reading!\n");
 		goto error;
@@ -226,7 +226,7 @@ static void client_handle_write(struct cio_buffered_stream *bs, void *handler_co
 
 	struct client *client = (struct client *)handler_context;
 	cio_read_buffer_consume(&client->rb, client->bytes_read);
-	err = cio_buffered_stream_read_at_least(bs, &client->rb, sizeof(hello), client_handle_read, client);
+	err = cio_buffered_stream_read_at_least(bs, &client->rb, sizeof(HELLO), client_handle_read, client);
 	if (cio_unlikely(err != CIO_SUCCESS)) {
 		fprintf(stderr, "client could no start reading!\n");
 		cio_buffered_stream_close(bs);
@@ -247,7 +247,7 @@ static void handle_connect(struct cio_socket *socket, void *handler_context, enu
 	cio_buffered_stream_init(bs, cio_socket_get_io_stream(socket));
 
 	cio_write_buffer_head_init(&client->wbh);
-	cio_write_buffer_const_element_init(&client->wb, hello, sizeof(hello));
+	cio_write_buffer_const_element_init(&client->wb, HELLO, sizeof(HELLO));
 	cio_write_buffer_queue_tail(&client->wbh, &client->wb);
 	err = cio_buffered_stream_write(bs, &client->wbh, client_handle_write, client);
 
@@ -289,8 +289,8 @@ int main(int argc, char *argv[])
 	}
 
 	struct cio_socket_address endpoint;
-	const char path[] = {"\0/tmp/foobar"};
-	enum cio_error err = cio_init_uds_socket_address(&endpoint, path);
+	const char PATH[] = {"\0/tmp/foobar"};
+	enum cio_error err = cio_init_uds_socket_address(&endpoint, PATH);
 	if (cio_unlikely(err != CIO_SUCCESS)) {
 		fprintf(stderr, "could no init server socket endpoint!\n");
 		return -1;
@@ -331,7 +331,7 @@ int main(int argc, char *argv[])
 	}
 
 	struct cio_socket_address client_endpoint;
-	err = cio_init_uds_socket_address(&client_endpoint, path);
+	err = cio_init_uds_socket_address(&client_endpoint, PATH);
 	if (cio_unlikely(err != CIO_SUCCESS)) {
 		fprintf(stderr, "could not init client socket endpoint!\n");
 		ret = EXIT_FAILURE;

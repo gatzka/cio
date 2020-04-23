@@ -50,19 +50,19 @@
 #define CRLF "\r\n"
 
 struct request_test {
-	cio_http_data_cb on_scheme;
-	cio_http_data_cb on_host;
-	cio_http_data_cb on_port;
-	cio_http_data_cb on_path;
-	cio_http_data_cb on_query;
-	cio_http_data_cb on_fragment;
-	cio_http_data_cb on_url;
-	cio_http_data_cb on_header_field_name;
-	cio_http_data_cb on_header_field_value;
-	cio_http_cb on_header_complete;
-	cio_http_data_cb on_body;
-	cio_http_cb on_message_complete;
-	cio_http_alloc_handler alloc_handler;
+	cio_http_data_cb_t on_scheme;
+	cio_http_data_cb_t on_host;
+	cio_http_data_cb_t on_port;
+	cio_http_data_cb_t on_path;
+	cio_http_data_cb_t on_query;
+	cio_http_data_cb_t on_fragment;
+	cio_http_data_cb_t on_url;
+	cio_http_data_cb_t on_header_field_name;
+	cio_http_data_cb_t on_header_field_value;
+	cio_http_cb_t on_header_complete;
+	cio_http_data_cb_t on_body;
+	cio_http_cb_t on_message_complete;
+	cio_http_alloc_handler_t alloc_handler;
 	enum cio_http_cb_return callback_return;
 	int expected_response;
 };
@@ -87,24 +87,24 @@ DEFINE_FFF_GLOBALS
 static void serve_error(struct cio_http_server *server, const char *reason);
 FAKE_VOID_FUNC(serve_error, struct cio_http_server *, const char *)
 
-FAKE_VALUE_FUNC(enum cio_error, cio_server_socket_init, struct cio_server_socket *, struct cio_eventloop *, unsigned int, enum cio_address_family, cio_alloc_client, cio_free_client, uint64_t, cio_server_socket_close_hook)
-FAKE_VALUE_FUNC(enum cio_error, cio_server_socket_accept, struct cio_server_socket *, cio_accept_handler, void *)
+FAKE_VALUE_FUNC(enum cio_error, cio_server_socket_init, struct cio_server_socket *, struct cio_eventloop *, unsigned int, enum cio_address_family, cio_alloc_client_t, cio_free_client_t, uint64_t, cio_server_socket_close_hook_t)
+FAKE_VALUE_FUNC(enum cio_error, cio_server_socket_accept, struct cio_server_socket *, cio_accept_handler_t, void *)
 FAKE_VALUE_FUNC(enum cio_error, cio_server_socket_bind, struct cio_server_socket *, const struct cio_socket_address *)
 FAKE_VOID_FUNC(cio_server_socket_close, struct cio_server_socket *)
 FAKE_VALUE_FUNC(enum cio_error, cio_server_socket_set_reuse_address, const struct cio_server_socket *, bool)
 
 FAKE_VALUE_FUNC(struct cio_io_stream *, cio_socket_get_io_stream, struct cio_socket *)
 
-FAKE_VALUE_FUNC(enum cio_error, cio_timer_init, struct cio_timer *, struct cio_eventloop *, cio_timer_close_hook)
+FAKE_VALUE_FUNC(enum cio_error, cio_timer_init, struct cio_timer *, struct cio_eventloop *, cio_timer_close_hook_t)
 FAKE_VALUE_FUNC(enum cio_error, cio_timer_cancel, struct cio_timer *)
 FAKE_VOID_FUNC(cio_timer_close, struct cio_timer *)
-FAKE_VALUE_FUNC(enum cio_error, cio_timer_expires_from_now, struct cio_timer *, uint64_t, cio_timer_handler, void *)
+FAKE_VALUE_FUNC(enum cio_error, cio_timer_expires_from_now, struct cio_timer *, uint64_t, cio_timer_handler_t, void *)
 
 FAKE_VALUE_FUNC(enum cio_error, cio_buffered_stream_init, struct cio_buffered_stream *, struct cio_io_stream *)
-FAKE_VALUE_FUNC(enum cio_error, cio_buffered_stream_read_until, struct cio_buffered_stream *, struct cio_read_buffer *, const char *, cio_buffered_stream_read_handler, void *)
-FAKE_VALUE_FUNC(enum cio_error, cio_buffered_stream_read_at_least, struct cio_buffered_stream *, struct cio_read_buffer *, size_t, cio_buffered_stream_read_handler, void *)
+FAKE_VALUE_FUNC(enum cio_error, cio_buffered_stream_read_until, struct cio_buffered_stream *, struct cio_read_buffer *, const char *, cio_buffered_stream_read_handler_t, void *)
+FAKE_VALUE_FUNC(enum cio_error, cio_buffered_stream_read_at_least, struct cio_buffered_stream *, struct cio_read_buffer *, size_t, cio_buffered_stream_read_handler_t, void *)
 FAKE_VALUE_FUNC(enum cio_error, cio_buffered_stream_close, struct cio_buffered_stream *)
-FAKE_VALUE_FUNC(enum cio_error, cio_buffered_stream_write, struct cio_buffered_stream *, struct cio_write_buffer *, cio_buffered_stream_write_handler, void *)
+FAKE_VALUE_FUNC(enum cio_error, cio_buffered_stream_write, struct cio_buffered_stream *, struct cio_write_buffer *, cio_buffered_stream_write_handler_t, void *)
 
 FAKE_VALUE_FUNC(enum cio_error, cio_init_inet_socket_address, struct cio_socket_address *, const struct cio_inet_address *, uint16_t)
 FAKE_VALUE_FUNC0(const struct cio_inet_address *, cio_get_inet_address_any4)
@@ -172,7 +172,7 @@ static enum cio_error cancel_timer_error(struct cio_timer *t)
 	return CIO_INVALID_ARGUMENT;
 }
 
-static enum cio_error expires(struct cio_timer *t, uint64_t timeout_ns, cio_timer_handler handler, void *handler_context)
+static enum cio_error expires(struct cio_timer *t, uint64_t timeout_ns, cio_timer_handler_t handler, void *handler_context)
 {
 	(void)timeout_ns;
 	t->handler = handler;
@@ -180,7 +180,7 @@ static enum cio_error expires(struct cio_timer *t, uint64_t timeout_ns, cio_time
 	return CIO_SUCCESS;
 }
 
-static enum cio_error expires_error(struct cio_timer *t, uint64_t timeout_ns, cio_timer_handler handler, void *handler_context)
+static enum cio_error expires_error(struct cio_timer *t, uint64_t timeout_ns, cio_timer_handler_t handler, void *handler_context)
 {
 	(void)timeout_ns;
 	t->handler = handler;
@@ -188,14 +188,14 @@ static enum cio_error expires_error(struct cio_timer *t, uint64_t timeout_ns, ci
 	return CIO_INVALID_ARGUMENT;
 }
 
-static enum cio_error cio_timer_init_ok(struct cio_timer *timer, struct cio_eventloop *loop, cio_timer_close_hook hook)
+static enum cio_error cio_timer_init_ok(struct cio_timer *timer, struct cio_eventloop *loop, cio_timer_close_hook_t hook)
 {
 	(void)loop;
 	timer->close_hook = hook;
 	return CIO_SUCCESS;
 }
 
-static enum cio_error cio_timer_init_fails(struct cio_timer *timer, struct cio_eventloop *l, cio_timer_close_hook hook)
+static enum cio_error cio_timer_init_fails(struct cio_timer *timer, struct cio_eventloop *l, cio_timer_close_hook_t hook)
 {
 	(void)l;
 	(void)timer;
@@ -207,10 +207,10 @@ static enum cio_error cio_server_socket_init_ok(struct cio_server_socket *ss,
                                                 struct cio_eventloop *loop,
                                                 unsigned int backlog,
                                                 enum cio_address_family family,
-                                                cio_alloc_client alloc_client,
-                                                cio_free_client free_client,
+                                                cio_alloc_client_t alloc_client,
+                                                cio_free_client_t free_client,
                                                 uint64_t close_timeout,
-                                                cio_server_socket_close_hook close_hook)
+                                                cio_server_socket_close_hook_t close_hook)
 {
 	(void)family;
 	(void)close_timeout;
@@ -226,10 +226,10 @@ static enum cio_error cio_server_socket_init_fails(struct cio_server_socket *ss,
                                                    struct cio_eventloop *l,
                                                    unsigned int backlog,
                                                    enum cio_address_family family,
-                                                   cio_alloc_client alloc_client,
-                                                   cio_free_client free_client,
+                                                   cio_alloc_client_t alloc_client,
+                                                   cio_free_client_t free_client,
                                                    uint64_t close_tout_ns,
-                                                   cio_server_socket_close_hook close_hook)
+                                                   cio_server_socket_close_hook_t close_hook)
 {
 	(void)ss;
 	(void)l;
@@ -458,7 +458,7 @@ static unsigned int current_line;
 
 static char line_buffer[10][100];
 
-static enum cio_error bs_read_until_ok(struct cio_buffered_stream *bs, struct cio_read_buffer *buffer, const char *delim, cio_buffered_stream_read_handler handler, void *handler_context)
+static enum cio_error bs_read_until_ok(struct cio_buffered_stream *bs, struct cio_read_buffer *buffer, const char *delim, cio_buffered_stream_read_handler_t handler, void *handler_context)
 {
 	(void)delim;
 
@@ -476,7 +476,7 @@ static enum cio_error bs_read_until_ok(struct cio_buffered_stream *bs, struct ci
 	return CIO_SUCCESS;
 }
 
-static enum cio_error bs_read_until_blocks(struct cio_buffered_stream *bs, struct cio_read_buffer *buffer, const char *delim, cio_buffered_stream_read_handler handler, void *handler_context)
+static enum cio_error bs_read_until_blocks(struct cio_buffered_stream *bs, struct cio_read_buffer *buffer, const char *delim, cio_buffered_stream_read_handler_t handler, void *handler_context)
 {
 	(void)bs;
 	(void)buffer;
@@ -487,7 +487,7 @@ static enum cio_error bs_read_until_blocks(struct cio_buffered_stream *bs, struc
 	return CIO_SUCCESS;
 }
 
-static enum cio_error bs_read_until_call_fails(struct cio_buffered_stream *bs, struct cio_read_buffer *buffer, const char *delim, cio_buffered_stream_read_handler handler, void *handler_context)
+static enum cio_error bs_read_until_call_fails(struct cio_buffered_stream *bs, struct cio_read_buffer *buffer, const char *delim, cio_buffered_stream_read_handler_t handler, void *handler_context)
 {
 	(void)bs;
 	(void)buffer;
@@ -498,7 +498,7 @@ static enum cio_error bs_read_until_call_fails(struct cio_buffered_stream *bs, s
 	return CIO_BAD_FILE_DESCRIPTOR;
 }
 
-static enum cio_error bs_read_until_error_in_callback(struct cio_buffered_stream *bs, struct cio_read_buffer *buffer, const char *delim, cio_buffered_stream_read_handler handler, void *handler_context)
+static enum cio_error bs_read_until_error_in_callback(struct cio_buffered_stream *bs, struct cio_read_buffer *buffer, const char *delim, cio_buffered_stream_read_handler_t handler, void *handler_context)
 {
 	(void)delim;
 
@@ -506,7 +506,7 @@ static enum cio_error bs_read_until_error_in_callback(struct cio_buffered_stream
 	return CIO_SUCCESS;
 }
 
-static enum cio_error bs_read_at_least_ok(struct cio_buffered_stream *bs, struct cio_read_buffer *buffer, size_t num, cio_buffered_stream_read_handler handler, void *handler_context)
+static enum cio_error bs_read_at_least_ok(struct cio_buffered_stream *bs, struct cio_read_buffer *buffer, size_t num, cio_buffered_stream_read_handler_t handler, void *handler_context)
 {
 
 	memset(buffer->add_ptr, 'a', num);
@@ -516,7 +516,7 @@ static enum cio_error bs_read_at_least_ok(struct cio_buffered_stream *bs, struct
 	return CIO_SUCCESS;
 }
 
-static enum cio_error bs_read_at_least_call_fails(struct cio_buffered_stream *bs, struct cio_read_buffer *buffer, size_t num, cio_buffered_stream_read_handler handler, void *handler_context)
+static enum cio_error bs_read_at_least_call_fails(struct cio_buffered_stream *bs, struct cio_read_buffer *buffer, size_t num, cio_buffered_stream_read_handler_t handler, void *handler_context)
 {
 	(void)bs;
 	(void)buffer;
@@ -542,11 +542,11 @@ static enum cio_error bs_close_fails(struct cio_buffered_stream *bs)
 static uint8_t write_buffer[1000];
 static size_t write_pos;
 
-static cio_buffered_stream_write_handler blocked_write_handler;
+static cio_buffered_stream_write_handler_t blocked_write_handler;
 static void *blocked_write_handler_context;
 static struct cio_buffered_stream *blocked_write_bs;
 
-static enum cio_error bs_write_all(struct cio_buffered_stream *bs, struct cio_write_buffer *buf, cio_buffered_stream_write_handler handler, void *handler_context)
+static enum cio_error bs_write_all(struct cio_buffered_stream *bs, struct cio_write_buffer *buf, cio_buffered_stream_write_handler_t handler, void *handler_context)
 {
 	size_t buffer_len = cio_write_buffer_get_num_buffer_elements(buf);
 	const struct cio_write_buffer *data_buf = buf;
@@ -561,14 +561,14 @@ static enum cio_error bs_write_all(struct cio_buffered_stream *bs, struct cio_wr
 	return CIO_SUCCESS;
 }
 
-static enum cio_error bs_write_error_in_callback(struct cio_buffered_stream *bs, struct cio_write_buffer *buf, cio_buffered_stream_write_handler handler, void *handler_context)
+static enum cio_error bs_write_error_in_callback(struct cio_buffered_stream *bs, struct cio_write_buffer *buf, cio_buffered_stream_write_handler_t handler, void *handler_context)
 {
 	(void)buf;
 	handler(bs, handler_context, CIO_ADDRESS_IN_USE);
 	return CIO_SUCCESS;
 }
 
-static enum cio_error bs_write_error(struct cio_buffered_stream *bs, struct cio_write_buffer *buf, cio_buffered_stream_write_handler handler, void *handler_context)
+static enum cio_error bs_write_error(struct cio_buffered_stream *bs, struct cio_write_buffer *buf, cio_buffered_stream_write_handler_t handler, void *handler_context)
 {
 	(void)bs;
 	(void)buf;
@@ -578,7 +578,7 @@ static enum cio_error bs_write_error(struct cio_buffered_stream *bs, struct cio_
 	return CIO_BAD_FILE_DESCRIPTOR;
 }
 
-static enum cio_error bs_write_blocks(struct cio_buffered_stream *bs, struct cio_write_buffer *buf, cio_buffered_stream_write_handler handler, void *handler_context)
+static enum cio_error bs_write_blocks(struct cio_buffered_stream *bs, struct cio_write_buffer *buf, cio_buffered_stream_write_handler_t handler, void *handler_context)
 {
 	size_t buffer_len = cio_write_buffer_get_num_buffer_elements(buf);
 	const struct cio_write_buffer *data_buf = buf;
@@ -615,13 +615,13 @@ static void close_server_socket(struct cio_server_socket *ss)
 	}
 }
 
-static enum cio_error accept_call_handler(struct cio_server_socket *ss, cio_accept_handler handler, void *handler_context)
+static enum cio_error accept_call_handler(struct cio_server_socket *ss, cio_accept_handler_t handler, void *handler_context)
 {
 	handler(ss, handler_context, CIO_SUCCESS, client_socket);
 	return CIO_SUCCESS;
 }
 
-static enum cio_error accept_error_handler(struct cio_server_socket *ss, cio_accept_handler handler, void *handler_context)
+static enum cio_error accept_error_handler(struct cio_server_socket *ss, cio_accept_handler_t handler, void *handler_context)
 {
 	handler(ss, handler_context, CIO_INVALID_ARGUMENT, client_socket);
 	return CIO_SUCCESS;
@@ -756,7 +756,7 @@ static void test_read_until_errors(void)
 	    {.which_read_until_fails = 3, .expected_response = 500},
 	};
 
-	enum cio_error (*bs_read_until_fakes[ARRAY_SIZE(tests)])(struct cio_buffered_stream *, struct cio_read_buffer *, const char *, cio_buffered_stream_read_handler, void *);
+	enum cio_error (*bs_read_until_fakes[ARRAY_SIZE(tests)])(struct cio_buffered_stream *, struct cio_read_buffer *, const char *, cio_buffered_stream_read_handler_t, void *);
 	for (unsigned int i = 0; i < ARRAY_SIZE(tests); i++) {
 		struct test test = tests[i];
 
@@ -939,7 +939,7 @@ static void test_server_init(void)
 		uint64_t response_timeout;
 		struct cio_socket *(*alloc_client)(void);
 		void (*free_client)(struct cio_socket *socket);
-		enum cio_error (*server_socket_init)(struct cio_server_socket *ss, struct cio_eventloop *loop, unsigned int backlog, enum cio_address_family family, cio_alloc_client alloc_client, cio_free_client free_client, uint64_t close_timeout_ns, cio_server_socket_close_hook close_hook);
+		enum cio_error (*server_socket_init)(struct cio_server_socket *ss, struct cio_eventloop *loop, unsigned int backlog, enum cio_address_family family, cio_alloc_client_t alloc_client, cio_free_client_t free_client, uint64_t close_timeout_ns, cio_server_socket_close_hook_t close_hook);
 		bool enable_fast_open;
 		enum cio_error expected_result;
 	};
@@ -1186,7 +1186,7 @@ static void test_keepalive_handling(void)
 		split_request(keepalive_test.request);
 
 		if (num_of_request_lines > 0) {
-			enum cio_error (*bs_read_until_fakes[10])(struct cio_buffered_stream *, struct cio_read_buffer *, const char *, cio_buffered_stream_read_handler, void *);
+			enum cio_error (*bs_read_until_fakes[10])(struct cio_buffered_stream *, struct cio_read_buffer *, const char *, cio_buffered_stream_read_handler_t, void *);
 			size_t array_size = ARRAY_SIZE(bs_read_until_fakes);
 			for (unsigned int j = 0; j < array_size - 1; j++) {
 				bs_read_until_fakes[j] = bs_read_until_ok;
@@ -1296,7 +1296,7 @@ static void test_callbacks_after_response_sent(void)
 		    .on_message_complete = on_message_complete,
 		};
 
-		enum cio_error (*bs_read_until_fakes[4])(struct cio_buffered_stream *, struct cio_read_buffer *, const char *, cio_buffered_stream_read_handler, void *);
+		enum cio_error (*bs_read_until_fakes[4])(struct cio_buffered_stream *, struct cio_read_buffer *, const char *, cio_buffered_stream_read_handler_t, void *);
 		size_t array_size = ARRAY_SIZE(bs_read_until_fakes);
 		for (unsigned int j = 0; j < array_size - 1; j++) {
 			bs_read_until_fakes[j] = bs_read_until_ok;
@@ -1611,11 +1611,11 @@ static void test_errors_in_accept(void)
 {
 	struct accept_test {
 		struct cio_socket *(*alloc_client)(void);
-		enum cio_error (*response_timer_init)(struct cio_timer *timer, struct cio_eventloop *l, cio_timer_close_hook hook);
-		enum cio_error (*request_timer_init)(struct cio_timer *timer, struct cio_eventloop *l, cio_timer_close_hook hook);
-		enum cio_error (*timer_expires)(struct cio_timer *t, uint64_t timeout_ns, cio_timer_handler handler, void *handler_context);
+		enum cio_error (*response_timer_init)(struct cio_timer *timer, struct cio_eventloop *l, cio_timer_close_hook_t hook);
+		enum cio_error (*request_timer_init)(struct cio_timer *timer, struct cio_eventloop *l, cio_timer_close_hook_t hook);
+		enum cio_error (*timer_expires)(struct cio_timer *t, uint64_t timeout_ns, cio_timer_handler_t handler, void *handler_context);
 		enum cio_error buffered_stream_init_return_val;
-		enum cio_error (*accept_handler)(struct cio_server_socket *ss, cio_accept_handler handler, void *handler_context);
+		enum cio_error (*accept_handler)(struct cio_server_socket *ss, cio_accept_handler_t handler, void *handler_context);
 
 		const char *request;
 	};
@@ -1686,7 +1686,7 @@ static void test_errors_in_accept(void)
 		free_dummy_client(client_socket);
 		client_socket = accept_test.alloc_client();
 
-		enum cio_error (*timer_init_fakes[])(struct cio_timer * timer, struct cio_eventloop * l, cio_timer_close_hook hook) = {
+		enum cio_error (*timer_init_fakes[])(struct cio_timer * timer, struct cio_eventloop * l, cio_timer_close_hook_t hook) = {
 		    accept_test.response_timer_init,
 		    accept_test.request_timer_init};
 
@@ -1763,8 +1763,8 @@ static void test_connection_upgrade(void)
 static void test_parse_errors(void)
 {
 	struct parse_test {
-		enum cio_error (*read_until)(struct cio_buffered_stream *bs, struct cio_read_buffer *buffer, const char *delim, cio_buffered_stream_read_handler handler, void *handler_context);
-		enum cio_error (*write_all)(struct cio_buffered_stream *bs, struct cio_write_buffer *buf, cio_buffered_stream_write_handler handler, void *handler_context);
+		enum cio_error (*read_until)(struct cio_buffered_stream *bs, struct cio_read_buffer *buffer, const char *delim, cio_buffered_stream_read_handler_t handler, void *handler_context);
+		enum cio_error (*write_all)(struct cio_buffered_stream *bs, struct cio_write_buffer *buf, cio_buffered_stream_write_handler_t handler, void *handler_context);
 		const char *request;
 		int expected_response;
 	};
@@ -1868,7 +1868,7 @@ static void test_timer_cancel_errors(void)
 
 static void test_timer_expires_errors(void)
 {
-	enum cio_error (*timer_expires_fakes[4])(struct cio_timer * timer, uint64_t timeout_ns, cio_timer_handler handler, void *handler_context);
+	enum cio_error (*timer_expires_fakes[4])(struct cio_timer * timer, uint64_t timeout_ns, cio_timer_handler_t handler, void *handler_context);
 
 	for (unsigned int i = 0; i < ARRAY_SIZE(timer_expires_fakes); i++) {
 		timer_expires_fakes[0] = expires;

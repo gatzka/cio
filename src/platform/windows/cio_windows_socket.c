@@ -90,7 +90,7 @@ static void read_callback(struct cio_event_notifier *ev)
 	s->stream.read_handler(&s->stream, s->stream.read_handler_context, error_code, s->stream.read_buffer);
 }
 
-static enum cio_error stream_read(struct cio_io_stream *stream, struct cio_read_buffer *buffer, cio_io_stream_read_handler handler, void *handler_context)
+static enum cio_error stream_read(struct cio_io_stream *stream, struct cio_read_buffer *buffer, cio_io_stream_read_handler_t handler, void *handler_context)
 {
 	if (cio_unlikely((stream == NULL) || (buffer == NULL) || (handler == NULL))) {
 		return CIO_INVALID_ARGUMENT;
@@ -145,7 +145,7 @@ static void write_callback(struct cio_event_notifier *ev)
 	s->stream.write_handler(&s->stream, s->stream.write_handler_context, s->stream.write_buffer, error_code, (size_t)bytes_sent);
 }
 
-static enum cio_error stream_write(struct cio_io_stream *stream, struct cio_write_buffer *buffer, cio_io_stream_write_handler handler, void *handler_context)
+static enum cio_error stream_write(struct cio_io_stream *stream, struct cio_write_buffer *buffer, cio_io_stream_write_handler_t handler, void *handler_context)
 {
 	if (cio_unlikely((stream == NULL) || (buffer == NULL) || (handler == NULL))) {
 		return CIO_INVALID_ARGUMENT;
@@ -187,7 +187,7 @@ static enum cio_error stream_write(struct cio_io_stream *stream, struct cio_writ
 enum cio_error cio_windows_socket_init(struct cio_socket *s, SOCKET client_fd,
                                        struct cio_eventloop *loop,
                                        uint64_t close_timeout_ns,
-                                       cio_socket_close_hook close_hook)
+                                       cio_socket_close_hook_t close_hook)
 {
 	if (cio_unlikely((s == NULL) || (loop == NULL))) {
 		return CIO_INVALID_ARGUMENT;
@@ -214,7 +214,7 @@ enum cio_error cio_socket_init(struct cio_socket *socket,
                                enum cio_socket_address_family address_family,
                                struct cio_eventloop *loop,
                                uint64_t close_timeout_ns,
-                               cio_socket_close_hook close_hook)
+                               cio_socket_close_hook_t close_hook)
 {
 	if (cio_unlikely(socket == NULL) || (loop == NULL)) {
 		return CIO_INVALID_ARGUMENT;
@@ -274,7 +274,7 @@ static void connect_callback(struct cio_event_notifier *ev)
 	socket->handler(socket, socket->handler_context, CIO_SUCCESS);
 }
 
-enum cio_error cio_socket_connect(struct cio_socket *socket, const struct cio_socket_address *endpoint, cio_connect_handler handler, void *handler_context)
+enum cio_error cio_socket_connect(struct cio_socket *socket, const struct cio_socket_address *endpoint, cio_connect_handler_t handler, void *handler_context)
 {
 	if (cio_unlikely(socket == NULL) || (endpoint == NULL)) {
 		return CIO_INVALID_ARGUMENT;

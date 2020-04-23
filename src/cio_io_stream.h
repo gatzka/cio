@@ -56,7 +56,7 @@ struct cio_io_stream;
  * @param err If err != ::CIO_SUCCESS, the read operation failed, if err == ::CIO_EOF the peer closed the stream.
  * @param buffer The buffer that was filled.
  */
-typedef void (*cio_io_stream_read_handler)(struct cio_io_stream *io_stream, void *handler_context, enum cio_error err, struct cio_read_buffer *buffer);
+typedef void (*cio_io_stream_read_handler_t)(struct cio_io_stream *io_stream, void *handler_context, enum cio_error err, struct cio_read_buffer *buffer);
 
 /**
  * @brief The type of a function passed to all cio_io_stream write callback functions.
@@ -67,7 +67,7 @@ typedef void (*cio_io_stream_read_handler)(struct cio_io_stream *io_stream, void
  * @param err If err != ::CIO_SUCCESS, the write operation failed.
  * @param bytes_transferred The number of bytes transferred.
  */
-typedef void (*cio_io_stream_write_handler)(struct cio_io_stream *io_stream, void *handler_context, struct cio_write_buffer *buffer, enum cio_error err, size_t bytes_transferred);
+typedef void (*cio_io_stream_write_handler_t)(struct cio_io_stream *io_stream, void *handler_context, struct cio_write_buffer *buffer, enum cio_error err, size_t bytes_transferred);
 
 /**
  * @brief This structure describes the interface all implementations
@@ -87,7 +87,7 @@ struct cio_io_stream {
 	 *                        useful inside @p handler.
 	 * @return ::CIO_SUCCESS for success.
 	 */
-	enum cio_error (*read_some)(struct cio_io_stream *io_stream, struct cio_read_buffer *buffer, cio_io_stream_read_handler handler, void *handler_context);
+	enum cio_error (*read_some)(struct cio_io_stream *io_stream, struct cio_read_buffer *buffer, cio_io_stream_read_handler_t handler, void *handler_context);
 
 	/**
 	 * @brief Writes upto @p count buffers to the stream.
@@ -104,7 +104,7 @@ struct cio_io_stream {
 	 *                        useful inside @p handler.
 	 * @return ::CIO_SUCCESS for success.
 	 */
-	enum cio_error (*write_some)(struct cio_io_stream *io_stream, struct cio_write_buffer *buf, cio_io_stream_write_handler handler, void *handler_context);
+	enum cio_error (*write_some)(struct cio_io_stream *io_stream, struct cio_write_buffer *buf, cio_io_stream_write_handler_t handler, void *handler_context);
 
 	/**
 	 * @brief Closes the stream.
@@ -122,11 +122,11 @@ struct cio_io_stream {
 	/**
 	 * @privatesection
 	 */
-	cio_io_stream_read_handler read_handler;
+	cio_io_stream_read_handler_t read_handler;
 	void *read_handler_context;
 	struct cio_read_buffer *read_buffer;
 	struct cio_write_buffer *write_buffer;
-	cio_io_stream_write_handler write_handler;
+	cio_io_stream_write_handler_t write_handler;
 	void *write_handler_context;
 };
 

@@ -43,7 +43,7 @@ extern "C" {
 enum cio_error cio_windows_socket_init(struct cio_socket *s, SOCKET client_fd,
                                        struct cio_eventloop *loop,
                                        uint64_t close_timeout_ns,
-                                       cio_socket_close_hook close_hook);
+                                       cio_socket_close_hook_t close_hook);
 
 #ifdef __cplusplus
 }

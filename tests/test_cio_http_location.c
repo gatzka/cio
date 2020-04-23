@@ -75,7 +75,7 @@ static void test_request_target_init(void)
 	struct location_init_arguments {
 		struct cio_http_location *target;
 		const char *path;
-		cio_http_alloc_handler handler;
+		cio_http_alloc_handler_t handler;
 		enum cio_error expected_result;
 	};
 
