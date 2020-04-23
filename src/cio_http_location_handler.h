@@ -61,7 +61,7 @@ struct cio_http_client;
 
 /**
  * @brief The cio_http_cb_return enum lists the allowed return values of user specified
- * callback functions like @ref cio_http_location_handler_on_header_field "on_header_field". If the data
+ * callback functions like @ref cio_http_location_handler_on_header_field_name "on_header_field". If the data
  * provided via the callbacks doesn't match to the protocol the @ref ::cio_http_location_handler "HTTP handler" handles,
  * return ::CIO_HTTP_CB_ERROR, ::CIO_HTTP_CB_SUCCESS otherwise.
  *
