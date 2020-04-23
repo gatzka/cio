@@ -48,13 +48,13 @@ static void timer_event_callback(struct cio_event_notifier *ev)
 {
 	struct cio_timer_impl *impl = cio_container_of(ev, struct cio_timer_impl, ev);
 	struct cio_timer *t = cio_container_of(impl, struct cio_timer, impl);
-	cio_timer_handler handler = t->handler;
+	cio_timer_handler_t handler = t->handler;
 	t->handler = NULL;
 	handler(t, t->handler_context, CIO_SUCCESS);
 }
 
 enum cio_error cio_timer_init(struct cio_timer *timer, struct cio_eventloop *loop,
-                              cio_timer_close_hook close_hook)
+                              cio_timer_close_hook_t close_hook)
 {
 	timer->close_hook = close_hook;
 	timer->impl.loop = loop;
@@ -92,7 +92,7 @@ void cio_timer_close(struct cio_timer *t)
 	}
 }
 
-enum cio_error cio_timer_expires_from_now(struct cio_timer *t, uint64_t timeout_ns, cio_timer_handler handler, void *handler_context)
+enum cio_error cio_timer_expires_from_now(struct cio_timer *t, uint64_t timeout_ns, cio_timer_handler_t handler, void *handler_context)
 {
 	if (cio_unlikely(t == NULL)) {
 		return CIO_INVALID_ARGUMENT;
