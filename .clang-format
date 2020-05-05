@@ -11,3 +11,4 @@ ForEachMacros: ['list_for_each_safe']
 IndentCaseLabels: false
 IndentWidth: 8
 UseTab: ForIndentation
+PointerAlignment: Right
