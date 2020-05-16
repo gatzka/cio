@@ -21,6 +21,7 @@ add_library(PLATFORM OBJECT
     cio_linux_socket_utils.h
     cio_linux_string.c
     cio_linux_timer.c
+    cio_linux_uart.c
     cio_os_config.h.in
     cio_server_socket_impl.h
     cio_address_family_impl.h

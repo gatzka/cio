@@ -8,6 +8,7 @@ add_executable(socket_two_connects socket_two_connects.c)
 add_executable(http_server http_server.c)
 add_executable(websocket_server websocket_server.c)
 add_executable(periodic_timer periodic_timer.c)
+add_executable(uart_ping_pong uart_ping_pong.c)
 
 if(${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
     add_subdirectory(linux)

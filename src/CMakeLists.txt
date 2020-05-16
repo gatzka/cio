@@ -61,6 +61,7 @@ add_library(${PROJECT_NAME}
     "cio_address_family.h"
     "cio_string.h"
     "cio_timer.h"
+    "cio_uart.h"
     "cio_util.h"
     "cio_version.c"
     "cio_version.h"
