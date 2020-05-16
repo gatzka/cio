@@ -31,18 +31,46 @@
 #endif
 
 #include <dirent.h>
+#include <errno.h>
+#include <fcntl.h>
 #include <limits.h>
 #include <stddef.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sys/stat.h>
 #include <sys/types.h>
 #include <unistd.h>
 
 #include "cio_compiler.h"
 #include "cio_error_code.h"
 #include "cio_uart.h"
+#include "cio_util.h"
 
 static const char DIR_NAME[] = "/dev/serial/by-path/";
+
+static enum cio_error stream_read(struct cio_io_stream *stream, struct cio_read_buffer *buffer, cio_io_stream_read_handler_t handler, void *handler_context)
+{
+	if (cio_unlikely((stream == NULL) || (buffer == NULL) || (handler == NULL))) {
+		return CIO_INVALID_ARGUMENT;
+	}
+
+	return CIO_SUCCESS;
+}
+
+static enum cio_error stream_write(struct cio_io_stream *stream, struct cio_write_buffer *buffer, cio_io_stream_write_handler_t handler, void *handler_context)
+{
+	if (cio_unlikely((stream == NULL) || (buffer == NULL) || (handler == NULL))) {
+		return CIO_INVALID_ARGUMENT;
+	}
+
+	return CIO_SUCCESS;
+}
+
+static enum cio_error stream_close(struct cio_io_stream *stream)
+{
+	struct cio_uart *port = cio_container_of(stream, struct cio_uart, stream);
+	return cio_uart_close(port);
+}
 
 size_t cio_uart_get_number_of_uarts(void)
 {
@@ -111,5 +139,60 @@ enum cio_error cio_uart_get_ports(struct cio_uart ports[], size_t num_ports_entr
 
 	closedir(serial_dir);
 	*num_detected_ports = num_uarts;
+	return CIO_SUCCESS;
+}
+
+enum cio_error cio_uart_init(struct cio_uart *port, struct cio_eventloop *loop, cio_uart_close_hook_t close_hook)
+{
+	if (cio_unlikely((port == NULL) || (loop == NULL))) {
+		return CIO_INVALID_ARGUMENT;
+	}
+
+	port->impl.ev.fd = open(port->impl.name, O_RDWR);
+	if (cio_unlikely(port->impl.ev.fd < 0)) {
+		return (enum cio_error)(-errno);
+	}
+
+	port->close_hook = close_hook;
+
+	port->stream.read_some = stream_read;
+	port->stream.write_some = stream_write;
+	port->stream.close = stream_close;
+
+	port->impl.loop = loop;
+
+	enum cio_error err = cio_linux_eventloop_add(port->impl.loop, &port->impl.ev);
+	if (cio_unlikely(err != CIO_SUCCESS)) {
+		goto ev_add_failed;
+	}
+
+	err = cio_linux_eventloop_register_read(port->impl.loop, &port->impl.ev);
+	if (cio_unlikely(err != CIO_SUCCESS)) {
+		goto ev_reg_read_failed;
+	}
+
+	return CIO_SUCCESS;
+
+ev_reg_read_failed:
+	cio_linux_eventloop_remove(port->impl.loop, &port->impl.ev);
+ev_add_failed:
+	close(port->impl.ev.fd);
+	return err;
+}
+
+enum cio_error cio_uart_close(struct cio_uart *port)
+{
+	if (cio_unlikely(port == NULL)) {
+		return CIO_INVALID_ARGUMENT;
+	}
+
+	close(port->impl.ev.fd);
+	if (port->close_hook != NULL) {
+		port->close_hook(port);
+	}
+
+	cio_linux_eventloop_unregister_read(port->impl.loop, &port->impl.ev);
+	cio_linux_eventloop_remove(port->impl.loop, &port->impl.ev);
+
 	return CIO_SUCCESS;
 }

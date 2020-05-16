@@ -35,13 +35,16 @@
 
 #include <limits.h>
 
+#include "cio_eventloop.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
 
 struct cio_uart_impl {
 	char name[PATH_MAX + 1];
-	int fd;
+	struct cio_event_notifier ev;
+	struct cio_eventloop *loop;
 };
 
 #ifdef __cplusplus
