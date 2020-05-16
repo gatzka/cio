@@ -26,59 +26,26 @@
  * SOFTWARE.
  */
 
-#ifndef CIO_UART_H
-#define CIO_UART_H
+#ifndef CIO_LINUX_UART_IMPL_H
+#define CIO_LINUX_UART_IMPL_H
 
-#include <stddef.h>
+#ifndef _DEFAULT_SOURCE
+#define _DEFAULT_SOURCE
+#endif
 
-#include "cio_error_code.h"
-#include "cio_export.h"
-#include "cio_io_stream.h"
-#include "cio_uart_impl.h"
+#include <limits.h>
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-struct cio_uart;
-
-typedef void (*cio_uart_close_hook_t)(struct cio_uart *uart);
-
-struct cio_uart {
-
-	/**
-	 * @privatesection
-	 */
-	struct cio_io_stream stream;
-	cio_uart_close_hook_t close_hook;
-	struct cio_uart_impl impl;
+struct cio_uart_impl {
+	char name[PATH_MAX + 1];
+	int fd;
 };
-
-/**
- * @brief Get the number of UARTs.
- * 
- * @return The number of UARTs.
- */
-CIO_EXPORT size_t cio_uart_get_number_of_uarts(void);
-
-/**
- * @brief Detects the UART ports.
- * 
- * Detects the UART ports in a system and fills them into an
- * array of cio_uart @p ports. If there are more ports in a system
- * then provided by @p num_port_entries, only upto @p num_port_entries
- * will be filled into ports.
- * 
- * @param[out] ports A buffer array filled with the detected UART ports.
- * @param num_ports_entries The size of the @p ports buffer.
- * @param[out] num_detected_ports The number of UARTs filled into @p ports.
- * 
- * @return ::CIO_SUCCESS on success.
- */
-CIO_EXPORT enum cio_error cio_uart_get_ports(struct cio_uart ports[], size_t num_ports_entries, size_t *num_detected_ports);
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif
+#endif // CIO_LINUX_UART_IMPL_H
