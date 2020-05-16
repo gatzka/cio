@@ -63,11 +63,16 @@ int main(void)
 
 	size_t num_uarts = cio_uart_get_number_of_uarts();
 	fprintf(stdout, "found %zu uart(s)\n", num_uarts);
+	
+	if (num_uarts < 2) {
+		fprintf(stderr, "not enough uarts to play ping pong\n");
+		return EXIT_SUCCESS;
+	}
 
 	struct cio_uart *uarts = malloc(sizeof(*uarts) * num_uarts);
 	if (cio_unlikely(uarts == NULL)) {
 		ret = EXIT_FAILURE;
-		goto malloc_failed;
+		goto destroy_ev;
 	}
 
 	size_t detected_ports = 0;
@@ -75,11 +80,28 @@ int main(void)
 	if (cio_unlikely(err != CIO_SUCCESS)) {
 		fprintf(stderr, "Could not get UART information!\n");
 		ret = EXIT_FAILURE;
-		goto get_ports_failed;
+		goto free_uarts;
 	}
 
 	for (size_t i = 0; i < detected_ports; i++) {
 		fprintf(stdout, "detected port %zu: %s\n", i, uarts[i].impl.name);
+	}
+
+	err = cio_uart_init(&uarts[0], &loop, NULL);
+	if (cio_unlikely(err != CIO_SUCCESS)) {
+		fprintf(stderr, "Could not get init first UART!\n");
+		ret = EXIT_FAILURE;
+		goto free_uarts;
+	}
+
+
+
+
+	err = cio_uart_init(&uarts[1], &loop, NULL);
+	if (cio_unlikely(err != CIO_SUCCESS)) {
+		fprintf(stderr, "Could not get init second UART!\n");
+		ret = EXIT_FAILURE;
+		goto close_first_uart;
 	}
 
 	err = cio_eventloop_run(&loop);
@@ -87,9 +109,12 @@ int main(void)
 		ret = EXIT_FAILURE;
 	}
 
-get_ports_failed:
+	cio_uart_close(&uarts[1]);
+close_first_uart:
+	cio_uart_close(&uarts[0]);
+free_uarts:
 	free(uarts);
-malloc_failed:
+destroy_ev:
 	cio_eventloop_destroy(&loop);
 	return ret;
 }

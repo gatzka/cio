@@ -32,6 +32,7 @@
 #include <stddef.h>
 
 #include "cio_error_code.h"
+#include "cio_eventloop.h"
 #include "cio_export.h"
 #include "cio_io_stream.h"
 #include "cio_uart_impl.h"
@@ -76,6 +77,33 @@ CIO_EXPORT size_t cio_uart_get_number_of_uarts(void);
  * @return ::CIO_SUCCESS on success.
  */
 CIO_EXPORT enum cio_error cio_uart_get_ports(struct cio_uart ports[], size_t num_ports_entries, size_t *num_detected_ports);
+
+/**
+ * @brief Initializes a UART port
+ * 
+ * @param port The port to be initialized.
+ * @param loop The event loop the socket shall operate on.
+ * @param close_hook A close hook function. If this parameter is non @c NULL,
+ * the function will be called directly after
+ * @ref cio_uart_close "closing" the cio_uart.
+ * It is guaranteed the the cio library will not access any memory of
+ * cio_uart that is passed to the close hook. Therefore
+ * the hook could be used to free the memory of the UART.
+ * 
+ * @return ::CIO_SUCCESS for success.
+ */
+CIO_EXPORT enum cio_error cio_uart_init(struct cio_uart *port, struct cio_eventloop *loop, cio_uart_close_hook_t close_hook);
+
+/**
+ * @brief Closes a UART port.
+ * 
+ * Once a UART has been closed, no further communication is possible.
+ * Closing the UART also closes the UART's cio_io_stream.
+ * 
+ * @param port The port to be closed.
+ * @return CIO_EXPORT enum cio_uart_close 
+ */
+CIO_EXPORT enum cio_error cio_uart_close(struct cio_uart *port);
 
 #ifdef __cplusplus
 }
