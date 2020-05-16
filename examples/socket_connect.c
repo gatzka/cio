@@ -95,20 +95,21 @@ int main(int argc, char *argv[])
 	}
 	uint16_t port = (uint16_t)port_number;
 
-	int ret = EXIT_SUCCESS;
 	if (signal(SIGTERM, sighandler) == SIG_ERR) {
-		return -1;
+		return EXIT_FAILURE;
 	}
 
 	if (signal(SIGINT, sighandler) == SIG_ERR) {
 		signal(SIGTERM, SIG_DFL);
-		return -1;
+		return EXIT_FAILURE;
 	}
 
 	enum cio_error err = cio_eventloop_init(&loop);
 	if (err != CIO_SUCCESS) {
 		return EXIT_FAILURE;
 	}
+
+	int ret = EXIT_SUCCESS;
 
 	struct cio_inet_address address;
 	err = cio_init_inet_address(&address, ip, sizeof(ip));
