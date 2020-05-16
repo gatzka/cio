@@ -144,6 +144,50 @@ static size_t strip_trailing_whitespace(const char *str, size_t len)
 	return len;
 }
 
+static bool is_visible_character(char c)
+{
+	return (c >= 0x21) && (c <= 0x7E);
+}
+
+static bool is_delimiter(char c)
+{
+	if ((c == '"') ||
+	    (c == '(') ||
+	    (c == ')') ||
+	    (c == '/') ||
+	    (c == ':') ||
+	    (c == ';') ||
+	    (c == '<') ||
+	    (c == '=') ||
+	    (c == '>') ||
+	    (c == '?') ||
+	    (c == '@') ||
+	    (c == '[') ||
+	    (c == '\\') ||
+	    (c == ']') ||
+	    (c == '{') ||
+	    (c == '}')) {
+		return true;
+	}
+
+	return false;
+}
+
+static bool has_illegal_characters(const char *str, size_t len)
+{
+	for (size_t i = 0; i < len; i++) {
+		if (!is_visible_character(str[i])) {
+			return true;
+		}
+
+		if (is_delimiter(str[i])) {
+			return true;
+		}
+	}
+
+	return false;
+}
+
 static enum protocol_find_ret handle_word(struct cio_websocket_location_handler *handler, const char *str, size_t len)
 {
 	const char *start = strip_leading_whitespace(str, len);
@@ -153,6 +197,10 @@ static enum protocol_find_ret handle_word(struct cio_websocket_location_handler 
 
 	len -= (size_t)(ptrdiff_t)(start - str);
 	len = strip_trailing_whitespace(start, len);
+
+	if (cio_unlikely(has_illegal_characters(start, len))) {
+		return WS_PROTOCOL_ERROR;
+	}
 
 	if (find_requested_sub_protocol(handler, start, len)) {
 		return WS_PROTOCOL_FOUND;
