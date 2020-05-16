@@ -18,5 +18,5 @@ var cio__write__buffer_8h =
     [ "cio_write_buffer_queue_tail", "cio__write__buffer_8h.html#abce9f4fce0d37fd084b76c66acdcd3ba", null ],
     [ "cio_write_buffer_splice", "cio__write__buffer_8h.html#a529195d3850a2271d5628c803b5b63a1", null ],
     [ "cio_write_buffer_split_and_append", "cio__write__buffer_8h.html#a62b50a50805bcaab24eadd3cf78698d8", null ],
-    [ "cio_write_buffer_unlink", "cio__write__buffer_8h.html#a066ea453286fd70035fd26e8996a9f73", null ]
+    [ "cio_write_buffer_unlink", "cio__write__buffer_8h.html#a642a68669bb6750aac935b02cc061137", null ]
 ];
