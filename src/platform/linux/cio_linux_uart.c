@@ -82,8 +82,9 @@ enum cio_error cio_uart_get_ports(struct cio_uart ports[], size_t num_ports_entr
 
 		if (dir_entry->d_type == DT_LNK) {
 			char src_buffer[PATH_MAX + 1];
-			strncpy(src_buffer, DIR_NAME, sizeof(src_buffer));
-			strncat(src_buffer, dir_entry->d_name, sizeof(src_buffer) - sizeof(DIR_NAME));
+			strncpy(src_buffer, DIR_NAME, sizeof(src_buffer) - 1);
+			size_t len = strlen(src_buffer);
+			strncpy(src_buffer + len, dir_entry->d_name, sizeof(src_buffer) - len);
 
 			char dst_buffer[PATH_MAX + 1];
 			ssize_t name_len = readlink(src_buffer, dst_buffer, sizeof(dst_buffer));
@@ -93,8 +94,9 @@ enum cio_error cio_uart_get_ports(struct cio_uart ports[], size_t num_ports_entr
 
 			dst_buffer[name_len] = '\0';
 
-			strncpy(src_buffer, DIR_NAME, sizeof(src_buffer));
-			strncat(src_buffer, dir_entry->d_name, sizeof(src_buffer) - sizeof(DIR_NAME));
+			strncpy(src_buffer, DIR_NAME, sizeof(src_buffer) - 1);
+			len = strlen(src_buffer);
+			strncpy(src_buffer + len, dir_entry->d_name, sizeof(src_buffer) - len);
 
 			char *rp = realpath(src_buffer, ports[num_uarts].impl.name);
 			if (cio_unlikely(rp == NULL)) {
