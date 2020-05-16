@@ -148,7 +148,7 @@ enum cio_error cio_uart_init(struct cio_uart *port, struct cio_eventloop *loop, 
 		return CIO_INVALID_ARGUMENT;
 	}
 
-	port->impl.ev.fd = open(port->impl.name, O_RDWR);
+	port->impl.ev.fd = open(port->impl.name, (unsigned int)O_RDWR | (unsigned int)O_CLOEXEC | (unsigned int)O_NONBLOCK);
 	if (cio_unlikely(port->impl.ev.fd < 0)) {
 		return (enum cio_error)(-errno);
 	}
