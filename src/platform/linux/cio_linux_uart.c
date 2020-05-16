@@ -39,6 +39,7 @@
 #include <string.h>
 #include <sys/stat.h>
 #include <sys/types.h>
+#include <termios.h>
 #include <unistd.h>
 
 #include "cio_compiler.h"
@@ -54,6 +55,7 @@ static enum cio_error stream_read(struct cio_io_stream *stream, struct cio_read_
 		return CIO_INVALID_ARGUMENT;
 	}
 
+	(void)handler_context;
 	return CIO_SUCCESS;
 }
 
@@ -63,6 +65,7 @@ static enum cio_error stream_write(struct cio_io_stream *stream, struct cio_writ
 		return CIO_INVALID_ARGUMENT;
 	}
 
+	(void)handler_context;
 	return CIO_SUCCESS;
 }
 
@@ -193,6 +196,61 @@ enum cio_error cio_uart_close(struct cio_uart *port)
 
 	cio_linux_eventloop_unregister_read(port->impl.loop, &port->impl.ev);
 	cio_linux_eventloop_remove(port->impl.loop, &port->impl.ev);
+
+	return CIO_SUCCESS;
+}
+
+static enum cio_error get_current_settings(const struct cio_uart *port, struct termios *tty)
+{
+	memset(tty, 0, sizeof(*tty));
+	int ret = tcgetattr(port->impl.ev.fd, tty);
+	if (cio_unlikely(ret == -1)) {
+		return (enum cio_error)(-errno);
+	}
+
+	return CIO_SUCCESS;
+}
+
+enum cio_error cio_uart_set_parity(struct cio_uart *port, enum cio_uart_parity parity)
+{
+	if (cio_unlikely(port == NULL)) {
+		return CIO_INVALID_ARGUMENT;
+	}
+
+	struct termios tty;
+	enum cio_error err = get_current_settings(port, &tty);
+	if (cio_unlikely(err != CIO_SUCCESS)) {
+		return err;
+	}
+
+	switch (parity) {
+	case CIO_UART_PARITY_NONE:
+		tty.c_cflag &= ~(tcflag_t)CMSPAR;
+		tty.c_cflag &= ~(tcflag_t)PARENB;
+		break;
+	case CIO_UART_PARITY_ODD:
+		tty.c_cflag &= ~(tcflag_t)CMSPAR;
+		tty.c_cflag |= (tcflag_t)PARENB;
+		tty.c_cflag |= (tcflag_t)PARODD;
+		break;
+	case CIO_UART_PARITY_EVEN:
+		tty.c_cflag &= ~(tcflag_t)CMSPAR;
+		tty.c_cflag |= (tcflag_t)PARENB;
+		tty.c_cflag &= ~(tcflag_t)PARODD;
+		break;
+	case CIO_UART_PARITY_MARK:
+		tty.c_cflag |= (tcflag_t)CMSPAR;
+		tty.c_cflag |= (tcflag_t)PARENB;
+		tty.c_cflag |= (tcflag_t)PARODD;
+		break;
+	case CIO_UART_PARITY_SPACE:
+		tty.c_cflag |= (tcflag_t)CMSPAR;
+		tty.c_cflag |= (tcflag_t)PARENB;
+		tty.c_cflag &= ~(tcflag_t)PARODD;
+		break;
+	default:
+		return CIO_INVALID_ARGUMENT;
+	}
 
 	return CIO_SUCCESS;
 }

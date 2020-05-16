@@ -41,6 +41,14 @@
 extern "C" {
 #endif
 
+enum cio_uart_parity {
+	CIO_UART_PARITY_EVEN,
+	CIO_UART_PARITY_ODD,
+	CIO_UART_PARITY_NONE,
+	CIO_UART_PARITY_MARK,
+	CIO_UART_PARITY_SPACE
+};
+
 struct cio_uart;
 
 typedef void (*cio_uart_close_hook_t)(struct cio_uart *uart);
@@ -104,6 +112,8 @@ CIO_EXPORT enum cio_error cio_uart_init(struct cio_uart *port, struct cio_eventl
  * @return CIO_EXPORT enum cio_uart_close 
  */
 CIO_EXPORT enum cio_error cio_uart_close(struct cio_uart *port);
+
+CIO_EXPORT enum cio_error cio_uart_set_parity(struct cio_uart *port, enum cio_uart_parity parity);
 
 #ifdef __cplusplus
 }
