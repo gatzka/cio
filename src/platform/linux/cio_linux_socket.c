@@ -168,7 +168,7 @@ static void write_callback(void *context, enum cio_epoll_error error)
 	enum cio_error err = CIO_SUCCESS;
 
 	if (cio_unlikely(error != CIO_EPOLL_SUCCESS)) {
-		struct cio_socket *s = cio_container_of(stream, struct cio_socket, stream);
+		const struct cio_socket *s = cio_const_container_of(stream, struct cio_socket, stream);
 		err = cio_linux_get_socket_error(s->impl.ev.fd);
 	}
 
@@ -193,7 +193,7 @@ static enum cio_error stream_write(struct cio_io_stream *stream, struct cio_writ
 	msg.msg_iov = msg_iov;
 	msg.msg_iovlen = chain_length;
 
-	struct cio_write_buffer *wb = buffer->next;
+	const struct cio_write_buffer *wb = buffer->next;
 	for (size_t i = 0; i < chain_length; i++) {
 		msg_iov[i].iov_base = wb->data.element.data;
 		msg_iov[i].iov_len = wb->data.element.length;

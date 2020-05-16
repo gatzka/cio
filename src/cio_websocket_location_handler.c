@@ -227,7 +227,6 @@ static enum cio_http_cb_return check_websocket_protocol(struct cio_websocket_loc
 		}
 
 		enum protocol_find_ret ret = handle_word(handler, start, word_len);
-		;
 		if (ret == WS_PROTOCOL_FOUND) {
 			return CIO_HTTP_CB_SUCCESS;
 		}
@@ -374,7 +373,7 @@ static enum cio_http_cb_return handle_headers_complete(struct cio_http_client *c
 		return CIO_HTTP_CB_ERROR;
 	}
 
-	struct cio_websocket_location_handler *wslh = cio_container_of(client->current_handler, struct cio_websocket_location_handler, http_location);
+	const struct cio_websocket_location_handler *wslh = cio_const_container_of(client->current_handler, struct cio_websocket_location_handler, http_location);
 	if (cio_unlikely((wslh->flags.subprotocol_requested == 1) && (wslh->chosen_subprotocol == -1))) {
 		return CIO_HTTP_CB_ERROR;
 	}
