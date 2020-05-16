@@ -57,6 +57,12 @@ enum header_field {
 	CIO_WS_HEADER_SEC_WEBSOCKET_PROTOCOL,
 };
 
+enum protocol_find_ret {
+	WS_PROTOCOL_FOUND,
+	WS_PROTOCOL_NOT_FOUND,
+	WS_PROTOCOL_ERROR,
+};
+
 static enum cio_http_cb_return save_websocket_key(struct cio_websocket_location_handler *wslh, const char *at, size_t length)
 {
 	static const char WS_GUID[CIO_SEC_WEB_SOCKET_GUID_LENGTH] = {'2', '5', '8', 'E', 'A', 'F', 'A', '5', '-',
@@ -98,40 +104,95 @@ static bool find_requested_sub_protocol(struct cio_websocket_location_handler *h
 	return false;
 }
 
-static void check_websocket_protocol(struct cio_websocket_location_handler *handler, const char *at, size_t length)
+static const char *find_delimiter(const char *str, size_t len)
+{
+	for (const char *from = str; from != str + len; from++) {
+		if (*from == ',') {
+			return from;
+		}
+	}
+
+	return NULL;
+}
+
+static bool is_white_space(char c)
+{
+	if ((c == ' ') || (c == '\t')) {
+		return true;
+	}
+
+	return false;
+}
+
+static const char *strip_leading_whitespace(const char *str, size_t len)
+{
+	for (size_t i = 0; i < len; i++) {
+		if (!is_white_space(str[i])) {
+			return &str[i];
+		}
+	}
+
+	return NULL;
+}
+
+static size_t strip_trailing_whitespace(const char *str, size_t len)
+{
+	while (is_white_space(str[len - 1])) {
+		len--;
+	}
+
+	return len;
+}
+
+static enum protocol_find_ret handle_word(struct cio_websocket_location_handler *handler, const char *str, size_t len)
+{
+	const char *start = strip_leading_whitespace(str, len);
+	if (cio_unlikely(start == NULL)) {
+		return WS_PROTOCOL_ERROR;
+	}
+
+	len -= (size_t)(ptrdiff_t)(start - str);
+	len = strip_trailing_whitespace(start, len);
+
+	if (find_requested_sub_protocol(handler, start, len)) {
+		return WS_PROTOCOL_FOUND;
+	}
+
+	return WS_PROTOCOL_NOT_FOUND;
+}
+
+static enum cio_http_cb_return check_websocket_protocol(struct cio_websocket_location_handler *handler, const char *at, size_t length)
 {
 	if (handler->subprotocols == NULL) {
-		return;
+		return CIO_HTTP_CB_SUCCESS;
 	}
 
 	const char *start = at;
-	while (length > 0) {
-		if ((!isspace(*start)) && (*start != ',')) {
-			const char *end = start;
-			while (length > 0) {
-				if (*end == ',') {
-					ptrdiff_t len = end - start;
-					if (find_requested_sub_protocol(handler, start, (size_t)len)) {
-						return;
-					}
-
-					start = end;
-					break;
-				}
-				end++;
-				length--;
-			}
-			if (length == 0) {
-				ptrdiff_t len = end - start;
-				if (find_requested_sub_protocol(handler, start, (size_t)len)) {
-					return;
-				}
-			}
+	const char *end = NULL;
+	do {
+		end = find_delimiter(start, length);
+		size_t word_len = 0;
+		if (end != NULL) {
+			word_len = (size_t)(ptrdiff_t)(end - start);
 		} else {
-			start++;
-			length--;
+			word_len = length;
 		}
-	}
+
+		enum protocol_find_ret ret = handle_word(handler, start, word_len);
+		;
+		if (ret == WS_PROTOCOL_FOUND) {
+			return CIO_HTTP_CB_SUCCESS;
+		}
+
+		if (ret == WS_PROTOCOL_ERROR) {
+			return CIO_HTTP_CB_ERROR;
+		}
+
+		start = start + 1 + word_len;
+		length = length - 1 - word_len;
+	} while (end != NULL);
+
+	return CIO_HTTP_CB_ERROR;
 }
 
 static enum cio_http_cb_return handle_field_name(struct cio_http_client *client, const char *at, size_t length)
@@ -172,7 +233,7 @@ static enum cio_http_cb_return handle_field_value(struct cio_http_client *client
 
 	case CIO_WS_HEADER_SEC_WEBSOCKET_PROTOCOL:
 		wslh->flags.subprotocol_requested = 1;
-		check_websocket_protocol(wslh, at, length);
+		ret = check_websocket_protocol(wslh, at, length);
 		break;
 
 	default:
