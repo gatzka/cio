@@ -64,9 +64,7 @@ int main(void)
 	size_t num_uarts = cio_uart_get_number_of_uarts();
 	fprintf(stdout, "found %zu uart(s)\n", num_uarts);
 
-	struct cio_uart *uarts;
-	size_t alloc_size = sizeof(*uarts) * num_uarts;
-	uarts = malloc(alloc_size);
+	struct cio_uart *uarts = malloc(sizeof(*uarts) * num_uarts);
 	if (cio_unlikely(uarts == NULL)) {
 		ret = EXIT_FAILURE;
 		goto malloc_failed;
