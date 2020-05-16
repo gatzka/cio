@@ -42,11 +42,11 @@
 #include "cio_error_code.h"
 #include "cio_uart.h"
 
-static const char dir_name[] = "/dev/serial/by-path/";
+static const char DIR_NAME[] = "/dev/serial/by-path/";
 
 size_t cio_uart_get_number_of_uarts(void)
 {
-	DIR *serial_dir = opendir(dir_name);
+	DIR *serial_dir = opendir(DIR_NAME);
 	if (serial_dir == NULL) {
 		return 0;
 	}
@@ -67,7 +67,7 @@ size_t cio_uart_get_number_of_uarts(void)
 
 enum cio_error cio_uart_get_ports(struct cio_uart ports[], size_t num_ports_entries, size_t *num_detected_ports)
 {
-	DIR *serial_dir = opendir(dir_name);
+	DIR *serial_dir = opendir(DIR_NAME);
 	if (serial_dir == NULL) {
 		return 0;
 	}
@@ -82,8 +82,8 @@ enum cio_error cio_uart_get_ports(struct cio_uart ports[], size_t num_ports_entr
 
 		if (dir_entry->d_type == DT_LNK) {
 			char src_buffer[PATH_MAX + 1];
-			strncpy(src_buffer, dir_name, sizeof(src_buffer));
-			strcat(src_buffer, dir_entry->d_name);
+			strncpy(src_buffer, DIR_NAME, sizeof(src_buffer));
+			strncat(src_buffer, dir_entry->d_name, sizeof(src_buffer) - sizeof(DIR_NAME));
 
 			char dst_buffer[PATH_MAX + 1];
 			ssize_t name_len = readlink(src_buffer, dst_buffer, sizeof(dst_buffer));
@@ -93,8 +93,8 @@ enum cio_error cio_uart_get_ports(struct cio_uart ports[], size_t num_ports_entr
 
 			dst_buffer[name_len] = '\0';
 
-			strncpy(src_buffer, dir_name, sizeof(src_buffer));
-			strcat(src_buffer, dst_buffer);
+			strncpy(src_buffer, DIR_NAME, sizeof(src_buffer));
+			strncat(src_buffer, dir_entry->d_name, sizeof(src_buffer) - sizeof(DIR_NAME));
 
 			char *rp = realpath(src_buffer, ports[num_uarts].impl.name);
 			if (cio_unlikely(rp == NULL)) {
