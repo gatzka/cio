@@ -31,6 +31,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#include "cio_compiler.h"
 #include "cio_error_code.h"
 #include "cio_eventloop.h"
 #include "cio_uart.h"
@@ -63,11 +64,34 @@ int main(void)
 	size_t num_uarts = cio_uart_get_number_of_uarts();
 	fprintf(stdout, "found %zu uart(s)\n", num_uarts);
 
+	struct cio_uart *uarts;
+	size_t alloc_size = sizeof(*uarts) * num_uarts;
+	uarts = malloc(alloc_size);
+	if (cio_unlikely(uarts == NULL)) {
+		ret = EXIT_FAILURE;
+		goto malloc_failed;
+	}
+
+	size_t detected_ports = 0;
+	err = cio_uart_get_ports(uarts, num_uarts, &detected_ports);
+	if (cio_unlikely(err != CIO_SUCCESS)) {
+		fprintf(stderr, "Could not get UART information!\n");
+		ret = EXIT_FAILURE;
+		goto get_ports_failed;
+	}
+
+	for (size_t i = 0; i < detected_ports; i++) {
+		fprintf(stdout, "detected port %zu: %s\n", i, uarts[i].impl.name);
+	}
+
 	err = cio_eventloop_run(&loop);
 	if (err != CIO_SUCCESS) {
 		ret = EXIT_FAILURE;
 	}
 
+get_ports_failed:
+	free(uarts);
+malloc_failed:
 	cio_eventloop_destroy(&loop);
 	return ret;
 }

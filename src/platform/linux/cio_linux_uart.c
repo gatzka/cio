@@ -26,7 +26,10 @@
  * SOFTWARE.
  */
 
+#ifndef _DEFAULT_SOURCE
 #define _DEFAULT_SOURCE
+#endif
+
 #include <dirent.h>
 #include <limits.h>
 #include <stddef.h>
@@ -35,11 +38,14 @@
 #include <sys/types.h>
 #include <unistd.h>
 
+#include "cio_compiler.h"
+#include "cio_error_code.h"
 #include "cio_uart.h"
+
+static const char dir_name[] = "/dev/serial/by-path/";
 
 size_t cio_uart_get_number_of_uarts(void)
 {
-	const char dir_name[] = "/dev/serial/by-path/";
 	DIR *serial_dir = opendir(dir_name);
 	if (serial_dir == NULL) {
 		return 0;
@@ -49,15 +55,6 @@ size_t cio_uart_get_number_of_uarts(void)
 	size_t num_uarts = 0;
 	while (dir_entry) {
 		if (dir_entry->d_type == DT_LNK) {
-			//char src_buffer[PATH_MAX];
-			//strncpy(src_buffer, dir_name, sizeof(src_buffer));
-			//strcat(src_buffer, dir_entry->d_name);
-
-			//char dst_buffer[PATH_MAX];
-			//ssize_t name_len = readlink(src_buffer, dst_buffer, sizeof(dst_buffer));
-			//strncpy(src_buffer, dir_name, sizeof(src_buffer));
-			//strcat(src_buffer, dst_buffer);
-			//char *rp = realpath(src_buffer, NULL);
 			num_uarts++;
 		}
 
@@ -66,4 +63,51 @@ size_t cio_uart_get_number_of_uarts(void)
 
 	closedir(serial_dir);
 	return num_uarts;
+}
+
+enum cio_error cio_uart_get_ports(struct cio_uart ports[], size_t num_ports_entries, size_t *num_detected_ports)
+{
+	DIR *serial_dir = opendir(dir_name);
+	if (serial_dir == NULL) {
+		return 0;
+	}
+
+	struct dirent *dir_entry = readdir(serial_dir);
+	size_t num_uarts = 0;
+	while (dir_entry) {
+		if (num_uarts >= num_ports_entries) {
+			*num_detected_ports = num_uarts;
+			return CIO_SUCCESS;
+		}
+
+		if (dir_entry->d_type == DT_LNK) {
+			char src_buffer[PATH_MAX + 1];
+			strncpy(src_buffer, dir_name, sizeof(src_buffer));
+			strcat(src_buffer, dir_entry->d_name);
+
+			char dst_buffer[PATH_MAX + 1];
+			ssize_t name_len = readlink(src_buffer, dst_buffer, sizeof(dst_buffer));
+			if (cio_unlikely(name_len == -1)) {
+				return (enum cio_error)(-errno);
+			}
+
+			dst_buffer[name_len] = '\0';
+
+			strncpy(src_buffer, dir_name, sizeof(src_buffer));
+			strcat(src_buffer, dst_buffer);
+
+			char *rp = realpath(src_buffer, ports[num_uarts].impl.name);
+			if (cio_unlikely(rp == NULL)) {
+				return (enum cio_error)(-errno);
+			}
+
+			num_uarts++;
+		}
+
+		dir_entry = readdir(serial_dir);
+	}
+
+	closedir(serial_dir);
+	*num_detected_ports = num_uarts;
+	return CIO_SUCCESS;
 }
