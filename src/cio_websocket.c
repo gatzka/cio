@@ -102,7 +102,7 @@ static inline void rotate(uint8_t *mask, uint_fast8_t middle)
 	}
 }
 
-static void mask_write_buffer(struct cio_write_buffer *wb, uint8_t *mask, size_t mask_length)
+static void mask_write_buffer(const struct cio_write_buffer *wb, uint8_t *mask, size_t mask_length)
 {
 	size_t num_buffers = cio_write_buffer_get_num_buffer_elements(wb);
 	for (size_t i = 0; i < num_buffers; i++) {
@@ -276,7 +276,7 @@ static void handle_error(struct cio_websocket *ws, enum cio_error err, enum cio_
 	}
 }
 
-static inline struct cio_websocket_write_job *write_jobs_popfront(struct cio_websocket *ws)
+static inline const struct cio_websocket_write_job *write_jobs_popfront(struct cio_websocket *ws)
 {
 	struct cio_websocket_write_job *job = dequeue_job(ws);
 	remove_websocket_header(job);
@@ -289,7 +289,7 @@ static void message_written(struct cio_buffered_stream *bs, void *handler_contex
 {
 	(void)bs;
 	struct cio_websocket *ws = (struct cio_websocket *)handler_context;
-	struct cio_websocket_write_job *job = write_jobs_popfront(ws);
+	const struct cio_websocket_write_job *job = write_jobs_popfront(ws);
 	struct cio_websocket_write_job *first_job = ws->ws_private.first_write_job;
 
 	job->handler(ws, job->handler_context, err);
@@ -319,7 +319,7 @@ static void close_frame_written(struct cio_buffered_stream *bs, void *handler_co
 {
 	(void)bs;
 	struct cio_websocket *ws = (struct cio_websocket *)handler_context;
-	struct cio_websocket_write_job *job = write_jobs_popfront(ws);
+	const struct cio_websocket_write_job *job = write_jobs_popfront(ws);
 
 	if (job->handler) {
 		job->handler(ws, job->handler_context, err);
@@ -422,7 +422,7 @@ static void handle_text_frame(struct cio_websocket *ws, uint8_t *data, uint64_t 
 	ws->ws_private.read_handler(ws, ws->ws_private.read_handler_context, CIO_SUCCESS, ws->ws_private.read_frame_length, data, len, last_chunk, last_frame, false);
 }
 
-static void handle_close_frame(struct cio_websocket *ws, uint8_t *data, uint_fast8_t length)
+static void handle_close_frame(struct cio_websocket *ws, const uint8_t *data, uint_fast8_t length)
 {
 	uint_fast8_t len = length;
 
@@ -486,7 +486,7 @@ static void pong_frame_written(struct cio_websocket *ws, void *handler_context, 
 	}
 }
 
-static void handle_ping_frame(struct cio_websocket *ws, uint8_t *data, uint_fast8_t length)
+static void handle_ping_frame(struct cio_websocket *ws, const uint8_t *data, uint_fast8_t length)
 {
 	cio_write_buffer_head_init(&ws->ws_private.ping_buffer.wb_head);
 	if (length > 0) {

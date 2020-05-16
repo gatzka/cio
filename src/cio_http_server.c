@@ -133,7 +133,7 @@ static void restart_read_request(struct cio_http_client *client)
 {
 	if ((client->http_private.request_complete) && (client->http_private.response_written_completed)) {
 		free_handler(client);
-		struct cio_http_server *server = cio_http_client_get_server(client);
+		const struct cio_http_server *server = cio_http_client_get_server(client);
 		enum cio_error err = cio_timer_expires_from_now(&client->http_private.request_timer, server->read_header_timeout_ns, client_timeout_handler, client);
 		if (cio_unlikely(err != CIO_SUCCESS)) {
 			handle_server_error(client, "Could not re-arm timer for restarting a read request");
@@ -219,7 +219,7 @@ static void start_response_header(struct cio_http_client *client, enum cio_http_
 
 	if (status_code != CIO_HTTP_STATUS_SWITCHING_PROTOCOLS) {
 		if (cio_likely(client->http_private.should_keepalive && !client->http_private.close_immediately)) {
-			struct cio_http_server *server = cio_http_client_get_server(client);
+			const struct cio_http_server *server = cio_http_client_get_server(client);
 			cio_write_buffer_const_element_init(&client->http_private.wb_http_connection_header, CIO_HTTP_CONNECTION_KEEPALIVE, strlen(CIO_HTTP_CONNECTION_KEEPALIVE));
 			cio_write_buffer_const_element_init(&client->http_private.wb_http_keepalive_header, server->keepalive_header, strlen(server->keepalive_header));
 			add_response_header(client, &client->http_private.wb_http_keepalive_header);
@@ -377,7 +377,7 @@ static int on_headers_complete(http_parser *parser)
 		}
 	}
 
-	struct cio_http_server *server = cio_http_client_get_server(client);
+	const struct cio_http_server *server = cio_http_client_get_server(client);
 	err = cio_timer_expires_from_now(&client->http_private.request_timer, server->read_body_timeout_ns, client_timeout_handler, client);
 	if (cio_unlikely(err != CIO_SUCCESS)) {
 		handle_server_error(client, "Arming of body read timer failed!");

@@ -202,7 +202,7 @@ static inline struct cio_write_buffer *cio_write_buffer_queue_last(const struct 
  * @param wbh The write buffer chain that is manipulated.
  * @param wbe The element that shall be removed.
  */
-static inline void cio_write_buffer_unlink(struct cio_write_buffer *wbh, struct cio_write_buffer *wbe)
+static inline void cio_write_buffer_unlink(struct cio_write_buffer *wbh, const struct cio_write_buffer *wbe)
 {
 	struct cio_write_buffer *next = NULL;
 	struct cio_write_buffer *prev = NULL;
@@ -325,7 +325,7 @@ static inline void cio_write_buffer_split_and_append(struct cio_write_buffer *to
 	size_t tail_length = 0;
 	size_t tail_qlen = 0;
 
-	struct cio_write_buffer *e = wbe;
+	const struct cio_write_buffer *e = wbe;
 	while (e != from_head) {
 		tail_length += e->data.element.length;
 		tail_qlen++;
