@@ -101,7 +101,7 @@ struct cio_socket {
  * It is guaranteed the the cio library will not access any memory of
  * cio_server_socket that is passed to the close hook. Therefore
  * the hook could be used to free the memory of the server socket.
- * @return ::CIO_SUCCESS for success.
+ * @return ::CIO_SUCCESS on success.
  */
 CIO_EXPORT enum cio_error cio_socket_init(struct cio_socket *socket,
                                           enum cio_address_family address_family,
@@ -116,6 +116,8 @@ CIO_EXPORT enum cio_error cio_socket_init(struct cio_socket *socket,
  * Closing the socket also closes the socket's cio_io_stream.
  *
  * @param socket A pointer to a cio_socket which shall be closed.
+ * 
+ * @return ::CIO_SUCCESS on success.
  */
 CIO_EXPORT enum cio_error cio_socket_close(struct cio_socket *socket);
 
