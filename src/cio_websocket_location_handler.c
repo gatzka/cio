@@ -146,7 +146,7 @@ static size_t strip_trailing_whitespace(const char *str, size_t len)
 
 static bool is_visible_character(char c)
 {
-	return (c >= 0x21) && (c <= 0x7E);
+	return (c >= '!') && (c <= '~');
 }
 
 static bool is_delimiter(char c)
