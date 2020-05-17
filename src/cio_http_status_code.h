@@ -43,11 +43,11 @@ extern "C" {
  * can be emmited by the cio_http_server.
  */
 enum cio_http_status_code {
-	CIO_HTTP_STATUS_SWITCHING_PROTOCOLS = 101,   /*!< The requester has asked the server to switch protocols and the server has agreed to do so. */
-	CIO_HTTP_STATUS_OK = 200,                    /*!< Standard response for a successful HTTP request. */
-	CIO_HTTP_STATUS_BAD_REQUEST = 400,           /*!< Request not processed due to a client error. */
-	CIO_HTTP_STATUS_NOT_FOUND = 404,             /*!< The requested resource was not found. */
-	CIO_HTTP_STATUS_TIMEOUT = 408,               /*!< The request was not completed in a certain time. */
+	CIO_HTTP_STATUS_SWITCHING_PROTOCOLS = 101, /*!< The requester has asked the server to switch protocols and the server has agreed to do so. */
+	CIO_HTTP_STATUS_OK = 200, /*!< Standard response for a successful HTTP request. */
+	CIO_HTTP_STATUS_BAD_REQUEST = 400, /*!< Request not processed due to a client error. */
+	CIO_HTTP_STATUS_NOT_FOUND = 404, /*!< The requested resource was not found. */
+	CIO_HTTP_STATUS_TIMEOUT = 408, /*!< The request was not completed in a certain time. */
 	CIO_HTTP_STATUS_INTERNAL_SERVER_ERROR = 500, /*!< An internal server error occured. */
 };
 

@@ -30,9 +30,9 @@
 
 enum {
 	SHA_SUCCESS = 0,
-	SHA_NULL,           /* Null pointer parameter */
+	SHA_NULL, /* Null pointer parameter */
 	SHA_INPUT_TOO_LONG, /* input data too long */
-	SHA_STATE_ERROR     /* called Input after Result */
+	SHA_STATE_ERROR /* called Input after Result */
 };
 
 enum { SHA1_HASH_SIZE = 20 };
@@ -44,14 +44,14 @@ enum { SHA1_HASH_SIZE = 20 };
 typedef struct sha1_context {
 	uint32_t intermediate_hash[SHA1_HASH_SIZE / 4]; /* Message Digest  */
 
-	uint32_t length_low;  /* Message length in bits      */
+	uint32_t length_low; /* Message length in bits      */
 	uint32_t length_high; /* Message length in bits      */
 
 	/* Index into message block array   */
 	int_least16_t message_block_index;
 	uint8_t message_block[64]; /* 512-bit message blocks      */
 
-	int computed;  /* Is the digest computed?         */
+	int computed; /* Is the digest computed?         */
 	int corrupted; /* Is the message digest corrupted? */
 } sha1_context;
 

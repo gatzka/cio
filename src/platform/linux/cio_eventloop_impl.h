@@ -51,7 +51,7 @@ extern "C" {
 
 enum cio_epoll_error {
 	CIO_EPOLL_SUCCESS = 0, /*!< No error occured. */
-	CIO_EPOLL_ERROR = -1,  /*!< No error occured. */
+	CIO_EPOLL_ERROR = -1, /*!< No error occured. */
 };
 /**
  * @brief The cio_linux_event_notifier struct bundles the information
