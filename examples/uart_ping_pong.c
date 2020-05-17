@@ -93,6 +93,13 @@ int main(void)
 		ret = EXIT_FAILURE;
 		goto free_uarts;
 	}
+	
+	err = cio_uart_set_parity(&uarts[0], CIO_UART_PARITY_NONE);
+	if (cio_unlikely(err != CIO_SUCCESS)) {
+		fprintf(stderr, "Could not set parity on first UART!\n");
+		ret = EXIT_FAILURE;
+		goto free_uarts;
+	}
 
 
 
@@ -102,6 +109,13 @@ int main(void)
 		fprintf(stderr, "Could not get init second UART!\n");
 		ret = EXIT_FAILURE;
 		goto close_first_uart;
+	}
+
+	err = cio_uart_set_parity(&uarts[1], CIO_UART_PARITY_NONE);
+	if (cio_unlikely(err != CIO_SUCCESS)) {
+		fprintf(stderr, "Could not set parity on second UART!\n");
+		ret = EXIT_FAILURE;
+		goto free_uarts;
 	}
 
 	err = cio_eventloop_run(&loop);
