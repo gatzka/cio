@@ -45,7 +45,7 @@ extern "C" {
  */
 struct pcg_state_setseq_64 {
 	uint64_t state; // RNG state. All values are possible.
-	uint64_t inc;   // Controls which RNG sequence (stream) is selected. Must *always* be odd.
+	uint64_t inc; // Controls which RNG sequence (stream) is selected. Must *always* be odd.
 };
 
 /**

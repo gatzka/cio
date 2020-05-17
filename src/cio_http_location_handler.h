@@ -68,8 +68,8 @@ struct cio_http_client;
  */
 enum cio_http_cb_return {
 	CIO_HTTP_CB_SKIP_BODY = 1, /*!< The callback functions did an HTTP connection upgrade and the HTTP parser shall skip the body. */
-	CIO_HTTP_CB_SUCCESS = 0,   /*!< The callback functions did not encounter any errors. */
-	CIO_HTTP_CB_ERROR = -1,    /*!< The callback function encountered an error. */
+	CIO_HTTP_CB_SUCCESS = 0, /*!< The callback functions did not encounter any errors. */
+	CIO_HTTP_CB_ERROR = -1, /*!< The callback function encountered an error. */
 };
 
 /**

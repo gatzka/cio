@@ -102,14 +102,14 @@ static void sha1_process_message_block(sha1_context *context)
 	                      0x6ED9EBA1,
 	                      0x8F1BBCDC,
 	                      0xCA62C1D6};
-	int t;          /* Loop counter                */
-	uint32_t temp;  /* Temporary word value        */
+	int t; /* Loop counter                */
+	uint32_t temp; /* Temporary word value        */
 	uint32_t W[80]; /* Word sequence               */
-	uint32_t A;     /* Word buffers                */
-	uint32_t B;     /* Word buffers                */
-	uint32_t C;     /* Word buffers                */
-	uint32_t D;     /* Word buffers                */
-	uint32_t E;     /* Word buffers                */
+	uint32_t A; /* Word buffers                */
+	uint32_t B; /* Word buffers                */
+	uint32_t C; /* Word buffers                */
+	uint32_t D; /* Word buffers                */
+	uint32_t E; /* Word buffers                */
 
 	/*
      *  Initialize the first 16 words in the array W

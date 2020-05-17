@@ -1,5 +1,6 @@
 BasedOnStyle: LLVM
 AlignAfterOpenBracket: true
+AlignTrailingComments: false
 AlignOperands: true
 AllowShortBlocksOnASingleLine: false
 AllowShortFunctionsOnASingleLine: false
