@@ -98,7 +98,7 @@ CIO_EXPORT enum cio_error cio_uart_get_ports(struct cio_uart ports[], size_t num
  * cio_uart that is passed to the close hook. Therefore
  * the hook could be used to free the memory of the UART.
  * 
- * @return ::CIO_SUCCESS for success.
+ * @return ::CIO_SUCCESS on success.
  */
 CIO_EXPORT enum cio_error cio_uart_init(struct cio_uart *port, struct cio_eventloop *loop, cio_uart_close_hook_t close_hook);
 
@@ -109,11 +109,30 @@ CIO_EXPORT enum cio_error cio_uart_init(struct cio_uart *port, struct cio_eventl
  * Closing the UART also closes the UART's cio_io_stream.
  * 
  * @param port The port to be closed.
- * @return CIO_EXPORT enum cio_uart_close 
+ * 
+ * @return ::CIO_SUCCESS on success.
  */
 CIO_EXPORT enum cio_error cio_uart_close(struct cio_uart *port);
 
+/**
+ * @brief Set the new parity.
+ * 
+ * @param port The port on which the parity will be set.
+ * @param parity The new parity.
+ * 
+ * @return ::CIO_SUCCESS on success.
+ */
 CIO_EXPORT enum cio_error cio_uart_set_parity(struct cio_uart *port, enum cio_uart_parity parity);
+
+/**
+ * @brief Get the parity.
+ * 
+ * @param port The port from which the parity will be got.
+ * @param[out] parity The parity will be stored here.
+ * 
+ * @return ::CIO_SUCCESS on success.
+ */
+CIO_EXPORT enum cio_error cio_uart_get_parity(struct cio_uart *port, enum cio_uart_parity *parity);
 
 #ifdef __cplusplus
 }
