@@ -75,6 +75,17 @@ static enum cio_error stream_close(struct cio_io_stream *stream)
 	return cio_uart_close(port);
 }
 
+static enum cio_error get_current_settings(const struct cio_uart *port, struct termios *tty)
+{
+	memset(tty, 0, sizeof(*tty));
+	int ret = tcgetattr(port->impl.ev.fd, tty);
+	if (cio_unlikely(ret == -1)) {
+		return (enum cio_error)(-errno);
+	}
+
+	return CIO_SUCCESS;
+}
+
 size_t cio_uart_get_number_of_uarts(void)
 {
 	DIR *serial_dir = opendir(DIR_NAME);
@@ -156,6 +167,46 @@ enum cio_error cio_uart_init(struct cio_uart *port, struct cio_eventloop *loop, 
 		return (enum cio_error)(-errno);
 	}
 
+	struct termios tty;
+	enum cio_error err = get_current_settings(port, &tty);
+	if (cio_unlikely(err != CIO_SUCCESS)) {
+		return err;
+	}
+
+	tty.c_cflag &= ~CRTSCTS; // Disable RTS/CTS hardware flow control (most common)
+	tty.c_lflag &= ~(tcflag_t)ICANON; // Disable canonical mode, so receive every byte not so only after newline
+	tty.c_lflag &= ~(tcflag_t)ECHO; // Disable echo
+	tty.c_lflag &= ~(tcflag_t)ECHOE; // Disable erasure
+	tty.c_lflag &= ~(tcflag_t)ECHONL; // Disable new-line echo
+	tty.c_lflag &= ~(tcflag_t)ISIG; // Disable interpretation of INTR, QUIT and SUSP
+	tty.c_iflag &= ~((tcflag_t)IXON | (tcflag_t)IXOFF | (tcflag_t)IXANY); // Turn off s/w flow ctrl
+	tty.c_iflag &= ~((tcflag_t)IGNBRK | (tcflag_t)BRKINT |
+	                 (tcflag_t)PARMRK | (tcflag_t)ISTRIP |
+	                 (tcflag_t)INLCR | (tcflag_t)IGNCR |
+	                 (tcflag_t)ICRNL); // Disable any special handling of received bytes
+	tty.c_oflag &= ~(tcflag_t)OPOST; // Prevent special interpretation of output bytes (e.g. newline chars)
+	tty.c_oflag &= ~(tcflag_t)ONLCR; // Prevent conversion of newline to carriage return/line feed
+	tty.c_cc[VTIME] = 0; // No blocking, return immediately with what is available
+	tty.c_cc[VMIN] = 0;
+
+	int ret = tcsetattr(port->impl.ev.fd, TCSANOW, &tty);
+	if (cio_unlikely(ret == -1)) {
+		err = (enum cio_error)(-errno);
+		goto close_err;
+	}
+
+	ret = cfsetispeed(&tty, B115200);
+	if (cio_unlikely(ret == -1)) {
+		err = (enum cio_error)(-errno);
+		goto close_err;
+	}
+
+	ret = cfsetospeed(&tty, B115200);
+	if (cio_unlikely(ret == -1)) {
+		err = (enum cio_error)(-errno);
+		goto close_err;
+	}
+
 	port->close_hook = close_hook;
 
 	port->stream.read_some = stream_read;
@@ -164,9 +215,9 @@ enum cio_error cio_uart_init(struct cio_uart *port, struct cio_eventloop *loop, 
 
 	port->impl.loop = loop;
 
-	enum cio_error err = cio_linux_eventloop_add(port->impl.loop, &port->impl.ev);
+	err = cio_linux_eventloop_add(port->impl.loop, &port->impl.ev);
 	if (cio_unlikely(err != CIO_SUCCESS)) {
-		goto ev_add_failed;
+		goto close_err;
 	}
 
 	err = cio_linux_eventloop_register_read(port->impl.loop, &port->impl.ev);
@@ -178,7 +229,7 @@ enum cio_error cio_uart_init(struct cio_uart *port, struct cio_eventloop *loop, 
 
 ev_reg_read_failed:
 	cio_linux_eventloop_remove(port->impl.loop, &port->impl.ev);
-ev_add_failed:
+close_err:
 	close(port->impl.ev.fd);
 	return err;
 }
@@ -196,17 +247,6 @@ enum cio_error cio_uart_close(struct cio_uart *port)
 
 	cio_linux_eventloop_unregister_read(port->impl.loop, &port->impl.ev);
 	cio_linux_eventloop_remove(port->impl.loop, &port->impl.ev);
-
-	return CIO_SUCCESS;
-}
-
-static enum cio_error get_current_settings(const struct cio_uart *port, struct termios *tty)
-{
-	memset(tty, 0, sizeof(*tty));
-	int ret = tcgetattr(port->impl.ev.fd, tty);
-	if (cio_unlikely(ret == -1)) {
-		return (enum cio_error)(-errno);
-	}
 
 	return CIO_SUCCESS;
 }
