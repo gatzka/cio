@@ -252,5 +252,10 @@ enum cio_error cio_uart_set_parity(struct cio_uart *port, enum cio_uart_parity p
 		return CIO_INVALID_ARGUMENT;
 	}
 
+	int ret = tcsetattr(port->impl.ev.fd, TCSANOW, &tty);
+	if (cio_unlikely(ret == -1)) {
+		return (enum cio_error)(-errno);
+	}
+
 	return CIO_SUCCESS;
 }
