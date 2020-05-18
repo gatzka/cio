@@ -29,11 +29,7 @@
 #ifndef CIO_LINUX_UART_IMPL_H
 #define CIO_LINUX_UART_IMPL_H
 
-#ifndef _DEFAULT_SOURCE
-#define _DEFAULT_SOURCE
-#endif
-
-#include <limits.h>
+#include <linux/limits.h>
 
 #include "cio_eventloop.h"
 
