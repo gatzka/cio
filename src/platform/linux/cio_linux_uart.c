@@ -251,7 +251,7 @@ enum cio_error cio_uart_close(struct cio_uart *port)
 	return CIO_SUCCESS;
 }
 
-enum cio_error cio_uart_set_parity(struct cio_uart *port, enum cio_uart_parity parity)
+enum cio_error cio_uart_set_parity(const struct cio_uart *port, enum cio_uart_parity parity)
 {
 	if (cio_unlikely(port == NULL)) {
 		return CIO_INVALID_ARGUMENT;
@@ -330,7 +330,7 @@ enum cio_error cio_uart_get_parity(const struct cio_uart *port, enum cio_uart_pa
 	return CIO_SUCCESS;
 }
 
-enum cio_error cio_uart_set_num_stop_bits(struct cio_uart *port, enum cio_uart_num_stop_bits num_stop_bits)
+enum cio_error cio_uart_set_num_stop_bits(const struct cio_uart *port, enum cio_uart_num_stop_bits num_stop_bits)
 {
 	if (cio_unlikely(port == NULL)) {
 		return CIO_INVALID_ARGUMENT;
@@ -353,7 +353,6 @@ enum cio_error cio_uart_set_num_stop_bits(struct cio_uart *port, enum cio_uart_n
 
 	default:
 		return CIO_INVALID_ARGUMENT;
-		break;
 	}
 
 	int ret = tcsetattr(port->impl.ev.fd, TCSANOW, &tty);
@@ -380,6 +379,68 @@ enum cio_error cio_uart_get_num_stop_bits(const struct cio_uart *port, enum cio_
 		*num_stop_bits = CIO_UART_TWO_STOP_BITS;
 	} else {
 		*num_stop_bits = CIO_UART_ONE_STOP_BIT;
+	}
+
+	return CIO_SUCCESS;
+}
+
+enum cio_error cio_uart_set_num_data_bits(const struct cio_uart *port, enum cio_uart_num_data_bits num_data_bits)
+{
+	if (cio_unlikely(port == NULL)) {
+		return CIO_INVALID_ARGUMENT;
+	}
+
+	struct termios tty;
+	enum cio_error err = get_current_settings(port, &tty);
+	if (cio_unlikely(err != CIO_SUCCESS)) {
+		return err;
+	}
+
+	switch (num_data_bits) {
+	case CIO_UART_5_DATA_BITS:
+		tty.c_cflag |= (tcflag_t)CS5;
+		break;
+	case CIO_UART_6_DATA_BITS:
+		tty.c_cflag |= (tcflag_t)CS6;
+		break;
+	case CIO_UART_7_DATA_BITS:
+		tty.c_cflag |= (tcflag_t)CS7;
+		break;
+	case CIO_UART_8_DATA_BITS:
+		tty.c_cflag |= (tcflag_t)CS8;
+		break;
+	default:
+		return CIO_INVALID_ARGUMENT;
+	}
+
+	int ret = tcsetattr(port->impl.ev.fd, TCSANOW, &tty);
+	if (cio_unlikely(ret == -1)) {
+		return (enum cio_error)(-errno);
+	}
+
+	return CIO_SUCCESS;
+}
+
+enum cio_error cio_uart_get_num_data_bits(const struct cio_uart *port, enum cio_uart_num_data_bits *num_data_bits)
+{
+	if (cio_unlikely(port == NULL)) {
+		return CIO_INVALID_ARGUMENT;
+	}
+
+	struct termios tty;
+	enum cio_error err = get_current_settings(port, &tty);
+	if (cio_unlikely(err != CIO_SUCCESS)) {
+		return err;
+	}
+
+	if ((tty.c_cflag & (tcflag_t)CS5) == (tcflag_t)CS5) {
+		*num_data_bits = CIO_UART_5_DATA_BITS;
+	} else if ((tty.c_cflag & (tcflag_t)CS6) == (tcflag_t)CS6) {
+		*num_data_bits = CIO_UART_6_DATA_BITS;
+	} else if ((tty.c_cflag & (tcflag_t)CS7) == (tcflag_t)CS7) {
+		*num_data_bits = CIO_UART_7_DATA_BITS;
+	} else {
+		*num_data_bits = CIO_UART_8_DATA_BITS;
 	}
 
 	return CIO_SUCCESS;
