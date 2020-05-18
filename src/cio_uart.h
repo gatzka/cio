@@ -49,6 +49,11 @@ enum cio_uart_parity {
 	CIO_UART_PARITY_SPACE
 };
 
+enum cio_uart_num_stop_bits {
+	CIO_UART_ONE_STOP_BIT,
+	CIO_UART_TWO_STOP_BITS
+};
+
 struct cio_uart;
 
 typedef void (*cio_uart_close_hook_t)(struct cio_uart *uart);
@@ -132,7 +137,26 @@ CIO_EXPORT enum cio_error cio_uart_set_parity(struct cio_uart *port, enum cio_ua
  * 
  * @return ::CIO_SUCCESS on success.
  */
-CIO_EXPORT enum cio_error cio_uart_get_parity(struct cio_uart *port, enum cio_uart_parity *parity);
+CIO_EXPORT enum cio_error cio_uart_get_parity(const struct cio_uart *port, enum cio_uart_parity *parity);
+
+/**
+ * @brief Set the number of stop bits.
+ * 
+ * @param port The UART port to be configured.
+ * @param num_stop_bits The new number of stop bits to be set.
+ * 
+ * @return ::CIO_SUCCESS on success.
+ */
+CIO_EXPORT enum cio_error cio_uart_set_num_stop_bits(struct cio_uart *port, enum cio_uart_num_stop_bits num_stop_bits);
+
+/**
+ * @brief Get the current number of stop bits.
+ * 
+ * @param port The UART port fro which the number of stop bits will be gathered.
+ * @param[out] num_stop_bits The number of stop bits will be stored here.
+ * @return CIO_EXPORT enum cio_uart_get_num_stop_bits 
+ */
+CIO_EXPORT enum cio_error cio_uart_get_num_stop_bits(const struct cio_uart *port, enum cio_uart_num_stop_bits *num_stop_bits);
 
 #ifdef __cplusplus
 }

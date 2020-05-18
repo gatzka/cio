@@ -300,7 +300,7 @@ enum cio_error cio_uart_set_parity(struct cio_uart *port, enum cio_uart_parity p
 	return CIO_SUCCESS;
 }
 
-enum cio_error cio_uart_get_parity(struct cio_uart *port, enum cio_uart_parity *parity)
+enum cio_error cio_uart_get_parity(const struct cio_uart *port, enum cio_uart_parity *parity)
 {
 	if (cio_unlikely(port == NULL)) {
 		return CIO_INVALID_ARGUMENT;
@@ -327,5 +327,60 @@ enum cio_error cio_uart_get_parity(struct cio_uart *port, enum cio_uart_parity *
 			*parity = CIO_UART_PARITY_SPACE;
 		}
 	}
+	return CIO_SUCCESS;
+}
+
+enum cio_error cio_uart_set_num_stop_bits(struct cio_uart *port, enum cio_uart_num_stop_bits num_stop_bits)
+{
+	if (cio_unlikely(port == NULL)) {
+		return CIO_INVALID_ARGUMENT;
+	}
+
+	struct termios tty;
+	enum cio_error err = get_current_settings(port, &tty);
+	if (cio_unlikely(err != CIO_SUCCESS)) {
+		return err;
+	}
+
+	switch (num_stop_bits) {
+	case CIO_UART_ONE_STOP_BIT:
+		tty.c_cflag &= ~(tcflag_t)CSTOPB;
+		break;
+
+	case CIO_UART_TWO_STOP_BITS:
+		tty.c_cflag |= (tcflag_t)CSTOPB;
+		break;
+
+	default:
+		return CIO_INVALID_ARGUMENT;
+		break;
+	}
+
+	int ret = tcsetattr(port->impl.ev.fd, TCSANOW, &tty);
+	if (cio_unlikely(ret == -1)) {
+		return (enum cio_error)(-errno);
+	}
+
+	return CIO_SUCCESS;
+}
+
+enum cio_error cio_uart_get_num_stop_bits(const struct cio_uart *port, enum cio_uart_num_stop_bits *num_stop_bits)
+{
+	if (cio_unlikely(port == NULL)) {
+		return CIO_INVALID_ARGUMENT;
+	}
+
+	struct termios tty;
+	enum cio_error err = get_current_settings(port, &tty);
+	if (cio_unlikely(err != CIO_SUCCESS)) {
+		return err;
+	}
+
+	if ((tty.c_cflag & (tcflag_t)CSTOPB) == (tcflag_t)CSTOPB) {
+		*num_stop_bits = CIO_UART_TWO_STOP_BITS;
+	} else {
+		*num_stop_bits = CIO_UART_ONE_STOP_BIT;
+	}
+
 	return CIO_SUCCESS;
 }
