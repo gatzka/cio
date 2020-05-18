@@ -54,6 +54,13 @@ enum cio_uart_num_stop_bits {
 	CIO_UART_TWO_STOP_BITS
 };
 
+enum cio_uart_num_data_bits {
+	CIO_UART_5_DATA_BITS,
+	CIO_UART_6_DATA_BITS,
+	CIO_UART_7_DATA_BITS,
+	CIO_UART_8_DATA_BITS
+};
+
 struct cio_uart;
 
 typedef void (*cio_uart_close_hook_t)(struct cio_uart *uart);
@@ -127,7 +134,7 @@ CIO_EXPORT enum cio_error cio_uart_close(struct cio_uart *port);
  * 
  * @return ::CIO_SUCCESS on success.
  */
-CIO_EXPORT enum cio_error cio_uart_set_parity(struct cio_uart *port, enum cio_uart_parity parity);
+CIO_EXPORT enum cio_error cio_uart_set_parity(const struct cio_uart *port, enum cio_uart_parity parity);
 
 /**
  * @brief Get the parity.
@@ -144,19 +151,40 @@ CIO_EXPORT enum cio_error cio_uart_get_parity(const struct cio_uart *port, enum 
  * 
  * @param port The UART port to be configured.
  * @param num_stop_bits The new number of stop bits to be set.
- * 
+ *
  * @return ::CIO_SUCCESS on success.
  */
-CIO_EXPORT enum cio_error cio_uart_set_num_stop_bits(struct cio_uart *port, enum cio_uart_num_stop_bits num_stop_bits);
+CIO_EXPORT enum cio_error cio_uart_set_num_stop_bits(const struct cio_uart *port, enum cio_uart_num_stop_bits num_stop_bits);
 
 /**
  * @brief Get the current number of stop bits.
  * 
  * @param port The UART port fro which the number of stop bits will be gathered.
  * @param[out] num_stop_bits The number of stop bits will be stored here.
- * @return CIO_EXPORT enum cio_uart_get_num_stop_bits 
+ * 
+ * @return ::CIO_SUCCESS on success.
  */
 CIO_EXPORT enum cio_error cio_uart_get_num_stop_bits(const struct cio_uart *port, enum cio_uart_num_stop_bits *num_stop_bits);
+
+/**
+ * @brief Set the number of data bits.
+ * 
+ * @param port The UART to be configured.
+ * @param num_data_bits The new number of data bits to be set.
+ * 
+ * @return ::CIO_SUCCESS on success.
+ */
+CIO_EXPORT enum cio_error cio_uart_set_num_data_bits(const struct cio_uart *port, enum cio_uart_num_data_bits num_data_bits);
+
+/**
+ * @brief Get the configured number of data bits.
+ * 
+ * @param port The UART port fro which the number of data bits will be gathered.
+ * @param[out] num_data_bits The number of data bits will be stored here.
+ * 
+ * @return ::CIO_SUCCESS on success.
+ */
+CIO_EXPORT enum cio_error cio_uart_get_num_data_bits(const struct cio_uart *port, enum cio_uart_num_data_bits *num_data_bits);
 
 #ifdef __cplusplus
 }
