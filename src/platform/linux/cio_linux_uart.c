@@ -299,3 +299,33 @@ enum cio_error cio_uart_set_parity(struct cio_uart *port, enum cio_uart_parity p
 
 	return CIO_SUCCESS;
 }
+
+enum cio_error cio_uart_get_parity(struct cio_uart *port, enum cio_uart_parity *parity)
+{
+	if (cio_unlikely(port == NULL)) {
+		return CIO_INVALID_ARGUMENT;
+	}
+
+	struct termios tty;
+	enum cio_error err = get_current_settings(port, &tty);
+	if (cio_unlikely(err != CIO_SUCCESS)) {
+		return err;
+	}
+
+	if ((tty.c_cflag & (tcflag_t)PARENB) == 0) {
+		*parity = CIO_UART_PARITY_NONE;
+	} else if ((tty.c_cflag & (tcflag_t)CMSPAR) == 0) {
+		if ((tty.c_cflag & (tcflag_t)(PARODD)) == (tcflag_t)PARODD) {
+			*parity = CIO_UART_PARITY_ODD;
+		} else {
+			*parity = CIO_UART_PARITY_EVEN;
+		}
+	} else {
+		if ((tty.c_cflag & (tcflag_t)(PARODD)) == (tcflag_t)PARODD) {
+			*parity = CIO_UART_PARITY_MARK;
+		} else {
+			*parity = CIO_UART_PARITY_SPACE;
+		}
+	}
+	return CIO_SUCCESS;
+}
