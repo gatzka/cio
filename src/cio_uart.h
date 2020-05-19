@@ -265,6 +265,15 @@ CIO_EXPORT enum cio_error cio_uart_set_baud_rate(const struct cio_uart *port, en
  */
 CIO_EXPORT enum cio_error cio_uart_get_baud_rate(const struct cio_uart *port, enum cio_uart_baud_rate *baud_rate);
 
+/**
+ * @brief Gets an I/O stream from the UART port.
+ *
+ * @param port A pointer to a 'UART port from which the cio_io_stream is retrieved.
+ *
+ * @return An I/O stream for reading from and writing to this socket.
+ */
+CIO_EXPORT struct cio_io_stream *cio_uart_get_io_stream(struct cio_uart *port);
+
 #ifdef __cplusplus
 }
 #endif
