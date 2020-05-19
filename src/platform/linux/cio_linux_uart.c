@@ -189,19 +189,13 @@ enum cio_error cio_uart_init(struct cio_uart *port, struct cio_eventloop *loop, 
 	tty.c_cc[VTIME] = 0; // No blocking, return immediately with what is available
 	tty.c_cc[VMIN] = 0;
 
-	int ret = tcsetattr(port->impl.ev.fd, TCSANOW, &tty);
+	int ret = cfsetspeed(&tty, B115200);
 	if (cio_unlikely(ret == -1)) {
 		err = (enum cio_error)(-errno);
 		goto close_err;
 	}
 
-	ret = cfsetispeed(&tty, B115200);
-	if (cio_unlikely(ret == -1)) {
-		err = (enum cio_error)(-errno);
-		goto close_err;
-	}
-
-	ret = cfsetospeed(&tty, B115200);
+	ret = tcsetattr(port->impl.ev.fd, TCSANOW, &tty);
 	if (cio_unlikely(ret == -1)) {
 		err = (enum cio_error)(-errno);
 		goto close_err;
@@ -520,6 +514,238 @@ enum cio_error cio_uart_get_flow_control(const struct cio_uart *port, enum cio_u
 	} else if (!cts_rts_enabled(tty.c_cflag) && xon_xoff_enabled(tty.c_iflag)) {
 		*flow_control = CIO_UART_FLOW_CONTROL_XON_XOFF;
 	} else {
+		return CIO_PROTOCOL_NOT_SUPPORTED;
+	}
+
+	return CIO_SUCCESS;
+}
+
+enum cio_error cio_uart_set_baud_rate(const struct cio_uart *port, enum cio_uart_baud_rate baud_rate)
+{
+	if (cio_unlikely(port == NULL)) {
+		return CIO_INVALID_ARGUMENT;
+	}
+
+	struct termios tty;
+	enum cio_error err = get_current_settings(port, &tty);
+	if (cio_unlikely(err != CIO_SUCCESS)) {
+		return err;
+	}
+
+	int ret = 0;
+	switch (baud_rate) {
+	case CIO_UART_BAUD_RATE_50:
+		ret = cfsetspeed(&tty, (speed_t)B50);
+		break;
+	case CIO_UART_BAUD_RATE_75:
+		ret = cfsetspeed(&tty, (speed_t)B75);
+		break;
+	case CIO_UART_BAUD_RATE_110:
+		ret = cfsetspeed(&tty, (speed_t)B110);
+		break;
+	case CIO_UART_BAUD_RATE_134:
+		ret = cfsetspeed(&tty, (speed_t)B134);
+		break;
+	case CIO_UART_BAUD_RATE_150:
+		ret = cfsetspeed(&tty, (speed_t)B150);
+		break;
+	case CIO_UART_BAUD_RATE_200:
+		ret = cfsetspeed(&tty, (speed_t)B200);
+		break;
+	case CIO_UART_BAUD_RATE_300:
+		ret = cfsetspeed(&tty, (speed_t)B300);
+		break;
+	case CIO_UART_BAUD_RATE_600:
+		ret = cfsetspeed(&tty, (speed_t)B600);
+		break;
+	case CIO_UART_BAUD_RATE_1200:
+		ret = cfsetspeed(&tty, (speed_t)B1200);
+		break;
+	case CIO_UART_BAUD_RATE_1800:
+		ret = cfsetspeed(&tty, (speed_t)B1800);
+		break;
+	case CIO_UART_BAUD_RATE_2400:
+		ret = cfsetspeed(&tty, (speed_t)B2400);
+		break;
+	case CIO_UART_BAUD_RATE_4800:
+		ret = cfsetspeed(&tty, (speed_t)B4800);
+		break;
+	case CIO_UART_BAUD_RATE_9600:
+		ret = cfsetspeed(&tty, (speed_t)B9600);
+		break;
+	case CIO_UART_BAUD_RATE_19200:
+		ret = cfsetspeed(&tty, (speed_t)B19200);
+		break;
+	case CIO_UART_BAUD_RATE_38400:
+		ret = cfsetspeed(&tty, (speed_t)B38400);
+		break;
+	case CIO_UART_BAUD_RATE_57600:
+		ret = cfsetspeed(&tty, (speed_t)B57600);
+		break;
+	case CIO_UART_BAUD_RATE_115200:
+		ret = cfsetspeed(&tty, (speed_t)B115200);
+		break;
+	case CIO_UART_BAUD_RATE_230400:
+		ret = cfsetspeed(&tty, (speed_t)B230400);
+		break;
+	case CIO_UART_BAUD_RATE_460800:
+		ret = cfsetspeed(&tty, (speed_t)B460800);
+		break;
+	case CIO_UART_BAUD_RATE_500000:
+		ret = cfsetspeed(&tty, (speed_t)B500000);
+		break;
+	case CIO_UART_BAUD_RATE_576000:
+		ret = cfsetspeed(&tty, (speed_t)B576000);
+		break;
+	case CIO_UART_BAUD_RATE_921600:
+		ret = cfsetspeed(&tty, (speed_t)B921600);
+		break;
+	case CIO_UART_BAUD_RATE_1000000:
+		ret = cfsetspeed(&tty, (speed_t)B1000000);
+		break;
+	case CIO_UART_BAUD_RATE_1152000:
+		ret = cfsetspeed(&tty, (speed_t)B1152000);
+		break;
+	case CIO_UART_BAUD_RATE_1500000:
+		ret = cfsetspeed(&tty, (speed_t)B1500000);
+		break;
+	case CIO_UART_BAUD_RATE_2000000:
+		ret = cfsetspeed(&tty, (speed_t)B2000000);
+		break;
+	case CIO_UART_BAUD_RATE_2500000:
+		ret = cfsetspeed(&tty, (speed_t)B2500000);
+		break;
+	case CIO_UART_BAUD_RATE_3000000:
+		ret = cfsetspeed(&tty, (speed_t)B3000000);
+		break;
+	case CIO_UART_BAUD_RATE_3500000:
+		ret = cfsetspeed(&tty, (speed_t)B3500000);
+		break;
+	case CIO_UART_BAUD_RATE_4000000:
+		ret = cfsetspeed(&tty, (speed_t)B4000000);
+		break;
+	default:
+		return CIO_INVALID_ARGUMENT;
+	}
+
+	if (cio_unlikely(ret == -1)) {
+		return (enum cio_error)(-errno);
+	}
+
+	ret = tcsetattr(port->impl.ev.fd, TCSANOW, &tty);
+	if (cio_unlikely(ret == -1)) {
+		return (enum cio_error)(-errno);
+	}
+
+	return CIO_SUCCESS;
+}
+
+enum cio_error cio_uart_get_baud_rate(const struct cio_uart *port, enum cio_uart_baud_rate *baud_rate)
+{
+	if (cio_unlikely(port == NULL)) {
+		return CIO_INVALID_ARGUMENT;
+	}
+
+	struct termios tty;
+
+	enum cio_error err = get_current_settings(port, &tty);
+	if (cio_unlikely(err != CIO_SUCCESS)) {
+		return err;
+	}
+
+	speed_t speed = cfgetispeed(&tty);
+	switch (speed) {
+	case B50:
+		*baud_rate = CIO_UART_BAUD_RATE_50;
+		break;
+	case B75:
+		*baud_rate = CIO_UART_BAUD_RATE_75;
+		break;
+	case B110:
+		*baud_rate = CIO_UART_BAUD_RATE_110;
+		break;
+	case B134:
+		*baud_rate = CIO_UART_BAUD_RATE_134;
+		break;
+	case B150:
+		*baud_rate = CIO_UART_BAUD_RATE_150;
+		break;
+	case B200:
+		*baud_rate = CIO_UART_BAUD_RATE_200;
+		break;
+	case B300:
+		*baud_rate = CIO_UART_BAUD_RATE_300;
+		break;
+	case B600:
+		*baud_rate = CIO_UART_BAUD_RATE_600;
+		break;
+	case B1200:
+		*baud_rate = CIO_UART_BAUD_RATE_1200;
+		break;
+	case B1800:
+		*baud_rate = CIO_UART_BAUD_RATE_1800;
+		break;
+	case B2400:
+		*baud_rate = CIO_UART_BAUD_RATE_2400;
+		break;
+	case B4800:
+		*baud_rate = CIO_UART_BAUD_RATE_4800;
+		break;
+	case B9600:
+		*baud_rate = CIO_UART_BAUD_RATE_9600;
+		break;
+	case B19200:
+		*baud_rate = CIO_UART_BAUD_RATE_19200;
+		break;
+	case B38400:
+		*baud_rate = CIO_UART_BAUD_RATE_38400;
+		break;
+	case B57600:
+		*baud_rate = CIO_UART_BAUD_RATE_57600;
+		break;
+	case B115200:
+		*baud_rate = CIO_UART_BAUD_RATE_115200;
+		break;
+	case B230400:
+		*baud_rate = CIO_UART_BAUD_RATE_230400;
+		break;
+	case B460800:
+		*baud_rate = CIO_UART_BAUD_RATE_460800;
+		break;
+	case B500000:
+		*baud_rate = CIO_UART_BAUD_RATE_500000;
+		break;
+	case B576000:
+		*baud_rate = CIO_UART_BAUD_RATE_576000;
+		break;
+	case B921600:
+		*baud_rate = CIO_UART_BAUD_RATE_921600;
+		break;
+	case B1000000:
+		*baud_rate = CIO_UART_BAUD_RATE_1000000;
+		break;
+	case B1152000:
+		*baud_rate = CIO_UART_BAUD_RATE_1152000;
+		break;
+	case B1500000:
+		*baud_rate = CIO_UART_BAUD_RATE_1500000;
+		break;
+	case B2000000:
+		*baud_rate = CIO_UART_BAUD_RATE_2000000;
+		break;
+	case B2500000:
+		*baud_rate = CIO_UART_BAUD_RATE_2500000;
+		break;
+	case B3000000:
+		*baud_rate = CIO_UART_BAUD_RATE_3000000;
+		break;
+	case B3500000:
+		*baud_rate = CIO_UART_BAUD_RATE_3500000;
+		break;
+	case B4000000:
+		*baud_rate = CIO_UART_BAUD_RATE_4000000;
+		break;
+	default:
 		return CIO_PROTOCOL_NOT_SUPPORTED;
 	}
 

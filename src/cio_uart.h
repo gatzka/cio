@@ -67,6 +67,39 @@ enum cio_uart_flow_control {
 	CIO_UART_FLOW_CONTROL_XON_XOFF
 };
 
+enum cio_uart_baud_rate {
+	CIO_UART_BAUD_RATE_50,
+	CIO_UART_BAUD_RATE_75,
+	CIO_UART_BAUD_RATE_110,
+	CIO_UART_BAUD_RATE_134,
+	CIO_UART_BAUD_RATE_150,
+	CIO_UART_BAUD_RATE_200,
+	CIO_UART_BAUD_RATE_300,
+	CIO_UART_BAUD_RATE_600,
+	CIO_UART_BAUD_RATE_1200,
+	CIO_UART_BAUD_RATE_1800,
+	CIO_UART_BAUD_RATE_2400,
+	CIO_UART_BAUD_RATE_4800,
+	CIO_UART_BAUD_RATE_9600,
+	CIO_UART_BAUD_RATE_19200,
+	CIO_UART_BAUD_RATE_38400,
+	CIO_UART_BAUD_RATE_57600,
+	CIO_UART_BAUD_RATE_115200,
+	CIO_UART_BAUD_RATE_230400,
+	CIO_UART_BAUD_RATE_460800,
+	CIO_UART_BAUD_RATE_500000, 
+	CIO_UART_BAUD_RATE_576000, 
+	CIO_UART_BAUD_RATE_921600, 
+	CIO_UART_BAUD_RATE_1000000,
+	CIO_UART_BAUD_RATE_1152000,
+	CIO_UART_BAUD_RATE_1500000,
+	CIO_UART_BAUD_RATE_2000000,
+	CIO_UART_BAUD_RATE_2500000,
+	CIO_UART_BAUD_RATE_3000000,
+	CIO_UART_BAUD_RATE_3500000,
+	CIO_UART_BAUD_RATE_4000000 
+};
+
 struct cio_uart;
 
 typedef void (*cio_uart_close_hook_t)(struct cio_uart *uart);
@@ -211,6 +244,26 @@ CIO_EXPORT enum cio_error cio_uart_set_flow_control(const struct cio_uart *port,
  * @return ::CIO_SUCCESS on success.
  */
 CIO_EXPORT enum cio_error cio_uart_get_flow_control(const struct cio_uart *port, enum cio_uart_flow_control *flow_control);
+
+/**
+ * @brief Set the baud rade
+ * 
+ * @param port The UART to be configured.
+ * @param baud_rate The baud rate which will be set.
+ * 
+ * @return ::CIO_SUCCESS on success.
+ */
+CIO_EXPORT enum cio_error cio_uart_set_baud_rate(const struct cio_uart *port, enum cio_uart_baud_rate baud_rate);
+
+/**
+ * @brief Get the baud rade
+ * 
+ * @param port The UART port fro which the baud rate information will be gathered.
+ * @param[out] baud_rate The baud rate information will be stored here.
+ * 
+ * @return ::CIO_SUCCESS on success.
+ */
+CIO_EXPORT enum cio_error cio_uart_get_baud_rate(const struct cio_uart *port, enum cio_uart_baud_rate *baud_rate);
 
 #ifdef __cplusplus
 }
