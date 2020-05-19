@@ -156,6 +156,20 @@ enum cio_error cio_uart_get_ports(struct cio_uart ports[], size_t num_ports_entr
 	return CIO_SUCCESS;
 }
 
+static enum cio_error set_termios(int fd, struct termios *tty)
+{
+	int ret = tcflush(fd, TCIFLUSH);
+	if (cio_unlikely(ret == -1)) {
+		return (enum cio_error)(-errno);
+	}
+	ret = tcsetattr(fd, TCSANOW, tty);
+	if (cio_unlikely(ret == -1)) {
+		return (enum cio_error)(-errno);
+	}
+
+	return CIO_SUCCESS;
+}
+
 enum cio_error cio_uart_init(struct cio_uart *port, struct cio_eventloop *loop, cio_uart_close_hook_t close_hook)
 {
 	if (cio_unlikely((port == NULL) || (loop == NULL))) {
@@ -195,9 +209,8 @@ enum cio_error cio_uart_init(struct cio_uart *port, struct cio_eventloop *loop, 
 		goto close_err;
 	}
 
-	ret = tcsetattr(port->impl.ev.fd, TCSANOW, &tty);
-	if (cio_unlikely(ret == -1)) {
-		err = (enum cio_error)(-errno);
+	err = set_termios(port->impl.ev.fd, &tty);
+	if (cio_unlikely(err != CIO_SUCCESS)) {
 		goto close_err;
 	}
 
@@ -286,9 +299,9 @@ enum cio_error cio_uart_set_parity(const struct cio_uart *port, enum cio_uart_pa
 		return CIO_INVALID_ARGUMENT;
 	}
 
-	int ret = tcsetattr(port->impl.ev.fd, TCSANOW, &tty);
-	if (cio_unlikely(ret == -1)) {
-		return (enum cio_error)(-errno);
+	err = set_termios(port->impl.ev.fd, &tty);
+	if (cio_unlikely(err != CIO_SUCCESS)) {
+		return err;
 	}
 
 	return CIO_SUCCESS;
@@ -349,9 +362,9 @@ enum cio_error cio_uart_set_num_stop_bits(const struct cio_uart *port, enum cio_
 		return CIO_INVALID_ARGUMENT;
 	}
 
-	int ret = tcsetattr(port->impl.ev.fd, TCSANOW, &tty);
-	if (cio_unlikely(ret == -1)) {
-		return (enum cio_error)(-errno);
+	err = set_termios(port->impl.ev.fd, &tty);
+	if (cio_unlikely(err != CIO_SUCCESS)) {
+		return err;
 	}
 
 	return CIO_SUCCESS;
@@ -407,9 +420,9 @@ enum cio_error cio_uart_set_num_data_bits(const struct cio_uart *port, enum cio_
 		return CIO_INVALID_ARGUMENT;
 	}
 
-	int ret = tcsetattr(port->impl.ev.fd, TCSANOW, &tty);
-	if (cio_unlikely(ret == -1)) {
-		return (enum cio_error)(-errno);
+	err = set_termios(port->impl.ev.fd, &tty);
+	if (cio_unlikely(err != CIO_SUCCESS)) {
+		return err;
 	}
 
 	return CIO_SUCCESS;
@@ -467,9 +480,9 @@ enum cio_error cio_uart_set_flow_control(const struct cio_uart *port, enum cio_u
 		return CIO_INVALID_ARGUMENT;
 	}
 
-	int ret = tcsetattr(port->impl.ev.fd, TCSANOW, &tty);
-	if (cio_unlikely(ret == -1)) {
-		return (enum cio_error)(-errno);
+	err = set_termios(port->impl.ev.fd, &tty);
+	if (cio_unlikely(err != CIO_SUCCESS)) {
+		return err;
 	}
 
 	return CIO_SUCCESS;
@@ -632,9 +645,9 @@ enum cio_error cio_uart_set_baud_rate(const struct cio_uart *port, enum cio_uart
 		return (enum cio_error)(-errno);
 	}
 
-	ret = tcsetattr(port->impl.ev.fd, TCSANOW, &tty);
-	if (cio_unlikely(ret == -1)) {
-		return (enum cio_error)(-errno);
+	err = set_termios(port->impl.ev.fd, &tty);
+	if (cio_unlikely(err != CIO_SUCCESS)) {
+		return err;
 	}
 
 	return CIO_SUCCESS;
