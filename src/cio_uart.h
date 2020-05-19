@@ -61,6 +61,12 @@ enum cio_uart_num_data_bits {
 	CIO_UART_8_DATA_BITS
 };
 
+enum cio_uart_flow_control {
+	CIO_UART_FLOW_CONTROL_NONE,
+	CIO_UART_FLOW_CONTROL_RTS_CTS,
+	CIO_UART_FLOW_CONTROL_XON_XOFF
+};
+
 struct cio_uart;
 
 typedef void (*cio_uart_close_hook_t)(struct cio_uart *uart);
@@ -185,6 +191,26 @@ CIO_EXPORT enum cio_error cio_uart_set_num_data_bits(const struct cio_uart *port
  * @return ::CIO_SUCCESS on success.
  */
 CIO_EXPORT enum cio_error cio_uart_get_num_data_bits(const struct cio_uart *port, enum cio_uart_num_data_bits *num_data_bits);
+
+/**
+ * @brief Set the flow control type.
+ * 
+ * @param port The UART to be configured.
+ * @param flow_control The flow control which will be set.
+ * 
+ * @return ::CIO_SUCCESS on success.
+ */
+CIO_EXPORT enum cio_error cio_uart_set_flow_control(const struct cio_uart *port, enum cio_uart_flow_control flow_control);
+
+/**
+ * @brief Get the configured flow control
+ * 
+ * @param port The UART port fro which the flow control information will be gathered.
+ * @param[out] flow_control The flow control information will be stored here.
+ * 
+ * @return ::CIO_SUCCESS on success.
+ */
+CIO_EXPORT enum cio_error cio_uart_get_flow_control(const struct cio_uart *port, enum cio_uart_flow_control *flow_control);
 
 #ifdef __cplusplus
 }
