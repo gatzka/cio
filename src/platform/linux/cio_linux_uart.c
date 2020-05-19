@@ -445,3 +445,83 @@ enum cio_error cio_uart_get_num_data_bits(const struct cio_uart *port, enum cio_
 
 	return CIO_SUCCESS;
 }
+
+enum cio_error cio_uart_set_flow_control(const struct cio_uart *port, enum cio_uart_flow_control flow_control)
+{
+	if (cio_unlikely(port == NULL)) {
+		return CIO_INVALID_ARGUMENT;
+	}
+
+	struct termios tty;
+	enum cio_error err = get_current_settings(port, &tty);
+	if (cio_unlikely(err != CIO_SUCCESS)) {
+		return err;
+	}
+
+	switch (flow_control) {
+	case CIO_UART_FLOW_CONTROL_NONE:
+		tty.c_cflag &= ~(tcflag_t)CRTSCTS;
+		tty.c_iflag &= ~((tcflag_t)IXON | (tcflag_t)IXOFF | (tcflag_t)IXANY);
+		break;
+	case CIO_UART_FLOW_CONTROL_RTS_CTS:
+		tty.c_cflag |= (tcflag_t)CRTSCTS;
+		break;
+	case CIO_UART_FLOW_CONTROL_XON_XOFF:
+		tty.c_iflag |= ((tcflag_t)IXON | (tcflag_t)IXOFF | (tcflag_t)IXANY);
+		break;
+	default:
+		return CIO_INVALID_ARGUMENT;
+	}
+
+	int ret = tcsetattr(port->impl.ev.fd, TCSANOW, &tty);
+	if (cio_unlikely(ret == -1)) {
+		return (enum cio_error)(-errno);
+	}
+
+	return CIO_SUCCESS;
+}
+
+static bool xon_xoff_enabled(tcflag_t iflags)
+{
+	if (((iflags & (tcflag_t)IXON) == (tcflag_t)IXON) &&
+	    ((iflags & (tcflag_t)IXOFF) == (tcflag_t)IXOFF) &&
+	    ((iflags & (tcflag_t)IXANY) == (tcflag_t)IXANY)) {
+		return true;
+	}
+
+	return false;
+}
+
+static bool cts_rts_enabled(tcflag_t cflags)
+{
+	if ((cflags & (tcflag_t)CRTSCTS) == (tcflag_t)CRTSCTS) {
+		return true;
+	}
+
+	return false;
+}
+
+enum cio_error cio_uart_get_flow_control(const struct cio_uart *port, enum cio_uart_flow_control *flow_control)
+{
+	if (cio_unlikely(port == NULL)) {
+		return CIO_INVALID_ARGUMENT;
+	}
+
+	struct termios tty;
+	enum cio_error err = get_current_settings(port, &tty);
+	if (cio_unlikely(err != CIO_SUCCESS)) {
+		return err;
+	}
+
+	if (!cts_rts_enabled(tty.c_cflag) && !xon_xoff_enabled(tty.c_iflag)) {
+		*flow_control = CIO_UART_FLOW_CONTROL_NONE;
+	} else if (cts_rts_enabled(tty.c_cflag) && !xon_xoff_enabled(tty.c_iflag)) {
+		*flow_control = CIO_UART_FLOW_CONTROL_RTS_CTS;
+	} else if (!cts_rts_enabled(tty.c_cflag) && xon_xoff_enabled(tty.c_iflag)) {
+		*flow_control = CIO_UART_FLOW_CONTROL_XON_XOFF;
+	} else {
+		return CIO_PROTOCOL_NOT_SUPPORTED;
+	}
+
+	return CIO_SUCCESS;
+}
