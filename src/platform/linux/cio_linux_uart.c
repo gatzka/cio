@@ -50,13 +50,49 @@
 
 static const char DIR_NAME[] = "/dev/serial/by-path/";
 
+static void read_callback(void *context, enum cio_epoll_error error)
+{
+	struct cio_io_stream *stream = context;
+	struct cio_read_buffer *rb = stream->read_buffer;
+	struct cio_uart *uart = cio_container_of(stream, struct cio_uart, stream);
+
+	enum cio_error err = CIO_SUCCESS;
+
+	if (cio_unlikely(error != CIO_EPOLL_SUCCESS)) {
+		err = cio_linux_get_socket_error(uart->impl.ev.fd);
+		stream->read_handler(stream, stream->read_handler_context, err, rb);
+		return;
+	}
+
+	ssize_t ret = read(uart->impl.ev.fd, rb->add_ptr, cio_read_buffer_space_available(rb));
+	if (ret == -1) {
+		if (cio_unlikely(errno != EAGAIN)) {
+			stream->read_handler(stream, stream->read_handler_context, (enum cio_error)(-errno), rb);
+		}
+	} else {
+		if (ret == 0) {
+			err = CIO_EOF;
+		} else {
+			rb->add_ptr += (size_t)ret;
+		}
+
+		stream->read_handler(stream, stream->read_handler_context, err, rb);
+	}
+}
+
 static enum cio_error stream_read(struct cio_io_stream *stream, struct cio_read_buffer *buffer, cio_io_stream_read_handler_t handler, void *handler_context)
 {
 	if (cio_unlikely((stream == NULL) || (buffer == NULL) || (handler == NULL))) {
 		return CIO_INVALID_ARGUMENT;
 	}
 
-	(void)handler_context;
+	struct cio_uart *uart = cio_container_of(stream, struct cio_uart, stream);
+	uart->impl.ev.context = stream;
+	uart->impl.ev.read_callback = read_callback;
+	uart->stream.read_buffer = buffer;
+	uart->stream.read_handler = handler;
+	uart->stream.read_handler_context = handler_context;
+
 	return CIO_SUCCESS;
 }
 
@@ -520,9 +556,11 @@ enum cio_error cio_uart_set_flow_control(const struct cio_uart *port, enum cio_u
 		tty.c_iflag &= ~((tcflag_t)IXON | (tcflag_t)IXOFF | (tcflag_t)IXANY);
 		break;
 	case CIO_UART_FLOW_CONTROL_RTS_CTS:
+		tty.c_iflag &= ~((tcflag_t)IXON | (tcflag_t)IXOFF | (tcflag_t)IXANY);
 		tty.c_cflag |= (tcflag_t)CRTSCTS;
 		break;
 	case CIO_UART_FLOW_CONTROL_XON_XOFF:
+		tty.c_cflag &= ~(tcflag_t)CRTSCTS;
 		tty.c_iflag |= ((tcflag_t)IXON | (tcflag_t)IXOFF | (tcflag_t)IXANY);
 		break;
 	default:
@@ -821,4 +859,13 @@ struct cio_io_stream *cio_uart_get_io_stream(struct cio_uart *port)
 	}
 
 	return &port->stream;
+}
+
+const char *cio_uart_get_name(const struct cio_uart *port)
+{
+	if (cio_unlikely(port == NULL)) {
+		return NULL;
+	}
+
+	return port->impl.name;
 }
