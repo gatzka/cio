@@ -24,7 +24,10 @@ add_executable(test_cio_linux_socket_utils test_cio_linux_socket_utils.c ../../s
 add_executable(test_cio_linux_string test_cio_linux_string.c ../../src/platform/linux/cio_linux_string.c)
 add_executable(test_cio_linux_timer test_cio_linux_timer.c ../../src/platform/linux/cio_linux_timer.c ../../src/platform/linux/cio_linux_socket_utils.c)
 add_executable(test_cio_linux_unix_socket_address test_cio_linux_unix_socket_address.c ../../src/platform/linux/cio_unix_address.c)
-add_executable(test_cio_linux_uart test_cio_linux_uart.c ../../src/platform/linux/cio_linux_uart.c)
+add_executable(test_cio_linux_uart
+    ../../src/platform/linux/cio_linux_socket_utils.c
+    ../../src/platform/linux/cio_linux_uart.c
+    test_cio_linux_uart.c)
 
 get_property(includes TARGET cio::cio PROPERTY INTERFACE_INCLUDE_DIRECTORIES)
 get_property(targets DIRECTORY "${CMAKE_CURRENT_LIST_DIR}" PROPERTY BUILDSYSTEM_TARGETS)

@@ -44,6 +44,7 @@
 
 #include "cio_compiler.h"
 #include "cio_error_code.h"
+#include "cio_linux_socket_utils.h"
 #include "cio_uart.h"
 #include "cio_util.h"
 
@@ -59,14 +60,62 @@ static enum cio_error stream_read(struct cio_io_stream *stream, struct cio_read_
 	return CIO_SUCCESS;
 }
 
+static void write_callback(void *context, enum cio_epoll_error error)
+{
+	struct cio_io_stream *stream = context;
+
+	enum cio_error err = CIO_SUCCESS;
+
+	if (cio_unlikely(error != CIO_EPOLL_SUCCESS)) {
+		const struct cio_uart *uart = cio_const_container_of(stream, struct cio_uart, stream);
+		err = cio_linux_get_socket_error(uart->impl.ev.fd);
+	}
+
+	stream->write_handler(stream, stream->write_handler_context, stream->write_buffer, err, 0);
+}
+
 static enum cio_error stream_write(struct cio_io_stream *stream, struct cio_write_buffer *buffer, cio_io_stream_write_handler_t handler, void *handler_context)
 {
 	if (cio_unlikely((stream == NULL) || (buffer == NULL) || (handler == NULL))) {
 		return CIO_INVALID_ARGUMENT;
 	}
 
-	(void)handler_context;
-	return CIO_SUCCESS;
+	struct cio_uart *uart = cio_container_of(stream, struct cio_uart, stream);
+	size_t chain_length = cio_write_buffer_get_num_buffer_elements(buffer);
+
+	const struct cio_write_buffer *wb = buffer->next;
+	size_t written = 0;
+	bool write_error = false;
+	for (size_t i = 0; i < chain_length; i++) {
+		ssize_t ret = write(uart->impl.ev.fd, wb->data.element.data, wb->data.element.length);
+		if (cio_likely(ret >= 0)) {
+			written += (size_t)ret;
+			if ((size_t)ret != wb->data.element.length) {
+				break;
+			}
+		} else {
+			write_error = true;
+			break;
+		}
+
+		wb = wb->next;
+	}
+
+	if (cio_likely(!write_error)) {
+		handler(stream, handler_context, buffer, CIO_SUCCESS, written);
+		return CIO_SUCCESS;
+	}
+
+	if (cio_likely(errno == EAGAIN)) {
+		uart->stream.write_handler = handler;
+		uart->stream.write_handler_context = handler_context;
+		uart->stream.write_buffer = buffer;
+		uart->impl.ev.context = stream;
+		uart->impl.ev.write_callback = write_callback;
+		return cio_linux_eventloop_register_write(uart->impl.loop, &uart->impl.ev);
+	}
+
+	return (enum cio_error)(-errno);
 }
 
 static enum cio_error stream_close(struct cio_io_stream *stream)
@@ -763,4 +812,13 @@ enum cio_error cio_uart_get_baud_rate(const struct cio_uart *port, enum cio_uart
 	}
 
 	return CIO_SUCCESS;
+}
+
+struct cio_io_stream *cio_uart_get_io_stream(struct cio_uart *port)
+{
+	if (cio_unlikely(port == NULL)) {
+		return NULL;
+	}
+
+	return &port->stream;
 }
