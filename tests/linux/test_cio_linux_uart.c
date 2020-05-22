@@ -44,6 +44,8 @@ FAKE_VALUE_FUNC(int, tcgetattr, int, struct termios *)
 FAKE_VALUE_FUNC(int, tcsetattr, int, int, const struct termios *)
 FAKE_VALUE_FUNC(int, cfsetispeed, struct termios *,speed_t)
 FAKE_VALUE_FUNC(int, cfsetospeed, struct termios *,speed_t)
+FAKE_VALUE_FUNC(int, tcflush, int, int)
+
 
 FAKE_VALUE_FUNC(enum cio_error, cio_linux_eventloop_add, const struct cio_eventloop *, struct cio_event_notifier *)
 FAKE_VOID_FUNC(cio_linux_eventloop_remove, struct cio_eventloop *, const struct cio_event_notifier *)
@@ -78,6 +80,7 @@ void setUp(void)
 	RESET_FAKE(cfsetospeed)
 	RESET_FAKE(tcgetattr)
 	RESET_FAKE(tcsetattr)
+	RESET_FAKE(tcflush)
 
 	RESET_FAKE(cio_linux_eventloop_add)
 	RESET_FAKE(cio_linux_eventloop_register_read)
