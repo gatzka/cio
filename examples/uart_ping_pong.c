@@ -54,7 +54,7 @@ struct client {
 static struct client client1;
 static struct client client2;
 
-static const char HELLO[] = "Hello\n\n";
+static const char HELLO[] = "Hello";
 
 static struct cio_eventloop loop;
 
@@ -102,7 +102,10 @@ static void client_handle_read(struct cio_buffered_stream *bs, void *handler_con
 		return;
 	}
 
-	fprintf(stdout, "Client received data, now sending...\n");
+	uint8_t recv_buffer[BUFFER_SIZE];
+	memcpy(recv_buffer, cio_read_buffer_get_read_ptr(read_buffer), num_bytes);
+	recv_buffer[num_bytes] = '\0';
+	fprintf(stdout, "Client received data: %s , now sending...\n", recv_buffer);
 
 	client->bytes_read = num_bytes;
 	cio_write_buffer_head_init(&client->wbh);
@@ -170,86 +173,109 @@ int main(void)
 		ret = EXIT_FAILURE;
 		goto close_first_uart;
 	}
-	// err = cio_uart_set_num_data_bits(uart1, CIO_UART_8_DATA_BITS);
-	// if (cio_unlikely(err != CIO_SUCCESS)) {
-	// 	fprintf(stderr, "Could not set 8 data bits per word on first UART!\n");
-	// 	ret = EXIT_FAILURE;
-	// 	goto close_first_uart;
-	// }
-	// err = cio_uart_set_parity(uart1, CIO_UART_PARITY_NONE);
-	// if (cio_unlikely(err != CIO_SUCCESS)) {
-	// 	fprintf(stderr, "Could not set parity on first UART!\n");
-	// 	ret = EXIT_FAILURE;
-	// 	goto close_first_uart;
-	// }
-	// err = cio_uart_set_num_stop_bits(uart1, CIO_UART_ONE_STOP_BIT);
-	// if (cio_unlikely(err != CIO_SUCCESS)) {
-	// 	fprintf(stderr, "Could not set 1 stop bit on first UART!\n");
-	// 	ret = EXIT_FAILURE;
-	// 	goto close_first_uart;
-	// }
-	// err = cio_uart_set_baud_rate(uart1, CIO_UART_BAUD_RATE_115200);
-	// if (cio_unlikely(err != CIO_SUCCESS)) {
-	// 	fprintf(stderr, "Could not set baud rate on first UART!\n");
-	// 	ret = EXIT_FAILURE;
-	// 	goto close_first_uart;
-	// }
-	// err = cio_uart_set_flow_control(uart1, CIO_UART_FLOW_CONTROL_NONE);
-	// if (cio_unlikely(err != CIO_SUCCESS)) {
-	// 	fprintf(stderr, "Could not disable flow control on first UART!\n");
-	// 	ret = EXIT_FAILURE;
-	// 	goto close_first_uart;
-	// }
-
+	err = cio_uart_set_num_data_bits(uart1, CIO_UART_8_DATA_BITS);
+	if (cio_unlikely(err != CIO_SUCCESS)) {
+		fprintf(stderr, "Could not set 8 data bits per word on first UART!\n");
+		ret = EXIT_FAILURE;
+		goto close_first_uart;
+	}
+	err = cio_uart_set_parity(uart1, CIO_UART_PARITY_NONE);
+	if (cio_unlikely(err != CIO_SUCCESS)) {
+		fprintf(stderr, "Could not set parity on first UART!\n");
+		ret = EXIT_FAILURE;
+		goto close_first_uart;
+	}
+	err = cio_uart_set_num_stop_bits(uart1, CIO_UART_ONE_STOP_BIT);
+	if (cio_unlikely(err != CIO_SUCCESS)) {
+		fprintf(stderr, "Could not set 1 stop bit on first UART!\n");
+		ret = EXIT_FAILURE;
+		goto close_first_uart;
+	}
+	err = cio_uart_set_baud_rate(uart1, CIO_UART_BAUD_RATE_115200);
+	if (cio_unlikely(err != CIO_SUCCESS)) {
+		fprintf(stderr, "Could not set baud rate on first UART!\n");
+		ret = EXIT_FAILURE;
+		goto close_first_uart;
+	}
+	err = cio_uart_set_flow_control(uart1, CIO_UART_FLOW_CONTROL_NONE);
+	if (cio_unlikely(err != CIO_SUCCESS)) {
+		fprintf(stderr, "Could not disable flow control on first UART!\n");
+		ret = EXIT_FAILURE;
+		goto close_first_uart;
+	}
 	struct cio_io_stream *stream = cio_uart_get_io_stream(uart1);
-	cio_buffered_stream_init(&client1.bs, stream);
+	if (cio_unlikely(stream == NULL)) {
+		fprintf(stderr, "failed to get IO stream!\n");
+		ret = EXIT_FAILURE;
+		goto close_uarts;
+	}
+	err = cio_buffered_stream_init(&client1.bs, stream);
+	if (cio_unlikely(err != CIO_SUCCESS)) {
+		fprintf(stderr, "failed to init buffered stream!\n");
+		ret = EXIT_FAILURE;
+		goto close_first_uart;
+	}
 	err = cio_read_buffer_init(&client1.rb, client1.buffer, sizeof(client1.buffer));
 	if (cio_unlikely(err != CIO_SUCCESS)) {
 		fprintf(stderr, "failed to init read buffer!\n");
 		ret = EXIT_FAILURE;
 		goto close_first_uart;
 	}
+	err = cio_buffered_stream_read_at_least(&client1.bs, &client1.rb, sizeof(HELLO), client_handle_read, &client1);
+	if (cio_unlikely(err != CIO_SUCCESS)) {
+		fprintf(stderr, "server could no start reading!\n");
+		ret = EXIT_FAILURE;
+		goto close_first_uart;
+	}
 
-
-	err = cio_uart_init(&uarts[1], &loop, NULL);
+	err = cio_uart_init(uart2, &loop, NULL);
 	if (cio_unlikely(err != CIO_SUCCESS)) {
 		fprintf(stderr, "Could not get init second UART!\n");
 		ret = EXIT_FAILURE;
 		goto close_first_uart;
 	}
-
-	//err = cio_uart_set_num_data_bits(&uarts[1], CIO_UART_8_DATA_BITS);
-	//if (cio_unlikely(err != CIO_SUCCESS)) {
-	//	fprintf(stderr, "Could not set 8 data bits per word on second UART!\n");
-	//	ret = EXIT_FAILURE;
-	//	goto close_uarts;
-	//}
-	//err = cio_uart_set_parity(&uarts[1], CIO_UART_PARITY_NONE);
-	//if (cio_unlikely(err != CIO_SUCCESS)) {
-	//	fprintf(stderr, "Could not set parity on second UART!\n");
-	//	ret = EXIT_FAILURE;
-	//	goto close_uarts;
-	//}
-	//err = cio_uart_set_num_stop_bits(&uarts[1], CIO_UART_ONE_STOP_BIT);
-	//if (cio_unlikely(err != CIO_SUCCESS)) {
-	//	fprintf(stderr, "Could not set 1 stop bit on second UART!\n");
-	//	ret = EXIT_FAILURE;
-	//	goto close_uarts;
-	//}
-	//err = cio_uart_set_baud_rate(&uarts[1], CIO_UART_BAUD_RATE_115200);
-	//if (cio_unlikely(err != CIO_SUCCESS)) {
-	//	fprintf(stderr, "Could not set baud rate on second UART!\n");
-	//	ret = EXIT_FAILURE;
-	//	goto close_uarts;
-	//}
-	//err = cio_uart_set_flow_control(&uarts[1], CIO_UART_FLOW_CONTROL_NONE);
-	//if (cio_unlikely(err != CIO_SUCCESS)) {
-	//	fprintf(stderr, "Could not disable flow control on second UART!\n");
-	//	ret = EXIT_FAILURE;
-	//	goto close_uarts;
-	//}
-
-	cio_buffered_stream_init(&client2.bs, stream);
+	err = cio_uart_set_num_data_bits(uart2, CIO_UART_8_DATA_BITS);
+	if (cio_unlikely(err != CIO_SUCCESS)) {
+		fprintf(stderr, "Could not set 8 data bits per word on second UART!\n");
+		ret = EXIT_FAILURE;
+		goto close_uarts;
+	}
+	err = cio_uart_set_parity(uart2, CIO_UART_PARITY_NONE);
+	if (cio_unlikely(err != CIO_SUCCESS)) {
+		fprintf(stderr, "Could not set parity on second UART!\n");
+		ret = EXIT_FAILURE;
+		goto close_uarts;
+	}
+	err = cio_uart_set_num_stop_bits(uart2, CIO_UART_ONE_STOP_BIT);
+	if (cio_unlikely(err != CIO_SUCCESS)) {
+		fprintf(stderr, "Could not set 1 stop bit on second UART!\n");
+		ret = EXIT_FAILURE;
+		goto close_uarts;
+	}
+	err = cio_uart_set_baud_rate(uart2, CIO_UART_BAUD_RATE_115200);
+	if (cio_unlikely(err != CIO_SUCCESS)) {
+		fprintf(stderr, "Could not set baud rate on second UART!\n");
+		ret = EXIT_FAILURE;
+		goto close_uarts;
+	}
+	err = cio_uart_set_flow_control(uart2, CIO_UART_FLOW_CONTROL_NONE);
+	if (cio_unlikely(err != CIO_SUCCESS)) {
+		fprintf(stderr, "Could not disable flow control on second UART!\n");
+		ret = EXIT_FAILURE;
+		goto close_uarts;
+	}
+	stream = cio_uart_get_io_stream(uart2);
+	if (cio_unlikely(stream == NULL)) {
+		fprintf(stderr, "failed to get IO stream!\n");
+		ret = EXIT_FAILURE;
+		goto close_uarts;
+	}
+	err = cio_buffered_stream_init(&client2.bs, stream);
+	if (cio_unlikely(err != CIO_SUCCESS)) {
+		fprintf(stderr, "failed to init buffered stream!\n");
+		ret = EXIT_FAILURE;
+		goto close_uarts;
+	}
 	err = cio_read_buffer_init(&client2.rb, client2.buffer, sizeof(client2.buffer));
 	if (cio_unlikely(err != CIO_SUCCESS)) {
 		fprintf(stderr, "failed to init read buffer!\n");
@@ -259,22 +285,12 @@ int main(void)
 	cio_write_buffer_head_init(&client2.wbh);
 	cio_write_buffer_const_element_init(&client2.wb, HELLO, sizeof(HELLO));
 	cio_write_buffer_queue_tail(&client2.wbh, &client2.wb);
-
 	err = cio_buffered_stream_write(&client2.bs, &client2.wbh, client_handle_write, &client2);
 	if (cio_unlikely(err != CIO_SUCCESS)) {
 		fprintf(stderr, "Could not send data on UART!\n");
 		ret = EXIT_FAILURE;
 		goto close_uarts;
 	}
-
-
-	err = cio_buffered_stream_read_at_least(&client1.bs, &client1.rb, sizeof(HELLO), client_handle_read, &client1);
-	if (cio_unlikely(err != CIO_SUCCESS)) {
-		fprintf(stderr, "server could no start reading!\n");
-		ret = EXIT_FAILURE;
-		goto close_first_uart;
-	}
-
 
 	err = cio_eventloop_run(&loop);
 	if (err != CIO_SUCCESS) {
