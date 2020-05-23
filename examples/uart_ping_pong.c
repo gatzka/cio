@@ -154,7 +154,7 @@ int main(void)
 	}
 
 	for (size_t i = 0; i < detected_ports; i++) {
-		fprintf(stdout, "detected port %zu: %s\n", i, uarts[i].impl.name);
+		fprintf(stdout, "detected port %zu: %s\n", i, cio_uart_get_name(&uarts[i]));
 	}
 
 	struct cio_uart *uart1 = NULL;
