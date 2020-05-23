@@ -24,6 +24,8 @@ add_library(PLATFORM OBJECT
     cio_windows_socket_utils.h
     cio_windows_string.c
     cio_windows_timer.c
+    cio_uart_impl.h
+    cio_windows_uart.c
 )
 
 set_property(TARGET PLATFORM 
