@@ -51,7 +51,7 @@ struct client {
 	uint8_t buffer[BUFFER_SIZE];
 };
 
-static struct client client1;
+static struct client client;
 static struct client client2;
 
 static const char HELLO[] = "Hello";
@@ -68,7 +68,7 @@ static void client_handle_read(struct cio_buffered_stream *bs, void *handler_con
 
 static void client_handle_write(struct cio_buffered_stream *bs, void *handler_context, enum cio_error err)
 {
-	struct client *client = handler_context;
+	struct client *c = handler_context;
 
 	if (cio_unlikely(err != CIO_SUCCESS)) {
 		fprintf(stderr, "client failed to write!\n");
@@ -77,9 +77,9 @@ static void client_handle_write(struct cio_buffered_stream *bs, void *handler_co
 
 	fprintf(stdout, "Client wrote data, now receiving...\n");
 
-	cio_read_buffer_consume(&client->rb, client->bytes_read);
+	cio_read_buffer_consume(&c->rb, c->bytes_read);
 
-	err = cio_buffered_stream_read_at_least(bs, &client->rb, sizeof(HELLO), client_handle_read, client);
+	err = cio_buffered_stream_read_at_least(bs, &c->rb, sizeof(HELLO), client_handle_read, c);
 	if (cio_unlikely(err != CIO_SUCCESS)) {
 		fprintf(stderr, "server could no start reading!\n");
 		return;
@@ -88,7 +88,7 @@ static void client_handle_write(struct cio_buffered_stream *bs, void *handler_co
 
 static void client_handle_read(struct cio_buffered_stream *bs, void *handler_context, enum cio_error err, struct cio_read_buffer *read_buffer, size_t num_bytes)
 {
-	struct client *client = handler_context;
+	struct client *c = handler_context;
 
 	if (cio_unlikely(err == CIO_EOF)) {
 		fprintf(stdout, "connection closed by peer\n");
@@ -107,11 +107,11 @@ static void client_handle_read(struct cio_buffered_stream *bs, void *handler_con
 	recv_buffer[num_bytes] = '\0';
 	fprintf(stdout, "Client received data: %s , now sending...\n", recv_buffer);
 
-	client->bytes_read = num_bytes;
-	cio_write_buffer_head_init(&client->wbh);
-	cio_write_buffer_element_init(&client->wb, cio_read_buffer_get_read_ptr(read_buffer), num_bytes);
-	cio_write_buffer_queue_tail(&client->wbh, &client->wb);
-	cio_buffered_stream_write(bs, &client->wbh, client_handle_write, client);
+	c->bytes_read = num_bytes;
+	cio_write_buffer_head_init(&c->wbh);
+	cio_write_buffer_element_init(&c->wb, cio_read_buffer_get_read_ptr(read_buffer), num_bytes);
+	cio_write_buffer_queue_tail(&c->wbh, &c->wb);
+	cio_buffered_stream_write(bs, &c->wbh, client_handle_write, c);
 }
 
 int main(void)
@@ -209,19 +209,19 @@ int main(void)
 		ret = EXIT_FAILURE;
 		goto close_uarts;
 	}
-	err = cio_buffered_stream_init(&client1.bs, stream);
+	err = cio_buffered_stream_init(&client.bs, stream);
 	if (cio_unlikely(err != CIO_SUCCESS)) {
 		fprintf(stderr, "failed to init buffered stream!\n");
 		ret = EXIT_FAILURE;
 		goto close_first_uart;
 	}
-	err = cio_read_buffer_init(&client1.rb, client1.buffer, sizeof(client1.buffer));
+	err = cio_read_buffer_init(&client.rb, client.buffer, sizeof(client.buffer));
 	if (cio_unlikely(err != CIO_SUCCESS)) {
 		fprintf(stderr, "failed to init read buffer!\n");
 		ret = EXIT_FAILURE;
 		goto close_first_uart;
 	}
-	err = cio_buffered_stream_read_at_least(&client1.bs, &client1.rb, sizeof(HELLO), client_handle_read, &client1);
+	err = cio_buffered_stream_read_at_least(&client.bs, &client.rb, sizeof(HELLO), client_handle_read, &client);
 	if (cio_unlikely(err != CIO_SUCCESS)) {
 		fprintf(stderr, "server could no start reading!\n");
 		ret = EXIT_FAILURE;
