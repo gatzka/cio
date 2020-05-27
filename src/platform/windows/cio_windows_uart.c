@@ -37,15 +37,14 @@
 #include "cio_uart.h"
 #include "cio_util.h"
 
+
 static enum cio_error enumerate_com_ports(unsigned int *pNumber, char *pPortName, int strMaxLen, char *pFriendName)
 {
 	unsigned int i, jj;
-	int ret;
 
 	TCHAR *pTempPortName;
 
 	GUID *pGuid;
-	DWORD dwGuids;
 	HDEVINFO hDevInfoSet;
 
 	typedef HKEY(__stdcall SetupDiOpenDevRegKeyFunType)(HDEVINFO, PSP_DEVINFO_DATA, DWORD, DWORD, DWORD, REGSAM);
@@ -66,7 +65,6 @@ static enum cio_error enumerate_com_ports(unsigned int *pNumber, char *pPortName
 	BOOL bMoreItems;
 	SP_DEVINFO_DATA devInfo;
 
-	ret = FALSE;
 	jj = 0;
 
 	TCHAR szFullPath[_MAX_PATH];
@@ -77,7 +75,6 @@ static enum cio_error enumerate_com_ports(unsigned int *pNumber, char *pPortName
 	}
 
 	//Setup the full path and delegate to LoadLibrary
-//#pragma warning(suppress : 6102) //There is a bug with the SAL annotation of GetSystemDirectory in the Windows 8.1 SDK
 	_tcscat_s(szFullPath, sizeof(szFullPath), _T("\\"));
 	_tcscat_s(szFullPath, sizeof(szFullPath), TEXT("SETUPAPI.DLL"));
 	HMODULE hLibrary = LoadLibrary(szFullPath);
@@ -85,14 +82,22 @@ static enum cio_error enumerate_com_ports(unsigned int *pNumber, char *pPortName
 		return (enum cio_error) - (signed int)GetLastError();	
 	}
 
+	SetupDiOpenDevRegKeyFunPtr = (SetupDiOpenDevRegKeyFunType *)GetProcAddress(hLibrary, "SetupDiOpenDevRegKey");
+
+	SetupDiDestroyDeviceInfoListFunPtr = (SetupDiDestroyDeviceInfoListFunType *)GetProcAddress(hLibrary, "SetupDiDestroyDeviceInfoList");
+	SetupDiEnumDeviceInfoFunPtr = (SetupDiEnumDeviceInfoFunType *)GetProcAddress(hLibrary, "SetupDiEnumDeviceInfo");
+
+	DWORD guids = 0;
+	SetupDiClassGuidsFromName(TEXT("Ports"), NULL, 0, &guids);
+
+	return CIO_SUCCESS;
+	
 #if 0
 
-	SetupDiOpenDevRegKeyFunPtr =
-	    (SetupDiOpenDevRegKeyFunType *)GetProcAddress(hLibrary, "SetupDiOpenDevRegKey");
 
 #if defined _UNICODE
 	SetupDiClassGuidsFromNameFunPtr = (SetupDiClassGuidsFromNameFunType *)
-	    GetProcAddress(hLibrary, "SetupDiGetDeviceRegistryPropertyW");
+	    GetProcAddress(hLibrary, "SetupDiClassGuidsFromNameW");
 	SetupDiGetClassDevsFunPtr =
 	    (SetupDiGetClassDevsFunType *)GetProcAddress(hLibrary, "SetupDiGetClassDevsW");
 	SetupDiGetDeviceRegistryPropertyFunPtr = (SetupDiGetDeviceRegistryPropertyFunType *)GetProcAddress(hLibrary, "SetupDiGetDeviceRegistryPropertyW");
@@ -105,16 +110,10 @@ static enum cio_error enumerate_com_ports(unsigned int *pNumber, char *pPortName
 	    GetProcAddress(hLibrary, "SetupDiGetDeviceRegistryPropertyA");
 #endif
 
-	SetupDiDestroyDeviceInfoListFunPtr = (SetupDiDestroyDeviceInfoListFunType *)
-	    GetProcAddress(hLibrary, "SetupDiDestroyDeviceInfoList");
 
-	SetupDiEnumDeviceInfoFunPtr = (SetupDiEnumDeviceInfoFunType *)
-	    GetProcAddress(hLibrary, "SetupDiEnumDeviceInfo");
 
-	//First need to convert the name "Ports" to a GUID using SetupDiClassGuidsFromName
-	dwGuids = 0;
-	SetupDiClassGuidsFromNameFunPtr(TEXT("Ports"), NULL, 0, &dwGuids);
 
+	int ret = FALSE;
 	if (0 == dwGuids)
 		return FALSE;
 
@@ -286,7 +285,6 @@ static enum cio_error enumerate_com_ports(unsigned int *pNumber, char *pPortName
 
 	return ret;
 #endif
-	return CIO_SUCCESS;
 }
 
 static enum cio_error stream_read(struct cio_io_stream *stream, struct cio_read_buffer *buffer, cio_io_stream_read_handler_t handler, void *handler_context)
@@ -319,9 +317,9 @@ static enum cio_error stream_close(struct cio_io_stream *stream)
 
 size_t cio_uart_get_number_of_uarts(void)
 {
-	enumerate_com_ports(NULL, NULL, 1, NULL);
-
-	return 0;
+	DWORD guids = 0;
+	SetupDiClassGuidsFromName(TEXT("Ports"), NULL, 0, &guids);
+	return (size_t)guids;
 }
 
 enum cio_error cio_uart_get_ports(struct cio_uart ports[], size_t num_ports_entries, size_t *num_detected_ports)
