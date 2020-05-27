@@ -28,6 +28,7 @@
 
 #include <Windows.h>
 #include <setupapi.h>
+#include <malloc.h>
 #include <stdint.h>
 #include <stdlib.h>
 #include <tchar.h>
@@ -131,7 +132,7 @@ static enum cio_error enumerate_com_ports(unsigned int *pNumber, char *pPortName
 		return FALSE;
 	} /*if*/
 
-	hDevInfoSet = SetupDiGetClassDevsFunPtr(pGuid, NULL, NULL,
+	HDEVINFOhDevInfoSet = SetupDiGetClassDevsFunPtr(pGuid, NULL, NULL,
 	                                        DIGCF_PRESENT /*| DIGCF_DEVICEINTERFACE*/);
 
 	if (INVALID_HANDLE_VALUE == hDevInfoSet) {
@@ -324,7 +325,67 @@ size_t cio_uart_get_number_of_uarts(void)
 
 enum cio_error cio_uart_get_ports(struct cio_uart ports[], size_t num_ports_entries, size_t *num_detected_ports)
 {
-	return CIO_OPERATION_NOT_SUPPORTED;
+	GUID *guid_buffer = (GUID *)_malloca(num_ports_entries * sizeof(*guid_buffer));
+	if (cio_unlikely(guid_buffer == NULL)) {
+		return CIO_NO_MEMORY;
+	}
+
+	DWORD num_guids = (DWORD)num_ports_entries;
+	if (SetupDiClassGuidsFromName(TEXT("Ports"), guid_buffer, num_guids, &num_guids) == FALSE) {
+		return (enum cio_error) - (signed int)GetLastError();
+	}
+	
+	if (cio_unlikely(num_guids != num_ports_entries)) {
+		return CIO_INVALID_ARGUMENT;
+	}
+
+	HDEVINFO dev_info_set = SetupDiGetClassDevs(guid_buffer, NULL, NULL, DIGCF_PRESENT);
+	if (dev_info_set == INVALID_HANDLE_VALUE) {
+		return (enum cio_error) - (signed int)GetLastError();
+	}
+
+	SP_DEVINFO_DATA dev_info;
+	dev_info.cbSize = sizeof(dev_info);
+	DWORD member_index = 0;
+	size_t detected_ports = 0;
+	BOOL more_items = SetupDiEnumDeviceInfo(dev_info_set, member_index, &dev_info);
+	enum cio_error error = CIO_SUCCESS;
+	while (more_items) {
+		HKEY dev_key = SetupDiOpenDevRegKey(dev_info_set, &dev_info, DICS_FLAG_GLOBAL, 0, DIREG_DEV, KEY_READ);
+		if (dev_key != INVALID_HANDLE_VALUE) {
+			//Get the length of the registry entry
+			DWORD entry_type = 0;
+			DWORD value_size = 0;
+			LONG err = RegQueryValueEx(dev_key, TEXT("PortName"), NULL, &entry_type, NULL, &value_size);
+			if (cio_likely((err == ERROR_SUCCESS)) && (entry_type == REG_SZ)) {
+				DWORD alloc_size = value_size + sizeof(TCHAR);
+				LPTSTR port_name = (LPTSTR)_malloca(alloc_size);
+				if (port_name == NULL) {
+					error = CIO_NO_MEMORY;
+					RegCloseKey(dev_key);
+					goto out;
+				}
+
+				//Recall RegQueryValueEx to return the data
+				port_name[0] = TEXT('\0');
+				DWORD return_size = alloc_size;
+				err = RegQueryValueEx(dev_key, TEXT("PortName"), NULL, &entry_type, (LPBYTE)port_name, &return_size);
+				RegCloseKey(dev_key);
+				if (cio_likely(err == ERROR_SUCCESS)) {
+					detected_ports++; //TODO
+				}
+			}
+		}
+
+		member_index++;
+		dev_info.cbSize = sizeof(dev_info);
+		more_items = SetupDiEnumDeviceInfo(dev_info_set, member_index, &dev_info);
+	}
+
+	*num_detected_ports = detected_ports;
+out:
+	SetupDiDestroyDeviceInfoList(dev_info_set); 
+	return CIO_SUCCESS;
 }
 
 enum cio_error cio_uart_init(struct cio_uart *port, struct cio_eventloop *loop, cio_uart_close_hook_t close_hook)
