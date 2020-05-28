@@ -29,6 +29,8 @@
 #ifndef CIO_WINDOWS_UART_IMPL_H
 #define CIO_WINDOWS_UART_IMPL_H
 
+#include <stdlib.h>
+
 #include "cio_eventloop.h"
 
 #ifdef __cplusplus
@@ -36,6 +38,7 @@ extern "C" {
 #endif
 
 struct cio_uart_impl {
+	char name[_MAX_PATH];
 	struct cio_event_notifier ev;
 	struct cio_eventloop *loop;
 };
