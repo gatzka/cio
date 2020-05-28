@@ -37,6 +37,8 @@ set_property(TARGET PLATFORM
         "windows/cio_timer_impl.h"
 )
 
+target_compile_definitions (PLATFORM PRIVATE _UNICODE UNICODE)
+
 target_include_directories(PLATFORM
     PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/>
     PRIVATE ${CMAKE_CURRENT_BINARY_DIR}/../../generated/ ${CMAKE_CURRENT_LIST_DIR}/../../
