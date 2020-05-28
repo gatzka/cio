@@ -176,11 +176,13 @@ static enum cio_error stream_write(struct cio_io_stream *stream, struct cio_writ
 	if (rc == SOCKET_ERROR) {
 		int error = WSAGetLastError();
 		if (cio_unlikely(error != WSA_IO_PENDING)) {
+			_freea(wsa_buffers);
 			return (enum cio_error)(-error);
 		}
 	}
 
 	s->impl.write_event.overlapped_operations_in_use++;
+	_freea(wsa_buffers);
 	return CIO_SUCCESS;
 }
 
