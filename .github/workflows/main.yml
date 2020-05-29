@@ -245,6 +245,7 @@ jobs:
       with:
         install_deps: ./.github/workflows/install-deps.sh
         SONAR_TOKEN: ${{ secrets.SONARCLOUD_TOKEN }}
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         cmake_build_type: Debug
 
   doxygen:
