@@ -30,6 +30,7 @@
 #define CIO_WINDOWS_UART_IMPL_H
 
 #include <stdlib.h>
+#include <Windows.h>
 
 #include "cio_eventloop.h"
 
@@ -40,7 +41,9 @@ extern "C" {
 struct cio_uart_impl {
 	char name[_MAX_PATH];
 	char friendly_name[_MAX_PATH];
-	struct cio_event_notifier ev;
+	HANDLE fd;
+	struct cio_event_notifier read_event;
+	struct cio_event_notifier write_event;
 	struct cio_eventloop *loop;
 };
 
