@@ -30,13 +30,77 @@
 #include <setupapi.h>
 #include <malloc.h>
 #include <stdint.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <tchar.h>
 
 #include "cio_compiler.h"
 #include "cio_error_code.h"
+#include "cio_eventloop_impl.h"
 #include "cio_uart.h"
 #include "cio_util.h"
+
+static void try_free(struct cio_uart *port)
+{
+	if ((port->impl.read_event.overlapped_operations_in_use == 0) && (port->impl.write_event.overlapped_operations_in_use == 0)) {
+		CloseHandle(port->impl.fd);
+		if (port->close_hook != NULL) {
+			port->close_hook(port);
+		}
+	}
+}
+
+static void read_callback(struct cio_event_notifier *ev)
+{
+	struct cio_uart_impl *impl = cio_container_of(ev, struct cio_uart_impl, read_event);
+	struct cio_uart *port = cio_container_of(impl, struct cio_uart, impl);
+
+	DWORD recv_bytes;
+	BOOL rc = GetOverlappedResult(impl->fd, &ev->overlapped, &recv_bytes, FALSE);
+	ev->overlapped_operations_in_use--;
+	enum cio_error error_code;
+	if (cio_unlikely(rc == FALSE)) {
+		int error = GetLastError();
+		if (error == ERROR_OPERATION_ABORTED) {
+			try_free(port);
+			return;
+		}
+
+		error_code = (enum cio_error)(-error);
+	} else {
+		if (recv_bytes == 0) {
+			error_code = CIO_EOF;
+		} else {
+			port->stream.read_buffer->add_ptr += (size_t)recv_bytes;
+			error_code = CIO_SUCCESS;
+		}
+	}
+
+	port->stream.read_handler(&port->stream, port->stream.read_handler_context, error_code, port->stream.read_buffer);
+}
+
+static void write_callback(struct cio_event_notifier *ev)
+{
+	struct cio_uart_impl *impl = cio_container_of(ev, struct cio_uart_impl, write_event);
+	struct cio_uart *port = cio_container_of(impl, struct cio_uart, impl);
+
+	DWORD bytes_sent;
+	BOOL rc = GetOverlappedResult(impl->fd, &ev->overlapped, &bytes_sent, FALSE);
+	ev->overlapped_operations_in_use--;
+	enum cio_error error_code = CIO_SUCCESS;
+	if (cio_unlikely(rc == FALSE)) {
+		int error = GetLastError();
+		if (error == ERROR_OPERATION_ABORTED) {
+			try_free(port);
+			return;
+		}
+
+		bytes_sent = 0;
+		error_code = (enum cio_error)(-error);
+	}
+
+	port->stream.write_handler(&port->stream, port->stream.write_handler_context, port->stream.write_buffer, error_code, (size_t)bytes_sent);
+}
 
 static enum cio_error stream_read(struct cio_io_stream *stream, struct cio_read_buffer *buffer, cio_io_stream_read_handler_t handler, void *handler_context)
 {
@@ -289,7 +353,60 @@ free_guid_buffer:
 
 enum cio_error cio_uart_init(struct cio_uart *port, struct cio_eventloop *loop, cio_uart_close_hook_t close_hook)
 {
-	return CIO_OPERATION_NOT_SUPPORTED;
+	if (cio_unlikely(port == NULL) || (loop == NULL)) {
+		return CIO_INVALID_ARGUMENT;
+	}
+
+	char file_name[_MAX_PATH + 7] = "\\\\.\\";
+	strcat_s(file_name, sizeof(file_name), port->impl.name);
+
+	int wchar_len = MultiByteToWideChar(CP_UTF8, MB_ERR_INVALID_CHARS, file_name, -1, NULL, 0);
+	if (cio_unlikely(wchar_len == 0)) {
+		return (enum cio_error) (-(signed int)GetLastError());
+	}
+
+	size_t wchar_buffer_size = (size_t)wchar_len + sizeof(WCHAR);
+	LPWSTR wchar_name = malloc(wchar_buffer_size);
+	if (cio_unlikely(wchar_name == NULL)) {
+		return CIO_NO_MEMORY;
+	}
+
+	enum cio_error err = CIO_SUCCESS;
+	wchar_len = MultiByteToWideChar(CP_UTF8, MB_ERR_INVALID_CHARS, file_name, -1, wchar_name, (int)wchar_buffer_size);
+	if (cio_unlikely(wchar_len == 0)) {
+		err = (enum cio_error)(-(signed int)GetLastError());
+		goto free_wchar_buffer;
+	}
+
+	HANDLE comm = CreateFileW(wchar_name, GENERIC_READ | GENERIC_WRITE, 0, NULL, OPEN_EXISTING, FILE_FLAG_OVERLAPPED, NULL);
+	if (cio_unlikely(comm == INVALID_HANDLE_VALUE)) {
+		err = (enum cio_error)(-(signed int)GetLastError());
+		goto free_wchar_buffer;
+	}
+
+	err = cio_windows_add_handle_to_completion_port(comm, loop, &port->impl);
+	if (cio_unlikely(err != CIO_SUCCESS)) {
+		CloseHandle(comm);
+		goto free_wchar_buffer;
+	}
+
+	port->impl.fd = comm;
+	port->impl.loop = loop;
+	port->close_hook = close_hook;
+
+	port->impl.read_event.callback = read_callback;
+	port->impl.read_event.overlapped_operations_in_use = 0;
+	port->impl.write_event.callback = write_callback;
+	port->impl.write_event.overlapped_operations_in_use = 0;
+
+	port->stream.read_some = stream_read;
+	port->stream.write_some = stream_write;
+	port->stream.close = stream_close;
+
+
+free_wchar_buffer:
+	free(wchar_name);
+	return err;
 }
 
 enum cio_error cio_uart_close(struct cio_uart *port)
@@ -297,6 +414,9 @@ enum cio_error cio_uart_close(struct cio_uart *port)
 	if (cio_unlikely(port == NULL)) {
 		return CIO_INVALID_ARGUMENT;
 	}
+
+	CancelIo(port->impl.fd);
+	try_free(port);
 
 	return CIO_SUCCESS;
 }
