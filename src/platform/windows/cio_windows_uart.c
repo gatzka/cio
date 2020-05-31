@@ -384,10 +384,37 @@ enum cio_error cio_uart_init(struct cio_uart *port, struct cio_eventloop *loop, 
 		goto free_wchar_buffer;
 	}
 
+	DCB current_settings = {0};
+	current_settings.DCBlength = sizeof(current_settings);
+	BOOL ret = GetCommState(comm, &current_settings);
+	if (cio_unlikely(ret == FALSE)) {
+		err = (enum cio_error)(-(signed int)GetLastError());
+		goto close_handle;
+	}
+
+	current_settings.BaudRate = CBR_115200;
+	current_settings.ByteSize = 8;
+	current_settings.Parity = NOPARITY;
+	current_settings.StopBits = ONESTOPBIT;
+	current_settings.fInX = FALSE;
+	current_settings.fOutX = FALSE;
+	current_settings.fTXContinueOnXoff = FALSE;
+	current_settings.fOutxCtsFlow = FALSE;
+	current_settings.fRtsControl = RTS_CONTROL_DISABLE;
+	current_settings.fDtrControl = DTR_CONTROL_DISABLE;
+	current_settings.fOutxDsrFlow = FALSE;
+	current_settings.fDsrSensitivity = FALSE;
+
+	ret = SetCommState(comm, &current_settings);
+	if (cio_unlikely(ret == FALSE)) {
+		err = (enum cio_error)(-(signed int)GetLastError());
+		goto close_handle;
+	}
+
 	err = cio_windows_add_handle_to_completion_port(comm, loop, &port->impl);
 	if (cio_unlikely(err != CIO_SUCCESS)) {
 		CloseHandle(comm);
-		goto free_wchar_buffer;
+		goto close_handle;
 	}
 
 	port->impl.fd = comm;
@@ -403,7 +430,11 @@ enum cio_error cio_uart_init(struct cio_uart *port, struct cio_eventloop *loop, 
 	port->stream.write_some = stream_write;
 	port->stream.close = stream_close;
 
+	free(wchar_name);
+	return err;
 
+close_handle:
+	CloseHandle(comm);
 free_wchar_buffer:
 	free(wchar_name);
 	return err;
