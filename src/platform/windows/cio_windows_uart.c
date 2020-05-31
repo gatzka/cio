@@ -526,7 +526,57 @@ enum cio_error cio_uart_set_baud_rate(const struct cio_uart *port, enum cio_uart
 		return CIO_INVALID_ARGUMENT;
 	}
 
-	return CIO_OPERATION_NOT_SUPPORTED;
+	DCB current_settings = {0};
+	current_settings.DCBlength = sizeof(current_settings);
+	BOOL ret = GetCommState(port->impl.fd, &current_settings);
+	if (cio_unlikely(ret == FALSE)) {
+		return (enum cio_error)(-(signed int)GetLastError());
+	}
+
+	switch (baud_rate) {
+	case CIO_UART_BAUD_RATE_110:
+		current_settings.BaudRate = CBR_110;
+		break;
+	case CIO_UART_BAUD_RATE_300:
+		current_settings.BaudRate = CBR_300;
+		break;
+	case CIO_UART_BAUD_RATE_600:
+		current_settings.BaudRate = CBR_600;
+		break;
+	case CIO_UART_BAUD_RATE_1200:
+		current_settings.BaudRate = CBR_1200;
+		break;
+	case CIO_UART_BAUD_RATE_2400:
+		current_settings.BaudRate = CBR_2400;
+		break;
+	case CIO_UART_BAUD_RATE_4800:
+		current_settings.BaudRate = CBR_4800;
+		break;
+	case CIO_UART_BAUD_RATE_9600:
+		current_settings.BaudRate = CBR_9600;
+		break;
+	case CIO_UART_BAUD_RATE_19200:
+		current_settings.BaudRate = CBR_19200;
+		break;
+	case CIO_UART_BAUD_RATE_38400:
+		current_settings.BaudRate = CBR_38400;
+		break;
+	case CIO_UART_BAUD_RATE_57600:
+		current_settings.BaudRate = CBR_57600;
+		break;
+	case CIO_UART_BAUD_RATE_115200:
+		current_settings.BaudRate = CBR_115200;
+		break;
+	default:
+		return CIO_INVALID_ARGUMENT;
+	}
+
+	ret = SetCommState(port->impl.fd, &current_settings);
+	if (cio_unlikely(ret == FALSE)) {
+		return (enum cio_error)(-(signed int)GetLastError());
+	}
+
+	return CIO_SUCCESS;
 }
 
 enum cio_error cio_uart_get_baud_rate(const struct cio_uart *port, enum cio_uart_baud_rate *baud_rate)
@@ -534,7 +584,53 @@ enum cio_error cio_uart_get_baud_rate(const struct cio_uart *port, enum cio_uart
 	if (cio_unlikely(port == NULL)) {
 		return CIO_INVALID_ARGUMENT;
 	}
-	return CIO_OPERATION_NOT_SUPPORTED;
+
+	DCB current_settings = {0};
+	current_settings.DCBlength = sizeof(current_settings);
+	BOOL ret = GetCommState(port->impl.fd, &current_settings);
+	if (cio_unlikely(ret == FALSE)) {
+		return (enum cio_error)(-(signed int)GetLastError());
+	}
+
+	switch (current_settings.BaudRate) {
+	case CBR_110:
+		*baud_rate = CIO_UART_BAUD_RATE_110;
+		break;
+	case CBR_300:
+		*baud_rate = CIO_UART_BAUD_RATE_300;
+		break;
+	case CBR_600:
+		*baud_rate = CIO_UART_BAUD_RATE_600;
+		break;
+	case CBR_1200:
+		*baud_rate = CIO_UART_BAUD_RATE_1200;
+		break;
+	case CBR_2400:
+		*baud_rate = CIO_UART_BAUD_RATE_2400;
+		break;
+	case CBR_4800:
+		*baud_rate = CIO_UART_BAUD_RATE_4800;
+		break;
+	case CBR_9600:
+		*baud_rate = CIO_UART_BAUD_RATE_9600;
+		break;
+	case CBR_19200:
+		*baud_rate = CIO_UART_BAUD_RATE_19200;
+		break;
+	case CBR_38400:
+		*baud_rate = CIO_UART_BAUD_RATE_38400;
+		break;
+	case CBR_57600:
+		*baud_rate = CIO_UART_BAUD_RATE_57600;
+		break;
+	case CBR_115200:
+		*baud_rate = CIO_UART_BAUD_RATE_115200;
+		break;
+	default:
+		return CIO_PROTOCOL_NOT_SUPPORTED;
+	}
+
+	return CIO_SUCCESS;
 }
 
 struct cio_io_stream *cio_uart_get_io_stream(struct cio_uart *port)
