@@ -39,6 +39,7 @@ extern "C" {
 
 struct cio_uart_impl {
 	char name[_MAX_PATH];
+	char friendly_name[_MAX_PATH];
 	struct cio_event_notifier ev;
 	struct cio_eventloop *loop;
 };
