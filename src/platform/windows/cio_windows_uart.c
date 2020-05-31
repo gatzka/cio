@@ -138,6 +138,41 @@ static bool is_com_port(const char *port_name)
 	return false;
 }
 
+static char *get_device_property(HDEVINFO dev_info, PSP_DEVINFO_DATA dev_data, DWORD property)
+{
+	DWORD buff_size = 0;
+	SetupDiGetDeviceRegistryPropertyW(dev_info, dev_data, property, NULL, NULL, 0, &buff_size);
+	
+	LPTSTR buff = (LPTSTR)malloc(buff_size);
+	if (cio_unlikely(buff == NULL)) {
+		return NULL;
+	}
+
+	if (SetupDiGetDeviceRegistryPropertyW(dev_info, dev_data, property, NULL, (PBYTE)buff, buff_size, NULL)) {
+		int utf8_len = WideCharToMultiByte(CP_UTF8, WC_ERR_INVALID_CHARS, buff, buff_size, NULL, 0, NULL, NULL);
+		if (cio_unlikely(utf8_len == 0)) {
+			goto free_buffer;
+		}
+
+		char *utf8_name = malloc((size_t)utf8_len + 1);
+		if (cio_unlikely(utf8_name == NULL)) {
+			goto free_buffer;
+		}
+
+		utf8_len = WideCharToMultiByte(CP_UTF8, WC_ERR_INVALID_CHARS, buff, buff_size, utf8_name, utf8_len + 1, NULL, NULL);
+		if (cio_unlikely(utf8_len == 0)) {
+			free(utf8_name);
+			goto free_buffer;
+		}
+
+		return utf8_name;
+	}
+
+free_buffer:
+	free(buff);
+	return NULL;
+}
+
 size_t cio_uart_get_number_of_uarts(void)
 {
 	DWORD num_guids = 0;
@@ -222,6 +257,14 @@ enum cio_error cio_uart_get_ports(struct cio_uart ports[], size_t num_ports_entr
 		if (cio_likely(port_name != NULL)) {
 			if (is_com_port(port_name)) {
 				strncpy_s(ports[detected_ports].impl.name, sizeof(ports[detected_ports].impl.name), port_name, _TRUNCATE);
+
+				char *friendly_name = get_device_property(dev_info_set, &dev_info, SPDRP_FRIENDLYNAME);
+				if (friendly_name != NULL) {
+					strncpy_s(ports[detected_ports].impl.friendly_name, sizeof(ports[detected_ports].impl.friendly_name), friendly_name, _TRUNCATE);
+				} else {
+					ports[detected_ports].impl.friendly_name[0] = '\0';
+				}
+
 				detected_ports++;
 			}
 
@@ -358,5 +401,9 @@ const char *cio_uart_get_name(const struct cio_uart *port)
 		return NULL;
 	}
 
-	return port->impl.name;
+	if (port->impl.friendly_name[0] != '\0') {
+		return port->impl.friendly_name;
+	} else {
+		return port->impl.name;
+	}
 }
