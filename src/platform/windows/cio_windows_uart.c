@@ -237,6 +237,16 @@ free_buffer:
 	return NULL;
 }
 
+static enum cio_error set_comm_settings(struct cio_uart *port, DCB *settings)
+{
+	BOOL ret = SetCommState(port->impl.fd, settings);
+	if (cio_unlikely(ret == FALSE)) {
+		return (enum cio_error)(-(signed int)GetLastError());
+	}
+
+	return CIO_SUCCESS;
+}
+
 size_t cio_uart_get_number_of_uarts(void)
 {
 	DWORD num_guids = 0;
@@ -405,9 +415,9 @@ enum cio_error cio_uart_init(struct cio_uart *port, struct cio_eventloop *loop, 
 	current_settings.fOutxDsrFlow = FALSE;
 	current_settings.fDsrSensitivity = FALSE;
 
-	ret = SetCommState(comm, &current_settings);
-	if (cio_unlikely(ret == FALSE)) {
-		err = (enum cio_error)(-(signed int)GetLastError());
+	port->impl.fd = comm;
+	err = set_comm_settings(port, &current_settings);
+	if (cio_unlikely(err != CIO_SUCCESS)) {
 		goto close_handle;
 	}
 
@@ -417,7 +427,6 @@ enum cio_error cio_uart_init(struct cio_uart *port, struct cio_eventloop *loop, 
 		goto close_handle;
 	}
 
-	port->impl.fd = comm;
 	port->impl.loop = loop;
 	port->close_hook = close_hook;
 
@@ -485,12 +494,7 @@ enum cio_error cio_uart_set_parity(const struct cio_uart *port, enum cio_uart_pa
 		return CIO_INVALID_ARGUMENT;
 	}
 
-	ret = SetCommState(port->impl.fd, &current_settings);
-	if (cio_unlikely(ret == FALSE)) {
-		return (enum cio_error)(-(signed int)GetLastError());
-	}
-
-	return CIO_SUCCESS;
+	return set_comm_settings(port, &current_settings);
 }
 
 enum cio_error cio_uart_get_parity(const struct cio_uart *port, enum cio_uart_parity *parity)
@@ -535,7 +539,25 @@ enum cio_error cio_uart_set_num_stop_bits(const struct cio_uart *port, enum cio_
 		return CIO_INVALID_ARGUMENT;
 	}
 
-	return CIO_OPERATION_NOT_SUPPORTED;
+	DCB current_settings = {0};
+	current_settings.DCBlength = sizeof(current_settings);
+	BOOL ret = GetCommState(port->impl.fd, &current_settings);
+	if (cio_unlikely(ret == FALSE)) {
+		return (enum cio_error)(-(signed int)GetLastError());
+	}
+
+	switch (num_stop_bits) {
+	case CIO_UART_ONE_STOP_BIT:
+		current_settings.StopBits = ONESTOPBIT;
+		break;
+	case CIO_UART_TWO_STOP_BITS:
+		current_settings.StopBits = TWOSTOPBITS;
+		break;
+	default:
+		return CIO_INVALID_ARGUMENT;
+	}
+
+	return set_comm_settings(port, &current_settings);
 }
 
 enum cio_error cio_uart_get_num_stop_bits(const struct cio_uart *port, enum cio_uart_num_stop_bits *num_stop_bits)
@@ -544,7 +566,25 @@ enum cio_error cio_uart_get_num_stop_bits(const struct cio_uart *port, enum cio_
 		return CIO_INVALID_ARGUMENT;
 	}
 
-	return CIO_OPERATION_NOT_SUPPORTED;
+	DCB current_settings = {0};
+	current_settings.DCBlength = sizeof(current_settings);
+	BOOL ret = GetCommState(port->impl.fd, &current_settings);
+	if (cio_unlikely(ret == FALSE)) {
+		return (enum cio_error)(-(signed int)GetLastError());
+	}
+
+	switch (current_settings.StopBits) {
+	case ONESTOPBIT:
+		*num_stop_bits = CIO_UART_ONE_STOP_BIT;
+		break;
+	case TWOSTOPBITS:
+		*num_stop_bits = CIO_UART_TWO_STOP_BITS;
+		break;
+	default:
+		return CIO_OPERATION_NOT_SUPPORTED;
+	}
+
+	return CIO_SUCCESS;
 }
 
 enum cio_error cio_uart_set_num_data_bits(const struct cio_uart *port, enum cio_uart_num_data_bits num_data_bits)
@@ -630,12 +670,7 @@ enum cio_error cio_uart_set_baud_rate(const struct cio_uart *port, enum cio_uart
 		return CIO_INVALID_ARGUMENT;
 	}
 
-	ret = SetCommState(port->impl.fd, &current_settings);
-	if (cio_unlikely(ret == FALSE)) {
-		return (enum cio_error)(-(signed int)GetLastError());
-	}
-
-	return CIO_SUCCESS;
+	return set_comm_settings(port, &current_settings);
 }
 
 enum cio_error cio_uart_get_baud_rate(const struct cio_uart *port, enum cio_uart_baud_rate *baud_rate)
