@@ -458,7 +458,39 @@ enum cio_error cio_uart_set_parity(const struct cio_uart *port, enum cio_uart_pa
 		return CIO_INVALID_ARGUMENT;
 	}
 
-	return CIO_OPERATION_NOT_SUPPORTED;
+	DCB current_settings = {0};
+	current_settings.DCBlength = sizeof(current_settings);
+	BOOL ret = GetCommState(port->impl.fd, &current_settings);
+	if (cio_unlikely(ret == FALSE)) {
+		return (enum cio_error)(-(signed int)GetLastError());
+	}
+
+	switch (parity) {
+	case CIO_UART_PARITY_NONE:
+		current_settings.Parity = NOPARITY;
+		break;
+	case CIO_UART_PARITY_ODD:
+		current_settings.Parity = ODDPARITY;
+		break;
+	case CIO_UART_PARITY_EVEN:
+		current_settings.Parity = EVENPARITY;
+		break;
+	case CIO_UART_PARITY_MARK:
+		current_settings.Parity = MARKPARITY;
+		break;
+	case CIO_UART_PARITY_SPACE:
+		current_settings.Parity = SPACEPARITY;
+		break;
+	default:
+		return CIO_INVALID_ARGUMENT;
+	}
+
+	ret = SetCommState(port->impl.fd, &current_settings);
+	if (cio_unlikely(ret == FALSE)) {
+		return (enum cio_error)(-(signed int)GetLastError());
+	}
+
+	return CIO_SUCCESS;
 }
 
 enum cio_error cio_uart_get_parity(const struct cio_uart *port, enum cio_uart_parity *parity)
@@ -467,7 +499,34 @@ enum cio_error cio_uart_get_parity(const struct cio_uart *port, enum cio_uart_pa
 		return CIO_INVALID_ARGUMENT;
 	}
 
-	return CIO_OPERATION_NOT_SUPPORTED;
+	DCB current_settings = {0};
+	current_settings.DCBlength = sizeof(current_settings);
+	BOOL ret = GetCommState(port->impl.fd, &current_settings);
+	if (cio_unlikely(ret == FALSE)) {
+		return (enum cio_error)(-(signed int)GetLastError());
+	}
+
+	switch (current_settings.Parity) {
+	case NOPARITY:
+		*parity = CIO_UART_PARITY_NONE;
+		break;
+	case ODDPARITY:
+		*parity = CIO_UART_PARITY_ODD;
+		break;
+	case EVENPARITY:
+		*parity = CIO_UART_PARITY_EVEN;
+		break;
+	case MARKPARITY:
+		*parity = CIO_UART_PARITY_MARK;
+		break;
+	case SPACEPARITY:
+		*parity = CIO_UART_PARITY_SPACE;
+		break;
+	default:
+		return CIO_PROTOCOL_NOT_SUPPORTED;
+	}
+
+	return CIO_SUCCESS;
 }
 
 enum cio_error cio_uart_set_num_stop_bits(const struct cio_uart *port, enum cio_uart_num_stop_bits num_stop_bits)
