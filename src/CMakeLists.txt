@@ -186,8 +186,10 @@ elseif(${CIO_BUILD_FOR_ZEPHYR})
     add_subdirectory(platform/zephyr)
 endif()
 
-if(NOT CIO_BUILD_FOR_ZEPHYR)
-    target_compile_features(${PROJECT_NAME} PUBLIC $<$<NOT:$<C_COMPILER_ID:MSVC>>:c_std_11>)
+if(NOT CIO_BUILD_FOR_ZEPHYR AND NOT CMAKE_C_COMPILER_ID STREQUAL "MSVC")
+    set_target_properties(${PROJECT_NAME} PROPERTIES
+        C_STANDARD 11
+    )
 endif()
 set_target_properties(${PROJECT_NAME} PROPERTIES
     VERSION "${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}.${PROJECT_VERSION_PATCH}"
