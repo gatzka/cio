@@ -132,7 +132,11 @@ if(CIO_CONFIG_WEBSOCKETS)
         C_CLANG_TIDY ""
     )
     if(NOT CIO_BUILD_FOR_ZEPHYR)
-        target_compile_features(sha PRIVATE $<$<NOT:$<C_COMPILER_ID:MSVC>>:c_std_99>)
+        if(NOT CMAKE_C_COMPILER_ID STREQUAL "MSVC")
+            set_target_properties(sha PROPERTIES
+                C_STANDARD 99 
+            )
+        endif()
     else()
         target_link_libraries(sha PRIVATE zephyr)
     endif()
