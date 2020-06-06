@@ -28,11 +28,11 @@ add_library(PLATFORM OBJECT
 
 set_property(TARGET PLATFORM 
     PROPERTY PUBLIC_HEADER
-        "windows/cio_error_code_impl.h"
-        "windows/cio_eventloop_impl.h"
-        "windows/cio_server_socket_impl.h"
-        "windows/cio_socket_impl.h"
-        "windows/cio_timer_impl.h"
+        "platform/windows/cio_error_code_impl.h"
+        "platform/windows/cio_eventloop_impl.h"
+        "platform/windows/cio_server_socket_impl.h"
+        "platform/windows/cio_socket_impl.h"
+        "platform/windows/cio_timer_impl.h"
 )
 
 target_include_directories(PLATFORM
