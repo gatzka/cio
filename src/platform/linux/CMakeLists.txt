@@ -32,16 +32,16 @@ add_library(PLATFORM OBJECT
 )
 
 set_property(TARGET PLATFORM PROPERTY PUBLIC_HEADER
-    "linux/cio_address_family_impl.h"
-    "linux/cio_error_code_impl.h"
-    "linux/cio_eventloop_impl.h"
-    "linux/cio_inet4_socket_address_impl.h"
-    "linux/cio_inet6_socket_address_impl.h"
-    "linux/cio_inet_address_impl.h"
-    "linux/cio_server_socket_impl.h"
-    "linux/cio_socket_address_impl.h"
-    "linux/cio_socket_impl.h"
-    "linux/cio_timer_impl.h"
+    "platform/linux/cio_address_family_impl.h"
+    "platform/linux/cio_error_code_impl.h"
+    "platform/linux/cio_eventloop_impl.h"
+    "platform/linux/cio_inet4_socket_address_impl.h"
+    "platform/linux/cio_inet6_socket_address_impl.h"
+    "platform/linux/cio_inet_address_impl.h"
+    "platform/linux/cio_server_socket_impl.h"
+    "platform/linux/cio_socket_address_impl.h"
+    "platform/linux/cio_socket_impl.h"
+    "platform/linux/cio_timer_impl.h"
 )
 install(FILES "${CMAKE_CURRENT_LIST_DIR}/cio_unix_address.h"
     DESTINATION include/cio/linux/
