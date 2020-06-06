@@ -67,6 +67,7 @@ foreach(tgt ${targets})
         add_dependencies(${tgt} cio::cio) # Necessary to generage cio_version_private.h before compiling the tests.
         target_link_libraries(${tgt} fff unity)
         set_target_properties(${tgt} PROPERTIES
+            C_STANDARD 11
             C_STANDARD_REQUIRED ON
             C_EXTENSIONS OFF
             C_CLANG_TIDY ""
