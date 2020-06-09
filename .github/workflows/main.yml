@@ -221,7 +221,7 @@ jobs:
       uses: gatzka/ctest-build-action@v1.4.0
       with:
         install_deps: ./.github/workflows/install-deps.sh
-        ctest_toolchain_file: build/toolchains/x86-linux-gcc-10.cmake
+        ctest_toolchain_file: build/toolchains/x86-linux-gcc-9.cmake
         ctest_configuration_type: Coverage
         ctest_binary_directory: build
     - name: coverage upload
