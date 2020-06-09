@@ -171,7 +171,7 @@ int main(void)
 	if (cio_unlikely(err != CIO_SUCCESS)) {
 		fprintf(stderr, "Could not get init first UART!\n");
 		ret = EXIT_FAILURE;
-		goto close_first_uart;
+		goto free_uarts;
 	}
 	err = cio_uart_set_num_data_bits(uart1, CIO_UART_8_DATA_BITS);
 	if (cio_unlikely(err != CIO_SUCCESS)) {
@@ -207,7 +207,7 @@ int main(void)
 	if (cio_unlikely(stream == NULL)) {
 		fprintf(stderr, "failed to get IO stream!\n");
 		ret = EXIT_FAILURE;
-		goto close_uarts;
+		goto close_first_uart;
 	}
 	err = cio_buffered_stream_init(&client.bs, stream);
 	if (cio_unlikely(err != CIO_SUCCESS)) {
