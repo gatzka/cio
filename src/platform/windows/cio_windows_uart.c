@@ -109,7 +109,20 @@ static enum cio_error stream_read(struct cio_io_stream *stream, struct cio_read_
 	}
 
 	struct cio_uart *uart = cio_container_of(stream, struct cio_uart, stream);
+	uart->stream.read_buffer = buffer;
+	uart->stream.read_handler = handler;
+	uart->stream.read_handler_context = handler_context;
 
+	memset(&uart->impl.read_event.overlapped, 0, sizeof(uart->impl.read_event.overlapped));
+	BOOL ret = ReadFile(uart->impl.fd, buffer->add_ptr, (DWORD)cio_read_buffer_space_available(buffer), NULL, &uart->impl.read_event.overlapped);
+	if (ret == FALSE) {
+		DWORD error = GetLastError();
+		if (cio_unlikely(error != ERROR_IO_PENDING)) {
+			return (enum cio_error)-(LONG)(error);
+		}
+	}
+
+	uart->impl.read_event.overlapped_operations_in_use++;
 	return CIO_SUCCESS;
 }
 
