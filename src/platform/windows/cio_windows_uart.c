@@ -120,7 +120,45 @@ static enum cio_error stream_write(struct cio_io_stream *stream, struct cio_writ
 	}
 
 	struct cio_uart *uart = cio_container_of(stream, struct cio_uart, stream);
+	uart->stream.write_handler = handler;
+	uart->stream.write_handler_context = handler_context;
+	uart->stream.write_buffer = buffer;
+
 	size_t chain_length = cio_write_buffer_get_num_buffer_elements(buffer);
+
+	size_t total_write_length = 0;
+	struct cio_write_buffer *wb = buffer->next;
+	for (size_t i = 0; i < chain_length; i++) {
+		total_write_length += wb->data.element.length;
+		wb = wb->next;
+	}
+
+	LPBYTE buf = (LPBYTE)_malloca(total_write_length);
+	if (cio_unlikely(buf == NULL)) {
+		return CIO_NO_BUFFER_SPACE;
+	}
+
+	wb = buffer->next;
+	size_t write_index = 0;
+	for (size_t i = 0; i < chain_length; i++) {
+		memcpy(buf + write_index, wb->data.element.const_data, wb->data.element.length);
+		write_index += wb->data.element.length;
+		wb = wb->next;
+	}
+
+	memset(&uart->impl.write_event.overlapped, 0, sizeof(uart->impl.write_event.overlapped));
+
+	BOOL ret = WriteFile(uart->impl.fd, buf, (DWORD)total_write_length, NULL, &uart->impl.write_event.overlapped);
+	if (ret == FALSE) {
+		DWORD error = GetLastError();
+		if (cio_unlikely(error != ERROR_IO_PENDING)) {
+			_freea(buf);
+			return (enum cio_error)-(LONG)(error);
+		}
+	}
+
+	uart->impl.write_event.overlapped_operations_in_use++;
+	_freea(buf);
 	return CIO_SUCCESS;
 }
 
@@ -237,7 +275,7 @@ free_buffer:
 	return NULL;
 }
 
-static enum cio_error set_comm_settings(struct cio_uart *port, DCB *settings)
+static enum cio_error set_comm_settings(const struct cio_uart *port, DCB *settings)
 {
 	BOOL ret = SetCommState(port->impl.fd, settings);
 	if (cio_unlikely(ret == FALSE)) {
