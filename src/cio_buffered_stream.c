@@ -37,9 +37,7 @@
 #include "cio_string.h"
 #include "cio_write_buffer.h"
 
-#ifndef MIN
-#define MIN(a, b) ((a) < (b) ? (a) : (b))
-#endif
+#define CIO_MIN(a, b) ((a) < (b) ? (a) : (b))
 
 static void run_read(struct cio_buffered_stream *bs);
 
@@ -122,7 +120,7 @@ static enum cio_bs_state internal_read_max(struct cio_buffered_stream *bs)
 
 	size_t available = cio_read_buffer_unread_bytes(rb);
 	if (available > 0) {
-		size_t bytes_to_read = MIN(available, bs->read_info.bytes_to_read);
+		size_t bytes_to_read = CIO_MIN(available, bs->read_info.bytes_to_read);
 		return call_handler(bs, CIO_SUCCESS, rb, bytes_to_read);
 	}
 

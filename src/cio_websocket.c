@@ -40,9 +40,7 @@
 #include "cio_websocket_masking.h"
 #include "cio_write_buffer.h"
 
-#ifndef MIN
-#define MIN(a, b) ((a) < (b) ? (a) : (b))
-#endif
+#define CIO_MIN(a, b) ((a) < (b) ? (a) : (b))
 
 #define OPCODE_MASK 0xfU
 
@@ -228,7 +226,7 @@ static void prepare_close_job(struct cio_websocket *ws, enum cio_websocket_statu
 	sc = cio_htobe16(sc);
 	memcpy(ws->ws_private.close_buffer.buffer, &sc, sizeof(sc));
 	if (reason != NULL) {
-		size_t copy_len = MIN(reason_length, sizeof(ws->ws_private.close_buffer.buffer) - sizeof(sc));
+		size_t copy_len = CIO_MIN(reason_length, sizeof(ws->ws_private.close_buffer.buffer) - sizeof(sc));
 		memcpy(ws->ws_private.close_buffer.buffer + sizeof(sc), reason, copy_len);
 		close_buffer_length += copy_len;
 	}
@@ -581,7 +579,7 @@ static void get_payload(struct cio_buffered_stream *bs, void *handler_context, e
 	uint8_t *ptr = cio_read_buffer_get_read_ptr(buffer);
 	if (cio_likely(!is_control_frame(ws->ws_private.ws_flags.opcode))) {
 		size_t data_in_buffer = cio_read_buffer_unread_bytes(buffer);
-		num_bytes = MIN(ws->ws_private.remaining_read_frame_length, data_in_buffer);
+		num_bytes = CIO_MIN(ws->ws_private.remaining_read_frame_length, data_in_buffer);
 		ws->ws_private.remaining_read_frame_length -= num_bytes;
 	}
 

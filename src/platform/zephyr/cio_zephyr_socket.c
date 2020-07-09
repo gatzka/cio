@@ -43,9 +43,7 @@
 #include "cio_write_buffer.h"
 #include "cio_zephyr_socket.h"
 
-#ifndef MIN
-#define MIN(X, Y) (((X) < (Y)) ? (X) : (Y))
-#endif
+#define CIO_MIN(X, Y) (((X) < (Y)) ? (X) : (Y))
 
 struct cio_io_stream *cio_socket_get_io_stream(struct cio_socket *socket)
 {
@@ -67,7 +65,7 @@ static void tcp_received(struct net_context *context, struct net_pkt *pkt, union
 		if (cio_likely(status == 0)) {
 			size_t number_of_bytes_in_pkt = net_pkt_remaining_data(pkt);
 			size_t available_space_in_buffer = cio_read_buffer_space_available(rb);
-			size_t data_to_read = MIN(number_of_bytes_in_pkt, available_space_in_buffer);
+			size_t data_to_read = CIO_MIN(number_of_bytes_in_pkt, available_space_in_buffer);
 			int ret = net_pkt_read(pkt, rb->add_ptr, data_to_read);
 			if (cio_unlikely(ret < 0)) {
 				socket->impl.read_status = (enum cio_error)ret;
