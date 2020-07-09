@@ -122,7 +122,7 @@ void cio_random_get_bytes(cio_rng_t *rng, void *bytes, size_t num_bytes)
 #define ARRAY_SIZE(a) (sizeof(a) / sizeof((a)[0]))
 #endif
 
-#define MIN(x, y) (((x) < (y)) ? (x) : (y))
+#define CIO_MIN(x, y) (((x) < (y)) ? (x) : (y))
 
 #define WS_HEADER_FIN 0x80
 #define WS_HEADER_RSV 0x70
@@ -783,7 +783,7 @@ static void test_receive_fragmented_frames(void)
 					TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Could not start reading a message!");
 
 					TEST_ASSERT_GREATER_OR_EQUAL_MESSAGE(3, read_handler_fake.call_count, "read_handler was not called");
-					unsigned int arg_history_counter = MIN(read_handler_fake.arg_history_len, read_handler_fake.call_count);
+					unsigned int arg_history_counter = CIO_MIN(read_handler_fake.arg_history_len, read_handler_fake.call_count);
 					for (unsigned int read_cnt = 0; read_cnt < arg_history_counter; read_cnt++) {
 						TEST_ASSERT_EQUAL_MESSAGE(ws, read_handler_fake.arg0_history[read_cnt], "websocket parameter of read_handler not correct");
 						TEST_ASSERT_NULL_MESSAGE(read_handler_fake.arg1_history[read_cnt], "context parameter of read handler not NULL")

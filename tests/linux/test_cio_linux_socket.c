@@ -43,8 +43,7 @@
 #include "cio_socket.h"
 #include "cio_write_buffer.h"
 
-#undef MIN
-#define MIN(X, Y) (((X) < (Y)) ? (X) : (Y))
+#define CIO_MIN(X, Y) (((X) < (Y)) ? (X) : (Y))
 
 #ifndef SOL_TCP
 #define SOL_TCP	IPPROTO_TCP
@@ -194,7 +193,7 @@ static ssize_t send_parts(int fd, const struct msghdr *msg, int flags)
 	unsigned int len = 0;
 	size_t remaining_bytes = bytes_to_send;
 	for (unsigned int i = 0; i < msg->msg_iovlen; i++) {
-		size_t minimum = MIN(remaining_bytes, msg->msg_iov[i].iov_len);
+		size_t minimum = CIO_MIN(remaining_bytes, msg->msg_iov[i].iov_len);
 		memcpy(&send_buffer[len], msg->msg_iov[i].iov_base, minimum);
 		len += (unsigned int)minimum;
 		remaining_bytes -= minimum;
