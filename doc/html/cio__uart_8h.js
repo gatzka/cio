@@ -1,0 +1,75 @@
+var cio__uart_8h =
+[
+    [ "cio_uart", "structcio__uart.html", null ],
+    [ "cio_uart_close_hook_t", "cio__uart_8h.html#a62c7bfc4507ac8baade0ea276065ff4e", null ],
+    [ "cio_uart_baud_rate", "cio__uart_8h.html#ad468a742a59f4fdbbed61b2325088a97", [
+      [ "CIO_UART_BAUD_RATE_50", "cio__uart_8h.html#ad468a742a59f4fdbbed61b2325088a97a2e945fdbfde9ded23bd901949202b7ef", null ],
+      [ "CIO_UART_BAUD_RATE_75", "cio__uart_8h.html#ad468a742a59f4fdbbed61b2325088a97a3401b64ea53ad4312aa02af94b254f08", null ],
+      [ "CIO_UART_BAUD_RATE_110", "cio__uart_8h.html#ad468a742a59f4fdbbed61b2325088a97a0e267f23b3475ea39bfd971ae237c1bc", null ],
+      [ "CIO_UART_BAUD_RATE_134", "cio__uart_8h.html#ad468a742a59f4fdbbed61b2325088a97a35e5395b92f5bfd21d5d54f86c5d5458", null ],
+      [ "CIO_UART_BAUD_RATE_150", "cio__uart_8h.html#ad468a742a59f4fdbbed61b2325088a97a94e1c0ec663329a38d993b1f92c9df07", null ],
+      [ "CIO_UART_BAUD_RATE_200", "cio__uart_8h.html#ad468a742a59f4fdbbed61b2325088a97a3e8953c5b53ce5c91765ba19222db275", null ],
+      [ "CIO_UART_BAUD_RATE_300", "cio__uart_8h.html#ad468a742a59f4fdbbed61b2325088a97adb8d958e60012ebe00f98965320198cc", null ],
+      [ "CIO_UART_BAUD_RATE_600", "cio__uart_8h.html#ad468a742a59f4fdbbed61b2325088a97aa9833fa17807a4bbcbc64d231536d6d4", null ],
+      [ "CIO_UART_BAUD_RATE_1200", "cio__uart_8h.html#ad468a742a59f4fdbbed61b2325088a97a5cce1e5f415e367337ecc2b2cb31480c", null ],
+      [ "CIO_UART_BAUD_RATE_1800", "cio__uart_8h.html#ad468a742a59f4fdbbed61b2325088a97ac5c378c28a1bd5f1a7fcaa72815e581e", null ],
+      [ "CIO_UART_BAUD_RATE_2400", "cio__uart_8h.html#ad468a742a59f4fdbbed61b2325088a97ac6c5621912d102b694c8419235cc842d", null ],
+      [ "CIO_UART_BAUD_RATE_4800", "cio__uart_8h.html#ad468a742a59f4fdbbed61b2325088a97a676a0c53c684797f3141ad8b302de9e3", null ],
+      [ "CIO_UART_BAUD_RATE_9600", "cio__uart_8h.html#ad468a742a59f4fdbbed61b2325088a97a4194883e859a0b83fa944c678f17e2f8", null ],
+      [ "CIO_UART_BAUD_RATE_19200", "cio__uart_8h.html#ad468a742a59f4fdbbed61b2325088a97a69a7d6729d1afa883a9eb4db7b35b5fe", null ],
+      [ "CIO_UART_BAUD_RATE_38400", "cio__uart_8h.html#ad468a742a59f4fdbbed61b2325088a97a3298f954237390f7e0ce7696778d0de8", null ],
+      [ "CIO_UART_BAUD_RATE_57600", "cio__uart_8h.html#ad468a742a59f4fdbbed61b2325088a97a5b8424e22269f1fbf050aa8635a1631f", null ],
+      [ "CIO_UART_BAUD_RATE_115200", "cio__uart_8h.html#ad468a742a59f4fdbbed61b2325088a97af311f57b00fbf3e08eca07ad311d73c4", null ],
+      [ "CIO_UART_BAUD_RATE_230400", "cio__uart_8h.html#ad468a742a59f4fdbbed61b2325088a97a182a0aab8e64ecc285cef6d143d8704e", null ],
+      [ "CIO_UART_BAUD_RATE_460800", "cio__uart_8h.html#ad468a742a59f4fdbbed61b2325088a97add479e2368d311125a75a76772607061", null ],
+      [ "CIO_UART_BAUD_RATE_500000", "cio__uart_8h.html#ad468a742a59f4fdbbed61b2325088a97a3cb3ecec57865b70bab7d09567b572f0", null ],
+      [ "CIO_UART_BAUD_RATE_576000", "cio__uart_8h.html#ad468a742a59f4fdbbed61b2325088a97a6eee166b54f4efcb85bea665e6b48184", null ],
+      [ "CIO_UART_BAUD_RATE_921600", "cio__uart_8h.html#ad468a742a59f4fdbbed61b2325088a97a4f6152c961590a20a4dae6bcf862044b", null ],
+      [ "CIO_UART_BAUD_RATE_1000000", "cio__uart_8h.html#ad468a742a59f4fdbbed61b2325088a97ab98fc78e35552fa25c62a06238470460", null ],
+      [ "CIO_UART_BAUD_RATE_1152000", "cio__uart_8h.html#ad468a742a59f4fdbbed61b2325088a97a8d57a0043866bf25d2da2e468cae6656", null ],
+      [ "CIO_UART_BAUD_RATE_1500000", "cio__uart_8h.html#ad468a742a59f4fdbbed61b2325088a97a5da18f94ae63be2eeedcf848b4bbb2ef", null ],
+      [ "CIO_UART_BAUD_RATE_2000000", "cio__uart_8h.html#ad468a742a59f4fdbbed61b2325088a97a98389a8347d2145c7233afbec8aae8ce", null ],
+      [ "CIO_UART_BAUD_RATE_2500000", "cio__uart_8h.html#ad468a742a59f4fdbbed61b2325088a97a0647dfe2f1582cc38bf18845797b27ca", null ],
+      [ "CIO_UART_BAUD_RATE_3000000", "cio__uart_8h.html#ad468a742a59f4fdbbed61b2325088a97ad2f899daa28d34446f187141da25dc5e", null ],
+      [ "CIO_UART_BAUD_RATE_3500000", "cio__uart_8h.html#ad468a742a59f4fdbbed61b2325088a97a711d41d4873b1dea967ced0a34310f14", null ],
+      [ "CIO_UART_BAUD_RATE_4000000", "cio__uart_8h.html#ad468a742a59f4fdbbed61b2325088a97ac23cf321589bfa2459a635c623a417a1", null ]
+    ] ],
+    [ "cio_uart_flow_control", "cio__uart_8h.html#a2379245136710ee43bf59c57547ba287", [
+      [ "CIO_UART_FLOW_CONTROL_NONE", "cio__uart_8h.html#a2379245136710ee43bf59c57547ba287a3965dd37dff976886167f03d623b66e6", null ],
+      [ "CIO_UART_FLOW_CONTROL_RTS_CTS", "cio__uart_8h.html#a2379245136710ee43bf59c57547ba287ae3fc917b0c23a2cb9bec294c639ea351", null ],
+      [ "CIO_UART_FLOW_CONTROL_XON_XOFF", "cio__uart_8h.html#a2379245136710ee43bf59c57547ba287ad23a43df5c7de4b7369bcb914f2115bb", null ]
+    ] ],
+    [ "cio_uart_num_data_bits", "cio__uart_8h.html#a036bcfcbba10fb279941ad49a8e6170e", [
+      [ "CIO_UART_5_DATA_BITS", "cio__uart_8h.html#a036bcfcbba10fb279941ad49a8e6170ea36a46e717becae219dcd002477aaf97f", null ],
+      [ "CIO_UART_6_DATA_BITS", "cio__uart_8h.html#a036bcfcbba10fb279941ad49a8e6170ea62ec3783e7e5812fbeb7706bc97c59cc", null ],
+      [ "CIO_UART_7_DATA_BITS", "cio__uart_8h.html#a036bcfcbba10fb279941ad49a8e6170eafaa52e00fab1a66f3a2d25a063d7b10d", null ],
+      [ "CIO_UART_8_DATA_BITS", "cio__uart_8h.html#a036bcfcbba10fb279941ad49a8e6170eac606367485f07ee136b9b93382c0ded7", null ]
+    ] ],
+    [ "cio_uart_num_stop_bits", "cio__uart_8h.html#a3440c7645b4e22749e6b2318c16ad65d", [
+      [ "CIO_UART_ONE_STOP_BIT", "cio__uart_8h.html#a3440c7645b4e22749e6b2318c16ad65da2d6c99811d108b519568bfd752246860", null ],
+      [ "CIO_UART_TWO_STOP_BITS", "cio__uart_8h.html#a3440c7645b4e22749e6b2318c16ad65dad8998284523bbb20c87044615e40378a", null ]
+    ] ],
+    [ "cio_uart_parity", "cio__uart_8h.html#a1739da4ea8b94c58a194669ea6830b6c", [
+      [ "CIO_UART_PARITY_EVEN", "cio__uart_8h.html#a1739da4ea8b94c58a194669ea6830b6ca34e77cda9868c6fb15ada192fdfd940a", null ],
+      [ "CIO_UART_PARITY_ODD", "cio__uart_8h.html#a1739da4ea8b94c58a194669ea6830b6ca4211235ea415c90b0003e5e34b7dc5c6", null ],
+      [ "CIO_UART_PARITY_NONE", "cio__uart_8h.html#a1739da4ea8b94c58a194669ea6830b6ca340954e38da2c66e7e377a2580246499", null ],
+      [ "CIO_UART_PARITY_MARK", "cio__uart_8h.html#a1739da4ea8b94c58a194669ea6830b6ca6fdf5203a6929e64fcc1260aa470d51e", null ],
+      [ "CIO_UART_PARITY_SPACE", "cio__uart_8h.html#a1739da4ea8b94c58a194669ea6830b6caef15a86a15c4dd7c2d1f88346b0eab18", null ]
+    ] ],
+    [ "cio_uart_close", "cio__uart_8h.html#ab4280789d79026235bc30dd548307b36", null ],
+    [ "cio_uart_get_baud_rate", "cio__uart_8h.html#aab52f570b6ba5591b976ec00c7d68826", null ],
+    [ "cio_uart_get_flow_control", "cio__uart_8h.html#a1d67c78f3570240e6e12beb97320b0a0", null ],
+    [ "cio_uart_get_io_stream", "cio__uart_8h.html#af4115a599603a816efa76fdbbdad700b", null ],
+    [ "cio_uart_get_name", "cio__uart_8h.html#a5d2c2d62ee845ad9c478fbc4bc90bc4a", null ],
+    [ "cio_uart_get_num_data_bits", "cio__uart_8h.html#a0ae9d2699ace023c03d622a9d1b7efa2", null ],
+    [ "cio_uart_get_num_stop_bits", "cio__uart_8h.html#ad4d2c649fbc044627444262c9f01ac13", null ],
+    [ "cio_uart_get_number_of_uarts", "cio__uart_8h.html#ae96b6af9164adfd1a93868e5dc96413f", null ],
+    [ "cio_uart_get_parity", "cio__uart_8h.html#a685e276f5f960867cf2cb97d487e46ea", null ],
+    [ "cio_uart_get_ports", "cio__uart_8h.html#a5115c2d5ca1101bbc219460ddb69ce60", null ],
+    [ "cio_uart_init", "cio__uart_8h.html#a99720d5edb3a40736abda515cd1eb096", null ],
+    [ "cio_uart_set_baud_rate", "cio__uart_8h.html#a6a6e5944b9180a92a0e306832f9164fb", null ],
+    [ "cio_uart_set_flow_control", "cio__uart_8h.html#a19d7a128816a05fe2ff79c2e4bf4a6be", null ],
+    [ "cio_uart_set_num_data_bits", "cio__uart_8h.html#a02de810e47e0a467eb751fafe6ca939c", null ],
+    [ "cio_uart_set_num_stop_bits", "cio__uart_8h.html#a820bc6836a5cdb3383f409b86c7d9b68", null ],
+    [ "cio_uart_set_parity", "cio__uart_8h.html#ad82c7885cb313629780b76d72b7060cc", null ]
+];

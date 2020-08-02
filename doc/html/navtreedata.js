@@ -22,7 +22,7 @@ for the JavaScript code in this file
 */
 var NAVTREE =
 [
-  [ "cioall", "index.html", [
+  [ "cio", "index.html", [
     [ "Data Structures", "annotated.html", [
       [ "Data Structures", "annotated.html", "annotated_dup" ],
       [ "Data Structure Index", "classes.html", null ],
@@ -48,7 +48,8 @@ var NAVTREE =
 var NAVTREEINDEX =
 [
 "annotated.html",
-"cio__websocket_8h.html#aa24c9894ba2ee9dc5b0ebbc1c8809701aafc6ff9d1c633323a43641cc8b25dd9a"
+"cio__uart_8h.html#ad468a742a59f4fdbbed61b2325088a97a35e5395b92f5bfd21d5d54f86c5d5458",
+"structcio__websocket__write__job.html#a0a5130519af4f959a75e8c1668134383"
 ];
 
 var SYNCONMSG = 'click to disable panel synchronisation';

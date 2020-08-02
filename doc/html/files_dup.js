@@ -29,6 +29,7 @@ var files_dup =
     [ "cio_socket_address.h", "cio__socket__address_8h.html", "cio__socket__address_8h" ],
     [ "cio_string.h", "cio__string_8h.html", "cio__string_8h" ],
     [ "cio_timer.h", "cio__timer_8h.html", "cio__timer_8h" ],
+    [ "cio_uart.h", "cio__uart_8h.html", "cio__uart_8h" ],
     [ "cio_utf8_checker.h", "cio__utf8__checker_8h.html", "cio__utf8__checker_8h" ],
     [ "cio_util.h", "cio__util_8h.html", "cio__util_8h" ],
     [ "cio_version.h", "cio__version_8h.html", "cio__version_8h" ],
