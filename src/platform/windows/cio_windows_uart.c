@@ -60,13 +60,13 @@ static void read_callback(struct cio_event_notifier *ev)
 	ev->overlapped_operations_in_use--;
 	enum cio_error error_code;
 	if (cio_unlikely(rc == FALSE)) {
-		int error = GetLastError();
+		DWORD error = GetLastError();
 		if (error == ERROR_OPERATION_ABORTED) {
 			try_free(port);
 			return;
 		}
 
-		error_code = (enum cio_error)(-error);
+		error_code = (enum cio_error)-(LONG)(error);
 	} else {
 		if (recv_bytes == 0) {
 			error_code = CIO_EOF;
@@ -96,7 +96,7 @@ static void write_callback(struct cio_event_notifier *ev)
 		}
 
 		bytes_sent = 0;
-		error_code = (enum cio_error)(-error);
+		error_code = (enum cio_error)-(LONG)(-error);
 	}
 
 	port->stream.write_handler(&port->stream, port->stream.write_handler_context, port->stream.write_buffer, error_code, (size_t)bytes_sent);
@@ -114,7 +114,8 @@ static enum cio_error stream_read(struct cio_io_stream *stream, struct cio_read_
 	uart->stream.read_handler_context = handler_context;
 
 	memset(&uart->impl.read_event.overlapped, 0, sizeof(uart->impl.read_event.overlapped));
-	BOOL ret = ReadFile(uart->impl.fd, buffer->add_ptr, (DWORD)cio_read_buffer_space_available(buffer), NULL, &uart->impl.read_event.overlapped);
+	size_t space_available = cio_read_buffer_space_available(buffer);
+	BOOL ret = ReadFile(uart->impl.fd, buffer->add_ptr, (DWORD)space_available, NULL, &uart->impl.read_event.overlapped);
 	if (ret == FALSE) {
 		DWORD error = GetLastError();
 		if (cio_unlikely(error != ERROR_IO_PENDING)) {
@@ -445,11 +446,13 @@ enum cio_error cio_uart_init(struct cio_uart *port, struct cio_eventloop *loop, 
 		goto free_wchar_buffer;
 	}
 
+	//free(wchar_name); TODO
+
 	DCB current_settings = {0};
 	current_settings.DCBlength = sizeof(current_settings);
 	BOOL ret = GetCommState(comm, &current_settings);
 	if (cio_unlikely(ret == FALSE)) {
-		err = (enum cio_error)(-(signed int)GetLastError());
+		err = (enum cio_error)(-(LONG)GetLastError());
 		goto close_handle;
 	}
 
@@ -461,14 +464,32 @@ enum cio_error cio_uart_init(struct cio_uart *port, struct cio_eventloop *loop, 
 	current_settings.fOutX = FALSE;
 	current_settings.fTXContinueOnXoff = FALSE;
 	current_settings.fOutxCtsFlow = FALSE;
-	current_settings.fRtsControl = RTS_CONTROL_DISABLE;
-	current_settings.fDtrControl = DTR_CONTROL_DISABLE;
+	current_settings.fRtsControl = RTS_CONTROL_DISABLE; // RTS_CONTROL_ENABLE ??
+	current_settings.fDtrControl = DTR_CONTROL_DISABLE; // DTR_CONTROL_ENABLE ??
 	current_settings.fOutxDsrFlow = FALSE;
 	current_settings.fDsrSensitivity = FALSE;
 
 	port->impl.fd = comm;
 	err = set_comm_settings(port, &current_settings);
 	if (cio_unlikely(err != CIO_SUCCESS)) {
+		goto close_handle;
+	}
+
+	COMMTIMEOUTS current_timeouts = {0};
+	ret = GetCommTimeouts(port->impl.fd, &current_timeouts);
+	if (cio_unlikely(ret == FALSE)) {
+		err = (enum cio_error)(-(LONG)GetLastError());
+		goto close_handle;
+	}
+
+	current_timeouts.ReadTotalTimeoutConstant = 0;
+	current_timeouts.ReadTotalTimeoutMultiplier = 0;
+	current_timeouts.WriteTotalTimeoutConstant = 0;
+	current_timeouts.WriteTotalTimeoutMultiplier = 0;
+
+	ret = SetCommTimeouts(port->impl.fd, &current_timeouts);
+	if (cio_unlikely(ret == FALSE)) {
+		err = (enum cio_error)(-(LONG)GetLastError());
 		goto close_handle;
 	}
 
@@ -490,7 +511,6 @@ enum cio_error cio_uart_init(struct cio_uart *port, struct cio_eventloop *loop, 
 	port->stream.write_some = stream_write;
 	port->stream.close = stream_close;
 
-	free(wchar_name);
 	return err;
 
 close_handle:
@@ -710,7 +730,8 @@ enum cio_error cio_uart_set_flow_control(const struct cio_uart *port, enum cio_u
 		return CIO_INVALID_ARGUMENT;
 	}
 
-	return CIO_OPERATION_NOT_SUPPORTED;
+	return CIO_SUCCESS;
+	//return CIO_OPERATION_NOT_SUPPORTED;
 }
 
 enum cio_error cio_uart_get_flow_control(const struct cio_uart *port, enum cio_uart_flow_control *flow_control)
