@@ -482,9 +482,9 @@ enum cio_error cio_uart_init(struct cio_uart *port, struct cio_eventloop *loop, 
 		goto close_handle;
 	}
 
-	current_timeouts.ReadTotalTimeoutConstant = 0;
-	current_timeouts.ReadTotalTimeoutMultiplier = 0;
 	current_timeouts.ReadIntervalTimeout = MAXDWORD;
+	current_timeouts.ReadTotalTimeoutMultiplier = MAXDWORD;
+	current_timeouts.ReadTotalTimeoutConstant = MAXDWORD - 1;
 	current_timeouts.WriteTotalTimeoutConstant = 0;
 	current_timeouts.WriteTotalTimeoutMultiplier = 0;
 
