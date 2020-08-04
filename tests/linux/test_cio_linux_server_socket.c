@@ -525,7 +525,7 @@ static void test_accept_eventloop_add_fails(void)
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "call to bind() did not succeed!");
 
 	err = cio_server_socket_accept(&ss, accept_handler, NULL);
-	TEST_ASSERT(err != CIO_SUCCESS)
+	TEST_ASSERT(err != CIO_SUCCESS);
 	TEST_ASSERT_EQUAL(0, accept_handler_fake.call_count);
 	cio_server_socket_close(&ss);
 }
@@ -541,7 +541,7 @@ static void test_init_fails_no_socket(void)
 	free_client_fake.custom_fake = free_success;
 
 	enum cio_error err = cio_server_socket_init(&ss, &loop, 5, CIO_ADDRESS_FAMILY_INET4, alloc_client, free_client, 10, on_close);
-	TEST_ASSERT_NOT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Initialization of server socket did not failed!")
+	TEST_ASSERT_NOT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Initialization of server socket did not failed!");
 	TEST_ASSERT_EQUAL(0, close_fake.call_count);
 }
 
@@ -565,7 +565,7 @@ static void test_init_listen_fails(void)
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "call to bind() did not succeed!");
 
 	err = cio_server_socket_accept(&ss, accept_handler, NULL);
-	TEST_ASSERT(err != CIO_SUCCESS)
+	TEST_ASSERT(err != CIO_SUCCESS);
 	cio_server_socket_close(&ss);
 }
 
@@ -583,7 +583,7 @@ static void test_init_setsockopt_fails(void)
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Initialization of server socket failed!");
 
 	err = cio_server_socket_set_reuse_address(&ss, true);
-	TEST_ASSERT(err != CIO_SUCCESS)
+	TEST_ASSERT(err != CIO_SUCCESS);
 	TEST_ASSERT_EQUAL(0, close_fake.call_count);
 	cio_server_socket_close(&ss);
 	TEST_ASSERT_EQUAL(1, close_fake.call_count);
@@ -609,7 +609,7 @@ static void test_init_register_read_fails(void)
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "call to bind() did not succeed!");
 
 	err = cio_server_socket_accept(&ss, accept_handler, NULL);
-	TEST_ASSERT(err != CIO_SUCCESS)
+	TEST_ASSERT(err != CIO_SUCCESS);
 	TEST_ASSERT_EQUAL(0, close_fake.call_count);
 	cio_server_socket_close(&ss);
 	TEST_ASSERT_EQUAL(1, close_fake.call_count);

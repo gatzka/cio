@@ -66,7 +66,7 @@ static void test_two_randoms(void)
 	cio_random_get_bytes(&rng, &second_rand, sizeof(second_rand));
 
 	int equal = memcmp(&first_rand, &second_rand, sizeof(first_rand));
-	TEST_ASSERT_NOT_EQUAL_MESSAGE(0, equal, "Two calls for random lead to the same result!")
+	TEST_ASSERT_NOT_EQUAL_MESSAGE(0, equal, "Two calls for random lead to the same result!");
 }
 
 int main(void)

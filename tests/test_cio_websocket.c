@@ -650,11 +650,11 @@ static void test_receive_unfragmented_frames(void)
 
 				for (unsigned int l = 0; l < data_frame_call_count; l++) {
 					TEST_ASSERT_EQUAL_MESSAGE(ws, read_handler_fake.arg0_history[l], "websocket parameter of read_handler not correct");
-					TEST_ASSERT_NULL_MESSAGE(read_handler_fake.arg1_history[l], "context of read handler not NULL")
+					TEST_ASSERT_NULL_MESSAGE(read_handler_fake.arg1_history[l], "context of read handler not NULL");
 					TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, read_handler_fake.arg2_history[l], "error parameter of read_handler not CIO_SUCCESS");
 					TEST_ASSERT_LESS_OR_EQUAL_MESSAGE(frame_size, read_handler_fake.arg3_history[l], "remaining length parameter of read_handler not less or equal to frame_size");
 					TEST_ASSERT_LESS_OR_EQUAL_MESSAGE(frame_size, read_handler_fake.arg5_history[l], "chunk length parameter of read_handler not less or equal to frame_size");
-					TEST_ASSERT_TRUE_MESSAGE(read_handler_fake.arg7_history[l], "last_frame parameter of read_handler not true")
+					TEST_ASSERT_TRUE_MESSAGE(read_handler_fake.arg7_history[l], "last_frame parameter of read_handler not true");
 					TEST_ASSERT_EQUAL_MESSAGE(frame_type == CIO_WEBSOCKET_BINARY_FRAME, read_handler_fake.arg8_history[l], "is_binary argument not not correct");
 				}
 
@@ -664,9 +664,9 @@ static void test_receive_unfragmented_frames(void)
 				}
 
 				TEST_ASSERT_EQUAL_MESSAGE(1, on_control_fake.call_count, "control callback was not called for last close frame");
-				TEST_ASSERT_NOT_NULL_MESSAGE(on_control_fake.arg0_val, "websocket parameter of control callback is NULL")
+				TEST_ASSERT_NOT_NULL_MESSAGE(on_control_fake.arg0_val, "websocket parameter of control callback is NULL");
 				TEST_ASSERT_EQUAL_MESSAGE(CIO_WEBSOCKET_CLOSE_FRAME, on_control_fake.arg1_val, "websocket parameter of control callback is NULL");
-				TEST_ASSERT_NULL_MESSAGE(on_control_fake.arg2_val, "data parameter of control callback is not correct")
+				TEST_ASSERT_NULL_MESSAGE(on_control_fake.arg2_val, "data parameter of control callback is not correct");
 				TEST_ASSERT_EQUAL_MESSAGE(0, on_control_fake.arg3_val, "data length parameter of control callback is not correct");
 
 				if (data) {
@@ -719,11 +719,11 @@ static void test_receive_unfragmented_frames_in_parts(void)
 
 				for (unsigned int l = 0; l < data_frame_call_count; l++) {
 					TEST_ASSERT_EQUAL_MESSAGE(ws, read_handler_fake.arg0_history[l], "websocket parameter of read_handler not correct");
-					TEST_ASSERT_NULL_MESSAGE(read_handler_fake.arg1_history[l], "context of read handler not NULL")
+					TEST_ASSERT_NULL_MESSAGE(read_handler_fake.arg1_history[l], "context of read handler not NULL");
 					TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, read_handler_fake.arg2_history[l], "error parameter of read_handler not CIO_SUCCESS");
 					TEST_ASSERT_LESS_OR_EQUAL_MESSAGE(frame_size, read_handler_fake.arg3_history[l], "remaining length parameter of read_handler not less or equal to frame_size");
 					TEST_ASSERT_LESS_OR_EQUAL_MESSAGE(frame_size, read_handler_fake.arg5_history[l], "chunk length parameter of read_handler not less or equal to frame_size");
-					TEST_ASSERT_TRUE_MESSAGE(read_handler_fake.arg7_history[l], "last_frame parameter of read_handler not true")
+					TEST_ASSERT_TRUE_MESSAGE(read_handler_fake.arg7_history[l], "last_frame parameter of read_handler not true");
 					TEST_ASSERT_EQUAL_MESSAGE(frame_type == CIO_WEBSOCKET_BINARY_FRAME, read_handler_fake.arg8_history[l], "is_binary argument not not correct");
 				}
 
@@ -733,9 +733,9 @@ static void test_receive_unfragmented_frames_in_parts(void)
 				}
 
 				TEST_ASSERT_EQUAL_MESSAGE(1, on_control_fake.call_count, "control callback was not called for last close frame");
-				TEST_ASSERT_NOT_NULL_MESSAGE(on_control_fake.arg0_val, "websocket parameter of control callback is NULL")
+				TEST_ASSERT_NOT_NULL_MESSAGE(on_control_fake.arg0_val, "websocket parameter of control callback is NULL");
 				TEST_ASSERT_EQUAL_MESSAGE(CIO_WEBSOCKET_CLOSE_FRAME, on_control_fake.arg1_val, "websocket parameter of control callback is NULL");
-				TEST_ASSERT_NULL_MESSAGE(on_control_fake.arg2_val, "data parameter of control callback is not correct")
+				TEST_ASSERT_NULL_MESSAGE(on_control_fake.arg2_val, "data parameter of control callback is not correct");
 				TEST_ASSERT_EQUAL_MESSAGE(0, on_control_fake.arg3_val, "data length parameter of control callback is not correct");
 
 				if (data) {
@@ -786,11 +786,11 @@ static void test_receive_fragmented_frames(void)
 					unsigned int arg_history_counter = CIO_MIN(read_handler_fake.arg_history_len, read_handler_fake.call_count);
 					for (unsigned int read_cnt = 0; read_cnt < arg_history_counter; read_cnt++) {
 						TEST_ASSERT_EQUAL_MESSAGE(ws, read_handler_fake.arg0_history[read_cnt], "websocket parameter of read_handler not correct");
-						TEST_ASSERT_NULL_MESSAGE(read_handler_fake.arg1_history[read_cnt], "context parameter of read handler not NULL")
+						TEST_ASSERT_NULL_MESSAGE(read_handler_fake.arg1_history[read_cnt], "context parameter of read handler not NULL");
 						if (read_cnt < read_handler_fake.call_count - 1) {
 							TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, read_handler_fake.arg2_history[read_cnt], "error parameter of read_handler not CIO_SUCCESS");
 							if (read_cnt == 0) {
-								TEST_ASSERT_FALSE_MESSAGE(read_handler_fake.arg7_history[read_cnt], "last_frame parameter of read_handler for first fragment not false")
+								TEST_ASSERT_FALSE_MESSAGE(read_handler_fake.arg7_history[read_cnt], "last_frame parameter of read_handler for first fragment not false");
 							}
 							TEST_ASSERT_EQUAL_MESSAGE((frame_type == CIO_WEBSOCKET_BINARY_FRAME), read_handler_fake.arg8_history[read_cnt], "is_binary parameter of read_handler for first fragment not correct");
 						} else {
@@ -807,9 +807,9 @@ static void test_receive_fragmented_frames(void)
 					}
 
 					TEST_ASSERT_EQUAL_MESSAGE(1, on_control_fake.call_count, "control callback was not called for last close frame");
-					TEST_ASSERT_NOT_NULL_MESSAGE(on_control_fake.arg0_val, "websocket parameter of control callback is NULL")
+					TEST_ASSERT_NOT_NULL_MESSAGE(on_control_fake.arg0_val, "websocket parameter of control callback is NULL");
 					TEST_ASSERT_EQUAL_MESSAGE(CIO_WEBSOCKET_CLOSE_FRAME, on_control_fake.arg1_val, "websocket parameter of control callback is NULL");
-					TEST_ASSERT_NULL_MESSAGE(on_control_fake.arg2_val, "data parameter of control callback is not correct")
+					TEST_ASSERT_NULL_MESSAGE(on_control_fake.arg2_val, "data parameter of control callback is not correct");
 					TEST_ASSERT_EQUAL_MESSAGE(0, on_control_fake.arg3_val, "data length parameter of control callback is not correct");
 
 					free(ws);
@@ -847,9 +847,9 @@ static void test_incoming_ping_pong_send_fails(void)
 
 	TEST_ASSERT_EQUAL_MESSAGE(1, read_handler_fake.call_count, "read_handler was not called");
 	TEST_ASSERT_EQUAL_PTR_MESSAGE(my_ws, read_handler_fake.arg0_val, "websocket parameter of read_handler not correct");
-	TEST_ASSERT_NULL_MESSAGE(read_handler_fake.arg1_val, "context parameter of read_handler not correct")
+	TEST_ASSERT_NULL_MESSAGE(read_handler_fake.arg1_val, "context parameter of read_handler not correct");
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_EOF, read_handler_fake.arg2_val, "error parameter of read_handler not correct");
-	TEST_ASSERT_NULL_MESSAGE(read_handler_fake.arg4_val, "data parameter of read_handler not correct")
+	TEST_ASSERT_NULL_MESSAGE(read_handler_fake.arg4_val, "data parameter of read_handler not correct");
 	TEST_ASSERT_EQUAL_MESSAGE(0, read_handler_fake.arg5_val, "length parameter of read_handler not correct");
 
 	TEST_ASSERT_EQUAL_MESSAGE(1, on_error_fake.call_count, "error callback was called");
@@ -857,7 +857,7 @@ static void test_incoming_ping_pong_send_fails(void)
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_MESSAGE_TOO_LONG, on_error_fake.arg1_val, "error code in error handler not correct");
 
 	TEST_ASSERT_EQUAL_MESSAGE(1, on_control_fake.call_count, "on_control callback was not called once");
-	TEST_ASSERT_NOT_NULL_MESSAGE(on_control_fake.arg0_val, "websocket parameter of control callback (ping) is NULL")
+	TEST_ASSERT_NOT_NULL_MESSAGE(on_control_fake.arg0_val, "websocket parameter of control callback (ping) is NULL");
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_WEBSOCKET_PING_FRAME, on_control_fake.arg1_val, "type parameter of control callback (ping) is not PING");
 	TEST_ASSERT_EQUAL_MESSAGE(sizeof(data), on_control_fake.arg3_val, "data length parameter of control callback (ping) is not correct");
 
@@ -881,7 +881,7 @@ static void test_close_close_response_fails(void)
 
 	TEST_ASSERT_EQUAL_MESSAGE(1, read_handler_fake.call_count, "read_handler was not called");
 	TEST_ASSERT_EQUAL_MESSAGE(ws, read_handler_fake.arg0_val, "websocket parameter of read_handler not correct");
-	TEST_ASSERT_NULL_MESSAGE(read_handler_fake.arg1_val, "context of read handler not NULL")
+	TEST_ASSERT_NULL_MESSAGE(read_handler_fake.arg1_val, "context of read handler not NULL");
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_EOF, read_handler_fake.arg2_val, "error parameter of read_handler not CIO_SUCCESS");
 
 	TEST_ASSERT_EQUAL_MESSAGE(1, on_error_fake.call_count, "error callback was not called");
@@ -944,24 +944,24 @@ static void test_send_multiple_jobs_with_failures(void)
 
 	TEST_ASSERT_EQUAL_MESSAGE(4, write_handler_fake.call_count, "Write handler was not called");
 	TEST_ASSERT_EQUAL_MESSAGE(ws, write_handler_fake.arg0_history[0], "websocket parameter of write_handler not correct");
-	TEST_ASSERT_NULL_MESSAGE(write_handler_fake.arg1_history[0], "context parameter of write_handler not NULL")
+	TEST_ASSERT_NULL_MESSAGE(write_handler_fake.arg1_history[0], "context parameter of write_handler not NULL");
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, write_handler_fake.arg2_history[0], "err parameter of write_handler not correct");
 	TEST_ASSERT_EQUAL_MESSAGE(ws, write_handler_fake.arg0_history[1], "websocket parameter of write_handler not correct");
-	TEST_ASSERT_NULL_MESSAGE(write_handler_fake.arg1_history[1], "context parameter of write_handler not NULL")
+	TEST_ASSERT_NULL_MESSAGE(write_handler_fake.arg1_history[1], "context parameter of write_handler not NULL");
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_OPERATION_ABORTED, write_handler_fake.arg2_history[1], "err parameter of write_handler not correct");
 	TEST_ASSERT_EQUAL_MESSAGE(ws, write_handler_fake.arg0_history[2], "websocket parameter of write_handler not correct");
-	TEST_ASSERT_NULL_MESSAGE(write_handler_fake.arg1_history[2], "context parameter of write_handler not NULL")
+	TEST_ASSERT_NULL_MESSAGE(write_handler_fake.arg1_history[2], "context parameter of write_handler not NULL");
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_OPERATION_ABORTED, write_handler_fake.arg2_history[2], "err parameter of write_handler not correct");
 	TEST_ASSERT_EQUAL_MESSAGE(ws, write_handler_fake.arg0_history[3], "websocket parameter of write_handler not correct");
-	TEST_ASSERT_NULL_MESSAGE(write_handler_fake.arg1_history[3], "context parameter of write_handler not NULL")
+	TEST_ASSERT_NULL_MESSAGE(write_handler_fake.arg1_history[3], "context parameter of write_handler not NULL");
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_OPERATION_ABORTED, write_handler_fake.arg2_history[3], "err parameter of write_handler not correct");
 
 	TEST_ASSERT_EQUAL_MESSAGE(1, on_error_fake.call_count, "error callback was called");
 	TEST_ASSERT_EQUAL_MESSAGE(ws, on_error_fake.arg0_val, "ws parameter in first fragment of error callback not correct");
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_MESSAGE_TOO_LONG, on_error_fake.arg1_val, "error parameter in error callback not correct");
 
-	TEST_ASSERT_TRUE_MESSAGE(check_frame(CIO_WEBSOCKET_PING_FRAME, NULL, 0, true), "Written ping frame not correct")
-	TEST_ASSERT_TRUE_MESSAGE(is_close_frame(CIO_WEBSOCKET_CLOSE_INTERNAL_ERROR, true), "Written close frame not correct")
+	TEST_ASSERT_TRUE_MESSAGE(check_frame(CIO_WEBSOCKET_PING_FRAME, NULL, 0, true), "Written ping frame not correct");
+	TEST_ASSERT_TRUE_MESSAGE(is_close_frame(CIO_WEBSOCKET_CLOSE_INTERNAL_ERROR, true), "Written close frame not correct");
 }
 
 static void test_immediate_read_error_for_get_header(void)
@@ -985,9 +985,9 @@ static void test_immediate_read_error_for_get_header(void)
 
 	TEST_ASSERT_EQUAL_MESSAGE(1, read_handler_fake.call_count, "read_handler was not called");
 	TEST_ASSERT_EQUAL_PTR_MESSAGE(ws, read_handler_fake.arg0_val, "websocket parameter of read_handler not correct");
-	TEST_ASSERT_NULL_MESSAGE(read_handler_fake.arg1_val, "context parameter of read_handler not correct")
+	TEST_ASSERT_NULL_MESSAGE(read_handler_fake.arg1_val, "context parameter of read_handler not correct");
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_EOF, read_handler_fake.arg2_val, "error parameter of read_handler not correct");
-	TEST_ASSERT_NULL_MESSAGE(read_handler_fake.arg4_val, "data parameter of read_handler not correct")
+	TEST_ASSERT_NULL_MESSAGE(read_handler_fake.arg4_val, "data parameter of read_handler not correct");
 	TEST_ASSERT_EQUAL_MESSAGE(0, read_handler_fake.arg5_val, "length parameter of read_handler not correct");
 
 	TEST_ASSERT_EQUAL_MESSAGE(1, on_error_fake.call_count, "error callback was called");
@@ -1017,9 +1017,9 @@ static void test_immediate_read_error_for_get_first_length(void)
 
 	TEST_ASSERT_EQUAL_MESSAGE(1, read_handler_fake.call_count, "read_handler was not called");
 	TEST_ASSERT_EQUAL_PTR_MESSAGE(ws, read_handler_fake.arg0_val, "websocket parameter of read_handler not correct");
-	TEST_ASSERT_NULL_MESSAGE(read_handler_fake.arg1_val, "context parameter of read_handler not correct")
+	TEST_ASSERT_NULL_MESSAGE(read_handler_fake.arg1_val, "context parameter of read_handler not correct");
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_EOF, read_handler_fake.arg2_val, "error parameter of read_handler not correct");
-	TEST_ASSERT_NULL_MESSAGE(read_handler_fake.arg4_val, "data parameter of read_handler not correct")
+	TEST_ASSERT_NULL_MESSAGE(read_handler_fake.arg4_val, "data parameter of read_handler not correct");
 	TEST_ASSERT_EQUAL_MESSAGE(0, read_handler_fake.arg5_val, "length parameter of read_handler not correct");
 
 	TEST_ASSERT_EQUAL_MESSAGE(1, on_error_fake.call_count, "error callback was called");
@@ -1050,9 +1050,9 @@ static void test_immediate_read_error_for_get_mask(void)
 
 	TEST_ASSERT_EQUAL_MESSAGE(1, read_handler_fake.call_count, "read_handler was not called");
 	TEST_ASSERT_EQUAL_PTR_MESSAGE(ws, read_handler_fake.arg0_val, "websocket parameter of read_handler not correct");
-	TEST_ASSERT_NULL_MESSAGE(read_handler_fake.arg1_val, "context parameter of read_handler not correct")
+	TEST_ASSERT_NULL_MESSAGE(read_handler_fake.arg1_val, "context parameter of read_handler not correct");
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_EOF, read_handler_fake.arg2_val, "error parameter of read_handler not correct");
-	TEST_ASSERT_NULL_MESSAGE(read_handler_fake.arg4_val, "data parameter of read_handler not correct")
+	TEST_ASSERT_NULL_MESSAGE(read_handler_fake.arg4_val, "data parameter of read_handler not correct");
 	TEST_ASSERT_EQUAL_MESSAGE(0, read_handler_fake.arg5_val, "length parameter of read_handler not correct");
 
 	TEST_ASSERT_EQUAL_MESSAGE(1, on_error_fake.call_count, "error callback was called");
@@ -1088,9 +1088,9 @@ static void test_immediate_read_error_for_get_extended_length(void)
 
 		TEST_ASSERT_EQUAL_MESSAGE(1, read_handler_fake.call_count, "read_handler was not called");
 		TEST_ASSERT_EQUAL_PTR_MESSAGE(ws, read_handler_fake.arg0_val, "websocket parameter of read_handler not correct");
-		TEST_ASSERT_NULL_MESSAGE(read_handler_fake.arg1_val, "context parameter of read_handler not correct")
+		TEST_ASSERT_NULL_MESSAGE(read_handler_fake.arg1_val, "context parameter of read_handler not correct");
 		TEST_ASSERT_EQUAL_MESSAGE(CIO_EOF, read_handler_fake.arg2_val, "error parameter of read_handler not correct");
-		TEST_ASSERT_NULL_MESSAGE(read_handler_fake.arg4_val, "data parameter of read_handler not correct")
+		TEST_ASSERT_NULL_MESSAGE(read_handler_fake.arg4_val, "data parameter of read_handler not correct");
 		TEST_ASSERT_EQUAL_MESSAGE(0, read_handler_fake.arg5_val, "length parameter of read_handler not correct");
 
 		TEST_ASSERT_EQUAL_MESSAGE(1, on_error_fake.call_count, "error callback was called");
@@ -1125,9 +1125,9 @@ static void test_immediate_read_error_for_get_payload(void)
 
 	TEST_ASSERT_EQUAL_MESSAGE(1, read_handler_fake.call_count, "read_handler was not called");
 	TEST_ASSERT_EQUAL_PTR_MESSAGE(ws, read_handler_fake.arg0_val, "websocket parameter of read_handler not correct");
-	TEST_ASSERT_NULL_MESSAGE(read_handler_fake.arg1_val, "context parameter of read_handler not correct")
+	TEST_ASSERT_NULL_MESSAGE(read_handler_fake.arg1_val, "context parameter of read_handler not correct");
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_EOF, read_handler_fake.arg2_val, "error parameter of read_handler not correct");
-	TEST_ASSERT_NULL_MESSAGE(read_handler_fake.arg4_val, "data parameter of read_handler not correct")
+	TEST_ASSERT_NULL_MESSAGE(read_handler_fake.arg4_val, "data parameter of read_handler not correct");
 	TEST_ASSERT_EQUAL_MESSAGE(0, read_handler_fake.arg5_val, "length parameter of read_handler not correct");
 
 	TEST_ASSERT_EQUAL_MESSAGE(1, on_error_fake.call_count, "error callback was not called");
@@ -1164,9 +1164,9 @@ static void test_immediate_read_error_for_second_get_payload(void)
 
 		TEST_ASSERT_EQUAL_MESSAGE(2, read_handler_fake.call_count, "read_handler was not called");
 		TEST_ASSERT_EQUAL_PTR_MESSAGE(ws, read_handler_fake.arg0_val, "websocket parameter of read_handler not correct");
-		TEST_ASSERT_NULL_MESSAGE(read_handler_fake.arg1_val, "context parameter of read_handler not correct")
+		TEST_ASSERT_NULL_MESSAGE(read_handler_fake.arg1_val, "context parameter of read_handler not correct");
 		TEST_ASSERT_EQUAL_MESSAGE(CIO_EOF, read_handler_fake.arg2_val, "error parameter of read_handler not correct");
-		TEST_ASSERT_NULL_MESSAGE(read_handler_fake.arg4_val, "data parameter of read_handler not correct")
+		TEST_ASSERT_NULL_MESSAGE(read_handler_fake.arg4_val, "data parameter of read_handler not correct");
 		TEST_ASSERT_EQUAL_MESSAGE(0, read_handler_fake.arg5_val, "length parameter of read_handler not correct");
 
 		TEST_ASSERT_EQUAL_MESSAGE(1, on_error_fake.call_count, "error callback was not called");
@@ -1196,9 +1196,9 @@ static void test_read_error_in_get_header(void)
 
 	TEST_ASSERT_EQUAL_MESSAGE(1, read_handler_fake.call_count, "read_handler was not called");
 	TEST_ASSERT_EQUAL_PTR_MESSAGE(ws, read_handler_fake.arg0_val, "websocket parameter of read_handler not correct");
-	TEST_ASSERT_NULL_MESSAGE(read_handler_fake.arg1_val, "context parameter of read_handler not correct")
+	TEST_ASSERT_NULL_MESSAGE(read_handler_fake.arg1_val, "context parameter of read_handler not correct");
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_EOF, read_handler_fake.arg2_val, "error parameter of read_handler not correct");
-	TEST_ASSERT_NULL_MESSAGE(read_handler_fake.arg4_val, "data parameter of read_handler not correct")
+	TEST_ASSERT_NULL_MESSAGE(read_handler_fake.arg4_val, "data parameter of read_handler not correct");
 	TEST_ASSERT_EQUAL_MESSAGE(0, read_handler_fake.arg5_val, "length parameter of read_handler not correct");
 
 	TEST_ASSERT_EQUAL_MESSAGE(1, on_error_fake.call_count, "error callback was called");
@@ -1230,9 +1230,9 @@ static void test_read_error_in_get_mask(void)
 
 	TEST_ASSERT_EQUAL_MESSAGE(1, read_handler_fake.call_count, "read_handler was not called");
 	TEST_ASSERT_EQUAL_PTR_MESSAGE(ws, read_handler_fake.arg0_val, "websocket parameter of read_handler not correct");
-	TEST_ASSERT_NULL_MESSAGE(read_handler_fake.arg1_val, "context parameter of read_handler not correct")
+	TEST_ASSERT_NULL_MESSAGE(read_handler_fake.arg1_val, "context parameter of read_handler not correct");
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_EOF, read_handler_fake.arg2_val, "error parameter of read_handler not correct");
-	TEST_ASSERT_NULL_MESSAGE(read_handler_fake.arg4_val, "data parameter of read_handler not correct")
+	TEST_ASSERT_NULL_MESSAGE(read_handler_fake.arg4_val, "data parameter of read_handler not correct");
 	TEST_ASSERT_EQUAL_MESSAGE(0, read_handler_fake.arg5_val, "length parameter of read_handler not correct");
 
 	TEST_ASSERT_EQUAL_MESSAGE(1, on_error_fake.call_count, "error callback was called");
@@ -1259,9 +1259,9 @@ static void test_read_error_in_get_payload(void)
 
 	TEST_ASSERT_EQUAL_MESSAGE(1, read_handler_fake.call_count, "read_handler was not called");
 	TEST_ASSERT_EQUAL_PTR_MESSAGE(ws, read_handler_fake.arg0_val, "websocket parameter of read_handler not correct");
-	TEST_ASSERT_NULL_MESSAGE(read_handler_fake.arg1_val, "context parameter of read_handler not correct")
+	TEST_ASSERT_NULL_MESSAGE(read_handler_fake.arg1_val, "context parameter of read_handler not correct");
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_EOF, read_handler_fake.arg2_val, "error parameter of read_handler not correct");
-	TEST_ASSERT_NULL_MESSAGE(read_handler_fake.arg4_val, "data parameter of read_handler not correct")
+	TEST_ASSERT_NULL_MESSAGE(read_handler_fake.arg4_val, "data parameter of read_handler not correct");
 	TEST_ASSERT_EQUAL_MESSAGE(0, read_handler_fake.arg5_val, "length parameter of read_handler not correct");
 
 	TEST_ASSERT_EQUAL_MESSAGE(1, on_error_fake.call_count, "error callback was called");
@@ -1288,9 +1288,9 @@ static void test_read_no_utf8(void)
 
 	TEST_ASSERT_EQUAL_MESSAGE(1, read_handler_fake.call_count, "read_handler was not called");
 	TEST_ASSERT_EQUAL_PTR_MESSAGE(ws, read_handler_fake.arg0_val, "websocket parameter of read_handler not correct");
-	TEST_ASSERT_NULL_MESSAGE(read_handler_fake.arg1_val, "context parameter of read_handler not correct")
+	TEST_ASSERT_NULL_MESSAGE(read_handler_fake.arg1_val, "context parameter of read_handler not correct");
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_EOF, read_handler_fake.arg2_val, "error parameter of read_handler not correct");
-	TEST_ASSERT_NULL_MESSAGE(read_handler_fake.arg4_val, "data parameter of read_handler not correct")
+	TEST_ASSERT_NULL_MESSAGE(read_handler_fake.arg4_val, "data parameter of read_handler not correct");
 	TEST_ASSERT_EQUAL_MESSAGE(0, read_handler_fake.arg5_val, "length parameter of read_handler not correct");
 
 	TEST_ASSERT_EQUAL_MESSAGE(1, on_error_fake.call_count, "error callback was called");
@@ -1315,21 +1315,21 @@ static void test_receive_ping_frame(void)
 
 	TEST_ASSERT_EQUAL_MESSAGE(1, read_handler_fake.call_count, "read_handler was not called");
 	TEST_ASSERT_EQUAL_PTR_MESSAGE(ws, read_handler_fake.arg0_val, "websocket parameter of read_handler not correct");
-	TEST_ASSERT_NULL_MESSAGE(read_handler_fake.arg1_val, "context parameter of read_handler not correct")
+	TEST_ASSERT_NULL_MESSAGE(read_handler_fake.arg1_val, "context parameter of read_handler not correct");
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_EOF, read_handler_fake.arg2_val, "error parameter of read_handler not correct");
-	TEST_ASSERT_NULL_MESSAGE(read_handler_fake.arg4_val, "data parameter of read_handler not correct")
+	TEST_ASSERT_NULL_MESSAGE(read_handler_fake.arg4_val, "data parameter of read_handler not correct");
 	TEST_ASSERT_EQUAL_MESSAGE(0, read_handler_fake.arg5_val, "length parameter of read_handler not correct");
 
 	TEST_ASSERT_EQUAL_MESSAGE(0, on_error_fake.call_count, "error callback was called");
 
 	TEST_ASSERT_EQUAL_MESSAGE(2, on_control_fake.call_count, "on_control callback was not called twice (for ping and close)");
-	TEST_ASSERT_NOT_NULL_MESSAGE(on_control_fake.arg0_history[0], "websocket parameter of control callback (ping) is NULL")
+	TEST_ASSERT_NOT_NULL_MESSAGE(on_control_fake.arg0_history[0], "websocket parameter of control callback (ping) is NULL");
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_WEBSOCKET_PING_FRAME, on_control_fake.arg1_history[0], "type parameter of control callback (ping) is not PING");
 	TEST_ASSERT_EQUAL_MESSAGE(sizeof(data), on_control_fake.arg3_history[0], "data length parameter of control callback (ping) is not correct");
 
-	TEST_ASSERT_NOT_NULL_MESSAGE(on_control_fake.arg0_history[1], "websocket parameter of control callback (close) is NULL")
+	TEST_ASSERT_NOT_NULL_MESSAGE(on_control_fake.arg0_history[1], "websocket parameter of control callback (close) is NULL");
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_WEBSOCKET_CLOSE_FRAME, on_control_fake.arg1_history[1], "type parameter of control callback (close) is not CLOSE");
-	TEST_ASSERT_NULL_MESSAGE(on_control_fake.arg2_history[1], "data parameter of control callback (close) is not NULL")
+	TEST_ASSERT_NULL_MESSAGE(on_control_fake.arg2_history[1], "data parameter of control callback (close) is not NULL");
 	TEST_ASSERT_EQUAL_MESSAGE(0, on_control_fake.arg3_history[1], "data length parameter of control callback (close) is not correct");
 
 	TEST_ASSERT_EQUAL_MEMORY_MESSAGE(data, read_back_buffer, sizeof(data), "data in ping frame callback not correct");
@@ -1355,9 +1355,9 @@ static void test_receive_ping_frame_no_callback(void)
 
 	TEST_ASSERT_EQUAL_MESSAGE(1, read_handler_fake.call_count, "read_handler was not called");
 	TEST_ASSERT_EQUAL_PTR_MESSAGE(ws, read_handler_fake.arg0_val, "websocket parameter of read_handler not correct");
-	TEST_ASSERT_NULL_MESSAGE(read_handler_fake.arg1_val, "context parameter of read_handler not correct")
+	TEST_ASSERT_NULL_MESSAGE(read_handler_fake.arg1_val, "context parameter of read_handler not correct");
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_EOF, read_handler_fake.arg2_val, "error parameter of read_handler not correct");
-	TEST_ASSERT_NULL_MESSAGE(read_handler_fake.arg4_val, "data parameter of read_handler not correct")
+	TEST_ASSERT_NULL_MESSAGE(read_handler_fake.arg4_val, "data parameter of read_handler not correct");
 	TEST_ASSERT_EQUAL_MESSAGE(0, read_handler_fake.arg5_val, "length parameter of read_handler not correct");
 
 	TEST_ASSERT_EQUAL_MESSAGE(0, on_error_fake.call_count, "error callback was called");
@@ -1378,21 +1378,21 @@ static void test_receive_ping_frame_no_payload(void)
 
 	TEST_ASSERT_EQUAL_MESSAGE(1, read_handler_fake.call_count, "read_handler was not called");
 	TEST_ASSERT_EQUAL_PTR_MESSAGE(ws, read_handler_fake.arg0_val, "websocket parameter of read_handler not correct");
-	TEST_ASSERT_NULL_MESSAGE(read_handler_fake.arg1_val, "context parameter of read_handler not correct")
+	TEST_ASSERT_NULL_MESSAGE(read_handler_fake.arg1_val, "context parameter of read_handler not correct");
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_EOF, read_handler_fake.arg2_val, "error parameter of read_handler not correct");
-	TEST_ASSERT_NULL_MESSAGE(read_handler_fake.arg4_val, "data parameter of read_handler not correct")
+	TEST_ASSERT_NULL_MESSAGE(read_handler_fake.arg4_val, "data parameter of read_handler not correct");
 	TEST_ASSERT_EQUAL_MESSAGE(0, read_handler_fake.arg5_val, "length parameter of read_handler not correct");
 
 	TEST_ASSERT_EQUAL_MESSAGE(0, on_error_fake.call_count, "error callback was called");
 
 	TEST_ASSERT_EQUAL_MESSAGE(2, on_control_fake.call_count, "on_control callback was not called twice (for ping and close)");
-	TEST_ASSERT_NOT_NULL_MESSAGE(on_control_fake.arg0_history[0], "websocket parameter of control callback (ping) is NULL")
+	TEST_ASSERT_NOT_NULL_MESSAGE(on_control_fake.arg0_history[0], "websocket parameter of control callback (ping) is NULL");
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_WEBSOCKET_PING_FRAME, on_control_fake.arg1_history[0], "type parameter of control callback (ping) is not PING");
 	TEST_ASSERT_EQUAL_MESSAGE(0, on_control_fake.arg3_history[0], "data length parameter of control callback (ping) is not correct");
 
-	TEST_ASSERT_NOT_NULL_MESSAGE(on_control_fake.arg0_history[1], "websocket parameter of control callback (close) is NULL")
+	TEST_ASSERT_NOT_NULL_MESSAGE(on_control_fake.arg0_history[1], "websocket parameter of control callback (close) is NULL");
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_WEBSOCKET_CLOSE_FRAME, on_control_fake.arg1_history[1], "type parameter of control callback (close) is not CLOSE");
-	TEST_ASSERT_NULL_MESSAGE(on_control_fake.arg2_history[1], "data parameter of control callback (close) is not NULL")
+	TEST_ASSERT_NULL_MESSAGE(on_control_fake.arg2_history[1], "data parameter of control callback (close) is not NULL");
 	TEST_ASSERT_EQUAL_MESSAGE(0, on_control_fake.arg3_history[1], "data length parameter of control callback (close) is not correct");
 }
 
@@ -1415,16 +1415,16 @@ static void test_receive_ping_frame_payload_too_long(void)
 
 	TEST_ASSERT_EQUAL_MESSAGE(1, read_handler_fake.call_count, "read_handler was not called");
 	TEST_ASSERT_EQUAL_PTR_MESSAGE(ws, read_handler_fake.arg0_val, "websocket parameter of read_handler not correct");
-	TEST_ASSERT_NULL_MESSAGE(read_handler_fake.arg1_val, "context parameter of read_handler not correct")
+	TEST_ASSERT_NULL_MESSAGE(read_handler_fake.arg1_val, "context parameter of read_handler not correct");
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_EOF, read_handler_fake.arg2_val, "error parameter of read_handler not correct");
-	TEST_ASSERT_NULL_MESSAGE(read_handler_fake.arg4_val, "data parameter of read_handler not correct")
+	TEST_ASSERT_NULL_MESSAGE(read_handler_fake.arg4_val, "data parameter of read_handler not correct");
 	TEST_ASSERT_EQUAL_MESSAGE(0, read_handler_fake.arg5_val, "length parameter of read_handler not correct");
 
 	TEST_ASSERT_EQUAL_MESSAGE(1, on_error_fake.call_count, "error callback was not called");
 	TEST_ASSERT_EQUAL_MESSAGE(ws, on_error_fake.arg0_val, "ws parameter in first fragment of error callback not correct");
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_PROTOCOL_NOT_SUPPORTED, on_error_fake.arg1_val, "error parameter in error callback not correct");
 	TEST_ASSERT_EQUAL_STRING_MESSAGE("payload of control frame too long", read_back_buffer, "reason in error callback not correct");
-	TEST_ASSERT_MESSAGE(is_close_frame(CIO_WEBSOCKET_CLOSE_PROTOCOL_ERROR, true), "written frame is not a close frame!")
+	TEST_ASSERT_MESSAGE(is_close_frame(CIO_WEBSOCKET_CLOSE_PROTOCOL_ERROR, true), "written frame is not a close frame!");
 }
 
 static void test_recieve_ping_frame_payload_too_long_no_error_callback(void)
@@ -1447,13 +1447,13 @@ static void test_recieve_ping_frame_payload_too_long_no_error_callback(void)
 
 	TEST_ASSERT_EQUAL_MESSAGE(1, read_handler_fake.call_count, "read_handler was not called");
 	TEST_ASSERT_EQUAL_PTR_MESSAGE(ws, read_handler_fake.arg0_val, "websocket parameter of read_handler not correct");
-	TEST_ASSERT_NULL_MESSAGE(read_handler_fake.arg1_val, "context parameter of read_handler not correct")
+	TEST_ASSERT_NULL_MESSAGE(read_handler_fake.arg1_val, "context parameter of read_handler not correct");
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_EOF, read_handler_fake.arg2_val, "error parameter of read_handler not correct");
-	TEST_ASSERT_NULL_MESSAGE(read_handler_fake.arg4_val, "data parameter of read_handler not correct")
+	TEST_ASSERT_NULL_MESSAGE(read_handler_fake.arg4_val, "data parameter of read_handler not correct");
 	TEST_ASSERT_EQUAL_MESSAGE(0, read_handler_fake.arg5_val, "length parameter of read_handler not correct");
 
 	TEST_ASSERT_EQUAL_MESSAGE(0, on_error_fake.call_count, "error callback was called");
-	TEST_ASSERT_MESSAGE(is_close_frame(CIO_WEBSOCKET_CLOSE_PROTOCOL_ERROR, true), "written frame is not a close frame!")
+	TEST_ASSERT_MESSAGE(is_close_frame(CIO_WEBSOCKET_CLOSE_PROTOCOL_ERROR, true), "written frame is not a close frame!");
 }
 
 static void test_receive_pong_frame(void)
@@ -1473,21 +1473,21 @@ static void test_receive_pong_frame(void)
 
 	TEST_ASSERT_EQUAL_MESSAGE(1, read_handler_fake.call_count, "read_handler was not called");
 	TEST_ASSERT_EQUAL_PTR_MESSAGE(ws, read_handler_fake.arg0_val, "websocket parameter of read_handler not correct");
-	TEST_ASSERT_NULL_MESSAGE(read_handler_fake.arg1_val, "context parameter of read_handler not correct")
+	TEST_ASSERT_NULL_MESSAGE(read_handler_fake.arg1_val, "context parameter of read_handler not correct");
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_EOF, read_handler_fake.arg2_val, "error parameter of read_handler not correct");
-	TEST_ASSERT_NULL_MESSAGE(read_handler_fake.arg4_val, "data parameter of read_handler not correct")
+	TEST_ASSERT_NULL_MESSAGE(read_handler_fake.arg4_val, "data parameter of read_handler not correct");
 	TEST_ASSERT_EQUAL_MESSAGE(0, read_handler_fake.arg5_val, "length parameter of read_handler not correct");
 
 	TEST_ASSERT_EQUAL_MESSAGE(0, on_error_fake.call_count, "error callback was called");
 
 	TEST_ASSERT_EQUAL_MESSAGE(2, on_control_fake.call_count, "on_control callback was not called twice (for pong and close)");
-	TEST_ASSERT_NOT_NULL_MESSAGE(on_control_fake.arg0_history[0], "websocket parameter of control callback (pong) is NULL")
+	TEST_ASSERT_NOT_NULL_MESSAGE(on_control_fake.arg0_history[0], "websocket parameter of control callback (pong) is NULL");
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_WEBSOCKET_PONG_FRAME, on_control_fake.arg1_history[0], "type parameter of control callback (pong) is not PONG");
 	TEST_ASSERT_EQUAL_MESSAGE(sizeof(data), on_control_fake.arg3_history[0], "data length parameter of control callback (pong) is not correct");
 
-	TEST_ASSERT_NOT_NULL_MESSAGE(on_control_fake.arg0_history[1], "websocket parameter of control callback (close) is NULL")
+	TEST_ASSERT_NOT_NULL_MESSAGE(on_control_fake.arg0_history[1], "websocket parameter of control callback (close) is NULL");
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_WEBSOCKET_CLOSE_FRAME, on_control_fake.arg1_history[1], "type parameter of control callback (close) is not CLOSE");
-	TEST_ASSERT_NULL_MESSAGE(on_control_fake.arg2_history[1], "data parameter of control callback (close) is not NULL")
+	TEST_ASSERT_NULL_MESSAGE(on_control_fake.arg2_history[1], "data parameter of control callback (close) is not NULL");
 	TEST_ASSERT_EQUAL_MESSAGE(0, on_control_fake.arg3_history[1], "data length parameter of control callback (close) is not correct");
 
 	TEST_ASSERT_EQUAL_MEMORY_MESSAGE(data, read_back_buffer, sizeof(data), "data in pong frame callback not correct");
@@ -1513,9 +1513,9 @@ static void test_receive_pong_frame_no_callback(void)
 
 	TEST_ASSERT_EQUAL_MESSAGE(1, read_handler_fake.call_count, "read_handler was not called");
 	TEST_ASSERT_EQUAL_PTR_MESSAGE(ws, read_handler_fake.arg0_val, "websocket parameter of read_handler not correct");
-	TEST_ASSERT_NULL_MESSAGE(read_handler_fake.arg1_val, "context parameter of read_handler not correct")
+	TEST_ASSERT_NULL_MESSAGE(read_handler_fake.arg1_val, "context parameter of read_handler not correct");
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_EOF, read_handler_fake.arg2_val, "error parameter of read_handler not correct");
-	TEST_ASSERT_NULL_MESSAGE(read_handler_fake.arg4_val, "data parameter of read_handler not correct")
+	TEST_ASSERT_NULL_MESSAGE(read_handler_fake.arg4_val, "data parameter of read_handler not correct");
 	TEST_ASSERT_EQUAL_MESSAGE(0, read_handler_fake.arg5_val, "length parameter of read_handler not correct");
 
 	TEST_ASSERT_EQUAL_MESSAGE(0, on_error_fake.call_count, "error callback was called");
@@ -1537,7 +1537,7 @@ static void test_illegal_opcode(void)
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Could not start reading a message!");
 
 	TEST_ASSERT_EQUAL_MESSAGE(1, read_handler_fake.call_count, "number of read_handler callbacks called not correct");
-	TEST_ASSERT_NULL_MESSAGE(read_handler_fake.arg1_history[read_handler_fake.call_count - 1], "context parameter of read_handler not correct")
+	TEST_ASSERT_NULL_MESSAGE(read_handler_fake.arg1_history[read_handler_fake.call_count - 1], "context parameter of read_handler not correct");
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_EOF, read_handler_fake.arg2_history[read_handler_fake.call_count - 1], "err parameter of read_handler not correct");
 
 	TEST_ASSERT_EQUAL_MESSAGE(1, on_error_fake.call_count, "error callback was not called");
@@ -1569,13 +1569,13 @@ static void test_wrong_opcode_between_fragments(void)
 	TEST_ASSERT_EQUAL_MESSAGE(3, read_handler_fake.call_count, "read_handler was not called");
 
 	TEST_ASSERT_EQUAL_PTR_MESSAGE(ws, read_handler_fake.arg0_history[2], "websocket parameter of read_handler not correct");
-	TEST_ASSERT_NULL_MESSAGE(read_handler_fake.arg1_history[2], "context parameter of read_handler not correct")
+	TEST_ASSERT_NULL_MESSAGE(read_handler_fake.arg1_history[2], "context parameter of read_handler not correct");
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_EOF, read_handler_fake.arg2_history[2], "err parameter of read_handler not correct");
 
 	TEST_ASSERT_EQUAL_MESSAGE(1, on_error_fake.call_count, "error callback was called");
 	TEST_ASSERT_EQUAL_MESSAGE(ws, on_error_fake.arg0_val, "ws parameter in first fragment of error callback not correct");
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_PROTOCOL_NOT_SUPPORTED, on_error_fake.arg1_val, "status parameter in error callback not correct");
-	TEST_ASSERT_MESSAGE(is_close_frame(CIO_WEBSOCKET_CLOSE_PROTOCOL_ERROR, true), "written frame is not a close frame!")
+	TEST_ASSERT_MESSAGE(is_close_frame(CIO_WEBSOCKET_CLOSE_PROTOCOL_ERROR, true), "written frame is not a close frame!");
 }
 
 static void test_wrong_opcode_in_fragment(void)
@@ -1600,13 +1600,13 @@ static void test_wrong_opcode_in_fragment(void)
 	TEST_ASSERT_EQUAL_MESSAGE(3, read_handler_fake.call_count, "read_handler was not called");
 
 	TEST_ASSERT_EQUAL_PTR_MESSAGE(ws, read_handler_fake.arg0_history[2], "websocket parameter of read_handler not correct");
-	TEST_ASSERT_NULL_MESSAGE(read_handler_fake.arg1_history[2], "context parameter of read_handler not correct")
+	TEST_ASSERT_NULL_MESSAGE(read_handler_fake.arg1_history[2], "context parameter of read_handler not correct");
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_EOF, read_handler_fake.arg2_history[2], "err parameter of read_handler not correct");
 
 	TEST_ASSERT_EQUAL_MESSAGE(1, on_error_fake.call_count, "error callback was called");
 	TEST_ASSERT_EQUAL_MESSAGE(ws, on_error_fake.arg0_val, "ws parameter in first fragment of error callback not correct");
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_PROTOCOL_NOT_SUPPORTED, on_error_fake.arg1_val, "status parameter in error callback not correct");
-	TEST_ASSERT_MESSAGE(is_close_frame(CIO_WEBSOCKET_CLOSE_PROTOCOL_ERROR, true), "written frame is not a close frame!")
+	TEST_ASSERT_MESSAGE(is_close_frame(CIO_WEBSOCKET_CLOSE_PROTOCOL_ERROR, true), "written frame is not a close frame!");
 }
 
 static void test_control_frame_within_fragment(void)
@@ -1632,20 +1632,20 @@ static void test_control_frame_within_fragment(void)
 
 	for (unsigned int i = 0; i < 3; i++) {
 		TEST_ASSERT_EQUAL_PTR_MESSAGE(ws, read_handler_fake.arg0_history[i], "websocket parameter of read_handler not correct");
-		TEST_ASSERT_NULL_MESSAGE(read_handler_fake.arg1_history[i], "context parameter of read_handler not correct")
+		TEST_ASSERT_NULL_MESSAGE(read_handler_fake.arg1_history[i], "context parameter of read_handler not correct");
 		TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, read_handler_fake.arg2_history[i], "err parameter of read_handler not correct");
-		TEST_ASSERT_NOT_NULL_MESSAGE(read_handler_fake.arg4_history[i], "data parameter of read_handler not correct")
+		TEST_ASSERT_NOT_NULL_MESSAGE(read_handler_fake.arg4_history[i], "data parameter of read_handler not correct");
 		TEST_ASSERT_EQUAL_MESSAGE(sizeof(data), read_handler_fake.arg5_history[i], "length parameter of read_handler not correct");
-		TEST_ASSERT_FALSE_MESSAGE(read_handler_fake.arg8_history[i], "is_binary parameter of read_handler not correct")
+		TEST_ASSERT_FALSE_MESSAGE(read_handler_fake.arg8_history[i], "is_binary parameter of read_handler not correct");
 		if (i < 2) {
-			TEST_ASSERT_FALSE_MESSAGE(read_handler_fake.arg7_history[i], "last_frame parameter of read_handler not correct")
+			TEST_ASSERT_FALSE_MESSAGE(read_handler_fake.arg7_history[i], "last_frame parameter of read_handler not correct");
 		} else {
-			TEST_ASSERT_TRUE_MESSAGE(read_handler_fake.arg7_history[i], "last_frame parameter of read_handler not correct")
+			TEST_ASSERT_TRUE_MESSAGE(read_handler_fake.arg7_history[i], "last_frame parameter of read_handler not correct");
 		}
 	}
 
 	TEST_ASSERT_EQUAL_PTR_MESSAGE(ws, read_handler_fake.arg0_history[3], "websocket parameter of read_handler not correct");
-	TEST_ASSERT_NULL_MESSAGE(read_handler_fake.arg1_history[3], "context parameter of read_handler not correct")
+	TEST_ASSERT_NULL_MESSAGE(read_handler_fake.arg1_history[3], "context parameter of read_handler not correct");
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_EOF, read_handler_fake.arg2_history[3], "err parameter of read_handler not correct");
 
 	TEST_ASSERT_EQUAL_MESSAGE(0, on_error_fake.call_count, "error callback was called");
@@ -1681,16 +1681,16 @@ static void test_binary_frame_within_text_fragments(void)
 
 	for (unsigned int i = 0; i < read_handler_fake.call_count - 1; i++) {
 		TEST_ASSERT_EQUAL_PTR_MESSAGE(ws, read_handler_fake.arg0_history[i], "websocket parameter of read_handler not correct");
-		TEST_ASSERT_NULL_MESSAGE(read_handler_fake.arg1_history[i], "context parameter of read_handler not correct")
+		TEST_ASSERT_NULL_MESSAGE(read_handler_fake.arg1_history[i], "context parameter of read_handler not correct");
 		TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, read_handler_fake.arg2_history[i], "err parameter of read_handler not correct");
-		TEST_ASSERT_NOT_NULL_MESSAGE(read_handler_fake.arg4_history[i], "data parameter of read_handler not correct")
+		TEST_ASSERT_NOT_NULL_MESSAGE(read_handler_fake.arg4_history[i], "data parameter of read_handler not correct");
 		TEST_ASSERT_EQUAL_MESSAGE(sizeof(data), read_handler_fake.arg5_history[i], "length parameter of read_handler not correct");
-		TEST_ASSERT_FALSE_MESSAGE(read_handler_fake.arg7_history[i], "last_frame parameter of read_handler not correct")
-		TEST_ASSERT_FALSE_MESSAGE(read_handler_fake.arg8_history[i], "is_binary parameter of read_handler not correct")
+		TEST_ASSERT_FALSE_MESSAGE(read_handler_fake.arg7_history[i], "last_frame parameter of read_handler not correct");
+		TEST_ASSERT_FALSE_MESSAGE(read_handler_fake.arg8_history[i], "is_binary parameter of read_handler not correct");
 	}
 
 	TEST_ASSERT_EQUAL_PTR_MESSAGE(ws, read_handler_fake.arg0_history[read_handler_fake.call_count - 1], "websocket parameter of read_handler not correct");
-	TEST_ASSERT_NULL_MESSAGE(read_handler_fake.arg1_history[read_handler_fake.call_count - 1], "context parameter of read_handler not correct")
+	TEST_ASSERT_NULL_MESSAGE(read_handler_fake.arg1_history[read_handler_fake.call_count - 1], "context parameter of read_handler not correct");
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_EOF, read_handler_fake.arg2_history[read_handler_fake.call_count - 1], "err parameter of read_handler not correct");
 
 	TEST_ASSERT_EQUAL_MESSAGE(1, on_error_fake.call_count, "error callback was not called");
@@ -1715,9 +1715,9 @@ static void test_rsv_bit_in_header(void)
 
 	TEST_ASSERT_EQUAL_MESSAGE(1, read_handler_fake.call_count, "read_handler was not called");
 	TEST_ASSERT_EQUAL_PTR_MESSAGE(ws, read_handler_fake.arg0_val, "websocket parameter of read_handler not correct");
-	TEST_ASSERT_NULL_MESSAGE(read_handler_fake.arg1_val, "context parameter of read_handler not correct")
+	TEST_ASSERT_NULL_MESSAGE(read_handler_fake.arg1_val, "context parameter of read_handler not correct");
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_EOF, read_handler_fake.arg2_val, "error parameter of read_handler not correct");
-	TEST_ASSERT_NULL_MESSAGE(read_handler_fake.arg4_val, "data parameter of read_handler not correct")
+	TEST_ASSERT_NULL_MESSAGE(read_handler_fake.arg4_val, "data parameter of read_handler not correct");
 	TEST_ASSERT_EQUAL_MESSAGE(0, read_handler_fake.arg5_val, "length parameter of read_handler not correct");
 
 	TEST_ASSERT_EQUAL_MESSAGE(1, on_error_fake.call_count, "error callback was called");
@@ -1739,9 +1739,9 @@ static void test_fragmented_control_frame(void)
 
 	TEST_ASSERT_EQUAL_MESSAGE(1, read_handler_fake.call_count, "read_handler was not called");
 	TEST_ASSERT_EQUAL_PTR_MESSAGE(ws, read_handler_fake.arg0_val, "websocket parameter of read_handler not correct");
-	TEST_ASSERT_NULL_MESSAGE(read_handler_fake.arg1_val, "context parameter of read_handler not correct")
+	TEST_ASSERT_NULL_MESSAGE(read_handler_fake.arg1_val, "context parameter of read_handler not correct");
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_EOF, read_handler_fake.arg2_val, "error parameter of read_handler not correct");
-	TEST_ASSERT_NULL_MESSAGE(read_handler_fake.arg4_val, "data parameter of read_handler not correct")
+	TEST_ASSERT_NULL_MESSAGE(read_handler_fake.arg4_val, "data parameter of read_handler not correct");
 	TEST_ASSERT_EQUAL_MESSAGE(0, read_handler_fake.arg5_val, "length parameter of read_handler not correct");
 
 	TEST_ASSERT_EQUAL_MESSAGE(1, on_error_fake.call_count, "error callback was called");
@@ -1766,9 +1766,9 @@ static void test_wrong_continuation_frame_without_correct_start_frame(void)
 
 	TEST_ASSERT_EQUAL_MESSAGE(1, read_handler_fake.call_count, "read_handler was not called");
 	TEST_ASSERT_EQUAL_PTR_MESSAGE(ws, read_handler_fake.arg0_val, "websocket parameter of read_handler not correct");
-	TEST_ASSERT_NULL_MESSAGE(read_handler_fake.arg1_val, "context parameter of read_handler not correct")
+	TEST_ASSERT_NULL_MESSAGE(read_handler_fake.arg1_val, "context parameter of read_handler not correct");
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_EOF, read_handler_fake.arg2_val, "error parameter of read_handler not correct");
-	TEST_ASSERT_NULL_MESSAGE(read_handler_fake.arg4_val, "data parameter of read_handler not correct")
+	TEST_ASSERT_NULL_MESSAGE(read_handler_fake.arg4_val, "data parameter of read_handler not correct");
 	TEST_ASSERT_EQUAL_MESSAGE(0, read_handler_fake.arg5_val, "length parameter of read_handler not correct");
 
 	TEST_ASSERT_EQUAL_MESSAGE(1, on_error_fake.call_count, "error callback was called");
@@ -1794,7 +1794,7 @@ static void test_wrong_fragment_start(void)
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Could not start reading a message!");
 
 	TEST_ASSERT_EQUAL_MESSAGE(1, read_handler_fake.call_count, "number of read_handler callbacks called not correct");
-	TEST_ASSERT_NULL_MESSAGE(read_handler_fake.arg1_history[read_handler_fake.call_count - 1], "context parameter of read_handler not correct")
+	TEST_ASSERT_NULL_MESSAGE(read_handler_fake.arg1_history[read_handler_fake.call_count - 1], "context parameter of read_handler not correct");
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_EOF, read_handler_fake.arg2_history[read_handler_fake.call_count - 1], "err parameter of read_handler not correct");
 
 	TEST_ASSERT_EQUAL_MESSAGE(1, on_error_fake.call_count, "error callback was not called");
@@ -1822,7 +1822,7 @@ static void test_no_mask_set_from_client(void)
 
 	TEST_ASSERT_EQUAL_MESSAGE(1, read_handler_fake.call_count, "read_handler was not called");
 	TEST_ASSERT_EQUAL_MESSAGE(ws, read_handler_fake.arg0_val, "websocket parameter of read_handler not correct");
-	TEST_ASSERT_NULL_MESSAGE(read_handler_fake.arg1_val, "context of read handler not NULL")
+	TEST_ASSERT_NULL_MESSAGE(read_handler_fake.arg1_val, "context of read handler not NULL");
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_EOF, read_handler_fake.arg2_val, "error parameter of read_handler not CIO_SUCCESS");
 
 	TEST_ASSERT_EQUAL_MESSAGE(1, on_error_fake.call_count, "error callback was not called");
@@ -1848,7 +1848,7 @@ static void test_close_self_no_answer(void)
 
 	TEST_ASSERT_EQUAL_MESSAGE(1, read_handler_fake.call_count, "read_handler was not called");
 	TEST_ASSERT_EQUAL_MESSAGE(ws, read_handler_fake.arg0_val, "websocket parameter of read_handler not correct");
-	TEST_ASSERT_NULL_MESSAGE(read_handler_fake.arg1_val, "context of read handler not NULL")
+	TEST_ASSERT_NULL_MESSAGE(read_handler_fake.arg1_val, "context of read handler not NULL");
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_EOF, read_handler_fake.arg2_val, "error parameter of read_handler not CIO_SUCCESS");
 
 	TEST_ASSERT_EQUAL_MESSAGE(0, on_error_fake.call_count, "error callback was called");
@@ -1874,9 +1874,9 @@ static void test_close_in_get_header(void)
 
 	TEST_ASSERT_EQUAL_MESSAGE(1, read_handler_fake.call_count, "read_handler was not called");
 	TEST_ASSERT_EQUAL_PTR_MESSAGE(ws, read_handler_fake.arg0_val, "websocket parameter of read_handler not correct");
-	TEST_ASSERT_NULL_MESSAGE(read_handler_fake.arg1_val, "context parameter of read_handler not correct")
+	TEST_ASSERT_NULL_MESSAGE(read_handler_fake.arg1_val, "context parameter of read_handler not correct");
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_EOF, read_handler_fake.arg2_val, "error parameter of read_handler not correct");
-	TEST_ASSERT_NULL_MESSAGE(read_handler_fake.arg4_val, "data parameter of read_handler not correct")
+	TEST_ASSERT_NULL_MESSAGE(read_handler_fake.arg4_val, "data parameter of read_handler not correct");
 	TEST_ASSERT_EQUAL_MESSAGE(0, read_handler_fake.arg5_val, "length parameter of read_handler not correct");
 
 	TEST_ASSERT_EQUAL_MESSAGE(1, on_error_fake.call_count, "error callback was not called");
@@ -1918,9 +1918,9 @@ static void test_close_in_get_length(void)
 
 		TEST_ASSERT_EQUAL_MESSAGE(1, read_handler_fake.call_count, "read_handler was not called");
 		TEST_ASSERT_EQUAL_PTR_MESSAGE(ws, read_handler_fake.arg0_val, "websocket parameter of read_handler not correct");
-		TEST_ASSERT_NULL_MESSAGE(read_handler_fake.arg1_val, "context parameter of read_handler not correct")
+		TEST_ASSERT_NULL_MESSAGE(read_handler_fake.arg1_val, "context parameter of read_handler not correct");
 		TEST_ASSERT_EQUAL_MESSAGE(CIO_EOF, read_handler_fake.arg2_val, "error parameter of read_handler not correct");
-		TEST_ASSERT_NULL_MESSAGE(read_handler_fake.arg4_val, "data parameter of read_handler not correct")
+		TEST_ASSERT_NULL_MESSAGE(read_handler_fake.arg4_val, "data parameter of read_handler not correct");
 		TEST_ASSERT_EQUAL_MESSAGE(0, read_handler_fake.arg5_val, "length parameter of read_handler not correct");
 
 		TEST_ASSERT_EQUAL_MESSAGE(1, on_error_fake.call_count, "error callback was called");
@@ -1962,9 +1962,9 @@ static void test_close_in_get_mask(void)
 
 	TEST_ASSERT_EQUAL_MESSAGE(1, read_handler_fake.call_count, "read_handler was not called");
 	TEST_ASSERT_EQUAL_PTR_MESSAGE(ws, read_handler_fake.arg0_val, "websocket parameter of read_handler not correct");
-	TEST_ASSERT_NULL_MESSAGE(read_handler_fake.arg1_val, "context parameter of read_handler not correct")
+	TEST_ASSERT_NULL_MESSAGE(read_handler_fake.arg1_val, "context parameter of read_handler not correct");
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_EOF, read_handler_fake.arg2_val, "error parameter of read_handler not correct");
-	TEST_ASSERT_NULL_MESSAGE(read_handler_fake.arg4_val, "data parameter of read_handler not correct")
+	TEST_ASSERT_NULL_MESSAGE(read_handler_fake.arg4_val, "data parameter of read_handler not correct");
 	TEST_ASSERT_EQUAL_MESSAGE(0, read_handler_fake.arg5_val, "length parameter of read_handler not correct");
 
 	TEST_ASSERT_EQUAL_MESSAGE(1, on_error_fake.call_count, "error callback was called");
@@ -1991,9 +1991,9 @@ static void test_close_in_get_payload(void)
 
 	TEST_ASSERT_EQUAL_MESSAGE(1, read_handler_fake.call_count, "read_handler was not called");
 	TEST_ASSERT_EQUAL_PTR_MESSAGE(ws, read_handler_fake.arg0_val, "websocket parameter of read_handler not correct");
-	TEST_ASSERT_NULL_MESSAGE(read_handler_fake.arg1_val, "context parameter of read_handler not correct")
+	TEST_ASSERT_NULL_MESSAGE(read_handler_fake.arg1_val, "context parameter of read_handler not correct");
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_EOF, read_handler_fake.arg2_val, "error parameter of read_handler not correct");
-	TEST_ASSERT_NULL_MESSAGE(read_handler_fake.arg4_val, "data parameter of read_handler not correct")
+	TEST_ASSERT_NULL_MESSAGE(read_handler_fake.arg4_val, "data parameter of read_handler not correct");
 	TEST_ASSERT_EQUAL_MESSAGE(0, read_handler_fake.arg5_val, "length parameter of read_handler not correct");
 
 	TEST_ASSERT_EQUAL_MESSAGE(1, on_error_fake.call_count, "error callback was called");
@@ -2019,15 +2019,15 @@ static void test_close_self_no_reason(void)
 
 	TEST_ASSERT_EQUAL_MESSAGE(1, read_handler_fake.call_count, "read_handler was not called");
 	TEST_ASSERT_EQUAL_MESSAGE(ws, read_handler_fake.arg0_val, "websocket parameter of read_handler not correct");
-	TEST_ASSERT_NULL_MESSAGE(read_handler_fake.arg1_val, "context of read handler not NULL")
+	TEST_ASSERT_NULL_MESSAGE(read_handler_fake.arg1_val, "context of read handler not NULL");
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_EOF, read_handler_fake.arg2_val, "error parameter of read_handler not CIO_SUCCESS");
 
 	TEST_ASSERT_EQUAL_MESSAGE(0, on_error_fake.call_count, "error callback was not called");
 
 	TEST_ASSERT_EQUAL_MESSAGE(1, on_control_fake.call_count, "control callback was not called for last close frame");
-	TEST_ASSERT_NOT_NULL_MESSAGE(on_control_fake.arg0_val, "websocket parameter of control callback is NULL")
+	TEST_ASSERT_NOT_NULL_MESSAGE(on_control_fake.arg0_val, "websocket parameter of control callback is NULL");
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_WEBSOCKET_CLOSE_FRAME, on_control_fake.arg1_val, "websocket parameter of control callback is NULL");
-	TEST_ASSERT_NOT_NULL_MESSAGE(on_control_fake.arg2_val, "data parameter of control callback is not correct")
+	TEST_ASSERT_NOT_NULL_MESSAGE(on_control_fake.arg2_val, "data parameter of control callback is not correct");
 	TEST_ASSERT_EQUAL_MESSAGE(sizeof(data), on_control_fake.arg3_val, "data length parameter of control callback is not correct");
 }
 
@@ -2049,15 +2049,15 @@ static void test_close_self_with_reason(void)
 
 	TEST_ASSERT_EQUAL_MESSAGE(1, read_handler_fake.call_count, "read_handler was not called");
 	TEST_ASSERT_EQUAL_MESSAGE(ws, read_handler_fake.arg0_val, "websocket parameter of read_handler not correct");
-	TEST_ASSERT_NULL_MESSAGE(read_handler_fake.arg1_val, "context of read handler not NULL")
+	TEST_ASSERT_NULL_MESSAGE(read_handler_fake.arg1_val, "context of read handler not NULL");
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_EOF, read_handler_fake.arg2_val, "error parameter of read_handler not CIO_SUCCESS");
 
 	TEST_ASSERT_EQUAL_MESSAGE(0, on_error_fake.call_count, "error callback was not called");
 
 	TEST_ASSERT_EQUAL_MESSAGE(1, on_control_fake.call_count, "control callback was not called for last close frame");
-	TEST_ASSERT_NOT_NULL_MESSAGE(on_control_fake.arg0_val, "websocket parameter of control callback is NULL")
+	TEST_ASSERT_NOT_NULL_MESSAGE(on_control_fake.arg0_val, "websocket parameter of control callback is NULL");
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_WEBSOCKET_CLOSE_FRAME, on_control_fake.arg1_val, "websocket parameter of control callback is NULL");
-	TEST_ASSERT_NOT_NULL_MESSAGE(on_control_fake.arg2_val, "data parameter of control callback is not correct")
+	TEST_ASSERT_NOT_NULL_MESSAGE(on_control_fake.arg2_val, "data parameter of control callback is not correct");
 	TEST_ASSERT_EQUAL_MESSAGE(sizeof(data), on_control_fake.arg3_val, "data length parameter of control callback is not correct");
 }
 
@@ -2141,7 +2141,7 @@ static void test_close_self_without_close_hook(void)
 
 	TEST_ASSERT_EQUAL_MESSAGE(1, read_handler_fake.call_count, "read_handler was not called");
 	TEST_ASSERT_EQUAL_MESSAGE(&my_ws, read_handler_fake.arg0_val, "websocket parameter of read_handler not correct");
-	TEST_ASSERT_NULL_MESSAGE(read_handler_fake.arg1_val, "context of read handler not NULL")
+	TEST_ASSERT_NULL_MESSAGE(read_handler_fake.arg1_val, "context of read handler not NULL");
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_EOF, read_handler_fake.arg2_val, "error parameter of read_handler not CIO_SUCCESS");
 
 	TEST_ASSERT_EQUAL_MESSAGE(0, on_error_fake.call_count, "error callback was not called");
@@ -2167,7 +2167,7 @@ static void test_close_with_valid_status_codes(void)
 
 		TEST_ASSERT_EQUAL_MESSAGE(1, read_handler_fake.call_count, "read_handler was not called");
 		TEST_ASSERT_EQUAL_MESSAGE(ws, read_handler_fake.arg0_val, "websocket parameter of read_handler not correct");
-		TEST_ASSERT_NULL_MESSAGE(read_handler_fake.arg1_val, "context of read handler not NULL")
+		TEST_ASSERT_NULL_MESSAGE(read_handler_fake.arg1_val, "context of read handler not NULL");
 		TEST_ASSERT_EQUAL_MESSAGE(CIO_EOF, read_handler_fake.arg2_val, "error parameter of read_handler not CIO_SUCCESS");
 
 		TEST_ASSERT_EQUAL_MESSAGE(0, on_error_fake.call_count, "error callback was not called");
@@ -2201,7 +2201,7 @@ static void test_close_reason_not_utf8(void)
 
 	TEST_ASSERT_EQUAL_MESSAGE(1, read_handler_fake.call_count, "read_handler was not called");
 	TEST_ASSERT_EQUAL_MESSAGE(ws, read_handler_fake.arg0_val, "websocket parameter of read_handler not correct");
-	TEST_ASSERT_NULL_MESSAGE(read_handler_fake.arg1_val, "context of read handler not NULL")
+	TEST_ASSERT_NULL_MESSAGE(read_handler_fake.arg1_val, "context of read handler not NULL");
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_EOF, read_handler_fake.arg2_val, "error parameter of read_handler not CIO_SUCCESS");
 
 	TEST_ASSERT_EQUAL_MESSAGE(1, on_error_fake.call_count, "error callback was not called");
@@ -2228,7 +2228,7 @@ static void test_text_frame_utf8_no_complete_in_last_frame(void)
 
 	TEST_ASSERT_EQUAL_MESSAGE(1, read_handler_fake.call_count, "read_handler was not called");
 	TEST_ASSERT_EQUAL_MESSAGE(ws, read_handler_fake.arg0_val, "websocket parameter of read_handler not correct");
-	TEST_ASSERT_NULL_MESSAGE(read_handler_fake.arg1_val, "context of read handler not NULL")
+	TEST_ASSERT_NULL_MESSAGE(read_handler_fake.arg1_val, "context of read handler not NULL");
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_EOF, read_handler_fake.arg2_val, "error parameter of read_handler not CIO_SUCCESS");
 
 	TEST_ASSERT_EQUAL_MESSAGE(1, on_error_fake.call_count, "error callback was not called");
@@ -2254,7 +2254,7 @@ static void test_close_short_status(void)
 
 	TEST_ASSERT_EQUAL_MESSAGE(1, read_handler_fake.call_count, "read_handler was not called");
 	TEST_ASSERT_EQUAL_MESSAGE(ws, read_handler_fake.arg0_val, "websocket parameter of read_handler not correct");
-	TEST_ASSERT_NULL_MESSAGE(read_handler_fake.arg1_val, "context of read handler not NULL")
+	TEST_ASSERT_NULL_MESSAGE(read_handler_fake.arg1_val, "context of read handler not NULL");
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_EOF, read_handler_fake.arg2_val, "error parameter of read_handler not CIO_SUCCESS");
 
 	TEST_ASSERT_EQUAL_MESSAGE(1, on_error_fake.call_count, "error callback was not called");
@@ -2282,7 +2282,7 @@ static void test_close_with_invalid_status_codes(void)
 
 		TEST_ASSERT_EQUAL_MESSAGE(1, read_handler_fake.call_count, "read_handler was not called");
 		TEST_ASSERT_EQUAL_MESSAGE(ws, read_handler_fake.arg0_val, "websocket parameter of read_handler not correct");
-		TEST_ASSERT_NULL_MESSAGE(read_handler_fake.arg1_val, "context of read handler not NULL")
+		TEST_ASSERT_NULL_MESSAGE(read_handler_fake.arg1_val, "context of read handler not NULL");
 		TEST_ASSERT_EQUAL_MESSAGE(CIO_EOF, read_handler_fake.arg2_val, "error parameter of read_handler not CIO_SUCCESS");
 
 		TEST_ASSERT_EQUAL_MESSAGE(1, on_error_fake.call_count, "error callback was not called");
@@ -2309,7 +2309,7 @@ static void test_send_pong_frame(void)
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Writing a pong frame did not succeed!");
 	TEST_ASSERT_EQUAL_MESSAGE(1, write_handler_fake.call_count, "Write handler was not called once");
 	TEST_ASSERT_EQUAL_MESSAGE(ws, write_handler_fake.arg0_val, "websocket parameter of write_handler not correct");
-	TEST_ASSERT_NULL_MESSAGE(write_handler_fake.arg1_val, "context parameter of write_handler not NULL")
+	TEST_ASSERT_NULL_MESSAGE(write_handler_fake.arg1_val, "context parameter of write_handler not NULL");
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, write_handler_fake.arg2_val, "err parameter of write_handler not correct");
 
 	TEST_ASSERT_EQUAL_MESSAGE(0, on_error_fake.call_count, "error callback was called");
@@ -2318,7 +2318,7 @@ static void test_send_pong_frame(void)
 	TEST_ASSERT_EQUAL_MESSAGE(&wbh, wbh.next->next, "Concatenation of write buffers no longer correct after writing!");
 	TEST_ASSERT_EQUAL_MEMORY_MESSAGE(buffer, wbh.next->data.element.data, sizeof(buffer), "Content of writebuffer not correct after writing!");
 
-	TEST_ASSERT_TRUE_MESSAGE(check_frame(CIO_WEBSOCKET_PONG_FRAME, buffer, sizeof(buffer), true), "Written pong frame not correct")
+	TEST_ASSERT_TRUE_MESSAGE(check_frame(CIO_WEBSOCKET_PONG_FRAME, buffer, sizeof(buffer), true), "Written pong frame not correct");
 }
 
 static void test_send_pong_frame_no_ws(void)
@@ -2444,7 +2444,7 @@ static void test_send_ping_frame(void)
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Writing a ping frame did not succeed!");
 	TEST_ASSERT_EQUAL_MESSAGE(1, write_handler_fake.call_count, "Write handler was not called once");
 	TEST_ASSERT_EQUAL_MESSAGE(ws, write_handler_fake.arg0_val, "websocket parameter of write_handler not correct");
-	TEST_ASSERT_NULL_MESSAGE(write_handler_fake.arg1_val, "context parameter of write_handler not NULL")
+	TEST_ASSERT_NULL_MESSAGE(write_handler_fake.arg1_val, "context parameter of write_handler not NULL");
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, write_handler_fake.arg2_val, "err parameter of write_handler not correct");
 
 	TEST_ASSERT_EQUAL_MESSAGE(0, on_error_fake.call_count, "error callback was called");
@@ -2453,7 +2453,7 @@ static void test_send_ping_frame(void)
 	TEST_ASSERT_EQUAL_MESSAGE(&wbh, wbh.next->next, "Concatenation of write buffers no longer correct after writing!");
 	TEST_ASSERT_EQUAL_MEMORY_MESSAGE(buffer, wbh.next->data.element.data, sizeof(buffer), "Content of writebuffer not correct after writing!");
 
-	TEST_ASSERT_TRUE_MESSAGE(check_frame(CIO_WEBSOCKET_PING_FRAME, buffer, sizeof(buffer), true), "Written ping frame not correct")
+	TEST_ASSERT_TRUE_MESSAGE(check_frame(CIO_WEBSOCKET_PING_FRAME, buffer, sizeof(buffer), true), "Written ping frame not correct");
 }
 
 static void test_send_text_binary_frame(void)
@@ -2490,16 +2490,16 @@ static void test_send_text_binary_frame(void)
 				if (frame_types[j] == CIO_WEBSOCKET_TEXT_FRAME) {
 					enum cio_error err = cio_websocket_write_message_first_chunk(ws, cio_write_buffer_get_total_size(&wbh), &wbh, true, false, write_handler, &context);
 					TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Writing a text frame did not succeed!");
-					TEST_ASSERT_MESSAGE(check_frame(CIO_WEBSOCKET_TEXT_FRAME, check_data, frame_size, true), "First frame send is incorrect text frame!")
+					TEST_ASSERT_MESSAGE(check_frame(CIO_WEBSOCKET_TEXT_FRAME, check_data, frame_size, true), "First frame send is incorrect text frame!");
 				} else if (frame_types[j] == CIO_WEBSOCKET_BINARY_FRAME) {
 					enum cio_error err = cio_websocket_write_message_first_chunk(ws, cio_write_buffer_get_total_size(&wbh), &wbh, true, true, write_handler, &context);
 					TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Writing a binary frame did not succeed!");
-					TEST_ASSERT_MESSAGE(check_frame(CIO_WEBSOCKET_BINARY_FRAME, check_data, frame_size, true), "First frame send is incorrect binary frame!")
+					TEST_ASSERT_MESSAGE(check_frame(CIO_WEBSOCKET_BINARY_FRAME, check_data, frame_size, true), "First frame send is incorrect binary frame!");
 				}
 
 				enum cio_error err = cio_websocket_read_message(ws, read_handler, NULL);
 				TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Could not start reading a message!");
-				TEST_ASSERT_MESSAGE(is_close_frame(CIO_WEBSOCKET_CLOSE_NORMAL, true), "written frame is not a close frame!")
+				TEST_ASSERT_MESSAGE(is_close_frame(CIO_WEBSOCKET_CLOSE_NORMAL, true), "written frame is not a close frame!");
 
 				TEST_ASSERT_EQUAL_MESSAGE(1, write_handler_fake.call_count, "write handler was not called!");
 				TEST_ASSERT_EQUAL_PTR_MESSAGE(ws, write_handler_fake.arg0_val, "websocket pointer in write handler not correct!");
@@ -2562,11 +2562,11 @@ static void test_send_chunks(void)
 		err = cio_websocket_write_message_continuation_chunk(ws, &wbh, write_handler, &context);
 		TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Writing a frame did not succeed!");
 
-		TEST_ASSERT_MESSAGE(check_frame(frame_type, check_data, sizeof(check_data), true), "First frame send is incorrect text frame!")
+		TEST_ASSERT_MESSAGE(check_frame(frame_type, check_data, sizeof(check_data), true), "First frame send is incorrect text frame!");
 
 		err = cio_websocket_read_message(ws, read_handler, NULL);
 		TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Could not start reading a message!");
-		TEST_ASSERT_MESSAGE(is_close_frame(CIO_WEBSOCKET_CLOSE_NORMAL, true), "written frame is not a close frame!")
+		TEST_ASSERT_MESSAGE(is_close_frame(CIO_WEBSOCKET_CLOSE_NORMAL, true), "written frame is not a close frame!");
 
 		TEST_ASSERT_EQUAL_MESSAGE(2, write_handler_fake.call_count, "write handler was not called!");
 		TEST_ASSERT_EQUAL_PTR_MESSAGE(ws, write_handler_fake.arg0_val, "websocket pointer in write handler not correct!");
@@ -2596,7 +2596,7 @@ static void write_handler_third_fragment(struct cio_websocket *websocket, void *
 
 	struct fragmented_websocket *fws = (struct fragmented_websocket *)context;
 
-	TEST_ASSERT_TRUE_MESSAGE(check_frame(CIO_WEBSOCKET_CONTINUATION_FRAME, fws->second_fragment, sizeof(fws->second_fragment), false), "Second fragment written not correct")
+	TEST_ASSERT_TRUE_MESSAGE(check_frame(CIO_WEBSOCKET_CONTINUATION_FRAME, fws->second_fragment, sizeof(fws->second_fragment), false), "Second fragment written not correct");
 
 	cio_write_buffer_head_init(&fws->wbh);
 	cio_write_buffer_element_init(&fws->wb, fws->third_fragment, sizeof(fws->third_fragment));
@@ -2612,7 +2612,7 @@ static void write_handler_second_fragment(struct cio_websocket *websocket, void 
 
 	struct fragmented_websocket *fws = (struct fragmented_websocket *)context;
 
-	TEST_ASSERT_TRUE_MESSAGE(check_frame(CIO_WEBSOCKET_TEXT_FRAME, fws->first_fragment, sizeof(fws->first_fragment), false), "Written first fragment not correct")
+	TEST_ASSERT_TRUE_MESSAGE(check_frame(CIO_WEBSOCKET_TEXT_FRAME, fws->first_fragment, sizeof(fws->first_fragment), false), "Written first fragment not correct");
 
 	cio_write_buffer_head_init(&fws->wbh);
 	cio_write_buffer_element_init(&fws->wb, fws->second_fragment, sizeof(fws->second_fragment));
@@ -2642,7 +2642,7 @@ static void test_send_fragmented_text_frame(void)
 
 	err = cio_websocket_write_message_first_chunk(&fws.ws, cio_write_buffer_get_total_size(&fws.wbh), &fws.wbh, false, false, write_handler, &fws);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Writing a text frame did not succeed!");
-	TEST_ASSERT_MESSAGE(check_frame(CIO_WEBSOCKET_CONTINUATION_FRAME, fws.third_fragment, sizeof(fws.third_fragment), true), "Third frame fragment sent is incorrect text frame!")
+	TEST_ASSERT_MESSAGE(check_frame(CIO_WEBSOCKET_CONTINUATION_FRAME, fws.third_fragment, sizeof(fws.third_fragment), true), "Third frame fragment sent is incorrect text frame!");
 
 	TEST_ASSERT_EQUAL_MESSAGE(3, write_handler_fake.call_count, "write handler was not called!");
 }
@@ -2732,10 +2732,10 @@ static void test_send_multiple_jobs(void)
 
 	TEST_ASSERT_EQUAL_MESSAGE(4, write_handler_fake.call_count, "Write handler was not called");
 
-	TEST_ASSERT_TRUE_MESSAGE(check_frame(CIO_WEBSOCKET_PING_FRAME, NULL, 0, true), "Written ping frame not correct")
-	TEST_ASSERT_TRUE_MESSAGE(check_frame(CIO_WEBSOCKET_PONG_FRAME, NULL, 0, true), "Written pong frame not correct")
-	TEST_ASSERT_TRUE_MESSAGE(check_frame(CIO_WEBSOCKET_TEXT_FRAME, buffer, sizeof(buffer), true), "Written text frame not correct")
-	TEST_ASSERT_TRUE_MESSAGE(is_close_frame(CIO_WEBSOCKET_CLOSE_NORMAL, true), "Written close frame not correct")
+	TEST_ASSERT_TRUE_MESSAGE(check_frame(CIO_WEBSOCKET_PING_FRAME, NULL, 0, true), "Written ping frame not correct");
+	TEST_ASSERT_TRUE_MESSAGE(check_frame(CIO_WEBSOCKET_PONG_FRAME, NULL, 0, true), "Written pong frame not correct");
+	TEST_ASSERT_TRUE_MESSAGE(check_frame(CIO_WEBSOCKET_TEXT_FRAME, buffer, sizeof(buffer), true), "Written text frame not correct");
+	TEST_ASSERT_TRUE_MESSAGE(is_close_frame(CIO_WEBSOCKET_CLOSE_NORMAL, true), "Written close frame not correct");
 }
 
 static void test_send_multiple_jobs_starting_with_close(void)
@@ -2770,21 +2770,21 @@ static void test_send_multiple_jobs_starting_with_close(void)
 
 	TEST_ASSERT_EQUAL_MESSAGE(4, write_handler_fake.call_count, "Write handler was not called");
 	TEST_ASSERT_EQUAL_MESSAGE(ws, write_handler_fake.arg0_history[0], "websocket parameter of write_handler not correct");
-	TEST_ASSERT_NULL_MESSAGE(write_handler_fake.arg1_history[0], "context parameter of write_handler not NULL")
+	TEST_ASSERT_NULL_MESSAGE(write_handler_fake.arg1_history[0], "context parameter of write_handler not NULL");
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, write_handler_fake.arg2_history[0], "err parameter of write_handler not correct");
 	TEST_ASSERT_EQUAL_MESSAGE(ws, write_handler_fake.arg0_history[1], "websocket parameter of write_handler not correct");
-	TEST_ASSERT_NULL_MESSAGE(write_handler_fake.arg1_history[1], "context parameter of write_handler not NULL")
+	TEST_ASSERT_NULL_MESSAGE(write_handler_fake.arg1_history[1], "context parameter of write_handler not NULL");
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_OPERATION_ABORTED, write_handler_fake.arg2_history[1], "err parameter of write_handler not correct");
 	TEST_ASSERT_EQUAL_MESSAGE(ws, write_handler_fake.arg0_history[2], "websocket parameter of write_handler not correct");
-	TEST_ASSERT_NULL_MESSAGE(write_handler_fake.arg1_history[2], "context parameter of write_handler not NULL")
+	TEST_ASSERT_NULL_MESSAGE(write_handler_fake.arg1_history[2], "context parameter of write_handler not NULL");
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_OPERATION_ABORTED, write_handler_fake.arg2_history[2], "err parameter of write_handler not correct");
 	TEST_ASSERT_EQUAL_MESSAGE(ws, write_handler_fake.arg0_history[3], "websocket parameter of write_handler not correct");
-	TEST_ASSERT_NULL_MESSAGE(write_handler_fake.arg1_history[3], "context parameter of write_handler not NULL")
+	TEST_ASSERT_NULL_MESSAGE(write_handler_fake.arg1_history[3], "context parameter of write_handler not NULL");
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_OPERATION_ABORTED, write_handler_fake.arg2_history[3], "err parameter of write_handler not correct");
 
 	TEST_ASSERT_EQUAL_MESSAGE(0, on_error_fake.call_count, "error callback was called");
 
-	TEST_ASSERT_TRUE_MESSAGE(is_close_frame(CIO_WEBSOCKET_CLOSE_NORMAL, true), "Written close frame not correct")
+	TEST_ASSERT_TRUE_MESSAGE(is_close_frame(CIO_WEBSOCKET_CLOSE_NORMAL, true), "Written close frame not correct");
 }
 
 static void test_init_without_ws(void)

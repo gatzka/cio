@@ -623,7 +623,7 @@ static void test_socket_nodelay_setsockopt_fails(void)
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Return value of cio_socket_init not correct!");
 
 	err = cio_socket_set_tcp_no_delay(&s, false);
-	TEST_ASSERT_NOT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Return value of set_tcp_no_delay not correct!")
+	TEST_ASSERT_NOT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Return value of set_tcp_no_delay not correct!");
 	TEST_ASSERT_EQUAL_MESSAGE(1, setsockopt_fake.call_count, "setsockopt was not called!");
 	TEST_ASSERT_EQUAL_MESSAGE(s.impl.ev.fd, setsockopt_fake.arg0_val, "fd for setsockopt not correct!");
 	TEST_ASSERT_EQUAL_MESSAGE(IPPROTO_TCP, setsockopt_fake.arg1_val, "level for setsockopt not correct!");
@@ -670,7 +670,7 @@ static void test_socket_tfo_setsockopt_fails(void)
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Return value of cio_socket_init not correct!");
 
 	err = cio_socket_set_tcp_fast_open(&s, false);
-	TEST_ASSERT_NOT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Return value of cio_socket_set_tcp_fast_open not correct!")
+	TEST_ASSERT_NOT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Return value of cio_socket_set_tcp_fast_open not correct!");
 	TEST_ASSERT_EQUAL_MESSAGE(1, setsockopt_fake.call_count, "setsockopt was not called!");
 	TEST_ASSERT_EQUAL_MESSAGE(s.impl.ev.fd, setsockopt_fake.arg0_val, "fd for setsockopt not correct!");
 	TEST_ASSERT_EQUAL_MESSAGE(SOL_TCP, setsockopt_fake.arg1_val, "level for setsockopt not correct!");
@@ -714,7 +714,7 @@ static void test_socket_disable_keepalive_setsockopt_fails(void)
 	SET_CUSTOM_FAKE_SEQ(setsockopt, custom_fakes, ARRAY_SIZE(custom_fakes))
 
 	err = cio_socket_set_keep_alive(&s, false, 10, 9, 8);
-	TEST_ASSERT_NOT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Return value for failing set_keep_alive not correct!")
+	TEST_ASSERT_NOT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Return value for failing set_keep_alive not correct!");
 	TEST_ASSERT_EQUAL_MESSAGE(1, setsockopt_fake.call_count, "setsockopt was not called 1 time!");
 }
 
@@ -734,7 +734,7 @@ static void test_socket_enable_keepalive_keep_idle_fails(void)
 	SET_CUSTOM_FAKE_SEQ(setsockopt, custom_fakes, ARRAY_SIZE(custom_fakes))
 
 	err = cio_socket_set_keep_alive(&s, true, 10, 9, 8);
-	TEST_ASSERT_NOT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Return value for failing set_keep_alive not correct!")
+	TEST_ASSERT_NOT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Return value for failing set_keep_alive not correct!");
 	TEST_ASSERT_EQUAL_MESSAGE(1, setsockopt_fake.call_count, "setsockopt was not called 1 time!");
 }
 
@@ -754,7 +754,7 @@ static void test_socket_enable_keepalive_keep_intvl_fails(void)
 	SET_CUSTOM_FAKE_SEQ(setsockopt, custom_fakes, ARRAY_SIZE(custom_fakes))
 
 	err = cio_socket_set_keep_alive(&s, true, 10, 9, 8);
-	TEST_ASSERT_NOT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Return value for failing set_keep_alive not correct!")
+	TEST_ASSERT_NOT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Return value for failing set_keep_alive not correct!");
 	TEST_ASSERT_EQUAL_MESSAGE(2, setsockopt_fake.call_count, "setsockopt was not called 2 times!");
 }
 
@@ -774,7 +774,7 @@ static void test_socket_enable_keepalive_keep_cnt(void)
 	SET_CUSTOM_FAKE_SEQ(setsockopt, custom_fakes, ARRAY_SIZE(custom_fakes))
 
 	err = cio_socket_set_keep_alive(&s, true, 10, 9, 8);
-	TEST_ASSERT_NOT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Return value for failing set_keep_alive not correct!")
+	TEST_ASSERT_NOT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Return value for failing set_keep_alive not correct!");
 	TEST_ASSERT_EQUAL_MESSAGE(3, setsockopt_fake.call_count, "setsockopt was not called 3 times!");
 }
 
@@ -1068,7 +1068,7 @@ static void test_socket_writesome_fails(void)
 	struct cio_io_stream *stream = cio_socket_get_io_stream(&s);
 
 	err = stream->write_some(stream, &wbh, write_handler, NULL);
-	TEST_ASSERT_NOT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Return value not correct!")
+	TEST_ASSERT_NOT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Return value not correct!");
 	TEST_ASSERT_EQUAL_MESSAGE(0, write_handler_fake.call_count, "write_handler was called!");
 }
 
@@ -1173,7 +1173,7 @@ static void test_socket_writesome_blocks_fails(void)
 	struct cio_io_stream *stream = cio_socket_get_io_stream(&s);
 
 	err = stream->write_some(stream, &wbh, write_handler, NULL);
-	TEST_ASSERT_NOT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Return value not correct!")
+	TEST_ASSERT_NOT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Return value not correct!");
 
 	TEST_ASSERT_EQUAL_MESSAGE(0, write_handler_fake.call_count, "write_handler was called!");
 }
@@ -1414,7 +1414,7 @@ static void test_socket_connect_error(void)
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Return value of cio_socket_init not correct!");
 
 	err = cio_socket_connect(&s, &socket_address, connect_handler, NULL);
-	TEST_ASSERT_NOT_EQUAL_MESSAGE(CIO_SUCCESS, err, "cio_socket_connect did succeed!")
+	TEST_ASSERT_NOT_EQUAL_MESSAGE(CIO_SUCCESS, err, "cio_socket_connect did succeed!");
 	TEST_ASSERT_EQUAL_MESSAGE(0, connect_handler_fake.call_count, "connect_handler was called prematurely!");
 }
 

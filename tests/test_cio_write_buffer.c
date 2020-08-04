@@ -64,7 +64,7 @@ static void test_cio_write_buffer_head_init(void)
 {
 	struct cio_write_buffer wbh;
 	cio_write_buffer_head_init(&wbh);
-	TEST_ASSERT_TRUE_MESSAGE(cio_write_buffer_queue_empty(&wbh), "Write buffer not empty after initialization of write_buffer_head!")
+	TEST_ASSERT_TRUE_MESSAGE(cio_write_buffer_queue_empty(&wbh), "Write buffer not empty after initialization of write_buffer_head!");
 }
 
 static void test_cio_write_buffer_queue_tail(void)
@@ -239,7 +239,7 @@ static void test_cio_write_buffer_splice(void)
 	cio_write_buffer_splice(&wbh_two, &wbh_one);
 	num_elements = cio_write_buffer_get_num_buffer_elements(&wbh_two);
 	TEST_ASSERT_EQUAL_MESSAGE(0, num_elements, "Number of elements in write buffer two not '0' after splicing to another list!");
-	TEST_ASSERT_TRUE_MESSAGE(cio_write_buffer_queue_empty(&wbh_two), "Write buffer not empty after splicing!")
+	TEST_ASSERT_TRUE_MESSAGE(cio_write_buffer_queue_empty(&wbh_two), "Write buffer not empty after splicing!");
 	num_elements = cio_write_buffer_get_num_buffer_elements(&wbh_one);
 	TEST_ASSERT_EQUAL_MESSAGE(4, num_elements, "Number of elements in write buffer two not '4' after splicing from another list!");
 	TEST_ASSERT_EQUAL_MESSAGE(sizeof(data1) + sizeof(data2) + sizeof(data1) + sizeof(data2), cio_write_buffer_get_total_size(&wbh_one), "Write buffer total length not correct!");
@@ -281,9 +281,9 @@ static void test_cio_write_buffer_split_and_append(void)
 		enum { DATA_BUFFER_LENGTH = 100 };
 		for (unsigned int i = 0; i < SPLIT_LIST_LENGTH; i++) {
 			struct cio_write_buffer *wb = malloc(sizeof(*wb));
-			TEST_ASSERT_NOT_NULL_MESSAGE(wb, "allocation of writebuffer element failed!")
+			TEST_ASSERT_NOT_NULL_MESSAGE(wb, "allocation of writebuffer element failed!");
 			char *data = malloc(DATA_BUFFER_LENGTH);
-			TEST_ASSERT_NOT_NULL_MESSAGE(data, "allocation of writebuffer data element failed!")
+			TEST_ASSERT_NOT_NULL_MESSAGE(data, "allocation of writebuffer data element failed!");
 			snprintf(data, DATA_BUFFER_LENGTH - 1, "SL_BUFFER%d", i);
 			cio_write_buffer_const_element_init(wb, data, DATA_BUFFER_LENGTH);
 			cio_write_buffer_queue_tail(&wbh_to_split, wb);
@@ -294,9 +294,9 @@ static void test_cio_write_buffer_split_and_append(void)
 		enum { APPEND_LIST_LENGTH = 2 };
 		for (unsigned int i = 0; i < APPEND_LIST_LENGTH; i++) {
 			struct cio_write_buffer *wb = malloc(sizeof(*wb));
-			TEST_ASSERT_NOT_NULL_MESSAGE(wb, "allocation of writebuffer element failed!")
+			TEST_ASSERT_NOT_NULL_MESSAGE(wb, "allocation of writebuffer element failed!");
 			char *data = malloc(DATA_BUFFER_LENGTH);
-			TEST_ASSERT_NOT_NULL_MESSAGE(data, "allocation of writebuffer data element failed!")
+			TEST_ASSERT_NOT_NULL_MESSAGE(data, "allocation of writebuffer data element failed!");
 			snprintf(data, DATA_BUFFER_LENGTH - 1, "AL_BUFFER%d", i);
 			cio_write_buffer_const_element_init(wb, data, DATA_BUFFER_LENGTH);
 			cio_write_buffer_queue_tail(&wbh_to_append, wb);

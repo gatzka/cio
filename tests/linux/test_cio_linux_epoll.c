@@ -327,7 +327,7 @@ static void test_createloop_epoll_create1_fails(void)
 
 	struct cio_eventloop loop;
 	enum cio_error err = cio_eventloop_init(&loop);
-	TEST_ASSERT(err != CIO_SUCCESS)
+	TEST_ASSERT(err != CIO_SUCCESS);
 	TEST_ASSERT_EQUAL(1, epoll_create1_fake.call_count);
 }
 
@@ -337,7 +337,7 @@ static void test_createloop_epoll_eventfd_fails(void)
 
 	struct cio_eventloop loop;
 	enum cio_error err = cio_eventloop_init(&loop);
-	TEST_ASSERT_NOT_EQUAL_MESSAGE(CIO_SUCCESS, err, "eventloop_init did not fail")
+	TEST_ASSERT_NOT_EQUAL_MESSAGE(CIO_SUCCESS, err, "eventloop_init did not fail");
 	TEST_ASSERT_EQUAL_MESSAGE(1, epoll_create1_fake.call_count, "epoll_create1 was not called");
 	TEST_ASSERT_EQUAL_MESSAGE(1, eventfd_fake.call_count, "eventfd was not called");
 	TEST_ASSERT_EQUAL_MESSAGE(1, close_fake.call_count, "close() was not called");
@@ -349,7 +349,7 @@ static void test_createloop_epoll_eventloop_add_fails(void)
 
 	struct cio_eventloop loop;
 	enum cio_error err = cio_eventloop_init(&loop);
-	TEST_ASSERT_NOT_EQUAL_MESSAGE(CIO_SUCCESS, err, "eventloop_init did not fail")
+	TEST_ASSERT_NOT_EQUAL_MESSAGE(CIO_SUCCESS, err, "eventloop_init did not fail");
 	TEST_ASSERT_EQUAL_MESSAGE(1, epoll_create1_fake.call_count, "epoll_create1 was not called");
 	TEST_ASSERT_EQUAL_MESSAGE(1, eventfd_fake.call_count, "eventfd was not called");
 	TEST_ASSERT_EQUAL_MESSAGE(1, epoll_ctl_fake.call_count, "epoll_ctl was not called");
@@ -363,7 +363,7 @@ static void test_createloop_epoll_eventloop_register_read_fails(void)
 
 	struct cio_eventloop loop;
 	enum cio_error err = cio_eventloop_init(&loop);
-	TEST_ASSERT_NOT_EQUAL_MESSAGE(CIO_SUCCESS, err, "eventloop_init did not fail")
+	TEST_ASSERT_NOT_EQUAL_MESSAGE(CIO_SUCCESS, err, "eventloop_init did not fail");
 	TEST_ASSERT_EQUAL_MESSAGE(1, epoll_create1_fake.call_count, "epoll_create1 was not called");
 	TEST_ASSERT_EQUAL_MESSAGE(1, eventfd_fake.call_count, "eventfd was not called");
 	TEST_ASSERT_EQUAL_MESSAGE(3, epoll_ctl_fake.call_count, "epoll_ctl was not called");
@@ -430,7 +430,7 @@ static void test_add_event_fails(void)
 	ev.read_callback = NULL;
 	ev.context = NULL;
 	err = cio_linux_eventloop_add(&loop, &ev);
-	TEST_ASSERT(err != CIO_SUCCESS)
+	TEST_ASSERT(err != CIO_SUCCESS);
 
 	cio_eventloop_destroy(&loop);
 	TEST_ASSERT_EQUAL(2, close_fake.call_count);
@@ -455,7 +455,7 @@ static void test_register_event_fails(void)
 	TEST_ASSERT_EQUAL(CIO_SUCCESS, err);
 
 	err = cio_linux_eventloop_register_read(&loop, &ev);
-	TEST_ASSERT(err != CIO_SUCCESS)
+	TEST_ASSERT(err != CIO_SUCCESS);
 	TEST_ASSERT_EQUAL(4, epoll_ctl_fake.call_count);
 	TEST_ASSERT_EQUAL(loop.epoll_fd, epoll_ctl_fake.arg0_val);
 	TEST_ASSERT_EQUAL(EPOLL_CTL_MOD, epoll_ctl_fake.arg1_val);

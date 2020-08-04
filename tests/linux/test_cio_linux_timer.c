@@ -167,7 +167,7 @@ static void test_create_timer_timerfd_create_fails(void)
 
 	struct cio_timer timer;
 	enum cio_error err = cio_timer_init(&timer, NULL, NULL);
-	TEST_ASSERT(err != CIO_SUCCESS)
+	TEST_ASSERT(err != CIO_SUCCESS);
 	TEST_ASSERT_EQUAL(0, cio_linux_eventloop_add_fake.call_count);
 	TEST_ASSERT_EQUAL(0, cio_linux_eventloop_register_read_fake.call_count);
 	TEST_ASSERT_EQUAL(0, close_fake.call_count);
@@ -182,7 +182,7 @@ static void test_create_timer_eventloop_add_fails(void)
 
 	struct cio_timer timer;
 	enum cio_error err = cio_timer_init(&timer, NULL, NULL);
-	TEST_ASSERT(err != CIO_SUCCESS)
+	TEST_ASSERT(err != CIO_SUCCESS);
 	TEST_ASSERT_EQUAL(1, cio_linux_eventloop_add_fake.call_count);
 	TEST_ASSERT_EQUAL(0, cio_linux_eventloop_register_read_fake.call_count);
 	TEST_ASSERT_EQUAL(1, close_fake.call_count);
@@ -198,7 +198,7 @@ static void test_create_timer_eventloop_register_read_fails(void)
 
 	struct cio_timer timer;
 	enum cio_error err = cio_timer_init(&timer, NULL, NULL);
-	TEST_ASSERT(err != CIO_SUCCESS)
+	TEST_ASSERT(err != CIO_SUCCESS);
 	TEST_ASSERT_EQUAL(1, cio_linux_eventloop_add_fake.call_count);
 	TEST_ASSERT_EQUAL(1, cio_linux_eventloop_register_read_fake.call_count);
 	TEST_ASSERT_EQUAL(1, close_fake.call_count);
@@ -292,7 +292,7 @@ static void test_cancel_without_arming(void)
 	TEST_ASSERT_EQUAL(CIO_SUCCESS, err);
 
 	err = cio_timer_cancel(&timer);
-	TEST_ASSERT(err != CIO_SUCCESS)
+	TEST_ASSERT(err != CIO_SUCCESS);
 }
 
 static void test_cancel_settime_in_cancel_fails(void)
@@ -313,7 +313,7 @@ static void test_cancel_settime_in_cancel_fails(void)
 	cio_timer_expires_from_now(&timer, 2000, handle_timeout, NULL);
 
 	err = cio_timer_cancel(&timer);
-	TEST_ASSERT_MESSAGE(err != CIO_SUCCESS, "timer cancel did not failed when settime fails!")
+	TEST_ASSERT_MESSAGE(err != CIO_SUCCESS, "timer cancel did not failed when settime fails!");
 	TEST_ASSERT_EQUAL(0, handle_timeout_fake.call_count);
 }
 
@@ -329,7 +329,7 @@ static void test_arming_settime_fails(void)
 	TEST_ASSERT_EQUAL(CIO_SUCCESS, err);
 
 	err = cio_timer_expires_from_now(&timer, 2000, handle_timeout, NULL);
-	TEST_ASSERT_MESSAGE(err != CIO_SUCCESS, "Timer arming did not fail when settime fails!")
+	TEST_ASSERT_MESSAGE(err != CIO_SUCCESS, "Timer arming did not fail when settime fails!");
 	TEST_ASSERT_EQUAL_MESSAGE(0, handle_timeout_fake.call_count, "Timer callback was called even if arming failed!");
 }
 
@@ -346,7 +346,7 @@ static void test_arming_read_fails(void)
 	cio_timer_expires_from_now(&timer, 2000, handle_timeout, NULL);
 
 	TEST_ASSERT_EQUAL(1, handle_timeout_fake.call_count);
-	TEST_ASSERT(handle_timeout_fake.arg2_val != CIO_SUCCESS)
+	TEST_ASSERT(handle_timeout_fake.arg2_val != CIO_SUCCESS);
 	TEST_ASSERT_EQUAL(&timer, handle_timeout_fake.arg0_val);
 }
 
@@ -363,7 +363,7 @@ static void test_arming_success(void)
 	cio_timer_expires_from_now(&timer, 2000, handle_timeout, NULL);
 
 	TEST_ASSERT_EQUAL(1, handle_timeout_fake.call_count);
-	TEST_ASSERT(handle_timeout_fake.arg2_val == CIO_SUCCESS)
+	TEST_ASSERT(handle_timeout_fake.arg2_val == CIO_SUCCESS);
 	TEST_ASSERT_EQUAL(&timer, handle_timeout_fake.arg0_val);
 }
 
@@ -381,7 +381,7 @@ static void test_close_in_callback(void)
 	cio_timer_expires_from_now(&timer, 2000, handle_timeout, NULL);
 
 	TEST_ASSERT_EQUAL(1, handle_timeout_fake.call_count);
-	TEST_ASSERT(handle_timeout_fake.arg2_val == CIO_SUCCESS)
+	TEST_ASSERT(handle_timeout_fake.arg2_val == CIO_SUCCESS);
 	TEST_ASSERT_EQUAL(&timer, handle_timeout_fake.arg0_val);
 
 	TEST_ASSERT_EQUAL(1, close_fake.call_count);
@@ -402,7 +402,7 @@ static void test_cancel_in_callback(void)
 	cio_timer_expires_from_now(&timer, 2000, handle_timeout, NULL);
 
 	TEST_ASSERT_EQUAL(1, handle_timeout_fake.call_count);
-	TEST_ASSERT(handle_timeout_fake.arg2_val == CIO_SUCCESS)
+	TEST_ASSERT(handle_timeout_fake.arg2_val == CIO_SUCCESS);
 	TEST_ASSERT_EQUAL(&timer, handle_timeout_fake.arg0_val);
 }
 

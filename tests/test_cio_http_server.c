@@ -1597,7 +1597,7 @@ static void test_errors_in_serve(void)
 		TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Server initialization failed!");
 
 		err = cio_http_server_serve(&server);
-		TEST_ASSERT_NOT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Serving http did not fail!")
+		TEST_ASSERT_NOT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Serving http did not fail!");
 		TEST_ASSERT_EQUAL_MESSAGE(1, cio_server_socket_close_fake.call_count, "Close was not called!");
 
 		free_dummy_client(client_socket);
