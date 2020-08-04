@@ -42,11 +42,11 @@
 #include <termios.h>
 #include <unistd.h>
 
-#include "cio_compiler.h"
-#include "cio_error_code.h"
-#include "cio_linux_socket_utils.h"
-#include "cio_uart.h"
-#include "cio_util.h"
+#include "cio/cio_compiler.h"
+#include "cio/cio_error_code.h"
+#include "cio/cio_linux_socket_utils.h"
+#include "cio/cio_uart.h"
+#include "cio/cio_util.h"
 
 static const char DIR_NAME[] = "/dev/serial/by-path/";
 

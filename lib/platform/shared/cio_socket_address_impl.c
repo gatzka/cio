@@ -30,12 +30,12 @@
 #include <stdint.h>
 #include <string.h>
 
-#include "cio_address_family.h"
-#include "cio_compiler.h"
-#include "cio_endian.h"
-#include "cio_error_code.h"
-#include "cio_inet_address.h"
-#include "cio_socket_address.h"
+#include "cio/cio_address_family.h"
+#include "cio/cio_compiler.h"
+#include "cio/cio_endian.h"
+#include "cio/cio_error_code.h"
+#include "cio/cio_inet_address.h"
+#include "cio/cio_socket_address.h"
 
 enum cio_address_family cio_socket_address_get_family(const struct cio_socket_address *endpoint)
 {

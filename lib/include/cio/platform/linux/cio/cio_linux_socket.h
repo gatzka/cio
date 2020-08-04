@@ -29,9 +29,9 @@
 #ifndef CIO_LINUX_SOCKET_H
 #define CIO_LINUX_SOCKET_H
 
-#include "cio_error_code.h"
-#include "cio_eventloop.h"
-#include "cio_socket.h"
+#include "cio/cio_error_code.h"
+#include "cio/cio_eventloop.h"
+#include "cio/cio_socket.h"
 
 #ifdef __cplusplus
 extern "C" {

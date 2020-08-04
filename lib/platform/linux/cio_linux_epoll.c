@@ -33,10 +33,10 @@
 #include <sys/eventfd.h>
 #include <unistd.h>
 
-#include "cio_compiler.h"
-#include "cio_error_code.h"
-#include "cio_eventloop.h"
-#include "platform/linux/cio_eventloop_impl.h"
+#include "cio/cio_compiler.h"
+#include "cio/cio_error_code.h"
+#include "cio/cio_eventloop.h"
+#include "cio/cio_eventloop_impl.h"
 
 static void erase_pending_event(struct cio_eventloop *loop, const struct cio_event_notifier *ev)
 {

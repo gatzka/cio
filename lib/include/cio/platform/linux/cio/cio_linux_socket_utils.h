@@ -29,8 +29,8 @@
 #ifndef CIO_LINUX_SOCKET_UTILS_H
 #define CIO_LINUX_SOCKET_UTILS_H
 
-#include "cio_address_family.h"
-#include "cio_error_code.h"
+#include "cio/cio_address_family.h"
+#include "cio/cio_error_code.h"
 
 #ifdef __cplusplus
 extern "C" {
