@@ -289,8 +289,8 @@ int main(int argc, char *argv[])
 	}
 
 	struct cio_socket_address endpoint;
-	const char PATH[] = {"\0/tmp/foobar"};
-	enum cio_error err = cio_init_uds_socket_address(&endpoint, PATH);
+	const char path[] = {"\0/tmp/foobar"};
+	enum cio_error err = cio_init_uds_socket_address(&endpoint, path);
 	if (cio_unlikely(err != CIO_SUCCESS)) {
 		fprintf(stderr, "could no init server socket endpoint!\n");
 		return -1;
@@ -331,7 +331,7 @@ int main(int argc, char *argv[])
 	}
 
 	struct cio_socket_address client_endpoint;
-	err = cio_init_uds_socket_address(&client_endpoint, PATH);
+	err = cio_init_uds_socket_address(&client_endpoint, path);
 	if (cio_unlikely(err != CIO_SUCCESS)) {
 		fprintf(stderr, "could not init client socket endpoint!\n");
 		ret = EXIT_FAILURE;
