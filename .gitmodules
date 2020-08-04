@@ -4,6 +4,6 @@
 [submodule "src/fff"]
 	path = tests/fff
 	url = https://github.com/meekrosoft/fff.git
-[submodule "src/http-parser"]
-	path = src/http-parser
+[submodule "lib/cio/http-parser"]
+	path = lib/cio/http-parser
 	url = https://github.com/nodejs/http-parser.git
