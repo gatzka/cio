@@ -33,12 +33,12 @@
 #include <stddef.h>
 #include <stdint.h>
 
-#include "cio_error_code.h"
-#include "cio_eventloop.h"
-#include "cio_export.h"
-#include "cio_http_location.h"
-#include "cio_server_socket.h"
-#include "cio_socket_address.h"
+#include "cio/cio_error_code.h"
+#include "cio/cio_eventloop.h"
+#include "cio/cio_export.h"
+#include "cio/cio_http_location.h"
+#include "cio/cio_server_socket.h"
+#include "cio/cio_socket_address.h"
 
 #ifdef __cplusplus
 extern "C" {

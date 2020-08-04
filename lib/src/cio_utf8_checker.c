@@ -5,7 +5,7 @@
 #include <stdint.h>
 #include <string.h>
 
-#include "cio_utf8_checker.h"
+#include "cio/cio_utf8_checker.h"
 
 static const uint8_t UTF8D[] = {
     // The first part of the table maps bytes to character classes that

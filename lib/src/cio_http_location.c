@@ -26,8 +26,10 @@
  * SOFTWARE.
  */
 
-#include "cio_http_location.h"
-#include "cio_error_code.h"
+#include <stddef.h>
+
+#include "cio/cio_http_location.h"
+#include "cio/cio_error_code.h"
 
 enum cio_error cio_http_location_init(struct cio_http_location *location, const char *path, const void *config, cio_http_alloc_handler_t handler)
 {

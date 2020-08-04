@@ -29,7 +29,7 @@
 #ifndef CIO_HTTP_METHOD_H
 #define CIO_HTTP_METHOD_H
 
-#include "http-parser/http_parser.h"
+#include "cio/http-parser/http_parser.h"
 
 #ifdef __cplusplus
 extern "C" {

@@ -30,8 +30,8 @@
 #include <stdint.h>
 #include <string.h>
 
-#include "cio_base64.h"
-#include "cio_compiler.h"
+#include "cio/cio_base64.h"
+#include "cio/cio_compiler.h"
 
 static const char ENCODE_TABLE[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
 

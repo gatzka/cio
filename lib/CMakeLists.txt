@@ -35,39 +35,38 @@ add_custom_target(${PROJECT_NAME}_generate_semver
         -DPROJECT_VERSION_MINOR=${${PROJECT_NAME}_VERSION_MINOR}
         -DPROJECT_VERSION_PATCH=${${PROJECT_NAME}_VERSION_PATCH}
         -DGIT_WORK_DIR=${CMAKE_CURRENT_LIST_DIR}
-        -DINPUT_FILE=${CMAKE_CURRENT_LIST_DIR}/cio_version_private.h.in
-        -DOUTPUT_FILE=${CMAKE_CURRENT_BINARY_DIR}/generated/cio_version_private.h
+        -DINPUT_FILE=${CMAKE_CURRENT_LIST_DIR}/include/cio/cio_version_private.h.in
+        -DOUTPUT_FILE=${CMAKE_CURRENT_BINARY_DIR}/generated/cio/cio_version_private.h
         -P ${CMAKE_CURRENT_SOURCE_DIR}/generate_version.cmake
 )
 
 add_library(${PROJECT_NAME}
-    "cio_base64.h"
-    "cio_buffered_stream.c"
-    "cio_buffered_stream.h"
-    "cio_compiler.h"
-    "cio_endian.h"
-    "cio_error_code.h"
-    "cio_eventloop.h"
-    "cio_inet4_socket_address.h"
-    "cio_inet6_socket_address.h"
-    "cio_inet_address.h"
-    "cio_io_stream.h"
-    "cio_random.c"
-    "cio_random.h"
-    "cio_read_buffer.h"
-    "cio_server_socket.h"
-    "cio_socket.h"
-    "cio_socket_address.h"
-    "cio_address_family.h"
-    "cio_string.h"
-    "cio_timer.h"
-    "cio_uart.h"
-    "cio_util.h"
-    "cio_version.c"
-    "cio_version.h"
-    "cio_write_buffer.h"
+    include/cio/cio_address_family.h
+    include/cio/cio_base64.h
+    include/cio/cio_buffered_stream.h
+    include/cio/cio_compiler.h
+    include/cio/cio_endian.h
+    include/cio/cio_error_code.h
+    include/cio/cio_eventloop.h
+    include/cio/cio_inet4_socket_address.h
+    include/cio/cio_inet6_socket_address.h
+    include/cio/cio_inet_address.h
+    include/cio/cio_io_stream.h
+    include/cio/cio_random.h
+    include/cio/cio_read_buffer.h
+    include/cio/cio_server_socket.h
+    include/cio/cio_socket.h
+    include/cio/cio_socket_address.h
+    include/cio/cio_string.h
+    include/cio/cio_timer.h
+    include/cio/cio_uart.h
+    include/cio/cio_util.h
+    include/cio/cio_version.h
+    include/cio/cio_write_buffer.h
+    src/cio_buffered_stream.c
+    src/cio_random.c
+    src/cio_version.c
 )
-target_link_libraries(${PROJECT_NAME} PUBLIC PLATFORM)
 
 add_library(${PROJECT_NAME}::${PROJECT_NAME} ALIAS ${PROJECT_NAME})
 
@@ -81,8 +80,8 @@ cmake_dependent_option(CIO_CONFIG_WEBSOCKET_COMPRESSION "Add Websocket compressi
 
 if(CIO_CONFIG_HTTP)
     add_library(http_parser OBJECT
-        http-parser/http_parser.c
-        http-parser/http_parser.h
+        cio/http-parser/http_parser.c
+        cio/http-parser/http_parser.h
     )
     set_target_properties(http_parser PROPERTIES
         COMPILE_OPTIONS "$<$<OR:$<C_COMPILER_ID:GNU>,$<C_COMPILER_ID:Clang>>:-Wno-shadow;-Wno-sign-conversion;-Wno-conversion;-Wno-switch-default>"
@@ -99,30 +98,34 @@ if(CIO_CONFIG_HTTP)
     )
     target_sources(${PROJECT_NAME} PRIVATE
         $<TARGET_OBJECTS:http_parser>
-        cio_http_location.c
-        cio_http_location_handler.c
-        cio_http_server.c
-        cio_http_client.h
-        cio_http_location.h
-        cio_http_location_handler.h
-        cio_http_method.h
-        cio_http_server.h
-        cio_http_status_code.h
+        include/cio/cio_http_client.h
+        include/cio/cio_http_location.h
+        include/cio/cio_http_location_handler.h
+        include/cio/cio_http_method.h
+        include/cio/cio_http_server.h
+        include/cio/cio_http_status_code.h
+        src/cio_http_location.c
+        src/cio_http_location_handler.c
+        src/cio_http_server.c
     )
 
     set_property(TARGET ${PROJECT_NAME} APPEND PROPERTY PUBLIC_HEADER 
-        "cio_http_client.h"
-        "cio_http_location.h"
-        "cio_http_location_handler.h"
-        "cio_http_method.h"
-        "cio_http_server.h"
-        "cio_http_status_code.h"
+        include/cio/cio_http_client.h
+        include/cio/cio_http_location.h
+        include/cio/cio_http_location_handler.h
+        include/cio/cio_http_method.h
+        include/cio/cio_http_server.h
+        include/cio/cio_http_status_code.h
+    )
+
+    set_property(TARGET ${PROJECT_NAME} APPEND PROPERTY INCLUDE_DIRECTORIES 
+        ${CMAKE_CURRENT_LIST_DIR}
     )
 endif()
 
 if(CIO_CONFIG_WEBSOCKETS)
     add_library(sha OBJECT
-        sha1/sha1.c
+        cio/sha1/sha1.c
     )
     set_target_properties(sha PROPERTIES
         POSITION_INDEPENDENT_CODE ON
@@ -143,22 +146,22 @@ if(CIO_CONFIG_WEBSOCKETS)
 
     target_sources(${PROJECT_NAME} PRIVATE
         $<TARGET_OBJECTS:sha>
-        cio_utf8_checker.h
-        cio_base64.c
-        cio_base64.h
-        cio_utf8_checker.c
-        cio_websocket.c
-        cio_websocket.h
-        cio_websocket_location_handler.c
-        cio_websocket_location_handler.h
-        cio_websocket_masking.h
+        include/cio/cio_base64.h
+        include/cio/cio_utf8_checker.h
+        include/cio/cio_websocket.h
+        include/cio/cio_websocket_location_handler.h
+        include/cio/cio_websocket_masking.h
+        src/cio_base64.c
+        src/cio_utf8_checker.c
+        src/cio_websocket.c
+        src/cio_websocket_location_handler.c
     ) 
 
     set_property(TARGET ${PROJECT_NAME} APPEND PROPERTY PUBLIC_HEADER
-        "cio_base64.h"
-        "cio_utf8_checker.h"
-        "cio_websocket.h"
-        "cio_websocket_location_handler.h"
+        "include/cio/cio_base64.h"
+        "include/cio/cio_utf8_checker.h"
+        "include/cio/cio_websocket.h"
+        "include/cio/cio_websocket_location_handler.h"
     )
 endif()
 
@@ -176,19 +179,19 @@ if(CIO_CONFIG_WEBSOCKET_COMPRESSION)
 endif()
 
 target_include_directories(${PROJECT_NAME} PUBLIC
-    $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}>
-    $<BUILD_INTERFACE:$<$<PLATFORM_ID:Linux>:${CMAKE_CURRENT_LIST_DIR}/platform/linux/>>
-    $<BUILD_INTERFACE:$<$<PLATFORM_ID:Windows>:${CMAKE_CURRENT_LIST_DIR}/platform/windows/>>
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/include/>
+    $<BUILD_INTERFACE:$<$<PLATFORM_ID:Linux>:${CMAKE_CURRENT_LIST_DIR}/include/cio/platform/linux/>>
+    $<BUILD_INTERFACE:$<$<PLATFORM_ID:Windows>:${CMAKE_CURRENT_LIST_DIR}/include/cio/platform/windows/>>
     $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/generated/>
 )
 
-if(${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
-    add_subdirectory(platform/linux)
-elseif(${CMAKE_SYSTEM_NAME} STREQUAL "Windows")
-    add_subdirectory(platform/windows)
-elseif(${CIO_BUILD_FOR_ZEPHYR})
-    add_subdirectory(platform/zephyr)
-endif()
+#if(${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
+#    add_subdirectory(platform/linux)
+#elseif(${CMAKE_SYSTEM_NAME} STREQUAL "Windows")
+#    add_subdirectory(platform/windows)
+#elseif(${CIO_BUILD_FOR_ZEPHYR})
+#    add_subdirectory(platform/zephyr)
+#endif()
 
 if(NOT CIO_BUILD_FOR_ZEPHYR AND NOT CMAKE_C_COMPILER_ID STREQUAL "MSVC")
     set_target_properties(${PROJECT_NAME} PROPERTIES
@@ -204,60 +207,60 @@ set_target_properties(${PROJECT_NAME} PROPERTIES
 )
 
 set_property(TARGET ${PROJECT_NAME} APPEND PROPERTY PUBLIC_HEADER
-    "cio_address_family.h"
-    "cio_buffered_stream.h"
-    "cio_compiler.h"
-    "cio_endian.h"
-    "cio_error_code.h"
-    "cio_eventloop.h"
-    "cio_inet4_socket_address.h"
-    "cio_inet6_socket_address.h"
-    "cio_inet_address.h"
-    "cio_io_stream.h"
-    "cio_random.h"
-    "cio_read_buffer.h"
-    "cio_server_socket.h"
-    "cio_socket.h"
-    "cio_socket_address.h"
-    "cio_string.h"
-    "cio_timer.h"
-    "cio_util.h"
-    "cio_version.h"
-    "cio_write_buffer.h"
+    "include/cio/cio_address_family.h"
+    "include/cio/cio_buffered_stream.h"
+    "include/cio/cio_compiler.h"
+    "include/cio/cio_endian.h"
+    "include/cio/cio_error_code.h"
+    "include/cio/cio_eventloop.h"
+    "include/cio/cio_inet4_socket_address.h"
+    "include/cio/cio_inet6_socket_address.h"
+    "include/cio/cio_inet_address.h"
+    "include/cio/cio_io_stream.h"
+    "include/cio/cio_random.h"
+    "include/cio/cio_read_buffer.h"
+    "include/cio/cio_server_socket.h"
+    "include/cio/cio_socket.h"
+    "include/cio/cio_socket_address.h"
+    "include/cio/cio_string.h"
+    "include/cio/cio_timer.h"
+    "include/cio/cio_util.h"
+    "include/cio/cio_version.h"
+    "include/cio/cio_write_buffer.h"
 )
 
 include(GenerateExportHeader)
-generate_export_header(${PROJECT_NAME} EXPORT_FILE_NAME ${CMAKE_CURRENT_BINARY_DIR}/generated/${PROJECT_NAME}_export.h)
+generate_export_header(${PROJECT_NAME} EXPORT_FILE_NAME ${CMAKE_CURRENT_BINARY_DIR}/generated/cio/${PROJECT_NAME}_export.h)
 
-if(NOT CIO_BUILD_FOR_ZEPHYR)
-    include(GNUInstallDirs)
-    install(TARGETS ${PROJECT_NAME} PLATFORM
-        EXPORT ${PROJECT_NAME}
-        LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
-        ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
-        RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
-        PUBLIC_HEADER DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/${PROJECT_NAME}
-    )
-    
-    include(CMakePackageConfigHelpers)
-    write_basic_package_version_file("${PROJECT_NAME}ConfigVersion.cmake"
-        VERSION ${${PROJECT_NAME}_VERSION}
-        COMPATIBILITY SameMajorVersion
-    )
-    
-    install(FILES "${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}ConfigVersion.cmake"
-        DESTINATION lib/cmake/${PROJECT_NAME}
-    )
-    install(FILES "${CMAKE_CURRENT_BINARY_DIR}/generated/${PROJECT_NAME}_export.h"
-        DESTINATION include/${PROJECT_NAME}
-    )
-
-    install(EXPORT ${PROJECT_NAME}
-        NAMESPACE ${PROJECT_NAME}::
-        DESTINATION lib/cmake/${PROJECT_NAME}
-        FILE ${PROJECT_NAME}Config.cmake
-    )
-endif()
+#if(NOT CIO_BUILD_FOR_ZEPHYR)
+#    include(GNUInstallDirs)
+#    install(TARGETS ${PROJECT_NAME} PLATFORM
+#        EXPORT ${PROJECT_NAME}
+#        LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+#        ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+#        RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+#        PUBLIC_HEADER DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/${PROJECT_NAME}
+#    )
+#    
+#    include(CMakePackageConfigHelpers)
+#    write_basic_package_version_file("${PROJECT_NAME}ConfigVersion.cmake"
+#        VERSION ${${PROJECT_NAME}_VERSION}
+#        COMPATIBILITY SameMajorVersion
+#    )
+#    
+#    install(FILES "${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}ConfigVersion.cmake"
+#        DESTINATION lib/cmake/${PROJECT_NAME}
+#    )
+#    install(FILES "${CMAKE_CURRENT_BINARY_DIR}/generated/${PROJECT_NAME}_export.h"
+#        DESTINATION include/${PROJECT_NAME}
+#    )
+#
+#    install(EXPORT ${PROJECT_NAME}
+#        NAMESPACE ${PROJECT_NAME}::
+#        DESTINATION lib/cmake/${PROJECT_NAME}
+#        FILE ${PROJECT_NAME}Config.cmake
+#    )
+#endif()
 
 include(FindDoxygen)
 

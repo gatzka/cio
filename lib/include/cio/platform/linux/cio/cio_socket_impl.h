@@ -32,8 +32,8 @@
 #include <stdbool.h>
 #include <stdint.h>
 
-#include "cio_eventloop.h"
-#include "cio_timer.h"
+#include "cio/cio_eventloop.h"
+#include "cio/cio_timer.h"
 
 #ifdef __cplusplus
 extern "C" {

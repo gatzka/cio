@@ -32,12 +32,12 @@
 #include <stdbool.h>
 #include <stdint.h>
 
-#include "cio_error_code.h"
-#include "cio_eventloop.h"
-#include "cio_export.h"
-#include "cio_io_stream.h"
-#include "cio_socket_address.h"
-#include "cio_socket_impl.h"
+#include "cio/cio_error_code.h"
+#include "cio/cio_eventloop.h"
+#include "cio/cio_export.h"
+#include "cio/cio_io_stream.h"
+#include "cio/cio_socket_address.h"
+#include "cio/cio_socket_impl.h"
 
 #ifdef __cplusplus
 extern "C" {
