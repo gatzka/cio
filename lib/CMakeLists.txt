@@ -93,7 +93,7 @@ if(CIO_CONFIG_HTTP)
         target_link_libraries(http_parser PRIVATE zephyr)
     endif()
 
-    install(FILES "${CMAKE_CURRENT_LIST_DIR}/http-parser/http_parser.h"
+    install(FILES "${CMAKE_CURRENT_LIST_DIR}/cio/http-parser/http_parser.h"
         DESTINATION include/cio/http-parser/
     )
     target_sources(${PROJECT_NAME} PRIVATE
@@ -205,17 +205,17 @@ if(${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
     )
 
     set_property(TARGET ${PROJECT_NAME} APPEND PROPERTY PUBLIC_HEADER
-        platform/linux/cio_address_family_impl.h
-        platform/linux/cio_error_code_impl.h
-        platform/linux/cio_eventloop_impl.h
-        platform/linux/cio_inet4_socket_address_impl.h
-        platform/linux/cio_inet6_socket_address_impl.h
-        platform/linux/cio_inet_address_impl.h
-        platform/linux/cio_server_socket_impl.h
-        platform/linux/cio_socket_address_impl.h
-        platform/linux/cio_socket_impl.h
-        platform/linux/cio_timer_impl.h
-        platform/linux/cio_unix_address.h
+        include/cio/platform/linux/cio/cio_address_family_impl.h
+        include/cio/platform/linux/cio/cio_error_code_impl.h
+        include/cio/platform/linux/cio/cio_eventloop_impl.h
+        include/cio/platform/linux/cio/cio_inet4_socket_address_impl.h
+        include/cio/platform/linux/cio/cio_inet6_socket_address_impl.h
+        include/cio/platform/linux/cio/cio_inet_address_impl.h
+        include/cio/platform/linux/cio/cio_server_socket_impl.h
+        include/cio/platform/linux/cio/cio_socket_address_impl.h
+        include/cio/platform/linux/cio/cio_socket_impl.h
+        include/cio/platform/linux/cio/cio_timer_impl.h
+        include/cio/platform/linux/cio/cio_unix_address.h
     )
 #elseif(${CMAKE_SYSTEM_NAME} STREQUAL "Windows")
 #    add_subdirectory(platform/windows)
@@ -262,35 +262,35 @@ set_property(TARGET ${PROJECT_NAME} APPEND PROPERTY PUBLIC_HEADER
 include(GenerateExportHeader)
 generate_export_header(${PROJECT_NAME} EXPORT_FILE_NAME ${CMAKE_CURRENT_BINARY_DIR}/generated/cio/${PROJECT_NAME}_export.h)
 
-#if(NOT CIO_BUILD_FOR_ZEPHYR)
-#    include(GNUInstallDirs)
-#    install(TARGETS ${PROJECT_NAME} PLATFORM
-#        EXPORT ${PROJECT_NAME}
-#        LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
-#        ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
-#        RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
-#        PUBLIC_HEADER DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/${PROJECT_NAME}
-#    )
-#    
-#    include(CMakePackageConfigHelpers)
-#    write_basic_package_version_file("${PROJECT_NAME}ConfigVersion.cmake"
-#        VERSION ${${PROJECT_NAME}_VERSION}
-#        COMPATIBILITY SameMajorVersion
-#    )
-#    
-#    install(FILES "${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}ConfigVersion.cmake"
-#        DESTINATION lib/cmake/${PROJECT_NAME}
-#    )
-#    install(FILES "${CMAKE_CURRENT_BINARY_DIR}/generated/${PROJECT_NAME}_export.h"
-#        DESTINATION include/${PROJECT_NAME}
-#    )
-#
-#    install(EXPORT ${PROJECT_NAME}
-#        NAMESPACE ${PROJECT_NAME}::
-#        DESTINATION lib/cmake/${PROJECT_NAME}
-#        FILE ${PROJECT_NAME}Config.cmake
-#    )
-#endif()
+if(NOT CIO_BUILD_FOR_ZEPHYR)
+    include(GNUInstallDirs)
+    install(TARGETS ${PROJECT_NAME}
+        EXPORT ${PROJECT_NAME}
+        LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+        ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+        RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+        PUBLIC_HEADER DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/${PROJECT_NAME}
+    )
+    
+    include(CMakePackageConfigHelpers)
+    write_basic_package_version_file("${PROJECT_NAME}ConfigVersion.cmake"
+        VERSION ${${PROJECT_NAME}_VERSION}
+        COMPATIBILITY SameMajorVersion
+    )
+    
+    install(FILES "${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}ConfigVersion.cmake"
+        DESTINATION lib/cmake/${PROJECT_NAME}
+    )
+    install(FILES "${CMAKE_CURRENT_BINARY_DIR}/generated/cio/${PROJECT_NAME}_export.h"
+        DESTINATION include/${PROJECT_NAME}
+    )
+
+    install(EXPORT ${PROJECT_NAME}
+        NAMESPACE ${PROJECT_NAME}::
+        DESTINATION lib/cmake/${PROJECT_NAME}
+        FILE ${PROJECT_NAME}Config.cmake
+    )
+endif()
 
 include(FindDoxygen)
 
