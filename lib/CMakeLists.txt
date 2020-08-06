@@ -180,42 +180,42 @@ endif()
 
 target_include_directories(${PROJECT_NAME} PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/include/>
-    $<BUILD_INTERFACE:$<$<PLATFORM_ID:Linux>:${CMAKE_CURRENT_LIST_DIR}/include/cio/platform/linux/>>
-    $<BUILD_INTERFACE:$<$<PLATFORM_ID:Windows>:${CMAKE_CURRENT_LIST_DIR}/include/cio/platform/windows/>>
+    $<BUILD_INTERFACE:$<$<PLATFORM_ID:Linux>:${CMAKE_CURRENT_LIST_DIR}/include/platform/linux/>>
+    $<BUILD_INTERFACE:$<$<PLATFORM_ID:Windows>:${CMAKE_CURRENT_LIST_DIR}/include/platform/windows/>>
     $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/generated/>
 )
 
 if(${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
-    include(platform/linux/defaults.cmake)
-    configure_file(platform/linux/cio_os_config.h.in ${PROJECT_BINARY_DIR}/generated/cio/cio_os_config.h)
+    include(src/platform/linux/defaults.cmake)
+    configure_file(src/platform/linux/cio_os_config.h.in ${PROJECT_BINARY_DIR}/generated/cio/cio_os_config.h)
 
     target_sources(${PROJECT_NAME} PRIVATE
-        platform/linux/cio_linux_endian.c
-        platform/linux/cio_linux_epoll.c
-        platform/linux/cio_linux_random.c
-        platform/linux/cio_linux_server_socket.c
-        platform/linux/cio_linux_socket.c
-        platform/linux/cio_linux_socket_utils.c
-        platform/linux/cio_linux_string.c
-        platform/linux/cio_linux_timer.c
-        platform/linux/cio_linux_uart.c
-        platform/linux/cio_unix_address.c
-        platform/shared/cio_inet_address_impl.c
-        platform/shared/cio_socket_address_impl.c
+        src/platform/linux/cio_linux_endian.c
+        src/platform/linux/cio_linux_epoll.c
+        src/platform/linux/cio_linux_random.c
+        src/platform/linux/cio_linux_server_socket.c
+        src/platform/linux/cio_linux_socket.c
+        src/platform/linux/cio_linux_socket_utils.c
+        src/platform/linux/cio_linux_string.c
+        src/platform/linux/cio_linux_timer.c
+        src/platform/linux/cio_linux_uart.c
+        src/platform/linux/cio_unix_address.c
+        src/platform/shared/cio_inet_address_impl.c
+        src/platform/shared/cio_socket_address_impl.c
     )
 
     set_property(TARGET ${PROJECT_NAME} APPEND PROPERTY PUBLIC_HEADER
-        include/cio/platform/linux/cio/cio_address_family_impl.h
-        include/cio/platform/linux/cio/cio_error_code_impl.h
-        include/cio/platform/linux/cio/cio_eventloop_impl.h
-        include/cio/platform/linux/cio/cio_inet4_socket_address_impl.h
-        include/cio/platform/linux/cio/cio_inet6_socket_address_impl.h
-        include/cio/platform/linux/cio/cio_inet_address_impl.h
-        include/cio/platform/linux/cio/cio_server_socket_impl.h
-        include/cio/platform/linux/cio/cio_socket_address_impl.h
-        include/cio/platform/linux/cio/cio_socket_impl.h
-        include/cio/platform/linux/cio/cio_timer_impl.h
-        include/cio/platform/linux/cio/cio_unix_address.h
+        include/platform/linux/cio/cio_address_family_impl.h
+        include/platform/linux/cio/cio_error_code_impl.h
+        include/platform/linux/cio/cio_eventloop_impl.h
+        include/platform/linux/cio/cio_inet4_socket_address_impl.h
+        include/platform/linux/cio/cio_inet6_socket_address_impl.h
+        include/platform/linux/cio/cio_inet_address_impl.h
+        include/platform/linux/cio/cio_server_socket_impl.h
+        include/platform/linux/cio/cio_socket_address_impl.h
+        include/platform/linux/cio/cio_socket_impl.h
+        include/platform/linux/cio/cio_timer_impl.h
+        include/platform/linux/cio/cio_unix_address.h
     )
 #elseif(${CMAKE_SYSTEM_NAME} STREQUAL "Windows")
 #    add_subdirectory(platform/windows)
