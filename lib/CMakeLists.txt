@@ -118,8 +118,9 @@ if(CIO_CONFIG_HTTP)
         include/cio/cio_http_status_code.h
     )
 
-    set_property(TARGET ${PROJECT_NAME} APPEND PROPERTY INCLUDE_DIRECTORIES 
-        ${CMAKE_CURRENT_LIST_DIR}
+    target_include_directories(${PROJECT_NAME}
+        PUBLIC
+            $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}>
     )
 endif()
 
