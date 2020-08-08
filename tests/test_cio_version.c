@@ -29,8 +29,9 @@
 #include <stdint.h>
 #include <stdlib.h>
 
-#include "cio_version.h"
-#include "cio_version_private.h"
+#include "cio/cio_version.h"
+#include "cio/cio_version_private.h"
+
 #include "fff.h"
 #include "unity.h"
 

@@ -29,11 +29,12 @@
 #include <stdint.h>
 #include <stdlib.h>
 
-#include "cio_error_code.h"
-#include "cio_socket_address.h"
-#include "cio_unix_address.h"
 #include "fff.h"
 #include "unity.h"
+
+#include "cio/cio_error_code.h"
+#include "cio/cio_socket_address.h"
+#include "cio/cio_unix_address.h"
 
 DEFINE_FFF_GLOBALS
 

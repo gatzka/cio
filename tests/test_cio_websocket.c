@@ -32,14 +32,14 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "cio_buffered_stream.h"
-#include "cio_endian.h"
-#include "cio_error_code.h"
-#include "cio_eventloop.h"
-#include "cio_random.h"
-#include "cio_timer.h"
-#include "cio_websocket.h"
-#include "cio_websocket_masking.h"
+#include "cio/cio_buffered_stream.h"
+#include "cio/cio_endian.h"
+#include "cio/cio_error_code.h"
+#include "cio/cio_eventloop.h"
+#include "cio/cio_random.h"
+#include "cio/cio_timer.h"
+#include "cio/cio_websocket.h"
+#include "cio/cio_websocket_masking.h"
 
 #include "fff.h"
 #include "unity.h"

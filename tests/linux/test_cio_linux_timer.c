@@ -31,12 +31,12 @@
 #include <sys/timerfd.h>
 #include <unistd.h>
 
+#include "cio/cio_error_code.h"
+#include "cio/cio_eventloop.h"
+#include "cio/cio_timer.h"
+
 #include "fff.h"
 #include "unity.h"
-
-#include "cio_error_code.h"
-#include "cio_eventloop.h"
-#include "cio_timer.h"
 
 DEFINE_FFF_GLOBALS
 

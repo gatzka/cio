@@ -32,16 +32,17 @@
 #include <netinet/tcp.h>
 #include <unistd.h>
 
+#include "cio/cio_error_code.h"
+#include "cio/cio_inet_address.h"
+#include "cio/cio_linux_socket.h"
+#include "cio/cio_linux_socket_utils.h"
+#include "cio/cio_read_buffer.h"
+#include "cio/cio_socket.h"
+#include "cio/cio_write_buffer.h"
+
 #include "fff.h"
 #include "unity.h"
 
-#include "cio_error_code.h"
-#include "cio_inet_address.h"
-#include "cio_linux_socket.h"
-#include "cio_linux_socket_utils.h"
-#include "cio_read_buffer.h"
-#include "cio_socket.h"
-#include "cio_write_buffer.h"
 
 #define CIO_MIN(X, Y) (((X) < (Y)) ? (X) : (Y))
 

@@ -92,7 +92,7 @@ if(ipo_supported)
     option(CIO_ENABLE_LTO "Build everithing with link time optization" OFF)
 endif()
 
-add_subdirectory(src)
+add_subdirectory(lib)
 add_subdirectory(tests)
 
 add_subdirectory(examples)

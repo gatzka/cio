@@ -28,10 +28,10 @@
 #include <sys/epoll.h>
 #include <unistd.h>
 
+#include "cio/cio_eventloop.h"
+
 #include "fff.h"
 #include "unity.h"
-
-#include "cio_eventloop.h"
 
 DEFINE_FFF_GLOBALS
 

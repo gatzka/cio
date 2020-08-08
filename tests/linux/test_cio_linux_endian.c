@@ -26,10 +26,10 @@
 
 #include <stdint.h>
 
+#include "cio/cio_endian.h"
+
 #include "fff.h"
 #include "unity.h"
-
-#include "cio_endian.h"
 
 DEFINE_FFF_GLOBALS
 

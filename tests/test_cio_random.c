@@ -26,8 +26,9 @@
  * SOFTWARE.
  */
 
-#include "cio_error_code.h"
-#include "cio_random.h"
+#include "cio/cio_error_code.h"
+#include "cio/cio_random.h"
+
 #include "fff.h"
 #include "unity.h"
 

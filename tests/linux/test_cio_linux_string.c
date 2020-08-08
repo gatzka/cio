@@ -27,10 +27,10 @@
 #include <stddef.h>
 #include <stdint.h>
 
+#include "cio/cio_string.h"
+
 #include "fff.h"
 #include "unity.h"
-
-#include "cio_string.h"
 
 DEFINE_FFF_GLOBALS
 
