@@ -39,9 +39,9 @@
 #include "cio/cio_server_socket.h"
 #include "cio/cio_socket.h"
 #include "cio/cio_socket_address.h"
+#include "cio/cio_unix_address.h"
 #include "cio/cio_util.h"
 #include "cio/cio_write_buffer.h"
-#include "cio/cio_unix_address.h"
 
 static unsigned long long max_pings;
 static struct cio_eventloop loop;
