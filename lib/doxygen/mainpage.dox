@@ -1,0 +1,20 @@
+/*!
+\mainpage
+
+\b cio is a ANSI-conformant library to implementing I/O (sockets,
+timers, UARTs, maybe file later) using an eventloop.
+
+cio provides an infrastucture to conveniently perform I/O very
+efficiently. 
+
+As always in event loop implementation: Do not make an lots of CPU
+intensive stuff in the callbacks when using cio, this will starve other
+I/O streams
+
+cio is especially build for embedded systems. There is a preliminary
+build for Linux zephyr, mbedOS and FreeRTOS will follow.
+
+There are quite some <a
+href="https://github.com/gatzka/cio/tree/master/examples">examples</a>
+how to use cio.
+*/
