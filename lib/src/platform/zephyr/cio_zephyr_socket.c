@@ -30,18 +30,18 @@
 #include <net/net_pkt.h>
 #include <stdint.h>
 
-#include "cio_compiler.h"
-#include "cio_endian.h"
-#include "cio_error_code.h"
-#include "cio_eventloop_impl.h"
-#include "cio_io_stream.h"
-#include "cio_read_buffer.h"
-#include "cio_socket.h"
-#include "cio_socket_address.h"
-#include "cio_timer.h"
-#include "cio_util.h"
-#include "cio_write_buffer.h"
-#include "cio_zephyr_socket.h"
+#include "cio/cio_compiler.h"
+#include "cio/cio_endian.h"
+#include "cio/cio_error_code.h"
+#include "cio/cio_eventloop_impl.h"
+#include "cio/cio_io_stream.h"
+#include "cio/cio_read_buffer.h"
+#include "cio/cio_socket.h"
+#include "cio/cio_socket_address.h"
+#include "cio/cio_timer.h"
+#include "cio/cio_util.h"
+#include "cio/cio_write_buffer.h"
+#include "cio/cio_zephyr_socket.h"
 
 #define CIO_MIN(X, Y) (((X) < (Y)) ? (X) : (Y))
 

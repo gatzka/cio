@@ -28,10 +28,10 @@
 
 #include <net/net_context.h>
 
-#include "cio_compiler.h"
-#include "cio_error_code.h"
-#include "cio_inet_address.h"
-#include "cio_zephyr_socket_utils.h"
+#include "cio/cio_compiler.h"
+#include "cio/cio_error_code.h"
+#include "cio/cio_inet_address.h"
+#include "cio/cio_zephyr_socket_utils.h"
 
 int cio_zephyr_socket_create(enum cio_address_family address_family, struct net_context **context)
 {

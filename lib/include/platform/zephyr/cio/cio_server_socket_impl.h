@@ -33,8 +33,8 @@
 #include <net/net_context.h>
 #include <stdint.h>
 
-#include "cio_error_code.h"
-#include "cio_eventloop.h"
+#include "cio/cio_error_code.h"
+#include "cio/cio_eventloop.h"
 
 #ifdef __cplusplus
 extern "C" {

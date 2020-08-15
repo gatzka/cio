@@ -31,8 +31,8 @@
 
 #include <drivers/entropy.h>
 
-#include "cio_error_code.h"
-#include "cio_random.h"
+#include "cio/cio_error_code.h"
+#include "cio/cio_random.h"
 
 enum cio_error cio_entropy_get_bytes(void *bytes, size_t num_bytes)
 {

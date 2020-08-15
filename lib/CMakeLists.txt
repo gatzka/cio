@@ -249,7 +249,7 @@ elseif(${CMAKE_SYSTEM_NAME} STREQUAL "Windows")
         include/platform/windows/cio/cio_uart_impl.h
     )
 
-    target_link_libraries( ${PROJECT_NAME} bcrypt ws2_32 Setupapi)
+    target_link_libraries(${PROJECT_NAME} bcrypt ws2_32 Setupapi)
 
 elseif(${CIO_BUILD_FOR_ZEPHYR})
     target_sources(${PROJECT_NAME} PRIVATE
@@ -265,6 +265,8 @@ elseif(${CIO_BUILD_FOR_ZEPHYR})
         src/platform/zephyr/cio_zephyr_string.c
         src/platform/zephyr/cio_zephyr_timer.c
     )
+
+    target_link_libraries(${PROJECT_NAME} PUBLIC zephyr kernel)
 endif()
 
 if(NOT CIO_BUILD_FOR_ZEPHYR AND NOT CMAKE_C_COMPILER_ID STREQUAL "MSVC")
