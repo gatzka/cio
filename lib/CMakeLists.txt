@@ -63,9 +63,9 @@ add_library(${PROJECT_NAME}
     include/cio/util.h
     include/cio/version.h
     include/cio/write_buffer.h
-    src/cio_buffered_stream.c
-    src/cio_random.c
-    src/cio_version.c
+    src/buffered_stream.c
+    src/random.c
+    src/version.c
 )
 
 add_library(${PROJECT_NAME}::${PROJECT_NAME} ALIAS ${PROJECT_NAME})
@@ -104,9 +104,9 @@ if(CIO_CONFIG_HTTP)
         include/cio/http_method.h
         include/cio/http_server.h
         include/cio/http_status_code.h
-        src/cio_http_location.c
-        src/cio_http_location_handler.c
-        src/cio_http_server.c
+        src/http_location.c
+        src/http_location_handler.c
+        src/http_server.c
     )
 
     set_property(TARGET ${PROJECT_NAME} APPEND PROPERTY PUBLIC_HEADER 
@@ -152,10 +152,10 @@ if(CIO_CONFIG_WEBSOCKETS)
         include/cio/websocket.h
         include/cio/websocket_location_handler.h
         include/cio/websocket_masking.h
-        src/cio_base64.c
-        src/cio_utf8_checker.c
-        src/cio_websocket.c
-        src/cio_websocket_location_handler.c
+        src/base64.c
+        src/utf8_checker.c
+        src/websocket.c
+        src/websocket_location_handler.c
     ) 
 
     set_property(TARGET ${PROJECT_NAME} APPEND PROPERTY PUBLIC_HEADER
@@ -191,18 +191,18 @@ if(${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
     configure_file(src/platform/linux/os_config.h.in ${PROJECT_BINARY_DIR}/generated/cio/os_config.h)
 
     target_sources(${PROJECT_NAME} PRIVATE
-        src/platform/linux/cio_linux_endian.c
-        src/platform/linux/cio_linux_epoll.c
-        src/platform/linux/cio_linux_random.c
-        src/platform/linux/cio_linux_server_socket.c
-        src/platform/linux/cio_linux_socket.c
-        src/platform/linux/cio_linux_socket_utils.c
-        src/platform/linux/cio_linux_string.c
-        src/platform/linux/cio_linux_timer.c
-        src/platform/linux/cio_linux_uart.c
-        src/platform/linux/cio_unix_address.c
-        src/platform/shared/cio_inet_address_impl.c
-        src/platform/shared/cio_socket_address_impl.c
+        src/platform/linux/endian.c
+        src/platform/linux/epoll.c
+        src/platform/linux/random.c
+        src/platform/linux/server_socket.c
+        src/platform/linux/socket.c
+        src/platform/linux/socket_utils.c
+        src/platform/linux/string.c
+        src/platform/linux/timer.c
+        src/platform/linux/uart.c
+        src/platform/linux/unix_address.c
+        src/platform/shared/inet_address_impl.c
+        src/platform/shared/socket_address_impl.c
     )
 
     set_property(TARGET ${PROJECT_NAME} APPEND PROPERTY PUBLIC_HEADER
@@ -221,18 +221,18 @@ if(${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
     )
 elseif(${CMAKE_SYSTEM_NAME} STREQUAL "Windows")
     target_sources(${PROJECT_NAME} PRIVATE
-        src/platform/shared/cio_inet_address_impl.c
-        src/platform/shared/cio_socket_address_impl.c
-        src/platform/shared/cio_string_memmem.c
-        src/platform/windows/cio_windows_endian.c
-        src/platform/windows/cio_windows_iocp.c
-        src/platform/windows/cio_windows_random.c
-        src/platform/windows/cio_windows_server_socket.c
-        src/platform/windows/cio_windows_socket.c
-        src/platform/windows/cio_windows_socket_utils.c
-        src/platform/windows/cio_windows_string.c
-        src/platform/windows/cio_windows_timer.c
-        src/platform/windows/cio_windows_uart.c
+        src/platform/shared/inet_address_impl.c
+        src/platform/shared/socket_address_impl.c
+        src/platform/shared/string_memmem.c
+        src/platform/windows/endian.c
+        src/platform/windows/iocp.c
+        src/platform/windows/random.c
+        src/platform/windows/server_socket.c
+        src/platform/windows/socket.c
+        src/platform/windows/socket_utils.c
+        src/platform/windows/string.c
+        src/platform/windows/timer.c
+        src/platform/windows/uart.c
     )
 
     set_property(TARGET ${PROJECT_NAME} APPEND PROPERTY PUBLIC_HEADER
@@ -253,17 +253,17 @@ elseif(${CMAKE_SYSTEM_NAME} STREQUAL "Windows")
 
 elseif(${CIO_BUILD_FOR_ZEPHYR})
     target_sources(${PROJECT_NAME} PRIVATE
-        src/platform/shared/cio_inet_address_impl.c
-        src/platform/shared/cio_socket_address_impl.c
-        src/platform/shared/cio_string_memmem.c
-        src/platform/zephyr/cio_zephyr_endian.c
-        src/platform/zephyr/cio_zephyr_eventloop.c
-        src/platform/zephyr/cio_zephyr_random.c
-        src/platform/zephyr/cio_zephyr_server_socket.c
-        src/platform/zephyr/cio_zephyr_socket.c
-        src/platform/zephyr/cio_zephyr_socket_utils.c
-        src/platform/zephyr/cio_zephyr_string.c
-        src/platform/zephyr/cio_zephyr_timer.c
+        src/platform/shared/inet_address_impl.c
+        src/platform/shared/socket_address_impl.c
+        src/platform/shared/string_memmem.c
+        src/platform/zephyr/endian.c
+        src/platform/zephyr/eventloop.c
+        src/platform/zephyr/random.c
+        src/platform/zephyr/server_socket.c
+        src/platform/zephyr/socket.c
+        src/platform/zephyr/socket_utils.c
+        src/platform/zephyr/string.c
+        src/platform/zephyr/timer.c
     )
 
     target_link_libraries(${PROJECT_NAME} PUBLIC zephyr kernel)

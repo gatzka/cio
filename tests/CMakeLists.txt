@@ -14,86 +14,86 @@ set_target_properties(unity PROPERTIES
 )
 target_include_directories(unity PUBLIC ${CMAKE_CURRENT_LIST_DIR}/unity/src/)
 
-add_executable(test_cio_base64
-    test_cio_base64.c
-    ../lib/src/cio_base64.c
+add_executable(test_base64
+    test_base64.c
+    ../lib/src/base64.c
 )
 
-add_executable(test_cio_buffered_stream
-    test_cio_buffered_stream.c
-    ../lib/src/cio_buffered_stream.c
-    ../lib/src//platform/shared/cio_string_memmem.c
+add_executable(test_buffered_stream
+    test_buffered_stream.c
+    ../lib/src/buffered_stream.c
+    ../lib/src/platform/shared/string_memmem.c
 )
 
 set_source_files_properties(../lib/cio/http-parser/http_parser.c
     PROPERTIES COMPILE_OPTIONS
         "$<$<OR:$<C_COMPILER_ID:GNU>,$<C_COMPILER_ID:Clang>>:-Wno-shadow;-Wno-sign-conversion;-Wno-conversion;-Wno-switch-default>"
 )
-add_executable(test_cio_http_server
-    test_cio_http_server.c
-    ../lib/src/cio_http_server.c
-    ../lib/src/cio_http_location.c
-    ../lib/src/cio_http_location_handler.c
+add_executable(test_http_server
+    test_http_server.c
+    ../lib/src/http_server.c
+    ../lib/src/http_location.c
+    ../lib/src/http_location_handler.c
     ../lib/cio/http-parser/http_parser.c)
 
-add_executable(test_cio_http_location
-    test_cio_http_location.c
-    ../lib/src/cio_http_location.c
-    ../lib/src/cio_http_location_handler.c
+add_executable(test_http_location
+    test_http_location.c
+    ../lib/src/http_location.c
+    ../lib/src/http_location_handler.c
 )
 
-add_executable(test_cio_inet_address
-    test_cio_inet_address.c
-    ../lib/src/platform/shared/cio_inet_address_impl.c
+add_executable(test_inet_address
+    test_inet_address.c
+    ../lib/src/platform/shared/inet_address_impl.c
 )
 
-add_executable(test_cio_inet_socket_address
-    test_cio_inet_socket_address.c
-    ../lib/src/platform/shared/cio_inet_address_impl.c
-    ../lib/src/platform/shared/cio_socket_address_impl.c
-    $<$<PLATFORM_ID:Linux>:../lib/src/platform/linux/cio_linux_endian.c>
-    $<$<PLATFORM_ID:Windows>:../lib/src/platform/windows/cio_windows_endian.c>
+add_executable(test_inet_socket_address
+    test_inet_socket_address.c
+    ../lib/src/platform/shared/inet_address_impl.c
+    ../lib/src/platform/shared/socket_address_impl.c
+    $<$<PLATFORM_ID:Linux>:../lib/src/platform/linux/endian.c>
+    $<$<PLATFORM_ID:Windows>:../lib/src/platform/windows/endian.c>
 )
 
-add_executable(test_cio_random
-    test_cio_random.c
-    ../lib/src/cio_random.c
+add_executable(test_random
+    test_random.c
+    ../lib/src/random.c
 )
 
-add_executable(test_cio_read_buffer
-    test_cio_read_buffer.c
+add_executable(test_read_buffer
+    test_read_buffer.c
 )
  
-add_executable(test_cio_utf8_checker
-    test_cio_utf8_checker.c
-    ../lib/src/cio_utf8_checker.c
+add_executable(test_utf8_checker
+    test_utf8_checker.c
+    ../lib/src/utf8_checker.c
 )
 
-add_executable(test_cio_websocket
-    test_cio_websocket.c
-    ../lib/src/cio_websocket.c
+add_executable(test_websocket
+    test_websocket.c
+    ../lib/src/websocket.c
 )
 
-add_executable(test_cio_websocket_location_handler
-    test_cio_websocket_location_handler.c
-    ../lib/src/cio_base64.c
-    ../lib/src/cio_websocket_location_handler.c
+add_executable(test_websocket_location_handler
+    test_websocket_location_handler.c
+    ../lib/src/base64.c
+    ../lib/src/websocket_location_handler.c
     ../lib/cio/sha1/sha1.c
-    $<$<PLATFORM_ID:Linux>:../lib/src/platform/linux/cio_linux_string.c>
-    $<$<PLATFORM_ID:Windows>:../lib/src/platform/windows/cio_windows_string.c>
+    $<$<PLATFORM_ID:Linux>:../lib/src/platform/linux/string.c>
+    $<$<PLATFORM_ID:Windows>:../lib/src/platform/windows/string.c>
 )
 
-add_executable(test_cio_websocket_mask
-    test_cio_websocket_mask.c
+add_executable(test_websocket_mask
+    test_websocket_mask.c
 )
 
-add_executable(test_cio_write_buffer
-    test_cio_write_buffer.c
+add_executable(test_write_buffer
+    test_write_buffer.c
 )
 
-add_executable(test_cio_version
-    test_cio_version.c
-    ../lib/src/cio_version.c
+add_executable(test_version
+    test_version.c
+    ../lib/src/version.c
 )
 
 get_property(includes TARGET cio::cio PROPERTY INTERFACE_INCLUDE_DIRECTORIES)
@@ -101,7 +101,7 @@ get_property(targets DIRECTORY "${CMAKE_CURRENT_LIST_DIR}" PROPERTY BUILDSYSTEM_
 foreach(tgt ${targets})
     get_target_property(target_type ${tgt} TYPE)
     if (target_type STREQUAL "EXECUTABLE")
-        add_dependencies(${tgt} cio::cio) # Necessary to generage cio_version_private.h before compiling the tests.
+        add_dependencies(${tgt} cio::cio) # Necessary to generage version_private.h before compiling the tests.
         target_link_libraries(${tgt} fff unity)
         set_target_properties(${tgt} PROPERTIES
             C_STANDARD 11
@@ -110,7 +110,7 @@ foreach(tgt ${targets})
             C_CLANG_TIDY ""
         )
         target_include_directories(${tgt} PUBLIC ${includes})
-        add_test(NAME cio.common.${tgt} COMMAND ${tgt})
+        add_test(NAME common.${tgt} COMMAND ${tgt})
     endif()
 
 	if(CIO_ENABLE_LTO AND NOT ${target_type} STREQUAL "INTERFACE_LIBRARY")
