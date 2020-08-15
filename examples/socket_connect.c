@@ -32,11 +32,11 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "cio/cio_error_code.h"
-#include "cio/cio_eventloop.h"
-#include "cio/cio_inet_address.h"
-#include "cio/cio_socket.h"
-#include "cio/cio_socket_address.h"
+#include "cio/error_code.h"
+#include "cio/eventloop.h"
+#include "cio/inet_address.h"
+#include "cio/socket.h"
+#include "cio/socket_address.h"
 
 static struct cio_eventloop loop;
 static const uint64_t CLOSE_TIMEOUT_NS = UINT64_C(1) * UINT64_C(1000) * UINT64_C(1000) * UINT64_C(1000);

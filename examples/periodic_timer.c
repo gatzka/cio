@@ -31,9 +31,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "cio/cio_error_code.h"
-#include "cio/cio_eventloop.h"
-#include "cio/cio_timer.h"
+#include "cio/error_code.h"
+#include "cio/eventloop.h"
+#include "cio/timer.h"
 
 static const uint64_t FIVE_S = 5000000000;
 static uint_fast8_t expirations = 0;

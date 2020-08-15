@@ -35,37 +35,37 @@ add_custom_target(${PROJECT_NAME}_generate_semver
         -DPROJECT_VERSION_MINOR=${${PROJECT_NAME}_VERSION_MINOR}
         -DPROJECT_VERSION_PATCH=${${PROJECT_NAME}_VERSION_PATCH}
         -DGIT_WORK_DIR=${CMAKE_CURRENT_LIST_DIR}
-        -DINPUT_FILE=${CMAKE_CURRENT_LIST_DIR}/include/cio/cio_version_private.h.in
-        -DOUTPUT_FILE=${CMAKE_CURRENT_BINARY_DIR}/generated/cio/cio_version_private.h
+        -DINPUT_FILE=${CMAKE_CURRENT_LIST_DIR}/include/cio/version_private.h.in
+        -DOUTPUT_FILE=${CMAKE_CURRENT_BINARY_DIR}/generated/cio/version_private.h
         -P ${CMAKE_CURRENT_SOURCE_DIR}/generate_version.cmake
 )
 
 add_library(${PROJECT_NAME}
-    include/cio/cio_address_family.h
-    include/cio/cio_base64.h
-    include/cio/cio_buffered_stream.h
-    include/cio/cio_compiler.h
-    include/cio/cio_endian.h
-    include/cio/cio_error_code.h
-    include/cio/cio_eventloop.h
-    include/cio/cio_inet4_socket_address.h
-    include/cio/cio_inet6_socket_address.h
-    include/cio/cio_inet_address.h
-    include/cio/cio_io_stream.h
-    include/cio/cio_random.h
-    include/cio/cio_read_buffer.h
-    include/cio/cio_server_socket.h
-    include/cio/cio_socket.h
-    include/cio/cio_socket_address.h
-    include/cio/cio_string.h
-    include/cio/cio_timer.h
-    include/cio/cio_uart.h
-    include/cio/cio_util.h
-    include/cio/cio_version.h
-    include/cio/cio_write_buffer.h
-    src/cio_buffered_stream.c
-    src/cio_random.c
-    src/cio_version.c
+    include/cio/address_family.h
+    include/cio/base64.h
+    include/cio/buffered_stream.h
+    include/cio/compiler.h
+    include/cio/endian.h
+    include/cio/error_code.h
+    include/cio/eventloop.h
+    include/cio/inet4_socket_address.h
+    include/cio/inet6_socket_address.h
+    include/cio/inet_address.h
+    include/cio/io_stream.h
+    include/cio/random.h
+    include/cio/read_buffer.h
+    include/cio/server_socket.h
+    include/cio/socket.h
+    include/cio/socket_address.h
+    include/cio/string.h
+    include/cio/timer.h
+    include/cio/uart.h
+    include/cio/util.h
+    include/cio/version.h
+    include/cio/write_buffer.h
+    src/buffered_stream.c
+    src/random.c
+    src/version.c
 )
 
 add_library(${PROJECT_NAME}::${PROJECT_NAME} ALIAS ${PROJECT_NAME})
@@ -98,24 +98,24 @@ if(CIO_CONFIG_HTTP)
     )
     target_sources(${PROJECT_NAME} PRIVATE
         $<TARGET_OBJECTS:http_parser>
-        include/cio/cio_http_client.h
-        include/cio/cio_http_location.h
-        include/cio/cio_http_location_handler.h
-        include/cio/cio_http_method.h
-        include/cio/cio_http_server.h
-        include/cio/cio_http_status_code.h
-        src/cio_http_location.c
-        src/cio_http_location_handler.c
-        src/cio_http_server.c
+        include/cio/http_client.h
+        include/cio/http_location.h
+        include/cio/http_location_handler.h
+        include/cio/http_method.h
+        include/cio/http_server.h
+        include/cio/http_status_code.h
+        src/http_location.c
+        src/http_location_handler.c
+        src/http_server.c
     )
 
     set_property(TARGET ${PROJECT_NAME} APPEND PROPERTY PUBLIC_HEADER 
-        include/cio/cio_http_client.h
-        include/cio/cio_http_location.h
-        include/cio/cio_http_location_handler.h
-        include/cio/cio_http_method.h
-        include/cio/cio_http_server.h
-        include/cio/cio_http_status_code.h
+        include/cio/http_client.h
+        include/cio/http_location.h
+        include/cio/http_location_handler.h
+        include/cio/http_method.h
+        include/cio/http_server.h
+        include/cio/http_status_code.h
     )
 
     target_include_directories(${PROJECT_NAME}
@@ -147,22 +147,22 @@ if(CIO_CONFIG_WEBSOCKETS)
 
     target_sources(${PROJECT_NAME} PRIVATE
         $<TARGET_OBJECTS:sha>
-        include/cio/cio_base64.h
-        include/cio/cio_utf8_checker.h
-        include/cio/cio_websocket.h
-        include/cio/cio_websocket_location_handler.h
-        include/cio/cio_websocket_masking.h
-        src/cio_base64.c
-        src/cio_utf8_checker.c
-        src/cio_websocket.c
-        src/cio_websocket_location_handler.c
+        include/cio/base64.h
+        include/cio/utf8_checker.h
+        include/cio/websocket.h
+        include/cio/websocket_location_handler.h
+        include/cio/websocket_masking.h
+        src/base64.c
+        src/utf8_checker.c
+        src/websocket.c
+        src/websocket_location_handler.c
     ) 
 
     set_property(TARGET ${PROJECT_NAME} APPEND PROPERTY PUBLIC_HEADER
-        include/cio/cio_base64.h
-        include/cio/cio_utf8_checker.h
-        include/cio/cio_websocket.h
-        include/cio/cio_websocket_location_handler.h
+        include/cio/base64.h
+        include/cio/utf8_checker.h
+        include/cio/websocket.h
+        include/cio/websocket_location_handler.h
     )
 endif()
 
@@ -188,82 +188,82 @@ target_include_directories(${PROJECT_NAME} PUBLIC
 
 if(${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
     include(src/platform/linux/defaults.cmake)
-    configure_file(src/platform/linux/cio_os_config.h.in ${PROJECT_BINARY_DIR}/generated/cio/cio_os_config.h)
+    configure_file(src/platform/linux/os_config.h.in ${PROJECT_BINARY_DIR}/generated/cio/os_config.h)
 
     target_sources(${PROJECT_NAME} PRIVATE
-        src/platform/linux/cio_linux_endian.c
-        src/platform/linux/cio_linux_epoll.c
-        src/platform/linux/cio_linux_random.c
-        src/platform/linux/cio_linux_server_socket.c
-        src/platform/linux/cio_linux_socket.c
-        src/platform/linux/cio_linux_socket_utils.c
-        src/platform/linux/cio_linux_string.c
-        src/platform/linux/cio_linux_timer.c
-        src/platform/linux/cio_linux_uart.c
-        src/platform/linux/cio_unix_address.c
-        src/platform/shared/cio_inet_address_impl.c
-        src/platform/shared/cio_socket_address_impl.c
+        src/platform/linux/endian.c
+        src/platform/linux/epoll.c
+        src/platform/linux/random.c
+        src/platform/linux/server_socket.c
+        src/platform/linux/socket.c
+        src/platform/linux/socket_utils.c
+        src/platform/linux/string.c
+        src/platform/linux/timer.c
+        src/platform/linux/uart.c
+        src/platform/linux/unix_address.c
+        src/platform/shared/inet_address_impl.c
+        src/platform/shared/socket_address_impl.c
     )
 
     set_property(TARGET ${PROJECT_NAME} APPEND PROPERTY PUBLIC_HEADER
-        include/platform/linux/cio/cio_address_family_impl.h
-        include/platform/linux/cio/cio_error_code_impl.h
-        include/platform/linux/cio/cio_eventloop_impl.h
-        include/platform/linux/cio/cio_inet4_socket_address_impl.h
-        include/platform/linux/cio/cio_inet6_socket_address_impl.h
-        include/platform/linux/cio/cio_inet_address_impl.h
-        include/platform/linux/cio/cio_server_socket_impl.h
-        include/platform/linux/cio/cio_socket_address_impl.h
-        include/platform/linux/cio/cio_socket_impl.h
-        include/platform/linux/cio/cio_timer_impl.h
-        include/platform/linux/cio/cio_uart_impl.h
-        include/platform/linux/cio/cio_unix_address.h
+        include/platform/linux/cio/address_family_impl.h
+        include/platform/linux/cio/error_code_impl.h
+        include/platform/linux/cio/eventloop_impl.h
+        include/platform/linux/cio/inet4_socket_address_impl.h
+        include/platform/linux/cio/inet6_socket_address_impl.h
+        include/platform/linux/cio/inet_address_impl.h
+        include/platform/linux/cio/server_socket_impl.h
+        include/platform/linux/cio/socket_address_impl.h
+        include/platform/linux/cio/socket_impl.h
+        include/platform/linux/cio/timer_impl.h
+        include/platform/linux/cio/uart_impl.h
+        include/platform/linux/cio/unix_address.h
     )
 elseif(${CMAKE_SYSTEM_NAME} STREQUAL "Windows")
     target_sources(${PROJECT_NAME} PRIVATE
-        src/platform/shared/cio_inet_address_impl.c
-        src/platform/shared/cio_socket_address_impl.c
-        src/platform/shared/cio_string_memmem.c
-        src/platform/windows/cio_windows_endian.c
-        src/platform/windows/cio_windows_iocp.c
-        src/platform/windows/cio_windows_random.c
-        src/platform/windows/cio_windows_server_socket.c
-        src/platform/windows/cio_windows_socket.c
-        src/platform/windows/cio_windows_socket_utils.c
-        src/platform/windows/cio_windows_string.c
-        src/platform/windows/cio_windows_timer.c
-        src/platform/windows/cio_windows_uart.c
+        src/platform/shared/inet_address_impl.c
+        src/platform/shared/socket_address_impl.c
+        src/platform/shared/string_memmem.c
+        src/platform/windows/endian.c
+        src/platform/windows/iocp.c
+        src/platform/windows/random.c
+        src/platform/windows/server_socket.c
+        src/platform/windows/socket.c
+        src/platform/windows/socket_utils.c
+        src/platform/windows/string.c
+        src/platform/windows/timer.c
+        src/platform/windows/uart.c
     )
 
     set_property(TARGET ${PROJECT_NAME} APPEND PROPERTY PUBLIC_HEADER
-        include/platform/windows/cio/cio_address_family_impl.h
-        include/platform/windows/cio/cio_error_code_impl.h
-        include/platform/windows/cio/cio_eventloop_impl.h
-        include/platform/windows/cio/cio_inet4_socket_address_impl.h
-        include/platform/windows/cio/cio_inet6_socket_address_impl.h
-        include/platform/windows/cio/cio_inet_address_impl.h
-        include/platform/windows/cio/cio_server_socket_impl.h
-        include/platform/windows/cio/cio_socket_address_impl.h
-        include/platform/windows/cio/cio_socket_impl.h
-        include/platform/windows/cio/cio_timer_impl.h
-        include/platform/windows/cio/cio_uart_impl.h
+        include/platform/windows/cio/address_family_impl.h
+        include/platform/windows/cio/error_code_impl.h
+        include/platform/windows/cio/eventloop_impl.h
+        include/platform/windows/cio/inet4_socket_address_impl.h
+        include/platform/windows/cio/inet6_socket_address_impl.h
+        include/platform/windows/cio/inet_address_impl.h
+        include/platform/windows/cio/server_socket_impl.h
+        include/platform/windows/cio/socket_address_impl.h
+        include/platform/windows/cio/socket_impl.h
+        include/platform/windows/cio/timer_impl.h
+        include/platform/windows/cio/uart_impl.h
     )
 
     target_link_libraries(${PROJECT_NAME} bcrypt ws2_32 Setupapi)
 
 elseif(${CIO_BUILD_FOR_ZEPHYR})
     target_sources(${PROJECT_NAME} PRIVATE
-        src/platform/shared/cio_inet_address_impl.c
-        src/platform/shared/cio_socket_address_impl.c
-        src/platform/shared/cio_string_memmem.c
-        src/platform/zephyr/cio_zephyr_endian.c
-        src/platform/zephyr/cio_zephyr_eventloop.c
-        src/platform/zephyr/cio_zephyr_random.c
-        src/platform/zephyr/cio_zephyr_server_socket.c
-        src/platform/zephyr/cio_zephyr_socket.c
-        src/platform/zephyr/cio_zephyr_socket_utils.c
-        src/platform/zephyr/cio_zephyr_string.c
-        src/platform/zephyr/cio_zephyr_timer.c
+        src/platform/shared/inet_address_impl.c
+        src/platform/shared/socket_address_impl.c
+        src/platform/shared/string_memmem.c
+        src/platform/zephyr/endian.c
+        src/platform/zephyr/eventloop.c
+        src/platform/zephyr/random.c
+        src/platform/zephyr/server_socket.c
+        src/platform/zephyr/socket.c
+        src/platform/zephyr/socket_utils.c
+        src/platform/zephyr/string.c
+        src/platform/zephyr/timer.c
     )
 
     target_link_libraries(${PROJECT_NAME} PUBLIC zephyr kernel)
@@ -283,30 +283,30 @@ set_target_properties(${PROJECT_NAME} PROPERTIES
 )
 
 set_property(TARGET ${PROJECT_NAME} APPEND PROPERTY PUBLIC_HEADER
-    include/cio/cio_address_family.h
-    include/cio/cio_buffered_stream.h
-    include/cio/cio_compiler.h
-    include/cio/cio_endian.h
-    include/cio/cio_error_code.h
-    include/cio/cio_eventloop.h
-    include/cio/cio_inet4_socket_address.h
-    include/cio/cio_inet6_socket_address.h
-    include/cio/cio_inet_address.h
-    include/cio/cio_io_stream.h
-    include/cio/cio_random.h
-    include/cio/cio_read_buffer.h
-    include/cio/cio_server_socket.h
-    include/cio/cio_socket.h
-    include/cio/cio_socket_address.h
-    include/cio/cio_string.h
-    include/cio/cio_timer.h
-    include/cio/cio_util.h
-    include/cio/cio_version.h
-    include/cio/cio_write_buffer.h
+    include/cio/address_family.h
+    include/cio/buffered_stream.h
+    include/cio/compiler.h
+    include/cio/endian.h
+    include/cio/error_code.h
+    include/cio/eventloop.h
+    include/cio/inet4_socket_address.h
+    include/cio/inet6_socket_address.h
+    include/cio/inet_address.h
+    include/cio/io_stream.h
+    include/cio/random.h
+    include/cio/read_buffer.h
+    include/cio/server_socket.h
+    include/cio/socket.h
+    include/cio/socket_address.h
+    include/cio/string.h
+    include/cio/timer.h
+    include/cio/util.h
+    include/cio/version.h
+    include/cio/write_buffer.h
 )
 
 include(GenerateExportHeader)
-generate_export_header(${PROJECT_NAME} EXPORT_FILE_NAME ${CMAKE_CURRENT_BINARY_DIR}/generated/cio/${PROJECT_NAME}_export.h)
+generate_export_header(${PROJECT_NAME} EXPORT_FILE_NAME ${CMAKE_CURRENT_BINARY_DIR}/generated/cio/export.h)
 
 if(NOT CIO_BUILD_FOR_ZEPHYR)
     include(GNUInstallDirs)
@@ -327,7 +327,7 @@ if(NOT CIO_BUILD_FOR_ZEPHYR)
     install(FILES "${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}ConfigVersion.cmake"
         DESTINATION lib/cmake/${PROJECT_NAME}
     )
-    install(FILES "${CMAKE_CURRENT_BINARY_DIR}/generated/cio/${PROJECT_NAME}_export.h"
+    install(FILES "${CMAKE_CURRENT_BINARY_DIR}/generated/cio/export.h"
         DESTINATION include/${PROJECT_NAME}
     )
 

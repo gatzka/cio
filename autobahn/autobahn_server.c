@@ -29,13 +29,13 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "cio/cio_error_code.h"
-#include "cio/cio_eventloop.h"
-#include "cio/cio_http_location_handler.h"
-#include "cio/cio_http_server.h"
-#include "cio/cio_util.h"
-#include "cio/cio_websocket_location_handler.h"
-#include "cio/cio_write_buffer.h"
+#include "cio/error_code.h"
+#include "cio/eventloop.h"
+#include "cio/http_location_handler.h"
+#include "cio/http_server.h"
+#include "cio/util.h"
+#include "cio/websocket_location_handler.h"
+#include "cio/write_buffer.h"
 
 static struct cio_eventloop loop;
 static struct cio_http_server http_server;
