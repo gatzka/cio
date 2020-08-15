@@ -34,7 +34,7 @@
 #include <stdbool.h>
 #include <Windows.h>
 
-#include "cio/cio_error_code.h"
+#include "cio/error_code.h"
 
 #ifdef __cplusplus
 extern "C" {
