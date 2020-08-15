@@ -265,7 +265,7 @@ jobs:
     - name: GitHub Pages Deploy
       uses: gatzka/publish-gh-pages-action@v1.0.0
       env:
-        BUILD_DIR: build/src/docs/
+        BUILD_DIR: build/lib/docs/
         GH_PAT: ${{ secrets.GH_PAT }}
         GH_PAGES_SUBDIR: ./doc
 
