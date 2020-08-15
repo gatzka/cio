@@ -306,7 +306,7 @@ set_property(TARGET ${PROJECT_NAME} APPEND PROPERTY PUBLIC_HEADER
 )
 
 include(GenerateExportHeader)
-generate_export_header(${PROJECT_NAME} EXPORT_FILE_NAME ${CMAKE_CURRENT_BINARY_DIR}/generated/cio/export.h)
+generate_export_header(${PROJECT_NAME} EXPORT_FILE_NAME ${CMAKE_CURRENT_BINARY_DIR}/generated/${PROJECT_NAME}/export.h)
 
 if(NOT CIO_BUILD_FOR_ZEPHYR)
     include(GNUInstallDirs)
@@ -327,7 +327,7 @@ if(NOT CIO_BUILD_FOR_ZEPHYR)
     install(FILES "${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}ConfigVersion.cmake"
         DESTINATION lib/cmake/${PROJECT_NAME}
     )
-    install(FILES "${CMAKE_CURRENT_BINARY_DIR}/generated/cio/export.h"
+    install(FILES "${CMAKE_CURRENT_BINARY_DIR}/generated/${PROJECT_NAME}/export.h"
         DESTINATION include/${PROJECT_NAME}
     )
 
@@ -353,7 +353,10 @@ if(DOXYGEN_FOUND)
     set(DOXYGEN_QUIET YES)
     set(DOXYGEN_RECURSIVE NO)
     set(DOXYGEN_STRICT_PROTO_MATCHING YES)
-    set(DOXYGEN_STRIP_FROM_PATH ${CMAKE_CURRENT_SOURCE_DIR}/include/cio/)
+    set(DOXYGEN_STRIP_FROM_PATH
+        ${CMAKE_CURRENT_SOURCE_DIR}/include/cio/
+        ${CMAKE_CURRENT_SOURCE_DIR}/doxygen/
+    )
     set(DOXYGEN_WARN_AS_ERROR YES)
     set(DOXYGEN_PROJECT_NAME ${PROJECT_NAME})
     set(DOXYGEN_ENABLE_PREPROCESSING YES)
