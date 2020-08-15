@@ -2,31 +2,65 @@ cmake_minimum_required(VERSION 3.9)
 project(cio_linux_unit_test C)
 enable_testing()
 
-add_executable(test_cio_linux_endian test_cio_linux_endian.c ../../src/platform/linux/cio_linux_endian.c)
-add_executable(test_cio_linux_epoll test_cio_linux_epoll.c ../../src/platform/linux/cio_linux_epoll.c)
-add_executable(test_cio_linux_random_errors test_cio_linux_random_errors.c ../../src/platform/linux/cio_linux_random.c ../../src/cio_random.c)
+add_executable(test_cio_linux_endian
+    test_cio_linux_endian.c
+    ../../lib/src/platform/linux/cio_linux_endian.c
+)
+
+add_executable(test_cio_linux_epoll
+    test_cio_linux_epoll.c
+    ../../lib/src/platform/linux/cio_linux_epoll.c
+)
+
+add_executable(test_cio_linux_random_errors
+    test_cio_linux_random_errors.c
+    ../../lib/src/platform/linux/cio_linux_random.c
+    ../../lib/src/cio_random.c
+)
+
 add_executable(test_cio_linux_server_socket
-    ../../src/platform/linux/cio_linux_endian.c
-    ../../src/platform/linux/cio_linux_server_socket.c
-    ../../src/platform/linux/cio_linux_socket_utils.c
-    ../../src/platform/linux/cio_unix_address.c
-    ../../src/platform/shared/cio_inet_address_impl.c
-    ../../src/platform/shared/cio_socket_address_impl.c
-    test_cio_linux_server_socket.c)
+    ../../lib/src/platform/linux/cio_linux_endian.c
+    ../../lib/src/platform/linux/cio_linux_server_socket.c
+    ../../lib/src/platform/linux/cio_linux_socket_utils.c
+    ../../lib/src/platform/linux/cio_unix_address.c
+    ../../lib/src/platform/shared/cio_inet_address_impl.c
+    ../../lib/src/platform/shared/cio_socket_address_impl.c
+    test_cio_linux_server_socket.c
+)
+
 add_executable(test_cio_linux_socket
-    ../../src/platform/linux/cio_linux_endian.c
-    ../../src/platform/linux/cio_linux_socket.c
-    ../../src/platform/linux/cio_linux_socket_utils.c
-    ../../src/platform/shared/cio_inet_address_impl.c
-    ../../src/platform/shared/cio_socket_address_impl.c
-    test_cio_linux_socket.c)
-add_executable(test_cio_linux_socket_utils test_cio_linux_socket_utils.c ../../src/platform/linux/cio_linux_socket_utils.c)
-add_executable(test_cio_linux_string test_cio_linux_string.c ../../src/platform/linux/cio_linux_string.c)
-add_executable(test_cio_linux_timer test_cio_linux_timer.c ../../src/platform/linux/cio_linux_timer.c ../../src/platform/linux/cio_linux_socket_utils.c)
-add_executable(test_cio_linux_unix_socket_address test_cio_linux_unix_socket_address.c ../../src/platform/linux/cio_unix_address.c)
+    ../../lib/src/platform/linux/cio_linux_endian.c
+    ../../lib/src/platform/linux/cio_linux_socket.c
+    ../../lib/src/platform/linux/cio_linux_socket_utils.c
+    ../../lib/src/platform/shared/cio_inet_address_impl.c
+    ../../lib/src/platform/shared/cio_socket_address_impl.c
+    test_cio_linux_socket.c
+)
+
+add_executable(test_cio_linux_socket_utils
+    test_cio_linux_socket_utils.c
+    ../../lib/src/platform/linux/cio_linux_socket_utils.c
+)
+
+add_executable(test_cio_linux_string
+    test_cio_linux_string.c
+    ../../lib/src/platform/linux/cio_linux_string.c
+)
+
+add_executable(test_cio_linux_timer
+    test_cio_linux_timer.c
+    ../../lib/src/platform/linux/cio_linux_timer.c
+    ../../lib/src/platform/linux/cio_linux_socket_utils.c
+)
+
+add_executable(test_cio_linux_unix_socket_address
+    test_cio_linux_unix_socket_address.c
+    ../../lib/src/platform/linux/cio_unix_address.c
+)
+
 add_executable(test_cio_linux_uart
-    ../../src/platform/linux/cio_linux_socket_utils.c
-    ../../src/platform/linux/cio_linux_uart.c
+    ../../lib/src/platform/linux/cio_linux_socket_utils.c
+    ../../lib/src/platform/linux/cio_linux_uart.c
     test_cio_linux_uart.c)
 
 get_property(includes TARGET cio::cio PROPERTY INTERFACE_INCLUDE_DIRECTORIES)

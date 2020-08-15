@@ -30,10 +30,11 @@
 #include <stddef.h>
 #include <stdio.h>
 
-#include "cio_error_code.h"
-#include "cio_random.h"
 #include "fff.h"
 #include "unity.h"
+
+#include "cio/cio_error_code.h"
+#include "cio/cio_random.h"
 
 DEFINE_FFF_GLOBALS
 

@@ -32,8 +32,8 @@
 #include <sys/types.h>
 #include <time.h>
 
-#include "cio_random.h"
-#include "cio_websocket_masking.h"
+#include "cio/cio_random.h"
+#include "cio/cio_websocket_masking.h"
 
 #include "fff.h"
 #include "unity.h"

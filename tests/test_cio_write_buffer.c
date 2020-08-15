@@ -30,8 +30,9 @@
 #include <stdint.h>
 #include <stdlib.h>
 
-#include "cio_error_code.h"
-#include "cio_write_buffer.h"
+#include "cio/cio_error_code.h"
+#include "cio/cio_write_buffer.h"
+
 #include "fff.h"
 #include "unity.h"
 

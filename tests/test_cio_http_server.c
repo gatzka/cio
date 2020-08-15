@@ -32,17 +32,17 @@
 #include "fff.h"
 #include "unity.h"
 
-#include "cio_buffered_stream.h"
-#include "cio_error_code.h"
-#include "cio_http_location.h"
-#include "cio_http_location_handler.h"
-#include "cio_http_server.h"
-#include "cio_server_socket.h"
-#include "cio_timer.h"
-#include "cio_util.h"
-#include "cio_write_buffer.h"
+#include "cio/cio_buffered_stream.h"
+#include "cio/cio_error_code.h"
+#include "cio/cio_http_location.h"
+#include "cio/cio_http_location_handler.h"
+#include "cio/cio_http_server.h"
+#include "cio/cio_server_socket.h"
+#include "cio/cio_timer.h"
+#include "cio/cio_util.h"
+#include "cio/cio_write_buffer.h"
 
-#include "http-parser/http_parser.h"
+#include "cio/http-parser/http_parser.h"
 
 #undef ARRAY_SIZE
 #define ARRAY_SIZE(a) (sizeof(a) / sizeof((a)[0]))

@@ -29,13 +29,14 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "cio_buffered_stream.h"
-#include "cio_error_code.h"
-#include "cio_io_stream.h"
-#include "cio_read_buffer.h"
-#include "cio_string.h"
-#include "cio_util.h"
-#include "cio_write_buffer.h"
+#include "cio/cio_buffered_stream.h"
+#include "cio/cio_error_code.h"
+#include "cio/cio_io_stream.h"
+#include "cio/cio_read_buffer.h"
+#include "cio/cio_string.h"
+#include "cio/cio_util.h"
+#include "cio/cio_write_buffer.h"
+
 #include "fff.h"
 #include "unity.h"
 

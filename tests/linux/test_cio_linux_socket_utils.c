@@ -30,11 +30,11 @@
 #include <sys/types.h>
 #include <unistd.h>
 
+#include "cio/cio_inet_address.h"
+#include "cio/cio_linux_socket_utils.h"
+
 #include "fff.h"
 #include "unity.h"
-
-#include "cio_inet_address.h"
-#include "cio_linux_socket_utils.h"
 
 DEFINE_FFF_GLOBALS
 

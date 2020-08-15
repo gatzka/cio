@@ -27,12 +27,12 @@
 #include <string.h>
 #include <termios.h>
 
+#include "cio/cio_error_code.h"
+#include "cio/cio_eventloop.h"
+#include "cio/cio_uart.h"
+
 #include "fff.h"
 #include "unity.h"
-
-#include "cio_error_code.h"
-#include "cio_eventloop.h"
-#include "cio_uart.h"
 
 DEFINE_FFF_GLOBALS
 

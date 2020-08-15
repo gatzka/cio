@@ -28,8 +28,9 @@
 
 #include <stdint.h>
 
-#include "cio_error_code.h"
-#include "cio_read_buffer.h"
+#include "cio/cio_error_code.h"
+#include "cio/cio_read_buffer.h"
+
 #include "fff.h"
 #include "unity.h"
 
