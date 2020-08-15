@@ -28,10 +28,10 @@
 
 #include <Windows.h>
 
-#include "cio_compiler.h"
-#include "cio_error_code.h"
-#include "cio_timer.h"
-#include "cio_util.h"
+#include "cio/cio_compiler.h"
+#include "cio/cio_error_code.h"
+#include "cio/cio_timer.h"
+#include "cio/cio_util.h"
 
 static void CALLBACK timer_callback(void *context, BOOLEAN fired)
 {

@@ -28,7 +28,8 @@
 
 #include<windows.h>
 
-#include "cio_endian.h"
+#include "cio/cio_endian.h"
+
 #if REG_DWORD == REG_DWORD_LITTLE_ENDIAN
 
 uint16_t cio_be16toh(uint16_t big_endian_16bits)

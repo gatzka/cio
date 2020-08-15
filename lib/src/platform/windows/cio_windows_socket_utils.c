@@ -28,9 +28,9 @@
 
 #include <WinSock2.h>
 
-#include "cio_compiler.h"
-#include "cio_eventloop_impl.h"
-#include "cio_windows_socket_utils.h"
+#include "cio/cio_compiler.h"
+#include "cio/cio_eventloop_impl.h"
+#include "cio/cio_windows_socket_utils.h"
 
 SOCKET cio_windows_socket_create(int address_family, const struct cio_eventloop *loop, void *socket_impl)
 {

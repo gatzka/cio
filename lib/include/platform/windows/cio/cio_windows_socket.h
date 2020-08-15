@@ -32,9 +32,9 @@
 #include <stdint.h>
 #include <Winsock2.h>
 
-#include "cio_error_code.h"
-#include "cio_eventloop.h"
-#include "cio_socket.h"
+#include "cio/cio_error_code.h"
+#include "cio/cio_eventloop.h"
+#include "cio/cio_socket.h"
 
 #ifdef __cplusplus
 extern "C" {

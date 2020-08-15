@@ -35,14 +35,14 @@
 #include <mswsock.h>
 #include <Mstcpip.h>
 
-#include "cio_compiler.h"
-#include "cio_error_code.h"
-#include "cio_eventloop.h"
-#include "cio_socket.h"
-#include "cio_socket_address.h"
-#include "cio_util.h"
-#include "cio_windows_socket.h"
-#include "cio_windows_socket_utils.h"
+#include "cio/cio_compiler.h"
+#include "cio/cio_error_code.h"
+#include "cio/cio_eventloop.h"
+#include "cio/cio_socket.h"
+#include "cio/cio_socket_address.h"
+#include "cio/cio_util.h"
+#include "cio/cio_windows_socket.h"
+#include "cio/cio_windows_socket_utils.h"
 
 static void try_free(struct cio_socket *s)
 {

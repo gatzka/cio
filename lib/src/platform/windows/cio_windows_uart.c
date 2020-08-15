@@ -34,11 +34,11 @@
 #include <stdlib.h>
 #include <tchar.h>
 
-#include "cio_compiler.h"
-#include "cio_error_code.h"
-#include "cio_eventloop_impl.h"
-#include "cio_uart.h"
-#include "cio_util.h"
+#include "cio/cio_compiler.h"
+#include "cio/cio_error_code.h"
+#include "cio/cio_eventloop_impl.h"
+#include "cio/cio_uart.h"
+#include "cio/cio_util.h"
 
 static void try_free(struct cio_uart *port)
 {

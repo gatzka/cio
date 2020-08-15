@@ -248,6 +248,9 @@ elseif(${CMAKE_SYSTEM_NAME} STREQUAL "Windows")
         include/platform/windows/cio/cio_timer_impl.h
         include/platform/windows/cio/cio_uart_impl.h
     )
+
+    target_link_libraries( ${PROJECT_NAME} bcrypt ws2_32 Setupapi)
+
 elseif(${CIO_BUILD_FOR_ZEPHYR})
     target_sources(${PROJECT_NAME} PRIVATE
         src/platform/shared/cio_inet_address_impl.c

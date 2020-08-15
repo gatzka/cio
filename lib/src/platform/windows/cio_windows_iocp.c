@@ -32,11 +32,11 @@
 #include <stddef.h>
 #include <stdlib.h>
 
-#include "cio_compiler.h"
-#include "cio_error_code.h"
-#include "cio_eventloop.h"
-#include "cio_util.h"
-#include "platform/windows/cio_eventloop_impl.h"
+#include "cio/cio_compiler.h"
+#include "cio/cio_error_code.h"
+#include "cio/cio_eventloop.h"
+#include "cio/cio_util.h"
+#include "cio/cio_eventloop_impl.h"
 
 static const ULONG_PTR STOP_COMPLETION_KEY = SIZE_MAX;
 

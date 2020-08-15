@@ -33,12 +33,12 @@
 
 #include <WinSock2.h>
 
-#include "cio_error_code.h"
-#include "cio_export.h"
-#include "cio_inet_address.h"
-#include "cio_inet4_socket_address.h"
-#include "cio_inet6_socket_address.h"
-#include "cio_socket_address.h"
+#include "cio/cio_error_code.h"
+#include "cio/cio_export.h"
+#include "cio/cio_inet_address.h"
+#include "cio/cio_inet4_socket_address.h"
+#include "cio/cio_inet6_socket_address.h"
+#include "cio/cio_socket_address.h"
 
 #ifdef __cplusplus
 extern "C" {
