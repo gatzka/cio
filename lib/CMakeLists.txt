@@ -216,12 +216,52 @@ if(${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
         include/platform/linux/cio/cio_socket_address_impl.h
         include/platform/linux/cio/cio_socket_impl.h
         include/platform/linux/cio/cio_timer_impl.h
+        include/platform/linux/cio/cio_uart_impl.h
         include/platform/linux/cio/cio_unix_address.h
     )
-#elseif(${CMAKE_SYSTEM_NAME} STREQUAL "Windows")
-#    add_subdirectory(platform/windows)
-#elseif(${CIO_BUILD_FOR_ZEPHYR})
-#    add_subdirectory(platform/zephyr)
+elseif(${CMAKE_SYSTEM_NAME} STREQUAL "Windows")
+    target_sources(${PROJECT_NAME} PRIVATE
+        src/platform/shared/cio_inet_address_impl.c
+        src/platform/shared/cio_socket_address_impl.c
+        src/platform/shared/cio_string_memmem.c
+        src/platform/windows/cio_windows_endian.c
+        src/platform/windows/cio_windows_iocp.c
+        src/platform/windows/cio_windows_random.c
+        src/platform/windows/cio_windows_server_socket.c
+        src/platform/windows/cio_windows_socket.c
+        src/platform/windows/cio_windows_socket_utils.c
+        src/platform/windows/cio_windows_string.c
+        src/platform/windows/cio_windows_timer.c
+        src/platform/windows/cio_windows_uart.c
+    )
+
+    set_property(TARGET ${PROJECT_NAME} APPEND PROPERTY PUBLIC_HEADER
+        include/platform/windows/cio/cio_address_family_impl.h
+        include/platform/windows/cio/cio_error_code_impl.h
+        include/platform/windows/cio/cio_eventloop_impl.h
+        include/platform/windows/cio/cio_inet4_socket_address_impl.h
+        include/platform/windows/cio/cio_inet6_socket_address_impl.h
+        include/platform/windows/cio/cio_inet_address_impl.h
+        include/platform/windows/cio/cio_server_socket_impl.h
+        include/platform/windows/cio/cio_socket_address_impl.h
+        include/platform/windows/cio/cio_socket_impl.h
+        include/platform/windows/cio/cio_timer_impl.h
+        include/platform/windows/cio/cio_uart_impl.h
+    )
+elseif(${CIO_BUILD_FOR_ZEPHYR})
+    target_sources(${PROJECT_NAME} PRIVATE
+        src/platform/shared/cio_inet_address_impl.c
+        src/platform/shared/cio_socket_address_impl.c
+        src/platform/shared/cio_string_memmem.c
+        src/platform/zephyr/cio_zephyr_endian.c
+        src/platform/zephyr/cio_zephyr_eventloop.c
+        src/platform/zephyr/cio_zephyr_random.c
+        src/platform/zephyr/cio_zephyr_server_socket.c
+        src/platform/zephyr/cio_zephyr_socket.c
+        src/platform/zephyr/cio_zephyr_socket_utils.c
+        src/platform/zephyr/cio_zephyr_string.c
+        src/platform/zephyr/cio_zephyr_timer.c
+    )
 endif()
 
 if(NOT CIO_BUILD_FOR_ZEPHYR AND NOT CMAKE_C_COMPILER_ID STREQUAL "MSVC")
