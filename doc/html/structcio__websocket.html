@@ -90,15 +90,15 @@ $(document).ready(function(){initNavTree('structcio__websocket.html',''); initRe
 </div><!--header-->
 <div class="contents">
 
-<p><code>#include &lt;<a class="el" href="cio__websocket_8h_source.html">cio_websocket.h</a>&gt;</code></p>
+<p><code>#include &lt;<a class="el" href="websocket_8h_source.html">websocket.h</a>&gt;</code></p>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-attribs"></a>
 Data Fields</h2></td></tr>
 <tr class="memitem:a788f6e8b0650d183e395369ff9662bc9"><td class="memItemLeft" align="right" valign="top">void(*&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structcio__websocket.html#a788f6e8b0650d183e395369ff9662bc9">on_connect</a> )(struct <a class="el" href="structcio__websocket.html">cio_websocket</a> *ws)</td></tr>
 <tr class="separator:a788f6e8b0650d183e395369ff9662bc9"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a9912a53d3ccdb6ce85c2e61e0f002779"><td class="memItemLeft" align="right" valign="top">void(*&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structcio__websocket.html#a9912a53d3ccdb6ce85c2e61e0f002779">on_error</a> )(const struct <a class="el" href="structcio__websocket.html">cio_websocket</a> *ws, enum <a class="el" href="cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afe">cio_error</a> err, const char *reason)</td></tr>
+<tr class="memitem:a9912a53d3ccdb6ce85c2e61e0f002779"><td class="memItemLeft" align="right" valign="top">void(*&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structcio__websocket.html#a9912a53d3ccdb6ce85c2e61e0f002779">on_error</a> )(const struct <a class="el" href="structcio__websocket.html">cio_websocket</a> *ws, enum <a class="el" href="error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afe">cio_error</a> err, const char *reason)</td></tr>
 <tr class="separator:a9912a53d3ccdb6ce85c2e61e0f002779"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aa8ebb35a2710c7387c895a5b01ad26a0"><td class="memItemLeft" align="right" valign="top">void(*&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structcio__websocket.html#aa8ebb35a2710c7387c895a5b01ad26a0">on_control</a> )(const struct <a class="el" href="structcio__websocket.html">cio_websocket</a> *ws, enum <a class="el" href="cio__websocket_8h.html#af33fb069400eeffde11ab324bf2245e9">cio_websocket_frame_type</a> kind, const uint8_t *data, uint_fast8_t length)</td></tr>
+<tr class="memitem:aa8ebb35a2710c7387c895a5b01ad26a0"><td class="memItemLeft" align="right" valign="top">void(*&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structcio__websocket.html#aa8ebb35a2710c7387c895a5b01ad26a0">on_control</a> )(const struct <a class="el" href="structcio__websocket.html">cio_websocket</a> *ws, enum <a class="el" href="websocket_8h.html#af33fb069400eeffde11ab324bf2245e9">cio_websocket_frame_type</a> kind, const uint8_t *data, uint_fast8_t length)</td></tr>
 <tr class="separator:aa8ebb35a2710c7387c895a5b01ad26a0"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <h2 class="groupheader">Field Documentation</h2>
@@ -123,7 +123,7 @@ Data Fields</h2></td></tr>
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">void(* cio_websocket::on_control) (const struct <a class="el" href="structcio__websocket.html">cio_websocket</a> *ws, enum <a class="el" href="cio__websocket_8h.html#af33fb069400eeffde11ab324bf2245e9">cio_websocket_frame_type</a> kind, const uint8_t *data, uint_fast8_t length)</td>
+          <td class="memname">void(* cio_websocket::on_control) (const struct <a class="el" href="structcio__websocket.html">cio_websocket</a> *ws, enum <a class="el" href="websocket_8h.html#af33fb069400eeffde11ab324bf2245e9">cio_websocket_frame_type</a> kind, const uint8_t *data, uint_fast8_t length)</td>
         </tr>
       </table>
 </div><div class="memdoc">
@@ -137,7 +137,7 @@ Data Fields</h2></td></tr>
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">void(* cio_websocket::on_error) (const struct <a class="el" href="structcio__websocket.html">cio_websocket</a> *ws, enum <a class="el" href="cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afe">cio_error</a> err, const char *reason)</td>
+          <td class="memname">void(* cio_websocket::on_error) (const struct <a class="el" href="structcio__websocket.html">cio_websocket</a> *ws, enum <a class="el" href="error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afe">cio_error</a> err, const char *reason)</td>
         </tr>
       </table>
 </div><div class="memdoc">
@@ -145,7 +145,7 @@ Data Fields</h2></td></tr>
 </div>
 </div>
 <hr/>The documentation for this struct was generated from the following file:<ul>
-<li><a class="el" href="cio__websocket_8h_source.html">cio_websocket.h</a></li>
+<li><a class="el" href="websocket_8h_source.html">websocket.h</a></li>
 </ul>
 </div><!-- contents -->
 </div><!-- doc-content -->

@@ -1,10 +1,23 @@
 var searchData=
 [
-  ['self_5finitiated_5fclose_429',['self_initiated_close',['../structcio__websocket__private.html#a3fe66dbffbc5032fe80b323d027901a8',1,'cio_websocket_private']]],
-  ['send_5fheader_430',['send_header',['../structcio__websocket__write__job.html#a0a5130519af4f959a75e8c1668134383',1,'cio_websocket_write_job']]],
-  ['should_5fkeepalive_431',['should_keepalive',['../structcio__http__client__private.html#a3fd1b6611b23b007f1daa89aa1bf4293',1,'cio_http_client_private']]],
-  ['state_432',['state',['../structcio__utf8__state.html#ad5d20ff3befbecac8f36e02326e11f3c',1,'cio_utf8_state']]],
-  ['stream_5fhandler_433',['stream_handler',['../structcio__websocket__write__job.html#af1281fc042908d2152a4e7a378422370',1,'cio_websocket_write_job']]],
-  ['sub_5fprotocols_434',['sub_protocols',['../structcio__websocket__location__config.html#ae5d58218169261d54da46dbfb478c44a',1,'cio_websocket_location_config']]],
-  ['subprotocol_5frequested_435',['subprotocol_requested',['../structcio__websocket__location__handler.html#ac370e86d296c80479b400d08708e3cce',1,'cio_websocket_location_handler']]]
+  ['random_2eh_397',['random.h',['../random_8h.html',1,'']]],
+  ['rb_398',['rb',['../structcio__http__client.html#a334814ff33851c173b657e37ec95ea69',1,'cio_http_client']]],
+  ['read_5fbody_5ftimeout_5fns_399',['read_body_timeout_ns',['../structcio__http__server__configuration.html#aa057f561b45a042bcbe1c47fdcd5da19',1,'cio_http_server_configuration']]],
+  ['read_5fbuffer_2eh_400',['read_buffer.h',['../read__buffer_8h.html',1,'']]],
+  ['read_5fframe_5flength_401',['read_frame_length',['../structcio__websocket__private.html#ae2ba78e6340e781f3fe56ae998af75ee',1,'cio_websocket_private']]],
+  ['read_5fhandler_402',['read_handler',['../structcio__websocket__private.html#af9e1b7ab220b263a8344f36314ab5cd6',1,'cio_websocket_private']]],
+  ['read_5fhandler_5fcontext_403',['read_handler_context',['../structcio__websocket__private.html#a1962b07487645e896c1ca63daad14d2e',1,'cio_websocket_private']]],
+  ['read_5fheader_5ftimeout_5fns_404',['read_header_timeout_ns',['../structcio__http__server__configuration.html#a85a3b677ba47f5e241e6a537fcab372e',1,'cio_http_server_configuration']]],
+  ['read_5fsome_405',['read_some',['../structcio__io__stream.html#aa8a1054286a471682a3d1ea7662129bd',1,'cio_io_stream']]],
+  ['received_5fmask_406',['received_mask',['../structcio__websocket__private.html#a62f8cd2e77449db411e02638832c83a6',1,'cio_websocket_private']]],
+  ['remaining_5fcontent_5flength_407',['remaining_content_length',['../structcio__http__client__private.html#a2e66734f783308151da5458b0010252d',1,'cio_http_client_private']]],
+  ['remaining_5fread_5fframe_5flength_408',['remaining_read_frame_length',['../structcio__websocket__private.html#a7350c06bcbb368d49c0532f35f322475',1,'cio_websocket_private']]],
+  ['request_5fcomplete_409',['request_complete',['../structcio__http__client__private.html#ad602f4fd02033a719e0a7761ae117f59',1,'cio_http_client_private']]],
+  ['request_5ftimer_410',['request_timer',['../structcio__http__client__private.html#ac73f735d9cc40b0842529bc1e50a1ae2',1,'cio_http_client_private']]],
+  ['response_5ffired_411',['response_fired',['../structcio__http__client__private.html#aa2111ca0e243decd95510d68495b099a',1,'cio_http_client_private']]],
+  ['response_5ftimeout_5fns_412',['response_timeout_ns',['../structcio__http__server__configuration.html#a2715e1ce9a8c2c31d6cfc33b23c26822',1,'cio_http_server_configuration']]],
+  ['response_5ftimer_413',['response_timer',['../structcio__http__client__private.html#a6e1027e5b6a2a77b98ccfe39ade207d0',1,'cio_http_client_private']]],
+  ['response_5fwritten_414',['response_written',['../structcio__http__client__private.html#ad259222086a6f83d7c83d4e97626bab9',1,'cio_http_client_private']]],
+  ['response_5fwritten_5fcompleted_415',['response_written_completed',['../structcio__http__client__private.html#a7c19872c2fa2273eef5b8ff6e208e227',1,'cio_http_client_private']]],
+  ['rng_416',['rng',['../structcio__websocket__private.html#abec9b6f83a71054ba26da7243056e442',1,'cio_websocket_private']]]
 ];

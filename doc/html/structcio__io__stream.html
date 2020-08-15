@@ -93,17 +93,17 @@ $(document).ready(function(){initNavTree('structcio__io__stream.html',''); initR
 <p>This structure describes the interface all implementations have to fulfill.  
  <a href="structcio__io__stream.html#details">More...</a></p>
 
-<p><code>#include &lt;<a class="el" href="cio__io__stream_8h_source.html">cio_io_stream.h</a>&gt;</code></p>
+<p><code>#include &lt;<a class="el" href="io__stream_8h_source.html">io_stream.h</a>&gt;</code></p>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-attribs"></a>
 Data Fields</h2></td></tr>
-<tr class="memitem:aa8a1054286a471682a3d1ea7662129bd"><td class="memItemLeft" align="right" valign="top">enum <a class="el" href="cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afe">cio_error</a>(*&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structcio__io__stream.html#aa8a1054286a471682a3d1ea7662129bd">read_some</a> )(struct <a class="el" href="structcio__io__stream.html">cio_io_stream</a> *io_stream, struct <a class="el" href="structcio__read__buffer.html">cio_read_buffer</a> *buffer, <a class="el" href="cio__io__stream_8h.html#aa1d2b3a7079908874463d6f84547a279">cio_io_stream_read_handler_t</a> handler, void *handler_context)</td></tr>
+<tr class="memitem:aa8a1054286a471682a3d1ea7662129bd"><td class="memItemLeft" align="right" valign="top">enum <a class="el" href="error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afe">cio_error</a>(*&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structcio__io__stream.html#aa8a1054286a471682a3d1ea7662129bd">read_some</a> )(struct <a class="el" href="structcio__io__stream.html">cio_io_stream</a> *io_stream, struct <a class="el" href="structcio__read__buffer.html">cio_read_buffer</a> *buffer, <a class="el" href="io__stream_8h.html#aa1d2b3a7079908874463d6f84547a279">cio_io_stream_read_handler_t</a> handler, void *handler_context)</td></tr>
 <tr class="memdesc:aa8a1054286a471682a3d1ea7662129bd"><td class="mdescLeft">&#160;</td><td class="mdescRight">Read upto <code>count</code> bytes into the buffer <code>buf</code> starting with offset <code>offset</code>.  <a href="structcio__io__stream.html#aa8a1054286a471682a3d1ea7662129bd">More...</a><br /></td></tr>
 <tr class="separator:aa8a1054286a471682a3d1ea7662129bd"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a3280e6e4cb1512949465b809c16faf1d"><td class="memItemLeft" align="right" valign="top">enum <a class="el" href="cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afe">cio_error</a>(*&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structcio__io__stream.html#a3280e6e4cb1512949465b809c16faf1d">write_some</a> )(struct <a class="el" href="structcio__io__stream.html">cio_io_stream</a> *io_stream, struct <a class="el" href="structcio__write__buffer.html">cio_write_buffer</a> *buf, <a class="el" href="cio__io__stream_8h.html#a433a3cac4233dc97696dbd668940eb73">cio_io_stream_write_handler_t</a> handler, void *handler_context)</td></tr>
+<tr class="memitem:a3280e6e4cb1512949465b809c16faf1d"><td class="memItemLeft" align="right" valign="top">enum <a class="el" href="error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afe">cio_error</a>(*&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structcio__io__stream.html#a3280e6e4cb1512949465b809c16faf1d">write_some</a> )(struct <a class="el" href="structcio__io__stream.html">cio_io_stream</a> *io_stream, struct <a class="el" href="structcio__write__buffer.html">cio_write_buffer</a> *buf, <a class="el" href="io__stream_8h.html#a433a3cac4233dc97696dbd668940eb73">cio_io_stream_write_handler_t</a> handler, void *handler_context)</td></tr>
 <tr class="memdesc:a3280e6e4cb1512949465b809c16faf1d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Writes upto <code>count</code> buffers to the stream.  <a href="structcio__io__stream.html#a3280e6e4cb1512949465b809c16faf1d">More...</a><br /></td></tr>
 <tr class="separator:a3280e6e4cb1512949465b809c16faf1d"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:abd9b27a72fea1c39e54a88f3d7251db8"><td class="memItemLeft" align="right" valign="top">enum <a class="el" href="cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afe">cio_error</a>(*&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structcio__io__stream.html#abd9b27a72fea1c39e54a88f3d7251db8">close</a> )(struct <a class="el" href="structcio__io__stream.html">cio_io_stream</a> *io_stream)</td></tr>
+<tr class="memitem:abd9b27a72fea1c39e54a88f3d7251db8"><td class="memItemLeft" align="right" valign="top">enum <a class="el" href="error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afe">cio_error</a>(*&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structcio__io__stream.html#abd9b27a72fea1c39e54a88f3d7251db8">close</a> )(struct <a class="el" href="structcio__io__stream.html">cio_io_stream</a> *io_stream)</td></tr>
 <tr class="memdesc:abd9b27a72fea1c39e54a88f3d7251db8"><td class="mdescLeft">&#160;</td><td class="mdescRight">Closes the stream.  <a href="structcio__io__stream.html#abd9b27a72fea1c39e54a88f3d7251db8">More...</a><br /></td></tr>
 <tr class="separator:abd9b27a72fea1c39e54a88f3d7251db8"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
@@ -117,7 +117,7 @@ Data Fields</h2></td></tr>
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">enum <a class="el" href="cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afe">cio_error</a>(* cio_io_stream::close) (struct <a class="el" href="structcio__io__stream.html">cio_io_stream</a> *io_stream)</td>
+          <td class="memname">enum <a class="el" href="error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afe">cio_error</a>(* cio_io_stream::close) (struct <a class="el" href="structcio__io__stream.html">cio_io_stream</a> *io_stream)</td>
         </tr>
       </table>
 </div><div class="memdoc">
@@ -130,7 +130,7 @@ Data Fields</h2></td></tr>
   </table>
   </dd>
 </dl>
-<dl class="section return"><dt>Returns</dt><dd><a class="el" href="cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afea6bb29544c99750c61f70b10a1e17d96a">CIO_SUCCESS</a> for success. </dd></dl>
+<dl class="section return"><dt>Returns</dt><dd><a class="el" href="error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afea6bb29544c99750c61f70b10a1e17d96a">CIO_SUCCESS</a> for success. </dd></dl>
 
 </div>
 </div>
@@ -141,7 +141,7 @@ Data Fields</h2></td></tr>
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">enum <a class="el" href="cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afe">cio_error</a>(* cio_io_stream::read_some) (struct <a class="el" href="structcio__io__stream.html">cio_io_stream</a> *io_stream, struct <a class="el" href="structcio__read__buffer.html">cio_read_buffer</a> *buffer, <a class="el" href="cio__io__stream_8h.html#aa1d2b3a7079908874463d6f84547a279">cio_io_stream_read_handler_t</a> handler, void *handler_context)</td>
+          <td class="memname">enum <a class="el" href="error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afe">cio_error</a>(* cio_io_stream::read_some) (struct <a class="el" href="structcio__io__stream.html">cio_io_stream</a> *io_stream, struct <a class="el" href="structcio__read__buffer.html">cio_read_buffer</a> *buffer, <a class="el" href="io__stream_8h.html#aa1d2b3a7079908874463d6f84547a279">cio_io_stream_read_handler_t</a> handler, void *handler_context)</td>
         </tr>
       </table>
 </div><div class="memdoc">
@@ -156,7 +156,7 @@ Data Fields</h2></td></tr>
   </table>
   </dd>
 </dl>
-<dl class="section return"><dt>Returns</dt><dd><a class="el" href="cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afea6bb29544c99750c61f70b10a1e17d96a">CIO_SUCCESS</a> for success. </dd></dl>
+<dl class="section return"><dt>Returns</dt><dd><a class="el" href="error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afea6bb29544c99750c61f70b10a1e17d96a">CIO_SUCCESS</a> for success. </dd></dl>
 
 </div>
 </div>
@@ -167,7 +167,7 @@ Data Fields</h2></td></tr>
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">enum <a class="el" href="cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afe">cio_error</a>(* cio_io_stream::write_some) (struct <a class="el" href="structcio__io__stream.html">cio_io_stream</a> *io_stream, struct <a class="el" href="structcio__write__buffer.html">cio_write_buffer</a> *buf, <a class="el" href="cio__io__stream_8h.html#a433a3cac4233dc97696dbd668940eb73">cio_io_stream_write_handler_t</a> handler, void *handler_context)</td>
+          <td class="memname">enum <a class="el" href="error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afe">cio_error</a>(* cio_io_stream::write_some) (struct <a class="el" href="structcio__io__stream.html">cio_io_stream</a> *io_stream, struct <a class="el" href="structcio__write__buffer.html">cio_write_buffer</a> *buf, <a class="el" href="io__stream_8h.html#a433a3cac4233dc97696dbd668940eb73">cio_io_stream_write_handler_t</a> handler, void *handler_context)</td>
         </tr>
       </table>
 </div><div class="memdoc">
@@ -184,12 +184,12 @@ Data Fields</h2></td></tr>
   </table>
   </dd>
 </dl>
-<dl class="section return"><dt>Returns</dt><dd><a class="el" href="cio__error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afea6bb29544c99750c61f70b10a1e17d96a">CIO_SUCCESS</a> for success. </dd></dl>
+<dl class="section return"><dt>Returns</dt><dd><a class="el" href="error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afea6bb29544c99750c61f70b10a1e17d96a">CIO_SUCCESS</a> for success. </dd></dl>
 
 </div>
 </div>
 <hr/>The documentation for this struct was generated from the following file:<ul>
-<li><a class="el" href="cio__io__stream_8h_source.html">cio_io_stream.h</a></li>
+<li><a class="el" href="io__stream_8h_source.html">io_stream.h</a></li>
 </ul>
 </div><!-- contents -->
 </div><!-- doc-content -->
