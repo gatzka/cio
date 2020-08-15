@@ -31,11 +31,11 @@
 
 #include <stdint.h>
 
-#include "cio/cio_address_family.h"
-#include "cio/cio_error_code.h"
-#include "cio/cio_export.h"
-#include "cio/cio_inet_address.h"
-#include "cio/cio_socket_address_impl.h"
+#include "cio/address_family.h"
+#include "cio/error_code.h"
+#include "cio/export.h"
+#include "cio/inet_address.h"
+#include "cio/socket_address_impl.h"
 
 #ifdef __cplusplus
 extern "C" {

@@ -29,8 +29,8 @@
 #ifndef CIO_LINUX_TIMER_IMPL_H
 #define CIO_LINUX_TIMER_IMPL_H
 
-#include "cio/cio_eventloop.h"
-#include "cio/cio_eventloop_impl.h"
+#include "cio/eventloop.h"
+#include "cio/eventloop_impl.h"
 
 #ifdef __cplusplus
 extern "C" {

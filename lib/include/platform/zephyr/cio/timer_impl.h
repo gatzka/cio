@@ -31,7 +31,7 @@
 
 #include <kernel.h>
 
-#include "cio/cio_eventloop.h"
+#include "cio/eventloop.h"
 
 #ifdef __cplusplus
 extern "C" {

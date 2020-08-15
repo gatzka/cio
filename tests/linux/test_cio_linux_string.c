@@ -27,7 +27,7 @@
 #include <stddef.h>
 #include <stdint.h>
 
-#include "cio/cio_string.h"
+#include "cio/string.h"
 
 #include "fff.h"
 #include "unity.h"

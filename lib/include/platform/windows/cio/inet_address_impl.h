@@ -34,7 +34,8 @@
 #include <WinSock2.h>
 #include <Ws2tcpip.h>
 
-#include "cio_address_family.h"
+#include "cio/address_family.h"
+#include "cio/inet_address.h"
 
 #ifdef __cplusplus
 extern "C" {

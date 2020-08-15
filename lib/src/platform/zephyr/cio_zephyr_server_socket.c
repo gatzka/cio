@@ -28,13 +28,13 @@
 
 #include <net/net_context.h>
 
-#include "cio/cio_compiler.h"
-#include "cio/cio_error_code.h"
-#include "cio/cio_eventloop_impl.h"
-#include "cio/cio_server_socket.h"
-#include "cio/cio_socket.h"
-#include "cio/cio_zephyr_socket.h"
-#include "cio/cio_zephyr_socket_utils.h"
+#include "cio/compiler.h"
+#include "cio/error_code.h"
+#include "cio/eventloop_impl.h"
+#include "cio/server_socket.h"
+#include "cio/socket.h"
+#include "cio/zephyr_socket.h"
+#include "cio/zephyr_socket_utils.h"
 
 enum cio_error cio_server_socket_init(struct cio_server_socket *ss,
                                       struct cio_eventloop *loop,

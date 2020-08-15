@@ -30,7 +30,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 
-#include "cio/cio_utf8_checker.h"
+#include "cio/utf8_checker.h"
 
 #include "fff.h"
 #include "unity.h"

@@ -29,7 +29,7 @@
 #ifndef CIO_INET4_SOCKET_ADDRESS_H
 #define CIO_INET4_SOCKET_ADDRESS_H
 
-#include "cio/cio_inet4_socket_address_impl.h"
+#include "cio/inet4_socket_address_impl.h"
 
 #ifdef __cplusplus
 extern "C" {

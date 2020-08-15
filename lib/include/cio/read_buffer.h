@@ -32,8 +32,8 @@
 #include <stddef.h>
 #include <stdint.h>
 
-#include "cio_compiler.h"
-#include "cio_error_code.h"
+#include "cio/compiler.h"
+#include "cio/error_code.h"
 
 #ifdef __cplusplus
 extern "C" {

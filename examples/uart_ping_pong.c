@@ -32,13 +32,13 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "cio/cio_buffered_stream.h"
-#include "cio/cio_compiler.h"
-#include "cio/cio_error_code.h"
-#include "cio/cio_eventloop.h"
-#include "cio/cio_read_buffer.h"
-#include "cio/cio_uart.h"
-#include "cio/cio_write_buffer.h"
+#include "cio/buffered_stream.h"
+#include "cio/compiler.h"
+#include "cio/error_code.h"
+#include "cio/eventloop.h"
+#include "cio/read_buffer.h"
+#include "cio/uart.h"
+#include "cio/write_buffer.h"
 
 enum { BUFFER_SIZE = 128 };
 

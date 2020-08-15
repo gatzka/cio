@@ -29,9 +29,9 @@
 #ifndef CIO_HTTP_LOCATION_H
 #define CIO_HTTP_LOCATION_H
 
-#include "cio/cio_error_code.h"
-#include "cio/cio_export.h"
-#include "cio/cio_http_location_handler.h"
+#include "cio/error_code.h"
+#include "cio/export.h"
+#include "cio/http_location_handler.h"
 
 #ifdef __cplusplus
 extern "C" {

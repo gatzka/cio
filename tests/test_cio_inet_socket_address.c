@@ -29,8 +29,8 @@
 #include <stdint.h>
 #include <stdlib.h>
 
-#include "cio/cio_error_code.h"
-#include "cio/cio_socket_address.h"
+#include "cio/error_code.h"
+#include "cio/socket_address.h"
 
 #include "fff.h"
 #include "unity.h"

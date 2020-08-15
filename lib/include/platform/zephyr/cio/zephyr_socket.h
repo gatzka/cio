@@ -32,9 +32,9 @@
 #include <net/net_context.h>
 #include <stdint.h>
 
-#include "cio/cio_error_code.h"
-#include "cio/cio_eventloop_impl.h"
-#include "cio/cio_socket.h"
+#include "cio/error_code.h"
+#include "cio/eventloop_impl.h"
+#include "cio/socket.h"
 
 #ifdef __cplusplus
 extern "C" {

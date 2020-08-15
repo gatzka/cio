@@ -32,8 +32,9 @@
 #include <stddef.h>
 #include <stdint.h>
 
-#include "cio/cio_export.h"
-#include "cio/cio_inet_address_impl.h"
+#include "cio/error_code.h"
+#include "cio/export.h"
+#include "cio/inet_address_impl.h"
 
 #ifdef __cplusplus
 extern "C" {

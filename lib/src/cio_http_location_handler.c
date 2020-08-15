@@ -28,7 +28,7 @@
 
 #include <stdbool.h>
 
-#include "cio/cio_http_location_handler.h"
+#include "cio/http_location_handler.h"
 
 void cio_http_location_handler_init(struct cio_http_location_handler *handler)
 {

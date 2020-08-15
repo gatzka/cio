@@ -29,11 +29,11 @@
 #include <stdbool.h>
 #include <string.h>
 
-#include "cio/cio_compiler.h"
-#include "cio/cio_error_code.h"
-#include "cio/cio_export.h"
-#include "cio/cio_socket_address.h"
-#include "cio/cio_unix_address.h"
+#include "cio/compiler.h"
+#include "cio/error_code.h"
+#include "cio/export.h"
+#include "cio/socket_address.h"
+#include "cio/unix_address.h"
 
 static bool is_abstract_uds(const char *path)
 {

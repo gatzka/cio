@@ -29,10 +29,10 @@
 #include <errno.h>
 #include <sys/socket.h>
 
-#include "cio/cio_compiler.h"
-#include "cio/cio_error_code.h"
-#include "cio/cio_inet_address.h"
-#include "cio/cio_linux_socket_utils.h"
+#include "cio/compiler.h"
+#include "cio/error_code.h"
+#include "cio/inet_address.h"
+#include "cio/linux_socket_utils.h"
 
 int cio_linux_socket_create(enum cio_address_family address_family)
 {

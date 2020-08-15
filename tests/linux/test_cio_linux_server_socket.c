@@ -30,12 +30,12 @@
 #include <netinet/tcp.h>
 #include <unistd.h>
 
-#include "cio/cio_eventloop.h"
-#include "cio/cio_inet_address.h"
-#include "cio/cio_linux_socket.h"
-#include "cio/cio_linux_socket_utils.h"
-#include "cio/cio_server_socket.h"
-#include "cio/cio_socket.h"
+#include "cio/eventloop.h"
+#include "cio/inet_address.h"
+#include "cio/linux_socket.h"
+#include "cio/linux_socket_utils.h"
+#include "cio/server_socket.h"
+#include "cio/socket.h"
 
 #include "fff.h"
 #include "unity.h"

@@ -29,7 +29,7 @@
 #ifndef CIO_VERSION_H
 #define CIO_VERSION_H
 
-#include "cio/cio_export.h"
+#include "cio/export.h"
 
 #ifdef __cplusplus
 extern "C" {

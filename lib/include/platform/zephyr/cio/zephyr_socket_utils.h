@@ -31,7 +31,7 @@
 
 #include <net/net_context.h>
 
-#include "cio/cio_address_family.h"
+#include "cio/address_family.h"
 
 #ifdef __cplusplus
 extern "C" {

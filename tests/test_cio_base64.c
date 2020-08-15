@@ -29,7 +29,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 
-#include "cio/cio_base64.h"
+#include "cio/base64.h"
 #include "fff.h"
 #include "unity.h"
 

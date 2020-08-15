@@ -30,15 +30,15 @@
 #include <stdint.h>
 #include <string.h>
 
-#include "cio/cio_compiler.h"
-#include "cio/cio_endian.h"
-#include "cio/cio_error_code.h"
-#include "cio/cio_random.h"
-#include "cio/cio_utf8_checker.h"
-#include "cio/cio_util.h"
-#include "cio/cio_websocket.h"
-#include "cio/cio_websocket_masking.h"
-#include "cio/cio_write_buffer.h"
+#include "cio/compiler.h"
+#include "cio/endian.h"
+#include "cio/error_code.h"
+#include "cio/random.h"
+#include "cio/utf8_checker.h"
+#include "cio/util.h"
+#include "cio/websocket.h"
+#include "cio/websocket_masking.h"
+#include "cio/write_buffer.h"
 
 #define CIO_MIN(a, b) ((a) < (b) ? (a) : (b))
 

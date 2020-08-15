@@ -29,8 +29,8 @@
 #include <stdint.h>
 #include <stdlib.h>
 
-#include "cio/cio_error_code.h"
-#include "cio/cio_inet_address.h"
+#include "cio/error_code.h"
+#include "cio/inet_address.h"
 
 #include "fff.h"
 #include "unity.h"

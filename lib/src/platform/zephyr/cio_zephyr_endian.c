@@ -28,7 +28,7 @@
 
 #include <sys/byteorder.h>
 
-#include "cio/cio_endian.h"
+#include "cio/endian.h"
 
 uint16_t cio_be16toh(uint16_t big_endian_16bits)
 {

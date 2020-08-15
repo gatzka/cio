@@ -32,9 +32,9 @@
 #include "fff.h"
 #include "unity.h"
 
-#include "cio/cio_error_code.h"
-#include "cio/cio_socket_address.h"
-#include "cio/cio_unix_address.h"
+#include "cio/error_code.h"
+#include "cio/socket_address.h"
+#include "cio/unix_address.h"
 
 DEFINE_FFF_GLOBALS
 

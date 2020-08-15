@@ -27,9 +27,9 @@
 #include <string.h>
 #include <termios.h>
 
-#include "cio/cio_error_code.h"
-#include "cio/cio_eventloop.h"
-#include "cio/cio_uart.h"
+#include "cio/error_code.h"
+#include "cio/eventloop.h"
+#include "cio/uart.h"
 
 #include "fff.h"
 #include "unity.h"

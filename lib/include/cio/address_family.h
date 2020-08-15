@@ -29,7 +29,7 @@
 #ifndef CIO_ADDRESS_FAMILY_H
 #define CIO_ADDRESS_FAMILY_H
 
-#include "cio/cio_address_family_impl.h"
+#include "cio/address_family_impl.h"
 
 #ifdef __cplusplus
 extern "C" {

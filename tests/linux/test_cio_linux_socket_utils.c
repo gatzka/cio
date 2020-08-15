@@ -30,8 +30,8 @@
 #include <sys/types.h>
 #include <unistd.h>
 
-#include "cio/cio_inet_address.h"
-#include "cio/cio_linux_socket_utils.h"
+#include "cio/inet_address.h"
+#include "cio/linux_socket_utils.h"
 
 #include "fff.h"
 #include "unity.h"

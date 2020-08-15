@@ -32,8 +32,8 @@
 #include <stdbool.h>
 #include <stddef.h>
 
-#include "cio/cio_export.h"
-#include "cio/cio_http_client.h"
+#include "cio/export.h"
+#include "cio/http_client.h"
 
 #ifdef __cplusplus
 extern "C" {

@@ -26,9 +26,9 @@
  * SOFTWARE.
  */
 
-#include<windows.h>
+#include <windows.h>
 
-#include "cio/cio_endian.h"
+#include "cio/endian.h"
 
 #if REG_DWORD == REG_DWORD_LITTLE_ENDIAN
 

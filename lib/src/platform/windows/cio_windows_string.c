@@ -28,7 +28,7 @@
 
 #include <string.h>
 
-#include "cio/cio_string.h"
+#include "cio/string.h"
 
 int cio_strncasecmp(const char *s1, const char *s2, size_t n)
 {

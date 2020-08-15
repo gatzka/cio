@@ -33,15 +33,15 @@
 #include <stddef.h>
 #include <stdint.h>
 
-#include "cio/cio_buffered_stream.h"
-#include "cio/cio_error_code.h"
-#include "cio/cio_eventloop.h"
-#include "cio/cio_export.h"
-#include "cio/cio_http_client.h"
-#include "cio/cio_random.h"
-#include "cio/cio_timer.h"
-#include "cio/cio_utf8_checker.h"
-#include "cio/cio_write_buffer.h"
+#include "cio/buffered_stream.h"
+#include "cio/error_code.h"
+#include "cio/eventloop.h"
+#include "cio/export.h"
+#include "cio/http_client.h"
+#include "cio/random.h"
+#include "cio/timer.h"
+#include "cio/utf8_checker.h"
+#include "cio/write_buffer.h"
 
 #ifdef __cplusplus
 extern "C" {

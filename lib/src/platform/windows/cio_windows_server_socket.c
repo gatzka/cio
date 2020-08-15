@@ -31,14 +31,14 @@
 #include <Windows.h>
 #include <stdio.h>
 
-#include "cio/cio_endian.h"
-#include "cio/cio_error_code.h"
-#include "cio/cio_eventloop_impl.h"
-#include "cio/cio_inet_address.h"
-#include "cio/cio_server_socket.h"
-#include "cio/cio_windows_socket_utils.h"
-#include "cio/cio_util.h"
-#include "cio/cio_windows_socket.h"
+#include "cio/endian.h"
+#include "cio/error_code.h"
+#include "cio/eventloop_impl.h"
+#include "cio/inet_address.h"
+#include "cio/server_socket.h"
+#include "cio/windows_socket_utils.h"
+#include "cio/util.h"
+#include "cio/windows_socket.h"
 
 static enum cio_error prepare_accept_socket(struct cio_windows_listen_socket *s);
 

@@ -29,13 +29,13 @@
 #include <stdint.h>
 #include <string.h>
 
-#include "cio/cio_buffered_stream.h"
-#include "cio/cio_compiler.h"
-#include "cio/cio_error_code.h"
-#include "cio/cio_io_stream.h"
-#include "cio/cio_read_buffer.h"
-#include "cio/cio_string.h"
-#include "cio/cio_write_buffer.h"
+#include "cio/buffered_stream.h"
+#include "cio/compiler.h"
+#include "cio/error_code.h"
+#include "cio/io_stream.h"
+#include "cio/read_buffer.h"
+#include "cio/string.h"
+#include "cio/write_buffer.h"
 
 #define CIO_MIN(a, b) ((a) < (b) ? (a) : (b))
 

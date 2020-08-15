@@ -32,7 +32,7 @@
 #include <stdlib.h>
 #include <Windows.h>
 
-#include "cio_eventloop.h"
+#include "cio/eventloop.h"
 
 #ifdef __cplusplus
 extern "C" {

@@ -31,7 +31,7 @@
 
 #include <stddef.h>
 
-#include "cio/cio_export.h"
+#include "cio/export.h"
 
 #ifdef __cplusplus
 extern "C" {

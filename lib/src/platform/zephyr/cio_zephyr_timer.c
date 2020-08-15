@@ -30,11 +30,11 @@
 
 #include <kernel.h>
 
-#include "cio/cio_compiler.h"
-#include "cio/cio_error_code.h"
-#include "cio/cio_eventloop_impl.h"
-#include "cio/cio_timer.h"
-#include "cio/cio_util.h"
+#include "cio/compiler.h"
+#include "cio/error_code.h"
+#include "cio/eventloop_impl.h"
+#include "cio/timer.h"
+#include "cio/util.h"
 
 static void timer_callback(void *context)
 {

@@ -33,11 +33,11 @@
 #include <stddef.h>
 #include <stdint.h>
 
-#include "cio/cio_error_code.h"
-#include "cio/cio_export.h"
-#include "cio/cio_io_stream.h"
-#include "cio/cio_read_buffer.h"
-#include "cio/cio_write_buffer.h"
+#include "cio/error_code.h"
+#include "cio/export.h"
+#include "cio/io_stream.h"
+#include "cio/read_buffer.h"
+#include "cio/write_buffer.h"
 
 #ifdef __cplusplus
 extern "C" {

@@ -32,9 +32,9 @@
 #include <stddef.h>
 #include <stdint.h>
 
-#include "cio_error_code.h"
-#include "cio_read_buffer.h"
-#include "cio_write_buffer.h"
+#include "cio/error_code.h"
+#include "cio/read_buffer.h"
+#include "cio/write_buffer.h"
 
 #ifdef __cplusplus
 extern "C" {

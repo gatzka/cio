@@ -32,11 +32,11 @@
 #include <stddef.h>
 #include <stdint.h>
 
-#include "cio/cio_export.h"
-#include "cio/cio_http_location_handler.h"
-#include "cio/cio_timer.h"
-#include "cio/cio_websocket.h"
-#include "cio/cio_write_buffer.h"
+#include "cio/export.h"
+#include "cio/http_location_handler.h"
+#include "cio/timer.h"
+#include "cio/websocket.h"
+#include "cio/write_buffer.h"
 
 #ifdef __cplusplus
 extern "C" {

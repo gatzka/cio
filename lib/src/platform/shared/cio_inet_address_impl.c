@@ -30,11 +30,11 @@
 #include <stdint.h>
 #include <string.h>
 
-#include "cio/cio_address_family.h"
-#include "cio/cio_compiler.h"
-#include "cio/cio_error_code.h"
-#include "cio/cio_inet_address.h"
-#include "cio/cio_inet_address_impl.h"
+#include "cio/address_family.h"
+#include "cio/compiler.h"
+#include "cio/error_code.h"
+#include "cio/inet_address.h"
+#include "cio/inet_address_impl.h"
 
 static const struct cio_inet_address INET_ADDRESS_ANY6 = {
     .impl = {.family = CIO_ADDRESS_FAMILY_INET6, .in6 = IN6ADDR_ANY_INIT}};

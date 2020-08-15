@@ -26,7 +26,7 @@
 
 #include <stdint.h>
 
-#include "cio/cio_endian.h"
+#include "cio/endian.h"
 
 #include "fff.h"
 #include "unity.h"

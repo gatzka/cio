@@ -29,11 +29,11 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "cio/cio_buffered_stream.h"
-#include "cio/cio_http_server.h"
-#include "cio/cio_util.h"
-#include "cio/cio_websocket_location_handler.h"
-#include "cio/cio_websocket_masking.h"
+#include "cio/buffered_stream.h"
+#include "cio/http_server.h"
+#include "cio/util.h"
+#include "cio/websocket_location_handler.h"
+#include "cio/websocket_masking.h"
 
 #include "fff.h"
 #include "unity.h"

@@ -33,8 +33,8 @@
 #include "fff.h"
 #include "unity.h"
 
-#include "cio/cio_error_code.h"
-#include "cio/cio_random.h"
+#include "cio/error_code.h"
+#include "cio/random.h"
 
 DEFINE_FFF_GLOBALS
 

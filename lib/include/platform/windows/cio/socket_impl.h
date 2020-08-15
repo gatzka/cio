@@ -34,8 +34,8 @@
 #include <mswsock.h>
 #include <stdint.h>
 
-#include "cio_eventloop.h"
-#include "cio_eventloop_impl.h"
+#include "cio/eventloop.h"
+#include "cio/eventloop_impl.h"
 
 #ifdef __cplusplus
 extern "C" {

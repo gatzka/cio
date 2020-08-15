@@ -32,13 +32,13 @@
 #include <netinet/tcp.h>
 #include <unistd.h>
 
-#include "cio/cio_error_code.h"
-#include "cio/cio_inet_address.h"
-#include "cio/cio_linux_socket.h"
-#include "cio/cio_linux_socket_utils.h"
-#include "cio/cio_read_buffer.h"
-#include "cio/cio_socket.h"
-#include "cio/cio_write_buffer.h"
+#include "cio/error_code.h"
+#include "cio/inet_address.h"
+#include "cio/linux_socket.h"
+#include "cio/linux_socket_utils.h"
+#include "cio/read_buffer.h"
+#include "cio/socket.h"
+#include "cio/write_buffer.h"
 
 #include "fff.h"
 #include "unity.h"

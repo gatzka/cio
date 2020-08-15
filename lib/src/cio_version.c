@@ -26,8 +26,8 @@
  * SOFTWARE.
  */
 
-#include "cio/cio_version.h"
-#include "cio/cio_version_private.h"
+#include "cio/version.h"
+#include "cio/version_private.h"
 
 const char *cio_get_version_string(void)
 {

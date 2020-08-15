@@ -31,9 +31,9 @@
 #include <sys/timerfd.h>
 #include <unistd.h>
 
-#include "cio/cio_error_code.h"
-#include "cio/cio_eventloop.h"
-#include "cio/cio_timer.h"
+#include "cio/error_code.h"
+#include "cio/eventloop.h"
+#include "cio/timer.h"
 
 #include "fff.h"
 #include "unity.h"

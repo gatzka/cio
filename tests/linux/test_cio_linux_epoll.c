@@ -28,7 +28,7 @@
 #include <sys/epoll.h>
 #include <unistd.h>
 
-#include "cio/cio_eventloop.h"
+#include "cio/eventloop.h"
 
 #include "fff.h"
 #include "unity.h"

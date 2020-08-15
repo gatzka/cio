@@ -25,9 +25,9 @@
 
 #include <stdint.h>
 
-#include "cio/cio_compiler.h"
-#include "cio/cio_error_code.h"
-#include "cio/cio_random.h"
+#include "cio/compiler.h"
+#include "cio/error_code.h"
+#include "cio/random.h"
 
 static const uint64_t MULTIPLIER = 6364136223846793005ULL;
 static const uint_fast8_t FIRST_XOR_SHIFT = 18U;

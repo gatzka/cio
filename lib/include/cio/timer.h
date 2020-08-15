@@ -32,10 +32,10 @@
 #include <stdbool.h>
 #include <stdint.h>
 
-#include "cio/cio_error_code.h"
-#include "cio/cio_eventloop.h"
-#include "cio/cio_export.h"
-#include "cio/cio_timer_impl.h"
+#include "cio/error_code.h"
+#include "cio/eventloop.h"
+#include "cio/export.h"
+#include "cio/timer_impl.h"
 
 #ifdef __cplusplus
 extern "C" {
