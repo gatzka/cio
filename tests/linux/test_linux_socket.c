@@ -25,11 +25,11 @@
  */
 
 #include <errno.h>
-#include <string.h>
-#include <sys/types.h>
-#include <sys/socket.h>
 #include <netinet/in.h>
 #include <netinet/tcp.h>
+#include <string.h>
+#include <sys/socket.h>
+#include <sys/types.h>
 #include <unistd.h>
 
 #include "cio/error_code.h"
@@ -43,11 +43,10 @@
 #include "fff.h"
 #include "unity.h"
 
-
 #define CIO_MIN(X, Y) (((X) < (Y)) ? (X) : (Y))
 
 #ifndef SOL_TCP
-#define SOL_TCP	IPPROTO_TCP
+#define SOL_TCP IPPROTO_TCP
 #endif
 
 #ifndef TCP_FASTOPEN_CONNECT
@@ -94,7 +93,6 @@ FAKE_VOID_FUNC(connect_handler, struct cio_socket *, void *, enum cio_error)
 
 static struct cio_eventloop loop;
 
-
 static ssize_t read_eof(int fd, void *buf, size_t count)
 {
 	(void)fd;
@@ -134,7 +132,7 @@ static ssize_t read_blocks(int fd, void *buf, size_t count)
 }
 
 static int setsockopt_fails(int fd, int level, int option_name,
-							const void *option_value, socklen_t option_len)
+                            const void *option_value, socklen_t option_len)
 {
 	(void)fd;
 	(void)level;
@@ -147,7 +145,7 @@ static int setsockopt_fails(int fd, int level, int option_name,
 }
 
 static int setsockopt_ok(int fd, int level, int option_name,
-						 const void *option_value, socklen_t option_len)
+                         const void *option_value, socklen_t option_len)
 {
 	(void)fd;
 	(void)level;
@@ -181,7 +179,7 @@ static ssize_t send_all(int fd, const struct msghdr *msg, int flags)
 	ssize_t len = 0;
 	for (unsigned int i = 0; i < msg->msg_iovlen; i++) {
 		memcpy(&send_buffer[len], msg->msg_iov[i].iov_base, msg->msg_iov[i].iov_len);
-		len +=(ssize_t)msg->msg_iov[i].iov_len;
+		len += (ssize_t)msg->msg_iov[i].iov_len;
 	}
 
 	return len;
@@ -409,7 +407,7 @@ static void test_socket_close_eventloop_error(void)
 	struct cio_socket s;
 
 	read_fake.custom_fake = read_fails;
-	enum cio_error err = cio_socket_init(&s,CIO_ADDRESS_FAMILY_INET4, &loop, 10, NULL);
+	enum cio_error err = cio_socket_init(&s, CIO_ADDRESS_FAMILY_INET4, &loop, 10, NULL);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Return value of cio_socket_init() not correct!");
 
 	err = cio_socket_close(&s);
@@ -432,7 +430,7 @@ static void test_socket_close_read_error(void)
 	struct cio_socket s;
 
 	read_fake.custom_fake = read_fails;
-	enum cio_error err = cio_socket_init(&s,CIO_ADDRESS_FAMILY_INET4, &loop, 10, NULL);
+	enum cio_error err = cio_socket_init(&s, CIO_ADDRESS_FAMILY_INET4, &loop, 10, NULL);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Return value of cio_socket_init() not correct!");
 
 	err = cio_socket_close(&s);
@@ -455,8 +453,8 @@ static void test_socket_close_get_data_from_peer(void)
 	struct cio_socket s;
 
 	ssize_t (*read_fakes[])(int, void *, size_t) = {
-		read_4_bytes,
-		read_eof,
+	    read_4_bytes,
+	    read_eof,
 	};
 
 	SET_CUSTOM_FAKE_SEQ(read, read_fakes, ARRAY_SIZE(read_fakes))
@@ -479,8 +477,8 @@ static void test_socket_close_peer_blocks_first(void)
 	struct cio_socket s;
 
 	ssize_t (*read_fakes[])(int, void *, size_t) = {
-		read_blocks,
-		read_eof,
+	    read_blocks,
+	    read_eof,
 	};
 
 	SET_CUSTOM_FAKE_SEQ(read, read_fakes, ARRAY_SIZE(read_fakes))
@@ -706,7 +704,7 @@ static void test_socket_disable_keepalive_setsockopt_fails(void)
 {
 	struct cio_socket s;
 	int (*custom_fakes[])(int, int, int, const void *, socklen_t) = {
-		setsockopt_fails,
+	    setsockopt_fails,
 	};
 
 	enum cio_error err = cio_socket_init(&s, CIO_ADDRESS_FAMILY_INET4, &loop, 10, NULL);
@@ -870,7 +868,6 @@ static void test_socket_readsome_read_blocks_eventloop_fails(void)
 	TEST_ASSERT_EQUAL_MESSAGE(1, read_handler_fake.call_count, "Handler was called!");
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_NO_BUFFER_SPACE, read_handler_fake.arg2_val, "error code not correct in read callback!");
 }
-
 
 static void test_socket_readsome_read_fails(void)
 {

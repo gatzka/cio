@@ -278,7 +278,7 @@ static int notify_two_fds(int epfd, struct epoll_event *events,
 }
 
 static int notify_write_and_error(int epfd, struct epoll_event *events,
-                          int maxevents, int timeout)
+                                  int maxevents, int timeout)
 {
 	(void)epfd;
 	(void)maxevents;
@@ -294,7 +294,7 @@ static int notify_write_and_error(int epfd, struct epoll_event *events,
 }
 
 static int notify_write_and_hup(int epfd, struct epoll_event *events,
-                          int maxevents, int timeout)
+                                int maxevents, int timeout)
 {
 	(void)epfd;
 	(void)maxevents;
@@ -308,7 +308,6 @@ static int notify_write_and_hup(int epfd, struct epoll_event *events,
 		return -1;
 	}
 }
-
 
 static void test_create_loop(void)
 {

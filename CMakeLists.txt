@@ -103,16 +103,22 @@ set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake/)
 include(ClangFormat)
 
 file(GLOB FILES_TO_FORMAT
-    ${PROJECT_SOURCE_DIR}/src/*.c
-    ${PROJECT_SOURCE_DIR}/src/*.h
-    ${PROJECT_SOURCE_DIR}/src/platform/linux/*.c
-    ${PROJECT_SOURCE_DIR}/src/platform/linux/*.h
-    ${PROJECT_SOURCE_DIR}/src/platform/zephyr/*.c
-    ${PROJECT_SOURCE_DIR}/src/platform/zephyr/*.h
-    ${PROJECT_SOURCE_DIR}/src/sha1/*.c
-    ${PROJECT_SOURCE_DIR}/src/sha1/*.h
+    ${PROJECT_SOURCE_DIR}/examples/*.c
+    ${PROJECT_SOURCE_DIR}/examples/linux/*.c
+    ${PROJECT_SOURCE_DIR}/lib/cio/sha1/*.c
+    ${PROJECT_SOURCE_DIR}/lib/cio/sha1/*.h
+    ${PROJECT_SOURCE_DIR}/lib/src/*.c
+    ${PROJECT_SOURCE_DIR}/lib/src/*.h
+    ${PROJECT_SOURCE_DIR}/lib/src/platform/linux/*.c
+    ${PROJECT_SOURCE_DIR}/lib/src/platform/linux/*.h
+    ${PROJECT_SOURCE_DIR}/lib/src/platform/windows/*.c
+    ${PROJECT_SOURCE_DIR}/lib/src/platform/windows/*.h
+    ${PROJECT_SOURCE_DIR}/lib/src/platform/zephyr/*.c
+    ${PROJECT_SOURCE_DIR}/lib/src/platform/zephyr/*.h
     ${PROJECT_SOURCE_DIR}/tests/*.c
     ${PROJECT_SOURCE_DIR}/tests/*.h
+    ${PROJECT_SOURCE_DIR}/tests/linux/*.c
+    ${PROJECT_SOURCE_DIR}/tests/linux/*.h
 )
 
 add_custom_target(cio-format SOURCES ${FILES_TO_FORMAT})

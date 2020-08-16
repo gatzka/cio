@@ -25,9 +25,9 @@
  */
 
 #include <errno.h>
+#include <netinet/tcp.h>
 #include <stdlib.h>
 #include <sys/socket.h>
-#include <netinet/tcp.h>
 #include <unistd.h>
 
 #include "cio/eventloop.h"
@@ -41,7 +41,7 @@
 #include "unity.h"
 
 #ifndef SOL_TCP
-#define SOL_TCP	IPPROTO_TCP
+#define SOL_TCP IPPROTO_TCP
 #endif
 
 DEFINE_FFF_GLOBALS
@@ -752,7 +752,6 @@ static void test_accept_bind_abstract_uds(void)
 	TEST_ASSERT_EQUAL_MESSAGE(0, unlink_fake.call_count, "unlink was called");
 }
 
-
 static void test_accept_bind_uds_no_stale_file(void)
 {
 	struct cio_eventloop loop;
@@ -989,7 +988,7 @@ static void test_accept_socket_close_socket(void)
 	struct cio_socket_address endpoint;
 	fill_inet_socket_address(&endpoint);
 
-	enum cio_error err = cio_server_socket_init(&ss, &loop, 5,  cio_socket_address_get_family(&endpoint), alloc_client, free_client, 10, on_close);
+	enum cio_error err = cio_server_socket_init(&ss, &loop, 5, cio_socket_address_get_family(&endpoint), alloc_client, free_client, 10, on_close);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Initialization of server socket failed!");
 
 	err = cio_server_socket_bind(&ss, &endpoint);

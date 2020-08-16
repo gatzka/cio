@@ -42,17 +42,15 @@ DEFINE_FFF_GLOBALS
 
 FAKE_VALUE_FUNC(int, tcgetattr, int, struct termios *)
 FAKE_VALUE_FUNC(int, tcsetattr, int, int, const struct termios *)
-FAKE_VALUE_FUNC(int, cfsetispeed, struct termios *,speed_t)
-FAKE_VALUE_FUNC(int, cfsetospeed, struct termios *,speed_t)
+FAKE_VALUE_FUNC(int, cfsetispeed, struct termios *, speed_t)
+FAKE_VALUE_FUNC(int, cfsetospeed, struct termios *, speed_t)
 FAKE_VALUE_FUNC(int, tcflush, int, int)
-
 
 FAKE_VALUE_FUNC(enum cio_error, cio_linux_eventloop_add, const struct cio_eventloop *, struct cio_event_notifier *)
 FAKE_VOID_FUNC(cio_linux_eventloop_remove, struct cio_eventloop *, const struct cio_event_notifier *)
 FAKE_VALUE_FUNC(enum cio_error, cio_linux_eventloop_register_read, const struct cio_eventloop *, struct cio_event_notifier *)
 FAKE_VALUE_FUNC(enum cio_error, cio_linux_eventloop_unregister_read, const struct cio_eventloop *, struct cio_event_notifier *)
 FAKE_VALUE_FUNC(enum cio_error, cio_linux_eventloop_register_write, const struct cio_eventloop *, struct cio_event_notifier *)
-
 
 static struct termios tty;
 static struct cio_eventloop loop;
@@ -99,7 +97,7 @@ void tearDown(void)
 static void test_parity(void)
 {
 	enum cio_uart_parity tests[] = {CIO_UART_PARITY_NONE, CIO_UART_PARITY_ODD, CIO_UART_PARITY_EVEN, CIO_UART_PARITY_MARK, CIO_UART_PARITY_SPACE};
-	
+
 	for (unsigned int i = 0; i < ARRAY_SIZE(tests); i++) {
 		struct cio_uart uart;
 		strncpy(uart.impl.name, "/dev/stdout", sizeof(uart.impl.name));

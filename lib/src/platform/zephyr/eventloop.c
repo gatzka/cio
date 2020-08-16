@@ -28,10 +28,10 @@
 
 #include <kernel.h>
 
+#include "cio/cio_eventloop_impl.h"
 #include "cio/compiler.h"
 #include "cio/error_code.h"
 #include "cio/eventloop.h"
-#include "cio/cio_eventloop_impl.h"
 
 static struct cio_event_notifier stop_ev;
 

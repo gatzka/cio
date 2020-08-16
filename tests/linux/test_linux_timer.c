@@ -51,7 +51,6 @@ FAKE_VALUE_FUNC(ssize_t, read, int, void *, size_t)
 FAKE_VALUE_FUNC(int, close, int)
 FAKE_VALUE_FUNC(int, getsockopt, int, int, int, void *, socklen_t *)
 
-
 void on_close(struct cio_timer *timer);
 FAKE_VOID_FUNC(on_close, struct cio_timer *)
 
