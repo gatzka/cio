@@ -218,7 +218,8 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v2
     - name: ctest build
-      uses: gatzka/ctest-build-action@v1.4.0
+      uses: gatzka/ctest-build-action
+      #uses: gatzka/ctest-build-action@v1.4.0
       with:
         install_deps: ./.github/workflows/install-deps.sh
         ctest_toolchain_file: build/toolchains/x86-linux-gcc-9.cmake
@@ -230,6 +231,7 @@ jobs:
         token: ${{ secrets.CODECOV_TOKEN }}
         path: ./
         rootpath: ./
+        gcov: gcov-9
         flags: unittests
 
   sonarcloud:
