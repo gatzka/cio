@@ -1,9 +1,9 @@
 fixes:
   - "./Testing/CoverageInfo/::src/"
 ignore:
-  - "src/sha1"
-  - "src/http-parser"
-  - "src/miniz"
+  - "lib/cio/sha1"
+  - "lib/cio/http-parser"
+  - "lib/miniz"
   - "tests"
   - "autobahn"
   - "examples"
