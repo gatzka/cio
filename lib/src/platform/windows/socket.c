@@ -28,12 +28,12 @@
 
 #define WIN32_LEAN_AND_MEAN
 
-#include <Mstcpip.h>
 #include <WinSock2.h>
 #include <Windows.h>
 #include <Ws2tcpip.h>
 #include <malloc.h>
 #include <mswsock.h>
+#include <Mstcpip.h>
 
 #include "cio/compiler.h"
 #include "cio/error_code.h"
@@ -221,7 +221,7 @@ enum cio_error cio_socket_init(struct cio_socket *socket,
 	if (cio_unlikely(socket == NULL) || (loop == NULL)) {
 		return CIO_INVALID_ARGUMENT;
 	}
-
+	
 	if (cio_unlikely((address_family != CIO_ADDRESS_FAMILY_INET4) && (address_family != CIO_ADDRESS_FAMILY_INET6))) {
 		return CIO_INVALID_ARGUMENT;
 	}

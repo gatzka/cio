@@ -35,8 +35,8 @@
 #include <ntstatus.h>
 #include <stddef.h>
 
-#include "cio/compiler.h"
 #include "cio/error_code.h"
+#include "cio/compiler.h"
 #include "cio/random.h"
 
 enum cio_error cio_entropy_get_bytes(void *bytes, size_t num_bytes)
