@@ -1,6 +1,3 @@
-fixes:
-  - "./Testing/CoverageInfo/::src/"
-  - "../lib/::lib/"
 ignore:
   - "lib/cio/sha1"
   - "lib/cio/http-parser"
