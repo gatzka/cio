@@ -123,7 +123,7 @@ if(CTEST_CONFIGURATION_TYPE STREQUAL "Coverage" AND GCOVR_BIN)
     set(CIO_CTEST_COVERAGE_DIR "${CTEST_BINARY_DIRECTORY}cov-html/${CIO_CTEST_TIMESTAMP}")
     set(CTEST_CUSTOM_POST_TEST
         "cmake -E make_directory ${CIO_CTEST_COVERAGE_DIR}"
-        "${GCOVR_BIN} --html --html-details --html-title cio -f ${CTEST_SCRIPT_DIRECTORY}/src/\\* -e ${CTEST_SCRIPT_DIRECTORY}/src/http-parser/\\* -e ${CTEST_SCRIPT_DIRECTORY}/src/miniz/\\* -e ${CTEST_SCRIPT_DIRECTORY}/src/sha1/\\* --exclude-directories .\\*CompilerIdC\\* -r ${CTEST_SCRIPT_DIRECTORY} --object-directory=${CIO_OBJECT_DIRECTORY} -o ${CIO_CTEST_COVERAGE_DIR}/index.html")
+        "${GCOVR_BIN} --html --html-details --html-title cio -f ${CTEST_SCRIPT_DIRECTORY}/lib/\\* -e ${CTEST_SCRIPT_DIRECTORY}/lib/cio/http-parser/\\* -e ${CTEST_SCRIPT_DIRECTORY}/lib/miniz/\\* -e ${CTEST_SCRIPT_DIRECTORY}/lib/cio/sha1/\\* --exclude-directories .\\*CompilerIdC\\* -r ${CTEST_SCRIPT_DIRECTORY} --object-directory=${CIO_OBJECT_DIRECTORY} -o ${CIO_CTEST_COVERAGE_DIR}/index.html")
     
     set(CTEST_CUSTOM_COVERAGE_EXCLUDE
     ${CTEST_CUSTOM_COVERAGE_EXCLUDE}
