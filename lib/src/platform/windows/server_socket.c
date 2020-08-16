@@ -36,9 +36,9 @@
 #include "cio/eventloop_impl.h"
 #include "cio/inet_address.h"
 #include "cio/server_socket.h"
-#include "cio/windows_socket_utils.h"
 #include "cio/util.h"
 #include "cio/windows_socket.h"
+#include "cio/windows_socket_utils.h"
 
 static enum cio_error prepare_accept_socket(struct cio_windows_listen_socket *s);
 
@@ -115,10 +115,10 @@ static void accept_callback(struct cio_event_notifier *ev)
 		}
 
 		goto ok;
-	socket_init_failed:
+socket_init_failed:
 		ss->free_client(s);
 		s = NULL;
-	alloc_failed:
+alloc_failed:
 		closesocket(client_fd);
 	}
 
@@ -177,7 +177,7 @@ static enum cio_error create_listen_socket(struct cio_windows_listen_socket *soc
 	socket->bound = false;
 	socket->accept_socket = INVALID_SOCKET;
 	socket->fd = (HANDLE)cio_windows_socket_create(socket->address_family, loop, socket);
-		
+
 	if (cio_unlikely((SOCKET)socket->fd == INVALID_SOCKET)) {
 		err = WSAGetLastError();
 		return (enum cio_error)(-err);
@@ -202,13 +202,13 @@ WSAioctl_failed:
 }
 
 enum cio_error cio_server_socket_init(struct cio_server_socket *ss,
-                                                 struct cio_eventloop *loop,
-                                                 unsigned int backlog,
-                                                 enum cio_socket_address_family family,
-                                                 cio_alloc_client_t alloc_client,
-                                                 cio_free_client_t free_client,
-                                                 uint64_t close_timeout_ns,
-                                                 cio_server_socket_close_hook_t close_hook)
+                                      struct cio_eventloop *loop,
+                                      unsigned int backlog,
+                                      enum cio_socket_address_family family,
+                                      cio_alloc_client_t alloc_client,
+                                      cio_free_client_t free_client,
+                                      uint64_t close_timeout_ns,
+                                      cio_server_socket_close_hook_t close_hook)
 {
 	(void)close_timeout_ns;
 
@@ -219,7 +219,7 @@ enum cio_error cio_server_socket_init(struct cio_server_socket *ss,
 	ss->impl.loop = loop;
 
 	ss->impl.listen_socket.accept_socket = INVALID_SOCKET;
-	
+
 	enum cio_error err = create_listen_socket(&ss->impl.listen_socket, family, loop);
 	if (cio_unlikely(err != CIO_SUCCESS)) {
 		return err;

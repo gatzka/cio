@@ -27,8 +27,8 @@
  */
 
 #include <Windows.h>
-#include <setupapi.h>
 #include <malloc.h>
+#include <setupapi.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -66,7 +66,7 @@ static void read_callback(struct cio_event_notifier *ev)
 			return;
 		}
 
-		error_code = (enum cio_error)-(LONG)(error);
+		error_code = (enum cio_error) - (LONG)(error);
 	} else {
 		if (recv_bytes == 0) {
 			error_code = CIO_EOF;
@@ -96,7 +96,7 @@ static void write_callback(struct cio_event_notifier *ev)
 		}
 
 		bytes_sent = 0;
-		error_code = (enum cio_error)-(LONG)(-error);
+		error_code = (enum cio_error) - (LONG)(-error);
 	}
 
 	port->stream.write_handler(&port->stream, port->stream.write_handler_context, port->stream.write_buffer, error_code, (size_t)bytes_sent);
@@ -119,7 +119,7 @@ static enum cio_error stream_read(struct cio_io_stream *stream, struct cio_read_
 	if (ret == FALSE) {
 		DWORD error = GetLastError();
 		if (cio_unlikely(error != ERROR_IO_PENDING)) {
-			return (enum cio_error)-(LONG)(error);
+			return (enum cio_error) - (LONG)(error);
 		}
 	}
 
@@ -167,7 +167,7 @@ static enum cio_error stream_write(struct cio_io_stream *stream, struct cio_writ
 		DWORD error = GetLastError();
 		if (cio_unlikely(error != ERROR_IO_PENDING)) {
 			_freea(buf);
-			return (enum cio_error)-(LONG)(error);
+			return (enum cio_error) - (LONG)(error);
 		}
 	}
 
@@ -198,7 +198,7 @@ static char *get_string_value_form_registry(HDEVINFO dev_info_set, SP_DEVINFO_DA
 	}
 
 	if (cio_unlikely(entry_type != REG_SZ)) {
-		goto out;	
+		goto out;
 	}
 
 	LPTSTR port_name = (LPTSTR)_malloca(value_size);
@@ -215,10 +215,10 @@ static char *get_string_value_form_registry(HDEVINFO dev_info_set, SP_DEVINFO_DA
 	RegCloseKey(dev_key);
 	int utf8_len = WideCharToMultiByte(CP_UTF8, WC_ERR_INVALID_CHARS, port_name, return_size, NULL, 0, NULL, NULL);
 	if (cio_unlikely(utf8_len == 0)) {
-		goto free_port_name_mem;	
+		goto free_port_name_mem;
 	}
 
-	char* utf8_port_name = malloc((size_t)utf8_len + 1);
+	char *utf8_port_name = malloc((size_t)utf8_len + 1);
 	if (cio_unlikely(utf8_port_name == NULL)) {
 		goto free_port_name_mem;
 	}
@@ -258,7 +258,7 @@ static char *get_device_property(HDEVINFO dev_info, PSP_DEVINFO_DATA dev_data, D
 {
 	DWORD buff_size = 0;
 	SetupDiGetDeviceRegistryPropertyW(dev_info, dev_data, property, NULL, NULL, 0, &buff_size);
-	
+
 	LPTSTR buff = (LPTSTR)malloc(buff_size);
 	if (cio_unlikely(buff == NULL)) {
 		return NULL;
@@ -365,7 +365,7 @@ enum cio_error cio_uart_get_ports(struct cio_uart ports[], size_t num_ports_entr
 		error = (enum cio_error) - (signed int)GetLastError();
 		goto free_guid_buffer;
 	}
-	
+
 	HDEVINFO dev_info_set = SetupDiGetClassDevs(guid_buffer, NULL, NULL, DIGCF_PRESENT);
 	if (dev_info_set == INVALID_HANDLE_VALUE) {
 		error = (enum cio_error) - (signed int)GetLastError();
@@ -424,7 +424,7 @@ enum cio_error cio_uart_init(struct cio_uart *port, struct cio_eventloop *loop, 
 
 	int wchar_len = MultiByteToWideChar(CP_UTF8, MB_ERR_INVALID_CHARS, file_name, -1, NULL, 0);
 	if (cio_unlikely(wchar_len == 0)) {
-		return (enum cio_error) (-(signed int)GetLastError());
+		return (enum cio_error)(-(signed int)GetLastError());
 	}
 
 	size_t wchar_buffer_size = (size_t)wchar_len + sizeof(WCHAR);
