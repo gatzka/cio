@@ -228,7 +228,8 @@ jobs:
       uses: gatzka/codecov-action@v1.4.0
       with:
         token: ${{ secrets.CODECOV_TOKEN }}
-        path: build
+        path: ./
+        rootpath: ./
         flags: unittests
 
   sonarcloud:
