@@ -42,14 +42,39 @@ extern "C" {
  * @brief This file describes the interface to an eventloop.
  */
 
-/** Prepare all resources of the event loop.
- * Call cio_eventloop_destroy to release all resources **/
+/**
+ * @brief Prepare all resources of the event loop.
+ * Call @ref cio_eventloop_destroy to release all resources.
+ *
+ * @param loop The eventloop to be initialized.
+ * @return ::CIO_SUCCESS for success.
+ */
 CIO_EXPORT enum cio_error cio_eventloop_init(struct cio_eventloop *loop);
+
+/**
+ * @brief Destroy the eventloop an free all underlying resources.
+ *
+ * @param loop The eventloop to be destroyed.
+ * @return ::CIO_SUCCESS for success.
+ */
 CIO_EXPORT void cio_eventloop_destroy(struct cio_eventloop *loop);
-/** Runs indefinetely until eventlooop is canceled or a severe error happens **/
-/** \return CIO_SUCCESS on cancelation or any other code on error **/
+/**
+ * @brief Run the eventloop and handle incoming events.
+ * 
+ * Runs indefinetely until eventlooop is @ref cio_eventloop_cancel "canceled" or a severe error happens.
+ *
+ * @param loop The eventloop to run.
+ * @return ::CIO_SUCCESS for success.
+ */
 CIO_EXPORT enum cio_error cio_eventloop_run(struct cio_eventloop *loop);
-/** Stop execution of eventloop. cio_eventloop_run will return with CIO_SUCCESS **/
+
+/**
+ * @brief Stop execution of eventloop.
+ *
+ * @ref cio_eventloop_run will return with ::CIO_SUCCESS.
+ *
+ * @param loop The eventloop that is cancelled.
+ */
 CIO_EXPORT void cio_eventloop_cancel(struct cio_eventloop *loop);
 
 #ifdef __cplusplus
