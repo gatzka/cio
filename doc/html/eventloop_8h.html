@@ -101,12 +101,16 @@ $(document).ready(function(){initNavTree('eventloop_8h.html',''); initResizable(
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="func-members"></a>
 Functions</h2></td></tr>
 <tr class="memitem:ab079e2f8f0fc66e1fb54ffc3fe43793d"><td class="memItemLeft" align="right" valign="top">enum <a class="el" href="error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afe">cio_error</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="eventloop_8h.html#ab079e2f8f0fc66e1fb54ffc3fe43793d">cio_eventloop_init</a> (struct cio_eventloop *loop)</td></tr>
+<tr class="memdesc:ab079e2f8f0fc66e1fb54ffc3fe43793d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Prepare all resources of the event loop. Call <a class="el" href="eventloop_8h.html#ab44278fe9c13fe170358a3e5e43b8679">cio_eventloop_destroy</a> to release all resources.  <a href="eventloop_8h.html#ab079e2f8f0fc66e1fb54ffc3fe43793d">More...</a><br /></td></tr>
 <tr class="separator:ab079e2f8f0fc66e1fb54ffc3fe43793d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ab44278fe9c13fe170358a3e5e43b8679"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="eventloop_8h.html#ab44278fe9c13fe170358a3e5e43b8679">cio_eventloop_destroy</a> (struct cio_eventloop *loop)</td></tr>
+<tr class="memdesc:ab44278fe9c13fe170358a3e5e43b8679"><td class="mdescLeft">&#160;</td><td class="mdescRight">Destroy the eventloop an free all underlying resources.  <a href="eventloop_8h.html#ab44278fe9c13fe170358a3e5e43b8679">More...</a><br /></td></tr>
 <tr class="separator:ab44278fe9c13fe170358a3e5e43b8679"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a493688086c6b1442288d2c2cebc30c7e"><td class="memItemLeft" align="right" valign="top">enum <a class="el" href="error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afe">cio_error</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="eventloop_8h.html#a493688086c6b1442288d2c2cebc30c7e">cio_eventloop_run</a> (struct cio_eventloop *loop)</td></tr>
+<tr class="memdesc:a493688086c6b1442288d2c2cebc30c7e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Run the eventloop and handle incoming events.  <a href="eventloop_8h.html#a493688086c6b1442288d2c2cebc30c7e">More...</a><br /></td></tr>
 <tr class="separator:a493688086c6b1442288d2c2cebc30c7e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a5f7892b6393477a8d022b50057f4d1d1"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="eventloop_8h.html#a5f7892b6393477a8d022b50057f4d1d1">cio_eventloop_cancel</a> (struct cio_eventloop *loop)</td></tr>
+<tr class="memdesc:a5f7892b6393477a8d022b50057f4d1d1"><td class="mdescLeft">&#160;</td><td class="mdescRight">Stop execution of eventloop.  <a href="eventloop_8h.html#a5f7892b6393477a8d022b50057f4d1d1">More...</a><br /></td></tr>
 <tr class="separator:a5f7892b6393477a8d022b50057f4d1d1"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
@@ -127,7 +131,15 @@ Functions</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
-<p>Stop execution of eventloop. cio_eventloop_run will return with CIO_SUCCESS </p>
+
+<p>Stop execution of eventloop. </p>
+<p><a class="el" href="eventloop_8h.html#a493688086c6b1442288d2c2cebc30c7e">cio_eventloop_run</a> will return with <a class="el" href="error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afea6bb29544c99750c61f70b10a1e17d96a">CIO_SUCCESS</a>.</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">loop</td><td>The eventloop that is cancelled. </td></tr>
+  </table>
+  </dd>
+</dl>
 
 </div>
 </div>
@@ -147,6 +159,14 @@ Functions</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
+<p>Destroy the eventloop an free all underlying resources. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">loop</td><td>The eventloop to be destroyed. </td></tr>
+  </table>
+  </dd>
+</dl>
+
 </div>
 </div>
 <a id="ab079e2f8f0fc66e1fb54ffc3fe43793d"></a>
@@ -164,7 +184,15 @@ Functions</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
-<p>Prepare all resources of the event loop. Call cio_eventloop_destroy to release all resources </p>
+
+<p>Prepare all resources of the event loop. Call <a class="el" href="eventloop_8h.html#ab44278fe9c13fe170358a3e5e43b8679">cio_eventloop_destroy</a> to release all resources. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">loop</td><td>The eventloop to be initialized. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd><a class="el" href="error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afea6bb29544c99750c61f70b10a1e17d96a">CIO_SUCCESS</a> for success. </dd></dl>
 
 </div>
 </div>
@@ -183,7 +211,16 @@ Functions</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
-<p>Runs indefinetely until eventlooop is canceled or a severe error happens </p><dl class="section return"><dt>Returns</dt><dd>CIO_SUCCESS on cancelation or any other code on error </dd></dl>
+
+<p>Run the eventloop and handle incoming events. </p>
+<p>Runs indefinetely until eventlooop is <a class="el" href="eventloop_8h.html#a5f7892b6393477a8d022b50057f4d1d1">canceled</a> or a severe error happens.</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">loop</td><td>The eventloop to run. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd><a class="el" href="error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afea6bb29544c99750c61f70b10a1e17d96a">CIO_SUCCESS</a> for success. </dd></dl>
 
 </div>
 </div>
