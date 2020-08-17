@@ -55,7 +55,6 @@ CIO_EXPORT enum cio_error cio_eventloop_init(struct cio_eventloop *loop);
  * @brief Destroy the eventloop an free all underlying resources.
  *
  * @param loop The eventloop to be destroyed.
- * @return ::CIO_SUCCESS for success.
  */
 CIO_EXPORT void cio_eventloop_destroy(struct cio_eventloop *loop);
 /**
