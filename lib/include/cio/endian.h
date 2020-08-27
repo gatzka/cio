@@ -50,7 +50,7 @@ CIO_EXPORT uint32_t cio_le32toh(uint32_t little_endian_32bits);
 CIO_EXPORT uint64_t cio_le64toh(uint64_t little_endian_64bits);
 
 CIO_EXPORT uint16_t cio_htole16(uint16_t host_endian_16bits);
-CIO_EXPORT uint32_t cio_htole32(uint16_t host_endian_32bits);
+CIO_EXPORT uint32_t cio_htole32(uint32_t host_endian_32bits);
 CIO_EXPORT uint64_t cio_htole64(uint64_t host_endian_64bits);
 
 #ifdef __cplusplus

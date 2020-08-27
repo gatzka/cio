@@ -142,7 +142,7 @@ uint16_t cio_htole16(uint16_t host_endian_16bits)
 	return _byteswap_ushort(little_endian_16bits);
 }
 
-uint32_t cio_htole32(uint16_t host_endian_32bits)
+uint32_t cio_htole32(uint32_t host_endian_32bits)
 {
 	return _byteswap_ulong(little_endian_32bits);
 }
