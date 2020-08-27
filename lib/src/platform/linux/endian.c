@@ -51,3 +51,33 @@ uint64_t cio_htobe64(uint64_t host_endian_64bits)
 {
 	return htobe64(host_endian_64bits); // NOLINT
 }
+
+uint16_t cio_le16toh(uint16_t little_endian_16bits)
+{
+	return le16toh(little_endian_16bits);
+}
+
+uint32_t cio_le32toh(uint32_t little_endian_32bits)
+{
+	return le32toh(little_endian_32bits);
+}
+
+uint64_t cio_le64toh(uint64_t little_endian_64bits)
+{
+	return le64toh(little_endian_64bits);
+}
+
+uint16_t cio_htole16(uint16_t host_endian_16bits)
+{
+	return htole16(host_endian_16bits);
+}
+
+uint32_t cio_htole32(uint16_t host_endian_32bits)
+{
+	return htole32(host_endian_32bits);
+}
+
+uint64_t cio_htole64(uint64_t host_endian_64bits)
+{
+	return htole64(host_endian_64bits);
+}
