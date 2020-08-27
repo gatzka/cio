@@ -37,6 +37,11 @@ uint16_t cio_be16toh(uint16_t big_endian_16bits)
 	return _byteswap_ushort(big_endian_16bits);
 }
 
+uint32_t cio_be32toh(uint32_t big_endian_32bits)
+{
+	return _byteswap_ulong(big_endian_32bits);
+}
+
 uint64_t cio_be64toh(uint64_t big_endian_64bits)
 {
 	return _byteswap_uint64(big_endian_64bits);
@@ -47,14 +52,54 @@ uint16_t cio_htobe16(uint16_t host_endian_16bits)
 	return _byteswap_ushort(host_endian_16bits);
 }
 
+uint32_t cio_htobe32(uint16_t host_endian_32bits)
+{
+	return _byteswap_ulong(host_endian_32bits);
+}
+
 uint64_t cio_htobe64(uint64_t host_endian_64bits)
 {
 	return _byteswap_uint64(host_endian_64bits);
+}
+
+uint16_t cio_le16toh(uint16_t little_endian_16bits)
+{
+	return little_endian_16bits;
+}
+
+uint32_t cio_le32toh(uint32_t little_endian_32bits)
+{
+	return little_endian_32bits;
+}
+
+uint64_t cio_le64toh(uint64_t little_endian_64bits)
+{
+	return little_endian_64bits;
+}
+
+uint16_t cio_htole16(uint16_t host_endian_16bits)
+{
+	return host_endian_16bits;
+}
+
+uint32_t cio_htole32(uint16_t host_endian_32bits)
+{
+	return host_endian_32bits;
+}
+
+uint64_t cio_htole64(uint64_t host_endian_64bits)
+{
+	return host_endian_64bits;
 }
 #else
 uint16_t cio_be16toh(uint16_t big_endian_16bits)
 {
 	return big_endian_16bits;
+}
+
+uint32_t cio_be32toh(uint32_t big_endian_32bits)
+{
+	return big_endian_32bits;
 }
 
 uint64_t cio_be64toh(uint64_t big_endian_64bits)
@@ -67,8 +112,44 @@ uint16_t cio_htobe16(uint16_t host_endian_16bits)
 	return host_endian_16bits;
 }
 
+uint32_t cio_htobe32(uint16_t host_endian_32bits)
+{
+	return host_endian_32bits;
+}
+
 uint64_t cio_htobe64(uint64_t host_endian_64bits)
 {
 	return host_endian_64bits;
 }
+
+uint16_t cio_le16toh(uint16_t little_endian_16bits)
+{
+	return _byteswap_ushort(little_endian_16bits);
+}
+
+uint32_t cio_le32toh(uint32_t little_endian_32bits)
+{
+	return _byteswap_ulong(little_endian_32bits);
+}
+
+uint64_t cio_le64toh(uint64_t little_endian_64bits)
+{
+	return _byteswap_uint64(little_endian_64bits);
+}
+
+uint16_t cio_htole16(uint16_t host_endian_16bits)
+{
+	return _byteswap_ushort(little_endian_16bits);
+}
+
+uint32_t cio_htole32(uint32_t host_endian_32bits)
+{
+	return _byteswap_ulong(little_endian_32bits);
+}
+
+uint64_t cio_htole64(uint64_t host_endian_64bits)
+{
+	return _byteswap_uint64(little_endian_64bits);
+}
+
 #endif

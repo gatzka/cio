@@ -42,7 +42,7 @@ void tearDown(void)
 {
 }
 
-static void test_convert_be16(void)
+static void test_convert_be16toh(void)
 {
 	uint8_t pattern_array[] = {0x34, 0x12};
 	uint16_t pattern;
@@ -53,7 +53,7 @@ static void test_convert_be16(void)
 	TEST_ASSERT_EQUAL_MEMORY_MESSAGE(&check_pattern, &check, sizeof(check), "16 bit endian conversion incorrect!");
 }
 
-static void test_convert_hto16(void)
+static void test_convert_htobe16(void)
 {
 	uint8_t pattern_array[] = {0x12, 0x34};
 	uint16_t pattern;
@@ -65,7 +65,31 @@ static void test_convert_hto16(void)
 	TEST_ASSERT_EQUAL_MEMORY_MESSAGE(&check_pattern, &check, sizeof(check), "16 bit endian conversion incorrect!");
 }
 
-static void test_convert_be64(void)
+static void test_convert_be32toh(void)
+{
+	uint8_t pattern_array[] = {0x12, 0x34, 0x56, 0x78};
+	uint32_t pattern;
+	memcpy(&pattern, pattern_array, sizeof(pattern));
+	uint32_t check_pattern = 0x12345678;
+
+	uint32_t check = cio_be32toh(pattern);
+	TEST_ASSERT_EQUAL_MEMORY_MESSAGE(&check_pattern, &check, sizeof(check), "32 bit endian conversion incorrect!");
+}
+
+static void test_convert_htobe32(void)
+{
+	uint8_t pattern_array[] = {0x78, 0x56, 0x34, 0x12};
+	uint32_t pattern;
+	memcpy(&pattern, pattern_array, sizeof(pattern));
+	uint32_t check_pattern = 0x78563412;
+
+	uint32_t check = cio_htobe32(pattern);
+
+	TEST_ASSERT_EQUAL_MEMORY_MESSAGE(&check_pattern, &check, sizeof(check), "32 bit endian conversion incorrect!");
+}
+
+
+static void test_convert_be64toh(void)
 {
 	uint8_t pattern_array[] = {0x12, 0x34, 0x56, 0x78, 0x9a, 0xbc, 0xde, 0xf0};
 	uint64_t pattern;
@@ -76,7 +100,7 @@ static void test_convert_be64(void)
 	TEST_ASSERT_EQUAL_MEMORY_MESSAGE(&check_pattern, &check, sizeof(check), "64 bit endian conversion incorrect!");
 }
 
-static void test_convert_hto64(void)
+static void test_convert_htobe64(void)
 {
 	uint8_t pattern_array[] = {0xf0, 0xde, 0xbc, 0x9a, 0x78, 0x56, 0x34, 0x12};
 	uint64_t pattern;
@@ -87,12 +111,90 @@ static void test_convert_hto64(void)
 	TEST_ASSERT_EQUAL_MEMORY_MESSAGE(&check_pattern, &check, sizeof(check), "64 bit endian conversion incorrect!");
 }
 
+static void test_convert_le16toh(void)
+{
+	uint8_t pattern_array[] = {0x12, 0x34};
+	uint16_t pattern;
+	memcpy(&pattern, pattern_array, sizeof(pattern));
+	uint16_t check_pattern = 0x3412;
+
+	uint16_t check = cio_le16toh(pattern);
+	TEST_ASSERT_EQUAL_MEMORY_MESSAGE(&check_pattern, &check, sizeof(check), "16 bit little endian conversion incorrect!");
+}
+
+static void test_convert_htole16(void)
+{
+	uint8_t pattern_array[] = {0x12, 0x34};
+	uint16_t pattern;
+	memcpy(&pattern, pattern_array, sizeof(pattern));
+	uint16_t check_pattern = 0x3412;
+
+	uint16_t check = cio_htole16(pattern);
+
+	TEST_ASSERT_EQUAL_MEMORY_MESSAGE(&check_pattern, &check, sizeof(check), "16 bit little endian conversion incorrect!");
+}
+
+static void test_convert_le32toh(void)
+{
+	uint8_t pattern_array[] = {0x12, 0x34, 0x56, 0x78};
+	uint32_t pattern;
+	memcpy(&pattern, pattern_array, sizeof(pattern));
+	uint32_t check_pattern = 0x78563412;
+
+	uint32_t check = cio_le32toh(pattern);
+	TEST_ASSERT_EQUAL_MEMORY_MESSAGE(&check_pattern, &check, sizeof(check), "32 bit little endian conversion incorrect!");
+}
+
+static void test_convert_htole32(void)
+{
+	uint8_t pattern_array[] = {0x12, 0x34, 0x56, 0x78};
+	uint32_t pattern;
+	memcpy(&pattern, pattern_array, sizeof(pattern));
+	uint32_t check_pattern = 0x78563412;
+
+	uint32_t check = cio_htole32(pattern);
+
+	TEST_ASSERT_EQUAL_MEMORY_MESSAGE(&check_pattern, &check, sizeof(check), "32 bit little endian conversion incorrect!");
+}
+
+static void test_convert_le64toh(void)
+{
+	uint8_t pattern_array[] = {0x12, 0x34, 0x56, 0x78, 0x9a, 0xbc, 0xde, 0xf0};
+	uint64_t pattern;
+	memcpy(&pattern, pattern_array, sizeof(pattern));
+	uint64_t check_pattern = 0xf0debc9a78563412;
+
+	uint64_t check = cio_le64toh(pattern);
+	TEST_ASSERT_EQUAL_MEMORY_MESSAGE(&check_pattern, &check, sizeof(check), "64 bit little endian conversion incorrect!");
+}
+
+static void test_convert_htole64(void)
+{
+	uint8_t pattern_array[] = {0x12, 0x34, 0x56, 0x78, 0x9a, 0xbc, 0xde, 0xf0};
+	uint64_t pattern;
+	memcpy(&pattern, pattern_array, sizeof(pattern));
+	uint64_t check_pattern = 0xf0debc9a78563412;
+
+	uint64_t check = cio_htole64(pattern);
+
+	TEST_ASSERT_EQUAL_MEMORY_MESSAGE(&check_pattern, &check, sizeof(check), "64 bit little endian conversion incorrect!");
+}
+
 int main(void)
 {
 	UNITY_BEGIN();
-	RUN_TEST(test_convert_be16);
-	RUN_TEST(test_convert_hto16);
-	RUN_TEST(test_convert_be64);
-	RUN_TEST(test_convert_hto64);
+	RUN_TEST(test_convert_be16toh);
+	RUN_TEST(test_convert_htobe16);
+	RUN_TEST(test_convert_be32toh);
+	RUN_TEST(test_convert_htobe32);
+	RUN_TEST(test_convert_be64toh);
+	RUN_TEST(test_convert_htobe64);
+
+	RUN_TEST(test_convert_le16toh);
+	RUN_TEST(test_convert_htole16);
+	RUN_TEST(test_convert_le32toh);
+	RUN_TEST(test_convert_htole32);
+	RUN_TEST(test_convert_le64toh);
+	RUN_TEST(test_convert_htole64);
 	return UNITY_END();
 }
