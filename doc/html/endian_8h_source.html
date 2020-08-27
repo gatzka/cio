@@ -127,21 +127,39 @@ $(document).ready(function(){initNavTree('endian_8h_source.html',''); initResiza
 <div class="line"><a name="l00038"></a><span class="lineno">   38</span>&#160;<span class="preprocessor">#endif</span></div>
 <div class="line"><a name="l00039"></a><span class="lineno">   39</span>&#160; </div>
 <div class="line"><a name="l00040"></a><span class="lineno">   40</span>&#160;CIO_EXPORT uint16_t <a class="code" href="endian_8h.html#a3fde2677ce076a9ddb5631bc01263dc9">cio_be16toh</a>(uint16_t big_endian_16bits);</div>
-<div class="line"><a name="l00041"></a><span class="lineno">   41</span>&#160;CIO_EXPORT uint64_t <a class="code" href="endian_8h.html#ad83673a31b557bfb6cb651a2838e3649">cio_be64toh</a>(uint64_t big_endian_64bits);</div>
-<div class="line"><a name="l00042"></a><span class="lineno">   42</span>&#160; </div>
-<div class="line"><a name="l00043"></a><span class="lineno">   43</span>&#160;CIO_EXPORT uint16_t <a class="code" href="endian_8h.html#af61d141f11ba2847323a03e5b144452d">cio_htobe16</a>(uint16_t host_endian_16bits);</div>
-<div class="line"><a name="l00044"></a><span class="lineno">   44</span>&#160;CIO_EXPORT uint64_t <a class="code" href="endian_8h.html#a1cf2a726c38163a8cf6cad9ed5afe042">cio_htobe64</a>(uint64_t host_endian_64bits);</div>
-<div class="line"><a name="l00045"></a><span class="lineno">   45</span>&#160; </div>
-<div class="line"><a name="l00046"></a><span class="lineno">   46</span>&#160;<span class="preprocessor">#ifdef __cplusplus</span></div>
-<div class="line"><a name="l00047"></a><span class="lineno">   47</span>&#160;}</div>
-<div class="line"><a name="l00048"></a><span class="lineno">   48</span>&#160;<span class="preprocessor">#endif</span></div>
-<div class="line"><a name="l00049"></a><span class="lineno">   49</span>&#160; </div>
-<div class="line"><a name="l00050"></a><span class="lineno">   50</span>&#160;<span class="preprocessor">#endif</span></div>
+<div class="line"><a name="l00041"></a><span class="lineno">   41</span>&#160;CIO_EXPORT uint32_t <a class="code" href="endian_8h.html#a7d788d1bfcaae3b66f32100337cb06df">cio_be32toh</a>(uint32_t big_endian_32bits);</div>
+<div class="line"><a name="l00042"></a><span class="lineno">   42</span>&#160;CIO_EXPORT uint64_t <a class="code" href="endian_8h.html#ad83673a31b557bfb6cb651a2838e3649">cio_be64toh</a>(uint64_t big_endian_64bits);</div>
+<div class="line"><a name="l00043"></a><span class="lineno">   43</span>&#160; </div>
+<div class="line"><a name="l00044"></a><span class="lineno">   44</span>&#160;CIO_EXPORT uint16_t <a class="code" href="endian_8h.html#af61d141f11ba2847323a03e5b144452d">cio_htobe16</a>(uint16_t host_endian_16bits);</div>
+<div class="line"><a name="l00045"></a><span class="lineno">   45</span>&#160;CIO_EXPORT uint32_t <a class="code" href="endian_8h.html#a2455f0812e5a6326315589a8b5ff086c">cio_htobe32</a>(uint32_t host_endian_32bits);</div>
+<div class="line"><a name="l00046"></a><span class="lineno">   46</span>&#160;CIO_EXPORT uint64_t <a class="code" href="endian_8h.html#a1cf2a726c38163a8cf6cad9ed5afe042">cio_htobe64</a>(uint64_t host_endian_64bits);</div>
+<div class="line"><a name="l00047"></a><span class="lineno">   47</span>&#160; </div>
+<div class="line"><a name="l00048"></a><span class="lineno">   48</span>&#160;CIO_EXPORT uint16_t <a class="code" href="endian_8h.html#ab1d8b4049f43873462a7da40f5292bc8">cio_le16toh</a>(uint16_t little_endian_16bits);</div>
+<div class="line"><a name="l00049"></a><span class="lineno">   49</span>&#160;CIO_EXPORT uint32_t <a class="code" href="endian_8h.html#a2dcc27796d92b58877db6f688185ebe6">cio_le32toh</a>(uint32_t little_endian_32bits);</div>
+<div class="line"><a name="l00050"></a><span class="lineno">   50</span>&#160;CIO_EXPORT uint64_t <a class="code" href="endian_8h.html#ab5c28f97ff9de2d399338e96943ff9da">cio_le64toh</a>(uint64_t little_endian_64bits);</div>
+<div class="line"><a name="l00051"></a><span class="lineno">   51</span>&#160; </div>
+<div class="line"><a name="l00052"></a><span class="lineno">   52</span>&#160;CIO_EXPORT uint16_t <a class="code" href="endian_8h.html#a0be859215a94a802d6cbb2d5f9729000">cio_htole16</a>(uint16_t host_endian_16bits);</div>
+<div class="line"><a name="l00053"></a><span class="lineno">   53</span>&#160;CIO_EXPORT uint32_t <a class="code" href="endian_8h.html#a9f50a8e2d0ddb317859cb213c0479c47">cio_htole32</a>(uint32_t host_endian_32bits);</div>
+<div class="line"><a name="l00054"></a><span class="lineno">   54</span>&#160;CIO_EXPORT uint64_t <a class="code" href="endian_8h.html#a3c5c6fc6a681b963ab4f7c4ad0bad935">cio_htole64</a>(uint64_t host_endian_64bits);</div>
+<div class="line"><a name="l00055"></a><span class="lineno">   55</span>&#160; </div>
+<div class="line"><a name="l00056"></a><span class="lineno">   56</span>&#160;<span class="preprocessor">#ifdef __cplusplus</span></div>
+<div class="line"><a name="l00057"></a><span class="lineno">   57</span>&#160;}</div>
+<div class="line"><a name="l00058"></a><span class="lineno">   58</span>&#160;<span class="preprocessor">#endif</span></div>
+<div class="line"><a name="l00059"></a><span class="lineno">   59</span>&#160; </div>
+<div class="line"><a name="l00060"></a><span class="lineno">   60</span>&#160;<span class="preprocessor">#endif</span></div>
 </div><!-- fragment --></div><!-- contents -->
 </div><!-- doc-content -->
+<div class="ttc" id="aendian_8h_html_a0be859215a94a802d6cbb2d5f9729000"><div class="ttname"><a href="endian_8h.html#a0be859215a94a802d6cbb2d5f9729000">cio_htole16</a></div><div class="ttdeci">uint16_t cio_htole16(uint16_t host_endian_16bits)</div></div>
+<div class="ttc" id="aendian_8h_html_a9f50a8e2d0ddb317859cb213c0479c47"><div class="ttname"><a href="endian_8h.html#a9f50a8e2d0ddb317859cb213c0479c47">cio_htole32</a></div><div class="ttdeci">uint32_t cio_htole32(uint32_t host_endian_32bits)</div></div>
+<div class="ttc" id="aendian_8h_html_ab1d8b4049f43873462a7da40f5292bc8"><div class="ttname"><a href="endian_8h.html#ab1d8b4049f43873462a7da40f5292bc8">cio_le16toh</a></div><div class="ttdeci">uint16_t cio_le16toh(uint16_t little_endian_16bits)</div></div>
 <div class="ttc" id="aendian_8h_html_a1cf2a726c38163a8cf6cad9ed5afe042"><div class="ttname"><a href="endian_8h.html#a1cf2a726c38163a8cf6cad9ed5afe042">cio_htobe64</a></div><div class="ttdeci">uint64_t cio_htobe64(uint64_t host_endian_64bits)</div></div>
+<div class="ttc" id="aendian_8h_html_a3c5c6fc6a681b963ab4f7c4ad0bad935"><div class="ttname"><a href="endian_8h.html#a3c5c6fc6a681b963ab4f7c4ad0bad935">cio_htole64</a></div><div class="ttdeci">uint64_t cio_htole64(uint64_t host_endian_64bits)</div></div>
 <div class="ttc" id="aendian_8h_html_ad83673a31b557bfb6cb651a2838e3649"><div class="ttname"><a href="endian_8h.html#ad83673a31b557bfb6cb651a2838e3649">cio_be64toh</a></div><div class="ttdeci">uint64_t cio_be64toh(uint64_t big_endian_64bits)</div></div>
+<div class="ttc" id="aendian_8h_html_ab5c28f97ff9de2d399338e96943ff9da"><div class="ttname"><a href="endian_8h.html#ab5c28f97ff9de2d399338e96943ff9da">cio_le64toh</a></div><div class="ttdeci">uint64_t cio_le64toh(uint64_t little_endian_64bits)</div></div>
+<div class="ttc" id="aendian_8h_html_a2455f0812e5a6326315589a8b5ff086c"><div class="ttname"><a href="endian_8h.html#a2455f0812e5a6326315589a8b5ff086c">cio_htobe32</a></div><div class="ttdeci">uint32_t cio_htobe32(uint32_t host_endian_32bits)</div></div>
 <div class="ttc" id="aendian_8h_html_a3fde2677ce076a9ddb5631bc01263dc9"><div class="ttname"><a href="endian_8h.html#a3fde2677ce076a9ddb5631bc01263dc9">cio_be16toh</a></div><div class="ttdeci">uint16_t cio_be16toh(uint16_t big_endian_16bits)</div></div>
+<div class="ttc" id="aendian_8h_html_a7d788d1bfcaae3b66f32100337cb06df"><div class="ttname"><a href="endian_8h.html#a7d788d1bfcaae3b66f32100337cb06df">cio_be32toh</a></div><div class="ttdeci">uint32_t cio_be32toh(uint32_t big_endian_32bits)</div></div>
+<div class="ttc" id="aendian_8h_html_a2dcc27796d92b58877db6f688185ebe6"><div class="ttname"><a href="endian_8h.html#a2dcc27796d92b58877db6f688185ebe6">cio_le32toh</a></div><div class="ttdeci">uint32_t cio_le32toh(uint32_t little_endian_32bits)</div></div>
 <div class="ttc" id="aendian_8h_html_af61d141f11ba2847323a03e5b144452d"><div class="ttname"><a href="endian_8h.html#af61d141f11ba2847323a03e5b144452d">cio_htobe16</a></div><div class="ttdeci">uint16_t cio_htobe16(uint16_t host_endian_16bits)</div></div>
 <!-- start footer part -->
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->

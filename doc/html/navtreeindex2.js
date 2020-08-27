@@ -1,5 +1,13 @@
 var NAVTREEINDEX2 =
 {
+"websocket__location__handler_8h.html#abed82baf7f470b522273a3e37c24c600aec51d41807d6dca0ca01eb048ccd4cb7":[1,0,29,4],
+"websocket__location__handler_8h_source.html":[1,0,29],
+"websocket__masking_8h.html":[1,0,30],
+"websocket__masking_8h.html#a8d53c8bfb2a22759339654efcb92f94d":[1,0,30,0],
+"websocket__masking_8h.html#adc260e8f2d104844810c62865f622be5":[1,0,30,1],
+"websocket__masking_8h_source.html":[1,0,30],
+"write__buffer_8h.html":[1,0,31],
+"write__buffer_8h.html#a119ccb2ce237c24377c946cb58c07e7c":[1,0,31,1],
 "write__buffer_8h.html#a2e2e811c31ff926729365c89002bed54":[1,0,31,3],
 "write__buffer_8h.html#a529195d3850a2271d5628c803b5b63a1":[1,0,31,16],
 "write__buffer_8h.html#a59dc0f153af52ccb329723a0e6698e3b":[1,0,31,8],
