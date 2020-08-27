@@ -42,7 +42,7 @@ void tearDown(void)
 {
 }
 
-static void test_convert_be16(void)
+static void test_convert_be16toh(void)
 {
 	uint8_t pattern_array[] = {0x34, 0x12};
 	uint16_t pattern;
@@ -65,7 +65,7 @@ static void test_convert_htobe16(void)
 	TEST_ASSERT_EQUAL_MEMORY_MESSAGE(&check_pattern, &check, sizeof(check), "16 bit endian conversion incorrect!");
 }
 
-static void test_convert_be32(void)
+static void test_convert_be32toh(void)
 {
 	uint8_t pattern_array[] = {0x12, 0x34, 0x56, 0x78};
 	uint32_t pattern;
@@ -89,7 +89,7 @@ static void test_convert_htobe32(void)
 }
 
 
-static void test_convert_be64(void)
+static void test_convert_be64toh(void)
 {
 	uint8_t pattern_array[] = {0x12, 0x34, 0x56, 0x78, 0x9a, 0xbc, 0xde, 0xf0};
 	uint64_t pattern;
@@ -114,11 +114,11 @@ static void test_convert_htobe64(void)
 int main(void)
 {
 	UNITY_BEGIN();
-	RUN_TEST(test_convert_be16);
+	RUN_TEST(test_convert_be16toh);
 	RUN_TEST(test_convert_htobe16);
-	RUN_TEST(test_convert_be32);
+	RUN_TEST(test_convert_be32toh);
 	RUN_TEST(test_convert_htobe32);
-	RUN_TEST(test_convert_be64);
+	RUN_TEST(test_convert_be64toh);
 	RUN_TEST(test_convert_htobe64);
 	return UNITY_END();
 }
