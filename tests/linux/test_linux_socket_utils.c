@@ -40,6 +40,8 @@ DEFINE_FFF_GLOBALS
 
 FAKE_VALUE_FUNC(int, socket, int, int, int)
 FAKE_VALUE_FUNC(int, getsockopt, int, int, int, void *, socklen_t *)
+FAKE_VALUE_FUNC(int, setsockopt, int, int, int, const void *, socklen_t)
+FAKE_VALUE_FUNC(int, close, int)
 
 static int getsockopt_ok(int fd, int level, int optname, void *optval, socklen_t *len)
 {
@@ -70,6 +72,8 @@ void setUp(void)
 	FFF_RESET_HISTORY()
 	RESET_FAKE(socket)
 	RESET_FAKE(getsockopt)
+	RESET_FAKE(setsockopt)
+	RESET_FAKE(close)
 }
 
 void tearDown(void)
@@ -94,6 +98,18 @@ static void test_create_inet6_socket(void)
 
 	TEST_ASSERT_EQUAL(ret, socket_fd);
 	TEST_ASSERT_EQUAL(1, socket_fake.call_count);
+}
+
+static void test_create_inet6_socket_set_ipv6_only_fails(void)
+{
+	int socket_fd = 5;
+	socket_fake.return_val = socket_fd;
+	setsockopt_fake.return_val = -1;
+	int ret = cio_linux_socket_create(CIO_ADDRESS_FAMILY_INET6);
+
+	TEST_ASSERT_EQUAL(ret, -1);
+	TEST_ASSERT_EQUAL(1, socket_fake.call_count);
+	TEST_ASSERT_EQUAL(1, close_fake.call_count);
 }
 
 static void test_create_socket_fails(void)
@@ -134,6 +150,7 @@ int main(void)
 	UNITY_BEGIN();
 	RUN_TEST(test_create_inet4_socket);
 	RUN_TEST(test_create_inet6_socket);
+	RUN_TEST(test_create_inet6_socket_set_ipv6_only_fails);
 	RUN_TEST(test_create_socket_fails);
 	RUN_TEST(test_create_socket_wrong_family);
 	RUN_TEST(test_get_socket_error_success);

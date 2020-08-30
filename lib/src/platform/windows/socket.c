@@ -373,6 +373,19 @@ struct cio_io_stream *cio_socket_get_io_stream(struct cio_socket *s)
 	return &s->stream;
 }
 
+enum cio_address_family cio_socket_get_address_family(const struct cio_socket *socket)
+{
+	struct sockaddr_storage name;
+	memset(&name, 0, sizeof(name));
+	int name_len = sizeof(name);
+
+	if (getsockname((SOCKET)socket->impl.fd, (struct sockaddr *)&name, &name_len) < 0) {
+		return CIO_ADDRESS_FAMILY_UNSPEC;
+	}
+
+	return (enum cio_address_family)name.ss_family;
+}
+
 enum cio_error cio_socket_set_tcp_fast_open(const struct cio_socket *socket, bool on)
 {
 #if 0

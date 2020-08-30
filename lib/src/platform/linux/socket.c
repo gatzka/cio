@@ -39,6 +39,7 @@
 #include <sys/socket.h>
 #include <unistd.h>
 
+#include "cio/address_family.h"
 #include "cio/compiler.h"
 #include "cio/endian.h"
 #include "cio/error_code.h"
@@ -388,6 +389,19 @@ enum cio_error cio_socket_connect(struct cio_socket *socket, const struct cio_so
 struct cio_io_stream *cio_socket_get_io_stream(struct cio_socket *socket)
 {
 	return &socket->stream;
+}
+
+enum cio_address_family cio_socket_get_address_family(const struct cio_socket *socket)
+{
+	struct sockaddr_storage sock_addr;
+	memset(&sock_addr, 0, sizeof(sock_addr));
+	socklen_t sock_addr_size = sizeof(sock_addr);
+
+	if (getsockname(socket->impl.ev.fd, (struct sockaddr *)&sock_addr, &sock_addr_size) < 0) {
+		return CIO_ADDRESS_FAMILY_UNSPEC;
+	}
+
+	return (enum cio_address_family)sock_addr.ss_family;
 }
 
 enum cio_error cio_socket_set_tcp_no_delay(struct cio_socket *socket, bool on)
