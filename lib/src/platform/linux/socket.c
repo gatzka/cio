@@ -394,6 +394,7 @@ struct cio_io_stream *cio_socket_get_io_stream(struct cio_socket *socket)
 enum cio_address_family cio_socket_get_address_family(const struct cio_socket *socket)
 {
 	struct sockaddr_storage sock_addr;
+	memset(&sock_addr, 0, sizeof(sock_addr));
 	socklen_t sock_addr_size = sizeof(sock_addr);
 
 	if (getsockname(socket->impl.ev.fd, (struct sockaddr *)&sock_addr, &sock_addr_size) < 0) {
