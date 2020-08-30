@@ -133,6 +133,9 @@ Functions</h2></td></tr>
 <tr class="memitem:a564f00953f4ce1592d3c4165aa110fa9"><td class="memItemLeft" align="right" valign="top">struct <a class="el" href="structcio__io__stream.html">cio_io_stream</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="socket_8h.html#a564f00953f4ce1592d3c4165aa110fa9">cio_socket_get_io_stream</a> (struct <a class="el" href="structcio__socket.html">cio_socket</a> *socket)</td></tr>
 <tr class="memdesc:a564f00953f4ce1592d3c4165aa110fa9"><td class="mdescLeft">&#160;</td><td class="mdescRight">Gets an I/O stream from the socket.  <a href="socket_8h.html#a564f00953f4ce1592d3c4165aa110fa9">More...</a><br /></td></tr>
 <tr class="separator:a564f00953f4ce1592d3c4165aa110fa9"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a12a0ae27260d59e65a1595336c87cb34"><td class="memItemLeft" align="right" valign="top">enum <a class="el" href="address__family_8h.html#afe76b1062e903b21af3c397ca6c98b7c">cio_address_family</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="socket_8h.html#a12a0ae27260d59e65a1595336c87cb34">cio_socket_get_address_family</a> (const struct <a class="el" href="structcio__socket.html">cio_socket</a> *socket)</td></tr>
+<tr class="memdesc:a12a0ae27260d59e65a1595336c87cb34"><td class="mdescLeft">&#160;</td><td class="mdescRight">Gets the address family from a socket.  <a href="socket_8h.html#a12a0ae27260d59e65a1595336c87cb34">More...</a><br /></td></tr>
+<tr class="separator:a12a0ae27260d59e65a1595336c87cb34"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a2ae48f513526c905da00fe4c0c2fbcd1"><td class="memItemLeft" align="right" valign="top">enum <a class="el" href="error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afe">cio_error</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="socket_8h.html#a2ae48f513526c905da00fe4c0c2fbcd1">cio_socket_set_tcp_no_delay</a> (struct <a class="el" href="structcio__socket.html">cio_socket</a> *socket, bool on)</td></tr>
 <tr class="memdesc:a2ae48f513526c905da00fe4c0c2fbcd1"><td class="mdescLeft">&#160;</td><td class="mdescRight">Enables/disables the Nagle algorithm.  <a href="socket_8h.html#a2ae48f513526c905da00fe4c0c2fbcd1">More...</a><br /></td></tr>
 <tr class="separator:a2ae48f513526c905da00fe4c0c2fbcd1"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -270,6 +273,33 @@ Functions</h2></td></tr>
   </table>
   </dd>
 </dl>
+
+</div>
+</div>
+<a id="a12a0ae27260d59e65a1595336c87cb34"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a12a0ae27260d59e65a1595336c87cb34">&#9670;&nbsp;</a></span>cio_socket_get_address_family()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">enum <a class="el" href="address__family_8h.html#afe76b1062e903b21af3c397ca6c98b7c">cio_address_family</a> cio_socket_get_address_family </td>
+          <td>(</td>
+          <td class="paramtype">const struct <a class="el" href="structcio__socket.html">cio_socket</a> *&#160;</td>
+          <td class="paramname"><em>socket</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Gets the address family from a socket. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">socket</td><td>A pointer to a <a class="el" href="structcio__socket.html">cio_socket</a> from which the address family is retrieved.</td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>The address family like <a class="el" href="address__family_8h.html#afe76b1062e903b21af3c397ca6c98b7cac5d1cff8a62dc9600bc8585b12f5aa6c">CIO_ADDRESS_FAMILY_INET4</a> or <a class="el" href="address__family_8h.html#afe76b1062e903b21af3c397ca6c98b7ca268463c1d5aa567ebb80c7865570b36a">CIO_ADDRESS_FAMILY_INET6</a>. </dd></dl>
 
 </div>
 </div>

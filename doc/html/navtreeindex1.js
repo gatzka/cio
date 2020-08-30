@@ -1,5 +1,6 @@
 var NAVTREEINDEX1 =
 {
+"structcio__http__client__private.html#ad602f4fd02033a719e0a7761ae117f59":[0,0,2,6],
 "structcio__http__client__private.html#aeac0cb76877803781370be45509b2a46":[0,0,2,18],
 "structcio__http__client__private.html#afb202d9aa49a35b15cf12621b918d339":[0,0,2,0],
 "structcio__http__location.html":[0,0,3],
@@ -248,6 +249,5 @@ var NAVTREEINDEX1 =
 "websocket_8h_source.html":[1,0,28],
 "websocket__location__handler_8h.html":[1,0,29],
 "websocket__location__handler_8h.html#a0411cd49bb5b71852cecd93bcbf0ca2daedcbf25ba4c5f781c2ef10474e1bb4a0":[1,0,29,3],
-"websocket__location__handler_8h.html#a36e330e6156f3ebd6b9a2675e0cc8a04":[1,0,29,5],
-"websocket__location__handler_8h.html#a726ca809ffd3d67ab4b8476646f26635a2368209f8f42c8676f2b35650eeabf70":[1,0,29,2]
+"websocket__location__handler_8h.html#a36e330e6156f3ebd6b9a2675e0cc8a04":[1,0,29,5]
 };

@@ -1,5 +1,6 @@
 var NAVTREEINDEX2 =
 {
+"websocket__location__handler_8h.html#a726ca809ffd3d67ab4b8476646f26635a2368209f8f42c8676f2b35650eeabf70":[1,0,29,2],
 "websocket__location__handler_8h.html#abed82baf7f470b522273a3e37c24c600aec51d41807d6dca0ca01eb048ccd4cb7":[1,0,29,4],
 "websocket__location__handler_8h_source.html":[1,0,29],
 "websocket__masking_8h.html":[1,0,30],
