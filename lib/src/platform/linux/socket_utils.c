@@ -52,7 +52,7 @@ int cio_linux_socket_create(enum cio_address_family address_family)
 	if (address_family == CIO_ADDRESS_FAMILY_INET6) {
 		int yes = 1;
 		int ret = setsockopt(fd, IPPROTO_IPV6, IPV6_V6ONLY, (void *)&yes, sizeof(yes));
-		if (cio_unlikely(ret == 1)) {
+		if (cio_unlikely(ret == -1)) {
 			close(fd);
 			return -1;
 		}

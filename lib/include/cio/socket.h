@@ -141,6 +141,15 @@ CIO_EXPORT enum cio_error cio_socket_connect(struct cio_socket *socket, const st
 CIO_EXPORT struct cio_io_stream *cio_socket_get_io_stream(struct cio_socket *socket);
 
 /**
+ * @brief Gets the address family from a socket
+ *
+ * @param socket A pointer to a cio_socket from which the address family is retrieved.
+ *
+ * @return  The address family like ::CIO_ADDRESS_FAMILY_INET4 or ::CIO_ADDRESS_FAMILY_INET6.
+ */
+CIO_EXPORT enum cio_address_family cio_socket_get_address_family(const struct cio_socket *socket);
+
+/**
  * @brief Enables/disables the Nagle algorithm
  *
  * @param socket A pointer to a cio_socket for which the Nagle algorithm should be changed.

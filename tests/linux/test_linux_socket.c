@@ -74,6 +74,7 @@ FAKE_VALUE_FUNC(int, getsockopt, int, int, int, void *, socklen_t *)
 FAKE_VALUE_FUNC(int, setsockopt, int, int, int, const void *, socklen_t)
 FAKE_VALUE_FUNC(int, connect, int, const struct sockaddr *, socklen_t)
 FAKE_VALUE_FUNC(int, socket, int, int, int)
+FAKE_VALUE_FUNC(int, getsockname, int, struct sockaddr *, socklen_t *)
 
 void on_close(struct cio_socket *s);
 FAKE_VOID_FUNC(on_close, struct cio_socket *)
@@ -99,6 +100,15 @@ static ssize_t read_eof(int fd, void *buf, size_t count)
 	(void)buf;
 	(void)count;
 
+	return 0;
+}
+
+static int getsockname_return_v4(int fd, struct sockaddr *addr, socklen_t *len)
+{
+	(void)fd;
+	(void)len;
+
+	addr->sa_family = AF_INET;
 	return 0;
 }
 
@@ -278,6 +288,7 @@ void setUp(void)
 	RESET_FAKE(getsockopt)
 	RESET_FAKE(setsockopt)
 	RESET_FAKE(socket)
+	RESET_FAKE(getsockname)
 
 	RESET_FAKE(read_handler)
 	RESET_FAKE(write_handler)
@@ -580,6 +591,30 @@ static void test_socket_close_expires(void)
 	TEST_ASSERT_EQUAL_MESSAGE(s.impl.ev.fd, setsockopt_fake.arg0_val, "fd for setsockopt not correct!");
 	TEST_ASSERT_EQUAL_MESSAGE(SOL_SOCKET, setsockopt_fake.arg1_val, "level for setsockopt not correct!");
 	TEST_ASSERT_EQUAL_MESSAGE(SO_LINGER, setsockopt_fake.arg2_val, "option name for setsockopt not correct!");
+}
+
+static void test_socket_get_address_family(void)
+{
+	struct cio_socket s;
+	getsockname_fake.custom_fake = getsockname_return_v4;
+
+	enum cio_error err = cio_socket_init(&s, CIO_ADDRESS_FAMILY_INET4, &loop, 10, NULL);
+	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Return value of cio_socket_init not correct!");
+
+	enum cio_address_family family = cio_socket_get_address_family(&s);
+	TEST_ASSERT_EQUAL_MESSAGE(CIO_ADDRESS_FAMILY_INET4, family, "Return value of cio_socket_get_address_family not correct!");
+}
+
+static void test_socket_get_address_family_getname_fails(void)
+{
+	struct cio_socket s;
+	getsockname_fake.return_val = -1;
+
+	enum cio_error err = cio_socket_init(&s, CIO_ADDRESS_FAMILY_INET4, &loop, 10, NULL);
+	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Return value of cio_socket_init not correct!");
+
+	enum cio_address_family family = cio_socket_get_address_family(&s);
+	TEST_ASSERT_EQUAL_MESSAGE(CIO_ADDRESS_FAMILY_UNSPEC, family, "Return value of cio_socket_get_address_family not correct!");
 }
 
 static void test_socket_enable_nodelay(void)
@@ -1439,6 +1474,9 @@ int main(void)
 	RUN_TEST(test_socket_close_register_read_fails);
 	RUN_TEST(test_socket_close_expire_fails);
 	RUN_TEST(test_socket_close_expires);
+
+	RUN_TEST(test_socket_get_address_family);
+	RUN_TEST(test_socket_get_address_family_getname_fails);
 
 	RUN_TEST(test_socket_enable_nodelay);
 	RUN_TEST(test_socket_disable_nodelay);
