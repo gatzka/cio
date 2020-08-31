@@ -50,7 +50,6 @@ static struct cio_http_server server;
 
 enum { READ_BUFFER_SIZE = 2000 };
 enum { HTTPSERVER_LISTEN_PORT = 8080 };
-enum { IPV6_ADDRESS_SIZE = 16 };
 
 static const uint64_t HEADER_READ_TIMEOUT = UINT64_C(5) * UINT64_C(1000) * UINT64_C(1000) * UINT64_C(1000);
 static const uint64_t BODY_READ_TIMEOUT = UINT64_C(5) * UINT64_C(1000) * UINT64_C(1000) * UINT64_C(1000);
