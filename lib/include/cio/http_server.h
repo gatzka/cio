@@ -153,12 +153,12 @@ struct cio_http_server_configuration {
  * @brief Initializes an HTTP server.
  * @param server The cio_http_server that should be initialized.
  * @param loop The eventloop the HTTP server uses.
- * @param config The configuration of the HTTP server.
+ * @param config The configuration of the HTTP server. The elements of the configuration structure will be copied
  * @return ::CIO_SUCCESS for success.
  */
 CIO_EXPORT enum cio_error cio_http_server_init(struct cio_http_server *server,
                                                struct cio_eventloop *loop,
-                                               struct cio_http_server_configuration *config);
+                                               const struct cio_http_server_configuration *config);
 
 /**
  * @brief Start serving HTTP client requests.

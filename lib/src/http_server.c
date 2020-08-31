@@ -731,7 +731,7 @@ static const unsigned int DEFAULT_BACKLOG = 5;
 
 CIO_EXPORT enum cio_error cio_http_server_init(struct cio_http_server *server,
                                                struct cio_eventloop *loop,
-                                               struct cio_http_server_configuration *config)
+                                               const struct cio_http_server_configuration *config)
 {
 	if (cio_unlikely((server == NULL) || (config == NULL) ||
 	                 (loop == NULL) || (config->alloc_client == NULL) || (config->free_client == NULL) ||
