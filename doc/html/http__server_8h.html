@@ -118,7 +118,7 @@ Data Structures</h2></td></tr>
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="typedef-members"></a>
 Typedefs</h2></td></tr>
 <tr class="memitem:a0b189ea31e61fe89d815727604d4ff32"><td class="memItemLeft" align="right" valign="top">typedef void(*&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="http__server_8h.html#a0b189ea31e61fe89d815727604d4ff32">cio_http_serve_on_error_t</a>) (struct <a class="el" href="structcio__http__server.html">cio_http_server</a> *server, const char *reason)</td></tr>
-<tr class="memdesc:a0b189ea31e61fe89d815727604d4ff32"><td class="mdescLeft">&#160;</td><td class="mdescRight">The type of an server error function passed to the <a class="el" href="http__server_8h.html#a3e1a21bea756301a3c9d1a3d83d2dc35">initialization</a> of an HTTP server.  <a href="http__server_8h.html#a0b189ea31e61fe89d815727604d4ff32">More...</a><br /></td></tr>
+<tr class="memdesc:a0b189ea31e61fe89d815727604d4ff32"><td class="mdescLeft">&#160;</td><td class="mdescRight">The type of an server error function passed to the <a class="el" href="http__server_8h.html#adb44805a491006960279689817ea63dd">initialization</a> of an HTTP server.  <a href="http__server_8h.html#a0b189ea31e61fe89d815727604d4ff32">More...</a><br /></td></tr>
 <tr class="separator:a0b189ea31e61fe89d815727604d4ff32"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a5dfcb2892e9e287117a81d508e214a41"><td class="memItemLeft" align="right" valign="top">typedef void(*&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="http__server_8h.html#a5dfcb2892e9e287117a81d508e214a41">cio_http_server_close_hook_t</a>) (const struct <a class="el" href="structcio__http__server.html">cio_http_server</a> *server)</td></tr>
 <tr class="separator:a5dfcb2892e9e287117a81d508e214a41"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -131,9 +131,9 @@ Enumerations</h2></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="func-members"></a>
 Functions</h2></td></tr>
-<tr class="memitem:a3e1a21bea756301a3c9d1a3d83d2dc35"><td class="memItemLeft" align="right" valign="top">enum <a class="el" href="error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afe">cio_error</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="http__server_8h.html#a3e1a21bea756301a3c9d1a3d83d2dc35">cio_http_server_init</a> (struct <a class="el" href="structcio__http__server.html">cio_http_server</a> *server, struct cio_eventloop *loop, struct <a class="el" href="structcio__http__server__configuration.html">cio_http_server_configuration</a> *config)</td></tr>
-<tr class="memdesc:a3e1a21bea756301a3c9d1a3d83d2dc35"><td class="mdescLeft">&#160;</td><td class="mdescRight">Initializes an HTTP server.  <a href="http__server_8h.html#a3e1a21bea756301a3c9d1a3d83d2dc35">More...</a><br /></td></tr>
-<tr class="separator:a3e1a21bea756301a3c9d1a3d83d2dc35"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:adb44805a491006960279689817ea63dd"><td class="memItemLeft" align="right" valign="top">enum <a class="el" href="error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afe">cio_error</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="http__server_8h.html#adb44805a491006960279689817ea63dd">cio_http_server_init</a> (struct <a class="el" href="structcio__http__server.html">cio_http_server</a> *server, struct cio_eventloop *loop, const struct <a class="el" href="structcio__http__server__configuration.html">cio_http_server_configuration</a> *config)</td></tr>
+<tr class="memdesc:adb44805a491006960279689817ea63dd"><td class="mdescLeft">&#160;</td><td class="mdescRight">Initializes an HTTP server.  <a href="http__server_8h.html#adb44805a491006960279689817ea63dd">More...</a><br /></td></tr>
+<tr class="separator:adb44805a491006960279689817ea63dd"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ab7b40a1353b03d04aed965bd6b56ea99"><td class="memItemLeft" align="right" valign="top">enum <a class="el" href="error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afe">cio_error</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="http__server_8h.html#ab7b40a1353b03d04aed965bd6b56ea99">cio_http_server_serve</a> (struct <a class="el" href="structcio__http__server.html">cio_http_server</a> *server)</td></tr>
 <tr class="memdesc:ab7b40a1353b03d04aed965bd6b56ea99"><td class="mdescLeft">&#160;</td><td class="mdescRight">Start serving HTTP client requests.  <a href="http__server_8h.html#ab7b40a1353b03d04aed965bd6b56ea99">More...</a><br /></td></tr>
 <tr class="separator:ab7b40a1353b03d04aed965bd6b56ea99"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -162,7 +162,7 @@ Functions</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>The type of an server error function passed to the <a class="el" href="http__server_8h.html#a3e1a21bea756301a3c9d1a3d83d2dc35">initialization</a> of an HTTP server. </p>
+<p>The type of an server error function passed to the <a class="el" href="http__server_8h.html#adb44805a491006960279689817ea63dd">initialization</a> of an HTTP server. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">server</td><td>The <a class="el" href="structcio__http__server.html" title="The cio_http_server structure provides the implementation of a simple HTTP server.">cio_http_server</a> that caused the error. </td></tr>
@@ -206,8 +206,8 @@ Functions</h2></td></tr>
 </div>
 </div>
 <h2 class="groupheader">Function Documentation</h2>
-<a id="a3e1a21bea756301a3c9d1a3d83d2dc35"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a3e1a21bea756301a3c9d1a3d83d2dc35">&#9670;&nbsp;</a></span>cio_http_server_init()</h2>
+<a id="adb44805a491006960279689817ea63dd"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#adb44805a491006960279689817ea63dd">&#9670;&nbsp;</a></span>cio_http_server_init()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -227,7 +227,7 @@ Functions</h2></td></tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">struct <a class="el" href="structcio__http__server__configuration.html">cio_http_server_configuration</a> *&#160;</td>
+          <td class="paramtype">const struct <a class="el" href="structcio__http__server__configuration.html">cio_http_server_configuration</a> *&#160;</td>
           <td class="paramname"><em>config</em>&#160;</td>
         </tr>
         <tr>
@@ -243,7 +243,7 @@ Functions</h2></td></tr>
   <table class="params">
     <tr><td class="paramname">server</td><td>The <a class="el" href="structcio__http__server.html" title="The cio_http_server structure provides the implementation of a simple HTTP server.">cio_http_server</a> that should be initialized. </td></tr>
     <tr><td class="paramname">loop</td><td>The eventloop the HTTP server uses. </td></tr>
-    <tr><td class="paramname">config</td><td>The configuration of the HTTP server. </td></tr>
+    <tr><td class="paramname">config</td><td>The configuration of the HTTP server. The elements of the configuration structure will be copied </td></tr>
   </table>
   </dd>
 </dl>
