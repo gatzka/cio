@@ -2771,16 +2771,16 @@ static void test_send_multiple_jobs_starting_with_close(void)
 	TEST_ASSERT_EQUAL_MESSAGE(4, write_handler_fake.call_count, "Write handler was not called");
 	TEST_ASSERT_EQUAL_MESSAGE(ws, write_handler_fake.arg0_history[0], "websocket parameter of write_handler not correct");
 	TEST_ASSERT_NULL_MESSAGE(write_handler_fake.arg1_history[0], "context parameter of write_handler not NULL");
-	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, write_handler_fake.arg2_history[0], "err parameter of write_handler not correct");
+	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, write_handler_fake.arg2_history[3], "err parameter of write_handler not correct");
 	TEST_ASSERT_EQUAL_MESSAGE(ws, write_handler_fake.arg0_history[1], "websocket parameter of write_handler not correct");
 	TEST_ASSERT_NULL_MESSAGE(write_handler_fake.arg1_history[1], "context parameter of write_handler not NULL");
-	TEST_ASSERT_EQUAL_MESSAGE(CIO_OPERATION_ABORTED, write_handler_fake.arg2_history[1], "err parameter of write_handler not correct");
+	TEST_ASSERT_EQUAL_MESSAGE(CIO_OPERATION_ABORTED, write_handler_fake.arg2_history[0], "err parameter of write_handler not correct");
 	TEST_ASSERT_EQUAL_MESSAGE(ws, write_handler_fake.arg0_history[2], "websocket parameter of write_handler not correct");
 	TEST_ASSERT_NULL_MESSAGE(write_handler_fake.arg1_history[2], "context parameter of write_handler not NULL");
-	TEST_ASSERT_EQUAL_MESSAGE(CIO_OPERATION_ABORTED, write_handler_fake.arg2_history[2], "err parameter of write_handler not correct");
+	TEST_ASSERT_EQUAL_MESSAGE(CIO_OPERATION_ABORTED, write_handler_fake.arg2_history[1], "err parameter of write_handler not correct");
 	TEST_ASSERT_EQUAL_MESSAGE(ws, write_handler_fake.arg0_history[3], "websocket parameter of write_handler not correct");
 	TEST_ASSERT_NULL_MESSAGE(write_handler_fake.arg1_history[3], "context parameter of write_handler not NULL");
-	TEST_ASSERT_EQUAL_MESSAGE(CIO_OPERATION_ABORTED, write_handler_fake.arg2_history[3], "err parameter of write_handler not correct");
+	TEST_ASSERT_EQUAL_MESSAGE(CIO_OPERATION_ABORTED, write_handler_fake.arg2_history[2], "err parameter of write_handler not correct");
 
 	TEST_ASSERT_EQUAL_MESSAGE(0, on_error_fake.call_count, "error callback was called");
 
