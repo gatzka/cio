@@ -64,7 +64,11 @@ static void read_callback(void *context, enum cio_epoll_error error)
 	struct cio_read_buffer *rb = stream->read_buffer;
 	struct cio_socket *s = cio_container_of(stream, struct cio_socket, stream);
 
-	enum cio_error err = CIO_SUCCESS;
+	enum cio_error err = cio_linux_eventloop_unregister_read(s->impl.loop, &s->impl.ev);
+	if (cio_unlikely(err != CIO_SUCCESS)) {
+		stream->read_handler(stream, stream->read_handler_context, err, rb);
+		return;
+	}
 
 	if (cio_unlikely(error != CIO_EPOLL_SUCCESS)) {
 		err = cio_linux_get_socket_error(s->impl.ev.fd);
@@ -131,6 +135,12 @@ static void read_until_close_callback(void *context, enum cio_epoll_error error)
 
 	struct cio_socket *s = (struct cio_socket *)context;
 
+	enum cio_error err = cio_linux_eventloop_unregister_read(s->impl.loop, &s->impl.ev);
+	if (cio_unlikely(err != CIO_SUCCESS)) {
+		cancel_timer_and_reset_connection(s);
+		return;
+	}
+
 	if (cio_unlikely(error != CIO_EPOLL_SUCCESS)) {
 		cancel_timer_and_reset_connection(s);
 		return;
@@ -163,7 +173,8 @@ static enum cio_error stream_read(struct cio_io_stream *stream, struct cio_read_
 	s->stream.read_buffer = buffer;
 	s->stream.read_handler = handler;
 	s->stream.read_handler_context = handler_context;
-	return CIO_SUCCESS;
+
+	return cio_linux_eventloop_register_read(s->impl.loop, &s->impl.ev);
 }
 
 static void write_callback(void *context, enum cio_epoll_error error)
@@ -260,14 +271,8 @@ enum cio_error cio_linux_socket_init(struct cio_socket *s, int client_fd,
 		goto close_timer;
 	}
 
-	err = cio_linux_eventloop_register_read(s->impl.loop, &s->impl.ev);
-	if (cio_unlikely(err != CIO_SUCCESS)) {
-		goto remove_fd_from_loop;
-	}
-
 	return CIO_SUCCESS;
-remove_fd_from_loop:
-	cio_linux_eventloop_remove(s->impl.loop, &s->impl.ev);
+
 close_timer:
 	cio_timer_close(&s->impl.close_timer);
 	return err;
@@ -317,6 +322,11 @@ static void shutdown_socket(struct cio_socket *s, uint64_t close_timeout_ns)
 	s->impl.ev.read_callback = read_until_close_callback;
 
 	enum cio_error err = cio_timer_expires_from_now(&s->impl.close_timer, close_timeout_ns, close_timeout_handler, s);
+	if (cio_unlikely(err != CIO_SUCCESS)) {
+		goto reset_connection;
+	}
+
+	err = cio_linux_eventloop_register_read(s->impl.loop, &s->impl.ev);
 	if (cio_unlikely(err != CIO_SUCCESS)) {
 		goto reset_connection;
 	}
