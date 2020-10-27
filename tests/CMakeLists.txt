@@ -5,7 +5,7 @@ enable_testing()
 add_library(fff INTERFACE)
 target_include_directories(fff INTERFACE fff)
 
-add_library(unity
+add_library(unity STATIC
     unity/src/unity.c
 )
 set_target_properties(unity PROPERTIES
