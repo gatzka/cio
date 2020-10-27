@@ -21,7 +21,7 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v2
     - name: ctest build
-      run: ctest -DCTEST_CMAKE_GENERATOR="Visual Studio 16 2019" -DCTEST_BUILD_SHARED_LIBS:BOOL=YES -DCTEST_TOOLCHAIN_FILE="/tmp/cio/toolchains/x86_windows_msvc.cmake" -DCTEST_CONFIGURATION_TYPE:STRING=Debug -S build.cmake
+      run: ctest -VV -DCTEST_CMAKE_GENERATOR="Visual Studio 16 2019" -DCTEST_BUILD_SHARED_LIBS:BOOL=YES -DCTEST_TOOLCHAIN_FILE="/tmp/cio/toolchains/x86_windows_msvc.cmake" -DCTEST_CONFIGURATION_TYPE:STRING=Debug -S build.cmake
 
 
   gcc-10-debug:
