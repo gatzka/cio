@@ -32,6 +32,7 @@
 #include "cio/buffered_stream.h"
 #include "cio/compiler.h"
 #include "cio/error_code.h"
+#include "cio/export.h"
 #include "cio/io_stream.h"
 #include "cio/read_buffer.h"
 #include "cio/string.h"
@@ -260,8 +261,8 @@ static void handle_first_write(struct cio_io_stream *io_stream, void *handler_co
 	handle_partial_writes(bs, io_stream, buffer, bytes_transferred);
 }
 
-enum cio_error cio_buffered_stream_init(struct cio_buffered_stream *bs,
-                                        struct cio_io_stream *stream)
+CIO_EXPORT enum cio_error cio_buffered_stream_init(struct cio_buffered_stream *bs,
+                                                   struct cio_io_stream *stream)
 {
 	if (cio_unlikely((bs == NULL) || (stream == NULL))) {
 		return CIO_INVALID_ARGUMENT;
@@ -274,7 +275,7 @@ enum cio_error cio_buffered_stream_init(struct cio_buffered_stream *bs,
 	return CIO_SUCCESS;
 }
 
-enum cio_error cio_buffered_stream_read_at_least(struct cio_buffered_stream *bs, struct cio_read_buffer *buffer, size_t num, cio_buffered_stream_read_handler_t handler, void *handler_context)
+CIO_EXPORT enum cio_error cio_buffered_stream_read_at_least(struct cio_buffered_stream *bs, struct cio_read_buffer *buffer, size_t num, cio_buffered_stream_read_handler_t handler, void *handler_context)
 {
 	if (cio_unlikely((bs == NULL) || (handler == NULL) || (buffer == NULL))) {
 		return CIO_INVALID_ARGUMENT;
@@ -295,7 +296,7 @@ enum cio_error cio_buffered_stream_read_at_least(struct cio_buffered_stream *bs,
 	return CIO_SUCCESS;
 }
 
-enum cio_error cio_buffered_stream_read_until(struct cio_buffered_stream *bs, struct cio_read_buffer *buffer, const char *delim, cio_buffered_stream_read_handler_t handler, void *handler_context)
+CIO_EXPORT enum cio_error cio_buffered_stream_read_until(struct cio_buffered_stream *bs, struct cio_read_buffer *buffer, const char *delim, cio_buffered_stream_read_handler_t handler, void *handler_context)
 {
 	if (cio_unlikely((bs == NULL) || (buffer == NULL) || (handler == NULL) || (delim == NULL))) {
 		return CIO_INVALID_ARGUMENT;
@@ -313,7 +314,7 @@ enum cio_error cio_buffered_stream_read_until(struct cio_buffered_stream *bs, st
 	return CIO_SUCCESS;
 }
 
-enum cio_error cio_buffered_stream_read_at_most(struct cio_buffered_stream *bs, struct cio_read_buffer *buffer, size_t num, cio_buffered_stream_read_handler_t handler, void *handler_context)
+CIO_EXPORT enum cio_error cio_buffered_stream_read_at_most(struct cio_buffered_stream *bs, struct cio_read_buffer *buffer, size_t num, cio_buffered_stream_read_handler_t handler, void *handler_context)
 {
 	if (cio_unlikely((bs == NULL) || (handler == NULL) || (buffer == NULL))) {
 		return CIO_INVALID_ARGUMENT;
@@ -330,7 +331,7 @@ enum cio_error cio_buffered_stream_read_at_most(struct cio_buffered_stream *bs, 
 	return CIO_SUCCESS;
 }
 
-enum cio_error cio_buffered_stream_close(struct cio_buffered_stream *bs)
+CIO_EXPORT enum cio_error cio_buffered_stream_close(struct cio_buffered_stream *bs)
 {
 	if (cio_unlikely(bs == NULL)) {
 		return CIO_INVALID_ARGUMENT;
@@ -345,7 +346,7 @@ enum cio_error cio_buffered_stream_close(struct cio_buffered_stream *bs)
 	return CIO_SUCCESS;
 }
 
-enum cio_error cio_buffered_stream_write(struct cio_buffered_stream *bs, struct cio_write_buffer *buffer, cio_buffered_stream_write_handler_t handler, void *handler_context)
+CIO_EXPORT enum cio_error cio_buffered_stream_write(struct cio_buffered_stream *bs, struct cio_write_buffer *buffer, cio_buffered_stream_write_handler_t handler, void *handler_context)
 {
 	if (cio_unlikely((bs == NULL) || (buffer == NULL) || (handler == NULL))) {
 		return CIO_INVALID_ARGUMENT;

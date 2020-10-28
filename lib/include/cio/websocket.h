@@ -273,7 +273,7 @@ CIO_EXPORT enum cio_error cio_websocket_write_ping(struct cio_websocket *ws, str
  * @param handler_context A context pointer given to @p handler when called.
  * @return ::CIO_SUCCESS for success.
  */
-enum cio_error cio_websocket_write_pong(struct cio_websocket *ws, struct cio_write_buffer *payload, cio_websocket_write_handler_t handler, void *handler_context);
+CIO_EXPORT enum cio_error cio_websocket_write_pong(struct cio_websocket *ws, struct cio_write_buffer *payload, cio_websocket_write_handler_t handler, void *handler_context);
 
 /**
  * @brief Set a callback function that will be called if an error occurred.

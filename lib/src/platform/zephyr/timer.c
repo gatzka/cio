@@ -32,6 +32,7 @@
 
 #include "cio/compiler.h"
 #include "cio/error_code.h"
+#include "cio/export.h"
 #include "cio/eventloop_impl.h"
 #include "cio/timer.h"
 #include "cio/util.h"
@@ -64,8 +65,8 @@ static void stop(struct k_timer *work)
 	handler(timer, timer->handler_context, CIO_OPERATION_ABORTED);
 }
 
-enum cio_error cio_timer_init(struct cio_timer *timer, struct cio_eventloop *loop,
-                              cio_timer_close_hook_t close_hook)
+CIO_EXPORT enum cio_error cio_timer_init(struct cio_timer *timer, struct cio_eventloop *loop,
+                                         cio_timer_close_hook_t close_hook)
 {
 	enum cio_error ret_val = CIO_SUCCESS;
 
@@ -81,7 +82,7 @@ enum cio_error cio_timer_init(struct cio_timer *timer, struct cio_eventloop *loo
 	return ret_val;
 }
 
-enum cio_error cio_timer_expires_from_now(struct cio_timer *t, uint64_t timeout_ns, cio_timer_handler_t handler, void *handler_context)
+CIO_EXPORT enum cio_error cio_timer_expires_from_now(struct cio_timer *t, uint64_t timeout_ns, cio_timer_handler_t handler, void *handler_context)
 {
 	t->handler = handler;
 	t->handler_context = handler_context;
@@ -92,7 +93,7 @@ enum cio_error cio_timer_expires_from_now(struct cio_timer *t, uint64_t timeout_
 	return CIO_SUCCESS;
 }
 
-enum cio_error cio_timer_cancel(struct cio_timer *t)
+CIO_EXPORT enum cio_error cio_timer_cancel(struct cio_timer *t)
 {
 	if (t->handler == NULL) {
 		return CIO_OPERATION_NOT_PERMITTED;
@@ -102,7 +103,7 @@ enum cio_error cio_timer_cancel(struct cio_timer *t)
 	return CIO_SUCCESS;
 }
 
-void cio_timer_close(struct cio_timer *t)
+CIO_EXPORT void cio_timer_close(struct cio_timer *t)
 {
 	cio_zephyr_eventloop_remove_event(&t->impl.ev);
 	if (t->handler != NULL) {

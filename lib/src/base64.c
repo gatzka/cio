@@ -32,10 +32,11 @@
 
 #include "cio/base64.h"
 #include "cio/compiler.h"
+#include "cio/export.h"
 
 static const char ENCODE_TABLE[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
 
-void cio_b64_encode_buffer(const uint8_t *__restrict in, size_t in_length, char *__restrict out)
+CIO_EXPORT void cio_b64_encode_buffer(const uint8_t *__restrict in, size_t in_length, char *__restrict out)
 {
 	while (in_length) {
 		unsigned int len = 0;

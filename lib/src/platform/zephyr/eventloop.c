@@ -32,21 +32,22 @@
 #include "cio/compiler.h"
 #include "cio/error_code.h"
 #include "cio/eventloop.h"
+#include "cio/export.h"
 
 static struct cio_event_notifier stop_ev;
 
-enum cio_error cio_eventloop_init(struct cio_eventloop *loop)
+CIO_EXPORT enum cio_error cio_eventloop_init(struct cio_eventloop *loop)
 {
 	k_msgq_init(&loop->msg_queue, loop->msg_buf, sizeof(struct cio_ev_msg), CIO_ZEPHYR_EVENTLOOP_MSG_QUEUE_SIZE);
 	stop_ev.context = &stop_ev;
 	return CIO_SUCCESS;
 }
 
-void cio_eventloop_destroy(struct cio_eventloop *loop)
+CIO_EXPORT void cio_eventloop_destroy(struct cio_eventloop *loop)
 {
 }
 
-enum cio_error cio_eventloop_run(struct cio_eventloop *loop)
+CIO_EXPORT enum cio_error cio_eventloop_run(struct cio_eventloop *loop)
 {
 	while (true) {
 		struct cio_ev_msg msg;
@@ -63,7 +64,7 @@ enum cio_error cio_eventloop_run(struct cio_eventloop *loop)
 	return CIO_SUCCESS;
 }
 
-void cio_eventloop_cancel(struct cio_eventloop *loop)
+CIO_EXPORT void cio_eventloop_cancel(struct cio_eventloop *loop)
 {
 	k_msgq_purge(&loop->msg_queue);
 	cio_zephyr_eventloop_add_event(loop, &stop_ev);

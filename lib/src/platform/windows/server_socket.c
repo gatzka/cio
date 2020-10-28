@@ -34,6 +34,7 @@
 #include "cio/endian.h"
 #include "cio/error_code.h"
 #include "cio/eventloop_impl.h"
+#include "cio/export.h"
 #include "cio/inet_address.h"
 #include "cio/server_socket.h"
 #include "cio/util.h"
@@ -201,14 +202,14 @@ WSAioctl_failed:
 	return (enum cio_error)(-err);
 }
 
-enum cio_error cio_server_socket_init(struct cio_server_socket *ss,
-                                      struct cio_eventloop *loop,
-                                      unsigned int backlog,
-                                      enum cio_socket_address_family family,
-                                      cio_alloc_client_t alloc_client,
-                                      cio_free_client_t free_client,
-                                      uint64_t close_timeout_ns,
-                                      cio_server_socket_close_hook_t close_hook)
+CIO_EXPORT enum cio_error cio_server_socket_init(struct cio_server_socket *ss,
+                                                 struct cio_eventloop *loop,
+                                                 unsigned int backlog,
+                                                 enum cio_socket_address_family family,
+                                                 cio_alloc_client_t alloc_client,
+                                                 cio_free_client_t free_client,
+                                                 uint64_t close_timeout_ns,
+                                                 cio_server_socket_close_hook_t close_hook)
 {
 	(void)close_timeout_ns;
 
@@ -228,7 +229,7 @@ enum cio_error cio_server_socket_init(struct cio_server_socket *ss,
 	return CIO_SUCCESS;
 }
 
-enum cio_error cio_server_socket_accept(struct cio_server_socket *ss, cio_accept_handler_t handler, void *handler_context)
+CIO_EXPORT enum cio_error cio_server_socket_accept(struct cio_server_socket *ss, cio_accept_handler_t handler, void *handler_context)
 {
 	if (cio_unlikely(handler == NULL)) {
 		return CIO_INVALID_ARGUMENT;
@@ -252,7 +253,7 @@ enum cio_error cio_server_socket_accept(struct cio_server_socket *ss, cio_accept
 	return CIO_SUCCESS;
 }
 
-enum cio_error cio_server_socket_set_reuse_address(const struct cio_server_socket *ss, bool on)
+CIO_EXPORT enum cio_error cio_server_socket_set_reuse_address(const struct cio_server_socket *ss, bool on)
 {
 	DWORD reuse = on ? 1 : 0;
 
@@ -264,7 +265,7 @@ enum cio_error cio_server_socket_set_reuse_address(const struct cio_server_socke
 	return CIO_SUCCESS;
 }
 
-enum cio_error cio_server_socket_bind(struct cio_server_socket *ss, const struct cio_socket_address *endpoint)
+CIO_EXPORT enum cio_error cio_server_socket_bind(struct cio_server_socket *ss, const struct cio_socket_address *endpoint)
 {
 	if (cio_unlikely((ss == NULL) || (endpoint == NULL))) {
 		return CIO_INVALID_ARGUMENT;
@@ -280,12 +281,12 @@ enum cio_error cio_server_socket_bind(struct cio_server_socket *ss, const struct
 	return CIO_SUCCESS;
 }
 
-void cio_server_socket_close(struct cio_server_socket *ss)
+CIO_EXPORT void cio_server_socket_close(struct cio_server_socket *ss)
 {
 	close_listen_socket(&ss->impl.listen_socket);
 }
 
-enum cio_error cio_server_socket_set_tcp_fast_open(const struct cio_server_socket *ss, bool on)
+CIO_EXPORT enum cio_error cio_server_socket_set_tcp_fast_open(const struct cio_server_socket *ss, bool on)
 {
 	DWORD tcp_fast_open = on ? 1 : 0;
 

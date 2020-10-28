@@ -31,63 +31,64 @@
 #include <stdint.h>
 
 #include "cio/endian.h"
+#include "cio/export.h"
 
-uint16_t cio_be16toh(uint16_t big_endian_16bits)
+CIO_EXPORT uint16_t cio_be16toh(uint16_t big_endian_16bits)
 {
 	return be16toh(big_endian_16bits); // NOLINT
 }
 
-uint32_t cio_be32toh(uint32_t big_endian_32bits)
+CIO_EXPORT uint32_t cio_be32toh(uint32_t big_endian_32bits)
 {
 	return be32toh(big_endian_32bits); // NOLINT
 }
 
-uint64_t cio_be64toh(uint64_t big_endian_64bits)
+CIO_EXPORT uint64_t cio_be64toh(uint64_t big_endian_64bits)
 {
 	return be64toh(big_endian_64bits); // NOLINT
 }
 
-uint16_t cio_htobe16(uint16_t host_endian_16bits)
+CIO_EXPORT uint16_t cio_htobe16(uint16_t host_endian_16bits)
 {
 	return htobe16(host_endian_16bits); // NOLINT
 }
 
-uint32_t cio_htobe32(uint32_t host_endian_32bits)
+CIO_EXPORT uint32_t cio_htobe32(uint32_t host_endian_32bits)
 {
 	return htobe32(host_endian_32bits); // NOLINT
 }
 
-uint64_t cio_htobe64(uint64_t host_endian_64bits)
+CIO_EXPORT uint64_t cio_htobe64(uint64_t host_endian_64bits)
 {
 	return htobe64(host_endian_64bits); // NOLINT
 }
 
-uint16_t cio_le16toh(uint16_t little_endian_16bits)
+CIO_EXPORT uint16_t cio_le16toh(uint16_t little_endian_16bits)
 {
 	return le16toh(little_endian_16bits);
 }
 
-uint32_t cio_le32toh(uint32_t little_endian_32bits)
+CIO_EXPORT uint32_t cio_le32toh(uint32_t little_endian_32bits)
 {
 	return le32toh(little_endian_32bits);
 }
 
-uint64_t cio_le64toh(uint64_t little_endian_64bits)
+CIO_EXPORT uint64_t cio_le64toh(uint64_t little_endian_64bits)
 {
 	return le64toh(little_endian_64bits);
 }
 
-uint16_t cio_htole16(uint16_t host_endian_16bits)
+CIO_EXPORT uint16_t cio_htole16(uint16_t host_endian_16bits)
 {
 	return htole16(host_endian_16bits);
 }
 
-uint32_t cio_htole32(uint32_t host_endian_32bits)
+CIO_EXPORT uint32_t cio_htole32(uint32_t host_endian_32bits)
 {
 	return htole32(host_endian_32bits);
 }
 
-uint64_t cio_htole64(uint64_t host_endian_64bits)
+CIO_EXPORT uint64_t cio_htole64(uint64_t host_endian_64bits)
 {
 	return htole64(host_endian_64bits);
 }

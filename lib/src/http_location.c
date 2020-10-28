@@ -29,9 +29,10 @@
 #include <stddef.h>
 
 #include "cio/error_code.h"
+#include "cio/export.h"
 #include "cio/http_location.h"
 
-enum cio_error cio_http_location_init(struct cio_http_location *location, const char *path, const void *config, cio_http_alloc_handler_t handler)
+CIO_EXPORT enum cio_error cio_http_location_init(struct cio_http_location *location, const char *path, const void *config, cio_http_alloc_handler_t handler)
 {
 	if (cio_unlikely((location == NULL) || (path == NULL) || (handler == NULL))) {
 		return CIO_INVALID_ARGUMENT;

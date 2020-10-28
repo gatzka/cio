@@ -37,6 +37,7 @@
 #include "cio/error_code.h"
 #include "cio/eventloop.h"
 #include "cio/eventloop_impl.h"
+#include "cio/export.h"
 
 static void erase_pending_event(struct cio_eventloop *loop, const struct cio_event_notifier *ev)
 {
@@ -62,7 +63,7 @@ static enum cio_error epoll_mod(const struct cio_eventloop *loop, struct cio_eve
 	return CIO_SUCCESS;
 }
 
-enum cio_error cio_eventloop_init(struct cio_eventloop *loop)
+CIO_EXPORT enum cio_error cio_eventloop_init(struct cio_eventloop *loop)
 {
 	enum cio_error err = CIO_SUCCESS;
 
@@ -102,7 +103,7 @@ eventfd_failed:
 	return err;
 }
 
-void cio_eventloop_destroy(struct cio_eventloop *loop)
+CIO_EXPORT void cio_eventloop_destroy(struct cio_eventloop *loop)
 {
 	cio_linux_eventloop_unregister_read(loop, &loop->stop_ev);
 	cio_linux_eventloop_remove(loop, &loop->stop_ev);
@@ -170,7 +171,7 @@ static void handle_removed_ev(const struct cio_eventloop *loop, struct cio_event
 	}
 }
 
-enum cio_error cio_eventloop_run(struct cio_eventloop *loop)
+CIO_EXPORT enum cio_error cio_eventloop_run(struct cio_eventloop *loop)
 {
 	struct epoll_event *events = loop->epoll_events;
 
@@ -208,7 +209,7 @@ out:
 	return CIO_SUCCESS;
 }
 
-void cio_eventloop_cancel(struct cio_eventloop *loop)
+CIO_EXPORT void cio_eventloop_cancel(struct cio_eventloop *loop)
 {
 	uint64_t dummy = 1;
 	ssize_t ret = write(loop->stop_ev.fd, &dummy, sizeof(dummy));

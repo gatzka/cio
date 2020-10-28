@@ -36,11 +36,12 @@
 #include "cio/error_code.h"
 #include "cio/eventloop.h"
 #include "cio/eventloop_impl.h"
+#include "cio/export.h"
 #include "cio/util.h"
 
 static const ULONG_PTR STOP_COMPLETION_KEY = SIZE_MAX;
 
-enum cio_error cio_eventloop_init(struct cio_eventloop *loop)
+CIO_EXPORT enum cio_error cio_eventloop_init(struct cio_eventloop *loop)
 {
 	loop->loop_completion_port = CreateIoCompletionPort(INVALID_HANDLE_VALUE, NULL, 0, 1);
 	if (cio_unlikely(loop->loop_completion_port == NULL)) {
@@ -65,7 +66,7 @@ wsa_startup_failed:
 	return err;
 }
 
-void cio_eventloop_destroy(struct cio_eventloop *loop)
+CIO_EXPORT void cio_eventloop_destroy(struct cio_eventloop *loop)
 {
 	CloseHandle(loop->loop_completion_port);
 	WSACleanup();
@@ -80,7 +81,7 @@ enum cio_error cio_windows_add_handle_to_completion_port(HANDLE fd, const struct
 	return CIO_SUCCESS;
 }
 
-enum cio_error cio_eventloop_run(struct cio_eventloop *loop)
+CIO_EXPORT enum cio_error cio_eventloop_run(struct cio_eventloop *loop)
 {
 	while (cio_likely(loop->go_ahead)) {
 		DWORD size = 0;
@@ -110,7 +111,7 @@ enum cio_error cio_eventloop_run(struct cio_eventloop *loop)
 	return CIO_SUCCESS;
 }
 
-void cio_eventloop_cancel(struct cio_eventloop *loop)
+CIO_EXPORT void cio_eventloop_cancel(struct cio_eventloop *loop)
 {
 	loop->go_ahead = false;
 	PostQueuedCompletionStatus(loop->loop_completion_port, 0, STOP_COMPLETION_KEY, NULL);

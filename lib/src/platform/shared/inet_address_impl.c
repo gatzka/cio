@@ -33,6 +33,7 @@
 #include "cio/address_family.h"
 #include "cio/compiler.h"
 #include "cio/error_code.h"
+#include "cio/export.h"
 #include "cio/inet_address.h"
 #include "cio/inet_address_impl.h"
 
@@ -42,17 +43,17 @@ static const struct cio_inet_address INET_ADDRESS_ANY6 = {
 static const struct cio_inet_address INET_ADDRESS_ANY4 = {
     .impl = {.family = CIO_ADDRESS_FAMILY_INET4, .in.s_addr = INADDR_ANY}};
 
-const struct cio_inet_address *cio_get_inet_address_any4(void)
+CIO_EXPORT const struct cio_inet_address *cio_get_inet_address_any4(void)
 {
 	return &INET_ADDRESS_ANY4;
 }
 
-const struct cio_inet_address *cio_get_inet_address_any6(void)
+CIO_EXPORT const struct cio_inet_address *cio_get_inet_address_any6(void)
 {
 	return &INET_ADDRESS_ANY6;
 }
 
-enum cio_error cio_init_inet_address(struct cio_inet_address *inet_address, const uint8_t *address, size_t address_length)
+CIO_EXPORT enum cio_error cio_init_inet_address(struct cio_inet_address *inet_address, const uint8_t *address, size_t address_length)
 {
 	size_t v4_size = sizeof(inet_address->impl.in.s_addr);
 	size_t v6_size = sizeof(inet_address->impl.in6.s6_addr);
@@ -71,7 +72,7 @@ enum cio_error cio_init_inet_address(struct cio_inet_address *inet_address, cons
 	return CIO_SUCCESS;
 }
 
-enum cio_address_family cio_inet_address_get_family(const struct cio_inet_address *endpoint)
+CIO_EXPORT enum cio_address_family cio_inet_address_get_family(const struct cio_inet_address *endpoint)
 {
 	return endpoint->impl.family;
 }

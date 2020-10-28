@@ -92,14 +92,14 @@ static void accept_callback(void *context, enum cio_epoll_error error)
 	}
 }
 
-enum cio_error cio_server_socket_init(struct cio_server_socket *ss,
-                                      struct cio_eventloop *loop,
-                                      unsigned int backlog,
-                                      enum cio_address_family family,
-                                      cio_alloc_client_t alloc_client,
-                                      cio_free_client_t free_client,
-                                      uint64_t close_timeout_ns,
-                                      cio_server_socket_close_hook_t close_hook)
+CIO_EXPORT enum cio_error cio_server_socket_init(struct cio_server_socket *ss,
+                                                 struct cio_eventloop *loop,
+                                                 unsigned int backlog,
+                                                 enum cio_address_family family,
+                                                 cio_alloc_client_t alloc_client,
+                                                 cio_free_client_t free_client,
+                                                 uint64_t close_timeout_ns,
+                                                 cio_server_socket_close_hook_t close_hook)
 {
 	int listen_fd = cio_linux_socket_create(family);
 	if (cio_unlikely(listen_fd == -1)) {
@@ -117,7 +117,7 @@ enum cio_error cio_server_socket_init(struct cio_server_socket *ss,
 	return CIO_SUCCESS;
 }
 
-enum cio_error cio_server_socket_accept(struct cio_server_socket *ss, cio_accept_handler_t handler, void *handler_context)
+CIO_EXPORT enum cio_error cio_server_socket_accept(struct cio_server_socket *ss, cio_accept_handler_t handler, void *handler_context)
 {
 	enum cio_error err = CIO_SUCCESS;
 	if (cio_unlikely(handler == NULL)) {
@@ -142,7 +142,7 @@ enum cio_error cio_server_socket_accept(struct cio_server_socket *ss, cio_accept
 	return err;
 }
 
-void cio_server_socket_close(struct cio_server_socket *ss)
+CIO_EXPORT void cio_server_socket_close(struct cio_server_socket *ss)
 {
 	cio_linux_eventloop_remove(ss->impl.loop, &ss->impl.ev);
 
@@ -179,7 +179,7 @@ static enum cio_error try_removing_uds_file(const struct cio_socket_address *end
 	return err;
 }
 
-enum cio_error cio_server_socket_bind(struct cio_server_socket *ss, const struct cio_socket_address *endpoint)
+CIO_EXPORT enum cio_error cio_server_socket_bind(struct cio_server_socket *ss, const struct cio_socket_address *endpoint)
 {
 	if (cio_unlikely((ss == NULL) || (endpoint == NULL))) {
 		return CIO_INVALID_ARGUMENT;
@@ -207,7 +207,7 @@ enum cio_error cio_server_socket_bind(struct cio_server_socket *ss, const struct
 	return CIO_SUCCESS;
 }
 
-enum cio_error cio_server_socket_set_reuse_address(const struct cio_server_socket *ss, bool on)
+CIO_EXPORT enum cio_error cio_server_socket_set_reuse_address(const struct cio_server_socket *ss, bool on)
 {
 	int reuse = (int)on;
 
@@ -219,7 +219,7 @@ enum cio_error cio_server_socket_set_reuse_address(const struct cio_server_socke
 	return CIO_SUCCESS;
 }
 
-enum cio_error cio_server_socket_set_tcp_fast_open(const struct cio_server_socket *ss, bool on)
+CIO_EXPORT enum cio_error cio_server_socket_set_tcp_fast_open(const struct cio_server_socket *ss, bool on)
 {
 	int qlen = 0;
 	if (on) {

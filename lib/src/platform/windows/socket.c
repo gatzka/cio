@@ -38,6 +38,7 @@
 #include "cio/compiler.h"
 #include "cio/error_code.h"
 #include "cio/eventloop.h"
+#include "cio/export.h"
 #include "cio/socket.h"
 #include "cio/socket_address.h"
 #include "cio/util.h"
@@ -212,11 +213,11 @@ enum cio_error cio_windows_socket_init(struct cio_socket *s, SOCKET client_fd,
 	return CIO_SUCCESS;
 }
 
-enum cio_error cio_socket_init(struct cio_socket *socket,
-                               enum cio_socket_address_family address_family,
-                               struct cio_eventloop *loop,
-                               uint64_t close_timeout_ns,
-                               cio_socket_close_hook_t close_hook)
+CIO_EXPORT enum cio_error cio_socket_init(struct cio_socket *socket,
+                                          enum cio_socket_address_family address_family,
+                                          struct cio_eventloop *loop,
+                                          uint64_t close_timeout_ns,
+                                          cio_socket_close_hook_t close_hook)
 {
 	if (cio_unlikely(socket == NULL) || (loop == NULL)) {
 		return CIO_INVALID_ARGUMENT;
@@ -236,7 +237,7 @@ enum cio_error cio_socket_init(struct cio_socket *socket,
 	return cio_windows_socket_init(socket, socket_fd, loop, close_timeout_ns, close_hook);
 }
 
-enum cio_error cio_socket_close(struct cio_socket *s)
+CIO_EXPORT enum cio_error cio_socket_close(struct cio_socket *s)
 {
 	if (cio_unlikely(s == NULL)) {
 		return CIO_INVALID_ARGUMENT;
@@ -276,7 +277,7 @@ static void connect_callback(struct cio_event_notifier *ev)
 	socket->handler(socket, socket->handler_context, CIO_SUCCESS);
 }
 
-enum cio_error cio_socket_connect(struct cio_socket *socket, const struct cio_socket_address *endpoint, cio_connect_handler_t handler, void *handler_context)
+CIO_EXPORT enum cio_error cio_socket_connect(struct cio_socket *socket, const struct cio_socket_address *endpoint, cio_connect_handler_t handler, void *handler_context)
 {
 	if (cio_unlikely(socket == NULL) || (endpoint == NULL)) {
 		return CIO_INVALID_ARGUMENT;
@@ -341,7 +342,7 @@ enum cio_error cio_socket_connect(struct cio_socket *socket, const struct cio_so
 	return CIO_SUCCESS;
 }
 
-enum cio_error cio_socket_set_tcp_no_delay(struct cio_socket *s, bool on)
+CIO_EXPORT enum cio_error cio_socket_set_tcp_no_delay(struct cio_socket *s, bool on)
 {
 	char tcp_no_delay = (char)on;
 
@@ -353,8 +354,8 @@ enum cio_error cio_socket_set_tcp_no_delay(struct cio_socket *s, bool on)
 	return CIO_SUCCESS;
 }
 
-enum cio_error cio_socket_set_keep_alive(const struct cio_socket *s, bool on, unsigned int keep_idle_s,
-                                         unsigned int keep_intvl_s, unsigned int keep_cnt)
+CIO_EXPORT enum cio_error cio_socket_set_keep_alive(const struct cio_socket *s, bool on, unsigned int keep_idle_s,
+                                                    unsigned int keep_intvl_s, unsigned int keep_cnt)
 {
 	(void)keep_cnt;
 
@@ -368,12 +369,12 @@ enum cio_error cio_socket_set_keep_alive(const struct cio_socket *s, bool on, un
 	return CIO_SUCCESS;
 }
 
-struct cio_io_stream *cio_socket_get_io_stream(struct cio_socket *s)
+CIO_EXPORT struct cio_io_stream *cio_socket_get_io_stream(struct cio_socket *s)
 {
 	return &s->stream;
 }
 
-enum cio_address_family cio_socket_get_address_family(const struct cio_socket *socket)
+CIO_EXPORT enum cio_address_family cio_socket_get_address_family(const struct cio_socket *socket)
 {
 	struct sockaddr_storage name;
 	memset(&name, 0, sizeof(name));
@@ -386,7 +387,7 @@ enum cio_address_family cio_socket_get_address_family(const struct cio_socket *s
 	return (enum cio_address_family)name.ss_family;
 }
 
-enum cio_error cio_socket_set_tcp_fast_open(const struct cio_socket *socket, bool on)
+CIO_EXPORT enum cio_error cio_socket_set_tcp_fast_open(const struct cio_socket *socket, bool on)
 {
 #if 0
 	DWORD tcp_fast_open = on ? 1 : 0;

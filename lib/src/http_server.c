@@ -37,6 +37,7 @@
 #include "cio/buffered_stream.h"
 #include "cio/compiler.h"
 #include "cio/error_code.h"
+#include "cio/export.h"
 #include "cio/http-parser/http_parser.h"
 #include "cio/http_client.h"
 #include "cio/http_location.h"
@@ -729,7 +730,7 @@ static void server_socket_closed(struct cio_server_socket *ss)
 
 static const unsigned int DEFAULT_BACKLOG = 5;
 
-enum cio_error cio_http_server_init(struct cio_http_server *server,
+CIO_EXPORT enum cio_error cio_http_server_init(struct cio_http_server *server,
                                                struct cio_eventloop *loop,
                                                const struct cio_http_server_configuration *config)
 {
@@ -767,7 +768,7 @@ enum cio_error cio_http_server_init(struct cio_http_server *server,
 	return CIO_SUCCESS;
 }
 
-enum cio_error cio_http_server_serve(struct cio_http_server *server)
+CIO_EXPORT enum cio_error cio_http_server_serve(struct cio_http_server *server)
 {
 	enum cio_error err = cio_server_socket_set_reuse_address(&server->server_socket, true);
 	if (cio_unlikely(err != CIO_SUCCESS)) {
@@ -791,7 +792,7 @@ close_socket:
 	return err;
 }
 
-enum cio_error cio_http_server_register_location(struct cio_http_server *server, struct cio_http_location *location)
+CIO_EXPORT enum cio_error cio_http_server_register_location(struct cio_http_server *server, struct cio_http_location *location)
 {
 	if (cio_unlikely(server == NULL) || (location == NULL)) {
 		return CIO_INVALID_ARGUMENT;
@@ -803,7 +804,7 @@ enum cio_error cio_http_server_register_location(struct cio_http_server *server,
 	return CIO_SUCCESS;
 }
 
-enum cio_error cio_http_server_shutdown(struct cio_http_server *server, cio_http_server_close_hook_t close_hook)
+CIO_EXPORT enum cio_error cio_http_server_shutdown(struct cio_http_server *server, cio_http_server_close_hook_t close_hook)
 {
 	server->close_hook = close_hook;
 	cio_server_socket_close(&server->server_socket);

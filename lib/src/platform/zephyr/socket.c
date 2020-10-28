@@ -34,6 +34,7 @@
 #include "cio/endian.h"
 #include "cio/error_code.h"
 #include "cio/eventloop_impl.h"
+#include "cio/export.h"
 #include "cio/io_stream.h"
 #include "cio/read_buffer.h"
 #include "cio/socket.h"
@@ -45,7 +46,7 @@
 
 #define CIO_MIN(X, Y) (((X) < (Y)) ? (X) : (Y))
 
-struct cio_io_stream *cio_socket_get_io_stream(struct cio_socket *socket)
+CIO_EXPORT struct cio_io_stream *cio_socket_get_io_stream(struct cio_socket *socket)
 {
 	return &socket->stream;
 }
@@ -210,7 +211,7 @@ static void close_socket(struct cio_socket *socket)
 	close_and_call_hook(socket);
 }
 
-enum cio_error cio_socket_close(struct cio_socket *socket)
+CIO_EXPORT enum cio_error cio_socket_close(struct cio_socket *socket)
 {
 	if (cio_unlikely(socket == NULL)) {
 		return CIO_INVALID_ARGUMENT;

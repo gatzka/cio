@@ -28,9 +28,10 @@
 
 #include <stdbool.h>
 
+#include "cio/export.h"
 #include "cio/http_location_handler.h"
 
-void cio_http_location_handler_init(struct cio_http_location_handler *handler)
+CIO_EXPORT void cio_http_location_handler_init(struct cio_http_location_handler *handler)
 {
 	handler->on_url = NULL;
 	handler->on_port = NULL;
@@ -66,3 +67,4 @@ bool cio_http_location_handler_no_callbacks(const struct cio_http_location_handl
 
 	return true;
 }
+

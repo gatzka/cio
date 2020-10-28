@@ -31,19 +31,20 @@
 #include "cio/compiler.h"
 #include "cio/error_code.h"
 #include "cio/eventloop_impl.h"
+#include "cio/export.h"
 #include "cio/server_socket.h"
 #include "cio/socket.h"
 #include "cio/zephyr_socket.h"
 #include "cio/zephyr_socket_utils.h"
 
-enum cio_error cio_server_socket_init(struct cio_server_socket *ss,
-                                      struct cio_eventloop *loop,
-                                      unsigned int backlog,
-                                      enum cio_address_family family,
-                                      cio_alloc_client_t alloc_client,
-                                      cio_free_client_t free_client,
-                                      uint64_t close_timeout_ns,
-                                      cio_server_socket_close_hook_t close_hook)
+CIO_EXPORT enum cio_error cio_server_socket_init(struct cio_server_socket *ss,
+                                                 struct cio_eventloop *loop,
+                                                 unsigned int backlog,
+                                                 enum cio_address_family family,
+                                                 cio_alloc_client_t alloc_client,
+                                                 cio_free_client_t free_client,
+                                                 uint64_t close_timeout_ns,
+                                                 cio_server_socket_close_hook_t close_hook)
 {
 	int ret = cio_zephyr_socket_create(family, &ss->impl.context);
 	if (cio_unlikely(ret < 0)) {
@@ -62,7 +63,7 @@ enum cio_error cio_server_socket_init(struct cio_server_socket *ss,
 	return CIO_SUCCESS;
 }
 
-enum cio_error cio_server_socket_set_reuse_address(const struct cio_server_socket *ss, bool on)
+CIO_EXPORT enum cio_error cio_server_socket_set_reuse_address(const struct cio_server_socket *ss, bool on)
 {
 	(void)ss;
 	(void)on;
@@ -70,7 +71,7 @@ enum cio_error cio_server_socket_set_reuse_address(const struct cio_server_socke
 	return CIO_OPERATION_NOT_SUPPORTED;
 }
 
-enum cio_error cio_server_socket_bind(struct cio_server_socket *ss, const struct cio_socket_address *endpoint)
+CIO_EXPORT enum cio_error cio_server_socket_bind(struct cio_server_socket *ss, const struct cio_socket_address *endpoint)
 {
 	if (cio_unlikely((ss == NULL) || (endpoint == NULL))) {
 		return CIO_INVALID_ARGUMENT;
@@ -130,7 +131,7 @@ static void net_context_accept_cb(struct net_context *new_context, struct sockad
 	cio_zephyr_eventloop_add_event(ss->impl.loop, &ss->impl.ev);
 }
 
-enum cio_error cio_server_socket_accept(struct cio_server_socket *ss, cio_accept_handler_t handler, void *handler_context)
+CIO_EXPORT enum cio_error cio_server_socket_accept(struct cio_server_socket *ss, cio_accept_handler_t handler, void *handler_context)
 {
 	if (cio_unlikely(handler == NULL)) {
 		return CIO_INVALID_ARGUMENT;
@@ -151,7 +152,7 @@ enum cio_error cio_server_socket_accept(struct cio_server_socket *ss, cio_accept
 	return CIO_SUCCESS;
 }
 
-void cio_server_socket_close(struct cio_server_socket *ss)
+CIO_EXPORT void cio_server_socket_close(struct cio_server_socket *ss)
 {
 	cio_zephyr_eventloop_remove_event(&ss->impl.ev);
 
@@ -161,7 +162,7 @@ void cio_server_socket_close(struct cio_server_socket *ss)
 	}
 }
 
-enum cio_error cio_server_socket_set_tcp_fast_open(const struct cio_server_socket *ss, bool on)
+CIO_EXPORT enum cio_error cio_server_socket_set_tcp_fast_open(const struct cio_server_socket *ss, bool on)
 {
 	(void)ss;
 	(void)on;

@@ -29,23 +29,24 @@
 #include <sys/byteorder.h>
 
 #include "cio/endian.h"
+#include "cio/export.h"
 
-uint16_t cio_be16toh(uint16_t big_endian_16bits)
+CIO_EXPORT uint16_t cio_be16toh(uint16_t big_endian_16bits)
 {
 	return sys_be16_to_cpu(big_endian_16bits);
 }
 
-uint64_t cio_be64toh(uint64_t big_endian_64bits)
+CIO_EXPORT uint64_t cio_be64toh(uint64_t big_endian_64bits)
 {
 	return sys_be64_to_cpu(big_endian_64bits);
 }
 
-uint16_t cio_htobe16(uint16_t host_endian_16bits)
+CIO_EXPORT uint16_t cio_htobe16(uint16_t host_endian_16bits)
 {
 	return sys_cpu_to_be16(host_endian_16bits);
 }
 
-uint64_t cio_htobe64(uint64_t host_endian_64bits)
+CIO_EXPORT uint64_t cio_htobe64(uint64_t host_endian_64bits)
 {
 	return sys_cpu_to_be64(host_endian_64bits);
 }

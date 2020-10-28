@@ -34,15 +34,16 @@
 #include "cio/compiler.h"
 #include "cio/endian.h"
 #include "cio/error_code.h"
+#include "cio/export.h"
 #include "cio/inet_address.h"
 #include "cio/socket_address.h"
 
-enum cio_address_family cio_socket_address_get_family(const struct cio_socket_address *endpoint)
+CIO_EXPORT enum cio_address_family cio_socket_address_get_family(const struct cio_socket_address *endpoint)
 {
 	return (enum cio_address_family)endpoint->impl.sa.socket_address.addr.sa_family;
 }
 
-enum cio_error cio_init_inet_socket_address(struct cio_socket_address *sock_address, const struct cio_inet_address *inet_address, uint16_t port)
+CIO_EXPORT enum cio_error cio_init_inet_socket_address(struct cio_socket_address *sock_address, const struct cio_inet_address *inet_address, uint16_t port)
 {
 	if (cio_unlikely((sock_address == NULL) || (inet_address == NULL))) {
 		return CIO_INVALID_ARGUMENT;

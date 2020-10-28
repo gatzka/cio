@@ -38,6 +38,7 @@
 
 #include "cio/compiler.h"
 #include "cio/error_code.h"
+#include "cio/export.h"
 #include "cio/eventloop_impl.h"
 #include "cio/linux_socket_utils.h"
 #include "cio/timer.h"
@@ -83,8 +84,8 @@ static void timer_read(void *context, enum cio_epoll_error error)
 	}
 }
 
-enum cio_error cio_timer_init(struct cio_timer *timer, struct cio_eventloop *loop,
-                              cio_timer_close_hook_t close_hook)
+CIO_EXPORT enum cio_error cio_timer_init(struct cio_timer *timer, struct cio_eventloop *loop,
+                                         cio_timer_close_hook_t close_hook)
 {
 	int fd = timerfd_create(CLOCK_MONOTONIC, O_NONBLOCK);
 	if (cio_unlikely(fd == -1)) {
@@ -119,7 +120,7 @@ eventloop_add_failed:
 	return ret_val;
 }
 
-enum cio_error cio_timer_expires_from_now(struct cio_timer *t, uint64_t timeout_ns, cio_timer_handler_t handler, void *handler_context)
+CIO_EXPORT enum cio_error cio_timer_expires_from_now(struct cio_timer *t, uint64_t timeout_ns, cio_timer_handler_t handler, void *handler_context)
 {
 	struct itimerspec timeout = convert_timeoutns_to_itimerspec(timeout_ns);
 
@@ -136,7 +137,7 @@ enum cio_error cio_timer_expires_from_now(struct cio_timer *t, uint64_t timeout_
 	return CIO_SUCCESS;
 }
 
-enum cio_error cio_timer_cancel(struct cio_timer *t)
+CIO_EXPORT enum cio_error cio_timer_cancel(struct cio_timer *t)
 {
 	struct itimerspec timeout;
 

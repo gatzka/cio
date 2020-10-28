@@ -33,6 +33,7 @@
 #include "cio/compiler.h"
 #include "cio/endian.h"
 #include "cio/error_code.h"
+#include "cio/export.h"
 #include "cio/random.h"
 #include "cio/utf8_checker.h"
 #include "cio/util.h"
@@ -814,7 +815,7 @@ static enum cio_error write_ping_or_pong_message(struct cio_websocket *ws, enum 
 	return CIO_SUCCESS;
 }
 
-enum cio_error cio_websocket_init(struct cio_websocket *ws, bool is_server, cio_websocket_on_connect_t on_connect, cio_websocket_close_hook_t close_hook)
+CIO_EXPORT enum cio_error cio_websocket_init(struct cio_websocket *ws, bool is_server, cio_websocket_on_connect_t on_connect, cio_websocket_close_hook_t close_hook)
 {
 	if (cio_unlikely((ws == NULL) || (on_connect == NULL))) {
 		return CIO_INVALID_ARGUMENT;
@@ -848,7 +849,7 @@ enum cio_error cio_websocket_init(struct cio_websocket *ws, bool is_server, cio_
 	return cio_random_seed_rng(&ws->ws_private.rng);
 }
 
-enum cio_error cio_websocket_close(struct cio_websocket *ws, enum cio_websocket_status_code status_code, const char *reason, cio_websocket_write_handler_t handler, void *handler_context)
+CIO_EXPORT enum cio_error cio_websocket_close(struct cio_websocket *ws, enum cio_websocket_status_code status_code, const char *reason, cio_websocket_write_handler_t handler, void *handler_context)
 {
 	if (cio_unlikely((ws == NULL)) || (handler == NULL)) {
 		return CIO_INVALID_ARGUMENT;
@@ -882,7 +883,7 @@ timer_expires_failed:
 	return err;
 }
 
-enum cio_error cio_websocket_read_message(struct cio_websocket *ws, cio_websocket_read_handler_t handler, void *handler_context)
+CIO_EXPORT enum cio_error cio_websocket_read_message(struct cio_websocket *ws, cio_websocket_read_handler_t handler, void *handler_context)
 {
 	if (cio_unlikely((ws == NULL)) || (handler == NULL)) {
 		return CIO_INVALID_ARGUMENT;
@@ -906,7 +907,7 @@ enum cio_error cio_websocket_read_message(struct cio_websocket *ws, cio_websocke
 	return CIO_SUCCESS;
 }
 
-enum cio_error cio_websocket_write_message_first_chunk(struct cio_websocket *ws, size_t frame_length, struct cio_write_buffer *payload, bool last_frame, bool is_binary, cio_websocket_write_handler_t handler, void *handler_context)
+CIO_EXPORT enum cio_error cio_websocket_write_message_first_chunk(struct cio_websocket *ws, size_t frame_length, struct cio_write_buffer *payload, bool last_frame, bool is_binary, cio_websocket_write_handler_t handler, void *handler_context)
 {
 
 	if (cio_unlikely((ws == NULL)) || (handler == NULL)) {
@@ -946,7 +947,7 @@ enum cio_error cio_websocket_write_message_first_chunk(struct cio_websocket *ws,
 	return enqueue_job(ws, &ws->ws_private.write_message_job, frame_length);
 }
 
-enum cio_error cio_websocket_write_message_continuation_chunk(struct cio_websocket *ws, struct cio_write_buffer *payload, cio_websocket_write_handler_t handler, void *handler_context)
+CIO_EXPORT enum cio_error cio_websocket_write_message_continuation_chunk(struct cio_websocket *ws, struct cio_write_buffer *payload, cio_websocket_write_handler_t handler, void *handler_context)
 {
 	ws->ws_private.write_message_job.wbh = payload;
 	ws->ws_private.write_message_job.handler = handler;
@@ -956,7 +957,7 @@ enum cio_error cio_websocket_write_message_continuation_chunk(struct cio_websock
 	return enqueue_job(ws, &ws->ws_private.write_message_job, 0);
 }
 
-enum cio_error cio_websocket_write_ping(struct cio_websocket *ws, struct cio_write_buffer *payload, cio_websocket_write_handler_t handler, void *handler_context)
+CIO_EXPORT enum cio_error cio_websocket_write_ping(struct cio_websocket *ws, struct cio_write_buffer *payload, cio_websocket_write_handler_t handler, void *handler_context)
 {
 	if (cio_unlikely(ws == NULL)) {
 		return CIO_INVALID_ARGUMENT;
@@ -965,7 +966,7 @@ enum cio_error cio_websocket_write_ping(struct cio_websocket *ws, struct cio_wri
 	return write_ping_or_pong_message(ws, CIO_WEBSOCKET_PING_FRAME, &ws->ws_private.write_ping_job, payload, handler, handler_context);
 }
 
-enum cio_error cio_websocket_write_pong(struct cio_websocket *ws, struct cio_write_buffer *payload, cio_websocket_write_handler_t handler, void *handler_context)
+CIO_EXPORT enum cio_error cio_websocket_write_pong(struct cio_websocket *ws, struct cio_write_buffer *payload, cio_websocket_write_handler_t handler, void *handler_context)
 {
 	if (cio_unlikely(ws == NULL)) {
 		return CIO_INVALID_ARGUMENT;
@@ -974,12 +975,12 @@ enum cio_error cio_websocket_write_pong(struct cio_websocket *ws, struct cio_wri
 	return write_ping_or_pong_message(ws, CIO_WEBSOCKET_PONG_FRAME, &ws->ws_private.write_pong_job, payload, handler, handler_context);
 }
 
-void cio_websocket_set_on_error_cb(struct cio_websocket *ws, void (*on_error)(const struct cio_websocket *ws, enum cio_error err, const char *reason))
+CIO_EXPORT void cio_websocket_set_on_error_cb(struct cio_websocket *ws, void (*on_error)(const struct cio_websocket *ws, enum cio_error err, const char *reason))
 {
 	ws->on_error = on_error;
 }
 
-void cio_websocket_set_on_control_cb(struct cio_websocket *ws, void (*on_control)(const struct cio_websocket *ws, enum cio_websocket_frame_type kind, const uint8_t *data, uint_fast8_t length))
+CIO_EXPORT void cio_websocket_set_on_control_cb(struct cio_websocket *ws, void (*on_control)(const struct cio_websocket *ws, enum cio_websocket_frame_type kind, const uint8_t *data, uint_fast8_t length))
 {
 	ws->on_control = on_control;
 }

@@ -30,6 +30,7 @@
 
 #include "cio/compiler.h"
 #include "cio/error_code.h"
+#include "cio/export.h"
 #include "cio/timer.h"
 #include "cio/util.h"
 
@@ -53,8 +54,8 @@ static void timer_event_callback(struct cio_event_notifier *ev)
 	handler(t, t->handler_context, CIO_SUCCESS);
 }
 
-enum cio_error cio_timer_init(struct cio_timer *timer, struct cio_eventloop *loop,
-                              cio_timer_close_hook_t close_hook)
+CIO_EXPORT enum cio_error cio_timer_init(struct cio_timer *timer, struct cio_eventloop *loop,
+                                         cio_timer_close_hook_t close_hook)
 {
 	timer->close_hook = close_hook;
 	timer->impl.loop = loop;
@@ -64,7 +65,7 @@ enum cio_error cio_timer_init(struct cio_timer *timer, struct cio_eventloop *loo
 	return CIO_SUCCESS;
 }
 
-enum cio_error cio_timer_cancel(struct cio_timer *t)
+CIO_EXPORT enum cio_error cio_timer_cancel(struct cio_timer *t)
 {
 	if (cio_unlikely(t->handler == NULL)) {
 		return CIO_OPERATION_NOT_PERMITTED;
@@ -92,7 +93,7 @@ void cio_timer_close(struct cio_timer *t)
 	}
 }
 
-enum cio_error cio_timer_expires_from_now(struct cio_timer *t, uint64_t timeout_ns, cio_timer_handler_t handler, void *handler_context)
+CIO_EXPORT enum cio_error cio_timer_expires_from_now(struct cio_timer *t, uint64_t timeout_ns, cio_timer_handler_t handler, void *handler_context)
 {
 	if (cio_unlikely(t == NULL)) {
 		return CIO_INVALID_ARGUMENT;

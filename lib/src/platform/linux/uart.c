@@ -44,6 +44,7 @@
 
 #include "cio/compiler.h"
 #include "cio/error_code.h"
+#include "cio/export.h"
 #include "cio/linux_socket_utils.h"
 #include "cio/uart.h"
 #include "cio/util.h"
@@ -171,7 +172,7 @@ static enum cio_error get_current_settings(const struct cio_uart *port, struct t
 	return CIO_SUCCESS;
 }
 
-size_t cio_uart_get_number_of_uarts(void)
+CIO_EXPORT size_t cio_uart_get_number_of_uarts(void)
 {
 	DIR *serial_dir = opendir(DIR_NAME);
 	if (serial_dir == NULL) {
@@ -192,7 +193,7 @@ size_t cio_uart_get_number_of_uarts(void)
 	return num_uarts;
 }
 
-enum cio_error cio_uart_get_ports(struct cio_uart ports[], size_t num_ports_entries, size_t *num_detected_ports)
+CIO_EXPORT enum cio_error cio_uart_get_ports(struct cio_uart ports[], size_t num_ports_entries, size_t *num_detected_ports)
 {
 	DIR *serial_dir = opendir(DIR_NAME);
 	if (serial_dir == NULL) {
@@ -255,7 +256,7 @@ static enum cio_error set_termios(int fd, struct termios *tty)
 	return CIO_SUCCESS;
 }
 
-enum cio_error cio_uart_init(struct cio_uart *port, struct cio_eventloop *loop, cio_uart_close_hook_t close_hook)
+CIO_EXPORT enum cio_error cio_uart_init(struct cio_uart *port, struct cio_eventloop *loop, cio_uart_close_hook_t close_hook)
 {
 	if (cio_unlikely((port == NULL) || (loop == NULL))) {
 		return CIO_INVALID_ARGUMENT;
@@ -326,7 +327,7 @@ close_err:
 	return err;
 }
 
-enum cio_error cio_uart_close(struct cio_uart *port)
+CIO_EXPORT enum cio_error cio_uart_close(struct cio_uart *port)
 {
 	if (cio_unlikely(port == NULL)) {
 		return CIO_INVALID_ARGUMENT;
@@ -343,7 +344,7 @@ enum cio_error cio_uart_close(struct cio_uart *port)
 	return CIO_SUCCESS;
 }
 
-enum cio_error cio_uart_set_parity(const struct cio_uart *port, enum cio_uart_parity parity)
+CIO_EXPORT enum cio_error cio_uart_set_parity(const struct cio_uart *port, enum cio_uart_parity parity)
 {
 	if (cio_unlikely(port == NULL)) {
 		return CIO_INVALID_ARGUMENT;
@@ -392,7 +393,7 @@ enum cio_error cio_uart_set_parity(const struct cio_uart *port, enum cio_uart_pa
 	return CIO_SUCCESS;
 }
 
-enum cio_error cio_uart_get_parity(const struct cio_uart *port, enum cio_uart_parity *parity)
+CIO_EXPORT enum cio_error cio_uart_get_parity(const struct cio_uart *port, enum cio_uart_parity *parity)
 {
 	if (cio_unlikely(port == NULL)) {
 		return CIO_INVALID_ARGUMENT;
@@ -422,7 +423,7 @@ enum cio_error cio_uart_get_parity(const struct cio_uart *port, enum cio_uart_pa
 	return CIO_SUCCESS;
 }
 
-enum cio_error cio_uart_set_num_stop_bits(const struct cio_uart *port, enum cio_uart_num_stop_bits num_stop_bits)
+CIO_EXPORT enum cio_error cio_uart_set_num_stop_bits(const struct cio_uart *port, enum cio_uart_num_stop_bits num_stop_bits)
 {
 	if (cio_unlikely(port == NULL)) {
 		return CIO_INVALID_ARGUMENT;
@@ -455,7 +456,7 @@ enum cio_error cio_uart_set_num_stop_bits(const struct cio_uart *port, enum cio_
 	return CIO_SUCCESS;
 }
 
-enum cio_error cio_uart_get_num_stop_bits(const struct cio_uart *port, enum cio_uart_num_stop_bits *num_stop_bits)
+CIO_EXPORT enum cio_error cio_uart_get_num_stop_bits(const struct cio_uart *port, enum cio_uart_num_stop_bits *num_stop_bits)
 {
 	if (cio_unlikely(port == NULL)) {
 		return CIO_INVALID_ARGUMENT;
@@ -476,7 +477,7 @@ enum cio_error cio_uart_get_num_stop_bits(const struct cio_uart *port, enum cio_
 	return CIO_SUCCESS;
 }
 
-enum cio_error cio_uart_set_num_data_bits(const struct cio_uart *port, enum cio_uart_num_data_bits num_data_bits)
+CIO_EXPORT enum cio_error cio_uart_set_num_data_bits(const struct cio_uart *port, enum cio_uart_num_data_bits num_data_bits)
 {
 	if (cio_unlikely(port == NULL)) {
 		return CIO_INVALID_ARGUMENT;
@@ -513,7 +514,7 @@ enum cio_error cio_uart_set_num_data_bits(const struct cio_uart *port, enum cio_
 	return CIO_SUCCESS;
 }
 
-enum cio_error cio_uart_get_num_data_bits(const struct cio_uart *port, enum cio_uart_num_data_bits *num_data_bits)
+CIO_EXPORT enum cio_error cio_uart_get_num_data_bits(const struct cio_uart *port, enum cio_uart_num_data_bits *num_data_bits)
 {
 	if (cio_unlikely(port == NULL)) {
 		return CIO_INVALID_ARGUMENT;
@@ -538,7 +539,7 @@ enum cio_error cio_uart_get_num_data_bits(const struct cio_uart *port, enum cio_
 	return CIO_SUCCESS;
 }
 
-enum cio_error cio_uart_set_flow_control(const struct cio_uart *port, enum cio_uart_flow_control flow_control)
+CIO_EXPORT enum cio_error cio_uart_set_flow_control(const struct cio_uart *port, enum cio_uart_flow_control flow_control)
 {
 	if (cio_unlikely(port == NULL)) {
 		return CIO_INVALID_ARGUMENT;
@@ -595,7 +596,7 @@ static bool cts_rts_enabled(tcflag_t cflags)
 	return false;
 }
 
-enum cio_error cio_uart_get_flow_control(const struct cio_uart *port, enum cio_uart_flow_control *flow_control)
+CIO_EXPORT enum cio_error cio_uart_get_flow_control(const struct cio_uart *port, enum cio_uart_flow_control *flow_control)
 {
 	if (cio_unlikely(port == NULL)) {
 		return CIO_INVALID_ARGUMENT;
@@ -620,7 +621,7 @@ enum cio_error cio_uart_get_flow_control(const struct cio_uart *port, enum cio_u
 	return CIO_SUCCESS;
 }
 
-enum cio_error cio_uart_set_baud_rate(const struct cio_uart *port, enum cio_uart_baud_rate baud_rate)
+CIO_EXPORT enum cio_error cio_uart_set_baud_rate(const struct cio_uart *port, enum cio_uart_baud_rate baud_rate)
 {
 	if (cio_unlikely(port == NULL)) {
 		return CIO_INVALID_ARGUMENT;
@@ -740,7 +741,7 @@ enum cio_error cio_uart_set_baud_rate(const struct cio_uart *port, enum cio_uart
 	return CIO_SUCCESS;
 }
 
-enum cio_error cio_uart_get_baud_rate(const struct cio_uart *port, enum cio_uart_baud_rate *baud_rate)
+CIO_EXPORT enum cio_error cio_uart_get_baud_rate(const struct cio_uart *port, enum cio_uart_baud_rate *baud_rate)
 {
 	if (cio_unlikely(port == NULL)) {
 		return CIO_INVALID_ARGUMENT;
@@ -852,7 +853,7 @@ enum cio_error cio_uart_get_baud_rate(const struct cio_uart *port, enum cio_uart
 	return CIO_SUCCESS;
 }
 
-struct cio_io_stream *cio_uart_get_io_stream(struct cio_uart *port)
+CIO_EXPORT struct cio_io_stream *cio_uart_get_io_stream(struct cio_uart *port)
 {
 	if (cio_unlikely(port == NULL)) {
 		return NULL;
@@ -861,7 +862,7 @@ struct cio_io_stream *cio_uart_get_io_stream(struct cio_uart *port)
 	return &port->stream;
 }
 
-const char *cio_uart_get_name(const struct cio_uart *port)
+CIO_EXPORT const char *cio_uart_get_name(const struct cio_uart *port)
 {
 	if (cio_unlikely(port == NULL)) {
 		return NULL;

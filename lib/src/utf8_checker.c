@@ -5,6 +5,7 @@
 #include <stdint.h>
 #include <string.h>
 
+#include "cio/export.h"
 #include "cio/utf8_checker.h"
 
 static const uint8_t UTF8D[] = {
@@ -394,7 +395,7 @@ static inline uint8_t decode(uint8_t *state, uint8_t *codep, uint8_t byte)
 	return *state;
 }
 
-uint8_t cio_check_utf8(struct cio_utf8_state *state, const uint8_t *s, size_t count)
+CIO_EXPORT uint8_t cio_check_utf8(struct cio_utf8_state *state, const uint8_t *s, size_t count)
 {
 	const uint_fast32_t *s_aligned = NULL;
 	unsigned int pre_length = (unsigned int)count;
@@ -445,7 +446,7 @@ uint8_t cio_check_utf8(struct cio_utf8_state *state, const uint8_t *s, size_t co
 	return state->state;
 }
 
-void cio_utf8_init(struct cio_utf8_state *state)
+CIO_EXPORT void cio_utf8_init(struct cio_utf8_state *state)
 {
 	state->state = 0;
 }

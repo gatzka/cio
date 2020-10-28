@@ -26,24 +26,26 @@
  * SOFTWARE.
  */
 
+#include "cio/export.h"
 #include "cio/version.h"
 #include "cio/version_private.h"
 
-const char *cio_get_version_string(void)
+CIO_EXPORT const char *cio_get_version_string(void)
 {
 	return CIO_VERSION;
 }
 
-unsigned int cio_get_version_major(void)
+CIO_EXPORT unsigned int cio_get_version_major(void)
 {
 	return CIO_VERSION_MAJOR;
 }
 
-unsigned int cio_get_version_minor(void)
+CIO_EXPORT unsigned int cio_get_version_minor(void)
 {
 	return CIO_VERSION_MINOR;
 }
-unsigned int cio_get_version_patch(void)
+
+CIO_EXPORT unsigned int cio_get_version_patch(void)
 {
 	return CIO_VERSION_PATCH;
 }

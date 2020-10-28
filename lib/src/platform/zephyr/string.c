@@ -28,9 +28,10 @@
 
 #include <strings.h>
 
+#include "cio/export.h"
 #include "cio/string.h"
 
-int cio_strncasecmp(const char *s1, const char *s2, size_t n)
+CIO_EXPORT int cio_strncasecmp(const char *s1, const char *s2, size_t n)
 {
 	return strncasecmp(s1, s2, n);
 }

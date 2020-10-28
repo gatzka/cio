@@ -29,9 +29,10 @@
 #include <stddef.h>
 #include <string.h>
 
+#include "cio/export.h"
 #include "cio/string.h"
 
-const void *cio_memmem(const void *haystack, size_t haystacklen, const void *needle, size_t needlelen)
+CIO_EXPORT const void *cio_memmem(const void *haystack, size_t haystacklen, const void *needle, size_t needlelen)
 {
 	const char *begin = haystack;
 	const char *last_possible = begin + haystacklen - needlelen;
