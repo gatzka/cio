@@ -38,8 +38,8 @@
 
 #include "cio/compiler.h"
 #include "cio/error_code.h"
-#include "cio/export.h"
 #include "cio/eventloop_impl.h"
+#include "cio/export.h"
 #include "cio/linux_socket_utils.h"
 #include "cio/timer.h"
 
