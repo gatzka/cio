@@ -24,6 +24,19 @@
       "ctestCommandArgs": "",
       "variables": [],
       "cmakeToolchain": "${env.USERPROFILE}\\CMakeBuilds\\${workspaceHash}\\build\\${name}\\toolchains\\x86_windows_msvc.cmake"
+    },
+    {
+      "name": "x64-Debug-DLL",
+      "generator": "Ninja",
+      "configurationType": "Debug",
+      "buildRoot": "${env.USERPROFILE}\\CMakeBuilds\\${workspaceHash}\\build\\${name}",
+      "installRoot": "${env.USERPROFILE}\\CMakeBuilds\\${workspaceHash}\\install\\${name}",
+      "cmakeCommandArgs": "-DBUILD_SHARED_LIBS=ON",
+      "buildCommandArgs": "-v",
+      "ctestCommandArgs": "",
+      "cmakeToolchain": "${env.USERPROFILE}\\CMakeBuilds\\${workspaceHash}\\build\\${name}\\toolchains\\x86_windows_msvc.cmake",
+      "inheritEnvironments": [ "msvc_x64_x64" ],
+      "variables": []
     }
   ]
 }
