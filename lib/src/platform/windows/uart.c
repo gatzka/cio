@@ -319,6 +319,7 @@ size_t cio_uart_get_number_of_uarts(void)
 	}
 
 	SP_DEVINFO_DATA dev_info;
+	memset(&dev_info, 0, sizeof(dev_info));
 	dev_info.cbSize = sizeof(dev_info);
 	DWORD member_index = 0;
 	size_t detected_ports = 0;
@@ -374,6 +375,7 @@ enum cio_error cio_uart_get_ports(struct cio_uart ports[], size_t num_ports_entr
 	}
 
 	SP_DEVINFO_DATA dev_info;
+	memset(&dev_info, 0, sizeof(dev_info));
 	dev_info.cbSize = sizeof(dev_info);
 	DWORD member_index = 0;
 	size_t detected_ports = 0;
