@@ -428,7 +428,7 @@ enum cio_error cio_uart_init(struct cio_uart *port, struct cio_eventloop *loop, 
 		return (enum cio_error)(-(signed int)GetLastError());
 	}
 
-	size_t wchar_buffer_size = (size_t)wchar_len + sizeof(WCHAR);
+	size_t wchar_buffer_size = (size_t)((wchar_len + sizeof(WCHAR)) * sizeof(WCHAR));
 	LPWSTR wchar_name = malloc(wchar_buffer_size);
 	if (cio_unlikely(wchar_name == NULL)) {
 		return CIO_NO_MEMORY;
@@ -447,7 +447,7 @@ enum cio_error cio_uart_init(struct cio_uart *port, struct cio_eventloop *loop, 
 		goto free_wchar_buffer;
 	}
 
-	//free(wchar_name); TODO
+	free(wchar_name);
 
 	DCB current_settings = {0};
 	current_settings.DCBlength = sizeof(current_settings);
