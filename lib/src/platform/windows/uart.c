@@ -201,7 +201,7 @@ static char *get_string_value_from_registry(HDEVINFO dev_info_set, SP_DEVINFO_DA
 		goto out;
 	}
 
-	LPTSTR port_name = (LPTSTR)malloc(value_size);
+	LPWCH port_name = (LPWCH)malloc(value_size);
 	if (cio_unlikely(port_name == NULL)) {
 		goto out;
 	}
@@ -259,7 +259,7 @@ static char *get_device_property(HDEVINFO dev_info, PSP_DEVINFO_DATA dev_data, D
 	DWORD buff_size = 0;
 	SetupDiGetDeviceRegistryPropertyW(dev_info, dev_data, property, NULL, NULL, 0, &buff_size);
 
-	LPTSTR buff = (LPTSTR)malloc(buff_size);
+	LPWCH buff = (LPWCH)malloc(buff_size);
 	if (cio_unlikely(buff == NULL)) {
 		return NULL;
 	}
