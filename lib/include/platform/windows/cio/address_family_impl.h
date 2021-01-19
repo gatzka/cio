@@ -28,6 +28,7 @@
 
 #ifndef CIO_WINDOWS_ADDRESS_FAMILY_IMPL_H
 #define CIO_WINDOWS_ADDRESS_FAMILY_IMPL_H
+
 #define WIN32_LEAN_AND_MEAN
 
 #include <winsock2.h>

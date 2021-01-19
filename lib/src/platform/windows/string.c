@@ -26,6 +26,8 @@
  * SOFTWARE.
  */
 
+#define WIN32_LEAN_AND_MEAN
+
 #include <string.h>
 
 #include "cio/string.h"
