@@ -182,7 +182,7 @@ static enum cio_error stream_close(struct cio_io_stream *stream)
 	return cio_uart_close(port);
 }
 
-static char *get_string_value_form_registry(HDEVINFO dev_info_set, SP_DEVINFO_DATA dev_info)
+static char *get_string_value_from_registry(HDEVINFO dev_info_set, SP_DEVINFO_DATA dev_info)
 {
 	HKEY dev_key = SetupDiOpenDevRegKey(dev_info_set, &dev_info, DICS_FLAG_GLOBAL, 0, DIREG_DEV, KEY_READ);
 	if (cio_unlikely(dev_key == INVALID_HANDLE_VALUE)) {
@@ -201,13 +201,13 @@ static char *get_string_value_form_registry(HDEVINFO dev_info_set, SP_DEVINFO_DA
 		goto out;
 	}
 
-	LPTSTR port_name = (LPTSTR)_malloca(value_size);
+	LPTSTR port_name = (LPTSTR)malloc(value_size);
 	if (cio_unlikely(port_name == NULL)) {
 		goto out;
 	}
 
 	DWORD return_size = value_size;
-	err = RegQueryValueEx(dev_key, TEXT("PortName"), NULL, &entry_type, (LPBYTE)port_name, &return_size);
+	err = RegQueryValueExW(dev_key, TEXT(L"PortName"), NULL, &entry_type, (LPBYTE)port_name, &return_size);
 	if (cio_unlikely(err != ERROR_SUCCESS)) {
 		goto free_port_name_mem;
 	}
@@ -228,13 +228,13 @@ static char *get_string_value_form_registry(HDEVINFO dev_info_set, SP_DEVINFO_DA
 		goto free_utf8_port_name_mem;
 	}
 
-	_freea(port_name);
+	free(port_name);
 	return utf8_port_name;
 
 free_utf8_port_name_mem:
-	_freea(utf8_port_name);
+	free(utf8_port_name);
 free_port_name_mem:
-	_freea(port_name);
+	free(port_name);
 out:
 	RegCloseKey(dev_key);
 	return NULL;
@@ -302,9 +302,9 @@ static enum cio_error set_comm_settings(const struct cio_uart *port, DCB *settin
 size_t cio_uart_get_number_of_uarts(void)
 {
 	DWORD num_guids = 0;
-	SetupDiClassGuidsFromName(TEXT("Ports"), NULL, 0, &num_guids);
+	SetupDiClassGuidsFromNameW(L"Ports", NULL, 0, &num_guids);
 
-	GUID *guid_buffer = (GUID *)_malloca(num_guids * sizeof(*guid_buffer));
+	GUID *guid_buffer = (GUID *)malloc(num_guids * sizeof(*guid_buffer));
 	if (cio_unlikely(guid_buffer == NULL)) {
 		return 0;
 	}
@@ -313,7 +313,7 @@ size_t cio_uart_get_number_of_uarts(void)
 		goto free_guid_buffer;
 	}
 
-	HDEVINFO dev_info_set = SetupDiGetClassDevs(guid_buffer, NULL, NULL, DIGCF_PRESENT);
+	HDEVINFO dev_info_set = SetupDiGetClassDevsW(guid_buffer, NULL, NULL, DIGCF_PRESENT);
 	if (dev_info_set == INVALID_HANDLE_VALUE) {
 		goto free_guid_buffer;
 	}
@@ -325,7 +325,7 @@ size_t cio_uart_get_number_of_uarts(void)
 	BOOL more_items = SetupDiEnumDeviceInfo(dev_info_set, member_index, &dev_info);
 
 	while (more_items) {
-		char *port_name = get_string_value_form_registry(dev_info_set, dev_info);
+		char *port_name = get_string_value_from_registry(dev_info_set, dev_info);
 		if (cio_likely(port_name != NULL)) {
 			if (is_com_port(port_name)) {
 				detected_ports++;
@@ -340,10 +340,11 @@ size_t cio_uart_get_number_of_uarts(void)
 	}
 
 	SetupDiDestroyDeviceInfoList(dev_info_set);
+	free(guid_buffer);
 	return detected_ports;
 
 free_guid_buffer:
-	_freea(guid_buffer);
+	free(guid_buffer);
 	return 0;
 }
 
@@ -354,19 +355,19 @@ enum cio_error cio_uart_get_ports(struct cio_uart ports[], size_t num_ports_entr
 		return CIO_SUCCESS;
 	}
 
-	GUID *guid_buffer = (GUID *)_malloca(num_ports_entries * sizeof(*guid_buffer));
+	GUID *guid_buffer = (GUID *)malloc(num_ports_entries * sizeof(*guid_buffer));
 	if (cio_unlikely(guid_buffer == NULL)) {
 		return CIO_NO_MEMORY;
 	}
 
 	enum cio_error error = CIO_SUCCESS;
 	DWORD num_guids = (DWORD)num_ports_entries;
-	if (SetupDiClassGuidsFromName(TEXT("Ports"), guid_buffer, num_guids, &num_guids) == FALSE) {
+	if (SetupDiClassGuidsFromNameW(L"Ports", guid_buffer, num_guids, &num_guids) == FALSE) {
 		error = (enum cio_error) - (signed int)GetLastError();
 		goto free_guid_buffer;
 	}
 
-	HDEVINFO dev_info_set = SetupDiGetClassDevs(guid_buffer, NULL, NULL, DIGCF_PRESENT);
+	HDEVINFO dev_info_set = SetupDiGetClassDevsW(guid_buffer, NULL, NULL, DIGCF_PRESENT);
 	if (dev_info_set == INVALID_HANDLE_VALUE) {
 		error = (enum cio_error) - (signed int)GetLastError();
 		goto free_guid_buffer;
@@ -379,7 +380,7 @@ enum cio_error cio_uart_get_ports(struct cio_uart ports[], size_t num_ports_entr
 	BOOL more_items = SetupDiEnumDeviceInfo(dev_info_set, member_index, &dev_info);
 
 	while (more_items) {
-		char *port_name = get_string_value_form_registry(dev_info_set, dev_info);
+		char *port_name = get_string_value_from_registry(dev_info_set, dev_info);
 		if (cio_likely(port_name != NULL)) {
 			if (is_com_port(port_name)) {
 				strncpy_s(ports[detected_ports].impl.name, sizeof(ports[detected_ports].impl.name), port_name, _TRUNCATE);
@@ -409,8 +410,8 @@ out:
 	*num_detected_ports = detected_ports;
 	SetupDiDestroyDeviceInfoList(dev_info_set);
 free_guid_buffer:
-	_freea(guid_buffer);
-	return CIO_SUCCESS;
+	free(guid_buffer);
+	return error;
 }
 
 enum cio_error cio_uart_init(struct cio_uart *port, struct cio_eventloop *loop, cio_uart_close_hook_t close_hook)
