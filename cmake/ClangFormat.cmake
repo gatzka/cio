@@ -6,7 +6,7 @@ option(
 
 if(ENABLE_CLANG_FORMATTER)
     include(LocateProgram)
-    LocateProgram(clang-format CLANG_FORMAT_PATH)
+    LocateProgram(clang-format-11 CLANG_FORMAT_PATH)
     if (NOT TARGET format)
         add_custom_target(format)
     endif (NOT TARGET format)
