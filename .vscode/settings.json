@@ -7,5 +7,6 @@
     "cmake.preferredGenerators":[
         "Ninja",
         "Unix Makefiles"
-    ]
+    ],
+    "C_Cpp.intelliSenseEngine": "Tag Parser"
 }
