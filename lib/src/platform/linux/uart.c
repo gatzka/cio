@@ -26,10 +26,6 @@
  * SOFTWARE.
  */
 
-#ifndef _DEFAULT_SOURCE
-#define _DEFAULT_SOURCE
-#endif
-
 #include <dirent.h>
 #include <errno.h>
 #include <fcntl.h>

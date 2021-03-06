@@ -26,8 +26,6 @@
  * SOFTWARE.
  */
 
-#define _DEFAULT_SOURCE
-
 #include <errno.h>
 #include <stddef.h>
 #include <stdio.h>

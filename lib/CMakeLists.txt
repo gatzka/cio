@@ -205,6 +205,21 @@ if(${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
         src/platform/shared/socket_address_impl.c
     )
 
+    set_source_files_properties(
+        src/platform/linux/server_socket.c
+        src/platform/linux/socket.c
+        src/platform/linux/string.c
+        src/platform/linux/timer.c
+        src/platform/linux/uart.c
+        PROPERTIES COMPILE_DEFINITIONS _GNU_SOURCE
+    )
+
+    set_source_files_properties(
+        src/platform/linux/endian.c
+        src/platform/linux/random.c
+        PROPERTIES COMPILE_DEFINITIONS _DEFAULT_SOURCE
+    )
+
     set_property(TARGET ${PROJECT_NAME} APPEND PROPERTY PUBLIC_HEADER
         include/platform/linux/cio/address_family_impl.h
         include/platform/linux/cio/error_code_impl.h

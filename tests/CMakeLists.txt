@@ -14,6 +14,11 @@ set_target_properties(unity PROPERTIES
 )
 target_include_directories(unity PUBLIC ${CMAKE_CURRENT_LIST_DIR}/unity/src/)
 
+set_source_files_properties(
+    ../lib/src/platform/linux/string.c
+    PROPERTIES COMPILE_DEFINITIONS _GNU_SOURCE
+)
+
 add_executable(test_base64
     test_base64.c
     ../lib/src/base64.c
@@ -53,6 +58,10 @@ add_executable(test_inet_socket_address
     ../lib/src/platform/shared/socket_address_impl.c
     $<$<PLATFORM_ID:Linux>:../lib/src/platform/linux/endian.c>
     $<$<PLATFORM_ID:Windows>:../lib/src/platform/windows/endian.c>
+)
+set_source_files_properties(
+    ../lib/src/platform/linux/endian.c
+    PROPERTIES COMPILE_DEFINITIONS _DEFAULT_SOURCE
 )
 
 add_executable(test_random
