@@ -26,7 +26,6 @@
  * SOFTWARE.
  */
 
-#define _DEFAULT_SOURCE
 #include <endian.h>
 #include <stdint.h>
 

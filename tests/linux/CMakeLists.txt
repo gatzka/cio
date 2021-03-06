@@ -2,11 +2,25 @@ cmake_minimum_required(VERSION 3.9)
 project(cio_linux_unit_test C)
 enable_testing()
 
+set_source_files_properties(
+    ../../lib/src/platform/linux/endian.c
+    ../../lib/src/platform/linux/random.c
+    PROPERTIES COMPILE_DEFINITIONS _DEFAULT_SOURCE
+)
+
+set_source_files_properties(
+    ../../lib/src/platform/linux/server_socket.c
+    ../../lib/src/platform/linux/socket.c
+    ../../lib/src/platform/linux/string.c
+    ../../lib/src/platform/linux/timer.c
+    ../../lib/src/platform/linux/uart.c
+    PROPERTIES COMPILE_DEFINITIONS _GNU_SOURCE
+)
+
 add_executable(test_linux_endian
     test_linux_endian.c
     ../../lib/src/platform/linux/endian.c
 )
-
 add_executable(test_linux_epoll
     test_linux_epoll.c
     ../../lib/src/platform/linux/epoll.c
@@ -61,7 +75,8 @@ add_executable(test_linux_unix_socket_address
 add_executable(test_linux_uart
     ../../lib/src/platform/linux/socket_utils.c
     ../../lib/src/platform/linux/uart.c
-    test_linux_uart.c)
+    test_linux_uart.c
+)
 
 get_property(includes TARGET cio::cio PROPERTY INTERFACE_INCLUDE_DIRECTORIES)
 get_property(targets DIRECTORY "${CMAKE_CURRENT_LIST_DIR}" PROPERTY BUILDSYSTEM_TARGETS)

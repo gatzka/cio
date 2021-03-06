@@ -259,7 +259,7 @@ static void close_frame_written_immediate_close(struct cio_buffered_stream *bs, 
 static void handle_error(struct cio_websocket *ws, enum cio_error err, enum cio_websocket_status_code status_code, const char *reason)
 {
 	if (ws->ws_private.ws_flags.closed_by_error == 0U) {
-		ws->ws_private.ws_flags.closed_by_error = 1;
+		ws->ws_private.ws_flags.closed_by_error = 1U;
 		if (ws->on_error != NULL) {
 			ws->on_error(ws, err, reason);
 		}
