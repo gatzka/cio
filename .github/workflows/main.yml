@@ -5,7 +5,7 @@ on: [push, pull_request]
 jobs:
   windows-debug:
     name: x86 windows Debug
-    runs-on: windows-latest
+    runs-on: windows-20.04
 
     steps:
     - name: Checkout
@@ -15,7 +15,7 @@ jobs:
 
 #  windows-debug-dll:
 #    name: x86 windows Debug DLL
-#    runs-on: windows-latest
+#    runs-on: windows-2019
 #
 #    steps:
 #    - name: Checkout
@@ -25,7 +25,7 @@ jobs:
 
   gcc-10-debug:
     name: x86 gcc-10 Debug
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
 
     steps:
     - name: Checkout
@@ -39,7 +39,7 @@ jobs:
 
   gcc-10-release:
     name: x86 gcc-10 Release
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
 
     steps:
     - name: Checkout
@@ -53,7 +53,7 @@ jobs:
 
   gcc-10-valgrind:
     name: x86 gcc-10 Valgrind
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
 
     steps:
     - name: Checkout
@@ -67,7 +67,7 @@ jobs:
 
   clang-10-debug:
     name: x86 clang-10 Debug
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
 
     steps:
     - name: Checkout
@@ -81,7 +81,7 @@ jobs:
 
   clang-10-release:
     name: x86 clang-10 Release
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
 
     steps:
     - name: Checkout
@@ -95,7 +95,7 @@ jobs:
 
   clang-10-UndefinedBehaviorSanitizer:
     name: x86 clang-10 UndefinedBehaviorSanitizer
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
 
     steps:
     - name: Checkout
@@ -109,7 +109,7 @@ jobs:
 
   clang-10-LeakSanitizer:
     name: x86 clang-10 LeakSanitizer
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
 
     steps:
     - name: Checkout
@@ -123,7 +123,7 @@ jobs:
 
   clang-10-MemorySanitizer:
     name: x86 clang-10 MemorySanitizer
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
 
     steps:
     - name: Checkout
@@ -137,7 +137,7 @@ jobs:
 
   clang-10-AddressSanitizer:
     name: x86 clang-10 AddressSanitizer
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
 
     steps:
     - name: Checkout
@@ -151,7 +151,7 @@ jobs:
 
   clang-10-scanbuild:
     name: x86 clang-10 scan-build
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
 
     steps:
     - name: Checkout
@@ -165,7 +165,7 @@ jobs:
 
   clang-10-clangtidy:
     name: x86 clang-10 clang-tidy
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
 
     steps:
     - name: Checkout
@@ -180,7 +180,7 @@ jobs:
 
   gcc-9-arm:
     name: arm gcc-9 Release
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
 
     steps:
     - name: Checkout
@@ -194,7 +194,7 @@ jobs:
 
   gcc-9-aarch64:
     name: aarch64 gcc-9 Release
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
 
     steps:
     - name: Checkout
@@ -208,7 +208,7 @@ jobs:
 
   gcc-9-riscv64:
     name: riscv64 gcc-9 Release
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
 
     steps:
     - name: Checkout
@@ -222,7 +222,7 @@ jobs:
 
   gcc-9-coverage:
     name: x86 code coverage
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
 
     steps:
     - name: Checkout
@@ -245,7 +245,7 @@ jobs:
 
   sonarcloud:
     name: sonarcloud scan build
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
 
     steps:
     - name: Checkout
@@ -262,7 +262,7 @@ jobs:
 
   doxygen:
     name: generate doxygen documentation
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
     needs: [gcc-10-debug, gcc-10-release, gcc-10-valgrind, clang-10-debug, clang-10-release, clang-10-UndefinedBehaviorSanitizer, clang-10-LeakSanitizer, clang-10-MemorySanitizer, clang-10-AddressSanitizer, clang-10-scanbuild, clang-10-clangtidy]
     if: contains(github.ref, 'master')
 
@@ -283,7 +283,7 @@ jobs:
 
   coverity:
     name: coverity scan build
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
     if: contains(github.ref, 'coverity_scan')
 
     steps:
