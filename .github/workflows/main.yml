@@ -31,7 +31,7 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v2
     - name: ctest build
-      uses: gatzka/ctest-build-action@v1.4.0
+      uses: gatzka/ctest-build-action@v1.6.0
       with:
         install_deps: ./.github/workflows/install-deps.sh
         ctest_toolchain_file: /tmp/cio/toolchains/x86-linux-gcc-10.cmake
