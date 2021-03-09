@@ -161,7 +161,7 @@ jobs:
       with:
         install_deps: ./.github/workflows/install-deps.sh
         ctest_toolchain_file: /tmp/cio/toolchains/x86-linux-clang-11.cmake
-        ctest_analyzer: scan-build-10
+        ctest_analyzer: scan-build-11
 
   clang-11-clangtidy:
     name: x86 clang-11 clang-tidy
@@ -175,7 +175,7 @@ jobs:
       with:
         install_deps: ./.github/workflows/install-deps.sh
         ctest_toolchain_file: /tmp/cio/toolchains/x86-linux-clang-11.cmake
-        ctest_analyzer: clang-tidy-10
+        ctest_analyzer: clang-tidy-11
         ctest_configuration_type: Release
 
   gcc-9-arm:
