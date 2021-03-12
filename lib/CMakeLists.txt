@@ -96,8 +96,23 @@ if(CIO_CONFIG_HTTP)
     install(FILES "${CMAKE_CURRENT_LIST_DIR}/cio/http-parser/http_parser.h"
         DESTINATION include/cio/http-parser/
     )
+
+    add_library(llhttp OBJECT
+        cio/llhttp/api.c
+        cio/llhttp/http.c
+        cio/llhttp/llhttp.c
+        cio/llhttp/llhttp.h
+    )
+    set_target_properties(llhttp PROPERTIES
+        COMPILE_OPTIONS "$<$<OR:$<C_COMPILER_ID:GNU>,$<C_COMPILER_ID:Clang>>:-Wno-cast-qual;-Wno-pedantic;-Wno-unused-parameter;-Wno-missing-prototypes;-Wno-implicit-int-conversion;-Wno-sign-conversion;-Wno-undef;-Wno-switch-default;-Wno-conversion>"
+        POSITION_INDEPENDENT_CODE ON
+        C_VISIBILITY_PRESET hidden
+        C_CLANG_TIDY ""
+    )
+
     target_sources(${PROJECT_NAME} PRIVATE
         $<TARGET_OBJECTS:http_parser>
+        $<TARGET_OBJECTS:llhttp>
         include/cio/http_client.h
         include/cio/http_location.h
         include/cio/http_location_handler.h
