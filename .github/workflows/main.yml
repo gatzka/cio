@@ -2,6 +2,9 @@ name: CI build
 
 on: [push, pull_request]
 
+permissions:
+    contents: write
+
 jobs:
   windows-debug:
     name: x86 windows Debug
@@ -278,7 +281,6 @@ jobs:
       uses: gatzka/publish-gh-pages-action@master
       env:
         BUILD_DIR: build/lib/docs/
-        GH_PAT: ${{ secrets.GH_PAT }}
         GH_PAGES_SUBDIR: ./doc
 
   coverity:
