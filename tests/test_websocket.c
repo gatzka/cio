@@ -572,7 +572,7 @@ void setUp(void)
 
 	cio_read_buffer_init(&http_client.rb, read_buffer, sizeof(read_buffer));
 	ws = malloc(sizeof(*ws));
-	cio_websocket_init(ws, true, on_connect, NULL);
+	cio_websocket_server_init(ws, on_connect, NULL);
 	ws->ws_private.http_client = &http_client;
 	cio_websocket_set_on_control_cb(ws, on_control);
 	cio_websocket_set_on_error_cb(ws, on_error);
@@ -825,7 +825,7 @@ static void test_receive_fragmented_frames(void)
 static void test_incoming_ping_pong_send_fails(void)
 {
 	struct cio_websocket *my_ws = malloc(sizeof(*my_ws));
-	enum cio_error err = cio_websocket_init(my_ws, true, on_connect, websocket_free);
+	enum cio_error err = cio_websocket_server_init(my_ws, on_connect, websocket_free);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Could not init websocket");
 	my_ws->ws_private.http_client = &http_client;
 	cio_websocket_set_on_error_cb(my_ws, on_error);
@@ -2120,7 +2120,7 @@ static void test_close_self_without_read(void)
 static void test_close_self_without_close_hook(void)
 {
 	struct cio_websocket my_ws;
-	enum cio_error err = cio_websocket_init(&my_ws, true, on_connect, NULL);
+	enum cio_error err = cio_websocket_server_init(&my_ws, on_connect, NULL);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Init did not succeeded");
 
 	my_ws.ws_private.http_client = &http_client;
@@ -2635,7 +2635,7 @@ static void test_send_fragmented_text_frame(void)
 	cio_write_buffer_element_init(&fws.wb, fws.first_fragment, sizeof(fws.first_fragment));
 	cio_write_buffer_queue_tail(&fws.wbh, &fws.wb);
 
-	enum cio_error err = cio_websocket_init(&fws.ws, true, on_connect, NULL);
+	enum cio_error err = cio_websocket_server_init(&fws.ws, on_connect, NULL);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Init did not succeeded");
 
 	fws.ws.ws_private.http_client = &http_client;
@@ -2787,15 +2787,39 @@ static void test_send_multiple_jobs_starting_with_close(void)
 	TEST_ASSERT_TRUE_MESSAGE(is_close_frame(CIO_WEBSOCKET_CLOSE_NORMAL, true), "Written close frame not correct");
 }
 
-static void test_init_without_ws(void)
+static void test_client_init(void)
 {
-	enum cio_error err = cio_websocket_init(NULL, true, on_connect, NULL);
+	enum cio_error err = cio_websocket_client_init(ws, on_connect, NULL);
+	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Wrong error code for successful client init");
+}
+
+static void test_client_init_without_ws(void)
+{
+	enum cio_error err = cio_websocket_client_init(NULL, on_connect, NULL);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_INVALID_ARGUMENT, err, "Wrong error code if no ws pointer provided");
 }
 
-static void test_init_without_on_connect(void)
+static void test_client_init_without_on_connect(void)
 {
-	enum cio_error err = cio_websocket_init(ws, true, NULL, NULL);
+	enum cio_error err = cio_websocket_client_init(ws, NULL, NULL);
+	TEST_ASSERT_EQUAL_MESSAGE(CIO_INVALID_ARGUMENT, err, "Wrong error code if no on_connect function provided");
+}
+
+static void test_server_init(void)
+{
+	enum cio_error err = cio_websocket_server_init(ws, on_connect, NULL);
+	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Wrong error code for successful server init");
+}
+
+static void test_server_init_without_ws(void)
+{
+	enum cio_error err = cio_websocket_server_init(NULL, on_connect, NULL);
+	TEST_ASSERT_EQUAL_MESSAGE(CIO_INVALID_ARGUMENT, err, "Wrong error code if no ws pointer provided");
+}
+
+static void test_server_init_without_on_connect(void)
+{
+	enum cio_error err = cio_websocket_server_init(ws, NULL, NULL);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_INVALID_ARGUMENT, err, "Wrong error code if no on_connect function provided");
 }
 
@@ -2899,8 +2923,13 @@ int main(void)
 	RUN_TEST(test_send_multiple_jobs);
 	RUN_TEST(test_send_multiple_jobs_starting_with_close);
 
-	RUN_TEST(test_init_without_ws);
-	RUN_TEST(test_init_without_on_connect);
+	RUN_TEST(test_client_init);
+	RUN_TEST(test_client_init_without_ws);
+	RUN_TEST(test_client_init_without_on_connect);
+
+	RUN_TEST(test_server_init);
+	RUN_TEST(test_server_init_without_ws);
+	RUN_TEST(test_server_init_without_on_connect);
 
 	RUN_TEST(test_read_message_no_websocket);
 	RUN_TEST(test_read_message_no_handler);
