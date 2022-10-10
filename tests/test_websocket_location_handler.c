@@ -45,7 +45,7 @@ DEFINE_FFF_GLOBALS
 #endif
 
 FAKE_VOID_FUNC(cio_http_location_handler_init, struct cio_http_location_handler *)
-FAKE_VALUE_FUNC(enum cio_error, cio_websocket_init, struct cio_websocket *, bool, cio_websocket_on_connect_t, cio_websocket_close_hook_t)
+FAKE_VALUE_FUNC(enum cio_error, cio_websocket_server_init, struct cio_websocket *, cio_websocket_on_connect_t, cio_websocket_close_hook_t)
 FAKE_VOID_FUNC(fake_handler_free, struct cio_websocket_location_handler *)
 FAKE_VOID_FUNC(fake_add_response_header, struct cio_http_client *, struct cio_write_buffer *)
 FAKE_VALUE_FUNC(enum cio_error, fake_write_response, struct cio_http_client *, enum cio_http_status_code, struct cio_write_buffer *, cio_response_written_cb_t)
@@ -71,11 +71,11 @@ static enum cio_error write_response_call_callback_with_error(struct cio_http_cl
 	return CIO_SUCCESS;
 }
 
-static enum cio_error websocket_init_save_params(struct cio_websocket *ws, bool is_server, cio_websocket_on_connect_t on_connect_cb, cio_websocket_close_hook_t close_hook)
+static enum cio_error websocket_init_save_params(struct cio_websocket *ws, cio_websocket_on_connect_t on_connect_cb, cio_websocket_close_hook_t close_hook)
 {
 	ws->on_connect = on_connect_cb;
 	ws->ws_private.close_hook = close_hook;
-	ws->ws_private.ws_flags.is_server = is_server;
+	ws->ws_private.ws_flags.is_server = true;
 	return CIO_SUCCESS;
 }
 
@@ -84,7 +84,7 @@ void setUp(void)
 	FFF_RESET_HISTORY()
 
 	RESET_FAKE(cio_http_location_handler_init)
-	RESET_FAKE(cio_websocket_init)
+	RESET_FAKE(cio_websocket_server_init)
 	RESET_FAKE(fake_handler_free)
 	RESET_FAKE(fake_add_response_header);
 	RESET_FAKE(fake_write_response);
@@ -92,7 +92,7 @@ void setUp(void)
 	RESET_FAKE(on_error);
 	RESET_FAKE(client_close);
 
-	cio_websocket_init_fake.custom_fake = websocket_init_save_params;
+	cio_websocket_server_init_fake.custom_fake = websocket_init_save_params;
 	fake_write_response_fake.custom_fake = write_response_call_callback;
 }
 
@@ -110,8 +110,8 @@ static void test_ws_location_init_ok(void)
 static void test_ws_location_ws_init_fails(void)
 {
 	struct cio_websocket_location_handler handler;
-	cio_websocket_init_fake.custom_fake = NULL;
-	cio_websocket_init_fake.return_val = CIO_INVALID_ARGUMENT;
+	cio_websocket_server_init_fake.custom_fake = NULL;
+	cio_websocket_server_init_fake.return_val = CIO_INVALID_ARGUMENT;
 	enum cio_error err = cio_websocket_location_handler_init(&handler, NULL, 0, NULL, fake_handler_free);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_INVALID_ARGUMENT, err, "web socket handler initialization didn't fail!");
 }
