@@ -814,7 +814,7 @@ static enum cio_error write_ping_or_pong_message(struct cio_websocket *ws, enum 
 	return CIO_SUCCESS;
 }
 
-enum cio_error cio_websocket_init(struct cio_websocket *ws, bool is_server, cio_websocket_on_connect_t on_connect, cio_websocket_close_hook_t close_hook)
+static enum cio_error cio_websocket_init(struct cio_websocket *ws, bool is_server, cio_websocket_on_connect_t on_connect, cio_websocket_close_hook_t close_hook)
 {
 	if (cio_unlikely((ws == NULL) || (on_connect == NULL))) {
 		return CIO_INVALID_ARGUMENT;
@@ -846,6 +846,16 @@ enum cio_error cio_websocket_init(struct cio_websocket *ws, bool is_server, cio_
 	cio_utf8_init(&ws->ws_private.utf8_state);
 
 	return cio_random_seed_rng(&ws->ws_private.rng);
+}
+
+enum cio_error cio_websocket_server_init(struct cio_websocket *ws, cio_websocket_on_connect_t on_connect, cio_websocket_close_hook_t close_hook)
+{
+	return cio_websocket_init(ws, true, on_connect, close_hook);
+}
+
+enum cio_error cio_websocket_client_init(struct cio_websocket *ws, cio_websocket_on_connect_t on_connect, cio_websocket_close_hook_t close_hook)
+{
+	return cio_websocket_init(ws, false, on_connect, close_hook);
 }
 
 enum cio_error cio_websocket_close(struct cio_websocket *ws, enum cio_websocket_status_code status_code, const char *reason, cio_websocket_write_handler_t handler, void *handler_context)

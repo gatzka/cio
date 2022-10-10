@@ -177,7 +177,8 @@ struct cio_websocket {
 	void (*on_control)(const struct cio_websocket *ws, enum cio_websocket_frame_type kind, const uint8_t *data, uint_fast8_t length);
 };
 
-CIO_EXPORT enum cio_error cio_websocket_init(struct cio_websocket *ws, bool is_server, cio_websocket_on_connect_t on_connect, cio_websocket_close_hook_t close_hook);
+CIO_EXPORT enum cio_error cio_websocket_server_init(struct cio_websocket *ws, cio_websocket_on_connect_t on_connect, cio_websocket_close_hook_t close_hook);
+CIO_EXPORT enum cio_error cio_websocket_client_init(struct cio_websocket *ws, cio_websocket_on_connect_t on_connect, cio_websocket_close_hook_t close_hook);
 
 /**
  * @brief Closes a websocket.
