@@ -430,7 +430,7 @@ enum cio_error cio_websocket_location_handler_init(struct cio_websocket_location
 	handler->http_location.on_headers_complete = handle_headers_complete;
 	handler->http_location.free = free_resources;
 
-	enum cio_error err = cio_websocket_init(&handler->websocket, true, on_connect, close_server_websocket);
+	enum cio_error err = cio_websocket_server_init(&handler->websocket, on_connect, close_server_websocket);
 	if (cio_unlikely(err != CIO_SUCCESS)) {
 		return err;
 	}
