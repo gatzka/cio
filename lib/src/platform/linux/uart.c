@@ -210,7 +210,7 @@ enum cio_error cio_uart_get_ports(struct cio_uart ports[], size_t num_ports_entr
 			strncpy(src_buffer + len, dir_entry->d_name, sizeof(src_buffer) - len);
 
 			char dst_buffer[PATH_MAX + 1];
-			ssize_t name_len = readlink(src_buffer, dst_buffer, sizeof(dst_buffer));
+			ssize_t name_len = readlink(src_buffer, dst_buffer, sizeof(dst_buffer) - 1);
 			if (cio_unlikely(name_len == -1)) {
 				return (enum cio_error)(-errno);
 			}
