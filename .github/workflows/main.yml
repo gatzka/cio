@@ -281,6 +281,7 @@ jobs:
       uses: gatzka/publish-gh-pages-action@master
       env:
         BUILD_DIR: build/lib/docs/
+        GITHUB_TOKEN: ${{ secrets.github_token }}
         GH_PAGES_SUBDIR: ./doc
 
   coverity:
