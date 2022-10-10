@@ -267,7 +267,7 @@ jobs:
     name: generate doxygen documentation
     runs-on: ubuntu-20.04
     needs: [gcc-10-debug, gcc-10-release, gcc-10-valgrind, clang-11-debug, clang-11-release, clang-11-UndefinedBehaviorSanitizer, clang-11-LeakSanitizer, clang-11-MemorySanitizer, clang-11-AddressSanitizer, clang-11-scanbuild, clang-11-clangtidy]
-    #    if: contains(github.ref, 'master')
+    if: contains(github.ref, 'master')
 
     steps:
     - name: Checkout
