@@ -192,15 +192,17 @@ enum cio_error cio_uart_get_ports(struct cio_uart ports[], size_t num_ports_entr
 {
 	DIR *serial_dir = opendir(DIR_NAME);
 	if (serial_dir == NULL) {
-		return 0;
+		return CIO_NO_SUCH_FILE_OR_DIRECTORY;
 	}
+
+	enum cio_error ret_val = CIO_SUCCESS;
 
 	struct dirent *dir_entry = readdir(serial_dir);
 	size_t num_uarts = 0;
 	while (dir_entry) {
 		if (num_uarts >= num_ports_entries) {
 			*num_detected_ports = num_uarts;
-			return CIO_SUCCESS;
+			goto out;
 		}
 
 		if (dir_entry->d_type == DT_LNK) {
@@ -212,7 +214,8 @@ enum cio_error cio_uart_get_ports(struct cio_uart ports[], size_t num_ports_entr
 			char dst_buffer[PATH_MAX + 1];
 			ssize_t name_len = readlink(src_buffer, dst_buffer, sizeof(dst_buffer) - 1);
 			if (cio_unlikely(name_len == -1)) {
-				return (enum cio_error)(-errno);
+				ret_val = (enum cio_error)(-errno);
+				goto out;
 			}
 
 			dst_buffer[name_len] = '\0';
@@ -223,7 +226,8 @@ enum cio_error cio_uart_get_ports(struct cio_uart ports[], size_t num_ports_entr
 
 			char *rp = realpath(src_buffer, ports[num_uarts].impl.name);
 			if (cio_unlikely(rp == NULL)) {
-				return (enum cio_error)(-errno);
+				ret_val = (enum cio_error)(-errno);
+				goto out;
 			}
 
 			num_uarts++;
@@ -232,9 +236,10 @@ enum cio_error cio_uart_get_ports(struct cio_uart ports[], size_t num_ports_entr
 		dir_entry = readdir(serial_dir);
 	}
 
-	closedir(serial_dir);
 	*num_detected_ports = num_uarts;
-	return CIO_SUCCESS;
+out:
+	closedir(serial_dir);
+	return ret_val;
 }
 
 static enum cio_error set_termios(int fd, struct termios *tty)
