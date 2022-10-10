@@ -2,6 +2,9 @@ name: CI build
 
 on: [push, pull_request]
 
+permissions:
+    contents: write
+
 jobs:
   windows-debug:
     name: x86 windows Debug
@@ -275,10 +278,10 @@ jobs:
         install_deps: ./.github/workflows/install-deps.sh
         cmake_build_target: cio_docs
     - name: GitHub Pages Deploy
-      uses: gatzka/publish-gh-pages-action@v1.0.0
+      uses: gatzka/publish-gh-pages-action@master
       env:
         BUILD_DIR: build/lib/docs/
-        GH_PAT: ${{ secrets.GH_PAT }}
+        GITHUB_TOKEN: ${{ secrets.github_token }}
         GH_PAGES_SUBDIR: ./doc
 
   coverity:
