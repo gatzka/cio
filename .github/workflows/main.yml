@@ -264,7 +264,7 @@ jobs:
     name: generate doxygen documentation
     runs-on: ubuntu-20.04
     needs: [gcc-10-debug, gcc-10-release, gcc-10-valgrind, clang-11-debug, clang-11-release, clang-11-UndefinedBehaviorSanitizer, clang-11-LeakSanitizer, clang-11-MemorySanitizer, clang-11-AddressSanitizer, clang-11-scanbuild, clang-11-clangtidy]
-    if: contains(github.ref, 'master')
+    #    if: contains(github.ref, 'master')
 
     steps:
     - name: Checkout
@@ -275,7 +275,7 @@ jobs:
         install_deps: ./.github/workflows/install-deps.sh
         cmake_build_target: cio_docs
     - name: GitHub Pages Deploy
-      uses: gatzka/publish-gh-pages-action@v1.0.0
+      uses: gatzka/publish-gh-pages-action@master
       env:
         BUILD_DIR: build/lib/docs/
         GH_PAT: ${{ secrets.GH_PAT }}
