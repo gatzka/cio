@@ -177,8 +177,11 @@ Enumerations</h2></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="func-members"></a>
 Functions</h2></td></tr>
-<tr class="memitem:a53e9c2cd2682f828e21b8b0bf83d6944"><td class="memItemLeft" align="right" valign="top">enum <a class="el" href="error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afe">cio_error</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="websocket_8h.html#a53e9c2cd2682f828e21b8b0bf83d6944">cio_websocket_init</a> (struct <a class="el" href="structcio__websocket.html">cio_websocket</a> *ws, bool is_server, <a class="el" href="websocket_8h.html#a0d3aff21405c313915a0610c89486f26">cio_websocket_on_connect_t</a> on_connect, <a class="el" href="websocket_8h.html#ab304f5e16b4d8ec3c2a8fcc436382e42">cio_websocket_close_hook_t</a> close_hook)</td></tr>
-<tr class="separator:a53e9c2cd2682f828e21b8b0bf83d6944"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af4a7917eacd5e72bd7b938fed3d9022b"><td class="memItemLeft" align="right" valign="top">enum <a class="el" href="error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afe">cio_error</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="websocket_8h.html#af4a7917eacd5e72bd7b938fed3d9022b">cio_websocket_server_init</a> (struct <a class="el" href="structcio__websocket.html">cio_websocket</a> *ws, <a class="el" href="websocket_8h.html#a0d3aff21405c313915a0610c89486f26">cio_websocket_on_connect_t</a> on_connect, <a class="el" href="websocket_8h.html#ab304f5e16b4d8ec3c2a8fcc436382e42">cio_websocket_close_hook_t</a> close_hook)</td></tr>
+<tr class="memdesc:af4a7917eacd5e72bd7b938fed3d9022b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Initializes a server websocket.  <a href="websocket_8h.html#af4a7917eacd5e72bd7b938fed3d9022b">More...</a><br /></td></tr>
+<tr class="separator:af4a7917eacd5e72bd7b938fed3d9022b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae7d96d169d34f4d7799a862bbf39b011"><td class="memItemLeft" align="right" valign="top">enum <a class="el" href="error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afe">cio_error</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="websocket_8h.html#ae7d96d169d34f4d7799a862bbf39b011">cio_websocket_client_init</a> (struct <a class="el" href="structcio__websocket.html">cio_websocket</a> *ws, <a class="el" href="websocket_8h.html#a0d3aff21405c313915a0610c89486f26">cio_websocket_on_connect_t</a> on_connect, <a class="el" href="websocket_8h.html#ab304f5e16b4d8ec3c2a8fcc436382e42">cio_websocket_close_hook_t</a> close_hook)</td></tr>
+<tr class="separator:ae7d96d169d34f4d7799a862bbf39b011"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a32faa8cd16bd3410194c7559a7f0be0a"><td class="memItemLeft" align="right" valign="top">enum <a class="el" href="error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afe">cio_error</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="websocket_8h.html#a32faa8cd16bd3410194c7559a7f0be0a">cio_websocket_close</a> (struct <a class="el" href="structcio__websocket.html">cio_websocket</a> *ws, enum <a class="el" href="websocket_8h.html#aa24c9894ba2ee9dc5b0ebbc1c8809701">cio_websocket_status_code</a> status, const char *reason, <a class="el" href="websocket_8h.html#a8aab40fdcb54eb5959763aa710250fe8">cio_websocket_write_handler_t</a> handler, void *handler_context)</td></tr>
 <tr class="memdesc:a32faa8cd16bd3410194c7559a7f0be0a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Closes a websocket.  <a href="websocket_8h.html#a32faa8cd16bd3410194c7559a7f0be0a">More...</a><br /></td></tr>
 <tr class="separator:a32faa8cd16bd3410194c7559a7f0be0a"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -369,6 +372,40 @@ Functions</h2></td></tr>
 </div>
 </div>
 <h2 class="groupheader">Function Documentation</h2>
+<a id="ae7d96d169d34f4d7799a862bbf39b011"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ae7d96d169d34f4d7799a862bbf39b011">&#9670;&nbsp;</a></span>cio_websocket_client_init()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">enum <a class="el" href="error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afe">cio_error</a> cio_websocket_client_init </td>
+          <td>(</td>
+          <td class="paramtype">struct <a class="el" href="structcio__websocket.html">cio_websocket</a> *&#160;</td>
+          <td class="paramname"><em>ws</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="websocket_8h.html#a0d3aff21405c313915a0610c89486f26">cio_websocket_on_connect_t</a>&#160;</td>
+          <td class="paramname"><em>on_connect</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="websocket_8h.html#ab304f5e16b4d8ec3c2a8fcc436382e42">cio_websocket_close_hook_t</a>&#160;</td>
+          <td class="paramname"><em>close_hook</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
 <a id="a32faa8cd16bd3410194c7559a7f0be0a"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a32faa8cd16bd3410194c7559a7f0be0a">&#9670;&nbsp;</a></span>cio_websocket_close()</h2>
 
@@ -428,46 +465,6 @@ Functions</h2></td></tr>
 
 </div>
 </div>
-<a id="a53e9c2cd2682f828e21b8b0bf83d6944"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a53e9c2cd2682f828e21b8b0bf83d6944">&#9670;&nbsp;</a></span>cio_websocket_init()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">enum <a class="el" href="error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afe">cio_error</a> cio_websocket_init </td>
-          <td>(</td>
-          <td class="paramtype">struct <a class="el" href="structcio__websocket.html">cio_websocket</a> *&#160;</td>
-          <td class="paramname"><em>ws</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">bool&#160;</td>
-          <td class="paramname"><em>is_server</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype"><a class="el" href="websocket_8h.html#a0d3aff21405c313915a0610c89486f26">cio_websocket_on_connect_t</a>&#160;</td>
-          <td class="paramname"><em>on_connect</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype"><a class="el" href="websocket_8h.html#ab304f5e16b4d8ec3c2a8fcc436382e42">cio_websocket_close_hook_t</a>&#160;</td>
-          <td class="paramname"><em>close_hook</em>&#160;</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>)</td>
-          <td></td><td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-</div>
-</div>
 <a id="a91977ef2dba21e2505614315bc28b1c8"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a91977ef2dba21e2505614315bc28b1c8">&#9670;&nbsp;</a></span>cio_websocket_read_message()</h2>
 
@@ -506,6 +503,51 @@ Functions</h2></td></tr>
     <tr><td class="paramname">ws</td><td>The websocket from which a message shall be read. </td></tr>
     <tr><td class="paramname">handler</td><td>A callback function that will be called when the read completes. </td></tr>
     <tr><td class="paramname">handler_context</td><td>A context pointer given to <code>handler</code> when called. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd><a class="el" href="error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afea6bb29544c99750c61f70b10a1e17d96a">CIO_SUCCESS</a> for success. </dd></dl>
+
+</div>
+</div>
+<a id="af4a7917eacd5e72bd7b938fed3d9022b"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#af4a7917eacd5e72bd7b938fed3d9022b">&#9670;&nbsp;</a></span>cio_websocket_server_init()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">enum <a class="el" href="error__code_8h.html#ac512c4abcb0c1e747cdaaf3b917d4afe">cio_error</a> cio_websocket_server_init </td>
+          <td>(</td>
+          <td class="paramtype">struct <a class="el" href="structcio__websocket.html">cio_websocket</a> *&#160;</td>
+          <td class="paramname"><em>ws</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="websocket_8h.html#a0d3aff21405c313915a0610c89486f26">cio_websocket_on_connect_t</a>&#160;</td>
+          <td class="paramname"><em>on_connect</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="websocket_8h.html#ab304f5e16b4d8ec3c2a8fcc436382e42">cio_websocket_close_hook_t</a>&#160;</td>
+          <td class="paramname"><em>close_hook</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Initializes a server websocket. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">ws</td><td>The websocket to be initialized. </td></tr>
+    <tr><td class="paramname">on_connect</td><td>A callback function that is called when a websocket connection from a peer was established. Can't be <code>NULL</code>. </td></tr>
+    <tr><td class="paramname">close_hook</td><td>A custom hook function that is called when the websocket connection was closed. Could be set to <code>NULL</code>. </td></tr>
   </table>
   </dd>
 </dl>

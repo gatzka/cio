@@ -49,7 +49,7 @@ var NAVTREEINDEX =
 [
 "address__family_8h.html",
 "structcio__http__client__private.html#ad602f4fd02033a719e0a7761ae117f59",
-"websocket__location__handler_8h.html#a726ca809ffd3d67ab4b8476646f26635a2368209f8f42c8676f2b35650eeabf70"
+"websocket__location__handler_8h.html#a36e330e6156f3ebd6b9a2675e0cc8a04"
 ];
 
 var SYNCONMSG = 'click to disable panel synchronisation';
