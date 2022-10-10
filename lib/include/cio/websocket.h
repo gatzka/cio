@@ -177,7 +177,16 @@ struct cio_websocket {
 	void (*on_control)(const struct cio_websocket *ws, enum cio_websocket_frame_type kind, const uint8_t *data, uint_fast8_t length);
 };
 
+/**
+ * @brief Initializes a server websocket.
+ *
+ * @param ws The websocket to be initialized.
+ * @param on_connect A callback function that is called when a websocket connection from a peer was established. Can't be @c NULL.
+ * @param close_hook A custom hook function that is called when the websocket connection was closed. Could be set to @c NULL.
+ * @return ::CIO_SUCCESS for success.
+ */
 CIO_EXPORT enum cio_error cio_websocket_server_init(struct cio_websocket *ws, cio_websocket_on_connect_t on_connect, cio_websocket_close_hook_t close_hook);
+
 CIO_EXPORT enum cio_error cio_websocket_client_init(struct cio_websocket *ws, cio_websocket_on_connect_t on_connect, cio_websocket_close_hook_t close_hook);
 
 /**
