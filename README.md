@@ -15,17 +15,26 @@ limitations (MIT).
 [![Open Hub](https://img.shields.io/badge/Open-Hub-0185CA.svg)](https://www.openhub.net/p/cio)
 
 ## Howto Build
+Create a build directory and change inot it:
 ```
-git submodule update --init
+mkdir /tmp/cio && cd /tmp/cio
+```
+Configure the project using cmake:
+```
+cmake -DCMAKE_TOOLCHAIN_FILE=$PWD/toolchains/x86-linux-clang-14.cmake <path/to/cio/src/dir>
+```
+Please not that the passage with ```-DCMAKE_TOOLCHAIN_FILE``` is optional, if you want to use the build hosts gcc. By default cio is build a a static library. If you want to build a shared library instead, add ```-DBUILD_SHARED_LIBS=ON``` to to configuration command line.
+If you want to speed up the build, choose the Ninja generator by adding ```-GNinja``` to the configuration command line.
+
+Then build the project:
+```
+cmake --build .
 ```
 
-cio lets you choose if you want to build a static or dynamic library.
-The default is static. If you want a shared library, execute:
+Run the unit test by issueing the following command:
 ```
-cmake -DBUILD_SHARED_LIBS=ON <path-to-cio-project>
+cmake --build . --target test
 ```
-
-
 
 ## Documentation
 
