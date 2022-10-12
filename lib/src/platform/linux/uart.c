@@ -44,6 +44,13 @@
 #include "cio/uart.h"
 #include "cio/util.h"
 
+enum bit_size {
+	BITS_5 = CS5,
+	BITS_6 = CS6,
+	BITS_7 = CS7,
+	BITS_8 = CS8
+};
+
 static const char DIR_NAME[] = "/dev/serial/by-path/";
 
 static void read_callback(void *context, enum cio_epoll_error error)
@@ -524,17 +531,18 @@ enum cio_error cio_uart_get_num_data_bits(const struct cio_uart *port, enum cio_
 		return err;
 	}
 
-	switch (tty.c_cflag & (tcflag_t)CSIZE) {
-	case CS5:
+	enum bit_size bs = (enum bit_size)(tty.c_cflag & (tcflag_t)CSIZE);
+	switch (bs) {
+	case BITS_5:
 		*num_data_bits = CIO_UART_5_DATA_BITS;
 		break;
-	case CS6:
+	case BITS_6:
 		*num_data_bits = CIO_UART_6_DATA_BITS;
 		break;
-	case CS7:
+	case BITS_7:
 		*num_data_bits = CIO_UART_7_DATA_BITS;
 		break;
-	case CS8:
+	case BITS_8:
 		*num_data_bits = CIO_UART_8_DATA_BITS;
 		break;
 	}
