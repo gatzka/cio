@@ -524,7 +524,7 @@ enum cio_error cio_uart_get_num_data_bits(const struct cio_uart *port, enum cio_
 		return err;
 	}
 
-	switch (tty.c_cflag & CSIZE) {
+	switch (tty.c_cflag & (tcflag_t)CSIZE) {
 	case CS5:
 		*num_data_bits = CIO_UART_5_DATA_BITS;
 		break;
