@@ -524,14 +524,20 @@ enum cio_error cio_uart_get_num_data_bits(const struct cio_uart *port, enum cio_
 		return err;
 	}
 
-	if ((tty.c_cflag & (tcflag_t)CS5) == (tcflag_t)CS5) {
+	switch (tty.c_cflag & (tcflag_t)CSIZE) {
+	case CS5:
 		*num_data_bits = CIO_UART_5_DATA_BITS;
-	} else if ((tty.c_cflag & (tcflag_t)CS6) == (tcflag_t)CS6) {
+		break;
+	case CS6:
 		*num_data_bits = CIO_UART_6_DATA_BITS;
-	} else if ((tty.c_cflag & (tcflag_t)CS7) == (tcflag_t)CS7) {
+		break;
+	case CS7:
 		*num_data_bits = CIO_UART_7_DATA_BITS;
-	} else {
+		break;
+	case CS8:
+	default:
 		*num_data_bits = CIO_UART_8_DATA_BITS;
+		break;
 	}
 
 	return CIO_SUCCESS;
