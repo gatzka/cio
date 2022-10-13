@@ -1377,7 +1377,7 @@ static void test_socket_connect_immediatly(void)
 
 static void test_socket_connect_immediatly_ipv6(void)
 {
-	uint8_t ip_address[16];
+	uint8_t ip_address[16] = {0};
 	struct cio_inet_address inet_address;
 	enum cio_error err = cio_init_inet_address(&inet_address, ip_address, sizeof(ip_address));
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "cio_init_inet_address did not succeed!");
