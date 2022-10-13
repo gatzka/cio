@@ -476,11 +476,15 @@ static void pong_frame_written(struct cio_websocket *ws, void *handler_context, 
 {
 	(void)handler_context;
 
-	if (cio_likely(err == CIO_SUCCESS)) {
-		struct cio_http_client *c = ws->ws_private.http_client;
-		cio_buffered_stream_read_at_least(&c->bs, &c->rb, 1, get_header, ws);
-	} else {
+	if (cio_unlikely(err != CIO_SUCCESS)) {
 		handle_error(ws, err, CIO_WEBSOCKET_CLOSE_INTERNAL_ERROR, "pong frame not written correctly");
+		return;
+	}
+
+	struct cio_http_client *c = ws->ws_private.http_client;
+	err = cio_buffered_stream_read_at_least(&c->bs, &c->rb, 1, get_header, ws);
+	if (cio_unlikely(err != CIO_SUCCESS)) {
+		handle_error(ws, err, CIO_WEBSOCKET_CLOSE_INTERNAL_ERROR, "could not restart receiving after pong frame written");
 	}
 }
 
@@ -515,7 +519,10 @@ static void handle_pong_frame(struct cio_websocket *ws, uint8_t *data, uint_fast
 	}
 
 	struct cio_http_client *c = ws->ws_private.http_client;
-	cio_buffered_stream_read_at_least(&c->bs, &c->rb, 1, get_header, ws);
+	enum cio_error err = cio_buffered_stream_read_at_least(&c->bs, &c->rb, 1, get_header, ws);
+	if (cio_unlikely(err != CIO_SUCCESS)) {
+		handle_error(ws, err, CIO_WEBSOCKET_CLOSE_INTERNAL_ERROR, "could not restart receiving handling a pong frame received");
+	}
 }
 
 static void handle_frame(struct cio_websocket *ws, uint8_t *data, uint64_t length)
