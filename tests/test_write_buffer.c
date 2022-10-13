@@ -285,7 +285,7 @@ static void test_cio_write_buffer_split_and_append(void)
 			TEST_ASSERT_NOT_NULL_MESSAGE(wb, "allocation of writebuffer element failed!");
 			char *data = malloc(DATA_BUFFER_LENGTH);
 			TEST_ASSERT_NOT_NULL_MESSAGE(data, "allocation of writebuffer data element failed!");
-			snprintf(data, DATA_BUFFER_LENGTH - 1, "SL_BUFFER%d", i);
+			snprintf(data, DATA_BUFFER_LENGTH - 1, "SL_BUFFER%u", i);
 			cio_write_buffer_const_element_init(wb, data, DATA_BUFFER_LENGTH);
 			cio_write_buffer_queue_tail(&wbh_to_split, wb);
 		}
@@ -298,7 +298,7 @@ static void test_cio_write_buffer_split_and_append(void)
 			TEST_ASSERT_NOT_NULL_MESSAGE(wb, "allocation of writebuffer element failed!");
 			char *data = malloc(DATA_BUFFER_LENGTH);
 			TEST_ASSERT_NOT_NULL_MESSAGE(data, "allocation of writebuffer data element failed!");
-			snprintf(data, DATA_BUFFER_LENGTH - 1, "AL_BUFFER%d", i);
+			snprintf(data, DATA_BUFFER_LENGTH - 1, "AL_BUFFER%u", i);
 			cio_write_buffer_const_element_init(wb, data, DATA_BUFFER_LENGTH);
 			cio_write_buffer_queue_tail(&wbh_to_append, wb);
 		}
@@ -318,13 +318,13 @@ static void test_cio_write_buffer_split_and_append(void)
 		e = wbh_to_append.next;
 		for (unsigned i = 0; i < APPEND_LIST_LENGTH; i++) {
 			char buf[100];
-			snprintf(buf, sizeof(buf), "AL_BUFFER%d", i);
+			snprintf(buf, sizeof(buf), "AL_BUFFER%u", i);
 			TEST_ASSERT_EQUAL_STRING_MESSAGE(buf, e->data.element.data, "Data in merged append buffer not correct!");
 			e = e->next;
 		}
 		for (unsigned i = split_position; i < SPLIT_LIST_LENGTH; i++) {
 			char buf[100];
-			snprintf(buf, sizeof(buf), "SL_BUFFER%d", i);
+			snprintf(buf, sizeof(buf), "SL_BUFFER%u", i);
 			TEST_ASSERT_EQUAL_STRING_MESSAGE(buf, e->data.element.data, "Data in merged split buffer not correct!");
 			e = e->next;
 		}
