@@ -15,7 +15,7 @@ limitations (MIT).
 [![Open Hub](https://img.shields.io/badge/Open-Hub-0185CA.svg)](https://www.openhub.net/p/cio)
 
 ## Howto Build
-Create a build directory and change inot it:
+Create a build directory and change into it:
 ```
 mkdir /tmp/cio && cd /tmp/cio
 ```
