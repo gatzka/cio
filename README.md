@@ -36,6 +36,13 @@ Run the unit test by issueing the following command:
 cmake --build . --target test
 ```
 
+### CI builds
+Continuous Integration builds are done using ctest. You can also run them locally. For instance, to run the CI
+build that gives you the code coverage of the unit test,run:
+```
+ctest -S ~/workspace/git/cio/build.cmake -DCTEST_TOOLCHAIN_FILE=toolchains/x86-linux-gcc.cmake -DCTEST_CONFIGURATION_TYPE:STRING=Coverage
+```
+
 ## Documentation
 
 The generated [doxygen](http://www.doxygen.nl/) documentation can be found
