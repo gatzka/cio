@@ -238,13 +238,15 @@ jobs:
         ctest_configuration_type: Coverage
         ctest_binary_directory: build
     - name: coverage upload
-      uses: gatzka/codecov-action@v1.5.0
-      with:
-        token: ${{ secrets.CODECOV_TOKEN }}
-        path: ./
-        rootpath: ./
-        gcov: gcov-9
-        flags: unittests
+      uses: codecov/codecov-action@v3
+      flags: unittests # optional
+      #      uses: gatzka/codecov-action@v1.5.0
+      #      with:
+      #        token: ${{ secrets.CODECOV_TOKEN }}
+      #        path: ./
+      #        rootpath: ./
+      #        gcov: gcov-9
+      #        flags: unittests
 
   sonarcloud:
     name: sonarcloud scan build
