@@ -1456,6 +1456,32 @@ static void test_recieve_ping_frame_payload_too_long_no_error_callback(void)
 	TEST_ASSERT_MESSAGE(is_close_frame(CIO_WEBSOCKET_CLOSE_PROTOCOL_ERROR, true), "written frame is not a close frame!");
 }
 
+static void test_receive_ping_frame_restart_receive_fails_after_pong_written(void)
+{
+	char data[] = "aaaa";
+
+	struct ws_frame frames[] = {
+	    {.frame_type = CIO_WEBSOCKET_PING_FRAME, .direction = FROM_CLIENT, .data = data, .data_length = sizeof(data), .last_frame = true, .rsv = false},
+	    {.frame_type = CIO_WEBSOCKET_CLOSE_FRAME, .direction = FROM_CLIENT, .data = NULL, .data_length = 0, .last_frame = true, .rsv = false},
+	};
+
+	serialize_frames(frames, ARRAY_SIZE(frames));
+
+	enum cio_error (*read_at_least_fakes[])(struct cio_buffered_stream *, struct cio_read_buffer *, size_t, cio_buffered_stream_read_handler_t, void *) = {
+	    bs_read_at_least_from_buffer,
+	    bs_read_at_least_from_buffer,
+	    bs_read_at_least_from_buffer,
+	    bs_read_at_least_from_buffer,
+	    bs_read_at_least_immediate_error};
+
+	SET_CUSTOM_FAKE_SEQ(cio_buffered_stream_read_at_least, read_at_least_fakes, ARRAY_SIZE(read_at_least_fakes))
+
+	ws->ws_private.ws_flags.is_server = (frames[0].direction == FROM_CLIENT) ? 1 : 0;
+	enum cio_error err = cio_websocket_read_message(ws, read_handler, NULL);
+	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Could not start reading a message!");
+	TEST_ASSERT_EQUAL_MESSAGE(1, on_error_fake.call_count, "error callback was called");
+}
+
 static void test_receive_pong_frame(void)
 {
 	char data[] = "aaaa";
@@ -2892,6 +2918,7 @@ int main(void)
 	RUN_TEST(test_receive_ping_frame_no_callback);
 	RUN_TEST(test_receive_ping_frame_payload_too_long);
 	RUN_TEST(test_recieve_ping_frame_payload_too_long_no_error_callback);
+	RUN_TEST(test_receive_ping_frame_restart_receive_fails_after_pong_written);
 
 	RUN_TEST(test_receive_pong_frame);
 	RUN_TEST(test_receive_pong_frame_no_callback);
