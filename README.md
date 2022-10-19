@@ -3,12 +3,16 @@
 Copyright (c) 2017 Stephan Gatzka. See the [LICENSE](LICENSE) file for license rights and
 limitations (MIT).
 
+
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fgatzka%2Fcio.svg?type=large)](https://app.fossa.com/projects/git%2Bgithub.com%2Fgatzka%2Fcio?ref=badge_large)
+
 ## Build Status
 [![Github action](https://github.com/gatzka/cio/workflows/CI%20build/badge.svg?branch=master)](https://github.com/gatzka/cio/actions)
 [![Coverity](https://scan.coverity.com/projects/12722/badge.svg)](https://scan.coverity.com/projects/gatzka-cio)
 [![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg)](https://raw.githubusercontent.com/gatzka/cio/master/LICENSE)
 [![codecov](https://codecov.io/gh/gatzka/cio/branch/master/graph/badge.svg)](https://codecov.io/gh/gatzka/cio)
 [![Quality Gate](https://sonarcloud.io/api/project_badges/measure?project=org.gatzka.cio&metric=alert_status)](https://sonarcloud.io/dashboard?id=org.gatzka.cio)
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fgatzka%2Fcio.svg?type=shield)](https://app.fossa.com/projects/git%2Bgithub.com%2Fgatzka%2Fcio?ref=badge_shield)
 
 [![Open Hub](https://img.shields.io/badge/Open-Hub-0185CA.svg)](https://www.openhub.net/p/cio)
 
