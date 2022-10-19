@@ -239,7 +239,9 @@ jobs:
         ctest_binary_directory: build
     - name: coverage upload
       uses: codecov/codecov-action@v3
-      flags: unittests # optional
+      with:
+        flags: unittests
+        verbose: true
       #      uses: gatzka/codecov-action@v1.5.0
       #      with:
       #        token: ${{ secrets.CODECOV_TOKEN }}
