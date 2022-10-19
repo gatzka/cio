@@ -242,6 +242,7 @@ jobs:
       with:
         flags: unittests
         verbose: true
+        gcov: true
       #      uses: gatzka/codecov-action@v1.5.0
       #      with:
       #        token: ${{ secrets.CODECOV_TOKEN }}
