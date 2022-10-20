@@ -38,7 +38,7 @@ static void CALLBACK timer_callback(void *context, BOOLEAN fired)
 	if (fired) {
 		struct cio_timer *t = (struct cio_timer *)context;
 		BOOL ret = DeleteTimerQueueTimer(NULL, t->impl.ev.overlapped.hEvent, NULL);
-		(void)ret; //Deliberately ignore return value. There is nothing we can do if that call fails.
+		(void)ret; // Deliberately ignore return value. There is nothing we can do if that call fails.
 		memset(&t->impl.ev.overlapped, 0, sizeof(t->impl.ev.overlapped));
 		PostQueuedCompletionStatus(t->impl.loop->loop_completion_port, 0, (ULONG_PTR)t, &t->impl.ev.overlapped);
 	}
