@@ -112,8 +112,8 @@ static void sha1_process_message_block(sha1_context *context)
 	uint32_t E; /* Word buffers                */
 
 	/*
-     *  Initialize the first 16 words in the array W
-     */
+	 *  Initialize the first 16 words in the array W
+	 */
 	for (t = 0; t < 16; t++) {
 		W[t] = (uint32_t)(context->message_block[t * 4]) << 24U;
 		W[t] |= (uint32_t)(context->message_block[t * 4 + 1]) << 16U;
@@ -205,11 +205,11 @@ static void sha1_process_message_block(sha1_context *context)
 static void sha1_pad_message(sha1_context *context)
 {
 	/*
-     *  Check to see if the current message block is too small to hold
-     *  the initial padding bits and length.  If so, we will pad the
-     *  block, process it, and then continue padding into a second
-     *  block.
-     */
+	 *  Check to see if the current message block is too small to hold
+	 *  the initial padding bits and length.  If so, we will pad the
+	 *  block, process it, and then continue padding into a second
+	 *  block.
+	 */
 	if (context->message_block_index > 55) {
 		context->message_block[context->message_block_index++] = 0x80;
 		while (context->message_block_index < 64) {
@@ -230,8 +230,8 @@ static void sha1_pad_message(sha1_context *context)
 	}
 
 	/*
-     *  Store the message length as the last 8 octets
-     */
+	 *  Store the message length as the last 8 octets
+	 */
 	context->message_block[56] = (uint8_t)(context->length_high >> 24U);
 	context->message_block[57] = (uint8_t)(context->length_high >> 16U);
 	context->message_block[58] = (uint8_t)(context->length_high >> 8U);

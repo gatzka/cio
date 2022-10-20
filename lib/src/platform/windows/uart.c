@@ -191,7 +191,7 @@ static char *get_string_value_from_registry(HDEVINFO dev_info_set, SP_DEVINFO_DA
 		return NULL;
 	}
 
-	//Get the length of the registry entry
+	// Get the length of the registry entry
 	DWORD entry_type = 0;
 	DWORD value_size = 0;
 	LONG err = RegQueryValueExW(dev_key, L"PortName", NULL, &entry_type, NULL, &value_size);
@@ -737,7 +737,7 @@ enum cio_error cio_uart_set_flow_control(const struct cio_uart *port, enum cio_u
 	}
 
 	return CIO_SUCCESS;
-	//return CIO_OPERATION_NOT_SUPPORTED;
+	// return CIO_OPERATION_NOT_SUPPORTED;
 }
 
 enum cio_error cio_uart_get_flow_control(const struct cio_uart *port, enum cio_uart_flow_control *flow_control)

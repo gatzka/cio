@@ -221,7 +221,7 @@ enum cio_error cio_socket_init(struct cio_socket *socket,
 	if (cio_unlikely(socket == NULL) || (loop == NULL)) {
 		return CIO_INVALID_ARGUMENT;
 	}
-	
+
 	if (cio_unlikely((address_family != CIO_ADDRESS_FAMILY_INET4) && (address_family != CIO_ADDRESS_FAMILY_INET6))) {
 		return CIO_INVALID_ARGUMENT;
 	}
