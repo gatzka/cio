@@ -88,7 +88,6 @@ static void test_convert_htobe32(void)
 	TEST_ASSERT_EQUAL_MEMORY_MESSAGE(&check_pattern, &check, sizeof(check), "32 bit endian conversion incorrect!");
 }
 
-
 static void test_convert_be64toh(void)
 {
 	uint8_t pattern_array[] = {0x12, 0x34, 0x56, 0x78, 0x9a, 0xbc, 0xde, 0xf0};
