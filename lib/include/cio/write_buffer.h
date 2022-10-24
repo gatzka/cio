@@ -175,7 +175,7 @@ static inline struct cio_write_buffer *cio_write_buffer_queue_peek(const struct 
 	struct cio_write_buffer *wbe = wbh->next;
 
 	if (wbe == wbh) {
-		wbe = NULL;
+		return NULL;
 	}
 
 	return wbe;
