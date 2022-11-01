@@ -157,7 +157,7 @@ static inline bool cio_write_buffer_queue_empty(const struct cio_write_buffer *w
 /**
  * @brief Determine if the write buffer chain is empty.
  * @param wbh The write buffer chain that is asked.
- * @param wb The write buffer element that is asked if it is the last in the queue.
+ * @param wbe The write buffer element that is asked if it is the last in the queue.
  * @return @c true if the chain is empty, @c false otherwise.
  */
 static inline bool cio_write_buffer_is_last_element(const struct cio_write_buffer *wbh, const struct cio_write_buffer *wbe)
