@@ -49,7 +49,7 @@ struct cio_utf8_state {
 };
 
 CIO_EXPORT void cio_utf8_init(struct cio_utf8_state *state);
-CIO_EXPORT uint8_t cio_check_utf8(struct cio_utf8_state *state, const uint8_t *s, size_t count);
+CIO_EXPORT uint8_t cio_check_utf8(struct cio_utf8_state *state, const uint8_t *string, size_t count);
 
 #ifdef __cplusplus
 }

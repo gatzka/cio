@@ -36,26 +36,28 @@ const void *cio_memmem(const void *haystack, size_t haystacklen, const void *nee
 	const char *begin = haystack;
 	const char *last_possible = begin + haystacklen - needlelen;
 	const char *tail = needle;
-	char point;
 
 	/*
 	 * The first occurrence of the empty string is deemed to occur at
 	 * the beginning of the string.
 	 */
-	if (needlelen == 0)
+	if (needlelen == 0) {
 		return begin;
+	}
 
 	/*
 	 * Sanity check, otherwise the loop might search through the whole
 	 * memory.
 	 */
-	if (haystacklen < needlelen)
+	if (haystacklen < needlelen) {
 		return NULL;
+	}
 
-	point = *tail++;
+	char point = *tail++;
 	for (; begin <= last_possible; begin++) {
-		if ((*begin == point) && (!memcmp(begin + 1, tail, needlelen - 1)))
+		if ((*begin == point) && (!memcmp(begin + 1, tail, needlelen - 1))) {
 			return begin;
+		}
 	}
 
 	return NULL;

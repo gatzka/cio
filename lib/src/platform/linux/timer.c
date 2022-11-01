@@ -42,40 +42,36 @@ static const uint64_t NSECONDS_IN_SECONDS = UINT64_C(1000000000);
 
 static struct itimerspec convert_timeoutns_to_itimerspec(uint64_t timeout)
 {
-	struct itimerspec ts;
 	time_t seconds = (time_t)(timeout / NSECONDS_IN_SECONDS);
 	long nanos = (long)(timeout - ((uint64_t)seconds * NSECONDS_IN_SECONDS));
 
-	ts.it_interval.tv_sec = 0;
-	ts.it_interval.tv_nsec = 0;
-	ts.it_value.tv_sec = seconds;
-	ts.it_value.tv_nsec = nanos;
-	return ts;
+	struct itimerspec timespec = {.it_interval.tv_sec = 0, .it_interval.tv_nsec = 0, .it_value.tv_sec = seconds, .it_value.tv_nsec = nanos};
+	return timespec;
 }
 
 static void timer_read(void *context, enum cio_epoll_error error)
 {
-	struct cio_timer *t = context;
+	struct cio_timer *timer = context;
 
 	if (cio_unlikely(error != CIO_EPOLL_SUCCESS)) {
-		cio_timer_handler_t handler = t->handler;
-		t->handler = NULL;
-		enum cio_error err = cio_linux_get_socket_error(t->impl.ev.fd);
-		handler(t, t->handler_context, err);
+		cio_timer_handler_t handler = timer->handler;
+		timer->handler = NULL;
+		enum cio_error err = cio_linux_get_socket_error(timer->impl.ev.fd);
+		handler(timer, timer->handler_context, err);
 		return;
 	}
 
 	uint64_t number_of_expirations = 0;
 
-	ssize_t ret = read(t->impl.ev.fd, &number_of_expirations, sizeof(number_of_expirations));
+	ssize_t ret = read(timer->impl.ev.fd, &number_of_expirations, sizeof(number_of_expirations));
 	if (cio_unlikely(ret == -1)) {
 		if (cio_unlikely(errno != EAGAIN)) {
-			t->handler(t, t->handler_context, (enum cio_error)(-errno));
+			timer->handler(timer, timer->handler_context, (enum cio_error)(-errno));
 		}
 	} else {
-		cio_timer_handler_t handler = t->handler;
-		t->handler = NULL;
-		handler(t, t->handler_context, CIO_SUCCESS);
+		cio_timer_handler_t handler = timer->handler;
+		timer->handler = NULL;
+		handler(timer, timer->handler_context, CIO_SUCCESS);
 	}
 }
 
@@ -115,51 +111,51 @@ eventloop_add_failed:
 	return ret_val;
 }
 
-enum cio_error cio_timer_expires_from_now(struct cio_timer *t, uint64_t timeout_ns, cio_timer_handler_t handler, void *handler_context)
+enum cio_error cio_timer_expires_from_now(struct cio_timer *timer, uint64_t timeout_ns, cio_timer_handler_t handler, void *handler_context)
 {
 	struct itimerspec timeout = convert_timeoutns_to_itimerspec(timeout_ns);
 
-	t->handler = handler;
-	t->handler_context = handler_context;
-	t->impl.ev.context = t;
+	timer->handler = handler;
+	timer->handler_context = handler_context;
+	timer->impl.ev.context = timer;
 
-	int ret = timerfd_settime(t->impl.ev.fd, 0, &timeout, NULL);
+	int ret = timerfd_settime(timer->impl.ev.fd, 0, &timeout, NULL);
 	if (cio_unlikely(ret != 0)) {
 		return (enum cio_error)(-errno);
 	}
 
-	timer_read(t, CIO_EPOLL_SUCCESS);
+	timer_read(timer, CIO_EPOLL_SUCCESS);
 	return CIO_SUCCESS;
 }
 
-enum cio_error cio_timer_cancel(struct cio_timer *t)
+enum cio_error cio_timer_cancel(struct cio_timer *timer)
 {
 	struct itimerspec timeout;
 
-	if (t->handler == NULL) {
+	if (timer->handler == NULL) {
 		return CIO_OPERATION_NOT_PERMITTED;
 	}
 
 	memset(&timeout, 0x0, sizeof(timeout));
-	int ret = timerfd_settime(t->impl.ev.fd, 0, &timeout, NULL);
+	int ret = timerfd_settime(timer->impl.ev.fd, 0, &timeout, NULL);
 	if (cio_likely(ret == 0)) {
-		t->handler(t, t->handler_context, CIO_OPERATION_ABORTED);
-		t->handler = NULL;
+		timer->handler(timer, timer->handler_context, CIO_OPERATION_ABORTED);
+		timer->handler = NULL;
 		return CIO_SUCCESS;
 	}
 
 	return (enum cio_error)(-errno);
 }
 
-void cio_timer_close(struct cio_timer *t)
+void cio_timer_close(struct cio_timer *timer)
 {
-	cio_linux_eventloop_remove(t->impl.loop, &t->impl.ev);
-	if (t->handler != NULL) {
-		cio_timer_cancel(t);
+	cio_linux_eventloop_remove(timer->impl.loop, &timer->impl.ev);
+	if (timer->handler != NULL) {
+		cio_timer_cancel(timer);
 	}
 
-	close(t->impl.ev.fd);
-	if (t->close_hook != NULL) {
-		t->close_hook(t);
+	close(timer->impl.ev.fd);
+	if (timer->close_hook != NULL) {
+		timer->close_hook(timer);
 	}
 }

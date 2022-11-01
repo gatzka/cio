@@ -38,10 +38,10 @@
 #include "cio/eventloop.h"
 #include "cio/eventloop_impl.h"
 
-static void erase_pending_event(struct cio_eventloop *loop, const struct cio_event_notifier *ev)
+static void erase_pending_event(struct cio_eventloop *loop, const struct cio_event_notifier *evn)
 {
 	for (unsigned int i = loop->event_counter + 1; i < loop->num_events; i++) {
-		if (loop->epoll_events[i].data.ptr == ev) {
+		if (loop->epoll_events[i].data.ptr == evn) {
 			memmove(&loop->epoll_events[i], &loop->epoll_events[i + 1], (loop->num_events - (i + 1)) * sizeof(loop->epoll_events[0]));
 			loop->num_events--;
 			break;
@@ -49,13 +49,13 @@ static void erase_pending_event(struct cio_eventloop *loop, const struct cio_eve
 	}
 }
 
-static enum cio_error epoll_mod(const struct cio_eventloop *loop, struct cio_event_notifier *ev, uint32_t events)
+static enum cio_error epoll_mod(const struct cio_eventloop *loop, struct cio_event_notifier *evn, uint32_t events)
 {
 	struct epoll_event epoll_ev;
 
-	epoll_ev.data.ptr = ev;
+	epoll_ev.data.ptr = evn;
 	epoll_ev.events = events;
-	if (cio_unlikely(epoll_ctl(loop->epoll_fd, EPOLL_CTL_MOD, ev->fd, &epoll_ev) < 0)) {
+	if (cio_unlikely(epoll_ctl(loop->epoll_fd, EPOLL_CTL_MOD, evn->fd, &epoll_ev) < 0)) {
 		return (enum cio_error)(-errno);
 	}
 
@@ -110,63 +110,63 @@ void cio_eventloop_destroy(struct cio_eventloop *loop)
 	close(loop->epoll_fd);
 }
 
-enum cio_error cio_linux_eventloop_add(const struct cio_eventloop *loop, struct cio_event_notifier *ev)
+enum cio_error cio_linux_eventloop_add(const struct cio_eventloop *loop, struct cio_event_notifier *evn)
 {
 	struct epoll_event epoll_ev;
-	ev->registered_events = 0;
+	evn->registered_events = 0;
 
-	epoll_ev.data.ptr = ev;
-	epoll_ev.events = ev->registered_events;
-	if (cio_unlikely(epoll_ctl(loop->epoll_fd, EPOLL_CTL_ADD, ev->fd, &epoll_ev) < 0)) {
+	epoll_ev.data.ptr = evn;
+	epoll_ev.events = evn->registered_events;
+	if (cio_unlikely(epoll_ctl(loop->epoll_fd, EPOLL_CTL_ADD, evn->fd, &epoll_ev) < 0)) {
 		return (enum cio_error)(-errno);
 	}
 
 	return CIO_SUCCESS;
 }
 
-enum cio_error cio_linux_eventloop_register_read(const struct cio_eventloop *loop, struct cio_event_notifier *ev)
+enum cio_error cio_linux_eventloop_register_read(const struct cio_eventloop *loop, struct cio_event_notifier *evn)
 {
-	ev->registered_events |= (uint32_t)EPOLLIN;
-	return epoll_mod(loop, ev, ev->registered_events);
+	evn->registered_events |= (uint32_t)EPOLLIN;
+	return epoll_mod(loop, evn, evn->registered_events);
 }
 
-enum cio_error cio_linux_eventloop_unregister_read(const struct cio_eventloop *loop, struct cio_event_notifier *ev)
+enum cio_error cio_linux_eventloop_unregister_read(const struct cio_eventloop *loop, struct cio_event_notifier *evn)
 {
-	ev->registered_events &= ~(uint32_t)EPOLLIN;
-	return epoll_mod(loop, ev, ev->registered_events);
+	evn->registered_events &= ~(uint32_t)EPOLLIN;
+	return epoll_mod(loop, evn, evn->registered_events);
 }
 
-enum cio_error cio_linux_eventloop_register_write(const struct cio_eventloop *loop, struct cio_event_notifier *ev)
+enum cio_error cio_linux_eventloop_register_write(const struct cio_eventloop *loop, struct cio_event_notifier *evn)
 {
-	ev->registered_events |= (uint32_t)EPOLLOUT;
-	return epoll_mod(loop, ev, ev->registered_events);
+	evn->registered_events |= (uint32_t)EPOLLOUT;
+	return epoll_mod(loop, evn, evn->registered_events);
 }
 
-enum cio_error cio_linux_eventloop_unregister_write(const struct cio_eventloop *loop, struct cio_event_notifier *ev)
+enum cio_error cio_linux_eventloop_unregister_write(const struct cio_eventloop *loop, struct cio_event_notifier *evn)
 {
-	ev->registered_events &= ~(uint32_t)EPOLLOUT;
-	return epoll_mod(loop, ev, ev->registered_events);
+	evn->registered_events &= ~(uint32_t)EPOLLOUT;
+	return epoll_mod(loop, evn, evn->registered_events);
 }
 
-void cio_linux_eventloop_remove(struct cio_eventloop *loop, const struct cio_event_notifier *ev)
+void cio_linux_eventloop_remove(struct cio_eventloop *loop, const struct cio_event_notifier *evn)
 {
-	epoll_ctl(loop->epoll_fd, EPOLL_CTL_DEL, ev->fd, NULL);
-	erase_pending_event(loop, ev);
-	if (loop->current_ev == ev) {
+	epoll_ctl(loop->epoll_fd, EPOLL_CTL_DEL, evn->fd, NULL);
+	erase_pending_event(loop, evn);
+	if (loop->current_ev == evn) {
 		loop->current_ev = NULL;
 	}
 }
 
-static void handle_removed_ev(const struct cio_eventloop *loop, struct cio_event_notifier *ev, uint32_t events_type)
+static void handle_removed_ev(const struct cio_eventloop *loop, struct cio_event_notifier *evn, uint32_t events_type)
 {
-	if (cio_likely(loop->current_ev != NULL) && ((events_type & (uint32_t)EPOLLOUT & ev->registered_events) != 0)) {
+	if (cio_likely(loop->current_ev != NULL) && ((events_type & (uint32_t)EPOLLOUT & evn->registered_events) != 0)) {
 		enum cio_epoll_error err = CIO_EPOLL_SUCCESS;
 		if (cio_unlikely(((events_type & (uint32_t)EPOLLERR) != 0) || ((events_type & (uint32_t)EPOLLHUP) != 0))) {
 			err = CIO_EPOLL_ERROR;
 		}
 
-		cio_linux_eventloop_unregister_write(loop, ev);
-		ev->write_callback(ev->context, err);
+		cio_linux_eventloop_unregister_write(loop, evn);
+		evn->write_callback(evn->context, err);
 	}
 }
 
@@ -188,19 +188,19 @@ enum cio_error cio_eventloop_run(struct cio_eventloop *loop)
 
 		loop->num_events = (unsigned int)num_events;
 		for (loop->event_counter = 0; loop->event_counter < loop->num_events; loop->event_counter++) {
-			struct cio_event_notifier *ev = events[loop->event_counter].data.ptr;
-			if (cio_unlikely(ev == &loop->stop_ev)) {
+			struct cio_event_notifier *evn = events[loop->event_counter].data.ptr;
+			if (cio_unlikely(evn == &loop->stop_ev)) {
 				goto out;
 			}
 
 			uint32_t events_type = events[loop->event_counter].events;
-			loop->current_ev = ev;
+			loop->current_ev = evn;
 
-			if ((events_type & (uint32_t)EPOLLIN & ev->registered_events) != 0) {
-				ev->read_callback(ev->context, CIO_EPOLL_SUCCESS);
+			if ((events_type & (uint32_t)EPOLLIN & evn->registered_events) != 0) {
+				evn->read_callback(evn->context, CIO_EPOLL_SUCCESS);
 			}
 
-			handle_removed_ev(loop, ev, events_type);
+			handle_removed_ev(loop, evn, events_type);
 		}
 	}
 

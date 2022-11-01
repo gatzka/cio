@@ -243,11 +243,11 @@ static enum cio_error cio_server_socket_init_fails(struct cio_server_socket *ss,
 	return CIO_INVALID_ARGUMENT;
 }
 
-static void bs_init(struct cio_buffered_stream *bs)
+static void bs_init(struct cio_buffered_stream *buffered_stream)
 {
-	bs->callback_is_running = 0;
-	bs->shall_close = false;
-	cio_write_buffer_head_init(&bs->wbh);
+	buffered_stream->callback_is_running = 0;
+	buffered_stream->shall_close = false;
+	cio_write_buffer_head_init(&buffered_stream->wbh);
 }
 
 static struct cio_socket *client_socket = NULL;
@@ -268,7 +268,7 @@ static struct cio_socket *alloc_dummy_client(void)
 	memset(client, 0xaf, sizeof(*client) + read_buffer_size);
 	client->buffer_size = read_buffer_size;
 	client->socket.close_hook = free_dummy_client;
-	bs_init(&client->bs);
+	bs_init(&client->buffered_stream);
 	client_socket = &client->socket;
 	return &client->socket;
 }
@@ -458,27 +458,27 @@ static unsigned int current_line;
 
 static char line_buffer[10][100];
 
-static enum cio_error bs_read_until_ok(struct cio_buffered_stream *bs, struct cio_read_buffer *buffer, const char *delim, cio_buffered_stream_read_handler_t handler, void *handler_context)
+static enum cio_error bs_read_until_ok(struct cio_buffered_stream *buffered_stream, struct cio_read_buffer *buffer, const char *delim, cio_buffered_stream_read_handler_t handler, void *handler_context)
 {
 	(void)delim;
 
 	if (current_line >= num_of_request_lines) {
-		handler(bs, handler_context, CIO_EOF, buffer, 0);
+		handler(buffered_stream, handler_context, CIO_EOF, buffer, 0);
 	} else {
 		const char *line = line_buffer[current_line];
 		size_t length = strlen(line);
 		memcpy(buffer->add_ptr, line, length);
 		buffer->add_ptr += length;
 		current_line++;
-		handler(bs, handler_context, CIO_SUCCESS, buffer, length);
+		handler(buffered_stream, handler_context, CIO_SUCCESS, buffer, length);
 	}
 
 	return CIO_SUCCESS;
 }
 
-static enum cio_error bs_read_until_blocks(struct cio_buffered_stream *bs, struct cio_read_buffer *buffer, const char *delim, cio_buffered_stream_read_handler_t handler, void *handler_context)
+static enum cio_error bs_read_until_blocks(struct cio_buffered_stream *buffered_stream, struct cio_read_buffer *buffer, const char *delim, cio_buffered_stream_read_handler_t handler, void *handler_context)
 {
-	(void)bs;
+	(void)buffered_stream;
 	(void)buffer;
 	(void)delim;
 	(void)handler;
@@ -487,9 +487,9 @@ static enum cio_error bs_read_until_blocks(struct cio_buffered_stream *bs, struc
 	return CIO_SUCCESS;
 }
 
-static enum cio_error bs_read_until_call_fails(struct cio_buffered_stream *bs, struct cio_read_buffer *buffer, const char *delim, cio_buffered_stream_read_handler_t handler, void *handler_context)
+static enum cio_error bs_read_until_call_fails(struct cio_buffered_stream *buffered_stream, struct cio_read_buffer *buffer, const char *delim, cio_buffered_stream_read_handler_t handler, void *handler_context)
 {
-	(void)bs;
+	(void)buffered_stream;
 	(void)buffer;
 	(void)delim;
 	(void)handler;
@@ -498,27 +498,27 @@ static enum cio_error bs_read_until_call_fails(struct cio_buffered_stream *bs, s
 	return CIO_BAD_FILE_DESCRIPTOR;
 }
 
-static enum cio_error bs_read_until_error_in_callback(struct cio_buffered_stream *bs, struct cio_read_buffer *buffer, const char *delim, cio_buffered_stream_read_handler_t handler, void *handler_context)
+static enum cio_error bs_read_until_error_in_callback(struct cio_buffered_stream *buffered_stream, struct cio_read_buffer *buffer, const char *delim, cio_buffered_stream_read_handler_t handler, void *handler_context)
 {
 	(void)delim;
 
-	handler(bs, handler_context, CIO_BAD_FILE_DESCRIPTOR, buffer, 0);
+	handler(buffered_stream, handler_context, CIO_BAD_FILE_DESCRIPTOR, buffer, 0);
 	return CIO_SUCCESS;
 }
 
-static enum cio_error bs_read_at_least_ok(struct cio_buffered_stream *bs, struct cio_read_buffer *buffer, size_t num, cio_buffered_stream_read_handler_t handler, void *handler_context)
+static enum cio_error bs_read_at_least_ok(struct cio_buffered_stream *buffered_stream, struct cio_read_buffer *buffer, size_t num, cio_buffered_stream_read_handler_t handler, void *handler_context)
 {
 
 	memset(buffer->add_ptr, 'a', num);
 	buffer->add_ptr += num;
-	handler(bs, handler_context, CIO_SUCCESS, buffer, num);
+	handler(buffered_stream, handler_context, CIO_SUCCESS, buffer, num);
 
 	return CIO_SUCCESS;
 }
 
-static enum cio_error bs_read_at_least_call_fails(struct cio_buffered_stream *bs, struct cio_read_buffer *buffer, size_t num, cio_buffered_stream_read_handler_t handler, void *handler_context)
+static enum cio_error bs_read_at_least_call_fails(struct cio_buffered_stream *buffered_stream, struct cio_read_buffer *buffer, size_t num, cio_buffered_stream_read_handler_t handler, void *handler_context)
 {
-	(void)bs;
+	(void)buffered_stream;
 	(void)buffer;
 	(void)num;
 	(void)handler;
@@ -526,16 +526,16 @@ static enum cio_error bs_read_at_least_call_fails(struct cio_buffered_stream *bs
 	return CIO_BAD_FILE_DESCRIPTOR;
 }
 
-static enum cio_error bs_close_ok(struct cio_buffered_stream *bs)
+static enum cio_error bs_close_ok(struct cio_buffered_stream *buffered_stream)
 {
-	(void)bs;
+	(void)buffered_stream;
 	stream_close(NULL);
 	return CIO_SUCCESS;
 }
 
-static enum cio_error bs_close_fails(struct cio_buffered_stream *bs)
+static enum cio_error bs_close_fails(struct cio_buffered_stream *buffered_stream)
 {
-	(void)bs;
+	(void)buffered_stream;
 	return CIO_BAD_FILE_DESCRIPTOR;
 }
 
@@ -546,7 +546,7 @@ static cio_buffered_stream_write_handler_t blocked_write_handler;
 static void *blocked_write_handler_context;
 static struct cio_buffered_stream *blocked_write_bs;
 
-static enum cio_error bs_write_all(struct cio_buffered_stream *bs, struct cio_write_buffer *buf, cio_buffered_stream_write_handler_t handler, void *handler_context)
+static enum cio_error bs_write_all(struct cio_buffered_stream *buffered_stream, struct cio_write_buffer *buf, cio_buffered_stream_write_handler_t handler, void *handler_context)
 {
 	size_t buffer_len = cio_write_buffer_get_num_buffer_elements(buf);
 	const struct cio_write_buffer *data_buf = buf;
@@ -557,20 +557,20 @@ static enum cio_error bs_write_all(struct cio_buffered_stream *bs, struct cio_wr
 		write_pos += data_buf->data.element.length;
 	}
 
-	handler(bs, handler_context, CIO_SUCCESS);
+	handler(buffered_stream, handler_context, CIO_SUCCESS);
 	return CIO_SUCCESS;
 }
 
-static enum cio_error bs_write_error_in_callback(struct cio_buffered_stream *bs, struct cio_write_buffer *buf, cio_buffered_stream_write_handler_t handler, void *handler_context)
+static enum cio_error bs_write_error_in_callback(struct cio_buffered_stream *buffered_stream, struct cio_write_buffer *buf, cio_buffered_stream_write_handler_t handler, void *handler_context)
 {
 	(void)buf;
-	handler(bs, handler_context, CIO_ADDRESS_IN_USE);
+	handler(buffered_stream, handler_context, CIO_ADDRESS_IN_USE);
 	return CIO_SUCCESS;
 }
 
-static enum cio_error bs_write_error(struct cio_buffered_stream *bs, struct cio_write_buffer *buf, cio_buffered_stream_write_handler_t handler, void *handler_context)
+static enum cio_error bs_write_error(struct cio_buffered_stream *buffered_stream, struct cio_write_buffer *buf, cio_buffered_stream_write_handler_t handler, void *handler_context)
 {
-	(void)bs;
+	(void)buffered_stream;
 	(void)buf;
 	(void)handler;
 	(void)handler_context;
@@ -578,7 +578,7 @@ static enum cio_error bs_write_error(struct cio_buffered_stream *bs, struct cio_
 	return CIO_BAD_FILE_DESCRIPTOR;
 }
 
-static enum cio_error bs_write_blocks(struct cio_buffered_stream *bs, struct cio_write_buffer *buf, cio_buffered_stream_write_handler_t handler, void *handler_context)
+static enum cio_error bs_write_blocks(struct cio_buffered_stream *buffered_stream, struct cio_write_buffer *buf, cio_buffered_stream_write_handler_t handler, void *handler_context)
 {
 	size_t buffer_len = cio_write_buffer_get_num_buffer_elements(buf);
 	const struct cio_write_buffer *data_buf = buf;
@@ -591,7 +591,7 @@ static enum cio_error bs_write_blocks(struct cio_buffered_stream *bs, struct cio
 
 	blocked_write_handler = handler;
 	blocked_write_handler_context = handler_context;
-	blocked_write_bs = bs;
+	blocked_write_bs = buffered_stream;
 
 	return CIO_SUCCESS;
 }
@@ -1763,8 +1763,8 @@ static void test_connection_upgrade(void)
 static void test_parse_errors(void)
 {
 	struct parse_test {
-		enum cio_error (*read_until)(struct cio_buffered_stream *bs, struct cio_read_buffer *buffer, const char *delim, cio_buffered_stream_read_handler_t handler, void *handler_context);
-		enum cio_error (*write_all)(struct cio_buffered_stream *bs, struct cio_write_buffer *buf, cio_buffered_stream_write_handler_t handler, void *handler_context);
+		enum cio_error (*read_until)(struct cio_buffered_stream *buffered_stream, struct cio_read_buffer *buffer, const char *delim, cio_buffered_stream_read_handler_t handler, void *handler_context);
+		enum cio_error (*write_all)(struct cio_buffered_stream *buffered_stream, struct cio_write_buffer *buf, cio_buffered_stream_write_handler_t handler, void *handler_context);
 		const char *request;
 		int expected_response;
 	};

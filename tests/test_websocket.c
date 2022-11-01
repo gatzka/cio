@@ -340,24 +340,24 @@ static void serialize_frames(struct ws_frame frames[], size_t num_frames)
 	frame_buffer_fill_pos = buffer_pos - 1;
 }
 
-static enum cio_error bs_read_at_least_from_buffer(struct cio_buffered_stream *bs, struct cio_read_buffer *buffer, size_t num, cio_buffered_stream_read_handler_t handler, void *handler_context)
+static enum cio_error bs_read_at_least_from_buffer(struct cio_buffered_stream *buffered_stream, struct cio_read_buffer *buffer, size_t num, cio_buffered_stream_read_handler_t handler, void *handler_context)
 {
 	if (frame_buffer_read_pos > frame_buffer_fill_pos) {
-		handler(bs, handler_context, CIO_EOF, buffer, num);
+		handler(buffered_stream, handler_context, CIO_EOF, buffer, num);
 	} else {
 		memcpy(buffer->add_ptr, &frame_buffer[frame_buffer_read_pos], num);
 		buffer->add_ptr += num;
 		frame_buffer_read_pos += num;
 
-		handler(bs, handler_context, CIO_SUCCESS, buffer, num);
+		handler(buffered_stream, handler_context, CIO_SUCCESS, buffer, num);
 	}
 
 	return CIO_SUCCESS;
 }
 
-static enum cio_error bs_read_at_least_block(struct cio_buffered_stream *bs, struct cio_read_buffer *buffer, size_t num, cio_buffered_stream_read_handler_t handler, void *handler_context)
+static enum cio_error bs_read_at_least_block(struct cio_buffered_stream *buffered_stream, struct cio_read_buffer *buffer, size_t num, cio_buffered_stream_read_handler_t handler, void *handler_context)
 {
-	(void)bs;
+	(void)buffered_stream;
 	(void)buffer;
 	(void)num;
 	(void)handler;
@@ -365,23 +365,23 @@ static enum cio_error bs_read_at_least_block(struct cio_buffered_stream *bs, str
 	return CIO_SUCCESS;
 }
 
-static enum cio_error bs_read_at_least_peer_close(struct cio_buffered_stream *bs, struct cio_read_buffer *buffer, size_t num, cio_buffered_stream_read_handler_t handler, void *handler_context)
+static enum cio_error bs_read_at_least_peer_close(struct cio_buffered_stream *buffered_stream, struct cio_read_buffer *buffer, size_t num, cio_buffered_stream_read_handler_t handler, void *handler_context)
 {
 	(void)num;
-	handler(bs, handler_context, CIO_EOF, buffer, 0);
+	handler(buffered_stream, handler_context, CIO_EOF, buffer, 0);
 	return CIO_SUCCESS;
 }
 
-static enum cio_error bs_read_at_least_error(struct cio_buffered_stream *bs, struct cio_read_buffer *buffer, size_t num, cio_buffered_stream_read_handler_t handler, void *handler_context)
+static enum cio_error bs_read_at_least_error(struct cio_buffered_stream *buffered_stream, struct cio_read_buffer *buffer, size_t num, cio_buffered_stream_read_handler_t handler, void *handler_context)
 {
 	(void)num;
-	handler(bs, handler_context, CIO_OPERATION_NOT_PERMITTED, buffer, 0);
+	handler(buffered_stream, handler_context, CIO_OPERATION_NOT_PERMITTED, buffer, 0);
 	return CIO_SUCCESS;
 }
 
-static enum cio_error bs_read_at_least_immediate_error(struct cio_buffered_stream *bs, struct cio_read_buffer *buffer, size_t num, cio_buffered_stream_read_handler_t handler, void *handler_context)
+static enum cio_error bs_read_at_least_immediate_error(struct cio_buffered_stream *buffered_stream, struct cio_read_buffer *buffer, size_t num, cio_buffered_stream_read_handler_t handler, void *handler_context)
 {
-	(void)bs;
+	(void)buffered_stream;
 	(void)buffer;
 	(void)num;
 	(void)handler;
@@ -390,24 +390,24 @@ static enum cio_error bs_read_at_least_immediate_error(struct cio_buffered_strea
 	return CIO_ADDRESS_IN_USE;
 }
 
-static enum cio_error bs_read_at_most_from_buffer(struct cio_buffered_stream *bs, struct cio_read_buffer *buffer, size_t num, cio_buffered_stream_read_handler_t handler, void *handler_context)
+static enum cio_error bs_read_at_most_from_buffer(struct cio_buffered_stream *buffered_stream, struct cio_read_buffer *buffer, size_t num, cio_buffered_stream_read_handler_t handler, void *handler_context)
 {
 	if (frame_buffer_read_pos > frame_buffer_fill_pos) {
-		handler(bs, handler_context, CIO_EOF, buffer, num);
+		handler(buffered_stream, handler_context, CIO_EOF, buffer, num);
 	} else {
 		memcpy(buffer->add_ptr, &frame_buffer[frame_buffer_read_pos], num);
 		buffer->add_ptr += num;
 		frame_buffer_read_pos += num;
 
-		handler(bs, handler_context, CIO_SUCCESS, buffer, num);
+		handler(buffered_stream, handler_context, CIO_SUCCESS, buffer, num);
 	}
 	return CIO_SUCCESS;
 }
 
-static enum cio_error bs_read_at_most_from_buffer_parts(struct cio_buffered_stream *bs, struct cio_read_buffer *buffer, size_t num, cio_buffered_stream_read_handler_t handler, void *handler_context)
+static enum cio_error bs_read_at_most_from_buffer_parts(struct cio_buffered_stream *buffered_stream, struct cio_read_buffer *buffer, size_t num, cio_buffered_stream_read_handler_t handler, void *handler_context)
 {
 	if (frame_buffer_read_pos > frame_buffer_fill_pos) {
-		handler(bs, handler_context, CIO_EOF, buffer, num);
+		handler(buffered_stream, handler_context, CIO_EOF, buffer, num);
 	} else {
 		if (cio_buffered_stream_read_at_most_fake.call_count == 1) {
 			num = num / 2;
@@ -417,21 +417,21 @@ static enum cio_error bs_read_at_most_from_buffer_parts(struct cio_buffered_stre
 		buffer->add_ptr += num;
 		frame_buffer_read_pos += num;
 
-		handler(bs, handler_context, CIO_SUCCESS, buffer, num);
+		handler(buffered_stream, handler_context, CIO_SUCCESS, buffer, num);
 	}
 	return CIO_SUCCESS;
 }
 
-static enum cio_error bs_read_at_most_error(struct cio_buffered_stream *bs, struct cio_read_buffer *buffer, size_t num, cio_buffered_stream_read_handler_t handler, void *handler_context)
+static enum cio_error bs_read_at_most_error(struct cio_buffered_stream *buffered_stream, struct cio_read_buffer *buffer, size_t num, cio_buffered_stream_read_handler_t handler, void *handler_context)
 {
 	(void)num;
-	handler(bs, handler_context, CIO_OPERATION_NOT_PERMITTED, buffer, 0);
+	handler(buffered_stream, handler_context, CIO_OPERATION_NOT_PERMITTED, buffer, 0);
 	return CIO_SUCCESS;
 }
 
-static enum cio_error bs_read_at_most_immediate_error(struct cio_buffered_stream *bs, struct cio_read_buffer *buffer, size_t num, cio_buffered_stream_read_handler_t handler, void *handler_context)
+static enum cio_error bs_read_at_most_immediate_error(struct cio_buffered_stream *buffered_stream, struct cio_read_buffer *buffer, size_t num, cio_buffered_stream_read_handler_t handler, void *handler_context)
 {
-	(void)bs;
+	(void)buffered_stream;
 	(void)buffer;
 	(void)num;
 	(void)handler;
@@ -440,10 +440,10 @@ static enum cio_error bs_read_at_most_immediate_error(struct cio_buffered_stream
 	return CIO_ADDRESS_IN_USE;
 }
 
-static enum cio_error bs_read_at_most_peer_close(struct cio_buffered_stream *bs, struct cio_read_buffer *buffer, size_t num, cio_buffered_stream_read_handler_t handler, void *handler_context)
+static enum cio_error bs_read_at_most_peer_close(struct cio_buffered_stream *buffered_stream, struct cio_read_buffer *buffer, size_t num, cio_buffered_stream_read_handler_t handler, void *handler_context)
 {
 	(void)num;
-	handler(bs, handler_context, CIO_EOF, buffer, 0);
+	handler(buffered_stream, handler_context, CIO_EOF, buffer, 0);
 	return CIO_SUCCESS;
 }
 
@@ -452,7 +452,7 @@ static void websocket_free(struct cio_websocket *s)
 	free(s);
 }
 
-static enum cio_error bs_write_ok(struct cio_buffered_stream *bs, struct cio_write_buffer *buf, cio_buffered_stream_write_handler_t handler, void *handler_context)
+static enum cio_error bs_write_ok(struct cio_buffered_stream *buffered_stream, struct cio_write_buffer *buf, cio_buffered_stream_write_handler_t handler, void *handler_context)
 {
 	size_t len = cio_write_buffer_get_num_buffer_elements(buf);
 	for (unsigned int i = 0; i < len; i++) {
@@ -461,22 +461,22 @@ static enum cio_error bs_write_ok(struct cio_buffered_stream *bs, struct cio_wri
 		write_buffer_pos += buf->data.element.length;
 	}
 
-	handler(bs, handler_context, CIO_SUCCESS);
+	handler(buffered_stream, handler_context, CIO_SUCCESS);
 	return CIO_SUCCESS;
 }
 
-static enum cio_error bs_write_error(struct cio_buffered_stream *bs, struct cio_write_buffer *buf, cio_buffered_stream_write_handler_t handler, void *handler_context)
+static enum cio_error bs_write_error(struct cio_buffered_stream *buffered_stream, struct cio_write_buffer *buf, cio_buffered_stream_write_handler_t handler, void *handler_context)
 {
-	(void)bs;
+	(void)buffered_stream;
 	(void)buf;
 	(void)handler;
 	(void)handler_context;
 	return CIO_MESSAGE_TOO_LONG;
 }
 
-static enum cio_error bs_write_later(struct cio_buffered_stream *bs, struct cio_write_buffer *buf, cio_buffered_stream_write_handler_t handler, void *handler_context)
+static enum cio_error bs_write_later(struct cio_buffered_stream *buffered_stream, struct cio_write_buffer *buf, cio_buffered_stream_write_handler_t handler, void *handler_context)
 {
-	write_later_bs = bs;
+	write_later_bs = buffered_stream;
 	write_later_buf = buf;
 	write_later_handler = handler;
 	write_later_handler_context = handler_context;
@@ -536,11 +536,11 @@ static void on_error_save_data(const struct cio_websocket *websocket, enum cio_e
 	read_back_buffer_pos += strlen(reason);
 }
 
-static void bs_init(struct cio_buffered_stream *bs)
+static void bs_init(struct cio_buffered_stream *buffered_stream)
 {
-	bs->callback_is_running = 0;
-	bs->shall_close = false;
-	cio_write_buffer_head_init(&bs->wbh);
+	buffered_stream->callback_is_running = 0;
+	buffered_stream->shall_close = false;
+	cio_write_buffer_head_init(&buffered_stream->wbh);
 }
 
 void setUp(void)
@@ -577,7 +577,7 @@ void setUp(void)
 	cio_websocket_set_on_control_cb(ws, on_control);
 	cio_websocket_set_on_error_cb(ws, on_error);
 
-	bs_init(&http_client.bs);
+	bs_init(&http_client.buffered_stream);
 
 	cio_timer_init_fake.custom_fake = cio_timer_init_ok;
 	cio_timer_expires_from_now_fake.custom_fake = timer_expires_from_now_save;
@@ -912,7 +912,7 @@ static void test_send_multiple_jobs_with_failures(void)
 {
 	char buffer[125] = {'a'};
 
-	typedef enum cio_error (*write_func)(struct cio_buffered_stream * bs, struct cio_write_buffer * buffer, cio_buffered_stream_write_handler_t handler, void *handler_context);
+	typedef enum cio_error (*write_func)(struct cio_buffered_stream * buffered_stream, struct cio_write_buffer * buffer, cio_buffered_stream_write_handler_t handler, void *handler_context);
 	write_func write_funcs[3] = {bs_write_later, bs_write_error, bs_write_ok};
 
 	cio_buffered_stream_write_fake.custom_fake_seq = write_funcs;

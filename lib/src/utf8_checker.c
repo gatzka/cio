@@ -394,7 +394,7 @@ static inline uint8_t decode(uint8_t *state, uint8_t *codep, uint8_t byte)
 	return *state;
 }
 
-uint8_t cio_check_utf8(struct cio_utf8_state *state, const uint8_t *s, size_t count)
+uint8_t cio_check_utf8(struct cio_utf8_state *state, const uint8_t *string, size_t count)
 {
 	const uint_fast32_t *s_aligned = NULL;
 	unsigned int pre_length = (unsigned int)count;
@@ -402,17 +402,17 @@ uint8_t cio_check_utf8(struct cio_utf8_state *state, const uint8_t *s, size_t co
 	unsigned int post_length = 0;
 
 	if (count >= sizeof(*s_aligned)) {
-		pre_length = ((uintptr_t)s) % sizeof(*s_aligned);
+		pre_length = ((uintptr_t)string) % sizeof(*s_aligned);
 		pre_length = (sizeof(*s_aligned) - pre_length) % sizeof(*s_aligned);
 		main_length = (count - pre_length) / sizeof(*s_aligned);
 		post_length = (unsigned int)(count - pre_length - (main_length * sizeof(*s_aligned)));
 	}
 
-	s_aligned = (const void *)(s + pre_length);
+	s_aligned = (const void *)(string + pre_length);
 
 	size_t i_p = 0;
 	while (pre_length > 0) {
-		if (decode(&state->state, &state->codepoint, s[i_p]) == CIO_UTF8_REJECT) {
+		if (decode(&state->state, &state->codepoint, string[i_p]) == CIO_UTF8_REJECT) {
 			return CIO_UTF8_REJECT;
 		}
 
@@ -434,7 +434,7 @@ uint8_t cio_check_utf8(struct cio_utf8_state *state, const uint8_t *s, size_t co
 
 	i_p = count - post_length;
 	while (post_length > 0) {
-		if (decode(&state->state, &state->codepoint, s[i_p]) == CIO_UTF8_REJECT) {
+		if (decode(&state->state, &state->codepoint, string[i_p]) == CIO_UTF8_REJECT) {
 			return CIO_UTF8_REJECT;
 		}
 

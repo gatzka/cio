@@ -3,7 +3,7 @@
  *
  * The MIT License (MIT)
  *
- * Copyright (c) <2017> <Stephan Gatzka>
+ * Copyright (client) <2017> <Stephan Gatzka>
  *
  * Permission is hereby granted, free of charge, to any person obtaining
  * a copy of this software and associated documentation files (the
@@ -51,18 +51,18 @@ static const size_t WS_MID_FRAME_SIZE = 65535;
 
 static const uint64_t CLOSE_TIMEOUT_NS = (uint64_t)10 * (uint64_t)1000 * (uint64_t)1000 * (uint64_t)1000;
 
-static void get_header(struct cio_buffered_stream *bs, void *handler_context, enum cio_error err, struct cio_read_buffer *buffer, size_t num_bytes);
-static void get_payload(struct cio_buffered_stream *bs, void *handler_context, enum cio_error err, struct cio_read_buffer *buffer, size_t num_bytes);
-static void handle_error(struct cio_websocket *ws, enum cio_error err, enum cio_websocket_status_code status_code, const char *reason);
+static void get_header(struct cio_buffered_stream *buffered_stream, void *handler_context, enum cio_error err, struct cio_read_buffer *buffer, size_t num_bytes);
+static void get_payload(struct cio_buffered_stream *buffered_stream, void *handler_context, enum cio_error err, struct cio_read_buffer *buffer, size_t num_bytes);
+static void handle_error(struct cio_websocket *websocket, enum cio_error err, enum cio_websocket_status_code status_code, const char *reason);
 
-static void close(struct cio_websocket *ws)
+static void close(struct cio_websocket *websocket)
 {
-	if (cio_likely(ws->ws_private.read_handler != NULL)) {
-		ws->ws_private.read_handler(ws, ws->ws_private.read_handler_context, CIO_EOF, 0, NULL, 0, true, false, false);
+	if (cio_likely(websocket->ws_private.read_handler != NULL)) {
+		websocket->ws_private.read_handler(websocket, websocket->ws_private.read_handler_context, CIO_EOF, 0, NULL, 0, true, false, false);
 	}
 
-	if (ws->ws_private.close_hook) {
-		ws->ws_private.close_hook(ws);
+	if (websocket->ws_private.close_hook) {
+		websocket->ws_private.close_hook(websocket);
 	}
 }
 
@@ -100,18 +100,18 @@ static inline void rotate(uint8_t *mask, uint_fast8_t middle)
 	}
 }
 
-static void mask_write_buffer(const struct cio_write_buffer *wb, uint8_t *mask, size_t mask_length)
+static void mask_write_buffer(const struct cio_write_buffer *write_buffer, uint8_t *mask, size_t mask_length)
 {
-	size_t num_buffers = cio_write_buffer_get_num_buffer_elements(wb);
+	size_t num_buffers = cio_write_buffer_get_num_buffer_elements(write_buffer);
 	for (size_t i = 0; i < num_buffers; i++) {
-		wb = wb->next;
-		cio_websocket_mask(wb->data.element.data, wb->data.element.length, mask);
-		size_t middle = wb->data.element.length % mask_length;
+		write_buffer = write_buffer->next;
+		cio_websocket_mask(write_buffer->data.element.data, write_buffer->data.element.length, mask);
+		size_t middle = write_buffer->data.element.length % mask_length;
 		rotate(mask, (uint_fast8_t)middle);
 	}
 }
 
-static enum cio_error send_frame(struct cio_websocket *ws, struct cio_websocket_write_job *job, size_t frame_length)
+static enum cio_error send_frame(struct cio_websocket *websocket, struct cio_websocket_write_job *job, size_t frame_length)
 {
 	if (!job->is_continuation_chunk) {
 		uint8_t first_len = 0;
@@ -138,10 +138,10 @@ static enum cio_error send_frame(struct cio_websocket *ws, struct cio_websocket_
 			first_len = CIO_WEBSOCKET_SMALL_FRAME_SIZE + 2;
 		}
 
-		if (ws->ws_private.ws_flags.is_server == 0U) {
+		if (websocket->ws_private.ws_flags.is_server == 0U) {
 			first_len |= WS_MASK_SET;
 			uint8_t mask[4];
-			cio_random_get_bytes(&ws->ws_private.rng, mask, sizeof(mask));
+			cio_random_get_bytes(&websocket->ws_private.rng, mask, sizeof(mask));
 			memcpy(&job->send_header[header_index], &mask, sizeof(mask));
 
 			header_index += sizeof(mask);
@@ -149,7 +149,7 @@ static enum cio_error send_frame(struct cio_websocket *ws, struct cio_websocket_
 
 			size_t job_length = cio_write_buffer_get_total_size(job->wbh);
 			if (job_length < frame_length) {
-				memcpy(ws->ws_private.chunk_send_mask, mask, sizeof(mask));
+				memcpy(websocket->ws_private.chunk_send_mask, mask, sizeof(mask));
 			}
 		}
 
@@ -157,92 +157,92 @@ static enum cio_error send_frame(struct cio_websocket *ws, struct cio_websocket_
 
 		cio_write_buffer_element_init(&job->websocket_header, job->send_header, header_index);
 		add_websocket_header(job);
-		struct cio_http_client *c = ws->ws_private.http_client;
-		return cio_buffered_stream_write(&c->bs, job->wbh, job->stream_handler, ws);
+		struct cio_http_client *client = websocket->ws_private.http_client;
+		return cio_buffered_stream_write(&client->buffered_stream, job->wbh, job->stream_handler, websocket);
 	}
 
-	if (ws->ws_private.ws_flags.is_server == 0U) {
-		mask_write_buffer(job->wbh, ws->ws_private.chunk_send_mask, sizeof(ws->ws_private.chunk_send_mask));
+	if (websocket->ws_private.ws_flags.is_server == 0U) {
+		mask_write_buffer(job->wbh, websocket->ws_private.chunk_send_mask, sizeof(websocket->ws_private.chunk_send_mask));
 		size_t job_length = cio_write_buffer_get_total_size(job->wbh);
-		cio_websocket_correct_mask(ws->ws_private.chunk_send_mask, job_length);
+		cio_websocket_correct_mask(websocket->ws_private.chunk_send_mask, job_length);
 	}
 
-	struct cio_http_client *c = ws->ws_private.http_client;
-	return cio_buffered_stream_write(&c->bs, job->wbh, job->stream_handler, ws);
+	struct cio_http_client *client = websocket->ws_private.http_client;
+	return cio_buffered_stream_write(&client->buffered_stream, job->wbh, job->stream_handler, websocket);
 }
 
-static enum cio_error enqueue_job(struct cio_websocket *ws, struct cio_websocket_write_job *job, size_t length)
+static enum cio_error enqueue_job(struct cio_websocket *websocket, struct cio_websocket_write_job *job, size_t length)
 {
-	if (ws->ws_private.first_write_job == NULL) {
-		ws->ws_private.first_write_job = job;
-		ws->ws_private.last_write_job = job;
-		enum cio_error err = send_frame(ws, job, length);
+	if (websocket->ws_private.first_write_job == NULL) {
+		websocket->ws_private.first_write_job = job;
+		websocket->ws_private.last_write_job = job;
+		enum cio_error err = send_frame(websocket, job, length);
 		if (cio_unlikely(err != CIO_SUCCESS)) {
-			handle_error(ws, err, CIO_WEBSOCKET_CLOSE_INTERNAL_ERROR, "Could not send frame");
+			handle_error(websocket, err, CIO_WEBSOCKET_CLOSE_INTERNAL_ERROR, "Could not send frame");
 			return err;
 		}
 	} else {
-		ws->ws_private.last_write_job->next = job;
-		ws->ws_private.last_write_job = job;
+		websocket->ws_private.last_write_job->next = job;
+		websocket->ws_private.last_write_job = job;
 	}
 
 	return CIO_SUCCESS;
 }
 
-static struct cio_websocket_write_job *dequeue_job(struct cio_websocket *ws)
+static struct cio_websocket_write_job *dequeue_job(struct cio_websocket *websocket)
 {
-	struct cio_websocket_write_job *job = ws->ws_private.first_write_job;
+	struct cio_websocket_write_job *job = websocket->ws_private.first_write_job;
 	if (job == NULL) {
 		return NULL;
 	}
 
-	if (ws->ws_private.first_write_job == ws->ws_private.last_write_job) {
-		ws->ws_private.first_write_job = NULL;
+	if (websocket->ws_private.first_write_job == websocket->ws_private.last_write_job) {
+		websocket->ws_private.first_write_job = NULL;
 	} else {
-		ws->ws_private.first_write_job = job->next;
+		websocket->ws_private.first_write_job = job->next;
 	}
 
 	return job;
 }
 
-static void abort_write_jobs(struct cio_websocket *ws)
+static void abort_write_jobs(struct cio_websocket *websocket)
 {
-	struct cio_websocket_write_job *job = dequeue_job(ws);
+	struct cio_websocket_write_job *job = dequeue_job(websocket);
 
 	while (job != NULL) {
 		job->wbh = NULL;
 		if (job->handler) {
-			job->handler(ws, job->handler_context, CIO_OPERATION_ABORTED);
+			job->handler(websocket, job->handler_context, CIO_OPERATION_ABORTED);
 		}
 
-		job = dequeue_job(ws);
+		job = dequeue_job(websocket);
 	}
 }
 
-static void prepare_close_job(struct cio_websocket *ws, enum cio_websocket_status_code status_code, const uint8_t *reason, size_t reason_length, cio_websocket_write_handler_t handler, void *handler_context, cio_buffered_stream_write_handler_t stream_handler)
+static void prepare_close_job(struct cio_websocket *websocket, enum cio_websocket_status_code status_code, const uint8_t *reason, size_t reason_length, cio_websocket_write_handler_t handler, void *handler_context, cio_buffered_stream_write_handler_t stream_handler)
 {
-	uint16_t sc = (uint16_t)status_code;
-	size_t close_buffer_length = sizeof(sc);
-	sc = cio_htobe16(sc);
-	memcpy(ws->ws_private.close_buffer.buffer, &sc, sizeof(sc));
+	uint16_t ws_status_code = (uint16_t)status_code;
+	size_t close_buffer_length = sizeof(ws_status_code);
+	ws_status_code = cio_htobe16(ws_status_code);
+	memcpy(websocket->ws_private.close_buffer.buffer, &ws_status_code, sizeof(ws_status_code));
 	if (reason != NULL) {
-		size_t copy_len = CIO_MIN(reason_length, sizeof(ws->ws_private.close_buffer.buffer) - sizeof(sc));
-		memcpy(ws->ws_private.close_buffer.buffer + sizeof(sc), reason, copy_len);
+		size_t copy_len = CIO_MIN(reason_length, sizeof(websocket->ws_private.close_buffer.buffer) - sizeof(ws_status_code));
+		memcpy(websocket->ws_private.close_buffer.buffer + sizeof(ws_status_code), reason, copy_len);
 		close_buffer_length += copy_len;
 	}
 
-	cio_write_buffer_head_init(&ws->ws_private.close_buffer.wb_head);
-	cio_write_buffer_element_init(&ws->ws_private.close_buffer.wb, ws->ws_private.close_buffer.buffer, close_buffer_length);
-	cio_write_buffer_queue_tail(&ws->ws_private.close_buffer.wb_head, &ws->ws_private.close_buffer.wb);
-	ws->ws_private.write_close_job.wbh = &ws->ws_private.close_buffer.wb_head;
-	ws->ws_private.write_close_job.handler = handler;
-	ws->ws_private.write_close_job.handler_context = handler_context;
-	ws->ws_private.write_close_job.frame_type = CIO_WEBSOCKET_CLOSE_FRAME;
-	ws->ws_private.write_close_job.last_frame = true;
-	ws->ws_private.write_close_job.stream_handler = stream_handler;
+	cio_write_buffer_head_init(&websocket->ws_private.close_buffer.wb_head);
+	cio_write_buffer_element_init(&websocket->ws_private.close_buffer.write_buffer, websocket->ws_private.close_buffer.buffer, close_buffer_length);
+	cio_write_buffer_queue_tail(&websocket->ws_private.close_buffer.wb_head, &websocket->ws_private.close_buffer.write_buffer);
+	websocket->ws_private.write_close_job.wbh = &websocket->ws_private.close_buffer.wb_head;
+	websocket->ws_private.write_close_job.handler = handler;
+	websocket->ws_private.write_close_job.handler_context = handler_context;
+	websocket->ws_private.write_close_job.frame_type = CIO_WEBSOCKET_CLOSE_FRAME;
+	websocket->ws_private.write_close_job.last_frame = true;
+	websocket->ws_private.write_close_job.stream_handler = stream_handler;
 }
 
-static void prepare_close_job_string(struct cio_websocket *ws, enum cio_websocket_status_code status_code, const char *reason, cio_websocket_write_handler_t handler, void *handler_context, cio_buffered_stream_write_handler_t stream_handler)
+static void prepare_close_job_string(struct cio_websocket *websocket, enum cio_websocket_status_code status_code, const char *reason, cio_websocket_write_handler_t handler, void *handler_context, cio_buffered_stream_write_handler_t stream_handler)
 {
 	size_t length = 0;
 
@@ -250,87 +250,87 @@ static void prepare_close_job_string(struct cio_websocket *ws, enum cio_websocke
 		length = strlen(reason);
 	}
 
-	prepare_close_job(ws, status_code, (const uint8_t *)reason, length, handler, handler_context, stream_handler);
+	prepare_close_job(websocket, status_code, (const uint8_t *)reason, length, handler, handler_context, stream_handler);
 }
 
-static void close_frame_written(struct cio_buffered_stream *bs, void *handler_context, enum cio_error err);
-static void close_frame_written_immediate_close(struct cio_buffered_stream *bs, void *handler_context, enum cio_error err);
+static void close_frame_written(struct cio_buffered_stream *buffered_stream, void *handler_context, enum cio_error err);
+static void close_frame_written_immediate_close(struct cio_buffered_stream *buffered_stream, void *handler_context, enum cio_error err);
 
-static void handle_error(struct cio_websocket *ws, enum cio_error err, enum cio_websocket_status_code status_code, const char *reason)
+static void handle_error(struct cio_websocket *websocket, enum cio_error err, enum cio_websocket_status_code status_code, const char *reason)
 {
-	if (ws->ws_private.ws_flags.closed_by_error == 0U) {
-		ws->ws_private.ws_flags.closed_by_error = 1U;
-		if (ws->on_error != NULL) {
-			ws->on_error(ws, err, reason);
+	if (websocket->ws_private.ws_flags.closed_by_error == 0U) {
+		websocket->ws_private.ws_flags.closed_by_error = 1U;
+		if (websocket->on_error != NULL) {
+			websocket->on_error(websocket, err, reason);
 		}
 
-		abort_write_jobs(ws);
-		prepare_close_job_string(ws, status_code, reason, NULL, NULL, close_frame_written_immediate_close);
+		abort_write_jobs(websocket);
+		prepare_close_job_string(websocket, status_code, reason, NULL, NULL, close_frame_written_immediate_close);
 
-		size_t length = cio_write_buffer_get_total_size(ws->ws_private.write_close_job.wbh);
-		if (enqueue_job(ws, &ws->ws_private.write_close_job, length) != CIO_SUCCESS) {
-			close(ws);
+		size_t length = cio_write_buffer_get_total_size(websocket->ws_private.write_close_job.wbh);
+		if (enqueue_job(websocket, &websocket->ws_private.write_close_job, length) != CIO_SUCCESS) {
+			close(websocket);
 		}
 	}
 }
 
-static inline const struct cio_websocket_write_job *write_jobs_popfront(struct cio_websocket *ws)
+static inline const struct cio_websocket_write_job *write_jobs_popfront(struct cio_websocket *websocket)
 {
-	struct cio_websocket_write_job *job = dequeue_job(ws);
+	struct cio_websocket_write_job *job = dequeue_job(websocket);
 	remove_websocket_header(job);
 	job->wbh = NULL;
 
 	return job;
 }
 
-static void message_written(struct cio_buffered_stream *bs, void *handler_context, enum cio_error err)
+static void message_written(struct cio_buffered_stream *buffered_stream, void *handler_context, enum cio_error err)
 {
-	(void)bs;
-	struct cio_websocket *ws = (struct cio_websocket *)handler_context;
-	const struct cio_websocket_write_job *job = write_jobs_popfront(ws);
-	struct cio_websocket_write_job *first_job = ws->ws_private.first_write_job;
+	(void)buffered_stream;
+	struct cio_websocket *websocket = (struct cio_websocket *)handler_context;
+	const struct cio_websocket_write_job *job = write_jobs_popfront(websocket);
+	struct cio_websocket_write_job *first_job = websocket->ws_private.first_write_job;
 
-	job->handler(ws, job->handler_context, err);
+	job->handler(websocket, job->handler_context, err);
 
 	if (first_job != NULL) {
 		size_t length = cio_write_buffer_get_total_size(first_job->wbh);
-		err = send_frame(ws, first_job, length);
+		err = send_frame(websocket, first_job, length);
 		if (cio_unlikely(err != CIO_SUCCESS)) {
-			handle_error(ws, err, CIO_WEBSOCKET_CLOSE_INTERNAL_ERROR, "could not send next frame");
+			handle_error(websocket, err, CIO_WEBSOCKET_CLOSE_INTERNAL_ERROR, "could not send next frame");
 		}
 	}
 }
 
-static void response_close_frame_written(struct cio_buffered_stream *bs, void *handler_context, enum cio_error err)
+static void response_close_frame_written(struct cio_buffered_stream *buffered_stream, void *handler_context, enum cio_error err)
 {
-	(void)bs;
+	(void)buffered_stream;
 	(void)err;
 
-	struct cio_websocket *ws = (struct cio_websocket *)handler_context;
-	write_jobs_popfront(ws);
+	struct cio_websocket *websocket = (struct cio_websocket *)handler_context;
+	write_jobs_popfront(websocket);
 
-	abort_write_jobs(ws);
-	close(ws);
+	abort_write_jobs(websocket);
+	close(websocket);
 }
 
-static void close_frame_written(struct cio_buffered_stream *bs, void *handler_context, enum cio_error err)
+static void close_frame_written(struct cio_buffered_stream *buffered_stream, void *handler_context, enum cio_error err)
 {
-	(void)bs;
-	struct cio_websocket *ws = (struct cio_websocket *)handler_context;
-	const struct cio_websocket_write_job *job = write_jobs_popfront(ws);
+	(void)buffered_stream;
+	struct cio_websocket *websocket = (struct cio_websocket *)handler_context;
+	const struct cio_websocket_write_job *job = write_jobs_popfront(websocket);
 
-	abort_write_jobs(ws);
+	abort_write_jobs(websocket);
 
 	if (job->handler) {
-		job->handler(ws, job->handler_context, err);
+		job->handler(websocket, job->handler_context, err);
 	}
 }
 
-static void close_frame_written_immediate_close(struct cio_buffered_stream *bs, void *handler_context, enum cio_error err)
+static void close_frame_written_immediate_close(struct cio_buffered_stream *buffered_stream, void *handler_context, enum cio_error err)
 {
-	close_frame_written(bs, handler_context, err);
-	struct cio_websocket *ws = (struct cio_websocket *)handler_context;
-	close(ws);
+	close_frame_written(buffered_stream, handler_context, err);
+	struct cio_websocket *websocket = (struct cio_websocket *)handler_context;
+	close(websocket);
 }
 
 static bool is_invalid_status_code(uint16_t status_code)
@@ -359,9 +359,9 @@ static void close_timeout_handler(struct cio_timer *timer, void *handler_context
 {
 	(void)timer;
 	if (err != CIO_OPERATION_ABORTED) {
-		struct cio_websocket *ws = (struct cio_websocket *)handler_context;
-		cio_timer_close(&ws->ws_private.close_timer);
-		close(ws);
+		struct cio_websocket *websocket = (struct cio_websocket *)handler_context;
+		cio_timer_close(&websocket->ws_private.close_timer);
+		close(websocket);
 	}
 }
 
@@ -384,48 +384,48 @@ static int payload_size_in_limit(const struct cio_write_buffer *payload, size_t 
 	return 1;
 }
 
-static void handle_binary_frame(struct cio_websocket *ws, uint8_t *data, uint64_t length, bool last_frame)
+static void handle_binary_frame(struct cio_websocket *websocket, uint8_t *data, uint64_t length, bool last_frame)
 {
 	size_t len = (size_t)length;
-	bool last_chunk = (ws->ws_private.remaining_read_frame_length == 0);
+	bool last_chunk = (websocket->ws_private.remaining_read_frame_length == 0);
 
 	if (!last_chunk) {
-		cio_websocket_correct_mask(ws->ws_private.received_mask, len);
+		cio_websocket_correct_mask(websocket->ws_private.received_mask, len);
 	}
 
-	ws->ws_private.read_handler(ws, ws->ws_private.read_handler_context, CIO_SUCCESS, ws->ws_private.read_frame_length, data, len, last_chunk, last_frame, true);
+	websocket->ws_private.read_handler(websocket, websocket->ws_private.read_handler_context, CIO_SUCCESS, websocket->ws_private.read_frame_length, data, len, last_chunk, last_frame, true);
 }
 
-static void handle_text_frame(struct cio_websocket *ws, uint8_t *data, uint64_t length, bool last_frame)
+static void handle_text_frame(struct cio_websocket *websocket, uint8_t *data, uint64_t length, bool last_frame)
 {
 	size_t len = (size_t)length;
 
-	enum cio_utf8_status status = cio_check_utf8(&ws->ws_private.utf8_state, data, len);
+	enum cio_utf8_status status = cio_check_utf8(&websocket->ws_private.utf8_state, data, len);
 
 	if (cio_unlikely((status == CIO_UTF8_REJECT) || (last_frame && (status != CIO_UTF8_ACCEPT)))) {
-		handle_error(ws, CIO_PROTOCOL_NOT_SUPPORTED, CIO_WEBSOCKET_CLOSE_UNSUPPORTED_DATA, "payload not valid utf8");
+		handle_error(websocket, CIO_PROTOCOL_NOT_SUPPORTED, CIO_WEBSOCKET_CLOSE_UNSUPPORTED_DATA, "payload not valid utf8");
 		return;
 	}
 
-	bool last_chunk = (ws->ws_private.remaining_read_frame_length == 0);
+	bool last_chunk = (websocket->ws_private.remaining_read_frame_length == 0);
 
 	if (last_frame) {
-		cio_utf8_init(&ws->ws_private.utf8_state);
+		cio_utf8_init(&websocket->ws_private.utf8_state);
 	}
 
 	if (!last_chunk) {
-		cio_websocket_correct_mask(ws->ws_private.received_mask, len);
+		cio_websocket_correct_mask(websocket->ws_private.received_mask, len);
 	}
 
-	ws->ws_private.read_handler(ws, ws->ws_private.read_handler_context, CIO_SUCCESS, ws->ws_private.read_frame_length, data, len, last_chunk, last_frame, false);
+	websocket->ws_private.read_handler(websocket, websocket->ws_private.read_handler_context, CIO_SUCCESS, websocket->ws_private.read_frame_length, data, len, last_chunk, last_frame, false);
 }
 
-static void handle_close_frame(struct cio_websocket *ws, const uint8_t *data, uint_fast8_t length)
+static void handle_close_frame(struct cio_websocket *websocket, const uint8_t *data, uint_fast8_t length)
 {
 	uint_fast8_t len = length;
 
 	if (cio_unlikely(length == 1)) {
-		handle_error(ws, CIO_PROTOCOL_NOT_SUPPORTED, CIO_WEBSOCKET_CLOSE_PROTOCOL_ERROR, "close payload of length 1");
+		handle_error(websocket, CIO_PROTOCOL_NOT_SUPPORTED, CIO_WEBSOCKET_CLOSE_PROTOCOL_ERROR, "close payload of length 1");
 		return;
 	}
 
@@ -434,7 +434,7 @@ static void handle_close_frame(struct cio_websocket *ws, const uint8_t *data, ui
 		memcpy(&status_code, data, sizeof(status_code));
 		status_code = cio_be16toh(status_code);
 		if (cio_unlikely(is_invalid_status_code(status_code))) {
-			handle_error(ws, CIO_PROTOCOL_NOT_SUPPORTED, CIO_WEBSOCKET_CLOSE_PROTOCOL_ERROR, "invalid status code in close");
+			handle_error(websocket, CIO_PROTOCOL_NOT_SUPPORTED, CIO_WEBSOCKET_CLOSE_PROTOCOL_ERROR, "invalid status code in close");
 			return;
 		}
 
@@ -445,19 +445,19 @@ static void handle_close_frame(struct cio_websocket *ws, const uint8_t *data, ui
 		struct cio_utf8_state state;
 		cio_utf8_init(&state);
 		if (cio_unlikely(cio_check_utf8(&state, data + 2, (size_t)(length - 2)) != CIO_UTF8_ACCEPT)) {
-			handle_error(ws, CIO_PROTOCOL_NOT_SUPPORTED, CIO_WEBSOCKET_CLOSE_UNSUPPORTED_DATA, "reason in close frame not utf8 valid");
+			handle_error(websocket, CIO_PROTOCOL_NOT_SUPPORTED, CIO_WEBSOCKET_CLOSE_UNSUPPORTED_DATA, "reason in close frame not utf8 valid");
 			return;
 		}
 	}
 
-	if (ws->on_control != NULL) {
-		ws->on_control(ws, CIO_WEBSOCKET_CLOSE_FRAME, data, len);
+	if (websocket->on_control != NULL) {
+		websocket->on_control(websocket, CIO_WEBSOCKET_CLOSE_FRAME, data, len);
 	}
 
-	if (ws->ws_private.ws_flags.self_initiated_close == 1U) {
-		cio_timer_cancel(&ws->ws_private.close_timer);
-		cio_timer_close(&ws->ws_private.close_timer);
-		close(ws);
+	if (websocket->ws_private.ws_flags.self_initiated_close == 1U) {
+		cio_timer_cancel(&websocket->ws_private.close_timer);
+		cio_timer_close(&websocket->ws_private.close_timer);
+		close(websocket);
 	} else {
 		const uint8_t *reason = NULL;
 		if (length > 0) {
@@ -466,106 +466,106 @@ static void handle_close_frame(struct cio_websocket *ws, const uint8_t *data, ui
 			reason = NULL;
 		}
 
-		prepare_close_job(ws, status_code, reason, length, NULL, NULL, response_close_frame_written);
-		size_t frame_length = cio_write_buffer_get_total_size(ws->ws_private.write_close_job.wbh);
-		enqueue_job(ws, &ws->ws_private.write_close_job, frame_length);
+		prepare_close_job(websocket, status_code, reason, length, NULL, NULL, response_close_frame_written);
+		size_t frame_length = cio_write_buffer_get_total_size(websocket->ws_private.write_close_job.wbh);
+		enqueue_job(websocket, &websocket->ws_private.write_close_job, frame_length);
 	}
 }
 
-static void pong_frame_written(struct cio_websocket *ws, void *handler_context, enum cio_error err)
+static void pong_frame_written(struct cio_websocket *websocket, void *handler_context, enum cio_error err)
 {
 	(void)handler_context;
 
 	if (cio_unlikely(err != CIO_SUCCESS)) {
-		handle_error(ws, err, CIO_WEBSOCKET_CLOSE_INTERNAL_ERROR, "pong frame not written correctly");
+		handle_error(websocket, err, CIO_WEBSOCKET_CLOSE_INTERNAL_ERROR, "pong frame not written correctly");
 		return;
 	}
 
-	struct cio_http_client *c = ws->ws_private.http_client;
-	err = cio_buffered_stream_read_at_least(&c->bs, &c->rb, 1, get_header, ws);
+	struct cio_http_client *client = websocket->ws_private.http_client;
+	err = cio_buffered_stream_read_at_least(&client->buffered_stream, &client->rb, 1, get_header, websocket);
 	if (cio_unlikely(err != CIO_SUCCESS)) {
-		handle_error(ws, err, CIO_WEBSOCKET_CLOSE_INTERNAL_ERROR, "could not restart receiving after pong frame written");
+		handle_error(websocket, err, CIO_WEBSOCKET_CLOSE_INTERNAL_ERROR, "could not restart receiving after pong frame written");
 	}
 }
 
-static void handle_ping_frame(struct cio_websocket *ws, const uint8_t *data, uint_fast8_t length)
+static void handle_ping_frame(struct cio_websocket *websocket, const uint8_t *data, uint_fast8_t length)
 {
-	cio_write_buffer_head_init(&ws->ws_private.ping_buffer.wb_head);
+	cio_write_buffer_head_init(&websocket->ws_private.ping_buffer.wb_head);
 	if (length > 0) {
-		memcpy(ws->ws_private.ping_buffer.buffer, data, length);
-		cio_write_buffer_element_init(&ws->ws_private.ping_buffer.wb, ws->ws_private.ping_buffer.buffer, length);
-		cio_write_buffer_queue_tail(&ws->ws_private.ping_buffer.wb_head, &ws->ws_private.ping_buffer.wb);
+		memcpy(websocket->ws_private.ping_buffer.buffer, data, length);
+		cio_write_buffer_element_init(&websocket->ws_private.ping_buffer.write_buffer, websocket->ws_private.ping_buffer.buffer, length);
+		cio_write_buffer_queue_tail(&websocket->ws_private.ping_buffer.wb_head, &websocket->ws_private.ping_buffer.write_buffer);
 	}
 
-	if (ws->on_control != NULL) {
-		ws->on_control(ws, CIO_WEBSOCKET_PING_FRAME, data, length);
+	if (websocket->on_control != NULL) {
+		websocket->on_control(websocket, CIO_WEBSOCKET_PING_FRAME, data, length);
 	}
 
-	ws->ws_private.write_pong_job.wbh = &ws->ws_private.ping_buffer.wb_head;
-	ws->ws_private.write_pong_job.handler = pong_frame_written;
-	ws->ws_private.write_pong_job.handler_context = NULL;
-	ws->ws_private.write_pong_job.frame_type = CIO_WEBSOCKET_PONG_FRAME;
-	ws->ws_private.write_pong_job.last_frame = true;
-	ws->ws_private.write_pong_job.stream_handler = message_written;
+	websocket->ws_private.write_pong_job.wbh = &websocket->ws_private.ping_buffer.wb_head;
+	websocket->ws_private.write_pong_job.handler = pong_frame_written;
+	websocket->ws_private.write_pong_job.handler_context = NULL;
+	websocket->ws_private.write_pong_job.frame_type = CIO_WEBSOCKET_PONG_FRAME;
+	websocket->ws_private.write_pong_job.last_frame = true;
+	websocket->ws_private.write_pong_job.stream_handler = message_written;
 
-	size_t frame_length = cio_write_buffer_get_total_size(ws->ws_private.write_pong_job.wbh);
-	enqueue_job(ws, &ws->ws_private.write_pong_job, frame_length);
+	size_t frame_length = cio_write_buffer_get_total_size(websocket->ws_private.write_pong_job.wbh);
+	enqueue_job(websocket, &websocket->ws_private.write_pong_job, frame_length);
 }
 
-static void handle_pong_frame(struct cio_websocket *ws, uint8_t *data, uint_fast8_t length)
+static void handle_pong_frame(struct cio_websocket *websocket, uint8_t *data, uint_fast8_t length)
 {
-	if (ws->on_control != NULL) {
-		ws->on_control(ws, CIO_WEBSOCKET_PONG_FRAME, data, length);
+	if (websocket->on_control != NULL) {
+		websocket->on_control(websocket, CIO_WEBSOCKET_PONG_FRAME, data, length);
 	}
 
-	struct cio_http_client *c = ws->ws_private.http_client;
-	enum cio_error err = cio_buffered_stream_read_at_least(&c->bs, &c->rb, 1, get_header, ws);
+	struct cio_http_client *client = websocket->ws_private.http_client;
+	enum cio_error err = cio_buffered_stream_read_at_least(&client->buffered_stream, &client->rb, 1, get_header, websocket);
 	if (cio_unlikely(err != CIO_SUCCESS)) {
-		handle_error(ws, err, CIO_WEBSOCKET_CLOSE_INTERNAL_ERROR, "could not restart receiving handling a pong frame received");
+		handle_error(websocket, err, CIO_WEBSOCKET_CLOSE_INTERNAL_ERROR, "could not restart receiving handling a pong frame received");
 	}
 }
 
-static void handle_frame(struct cio_websocket *ws, uint8_t *data, uint64_t length)
+static void handle_frame(struct cio_websocket *websocket, uint8_t *data, uint64_t length)
 {
-	if (ws->ws_private.ws_flags.is_server == 1U) {
-		cio_websocket_mask(data, (size_t)length, ws->ws_private.received_mask);
+	if (websocket->ws_private.ws_flags.is_server == 1U) {
+		cio_websocket_mask(data, (size_t)length, websocket->ws_private.received_mask);
 	}
 
-	uint_fast8_t opcode = (uint_fast8_t)ws->ws_private.ws_flags.opcode;
+	uint_fast8_t opcode = (uint_fast8_t)websocket->ws_private.ws_flags.opcode;
 	switch (opcode) {
 	case CIO_WEBSOCKET_BINARY_FRAME:
-		handle_binary_frame(ws, data, length, ws->ws_private.ws_flags.fin == 1U);
+		handle_binary_frame(websocket, data, length, websocket->ws_private.ws_flags.fin == 1U);
 		break;
 
 	case CIO_WEBSOCKET_TEXT_FRAME:
-		handle_text_frame(ws, data, length, ws->ws_private.ws_flags.fin == 1U);
+		handle_text_frame(websocket, data, length, websocket->ws_private.ws_flags.fin == 1U);
 		break;
 
 	case CIO_WEBSOCKET_PING_FRAME:
-		handle_ping_frame(ws, data, (uint_fast8_t)length);
+		handle_ping_frame(websocket, data, (uint_fast8_t)length);
 		break;
 
 	case CIO_WEBSOCKET_PONG_FRAME:
-		handle_pong_frame(ws, data, (uint_fast8_t)length);
+		handle_pong_frame(websocket, data, (uint_fast8_t)length);
 		break;
 
 	case CIO_WEBSOCKET_CLOSE_FRAME:
-		handle_close_frame(ws, data, (uint_fast8_t)length);
+		handle_close_frame(websocket, data, (uint_fast8_t)length);
 		break;
 
 	default:
-		handle_error(ws, CIO_PROTOCOL_NOT_SUPPORTED, CIO_WEBSOCKET_CLOSE_PROTOCOL_ERROR, "reserved opcode used");
+		handle_error(websocket, CIO_PROTOCOL_NOT_SUPPORTED, CIO_WEBSOCKET_CLOSE_PROTOCOL_ERROR, "reserved opcode used");
 		break;
 	}
 }
 
-static inline bool handled_read_error(struct cio_websocket *ws, enum cio_error err)
+static inline bool handled_read_error(struct cio_websocket *websocket, enum cio_error err)
 {
 	if (cio_unlikely(err != CIO_SUCCESS)) {
 		if (err == CIO_EOF) {
-			handle_error(ws, CIO_EOF, CIO_WEBSOCKET_CLOSE_NORMAL, "connection closed by other peer");
+			handle_error(websocket, CIO_EOF, CIO_WEBSOCKET_CLOSE_NORMAL, "connection closed by other peer");
 		} else {
-			handle_error(ws, err, CIO_WEBSOCKET_CLOSE_INTERNAL_ERROR, "error while reading websocket packet");
+			handle_error(websocket, err, CIO_WEBSOCKET_CLOSE_INTERNAL_ERROR, "error while reading websocket packet");
 		}
 
 		return true;
@@ -574,79 +574,79 @@ static inline bool handled_read_error(struct cio_websocket *ws, enum cio_error e
 	return false;
 }
 
-static void get_payload(struct cio_buffered_stream *bs, void *handler_context, enum cio_error err, struct cio_read_buffer *buffer, size_t num_bytes)
+static void get_payload(struct cio_buffered_stream *buffered_stream, void *handler_context, enum cio_error err, struct cio_read_buffer *buffer, size_t num_bytes)
 {
-	(void)bs;
+	(void)buffered_stream;
 
-	struct cio_websocket *ws = (struct cio_websocket *)handler_context;
-	if (cio_unlikely(handled_read_error(ws, err))) {
+	struct cio_websocket *websocket = (struct cio_websocket *)handler_context;
+	if (cio_unlikely(handled_read_error(websocket, err))) {
 		return;
 	}
 
 	uint8_t *ptr = cio_read_buffer_get_read_ptr(buffer);
-	if (cio_likely(!is_control_frame(ws->ws_private.ws_flags.opcode))) {
+	if (cio_likely(!is_control_frame(websocket->ws_private.ws_flags.opcode))) {
 		size_t data_in_buffer = cio_read_buffer_unread_bytes(buffer);
-		num_bytes = CIO_MIN(ws->ws_private.remaining_read_frame_length, data_in_buffer);
-		ws->ws_private.remaining_read_frame_length -= num_bytes;
+		num_bytes = CIO_MIN(websocket->ws_private.remaining_read_frame_length, data_in_buffer);
+		websocket->ws_private.remaining_read_frame_length -= num_bytes;
 	}
 
 	cio_read_buffer_consume(buffer, num_bytes);
-	handle_frame(ws, ptr, num_bytes);
+	handle_frame(websocket, ptr, num_bytes);
 }
 
-static void read_payload(struct cio_websocket *ws, struct cio_buffered_stream *bs, struct cio_read_buffer *buffer)
+static void read_payload(struct cio_websocket *websocket, struct cio_buffered_stream *buffered_stream, struct cio_read_buffer *buffer)
 {
-	if (cio_likely(ws->ws_private.remaining_read_frame_length > 0)) {
-		if (cio_unlikely(ws->ws_private.remaining_read_frame_length > SIZE_MAX)) {
-			handle_error(ws, CIO_MESSAGE_TOO_LONG, CIO_WEBSOCKET_CLOSE_TOO_LARGE, "websocket frame to large to process!");
+	if (cio_likely(websocket->ws_private.remaining_read_frame_length > 0)) {
+		if (cio_unlikely(websocket->ws_private.remaining_read_frame_length > SIZE_MAX)) {
+			handle_error(websocket, CIO_MESSAGE_TOO_LONG, CIO_WEBSOCKET_CLOSE_TOO_LARGE, "websocket frame to large to process!");
 			return;
 		}
 
 		enum cio_error err = CIO_SUCCESS;
-		if (cio_unlikely(is_control_frame(ws->ws_private.ws_flags.opcode))) {
-			err = cio_buffered_stream_read_at_least(bs, buffer, ws->ws_private.remaining_read_frame_length, get_payload, ws);
+		if (cio_unlikely(is_control_frame(websocket->ws_private.ws_flags.opcode))) {
+			err = cio_buffered_stream_read_at_least(buffered_stream, buffer, websocket->ws_private.remaining_read_frame_length, get_payload, websocket);
 		} else {
-			err = cio_buffered_stream_read_at_most(bs, buffer, ws->ws_private.remaining_read_frame_length, get_payload, ws);
+			err = cio_buffered_stream_read_at_most(buffered_stream, buffer, websocket->ws_private.remaining_read_frame_length, get_payload, websocket);
 		}
 
 		if (cio_unlikely(err != CIO_SUCCESS)) {
-			handle_error(ws, err, CIO_WEBSOCKET_CLOSE_INTERNAL_ERROR, "error while start reading websocket payload");
+			handle_error(websocket, err, CIO_WEBSOCKET_CLOSE_INTERNAL_ERROR, "error while start reading websocket payload");
 		}
 	} else {
-		handle_frame(ws, NULL, 0);
+		handle_frame(websocket, NULL, 0);
 	}
 }
 
-static void get_mask(struct cio_buffered_stream *bs, void *handler_context, enum cio_error err, struct cio_read_buffer *buffer, size_t num_bytes)
+static void get_mask(struct cio_buffered_stream *buffered_stream, void *handler_context, enum cio_error err, struct cio_read_buffer *buffer, size_t num_bytes)
 {
-	struct cio_websocket *ws = (struct cio_websocket *)handler_context;
-	if (cio_unlikely(handled_read_error(ws, err))) {
+	struct cio_websocket *websocket = (struct cio_websocket *)handler_context;
+	if (cio_unlikely(handled_read_error(websocket, err))) {
 		return;
 	}
 
 	uint8_t *ptr = cio_read_buffer_get_read_ptr(buffer);
 
-	memcpy(ws->ws_private.received_mask, ptr, num_bytes);
+	memcpy(websocket->ws_private.received_mask, ptr, num_bytes);
 	cio_read_buffer_consume(buffer, num_bytes);
-	read_payload(ws, bs, buffer);
+	read_payload(websocket, buffered_stream, buffer);
 }
 
-static void get_mask_or_payload(struct cio_websocket *ws, struct cio_buffered_stream *bs, struct cio_read_buffer *buffer)
+static void get_mask_or_payload(struct cio_websocket *websocket, struct cio_buffered_stream *buffered_stream, struct cio_read_buffer *buffer)
 {
-	if (ws->ws_private.ws_flags.is_server == 1U) {
-		enum cio_error err = cio_buffered_stream_read_at_least(bs, buffer, sizeof(ws->ws_private.received_mask), get_mask, ws);
+	if (websocket->ws_private.ws_flags.is_server == 1U) {
+		enum cio_error err = cio_buffered_stream_read_at_least(buffered_stream, buffer, sizeof(websocket->ws_private.received_mask), get_mask, websocket);
 		if (cio_unlikely(err != CIO_SUCCESS)) {
-			handle_error(ws, err, CIO_WEBSOCKET_CLOSE_INTERNAL_ERROR, "error while start reading websocket mask");
+			handle_error(websocket, err, CIO_WEBSOCKET_CLOSE_INTERNAL_ERROR, "error while start reading websocket mask");
 		}
 	} else {
-		read_payload(ws, bs, buffer);
+		read_payload(websocket, buffered_stream, buffer);
 	}
 }
 
-static void get_length16(struct cio_buffered_stream *bs, void *handler_context, enum cio_error err, struct cio_read_buffer *buffer, size_t num_bytes)
+static void get_length16(struct cio_buffered_stream *buffered_stream, void *handler_context, enum cio_error err, struct cio_read_buffer *buffer, size_t num_bytes)
 {
-	struct cio_websocket *ws = (struct cio_websocket *)handler_context;
-	if (cio_unlikely(handled_read_error(ws, err))) {
+	struct cio_websocket *websocket = (struct cio_websocket *)handler_context;
+	if (cio_unlikely(handled_read_error(websocket, err))) {
 		return;
 	}
 
@@ -656,15 +656,15 @@ static void get_length16(struct cio_buffered_stream *bs, void *handler_context, 
 	memcpy(&field, ptr, num_bytes);
 	cio_read_buffer_consume(buffer, num_bytes);
 	field = cio_be16toh(field);
-	ws->ws_private.remaining_read_frame_length = (size_t)field;
-	ws->ws_private.read_frame_length = (size_t)field;
-	get_mask_or_payload(ws, bs, buffer);
+	websocket->ws_private.remaining_read_frame_length = (size_t)field;
+	websocket->ws_private.read_frame_length = (size_t)field;
+	get_mask_or_payload(websocket, buffered_stream, buffer);
 }
 
-static void get_length64(struct cio_buffered_stream *bs, void *handler_context, enum cio_error err, struct cio_read_buffer *buffer, size_t num_bytes)
+static void get_length64(struct cio_buffered_stream *buffered_stream, void *handler_context, enum cio_error err, struct cio_read_buffer *buffer, size_t num_bytes)
 {
-	struct cio_websocket *ws = (struct cio_websocket *)handler_context;
-	if (cio_unlikely(handled_read_error(ws, err))) {
+	struct cio_websocket *websocket = (struct cio_websocket *)handler_context;
+	if (cio_unlikely(handled_read_error(websocket, err))) {
 		return;
 	}
 
@@ -676,19 +676,19 @@ static void get_length64(struct cio_buffered_stream *bs, void *handler_context, 
 	field = cio_be64toh(field);
 
 	if (cio_unlikely(field > SIZE_MAX)) {
-		handle_error(ws, CIO_MESSAGE_TOO_LONG, CIO_WEBSOCKET_CLOSE_TOO_LARGE, "websocket frame to large to process!");
+		handle_error(websocket, CIO_MESSAGE_TOO_LONG, CIO_WEBSOCKET_CLOSE_TOO_LARGE, "websocket frame to large to process!");
 		return;
 	}
 
-	ws->ws_private.remaining_read_frame_length = (size_t)field;
-	ws->ws_private.read_frame_length = (size_t)field;
-	get_mask_or_payload(ws, bs, buffer);
+	websocket->ws_private.remaining_read_frame_length = (size_t)field;
+	websocket->ws_private.read_frame_length = (size_t)field;
+	get_mask_or_payload(websocket, buffered_stream, buffer);
 }
 
-static void get_first_length(struct cio_buffered_stream *bs, void *handler_context, enum cio_error err, struct cio_read_buffer *buffer, size_t num_bytes)
+static void get_first_length(struct cio_buffered_stream *buffered_stream, void *handler_context, enum cio_error err, struct cio_read_buffer *buffer, size_t num_bytes)
 {
-	struct cio_websocket *ws = (struct cio_websocket *)handler_context;
-	if (cio_unlikely(handled_read_error(ws, err))) {
+	struct cio_websocket *websocket = (struct cio_websocket *)handler_context;
+	if (cio_unlikely(handled_read_error(websocket, err))) {
 		return;
 	}
 
@@ -697,40 +697,40 @@ static void get_first_length(struct cio_buffered_stream *bs, void *handler_conte
 	cio_read_buffer_consume(buffer, num_bytes);
 
 	bool frame_is_masked = (field & WS_MASK_SET) == WS_MASK_SET;
-	bool is_server = ws->ws_private.ws_flags.is_server == 1U;
+	bool is_server = websocket->ws_private.ws_flags.is_server == 1U;
 	if (frame_is_masked != is_server) {
-		handle_error(ws, CIO_PROTOCOL_NOT_SUPPORTED, CIO_WEBSOCKET_CLOSE_PROTOCOL_ERROR, "received unmasked frame on server websocket");
+		handle_error(websocket, CIO_PROTOCOL_NOT_SUPPORTED, CIO_WEBSOCKET_CLOSE_PROTOCOL_ERROR, "received unmasked frame on server websocket");
 		return;
 	}
 
 	field = field & (uint8_t)(~WS_MASK_SET);
 	if (field <= CIO_WEBSOCKET_SMALL_FRAME_SIZE) {
-		ws->ws_private.remaining_read_frame_length = (size_t)field;
-		ws->ws_private.read_frame_length = (size_t)field;
-		get_mask_or_payload(ws, bs, buffer);
+		websocket->ws_private.remaining_read_frame_length = (size_t)field;
+		websocket->ws_private.read_frame_length = (size_t)field;
+		get_mask_or_payload(websocket, buffered_stream, buffer);
 	} else {
-		if (cio_unlikely(is_control_frame(ws->ws_private.ws_flags.opcode))) {
-			handle_error(ws, CIO_PROTOCOL_NOT_SUPPORTED, CIO_WEBSOCKET_CLOSE_PROTOCOL_ERROR, "payload of control frame too long");
+		if (cio_unlikely(is_control_frame(websocket->ws_private.ws_flags.opcode))) {
+			handle_error(websocket, CIO_PROTOCOL_NOT_SUPPORTED, CIO_WEBSOCKET_CLOSE_PROTOCOL_ERROR, "payload of control frame too long");
 			return;
 		}
 
 		if (field == CIO_WEBSOCKET_SMALL_FRAME_SIZE + 1) {
-			err = cio_buffered_stream_read_at_least(bs, buffer, sizeof(uint16_t), get_length16, ws);
+			err = cio_buffered_stream_read_at_least(buffered_stream, buffer, sizeof(uint16_t), get_length16, websocket);
 		} else {
-			err = cio_buffered_stream_read_at_least(bs, buffer, sizeof(uint64_t), get_length64, ws);
+			err = cio_buffered_stream_read_at_least(buffered_stream, buffer, sizeof(uint64_t), get_length64, websocket);
 		}
 	}
 
 	if (cio_unlikely(err != CIO_SUCCESS)) {
-		handle_error(ws, err, CIO_WEBSOCKET_CLOSE_INTERNAL_ERROR, "error while start reading extended websocket frame length");
+		handle_error(websocket, err, CIO_WEBSOCKET_CLOSE_INTERNAL_ERROR, "error while start reading extended websocket frame length");
 	}
 }
 
-static void get_header(struct cio_buffered_stream *bs, void *handler_context, enum cio_error err, struct cio_read_buffer *buffer, size_t num_bytes)
+static void get_header(struct cio_buffered_stream *buffered_stream, void *handler_context, enum cio_error err, struct cio_read_buffer *buffer, size_t num_bytes)
 {
 	(void)num_bytes;
-	struct cio_websocket *ws = (struct cio_websocket *)handler_context;
-	if (cio_unlikely(handled_read_error(ws, err))) {
+	struct cio_websocket *websocket = (struct cio_websocket *)handler_context;
+	if (cio_unlikely(handled_read_error(websocket, err))) {
 		return;
 	}
 
@@ -738,64 +738,64 @@ static void get_header(struct cio_buffered_stream *bs, void *handler_context, en
 	uint8_t field = *ptr;
 	cio_read_buffer_consume(buffer, num_bytes);
 
-	ws->ws_private.ws_flags.fin = (field & WS_HEADER_FIN) == WS_HEADER_FIN;
+	websocket->ws_private.ws_flags.fin = (field & WS_HEADER_FIN) == WS_HEADER_FIN;
 
 	uint8_t rsv_field = field & RSV_MASK;
 	if (cio_unlikely(rsv_field != 0)) {
-		handle_error(ws, CIO_PROTOCOL_NOT_SUPPORTED, CIO_WEBSOCKET_CLOSE_PROTOCOL_ERROR, "reserved bit set in frame");
+		handle_error(websocket, CIO_PROTOCOL_NOT_SUPPORTED, CIO_WEBSOCKET_CLOSE_PROTOCOL_ERROR, "reserved bit set in frame");
 		return;
 	}
 
 	field = field & OPCODE_MASK;
 
-	if (cio_unlikely((ws->ws_private.ws_flags.fin == 0) && (field >= CIO_WEBSOCKET_CLOSE_FRAME))) {
-		handle_error(ws, CIO_PROTOCOL_NOT_SUPPORTED, CIO_WEBSOCKET_CLOSE_PROTOCOL_ERROR, "got fragmented control frame");
+	if (cio_unlikely((websocket->ws_private.ws_flags.fin == 0) && (field >= CIO_WEBSOCKET_CLOSE_FRAME))) {
+		handle_error(websocket, CIO_PROTOCOL_NOT_SUPPORTED, CIO_WEBSOCKET_CLOSE_PROTOCOL_ERROR, "got fragmented control frame");
 		return;
 	}
 
-	if (ws->ws_private.ws_flags.fin == 1U) {
+	if (websocket->ws_private.ws_flags.fin == 1U) {
 		if (field != CIO_WEBSOCKET_CONTINUATION_FRAME) {
-			if (cio_unlikely(ws->ws_private.ws_flags.frag_opcode && !is_control_frame(field))) {
-				handle_error(ws, CIO_PROTOCOL_NOT_SUPPORTED, CIO_WEBSOCKET_CLOSE_PROTOCOL_ERROR, "got non-continuation frame within fragmented stream");
+			if (cio_unlikely(websocket->ws_private.ws_flags.frag_opcode && !is_control_frame(field))) {
+				handle_error(websocket, CIO_PROTOCOL_NOT_SUPPORTED, CIO_WEBSOCKET_CLOSE_PROTOCOL_ERROR, "got non-continuation frame within fragmented stream");
 				return;
 			}
 
-			ws->ws_private.ws_flags.opcode = (unsigned char)(field & OPCODE_MASK);
+			websocket->ws_private.ws_flags.opcode = (unsigned char)(field & OPCODE_MASK);
 		} else {
-			if (cio_unlikely(!ws->ws_private.ws_flags.frag_opcode)) {
-				handle_error(ws, CIO_PROTOCOL_NOT_SUPPORTED, CIO_WEBSOCKET_CLOSE_PROTOCOL_ERROR, "got continuation frame without correct start frame");
+			if (cio_unlikely(!websocket->ws_private.ws_flags.frag_opcode)) {
+				handle_error(websocket, CIO_PROTOCOL_NOT_SUPPORTED, CIO_WEBSOCKET_CLOSE_PROTOCOL_ERROR, "got continuation frame without correct start frame");
 				return;
 			}
 
-			ws->ws_private.ws_flags.opcode = ws->ws_private.ws_flags.frag_opcode;
-			ws->ws_private.ws_flags.frag_opcode = 0;
+			websocket->ws_private.ws_flags.opcode = websocket->ws_private.ws_flags.frag_opcode;
+			websocket->ws_private.ws_flags.frag_opcode = 0;
 		}
 	} else {
 		if (field != CIO_WEBSOCKET_CONTINUATION_FRAME) {
-			if (cio_unlikely(ws->ws_private.ws_flags.frag_opcode)) {
-				handle_error(ws, CIO_PROTOCOL_NOT_SUPPORTED, CIO_WEBSOCKET_CLOSE_PROTOCOL_ERROR, "got non-continuation frame within fragmented stream");
+			if (cio_unlikely(websocket->ws_private.ws_flags.frag_opcode)) {
+				handle_error(websocket, CIO_PROTOCOL_NOT_SUPPORTED, CIO_WEBSOCKET_CLOSE_PROTOCOL_ERROR, "got non-continuation frame within fragmented stream");
 				return;
 			}
 
-			ws->ws_private.ws_flags.frag_opcode = field & OPCODE_MASK;
-			ws->ws_private.ws_flags.opcode = field & OPCODE_MASK;
+			websocket->ws_private.ws_flags.frag_opcode = field & OPCODE_MASK;
+			websocket->ws_private.ws_flags.opcode = field & OPCODE_MASK;
 		} else {
-			if (cio_unlikely(!ws->ws_private.ws_flags.frag_opcode)) {
-				handle_error(ws, CIO_PROTOCOL_NOT_SUPPORTED, CIO_WEBSOCKET_CLOSE_PROTOCOL_ERROR, "got continuation frame without correct start frame");
+			if (cio_unlikely(!websocket->ws_private.ws_flags.frag_opcode)) {
+				handle_error(websocket, CIO_PROTOCOL_NOT_SUPPORTED, CIO_WEBSOCKET_CLOSE_PROTOCOL_ERROR, "got continuation frame without correct start frame");
 				return;
 			}
 
-			ws->ws_private.ws_flags.opcode = ws->ws_private.ws_flags.frag_opcode;
+			websocket->ws_private.ws_flags.opcode = websocket->ws_private.ws_flags.frag_opcode;
 		}
 	}
 
-	err = cio_buffered_stream_read_at_least(bs, buffer, 1, get_first_length, ws);
+	err = cio_buffered_stream_read_at_least(buffered_stream, buffer, 1, get_first_length, websocket);
 	if (cio_unlikely(err != CIO_SUCCESS)) {
-		handle_error(ws, err, CIO_WEBSOCKET_CLOSE_INTERNAL_ERROR, "error while start reading websocket frame length");
+		handle_error(websocket, err, CIO_WEBSOCKET_CLOSE_INTERNAL_ERROR, "error while start reading websocket frame length");
 	}
 }
 
-static enum cio_error write_ping_or_pong_message(struct cio_websocket *ws, enum cio_websocket_frame_type frame_type, struct cio_websocket_write_job *job, struct cio_write_buffer *payload, cio_websocket_write_handler_t handler, void *handler_context)
+static enum cio_error write_ping_or_pong_message(struct cio_websocket *websocket, enum cio_websocket_frame_type frame_type, struct cio_websocket_write_job *job, struct cio_write_buffer *payload, cio_websocket_write_handler_t handler, void *handler_context)
 {
 	if (cio_unlikely(handler == NULL)) {
 		return CIO_INVALID_ARGUMENT;
@@ -817,186 +817,186 @@ static enum cio_error write_ping_or_pong_message(struct cio_websocket *ws, enum 
 	job->stream_handler = message_written;
 
 	size_t length = cio_write_buffer_get_total_size(payload);
-	enqueue_job(ws, job, length);
+	enqueue_job(websocket, job, length);
 	return CIO_SUCCESS;
 }
 
-static enum cio_error cio_websocket_init(struct cio_websocket *ws, bool is_server, cio_websocket_on_connect_t on_connect, cio_websocket_close_hook_t close_hook)
+static enum cio_error cio_websocket_init(struct cio_websocket *websocket, bool is_server, cio_websocket_on_connect_t on_connect, cio_websocket_close_hook_t close_hook)
 {
-	if (cio_unlikely((ws == NULL) || (on_connect == NULL))) {
+	if (cio_unlikely((websocket == NULL) || (on_connect == NULL))) {
 		return CIO_INVALID_ARGUMENT;
 	}
 
-	ws->on_connect = on_connect;
-	ws->on_control = NULL;
-	ws->ws_private.read_handler = NULL;
+	websocket->on_connect = on_connect;
+	websocket->on_control = NULL;
+	websocket->ws_private.read_handler = NULL;
 
-	ws->on_error = NULL;
-	ws->ws_private.close_hook = close_hook;
-	ws->ws_private.ws_flags.is_server = is_server ? 1 : 0;
-	ws->ws_private.ws_flags.frag_opcode = 0;
-	ws->ws_private.ws_flags.self_initiated_close = 0;
-	ws->ws_private.ws_flags.fragmented_write = 1;
-	ws->ws_private.ws_flags.closed_by_error = 0;
-	ws->ws_private.remaining_read_frame_length = 0;
+	websocket->on_error = NULL;
+	websocket->ws_private.close_hook = close_hook;
+	websocket->ws_private.ws_flags.is_server = is_server ? 1 : 0;
+	websocket->ws_private.ws_flags.frag_opcode = 0;
+	websocket->ws_private.ws_flags.self_initiated_close = 0;
+	websocket->ws_private.ws_flags.fragmented_write = 1;
+	websocket->ws_private.ws_flags.closed_by_error = 0;
+	websocket->ws_private.remaining_read_frame_length = 0;
 
-	ws->ws_private.write_message_job.wbh = NULL;
-	ws->ws_private.write_ping_job.wbh = NULL;
-	ws->ws_private.write_ping_job.is_continuation_chunk = false;
-	ws->ws_private.write_pong_job.wbh = NULL;
-	ws->ws_private.write_pong_job.is_continuation_chunk = false;
-	ws->ws_private.write_close_job.wbh = NULL;
-	ws->ws_private.write_close_job.is_continuation_chunk = false;
+	websocket->ws_private.write_message_job.wbh = NULL;
+	websocket->ws_private.write_ping_job.wbh = NULL;
+	websocket->ws_private.write_ping_job.is_continuation_chunk = false;
+	websocket->ws_private.write_pong_job.wbh = NULL;
+	websocket->ws_private.write_pong_job.is_continuation_chunk = false;
+	websocket->ws_private.write_close_job.wbh = NULL;
+	websocket->ws_private.write_close_job.is_continuation_chunk = false;
 
-	ws->ws_private.first_write_job = NULL;
+	websocket->ws_private.first_write_job = NULL;
 
-	cio_utf8_init(&ws->ws_private.utf8_state);
+	cio_utf8_init(&websocket->ws_private.utf8_state);
 
-	return cio_random_seed_rng(&ws->ws_private.rng);
+	return cio_random_seed_rng(&websocket->ws_private.rng);
 }
 
-enum cio_error cio_websocket_server_init(struct cio_websocket *ws, cio_websocket_on_connect_t on_connect, cio_websocket_close_hook_t close_hook)
+enum cio_error cio_websocket_server_init(struct cio_websocket *websocket, cio_websocket_on_connect_t on_connect, cio_websocket_close_hook_t close_hook)
 {
-	return cio_websocket_init(ws, true, on_connect, close_hook);
+	return cio_websocket_init(websocket, true, on_connect, close_hook);
 }
 
-enum cio_error cio_websocket_client_init(struct cio_websocket *ws, cio_websocket_on_connect_t on_connect, cio_websocket_close_hook_t close_hook)
+enum cio_error cio_websocket_client_init(struct cio_websocket *websocket, cio_websocket_on_connect_t on_connect, cio_websocket_close_hook_t close_hook)
 {
-	return cio_websocket_init(ws, false, on_connect, close_hook);
+	return cio_websocket_init(websocket, false, on_connect, close_hook);
 }
 
-enum cio_error cio_websocket_close(struct cio_websocket *ws, enum cio_websocket_status_code status_code, const char *reason, cio_websocket_write_handler_t handler, void *handler_context)
+enum cio_error cio_websocket_close(struct cio_websocket *websocket, enum cio_websocket_status_code status_code, const char *reason, cio_websocket_write_handler_t handler, void *handler_context)
 {
-	if (cio_unlikely((ws == NULL)) || (handler == NULL)) {
+	if (cio_unlikely((websocket == NULL)) || (handler == NULL)) {
 		return CIO_INVALID_ARGUMENT;
 	}
 
-	if (cio_unlikely(ws->ws_private.write_close_job.wbh != NULL)) {
+	if (cio_unlikely(websocket->ws_private.write_close_job.wbh != NULL)) {
 		return CIO_OPERATION_NOT_PERMITTED;
 	}
 
-	prepare_close_job_string(ws, status_code, reason, handler, handler_context, close_frame_written);
+	prepare_close_job_string(websocket, status_code, reason, handler, handler_context, close_frame_written);
 
-	struct cio_http_client *c = ws->ws_private.http_client;
-	enum cio_error err = cio_timer_init(&ws->ws_private.close_timer, c->socket.impl.loop, NULL);
+	struct cio_http_client *client = websocket->ws_private.http_client;
+	enum cio_error err = cio_timer_init(&websocket->ws_private.close_timer, client->socket.impl.loop, NULL);
 	if (cio_unlikely(err != CIO_SUCCESS)) {
 		return err;
 	}
 
-	err = cio_timer_expires_from_now(&ws->ws_private.close_timer, CLOSE_TIMEOUT_NS, close_timeout_handler, ws);
+	err = cio_timer_expires_from_now(&websocket->ws_private.close_timer, CLOSE_TIMEOUT_NS, close_timeout_handler, websocket);
 	if (cio_unlikely(err != CIO_SUCCESS)) {
 		goto timer_expires_failed;
 	}
 
-	ws->ws_private.ws_flags.self_initiated_close = 1;
-	size_t length = cio_write_buffer_get_total_size(ws->ws_private.write_close_job.wbh);
-	enqueue_job(ws, &ws->ws_private.write_close_job, length);
+	websocket->ws_private.ws_flags.self_initiated_close = 1;
+	size_t length = cio_write_buffer_get_total_size(websocket->ws_private.write_close_job.wbh);
+	enqueue_job(websocket, &websocket->ws_private.write_close_job, length);
 
 	return CIO_SUCCESS;
 
 timer_expires_failed:
-	cio_timer_close(&ws->ws_private.close_timer);
+	cio_timer_close(&websocket->ws_private.close_timer);
 	return err;
 }
 
-enum cio_error cio_websocket_read_message(struct cio_websocket *ws, cio_websocket_read_handler_t handler, void *handler_context)
+enum cio_error cio_websocket_read_message(struct cio_websocket *websocket, cio_websocket_read_handler_t handler, void *handler_context)
 {
-	if (cio_unlikely((ws == NULL)) || (handler == NULL)) {
+	if (cio_unlikely((websocket == NULL)) || (handler == NULL)) {
 		return CIO_INVALID_ARGUMENT;
 	}
 
-	ws->ws_private.read_handler = handler;
-	ws->ws_private.read_handler_context = handler_context;
-	struct cio_http_client *c = ws->ws_private.http_client;
+	websocket->ws_private.read_handler = handler;
+	websocket->ws_private.read_handler_context = handler_context;
+	struct cio_http_client *client = websocket->ws_private.http_client;
 	enum cio_error err = CIO_SUCCESS;
 
-	if (ws->ws_private.remaining_read_frame_length == 0) {
-		err = cio_buffered_stream_read_at_least(&c->bs, &c->rb, 1, get_header, ws);
+	if (websocket->ws_private.remaining_read_frame_length == 0) {
+		err = cio_buffered_stream_read_at_least(&client->buffered_stream, &client->rb, 1, get_header, websocket);
 	} else {
-		err = cio_buffered_stream_read_at_most(&c->bs, &c->rb, ws->ws_private.remaining_read_frame_length, get_payload, ws);
+		err = cio_buffered_stream_read_at_most(&client->buffered_stream, &client->rb, websocket->ws_private.remaining_read_frame_length, get_payload, websocket);
 	}
 
 	if (cio_unlikely(err != CIO_SUCCESS)) {
-		handle_error(ws, err, CIO_WEBSOCKET_CLOSE_INTERNAL_ERROR, "error while start reading websocket header");
+		handle_error(websocket, err, CIO_WEBSOCKET_CLOSE_INTERNAL_ERROR, "error while start reading websocket header");
 	}
 
 	return CIO_SUCCESS;
 }
 
-enum cio_error cio_websocket_write_message_first_chunk(struct cio_websocket *ws, size_t frame_length, struct cio_write_buffer *payload, bool last_frame, bool is_binary, cio_websocket_write_handler_t handler, void *handler_context)
+enum cio_error cio_websocket_write_message_first_chunk(struct cio_websocket *websocket, size_t frame_length, struct cio_write_buffer *payload, bool last_frame, bool is_binary, cio_websocket_write_handler_t handler, void *handler_context)
 {
 
-	if (cio_unlikely((ws == NULL)) || (handler == NULL)) {
+	if (cio_unlikely((websocket == NULL)) || (handler == NULL)) {
 		return CIO_INVALID_ARGUMENT;
 	}
 
-	if (cio_unlikely(ws->ws_private.write_message_job.wbh != NULL)) {
+	if (cio_unlikely(websocket->ws_private.write_message_job.wbh != NULL)) {
 		return CIO_OPERATION_NOT_PERMITTED;
 	}
 
 	enum cio_websocket_frame_type kind = CIO_WEBSOCKET_TEXT_FRAME;
 
-	if (ws->ws_private.ws_flags.fragmented_write == 1U) {
+	if (websocket->ws_private.ws_flags.fragmented_write == 1U) {
 		if (is_binary) {
 			kind = CIO_WEBSOCKET_BINARY_FRAME;
 		}
 
 		if (!last_frame) {
-			ws->ws_private.ws_flags.fragmented_write = 0;
+			websocket->ws_private.ws_flags.fragmented_write = 0;
 		}
 	} else {
 		if (last_frame) {
-			ws->ws_private.ws_flags.fragmented_write = 1;
+			websocket->ws_private.ws_flags.fragmented_write = 1;
 		}
 
 		kind = CIO_WEBSOCKET_CONTINUATION_FRAME;
 	}
 
-	ws->ws_private.write_message_job.wbh = payload;
-	ws->ws_private.write_message_job.handler = handler;
-	ws->ws_private.write_message_job.handler_context = handler_context;
-	ws->ws_private.write_message_job.frame_type = kind;
-	ws->ws_private.write_message_job.last_frame = last_frame;
-	ws->ws_private.write_message_job.stream_handler = message_written;
-	ws->ws_private.write_message_job.is_continuation_chunk = false;
+	websocket->ws_private.write_message_job.wbh = payload;
+	websocket->ws_private.write_message_job.handler = handler;
+	websocket->ws_private.write_message_job.handler_context = handler_context;
+	websocket->ws_private.write_message_job.frame_type = kind;
+	websocket->ws_private.write_message_job.last_frame = last_frame;
+	websocket->ws_private.write_message_job.stream_handler = message_written;
+	websocket->ws_private.write_message_job.is_continuation_chunk = false;
 
-	return enqueue_job(ws, &ws->ws_private.write_message_job, frame_length);
+	return enqueue_job(websocket, &websocket->ws_private.write_message_job, frame_length);
 }
 
-enum cio_error cio_websocket_write_message_continuation_chunk(struct cio_websocket *ws, struct cio_write_buffer *payload, cio_websocket_write_handler_t handler, void *handler_context)
+enum cio_error cio_websocket_write_message_continuation_chunk(struct cio_websocket *websocket, struct cio_write_buffer *payload, cio_websocket_write_handler_t handler, void *handler_context)
 {
-	ws->ws_private.write_message_job.wbh = payload;
-	ws->ws_private.write_message_job.handler = handler;
-	ws->ws_private.write_message_job.handler_context = handler_context;
-	ws->ws_private.write_message_job.stream_handler = message_written;
-	ws->ws_private.write_message_job.is_continuation_chunk = true;
-	return enqueue_job(ws, &ws->ws_private.write_message_job, 0);
+	websocket->ws_private.write_message_job.wbh = payload;
+	websocket->ws_private.write_message_job.handler = handler;
+	websocket->ws_private.write_message_job.handler_context = handler_context;
+	websocket->ws_private.write_message_job.stream_handler = message_written;
+	websocket->ws_private.write_message_job.is_continuation_chunk = true;
+	return enqueue_job(websocket, &websocket->ws_private.write_message_job, 0);
 }
 
-enum cio_error cio_websocket_write_ping(struct cio_websocket *ws, struct cio_write_buffer *payload, cio_websocket_write_handler_t handler, void *handler_context)
+enum cio_error cio_websocket_write_ping(struct cio_websocket *websocket, struct cio_write_buffer *payload, cio_websocket_write_handler_t handler, void *handler_context)
 {
-	if (cio_unlikely(ws == NULL)) {
+	if (cio_unlikely(websocket == NULL)) {
 		return CIO_INVALID_ARGUMENT;
 	}
 
-	return write_ping_or_pong_message(ws, CIO_WEBSOCKET_PING_FRAME, &ws->ws_private.write_ping_job, payload, handler, handler_context);
+	return write_ping_or_pong_message(websocket, CIO_WEBSOCKET_PING_FRAME, &websocket->ws_private.write_ping_job, payload, handler, handler_context);
 }
 
-enum cio_error cio_websocket_write_pong(struct cio_websocket *ws, struct cio_write_buffer *payload, cio_websocket_write_handler_t handler, void *handler_context)
+enum cio_error cio_websocket_write_pong(struct cio_websocket *websocket, struct cio_write_buffer *payload, cio_websocket_write_handler_t handler, void *handler_context)
 {
-	if (cio_unlikely(ws == NULL)) {
+	if (cio_unlikely(websocket == NULL)) {
 		return CIO_INVALID_ARGUMENT;
 	}
 
-	return write_ping_or_pong_message(ws, CIO_WEBSOCKET_PONG_FRAME, &ws->ws_private.write_pong_job, payload, handler, handler_context);
+	return write_ping_or_pong_message(websocket, CIO_WEBSOCKET_PONG_FRAME, &websocket->ws_private.write_pong_job, payload, handler, handler_context);
 }
 
-void cio_websocket_set_on_error_cb(struct cio_websocket *ws, void (*on_error)(const struct cio_websocket *ws, enum cio_error err, const char *reason))
+void cio_websocket_set_on_error_cb(struct cio_websocket *websocket, void (*on_error)(const struct cio_websocket *websocket, enum cio_error err, const char *reason))
 {
-	ws->on_error = on_error;
+	websocket->on_error = on_error;
 }
 
-void cio_websocket_set_on_control_cb(struct cio_websocket *ws, void (*on_control)(const struct cio_websocket *ws, enum cio_websocket_frame_type kind, const uint8_t *data, uint_fast8_t length))
+void cio_websocket_set_on_control_cb(struct cio_websocket *websocket, void (*on_control)(const struct cio_websocket *websocket, enum cio_websocket_frame_type kind, const uint8_t *data, uint_fast8_t length))
 {
-	ws->on_control = on_control;
+	websocket->on_control = on_control;
 }

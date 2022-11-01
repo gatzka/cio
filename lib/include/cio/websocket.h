@@ -124,7 +124,7 @@ struct cio_websocket_write_job {
 
 struct cio_response_buffer {
 	struct cio_write_buffer wb_head;
-	struct cio_write_buffer wb;
+	struct cio_write_buffer write_buffer;
 	uint8_t buffer[CIO_WEBSOCKET_SMALL_FRAME_SIZE];
 };
 

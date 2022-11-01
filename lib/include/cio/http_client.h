@@ -163,7 +163,7 @@ struct cio_http_client {
 	 * @brief The buffered stream which is used to read data from and write data to the client.
 	 *
 	 */
-	struct cio_buffered_stream bs;
+	struct cio_buffered_stream buffered_stream;
 
 	/**
 	 * @brief The companion read buffer which is used by the @ref cio_http_client_bs "buffered stream".

@@ -49,30 +49,30 @@ static const char DIR_NAME[] = "/dev/serial/by-path/";
 static void read_callback(void *context, enum cio_epoll_error error)
 {
 	struct cio_io_stream *stream = context;
-	struct cio_read_buffer *rb = stream->read_buffer;
+	struct cio_read_buffer *read_buffer = stream->read_buffer;
 	struct cio_uart *uart = cio_container_of(stream, struct cio_uart, stream);
 
 	enum cio_error err = CIO_SUCCESS;
 
 	if (cio_unlikely(error != CIO_EPOLL_SUCCESS)) {
 		err = cio_linux_get_socket_error(uart->impl.ev.fd);
-		stream->read_handler(stream, stream->read_handler_context, err, rb);
+		stream->read_handler(stream, stream->read_handler_context, err, read_buffer);
 		return;
 	}
 
-	ssize_t ret = read(uart->impl.ev.fd, rb->add_ptr, cio_read_buffer_space_available(rb));
+	ssize_t ret = read(uart->impl.ev.fd, read_buffer->add_ptr, cio_read_buffer_space_available(read_buffer));
 	if (ret == -1) {
 		if (cio_unlikely(errno != EAGAIN)) {
-			stream->read_handler(stream, stream->read_handler_context, (enum cio_error)(-errno), rb);
+			stream->read_handler(stream, stream->read_handler_context, (enum cio_error)(-errno), read_buffer);
 		}
 	} else {
 		if (ret == 0) {
 			err = CIO_EOF;
 		} else {
-			rb->add_ptr += (size_t)ret;
+			read_buffer->add_ptr += (size_t)ret;
 		}
 
-		stream->read_handler(stream, stream->read_handler_context, err, rb);
+		stream->read_handler(stream, stream->read_handler_context, err, read_buffer);
 	}
 }
 
@@ -223,8 +223,8 @@ enum cio_error cio_uart_get_ports(struct cio_uart ports[], size_t num_ports_entr
 			len = strlen(src_buffer);
 			strncpy(src_buffer + len, dir_entry->d_name, sizeof(src_buffer) - len);
 
-			char *rp = realpath(src_buffer, ports[num_uarts].impl.name);
-			if (cio_unlikely(rp == NULL)) {
+			char *real_path = realpath(src_buffer, ports[num_uarts].impl.name);
+			if (cio_unlikely(real_path == NULL)) {
 				closedir(serial_dir);
 				return (enum cio_error)(-errno);
 			}
