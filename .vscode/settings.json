@@ -1,8 +1,7 @@
 {
     "cmake.configureOnOpen": true,
     "files.associations": {
-        ".h": "c",
-        "error_code.h": "c"
+        ".h": "c"
     },
     "editor.renderWhitespace": "all",
     "cmake.preferredGenerators":[
