@@ -67,14 +67,14 @@ struct cio_server_socket;
  * allocated if err != ::CIO_SUCCESS. So NEVER close @a socket in that case.
  * @param socket The client socket that was created from the accept.
  */
-typedef void (*cio_accept_handler_t)(struct cio_server_socket *ss, void *handler_context, enum cio_error err, struct cio_socket *socket);
+typedef void (*cio_accept_handler_t)(struct cio_server_socket *server_socket, void *handler_context, enum cio_error err, struct cio_socket *socket);
 
 /**
  * @brief The type of close hook function.
  *
  * @param ss The cio_linux_server_socket the close hook was called on.
  */
-typedef void (*cio_server_socket_close_hook_t)(struct cio_server_socket *ss);
+typedef void (*cio_server_socket_close_hook_t)(struct cio_server_socket *server_socket);
 
 /**
  * @brief The cio_server_socket struct describes a server socket.

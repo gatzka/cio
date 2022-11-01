@@ -59,41 +59,41 @@ struct cio_read_buffer {
 
 /**
  * @brief Provides the number of bytes that are not read yet.
- * @param rb The read buffer that is asked.
+ * @param read_buffeead_bufferr The read buffer that is asked.
  * @return The number of bytes in read buffer that are not yet read.
  */
-static inline size_t cio_read_buffer_unread_bytes(const struct cio_read_buffer *rb)
+static inline size_t cio_read_buffer_unread_bytes(const struct cio_read_buffer *read_buffer)
 {
-	return (size_t)(rb->add_ptr - rb->fetch_ptr);
+	return (size_t)(read_buffer->add_ptr - read_buffer->fetch_ptr);
 }
 
 /**
  * @brief Provides the space currently not filled with data.
- * @param rb The read buffer that is asked.
+ * @param read_buffer The read buffer that is asked.
  * @return The length in bytes of available space.
  */
-static inline size_t cio_read_buffer_space_available(const struct cio_read_buffer *rb)
+static inline size_t cio_read_buffer_space_available(const struct cio_read_buffer *read_buffer)
 {
-	return (size_t)(rb->end - rb->add_ptr);
+	return (size_t)(read_buffer->end - read_buffer->add_ptr);
 }
 
 /**
  * @brief Initializes a read buffer.
- * @param rb The read buffer to be initialized.
+ * @param read_buffer The read buffer to be initialized.
  * @param data The memory the read buffer operates on.
  * @param size The size of the memory the read buffer operates on.
  * @return ::CIO_SUCCESS for success.
  */
-static inline enum cio_error cio_read_buffer_init(struct cio_read_buffer *rb, void *data, size_t size)
+static inline enum cio_error cio_read_buffer_init(struct cio_read_buffer *read_buffer, void *data, size_t size)
 {
-	if (cio_unlikely((rb == NULL) || (data == NULL) || (size == 0))) {
+	if (cio_unlikely((read_buffer == NULL) || (data == NULL) || (size == 0))) {
 		return CIO_INVALID_ARGUMENT;
 	}
 
-	rb->data = data;
-	rb->end = (uint8_t *)data + size;
-	rb->fetch_ptr = data;
-	rb->add_ptr = data;
+	read_buffer->data = data;
+	read_buffer->end = (uint8_t *)data + size;
+	read_buffer->fetch_ptr = data;
+	read_buffer->add_ptr = data;
 
 	return CIO_SUCCESS;
 }
@@ -101,34 +101,34 @@ static inline enum cio_error cio_read_buffer_init(struct cio_read_buffer *rb, vo
 /**
  * @brief Provides the pointer from where to read data.
  *
- * @param rb The read buffer to be asked.
+ * @param read_buffer The read buffer to be asked.
  * @return The pointer from where to read.
  */
-static inline uint8_t *cio_read_buffer_get_read_ptr(const struct cio_read_buffer *rb)
+static inline uint8_t *cio_read_buffer_get_read_ptr(const struct cio_read_buffer *read_buffer)
 {
-	return rb->fetch_ptr;
+	return read_buffer->fetch_ptr;
 }
 
 /**
  * @brief Provides the size of the read buffer.
- * @param rb The read buffer to be asked.
+ * @param read_buffer The read buffer to be asked.
  * @return The size of the read buffer in bytes.
  */
-static inline size_t cio_read_buffer_size(const struct cio_read_buffer *rb)
+static inline size_t cio_read_buffer_size(const struct cio_read_buffer *read_buffer)
 {
-	return (size_t)(rb->end - rb->data);
+	return (size_t)(read_buffer->end - read_buffer->data);
 }
 
 /**
  * @anchor cio_read_buffer_consume
  *
  * @brief Consumes @p num bytes of the read buffer.
- * @param rb The read buffer from which the bytes shall be consumed.
+ * @param read_buffer The read buffer from which the bytes shall be consumed.
  * @param num The number of bytes that shall be consumed fom the read buffer.
  */
-static inline void cio_read_buffer_consume(struct cio_read_buffer *rb, size_t num)
+static inline void cio_read_buffer_consume(struct cio_read_buffer *read_buffer, size_t num)
 {
-	rb->fetch_ptr += num;
+	read_buffer->fetch_ptr += num;
 }
 
 #ifdef __cplusplus

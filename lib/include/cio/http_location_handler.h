@@ -83,10 +83,10 @@ typedef enum cio_http_cb_return (*cio_http_cb_t)(struct cio_http_client *client)
  * @brief The type of an HTTP callback function which will get data.
  *
  * @param client The client which made the HTTP request.
- * @param at The pointer from where to read.
+ * @param read_ptr The pointer from where to read.
  * @param length The maximum number of bytes the callback function is allowed to read.
  */
-typedef enum cio_http_cb_return (*cio_http_data_cb_t)(struct cio_http_client *client, const char *at, size_t length);
+typedef enum cio_http_cb_return (*cio_http_data_cb_t)(struct cio_http_client *client, const char *read_ptr, size_t length);
 
 struct cio_http_location_handler {
 	/**

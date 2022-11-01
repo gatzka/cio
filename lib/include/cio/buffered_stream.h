@@ -65,23 +65,23 @@ struct cio_buffered_stream;
 /**
  * @brief The type of a function passed to all cio_buffered_stream read callback functions.
  * 
- * @param bs The cio_buffered_stream the read operation was called on.
+ * @param buffered_stream The cio_buffered_stream the read operation was called on.
  * @param handler_context The context the functions works on.
  * @param err If err != ::CIO_SUCCESS, the read operation failed, if err == ::CIO_EOF, the peer closed the stream.
  * @param buffer The buffer where the data read is stored.
  * @param num_bytes The number of bytes until the delimiter was found (when called via @ref cio_buffered_stream_read_until "read_until()"), or
  * the number of bytes that should have been read at least (when called via @ref cio_buffered_stream_read_at_least "read_at_least()")
  */
-typedef void (*cio_buffered_stream_read_handler_t)(struct cio_buffered_stream *bs, void *handler_context, enum cio_error err, struct cio_read_buffer *buffer, size_t num_bytes);
+typedef void (*cio_buffered_stream_read_handler_t)(struct cio_buffered_stream *buffered_stream, void *handler_context, enum cio_error err, struct cio_read_buffer *buffer, size_t num_bytes);
 
 /**
  * @brief The type of a function passed to all cio_buffered_stream write callback functions.
  * 
- * @param bs The cio_buffered_stream the write operation was called on.
+ * @param buffered_stream The cio_buffered_stream the write operation was called on.
  * @param handler_context The context the functions works on.
  * @param err If err != ::CIO_SUCCESS, the write operation failed.
  */
-typedef void (*cio_buffered_stream_write_handler_t)(struct cio_buffered_stream *bs, void *handler_context, enum cio_error err);
+typedef void (*cio_buffered_stream_write_handler_t)(struct cio_buffered_stream *buffered_stream, void *handler_context, enum cio_error err);
 
 /**
  * @private
@@ -117,7 +117,7 @@ struct cio_buffered_stream {
 	cio_buffered_stream_read_handler_t read_handler;
 	void *read_handler_context;
 
-	enum cio_bs_state (*read_job)(struct cio_buffered_stream *bs);
+	enum cio_bs_state (*read_job)(struct cio_buffered_stream *buffered_stream);
 
 	union cio_read_info read_info;
 

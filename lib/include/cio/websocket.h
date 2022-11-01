@@ -59,8 +59,8 @@ extern "C" {
 
 struct cio_websocket;
 
-typedef void (*cio_websocket_close_hook_t)(struct cio_websocket *s);
-typedef void (*cio_websocket_on_connect_t)(struct cio_websocket *s);
+typedef void (*cio_websocket_close_hook_t)(struct cio_websocket *socket);
+typedef void (*cio_websocket_on_connect_t)(struct cio_websocket *socket);
 
 /**
  * @brief The type of websocket read callback functions.
@@ -76,8 +76,8 @@ typedef void (*cio_websocket_on_connect_t)(struct cio_websocket *s);
  * @param last_frame Shows if this frame is the last frame of a fragmented WebSocket message.
  * @param is_binary Shows if the frame is a binary or a text frame
  */
-typedef void (*cio_websocket_read_handler_t)(struct cio_websocket *ws, void *handler_context, enum cio_error err, size_t frame_length, uint8_t *data, size_t chunk_length, bool last_chunk, bool last_frame, bool is_binary);
-typedef void (*cio_websocket_write_handler_t)(struct cio_websocket *ws, void *handler_context, enum cio_error err);
+typedef void (*cio_websocket_read_handler_t)(struct cio_websocket *websocket, void *handler_context, enum cio_error err, size_t frame_length, uint8_t *data, size_t chunk_length, bool last_chunk, bool last_frame, bool is_binary);
+typedef void (*cio_websocket_write_handler_t)(struct cio_websocket *websocket, void *handler_context, enum cio_error err);
 
 enum cio_websocket_status_code {
 	CIO_WEBSOCKET_CLOSE_NORMAL = 1000,
@@ -172,9 +172,9 @@ struct cio_websocket {
 	/*! @cond PRIVATE */
 	struct cio_websocket_private ws_private;
 	/*! @endcond */
-	void (*on_connect)(struct cio_websocket *ws);
-	void (*on_error)(const struct cio_websocket *ws, enum cio_error err, const char *reason);
-	void (*on_control)(const struct cio_websocket *ws, enum cio_websocket_frame_type kind, const uint8_t *data, uint_fast8_t length);
+	void (*on_connect)(struct cio_websocket *websocket);
+	void (*on_error)(const struct cio_websocket *websocket, enum cio_error err, const char *reason);
+	void (*on_control)(const struct cio_websocket *websocket, enum cio_websocket_frame_type kind, const uint8_t *data, uint_fast8_t length);
 };
 
 /**
@@ -277,13 +277,13 @@ CIO_EXPORT enum cio_error cio_websocket_write_ping(struct cio_websocket *ws, str
  * by @p payload. In addition you should ALWAYS intialize the write buffer elements in
  * @p payload using the @ref cio_write_buffer_element_init "non-const initialization function".
  *
- * @param ws The websocket which should be used for sending the pong message.
+ * @param websocket The websocket which should be used for sending the pong message.
  * @param payload The payload to be sent.
  * @param handler A callback function that will be called when the write operation of the pong completes.
  * @param handler_context A context pointer given to @p handler when called.
  * @return ::CIO_SUCCESS for success.
  */
-enum cio_error cio_websocket_write_pong(struct cio_websocket *ws, struct cio_write_buffer *payload, cio_websocket_write_handler_t handler, void *handler_context);
+enum cio_error cio_websocket_write_pong(struct cio_websocket *websocket, struct cio_write_buffer *payload, cio_websocket_write_handler_t handler, void *handler_context);
 
 /**
  * @brief Set a callback function that will be called if an error occurred.
