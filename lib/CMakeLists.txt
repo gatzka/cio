@@ -1,5 +1,6 @@
 cmake_minimum_required(VERSION 3.9)
 project(cio VERSION 0.0.1 LANGUAGES C)
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 find_package(Git QUIET REQUIRED)
 if(GIT_FOUND AND EXISTS "${PROJECT_SOURCE_DIR}/../.git")

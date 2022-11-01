@@ -1,5 +1,6 @@
 cmake_minimum_required(VERSION 3.9)
 project(cio_unit_test C)
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 enable_testing()
 
 add_library(fff INTERFACE)

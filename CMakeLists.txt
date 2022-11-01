@@ -11,6 +11,7 @@ if(NOT GatzkaToolchainFiles_POPULATED)
 endif()
 
 project(cioall C)
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 if(CMAKE_CONFIGURATION_TYPES)
     if(NOT "MemorySanitizer" IN_LIST CMAKE_CONFIGURATION_TYPES)

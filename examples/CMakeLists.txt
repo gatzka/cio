@@ -1,5 +1,6 @@
 cmake_minimum_required(VERSION 3.9)
 project(cio-examples C)
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 add_executable(socket_echo socket_echo.c)
 add_executable(socket_connect socket_connect.c)

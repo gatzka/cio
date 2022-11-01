@@ -1,5 +1,6 @@
 cmake_minimum_required(VERSION 3.9)
 project(cio-examples-linux C)
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 add_executable(uds_socket_ping_pong
     uds_socket_ping_pong.c
