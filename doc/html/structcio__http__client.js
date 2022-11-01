@@ -1,7 +1,7 @@
 var structcio__http__client =
 [
     [ "add_response_header", "structcio__http__client.html#ade1524f3104e42fd3096973d08c482c9", null ],
-    [ "bs", "structcio__http__client.html#a3a185f7fadbf330a176bbe7041f77474", null ],
+    [ "buffered_stream", "structcio__http__client.html#a2d973eadc0d1460e8ef2ee4033688411", null ],
     [ "close", "structcio__http__client.html#a99ea764a1678b2390fb83cbb255b36b1", null ],
     [ "content_length", "structcio__http__client.html#abd3df2d34ed863133b1be6bdf1bf85b1", null ],
     [ "http_major", "structcio__http__client.html#a44731b52ebf1a6e23d4be67549b36c0f", null ],

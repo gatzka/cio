@@ -1,9 +1,9 @@
 var searchData=
 [
   ['on_5fbody_689',['on_body',['../structcio__http__location__handler.html#a631d9cb923c57f5c21444d0aabcf863b',1,'cio_http_location_handler']]],
-  ['on_5fconnect_690',['on_connect',['../structcio__websocket.html#a788f6e8b0650d183e395369ff9662bc9',1,'cio_websocket::on_connect()'],['../structcio__websocket__location__config.html#af1e9ed249aa6d10e53ffd64f1678f24c',1,'cio_websocket_location_config::on_connect()']]],
-  ['on_5fcontrol_691',['on_control',['../structcio__websocket.html#aa8ebb35a2710c7387c895a5b01ad26a0',1,'cio_websocket']]],
-  ['on_5ferror_692',['on_error',['../structcio__http__server__configuration.html#a84775d3d9c5c42924402c4131c6c7e0e',1,'cio_http_server_configuration::on_error()'],['../structcio__websocket.html#a9912a53d3ccdb6ce85c2e61e0f002779',1,'cio_websocket::on_error()']]],
+  ['on_5fconnect_690',['on_connect',['../structcio__websocket.html#ab486e7b2400c0f942dfdaf4fd385e739',1,'cio_websocket::on_connect()'],['../structcio__websocket__location__config.html#af1e9ed249aa6d10e53ffd64f1678f24c',1,'cio_websocket_location_config::on_connect()']]],
+  ['on_5fcontrol_691',['on_control',['../structcio__websocket.html#ad30f0db91de1659723f359d4959a4d3b',1,'cio_websocket']]],
+  ['on_5ferror_692',['on_error',['../structcio__http__server__configuration.html#a84775d3d9c5c42924402c4131c6c7e0e',1,'cio_http_server_configuration::on_error()'],['../structcio__websocket.html#aa97b143ec4909ca0ac4f493963aefeeb',1,'cio_websocket::on_error()']]],
   ['on_5ffragment_693',['on_fragment',['../structcio__http__location__handler.html#ab50de70dbe3a80d42d1d62720c32692f',1,'cio_http_location_handler']]],
   ['on_5fheader_5ffield_5fname_694',['on_header_field_name',['../structcio__http__location__handler.html#ab2bacee277d8849960d7b7e4df2f58b6',1,'cio_http_location_handler']]],
   ['on_5fheader_5ffield_5fvalue_695',['on_header_field_value',['../structcio__http__location__handler.html#abf1a141bef9badb302d3fe8c3462f4ab',1,'cio_http_location_handler']]],
