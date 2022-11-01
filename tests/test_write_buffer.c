@@ -286,7 +286,7 @@ static void test_cio_write_buffer_split_and_append(void)
 			char *data = malloc(DATA_BUFFER_LENGTH);
 			TEST_ASSERT_NOT_NULL_MESSAGE(data, "allocation of writebuffer data element failed!");
 			snprintf(data, DATA_BUFFER_LENGTH - 1, "SL_BUFFER%u", i);
-			cio_write_buffer_const_element_init(wb, data, DATA_BUFFER_LENGTH);
+			cio_write_buffer_element_init(wb, data, DATA_BUFFER_LENGTH);
 			cio_write_buffer_queue_tail(&wbh_to_split, wb);
 		}
 
@@ -299,7 +299,7 @@ static void test_cio_write_buffer_split_and_append(void)
 			char *data = malloc(DATA_BUFFER_LENGTH);
 			TEST_ASSERT_NOT_NULL_MESSAGE(data, "allocation of writebuffer data element failed!");
 			snprintf(data, DATA_BUFFER_LENGTH - 1, "AL_BUFFER%u", i);
-			cio_write_buffer_const_element_init(wb, data, DATA_BUFFER_LENGTH);
+			cio_write_buffer_element_init(wb, data, DATA_BUFFER_LENGTH);
 			cio_write_buffer_queue_tail(&wbh_to_append, wb);
 		}
 
