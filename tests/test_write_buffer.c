@@ -261,9 +261,9 @@ static void test_cio_write_buffer_splice_empty_list(void)
 	struct cio_write_buffer wbh;
 	cio_write_buffer_head_init(&wbh);
 
-	struct cio_write_buffer wb;
-	cio_write_buffer_element_init(&wb, NULL, 0);
-	cio_write_buffer_queue_tail(&wbh, &wb);
+	struct cio_write_buffer wbe;
+	cio_write_buffer_element_init(&wbe, NULL, 0);
+	cio_write_buffer_queue_tail(&wbh, &wbe);
 	TEST_ASSERT_EQUAL_MESSAGE(1, cio_write_buffer_get_num_buffer_elements(&wbh), "Number of elements in write buffer not correct!");
 
 	struct cio_write_buffer list_to_append;
@@ -274,33 +274,39 @@ static void test_cio_write_buffer_splice_empty_list(void)
 
 static void test_cio_write_buffer_split_and_append(void)
 {
-#define SPLIT_LIST_LENGTH 6
+	enum { SPLIT_LIST_LENGTH = 6 };
 	for (unsigned int split_position = 0; split_position < SPLIT_LIST_LENGTH; split_position++) {
 		struct cio_write_buffer wbh_to_split;
 		cio_write_buffer_head_init(&wbh_to_split);
 
 		enum { DATA_BUFFER_LENGTH = 100 };
 		for (unsigned int i = 0; i < SPLIT_LIST_LENGTH; i++) {
-			struct cio_write_buffer *wb = malloc(sizeof(*wb));
-			TEST_ASSERT_NOT_NULL_MESSAGE(wb, "allocation of writebuffer element failed!");
+			struct cio_write_buffer *wbe = malloc(sizeof(*wbe));
+			TEST_ASSERT_NOT_NULL_MESSAGE(wbe, "allocation of writebuffer element failed!");
 			char *data = malloc(DATA_BUFFER_LENGTH);
 			TEST_ASSERT_NOT_NULL_MESSAGE(data, "allocation of writebuffer data element failed!");
-			snprintf(data, DATA_BUFFER_LENGTH - 1, "SL_BUFFER%u", i);
-			cio_write_buffer_element_init(wb, data, DATA_BUFFER_LENGTH);
-			cio_write_buffer_queue_tail(&wbh_to_split, wb);
+			int ret = snprintf(data, DATA_BUFFER_LENGTH - 1, "SL_BUFFER%u", i);
+			if (ret >= DATA_BUFFER_LENGTH) {
+				TEST_FAIL_MESSAGE("Write buffer for split list not filled correctly!");
+			}
+			cio_write_buffer_element_init(wbe, data, DATA_BUFFER_LENGTH);
+			cio_write_buffer_queue_tail(&wbh_to_split, wbe);
 		}
 
 		struct cio_write_buffer wbh_to_append;
 		cio_write_buffer_head_init(&wbh_to_append);
-#define APPEND_LIST_LENGTH 2
+		enum { APPEND_LIST_LENGTH = 2 };
 		for (unsigned int i = 0; i < APPEND_LIST_LENGTH; i++) {
-			struct cio_write_buffer *wb = malloc(sizeof(*wb));
-			TEST_ASSERT_NOT_NULL_MESSAGE(wb, "allocation of writebuffer element failed!");
+			struct cio_write_buffer *wbe = malloc(sizeof(*wbe));
+			TEST_ASSERT_NOT_NULL_MESSAGE(wbe, "allocation of writebuffer element failed!");
 			char *data = malloc(DATA_BUFFER_LENGTH);
 			TEST_ASSERT_NOT_NULL_MESSAGE(data, "allocation of writebuffer data element failed!");
-			snprintf(data, DATA_BUFFER_LENGTH - 1, "AL_BUFFER%u", i);
-			cio_write_buffer_element_init(wb, data, DATA_BUFFER_LENGTH);
-			cio_write_buffer_queue_tail(&wbh_to_append, wb);
+			int ret = snprintf(data, DATA_BUFFER_LENGTH - 1, "AL_BUFFER%u", i);
+			if (ret >= DATA_BUFFER_LENGTH) {
+				TEST_FAIL_MESSAGE("Write buffer for append list not filled correctly!");
+			}
+			cio_write_buffer_element_init(wbe, data, DATA_BUFFER_LENGTH);
+			cio_write_buffer_queue_tail(&wbh_to_append, wbe);
 		}
 
 		struct cio_write_buffer *e = &wbh_to_split;
@@ -317,14 +323,20 @@ static void test_cio_write_buffer_split_and_append(void)
 
 		e = wbh_to_append.next;
 		for (unsigned i = 0; i < APPEND_LIST_LENGTH; i++) {
-			char buf[100];
-			snprintf(buf, sizeof(buf), "AL_BUFFER%u", i);
+			char buf[DATA_BUFFER_LENGTH];
+			int ret = snprintf(buf, sizeof(buf), "AL_BUFFER%u", i);
+			if (ret >= DATA_BUFFER_LENGTH) {
+				TEST_FAIL_MESSAGE("Check buffer for append list not filled correctly!");
+			}
 			TEST_ASSERT_EQUAL_STRING_MESSAGE(buf, e->data.element.data, "Data in merged append buffer not correct!");
 			e = e->next;
 		}
 		for (unsigned i = split_position; i < SPLIT_LIST_LENGTH; i++) {
-			char buf[100];
-			snprintf(buf, sizeof(buf), "SL_BUFFER%u", i);
+			char buf[DATA_BUFFER_LENGTH];
+			int ret = snprintf(buf, sizeof(buf), "SL_BUFFER%u", i);
+			if (ret >= DATA_BUFFER_LENGTH) {
+				TEST_FAIL_MESSAGE("Check buffer for split list not filled correctly!");
+			}
 			TEST_ASSERT_EQUAL_STRING_MESSAGE(buf, e->data.element.data, "Data in merged split buffer not correct!");
 			e = e->next;
 		}
