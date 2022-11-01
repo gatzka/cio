@@ -65,7 +65,7 @@ typedef void (*cio_websocket_on_connect_t)(struct cio_websocket *socket);
 /**
  * @brief The type of websocket read callback functions.
  *
- * @param web_socket The cio_websocket the read operation was called on.
+ * @param websocket The cio_websocket the read operation was called on.
  * @param handler_context The context the functions works on.
  * @param err If err != ::CIO_SUCCESS, the read operation failed, if err == ::CIO_EOF, the peer closed the stream. If err != ::CIO_SUCCESS,
  * ignore the following parameters: @p frame_length, @p data, @p chunk_length, @p last_chunk, @p last_frame, @p is_binary.
