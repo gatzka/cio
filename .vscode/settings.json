@@ -1,12 +1,14 @@
 {
     "cmake.configureOnOpen": true,
     "files.associations": {
-        ".h": "c"
+        ".h": "c",
+        "error_code.h": "c"
     },
     "editor.renderWhitespace": "all",
     "cmake.preferredGenerators":[
         "Ninja",
         "Unix Makefiles"
     ],
+    "clang-tidy.buildPath": "${workspaceFolder}/build",
     "C_Cpp.intelliSenseEngine": "Tag Parser"
 }
