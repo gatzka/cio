@@ -160,9 +160,9 @@ static inline bool cio_write_buffer_queue_empty(const struct cio_write_buffer *w
  * @param wb The write buffer element that is asked if it is the last in the queue.
  * @return @c true if the chain is empty, @c false otherwise.
  */
-static inline bool cio_write_buffer_is_last_element(const struct cio_write_buffer *wbh, const struct cio_write_buffer *wb)
+static inline bool cio_write_buffer_is_last_element(const struct cio_write_buffer *wbh, const struct cio_write_buffer *wbe)
 {
-	return wb->prev == wbh;
+	return wbe->prev == wbh;
 }
 
 /**
@@ -325,11 +325,11 @@ static inline void cio_write_buffer_split_and_append(struct cio_write_buffer *to
 	size_t tail_length = 0;
 	size_t tail_qlen = 0;
 
-	const struct cio_write_buffer *e = wbe;
-	while (e != from_head) {
-		tail_length += e->data.element.length;
+	const struct cio_write_buffer *element = wbe;
+	while (element != from_head) {
+		tail_length += element->data.element.length;
 		tail_qlen++;
-		e = e->next;
+		element = element->next;
 	}
 
 	struct cio_write_buffer *wbe_prev = wbe->prev;
