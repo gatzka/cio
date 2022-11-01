@@ -274,7 +274,7 @@ static void test_cio_write_buffer_splice_empty_list(void)
 
 static void test_cio_write_buffer_split_and_append(void)
 {
-	enum { SPLIT_LIST_LENGTH = 6 };
+#define SPLIT_LIST_LENGTH 6
 	for (unsigned int split_position = 0; split_position < SPLIT_LIST_LENGTH; split_position++) {
 		struct cio_write_buffer wbh_to_split;
 		cio_write_buffer_head_init(&wbh_to_split);
@@ -292,7 +292,7 @@ static void test_cio_write_buffer_split_and_append(void)
 
 		struct cio_write_buffer wbh_to_append;
 		cio_write_buffer_head_init(&wbh_to_append);
-		enum { APPEND_LIST_LENGTH = 2 };
+#define APPEND_LIST_LENGTH 2
 		for (unsigned int i = 0; i < APPEND_LIST_LENGTH; i++) {
 			struct cio_write_buffer *wb = malloc(sizeof(*wb));
 			TEST_ASSERT_NOT_NULL_MESSAGE(wb, "allocation of writebuffer element failed!");
