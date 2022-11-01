@@ -126,9 +126,9 @@ Functions</h2></td></tr>
 <tr class="memitem:afd5f5930223e8b3ea17a291283689887"><td class="memItemLeft" align="right" valign="top">static bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="write__buffer_8h.html#afd5f5930223e8b3ea17a291283689887">cio_write_buffer_queue_empty</a> (const struct <a class="el" href="structcio__write__buffer.html">cio_write_buffer</a> *wbh)</td></tr>
 <tr class="memdesc:afd5f5930223e8b3ea17a291283689887"><td class="mdescLeft">&#160;</td><td class="mdescRight">Determine if the write buffer chain is empty.  <a href="write__buffer_8h.html#afd5f5930223e8b3ea17a291283689887">More...</a><br /></td></tr>
 <tr class="separator:afd5f5930223e8b3ea17a291283689887"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a5cf4e5238dcc3986ccf619fbb8e91d93"><td class="memItemLeft" align="right" valign="top">static bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="write__buffer_8h.html#a5cf4e5238dcc3986ccf619fbb8e91d93">cio_write_buffer_is_last_element</a> (const struct <a class="el" href="structcio__write__buffer.html">cio_write_buffer</a> *wbh, const struct <a class="el" href="structcio__write__buffer.html">cio_write_buffer</a> *wb)</td></tr>
-<tr class="memdesc:a5cf4e5238dcc3986ccf619fbb8e91d93"><td class="mdescLeft">&#160;</td><td class="mdescRight">Determine if the write buffer chain is empty.  <a href="write__buffer_8h.html#a5cf4e5238dcc3986ccf619fbb8e91d93">More...</a><br /></td></tr>
-<tr class="separator:a5cf4e5238dcc3986ccf619fbb8e91d93"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a42d5e8912ff34cab5d1eec2d3f08b9df"><td class="memItemLeft" align="right" valign="top">static bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="write__buffer_8h.html#a42d5e8912ff34cab5d1eec2d3f08b9df">cio_write_buffer_is_last_element</a> (const struct <a class="el" href="structcio__write__buffer.html">cio_write_buffer</a> *wbh, const struct <a class="el" href="structcio__write__buffer.html">cio_write_buffer</a> *wbe)</td></tr>
+<tr class="memdesc:a42d5e8912ff34cab5d1eec2d3f08b9df"><td class="mdescLeft">&#160;</td><td class="mdescRight">Determine if the write buffer chain is empty.  <a href="write__buffer_8h.html#a42d5e8912ff34cab5d1eec2d3f08b9df">More...</a><br /></td></tr>
+<tr class="separator:a42d5e8912ff34cab5d1eec2d3f08b9df"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:adb045a192be8efeacff4cce5d05cf011"><td class="memItemLeft" align="right" valign="top">static struct <a class="el" href="structcio__write__buffer.html">cio_write_buffer</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="write__buffer_8h.html#adb045a192be8efeacff4cce5d05cf011">cio_write_buffer_queue_peek</a> (const struct <a class="el" href="structcio__write__buffer.html">cio_write_buffer</a> *wbh)</td></tr>
 <tr class="memdesc:adb045a192be8efeacff4cce5d05cf011"><td class="mdescLeft">&#160;</td><td class="mdescRight">Access the first element of a write buffer chain without removing it.  <a href="write__buffer_8h.html#adb045a192be8efeacff4cce5d05cf011">More...</a><br /></td></tr>
 <tr class="separator:adb045a192be8efeacff4cce5d05cf011"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -434,8 +434,8 @@ Functions</h2></td></tr>
 
 </div>
 </div>
-<a id="a5cf4e5238dcc3986ccf619fbb8e91d93"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a5cf4e5238dcc3986ccf619fbb8e91d93">&#9670;&nbsp;</a></span>cio_write_buffer_is_last_element()</h2>
+<a id="a42d5e8912ff34cab5d1eec2d3f08b9df"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a42d5e8912ff34cab5d1eec2d3f08b9df">&#9670;&nbsp;</a></span>cio_write_buffer_is_last_element()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -453,7 +453,7 @@ Functions</h2></td></tr>
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype">const struct <a class="el" href="structcio__write__buffer.html">cio_write_buffer</a> *&#160;</td>
-          <td class="paramname"><em>wb</em>&#160;</td>
+          <td class="paramname"><em>wbe</em>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -472,7 +472,7 @@ Functions</h2></td></tr>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">wbh</td><td>The write buffer chain that is asked. </td></tr>
-    <tr><td class="paramname">wb</td><td>The write buffer element that is asked if it is the last in the queue. </td></tr>
+    <tr><td class="paramname">wbe</td><td>The write buffer element that is asked if it is the last in the queue. </td></tr>
   </table>
   </dd>
 </dl>
