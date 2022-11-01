@@ -59,7 +59,7 @@ struct cio_read_buffer {
 
 /**
  * @brief Provides the number of bytes that are not read yet.
- * @param read_buffeead_bufferr The read buffer that is asked.
+ * @param read_buffer The read buffer that is asked.
  * @return The number of bytes in read buffer that are not yet read.
  */
 static inline size_t cio_read_buffer_unread_bytes(const struct cio_read_buffer *read_buffer)

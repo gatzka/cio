@@ -61,7 +61,7 @@ struct cio_server_socket;
  * @brief The type of a function that is called when
  * @ref cio_server_socket_accept "accept task" succeeds or fails.
  *
- * @param ss The server socket where the accept was called on.
+ * @param server_socket The server socket where the accept was called on.
  * @param handler_context The context the functions works on.
  * @param err If err != ::CIO_SUCCESS, the accept call failed. Please note that no memory for a client is
  * allocated if err != ::CIO_SUCCESS. So NEVER close @a socket in that case.
@@ -72,7 +72,7 @@ typedef void (*cio_accept_handler_t)(struct cio_server_socket *server_socket, vo
 /**
  * @brief The type of close hook function.
  *
- * @param ss The cio_linux_server_socket the close hook was called on.
+ * @param server_socket The cio_linux_server_socket the close hook was called on.
  */
 typedef void (*cio_server_socket_close_hook_t)(struct cio_server_socket *server_socket);
 
@@ -95,7 +95,7 @@ struct cio_server_socket {
 /**
  * @brief Initializes a cio_server_socket.
  *
- * @param ss The cio_server_socket that should be initialized.
+ * @param server_socket The cio_server_socket that should be initialized.
  * @param loop The event loop the server socket shall operate on.
  * @param backlog The minimal length of the listen queue.
  * @param family The address family for that socket (either ::CIO_ADDRESS_FAMILY_INET4 or ::CIO_ADDRESS_FAMILY_INET6).
@@ -115,7 +115,7 @@ struct cio_server_socket {
  * the hook could be used to free the memory associated with the server socket.
  * @return ::CIO_SUCCESS for success.
  */
-CIO_EXPORT enum cio_error cio_server_socket_init(struct cio_server_socket *ss,
+CIO_EXPORT enum cio_error cio_server_socket_init(struct cio_server_socket *server_socket,
                                                  struct cio_eventloop *loop,
                                                  unsigned int backlog,
                                                  enum cio_address_family family,
@@ -132,40 +132,40 @@ CIO_EXPORT enum cio_error cio_server_socket_init(struct cio_server_socket *ss,
  * needs to take care of freeing any intermediatly allocated memory, so there is no
  * need to free any resources in @p handler if @p handler is called with err != ::CIO_SUCCESS.
  *
- * @param ss A pointer to a cio_server_socket on which the accept should be performed.
+ * @param server_socket A pointer to a cio_server_socket on which the accept should be performed.
  * @param handler The function to be called if the accept fails or succeeds.
  * @param handler_context The context passed to the @a handler function.
  *
  * @return ::CIO_SUCCESS for success.
  */
-CIO_EXPORT enum cio_error cio_server_socket_accept(struct cio_server_socket *ss, cio_accept_handler_t handler, void *handler_context);
+CIO_EXPORT enum cio_error cio_server_socket_accept(struct cio_server_socket *server_socket, cio_accept_handler_t handler, void *handler_context);
 
 /**
  * @brief Closes the server socket.
  *
- * @param ss A pointer to a cio_server_socket on which the close should be performed.
+ * @param server_socket A pointer to a cio_server_socket on which the close should be performed.
  */
-CIO_EXPORT void cio_server_socket_close(struct cio_server_socket *ss);
+CIO_EXPORT void cio_server_socket_close(struct cio_server_socket *server_socket);
 
 /**
  * @brief Binds the cio_server_socket to a specific address
  *
- * @param ss A pointer to a cio_server_socket on which the bind should be performed.
+ * @param server_socket A pointer to a cio_server_socket on which the bind should be performed.
  * @param endpoint The socket address to bind to.
  *
  * @return ::CIO_SUCCESS for success.
  */
-CIO_EXPORT enum cio_error cio_server_socket_bind(struct cio_server_socket *ss, const struct cio_socket_address *endpoint);
+CIO_EXPORT enum cio_error cio_server_socket_bind(struct cio_server_socket *server_socket, const struct cio_socket_address *endpoint);
 
 /**
  * @brief Sets the SO_REUSEADDR socket option.
  *
- * @param ss A pointer to a cio_server_socket for which the socket option should be set.
+ * @param server_socket A pointer to a cio_server_socket for which the socket option should be set.
  * @param on Whether the socket option should be enabled or disabled.
  *
  * @return ::CIO_SUCCESS for success.
  */
-CIO_EXPORT enum cio_error cio_server_socket_set_reuse_address(const struct cio_server_socket *ss, bool on);
+CIO_EXPORT enum cio_error cio_server_socket_set_reuse_address(const struct cio_server_socket *server_socket, bool on);
 
 /**
  * @brief Enables/disables TCP Fast Open.
@@ -177,11 +177,11 @@ CIO_EXPORT enum cio_error cio_server_socket_set_reuse_address(const struct cio_s
  * <tt>sysctl -w net.ipv4.tcp_fastopen=2</tt> to enable TCP Fast Open for listen sockets and
  * <tt>sysctl -w net.ipv4.tcp_fastopen=3</tt> to enable TCP Fast Open for both client and listen sockets.
  *
- * @param ss The server socket for which TCP Fast Open should be enabled.
+ * @param server_socket The server socket for which TCP Fast Open should be enabled.
  * @param on @p true if TCP Fast Opens should be enabled, @p false if not.
  * @return :: CIO_SUCCESS for success.
  */
-CIO_EXPORT enum cio_error cio_server_socket_set_tcp_fast_open(const struct cio_server_socket *ss, bool on);
+CIO_EXPORT enum cio_error cio_server_socket_set_tcp_fast_open(const struct cio_server_socket *server_socket, bool on);
 
 #ifdef __cplusplus
 }
