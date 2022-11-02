@@ -51,7 +51,7 @@ struct client {
 	uint8_t buffer[BUFFER_SIZE];
 };
 
-static struct client client;
+static struct client client1;
 static struct client client2;
 
 static const char HELLO[] = "Hello";
@@ -209,19 +209,19 @@ int main(void)
 		ret = EXIT_FAILURE;
 		goto close_first_uart;
 	}
-	err = cio_buffered_stream_init(&client.bs, stream);
+	err = cio_buffered_stream_init(&client1.bs, stream);
 	if (cio_unlikely(err != CIO_SUCCESS)) {
 		fprintf(stderr, "failed to init buffered stream!\n");
 		ret = EXIT_FAILURE;
 		goto close_first_uart;
 	}
-	err = cio_read_buffer_init(&client.rb, client.buffer, sizeof(client.buffer));
+	err = cio_read_buffer_init(&client1.rb, client1.buffer, sizeof(client1.buffer));
 	if (cio_unlikely(err != CIO_SUCCESS)) {
 		fprintf(stderr, "failed to init read buffer!\n");
 		ret = EXIT_FAILURE;
 		goto close_first_uart;
 	}
-	err = cio_buffered_stream_read_at_least(&client.bs, &client.rb, sizeof(HELLO), client_handle_read, &client);
+	err = cio_buffered_stream_read_at_least(&client1.bs, &client1.rb, sizeof(HELLO), client_handle_read, &client1);
 	if (cio_unlikely(err != CIO_SUCCESS)) {
 		fprintf(stderr, "server could no start reading!\n");
 		ret = EXIT_FAILURE;

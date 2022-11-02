@@ -46,7 +46,7 @@
 #endif
 
 static struct cio_eventloop loop;
-static struct cio_http_server server;
+static struct cio_http_server http_server;
 
 enum { READ_BUFFER_SIZE = 2000 };
 enum { HTTPSERVER_LISTEN_PORT = 8080 };
@@ -282,7 +282,7 @@ static void http_server_closed(const struct cio_http_server *server)
 static void sighandler(int signum)
 {
 	(void)signum;
-	cio_http_server_shutdown(&server, http_server_closed);
+	cio_http_server_shutdown(&http_server, http_server_closed);
 }
 
 static void serve_error(struct cio_http_server *server, const char *reason)
@@ -324,7 +324,7 @@ int main(void)
 		goto destroy_loop;
 	}
 
-	err = cio_http_server_init(&server, &loop, &config);
+	err = cio_http_server_init(&http_server, &loop, &config);
 	if (err != CIO_SUCCESS) {
 		ret = EXIT_FAILURE;
 		goto destroy_loop;
@@ -332,9 +332,9 @@ int main(void)
 
 	struct cio_http_location target_foo;
 	cio_http_location_init(&target_foo, "/ws", NULL, alloc_websocket_handler);
-	cio_http_server_register_location(&server, &target_foo);
+	cio_http_server_register_location(&http_server, &target_foo);
 
-	err = cio_http_server_serve(&server);
+	err = cio_http_server_serve(&http_server);
 	if (err != CIO_SUCCESS) {
 		ret = EXIT_FAILURE;
 		goto destroy_loop;
