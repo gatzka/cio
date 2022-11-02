@@ -37,7 +37,7 @@ const void *cio_memmem(const void *haystack, size_t haystacklen, const void *nee
 	return memmem(haystack, haystacklen, needle, needlelen);
 }
 
-int cio_strncasecmp(const char *s1, const char *s2, size_t n)
+int cio_strncasecmp(const char *string1, const char *string2, size_t max_number_of_bytes)
 {
-	return strncasecmp(s1, s2, n);
+	return strncasecmp(string1, string2, max_number_of_bytes);
 }
