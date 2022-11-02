@@ -102,9 +102,9 @@ Functions</h2></td></tr>
 <tr class="memitem:aff1d40aab13e8109a5b13b5daf6bbb60"><td class="memItemLeft" align="right" valign="top">const void *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="string_8h.html#aff1d40aab13e8109a5b13b5daf6bbb60">cio_memmem</a> (const void *haystack, size_t haystacklen, const void *needle, size_t needlelen)</td></tr>
 <tr class="memdesc:aff1d40aab13e8109a5b13b5daf6bbb60"><td class="mdescLeft">&#160;</td><td class="mdescRight">Finds the start of the first occurence of <code>needle</code> in <code>haystack</code>.  <a href="string_8h.html#aff1d40aab13e8109a5b13b5daf6bbb60">More...</a><br /></td></tr>
 <tr class="separator:aff1d40aab13e8109a5b13b5daf6bbb60"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aaf7d79996ced7b024dd2ae714d07befa"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="string_8h.html#aaf7d79996ced7b024dd2ae714d07befa">cio_strncasecmp</a> (const char *s1, const char *s2, size_t n)</td></tr>
-<tr class="memdesc:aaf7d79996ced7b024dd2ae714d07befa"><td class="mdescLeft">&#160;</td><td class="mdescRight">Compare two strings ignoring case.  <a href="string_8h.html#aaf7d79996ced7b024dd2ae714d07befa">More...</a><br /></td></tr>
-<tr class="separator:aaf7d79996ced7b024dd2ae714d07befa"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a95d26986894b113df1b26a73a0229c68"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="string_8h.html#a95d26986894b113df1b26a73a0229c68">cio_strncasecmp</a> (const char *string1, const char *string2, size_t max_number_of_bytes)</td></tr>
+<tr class="memdesc:a95d26986894b113df1b26a73a0229c68"><td class="mdescLeft">&#160;</td><td class="mdescRight">Compare two strings ignoring case.  <a href="string_8h.html#a95d26986894b113df1b26a73a0229c68">More...</a><br /></td></tr>
+<tr class="separator:a95d26986894b113df1b26a73a0229c68"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Wrapper functions for non-ANSI-C conformant string functions. </p>
@@ -161,8 +161,8 @@ Functions</h2></td></tr>
 
 </div>
 </div>
-<a id="aaf7d79996ced7b024dd2ae714d07befa"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#aaf7d79996ced7b024dd2ae714d07befa">&#9670;&nbsp;</a></span>cio_strncasecmp()</h2>
+<a id="a95d26986894b113df1b26a73a0229c68"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a95d26986894b113df1b26a73a0229c68">&#9670;&nbsp;</a></span>cio_strncasecmp()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -171,19 +171,19 @@ Functions</h2></td></tr>
           <td class="memname">int cio_strncasecmp </td>
           <td>(</td>
           <td class="paramtype">const char *&#160;</td>
-          <td class="paramname"><em>s1</em>, </td>
+          <td class="paramname"><em>string1</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype">const char *&#160;</td>
-          <td class="paramname"><em>s2</em>, </td>
+          <td class="paramname"><em>string2</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype">size_t&#160;</td>
-          <td class="paramname"><em>n</em>&#160;</td>
+          <td class="paramname"><em>max_number_of_bytes</em>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -196,13 +196,13 @@ Functions</h2></td></tr>
 <p>Compare two strings ignoring case. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">s1</td><td>First string to compare. </td></tr>
-    <tr><td class="paramname">s2</td><td>Second string to compare. </td></tr>
-    <tr><td class="paramname">n</td><td>Maximum number of bytes to be compared. </td></tr>
+    <tr><td class="paramname">string1</td><td>First string to compare. </td></tr>
+    <tr><td class="paramname">string2</td><td>Second string to compare. </td></tr>
+    <tr><td class="paramname">max_number_of_bytes</td><td>Maximum number of bytes to be compared. </td></tr>
   </table>
   </dd>
 </dl>
-<dl class="section return"><dt>Returns</dt><dd>an integer less than, equal to, or greater than zero if <code>s1</code> is, after ignoring case, found to be less than, to match, or be greater than <code>s2</code>, respectively </dd></dl>
+<dl class="section return"><dt>Returns</dt><dd>an integer less than, equal to, or greater than zero if <code>string1</code> is, after ignoring case, found to be less than, to match, or be greater than <code>string2</code>, respectively </dd></dl>
 
 </div>
 </div>

@@ -65,7 +65,7 @@ var searchData=
   ['cio_5fsocket_5fset_5fkeep_5falive_589',['cio_socket_set_keep_alive',['../socket_8h.html#ad87f1483b3b3af6ee563b1084898d9e3',1,'socket.h']]],
   ['cio_5fsocket_5fset_5ftcp_5ffast_5fopen_590',['cio_socket_set_tcp_fast_open',['../socket_8h.html#ae6f686bac511715ba223801f79692e47',1,'socket.h']]],
   ['cio_5fsocket_5fset_5ftcp_5fno_5fdelay_591',['cio_socket_set_tcp_no_delay',['../socket_8h.html#a2ae48f513526c905da00fe4c0c2fbcd1',1,'socket.h']]],
-  ['cio_5fstrncasecmp_592',['cio_strncasecmp',['../string_8h.html#aaf7d79996ced7b024dd2ae714d07befa',1,'string.h']]],
+  ['cio_5fstrncasecmp_592',['cio_strncasecmp',['../string_8h.html#a95d26986894b113df1b26a73a0229c68',1,'string.h']]],
   ['cio_5ftimer_5fcancel_593',['cio_timer_cancel',['../timer_8h.html#af99bf937ea66562fc1ad7bd5d09c3efc',1,'timer.h']]],
   ['cio_5ftimer_5fclose_594',['cio_timer_close',['../timer_8h.html#a9f797fc9bbc10e3edc51323d2b5e15f6',1,'timer.h']]],
   ['cio_5ftimer_5fexpires_5ffrom_5fnow_595',['cio_timer_expires_from_now',['../timer_8h.html#a35a1cc8f9fa11c6e2e2656a90cc2fb74',1,'timer.h']]],
