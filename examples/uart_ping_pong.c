@@ -210,6 +210,7 @@ static enum cio_error setup_client(struct client *client, struct cio_io_stream *
 
 	return CIO_SUCCESS;
 }
+
 int main(void)
 {
 	int ret = EXIT_SUCCESS;
