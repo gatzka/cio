@@ -163,14 +163,14 @@ static enum cio_bs_state internal_read_at_least(struct cio_buffered_stream *buff
 	return CIO_BS_AGAIN;
 }
 
-static inline bool buffer_partially_written(const struct cio_write_buffer *wb, size_t bytes_transferred)
+static inline bool buffer_partially_written(const struct cio_write_buffer *write_buffer, size_t bytes_transferred)
 {
-	return wb->data.element.length > bytes_transferred;
+	return write_buffer->data.element.length > bytes_transferred;
 }
 
-static inline bool buffer_is_temp_buffer(const struct cio_buffered_stream *buffered_stream, const struct cio_write_buffer *wb)
+static inline bool buffer_is_temp_buffer(const struct cio_buffered_stream *buffered_stream, const struct cio_write_buffer *write_buffer)
 {
-	return &buffered_stream->wb == wb;
+	return &buffered_stream->write_buffer == write_buffer;
 }
 
 static void handle_write(struct cio_io_stream *io_stream, void *handler_context, struct cio_write_buffer *buffer, enum cio_error err, size_t bytes_transferred)
@@ -180,9 +180,9 @@ static void handle_write(struct cio_io_stream *io_stream, void *handler_context,
 	struct cio_buffered_stream *buffered_stream = handler_context;
 	if (cio_unlikely(err != CIO_SUCCESS)) {
 		while (!cio_write_buffer_queue_empty(&buffered_stream->wbh)) {
-			struct cio_write_buffer *wb = cio_write_buffer_queue_dequeue(&buffered_stream->wbh);
-			if (!buffer_is_temp_buffer(buffered_stream, wb)) {
-				cio_write_buffer_queue_tail(buffered_stream->original_wbh, wb);
+			struct cio_write_buffer *write_buffer = cio_write_buffer_queue_dequeue(&buffered_stream->wbh);
+			if (!buffer_is_temp_buffer(buffered_stream, write_buffer)) {
+				cio_write_buffer_queue_tail(buffered_stream->original_wbh, write_buffer);
 			}
 		}
 
@@ -191,22 +191,22 @@ static void handle_write(struct cio_io_stream *io_stream, void *handler_context,
 	}
 
 	while (!cio_write_buffer_queue_empty(&buffered_stream->wbh)) {
-		struct cio_write_buffer *wb = cio_write_buffer_queue_dequeue(&buffered_stream->wbh);
-		if (buffer_partially_written(wb, bytes_transferred)) {
-			if (!buffer_is_temp_buffer(buffered_stream, wb)) {
-				cio_write_buffer_queue_tail(buffered_stream->original_wbh, wb);
+		struct cio_write_buffer *write_buffer = cio_write_buffer_queue_dequeue(&buffered_stream->wbh);
+		if (buffer_partially_written(write_buffer, bytes_transferred)) {
+			if (!buffer_is_temp_buffer(buffered_stream, write_buffer)) {
+				cio_write_buffer_queue_tail(buffered_stream->original_wbh, write_buffer);
 			}
 
-			const void *new_data = &((const uint8_t *)wb->data.element.const_data)[bytes_transferred];
-			size_t new_length = wb->data.element.length - bytes_transferred;
-			cio_write_buffer_const_element_init(&buffered_stream->wb, new_data, new_length);
-			cio_write_buffer_queue_head(&buffered_stream->wbh, &buffered_stream->wb);
+			const void *new_data = &((const uint8_t *)write_buffer->data.element.const_data)[bytes_transferred];
+			size_t new_length = write_buffer->data.element.length - bytes_transferred;
+			cio_write_buffer_const_element_init(&buffered_stream->write_buffer, new_data, new_length);
+			cio_write_buffer_queue_head(&buffered_stream->wbh, &buffered_stream->write_buffer);
 			break;
 		}
 
-		bytes_transferred -= wb->data.element.length;
-		if (!buffer_is_temp_buffer(buffered_stream, wb)) {
-			cio_write_buffer_queue_tail(buffered_stream->original_wbh, wb);
+		bytes_transferred -= write_buffer->data.element.length;
+		if (!buffer_is_temp_buffer(buffered_stream, write_buffer)) {
+			cio_write_buffer_queue_tail(buffered_stream->original_wbh, write_buffer);
 		}
 	}
 
@@ -233,8 +233,8 @@ static void handle_partial_writes(struct cio_buffered_stream *buffered_stream, s
 
 	const void *new_data = &((const uint8_t *)buffer->data.element.const_data)[bytes_transferred];
 	size_t new_length = buffer->data.element.length - bytes_transferred;
-	cio_write_buffer_const_element_init(&buffered_stream->wb, new_data, new_length);
-	cio_write_buffer_queue_head(&buffered_stream->wbh, &buffered_stream->wb);
+	cio_write_buffer_const_element_init(&buffered_stream->write_buffer, new_data, new_length);
+	cio_write_buffer_queue_head(&buffered_stream->wbh, &buffered_stream->write_buffer);
 
 	cio_write_buffer_split_and_append(&buffered_stream->wbh, buffered_stream->original_wbh, buffer->next);
 

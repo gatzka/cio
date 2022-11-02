@@ -392,10 +392,10 @@ static int on_headers_complete(http_parser *parser)
 	return 0;
 }
 
-static int data_callback(struct cio_http_client *client, const char *at, size_t length, cio_http_data_cb_t cb)
+static int data_callback(struct cio_http_client *client, const char *at, size_t length, cio_http_data_cb_t handler)
 {
-	if ((!client->http_private.response_fired) && cb) {
-		return cb(client, at, length);
+	if ((!client->http_private.response_fired) && handler) {
+		return handler(client, at, length);
 	}
 
 	return CIO_HTTP_CB_SUCCESS;
@@ -451,18 +451,18 @@ static int on_body(http_parser *parser, const char *at, size_t length)
 	return 0;
 }
 
-static enum cio_http_cb_return call_url_parts_callback(const struct http_parser_url *u, enum http_parser_url_fields url_field, cio_http_data_cb_t callback, struct cio_http_client *client, const char *at)
+static enum cio_http_cb_return call_url_parts_callback(const struct http_parser_url *url, enum http_parser_url_fields url_field, cio_http_data_cb_t callback, struct cio_http_client *client, const char *at)
 {
-	if ((u->field_set & (1U << url_field)) == (1U << url_field)) {
-		return data_callback(client, at + u->field_data[url_field].off, u->field_data[url_field].len, callback);
+	if ((url->field_set & (1U << url_field)) == (1U << url_field)) {
+		return data_callback(client, at + url->field_data[url_field].off, url->field_data[url_field].len, callback);
 	}
 
 	return CIO_HTTP_CB_SUCCESS;
 }
 
-static bool path_in_url(const struct http_parser_url *u)
+static bool path_in_url(const struct http_parser_url *url)
 {
-	return ((u->field_set & (1U << (unsigned int)UF_PATH)) == (1U << (unsigned int)UF_PATH));
+	return ((url->field_set & (1U << (unsigned int)UF_PATH)) == (1U << (unsigned int)UF_PATH));
 }
 
 static int on_url(http_parser *parser, const char *at, size_t length)
@@ -477,18 +477,18 @@ static int on_url(http_parser *parser, const char *at, size_t length)
 	client->parser_settings.on_body = on_body;
 	client->parser_settings.on_message_complete = on_message_complete;
 
-	struct http_parser_url u;
-	http_parser_url_init(&u);
-	int ret = http_parser_parse_url(at, length, cio_unlikely(parser->method == (unsigned int)HTTP_CONNECT) ? 1 : 0, &u);
+	struct http_parser_url url;
+	http_parser_url_init(&url);
+	int ret = http_parser_parse_url(at, length, cio_unlikely(parser->method == (unsigned int)HTTP_CONNECT) ? 1 : 0, &url);
 	if (cio_unlikely(ret != 0)) {
 		return -1;
 	}
 
-	if (cio_unlikely(!path_in_url(&u))) {
+	if (cio_unlikely(!path_in_url(&url))) {
 		return -1;
 	}
 
-	const struct cio_http_location *location = find_location(parser->data, at + u.field_data[UF_PATH].off, u.field_data[UF_PATH].len);
+	const struct cio_http_location *location = find_location(parser->data, at + url.field_data[UF_PATH].off, url.field_data[UF_PATH].len);
 	if (cio_unlikely(location == NULL)) {
 		client->parser_settings.on_header_field = NULL;
 		client->parser_settings.on_header_value = NULL;
@@ -514,32 +514,32 @@ static int on_url(http_parser *parser, const char *at, size_t length)
 		return 0;
 	}
 
-	enum cio_http_cb_return cb_ret = call_url_parts_callback(&u, UF_SCHEMA, handler->on_schema, client, at);
+	enum cio_http_cb_return cb_ret = call_url_parts_callback(&url, UF_SCHEMA, handler->on_schema, client, at);
 	if (cio_unlikely(cb_ret == CIO_HTTP_CB_ERROR)) {
 		return -1;
 	}
 
-	cb_ret = call_url_parts_callback(&u, UF_HOST, handler->on_host, client, at);
+	cb_ret = call_url_parts_callback(&url, UF_HOST, handler->on_host, client, at);
 	if (cio_unlikely(cb_ret == CIO_HTTP_CB_ERROR)) {
 		return -1;
 	}
 
-	cb_ret = call_url_parts_callback(&u, UF_PORT, handler->on_port, client, at);
+	cb_ret = call_url_parts_callback(&url, UF_PORT, handler->on_port, client, at);
 	if (cio_unlikely(cb_ret == CIO_HTTP_CB_ERROR)) {
 		return -1;
 	}
 
-	cb_ret = call_url_parts_callback(&u, UF_PATH, handler->on_path, client, at);
+	cb_ret = call_url_parts_callback(&url, UF_PATH, handler->on_path, client, at);
 	if (cio_unlikely(cb_ret == CIO_HTTP_CB_ERROR)) {
 		return -1;
 	}
 
-	cb_ret = call_url_parts_callback(&u, UF_QUERY, handler->on_query, client, at);
+	cb_ret = call_url_parts_callback(&url, UF_QUERY, handler->on_query, client, at);
 	if (cio_unlikely(cb_ret == CIO_HTTP_CB_ERROR)) {
 		return -1;
 	}
 
-	cb_ret = call_url_parts_callback(&u, UF_FRAGMENT, handler->on_fragment, client, at);
+	cb_ret = call_url_parts_callback(&url, UF_FRAGMENT, handler->on_fragment, client, at);
 	if (cio_unlikely(cb_ret == CIO_HTTP_CB_ERROR)) {
 		return -1;
 	}
@@ -629,9 +629,9 @@ static void finish_request_line(struct cio_http_client *client)
 	}
 }
 
-static void handle_accept(struct cio_server_socket *ss, void *handler_context, enum cio_error err, struct cio_socket *socket)
+static void handle_accept(struct cio_server_socket *server_socket, void *handler_context, enum cio_error err, struct cio_socket *socket)
 {
-	(void)ss;
+	(void)server_socket;
 
 	struct cio_http_server *server = (struct cio_http_server *)handler_context;
 	struct cio_io_stream *stream = cio_socket_get_io_stream(socket);
@@ -719,9 +719,9 @@ response_timer_init_err:
 	notify_free_handler_and_close_stream(client);
 }
 
-static void server_socket_closed(struct cio_server_socket *ss)
+static void server_socket_closed(struct cio_server_socket *server_socket)
 {
-	const struct cio_http_server *server = cio_container_of(ss, struct cio_http_server, server_socket);
+	const struct cio_http_server *server = cio_container_of(server_socket, struct cio_http_server, server_socket);
 	if (server->close_hook != NULL) {
 		server->close_hook(server);
 	}

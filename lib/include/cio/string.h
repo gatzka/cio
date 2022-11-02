@@ -54,13 +54,13 @@ CIO_EXPORT const void *cio_memmem(const void *haystack, size_t haystacklen, cons
 
 /**
  * @brief Compare two strings ignoring case.
- * @param s1 First string to compare.
- * @param s2 Second string to compare.
- * @param n Maximum number of bytes to be compared.
- * @return an integer less than, equal to, or greater than zero if @p s1 is, after ignoring case,
- * found to be less than, to match, or be greater than @p s2, respectively
+ * @param string1 First string to compare.
+ * @param string2 Second string to compare.
+ * @param max_number_of_bytes Maximum number of bytes to be compared.
+ * @return an integer less than, equal to, or greater than zero if @p string1 is, after ignoring case,
+ * found to be less than, to match, or be greater than @p string2, respectively
  */
-CIO_EXPORT int cio_strncasecmp(const char *s1, const char *s2, size_t n);
+CIO_EXPORT int cio_strncasecmp(const char *string1, const char *string2, size_t max_number_of_bytes);
 
 #ifdef __cplusplus
 }

@@ -126,7 +126,7 @@ struct cio_buffered_stream {
 
 	struct cio_write_buffer *original_wbh;
 	struct cio_write_buffer wbh;
-	struct cio_write_buffer wb;
+	struct cio_write_buffer write_buffer;
 
 	enum cio_error last_error;
 	unsigned int callback_is_running;
