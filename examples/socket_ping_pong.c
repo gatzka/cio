@@ -98,9 +98,9 @@ static void sighandler(int signum)
 	cio_eventloop_cancel(&loop);
 }
 
-static void server_handle_read(struct cio_buffered_stream *bs, void *handler_context, enum cio_error err, struct cio_read_buffer *read_buffer, size_t num_bytes);
+static void server_handle_read(struct cio_buffered_stream *buffered_stream, void *handler_context, enum cio_error err, struct cio_read_buffer *read_buffer, size_t num_bytes);
 
-static void server_handle_write(struct cio_buffered_stream *bs, void *handler_context, enum cio_error err)
+static void server_handle_write(struct cio_buffered_stream *buffered_stream, void *handler_context, enum cio_error err)
 {
 	struct echo_client *client = handler_context;
 
@@ -111,26 +111,26 @@ static void server_handle_write(struct cio_buffered_stream *bs, void *handler_co
 
 	cio_read_buffer_consume(&client->rb, client->bytes_read);
 
-	err = cio_buffered_stream_read_at_least(bs, &client->rb, sizeof(HELLO), server_handle_read, client);
+	err = cio_buffered_stream_read_at_least(buffered_stream, &client->rb, sizeof(HELLO), server_handle_read, client);
 	if (cio_unlikely(err != CIO_SUCCESS)) {
 		fprintf(stderr, "server could no start reading!\n");
 		return;
 	}
 }
 
-static void server_handle_read(struct cio_buffered_stream *bs, void *handler_context, enum cio_error err, struct cio_read_buffer *read_buffer, size_t num_bytes)
+static void server_handle_read(struct cio_buffered_stream *buffered_stream, void *handler_context, enum cio_error err, struct cio_read_buffer *read_buffer, size_t num_bytes)
 {
 	struct echo_client *client = handler_context;
 
 	if (cio_unlikely(err == CIO_EOF)) {
 		fprintf(stdout, "connection closed by client peer\n");
-		cio_buffered_stream_close(bs);
+		cio_buffered_stream_close(buffered_stream);
 		return;
 	}
 
 	if (cio_unlikely(err != CIO_SUCCESS)) {
 		fprintf(stderr, "read error!\n");
-		cio_buffered_stream_close(bs);
+		cio_buffered_stream_close(buffered_stream);
 		return;
 	}
 
@@ -138,10 +138,10 @@ static void server_handle_read(struct cio_buffered_stream *bs, void *handler_con
 	cio_write_buffer_head_init(&client->wbh);
 	cio_write_buffer_element_init(&client->wb, cio_read_buffer_get_read_ptr(read_buffer), num_bytes);
 	cio_write_buffer_queue_tail(&client->wbh, &client->wb);
-	cio_buffered_stream_write(bs, &client->wbh, server_handle_write, client);
+	cio_buffered_stream_write(buffered_stream, &client->wbh, server_handle_write, client);
 }
 
-static void handle_accept(struct cio_server_socket *ss, void *handler_context, enum cio_error err, struct cio_socket *socket)
+static void handle_accept(struct cio_server_socket *server_socket, void *handler_context, enum cio_error err, struct cio_socket *socket)
 {
 	(void)handler_context;
 
@@ -160,14 +160,14 @@ static void handle_accept(struct cio_server_socket *ss, void *handler_context, e
 
 	struct cio_io_stream *stream = cio_socket_get_io_stream(socket);
 
-	struct cio_buffered_stream *bs = &client->buffered_stream;
-	err = cio_buffered_stream_init(bs, stream);
+	struct cio_buffered_stream *buffered_stream = &client->buffered_stream;
+	err = cio_buffered_stream_init(buffered_stream, stream);
 	if (cio_unlikely(err != CIO_SUCCESS)) {
 		fprintf(stderr, "failed to init buffered stream!\n");
 		goto error;
 	}
 
-	err = cio_buffered_stream_read_at_least(bs, &client->rb, sizeof(HELLO), server_handle_read, client);
+	err = cio_buffered_stream_read_at_least(buffered_stream, &client->rb, sizeof(HELLO), server_handle_read, client);
 	if (cio_unlikely(err != CIO_SUCCESS)) {
 		fprintf(stderr, "server could no start reading!\n");
 		goto error;
@@ -176,25 +176,25 @@ static void handle_accept(struct cio_server_socket *ss, void *handler_context, e
 	return;
 
 error:
-	cio_server_socket_close(ss);
-	cio_eventloop_cancel(ss->impl.loop);
+	cio_server_socket_close(server_socket);
+	cio_eventloop_cancel(server_socket->impl.loop);
 }
 
-static void client_handle_write(struct cio_buffered_stream *bs, void *handler_context, enum cio_error err);
+static void client_handle_write(struct cio_buffered_stream *buffered_stream, void *handler_context, enum cio_error err);
 
-static void client_handle_read(struct cio_buffered_stream *bs, void *handler_context, enum cio_error err, struct cio_read_buffer *read_buffer, size_t num_bytes)
+static void client_handle_read(struct cio_buffered_stream *buffered_stream, void *handler_context, enum cio_error err, struct cio_read_buffer *read_buffer, size_t num_bytes)
 {
 	struct client *client = handler_context;
 
 	if (cio_unlikely(err == CIO_EOF)) {
 		fprintf(stdout, "connection closed by server peer\n");
-		cio_buffered_stream_close(bs);
+		cio_buffered_stream_close(buffered_stream);
 		return;
 	}
 
 	if (cio_unlikely(err != CIO_SUCCESS)) {
 		fprintf(stderr, "read error!\n");
-		cio_buffered_stream_close(bs);
+		cio_buffered_stream_close(buffered_stream);
 		return;
 	}
 
@@ -204,27 +204,27 @@ static void client_handle_read(struct cio_buffered_stream *bs, void *handler_con
 		cio_write_buffer_head_init(&client->wbh);
 		cio_write_buffer_element_init(&client->wb, cio_read_buffer_get_read_ptr(read_buffer), num_bytes);
 		cio_write_buffer_queue_tail(&client->wbh, &client->wb);
-		cio_buffered_stream_write(bs, &client->wbh, client_handle_write, client);
+		cio_buffered_stream_write(buffered_stream, &client->wbh, client_handle_write, client);
 	} else {
 		fprintf(stdout, "Clients closes socket\n");
-		cio_buffered_stream_close(bs);
+		cio_buffered_stream_close(buffered_stream);
 	}
 }
 
-static void client_handle_write(struct cio_buffered_stream *bs, void *handler_context, enum cio_error err)
+static void client_handle_write(struct cio_buffered_stream *buffered_stream, void *handler_context, enum cio_error err)
 {
 	if (cio_unlikely(err != CIO_SUCCESS)) {
 		fprintf(stderr, "client write failed!\n");
-		cio_buffered_stream_close(bs);
+		cio_buffered_stream_close(buffered_stream);
 		return;
 	}
 
 	struct client *client = (struct client *)handler_context;
 	cio_read_buffer_consume(&client->rb, client->bytes_read);
-	err = cio_buffered_stream_read_at_least(bs, &client->rb, sizeof(HELLO), client_handle_read, client);
+	err = cio_buffered_stream_read_at_least(buffered_stream, &client->rb, sizeof(HELLO), client_handle_read, client);
 	if (cio_unlikely(err != CIO_SUCCESS)) {
 		fprintf(stderr, "client could no start reading!\n");
-		cio_buffered_stream_close(bs);
+		cio_buffered_stream_close(buffered_stream);
 	}
 }
 
@@ -245,13 +245,13 @@ static void handle_connect(struct cio_socket *socket, void *handler_context, enu
 
 	struct client *client = (struct client *)handler_context;
 	cio_read_buffer_init(&client->rb, client->buffer, sizeof(client->buffer));
-	struct cio_buffered_stream *bs = &client->buffered_stream;
-	cio_buffered_stream_init(bs, cio_socket_get_io_stream(socket));
+	struct cio_buffered_stream *buffered_stream = &client->buffered_stream;
+	cio_buffered_stream_init(buffered_stream, cio_socket_get_io_stream(socket));
 
 	cio_write_buffer_head_init(&client->wbh);
 	cio_write_buffer_const_element_init(&client->wb, HELLO, sizeof(HELLO));
 	cio_write_buffer_queue_tail(&client->wbh, &client->wb);
-	err = cio_buffered_stream_write(bs, &client->wbh, client_handle_write, client);
+	err = cio_buffered_stream_write(buffered_stream, &client->wbh, client_handle_write, client);
 
 	if (cio_unlikely(err != CIO_SUCCESS)) {
 		fprintf(stderr, "client write failed!\n");
@@ -265,33 +265,33 @@ static void usage(const char *name)
 	fprintf(stderr, "Usage: %s <number of messages to be exchanged>\n", name);
 }
 
-static enum cio_error init_server(struct cio_server_socket *ss, const struct cio_socket_address *endpoint)
+static enum cio_error init_server(struct cio_server_socket *server_socket, const struct cio_socket_address *endpoint)
 {
-	enum cio_error err = cio_server_socket_init(ss, &loop, SERVERSOCKET_BACKLOG, cio_socket_address_get_family(endpoint), alloc_echo_client, free_echo_client, CLOSE_TIMEOUT_NS, NULL);
+	enum cio_error err = cio_server_socket_init(server_socket, &loop, SERVERSOCKET_BACKLOG, cio_socket_address_get_family(endpoint), alloc_echo_client, free_echo_client, CLOSE_TIMEOUT_NS, NULL);
 	if (cio_unlikely(err != CIO_SUCCESS)) {
 		fprintf(stderr, "could not init server socket!\n");
 		return err;
 	}
 
-	err = cio_server_socket_set_tcp_fast_open(ss, true);
+	err = cio_server_socket_set_tcp_fast_open(server_socket, true);
 	if (cio_unlikely(err != CIO_SUCCESS)) {
 		fprintf(stderr, "could not set TCP FASTOPEN for server socket!\n");
 		goto close_server_socket;
 	}
 
-	err = cio_server_socket_set_reuse_address(ss, true);
+	err = cio_server_socket_set_reuse_address(server_socket, true);
 	if (cio_unlikely(err != CIO_SUCCESS)) {
 		fprintf(stderr, "could not set reuse_address for server socket!\n");
 		goto close_server_socket;
 	}
 
-	err = cio_server_socket_bind(ss, endpoint);
+	err = cio_server_socket_bind(server_socket, endpoint);
 	if (cio_unlikely(err != CIO_SUCCESS)) {
 		fprintf(stderr, "could not bind server socket!\n");
 		goto close_server_socket;
 	}
 
-	err = cio_server_socket_accept(ss, handle_accept, NULL);
+	err = cio_server_socket_accept(server_socket, handle_accept, NULL);
 	if (cio_unlikely(err != CIO_SUCCESS)) {
 		fprintf(stderr, "could not run accept on server socket!\n");
 		goto close_server_socket;
@@ -300,7 +300,7 @@ static enum cio_error init_server(struct cio_server_socket *ss, const struct cio
 	return CIO_SUCCESS;
 
 close_server_socket:
-	cio_server_socket_close(ss);
+	cio_server_socket_close(server_socket);
 	return err;
 }
 
@@ -383,8 +383,8 @@ int main(int argc, char *argv[])
 		return EXIT_FAILURE;
 	}
 
-	struct cio_server_socket ss;
-	err = init_server(&ss, &endpoint);
+	struct cio_server_socket server_socket;
+	err = init_server(&server_socket, &endpoint);
 	if (cio_unlikely(err != CIO_SUCCESS)) {
 		goto destroy_loop;
 	}
@@ -405,7 +405,7 @@ int main(int argc, char *argv[])
 	}
 
 close_server_socket:
-	cio_server_socket_close(&ss);
+	cio_server_socket_close(&server_socket);
 destroy_loop:
 	cio_eventloop_destroy(&loop);
 	return ret;

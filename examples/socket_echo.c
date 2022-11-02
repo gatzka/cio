@@ -85,9 +85,9 @@ static void sighandler(int signum)
 
 static void handle_read(struct cio_io_stream *stream, void *handler_context, enum cio_error err, struct cio_read_buffer *read_buffer);
 
-static void handle_write(struct cio_buffered_stream *bs, void *handler_context, enum cio_error err)
+static void handle_write(struct cio_buffered_stream *buffered_stream, void *handler_context, enum cio_error err)
 {
-	(void)bs;
+	(void)buffered_stream;
 	struct echo_client *client = handler_context;
 
 	if (err != CIO_SUCCESS) {
@@ -122,7 +122,7 @@ static void handle_read(struct cio_io_stream *stream, void *handler_context, enu
 	cio_buffered_stream_write(&client->buffered_stream, &client->wbh, handle_write, client);
 }
 
-static void handle_accept(struct cio_server_socket *ss, void *handler_context, enum cio_error err, struct cio_socket *socket)
+static void handle_accept(struct cio_server_socket *server_socket, void *handler_context, enum cio_error err, struct cio_socket *socket)
 {
 	(void)handler_context;
 
@@ -130,8 +130,8 @@ static void handle_accept(struct cio_server_socket *ss, void *handler_context, e
 
 	if (err != CIO_SUCCESS) {
 		fprintf(stderr, "accept error!\n");
-		cio_server_socket_close(ss);
-		cio_eventloop_cancel(ss->impl.loop);
+		cio_server_socket_close(server_socket);
+		cio_eventloop_cancel(server_socket->impl.loop);
 		return;
 	}
 
@@ -139,8 +139,8 @@ static void handle_accept(struct cio_server_socket *ss, void *handler_context, e
 	err = cio_buffered_stream_init(&client->buffered_stream, stream);
 	if (err != CIO_SUCCESS) {
 		fprintf(stderr, "could not init buffered stream!\n");
-		cio_server_socket_close(ss);
-		cio_eventloop_cancel(ss->impl.loop);
+		cio_server_socket_close(server_socket);
+		cio_eventloop_cancel(server_socket->impl.loop);
 		return;
 	}
 
@@ -170,33 +170,33 @@ int main(void)
 		return EXIT_FAILURE;
 	}
 
-	struct cio_server_socket ss;
-	err = cio_server_socket_init(&ss, &loop, SERVERSOCKET_BACKLOG, cio_socket_address_get_family(&endpoint), alloc_echo_client, free_echo_client, CLOSE_TIMEOUT_NS, NULL);
+	struct cio_server_socket server_socket;
+	err = cio_server_socket_init(&server_socket, &loop, SERVERSOCKET_BACKLOG, cio_socket_address_get_family(&endpoint), alloc_echo_client, free_echo_client, CLOSE_TIMEOUT_NS, NULL);
 	if (err != CIO_SUCCESS) {
 		ret = EXIT_FAILURE;
 		goto destroy_loop;
 	}
 
-	err = cio_server_socket_set_tcp_fast_open(&ss, true);
+	err = cio_server_socket_set_tcp_fast_open(&server_socket, true);
 	if (cio_unlikely(err != CIO_SUCCESS)) {
 		fprintf(stderr, "could not set TCP FASTOPEN for server socket!\n");
 		ret = EXIT_FAILURE;
 		goto close_socket;
 	}
 
-	err = cio_server_socket_set_reuse_address(&ss, true);
+	err = cio_server_socket_set_reuse_address(&server_socket, true);
 	if (err != CIO_SUCCESS) {
 		ret = EXIT_FAILURE;
 		goto close_socket;
 	}
 
-	err = cio_server_socket_bind(&ss, &endpoint);
+	err = cio_server_socket_bind(&server_socket, &endpoint);
 	if (err != CIO_SUCCESS) {
 		ret = EXIT_FAILURE;
 		goto close_socket;
 	}
 
-	err = cio_server_socket_accept(&ss, handle_accept, NULL);
+	err = cio_server_socket_accept(&server_socket, handle_accept, NULL);
 	if (err != CIO_SUCCESS) {
 		ret = EXIT_FAILURE;
 		goto close_socket;
@@ -208,7 +208,7 @@ int main(void)
 	}
 
 close_socket:
-	cio_server_socket_close(&ss);
+	cio_server_socket_close(&server_socket);
 destroy_loop:
 	cio_eventloop_destroy(&loop);
 	return ret;

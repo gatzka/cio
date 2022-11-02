@@ -64,11 +64,11 @@ static void sighandler(int signum)
 	cio_eventloop_cancel(&loop);
 }
 
-static void client_handle_read(struct cio_buffered_stream *bs, void *handler_context, enum cio_error err, struct cio_read_buffer *read_buffer, size_t num_bytes);
+static void client_handle_read(struct cio_buffered_stream *buffered_stream, void *handler_context, enum cio_error err, struct cio_read_buffer *read_buffer, size_t num_bytes);
 
-static void client_handle_write(struct cio_buffered_stream *bs, void *handler_context, enum cio_error err)
+static void client_handle_write(struct cio_buffered_stream *buffered_stream, void *handler_context, enum cio_error err)
 {
-	struct client *c = handler_context;
+	struct client *client = handler_context;
 
 	if (cio_unlikely(err != CIO_SUCCESS)) {
 		fprintf(stderr, "client failed to write!\n");
@@ -77,28 +77,28 @@ static void client_handle_write(struct cio_buffered_stream *bs, void *handler_co
 
 	fprintf(stdout, "Client wrote data, now receiving...\n");
 
-	cio_read_buffer_consume(&c->rb, c->bytes_read);
+	cio_read_buffer_consume(&client->rb, client->bytes_read);
 
-	err = cio_buffered_stream_read_at_least(bs, &c->rb, sizeof(HELLO), client_handle_read, c);
+	err = cio_buffered_stream_read_at_least(buffered_stream, &client->rb, sizeof(HELLO), client_handle_read, client);
 	if (cio_unlikely(err != CIO_SUCCESS)) {
 		fprintf(stderr, "server could no start reading!\n");
 		return;
 	}
 }
 
-static void client_handle_read(struct cio_buffered_stream *bs, void *handler_context, enum cio_error err, struct cio_read_buffer *read_buffer, size_t num_bytes)
+static void client_handle_read(struct cio_buffered_stream *buffered_stream, void *handler_context, enum cio_error err, struct cio_read_buffer *read_buffer, size_t num_bytes)
 {
-	struct client *c = handler_context;
+	struct client *client = handler_context;
 
 	if (cio_unlikely(err == CIO_EOF)) {
 		fprintf(stdout, "connection closed by peer\n");
-		cio_buffered_stream_close(bs);
+		cio_buffered_stream_close(buffered_stream);
 		return;
 	}
 
 	if (cio_unlikely(err != CIO_SUCCESS)) {
 		fprintf(stderr, "read error!\n");
-		cio_buffered_stream_close(bs);
+		cio_buffered_stream_close(buffered_stream);
 		return;
 	}
 
@@ -107,11 +107,11 @@ static void client_handle_read(struct cio_buffered_stream *bs, void *handler_con
 	recv_buffer[num_bytes] = '\0';
 	fprintf(stdout, "Client received data: %s , now sending...\n", recv_buffer);
 
-	c->bytes_read = num_bytes;
-	cio_write_buffer_head_init(&c->wbh);
-	cio_write_buffer_element_init(&c->wb, cio_read_buffer_get_read_ptr(read_buffer), num_bytes);
-	cio_write_buffer_queue_tail(&c->wbh, &c->wb);
-	cio_buffered_stream_write(bs, &c->wbh, client_handle_write, c);
+	client->bytes_read = num_bytes;
+	cio_write_buffer_head_init(&client->wbh);
+	cio_write_buffer_element_init(&client->wb, cio_read_buffer_get_read_ptr(read_buffer), num_bytes);
+	cio_write_buffer_queue_tail(&client->wbh, &client->wb);
+	cio_buffered_stream_write(buffered_stream, &client->wbh, client_handle_write, client);
 }
 
 int main(void)

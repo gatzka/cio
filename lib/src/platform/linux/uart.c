@@ -115,14 +115,14 @@ static enum cio_error stream_write(struct cio_io_stream *stream, struct cio_writ
 	struct cio_uart *uart = cio_container_of(stream, struct cio_uart, stream);
 	size_t chain_length = cio_write_buffer_get_num_buffer_elements(buffer);
 
-	const struct cio_write_buffer *wb = buffer->next;
+	const struct cio_write_buffer *write_buffer = buffer->next;
 	size_t written = 0;
 	bool write_error = false;
 	for (size_t i = 0; i < chain_length; i++) {
-		ssize_t ret = write(uart->impl.ev.fd, wb->data.element.data, wb->data.element.length);
+		ssize_t ret = write(uart->impl.ev.fd, write_buffer->data.element.data, write_buffer->data.element.length);
 		if (cio_likely(ret >= 0)) {
 			written += (size_t)ret;
-			if ((size_t)ret != wb->data.element.length) {
+			if ((size_t)ret != write_buffer->data.element.length) {
 				break;
 			}
 		} else {
@@ -130,7 +130,7 @@ static enum cio_error stream_write(struct cio_io_stream *stream, struct cio_writ
 			break;
 		}
 
-		wb = wb->next;
+		write_buffer = write_buffer->next;
 	}
 
 	if (cio_likely(!write_error)) {

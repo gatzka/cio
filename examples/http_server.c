@@ -62,17 +62,17 @@ struct dummy_handler {
 
 static void free_dummy_handler(struct cio_http_location_handler *handler)
 {
-	struct dummy_handler *dh = cio_container_of(handler, struct dummy_handler, handler);
-	free(dh);
+	struct dummy_handler *dummy_handler = cio_container_of(handler, struct dummy_handler, handler);
+	free(dummy_handler);
 }
 
 static enum cio_http_cb_return dummy_on_message_complete(struct cio_http_client *client)
 {
 	struct cio_http_location_handler *handler = client->current_handler;
-	struct dummy_handler *dh = cio_container_of(handler, struct dummy_handler, handler);
-	cio_write_buffer_const_element_init(&dh->wb, DATA, sizeof(DATA) - 1);
-	cio_write_buffer_queue_tail(&dh->wbh, &dh->wb);
-	enum cio_error err = client->write_response(client, CIO_HTTP_STATUS_OK, &dh->wbh, NULL);
+	struct dummy_handler *dummy_handler = cio_container_of(handler, struct dummy_handler, handler);
+	cio_write_buffer_const_element_init(&dummy_handler->wb, DATA, sizeof(DATA) - 1);
+	cio_write_buffer_queue_tail(&dummy_handler->wbh, &dummy_handler->wb);
+	enum cio_error err = client->write_response(client, CIO_HTTP_STATUS_OK, &dummy_handler->wbh, NULL);
 	if (cio_unlikely(err != CIO_SUCCESS)) {
 		fprintf(stderr, "writing response not allowed!");
 		client->close(client);
@@ -113,9 +113,9 @@ static void free_http_client(struct cio_socket *socket)
 	free(client);
 }
 
-static void http_server_closed(const struct cio_http_server *s)
+static void http_server_closed(const struct cio_http_server *server)
 {
-	(void)s;
+	(void)server;
 	cio_eventloop_cancel(&loop);
 }
 
@@ -125,10 +125,10 @@ static void sighandler(int signum)
 	cio_http_server_shutdown(&server, http_server_closed);
 }
 
-static void serve_error(struct cio_http_server *s, const char *reason)
+static void serve_error(struct cio_http_server *server, const char *reason)
 {
-	fprintf(stderr, "http server error: %s\n", reason);
-	cio_http_server_shutdown(s, http_server_closed);
+	fprintf(stderr, "http server error: %server\n", reason);
+	cio_http_server_shutdown(server, http_server_closed);
 }
 
 int main(void)
