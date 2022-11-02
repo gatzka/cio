@@ -74,7 +74,7 @@ static enum cio_http_cb_return dummy_on_message_complete(struct cio_http_client 
 	cio_write_buffer_queue_tail(&dummy_handler->wbh, &dummy_handler->wb);
 	enum cio_error err = client->write_response(client, CIO_HTTP_STATUS_OK, &dummy_handler->wbh, NULL);
 	if (cio_unlikely(err != CIO_SUCCESS)) {
-		fprintf(stderr, "writing response not allowed!");
+		(void)fprintf(stderr, "writing response not allowed!");
 		client->close(client);
 	}
 
@@ -127,7 +127,7 @@ static void sighandler(int signum)
 
 static void serve_error(struct cio_http_server *server, const char *reason)
 {
-	fprintf(stderr, "http server error: %server\n", reason);
+	(void)fprintf(stderr, "http server error: %server\n", reason);
 	cio_http_server_shutdown(server, http_server_closed);
 }
 
@@ -139,7 +139,7 @@ int main(void)
 	}
 
 	if (signal(SIGINT, sighandler) == SIG_ERR) {
-		signal(SIGTERM, SIG_DFL);
+		(void)signal(SIGTERM, SIG_DFL);
 		return -1;
 	}
 

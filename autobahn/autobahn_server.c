@@ -73,7 +73,7 @@ static void write_complete(struct cio_websocket *websocket, void *handler_contex
 	if (err == CIO_SUCCESS) {
 		err = cio_websocket_read_message(websocket, read_handler, NULL);
 		if (err != CIO_SUCCESS) {
-			fprintf(stderr, "could not start reading a new message!\n");
+			(void)fprintf(stderr, "could not start reading a new message!\n");
 		}
 	}
 }
@@ -113,11 +113,11 @@ static void read_handler(struct cio_websocket *websocket, void *handler_context,
 		}
 
 		if (err != CIO_SUCCESS) {
-			fprintf(stderr, "could not start writing message!\n");
+			(void)fprintf(stderr, "could not start writing message!\n");
 		}
 
 	} else if (err != CIO_EOF) {
-		fprintf(stderr, "read failure!\n");
+		(void)fprintf(stderr, "read failure!\n");
 	}
 }
 
@@ -125,14 +125,14 @@ static void on_connect(struct cio_websocket *websocket)
 {
 	enum cio_error err = cio_websocket_read_message(websocket, read_handler, NULL);
 	if (err != CIO_SUCCESS) {
-		fprintf(stderr, "could not start reading a new message!\n");
+		(void)fprintf(stderr, "could not start reading a new message!\n");
 	}
 }
 
 static void on_error(const struct cio_websocket *websocket, enum cio_error err, const char *reason)
 {
 	(void)websocket;
-	fprintf(stderr, "Unexpected error: %d, %s\n", err, reason);
+	(void)fprintf(stderr, "Unexpected error: %d, %s\n", err, reason);
 }
 
 static struct cio_http_location_handler *alloc_autobahn_handler(const void *config)
@@ -198,7 +198,7 @@ int main(void)
 	}
 
 	if (signal(SIGINT, sighandler) == SIG_ERR) {
-		signal(SIGTERM, SIG_DFL);
+		(void)signal(SIGTERM, SIG_DFL);
 		return -1;
 	}
 

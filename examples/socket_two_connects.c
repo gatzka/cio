@@ -88,7 +88,7 @@ static struct cio_socket *alloc_echo_client(void)
 
 static void free_echo_client(struct cio_socket *socket)
 {
-	fprintf(stdout, "client will be freed\n");
+	(void)fprintf(stdout, "client will be freed\n");
 	struct echo_client *client = cio_container_of(socket, struct echo_client, socket);
 	free(client);
 }
@@ -107,13 +107,13 @@ static void server_handle_read(struct cio_buffered_stream *buffered_stream, void
 	struct echo_client *client = handler_context;
 
 	if (cio_unlikely(err == CIO_EOF)) {
-		fprintf(stdout, "connection closed by client peer\n");
+		(void)fprintf(stdout, "connection closed by client peer\n");
 		cio_buffered_stream_close(buffered_stream);
 		return;
 	}
 
 	if (cio_unlikely(err != CIO_SUCCESS)) {
-		fprintf(stderr, "read error!\n");
+		(void)fprintf(stderr, "read error!\n");
 		cio_buffered_stream_close(buffered_stream);
 		return;
 	}
@@ -121,7 +121,7 @@ static void server_handle_read(struct cio_buffered_stream *buffered_stream, void
 	cio_read_buffer_consume(read_buffer, num_bytes);
 	err = cio_buffered_stream_read_at_least(buffered_stream, &client->rb, sizeof(HELLO), server_handle_read, client);
 	if (cio_unlikely(err != CIO_SUCCESS)) {
-		fprintf(stderr, "server could no start reading!\n");
+		(void)fprintf(stderr, "server could no start reading!\n");
 		cio_buffered_stream_close(buffered_stream);
 		return;
 	}
@@ -134,13 +134,13 @@ static void handle_accept(struct cio_server_socket *server_socket, void *handler
 	struct echo_client *client = cio_container_of(socket, struct echo_client, socket);
 
 	if (cio_unlikely(err != CIO_SUCCESS)) {
-		fprintf(stderr, "accept error!\n");
+		(void)fprintf(stderr, "accept error!\n");
 		goto error;
 	}
 
 	err = cio_read_buffer_init(&client->rb, client->buffer, sizeof(client->buffer));
 	if (cio_unlikely(err != CIO_SUCCESS)) {
-		fprintf(stderr, "failed to init read buffer!\n");
+		(void)fprintf(stderr, "failed to init read buffer!\n");
 		goto error;
 	}
 
@@ -149,13 +149,13 @@ static void handle_accept(struct cio_server_socket *server_socket, void *handler
 	struct cio_buffered_stream *buffered_stream = &client->buffered_stream;
 	err = cio_buffered_stream_init(buffered_stream, stream);
 	if (cio_unlikely(err != CIO_SUCCESS)) {
-		fprintf(stderr, "failed to init buffered stream!\n");
+		(void)fprintf(stderr, "failed to init buffered stream!\n");
 		goto error;
 	}
 
 	err = cio_buffered_stream_read_at_least(buffered_stream, &client->rb, sizeof(HELLO), server_handle_read, client);
 	if (cio_unlikely(err != CIO_SUCCESS)) {
-		fprintf(stderr, "server could no start reading!\n");
+		(void)fprintf(stderr, "server could no start reading!\n");
 		goto error;
 	}
 
@@ -192,32 +192,32 @@ static void client_socket_close_hook(struct cio_socket *socket)
 	struct cio_inet_address inet_address;
 	enum cio_error err = cio_init_inet_address(&inet_address, IP, sizeof(IP));
 	if (cio_unlikely(err != CIO_SUCCESS)) {
-		fprintf(stderr, "could not init second client socket inet address!\n");
+		(void)fprintf(stderr, "could not init second client socket inet address!\n");
 		goto err;
 	}
 
 	struct cio_socket_address client_endpoint;
 	err = cio_init_inet_socket_address(&client_endpoint, &inet_address, SERVERSOCKET_LISTEN_PORT);
 	if (cio_unlikely(err != CIO_SUCCESS)) {
-		fprintf(stderr, "could not init second client socket endpoint!\n");
+		(void)fprintf(stderr, "could not init second client socket endpoint!\n");
 		goto err;
 	}
 
 	err = cio_socket_init(&second_client_socket, cio_socket_address_get_family(&client_endpoint), &loop, CLOSE_TIMEOUT_NS, second_client_socket_close_hook);
 	if (cio_unlikely(err != CIO_SUCCESS)) {
-		fprintf(stderr, "could not init client socket endpoint!\n");
+		(void)fprintf(stderr, "could not init client socket endpoint!\n");
 		goto err;
 	}
 
 	err = cio_socket_set_tcp_fast_open(&second_client_socket, true);
 	if (cio_unlikely(err != CIO_SUCCESS)) {
-		fprintf(stderr, "could not enable TCP FASTOPEN for active (connect) socket!\n");
+		(void)fprintf(stderr, "could not enable TCP FASTOPEN for active (connect) socket!\n");
 		goto client_socket_close;
 	}
 
 	err = cio_socket_connect(&second_client_socket, &client_endpoint, handle_connect, &second_client);
 	if (err != CIO_SUCCESS) {
-		fprintf(stderr, "second client could not connect to server!\n");
+		(void)fprintf(stderr, "second client could not connect to server!\n");
 		goto client_socket_close;
 	}
 
@@ -232,7 +232,7 @@ err:
 static void handle_connect(struct cio_socket *socket, void *handler_context, enum cio_error err)
 {
 	if (cio_unlikely(err != CIO_SUCCESS)) {
-		fprintf(stderr, "Connect failed!\n");
+		(void)fprintf(stderr, "Connect failed!\n");
 		cio_socket_close(socket);
 		return;
 	}
@@ -248,7 +248,7 @@ static void handle_connect(struct cio_socket *socket, void *handler_context, enu
 	err = cio_buffered_stream_write(buffered_stream, &client->wbh, client_handle_write, client);
 
 	if (cio_unlikely(err != CIO_SUCCESS)) {
-		fprintf(stderr, "client write failed!\n");
+		(void)fprintf(stderr, "client write failed!\n");
 		cio_socket_close(socket);
 		return;
 	}
@@ -258,20 +258,20 @@ int main(void)
 {
 	int ret = EXIT_SUCCESS;
 	if (signal(SIGTERM, sighandler) == SIG_ERR) {
-		fprintf(stderr, "could no install SIGTERM handler!\n");
+		(void)fprintf(stderr, "could no install SIGTERM handler!\n");
 		return -1;
 	}
 
 	if (signal(SIGINT, sighandler) == SIG_ERR) {
-		fprintf(stderr, "could no install SIGINT handler!\n");
-		signal(SIGTERM, SIG_DFL);
+		(void)fprintf(stderr, "could no install SIGINT handler!\n");
+		(void)signal(SIGTERM, SIG_DFL);
 		return -1;
 	}
 
 	struct cio_socket_address endpoint;
 	enum cio_error err = cio_init_inet_socket_address(&endpoint, cio_get_inet_address_any4(), SERVERSOCKET_LISTEN_PORT);
 	if (cio_unlikely(err != CIO_SUCCESS)) {
-		fprintf(stderr, "could no init server socket endpoint!\n");
+		(void)fprintf(stderr, "could no init server socket endpoint!\n");
 		return -1;
 	}
 
@@ -283,35 +283,35 @@ int main(void)
 	struct cio_server_socket server_socket;
 	err = cio_server_socket_init(&server_socket, &loop, SERVERSOCKET_BACKLOG, cio_socket_address_get_family(&endpoint), alloc_echo_client, free_echo_client, CLOSE_TIMEOUT_NS, NULL);
 	if (cio_unlikely(err != CIO_SUCCESS)) {
-		fprintf(stderr, "could not init server socket!\n");
+		(void)fprintf(stderr, "could not init server socket!\n");
 		ret = EXIT_FAILURE;
 		goto destroy_loop;
 	}
 
 	err = cio_server_socket_set_tcp_fast_open(&server_socket, true);
 	if (cio_unlikely(err != CIO_SUCCESS)) {
-		fprintf(stderr, "could not set TCP FASTOPEN for server socket!\n");
+		(void)fprintf(stderr, "could not set TCP FASTOPEN for server socket!\n");
 		ret = EXIT_FAILURE;
 		goto close_server_socket;
 	}
 
 	err = cio_server_socket_set_reuse_address(&server_socket, true);
 	if (cio_unlikely(err != CIO_SUCCESS)) {
-		fprintf(stderr, "could not set reuse_address for server socket!\n");
+		(void)fprintf(stderr, "could not set reuse_address for server socket!\n");
 		ret = EXIT_FAILURE;
 		goto close_server_socket;
 	}
 
 	err = cio_server_socket_bind(&server_socket, &endpoint);
 	if (cio_unlikely(err != CIO_SUCCESS)) {
-		fprintf(stderr, "could not bind server socket!\n");
+		(void)fprintf(stderr, "could not bind server socket!\n");
 		ret = EXIT_FAILURE;
 		goto close_server_socket;
 	}
 
 	err = cio_server_socket_accept(&server_socket, handle_accept, NULL);
 	if (cio_unlikely(err != CIO_SUCCESS)) {
-		fprintf(stderr, "could not run accept on server socket!\n");
+		(void)fprintf(stderr, "could not run accept on server socket!\n");
 		ret = EXIT_FAILURE;
 		goto close_server_socket;
 	}
@@ -320,7 +320,7 @@ int main(void)
 	struct cio_inet_address inet_address;
 	err = cio_init_inet_address(&inet_address, CONNECT_IP, sizeof(CONNECT_IP));
 	if (cio_unlikely(err != CIO_SUCCESS)) {
-		fprintf(stderr, "could not init client socket inet address!\n");
+		(void)fprintf(stderr, "could not init client socket inet address!\n");
 		ret = EXIT_FAILURE;
 		goto close_server_socket;
 	}
@@ -328,7 +328,7 @@ int main(void)
 	struct cio_socket_address client_endpoint;
 	err = cio_init_inet_socket_address(&client_endpoint, &inet_address, SERVERSOCKET_LISTEN_PORT);
 	if (cio_unlikely(err != CIO_SUCCESS)) {
-		fprintf(stderr, "could not init client socket endpoint!\n");
+		(void)fprintf(stderr, "could not init client socket endpoint!\n");
 		ret = EXIT_FAILURE;
 		goto close_server_socket;
 	}
@@ -336,14 +336,14 @@ int main(void)
 	struct cio_socket socket;
 	err = cio_socket_init(&socket, cio_socket_address_get_family(&endpoint), &loop, CLOSE_TIMEOUT_NS, client_socket_close_hook);
 	if (cio_unlikely(err != CIO_SUCCESS)) {
-		fprintf(stderr, "could not init client socket endpoint!\n");
+		(void)fprintf(stderr, "could not init client socket endpoint!\n");
 		ret = EXIT_FAILURE;
 		goto close_server_socket;
 	}
 
 	err = cio_socket_set_tcp_fast_open(&socket, true);
 	if (cio_unlikely(err != CIO_SUCCESS)) {
-		fprintf(stderr, "could not enable TCP FASTOPEN for active (connect) socket!\n");
+		(void)fprintf(stderr, "could not enable TCP FASTOPEN for active (connect) socket!\n");
 		ret = EXIT_FAILURE;
 		cio_socket_close(&socket);
 		goto close_server_socket;
@@ -355,7 +355,7 @@ int main(void)
 
 	err = cio_socket_connect(&socket, &client_endpoint, handle_connect, &client);
 	if (err != CIO_SUCCESS) {
-		fprintf(stderr, "could not connect to server!\n");
+		(void)fprintf(stderr, "could not connect to server!\n");
 		ret = EXIT_FAILURE;
 		cio_socket_close(&socket);
 		goto close_server_socket;

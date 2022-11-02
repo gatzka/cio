@@ -43,7 +43,7 @@ enum cio_error cio_entropy_get_bytes(void *bytes, size_t num_bytes)
 	}
 
 	enum cio_error err = CIO_SUCCESS;
-	    size_t ret = fread_unlocked(bytes, (size_t)1, num_bytes, dev_urandom);
+	size_t ret = fread_unlocked(bytes, (size_t)1, num_bytes, dev_urandom);
 	if (cio_unlikely(ret < num_bytes)) {
 		err = CIO_EOF;
 	}

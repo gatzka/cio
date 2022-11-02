@@ -49,7 +49,7 @@ static void handle_connect(struct cio_socket *socket, void *handler_context, enu
 	(void)handler_context;
 
 	if (err != CIO_SUCCESS) {
-		fprintf(stderr, "connect error, error code %d\n", err);
+		(void)fprintf(stderr, "connect error, error code %d\n", err);
 	}
 
 	cio_socket_close(socket);
@@ -64,7 +64,7 @@ static void sighandler(int signum)
 
 static void usage(const char *name)
 {
-	fprintf(stderr, "Usage: %s <IPv4 address> <port>\n", name);
+	(void)fprintf(stderr, "Usage: %s <IPv4 address> <port>\n", name);
 }
 
 int main(int argc, char *argv[])
@@ -100,7 +100,7 @@ int main(int argc, char *argv[])
 	}
 
 	if (signal(SIGINT, sighandler) == SIG_ERR) {
-		signal(SIGTERM, SIG_DFL);
+		(void)signal(SIGTERM, SIG_DFL);
 		return EXIT_FAILURE;
 	}
 

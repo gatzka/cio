@@ -77,19 +77,19 @@ static void send_ping(struct cio_timer *timer, void *handler_context, enum cio_e
 static void ping_written(struct cio_websocket *websocket, void *handler_context, enum cio_error err)
 {
 	if (err != CIO_SUCCESS) {
-		fprintf(stderr, "writing ping frame failed!\n");
+		(void)fprintf(stderr, "writing ping frame failed!\n");
 		err = cio_websocket_close(websocket, CIO_WEBSOCKET_CLOSE_INTERNAL_ERROR, NULL, NULL, NULL);
 		if (err != CIO_SUCCESS) {
-			fprintf(stderr, "Could not start writing websocket close!\n");
+			(void)fprintf(stderr, "Could not start writing websocket close!\n");
 		}
 	} else {
 		struct cio_timer *timer = (struct cio_timer *)handler_context;
 		err = cio_timer_expires_from_now(timer, PING_PERIOD_NS, send_ping, websocket);
 		if (err != CIO_SUCCESS) {
-			fprintf(stderr, "Could not start ping timer!\n");
+			(void)fprintf(stderr, "Could not start ping timer!\n");
 			err = cio_websocket_close(websocket, CIO_WEBSOCKET_CLOSE_NORMAL, NULL, NULL, NULL);
 			if (err != CIO_SUCCESS) {
-				fprintf(stderr, "Could not start writing websocket close!\n");
+				(void)fprintf(stderr, "Could not start writing websocket close!\n");
 			}
 		}
 	}
@@ -99,7 +99,7 @@ static void send_ping(struct cio_timer *timer, void *handler_context, enum cio_e
 {
 	struct cio_websocket *websocket = (struct cio_websocket *)handler_context;
 	if (err == CIO_SUCCESS) {
-		fprintf(stdout, "Sending ping!\n");
+		(void)fprintf(stdout, "Sending ping!\n");
 
 		struct cio_websocket_location_handler *handler = cio_container_of(websocket, struct cio_websocket_location_handler, websocket);
 		struct ws_echo_handler *echo_handler = cio_container_of(handler, struct ws_echo_handler, ws_handler);
@@ -111,13 +111,13 @@ static void send_ping(struct cio_timer *timer, void *handler_context, enum cio_e
 		cio_write_buffer_queue_head(&wbh, &echo_handler->wb_ping_message);
 		err = cio_websocket_write_ping(websocket, &wbh, ping_written, timer);
 		if (err != CIO_SUCCESS) {
-			fprintf(stderr, "Could not start writing websocket ping!\n");
+			(void)fprintf(stderr, "Could not start writing websocket ping!\n");
 		}
 	} else if (err != CIO_OPERATION_ABORTED) {
-		fprintf(stderr, "ping timer failed!\n");
+		(void)fprintf(stderr, "ping timer failed!\n");
 		err = cio_websocket_close(websocket, CIO_WEBSOCKET_CLOSE_INTERNAL_ERROR, NULL, NULL, NULL);
 		if (err != CIO_SUCCESS) {
-			fprintf(stderr, "Could not start writing websocket close!\n");
+			(void)fprintf(stderr, "Could not start writing websocket close!\n");
 		}
 	}
 }
@@ -134,18 +134,18 @@ static void write_complete(struct cio_websocket *websocket, void *handler_contex
 	}
 
 	if (err != CIO_SUCCESS) {
-		fprintf(stderr, "Could not start writing websocket close!\n");
+		(void)fprintf(stderr, "Could not start writing websocket close!\n");
 	}
 }
 
 static void print_payload(const uint8_t *data, uint_fast8_t length)
 {
 	if (length > 0) {
-		fwrite(data, length, 1, stdout);
-		fflush(stdout);
-		fprintf(stdout, "\n");
+		(void)fwrite(data, length, 1, stdout);
+		(void)fflush(stdout);
+		(void)fprintf(stdout, "\n");
 	} else {
-		fprintf(stdout, "no payload\n");
+		(void)fprintf(stdout, "no payload\n");
 	}
 }
 
@@ -155,22 +155,22 @@ static void on_control(const struct cio_websocket *websocket, enum cio_websocket
 
 	switch (type) {
 	case CIO_WEBSOCKET_CLOSE_FRAME:
-		fprintf(stdout, "Got close frame: ");
+		(void)fprintf(stdout, "Got close frame: ");
 		print_payload(data, length);
 		break;
 
 	case CIO_WEBSOCKET_PING_FRAME:
-		fprintf(stdout, "Got ping frame: ");
+		(void)fprintf(stdout, "Got ping frame: ");
 		print_payload(data, length);
 		break;
 
 	case CIO_WEBSOCKET_PONG_FRAME:
-		fprintf(stdout, "Got pong frame: ");
+		(void)fprintf(stdout, "Got pong frame: ");
 		print_payload(data, length);
 		break;
 
 	default:
-		fprintf(stderr, "Got unknown control frame: %x\n", type);
+		(void)fprintf(stderr, "Got unknown control frame: %x\n", type);
 		break;
 	}
 }
@@ -185,10 +185,10 @@ static void read_handler(struct cio_websocket *websocket, void *handler_context,
 		struct cio_websocket_location_handler *handler = cio_container_of(websocket, struct cio_websocket_location_handler, websocket);
 		struct ws_echo_handler *echo_handler = cio_container_of(handler, struct ws_echo_handler, ws_handler);
 
-		fprintf(stdout, "Got text message (last frame: %s):", last_frame ? "true" : "false");
-		fwrite(data, chunk_length, 1, stdout);
-		fflush(stdout);
-		fprintf(stdout, "\n");
+		(void)fprintf(stdout, "Got text message (last frame: %s):", last_frame ? "true" : "false");
+		(void)fwrite(data, chunk_length, 1, stdout);
+		(void)fflush(stdout);
+		(void)fprintf(stdout, "\n");
 
 		static const char *text_message = "Hello World!";
 		cio_write_buffer_head_init(&echo_handler->wbh);
@@ -196,25 +196,25 @@ static void read_handler(struct cio_websocket *websocket, void *handler_context,
 		cio_write_buffer_queue_tail(&echo_handler->wbh, &echo_handler->wb_message);
 		err = cio_websocket_write_message_first_chunk(websocket, cio_write_buffer_get_total_size(&echo_handler->wbh), &echo_handler->wbh, true, is_binary, write_complete, NULL);
 		if (err != CIO_SUCCESS) {
-			fprintf(stderr, "Could not start writing message!\n");
+			(void)fprintf(stderr, "Could not start writing message!\n");
 		}
 	} else if (err != CIO_EOF) {
-		fprintf(stderr, "read failure!\n");
+		(void)fprintf(stderr, "read failure!\n");
 	}
 }
 
 static void on_connect(struct cio_websocket *websocket)
 {
-	fprintf(stdout, "Websocket connected!\n");
+	(void)fprintf(stdout, "Websocket connected!\n");
 
 	struct cio_websocket_location_handler *handler = cio_container_of(websocket, struct cio_websocket_location_handler, websocket);
 	struct ws_echo_handler *echo_handler = cio_container_of(handler, struct ws_echo_handler, ws_handler);
 	enum cio_error err = cio_timer_init(&echo_handler->ping_timer, &loop, NULL);
 	if (err != CIO_SUCCESS) {
-		fprintf(stderr, "Could not initialize ping timer!\n");
+		(void)fprintf(stderr, "Could not initialize ping timer!\n");
 		err = cio_websocket_close(websocket, CIO_WEBSOCKET_CLOSE_NORMAL, NULL, NULL, NULL);
 		if (err != CIO_SUCCESS) {
-			fprintf(stderr, "Could not start writing websocket close!\n");
+			(void)fprintf(stderr, "Could not start writing websocket close!\n");
 		}
 
 		return;
@@ -222,10 +222,10 @@ static void on_connect(struct cio_websocket *websocket)
 
 	err = cio_timer_expires_from_now(&echo_handler->ping_timer, PING_PERIOD_NS, send_ping, websocket);
 	if (err != CIO_SUCCESS) {
-		fprintf(stderr, "Could not start ping timer!\n");
+		(void)fprintf(stderr, "Could not start ping timer!\n");
 		err = cio_websocket_close(websocket, CIO_WEBSOCKET_CLOSE_NORMAL, NULL, NULL, NULL);
 		if (err != CIO_SUCCESS) {
-			fprintf(stderr, "Could not start writing websocket close!\n");
+			(void)fprintf(stderr, "Could not start writing websocket close!\n");
 		}
 
 		return;
@@ -233,7 +233,7 @@ static void on_connect(struct cio_websocket *websocket)
 
 	err = cio_websocket_read_message(websocket, read_handler, NULL);
 	if (err != CIO_SUCCESS) {
-		fprintf(stderr, "Could not start reading a new message!\n");
+		(void)fprintf(stderr, "Could not start reading a new message!\n");
 	}
 }
 
@@ -287,7 +287,7 @@ static void sighandler(int signum)
 
 static void serve_error(struct cio_http_server *server, const char *reason)
 {
-	fprintf(stderr, "http server error: %s\n", reason);
+	(void)fprintf(stderr, "http server error: %s\n", reason);
 	cio_http_server_shutdown(server, http_server_closed);
 }
 
@@ -299,7 +299,7 @@ int main(void)
 	}
 
 	if (signal(SIGINT, sighandler) == SIG_ERR) {
-		signal(SIGTERM, SIG_DFL);
+		(void)signal(SIGTERM, SIG_DFL);
 		return -1;
 	}
 

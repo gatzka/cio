@@ -91,7 +91,7 @@ static void handle_write(struct cio_buffered_stream *buffered_stream, void *hand
 	struct echo_client *client = handler_context;
 
 	if (err != CIO_SUCCESS) {
-		fprintf(stderr, "write error!\n");
+		(void)fprintf(stderr, "write error!\n");
 		return;
 	}
 
@@ -104,13 +104,13 @@ static void handle_read(struct cio_io_stream *stream, void *handler_context, enu
 {
 	struct echo_client *client = handler_context;
 	if (err == CIO_EOF) {
-		fprintf(stdout, "connection close by peer\n");
+		(void)fprintf(stdout, "connection close by peer\n");
 		stream->close(stream);
 		return;
 	}
 
 	if (err != CIO_SUCCESS) {
-		fprintf(stderr, "read error!\n");
+		(void)fprintf(stderr, "read error!\n");
 		return;
 	}
 
@@ -129,7 +129,7 @@ static void handle_accept(struct cio_server_socket *server_socket, void *handler
 	struct echo_client *client = cio_container_of(socket, struct echo_client, socket);
 
 	if (err != CIO_SUCCESS) {
-		fprintf(stderr, "accept error!\n");
+		(void)fprintf(stderr, "accept error!\n");
 		cio_server_socket_close(server_socket);
 		cio_eventloop_cancel(server_socket->impl.loop);
 		return;
@@ -138,7 +138,7 @@ static void handle_accept(struct cio_server_socket *server_socket, void *handler
 	struct cio_io_stream *stream = cio_socket_get_io_stream(socket);
 	err = cio_buffered_stream_init(&client->buffered_stream, stream);
 	if (err != CIO_SUCCESS) {
-		fprintf(stderr, "could not init buffered stream!\n");
+		(void)fprintf(stderr, "could not init buffered stream!\n");
 		cio_server_socket_close(server_socket);
 		cio_eventloop_cancel(server_socket->impl.loop);
 		return;
@@ -155,7 +155,7 @@ int main(void)
 	}
 
 	if (signal(SIGINT, sighandler) == SIG_ERR) {
-		signal(SIGTERM, SIG_DFL);
+		(void)signal(SIGTERM, SIG_DFL);
 		return -1;
 	}
 
@@ -179,7 +179,7 @@ int main(void)
 
 	err = cio_server_socket_set_tcp_fast_open(&server_socket, true);
 	if (cio_unlikely(err != CIO_SUCCESS)) {
-		fprintf(stderr, "could not set TCP FASTOPEN for server socket!\n");
+		(void)fprintf(stderr, "could not set TCP FASTOPEN for server socket!\n");
 		ret = EXIT_FAILURE;
 		goto close_socket;
 	}
