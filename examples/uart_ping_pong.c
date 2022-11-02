@@ -114,6 +114,102 @@ static void client_handle_read(struct cio_buffered_stream *buffered_stream, void
 	cio_buffered_stream_write(buffered_stream, &client->wbh, client_handle_write, client);
 }
 
+static struct cio_io_stream *setup_uart(struct cio_uart *uart)
+{
+	enum cio_error err = cio_uart_set_num_data_bits(uart, CIO_UART_8_DATA_BITS);
+	if (cio_unlikely(err != CIO_SUCCESS)) {
+		(void)fprintf(stderr, "Could not set 8 data bits per word on UART!\n");
+		goto err;
+	}
+	err = cio_uart_set_parity(uart, CIO_UART_PARITY_NONE);
+	if (cio_unlikely(err != CIO_SUCCESS)) {
+		(void)fprintf(stderr, "Could not set parity on UART!\n");
+		goto err;
+	}
+	err = cio_uart_set_num_stop_bits(uart, CIO_UART_ONE_STOP_BIT);
+	if (cio_unlikely(err != CIO_SUCCESS)) {
+		(void)fprintf(stderr, "Could not set 1 stop bit on UART!\n");
+		goto err;
+	}
+	err = cio_uart_set_baud_rate(uart, CIO_UART_BAUD_RATE_115200);
+	if (cio_unlikely(err != CIO_SUCCESS)) {
+		(void)fprintf(stderr, "Could not set baud rate on UART!\n");
+		goto err;
+	}
+	err = cio_uart_set_flow_control(uart, CIO_UART_FLOW_CONTROL_NONE);
+	if (cio_unlikely(err != CIO_SUCCESS)) {
+		goto err;
+	}
+	struct cio_io_stream *stream = cio_uart_get_io_stream(uart);
+	if (cio_unlikely(stream == NULL)) {
+		(void)fprintf(stderr, "failed to get IO stream!\n");
+		goto err;
+	}
+	err = cio_buffered_stream_init(&client1.bs, stream);
+	if (cio_unlikely(err != CIO_SUCCESS)) {
+		(void)fprintf(stderr, "failed to init buffered stream!\n");
+		goto err;
+	}
+	return stream;
+
+err:
+	return NULL;
+}
+
+static struct cio_uart *detect_uart(const char *uart_name)
+{
+	size_t num_uarts = cio_uart_get_number_of_uarts();
+	(void)fprintf(stdout, "found %zu uart(s)\n", num_uarts);
+
+	if (num_uarts < 2) {
+		(void)fprintf(stderr, "not enough uarts to play ping pong\n");
+		return NULL;
+	}
+
+	struct cio_uart *uarts = malloc(sizeof(*uarts) * num_uarts);
+	if (cio_unlikely(uarts == NULL)) {
+		return NULL;
+	}
+
+	size_t detected_ports = 0;
+	enum cio_error err = cio_uart_get_ports(uarts, num_uarts, &detected_ports);
+	if (cio_unlikely(err != CIO_SUCCESS)) {
+		(void)fprintf(stderr, "Could not get UART information!\n");
+		goto err;
+	}
+
+	for (size_t i = 0; i < detected_ports; i++) {
+		if (strcmp(cio_uart_get_name(&uarts[i]), uart_name) == 0) {
+			struct cio_uart *uart = malloc(sizeof(*uarts) * num_uarts);
+			if (cio_unlikely(uart == NULL)) {
+				(void)fprintf(stderr, "Could not allocate UART structure!\n");
+				goto err;
+			}
+			*uart = uarts[i];
+			return uart;
+		}
+	}
+
+err:
+	free(uarts);
+	return NULL;
+}
+
+static enum cio_error setup_client(struct client *client, struct cio_io_stream *stream)
+{
+	enum cio_error err = cio_buffered_stream_init(&client->bs, stream);
+	if (cio_unlikely(err != CIO_SUCCESS)) {
+		(void)fprintf(stderr, "failed to init buffered stream!\n");
+		return EXIT_FAILURE;
+	}
+	err = cio_read_buffer_init(&client->rb, client->buffer, sizeof(client->buffer));
+	if (cio_unlikely(err != CIO_SUCCESS)) {
+		(void)fprintf(stderr, "failed to init read buffer!\n");
+		return EXIT_FAILURE;
+	}
+
+	return CIO_SUCCESS;
+}
 int main(void)
 {
 	int ret = EXIT_SUCCESS;
@@ -136,88 +232,28 @@ int main(void)
 
 	if (num_uarts < 2) {
 		(void)fprintf(stderr, "not enough uarts to play ping pong\n");
-		return EXIT_SUCCESS;
-	}
-
-	struct cio_uart *uarts = malloc(sizeof(*uarts) * num_uarts);
-	if (cio_unlikely(uarts == NULL)) {
 		ret = EXIT_FAILURE;
 		goto destroy_ev;
 	}
 
-	size_t detected_ports = 0;
-	err = cio_uart_get_ports(uarts, num_uarts, &detected_ports);
-	if (cio_unlikely(err != CIO_SUCCESS)) {
-		(void)fprintf(stderr, "Could not get UART information!\n");
-		ret = EXIT_FAILURE;
-		goto free_uarts;
-	}
-
-	for (size_t i = 0; i < detected_ports; i++) {
-		(void)fprintf(stdout, "detected port %zu: %s\n", i, cio_uart_get_name(&uarts[i]));
-	}
-
-	struct cio_uart *uart1 = NULL;
-	struct cio_uart *uart2 = NULL;
-	for (size_t i = 0; i < detected_ports; i++) {
-		if (strcmp(cio_uart_get_name(&uarts[i]), "/dev/ttyUSB0") == 0) {
-			uart1 = &uarts[i];
-		} else if (strcmp(cio_uart_get_name(&uarts[i]), "/dev/ttyUSB1") == 0) {
-			uart2 = &uarts[i];
-		}
-	}
+	struct cio_uart *uart1 = detect_uart("/dev/ttyUSB0");
 
 	err = cio_uart_init(uart1, &loop, NULL);
 	if (cio_unlikely(err != CIO_SUCCESS)) {
 		(void)fprintf(stderr, "Could not get init first UART!\n");
 		ret = EXIT_FAILURE;
-		goto free_uarts;
+		goto free_first_uart;
 	}
-	err = cio_uart_set_num_data_bits(uart1, CIO_UART_8_DATA_BITS);
-	if (cio_unlikely(err != CIO_SUCCESS)) {
-		(void)fprintf(stderr, "Could not set 8 data bits per word on first UART!\n");
-		ret = EXIT_FAILURE;
-		goto close_first_uart;
-	}
-	err = cio_uart_set_parity(uart1, CIO_UART_PARITY_NONE);
-	if (cio_unlikely(err != CIO_SUCCESS)) {
-		(void)fprintf(stderr, "Could not set parity on first UART!\n");
-		ret = EXIT_FAILURE;
-		goto close_first_uart;
-	}
-	err = cio_uart_set_num_stop_bits(uart1, CIO_UART_ONE_STOP_BIT);
-	if (cio_unlikely(err != CIO_SUCCESS)) {
-		(void)fprintf(stderr, "Could not set 1 stop bit on first UART!\n");
-		ret = EXIT_FAILURE;
-		goto close_first_uart;
-	}
-	err = cio_uart_set_baud_rate(uart1, CIO_UART_BAUD_RATE_115200);
-	if (cio_unlikely(err != CIO_SUCCESS)) {
-		(void)fprintf(stderr, "Could not set baud rate on first UART!\n");
-		ret = EXIT_FAILURE;
-		goto close_first_uart;
-	}
-	err = cio_uart_set_flow_control(uart1, CIO_UART_FLOW_CONTROL_NONE);
-	if (cio_unlikely(err != CIO_SUCCESS)) {
-		(void)fprintf(stderr, "Could not disable flow control on first UART!\n");
-		ret = EXIT_FAILURE;
-		goto close_first_uart;
-	}
-	struct cio_io_stream *stream = cio_uart_get_io_stream(uart1);
+
+	struct cio_io_stream *stream = setup_uart(uart1);
 	if (cio_unlikely(stream == NULL)) {
 		(void)fprintf(stderr, "failed to get IO stream!\n");
 		ret = EXIT_FAILURE;
 		goto close_first_uart;
 	}
-	err = cio_buffered_stream_init(&client1.bs, stream);
+	err = setup_client(&client1, stream);
 	if (cio_unlikely(err != CIO_SUCCESS)) {
-		(void)fprintf(stderr, "failed to init buffered stream!\n");
-		ret = EXIT_FAILURE;
-		goto close_first_uart;
-	}
-	err = cio_read_buffer_init(&client1.rb, client1.buffer, sizeof(client1.buffer));
-	if (cio_unlikely(err != CIO_SUCCESS)) {
-		(void)fprintf(stderr, "failed to init read buffer!\n");
+		(void)fprintf(stderr, "failed to setup client!\n");
 		ret = EXIT_FAILURE;
 		goto close_first_uart;
 	}
@@ -228,57 +264,22 @@ int main(void)
 		goto close_first_uart;
 	}
 
+	struct cio_uart *uart2 = detect_uart("/dev/ttyUSB1");
 	err = cio_uart_init(uart2, &loop, NULL);
 	if (cio_unlikely(err != CIO_SUCCESS)) {
 		(void)fprintf(stderr, "Could not get init second UART!\n");
 		ret = EXIT_FAILURE;
-		goto close_first_uart;
+		goto free_second_uart;
 	}
-	err = cio_uart_set_num_data_bits(uart2, CIO_UART_8_DATA_BITS);
-	if (cio_unlikely(err != CIO_SUCCESS)) {
-		(void)fprintf(stderr, "Could not set 8 data bits per word on second UART!\n");
-		ret = EXIT_FAILURE;
-		goto close_uarts;
-	}
-	err = cio_uart_set_parity(uart2, CIO_UART_PARITY_NONE);
-	if (cio_unlikely(err != CIO_SUCCESS)) {
-		(void)fprintf(stderr, "Could not set parity on second UART!\n");
-		ret = EXIT_FAILURE;
-		goto close_uarts;
-	}
-	err = cio_uart_set_num_stop_bits(uart2, CIO_UART_ONE_STOP_BIT);
-	if (cio_unlikely(err != CIO_SUCCESS)) {
-		(void)fprintf(stderr, "Could not set 1 stop bit on second UART!\n");
-		ret = EXIT_FAILURE;
-		goto close_uarts;
-	}
-	err = cio_uart_set_baud_rate(uart2, CIO_UART_BAUD_RATE_115200);
-	if (cio_unlikely(err != CIO_SUCCESS)) {
-		(void)fprintf(stderr, "Could not set baud rate on second UART!\n");
-		ret = EXIT_FAILURE;
-		goto close_uarts;
-	}
-	err = cio_uart_set_flow_control(uart2, CIO_UART_FLOW_CONTROL_NONE);
-	if (cio_unlikely(err != CIO_SUCCESS)) {
-		(void)fprintf(stderr, "Could not disable flow control on second UART!\n");
-		ret = EXIT_FAILURE;
-		goto close_uarts;
-	}
-	stream = cio_uart_get_io_stream(uart2);
+	stream = setup_uart(uart2);
 	if (cio_unlikely(stream == NULL)) {
 		(void)fprintf(stderr, "failed to get IO stream!\n");
 		ret = EXIT_FAILURE;
 		goto close_uarts;
 	}
-	err = cio_buffered_stream_init(&client2.bs, stream);
+	err = setup_client(&client1, stream);
 	if (cio_unlikely(err != CIO_SUCCESS)) {
-		(void)fprintf(stderr, "failed to init buffered stream!\n");
-		ret = EXIT_FAILURE;
-		goto close_uarts;
-	}
-	err = cio_read_buffer_init(&client2.rb, client2.buffer, sizeof(client2.buffer));
-	if (cio_unlikely(err != CIO_SUCCESS)) {
-		(void)fprintf(stderr, "failed to init read buffer!\n");
+		(void)fprintf(stderr, "failed to setup client!\n");
 		ret = EXIT_FAILURE;
 		goto close_uarts;
 	}
@@ -298,10 +299,12 @@ int main(void)
 	}
 close_uarts:
 	cio_uart_close(uart2);
+free_second_uart:
+	free(uart2);
 close_first_uart:
 	cio_uart_close(uart1);
-free_uarts:
-	free(uarts);
+free_first_uart:
+	free(uart1);
 destroy_ev:
 	cio_eventloop_destroy(&loop);
 	return ret;
