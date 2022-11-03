@@ -726,6 +726,50 @@ static void get_first_length(struct cio_buffered_stream *buffered_stream, void *
 	}
 }
 
+static const char *handle_fin(struct cio_websocket *websocket, uint8_t first_header_byte)
+{
+
+	uint8_t opcode = first_header_byte & OPCODE_MASK;
+
+	if (cio_unlikely((websocket->ws_private.ws_flags.fin == 0) && (opcode >= CIO_WEBSOCKET_CLOSE_FRAME))) {
+		return "got fragmented control frame";
+	}
+
+	if (websocket->ws_private.ws_flags.fin == 1U) {
+		if (opcode != CIO_WEBSOCKET_CONTINUATION_FRAME) {
+			if (cio_unlikely(websocket->ws_private.ws_flags.frag_opcode && !is_control_frame(opcode))) {
+				return "got non-continuation frame within fragmented stream";
+			}
+
+			websocket->ws_private.ws_flags.opcode = (unsigned char)(opcode & OPCODE_MASK);
+		} else {
+			if (cio_unlikely(!websocket->ws_private.ws_flags.frag_opcode)) {
+				return "got continuation frame without correct start frame";
+			}
+
+			websocket->ws_private.ws_flags.opcode = websocket->ws_private.ws_flags.frag_opcode;
+			websocket->ws_private.ws_flags.frag_opcode = 0;
+		}
+	} else {
+		if (opcode != CIO_WEBSOCKET_CONTINUATION_FRAME) {
+			if (cio_unlikely(websocket->ws_private.ws_flags.frag_opcode)) {
+				return "got non-continuation frame within fragmented stream";
+			}
+
+			websocket->ws_private.ws_flags.frag_opcode = (unsigned char)(opcode & OPCODE_MASK);
+			websocket->ws_private.ws_flags.opcode = (unsigned char)(opcode & OPCODE_MASK);
+		} else {
+			if (cio_unlikely(!websocket->ws_private.ws_flags.frag_opcode)) {
+				return "got continuation frame without correct start frame";
+			}
+
+			websocket->ws_private.ws_flags.opcode = websocket->ws_private.ws_flags.frag_opcode;
+		}
+	}
+
+	return NULL;
+}
+
 static void get_header(struct cio_buffered_stream *buffered_stream, void *handler_context, enum cio_error err, struct cio_read_buffer *buffer, size_t num_bytes)
 {
 	(void)num_bytes;
@@ -746,47 +790,10 @@ static void get_header(struct cio_buffered_stream *buffered_stream, void *handle
 		return;
 	}
 
-	uint8_t opcode = field & OPCODE_MASK;
-
-	if (cio_unlikely((websocket->ws_private.ws_flags.fin == 0) && (opcode >= CIO_WEBSOCKET_CLOSE_FRAME))) {
-		handle_error(websocket, CIO_PROTOCOL_NOT_SUPPORTED, CIO_WEBSOCKET_CLOSE_PROTOCOL_ERROR, "got fragmented control frame");
+	const char *err_msg = handle_fin(websocket, field);
+	if (cio_unlikely(err_msg != NULL)) {
+		handle_error(websocket, CIO_PROTOCOL_NOT_SUPPORTED, CIO_WEBSOCKET_CLOSE_PROTOCOL_ERROR, err_msg);
 		return;
-	}
-
-	if (websocket->ws_private.ws_flags.fin == 1U) {
-		if (opcode != CIO_WEBSOCKET_CONTINUATION_FRAME) {
-			if (cio_unlikely(websocket->ws_private.ws_flags.frag_opcode && !is_control_frame(opcode))) {
-				handle_error(websocket, CIO_PROTOCOL_NOT_SUPPORTED, CIO_WEBSOCKET_CLOSE_PROTOCOL_ERROR, "got non-continuation frame within fragmented stream");
-				return;
-			}
-
-			websocket->ws_private.ws_flags.opcode = (unsigned char)(opcode & OPCODE_MASK);
-		} else {
-			if (cio_unlikely(!websocket->ws_private.ws_flags.frag_opcode)) {
-				handle_error(websocket, CIO_PROTOCOL_NOT_SUPPORTED, CIO_WEBSOCKET_CLOSE_PROTOCOL_ERROR, "got continuation frame without correct start frame");
-				return;
-			}
-
-			websocket->ws_private.ws_flags.opcode = websocket->ws_private.ws_flags.frag_opcode;
-			websocket->ws_private.ws_flags.frag_opcode = 0;
-		}
-	} else {
-		if (opcode != CIO_WEBSOCKET_CONTINUATION_FRAME) {
-			if (cio_unlikely(websocket->ws_private.ws_flags.frag_opcode)) {
-				handle_error(websocket, CIO_PROTOCOL_NOT_SUPPORTED, CIO_WEBSOCKET_CLOSE_PROTOCOL_ERROR, "got non-continuation frame within fragmented stream");
-				return;
-			}
-
-			websocket->ws_private.ws_flags.frag_opcode = (unsigned char)(opcode & OPCODE_MASK);
-			websocket->ws_private.ws_flags.opcode = (unsigned char)(opcode & OPCODE_MASK);
-		} else {
-			if (cio_unlikely(!websocket->ws_private.ws_flags.frag_opcode)) {
-				handle_error(websocket, CIO_PROTOCOL_NOT_SUPPORTED, CIO_WEBSOCKET_CLOSE_PROTOCOL_ERROR, "got continuation frame without correct start frame");
-				return;
-			}
-
-			websocket->ws_private.ws_flags.opcode = websocket->ws_private.ws_flags.frag_opcode;
-		}
 	}
 
 	err = cio_buffered_stream_read_at_least(buffered_stream, buffer, 1, get_first_length, websocket);

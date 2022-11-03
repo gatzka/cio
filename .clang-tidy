@@ -1,5 +1,5 @@
 ---
-Checks: '*,-readability-function-cognitive-complexity,-concurrency-mt-unsafe,-bugprone-easily-swappable-parameters,-llvm-header-guard,-altera-*,-clang-analyzer-security.insecureAPI.DeprecatedOrUnsafeBufferHandling,-llvmlibc-restrict-system-libc-headers,-misc-no-recursion,-cppcoreguidelines-avoid-non-const-global-variables,-bugprone-signal-handler,-cert-sig30-c'
+Checks: '*,-concurrency-mt-unsafe,-bugprone-easily-swappable-parameters,-llvm-header-guard,-altera-*,-clang-analyzer-security.insecureAPI.DeprecatedOrUnsafeBufferHandling,-llvmlibc-restrict-system-libc-headers,-misc-no-recursion,-cppcoreguidelines-avoid-non-const-global-variables,-bugprone-signal-handler,-cert-sig30-c'
 CheckOptions:
   - { key: readability-identifier-naming.ConstantCase,          value: UPPER_CASE }
   - { key: readability-identifier-naming.EnumCase,              value: lower_case }
