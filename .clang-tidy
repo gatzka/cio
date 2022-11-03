@@ -1,5 +1,5 @@
 ---
-Checks: '*,-concurrency-mt-unsafe,-bugprone-easily-swappable-parameters,-llvm-header-guard,-altera-*,-clang-analyzer-security.insecureAPI.DeprecatedOrUnsafeBufferHandling,-llvmlibc-restrict-system-libc-headers,-misc-no-recursion,-cppcoreguidelines-avoid-non-const-global-variables,-bugprone-signal-handler,-cert-sig30-c'
+Checks: '*,-bugprone-easily-swappable-parameters,-llvm-header-guard,-altera-*,-clang-analyzer-security.insecureAPI.DeprecatedOrUnsafeBufferHandling,-llvmlibc-restrict-system-libc-headers,-misc-no-recursion,-cppcoreguidelines-avoid-non-const-global-variables,-bugprone-signal-handler,-cert-sig30-c'
 CheckOptions:
   - { key: readability-identifier-naming.ConstantCase,          value: UPPER_CASE }
   - { key: readability-identifier-naming.EnumCase,              value: lower_case }
@@ -17,6 +17,7 @@ CheckOptions:
   - { key: readability-identifier-naming.VariableCase,          value: lower_case }
   - { key: readability-identifier-length.IgnoredParameterNames, value: 'in|on|at|fd' }
   - { key: readability-identifier-length.IgnoredVariableNames,  value: 'fd|ip|IP' }
+  - { key: concurrency-mt-unsafe.FunctionSet,                   value: "glibc"}
 WarningsAsErrors: '*'
 HeaderFilterRegex: 'cio_.*'
 FormatStyle: file
