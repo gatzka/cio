@@ -746,21 +746,21 @@ static void get_header(struct cio_buffered_stream *buffered_stream, void *handle
 		return;
 	}
 
-	field = field & OPCODE_MASK;
+	uint8_t opcode = field & OPCODE_MASK;
 
-	if (cio_unlikely((websocket->ws_private.ws_flags.fin == 0) && (field >= CIO_WEBSOCKET_CLOSE_FRAME))) {
+	if (cio_unlikely((websocket->ws_private.ws_flags.fin == 0) && (opcode >= CIO_WEBSOCKET_CLOSE_FRAME))) {
 		handle_error(websocket, CIO_PROTOCOL_NOT_SUPPORTED, CIO_WEBSOCKET_CLOSE_PROTOCOL_ERROR, "got fragmented control frame");
 		return;
 	}
 
 	if (websocket->ws_private.ws_flags.fin == 1U) {
-		if (field != CIO_WEBSOCKET_CONTINUATION_FRAME) {
-			if (cio_unlikely(websocket->ws_private.ws_flags.frag_opcode && !is_control_frame(field))) {
+		if (opcode != CIO_WEBSOCKET_CONTINUATION_FRAME) {
+			if (cio_unlikely(websocket->ws_private.ws_flags.frag_opcode && !is_control_frame(opcode))) {
 				handle_error(websocket, CIO_PROTOCOL_NOT_SUPPORTED, CIO_WEBSOCKET_CLOSE_PROTOCOL_ERROR, "got non-continuation frame within fragmented stream");
 				return;
 			}
 
-			websocket->ws_private.ws_flags.opcode = (unsigned char)(field & OPCODE_MASK);
+			websocket->ws_private.ws_flags.opcode = (unsigned char)(opcode & OPCODE_MASK);
 		} else {
 			if (cio_unlikely(!websocket->ws_private.ws_flags.frag_opcode)) {
 				handle_error(websocket, CIO_PROTOCOL_NOT_SUPPORTED, CIO_WEBSOCKET_CLOSE_PROTOCOL_ERROR, "got continuation frame without correct start frame");
@@ -771,14 +771,14 @@ static void get_header(struct cio_buffered_stream *buffered_stream, void *handle
 			websocket->ws_private.ws_flags.frag_opcode = 0;
 		}
 	} else {
-		if (field != CIO_WEBSOCKET_CONTINUATION_FRAME) {
+		if (opcode != CIO_WEBSOCKET_CONTINUATION_FRAME) {
 			if (cio_unlikely(websocket->ws_private.ws_flags.frag_opcode)) {
 				handle_error(websocket, CIO_PROTOCOL_NOT_SUPPORTED, CIO_WEBSOCKET_CLOSE_PROTOCOL_ERROR, "got non-continuation frame within fragmented stream");
 				return;
 			}
 
-			websocket->ws_private.ws_flags.frag_opcode = field & OPCODE_MASK;
-			websocket->ws_private.ws_flags.opcode = field & OPCODE_MASK;
+			websocket->ws_private.ws_flags.frag_opcode = (unsigned char)(opcode & OPCODE_MASK);
+			websocket->ws_private.ws_flags.opcode = (unsigned char)(opcode & OPCODE_MASK);
 		} else {
 			if (cio_unlikely(!websocket->ws_private.ws_flags.frag_opcode)) {
 				handle_error(websocket, CIO_PROTOCOL_NOT_SUPPORTED, CIO_WEBSOCKET_CLOSE_PROTOCOL_ERROR, "got continuation frame without correct start frame");
