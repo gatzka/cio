@@ -38,24 +38,19 @@
 
 DEFINE_FFF_GLOBALS
 
+#undef ARRAY_SIZE
+#define ARRAY_SIZE(a) (sizeof(a) / sizeof((a)[0]))
+
 FAKE_VALUE_FUNC(FILE *, fopen, const char *, const char *)
-FAKE_VALUE_FUNC(size_t, fread_unlocked, void *, size_t, size_t, FILE *)
+FAKE_VALUE_FUNC(int, getc_unlocked, FILE *)
 FAKE_VALUE_FUNC(int, fclose, FILE *)
-
-static size_t fread_ok(void *ptr, size_t size, size_t n, FILE *stream)
-{
-	(void)stream;
-
-	memset(ptr, 0xaa, size * n);
-	return size * n;
-}
 
 void setUp(void)
 {
 	FFF_RESET_HISTORY()
 
 	RESET_FAKE(fopen)
-	RESET_FAKE(fread_unlocked)
+	RESET_FAKE(getc_unlocked)
 	RESET_FAKE(fclose)
 }
 
@@ -77,7 +72,8 @@ static void test_fread_short(void)
 {
 	cio_rng_t rng;
 	fopen_fake.return_val = (FILE *)8;
-	fread_unlocked_fake.return_val = 3;
+	int ret_vals[3] = { 3, 7, EOF };
+	SET_RETURN_SEQ(getc_unlocked, ret_vals, ARRAY_SIZE(ret_vals));
 	enum cio_error err = cio_random_seed_rng(&rng);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_EOF, err, "cio_random_seed_rng did not fail on short freads");
 }
@@ -86,7 +82,7 @@ static void test_fread_ok(void)
 {
 	cio_rng_t rng;
 	fopen_fake.return_val = (FILE *)8;
-	fread_unlocked_fake.custom_fake = fread_ok;
+	getc_unlocked_fake.return_val = 0xaa;
 	enum cio_error err = cio_random_seed_rng(&rng);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "cio_random_seed_rng did failed");
 }
