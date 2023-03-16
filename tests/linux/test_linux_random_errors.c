@@ -26,9 +26,7 @@
  * SOFTWARE.
  */
 
-#include <errno.h>
-#include <stddef.h>
-#include <stdio.h>
+#include <unistd.h>
 
 #include "fff.h"
 #include "unity.h"
@@ -41,17 +39,13 @@ DEFINE_FFF_GLOBALS
 #undef ARRAY_SIZE
 #define ARRAY_SIZE(a) (sizeof(a) / sizeof((a)[0]))
 
-FAKE_VALUE_FUNC(FILE *, fopen, const char *, const char *)
-FAKE_VALUE_FUNC(int, getc_unlocked, FILE *)
-FAKE_VALUE_FUNC(int, fclose, FILE *)
+FAKE_VALUE_FUNC(int, getentropy, void*, size_t)
 
 void setUp(void)
 {
 	FFF_RESET_HISTORY()
 
-	RESET_FAKE(fopen)
-	RESET_FAKE(getc_unlocked)
-	RESET_FAKE(fclose)
+	RESET_FAKE(getentropy)
 }
 
 void tearDown(void)
@@ -61,28 +55,17 @@ void tearDown(void)
 static void test_random_seed_fails(void)
 {
 	cio_rng_t rng;
-	fopen_fake.return_val = NULL;
-	errno = EACCES;
 
+	getentropy_fake.return_val = -1;
+	errno = EFAULT;
 	enum cio_error err = cio_random_seed_rng(&rng);
-	TEST_ASSERT_EQUAL_MESSAGE(CIO_PERMISSION_DENIED, err, "cio_random_seed_rng did not fail with correct return value");
-}
-
-static void test_fread_short(void)
-{
-	cio_rng_t rng;
-	fopen_fake.return_val = (FILE *)8;
-	int ret_vals[3] = { 3, 7, EOF };
-	SET_RETURN_SEQ(getc_unlocked, ret_vals, ARRAY_SIZE(ret_vals));
-	enum cio_error err = cio_random_seed_rng(&rng);
-	TEST_ASSERT_EQUAL_MESSAGE(CIO_EOF, err, "cio_random_seed_rng did not fail on short freads");
+	TEST_ASSERT_EQUAL_MESSAGE(CIO_BAD_ADDRESS, err, "cio_random_seed_rng did not fail with correct return value");
 }
 
 static void test_fread_ok(void)
 {
 	cio_rng_t rng;
-	fopen_fake.return_val = (FILE *)8;
-	getc_unlocked_fake.return_val = 0xaa;
+	getentropy_fake.return_val = 0;
 	enum cio_error err = cio_random_seed_rng(&rng);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "cio_random_seed_rng did failed");
 }
@@ -91,7 +74,6 @@ int main(void)
 {
 	UNITY_BEGIN();
 	RUN_TEST(test_random_seed_fails);
-	RUN_TEST(test_fread_short);
 	RUN_TEST(test_fread_ok);
 	return UNITY_END();
 }
