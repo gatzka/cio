@@ -27,45 +27,19 @@
  */
 
 #include <errno.h>
-#include <stddef.h>
-#include <stdio.h>
-#include <stdlib.h>
+#include <unistd.h>
 
 #include "cio/compiler.h"
 #include "cio/error_code.h"
 #include "cio/random.h"
 
-static size_t internal_fread_unlocked(void *bytes, size_t num_bytes, FILE *stream)
-{
-	size_t bytes_read = 0;
-	uint8_t *buffer = (uint8_t *)bytes;
-	while (bytes_read < num_bytes) {
-		int byte = getc_unlocked(stream);
-		if (cio_unlikely(byte == EOF)) {
-			break;
-		}
-		*buffer++ = (uint8_t)byte;
-		bytes_read++;
-	}
-
-	return bytes_read;
-}
 
 enum cio_error cio_entropy_get_bytes(void *bytes, size_t num_bytes)
 {
-	FILE *dev_urandom = fopen("/dev/urandom", "re");
-	if (cio_unlikely(dev_urandom == NULL)) {
+	int ret = getentropy(bytes, num_bytes);
+	if (cio_unlikely(ret != 0)) {
 		return (enum cio_error)(-errno);
 	}
 
-	enum cio_error err = CIO_SUCCESS;
-	size_t ret = internal_fread_unlocked(bytes, num_bytes, dev_urandom);
-	if (cio_unlikely(ret < num_bytes)) {
-		err = CIO_EOF;
-	}
-
-	int close_ret = fclose(dev_urandom);
-	(void)close_ret;
-
-	return err;
+	return CIO_SUCCESS;
 }
