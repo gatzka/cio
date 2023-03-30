@@ -741,7 +741,7 @@ static const char *handle_fin(struct cio_websocket *websocket, uint8_t first_hea
 				return "got non-continuation frame within fragmented stream";
 			}
 
-			websocket->ws_private.ws_flags.opcode = (unsigned char)opcode;
+			websocket->ws_private.ws_flags.opcode = (unsigned char)(opcode & (uint8_t)OPCODE_MASK);
 		} else {
 			if (cio_unlikely(!websocket->ws_private.ws_flags.frag_opcode)) {
 				return "got continuation frame without correct start frame";
@@ -756,8 +756,8 @@ static const char *handle_fin(struct cio_websocket *websocket, uint8_t first_hea
 				return "got non-continuation frame within fragmented stream";
 			}
 
-			websocket->ws_private.ws_flags.frag_opcode = (unsigned char)opcode;
-			websocket->ws_private.ws_flags.opcode = (unsigned char)opcode;
+			websocket->ws_private.ws_flags.frag_opcode = (unsigned char)(opcode & (uint8_t)OPCODE_MASK);
+			websocket->ws_private.ws_flags.opcode = (unsigned char)(opcode & (uint8_t)OPCODE_MASK);
 		} else {
 			if (cio_unlikely(!websocket->ws_private.ws_flags.frag_opcode)) {
 				return "got continuation frame without correct start frame";
