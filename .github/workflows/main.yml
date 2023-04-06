@@ -28,7 +28,7 @@ jobs:
 
   gcc-12-debug:
     name: x86 gcc-12 Debug
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
 
     steps:
     - name: Checkout
@@ -42,7 +42,7 @@ jobs:
 
   gcc-12-release:
     name: x86 gcc-12 Release
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
 
     steps:
     - name: Checkout
@@ -56,7 +56,7 @@ jobs:
 
   gcc-12-valgrind:
     name: x86 gcc-12 Valgrind
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
 
     steps:
     - name: Checkout
@@ -70,7 +70,7 @@ jobs:
 
   clang-15-debug:
     name: x86 clang-15 Debug
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
 
     steps:
     - name: Checkout
@@ -84,7 +84,7 @@ jobs:
 
   clang-15-release:
     name: x86 clang-15 Release
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
 
     steps:
     - name: Checkout
@@ -98,7 +98,7 @@ jobs:
 
   clang-15-UndefinedBehaviorSanitizer:
     name: x86 clang-15 UndefinedBehaviorSanitizer
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
 
     steps:
     - name: Checkout
@@ -112,7 +112,7 @@ jobs:
 
   clang-15-LeakSanitizer:
     name: x86 clang-15 LeakSanitizer
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
 
     steps:
     - name: Checkout
@@ -126,7 +126,7 @@ jobs:
 
   clang-15-MemorySanitizer:
     name: x86 clang-15 MemorySanitizer
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
 
     steps:
     - name: Checkout
@@ -140,7 +140,7 @@ jobs:
 
   clang-15-AddressSanitizer:
     name: x86 clang-15 AddressSanitizer
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
 
     steps:
     - name: Checkout
@@ -154,7 +154,7 @@ jobs:
 
   clang-15-scanbuild:
     name: x86 clang-15 scan-build
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
 
     steps:
     - name: Checkout
@@ -168,7 +168,7 @@ jobs:
 
   clang-15-clangtidy:
     name: x86 clang-15 clang-tidy
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
 
     steps:
     - name: Checkout
@@ -183,7 +183,7 @@ jobs:
 
   gcc-11-arm:
     name: arm gcc-11 Release
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
 
     steps:
     - name: Checkout
@@ -197,7 +197,7 @@ jobs:
 
   gcc-11-aarch64:
     name: aarch64 gcc-11 Release
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
 
     steps:
     - name: Checkout
@@ -211,7 +211,7 @@ jobs:
 
   gcc-11-riscv64:
     name: riscv64 gcc-11 Release
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
 
     steps:
     - name: Checkout
@@ -225,7 +225,7 @@ jobs:
 
   gcc-12-coverage:
     name: x86 code coverage
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
 
     steps:
     - name: Checkout
@@ -253,7 +253,7 @@ jobs:
 
   sonarcloud:
     name: sonarcloud scan build
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
 
     steps:
     - name: Checkout
@@ -270,7 +270,7 @@ jobs:
 
   doxygen:
     name: generate doxygen documentation
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     needs: [gcc-12-debug, gcc-12-release, gcc-12-valgrind, clang-15-debug, clang-15-release, clang-15-UndefinedBehaviorSanitizer, clang-15-LeakSanitizer, clang-15-MemorySanitizer, clang-15-AddressSanitizer, clang-15-scanbuild, clang-15-clangtidy]
     if: contains(github.ref, 'master')
 
@@ -291,7 +291,7 @@ jobs:
 
   coverity:
     name: coverity scan build
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     if: contains(github.ref, 'coverity_scan')
 
     steps:
