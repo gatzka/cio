@@ -181,8 +181,8 @@ jobs:
         ctest_analyzer: clang-tidy-15
         ctest_configuration_type: Release
 
-  gcc-9-arm:
-    name: arm gcc-9 Release
+  gcc-11-arm:
+    name: arm gcc-11 Release
     runs-on: ubuntu-20.04
 
     steps:
@@ -192,11 +192,11 @@ jobs:
       uses: gatzka/ctest-build-action@new_compilers
       with:
         install_deps: ./.github/workflows/install-deps.sh
-        ctest_toolchain_file: /tmp/cio/toolchains/arm-linux-gnueabihf-gcc-9.cmake
+        ctest_toolchain_file: /tmp/cio/toolchains/arm-linux-gnueabihf-gcc-11.cmake
         ctest_configuration_type: Release
 
-  gcc-9-aarch64:
-    name: aarch64 gcc-9 Release
+  gcc-11-aarch64:
+    name: aarch64 gcc-11 Release
     runs-on: ubuntu-20.04
 
     steps:
@@ -206,11 +206,11 @@ jobs:
       uses: gatzka/ctest-build-action@new_compilers
       with:
         install_deps: ./.github/workflows/install-deps.sh
-        ctest_toolchain_file: /tmp/cio/toolchains/aarch64-linux-gnu-gcc-9.cmake
+        ctest_toolchain_file: /tmp/cio/toolchains/aarch64-linux-gnu-gcc-11.cmake
         ctest_configuration_type: Release
 
-  gcc-9-riscv64:
-    name: riscv64 gcc-9 Release
+  gcc-11-riscv64:
+    name: riscv64 gcc-11 Release
     runs-on: ubuntu-20.04
 
     steps:
@@ -220,10 +220,10 @@ jobs:
       uses: gatzka/ctest-build-action@new_compilers
       with:
         install_deps: ./.github/workflows/install-deps.sh
-        ctest_toolchain_file: /tmp/cio/toolchains/riscv64-linux-gcc-9.cmake
+        ctest_toolchain_file: /tmp/cio/toolchains/riscv64-linux-gcc-11.cmake
         ctest_configuration_type: Release
 
-  gcc-9-coverage:
+  gcc-12-coverage:
     name: x86 code coverage
     runs-on: ubuntu-20.04
 
