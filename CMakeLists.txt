@@ -3,6 +3,7 @@ cmake_minimum_required(VERSION 3.11)
 include(FetchContent)
 FetchContent_Declare(GatzkaToolchainFiles
     GIT_REPOSITORY https://github.com/gatzka/cmake-toolchain-files.git
+    GIT_TAG 98787cce81137821f85a129d57081aacd4380ae6 #branch feature/disable_some_analyzer_checks_for_cio
     SOURCE_DIR ${CMAKE_BINARY_DIR}/toolchains
 )
 FetchContent_GetProperties(GatzkaToolchainFiles)

@@ -26,204 +26,204 @@ jobs:
 #    - name: ctest build
 #      run: ctest -VV -DCTEST_CMAKE_GENERATOR="Visual Studio 16 2019" -DCTEST_BUILD_SHARED_LIBS:BOOL=YES -DCTEST_TOOLCHAIN_FILE="/tmp/cio/toolchains/x86_windows_msvc.cmake" -DCTEST_CONFIGURATION_TYPE:STRING=Debug -S build.cmake
 
-  gcc-10-debug:
-    name: x86 gcc-10 Debug
+  gcc-12-debug:
+    name: x86 gcc-12 Debug
     runs-on: ubuntu-20.04
 
     steps:
     - name: Checkout
       uses: actions/checkout@v3
     - name: ctest build
-      uses: gatzka/ctest-build-action@v1.6.0
+      uses: gatzka/ctest-build-action@new_compilers
       with:
         install_deps: ./.github/workflows/install-deps.sh
-        ctest_toolchain_file: /tmp/cio/toolchains/x86-linux-gcc-10.cmake
+        ctest_toolchain_file: /tmp/cio/toolchains/x86-linux-gcc-12.cmake
         ctest_configuration_type: Debug
 
-  gcc-10-release:
-    name: x86 gcc-10 Release
+  gcc-12-release:
+    name: x86 gcc-12 Release
     runs-on: ubuntu-20.04
 
     steps:
     - name: Checkout
       uses: actions/checkout@v3
     - name: ctest build
-      uses: gatzka/ctest-build-action@v1.6.0
+      uses: gatzka/ctest-build-action@new_compilers
       with:
         install_deps: ./.github/workflows/install-deps.sh
-        ctest_toolchain_file: /tmp/cio/toolchains/x86-linux-gcc-10.cmake
+        ctest_toolchain_file: /tmp/cio/toolchains/x86-linux-gcc-12.cmake
         ctest_configuration_type: Release
 
-  gcc-10-valgrind:
-    name: x86 gcc-10 Valgrind
+  gcc-12-valgrind:
+    name: x86 gcc-12 Valgrind
     runs-on: ubuntu-20.04
 
     steps:
     - name: Checkout
       uses: actions/checkout@v3
     - name: ctest build
-      uses: gatzka/ctest-build-action@v1.6.0
+      uses: gatzka/ctest-build-action@new_compilers
       with:
         install_deps: ./.github/workflows/install-deps.sh
-        ctest_toolchain_file: /tmp/cio/toolchains/x86-linux-gcc-10.cmake
+        ctest_toolchain_file: /tmp/cio/toolchains/x86-linux-gcc-12.cmake
         ctest_configuration_type: Valgrind
 
-  clang-11-debug:
-    name: x86 clang-11 Debug
+  clang-15-debug:
+    name: x86 clang-15 Debug
     runs-on: ubuntu-20.04
 
     steps:
     - name: Checkout
       uses: actions/checkout@v3
     - name: ctest build
-      uses: gatzka/ctest-build-action@v1.6.0
+      uses: gatzka/ctest-build-action@new_compilers
       with:
         install_deps: ./.github/workflows/install-deps.sh
-        ctest_toolchain_file: /tmp/cio/toolchains/x86-linux-clang-11.cmake
+        ctest_toolchain_file: /tmp/cio/toolchains/x86-linux-clang-15.cmake
         ctest_configuration_type: Debug
 
-  clang-11-release:
-    name: x86 clang-11 Release
+  clang-15-release:
+    name: x86 clang-15 Release
     runs-on: ubuntu-20.04
 
     steps:
     - name: Checkout
       uses: actions/checkout@v3
     - name: ctest build
-      uses: gatzka/ctest-build-action@v1.6.0
+      uses: gatzka/ctest-build-action@new_compilers
       with:
         install_deps: ./.github/workflows/install-deps.sh
-        ctest_toolchain_file: /tmp/cio/toolchains/x86-linux-clang-11.cmake
+        ctest_toolchain_file: /tmp/cio/toolchains/x86-linux-clang-15.cmake
         ctest_configuration_type: Release
 
-  clang-11-UndefinedBehaviorSanitizer:
-    name: x86 clang-11 UndefinedBehaviorSanitizer
+  clang-15-UndefinedBehaviorSanitizer:
+    name: x86 clang-15 UndefinedBehaviorSanitizer
     runs-on: ubuntu-20.04
 
     steps:
     - name: Checkout
       uses: actions/checkout@v3
     - name: ctest build
-      uses: gatzka/ctest-build-action@v1.6.0
+      uses: gatzka/ctest-build-action@new_compilers
       with:
         install_deps: ./.github/workflows/install-deps.sh
-        ctest_toolchain_file: /tmp/cio/toolchains/x86-linux-clang-11.cmake
+        ctest_toolchain_file: /tmp/cio/toolchains/x86-linux-clang-15.cmake
         ctest_configuration_type: UndefinedBehaviorSanitizer
 
-  clang-11-LeakSanitizer:
-    name: x86 clang-11 LeakSanitizer
+  clang-15-LeakSanitizer:
+    name: x86 clang-15 LeakSanitizer
     runs-on: ubuntu-20.04
 
     steps:
     - name: Checkout
       uses: actions/checkout@v3
     - name: ctest build
-      uses: gatzka/ctest-build-action@v1.6.0
+      uses: gatzka/ctest-build-action@new_compilers
       with:
         install_deps: ./.github/workflows/install-deps.sh
-        ctest_toolchain_file: /tmp/cio/toolchains/x86-linux-clang-11.cmake
+        ctest_toolchain_file: /tmp/cio/toolchains/x86-linux-clang-15.cmake
         ctest_configuration_type: LeakSanitizer
 
-  clang-11-MemorySanitizer:
-    name: x86 clang-11 MemorySanitizer
+  clang-15-MemorySanitizer:
+    name: x86 clang-15 MemorySanitizer
     runs-on: ubuntu-20.04
 
     steps:
     - name: Checkout
       uses: actions/checkout@v3
     - name: ctest build
-      uses: gatzka/ctest-build-action@v1.6.0
+      uses: gatzka/ctest-build-action@new_compilers
       with:
         install_deps: ./.github/workflows/install-deps.sh
-        ctest_toolchain_file: /tmp/cio/toolchains/x86-linux-clang-11.cmake
+        ctest_toolchain_file: /tmp/cio/toolchains/x86-linux-clang-15.cmake
         ctest_configuration_type: MemorySanitizer
 
-  clang-11-AddressSanitizer:
-    name: x86 clang-11 AddressSanitizer
+  clang-15-AddressSanitizer:
+    name: x86 clang-15 AddressSanitizer
     runs-on: ubuntu-20.04
 
     steps:
     - name: Checkout
       uses: actions/checkout@v3
     - name: ctest build
-      uses: gatzka/ctest-build-action@v1.6.0
+      uses: gatzka/ctest-build-action@new_compilers
       with:
         install_deps: ./.github/workflows/install-deps.sh
-        ctest_toolchain_file: /tmp/cio/toolchains/x86-linux-clang-11.cmake
+        ctest_toolchain_file: /tmp/cio/toolchains/x86-linux-clang-15.cmake
         ctest_configuration_type: AddressSanitizer
 
-  clang-11-scanbuild:
-    name: x86 clang-11 scan-build
+  clang-15-scanbuild:
+    name: x86 clang-15 scan-build
     runs-on: ubuntu-20.04
 
     steps:
     - name: Checkout
       uses: actions/checkout@v3
     - name: ctest build
-      uses: gatzka/ctest-build-action@v1.6.0
+      uses: gatzka/ctest-build-action@new_compilers
       with:
         install_deps: ./.github/workflows/install-deps.sh
-        ctest_toolchain_file: /tmp/cio/toolchains/x86-linux-clang-11.cmake
-        ctest_analyzer: scan-build-11
+        ctest_toolchain_file: /tmp/cio/toolchains/x86-linux-clang-15.cmake
+        ctest_analyzer: scan-build-15
 
-  clang-11-clangtidy:
-    name: x86 clang-11 clang-tidy
+  clang-15-clangtidy:
+    name: x86 clang-15 clang-tidy
     runs-on: ubuntu-20.04
 
     steps:
     - name: Checkout
       uses: actions/checkout@v3
     - name: ctest build
-      uses: gatzka/ctest-build-action@v1.6.0
+      uses: gatzka/ctest-build-action@new_compilers
       with:
         install_deps: ./.github/workflows/install-deps.sh
-        ctest_toolchain_file: /tmp/cio/toolchains/x86-linux-clang-11.cmake
-        ctest_analyzer: clang-tidy-11
+        ctest_toolchain_file: /tmp/cio/toolchains/x86-linux-clang-15.cmake
+        ctest_analyzer: clang-tidy-15
         ctest_configuration_type: Release
 
-  gcc-9-arm:
-    name: arm gcc-9 Release
+  gcc-11-arm:
+    name: arm gcc-11 Release
     runs-on: ubuntu-20.04
 
     steps:
     - name: Checkout
       uses: actions/checkout@v3
     - name: ctest build
-      uses: gatzka/ctest-build-action@v1.6.0
+      uses: gatzka/ctest-build-action@new_compilers
       with:
         install_deps: ./.github/workflows/install-deps.sh
-        ctest_toolchain_file: /tmp/cio/toolchains/arm-linux-gnueabihf-gcc-9.cmake
+        ctest_toolchain_file: /tmp/cio/toolchains/arm-linux-gnueabihf-gcc-11.cmake
         ctest_configuration_type: Release
 
-  gcc-9-aarch64:
-    name: aarch64 gcc-9 Release
+  gcc-11-aarch64:
+    name: aarch64 gcc-11 Release
     runs-on: ubuntu-20.04
 
     steps:
     - name: Checkout
       uses: actions/checkout@v3
     - name: ctest build
-      uses: gatzka/ctest-build-action@v1.6.0
+      uses: gatzka/ctest-build-action@new_compilers
       with:
         install_deps: ./.github/workflows/install-deps.sh
-        ctest_toolchain_file: /tmp/cio/toolchains/aarch64-linux-gnu-gcc-9.cmake
+        ctest_toolchain_file: /tmp/cio/toolchains/aarch64-linux-gnu-gcc-11.cmake
         ctest_configuration_type: Release
 
-  gcc-9-riscv64:
-    name: riscv64 gcc-9 Release
+  gcc-11-riscv64:
+    name: riscv64 gcc-11 Release
     runs-on: ubuntu-20.04
 
     steps:
     - name: Checkout
       uses: actions/checkout@v3
     - name: ctest build
-      uses: gatzka/ctest-build-action@v1.6.0
+      uses: gatzka/ctest-build-action@new_compilers
       with:
         install_deps: ./.github/workflows/install-deps.sh
-        ctest_toolchain_file: /tmp/cio/toolchains/riscv64-linux-gcc-9.cmake
+        ctest_toolchain_file: /tmp/cio/toolchains/riscv64-linux-gcc-11.cmake
         ctest_configuration_type: Release
 
-  gcc-9-coverage:
+  gcc-12-coverage:
     name: x86 code coverage
     runs-on: ubuntu-20.04
 
@@ -231,10 +231,10 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v3
     - name: ctest build
-      uses: gatzka/ctest-build-action@v1.6.0
+      uses: gatzka/ctest-build-action@new_compilers
       with:
         install_deps: ./.github/workflows/install-deps.sh
-        ctest_toolchain_file: build/toolchains/x86-linux-gcc-9.cmake
+        ctest_toolchain_file: build/toolchains/x86-linux-gcc-12.cmake
         ctest_configuration_type: Coverage
         ctest_binary_directory: build
     - name: coverage upload
@@ -271,7 +271,7 @@ jobs:
   doxygen:
     name: generate doxygen documentation
     runs-on: ubuntu-20.04
-    needs: [gcc-10-debug, gcc-10-release, gcc-10-valgrind, clang-11-debug, clang-11-release, clang-11-UndefinedBehaviorSanitizer, clang-11-LeakSanitizer, clang-11-MemorySanitizer, clang-11-AddressSanitizer, clang-11-scanbuild, clang-11-clangtidy]
+    needs: [gcc-12-debug, gcc-12-release, gcc-12-valgrind, clang-15-debug, clang-15-release, clang-15-UndefinedBehaviorSanitizer, clang-15-LeakSanitizer, clang-15-MemorySanitizer, clang-15-AddressSanitizer, clang-15-scanbuild, clang-15-clangtidy]
     if: contains(github.ref, 'master')
 
     steps:
