@@ -283,7 +283,7 @@ jobs:
         install_deps: ./.github/workflows/install-deps.sh
         cmake_build_target: cio_docs
     - name: GitHub Pages Deploy
-      uses: gatzka/publish-gh-pages-action@v2.0.0
+      uses: gatzka/publish-gh-pages-action@v2.0.1
       env:
         BUILD_DIR: build/lib/docs/
         GITHUB_TOKEN: ${{ secrets.github_token }}
