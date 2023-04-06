@@ -278,7 +278,7 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v3
     - name: cmake build
-      uses: gatzka/cmake-build-action@v1.4.0
+      uses: gatzka/cmake-build-action@v2.2.0
       with:
         install_deps: ./.github/workflows/install-deps.sh
         cmake_build_target: cio_docs
@@ -298,7 +298,7 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v3
     - name: coverity cmake build
-      uses: gatzka/coverity-cmake-build-action@v1.4.0
+      uses: gatzka/coverity-cmake-build-action@v2.2.0
       with:
         install_deps: ./.github/workflows/install-deps.sh
         cmake_build_type: Debug
