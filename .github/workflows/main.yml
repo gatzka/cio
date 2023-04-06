@@ -261,7 +261,7 @@ jobs:
       with:
         fetch-depth: 0
     - name: sonarcloud cmake build
-      uses: gatzka/sonarcloud-cmake-build-action@main
+      uses: gatzka/sonarcloud-cmake-build-action@v1.5.0
       with:
         install_deps: ./.github/workflows/install-deps.sh
         SONAR_TOKEN: ${{ secrets.SONARCLOUD_TOKEN }}
