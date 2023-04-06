@@ -34,7 +34,7 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v3
     - name: ctest build
-      uses: gatzka/ctest-build-action@new_compilers
+      uses: gatzka/ctest-build-action@v2.0.2
       with:
         install_deps: ./.github/workflows/install-deps.sh
         ctest_toolchain_file: /tmp/cio/toolchains/x86-linux-gcc-12.cmake
@@ -48,7 +48,7 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v3
     - name: ctest build
-      uses: gatzka/ctest-build-action@new_compilers
+      uses: gatzka/ctest-build-action@v2.0.2
       with:
         install_deps: ./.github/workflows/install-deps.sh
         ctest_toolchain_file: /tmp/cio/toolchains/x86-linux-gcc-12.cmake
@@ -62,7 +62,7 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v3
     - name: ctest build
-      uses: gatzka/ctest-build-action@new_compilers
+      uses: gatzka/ctest-build-action@v2.0.2
       with:
         install_deps: ./.github/workflows/install-deps.sh
         ctest_toolchain_file: /tmp/cio/toolchains/x86-linux-gcc-12.cmake
@@ -76,7 +76,7 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v3
     - name: ctest build
-      uses: gatzka/ctest-build-action@new_compilers
+      uses: gatzka/ctest-build-action@v2.0.2
       with:
         install_deps: ./.github/workflows/install-deps.sh
         ctest_toolchain_file: /tmp/cio/toolchains/x86-linux-clang-15.cmake
@@ -90,7 +90,7 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v3
     - name: ctest build
-      uses: gatzka/ctest-build-action@new_compilers
+      uses: gatzka/ctest-build-action@v2.0.2
       with:
         install_deps: ./.github/workflows/install-deps.sh
         ctest_toolchain_file: /tmp/cio/toolchains/x86-linux-clang-15.cmake
@@ -104,7 +104,7 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v3
     - name: ctest build
-      uses: gatzka/ctest-build-action@new_compilers
+      uses: gatzka/ctest-build-action@v2.0.2
       with:
         install_deps: ./.github/workflows/install-deps.sh
         ctest_toolchain_file: /tmp/cio/toolchains/x86-linux-clang-15.cmake
@@ -118,7 +118,7 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v3
     - name: ctest build
-      uses: gatzka/ctest-build-action@new_compilers
+      uses: gatzka/ctest-build-action@v2.0.2
       with:
         install_deps: ./.github/workflows/install-deps.sh
         ctest_toolchain_file: /tmp/cio/toolchains/x86-linux-clang-15.cmake
@@ -132,7 +132,7 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v3
     - name: ctest build
-      uses: gatzka/ctest-build-action@new_compilers
+      uses: gatzka/ctest-build-action@v2.0.2
       with:
         install_deps: ./.github/workflows/install-deps.sh
         ctest_toolchain_file: /tmp/cio/toolchains/x86-linux-clang-15.cmake
@@ -146,7 +146,7 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v3
     - name: ctest build
-      uses: gatzka/ctest-build-action@new_compilers
+      uses: gatzka/ctest-build-action@v2.0.2
       with:
         install_deps: ./.github/workflows/install-deps.sh
         ctest_toolchain_file: /tmp/cio/toolchains/x86-linux-clang-15.cmake
@@ -160,7 +160,7 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v3
     - name: ctest build
-      uses: gatzka/ctest-build-action@new_compilers
+      uses: gatzka/ctest-build-action@v2.0.2
       with:
         install_deps: ./.github/workflows/install-deps.sh
         ctest_toolchain_file: /tmp/cio/toolchains/x86-linux-clang-15.cmake
@@ -174,7 +174,7 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v3
     - name: ctest build
-      uses: gatzka/ctest-build-action@new_compilers
+      uses: gatzka/ctest-build-action@v2.0.2
       with:
         install_deps: ./.github/workflows/install-deps.sh
         ctest_toolchain_file: /tmp/cio/toolchains/x86-linux-clang-15.cmake
@@ -189,7 +189,7 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v3
     - name: ctest build
-      uses: gatzka/ctest-build-action@new_compilers
+      uses: gatzka/ctest-build-action@v2.0.2
       with:
         install_deps: ./.github/workflows/install-deps.sh
         ctest_toolchain_file: /tmp/cio/toolchains/arm-linux-gnueabihf-gcc-11.cmake
@@ -203,7 +203,7 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v3
     - name: ctest build
-      uses: gatzka/ctest-build-action@new_compilers
+      uses: gatzka/ctest-build-action@v2.0.2
       with:
         install_deps: ./.github/workflows/install-deps.sh
         ctest_toolchain_file: /tmp/cio/toolchains/aarch64-linux-gnu-gcc-11.cmake
@@ -217,7 +217,7 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v3
     - name: ctest build
-      uses: gatzka/ctest-build-action@new_compilers
+      uses: gatzka/ctest-build-action@v2.0.2
       with:
         install_deps: ./.github/workflows/install-deps.sh
         ctest_toolchain_file: /tmp/cio/toolchains/riscv64-linux-gcc-11.cmake
@@ -231,7 +231,7 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v3
     - name: ctest build
-      uses: gatzka/ctest-build-action@new_compilers
+      uses: gatzka/ctest-build-action@v2.0.2
       with:
         install_deps: ./.github/workflows/install-deps.sh
         ctest_toolchain_file: build/toolchains/x86-linux-gcc-12.cmake
