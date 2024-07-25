@@ -729,6 +729,9 @@ static void test_notify_single_fd_multiple_events_remove_from_loop(void)
 
 	static const int fake_fd = 42;
 	struct cio_event_notifier *ev = malloc(sizeof(*ev));
+	if (ev == NULL) {
+		TEST_FAIL_MESSAGE("Could not allocate memory for test ev!");
+	}
 	ev->fd = fake_fd;
 	ev->read_callback = epoll_callback_remove_loop;
 	ev->write_callback = epoll_callback;
