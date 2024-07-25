@@ -125,12 +125,19 @@ enum cio_error cio_server_socket_accept(struct cio_server_socket *server_socket,
 	server_socket->impl.ev.read_callback = accept_callback;
 	server_socket->impl.ev.context = server_socket;
 
+#if defined __GNUC__ && !defined __clang__
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wanalyzer-fd-leak"
+#endif
 	int ret = listen(server_socket->impl.ev.fd, server_socket->backlog);
 	if (cio_unlikely(ret < 0)) {
 		return (enum cio_error)(-errno);
 	}
 
 	err = cio_linux_eventloop_add(server_socket->impl.loop, &server_socket->impl.ev);
+#if defined __GNUC__ && !defined __clang__
+#pragma GCC diagnostic pop
+#endif
 	if (cio_unlikely(err != CIO_SUCCESS)) {
 		return err;
 	}
