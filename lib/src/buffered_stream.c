@@ -179,19 +179,20 @@ static void handle_write(struct cio_io_stream *io_stream, void *handler_context,
 
 	struct cio_buffered_stream *buffered_stream = handler_context;
 	if (cio_unlikely(err != CIO_SUCCESS)) {
-		while (!cio_write_buffer_queue_empty(&buffered_stream->wbh)) {
-			struct cio_write_buffer *write_buffer = cio_write_buffer_queue_dequeue(&buffered_stream->wbh);
+		struct cio_write_buffer *write_buffer = cio_write_buffer_queue_dequeue(&buffered_stream->wbh);
+		while (write_buffer != NULL) {
 			if (!buffer_is_temp_buffer(buffered_stream, write_buffer)) {
 				cio_write_buffer_queue_tail(buffered_stream->original_wbh, write_buffer);
 			}
+			write_buffer = cio_write_buffer_queue_dequeue(&buffered_stream->wbh);
 		}
 
 		buffered_stream->write_handler(buffered_stream, buffered_stream->write_handler_context, err);
 		return;
 	}
 
-	while (!cio_write_buffer_queue_empty(&buffered_stream->wbh)) {
-		struct cio_write_buffer *write_buffer = cio_write_buffer_queue_dequeue(&buffered_stream->wbh);
+	struct cio_write_buffer *write_buffer = cio_write_buffer_queue_dequeue(&buffered_stream->wbh);
+	while (write_buffer != NULL) {
 		if (buffer_partially_written(write_buffer, bytes_transferred)) {
 			if (!buffer_is_temp_buffer(buffered_stream, write_buffer)) {
 				cio_write_buffer_queue_tail(buffered_stream->original_wbh, write_buffer);
@@ -208,6 +209,8 @@ static void handle_write(struct cio_io_stream *io_stream, void *handler_context,
 		if (!buffer_is_temp_buffer(buffered_stream, write_buffer)) {
 			cio_write_buffer_queue_tail(buffered_stream->original_wbh, write_buffer);
 		}
+
+		write_buffer = cio_write_buffer_queue_dequeue(&buffered_stream->wbh);
 	}
 
 	if (cio_write_buffer_queue_empty(&buffered_stream->wbh)) {
