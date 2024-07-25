@@ -106,7 +106,7 @@ static enum cio_error client_close(struct cio_io_stream *ios)
 	return CIO_SUCCESS;
 }
 
-static void memory_stream_init(struct memory_stream *ms, const char *fill_pattern)
+static int memory_stream_init(struct memory_stream *ms, const char *fill_pattern)
 {
 	ms->read_pos = 0;
 	ms->size = strlen(fill_pattern);
@@ -114,8 +114,12 @@ static void memory_stream_init(struct memory_stream *ms, const char *fill_patter
 	ms->ios.write_some = write_some;
 	ms->ios.close = client_close;
 	ms->mem = malloc(ms->size + 1);
+	if (ms->mem == NULL) {
+		return -1;
+	}
 	memset(ms->mem, 0x00, ms->size + 1);
 	memcpy(ms->mem, fill_pattern, ms->size);
+	return 0;
 }
 
 void setUp(void)
@@ -491,7 +495,7 @@ static void test_init_missing_stream(void)
 static void test_init_correctly(void)
 {
 	struct client *client = malloc(sizeof(*client));
-	memory_stream_init(&client->ms, "foo");
+	TEST_ASSERT_EQUAL_INT_MESSAGE(0, memory_stream_init(&client->ms, "foo"), "Could not allocate memory for test!");
 
 	uint32_t buffer;
 	struct cio_read_buffer rb;
@@ -510,7 +514,7 @@ static void test_read_at_least(void)
 	struct client *client = malloc(sizeof(*client));
 
 	static const char *test_data = "Hello";
-	memory_stream_init(&client->ms, test_data);
+	TEST_ASSERT_EQUAL_INT_MESSAGE(0, memory_stream_init(&client->ms, test_data), "Could not allocate memory for test!");
 	read_some_fake.custom_fake = read_some_max;
 	dummy_read_handler_fake.custom_fake = save_to_check_buffer;
 
@@ -539,7 +543,7 @@ static void test_read_at_least_close_in_callback(void)
 	struct client *client = malloc(sizeof(*client));
 
 	static const char *test_data = "Hello";
-	memory_stream_init(&client->ms, test_data);
+	TEST_ASSERT_EQUAL_INT_MESSAGE(0, memory_stream_init(&client->ms, test_data), "Could not allocate memory for test!");
 	read_some_fake.custom_fake = read_some_max;
 	dummy_read_handler_fake.custom_fake = save_to_check_buffer_and_close;
 
@@ -565,7 +569,7 @@ static void test_read_at_least_zero_length(void)
 	struct client *client = malloc(sizeof(*client));
 
 	static const char *test_data = "Hello";
-	memory_stream_init(&client->ms, test_data);
+	TEST_ASSERT_EQUAL_INT_MESSAGE(0, memory_stream_init(&client->ms, test_data), "Could not allocate memory for test!");
 	read_some_fake.custom_fake = read_some_max;
 	dummy_read_handler_fake.custom_fake = save_to_check_buffer;
 
@@ -592,7 +596,7 @@ static void test_read_at_least_more_than_buffer_size(void)
 	struct client *client = malloc(sizeof(*client));
 
 	static const char *test_data = "Hello";
-	memory_stream_init(&client->ms, test_data);
+	TEST_ASSERT_EQUAL_INT_MESSAGE(0, memory_stream_init(&client->ms, test_data), "Could not allocate memory for test!");
 
 	uint8_t buffer[40];
 	struct cio_read_buffer rb;
@@ -615,7 +619,7 @@ static void test_read_at_least_no_buffered_stream(void)
 	struct client *client = malloc(sizeof(*client));
 
 	static const char *test_data = "Hello";
-	memory_stream_init(&client->ms, test_data);
+	TEST_ASSERT_EQUAL_INT_MESSAGE(0, memory_stream_init(&client->ms, test_data), "Could not allocate memory for test!");
 
 	uint8_t buffer[40];
 	struct cio_read_buffer rb;
@@ -638,7 +642,7 @@ static void test_read_at_least_no_handler(void)
 	struct client *client = malloc(sizeof(*client));
 
 	static const char *test_data = "Hello";
-	memory_stream_init(&client->ms, test_data);
+	TEST_ASSERT_EQUAL_INT_MESSAGE(0, memory_stream_init(&client->ms, test_data), "Could not allocate memory for test!");
 
 	uint8_t buffer[40];
 	struct cio_read_buffer rb;
@@ -662,7 +666,7 @@ static void test_read_at_least_no_buffer(void)
 
 	size_t read_buffer_size = 40;
 	static const char *test_data = "Hello";
-	memory_stream_init(&client->ms, test_data);
+	TEST_ASSERT_EQUAL_INT_MESSAGE(0, memory_stream_init(&client->ms, test_data), "Could not allocate memory for test!");
 
 	enum cio_error err = cio_buffered_stream_init(&client->bs, &client->ms.ios);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Buffer was not initialized correctly!");
@@ -680,7 +684,7 @@ static void test_read_at_least_ios_error(void)
 	struct client *client = malloc(sizeof(*client));
 
 	static const char *test_data = "Hello";
-	memory_stream_init(&client->ms, test_data);
+	TEST_ASSERT_EQUAL_INT_MESSAGE(0, memory_stream_init(&client->ms, test_data), "Could not allocate memory for test!");
 	read_some_fake.custom_fake = read_some_error;
 
 	uint8_t buffer[40];
@@ -705,7 +709,7 @@ static void test_read_at_least_sync_error(void)
 	struct client *client = malloc(sizeof(*client));
 
 	static const char *test_data = "Hello";
-	memory_stream_init(&client->ms, test_data);
+	TEST_ASSERT_EQUAL_INT_MESSAGE(0, memory_stream_init(&client->ms, test_data), "Could not allocate memory for test!");
 	read_some_fake.custom_fake = read_some_error_sync;
 	dummy_read_handler_fake.custom_fake = save_to_check_buffer_and_close;
 
@@ -731,7 +735,7 @@ static void test_read_at_least_chunks(void)
 	struct client *client = malloc(sizeof(*client));
 
 	static const char *test_data = "HelloWorld!";
-	memory_stream_init(&client->ms, test_data);
+	TEST_ASSERT_EQUAL_INT_MESSAGE(0, memory_stream_init(&client->ms, test_data), "Could not allocate memory for test!");
 	read_some_fake.custom_fake = read_some_chunks;
 	dummy_read_handler_fake.custom_fake = save_to_check_buffer;
 
@@ -769,7 +773,7 @@ static void test_read_at_least_second_read_in_callback(void)
 
 	char chunk2_buf[] = CHUNK2;
 	static const char *test_data = CHUNK1 CHUNK2;
-	memory_stream_init(&client->ms, test_data);
+	TEST_ASSERT_EQUAL_INT_MESSAGE(0, memory_stream_init(&client->ms, test_data), "Could not allocate memory for test!");
 	read_some_fake.custom_fake = read_some_max;
 	dummy_read_handler_fake.custom_fake = save_to_check_buffer_and_read_at_least_again;
 	second_dummy_read_handler_fake.custom_fake = save_to_second_check_buffer;
@@ -804,7 +808,7 @@ static void test_read_at_most(void)
 	struct client *client = malloc(sizeof(*client));
 
 	static const char *test_data = "Hello";
-	memory_stream_init(&client->ms, test_data);
+	TEST_ASSERT_EQUAL_INT_MESSAGE(0, memory_stream_init(&client->ms, test_data), "Could not allocate memory for test!");
 	read_some_fake.custom_fake = read_some_max;
 	dummy_read_handler_fake.custom_fake = save_to_check_buffer;
 
@@ -833,7 +837,7 @@ static void test_read_at_most_more_than_buffer_size(void)
 	struct client *client = malloc(sizeof(*client));
 
 	static const char *test_data = "Hello";
-	memory_stream_init(&client->ms, test_data);
+	TEST_ASSERT_EQUAL_INT_MESSAGE(0, memory_stream_init(&client->ms, test_data), "Could not allocate memory for test!");
 	read_some_fake.custom_fake = read_some_max;
 	dummy_read_handler_fake.custom_fake = save_to_check_buffer;
 
@@ -862,7 +866,7 @@ static void test_read_at_most_no_buffered_stream(void)
 	struct client *client = malloc(sizeof(*client));
 
 	static const char *test_data = "Hello";
-	memory_stream_init(&client->ms, test_data);
+	TEST_ASSERT_EQUAL_INT_MESSAGE(0, memory_stream_init(&client->ms, test_data), "Could not allocate memory for test!");
 
 	uint8_t buffer[40];
 	struct cio_read_buffer rb;
@@ -886,7 +890,7 @@ static void test_read_at_most_no_buffer(void)
 
 	size_t read_buffer_size = 40;
 	static const char *test_data = "Hello";
-	memory_stream_init(&client->ms, test_data);
+	TEST_ASSERT_EQUAL_INT_MESSAGE(0, memory_stream_init(&client->ms, test_data), "Could not allocate memory for test!");
 
 	enum cio_error err = cio_buffered_stream_init(&client->bs, &client->ms.ios);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Buffer was not initialized correctly!");
@@ -904,7 +908,7 @@ static void test_read_at_most_no_handler(void)
 	struct client *client = malloc(sizeof(*client));
 
 	static const char *test_data = "Hello";
-	memory_stream_init(&client->ms, test_data);
+	TEST_ASSERT_EQUAL_INT_MESSAGE(0, memory_stream_init(&client->ms, test_data), "Could not allocate memory for test!");
 
 	uint8_t buffer[40];
 	struct cio_read_buffer rb;
@@ -927,7 +931,7 @@ static void test_read_at_most_ios_error(void)
 	struct client *client = malloc(sizeof(*client));
 
 	static const char *test_data = "Hello";
-	memory_stream_init(&client->ms, test_data);
+	TEST_ASSERT_EQUAL_INT_MESSAGE(0, memory_stream_init(&client->ms, test_data), "Could not allocate memory for test!");
 	read_some_fake.custom_fake = read_some_error;
 
 	uint8_t buffer[40];
@@ -954,7 +958,7 @@ static void test_read_until(void)
 	struct client *client = malloc(sizeof(*client));
 
 	static const char *test_data = PRE_DELIM DELIM "Example";
-	memory_stream_init(&client->ms, test_data);
+	TEST_ASSERT_EQUAL_INT_MESSAGE(0, memory_stream_init(&client->ms, test_data), "Could not allocate memory for test!");
 	read_some_fake.custom_fake = read_some_max;
 	dummy_read_handler_fake.custom_fake = save_to_check_buffer;
 
@@ -985,7 +989,7 @@ static void test_read_until_and_close(void)
 	struct client *client = malloc(sizeof(*client));
 
 	static const char *test_data = PRE_DELIM DELIM "Example";
-	memory_stream_init(&client->ms, test_data);
+	TEST_ASSERT_EQUAL_INT_MESSAGE(0, memory_stream_init(&client->ms, test_data), "Could not allocate memory for test!");
 	read_some_fake.custom_fake = read_some_max;
 	dummy_read_handler_fake.custom_fake = save_to_check_buffer_and_close;
 
@@ -1014,7 +1018,7 @@ static void test_read_until_not_found(void)
 	struct client *client = malloc(sizeof(*client));
 
 	static const char *test_data = PRE_DELIM DELIM "Example";
-	memory_stream_init(&client->ms, test_data);
+	TEST_ASSERT_EQUAL_INT_MESSAGE(0, memory_stream_init(&client->ms, test_data), "Could not allocate memory for test!");
 	read_some_fake.custom_fake = read_some_max;
 	dummy_read_handler_fake.custom_fake = save_to_check_buffer;
 
@@ -1047,7 +1051,7 @@ static void test_read_until_zero_length_delim(void)
 	struct client *client = malloc(sizeof(*client));
 
 	static const char *test_data = PRE_DELIM DELIM "Example";
-	memory_stream_init(&client->ms, test_data);
+	TEST_ASSERT_EQUAL_INT_MESSAGE(0, memory_stream_init(&client->ms, test_data), "Could not allocate memory for test!");
 	read_some_fake.custom_fake = read_some_max;
 	dummy_read_handler_fake.custom_fake = save_to_check_buffer;
 
@@ -1077,7 +1081,7 @@ static void test_read_until_NULL_delim(void)
 	struct client *client = malloc(sizeof(*client));
 
 	static const char *test_data = PRE_DELIM DELIM "Example";
-	memory_stream_init(&client->ms, test_data);
+	TEST_ASSERT_EQUAL_INT_MESSAGE(0, memory_stream_init(&client->ms, test_data), "Could not allocate memory for test!");
 	read_some_fake.custom_fake = read_some_max;
 	dummy_read_handler_fake.custom_fake = save_to_check_buffer;
 
@@ -1105,7 +1109,7 @@ static void test_read_until_no_buffered_stream(void)
 	struct client *client = malloc(sizeof(*client));
 
 	static const char *test_data = PRE_DELIM DELIM "Example";
-	memory_stream_init(&client->ms, test_data);
+	TEST_ASSERT_EQUAL_INT_MESSAGE(0, memory_stream_init(&client->ms, test_data), "Could not allocate memory for test!");
 	read_some_fake.custom_fake = read_some_max;
 	dummy_read_handler_fake.custom_fake = save_to_check_buffer;
 
@@ -1133,7 +1137,7 @@ static void test_read_until_no_buffer(void)
 	struct client *client = malloc(sizeof(*client));
 
 	static const char *test_data = PRE_DELIM DELIM "Example";
-	memory_stream_init(&client->ms, test_data);
+	TEST_ASSERT_EQUAL_INT_MESSAGE(0, memory_stream_init(&client->ms, test_data), "Could not allocate memory for test!");
 	read_some_fake.custom_fake = read_some_max;
 	dummy_read_handler_fake.custom_fake = save_to_check_buffer;
 
@@ -1156,7 +1160,7 @@ static void test_read_until_no_handler(void)
 	struct client *client = malloc(sizeof(*client));
 
 	static const char *test_data = PRE_DELIM DELIM "Example";
-	memory_stream_init(&client->ms, test_data);
+	TEST_ASSERT_EQUAL_INT_MESSAGE(0, memory_stream_init(&client->ms, test_data), "Could not allocate memory for test!");
 	read_some_fake.custom_fake = read_some_max;
 	dummy_read_handler_fake.custom_fake = save_to_check_buffer;
 
@@ -1188,7 +1192,7 @@ static void test_read_until_second_read_in_callback(void)
 	struct client *client = malloc(sizeof(*client));
 
 	static const char *test_data = PRE_DELIM1 DELIM1 PRE_DELIM2 DELIM2 "Example";
-	memory_stream_init(&client->ms, test_data);
+	TEST_ASSERT_EQUAL_INT_MESSAGE(0, memory_stream_init(&client->ms, test_data), "Could not allocate memory for test!");
 	read_some_fake.custom_fake = read_some_max;
 	dummy_read_handler_fake.custom_fake = save_to_check_buffer_and_read_until_again;
 	second_dummy_read_handler_fake.custom_fake = save_to_second_check_buffer;
@@ -1228,7 +1232,7 @@ static void test_read_at_least_then_until(void)
 	struct client *client = malloc(sizeof(*client));
 
 	static const char *test_data = BUFFER_FOR_EXACTLY PRE_DELIM DELIM REST;
-	memory_stream_init(&client->ms, test_data);
+	TEST_ASSERT_EQUAL_INT_MESSAGE(0, memory_stream_init(&client->ms, test_data), "Could not allocate memory for test!");
 	read_some_fake.custom_fake = read_some_chunks;
 	dummy_read_handler_fake.custom_fake = save_to_check_buffer;
 
@@ -1276,7 +1280,7 @@ static void test_write_two_buffers_partial_write(void)
 	cio_write_buffer_const_element_init(&wb2, test_data + (strlen(test_data) / 2), strlen(test_data) - strlen(test_data) / 2);
 	cio_write_buffer_queue_tail(&wbh, &wb2);
 
-	memory_stream_init(&client->ms, "");
+	TEST_ASSERT_EQUAL_INT_MESSAGE(0, memory_stream_init(&client->ms, ""), "Could not allocate memory for test!");
 	write_some_fake.custom_fake = write_some_first_write_partial;
 
 	uint8_t buffer[40];
@@ -1318,7 +1322,7 @@ static void test_write_three_buffers_two_partial_writes(void)
 	cio_write_buffer_const_element_init(&wb3, test_data + (2 * (strlen(test_data_chunk))), strlen(test_data_chunk));
 	cio_write_buffer_queue_tail(&wbh, &wb3);
 
-	memory_stream_init(&client->ms, "");
+	TEST_ASSERT_EQUAL_INT_MESSAGE(0, memory_stream_init(&client->ms, ""), "Could not allocate memory for test!");
 	write_some_fake.custom_fake = write_some_first_and_second_write_partial;
 
 	uint8_t buffer[40];
@@ -1352,7 +1356,7 @@ static void test_write_one_buffer_one_chunk(void)
 	cio_write_buffer_const_element_init(&wb, test_data, strlen(test_data));
 	cio_write_buffer_queue_tail(&wbh, &wb);
 
-	memory_stream_init(&client->ms, "");
+	TEST_ASSERT_EQUAL_INT_MESSAGE(0, memory_stream_init(&client->ms, ""), "Could not allocate memory for test!");
 	write_some_fake.custom_fake = write_some_all;
 
 	enum cio_error err = cio_buffered_stream_init(&client->bs, &client->ms.ios);
@@ -1382,7 +1386,7 @@ static void test_write_one_buffer_one_chunk_read_in_callbacks_then_close(void)
 	write_some_fake.custom_fake = write_some_all;
 
 	static const char *read_test_data = CHUNK1 CHUNK2;
-	memory_stream_init(&client->ms, read_test_data);
+	TEST_ASSERT_EQUAL_INT_MESSAGE(0, memory_stream_init(&client->ms, read_test_data), "Could not allocate memory for test!");
 	read_some_fake.custom_fake = read_some_max;
 	dummy_read_handler_fake.custom_fake = save_to_check_buffer_and_read_again;
 	second_dummy_read_handler_fake.custom_fake = save_to_second_check_buffer_and_close;
@@ -1414,6 +1418,9 @@ static void test_write_one_buffer_one_chunk_read_in_callbacks_then_close(void)
 	TEST_ASSERT_EQUAL_MESSAGE(&rb, second_dummy_read_handler_fake.arg3_val, "Second handler was not called with original read buffer!");
 
 	char *result = malloc(strlen(CHUNK1) + strlen(CHUNK2) + 1);
+	if (result == NULL) {
+		TEST_FAIL_MESSAGE("Could not allocate memory for chunks!");
+	}
 	memcpy(result, first_check_buffer, first_check_buffer_pos);
 	memcpy(&result[first_check_buffer_pos], second_check_buffer, second_check_buffer_pos);
 	TEST_ASSERT_MESSAGE(memcmp(result, CHUNK1 CHUNK2, strlen(CHUNK1 CHUNK2)) == 0, "Handler was not called with correct data!");
@@ -1440,7 +1447,7 @@ static void test_write_two_buffers_double_partial_write(void)
 	cio_write_buffer_const_element_init(&wb2, test_data + (strlen(test_data) / 2), strlen(test_data) - strlen(test_data) / 2);
 	cio_write_buffer_queue_tail(&wbh, &wb2);
 
-	memory_stream_init(&client->ms, "");
+	TEST_ASSERT_EQUAL_INT_MESSAGE(0, memory_stream_init(&client->ms, ""), "Could not allocate memory for test!");
 	write_some_fake.custom_fake = write_some_double_write_partial;
 
 	enum cio_error err = cio_buffered_stream_init(&client->bs, &client->ms.ios);
@@ -1474,7 +1481,7 @@ static void test_write_two_buffers_partial_write_at_buffer_boundary(void)
 	cio_write_buffer_const_element_init(&wb2, test_data + (strlen(test_data) / 2), strlen(test_data) - strlen(test_data) / 2);
 	cio_write_buffer_queue_tail(&wbh, &wb2);
 
-	memory_stream_init(&client->ms, "");
+	TEST_ASSERT_EQUAL_INT_MESSAGE(0, memory_stream_init(&client->ms, ""), "Could not allocate memory for test!");
 	write_some_fake.custom_fake = write_some_first_write_partial_at_buffer_boundary;
 
 	enum cio_error err = cio_buffered_stream_init(&client->bs, &client->ms.ios);
@@ -1504,7 +1511,7 @@ static void test_write_one_buffer_one_chunk_error(void)
 	cio_write_buffer_const_element_init(&wb, test_data, strlen(test_data));
 	cio_write_buffer_queue_tail(&wbh, &wb);
 
-	memory_stream_init(&client->ms, "");
+	TEST_ASSERT_EQUAL_INT_MESSAGE(0, memory_stream_init(&client->ms, ""), "Could not allocate memory for test!");
 	write_some_fake.custom_fake = write_some_error;
 
 	enum cio_error err = cio_buffered_stream_init(&client->bs, &client->ms.ios);
@@ -1531,7 +1538,7 @@ static void test_write_one_buffer_one_chunk_error_sync(void)
 	cio_write_buffer_const_element_init(&wb, test_data, strlen(test_data));
 	cio_write_buffer_queue_tail(&wbh, &wb);
 
-	memory_stream_init(&client->ms, "");
+	TEST_ASSERT_EQUAL_INT_MESSAGE(0, memory_stream_init(&client->ms, ""), "Could not allocate memory for test!");
 	write_some_fake.custom_fake = write_some_error_sync;
 
 	enum cio_error err = cio_buffered_stream_init(&client->bs, &client->ms.ios);
@@ -1557,7 +1564,7 @@ static void test_write_no_buffered_stream_for_write(void)
 	cio_write_buffer_const_element_init(&wb, test_data, strlen(test_data));
 	cio_write_buffer_queue_tail(&wbh, &wb);
 
-	memory_stream_init(&client->ms, "");
+	TEST_ASSERT_EQUAL_INT_MESSAGE(0, memory_stream_init(&client->ms, ""), "Could not allocate memory for test!");
 	write_some_fake.custom_fake = write_some_all;
 
 	enum cio_error err = cio_buffered_stream_init(&client->bs, &client->ms.ios);
@@ -1583,7 +1590,7 @@ static void test_write_no_buffer_for_write(void)
 	cio_write_buffer_const_element_init(&wb, test_data, strlen(test_data));
 	cio_write_buffer_queue_tail(&wbh, &wb);
 
-	memory_stream_init(&client->ms, "");
+	TEST_ASSERT_EQUAL_INT_MESSAGE(0, memory_stream_init(&client->ms, ""), "Could not allocate memory for test!");
 	write_some_fake.custom_fake = write_some_all;
 
 	enum cio_error err = cio_buffered_stream_init(&client->bs, &client->ms.ios);
@@ -1609,7 +1616,7 @@ static void test_write_no_handler_for_write(void)
 	cio_write_buffer_const_element_init(&wb, test_data, strlen(test_data));
 	cio_write_buffer_queue_tail(&wbh, &wb);
 
-	memory_stream_init(&client->ms, "");
+	TEST_ASSERT_EQUAL_INT_MESSAGE(0, memory_stream_init(&client->ms, ""), "Could not allocate memory for test!");
 	write_some_fake.custom_fake = write_some_all;
 
 	enum cio_error err = cio_buffered_stream_init(&client->bs, &client->ms.ios);
@@ -1635,7 +1642,7 @@ static void test_write_one_buffer_partial_write_error(void)
 	cio_write_buffer_const_element_init(&wb, test_data, strlen(test_data));
 	cio_write_buffer_queue_tail(&wbh, &wb);
 
-	memory_stream_init(&client->ms, "");
+	TEST_ASSERT_EQUAL_INT_MESSAGE(0, memory_stream_init(&client->ms, ""), "Could not allocate memory for test!");
 	write_some_fake.custom_fake = write_some_first_write_partial_second_error;
 
 	enum cio_error err = cio_buffered_stream_init(&client->bs, &client->ms.ios);
@@ -1672,7 +1679,7 @@ static void test_write_one_buffer_partial_write_error_at_element_boundary(void)
 	cio_write_buffer_const_element_init(&wb3, test_data3, strlen(test_data3));
 	cio_write_buffer_queue_tail(&wbh, &wb3);
 
-	memory_stream_init(&client->ms, "");
+	TEST_ASSERT_EQUAL_INT_MESSAGE(0, memory_stream_init(&client->ms, ""), "Could not allocate memory for test!");
 	write_some_fake.custom_fake = write_some_first_write_partial_at_element_boundary_second_error;
 
 	enum cio_error err = cio_buffered_stream_init(&client->bs, &client->ms.ios);
@@ -1699,7 +1706,7 @@ static void test_write_one_buffer_partial_write_error_sync(void)
 	cio_write_buffer_const_element_init(&wb, test_data, strlen(test_data));
 	cio_write_buffer_queue_tail(&wbh, &wb);
 
-	memory_stream_init(&client->ms, "");
+	TEST_ASSERT_EQUAL_INT_MESSAGE(0, memory_stream_init(&client->ms, ""), "Could not allocate memory for test!");
 	write_some_fake.custom_fake = write_some_first_write_partial_second_error_sync;
 
 	enum cio_error err = cio_buffered_stream_init(&client->bs, &client->ms.ios);
@@ -1726,7 +1733,7 @@ static void test_write_one_buffer_partial_write_third_write_error_sync(void)
 	cio_write_buffer_const_element_init(&wb, test_data, strlen(test_data));
 	cio_write_buffer_queue_tail(&wbh, &wb);
 
-	memory_stream_init(&client->ms, "");
+	TEST_ASSERT_EQUAL_INT_MESSAGE(0, memory_stream_init(&client->ms, ""), "Could not allocate memory for test!");
 	write_some_fake.custom_fake = write_some_first_writes_partial_third_error_sync;
 
 	enum cio_error err = cio_buffered_stream_init(&client->bs, &client->ms.ios);
@@ -1756,7 +1763,7 @@ static void test_write_two_buffers_one_chunk(void)
 	cio_write_buffer_const_element_init(&wb2, test_data + (strlen(test_data) / 2), strlen(test_data) - strlen(test_data) / 2);
 	cio_write_buffer_queue_tail(&wbh, &wb2);
 
-	memory_stream_init(&client->ms, "");
+	TEST_ASSERT_EQUAL_INT_MESSAGE(0, memory_stream_init(&client->ms, ""), "Could not allocate memory for test!");
 	write_some_fake.custom_fake = write_some_all;
 
 	enum cio_error err = cio_buffered_stream_init(&client->bs, &client->ms.ios);
@@ -1787,7 +1794,7 @@ static void test_write_two_buffers_one_chunk_last_buffer_empty(void)
 	cio_write_buffer_const_element_init(&wb2, NULL, 0);
 	cio_write_buffer_queue_tail(&wbh, &wb2);
 
-	memory_stream_init(&client->ms, "");
+	TEST_ASSERT_EQUAL_INT_MESSAGE(0, memory_stream_init(&client->ms, ""), "Could not allocate memory for test!");
 	write_some_fake.custom_fake = write_some_all;
 
 	enum cio_error err = cio_buffered_stream_init(&client->bs, &client->ms.ios);
@@ -1806,7 +1813,7 @@ static void test_write_two_buffers_one_chunk_last_buffer_empty(void)
 static void test_close_no_stream(void)
 {
 	struct client *client = malloc(sizeof(*client));
-	memory_stream_init(&client->ms, "");
+	TEST_ASSERT_EQUAL_INT_MESSAGE(0, memory_stream_init(&client->ms, ""), "Could not allocate memory for test!");
 
 	enum cio_error err = cio_buffered_stream_init(&client->bs, &client->ms.ios);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Buffer was not initialized correctly!");

@@ -276,6 +276,9 @@ static struct cio_socket *alloc_dummy_client(void)
 static struct cio_socket *alloc_dummy_client_no_buffer(void)
 {
 	struct cio_http_client *client = malloc(sizeof(*client) + 0);
+	if (client == NULL) {
+		TEST_FAIL_MESSAGE("Could not allocate memory for client structure!");
+	}
 	memset(client, 0xaf, sizeof(*client));
 	client->buffer_size = 0;
 	client->socket.close_hook = free_dummy_client;

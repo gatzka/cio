@@ -2521,8 +2521,14 @@ static void test_send_text_binary_frame(void)
 				enum frame_direction direction = directions[k];
 				uint32_t frame_size = frame_sizes[i];
 				char *data = malloc(frame_size);
+				if (data == NULL) {
+					TEST_FAIL_MESSAGE("Could not allocate memory for test frame!");
+				}
 				memset(data, 'a', frame_size);
 				char *check_data = malloc(frame_size);
+				if (check_data == NULL) {
+					TEST_FAIL_MESSAGE("Could not allocate memory for check frame!");
+				}
 				memcpy(check_data, data, frame_size);
 
 				struct ws_frame frames[] = {
