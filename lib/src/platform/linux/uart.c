@@ -44,6 +44,11 @@
 #include "cio/uart.h"
 #include "cio/util.h"
 
+static inline size_t min_sizet(size_t a, size_t b)
+{
+	return a < b ? a : b;
+}
+
 static const char DIR_NAME[] = "/dev/serial/by-path/";
 
 static void read_callback(void *context, enum cio_epoll_error error)
@@ -205,8 +210,9 @@ enum cio_error cio_uart_get_ports(struct cio_uart ports[], size_t num_ports_entr
 		}
 
 		if (dir_entry->d_type == DT_LNK) {
-			char src_buffer[sizeof(DIR_NAME)];
-			strncpy(src_buffer, DIR_NAME, sizeof(DIR_NAME));
+			char src_buffer[PATH_MAX + 1];
+			size_t max_copy_size = min_sizet(sizeof(DIR_NAME), sizeof(src_buffer));
+			strncpy(src_buffer, DIR_NAME, max_copy_size);
 			size_t len = strlen(src_buffer);
 			strncpy(src_buffer + len, dir_entry->d_name, sizeof(src_buffer) - len);
 
@@ -219,7 +225,7 @@ enum cio_error cio_uart_get_ports(struct cio_uart ports[], size_t num_ports_entr
 
 			dst_buffer[name_len] = '\0';
 
-			strncpy(src_buffer, DIR_NAME, sizeof(DIR_NAME));
+			strncpy(src_buffer, DIR_NAME, max_copy_size);
 			len = strlen(src_buffer);
 			strncpy(src_buffer + len, dir_entry->d_name, sizeof(src_buffer) - len);
 
