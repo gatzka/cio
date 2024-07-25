@@ -1944,6 +1944,8 @@ static void test_close_in_get_length(void)
 	for (unsigned int i = 0; i < ARRAY_SIZE(frame_sizes); i++) {
 		uint32_t frame_size = frame_sizes[i];
 		char *data = malloc(frame_size);
+		TEST_ASSERT_NOT_NULL_MESSAGE(data, "Could not allocate test data!");
+
 		memset(data, 'a', frame_size);
 		struct ws_frame frames[] = {
 		    {.frame_type = CIO_WEBSOCKET_TEXT_FRAME, .direction = FROM_CLIENT, .data = data, .data_length = frame_size, .last_frame = true, .rsv = false},

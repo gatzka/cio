@@ -294,6 +294,9 @@ static struct cio_io_stream *get_null_io_stream(struct cio_socket *context)
 static struct cio_socket *alloc_dummy_client_no_iostream(void)
 {
 	struct cio_http_client *client = malloc(sizeof(*client) + read_buffer_size);
+	if (client == NULL) {
+		TEST_FAIL_MESSAGE("Could not allocate memory for test client!");
+	}
 	memset(client, 0xaf, sizeof(*client));
 	client->buffer_size = read_buffer_size;
 	cio_socket_get_io_stream_fake.custom_fake = get_null_io_stream;
