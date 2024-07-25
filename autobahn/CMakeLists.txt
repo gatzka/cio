@@ -7,6 +7,7 @@ add_executable(autobahn_server
 )
 target_link_libraries (autobahn_server cio::cio)
 set_target_properties(autobahn_server PROPERTIES
+    COMPILE_OPTIONS "$<$<C_COMPILER_ID:GNU>:-Wno-analyzer-malloc-leak>"
     C_STANDARD_REQUIRED ON
     C_EXTENSIONS OFF
 )

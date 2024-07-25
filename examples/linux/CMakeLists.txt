@@ -13,6 +13,7 @@ foreach(tgt ${targets})
     if (target_type STREQUAL "EXECUTABLE")
         target_link_libraries(${tgt} cio::cio)
         set_target_properties(${tgt} PROPERTIES
+            COMPILE_OPTIONS "$<$<C_COMPILER_ID:GNU>:-Wno-analyzer-malloc-leak>"
             C_STANDARD_REQUIRED ON
             C_EXTENSIONS OFF
         )
