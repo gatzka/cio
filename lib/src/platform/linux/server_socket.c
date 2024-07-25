@@ -125,7 +125,8 @@ enum cio_error cio_server_socket_accept(struct cio_server_socket *server_socket,
 	server_socket->impl.ev.read_callback = accept_callback;
 	server_socket->impl.ev.context = server_socket;
 
-	if (cio_unlikely(listen(server_socket->impl.ev.fd, server_socket->backlog) < 0)) {
+	int ret = listen(server_socket->impl.ev.fd, server_socket->backlog);
+	if (cio_unlikely(ret < 0)) {
 		return (enum cio_error)(-errno);
 	}
 
