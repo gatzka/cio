@@ -39,7 +39,7 @@ DEFINE_FFF_GLOBALS
 #undef ARRAY_SIZE
 #define ARRAY_SIZE(a) (sizeof(a) / sizeof((a)[0]))
 
-FAKE_VALUE_FUNC(int, getentropy, void*, size_t)
+FAKE_VALUE_FUNC(int, getentropy, void *, size_t)
 
 void setUp(void)
 {

@@ -123,7 +123,7 @@ static void cancel_timer_and_reset_connection(struct cio_socket *socket)
 	reset_connection(socket);
 }
 
-enum {READ_CLOSE_BUFFER_SIZE = 20};
+enum { READ_CLOSE_BUFFER_SIZE = 20 };
 
 static void read_until_close_callback(void *context, enum cio_epoll_error error)
 {

@@ -912,7 +912,7 @@ static void test_send_multiple_jobs_with_failures(void)
 {
 	char buffer[125] = {'a'};
 
-	typedef enum cio_error (*write_func)(struct cio_buffered_stream * buffered_stream, struct cio_write_buffer * buffer, cio_buffered_stream_write_handler_t handler, void *handler_context);
+	typedef enum cio_error (*write_func)(struct cio_buffered_stream *buffered_stream, struct cio_write_buffer *buffer, cio_buffered_stream_write_handler_t handler, void *handler_context);
 	write_func write_funcs[3] = {bs_write_later, bs_write_error, bs_write_ok};
 
 	cio_buffered_stream_write_fake.custom_fake_seq = write_funcs;

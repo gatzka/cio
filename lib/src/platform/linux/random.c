@@ -33,7 +33,6 @@
 #include "cio/error_code.h"
 #include "cio/random.h"
 
-
 enum cio_error cio_entropy_get_bytes(void *bytes, size_t num_bytes)
 {
 	int ret = getentropy(bytes, num_bytes);

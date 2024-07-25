@@ -42,7 +42,7 @@
 
 #define CIO_MIN(a, b) ((a) < (b) ? (a) : (b))
 
-enum {OPCODE_MASK = 0xfU};
+enum { OPCODE_MASK = 0xfU };
 
 static const uint8_t RSV_MASK = 0x70;
 static const uint8_t WS_MASK_SET = 0x80;

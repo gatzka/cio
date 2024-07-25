@@ -1686,7 +1686,7 @@ static void test_errors_in_accept(void)
 		free_dummy_client(client_socket);
 		client_socket = accept_test.alloc_client();
 
-		enum cio_error (*timer_init_fakes[])(struct cio_timer * timer, struct cio_eventloop * l, cio_timer_close_hook_t hook) = {
+		enum cio_error (*timer_init_fakes[])(struct cio_timer *timer, struct cio_eventloop *l, cio_timer_close_hook_t hook) = {
 		    accept_test.response_timer_init,
 		    accept_test.request_timer_init};
 
@@ -1817,7 +1817,7 @@ static void test_parse_errors(void)
 
 static void test_timer_cancel_errors(void)
 {
-	enum cio_error (*timer_cancel_fakes[3])(struct cio_timer * timer);
+	enum cio_error (*timer_cancel_fakes[3])(struct cio_timer *timer);
 
 	for (unsigned int i = 0; i < ARRAY_SIZE(timer_cancel_fakes); i++) {
 		timer_cancel_fakes[0] = cancel_timer;
@@ -1868,7 +1868,7 @@ static void test_timer_cancel_errors(void)
 
 static void test_timer_expires_errors(void)
 {
-	enum cio_error (*timer_expires_fakes[4])(struct cio_timer * timer, uint64_t timeout_ns, cio_timer_handler_t handler, void *handler_context);
+	enum cio_error (*timer_expires_fakes[4])(struct cio_timer *timer, uint64_t timeout_ns, cio_timer_handler_t handler, void *handler_context);
 
 	for (unsigned int i = 0; i < ARRAY_SIZE(timer_expires_fakes); i++) {
 		timer_expires_fakes[0] = expires;
