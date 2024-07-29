@@ -26,6 +26,7 @@
  * SOFTWARE.
  */
 
+#include <netinet/in.h>
 #include <stddef.h>
 #include <stdint.h>
 #include <string.h>

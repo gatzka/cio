@@ -33,13 +33,13 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <string.h>
-#include <sys/stat.h>
 #include <sys/types.h>
 #include <termios.h>
 #include <unistd.h>
 
 #include "cio/compiler.h"
 #include "cio/error_code.h"
+#include "cio/io_stream.h"
 #include "cio/linux_socket_utils.h"
 #include "cio/uart.h"
 #include "cio/util.h"

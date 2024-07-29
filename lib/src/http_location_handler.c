@@ -27,6 +27,7 @@
  */
 
 #include <stdbool.h>
+#include <stddef.h>
 
 #include "cio/http_location_handler.h"
 

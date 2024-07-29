@@ -27,12 +27,13 @@
  */
 
 #include <errno.h>
+#include <netinet/in.h>
 #include <sys/socket.h>
 #include <unistd.h>
 
+#include "cio/address_family.h"
 #include "cio/compiler.h"
 #include "cio/error_code.h"
-#include "cio/inet_address.h"
 #include "cio/linux_socket_utils.h"
 
 int cio_linux_socket_create(enum cio_address_family address_family)
