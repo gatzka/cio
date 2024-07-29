@@ -29,6 +29,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <string.h>
+#include <sys/socket.h>
 
 #include "cio/address_family.h"
 #include "cio/compiler.h"
