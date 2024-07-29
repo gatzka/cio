@@ -36,7 +36,6 @@
 #include "cio/inet4_socket_address.h"
 #include "cio/inet6_socket_address.h"
 #include "cio/inet_address.h"
-#include "cio/socket_address.h"
 #include "cio/unix_address.h"
 
 #ifdef __cplusplus
