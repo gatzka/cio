@@ -29,6 +29,8 @@
 #include <stdbool.h>
 #include <string.h>
 
+#include <sys/socket.h>
+
 #include "cio/compiler.h"
 #include "cio/error_code.h"
 #include "cio/export.h"
