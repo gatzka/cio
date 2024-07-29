@@ -341,16 +341,18 @@ static void test_cio_write_buffer_split_and_append(void)
 			e = e->next;
 		}
 
-		while (!cio_write_buffer_queue_empty(&wbh_to_split)) {
-			struct cio_write_buffer *remaining_buffer_in_split_list = cio_write_buffer_queue_dequeue(&wbh_to_split);
+		struct cio_write_buffer *remaining_buffer_in_split_list = cio_write_buffer_queue_dequeue(&wbh_to_split);
+		while (remaining_buffer_in_split_list != NULL) {
 			free(remaining_buffer_in_split_list->data.element.data);
 			free(remaining_buffer_in_split_list);
+			remaining_buffer_in_split_list = cio_write_buffer_queue_dequeue(&wbh_to_split);
 		}
 
-		while (!cio_write_buffer_queue_empty(&wbh_to_append)) {
-			struct cio_write_buffer *remaining_buffer_in_append_list = cio_write_buffer_queue_dequeue(&wbh_to_append);
+		struct cio_write_buffer *remaining_buffer_in_append_list = cio_write_buffer_queue_dequeue(&wbh_to_append);
+		while (remaining_buffer_in_append_list != NULL) {
 			free(remaining_buffer_in_append_list->data.element.data);
 			free(remaining_buffer_in_append_list);
+			remaining_buffer_in_append_list = cio_write_buffer_queue_dequeue(&wbh_to_append);
 		}
 	}
 }
