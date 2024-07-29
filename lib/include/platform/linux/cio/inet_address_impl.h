@@ -34,13 +34,10 @@
 #include <stdint.h>
 
 #include "cio/address_family.h"
-#include "cio/inet_address.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
-
-struct cio_inet_address;
 
 struct cio_inet_address_impl {
 	enum cio_address_family family;

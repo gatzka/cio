@@ -34,6 +34,7 @@
 
 #include "cio/buffered_stream.h"
 #include "cio/error_code.h"
+#include "cio/http_client.h"
 #include "cio/http_location.h"
 #include "cio/http_location_handler.h"
 #include "cio/http_server.h"
