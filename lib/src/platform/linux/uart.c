@@ -30,6 +30,7 @@
 #include <errno.h>
 #include <fcntl.h>
 #include <limits.h>
+#include <linux/limits.h>
 #include <stddef.h>
 #include <stdlib.h>
 #include <string.h>
@@ -39,10 +40,13 @@
 
 #include "cio/compiler.h"
 #include "cio/error_code.h"
+#include "cio/eventloop_impl.h"
 #include "cio/io_stream.h"
 #include "cio/linux_socket_utils.h"
+#include "cio/read_buffer.h"
 #include "cio/uart.h"
 #include "cio/util.h"
+#include "cio/write_buffer.h"
 
 static inline size_t min_sizet(size_t a, size_t b)
 {

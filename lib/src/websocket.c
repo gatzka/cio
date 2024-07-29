@@ -30,12 +30,15 @@
 #include <stdint.h>
 #include <string.h>
 
+#include "cio/buffered_stream.h"
 #include "cio/compiler.h"
 #include "cio/endian.h"
 #include "cio/error_code.h"
+#include "cio/http_client.h"
 #include "cio/random.h"
+#include "cio/read_buffer.h"
+#include "cio/timer.h"
 #include "cio/utf8_checker.h"
-#include "cio/util.h"
 #include "cio/websocket.h"
 #include "cio/websocket_masking.h"
 #include "cio/write_buffer.h"

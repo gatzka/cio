@@ -34,6 +34,7 @@
 #include <stdio.h>
 #include <string.h>
 
+#include "cio/address_family.h"
 #include "cio/buffered_stream.h"
 #include "cio/compiler.h"
 #include "cio/error_code.h"
@@ -41,12 +42,14 @@
 #include "cio/http_client.h"
 #include "cio/http_location.h"
 #include "cio/http_location_handler.h"
+#include "cio/http_method.h"
 #include "cio/http_server.h"
 #include "cio/http_status_code.h"
-#include "cio/inet_address.h"
+#include "cio/io_stream.h"
 #include "cio/read_buffer.h"
 #include "cio/server_socket.h"
 #include "cio/socket.h"
+#include "cio/socket_address.h"
 #include "cio/timer.h"
 #include "cio/util.h"
 #include "cio/version_private.h"

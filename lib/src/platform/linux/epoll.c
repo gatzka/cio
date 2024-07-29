@@ -28,9 +28,11 @@
 
 #include <errno.h>
 #include <stdbool.h>
+#include <stdint.h>
 #include <string.h>
 #include <sys/epoll.h>
 #include <sys/eventfd.h>
+#include <sys/types.h>
 #include <unistd.h>
 
 #include "cio/compiler.h"

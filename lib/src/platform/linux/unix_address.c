@@ -32,6 +32,7 @@
 
 #include <sys/socket.h>
 
+#include "cio/address_family.h"
 #include "cio/compiler.h"
 #include "cio/error_code.h"
 #include "cio/export.h"
