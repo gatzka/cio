@@ -44,8 +44,8 @@ FAKE_VALUE_FUNC(int, epoll_wait, int, struct epoll_event *, int, int)
 FAKE_VALUE_FUNC(int, close, int)
 FAKE_VALUE_FUNC(ssize_t, write, int, const void *, size_t)
 
-void epoll_callback(void *, int);
-FAKE_VOID_FUNC(epoll_callback, void *, int)
+void epoll_callback(void *, enum cio_epoll_error);
+FAKE_VOID_FUNC(epoll_callback, void *, enum cio_epoll_error)
 void epoll_callback_second_fd(void *, enum cio_epoll_error);
 FAKE_VOID_FUNC(epoll_callback_second_fd, void *, enum cio_epoll_error)
 void epoll_callback_third_fd(void *, enum cio_epoll_error);
