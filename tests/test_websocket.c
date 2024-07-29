@@ -1861,6 +1861,8 @@ static void test_no_mask_set_from_client(void)
 	unsigned int frame_type = CIO_WEBSOCKET_TEXT_FRAME;
 	uint32_t frame_size = 5;
 	char *data = malloc(frame_size);
+	TEST_ASSERT_NOT_NULL_MESSAGE(data, "Could not allocate test data!");
+
 	memset(data, 'a', frame_size);
 	struct ws_frame frames[] = {
 	    {.frame_type = frame_type, .direction = FROM_SERVER, .data = data, .data_length = frame_size, .last_frame = true, .rsv = false},
@@ -1957,6 +1959,7 @@ static void test_close_in_get_length(void)
 		read_at_least_fake_fun *read_at_least_fakes;
 		if (frame_size <= 125) {
 			read_at_least_fakes = malloc(2 * sizeof(read_at_least_fake_fun));
+			TEST_ASSERT_NOT_NULL_MESSAGE(read_at_least_fakes, "Could not allocate data for fake functions!");
 			read_at_least_fakes[0] = bs_read_at_least_from_buffer;
 			read_at_least_fakes[1] = bs_read_at_least_peer_close;
 			SET_CUSTOM_FAKE_SEQ(cio_buffered_stream_read_at_least, read_at_least_fakes, 2)
