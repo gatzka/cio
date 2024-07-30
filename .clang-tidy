@@ -8,7 +8,9 @@ Checks: '
   -misc-no-recursion,
   -cppcoreguidelines-avoid-non-const-global-variables,
   -bugprone-signal-handler,
-  -cert-sig30-c
+  -cert-sig30-c,
+  -cert-msc54-cpp,
+  -misc-include-cleaner
 '
 CheckOptions:
   - { key: readability-identifier-naming.ConstantCase,          value: UPPER_CASE }
