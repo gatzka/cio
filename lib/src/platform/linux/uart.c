@@ -48,9 +48,9 @@
 #include "cio/util.h"
 #include "cio/write_buffer.h"
 
-static inline size_t min_sizet(size_t a, size_t b)
+static inline size_t min_sizet(size_t value_a, size_t value_b)
 {
-	return a < b ? a : b;
+	return value_a < value_b ? value_a : value_b;
 }
 
 static const char DIR_NAME[] = "/dev/serial/by-path/";

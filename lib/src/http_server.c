@@ -38,6 +38,7 @@
 #include "cio/buffered_stream.h"
 #include "cio/compiler.h"
 #include "cio/error_code.h"
+#include "cio/eventloop.h"
 #include "cio/http-parser/http_parser.h"
 #include "cio/http_client.h"
 #include "cio/http_location.h"
