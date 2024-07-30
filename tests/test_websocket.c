@@ -866,7 +866,10 @@ static void test_incoming_ping_pong_send_fails(void)
 
 static void test_close_close_response_fails(void)
 {
-	uint8_t data[] = {0xe8, 0x3, 'G', 'o', 'o', 'd', ' ', 'B', 'y', 'e'};
+	uint8_t data[] = {0x0, 0x0, 'G', 'o', 'o', 'd', ' ', 'B', 'y', 'e'};
+
+	uint16_t status = cio_be16toh((uint16_t)CIO_WEBSOCKET_CLOSE_NORMAL);
+	memcpy(data, &status, sizeof(status));
 
 	struct ws_frame frames[] = {
 	    {.frame_type = CIO_WEBSOCKET_CLOSE_FRAME, .direction = FROM_CLIENT, .data = data, .data_length = sizeof(data), .last_frame = true, .rsv = false},
@@ -2061,16 +2064,16 @@ static void test_close_in_get_payload(void)
 
 static void test_close_self_no_reason(void)
 {
-	uint8_t data[] = {0xe8, 0x3};
+	uint16_t data = CIO_WEBSOCKET_CLOSE_NORMAL;
 
 	struct ws_frame frames[] = {
-	    {.frame_type = CIO_WEBSOCKET_CLOSE_FRAME, .direction = FROM_CLIENT, .data = data, .data_length = sizeof(data), .last_frame = true, .rsv = false},
+	    {.frame_type = CIO_WEBSOCKET_CLOSE_FRAME, .direction = FROM_CLIENT, .data = &data, .data_length = sizeof(data), .last_frame = true, .rsv = false},
 	};
 
 	serialize_frames(frames, ARRAY_SIZE(frames));
 
 	enum cio_error err = cio_websocket_close(ws, CIO_WEBSOCKET_CLOSE_NORMAL, NULL, close_handler, NULL);
-	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Could not start reading a message!");
+	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Closing did not succeed!");
 
 	err = cio_websocket_read_message(ws, read_handler, NULL);
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Could not start reading a message!");
@@ -2080,7 +2083,7 @@ static void test_close_self_no_reason(void)
 	TEST_ASSERT_NULL_MESSAGE(read_handler_fake.arg1_val, "context of read handler not NULL");
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_EOF, read_handler_fake.arg2_val, "error parameter of read_handler not CIO_SUCCESS");
 
-	TEST_ASSERT_EQUAL_MESSAGE(0, on_error_fake.call_count, "error callback was not called");
+	TEST_ASSERT_EQUAL_MESSAGE(0, on_error_fake.call_count, "error callback was called");
 
 	TEST_ASSERT_EQUAL_MESSAGE(1, on_control_fake.call_count, "control callback was not called for last close frame");
 	TEST_ASSERT_NOT_NULL_MESSAGE(on_control_fake.arg0_val, "websocket parameter of control callback is NULL");
@@ -2091,26 +2094,26 @@ static void test_close_self_no_reason(void)
 
 static void test_close_self_with_reason(void)
 {
-	uint8_t data[] = {0xe8, 0x3};
+	uint16_t data = CIO_WEBSOCKET_CLOSE_NORMAL;
 
 	struct ws_frame frames[] = {
-	    {.frame_type = CIO_WEBSOCKET_CLOSE_FRAME, .direction = FROM_CLIENT, .data = data, .data_length = sizeof(data), .last_frame = true, .rsv = false},
+	    {.frame_type = CIO_WEBSOCKET_CLOSE_FRAME, .direction = FROM_CLIENT, .data = &data, .data_length = sizeof(data), .last_frame = true, .rsv = false},
 	};
 
 	serialize_frames(frames, ARRAY_SIZE(frames));
 
 	enum cio_error err = cio_websocket_close(ws, CIO_WEBSOCKET_CLOSE_NORMAL, "Going away", close_handler, NULL);
-	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Could not start reading a message!");
+	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Closing did not succeed!");
 
 	err = cio_websocket_read_message(ws, read_handler, NULL);
-	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Closing did not succeed!");
+	TEST_ASSERT_EQUAL_MESSAGE(CIO_SUCCESS, err, "Could not start reading a message!");
 
 	TEST_ASSERT_EQUAL_MESSAGE(1, read_handler_fake.call_count, "read_handler was not called");
 	TEST_ASSERT_EQUAL_MESSAGE(ws, read_handler_fake.arg0_val, "websocket parameter of read_handler not correct");
 	TEST_ASSERT_NULL_MESSAGE(read_handler_fake.arg1_val, "context of read handler not NULL");
 	TEST_ASSERT_EQUAL_MESSAGE(CIO_EOF, read_handler_fake.arg2_val, "error parameter of read_handler not CIO_SUCCESS");
 
-	TEST_ASSERT_EQUAL_MESSAGE(0, on_error_fake.call_count, "error callback was not called");
+	TEST_ASSERT_EQUAL_MESSAGE(0, on_error_fake.call_count, "error callback was called");
 
 	TEST_ASSERT_EQUAL_MESSAGE(1, on_control_fake.call_count, "control callback was not called for last close frame");
 	TEST_ASSERT_NOT_NULL_MESSAGE(on_control_fake.arg0_val, "websocket parameter of control callback is NULL");
@@ -2209,10 +2212,24 @@ static void test_close_self_without_close_hook(void)
 
 static void test_close_with_valid_status_codes(void)
 {
-	uint8_t close_codes[][2] = {{0xe8, 0x3}, {0xe9, 0x3}, {0xea, 0x3}, {0xeb, 0x3}, {0xef, 0x3}, {0xf3, 0x3}, {0xb8, 0xb}, {0x87, 0x13}};
+	//uint8_t close_codes[][2] = {{0xe8, 0x3}, {0xe9, 0x3}, {0xea, 0x3}, {0xeb, 0x3}, {0xef, 0x3}, {0xf3, 0x3}, {0xb8, 0xb}, {0x87, 0x13}};
+
+	uint16_t close_codes[] = {
+		CIO_WEBSOCKET_CLOSE_NORMAL,
+		CIO_WEBSOCKET_CLOSE_GOING_AWAY,
+		CIO_WEBSOCKET_CLOSE_PROTOCOL_ERROR,
+		CIO_WEBSOCKET_CLOSE_UNSUPPORTED,
+		CIO_WEBSOCKET_CLOSE_UNSUPPORTED_DATA,
+		CIO_WEBSOCKET_CLOSE_POLICY_VIOLATION,
+		CIO_WEBSOCKET_CLOSE_TOO_LARGE,
+		CIO_WEBSOCKET_CLOSE_MISSING_EXTENSION,
+		CIO_WEBSOCKET_CLOSE_INTERNAL_ERROR,
+		CIO_WEBSOCKET_CLOSE_RESERVED_LOWER_BOUND,
+		CIO_WEBSOCKET_CLOSE_RESERVED_UPPER_BOUND
+	};
 
 	for (unsigned int i = 0; i < ARRAY_SIZE(close_codes); i++) {
-		uint8_t *data = close_codes[i];
+		uint16_t *data = &close_codes[i];
 		struct ws_frame frames[] = {
 		    {.frame_type = CIO_WEBSOCKET_CLOSE_FRAME, .direction = FROM_CLIENT, .data = data, .data_length = 2, .last_frame = true, .rsv = false},
 		};
