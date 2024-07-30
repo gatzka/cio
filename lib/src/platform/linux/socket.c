@@ -27,17 +27,18 @@
  */
 
 #include <errno.h>
-#include <netinet/in.h>
 #include <netinet/tcp.h>
 #include <stdbool.h>
 #include <stddef.h>
+#include <stdint.h>
 #include <string.h>
 #include <sys/socket.h>
+#include <sys/types.h>
+#include <sys/uio.h>
 #include <unistd.h>
 
 #include "cio/address_family.h"
 #include "cio/compiler.h"
-#include "cio/endian.h"
 #include "cio/error_code.h"
 #include "cio/eventloop_impl.h"
 #include "cio/io_stream.h"

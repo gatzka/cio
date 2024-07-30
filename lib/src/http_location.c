@@ -28,6 +28,7 @@
 
 #include <stddef.h>
 
+#include "cio/compiler.h"
 #include "cio/error_code.h"
 #include "cio/http_location.h"
 

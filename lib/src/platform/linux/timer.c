@@ -28,8 +28,10 @@
 
 #include <errno.h>
 #include <fcntl.h>
+#include <stdint.h>
 #include <string.h>
 #include <sys/timerfd.h>
+#include <time.h>
 #include <unistd.h>
 
 #include "cio/compiler.h"

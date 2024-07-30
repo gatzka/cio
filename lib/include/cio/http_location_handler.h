@@ -33,7 +33,6 @@
 #include <stddef.h>
 
 #include "cio/export.h"
-#include "cio/http_client.h"
 
 #ifdef __cplusplus
 extern "C" {

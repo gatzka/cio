@@ -37,6 +37,8 @@
 extern "C" {
 #endif
 
+struct cio_eventloop;
+
 /**
  * @file
  * @brief This file describes the interface to an eventloop.

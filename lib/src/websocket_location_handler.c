@@ -26,7 +26,6 @@
  * SOFTWARE.
  */
 
-#include <ctype.h>
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
@@ -34,7 +33,7 @@
 
 #include "cio/base64.h"
 #include "cio/compiler.h"
-#include "cio/eventloop.h"
+#include "cio/error_code.h"
 #include "cio/http_client.h"
 #include "cio/http_location_handler.h"
 #include "cio/http_method.h"
@@ -42,7 +41,6 @@
 #include "cio/http_status_code.h"
 #include "cio/sha1/sha1.h"
 #include "cio/string.h"
-#include "cio/timer.h"
 #include "cio/util.h"
 #include "cio/websocket.h"
 #include "cio/websocket_location_handler.h"

@@ -30,23 +30,27 @@
 #include <errno.h>
 #include <fcntl.h>
 #include <limits.h>
+#include <linux/limits.h>
 #include <stddef.h>
 #include <stdlib.h>
 #include <string.h>
-#include <sys/stat.h>
 #include <sys/types.h>
 #include <termios.h>
 #include <unistd.h>
 
 #include "cio/compiler.h"
 #include "cio/error_code.h"
+#include "cio/eventloop_impl.h"
+#include "cio/io_stream.h"
 #include "cio/linux_socket_utils.h"
+#include "cio/read_buffer.h"
 #include "cio/uart.h"
 #include "cio/util.h"
+#include "cio/write_buffer.h"
 
-static inline size_t min_sizet(size_t a, size_t b)
+static inline size_t min_sizet(size_t value_a, size_t value_b)
 {
-	return a < b ? a : b;
+	return value_a < value_b ? value_a : value_b;
 }
 
 static const char DIR_NAME[] = "/dev/serial/by-path/";

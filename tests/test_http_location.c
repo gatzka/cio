@@ -35,6 +35,7 @@
 #include "cio/error_code.h"
 #include "cio/http_location.h"
 #include "cio/http_location_handler.h"
+#include "cio/write_buffer.h"
 
 #ifndef ARRAY_SIZE
 #define ARRAY_SIZE(a) (sizeof(a) / sizeof((a)[0]))

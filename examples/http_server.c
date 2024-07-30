@@ -32,6 +32,7 @@
 
 #include "cio/error_code.h"
 #include "cio/eventloop.h"
+#include "cio/http_client.h"
 #include "cio/http_location_handler.h"
 #include "cio/http_server.h"
 #include "cio/util.h"
