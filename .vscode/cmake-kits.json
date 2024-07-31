@@ -1,7 +1,7 @@
 [
     {
-        "name": "standard host gcc for x64",
-        "toolchainFile": "${workspaceRoot}/build/toolchains/x86-linux-gcc.cmake"
+        "name": "gcc 14",
+        "toolchainFile": "${workspaceRoot}/build/toolchains/x86-linux-gcc-14.cmake"
     },
     {
         "name": "standard host clang for x64",
