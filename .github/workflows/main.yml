@@ -152,35 +152,35 @@ jobs:
         ctest_toolchain_file: /tmp/cio/toolchains/x86-linux-clang-18.cmake
         ctest_configuration_type: AddressSanitizer
 
-        #  clang-15-scanbuild:
-        #    name: x86 clang-15 scan-build
-        #    runs-on: ubuntu-22.04
-        #
-        #    steps:
-        #    - name: Checkout
-        #      uses: actions/checkout@v3
-        #    - name: ctest build
-        #      uses: gatzka/ctest-build-action@v2.0.2
-        #      with:
-        #        install_deps: ./.github/workflows/install-deps.sh
-        #        ctest_toolchain_file: /tmp/cio/toolchains/x86-linux-clang-15.cmake
-        #        ctest_analyzer: scan-build-15
-        #
-        #  clang-15-clangtidy:
-        #    name: x86 clang-15 clang-tidy
-        #    runs-on: ubuntu-22.04
-        #
-        #    steps:
-        #    - name: Checkout
-        #      uses: actions/checkout@v3
-        #    - name: ctest build
-        #      uses: gatzka/ctest-build-action@v2.0.2
-        #      with:
-        #        install_deps: ./.github/workflows/install-deps.sh
-        #        ctest_toolchain_file: /tmp/cio/toolchains/x86-linux-clang-15.cmake
-        #        ctest_analyzer: clang-tidy-15
-        #        ctest_configuration_type: Release
-        #
+  clang-18-scanbuild:
+    name: x86 clang-18 scan-build
+    runs-on: ubuntu-24.04
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+    - name: ctest build
+      uses: gatzka/ctest-build-action@v2.1.0
+      with:
+        install_deps: ./.github/workflows/install-deps.sh
+        ctest_toolchain_file: /tmp/cio/toolchains/x86-linux-clang-18.cmake
+        ctest_analyzer: scan-build-18
+
+  clang-18-clangtidy:
+    name: x86 clang-18 clang-tidy
+    runs-on: ubuntu-24.04
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+    - name: ctest build
+      uses: gatzka/ctest-build-action@v2.1.0
+      with:
+        install_deps: ./.github/workflows/install-deps.sh
+        ctest_toolchain_file: /tmp/cio/toolchains/x86-linux-clang-18.cmake
+        ctest_analyzer: clang-tidy-18
+        ctest_configuration_type: Release
+
         #  gcc-11-arm:
         #    name: arm gcc-11 Release
         #    runs-on: ubuntu-22.04
