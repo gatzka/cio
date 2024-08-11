@@ -68,34 +68,34 @@ jobs:
         ctest_toolchain_file: /tmp/cio/toolchains/x86-linux-gcc-14.cmake
         ctest_configuration_type: Valgrind
         
-        #  clang-15-debug:
-        #    name: x86 clang-15 Debug
-        #    runs-on: ubuntu-22.04
-        #
-        #    steps:
-        #    - name: Checkout
-        #      uses: actions/checkout@v3
-        #    - name: ctest build
-        #      uses: gatzka/ctest-build-action@v2.0.2
-        #      with:
-        #        install_deps: ./.github/workflows/install-deps.sh
-        #        ctest_toolchain_file: /tmp/cio/toolchains/x86-linux-clang-15.cmake
-        #        ctest_configuration_type: Debug
-        #
-        #  clang-15-release:
-        #    name: x86 clang-15 Release
-        #    runs-on: ubuntu-22.04
-        #
-        #    steps:
-        #    - name: Checkout
-        #      uses: actions/checkout@v3
-        #    - name: ctest build
-        #      uses: gatzka/ctest-build-action@v2.0.2
-        #      with:
-        #        install_deps: ./.github/workflows/install-deps.sh
-        #        ctest_toolchain_file: /tmp/cio/toolchains/x86-linux-clang-15.cmake
-        #        ctest_configuration_type: Release
-        #
+  clang-18-debug:
+    name: x86 clang-17 Debug
+    runs-on: ubuntu-24.04
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+    - name: ctest build
+      uses: gatzka/ctest-build-action@v2.1.0
+      with:
+        install_deps: ./.github/workflows/install-deps.sh
+        ctest_toolchain_file: /tmp/cio/toolchains/x86-linux-clang-18.cmake
+        ctest_configuration_type: Debug
+
+  clang-18-release:
+    name: x86 clang-18 Release
+    runs-on: ubuntu-24.04
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+    - name: ctest build
+      uses: gatzka/ctest-build-action@v2.1.0
+      with:
+        install_deps: ./.github/workflows/install-deps.sh
+        ctest_toolchain_file: /tmp/cio/toolchains/x86-linux-clang-18.cmake
+        ctest_configuration_type: Release
+
         #  clang-15-UndefinedBehaviorSanitizer:
         #    name: x86 clang-15 UndefinedBehaviorSanitizer
         #    runs-on: ubuntu-22.04
