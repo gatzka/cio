@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 3.11)
 include(FetchContent)
 FetchContent_Declare(GatzkaToolchainFiles
     GIT_REPOSITORY https://github.com/gatzka/cmake-toolchain-files.git
-    GIT_TAG cdd26af7e6dbaac4f1fb47f2f7955235f6ba45c4 # v1.0.0
+    GIT_TAG dc91b4fc7b72a16de71995689eb040615bf7e106 # v1.0.0
     SOURCE_DIR ${CMAKE_BINARY_DIR}/toolchains
 )
 FetchContent_MakeAvailable(GatzkaToolchainFiles)
