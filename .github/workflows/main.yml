@@ -6,15 +6,15 @@ permissions:
     contents: write
 
 jobs:
-  windows-debug:
-    name: x86 windows Debug
-    runs-on: windows-2019
-
-    steps:
-    - name: Checkout
-      uses: actions/checkout@v3
-    - name: ctest build
-      run: ctest -DCTEST_CMAKE_GENERATOR="Visual Studio 16 2019" -DCTEST_TOOLCHAIN_FILE="/tmp/cio/toolchains/x86_windows_msvc.cmake" -DCTEST_CONFIGURATION_TYPE:STRING=Debug -S build.cmake
+#  windows-debug:
+#    name: x86 windows Debug
+#    runs-on: windows-2019
+#
+#    steps:
+#    - name: Checkout
+#      uses: actions/checkout@v3
+#    - name: ctest build
+#      run: ctest -DCTEST_CMAKE_GENERATOR="Visual Studio 16 2019" -DCTEST_TOOLCHAIN_FILE="/tmp/cio/toolchains/x86_windows_msvc.cmake" -DCTEST_CONFIGURATION_TYPE:STRING=Debug -S build.cmake
 
 #  windows-debug-dll:
 #    name: x86 windows Debug DLL
@@ -26,286 +26,286 @@ jobs:
 #    - name: ctest build
 #      run: ctest -VV -DCTEST_CMAKE_GENERATOR="Visual Studio 16 2019" -DCTEST_BUILD_SHARED_LIBS:BOOL=YES -DCTEST_TOOLCHAIN_FILE="/tmp/cio/toolchains/x86_windows_msvc.cmake" -DCTEST_CONFIGURATION_TYPE:STRING=Debug -S build.cmake
 
-  gcc-12-debug:
-    name: x86 gcc-12 Debug
-    runs-on: ubuntu-22.04
+  gcc-14-debug:
+    name: x86 gcc-14 Debug
+    runs-on: ubuntu-24.04
 
     steps:
     - name: Checkout
       uses: actions/checkout@v3
     - name: ctest build
-      uses: gatzka/ctest-build-action@v2.0.2
+      uses: gatzka/ctest-build-action@v2.1.0
       with:
         install_deps: ./.github/workflows/install-deps.sh
-        ctest_toolchain_file: /tmp/cio/toolchains/x86-linux-gcc-12.cmake
+        ctest_toolchain_file: /tmp/cio/toolchains/x86-linux-gcc-14.cmake
         ctest_configuration_type: Debug
 
-  gcc-12-release:
-    name: x86 gcc-12 Release
-    runs-on: ubuntu-22.04
+  gcc-14-release:
+    name: x86 gcc-14 Release
+    runs-on: ubuntu-24.04
 
     steps:
     - name: Checkout
       uses: actions/checkout@v3
     - name: ctest build
-      uses: gatzka/ctest-build-action@v2.0.2
+      uses: gatzka/ctest-build-action@v2.1.0
       with:
         install_deps: ./.github/workflows/install-deps.sh
-        ctest_toolchain_file: /tmp/cio/toolchains/x86-linux-gcc-12.cmake
+        ctest_toolchain_file: /tmp/cio/toolchains/x86-linux-gcc-14.cmake
         ctest_configuration_type: Release
 
-  gcc-12-valgrind:
-    name: x86 gcc-12 Valgrind
-    runs-on: ubuntu-22.04
-
-    steps:
-    - name: Checkout
-      uses: actions/checkout@v3
-    - name: ctest build
-      uses: gatzka/ctest-build-action@v2.0.2
-      with:
-        install_deps: ./.github/workflows/install-deps.sh
-        ctest_toolchain_file: /tmp/cio/toolchains/x86-linux-gcc-12.cmake
-        ctest_configuration_type: Valgrind
-
-  clang-15-debug:
-    name: x86 clang-15 Debug
-    runs-on: ubuntu-22.04
-
-    steps:
-    - name: Checkout
-      uses: actions/checkout@v3
-    - name: ctest build
-      uses: gatzka/ctest-build-action@v2.0.2
-      with:
-        install_deps: ./.github/workflows/install-deps.sh
-        ctest_toolchain_file: /tmp/cio/toolchains/x86-linux-clang-15.cmake
-        ctest_configuration_type: Debug
-
-  clang-15-release:
-    name: x86 clang-15 Release
-    runs-on: ubuntu-22.04
-
-    steps:
-    - name: Checkout
-      uses: actions/checkout@v3
-    - name: ctest build
-      uses: gatzka/ctest-build-action@v2.0.2
-      with:
-        install_deps: ./.github/workflows/install-deps.sh
-        ctest_toolchain_file: /tmp/cio/toolchains/x86-linux-clang-15.cmake
-        ctest_configuration_type: Release
-
-  clang-15-UndefinedBehaviorSanitizer:
-    name: x86 clang-15 UndefinedBehaviorSanitizer
-    runs-on: ubuntu-22.04
-
-    steps:
-    - name: Checkout
-      uses: actions/checkout@v3
-    - name: ctest build
-      uses: gatzka/ctest-build-action@v2.0.2
-      with:
-        install_deps: ./.github/workflows/install-deps.sh
-        ctest_toolchain_file: /tmp/cio/toolchains/x86-linux-clang-15.cmake
-        ctest_configuration_type: UndefinedBehaviorSanitizer
-
-  clang-15-LeakSanitizer:
-    name: x86 clang-15 LeakSanitizer
-    runs-on: ubuntu-22.04
-
-    steps:
-    - name: Checkout
-      uses: actions/checkout@v3
-    - name: ctest build
-      uses: gatzka/ctest-build-action@v2.0.2
-      with:
-        install_deps: ./.github/workflows/install-deps.sh
-        ctest_toolchain_file: /tmp/cio/toolchains/x86-linux-clang-15.cmake
-        ctest_configuration_type: LeakSanitizer
-
-  clang-15-MemorySanitizer:
-    name: x86 clang-15 MemorySanitizer
-    runs-on: ubuntu-22.04
-
-    steps:
-    - name: Checkout
-      uses: actions/checkout@v3
-    - name: ctest build
-      uses: gatzka/ctest-build-action@v2.0.2
-      with:
-        install_deps: ./.github/workflows/install-deps.sh
-        ctest_toolchain_file: /tmp/cio/toolchains/x86-linux-clang-15.cmake
-        ctest_configuration_type: MemorySanitizer
-
-  clang-15-AddressSanitizer:
-    name: x86 clang-15 AddressSanitizer
-    runs-on: ubuntu-22.04
-
-    steps:
-    - name: Checkout
-      uses: actions/checkout@v3
-    - name: ctest build
-      uses: gatzka/ctest-build-action@v2.0.2
-      with:
-        install_deps: ./.github/workflows/install-deps.sh
-        ctest_toolchain_file: /tmp/cio/toolchains/x86-linux-clang-15.cmake
-        ctest_configuration_type: AddressSanitizer
-
-  clang-15-scanbuild:
-    name: x86 clang-15 scan-build
-    runs-on: ubuntu-22.04
-
-    steps:
-    - name: Checkout
-      uses: actions/checkout@v3
-    - name: ctest build
-      uses: gatzka/ctest-build-action@v2.0.2
-      with:
-        install_deps: ./.github/workflows/install-deps.sh
-        ctest_toolchain_file: /tmp/cio/toolchains/x86-linux-clang-15.cmake
-        ctest_analyzer: scan-build-15
-
-  clang-15-clangtidy:
-    name: x86 clang-15 clang-tidy
-    runs-on: ubuntu-22.04
-
-    steps:
-    - name: Checkout
-      uses: actions/checkout@v3
-    - name: ctest build
-      uses: gatzka/ctest-build-action@v2.0.2
-      with:
-        install_deps: ./.github/workflows/install-deps.sh
-        ctest_toolchain_file: /tmp/cio/toolchains/x86-linux-clang-15.cmake
-        ctest_analyzer: clang-tidy-15
-        ctest_configuration_type: Release
-
-  gcc-11-arm:
-    name: arm gcc-11 Release
-    runs-on: ubuntu-22.04
-
-    steps:
-    - name: Checkout
-      uses: actions/checkout@v3
-    - name: ctest build
-      uses: gatzka/ctest-build-action@v2.0.2
-      with:
-        install_deps: ./.github/workflows/install-deps.sh
-        ctest_toolchain_file: /tmp/cio/toolchains/arm-linux-gnueabihf-gcc-11.cmake
-        ctest_configuration_type: Release
-
-  gcc-11-aarch64:
-    name: aarch64 gcc-11 Release
-    runs-on: ubuntu-22.04
-
-    steps:
-    - name: Checkout
-      uses: actions/checkout@v3
-    - name: ctest build
-      uses: gatzka/ctest-build-action@v2.0.2
-      with:
-        install_deps: ./.github/workflows/install-deps.sh
-        ctest_toolchain_file: /tmp/cio/toolchains/aarch64-linux-gnu-gcc-11.cmake
-        ctest_configuration_type: Release
-
-  gcc-11-riscv64:
-    name: riscv64 gcc-11 Release
-    runs-on: ubuntu-22.04
-
-    steps:
-    - name: Checkout
-      uses: actions/checkout@v3
-    - name: ctest build
-      uses: gatzka/ctest-build-action@v2.0.2
-      with:
-        install_deps: ./.github/workflows/install-deps.sh
-        ctest_toolchain_file: /tmp/cio/toolchains/riscv64-linux-gcc-11.cmake
-        ctest_configuration_type: Release
-
-  gcc-12-coverage:
-    name: x86 code coverage
-    runs-on: ubuntu-22.04
-
-    steps:
-    - name: Checkout
-      uses: actions/checkout@v3
-    - name: ctest build
-      uses: gatzka/ctest-build-action@v2.0.2
-      with:
-        install_deps: ./.github/workflows/install-deps.sh
-        ctest_toolchain_file: build/toolchains/x86-linux-gcc-12.cmake
-        ctest_configuration_type: Coverage
-        ctest_binary_directory: build
-    - name: coverage upload
-      uses: codecov/codecov-action@v3
-      with:
-        flags: unittests
-        verbose: true
-        gcov: true
-      #      uses: gatzka/codecov-action@v1.5.0
-      #      with:
-      #        token: ${{ secrets.CODECOV_TOKEN }}
-      #        path: ./
-      #        rootpath: ./
-      #        gcov: gcov-9
-      #        flags: unittests
-
-  sonarcloud:
-    name: sonarcloud scan build
-    runs-on: ubuntu-22.04
-
-    steps:
-    - name: Checkout
-      uses: actions/checkout@v3
-      with:
-        fetch-depth: 0
-    - name: sonarcloud cmake build
-      uses: gatzka/sonarcloud-cmake-build-action@v1.5.0
-      with:
-        install_deps: ./.github/workflows/install-deps.sh
-        SONAR_TOKEN: ${{ secrets.SONARCLOUD_TOKEN }}
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        cmake_build_type: Debug
-
-  doxygen:
-    name: generate doxygen documentation
-    runs-on: ubuntu-22.04
-    needs: [gcc-12-debug, gcc-12-release, gcc-12-valgrind, clang-15-debug, clang-15-release, clang-15-UndefinedBehaviorSanitizer, clang-15-LeakSanitizer, clang-15-MemorySanitizer, clang-15-AddressSanitizer, clang-15-scanbuild, clang-15-clangtidy]
-    if: contains(github.ref, 'master')
-
-    steps:
-    - name: Checkout
-      uses: actions/checkout@v3
-    - name: cmake build
-      uses: gatzka/cmake-build-action@v2.2.0
-      with:
-        install_deps: ./.github/workflows/install-deps.sh
-        cmake_build_target: cio_docs
-    - name: GitHub Pages Deploy
-      uses: gatzka/publish-gh-pages-action@v2.0.1
-      env:
-        BUILD_DIR: build/lib/docs/
-        GITHUB_TOKEN: ${{ secrets.github_token }}
-        GH_PAGES_SUBDIR: ./doc
-
-  coverity:
-    name: coverity scan build
-    runs-on: ubuntu-22.04
-    if: contains(github.ref, 'coverity_scan')
-
-    steps:
-    - name: Checkout
-      uses: actions/checkout@v3
-    - name: coverity cmake build
-      uses: gatzka/coverity-cmake-build-action@v2.2.0
-      with:
-        install_deps: ./.github/workflows/install-deps.sh
-        cmake_build_type: Debug
-        coverity_token: ${{ secrets.COVERITY_TOKEN }}
-        coverity_account: gatzka
-        coverity_project: cio
-        coverity_email: stephan.gatzka@gmail.com
-        coverity_version: ${{ github.sha }}
-        coverity_description: "Build submitted by github action"
+        #  gcc-12-valgrind:
+        #    name: x86 gcc-12 Valgrind
+        #    runs-on: ubuntu-22.04
+        #
+        #    steps:
+        #    - name: Checkout
+        #      uses: actions/checkout@v3
+        #    - name: ctest build
+        #      uses: gatzka/ctest-build-action@v2.0.2
+        #      with:
+        #        install_deps: ./.github/workflows/install-deps.sh
+        #        ctest_toolchain_file: /tmp/cio/toolchains/x86-linux-gcc-12.cmake
+        #        ctest_configuration_type: Valgrind
+        #
+        #  clang-15-debug:
+        #    name: x86 clang-15 Debug
+        #    runs-on: ubuntu-22.04
+        #
+        #    steps:
+        #    - name: Checkout
+        #      uses: actions/checkout@v3
+        #    - name: ctest build
+        #      uses: gatzka/ctest-build-action@v2.0.2
+        #      with:
+        #        install_deps: ./.github/workflows/install-deps.sh
+        #        ctest_toolchain_file: /tmp/cio/toolchains/x86-linux-clang-15.cmake
+        #        ctest_configuration_type: Debug
+        #
+        #  clang-15-release:
+        #    name: x86 clang-15 Release
+        #    runs-on: ubuntu-22.04
+        #
+        #    steps:
+        #    - name: Checkout
+        #      uses: actions/checkout@v3
+        #    - name: ctest build
+        #      uses: gatzka/ctest-build-action@v2.0.2
+        #      with:
+        #        install_deps: ./.github/workflows/install-deps.sh
+        #        ctest_toolchain_file: /tmp/cio/toolchains/x86-linux-clang-15.cmake
+        #        ctest_configuration_type: Release
+        #
+        #  clang-15-UndefinedBehaviorSanitizer:
+        #    name: x86 clang-15 UndefinedBehaviorSanitizer
+        #    runs-on: ubuntu-22.04
+        #
+        #    steps:
+        #    - name: Checkout
+        #      uses: actions/checkout@v3
+        #    - name: ctest build
+        #      uses: gatzka/ctest-build-action@v2.0.2
+        #      with:
+        #        install_deps: ./.github/workflows/install-deps.sh
+        #        ctest_toolchain_file: /tmp/cio/toolchains/x86-linux-clang-15.cmake
+        #        ctest_configuration_type: UndefinedBehaviorSanitizer
+        #
+        #  clang-15-LeakSanitizer:
+        #    name: x86 clang-15 LeakSanitizer
+        #    runs-on: ubuntu-22.04
+        #
+        #    steps:
+        #    - name: Checkout
+        #      uses: actions/checkout@v3
+        #    - name: ctest build
+        #      uses: gatzka/ctest-build-action@v2.0.2
+        #      with:
+        #        install_deps: ./.github/workflows/install-deps.sh
+        #        ctest_toolchain_file: /tmp/cio/toolchains/x86-linux-clang-15.cmake
+        #        ctest_configuration_type: LeakSanitizer
+        #
+        #  clang-15-MemorySanitizer:
+        #    name: x86 clang-15 MemorySanitizer
+        #    runs-on: ubuntu-22.04
+        #
+        #    steps:
+        #    - name: Checkout
+        #      uses: actions/checkout@v3
+        #    - name: ctest build
+        #      uses: gatzka/ctest-build-action@v2.0.2
+        #      with:
+        #        install_deps: ./.github/workflows/install-deps.sh
+        #        ctest_toolchain_file: /tmp/cio/toolchains/x86-linux-clang-15.cmake
+        #        ctest_configuration_type: MemorySanitizer
+        #
+        #  clang-15-AddressSanitizer:
+        #    name: x86 clang-15 AddressSanitizer
+        #    runs-on: ubuntu-22.04
+        #
+        #    steps:
+        #    - name: Checkout
+        #      uses: actions/checkout@v3
+        #    - name: ctest build
+        #      uses: gatzka/ctest-build-action@v2.0.2
+        #      with:
+        #        install_deps: ./.github/workflows/install-deps.sh
+        #        ctest_toolchain_file: /tmp/cio/toolchains/x86-linux-clang-15.cmake
+        #        ctest_configuration_type: AddressSanitizer
+        #
+        #  clang-15-scanbuild:
+        #    name: x86 clang-15 scan-build
+        #    runs-on: ubuntu-22.04
+        #
+        #    steps:
+        #    - name: Checkout
+        #      uses: actions/checkout@v3
+        #    - name: ctest build
+        #      uses: gatzka/ctest-build-action@v2.0.2
+        #      with:
+        #        install_deps: ./.github/workflows/install-deps.sh
+        #        ctest_toolchain_file: /tmp/cio/toolchains/x86-linux-clang-15.cmake
+        #        ctest_analyzer: scan-build-15
+        #
+        #  clang-15-clangtidy:
+        #    name: x86 clang-15 clang-tidy
+        #    runs-on: ubuntu-22.04
+        #
+        #    steps:
+        #    - name: Checkout
+        #      uses: actions/checkout@v3
+        #    - name: ctest build
+        #      uses: gatzka/ctest-build-action@v2.0.2
+        #      with:
+        #        install_deps: ./.github/workflows/install-deps.sh
+        #        ctest_toolchain_file: /tmp/cio/toolchains/x86-linux-clang-15.cmake
+        #        ctest_analyzer: clang-tidy-15
+        #        ctest_configuration_type: Release
+        #
+        #  gcc-11-arm:
+        #    name: arm gcc-11 Release
+        #    runs-on: ubuntu-22.04
+        #
+        #    steps:
+        #    - name: Checkout
+        #      uses: actions/checkout@v3
+        #    - name: ctest build
+        #      uses: gatzka/ctest-build-action@v2.0.2
+        #      with:
+        #        install_deps: ./.github/workflows/install-deps.sh
+        #        ctest_toolchain_file: /tmp/cio/toolchains/arm-linux-gnueabihf-gcc-11.cmake
+        #        ctest_configuration_type: Release
+        #
+        #  gcc-11-aarch64:
+        #    name: aarch64 gcc-11 Release
+        #    runs-on: ubuntu-22.04
+        #
+        #    steps:
+        #    - name: Checkout
+        #      uses: actions/checkout@v3
+        #    - name: ctest build
+        #      uses: gatzka/ctest-build-action@v2.0.2
+        #      with:
+        #        install_deps: ./.github/workflows/install-deps.sh
+        #        ctest_toolchain_file: /tmp/cio/toolchains/aarch64-linux-gnu-gcc-11.cmake
+        #        ctest_configuration_type: Release
+        #
+        #  gcc-11-riscv64:
+        #    name: riscv64 gcc-11 Release
+        #    runs-on: ubuntu-22.04
+        #
+        #    steps:
+        #    - name: Checkout
+        #      uses: actions/checkout@v3
+        #    - name: ctest build
+        #      uses: gatzka/ctest-build-action@v2.0.2
+        #      with:
+        #        install_deps: ./.github/workflows/install-deps.sh
+        #        ctest_toolchain_file: /tmp/cio/toolchains/riscv64-linux-gcc-11.cmake
+        #        ctest_configuration_type: Release
+        #
+        #  gcc-12-coverage:
+        #    name: x86 code coverage
+        #    runs-on: ubuntu-22.04
+        #
+        #    steps:
+        #    - name: Checkout
+        #      uses: actions/checkout@v3
+        #    - name: ctest build
+        #      uses: gatzka/ctest-build-action@v2.0.2
+        #      with:
+        #        install_deps: ./.github/workflows/install-deps.sh
+        #        ctest_toolchain_file: build/toolchains/x86-linux-gcc-12.cmake
+        #        ctest_configuration_type: Coverage
+        #        ctest_binary_directory: build
+        #    - name: coverage upload
+        #      uses: codecov/codecov-action@v3
+        #      with:
+        #        flags: unittests
+        #        verbose: true
+        #        gcov: true
+        #      #      uses: gatzka/codecov-action@v1.5.0
+        #      #      with:
+        #      #        token: ${{ secrets.CODECOV_TOKEN }}
+        #      #        path: ./
+        #      #        rootpath: ./
+        #      #        gcov: gcov-9
+        #      #        flags: unittests
+        #
+        #  sonarcloud:
+        #    name: sonarcloud scan build
+        #    runs-on: ubuntu-22.04
+        #
+        #    steps:
+        #    - name: Checkout
+        #      uses: actions/checkout@v3
+        #      with:
+        #        fetch-depth: 0
+        #    - name: sonarcloud cmake build
+        #      uses: gatzka/sonarcloud-cmake-build-action@v1.5.0
+        #      with:
+        #        install_deps: ./.github/workflows/install-deps.sh
+        #        SONAR_TOKEN: ${{ secrets.SONARCLOUD_TOKEN }}
+        #        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        #        cmake_build_type: Debug
+        #
+        #  doxygen:
+        #    name: generate doxygen documentation
+        #    runs-on: ubuntu-22.04
+        #    needs: [gcc-12-debug, gcc-12-release, gcc-12-valgrind, clang-15-debug, clang-15-release, clang-15-UndefinedBehaviorSanitizer, clang-15-LeakSanitizer, clang-15-MemorySanitizer, clang-15-AddressSanitizer, clang-15-scanbuild, clang-15-clangtidy]
+        #    if: contains(github.ref, 'master')
+        #
+        #    steps:
+        #    - name: Checkout
+        #      uses: actions/checkout@v3
+        #    - name: cmake build
+        #      uses: gatzka/cmake-build-action@v2.2.0
+        #      with:
+        #        install_deps: ./.github/workflows/install-deps.sh
+        #        cmake_build_target: cio_docs
+        #    - name: GitHub Pages Deploy
+        #      uses: gatzka/publish-gh-pages-action@v2.0.1
+        #      env:
+        #        BUILD_DIR: build/lib/docs/
+        #        GITHUB_TOKEN: ${{ secrets.github_token }}
+        #        GH_PAGES_SUBDIR: ./doc
+        #
+        #  coverity:
+        #    name: coverity scan build
+        #    runs-on: ubuntu-22.04
+        #    if: contains(github.ref, 'coverity_scan')
+        #
+        #    steps:
+        #    - name: Checkout
+        #      uses: actions/checkout@v3
+        #    - name: coverity cmake build
+        #      uses: gatzka/coverity-cmake-build-action@v2.2.0
+        #      with:
+        #        install_deps: ./.github/workflows/install-deps.sh
+        #        cmake_build_type: Debug
+        #        coverity_token: ${{ secrets.COVERITY_TOKEN }}
+        #        coverity_account: gatzka
+        #        coverity_project: cio
+        #        coverity_email: stephan.gatzka@gmail.com
+        #        coverity_version: ${{ github.sha }}
+        #        coverity_description: "Build submitted by github action"
 
