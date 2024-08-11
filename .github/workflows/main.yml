@@ -54,7 +54,7 @@ jobs:
         ctest_toolchain_file: /tmp/cio/toolchains/x86-linux-gcc-14.cmake
         ctest_configuration_type: Release
 
-  gcc-12-valgrind:
+  gcc-14-valgrind:
     name: x86 gcc-14 Valgrind
     runs-on: ubuntu-24.04
 
@@ -65,7 +65,7 @@ jobs:
       uses: gatzka/ctest-build-action@v2.1.0
       with:
         install_deps: ./.github/workflows/install-deps.sh
-        ctest_toolchain_file: /tmp/cio/toolchains/x86-linux-gcc-12.cmake
+        ctest_toolchain_file: /tmp/cio/toolchains/x86-linux-gcc-14.cmake
         ctest_configuration_type: Valgrind
         
         #  clang-15-debug:
