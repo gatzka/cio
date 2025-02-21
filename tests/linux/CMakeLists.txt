@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.9)
+cmake_minimum_required(VERSION 3.11)
 project(cio_linux_unit_test C)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 enable_testing()
