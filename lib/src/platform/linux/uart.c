@@ -278,7 +278,8 @@ enum cio_error cio_uart_init(struct cio_uart *port, struct cio_eventloop *loop, 
 	struct termios tty;
 	enum cio_error err = get_current_settings(port, &tty);
 	if (cio_unlikely(err != CIO_SUCCESS)) {
-		return err;
+		err = (enum cio_error)(-errno);
+		goto close_err;
 	}
 
 	tty.c_cflag &= ~CRTSCTS; // Disable RTS/CTS hardware flow control (most common)
